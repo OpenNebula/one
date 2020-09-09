@@ -157,14 +157,14 @@ class OpenNebulaGuac
         return settings[:error] if settings.key?(:error)
 
         data = encrypt_data({
-            "connection": {
-                "type": type_connection.downcase,
-                "settings": {
-                    "security": "any",
-                    "ignore-cert": "true",
-                    "enable-drive": "true",
-                    "enable-audio": "true",
-                    "create-drive-path": "true",
+            "connection" => {
+                "type" =>  type_connection.downcase,
+                "settings" =>  {
+                    "security" =>  "any",
+                    "ignore-cert" =>  "true",
+                    "enable-drive" =>  "true",
+                    "enable-audio" =>  "true",
+                    "create-drive-path" =>  "true",
                 }.merge!(settings)
             }
         })
@@ -266,10 +266,10 @@ end
             hostname = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
         end
 
-        { "hostname": "localhost", "port": "5900", "password": nil }.merge({
-            "hostname": hostname,
-            "port": vm_resource['TEMPLATE/GRAPHICS/PORT'],
-            "password": vm_resource['TEMPLATE/GRAPHICS/PASSWD']
+        { "hostname" => "localhost", "port" => "5900", "password" => nil }.merge({
+            "hostname" =>  hostname,
+            "port" =>  vm_resource['TEMPLATE/GRAPHICS/PORT'],
+            "password" =>  vm_resource['TEMPLATE/GRAPHICS/PASSWD']
         })
     end
     
@@ -280,11 +280,11 @@ end
             :error => error(400, "Wrong configuration. Cannot find a NIC with RDP")
         } if hostname.nil?
 
-        { "hostname": "localhost", "port": "3389", "username": nil, "password": nil }.merge({
-            "hostname": hostname,
-            "port": vm_resource['TEMPLATE/CONTEXT/RDP_PORT'],
-            "username": vm_resource['TEMPLATE/CONTEXT/USERNAME'],
-            "password": vm_resource['TEMPLATE/CONTEXT/PASSWORD']
+        { "hostname" => "localhost", "port" => "3389", "username" => nil, "password" => nil }.merge({
+            "hostname" =>  hostname,
+            "port" =>  vm_resource['TEMPLATE/CONTEXT/RDP_PORT'],
+            "username" =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
+            "password" => vm_resource['TEMPLATE/CONTEXT/PASSWORD']
         })
     end
 
@@ -295,11 +295,11 @@ end
             :error => error(400, "Wrong configuration. Cannot find a NIC with SSH")
         } if hostname.nil?
 
-        { "hostname": "localhost", "port": "22", "username": nil, "password": nil }.merge({
-            "hostname": hostname,
-            "port": vm_resource['TEMPLATE/CONTEXT/SSH_PORT'],
-            "username": vm_resource['TEMPLATE/CONTEXT/USERNAME'],
-            "password": vm_resource['TEMPLATE/CONTEXT/PASSWORD']
+        { "hostname" => "localhost", "port" =>  "22", "username" =>  nil, "password" =>  nil }.merge({
+            "hostname" =>  hostname,
+            "port" =>  vm_resource['TEMPLATE/CONTEXT/SSH_PORT'],
+            "username" =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
+            "password" =>  vm_resource['TEMPLATE/CONTEXT/PASSWORD']
         })
     end 
 
