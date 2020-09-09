@@ -201,6 +201,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             login_client = self.get_login_client(username, options)
         end
 
+        if (login_client.is_a? Array) && login_client[0] == -1
+            return login_client
+        end
+
         user = OpenNebula::User.new(User.build_xml, login_client)
 
         egid = options[:group] || -1
