@@ -448,6 +448,310 @@ module VCenterDriver
             [ipv4, ipv6]
         end
 
+        def nic_from_network_created(one_vn, nic)
+            nic_tmp = "NIC=[\n"
+            nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
+
+            if vm?
+                last_id = save_ar_ids(one_vn, nic, ar_ids)
+                nic_tmp << "AR_ID=\"#{last_id}\",\n"
+                if nic[:mac]
+                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                end
+                if nic[:ipv4_additionals]
+                    nic_tmp <<
+                        "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n"
+                end
+                if nic[:ipv6]
+                    nic_tmp <<
+                        "VCENTER_IP6=\"#{nic[:ipv6]}\",\n"
+                end
+                if nic[:ipv6_global]
+                    nic_tmp <<
+                        "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n"
+                end
+                if nic[:ipv6_ula]
+                    nic_tmp <<
+                        "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n"
+                end
+                if nic[:ipv6_additionals]
+                    nic_tmp <<
+                        "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n"
+                end
+            end
+
+            nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+            nic_tmp << "]\n"
+
+            nic_tmp
+        end
+
+        def nic_from_network_found(network_found, vm_object, nic, ar_ids)
+            nic_tmp = "NIC=[\n"
+            nic_tmp << "NETWORK_ID=\"#{network_found['ID']}\",\n"
+
+            if vm?
+                ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic)
+                ar_tmp = create_ar(nic)
+                network_found.add_ar(ar_tmp)
+                network_found.info
+                last_id = save_ar_ids(network_found, nic, ar_ids)
+
+                # This is the existing nic info
+                nic_tmp << "AR_ID=\"#{last_id}\",\n"
+                if nic[:mac] && ipv4.empty? && ipv6.empty?
+                    nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
+                end
+                nic_tmp << "IP=\"#{ipv4}\"," unless ipv4.empty?
+                nic_tmp << "IP=\"#{ipv6}\"," unless ipv6.empty?
+                if nic[:ipv4_additionals]
+                    nic_tmp <<
+                        "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n"
+                end
+                if nic[:ipv6]
+                    nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n"
+                end
+
+                if nic[:ipv6_global]
+                    nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n"
+                end
+
+                if nic[:ipv6_ula]
+                    nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n"
+                end
+
+                if nic[:ipv6_additionals]
+                    nic_tmp <<
+                        "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n"
+                end
+            end
+
+            nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
+            nic_tmp << "]\n"
+
+            nic_tmp
+        end
+
+        def create_network_for_import(
+            nic,
+            ccr_ref,
+            ccr_name,
+            vc_uuid,
+            vcenter_instance_name,
+            dc_name,
+            template_ref,
+            dc_ref,
+            vm_id
+        )
+            config = {}
+            config[:refs] = nic[:refs]
+
+            # # Then the network has to be created
+            # # as it's not in OpenNebula
+            # one_vn =
+            #     VCenterDriver::VIHelper
+            #     .new_one_item(
+            #         OpenNebula::VirtualNetwork
+            #     )
+
+            # Let's get the OpenNebula hosts ids
+            # associated to the clusters references
+            config[:one_ids] = nic[:refs].map do |ref|
+                VCenterDriver::VIHelper
+                    .find_by_ref(
+                        OpenNebula::HostPool,
+                        'TEMPLATE/VCENTER_CCR_REF',
+                        ref,
+                        vc_uuid,
+                        hpool
+                    )['CLUSTER_ID'] rescue -1
+            end
+
+            if vm?
+                unmanaged = 'wild'
+            else
+                unmanaged = 'template'
+            end
+
+            net = VCenterDriver::Network
+                      .new_from_ref(
+                          nic[:net_ref],
+                          vi_client
+                      )
+            if net
+                vid = VCenterDriver::Network.retrieve_vlanid(net.item)
+            end
+            case nic[:pg_type]
+                # Distributed PortGroups
+            when VCenterDriver::Network::NETWORK_TYPE_DPG
+                config[:sw_name] =
+                    nic[:network]
+                        .config
+                        .distributedVirtualSwitch
+                        .name
+                # For DistributedVirtualPortgroups
+                # there is networks and uplinks
+                config[:uplink] = false
+                # NSX-V PortGroups
+            when VCenterDriver::Network::NETWORK_TYPE_NSXV
+                config[:sw_name] =
+                    nic[:network]
+                        .config
+                        .distributedVirtualSwitch
+                        .name
+                # For NSX-V ( is the same as
+                # DistributedVirtualPortgroups )
+                # there is networks and uplinks
+                config[:uplink] = false
+
+                host_id = vi_client.instance_variable_get '@host_id'
+
+                begin
+                    nsx_client =
+                        NSXDriver::NSXClient
+                            .new_from_id(
+                                host_id
+                            )
+                rescue StandardError
+                    nsx_client = nil
+                end
+
+                if !nsx_client.nil?
+                    nsx_net =
+                        NSXDriver::VirtualWire
+                            .new_from_name(
+                                nsx_client,
+                                nic[:net_name]
+                            )
+
+                    config[:nsx_id] = nsx_net.ls_id
+                    config[:nsx_vni] = nsx_net.ls_vni
+                    config[:nsx_tz_id] = nsx_net.tz_id
+                end
+                # Standard PortGroups
+            when VCenterDriver::Network::NETWORK_TYPE_PG
+                # There is no uplinks for standard portgroups,
+                # so all Standard
+                # PortGroups are networks and no uplinks
+                config[:uplink] = false
+                config[:sw_name] =
+                    VCenterDriver::Network
+                        .virtual_switch(
+                            nic[:network]
+                        )
+                # NSX-T PortGroups
+            when VCenterDriver::Network::NETWORK_TYPE_NSXT
+                config[:sw_name] = \
+                                nic[:network].summary.opaqueNetworkType
+                # There is no uplinks for NSX-T networks,
+                # so all NSX-T networks
+                # are networks and no uplinks
+                config[:uplink] = false
+
+                host_id = vi_client.instance_variable_get '@host_id'
+
+                begin
+                    nsx_client =
+                        NSXDriver::NSXClient
+                            .new_from_id(
+                                host_id
+                            )
+                rescue StandardError
+                    nsx_client = nil
+                end
+
+                if !nsx_client.nil?
+                    nsx_net =
+                        NSXDriver::OpaqueNetwork
+                            .new_from_name(
+                                nsx_client,
+                                nic[:net_name]
+                            )
+
+                    config[:nsx_id] = nsx_net.ls_id
+                    config[:nsx_vni] = nsx_net.ls_vni
+                    config[:nsx_tz_id] = nsx_net.tz_id
+                end
+            else
+                raise "Unknown network type: #{nic[:pg_type]}"
+            end
+
+            import_opts = {
+                :network_name=>          nic[:net_name],
+                :sw_name=>               config[:sw_name],
+                :network_ref=>           nic[:net_ref],
+                :network_type=>          nic[:pg_type],
+                :ccr_ref=>               ccr_ref,
+                :ccr_name=>              ccr_name,
+                :vcenter_uuid=>          vc_uuid,
+                :vcenter_instance_name=> vcenter_instance_name,
+                :dc_name=>               dc_name,
+                :unmanaged=>             unmanaged,
+                :template_ref=>          template_ref,
+                :dc_ref=>                dc_ref,
+                :template_id=>           vm_id
+            }
+
+            if nic[:pg_type] ==
+                VCenterDriver::Network::NETWORK_TYPE_NSXV ||
+                nic[:pg_type] ==
+                    VCenterDriver::Network::NETWORK_TYPE_NSXT
+                import_opts[:nsx_id] = config[:nsx_id]
+                import_opts[:nsx_vni] = config[:nsx_vni]
+                import_opts[:nsx_tz_id] = config[:nsx_tz_id]
+            end
+
+            if vid
+                vlanid = VCenterDriver::Network.vlanid(vid)
+
+                # we have vlan id
+                if /\A\d+\z/.match(vlanid)
+                    import_opts[:vlanid] = vlanid
+                end
+            end
+
+            # Prepare the Virtual Network template
+            one_vnet =
+                VCenterDriver::Network
+                    .to_one_template(
+                        import_opts
+                    )
+
+            # always has to be created because of
+            # templates when they are instantiated
+            ar_tmp = ''
+            ar_tmp << "AR=[\n"
+            ar_tmp << "TYPE=\"ETHER\",\n"
+            ar_tmp << "SIZE=255\n"
+            ar_tmp << "]\n"
+
+            if vm?
+                ar_tmp << create_ar(nic, true)
+            end
+
+            one_vnet[:one] << ar_tmp
+            config[:one_object] = one_vnet[:one]
+            _cluster_id =
+                VCenterDriver::VIHelper
+                    .get_cluster_id(
+                        config[:one_ids]
+                    )
+
+            one_vn =
+                VCenterDriver::Network
+                    .create_one_network(
+                        config
+                    )
+            allocated_networks << one_vn
+            VCenterDriver::VIHelper.clean_ref_hash
+            one_vn.info
+
+            nic_info << nic_from_network_created(one_vn, nic)
+
+            # Refresh npool
+            npool.info_all
+        end
+
         def import_vcenter_nics(
             vi_client,
             vc_uuid,
@@ -489,295 +793,18 @@ module VCenterDriver
                                                                         npool)
                     # Network is already in OpenNebula
                     if network_found
-                        nic_tmp = "NIC=[\n"
-                        nic_tmp << "NETWORK_ID=\"#{network_found['ID']}\",\n"
-
-                        if vm?
-                            ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic)
-                            ar_tmp = create_ar(nic)
-                            network_found.add_ar(ar_tmp)
-                            network_found.info
-                            last_id = save_ar_ids(network_found, nic, ar_ids)
-
-                            # This is the existing nic info
-                            nic_tmp << "AR_ID=\"#{last_id}\",\n"
-                            if nic[:mac] && ipv4.empty? && ipv6.empty?
-                                nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                            end
-                            nic_tmp << "IP=\"#{ipv4}\"," unless ipv4.empty?
-                            nic_tmp << "IP=\"#{ipv6}\"," unless ipv6.empty?
-                            if nic[:ipv4_additionals]
-                                nic_tmp <<
-                                    "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n"
-                            end
-                            if nic[:ipv6]
-                                nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n"
-                            end
-
-                            if nic[:ipv6_global]
-                                nic_tmp << "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n"
-                            end
-
-                            if nic[:ipv6_ula]
-                                nic_tmp << "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n"
-                            end
-
-                            if nic[:ipv6_additionals]
-                                nic_tmp <<
-                                    "VCENTER_ADDITIONALS_IP6\
-                                    =\"#{nic[:ipv6_additionals]}\",\n"
-                            end
-                        end
-
-                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                        nic_tmp << "]\n"
-
-                        nic_info << nic_tmp
-
+                        nic_info << nic_from_network_found(network_found, vm_object, nic, ar_ids)
                     # Network not found
                     else
-                        config = {}
-                        config[:refs] = nic[:refs]
-
-                        # # Then the network has to be created
-                        # # as it's not in OpenNebula
-                        # one_vn =
-                        #     VCenterDriver::VIHelper
-                        #     .new_one_item(
-                        #         OpenNebula::VirtualNetwork
-                        #     )
-
-                        # Let's get the OpenNebula hosts ids
-                        # associated to the clusters references
-                        config[:one_ids] = nic[:refs].map do |ref|
-                            VCenterDriver::VIHelper
-                                .find_by_ref(
-                                    OpenNebula::HostPool,
-                                    'TEMPLATE/VCENTER_CCR_REF',
-                                    ref,
-                                    vc_uuid,
-                                    hpool
-                                )['CLUSTER_ID'] rescue -1
-                        end
-
-                        if vm?
-                            unmanaged = 'wild'
-                        else
-                            unmanaged = 'template'
-                        end
-
-                        net = VCenterDriver::Network
-                              .new_from_ref(
-                                  nic[:net_ref],
-                                  vi_client
-                              )
-                        if net
-                            vid = VCenterDriver::Network.retrieve_vlanid(net.item)
-                        end
-                        case nic[:pg_type]
-                        # Distributed PortGroups
-                        when VCenterDriver::Network::NETWORK_TYPE_DPG
-                            config[:sw_name] =
-                                nic[:network]
-                                .config
-                                .distributedVirtualSwitch
-                                .name
-                            # For DistributedVirtualPortgroups
-                            # there is networks and uplinks
-                            config[:uplink] = false
-                        # NSX-V PortGroups
-                        when VCenterDriver::Network::NETWORK_TYPE_NSXV
-                            config[:sw_name] =
-                                nic[:network]
-                                .config
-                                .distributedVirtualSwitch
-                                .name
-                            # For NSX-V ( is the same as
-                            # DistributedVirtualPortgroups )
-                            # there is networks and uplinks
-                            config[:uplink] = false
-
-                            host_id = vi_client.instance_variable_get '@host_id'
-
-                            begin
-                                nsx_client =
-                                    NSXDriver::NSXClient
-                                    .new_from_id(
-                                        host_id
-                                    )
-                            rescue StandardError
-                                nsx_client = nil
-                            end
-
-                            if !nsx_client.nil?
-                                nsx_net =
-                                    NSXDriver::VirtualWire
-                                    .new_from_name(
-                                        nsx_client,
-                                        nic[:net_name]
-                                    )
-
-                                config[:nsx_id] = nsx_net.ls_id
-                                config[:nsx_vni] = nsx_net.ls_vni
-                                config[:nsx_tz_id] = nsx_net.tz_id
-                            end
-                        # Standard PortGroups
-                        when VCenterDriver::Network::NETWORK_TYPE_PG
-                            # There is no uplinks for standard portgroups,
-                            # so all Standard
-                            # PortGroups are networks and no uplinks
-                            config[:uplink] = false
-                            config[:sw_name] =
-                                VCenterDriver::Network
-                                .virtual_switch(
-                                    nic[:network]
-                                )
-                        # NSX-T PortGroups
-                        when VCenterDriver::Network::NETWORK_TYPE_NSXT
-                            config[:sw_name] = \
-                                nic[:network].summary.opaqueNetworkType
-                            # There is no uplinks for NSX-T networks,
-                            # so all NSX-T networks
-                            # are networks and no uplinks
-                            config[:uplink] = false
-
-                            host_id = vi_client.instance_variable_get '@host_id'
-
-                            begin
-                                nsx_client =
-                                    NSXDriver::NSXClient
-                                    .new_from_id(
-                                        host_id
-                                    )
-                            rescue StandardError
-                                nsx_client = nil
-                            end
-
-                            if !nsx_client.nil?
-                                nsx_net =
-                                    NSXDriver::OpaqueNetwork
-                                    .new_from_name(
-                                        nsx_client,
-                                        nic[:net_name]
-                                    )
-
-                                config[:nsx_id] = nsx_net.ls_id
-                                config[:nsx_vni] = nsx_net.ls_vni
-                                config[:nsx_tz_id] = nsx_net.tz_id
-                            end
-                        else
-                            raise "Unknown network type: #{nic[:pg_type]}"
-                        end
-
-                        import_opts = {
-                            :network_name=>          nic[:net_name],
-                            :sw_name=>               config[:sw_name],
-                            :network_ref=>           nic[:net_ref],
-                            :network_type=>          nic[:pg_type],
-                            :ccr_ref=>               ccr_ref,
-                            :ccr_name=>              ccr_name,
-                            :vcenter_uuid=>          vc_uuid,
-                            :vcenter_instance_name=> vcenter_instance_name,
-                            :dc_name=>               dc_name,
-                            :unmanaged=>             unmanaged,
-                            :template_ref=>          template_ref,
-                            :dc_ref=>                dc_ref,
-                            :template_id=>           vm_id
-                        }
-
-                        if nic[:pg_type] ==
-                           VCenterDriver::Network::NETWORK_TYPE_NSXV ||
-                           nic[:pg_type] ==
-                           VCenterDriver::Network::NETWORK_TYPE_NSXT
-                            import_opts[:nsx_id] = config[:nsx_id]
-                            import_opts[:nsx_vni] = config[:nsx_vni]
-                            import_opts[:nsx_tz_id] = config[:nsx_tz_id]
-                        end
-
-                        if vid
-                            vlanid = VCenterDriver::Network.vlanid(vid)
-
-                            # we have vlan id
-                            if /\A\d+\z/.match(vlanid)
-                                import_opts[:vlanid] = vlanid
-                            end
-                        end
-
-                        # Prepare the Virtual Network template
-                        one_vnet =
-                            VCenterDriver::Network
-                            .to_one_template(
-                                import_opts
-                            )
-
-                        # always has to be created because of
-                        # templates when they are instantiated
-                        ar_tmp = ''
-                        ar_tmp << "AR=[\n"
-                        ar_tmp << "TYPE=\"ETHER\",\n"
-                        ar_tmp << "SIZE=255\n"
-                        ar_tmp << "]\n"
-
-                        if vm?
-                            ar_tmp << create_ar(nic, true)
-                        end
-
-                        one_vnet[:one] << ar_tmp
-                        config[:one_object] = one_vnet[:one]
-                        _cluster_id =
-                            VCenterDriver::VIHelper
-                            .get_cluster_id(
-                                config[:one_ids]
-                            )
-
-                        one_vn =
-                            VCenterDriver::Network
-                            .create_one_network(
-                                config
-                            )
-                        allocated_networks << one_vn
-                        VCenterDriver::VIHelper.clean_ref_hash
-                        one_vn.info
-
-                        nic_tmp = "NIC=[\n"
-                        nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
-
-                        if vm?
-                            last_id = save_ar_ids(one_vn, nic, ar_ids)
-                            nic_tmp << "AR_ID=\"#{last_id}\",\n"
-                            if nic[:mac]
-                                nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                            end
-                            if nic[:ipv4_additionals]
-                                nic_tmp <<
-                                    "VCENTER_ADDITIONALS_IP4\
-                                    =\"#{nic[:ipv4_additionals]}\",\n"
-                            end
-                            if nic[:ipv6]
-                                nic_tmp <<
-                                    "VCENTER_IP6=\"#{nic[:ipv6]}\",\n"
-                            end
-                            if nic[:ipv6_global]
-                                nic_tmp <<
-                                    "IP6_GLOBAL=\"#{nic[:ipv6_global]}\",\n"
-                            end
-                            if nic[:ipv6_ula]
-                                nic_tmp <<
-                                    "IP6_ULA=\"#{nic[:ipv6_ula]}\",\n"
-                            end
-                            if nic[:ipv6_additionals]
-                                nic_tmp <<
-                                    "VCENTER_ADDITIONALS_IP6\
-                                    =\"#{nic[:ipv6_additionals]}\",\n"
-                            end
-                        end
-
-                        nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
-                        nic_tmp << "]\n"
-                        nic_info << nic_tmp
-
-                        # Refresh npool
-                        npool.info_all
+                        create_network_for_import(nic,
+                                                  ccr_ref,
+                                                  ccr_name,
+                                                  vc_uuid,
+                                                  vcenter_instance_name,
+                                                  dc_name,
+                                                  template_ref,
+                                                  dc_ref,
+                                                  vm_id)
                     end
                 end
             rescue StandardError => e
