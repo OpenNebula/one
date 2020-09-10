@@ -85,30 +85,12 @@ public:
         cond.notify_one();
     }
 
-    /**
-     *  Run an xmlrpc connection
-     *    @param fd connected socket
-     */
-    void run_connection(RequestManager *rm, int fd)
-    {
-        xmlrpc_c::serverAbyss * as = rm->create_abyss();
-
-        as->runConn(fd);
-
-        delete as;
-    }
-
 private:
     /**
      *  Synchronization for connection threads and listener thread
      */
     std::mutex _mutex;
     std::condition_variable cond;
-
-    /**
-     *  RequestManager to create an AbyssSever class to handle each request
-     */
-    RequestManager * rm;
 
     /**
      *  Number of active connections
