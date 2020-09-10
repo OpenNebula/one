@@ -155,7 +155,11 @@ void RequestManager::xml_server_loop()
         NebulaLog::log("ReM", Log::DDEBUG, oss);
 
         thread conn_thread([client_fd, this]{
-            cm->run_connection(this, client_fd);
+            xmlrpc_c::serverAbyss * as = create_abyss();
+
+            as->runConn(client_fd);
+
+            delete as;
 
             cm->del();
 
