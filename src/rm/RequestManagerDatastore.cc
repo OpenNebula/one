@@ -28,16 +28,14 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
     bool    enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     int     rc;
 
-    Datastore * ds;
-
     if ( basic_authorization(id, att) == false )
     {
         return;
     }
 
-    ds = static_cast<Datastore *>(pool->get(id));
+    auto ds = pool->get<Datastore>(id);
 
-    if ( ds == 0 )
+    if ( ds == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -50,13 +48,10 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
     {
         failure_response(INTERNAL, att);
 
-        ds->unlock();
         return;
     }
 
-    pool->update(ds);
-
-    ds->unlock();
+    pool->update(ds.get());
 
     success_response(id, att);
 }

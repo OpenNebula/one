@@ -48,16 +48,16 @@ public:
                  std::string& error_str);
 
     /**
-     *  Function to get a Vdc from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Vdc unique id
-     *    @param lock locks the Vdc mutex
-     *    @return a pointer to the Vdc, 0 if the Vdc could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Vdc unique identifier
+     *   @return a pointer to the Vdc, nullptr in case of failure
      */
-    Vdc * get(int oid)
+    std::unique_ptr<Vdc> get(int oid)
     {
-        return static_cast<Vdc *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Vdc>(oid);
+    }
 
     /** Update a particular Vdc
      *    @param vdc pointer to Vdc

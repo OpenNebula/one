@@ -31,8 +31,6 @@ void VdcEditGroup::request_execute(
     string vdc_name;
     string group_name;
 
-    Vdc* vdc;
-
     int rc;
 
     // -------------------------------------------------------------------------
@@ -70,23 +68,21 @@ void VdcEditGroup::request_execute(
         return;
     }
 
-    vdc = static_cast<VdcPool*>(pool)->get(vdc_id);
+    auto vdc = pool->get<Vdc>(vdc_id);
 
-    if ( vdc  == 0 )
+    if ( vdc == nullptr )
     {
         att.resp_id = vdc_id;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_group(vdc, group_id, att.resp_msg);
+    rc = edit_group(vdc.get(), group_id, att.resp_msg);
 
     if (rc == 0)
     {
-        pool->update(vdc);
+        pool->update(vdc.get());
     }
-
-    vdc->unlock();
 
     if (rc != 0)
     {
@@ -133,8 +129,6 @@ void VdcEditResource::request_execute(
     string vdc_name;
     string zone_name;
     string res_name;
-
-    Vdc* vdc;
 
     int rc;
     bool zone_exists = false;
@@ -201,23 +195,21 @@ void VdcEditResource::request_execute(
         return;
     }
 
-    vdc = static_cast<VdcPool*>(pool)->get(vdc_id);
+    auto vdc = pool->get<Vdc>(vdc_id);
 
-    if ( vdc  == 0 )
+    if ( vdc == nullptr )
     {
         att.resp_id = vdc_id;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_resource(vdc, zone_id, res_id, att.resp_msg);
+    rc = edit_resource(vdc.get(), zone_id, res_id, att.resp_msg);
 
     if (rc == 0)
     {
-        pool->update(vdc);
+        pool->update(vdc.get());
     }
-
-    vdc->unlock();
 
     if (rc != 0)
     {

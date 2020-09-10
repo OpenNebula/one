@@ -197,6 +197,8 @@ public:
     // Virtual Network Public Methods
     // *************************************************************************
 
+    virtual ~VirtualNetwork() = default;
+
     /**
      *  Factory method for virtual network templates
      */
@@ -807,8 +809,6 @@ private:
                    int                      _parent_vid,
                    const std::set<int>      &_cluster_ids,
                    VirtualNetworkTemplate * _vn_template = 0);
-
-    virtual ~VirtualNetwork() = default;
 
     // *************************************************************************
     // DataBase implementation

@@ -39,7 +39,6 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
     int level = xmlrpc_c::value_int(paramList.getInt(2));
     int owner = att.uid;
 
-    PoolObjectSQL * object;
     string          error_str;
     int             rc;
 
@@ -48,9 +47,9 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid);
+    auto object = pool->get<PoolObjectSQL>(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -59,11 +58,9 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ((auth_object & PoolObjectSQL::LockableObject) != 0)
     {
-        rc = lock_db(object, owner, att.req_id, level);
+        rc = lock_db(object.get(), owner, att.req_id, level);
 
-        pool->update(object);
-
-        object->unlock();
+        pool->update(object.get());
 
         if (rc != 0)
         {
@@ -77,8 +74,6 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        object->unlock();
-
         failure_response(AUTHORIZATION, att);
     }
 
@@ -93,7 +88,6 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
 {
     int     oid     = xmlrpc_c::value_int(paramList.getInt(1));
 
-    PoolObjectSQL * object;
     string          error_str;
 
     int owner  = att.uid;
@@ -104,7 +98,7 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid);
+    auto object = pool->get<PoolObjectSQL>(oid);
 
     if ( object == 0 )
     {
@@ -118,18 +112,15 @@ void RequestManagerUnlock::request_execute(xmlrpc_c::paramList const& paramList,
         owner = -1;
     }
 
-    if ( unlock_db(object, owner, req_id) == -1 )
+    if ( unlock_db(object.get(), owner, req_id) == -1 )
     {
         att.resp_msg = "Cannot unlock: Lock is owned by another user";
         failure_response(ACTION, att);
 
-        object->unlock();
         return;
     }
 
-    pool->update(object);
-
-    object->unlock();
+    pool->update(object.get());
 
     success_response(oid, att);
 

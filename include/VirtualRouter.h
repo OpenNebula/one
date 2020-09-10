@@ -34,6 +34,8 @@ class VirtualRouter : public PoolObjectSQL
 {
 public:
 
+    virtual ~VirtualRouter() = default;
+
     /**
      * Function to print the VirtualRouter object into a string in XML format
      *  @param xml the resulting XML string
@@ -224,8 +226,6 @@ private:
                   const std::string& gname,
                   int umask,
                   Template * _template_contents);
-
-    virtual ~VirtualRouter() = default;
 
     // *************************************************************************
     // DataBase implementation

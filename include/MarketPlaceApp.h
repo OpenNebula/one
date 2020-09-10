@@ -127,6 +127,8 @@ public:
      */
     static Type str_to_type(std::string& str_type);
 
+    virtual ~MarketPlaceApp() = default;
+
     /**
      * Function to print the MarketPlaceApp object into a string in XML format
      *  @param xml the resulting XML string
@@ -354,8 +356,6 @@ private:
             const std::string&      gname,
             int                     umask,
             MarketPlaceAppTemplate* app_template);
-
-    virtual ~MarketPlaceApp() = default;
 
     // *************************************************************************
     // DataBase implementation (Private)

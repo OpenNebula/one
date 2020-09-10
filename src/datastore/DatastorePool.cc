@@ -286,16 +286,14 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
 int DatastorePool::disk_attribute(int ds_id, VirtualMachineDisk * disk)
 {
-    Datastore * ds = get_ro(ds_id);
+    auto ds = get_ro(ds_id);
 
-    if (ds == 0)
+    if (!ds)
     {
         return -1;
     }
 
     ds->disk_attribute(disk, inherit_attrs);
-
-    ds->unlock();
 
     return 0;
 }

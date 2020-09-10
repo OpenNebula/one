@@ -35,10 +35,9 @@ void RequestManagerCluster::action_generic(
     string cluster_name;
     string obj_name;
 
-    Cluster *     cluster     = nullptr;
     Clusterable * cluster_obj = nullptr;
 
-    PoolObjectSQL * object = nullptr;
+    unique_ptr<PoolObjectSQL> object;
 
     PoolObjectAuth c_perms;
     PoolObjectAuth obj_perms;
@@ -72,7 +71,7 @@ void RequestManagerCluster::action_generic(
     }
 
     // ------------- Set new cluster id in object ---------------------
-    get(object_id, &object, &cluster_obj);
+    get(object_id, object, &cluster_obj);
 
     if ( object == nullptr )
     {
@@ -93,17 +92,16 @@ void RequestManagerCluster::action_generic(
 
     if ( rc == -1 )
     {
-        object->unlock();
         success_response(cluster_id, att);
         return;
     }
 
-    pool->update(object);
+    pool->update(object.get());
 
-    object->unlock();
+    object.reset();
 
     // ------------- Add/del object to new cluster ---------------------
-    cluster = clpool->get(cluster_id);
+    auto cluster = clpool->get(cluster_id);
 
     if ( cluster == nullptr )
     {
@@ -112,7 +110,7 @@ void RequestManagerCluster::action_generic(
         failure_response(NO_EXISTS, att);
 
         // Rollback
-        get(object_id, &object, &cluster_obj);
+        get(object_id, object, &cluster_obj);
 
         if ( object != nullptr )
         {
@@ -125,9 +123,7 @@ void RequestManagerCluster::action_generic(
                 cluster_obj->add_cluster(cluster_id);
             }
 
-            pool->update(object);
-
-            object->unlock();
+            pool->update(object.get());
         }
 
         return;
@@ -135,21 +131,21 @@ void RequestManagerCluster::action_generic(
 
     if (add)
     {
-        rc = add_object(cluster, object_id, att.resp_msg);
+        rc = add_object(cluster.get(), object_id, att.resp_msg);
     }
     else
     {
-        rc = del_object(cluster, object_id, att.resp_msg);
+        rc = del_object(cluster.get(), object_id, att.resp_msg);
     }
 
     if ( rc < 0 )
     {
-        cluster->unlock();
+        cluster.reset();
 
         failure_response(ACTION, att);
 
         // Rollback
-        get(object_id, &object, &cluster_obj);
+        get(object_id, object, &cluster_obj);
 
         if ( object != nullptr )
         {
@@ -162,17 +158,13 @@ void RequestManagerCluster::action_generic(
                 cluster_obj->add_cluster(cluster_id);
             }
 
-            pool->update(object);
-
-            object->unlock();
+            pool->update(object.get());
         }
 
         return;
     }
 
-    clpool->update(cluster);
-
-    cluster->unlock();
+    clpool->update(cluster.get());
 
     success_response(cluster_id, att);
 
@@ -192,9 +184,6 @@ void RequestManagerClusterHost::add_generic(
     string cluster_name;
     string obj_name;
     string err_msg;
-
-    Cluster * cluster = nullptr;
-    Host *    host    = nullptr;
 
     PoolObjectAuth c_perms;
     PoolObjectAuth obj_perms;
@@ -230,9 +219,14 @@ void RequestManagerClusterHost::add_generic(
         return;
     }
 
-    cluster = clpool->get_ro(cluster_id);
+    string ccpu;
+    string cmem;
 
-    if ( cluster == nullptr )
+    if (auto cluster = clpool->get_ro(cluster_id))
+    {
+        cluster->get_reserved_capacity(ccpu, cmem);
+    }
+    else
     {
         att.resp_obj = PoolObjectSQL::CLUSTER;
         att.resp_id  = cluster_id;
@@ -240,17 +234,24 @@ void RequestManagerClusterHost::add_generic(
         return;
     }
 
-    string ccpu;
-    string cmem;
-
-    cluster->get_reserved_capacity(ccpu, cmem);
-
-    cluster->unlock();
-
     // ------------- Set new cluster id in object ---------------------
-    host = hpool->get(host_id);
+    if ( auto host = hpool->get(host_id) )
+    {
+        old_cluster_id   = host->get_cluster_id();
+        old_cluster_name = host->get_cluster_name();
 
-    if ( host == nullptr )
+        if ( old_cluster_id == cluster_id )
+        {
+            success_response(cluster_id, att);
+            return;
+        }
+
+        host->set_cluster(cluster_id, cluster_name);
+        host->update_reserved_capacity(ccpu, cmem);
+
+        hpool->update(host.get());
+    }
+    else
     {
         att.resp_obj = PoolObjectSQL::HOST;
         att.resp_id  = host_id;
@@ -259,31 +260,11 @@ void RequestManagerClusterHost::add_generic(
         return;
     }
 
-    old_cluster_id   = host->get_cluster_id();
-    old_cluster_name = host->get_cluster_name();
-
-    if ( old_cluster_id == cluster_id )
-    {
-        host->unlock();
-
-        success_response(cluster_id, att);
-        return;
-    }
-
-    host->set_cluster(cluster_id, cluster_name);
-    host->update_reserved_capacity(ccpu, cmem);
-
-    hpool->update(host);
-
-    host->unlock();
-
     // ------------- Add object to new cluster ---------------------
-    cluster = clpool->get(cluster_id);
+    auto cluster = clpool->get(cluster_id);
 
-    if ( clpool->add_to_cluster(PoolObjectSQL::HOST, cluster, host_id, att.resp_msg) < 0 )
+    if ( clpool->add_to_cluster(PoolObjectSQL::HOST, cluster.get(), host_id, att.resp_msg) < 0 )
     {
-        cluster->unlock();
-
         failure_response(INTERNAL, att);
 
         // Rollback
@@ -292,7 +273,6 @@ void RequestManagerClusterHost::add_generic(
         if ( cluster != nullptr )
         {
             cluster->get_reserved_capacity(ccpu, cmem);
-            cluster->unlock();
         }
         else
         {
@@ -303,22 +283,16 @@ void RequestManagerClusterHost::add_generic(
             cmem = "0";
         }
 
-        host = hpool->get(host_id);
-
-        if ( host != nullptr )
+        if ( auto host = hpool->get(host_id) )
         {
             host->set_cluster(old_cluster_id, old_cluster_name);
             host->update_reserved_capacity(ccpu, cmem);
 
-            hpool->update(host);
-
-            host->unlock();
+            hpool->update(host.get());
         }
 
         return;
     }
-
-    cluster->unlock();
 
     // ------------- Remove host from old cluster ---------------------
     cluster = clpool->get(old_cluster_id);
@@ -332,15 +306,12 @@ void RequestManagerClusterHost::add_generic(
         return;
     }
 
-    if ( clpool->del_from_cluster(PoolObjectSQL::HOST, cluster, host_id, att.resp_msg) < 0 )
+    if ( clpool->del_from_cluster(PoolObjectSQL::HOST, cluster.get(), host_id, att.resp_msg) < 0 )
     {
-        cluster->unlock();
 
         failure_response(INTERNAL, att);
         return;
     }
-
-    cluster->unlock();
 
     success_response(cluster_id, att);
 

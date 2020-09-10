@@ -27,6 +27,8 @@ class SecurityGroup : public PoolObjectSQL
 {
 public:
 
+    virtual ~SecurityGroup() = default;
+
     /**
      * Function to print the SecurityGroup object into a string in XML format
      *  @param xml the resulting XML string
@@ -170,8 +172,6 @@ private:
                     const std::string& _gname,
                     int                _umask,
                     Template*          sgroup_template);
-
-    virtual ~SecurityGroup() = default;
 
     /**
      *  Check that a rule is valid

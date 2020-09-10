@@ -78,25 +78,21 @@ Request::ErrorCode RequestManagerChmod::chmod(
         int other_u,
         int other_m,
         int other_a,
-		bool recursive,
+        bool recursive,
         RequestAttributes& att)
 {
-    PoolObjectSQL * object;
-
     AuthRequest::Operation op = AuthRequest::MANAGE;
     PoolObjectAuth  perms;
 
-    object = pool->get(oid);
-
-    if ( object == 0 )
+    if (auto object = pool->get_ro<PoolObjectSQL>(oid))
+    {
+        object->get_permissions(perms);
+    }
+    else
     {
         att.resp_id = oid;
         return NO_EXISTS;
     }
-
-    object->get_permissions(perms);
-
-    object->unlock();
 
     if ( owner_a == perms.owner_a )
     {
@@ -154,9 +150,9 @@ Request::ErrorCode RequestManagerChmod::chmod(
 
     // ------------- Update the object ---------------------
 
-    object = pool->get(oid);
+    auto object = pool->get<PoolObjectSQL>(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         return NO_EXISTS;
@@ -167,13 +163,10 @@ Request::ErrorCode RequestManagerChmod::chmod(
 
     if ( rc != 0 )
     {
-        object->unlock();
         return INTERNAL;
     }
 
-    pool->update(object);
-
-    object->unlock();
+    pool->update(object.get());
 
     return SUCCESS;
 }
@@ -193,7 +186,7 @@ Request::ErrorCode TemplateChmod::chmod(
         int other_u,
         int other_m,
         int other_a,
-		bool recursive,
+        bool recursive,
         RequestAttributes& att)
 
 {
@@ -209,61 +202,59 @@ Request::ErrorCode TemplateChmod::chmod(
     }
     else if (!recursive)
     {
-		return SUCCESS;
+        return SUCCESS;
     }
 
-	VMTemplate* tmpl = static_cast<VMTemplatePool*>(pool)->get_ro(oid);
-
-	vector<VectorAttribute *> vdisks;
-	vector<VectorAttribute *>::iterator i;
+    vector<VectorAttribute *> vdisks;
 
     VirtualMachineDisks disks(true);
 
-	set<int> error_ids;
-	set<int> img_ids;
+    set<int> error_ids;
+    set<int> img_ids;
 
-	ImageChmod img_chmod;
+    ImageChmod img_chmod;
 
-	Nebula&   nd     = Nebula::instance();
-	ImagePool* ipool = nd.get_ipool();
+    Nebula&   nd     = Nebula::instance();
+    ImagePool* ipool = nd.get_ipool();
 
-	if ( tmpl == 0 )
-	{
-		att.resp_id = oid;
-		return NO_EXISTS;
-	}
 
-	tmpl->clone_disks(vdisks);
-
-	tmpl->unlock();
+    if ( auto tmpl = static_cast<VMTemplatePool*>(pool)->get_ro(oid) )
+    {
+        tmpl->clone_disks(vdisks);
+    }
+    else
+    {
+        att.resp_id = oid;
+        return NO_EXISTS;
+    }
 
     disks.init(vdisks, false);
 
-	disks.get_image_ids(img_ids, att.uid);
+    disks.get_image_ids(img_ids, att.uid);
 
-	for (set<int>::iterator it = img_ids.begin(); it != img_ids.end(); it++)
-	{
-        ec = img_chmod.request_execute(ipool, *it, owner_u, owner_m, owner_a,
+    for (auto img_id : img_ids)
+    {
+        ec = img_chmod.request_execute(ipool, img_id, owner_u, owner_m, owner_a,
                 group_u, group_m, group_a, other_u, other_m, other_a, att);
 
-		if ( ec != SUCCESS )
-		{
-			NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
+        if ( ec != SUCCESS )
+        {
+            NebulaLog::log("ReM", Log::ERROR, failure_message(ec, att));
 
-			error_ids.insert(*it);
-		}
-	}
+            error_ids.insert(img_id);
+        }
+    }
 
-	if ( !error_ids.empty() )
-	{
-		att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
-			": " + one_util::join<set<int>::iterator>(error_ids.begin(),
-			error_ids.end(), ',');
+    if ( !error_ids.empty() )
+    {
+        att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
+            ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
+            error_ids.end(), ',');
 
-		return ACTION;
-	}
+        return ACTION;
+    }
 
-	return SUCCESS;
+    return SUCCESS;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -288,9 +279,6 @@ void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
 
     bool recursive = false;
 
-    VirtualRouter * vrouter;
-
-    set<int>::const_iterator  it;
     set<int> vms;
 
     if (paramList.size() > 11)
@@ -298,17 +286,15 @@ void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
         recursive = xmlrpc_c::value_boolean(paramList.getBoolean(11));
     }
 
-    vrouter = vrpool->get_ro(oid);
-
-    if ( vrouter == 0 )
+    if (auto vrouter = vrpool->get_ro(oid))
+    {
+        vms = vrouter->get_vms();
+    }
+    else
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
     }
-
-    vms = vrouter->get_vms();
-
-    vrouter->unlock();
 
     ErrorCode ec = chmod(vrpool, oid,
                         owner_u, owner_m, owner_a,
@@ -322,10 +308,8 @@ void VirtualRouterChmod::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    for (it = vms.begin(); it != vms.end(); it++)
+    for (auto vm_id : vms)
     {
-        int vm_id = *it;
-
         ErrorCode ec_aux = chmod(pool, vm_id,
                         owner_u, owner_m, owner_a,
                         group_u, group_m, group_a,

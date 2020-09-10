@@ -487,14 +487,13 @@ Request::ErrorCode Request::basic_authorization(
         PoolObjectSQL::ObjectType auth_object,
         RequestAttributes&      att)
 {
-    PoolObjectSQL * object;
     PoolObjectAuth  perms;
 
     if ( oid >= 0 )
     {
-        object = pool->get(oid);
+        auto object = pool->get_ro<PoolObjectSQL>(oid);
 
-        if ( object == 0 )
+        if ( object == nullptr )
         {
             att.resp_id = oid;
 
@@ -502,12 +501,9 @@ Request::ErrorCode Request::basic_authorization(
         }
 
         object->get_permissions(perms);
-
-        object->unlock();
     }
     else
     {
-
         perms.obj_type = auth_object;
     }
 
@@ -535,13 +531,12 @@ bool Request::user_quota_authorization (Template * tmpl,
 {
     Nebula& nd        = Nebula::instance();
     UserPool *  upool = nd.get_upool();
-    User *      user;
 
     bool   rc = false;
 
-    user = upool->get(att.uid);
+    auto user = upool->get(att.uid);
 
-    if ( user == 0 )
+    if ( user == nullptr )
     {
         error_str = "User not found";
         return false;
@@ -553,7 +548,7 @@ bool Request::user_quota_authorization (Template * tmpl,
 
     if (rc == true)
     {
-        upool->update_quotas(user);
+        upool->update_quotas(user.get());
     }
     else
     {
@@ -564,8 +559,6 @@ bool Request::user_quota_authorization (Template * tmpl,
 
         error_str = oss.str();
     }
-
-    user->unlock();
 
     return rc;
 }
@@ -579,13 +572,12 @@ bool Request::group_quota_authorization (Template * tmpl,
 {
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
-    Group *     group;
 
     bool   rc = false;
 
-    group = gpool->get(att.gid);
+    auto group = gpool->get(att.gid);
 
-    if ( group == 0 )
+    if ( group == nullptr )
     {
         error_str = "Group not found";
         return false;
@@ -597,7 +589,7 @@ bool Request::group_quota_authorization (Template * tmpl,
 
     if (rc == true)
     {
-        gpool->update_quotas(group);
+        gpool->update_quotas(group.get());
     }
     else
     {
@@ -608,8 +600,6 @@ bool Request::group_quota_authorization (Template * tmpl,
 
         error_str = oss.str();
     }
-
-    group->unlock();
 
     return rc;
 }
@@ -623,20 +613,12 @@ void Request::user_quota_rollback(Template *         tmpl,
     Nebula& nd        = Nebula::instance();
     UserPool * upool  = nd.get_upool();
 
-    User * user;
-
-    user = upool->get(att.uid);
-
-    if ( user == 0 )
+    if ( auto user = upool->get(att.uid) )
     {
-        return;
+        user->quota.quota_del(qtype, tmpl);
+
+        upool->update_quotas(user.get());
     }
-
-    user->quota.quota_del(qtype, tmpl);
-
-    upool->update_quotas(user);
-
-    user->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -648,20 +630,12 @@ void Request::group_quota_rollback(Template *         tmpl,
     Nebula& nd        = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
 
-    Group * group;
-
-    group = gpool->get(att.gid);
-
-    if ( group == 0 )
+    if ( auto group = gpool->get(att.gid) )
     {
-        return;
+        group->quota.quota_del(qtype, tmpl);
+
+        gpool->update_quotas(group.get());
     }
-
-    group->quota.quota_del(qtype, tmpl);
-
-    gpool->update_quotas(group);
-
-    group->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -986,9 +960,9 @@ int Request::get_info(
         string&                   name,
         bool                      throw_error)
 {
-    PoolObjectSQL * ob;
+    auto ob = pool->get_ro<PoolObjectSQL>(id);
 
-    if ((ob = pool->get(id)) == 0 )
+    if (ob == nullptr)
     {
         if (throw_error)
         {
@@ -1003,8 +977,6 @@ int Request::get_info(
     ob->get_permissions(perms);
 
     name = ob->get_name();
-
-    ob->unlock();
 
     return 0;
 }
@@ -1118,12 +1090,10 @@ void RequestAttributes::set_auth_op(VMActions::Action action)
     AuthRequest::Operation result = AuthRequest::NONE;
 
     auto& nd  = Nebula::instance();
-    auto user = nd.get_upool()->get_ro(uid);
 
-    if (user != nullptr)
+    if (auto user = nd.get_upool()->get_ro(uid))
     {
         result = user->get_vm_auth_op(action);
-        user->unlock();
     }
 
     if (result != AuthRequest::NONE)
@@ -1132,12 +1102,9 @@ void RequestAttributes::set_auth_op(VMActions::Action action)
         return;
     }
 
-    auto group = nd.get_gpool()->get_ro(gid);
-
-    if (group != nullptr)
+    if (auto group = nd.get_gpool()->get_ro(gid))
     {
         result = group->get_vm_auth_op(action);
-        group->unlock();
     }
 
     if (result != AuthRequest::NONE)

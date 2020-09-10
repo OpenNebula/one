@@ -500,50 +500,40 @@ public:
     {
         if ( uid != -1 )
         {
-            User * user = upool->get_ro(uid);
+            auto user = upool->get_ro(uid);
 
-            if ( user == 0 )
+            if (!user)
             {
                 return -1;
             }
 
-            const VectorAttribute * uconf;
+            auto uconf = user->get_template_attribute("OPENNEBULA");
 
-            uconf = user->get_template_attribute("OPENNEBULA");
-
-            if ( uconf != 0 )
+            if ( uconf != nullptr )
             {
                 if ( uconf->vector_value(name, value) == 0 )
                 {
-                    user->unlock();
                     return 0;
                 }
             }
-
-            user->unlock();
         }
 
-        Group * group = gpool->get_ro(gid);
+        auto group = gpool->get_ro(gid);
 
-        if ( group == 0 )
+        if (!group)
         {
             return -1;
         }
 
-        const VectorAttribute * gconf;
+        auto gconf = group->get_template_attribute("OPENNEBULA");
 
-        gconf = group->get_template_attribute("OPENNEBULA");
-
-        if ( gconf != 0 )
+        if ( gconf != nullptr )
         {
             if ( gconf->vector_value(name, value) == 0 )
             {
-                group->unlock();
                 return 0;
             }
         }
-
-        group->unlock();
 
         nebula_configuration->get(name, value);
 

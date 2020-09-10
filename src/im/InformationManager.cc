@@ -233,7 +233,7 @@ void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
         return;
     }
 
-    Host* host = hpool->get(msg->oid());
+    auto host = hpool->get(msg->oid());
 
     if (host == nullptr)
     {
@@ -242,8 +242,6 @@ void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
 
     if (host->get_state() == Host::OFFLINE) // Should not receive any info
     {
-        host->unlock();
-
         return;
     }
 
@@ -265,10 +263,8 @@ void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
             host->set_state(new_state);
         }
 
-        hpool->update(host);
+        hpool->update(host.get());
     }
-
-    host->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -298,7 +294,7 @@ void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 
     // -------------------------------------------------------------------------
 
-    Host* host = hpool->get(msg->oid());
+    auto host = hpool->get(msg->oid());
 
     if (host == nullptr)
     {
@@ -307,7 +303,6 @@ void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 
     if ( host->get_state() == Host::OFFLINE ) //Should not receive any info
     {
-        host->unlock();
         return;
     }
 
@@ -315,12 +310,10 @@ void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
 
     host->update_info(tmpl);
 
-    hpool->update(host);
+    hpool->update(host.get());
 
     NebulaLog::debug("InM", "Host " + host->get_name() + " (" +
          to_string(host->get_oid()) + ") successfully monitored.");
-
-    host->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -458,7 +451,7 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
             to_string(msg->oid()) + ". VM id: " + to_string(id) + ", state: " +
             state_str);
 
-        auto* vm = vmpool->get(id);
+        auto vm = vmpool->get(id);
 
         if (vm == nullptr)
         {
@@ -469,22 +462,19 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         if (!vm->hasHistory() || vm->get_hid() != msg->oid())
         {
             //VM is not running in this host anymore, ignore
-            vm->unlock();
             continue;
         }
 
         if (vm->get_deploy_id() != deploy_id)
         {
             vm->set_deploy_id(deploy_id);
-            vmpool->update(vm);
+            vmpool->update(vm.get());
         }
 
         /* ------------------------------------------------------------------ */
         /* Apply state changes                                                */
         /* ------------------------------------------------------------------ */
-        test_and_trigger(state_str, vm);
-
-        vm->unlock();
+        test_and_trigger(state_str, vm.get());
     }
 
     /* ---------------------------------------------------------------------- */
@@ -503,7 +493,7 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         return;
     }
 
-    Host * host = hpool->get(msg->oid());
+    auto host = hpool->get(msg->oid());
 
     if (host == nullptr)
     {
@@ -522,11 +512,11 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
 
     host->update_zombies(zombies);
 
-    host->unlock();
+    host.reset();
 
     for (auto& it : missing)
     {
-        auto* vm = vmpool->get(it);
+        auto vm = vmpool->get(it);
 
         if (vm == nullptr)
         {
@@ -535,7 +525,6 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
 
         if (!vm->hasHistory() || (vm->get_hid() != msg->oid()))
         {
-            vm->unlock();
             continue;
         }
 
@@ -546,7 +535,6 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
              vm->get_lcm_state() != VirtualMachine::SHUTDOWN_POWEROFF &&
              vm->get_lcm_state() != VirtualMachine::SHUTDOWN_UNDEPLOY))
         {
-            vm->unlock();
             continue;
         }
 
@@ -562,8 +550,6 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
         {
             lcm->trigger_monitor_poweroff(vm->get_oid());
         }
-
-        vm->unlock();
     }
 }
 

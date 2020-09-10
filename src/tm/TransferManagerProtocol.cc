@@ -60,7 +60,6 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
         oss << "Ignored: " << msg_str;
         vm->log("TrM", Log::WARNING, oss);
 
-        vm->unlock();
         return;
     }
 
@@ -130,7 +129,7 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             oss << ": " << info;
 
             vm->set_template_error_message(oss.str());
-            vmpool->update(vm);
+            vmpool->update(vm.get());
         }
 
         vm->log("TrM", Log::ERROR, oss);
@@ -188,8 +187,6 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
         }
     }
 
-    vm->unlock();
-
     return;
 
 error_state:
@@ -198,10 +195,7 @@ error_state:
 
     vm->log("TrM", Log::ERROR, oss);
 
-    vm->unlock();
-
     return;
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -216,7 +210,5 @@ void TransferManager::_log(unique_ptr<transfer_msg_t> msg)
     {
         auto vm = Nebula::instance().get_vmpool()->get_ro(msg->oid());
         vm->log("TrM", log_type(msg->status()[0]), msg->payload());
-
-        vm->unlock();
     }
 }

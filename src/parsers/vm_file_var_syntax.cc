@@ -117,8 +117,7 @@ int get_image_path(VirtualMachine * vm,
 
     ImagePool * ipool = nd.get_ipool();
     UserPool *  upool = nd.get_upool();
-    Image  *    img   = 0;
-    User  *     user  = 0;
+    unique_ptr<Image> img;
     int         iid   = -1;
 
     PoolObjectAuth  perm;
@@ -151,7 +150,7 @@ int get_image_path(VirtualMachine * vm,
 
         img = ipool->get_ro(val1, uid);
 
-        if ( img == 0 )
+        if ( img == nullptr )
         {
             ostringstream oss;
             oss << "User " << uid << " does not own an image with name: " << val1
@@ -173,7 +172,7 @@ int get_image_path(VirtualMachine * vm,
             img = ipool->get_ro(iid);
         }
 
-        if ( img == 0 )
+        if ( img == nullptr )
         {
             ostringstream oss;
             oss << "Image with ID: " << iid  << " does not exist";
@@ -193,16 +192,11 @@ int get_image_path(VirtualMachine * vm,
 
     img->get_permissions(perm);
 
-    img->unlock();;
-
     set<int> gids;
 
-    user = upool->get_ro(vm->get_uid());
-
-    if (user != 0)
+    if (auto user = upool->get_ro(vm->get_uid()))
     {
         gids = user->get_groups();
-        user->unlock();
     }
     else
     {

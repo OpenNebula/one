@@ -25,8 +25,6 @@ void GroupSetQuota::
     int     id        = xmlrpc_c::value_int(paramList.getInt(1));
     string  quota_str = xmlrpc_c::value_string(paramList.getString(2));
 
-    Group * group;
-
     Template quota_tmpl;
     int      rc;
 
@@ -50,9 +48,9 @@ void GroupSetQuota::
         return;
     }
 
-    group = static_cast<Group *>(pool->get(id));
+    auto group = pool->get<Group>(id);
 
-    if ( group == 0 )
+    if ( group == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -61,9 +59,7 @@ void GroupSetQuota::
 
     group->quota.set(&quota_tmpl, att.resp_msg);
 
-    static_cast<GroupPool *>(pool)->update_quotas(group);
-
-    group->unlock();
+    static_cast<GroupPool *>(pool)->update_quotas(group.get());
 
     if ( rc != 0 )
     {
@@ -91,8 +87,6 @@ void GroupEditAdmin::request_execute(
     string group_name;
     string user_name;
     string error_str;
-
-    Group* group;
 
     int rc;
 
@@ -133,23 +127,21 @@ void GroupEditAdmin::request_execute(
         return;
     }
 
-    group = static_cast<GroupPool*>(pool)->get(group_id);
+    auto group = pool->get<Group>(group_id);
 
-    if ( group  == 0 )
+    if ( group == nullptr )
     {
         att.resp_id = group_id;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_admin(group, user_id, att.resp_msg);
+    rc = edit_admin(group.get(), user_id, att.resp_msg);
 
     if (rc == 0)
     {
-        pool->update(group);
+        pool->update(group.get());
     }
-
-    group->unlock();
 
     if (rc != 0)
     {

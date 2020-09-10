@@ -42,7 +42,7 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
-        User *    oneadmin = upool->get_ro(0);
+        auto      oneadmin = upool->get_ro(0);
 
         string error;
 
@@ -58,8 +58,6 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
                 default_tmpl);
-
-        oneadmin->unlock();
 
         secgroup->set_permissions(1,1,1,1,0,0,1,0,0,error);
 
@@ -147,23 +145,21 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
     int vnet_id;
     VirtualNetworkPool* vnet_pool = Nebula::instance().get_vnpool();
 
-    SecurityGroup* sg = get(sgid);
+    if (auto sg = get(sgid))
+    {
+        if ( vmid != -1 )
+        {
+            sg->add_vm(vmid);
 
-    if (sg == 0)
+            update(sg.get());
+        }
+
+        sg->get_rules(sg_rules);
+    }
+    else
     {
         return;
     }
-
-    if ( vmid != -1 )
-    {
-        sg->add_vm(vmid);
-
-        update(sg);
-    }
-
-    sg->get_rules(sg_rules);
-
-    sg->unlock();
 
     for (rule_it = sg_rules.begin(); rule_it != sg_rules.end(); rule_it++)
     {
@@ -173,21 +169,19 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
 
             VectorAttribute* rule = *rule_it;
 
-            VirtualNetwork* vnet  = vnet_pool->get_ro(vnet_id);
+            if ( auto vnet = vnet_pool->get_ro(vnet_id) )
+            {
+                vnet->process_security_rule(rule, vnet_rules);
 
-            if (vnet == 0)
+                delete rule;
+
+                rules.insert(rules.end(), vnet_rules.begin(), vnet_rules.end());
+            }
+            else
             {
                 delete rule;
                 continue;
             }
-
-            vnet->process_security_rule(rule, vnet_rules);
-
-            vnet->unlock();
-
-            delete rule;
-
-            rules.insert(rules.end(), vnet_rules.begin(), vnet_rules.end());
         }
         else
         {
@@ -206,17 +200,11 @@ void SecurityGroupPool::release_security_group(int id, int sgid)
         return;
     }
 
-    SecurityGroup * sg = get(sgid);
-
-    if (sg == 0)
+    if ( auto sg = get(sgid) )
     {
-        return;
+        sg->del_vm(id);
+
+        update(sg.get());
     }
-
-    sg->del_vm(id);
-
-    update(sg);
-
-    sg->unlock();
 }
 

@@ -64,29 +64,26 @@ public:
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param oid the object unique identifier
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the VirtualRouter unique identifier
+     *   @return a pointer to the VirtualRouter, nullptr in case of failure
      */
-    VirtualRouter * get(int oid)
+    std::unique_ptr<VirtualRouter> get(int oid)
     {
-        return static_cast<VirtualRouter *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<VirtualRouter>(oid);
+    }
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param oid the object unique identifier
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the VirtualRouter unique identifier
+     *   @return a pointer to the VirtualRouter, nullptr in case of failure
      */
-    VirtualRouter * get_ro(int oid)
+    std::unique_ptr<VirtualRouter> get_ro(int oid)
     {
-        return static_cast<VirtualRouter *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<VirtualRouter>(oid);
+    }
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the

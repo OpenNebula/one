@@ -112,25 +112,21 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
         }
         else
         {
-            Zone * zone = zpool->get(*it);
-
-            if ( zone == 0 )
-            {
-                it = zone_ids.erase(it);
-            }
-            else
+            if ( auto zone = zpool->get(*it) )
             {
                 std::string zedp;
 
                 zone->get_template_attribute("ENDPOINT", zedp);
-
-                zone->unlock();
 
                 ZoneServers * zs = new ZoneServers(*it, last_index, zedp);
 
                 zones.insert(make_pair(*it, zs));
 
                 ++it;
+            }
+            else
+            {
+                it = zone_ids.erase(it);
             }
         }
     }
@@ -148,16 +144,14 @@ void FedReplicaManager::add_zone(int zone_id)
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
-    Zone * zone = zpool->get(zone_id);
-
-    if ( zone == 0 )
+    if (auto zone = zpool->get_ro(zone_id))
+    {
+        zone->get_template_attribute("ENDPOINT", zedp);
+    }
+    else
     {
         return;
     }
-
-    zone->get_template_attribute("ENDPOINT", zedp);
-
-    zone->unlock();
 
     lock_guard<mutex> ul(fed_mutex);
 

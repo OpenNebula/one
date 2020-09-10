@@ -30,6 +30,8 @@ class VNTemplate : public PoolObjectSQL
 {
 public:
 
+    virtual ~VNTemplate() = default;
+
     /**
      * Function to print the VNTemplate object into a string in XML format
      *  @param xml the resulting XML string
@@ -114,8 +116,6 @@ protected:
                const std::string& gname,
                int umask,
                VirtualNetworkTemplate * _template_contents);
-
-    virtual ~VNTemplate() = default;
 
     // *************************************************************************
     // DataBase implementation

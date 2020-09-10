@@ -69,7 +69,7 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
 
     auto image = ipool->get(msg->oid());
 
-    if (image == nullptr)
+    if (!image)
     {
         if (msg->status() == "SUCCESS")
         {
@@ -105,9 +105,9 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
 
     image->set_state_unlock();
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     oss << "Image (" << msg->oid() << ") copied and ready to use.";
     NebulaLog::log("ImM", Log::INFO, oss);
@@ -131,9 +131,9 @@ error:
     image->set_template_error_message(oss.str());
     image->set_state(Image::ERROR);
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     monitor_datastore(ds_id);
 
@@ -149,7 +149,7 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
     int     cloning_id;
     int     ds_id = -1;
 
-    Image * image = ipool->get(msg->oid());
+    auto image = ipool->get(msg->oid());
 
     if (image == nullptr)
     {
@@ -184,9 +184,9 @@ void ImageManager::_clone(unique_ptr<image_msg_t> msg)
 
     image->clear_cloning_id();
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     NebulaLog::info("ImM", "Image cloned and ready to use.");
 
@@ -215,9 +215,9 @@ error:
 
     image->clear_cloning_id();
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     release_cloning_image(cloning_id, msg->oid());
 }
@@ -231,18 +231,16 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
     int vm_id   = -1;
     int disk_id = -1;
 
-    VirtualMachine * vm = nullptr;
-
     ostringstream    oss;
 
     Nebula& nd                  = Nebula::instance();
     VirtualMachinePool * vmpool = nd.get_vmpool();
     TransferManager *  tm       = nd.get_tm();
 
-    Image * image = ipool->get(msg->oid());
+    auto image = ipool->get(msg->oid());
     const string& source = msg->payload();
 
-    if (image == nullptr)
+    if (!image)
     {
         if (msg->status() == "SUCCESS")
         {
@@ -264,7 +262,6 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
         NebulaLog::info("ImM", "Ignoring mkfs callback, image is "
                 "being deleted");
 
-        image->unlock();
         return;
     }
 
@@ -289,9 +286,9 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
         image->set_state_unlock();
     }
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     if (!is_saving)
     {
@@ -302,23 +299,21 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
         return;
     }
 
-    vm = vmpool->get(vm_id);
+    if ( auto vm = vmpool->get(vm_id) )
+    {
+        if (vm->set_saveas_disk(disk_id, source, msg->oid()) == -1)
+        {
+            goto error_save_state;
+        }
 
-    if (vm == nullptr)
+        tm->trigger_saveas_hot(vm_id);
+
+        vmpool->update(vm.get());
+    }
+    else
     {
         goto error_save_get;
     }
-
-    if (vm->set_saveas_disk(disk_id, source, msg->oid()) == -1)
-    {
-        goto error_save_state;
-    }
-
-    tm->trigger_saveas_hot(vm_id);
-
-    vmpool->update(vm);
-
-    vm->unlock();
 
     monitor_datastore(ds_id);
 
@@ -333,7 +328,6 @@ error_save_get:
     goto error_save;
 
 error_save_state:
-    vm->unlock();
     oss << "Image created to save as disk but VM is no longer running";
 
 error_save:
@@ -358,21 +352,19 @@ error:
     image->set_template_error_message(oss.str());
     image->set_state(Image::ERROR);
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     if (is_saving && vm_id != -1)
     {
-        if ((vm = vmpool->get(vm_id)) != nullptr)
+        if (auto vm = vmpool->get(vm_id))
         {
             vm->clear_saveas_state();
 
             vm->clear_saveas_disk();
 
-            vmpool->update(vm);
-
-            vm->unlock();
+            vmpool->update(vm.get());
         }
     }
 
@@ -388,25 +380,24 @@ void ImageManager::_rm(unique_ptr<image_msg_t> msg)
     NebulaLog::dddebug("ImM", "_rm: " + msg->payload());
 
     int ds_id = -1;
+    int rc;
 
-    string  tmp_error;
-    Image * image;
+    string tmp_error;
+    string source;
 
     ostringstream oss;
 
-    image = ipool->get(msg->oid());
+    if ( auto image = ipool->get(msg->oid()) )
+    {
+        ds_id  = image->get_ds_id();
+        source = image->get_source();
 
-    if (image == nullptr)
+        rc = ipool->drop(image.get(), tmp_error);
+    }
+    else
     {
         return;
     }
-
-    ds_id  = image->get_ds_id();
-    const auto& source = image->get_source();
-
-    int rc = ipool->drop(image, tmp_error);
-
-    image->unlock();
 
     if (msg->status() != "SUCCESS")
     {
@@ -507,9 +498,9 @@ void ImageManager::_monitor(unique_ptr<image_msg_t> msg)
     monitor_data.get("FREE_MB", free);
     monitor_data.get("USED_MB", used);
 
-    Datastore * ds = dspool->get(msg->oid());
+    auto ds = dspool->get(msg->oid());
 
-    if (ds == nullptr)
+    if (!ds)
     {
         return;
     }
@@ -518,9 +509,7 @@ void ImageManager::_monitor(unique_ptr<image_msg_t> msg)
 
     ds->update_monitor(total, free, used);
 
-    dspool->update(ds);
-
-    ds->unlock();
+    dspool->update(ds.get());
 
     oss << "Datastore " << ds_name << " (" << msg->oid()
         << ") successfully monitored.";
@@ -539,9 +528,9 @@ void ImageManager::_snap_delete(unique_ptr<image_msg_t> msg)
     long long   snap_size;
     int         ds_id, uid, gid;
 
-    Image * image = ipool->get(msg->oid());
+    auto image = ipool->get(msg->oid());
 
-    if (image == nullptr)
+    if (!image)
     {
         return;
     }
@@ -554,9 +543,8 @@ void ImageManager::_snap_delete(unique_ptr<image_msg_t> msg)
     {
         NebulaLog::error("ImM", "No target snapshot in callback");
 
-        ipool->update(image);
+        ipool->update(image.get());
 
-        image->unlock();
         return;
     }
 
@@ -590,9 +578,9 @@ void ImageManager::_snap_delete(unique_ptr<image_msg_t> msg)
 
     image->clear_target_snapshot();
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     if (msg->status() == "SUCCESS")
     {
@@ -612,9 +600,9 @@ void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
 {
     NebulaLog::dddebug("ImM", "_snap_revert: " + msg->payload());
 
-    Image * image = ipool->get(msg->oid());
+    auto image = ipool->get(msg->oid());
 
-    if (image == nullptr)
+    if (!image)
     {
         return;
     }
@@ -627,9 +615,8 @@ void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
     {
         NebulaLog::error("ImM", "No target snapshot in callback");
 
-        ipool->update(image);
+        ipool->update(image.get());
 
-        image->unlock();
         return;
     }
 
@@ -657,9 +644,7 @@ void ImageManager::_snap_revert(unique_ptr<image_msg_t> msg)
 
     image->clear_target_snapshot();
 
-    ipool->update(image);
-
-    image->unlock();
+    ipool->update(image.get());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -671,9 +656,9 @@ void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
     long long   snap_size;
     int         ds_id, uid, gid;
 
-    Image * image = ipool->get(msg->oid());
+    auto image = ipool->get(msg->oid());
 
-    if (image == nullptr)
+    if ( !image )
     {
         return;
     }
@@ -708,9 +693,9 @@ void ImageManager::_snap_flatten(unique_ptr<image_msg_t> msg)
 
     image->clear_target_snapshot();
 
-    ipool->update(image);
+    ipool->update(image.get());
 
-    image->unlock();
+    image.reset();
 
     if (msg->status() == "SUCCESS")
     {

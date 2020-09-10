@@ -55,7 +55,6 @@ void VirtualRouterInstantiate::request_execute(
     Nebula& nd = Nebula::instance();
 
     VirtualRouterPool*  vrpool = nd.get_vrouterpool();
-    VirtualRouter *     vr;
     DispatchManager*    dm = nd.get_dm();
     VMTemplatePool*     tpool = nd.get_tpool();
 
@@ -65,33 +64,32 @@ void VirtualRouterInstantiate::request_execute(
     ostringstream  oss;
 
     vector<int>           vms;
-    vector<int>::iterator vmid;
 
     int vid;
+
+    std::unique_ptr<Template> extra_attrs;
 
     /* ---------------------------------------------------------------------- */
     /* Get the Virtual Router NICs                                            */
     /* ---------------------------------------------------------------------- */
-    vr = vrpool->get_ro(vrid);
+    if ( auto vr = vrpool->get_ro(vrid) )
+    {
+        vr->get_permissions(vr_perms);
 
-    if (vr == 0)
+        extra_attrs.reset(vr->get_vm_template());
+        vr_name     = vr->get_name();
+
+        if (tmpl_id == -1)
+        {
+            tmpl_id = vr->get_template_id();
+        }
+    }
+    else
     {
         att.resp_id = vrid;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    vr->get_permissions(vr_perms);
-
-    std::unique_ptr<Template> extra_attrs{vr->get_vm_template()};
-    vr_name     = vr->get_name();
-
-    if (tmpl_id == -1)
-    {
-        tmpl_id = vr->get_template_id();
-    }
-
-    vr->unlock();
 
     if (tmpl_id == -1)
     {
@@ -112,19 +110,19 @@ void VirtualRouterInstantiate::request_execute(
         return;
     }
 
-    VMTemplate * tmpl = tpool->get_ro(tmpl_id);
+    bool is_vrouter;
 
-    if ( tmpl == 0 )
+    if ( auto tmpl = tpool->get_ro(tmpl_id) )
+    {
+        is_vrouter = tmpl->is_vrouter();
+    }
+    else
     {
         att.resp_id = tmpl_id;
         att.resp_obj = PoolObjectSQL::TEMPLATE;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    bool is_vrouter = tmpl->is_vrouter();
-
-    tmpl->unlock();
 
     if (!is_vrouter)
     {
@@ -153,9 +151,9 @@ void VirtualRouterInstantiate::request_execute(
         {
             failure_response(ec, att);
 
-            for (vmid = vms.begin(); vmid != vms.end(); vmid++)
+            for (auto vmid : vms)
             {
-                dm->delete_vm(*vmid, att, att.resp_msg);
+                dm->delete_vm(vmid, att, att.resp_msg);
             }
 
             return;
@@ -164,29 +162,25 @@ void VirtualRouterInstantiate::request_execute(
         vms.push_back(vid);
     }
 
-    vr = vrpool->get(vrid);
-
-    if (vr != 0)
+    if (auto vr = vrpool->get(vrid))
     {
-        for (vmid = vms.begin(); vmid != vms.end(); vmid++)
+        for (auto vmid : vms)
         {
-            vr->add_vmid(*vmid);
+            vr->add_vmid(vmid);
         }
 
         vr->set_template_id(tmpl_id);
 
-        vrpool->update(vr);
-
-        vr->unlock();
+        vrpool->update(vr.get());
     }
 
     // VMs are created on hold to wait for all of them to be created
     // successfully, to avoid the rollback dm->finalize call on prolog
     if (!on_hold)
     {
-        for (vmid = vms.begin(); vmid != vms.end(); vmid++)
+        for (auto vmid : vms)
         {
-            dm->release(*vmid, att, att.resp_msg);
+            dm->release(vmid, att, att.resp_msg);
         }
     }
 
@@ -200,12 +194,13 @@ void VirtualRouterAttachNic::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
     VirtualRouterPool*  vrpool = static_cast<VirtualRouterPool*>(pool);
-    VirtualRouter *     vr;
     VectorAttribute*    nic;
     VectorAttribute*    nic_bck;
 
     VirtualMachineTemplate  tmpl;
     PoolObjectAuth          vr_perms;
+
+    set<int> vms;
 
     int    rc;
 
@@ -226,18 +221,16 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    vr = vrpool->get_ro(vrid);
-
-    if (vr == 0)
+    if (auto vr = vrpool->get_ro(vrid))
+    {
+        vr->get_permissions(vr_perms);
+    }
+    else
     {
         att.resp_id = vrid;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    vr->get_permissions(vr_perms);
-
-    vr->unlock();
 
     AuthRequest ar(att.uid, att.group_ids);
 
@@ -262,9 +255,20 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     // Attach NIC to the Virtual Router
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid);
+    if ( auto vr = vrpool->get(vrid) )
+    {
+        nic = vr->attach_nic(&tmpl, att.resp_msg);
 
-    if (vr == 0)
+        if ( nic != nullptr )
+        {
+            nic_bck = nic->clone();
+        }
+
+        vms = vr->get_vms();
+
+        vrpool->update(vr.get());
+    }
+    else
     {
         quota_rollback(&tmpl, Quotas::VIRTUALROUTER, att_quota);
 
@@ -272,19 +276,6 @@ void VirtualRouterAttachNic::request_execute(
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    nic = vr->attach_nic(&tmpl, att.resp_msg);
-
-    if ( nic != 0 )
-    {
-        nic_bck = nic->clone();
-    }
-
-    set<int> vms = vr->get_vms();
-
-    vrpool->update(vr);
-
-    vr->unlock();
 
     if (nic == 0)
     {
@@ -299,13 +290,13 @@ void VirtualRouterAttachNic::request_execute(
     // -------------------------------------------------------------------------
     VirtualMachineAttachNic vm_attach_nic;
 
-    for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
+    for (auto vmid : vms)
     {
         VirtualMachineTemplate tmpl;
 
         tmpl.set(nic_bck->clone());
 
-        ErrorCode ec = vm_attach_nic.request_execute(*vmid, tmpl, att);
+        ErrorCode ec = vm_attach_nic.request_execute(vmid, tmpl, att);
 
         if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {
@@ -329,7 +320,6 @@ void VirtualRouterDetachNic::request_execute(
         xmlrpc_c::paramList const& paramList, RequestAttributes& att)
 {
     VirtualRouterPool*  vrpool = static_cast<VirtualRouterPool*>(pool);
-    VirtualRouter *     vr;
     PoolObjectAuth      vr_perms;
 
     int rc;
@@ -337,21 +327,21 @@ void VirtualRouterDetachNic::request_execute(
     int vrid    = xmlrpc_c::value_int(paramList.getInt(1));
     int nic_id  = xmlrpc_c::value_int(paramList.getInt(2));
 
+    set<int> vms;
+
     // -------------------------------------------------------------------------
     // Authorize the operation
     // -------------------------------------------------------------------------
-    vr = vrpool->get_ro(vrid);
-
-    if (vr == 0)
+    if (auto vr = vrpool->get_ro(vrid))
+    {
+        vr->get_permissions(vr_perms);
+    }
+    else
     {
         att.resp_id = vrid;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    vr->get_permissions(vr_perms);
-
-    vr->unlock();
 
     AuthRequest ar(att.uid, att.group_ids);
 
@@ -367,22 +357,20 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     // Detach the NIC from the Virtual Router
     // -------------------------------------------------------------------------
-    vr = vrpool->get(vrid);
+    if (auto vr = vrpool->get(vrid))
+    {
+        rc = vr->detach_nic(nic_id);
 
-    if (vr == 0)
+        vms = vr->get_vms();
+
+        vrpool->update(vr.get());
+    }
+    else
     {
         att.resp_id = vrid;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    rc = vr->detach_nic(nic_id);
-
-    set<int> vms = vr->get_vms();
-
-    vrpool->update(vr);
-
-    vr->unlock();
 
     if (rc != 0)
     {
@@ -401,9 +389,9 @@ void VirtualRouterDetachNic::request_execute(
     // -------------------------------------------------------------------------
     VirtualMachineDetachNic vm_detach_nic;
 
-    for (set<int>::iterator vmid = vms.begin(); vmid != vms.end(); vmid++)
+    for (auto vmid : vms)
     {
-        ErrorCode ec = vm_detach_nic.request_execute(*vmid, nic_id, att);
+        ErrorCode ec = vm_detach_nic.request_execute(vmid, nic_id, att);
 
         if (ec != SUCCESS) //TODO: manage individual attach error, do rollback?
         {

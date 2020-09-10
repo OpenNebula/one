@@ -70,7 +70,8 @@ public:
      *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int deploy(VirtualMachine * vm, const RequestAttributes& request);
+    int deploy(std::unique_ptr<VirtualMachine> vm,
+               const RequestAttributes& request);
 
     /**
      *  Sets an imported VM to RUNNING state, a history record MUST be added,
@@ -79,7 +80,8 @@ public:
      *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int import(VirtualMachine * vm, const RequestAttributes& ra);
+    int import(std::unique_ptr<VirtualMachine> vm,
+               const RequestAttributes& ra);
 
     /**
      *  Migrates a VM. The following actions must be performed before calling
@@ -194,8 +196,9 @@ public:
      *    @param ra information about the API call request
      *    @return 0 on success, the VM mutex is unlocked
      */
-    int delete_vm(VirtualMachine * vm, const RequestAttributes& ra,
-            std::string& error_str);
+    int delete_vm(std::unique_ptr<VirtualMachine> vm,
+                  const RequestAttributes& ra,
+                  std::string& error_str);
 
     /**
      *  VM ID interface
@@ -208,8 +211,9 @@ public:
      *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int delete_recreate(VirtualMachine * vm, const RequestAttributes& ra,
-            std::string& error_str);
+    int delete_recreate(std::unique_ptr<VirtualMachine> vm,
+                        const RequestAttributes& ra,
+                        std::string& error_str);
 
     /**
      *  Ends a VM life cycle inside ONE but let the VM running at the Hipervisor.
@@ -217,8 +221,9 @@ public:
      *    @param ra information about the API call request
      *    @return 0 on success, the VM mutex is unlocked
      */
-    int delete_vm_db(VirtualMachine * vm, const RequestAttributes& ra,
-            std::string& error_str);
+    int delete_vm_db(std::unique_ptr<VirtualMachine> vm,
+                     const RequestAttributes& ra,
+                     std::string& error_str);
 
     /**
      *  Recover the last operation on the VM
@@ -227,8 +232,10 @@ public:
      *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int recover(VirtualMachine * vm, bool success, const RequestAttributes& ra,
-            std::string& error_str);
+    int recover(std::unique_ptr<VirtualMachine> vm,
+                bool success,
+                const RequestAttributes& ra,
+                std::string& error_str);
 
     /**
      *  Retry the last operation on the VM
@@ -236,7 +243,7 @@ public:
      *    @param ra information about the API call request
      *    @return 0 on success
      */
-    int retry(VirtualMachine * vm, const RequestAttributes& ra,
+    int retry(std::unique_ptr<VirtualMachine> vm, const RequestAttributes& ra,
             std::string& error_str);
 
     /**
@@ -416,8 +423,8 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int live_updateconf(int vid, const RequestAttributes& ra,
-                        std::string& error_str);
+    int live_updateconf(std::unique_ptr<VirtualMachine> vm,
+            const RequestAttributes& ra, std::string& error_str);
 
     //--------------------------------------------------------------------------
     // DM Actions associated with a VM state transition
@@ -484,7 +491,7 @@ private:
     /**
      *  Frees the resources associated to a VM: disks, ip addresses and Quotas
      */
-    void free_vm_resources(VirtualMachine * vm, bool check_images);
+    void free_vm_resources(std::unique_ptr<VirtualMachine> vm, bool check_images);
 };
 
 #endif /*DISPATCH_MANAGER_H*/

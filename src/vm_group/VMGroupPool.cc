@@ -64,9 +64,10 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VMGroup * VMGroupPool::get_from_attribute(const VectorAttribute *va, int _uid)
+std::unique_ptr<VMGroup> VMGroupPool::get_from_attribute(
+    const VectorAttribute *va, int _uid)
 {
-    VMGroup * vmgroup = 0;
+    std::unique_ptr<VMGroup> vmgroup;
 
     string vmg_name = va->vector_value("VMGROUP_NAME");
     int vmg_id;
@@ -103,9 +104,9 @@ int VMGroupPool::vmgroup_attribute(VectorAttribute * va, int uid, int vid,
         return -1;
     }
 
-    VMGroup * vmgroup = get_from_attribute(va, uid);
+    auto vmgroup = get_from_attribute(va, uid);
 
-    if ( vmgroup == 0 )
+    if ( vmgroup == nullptr )
     {
         error = "Cannot find VM Group to associate the VM";
         return -1;
@@ -121,10 +122,8 @@ int VMGroupPool::vmgroup_attribute(VectorAttribute * va, int uid, int vid,
     }
     else
     {
-        update(vmgroup);
+        update(vmgroup.get());
     }
-
-    vmgroup->unlock();
 
     return rc;
 }
@@ -148,40 +147,26 @@ void VMGroupPool::del_vm(const VectorAttribute * va, int vid)
         return;
     }
 
-    VMGroup * vmgroup = get(vmg_id);
-
-    if ( vmgroup == 0 )
+    if ( auto vmgroup = get(vmg_id) )
     {
-        return;
+        vmgroup->del_vm(vmg_role, vid);
+
+        update(vmgroup.get());
     }
-
-    vmgroup->del_vm(vmg_role, vid);
-
-    update(vmgroup);
-
-    vmgroup->unlock();
 }
 
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VMGroupPool::authorize(const VectorAttribute * va, int uid,AuthRequest* ar)
+void VMGroupPool::authorize(const VectorAttribute * va, int uid, AuthRequest* ar)
 {
-    PoolObjectAuth perm;
-
-    VMGroup * vmgroup = get_from_attribute(va, uid);
-
-    if ( vmgroup == 0 )
+    if ( auto vmgroup = get_from_attribute(va, uid) )
     {
-        return;
+        PoolObjectAuth perm;
+
+        vmgroup->get_permissions(perm);
+
+        ar->add_auth(AuthRequest::USE, perm);
     }
-
-    vmgroup->get_permissions(perm);
-
-    vmgroup->unlock();
-
-    ar->add_auth(AuthRequest::USE, perm);
 }
-
-

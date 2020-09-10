@@ -181,6 +181,7 @@ public:
              lock_owner(-1),
              lock_req_id(-1),
              lock_time(0),
+             ro(false),
              mutex(0),
              table(_table)
     {
@@ -188,6 +189,11 @@ public:
 
     virtual ~PoolObjectSQL()
     {
+        if (!ro && mutex != 0)
+        {
+            pthread_mutex_unlock(mutex);
+        }
+
         delete obj_template;
     };
 
@@ -317,21 +323,6 @@ public:
                                 int _other_m,
                                 int _other_a,
                                 std::string& error_str);
-
-    /* --------------------------------------------------------------------- */
-    /**
-     *  Function to unlock the object. It also frees associated resources. Object
-     *  cannot be access after unlocking it
-     */
-    void unlock()
-    {
-        if (!ro && mutex != 0)
-        {
-            pthread_mutex_unlock(mutex);
-        }
-
-        delete this;
-    };
 
     /**
      * Function to print the object into a string in XML format

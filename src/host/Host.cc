@@ -503,12 +503,9 @@ void Host::reserved_capacity(string& rcpu, string& rmem) const
     {
         auto cpool = Nebula::instance().get_clpool();
 
-        Cluster * cluster = cpool->get_ro(cluster_id);
-
-        if (cluster != nullptr)
+        if (auto cluster = cpool->get_ro(cluster_id))
         {
             cluster->get_reserved_capacity(cluster_rcpu, cluster_rmem);
-            cluster->unlock();
         }
     }
 

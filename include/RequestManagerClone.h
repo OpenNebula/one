@@ -205,16 +205,14 @@ protected:
     int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
-        Document * doc         = docpool->get_ro(sid);
+        auto           doc     = docpool->get_ro(sid);
 
-        if ( doc == 0 )
+        if (!doc)
         {
             return -1;
         }
 
         int dtype = doc->get_document_type();
-
-        doc->unlock();
 
         return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
             att.umask, dtype, tmpl, &id, att.resp_msg);

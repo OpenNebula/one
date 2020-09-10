@@ -70,80 +70,80 @@ public:
     int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
-     *  Function to get a User from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid User unique id
-     *    @param lock locks the User mutex
-     *    @return a pointer to the User, 0 if the User could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the User unique identifier
+     *   @return a pointer to the User, nullptr in case of failure
      */
-    User * get(int oid)
+    std::unique_ptr<User> get(int oid)
     {
-        User * u = static_cast<User *>(PoolSQL::get(oid));
+        auto u = PoolSQL::get<User>(oid);
 
-        if ( u != 0 )
+        if (u)
         {
             u->session = get_session_token(oid);
         }
 
         return u;
-    };
+    }
 
     /**
-     *  Function to get a read only User from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid User unique id
-     *    @return a pointer to the User, 0 if the User could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the User unique identifier
+     *   @return a pointer to the User, nullptr in case of failure
      */
-    User * get_ro(int oid)
+    std::unique_ptr<User> get_ro(int oid)
     {
-        User * u = static_cast<User *>(PoolSQL::get_ro(oid));
+        auto u = PoolSQL::get_ro<User>(oid);
 
-        if ( u != 0 )
+        if (u)
         {
             u->session = get_session_token(oid);
         }
 
         return u;
-    };
+    }
 
     /**
-     *  Function to get a User from the pool, if the object is not in memory
-     *  it is loaded from the DB
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *    @param username
-     *    @param lock locks the User mutex
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get(std::string name)
+    std::unique_ptr<User> get(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        User * u = static_cast<User *>(PoolSQL::get(name,-1));
+        auto u = PoolSQL::get<User>(name,-1);
 
-        if ( u != 0 )
+        if (u)
         {
             u->session = get_session_token(u->oid);
         }
 
         return u;
-    };
+    }
 
     /**
-     *  Function to get a read only User from the pool, if the object is not in memory
-     *  it is loaded from the DB
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
      *    @param username
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get_ro(std::string name)
+    std::unique_ptr<User> get_ro(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        User * u = static_cast<User *>(PoolSQL::get_ro(name,-1));
+        auto u = PoolSQL::get_ro<User>(name, -1);
 
-        if ( u != 0 )
+        if (u)
         {
             u->session = get_session_token(u->oid);
         }
 
         return u;
-    };
+    }
 
     /**
      *  Function to get the token password of an user from the pool
@@ -275,7 +275,7 @@ private:
     /**
      *  Function to authenticate internal (known) users
      */
-    bool authenticate_internal(User *             user,
+    bool authenticate_internal(std::unique_ptr<User> user,
                                const std::string& token,
                                std::string&       password,
                                int&               user_id,
@@ -288,7 +288,7 @@ private:
     /**
      *  Function to authenticate internal users using a server driver
      */
-    bool authenticate_server(User *             user,
+    bool authenticate_server(std::unique_ptr<User> user,
                              const std::string& token,
                              std::string&       password,
                              int&               user_id,

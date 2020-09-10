@@ -100,7 +100,8 @@ protected:
 
     virtual int del_object(Cluster* cluster, int id, std::string& error_msg) = 0;
 
-    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj) = 0;
+    virtual void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
+                     Clusterable ** cluster_obj) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -200,26 +201,27 @@ public:
 
     ~RequestManagerClusterDatastore(){};
 
-    virtual int add_object(
+    int add_object(
             Cluster* cluster,
             int id,
             std::string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
-    };
+    }
 
-    virtual int del_object(Cluster* cluster, int id, std::string& error_msg) override
+    int del_object(Cluster* cluster, int id, std::string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
-    };
+    }
 
-    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj) override
+    void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
+                     Clusterable ** cluster_obj) override
     {
-        Datastore * ds = dspool->get(oid);
+        auto ds = dspool->get(oid);
 
-        *object      = static_cast<PoolObjectSQL *>(ds);
-        *cluster_obj = static_cast<Clusterable *>(ds);
-    };
+        *cluster_obj = static_cast<Clusterable *>(ds.get());
+        object      = std::move(ds);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -285,26 +287,27 @@ public:
 
     ~RequestManagerClusterVNet(){};
 
-    virtual int add_object(
+    int add_object(
             Cluster* cluster,
             int id,
             std::string& error_msg) override
     {
         return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
-    };
+    }
 
-    virtual int del_object(Cluster* cluster, int id, std::string& error_msg) override
+    int del_object(Cluster* cluster, int id, std::string& error_msg) override
     {
         return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
-    };
+    }
 
-    virtual void get(int oid, PoolObjectSQL ** object, Clusterable ** cluster_obj) override
+    void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
+                     Clusterable ** cluster_obj) override
     {
-        VirtualNetwork * vnet = vnpool->get(oid);
+        auto vnet = vnpool->get(oid);
 
-        *object      = static_cast<PoolObjectSQL *>(vnet);
-        *cluster_obj = static_cast<Clusterable *>(vnet);
-    };
+        *cluster_obj = static_cast<Clusterable *>(vnet.get());
+        object      = std::move(vnet);
+    }
 };
 
 /* ------------------------------------------------------------------------- */

@@ -385,6 +385,8 @@ private:
      */
     Timer timer_thread;
 
+    Timer purge_thread;
+
     //--------------------------------------------------------------------------
     // Volatile log index variables
     //   - commit, highest log known to be committed
@@ -419,9 +421,14 @@ private:
     // Internal Raft functions
     // -------------------------------------------------------------------------
     /**
-     *  This function is executed periodically to purge the state log
+     *  This function is executed periodically to vote leader
      */
     void timer_action();
+
+    /**
+     *  This function is executed periodically to purge the state log
+     */
+    void purge_action();
 
     /**
      *  @param s the state to check

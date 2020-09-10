@@ -184,7 +184,7 @@ protected:
     template<typename T>
     bool get_attribute(const VirtualMachine * vm,
                        const Host * host,
-                       const Cluster* cluster,
+                       const Cluster * cluster,
                        const std::string& name,
                        const std::string& vname,
                        T& value) const

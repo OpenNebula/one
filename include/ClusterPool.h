@@ -68,19 +68,15 @@ public:
     {
         int rc = -1;
 
-        Cluster * cluster = get(oid);
-
-        if ( cluster != 0 )
+        if ( auto cluster = get(oid) )
         {
-          rc = cluster->get_vnc_port(vm_id, port);
+            rc = cluster->get_vnc_port(vm_id, port);
 
-          update_vnc_bitmap(cluster);
-
-          cluster->unlock();
+            update_vnc_bitmap(cluster.get());
         }
 
         return rc;
-    };
+    }
 
     /**
      * Release a previously allocated VNC port in the cluster
@@ -89,15 +85,11 @@ public:
      */
     void release_vnc_port(int oid, unsigned int port)
     {
-        Cluster * cluster = get(oid);
-
-        if ( cluster != 0 )
+        if ( auto cluster = get(oid) )
         {
             cluster->release_vnc_port(port);
 
-            update_vnc_bitmap(cluster);
-
-            cluster->unlock();
+            update_vnc_bitmap(cluster.get());
         }
     }
 
@@ -112,15 +104,11 @@ public:
     {
         int rc = -1;
 
-        Cluster * cluster = get(oid);
-
-        if ( cluster != 0 )
+        if ( auto cluster = get(oid) )
         {
             rc = cluster->set_vnc_port(port);
 
-            update_vnc_bitmap(cluster);
-
-            cluster->unlock();
+            update_vnc_bitmap(cluster.get());
         }
 
         return rc;
@@ -142,28 +130,26 @@ public:
     int allocate(std::string name, int * oid, std::string& error_str);
 
     /**
-     *  Function to get a cluster from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid cluster unique id
-     *    @param lock locks the cluster mutex
-     *    @return a pointer to the cluster, 0 if the cluster could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Cluster unique identifier
+     *   @return a pointer to the Cluster, nullptr in case of failure
      */
-    Cluster * get(int oid)
+    std::unique_ptr<Cluster> get(int oid)
     {
-        return static_cast<Cluster *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Cluster>(oid);
+    }
 
     /**
-     *  Function to get a read onlycluster from the pool, if the object is not
-     *  in memory it is loaded from the DB
-     *    @param oid cluster unique id
-     *
-     *    @return a pointer to the cluster, 0 if the cluster could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Cluster unique identifier
+     *   @return a pointer to the Cluster, nullptr in case of failure
      */
-
-    Cluster * get_ro(int oid)
+    std::unique_ptr<Cluster> get_ro(int oid)
     {
-        return static_cast<Cluster *>(PoolSQL::get_ro(oid));
+        return PoolSQL::get_ro<Cluster>(oid);
     }
 
     /**

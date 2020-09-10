@@ -85,7 +85,8 @@ public:
      *    @param attach true if attaching the image to a VM
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int vm_id, int image_id, bool attach, std::string& error);
+    std::unique_ptr<Image> acquire_image(int vm_id, int image_id,
+                                         bool attach, std::string& error);
 
     /**
      *  Try to acquire an image from the repository for a VM.
@@ -95,7 +96,7 @@ public:
      *    @param attach true if attaching the image to a VM
      *    @return pointer to the image or 0 if could not be acquired
      */
-    Image * acquire_image(int vm_id, const std::string& name,
+    std::unique_ptr<Image> acquire_image(int vm_id, const std::string& name,
                           int uid, bool attach, std::string& error);
 
     /**

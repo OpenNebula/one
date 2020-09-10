@@ -81,20 +81,17 @@ int VirtualMachineDisk::get_uid(int _uid) const
     }
     else if (!(uname = vector_value("IMAGE_UNAME")).empty())
     {
-        User *     user;
         Nebula&    nd    = Nebula::instance();
         UserPool * upool = nd.get_upool();
 
-        user = upool->get_ro(uname);
+        auto user = upool->get_ro(uname);
 
-        if ( user == 0 )
+        if ( user == nullptr )
         {
             return -1;
         }
 
         uid = user->get_oid();
-
-        user->unlock();
     }
     else
     {
@@ -126,13 +123,9 @@ int VirtualMachineDisk::get_image_id(int &id, int uid) const
             return -1;
         }
 
-        Image * image = ipool->get_ro(iname, uiid);
-
-        if ( image != 0 )
+        if ( auto image = ipool->get_ro(iname, uiid) )
         {
             id = image->get_oid();
-
-            image->unlock();
         }
 
         return 0;
@@ -172,7 +165,7 @@ void VirtualMachineDisk::extended_info(int uid)
 void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
 {
     string  source;
-    Image * img = 0;
+    unique_ptr<Image> img;
 
     int iid;
 
@@ -191,7 +184,7 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
 
         img = ipool->get_ro(source , uiid);
 
-        if ( img != 0 )
+        if ( img != nullptr )
         {
             replace("IMAGE_ID", img->get_oid());
         }
@@ -201,14 +194,12 @@ void VirtualMachineDisk::authorize(int uid, AuthRequest* ar, bool check_lock)
         img = ipool->get_ro(iid);
     }
 
-    if (img == 0)
+    if (img == nullptr)
     {
         return;
     }
 
     img->get_permissions(perm);
-
-    img->unlock();
 
     //cloning disks can be used with lock, lcm will track image state updates.
     if (is_cloning() || !check_lock)
@@ -1658,9 +1649,9 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
         {
             std::string ln_target, clone_target, disk_type;
 
-            Datastore * ds_img = dspool->get_ro(ds_img_id);
+            auto ds_img = dspool->get_ro(ds_img_id);
 
-            if ( ds_img == 0 )
+            if ( ds_img == nullptr )
             {
                 error = "Datastore does not exist";
                 return -1;
@@ -1671,11 +1662,8 @@ int VirtualMachineDisks::check_tm_mad(const string& tm_mad, string& error)
             {
                 error = "Image Datastore does not support transfer mode: " + tm_mad;
 
-                ds_img->unlock();
                 return -1;
             }
-
-            ds_img->unlock();
 
             disk->replace("CLONE_TARGET", clone_target);
             disk->replace("LN_TARGET", ln_target);

@@ -33,7 +33,6 @@ void HookRetry::request_execute(xmlrpc_c::paramList const& _paramList,
     HookPool*    hkpool = nd.get_hkpool();
     HookLog*     hklog  = nd.get_hl();
 
-    Hook* hook;
     PoolObjectAuth hk_perms;
 
     int rc;
@@ -41,7 +40,7 @@ void HookRetry::request_execute(xmlrpc_c::paramList const& _paramList,
     /* ---------------------------------------------------------------------- */
     /* Get Hook                                                               */
     /* ---------------------------------------------------------------------- */
-    hook = hkpool->get_ro(hk_id);
+    auto hook = hkpool->get_ro(hk_id);
 
     if (hook == nullptr)
     {
@@ -60,15 +59,11 @@ void HookRetry::request_execute(xmlrpc_c::paramList const& _paramList,
 
     if (UserPool::authorize(ar) == -1)
     {
-        hook->unlock();
-
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
 
         return;
     }
-
-    hook->unlock();
 
     //How is the execution managed? what does the driver needs?
     rc = hklog->retry(hk_id, hk_exe_id, att.resp_msg);

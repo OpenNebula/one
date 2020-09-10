@@ -184,7 +184,7 @@ void ImageManager::monitor_datastore(int ds_id)
 
     const auto* imd = get();
 
-    if ( imd == 0 )
+    if ( imd == nullptr )
     {
         oss << "Error getting ImageManagerDriver";
 
@@ -192,20 +192,18 @@ void ImageManager::monitor_datastore(int ds_id)
         return;
     }
 
-    Datastore * ds = dspool->get_ro(ds_id);
+    if ( auto ds = dspool->get_ro(ds_id) )
+    {
+        ds->to_xml(ds_data);
 
-    if ( ds == 0 )
+        shared  = ds->is_shared();
+        ds_type = ds->get_type();
+        ds_name = ds->get_name();
+    }
+    else
     {
         return;
     }
-
-    ds->to_xml(ds_data);
-
-    shared     = ds->is_shared();
-    ds_type    = ds->get_type();
-    ds_name    = ds->get_name();
-
-    ds->unlock();
 
     ds_location = "";
 

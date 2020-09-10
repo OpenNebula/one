@@ -51,6 +51,8 @@ enum class VMGroupPolicy;
 class VMGroup : public PoolObjectSQL
 {
 public:
+    virtual ~VMGroup() = default;
+
     /**
      * Function to print the VMGroup object into a string in XML format
      *   @param xml the resulting XML string
@@ -113,8 +115,6 @@ private:
     VMGroup(int _uid, int _gid,
             const std::string& _uname, const std::string& _gname,
             int _umask, Template * group_template);
-
-    virtual ~VMGroup() = default;
 
     // -------------------------------------------------------------------------
     // Role Management

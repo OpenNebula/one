@@ -164,6 +164,8 @@ public:
     // Image Public Methods
     // *************************************************************************
 
+    virtual ~Image() = default;
+
     /**
      * Function to print the Image object into a string in XML format
      *  @param xml the resulting XML string
@@ -717,8 +719,6 @@ protected:
           const std::string&  gname,
           int                 umask,
           ImageTemplate*      img_template);
-
-    virtual ~Image() = default;
 
     // *************************************************************************
     // DataBase implementation

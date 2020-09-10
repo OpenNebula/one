@@ -42,8 +42,6 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
     int  oid     = xmlrpc_c::value_int(paramList.getInt(1));
     bool recover = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
-    SecurityGroup * sg;
-
     LifeCycleManager*  lcm = Nebula::instance().get_lcm();
 
 
@@ -52,7 +50,7 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    sg = static_cast<SecurityGroupPool *>(pool)->get(oid);
+    auto sg = static_cast<SecurityGroupPool *>(pool)->get(oid);
 
     if ( sg == 0 )
     {
@@ -63,9 +61,7 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
 
     sg->commit(recover);
 
-    pool->update(sg);
-
-    sg->unlock();
+    pool->update(sg.get());
 
     lcm->trigger_updatesg(oid);
 

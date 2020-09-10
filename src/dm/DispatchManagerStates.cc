@@ -26,9 +26,9 @@ using namespace std;
 void DispatchManager::trigger_suspend_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
-        if (vm == nullptr)
+        if (!vm)
         {
             return;
         }
@@ -49,12 +49,12 @@ void DispatchManager::trigger_suspend_success(int vid)
 
             vm->set_state(VirtualMachine::LCM_INIT);
 
-            vmpool->update(vm);
+            vmpool->update(vm.get());
 
             int uid = vm->get_uid();
             int gid = vm->get_gid();
 
-            vm->unlock();
+            vm.reset();
 
             Quotas::vm_del(uid, gid, &quota_tmpl);
         }
@@ -66,7 +66,6 @@ void DispatchManager::trigger_suspend_success(int vid)
                 << " not in ACTIVE state";
             NebulaLog::log("DiM",Log::ERROR,oss);
 
-            vm->unlock();
             return;
         }
     });
@@ -78,9 +77,9 @@ void DispatchManager::trigger_suspend_success(int vid)
 void DispatchManager::trigger_stop_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
-        if (vm == nullptr)
+        if (!vm)
         {
             return;
         }
@@ -102,15 +101,15 @@ void DispatchManager::trigger_stop_success(int vid)
             {
                 vm->set_internal_action(VMActions::STOP_ACTION);
 
-                vmpool->update_history(vm);
+                vmpool->update_history(vm.get());
             }
 
-            vmpool->update(vm);
+            vmpool->update(vm.get());
 
             int uid = vm->get_uid();
             int gid = vm->get_gid();
 
-            vm->unlock();
+            vm.reset();
 
             Quotas::vm_del(uid, gid, &quota_tmpl);
         }
@@ -121,7 +120,6 @@ void DispatchManager::trigger_stop_success(int vid)
             oss << "stop_success action received but VM " << vid
                 << " not in ACTIVE state";
             NebulaLog::log("DiM",Log::ERROR,oss);
-            vm->unlock();
             return;
         }
     });
@@ -133,9 +131,9 @@ void DispatchManager::trigger_stop_success(int vid)
 void DispatchManager::trigger_undeploy_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
-        if (vm == nullptr)
+        if (!vm)
         {
             return;
         }
@@ -158,15 +156,15 @@ void DispatchManager::trigger_undeploy_success(int vid)
             {
                 vm->set_internal_action(VMActions::UNDEPLOY_ACTION);
 
-                vmpool->update_history(vm);
+                vmpool->update_history(vm.get());
             }
 
-            vmpool->update(vm);
+            vmpool->update(vm.get());
 
             int uid = vm->get_uid();
             int gid = vm->get_gid();
 
-            vm->unlock();
+            vm.reset();
 
             Quotas::vm_del(uid, gid, &quota_tmpl);
         }
@@ -178,7 +176,6 @@ void DispatchManager::trigger_undeploy_success(int vid)
                 << " not in ACTIVE state";
             NebulaLog::log("DiM",Log::ERROR,oss);
 
-            vm->unlock();
             return;
         }
     });
@@ -190,9 +187,9 @@ void DispatchManager::trigger_undeploy_success(int vid)
 void DispatchManager::trigger_poweroff_success(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
-        if (vm == nullptr)
+        if (!vm)
         {
             return;
         }
@@ -219,12 +216,12 @@ void DispatchManager::trigger_poweroff_success(int vid)
 
             vm->set_state(VirtualMachine::LCM_INIT);
 
-            vmpool->update(vm);
+            vmpool->update(vm.get());
 
             int uid = vm->get_uid();
             int gid = vm->get_gid();
 
-            vm->unlock();
+            vm.reset();
 
             if (prev_state != VirtualMachine::DISK_SNAPSHOT_POWEROFF &&
                 prev_state != VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF &&
@@ -241,7 +238,6 @@ void DispatchManager::trigger_poweroff_success(int vid)
                 << " not in ACTIVE state";
             NebulaLog::log("DiM",Log::ERROR,oss);
 
-            vm->unlock();
             return;
         }
     });
@@ -253,9 +249,9 @@ void DispatchManager::trigger_poweroff_success(int vid)
 void DispatchManager::trigger_done(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
-        if (vm == nullptr)
+        if (!vm)
         {
             return;
         }
@@ -267,7 +263,7 @@ void DispatchManager::trigger_done(int vid)
             (lcm_state == VirtualMachine::EPILOG ||
             lcm_state == VirtualMachine::CLEANUP_DELETE))
         {
-            free_vm_resources(vm, true);
+            free_vm_resources(std::move(vm), true);
         }
         else
         {
@@ -275,8 +271,6 @@ void DispatchManager::trigger_done(int vid)
 
             oss << "done action received but VM " << vid << " not in ACTIVE state";
             NebulaLog::log("DiM",Log::ERROR,oss);
-
-            vm->unlock();
         }
     });
 }
@@ -287,9 +281,9 @@ void DispatchManager::trigger_done(int vid)
 void DispatchManager::trigger_resubmit(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
-        if (vm == nullptr)
+        if (!vm)
         {
             return;
         }
@@ -304,9 +298,7 @@ void DispatchManager::trigger_resubmit(int vid)
 
             vm->set_deploy_id(""); //reset the deploy-id
 
-            vmpool->update(vm);
-
-            vm->unlock();
+            vmpool->update(vm.get());
         }
     });
 }

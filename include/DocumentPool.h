@@ -66,29 +66,26 @@ public:
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param oid the object unique identifier
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Document unique identifier
+     *   @return a pointer to the Document, nullptr in case of failure
      */
-    Document * get(int oid)
+    std::unique_ptr<Document> get(int oid)
     {
-        return static_cast<Document *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Document>(oid);
+    }
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param oid the object unique identifier
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Document unique identifier
+     *   @return a pointer to the Document, nullptr in case of failure
      */
-    Document * get_ro(int oid)
+    std::unique_ptr<Document> get_ro(int oid)
     {
-        return static_cast<Document *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<Document>(oid);
+    }
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the

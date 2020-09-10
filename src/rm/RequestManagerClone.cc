@@ -63,19 +63,19 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
     int rc;
     PoolObjectAuth perms;
 
-    PoolObjectSQL * source_obj = pool->get(source_id);
+    Template * tmpl;
 
-    if ( source_obj == 0 )
+    if ( auto source_obj = pool->get_ro<PoolObjectSQL>(source_id) )
+    {
+        tmpl = clone_template(source_obj.get());
+
+        source_obj->get_permissions(perms);
+    }
+    else
     {
         att.resp_id = source_id;
         return NO_EXISTS;
     }
-
-    Template * tmpl = clone_template(source_obj);
-
-    source_obj->get_permissions(perms);
-
-    source_obj->unlock();
 
     ErrorCode ec = merge(tmpl, s_uattr, att);
 
@@ -144,10 +144,10 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     // -------------------------------------------------------------------------
     // Clone the template images when recursive flag is set
     // -------------------------------------------------------------------------
-	ImageDelete     img_delete;
-	ImageClone      img_clone;
+    ImageDelete     img_delete;
+    ImageClone      img_clone;
 
-	TemplateDelete tmpl_delete;
+    TemplateDelete tmpl_delete;
 
     VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
 
@@ -157,33 +157,30 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     vector<VectorAttribute *> vdisks;
 
     VirtualMachineDisks disks(false);
-    VirtualMachineDisks::disk_iterator disk;
 
     RequestAttributes del_att(att);
     RequestAttributes img_att(att);
     img_att.resp_obj    = PoolObjectSQL::IMAGE;
 
-    VMTemplate * vmtmpl = tpool->get_ro(new_id);
-
-    if (vmtmpl == 0)
+    if ( auto vmtmpl = tpool->get_ro(new_id) )
+    {
+        vmtmpl->clone_disks(vdisks);
+    }
+    else
     {
         att.resp_msg = "VM template was removed during clone operation";
 
         return ACTION;
     }
 
-    vmtmpl->clone_disks(vdisks);
-
-    vmtmpl->unlock();
-
     disks.init(vdisks, false);
 
-    for ( disk = disks.begin(); disk != disks.end() ; ++disk )
+    for ( auto disk : disks )
     {
         int img_id;
         int new_img_id;
 
-        if ( (*disk)->get_image_id(img_id, att.uid) == 0)
+        if ( disk->get_image_id(img_id, att.uid) == 0)
         {
             ostringstream oss;
 
@@ -203,10 +200,10 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
 
             for (auto attr : REMOVE_DISK_ATTRS)
             {
-                (*disk)->remove(attr);
+                disk->remove(attr);
             }
 
-            (*disk)->replace("IMAGE_ID", new_img_id);
+            disk->replace("IMAGE_ID", new_img_id);
 
             new_ids.push_back(new_img_id);
         }
@@ -214,20 +211,19 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
         ndisk++;
     }
 
-    vmtmpl = tpool->get(new_id);
+    if ( auto vmtmpl = tpool->get(new_id) )
+    {
+        vmtmpl->replace_disks(vdisks);
 
-    if (vmtmpl == 0)
+        tpool->update(vmtmpl.get());
+    }
+    else
     {
         att.resp_msg = "VM template was removed during clone operation.";
 
         goto error_template;
     }
 
-    vmtmpl->replace_disks(vdisks);
-
-    tpool->update(vmtmpl);
-
-    vmtmpl->unlock();
 
     return SUCCESS;
 
@@ -240,18 +236,17 @@ error_images:
     goto error_template;
 
 error_template:
-    for (vector<int>::iterator i = new_ids.begin(); i != new_ids.end(); i++)
+    for (auto id : new_ids)
     {
-        if (img_delete.request_execute(*i, img_att) != SUCCESS)
+        if (img_delete.request_execute(id, img_att) != SUCCESS)
         {
             NebulaLog::log("ReM", Log::ERROR, failure_message(ec, img_att));
         }
     }
 
-    for (vector<VectorAttribute *>::iterator it = vdisks.begin();
-            it != vdisks.end() ; it++)
+    for (auto disk : vdisks)
     {
-        delete *it;
+        delete disk;
     }
 
     return ACTION;

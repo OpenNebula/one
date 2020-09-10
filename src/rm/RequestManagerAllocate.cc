@@ -181,7 +181,6 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     int    rc, id;
 
-    Cluster *       cluster      = 0;
     int             cluster_id   = ClusterPool::NONE_CLUSTER_ID;
     string          cluster_name = ClusterPool::NONE_CLUSTER_NAME;
     PoolObjectAuth  cluster_perms;
@@ -237,9 +236,11 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
 
     if ( cluster_id != ClusterPool::NONE_CLUSTER_ID )
     {
-        cluster = clpool->get(cluster_id);
-
-        if ( cluster == 0 )
+        if (auto cluster = clpool->get(cluster_id))
+        {
+            rc = add_to_cluster(cluster.get(), id, att.resp_msg);
+        }
+        else
         {
             att.resp_obj = PoolObjectSQL::CLUSTER;
             att.resp_id  = cluster_id;
@@ -247,38 +248,24 @@ void RequestManagerAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
 
-        rc = add_to_cluster(cluster, id, att.resp_msg);
-
         if ( rc < 0 )
         {
             string drop_err;
-            PoolObjectSQL * obj = 0;
 
-            cluster->unlock();
-
-            obj = pool->get(id);
-
-            if ( obj != 0 )
+            if ( auto obj = pool->get<PoolObjectSQL>(id) )
             {
-                pool->drop(obj, drop_err);
-                obj->unlock();
+                pool->drop(obj.get(), drop_err);
             }
 
             failure_response(INTERNAL, att);
             return;
         }
-
-        cluster->unlock();
     }
 
     //Take object body for hooks.
-    PoolObjectSQL * obj = pool->get(id);
-
-    if (obj != nullptr)
+    if (auto obj = pool->get<PoolObjectSQL>(id))
     {
         obj->to_xml(att.extra_xml);
-
-        obj->unlock();
     }
 
     att.resp_id = id;
@@ -412,11 +399,8 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     ImageTemplate * tmpl;
     Template        img_usage;
 
-    Datastore *     ds;
     Image::DiskType ds_disk_type;
 
-    MarketPlaceApp *  app;
-    MarketPlace *     market;
     int               app_id;
     int               market_id;
 
@@ -442,8 +426,34 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     }
 
     // ------------------------- Check Datastore exists ------------------------
+    if ( auto ds = dspool->get_ro(ds_id) )
+    {
 
-    if ((ds = dspool->get_ro(ds_id)) == 0 )
+        ds_type = ds->get_type();
+
+        if ( ds_type == Datastore::SYSTEM_DS )
+        {
+            att.resp_msg = "New images cannot be allocated in a system datastore.";
+            failure_response(ALLOCATE, att);
+
+            delete tmpl;
+            return;
+        }
+
+        ds->get_permissions(ds_perms);
+
+        ds_name            = ds->get_name();
+        ds_disk_type       = ds->get_disk_type();
+        ds_check           = ds->get_avail_mb(avail) && check_capacity;
+        ds_persistent_only = ds->is_persistent_only();
+        ds_mad             = ds->get_ds_mad();
+        tm_mad             = ds->get_tm_mad();
+
+        ds->get_template_attribute("DRIVER", ds_driver);
+
+        ds->to_xml(ds_data);
+    }
+    else
     {
         att.resp_id  = ds_id;
         att.resp_obj = PoolObjectSQL::DATASTORE;
@@ -453,33 +463,6 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    ds_type = ds->get_type();
-
-    if ( ds_type == Datastore::SYSTEM_DS )
-    {
-        ds->unlock();
-
-        att.resp_msg = "New images cannot be allocated in a system datastore.";
-        failure_response(ALLOCATE, att);
-
-        delete tmpl;
-        return;
-    }
-
-    ds->get_permissions(ds_perms);
-
-    ds_name            = ds->get_name();
-    ds_disk_type       = ds->get_disk_type();
-    ds_check           = ds->get_avail_mb(avail) && check_capacity;
-    ds_persistent_only = ds->is_persistent_only();
-    ds_mad             = ds->get_ds_mad();
-    tm_mad             = ds->get_tm_mad();
-
-    ds->get_template_attribute("DRIVER", ds_driver);
-
-    ds->to_xml(ds_data);
-
-    ds->unlock();
 
     // --------------- Get the SIZE for the Image, (DS driver) -----------------
 
@@ -487,9 +470,14 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
     {
         // This image comes from a MarketPlaceApp. Get the Market info and
         // the size.
-        app = apppool->get_ro(app_id);
+        if ( auto app = apppool->get_ro(app_id) )
+        {
+            app->to_template(tmpl);
 
-        if ( app == 0 )
+            size_mb   = app->get_size();
+            market_id = app->get_market_id();
+        }
+        else
         {
             att.resp_msg = "Cannot determine image SIZE.";
             failure_response(INTERNAL, att);
@@ -498,35 +486,26 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
             return;
         }
 
-        app->to_template(tmpl);
+        if ( auto market = marketpool->get_ro(market_id) )
+        {
+            market->to_xml(extra_data);
 
-        size_mb   = app->get_size();
-        market_id = app->get_market_id();
+            oss << size_mb;
+            size_str = oss.str();
 
-        app->unlock();
-
-        market = marketpool->get_ro(market_id);
-
-        if ( market == 0 )
+            //Do not use DRIVER from APP but from Datastore
+            if (!ds_driver.empty() )
+            {
+                tmpl->erase("DRIVER");
+            }
+        }
+        else
         {
             att.resp_msg = "Could not get the appliance's market.";
             failure_response(INTERNAL, att);
 
             delete tmpl;
             return;
-        }
-
-        market->to_xml(extra_data);
-
-        market->unlock();
-
-        oss << size_mb;
-        size_str = oss.str();
-
-        //Do not use DRIVER from APP but from Datastore
-        if (!ds_driver.empty() )
-        {
-            tmpl->erase("DRIVER");
         }
     }
     else
@@ -654,25 +633,17 @@ void ImageAllocate::request_execute(xmlrpc_c::paramList const& params,
         return;
     }
 
-    ds = dspool->get(ds_id);
-
-    if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
+    if ( auto ds = dspool->get(ds_id) )  // TODO: error otherwise or leave image in ERROR?
     {
         ds->add_image(id);
 
-        dspool->update(ds);
-
-        ds->unlock();
+        dspool->update(ds.get());
     }
 
     // Take image body for Hooks
-    Image * img = ipool->get(id);
-
-    if (img != nullptr)
+    if (auto img = ipool->get(id))
     {
         img->to_xml(att.extra_xml);
-
-        img->unlock();
     }
 
     att.resp_id = id;
@@ -852,9 +823,9 @@ bool UserAllocate::allocate_authorization(
     {
         int tmp_gid = xmlrpc_c::value_int(*it);
 
-        Group* group = gpool->get_ro(tmp_gid);
+        auto group = gpool->get_ro(tmp_gid);
 
-        if (group == 0)
+        if (group == nullptr)
         {
             att.resp_id  = tmp_gid;
             att.resp_obj = PoolObjectSQL::GROUP;
@@ -873,8 +844,6 @@ bool UserAllocate::allocate_authorization(
 
             ar.add_auth(AuthRequest::MANAGE, perms); // MANAGE GROUP
         }
-
-        group->unlock();
     }
 
     if (UserPool::authorize(ar) == -1)
@@ -981,15 +950,11 @@ Request::ErrorCode GroupAllocate::pool_allocate(
         return Request::INTERNAL;
     }
 
-    Vdc* vdc = vdcpool->get(VdcPool::DEFAULT_ID);
-
-    if (vdc != 0)
+    if (auto vdc = vdcpool->get(VdcPool::DEFAULT_ID))
     {
         rc = vdc->add_group(id, att.resp_msg);
 
-        vdcpool->update(vdc);
-
-        vdc->unlock();
+        vdcpool->update(vdc.get());
     }
 
     if (rc < 0)
@@ -1262,39 +1227,36 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
 
     int         mp_id = xmlrpc_c::value_int(paramList.getInt(2));
     std::string mp_data;
+    std::string mp_name;
 
     // ---------------------------------------------------------------------- //
     // Get Marketplace information for this app                               //
     // ---------------------------------------------------------------------- //
-    MarketPlace * mp = mppool->get_ro(mp_id);
+    if ( auto mp = mppool->get_ro(mp_id) )
+    {
+        mp_name = mp->get_name();
 
-    if ( mp == 0 )
+        if ( !mp->is_action_supported(MarketPlaceApp::CREATE) )
+        {
+            att.resp_msg = "Create disabled for market: " + mp_name;
+
+            return Request::ACTION;
+        }
+
+        if ( mp->get_zone_id() != Nebula::instance().get_zone_id() )
+        {
+            att.resp_msg = "Marketplace is not in this OpenNebula zone";
+
+            return Request::ACTION;
+        }
+
+        mp->to_xml(mp_data);
+    }
+    else
     {
         att.resp_msg = "Cannot find associated MARKETPLACE";
         return Request::INTERNAL;
     }
-
-    std::string mp_name = mp->get_name();
-
-    if ( !mp->is_action_supported(MarketPlaceApp::CREATE) )
-    {
-        att.resp_msg = "Create disabled for market: " + mp_name;
-        mp->unlock();
-
-        return Request::ACTION;
-    }
-
-    if ( mp->get_zone_id() != Nebula::instance().get_zone_id() )
-    {
-        att.resp_msg = "Marketplace is not in this OpenNebula zone";
-        mp->unlock();
-
-        return Request::ACTION;
-    }
-
-    mp->to_xml(mp_data);
-
-    mp->unlock();
 
     // ---------------------------------------------------------------------- //
     // Allocate MarketPlaceApp request is forwarded to master for slaves      //
@@ -1307,31 +1269,25 @@ Request::ErrorCode MarketPlaceAppAllocate::pool_allocate(
         return Request::INTERNAL;
     }
 
-    mp = mppool->get(mp_id);
+    if ( auto mp = mppool->get(mp_id) )
+    {
+        mp->add_marketapp(id);
 
-    if ( mp == 0 )
+        mppool->update(mp.get());
+    }
+    else
     {
         att.resp_msg = "Marketplace no longer exists";
 
-        MarketPlaceApp * app = appool->get(id);
-
-        if ( app != 0 )
+        if ( auto app = appool->get(id) )
         {
             string aux_str;
 
-            appool->drop(app, aux_str);
-
-            app->unlock();
+            appool->drop(app.get(), aux_str);
         }
 
         return Request::INTERNAL;
     }
-
-    mp->add_marketapp(id);
-
-    mppool->update(mp);
-
-    mp->unlock();
 
     // ---------------------------------------------------------------------- //
     // Send request operation to market driver                                //

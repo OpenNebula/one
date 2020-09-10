@@ -165,66 +165,6 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolObjectSQL * PoolSQL::get(int oid)
-{
-    if ( oid < 0 )
-    {
-        return 0;
-    }
-
-    pthread_mutex_t * object_lock = cache.lock_line(oid);
-
-    PoolObjectSQL * objectsql = create();
-
-    objectsql->oid = oid;
-
-    objectsql->ro  = false;
-
-    objectsql->mutex = object_lock;
-
-    int rc = objectsql->select(db);
-
-    if ( rc != 0 )
-    {
-        objectsql->unlock(); //Free object and unlock cache line mutex
-
-        return 0;
-    }
-
-    return objectsql;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-PoolObjectSQL * PoolSQL::get_ro(int oid)
-{
-    if ( oid < 0 )
-    {
-        return 0;
-    }
-
-    PoolObjectSQL * objectsql = create();
-
-    objectsql->oid = oid;
-
-    objectsql->ro = true;
-
-    int rc = objectsql->select(db);
-
-    if ( rc != 0 )
-    {
-        objectsql->unlock(); //Free object;
-
-        return 0;
-    }
-
-    return objectsql;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 void PoolSQL::exist(const string& id_str, std::set<int>& id_list)
 {
     std::vector<int> existing_items;
@@ -240,37 +180,6 @@ void PoolSQL::exist(const string& id_str, std::set<int>& id_list)
             id_list.erase(iterator);
         }
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-PoolObjectSQL * PoolSQL::get(const string& name, int ouid)
-{
-
-    int oid = PoolObjectSQL::select_oid(db, table.c_str(), name, ouid);
-
-    if ( oid == -1 )
-    {
-        return 0;
-    }
-
-    return get(oid);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-PoolObjectSQL * PoolSQL::get_ro(const string& name, int uid)
-{
-    int oid = PoolObjectSQL::select_oid(db, table.c_str(), name, uid);
-
-    if ( oid == -1 )
-    {
-        return 0;
-    }
-
-    return get_ro(oid);
 }
 
 /* -------------------------------------------------------------------------- */

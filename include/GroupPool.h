@@ -72,28 +72,27 @@ public:
                  std::string&             error_str);
 
     /**
-     *  Function to get a group from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid group unique id
-     *    @param lock locks the group mutex
-     *    @return a pointer to the group, 0 if the group could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Group unique identifier
+     *   @return a pointer to the Group, nullptr in case of failure
      */
-    Group * get(int oid)
+    std::unique_ptr<Group> get(int oid)
     {
-        return static_cast<Group *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Group>(oid);
+    }
 
     /**
-     *  Function to get a read only group from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid group unique id
-     *    @param lock locks the group mutex
-     *    @return a pointer to the group, 0 if the group could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Group unique identifier
+     *   @return a pointer to the Group, nullptr in case of failure
      */
-    Group * get_ro(int oid)
+    std::unique_ptr<Group> get_ro(int oid)
     {
-        return static_cast<Group *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<Group>(oid);
+    }
 
     /**
      *  Returns the name of a group
@@ -104,7 +103,7 @@ public:
     {
         static std::string error_str = "";
 
-        Group * group = get_ro(gid);
+        auto group = get_ro(gid);
 
         if ( group == 0 )
         {
@@ -112,8 +111,6 @@ public:
         }
 
         const std::string gname = group->get_name();
-
-        group->unlock();
 
         return gname;
     }

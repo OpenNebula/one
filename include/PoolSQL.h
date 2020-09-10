@@ -18,6 +18,7 @@
 #define POOL_SQL_H_
 
 #include <string>
+#include <memory>
 
 #include "SqlDB.h"
 #include "PoolObjectSQL.h"
@@ -56,21 +57,68 @@ public:
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param oid the object unique identifier
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *   @return a pointer to the object, nullptr in case of failure
      */
-    PoolObjectSQL * get(int oid);
+    template<typename T>
+    std::unique_ptr<T> get(int oid)
+    {
+        if ( oid < 0 )
+        {
+            return nullptr;
+        }
+
+        pthread_mutex_t * object_lock = cache.lock_line(oid);
+
+        std::unique_ptr<T> objectsql(static_cast<T *>(create()));
+
+        objectsql->oid = oid;
+
+        objectsql->ro  = false;
+
+        objectsql->mutex = object_lock;
+
+        int rc = objectsql->select(db);
+
+        if ( rc != 0 )
+        {
+            return nullptr;
+        }
+
+        return objectsql;
+    }
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). No object lock, other threads may work with the same object.
      *   @param oid the object unique identifier
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *   @return a pointer to the object, nullptr in case of failure
      */
-    PoolObjectSQL * get_ro(int oid);
+    template<typename T>
+    std::unique_ptr<T> get_ro(int oid)
+    {
+        if ( oid < 0 )
+        {
+            return nullptr;
+        }
+
+        std::unique_ptr<T> objectsql(static_cast<T *>(create()));
+
+        objectsql->oid = oid;
+
+        objectsql->ro = true;
+
+        int rc = objectsql->select(db);
+
+        if ( rc != 0 )
+        {
+            return nullptr;
+        }
+
+        return objectsql;
+    }
 
     /**
      *  Check if there is an object with the same for a given user
@@ -289,13 +337,25 @@ protected:
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param name of the object
      *   @param uid id of owner
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    PoolObjectSQL * get(const std::string& name, int uid);
+    template<typename T>
+    std::unique_ptr<T> get(const std::string& name, int uid)
+    {
+        int oid = PoolObjectSQL::select_oid(db, table.c_str(), name, uid);
+
+        if ( oid == -1 )
+        {
+            return nullptr;
+        }
+
+        return get<T>(oid);
+    }
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
@@ -305,7 +365,18 @@ protected:
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    PoolObjectSQL * get_ro(const std::string& name, int uid);
+    template<typename T>
+    std::unique_ptr<T> get_ro(const std::string& name, int uid)
+    {
+        int oid = PoolObjectSQL::select_oid(db, table.c_str(), name, uid);
+
+        if ( oid == -1 )
+        {
+            return nullptr;
+        }
+
+        return get_ro<T>(oid);
+    }
 
     /**
      *  Pointer to the database.

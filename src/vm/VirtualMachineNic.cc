@@ -44,9 +44,9 @@ int VirtualMachineNic::release_network_leases(int vmid)
         return -1;
     }
 
-    VirtualNetwork * vn = vnpool->get(vnid);
+    auto vn = vnpool->get(vnid);
 
-    if ( vn == 0 )
+    if (vn == nullptr)
     {
         return -1;
     }
@@ -62,9 +62,7 @@ int VirtualMachineNic::release_network_leases(int vmid)
         vn->free_addr(PoolObjectSQL::VM, vmid, mac);
     }
 
-    vnpool->update(vn);
-
-    vn->unlock();
+    vnpool->update(vn.get());
 
     return 0;
 }
@@ -93,17 +91,15 @@ int VirtualMachineNic::get_uid(int _uid, string& error)
     else if ( !(uname = vector_value("NETWORK_UNAME")).empty() )
     {
         UserPool * upool = Nebula::instance().get_upool();
-        User * user      = upool->get_ro(uname);
+        auto user        = upool->get_ro(uname);
 
-        if ( user == 0 )
+        if ( user == nullptr )
         {
             error = "User set in NETWORK_UNAME does not exist";
             return -1;
         }
 
         uid = user->get_oid();
-
-        user->unlock();
     }
     else
     {
@@ -140,17 +136,13 @@ void VirtualMachineNic::authorize(PoolObjectSQL::ObjectType ot, int uid,
 
     vnpool->authorize_nic(ot, this, uid, ar, sgroups, check_lock);
 
-    for(set<int>::iterator it = sgroups.begin(); it != sgroups.end(); it++)
+    for (auto sg : sgroups)
     {
-        SecurityGroup * sgroup = sgpool->get_ro(*it);
-
-        if(sgroup != 0)
+        if (auto sgroup = sgpool->get_ro(sg))
         {
             PoolObjectAuth perm;
 
             sgroup->get_permissions(perm);
-
-            sgroup->unlock();
 
             if ( check_lock )
             {

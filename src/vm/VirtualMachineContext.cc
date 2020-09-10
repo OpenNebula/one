@@ -579,29 +579,22 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
 
         if ( img_ids.size() > 0 )
         {
-            vector<int>::iterator it;
-
             Nebula& nd = Nebula::instance();
 
             ImagePool * ipool = nd.get_ipool();
-            Image  *    img   = 0;
 
             Image::ImageType type;
             Image::ImageState state;
 
-            for ( it=img_ids.begin() ; it < img_ids.end(); it++ )
+            for ( auto iid : img_ids )
             {
-                img = ipool->get_ro(*it);
-
-                if ( img != 0 )
+                if ( auto img = ipool->get_ro(iid) )
                 {
                     oss_parsed << img->get_source() << ":'"
                                << img->get_name() << "' ";
 
                     type  = img->get_type();
                     state = img->get_state();
-
-                    img->unlock();
 
                     if (type != Image::CONTEXT)
                     {
@@ -615,7 +608,7 @@ int VirtualMachine::parse_context(string& error_str, bool all_nics)
                         ostringstream oss;
 
                         oss << Image::type_to_str(type)
-                            << " Image '" << *it << "' not in READY state.";
+                            << " Image '" << iid << "' not in READY state.";
 
                         error_str = oss.str();
 

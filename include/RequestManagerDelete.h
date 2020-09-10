@@ -49,7 +49,9 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att);
+    virtual int drop(std::unique_ptr<PoolObjectSQL> obj,
+                     bool recursive,
+                     RequestAttributes& att);
 
     virtual std::set<int> get_cluster_ids(PoolObjectSQL * object) const
     {
@@ -87,7 +89,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -129,7 +133,9 @@ protected:
         return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
     };
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -152,7 +158,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -181,7 +189,9 @@ protected:
         return clpool->del_from_cluster(PoolObjectSQL::HOST, cluster, id, error_msg);
     };
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -196,7 +206,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -213,7 +225,9 @@ protected:
 
     GroupPool *  gpool;
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -238,7 +252,9 @@ public:
         return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
     };
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -253,7 +269,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -279,7 +297,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -294,7 +314,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -319,7 +341,9 @@ public:
     ~VirtualRouterDelete() = default;
 
 protected:
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -334,7 +358,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -349,7 +375,9 @@ public:
 
 protected:
 
-    int drop(PoolObjectSQL * obj, bool resive, RequestAttributes& att) override;
+    int drop(std::unique_ptr<PoolObjectSQL> obj,
+             bool recursive,
+             RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */

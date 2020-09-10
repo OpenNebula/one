@@ -96,26 +96,26 @@ public:
             std::string&         error_str);
 
     /**
-     *  Function to get a Datastore from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Datastore unique id
-     *    @param lock locks the Datastore mutex
-     *    @return a pointer to the Datastore, 0 if the Datastore could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Datastore unique identifier
+     *   @return a pointer to the Datastore, nullptr in case of failure
      */
-    Datastore * get(int oid)
+    std::unique_ptr<Datastore> get(int oid)
     {
-        return static_cast<Datastore *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Datastore>(oid);
+    }
 
     /**
-     *  Function to get a read only Datastore from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Datastore unique id
-     *    @return a pointer to the Datastore, 0 if the Datastore could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Datastore unique identifier
+     *   @return a pointer to the Datastore, nullptr in case of failure
      */
-    Datastore * get_ro(int oid)
+    std::unique_ptr<Datastore> get_ro(int oid)
     {
-        return static_cast<Datastore *>(PoolSQL::get_ro(oid));
+        return PoolSQL::get_ro<Datastore>(oid);
     }
 
     /**

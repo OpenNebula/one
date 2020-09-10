@@ -37,29 +37,27 @@ int MarketPlaceManager::import_app(
 {
     std::string app_data, image_data, ds_data;
 
-    Image * image;
-    Datastore * ds;
+    int app_id;
+    int origin_id;
 
-    int ds_id;
+    MarketPlaceApp::Type type;
 
     market_msg_t msg(MarketPlaceManagerMessages::IMPORT, "", appid, "");
 
-    MarketPlaceApp * app = apppool->get_ro(appid);
+    if ( auto app = apppool->get_ro(appid) )
+    {
+        app->to_xml(app_data);
 
-    if ( app == nullptr )
+        type = app->get_type();
+
+        app_id    = app->get_oid();
+        origin_id = app->get_origin_id();
+    }
+    else
     {
         err = "Marketplace app no longer exists";
         return -1;
     }
-
-    app->to_xml(app_data);
-
-    MarketPlaceApp::Type type = app->get_type();
-
-    int app_id    = app->get_oid();
-    int origin_id = app->get_origin_id();
-
-    app->unlock();
 
     auto mpmd = get();
 
@@ -71,33 +69,33 @@ int MarketPlaceManager::import_app(
     switch (type)
     {
         case MarketPlaceApp::IMAGE:
-            image = ipool->get_ro(origin_id);
-
-            if ( image == nullptr )
             {
-                goto error_noimage;
-            }
+                int ds_id;
 
-            image->to_xml(image_data);
+                if ( auto image = ipool->get_ro(origin_id) )
+                {
+                    image->to_xml(image_data);
 
-            ds_id = image->get_ds_id();
+                    ds_id = image->get_ds_id();
+                }
+                else
+                {
+                    goto error_noimage;
+                }
 
-            image->unlock();
+                if ( auto ds = dspool->get_ro(ds_id) )
+                {
+                    ds->to_xml(ds_data);
+                }
+                else
+                {
+                    goto error_nods;
+                }
 
-            ds = dspool->get_ro(ds_id);
-
-            if ( ds == nullptr )
-            {
-                goto error_nods;
-            }
-
-            ds->to_xml(ds_data);
-
-            ds->unlock();
-
-            if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
-            {
-                goto error_clone;
+                if (imagem->set_app_clone_state(app_id, origin_id, err) != 0)
+                {
+                    goto error_clone;
+                }
             }
             break;
 
@@ -134,20 +132,14 @@ error_type:
 
 error_clone:
 error_common:
-    app = apppool->get(appid);
-
-    if ( app == nullptr )
+    if (auto app = apppool->get(appid))
     {
-        return -1;
+        app->set_template_error_message(err);
+
+        app->set_state(MarketPlaceApp::ERROR);
+
+        apppool->update(app.get());
     }
-
-    app->set_template_error_message(err);
-
-    app->set_state(MarketPlaceApp::ERROR);
-
-    apppool->update(app);
-
-    app->unlock();
 
     NebulaLog::log("MKP", Log::ERROR, err);
 
@@ -159,18 +151,18 @@ error_common:
 
 void MarketPlaceManager::release_app_resources(int appid)
 {
-    MarketPlaceApp * app = apppool->get_ro(appid);
+    MarketPlaceApp::Type type;
+    int iid;
 
-    if (app == nullptr)
+    if (auto app = apppool->get_ro(appid))
+    {
+        type = app->get_type();
+        iid  = app->get_origin_id();
+    }
+    else
     {
         return;
     }
-
-    MarketPlaceApp::Type type = app->get_type();
-
-    int iid = app->get_origin_id();
-
-    app->unlock();
 
     switch (type)
     {
@@ -193,6 +185,11 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
 {
     std::string app_data;
 
+    MarketPlaceApp::Type type;
+    MarketPlaceApp::State state;
+
+    int market_id;
+
     auto mpmd = get();
 
     if ( mpmd == nullptr )
@@ -201,22 +198,20 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
         return -1;
     }
 
-    MarketPlaceApp * app = apppool->get_ro(appid);
+    if ( auto app = apppool->get_ro(appid) )
+    {
+        app->to_xml(app_data);
 
-    if (app == nullptr)
+        type  = app->get_type();
+        state = app->get_state();
+
+        market_id = app->get_market_id();
+    }
+    else
     {
         error_str = "Marketplace app no longer exists";
         return -1;
     }
-
-    app->to_xml(app_data);
-
-    MarketPlaceApp::Type type   = app->get_type();
-    MarketPlaceApp::State state = app->get_state();
-
-    int market_id = app->get_market_id();
-
-    app->unlock();
 
     switch (type)
     {
@@ -240,15 +235,11 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
             return -1;
     }
 
-    MarketPlace * mp = mppool->get(market_id);
-
-    if ( mp != nullptr )
+    if ( auto mp = mppool->get(market_id) )
     {
         mp->del_marketapp(appid);
 
-        mppool->update(mp);
-
-        mp->unlock();
+        mppool->update(mp.get());
     }
 
     string drv_msg(format_message(app_data, market_data, ""));

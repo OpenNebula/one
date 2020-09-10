@@ -48,16 +48,27 @@ public:
                  std::string& error_str);
 
     /**
-     *  Function to get a Zone from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Zone unique id
-     *    @param lock locks the Zone mutex
-     *    @return a pointer to the Zone, 0 if the Zone could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Zone unique identifier
+     *   @return a pointer to the Zone, nullptr in case of failure
      */
-    Zone * get(int oid)
+    std::unique_ptr<Zone> get(int oid)
     {
-        return static_cast<Zone *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Zone>(oid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Zone unique identifier
+     *   @return a pointer to the Zone, nullptr in case of failure
+     */
+    std::unique_ptr<Zone> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<Zone>(oid);
+    }
 
     /** Update a particular Zone
      *    @param zone pointer to Zone

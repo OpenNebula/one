@@ -75,8 +75,6 @@ void RequestManagerUpdateTemplate::request_execute(
         update_type = xmlrpc_c::value_int(paramList.getInt(3));
     }
 
-    PoolObjectSQL * object;
-
     if ( basic_authorization(oid, att) == false )
     {
         return;
@@ -90,9 +88,9 @@ void RequestManagerUpdateTemplate::request_execute(
     }
 
 
-    object = pool->get(oid);
+    auto object = pool->get<PoolObjectSQL>(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -101,27 +99,24 @@ void RequestManagerUpdateTemplate::request_execute(
 
     if (update_type == 0)
     {
-        rc = replace_template(object, tmpl, att, att.resp_msg);
+        rc = replace_template(object.get(), tmpl, att, att.resp_msg);
     }
     else //if (update_type == 1)
     {
-        rc = append_template(object, tmpl, att, att.resp_msg);
+        rc = append_template(object.get(), tmpl, att, att.resp_msg);
     }
 
     if ( rc != 0 )
     {
         att.resp_msg = "Cannot update template. " + att.resp_msg;
         failure_response(INTERNAL, att);
-        object->unlock();
 
         return;
     }
 
-    pool->update(object);
+    pool->update(object.get());
 
-    extra_updates(object);
-
-    object->unlock();
+    extra_updates(object.get());
 
     success_response(oid, att);
 
@@ -158,10 +153,8 @@ int ClusterUpdateTemplate::extra_updates(PoolObjectSQL * obj)
 
         if (host->update_reserved_capacity(ccpu, cmem))
         {
-            hpool->update(host);
+            hpool->update(host.get());
         }
-
-        host->unlock();
     }
 
     return 0;

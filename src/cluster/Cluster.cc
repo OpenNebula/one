@@ -99,25 +99,16 @@ int Cluster::get_default_system_ds(const set<int>& ds_set)
     Nebula& nd = Nebula::instance();
 
     DatastorePool*  dspool = nd.get_dspool();
-    Datastore*      ds;
 
-    for (set<int>::const_iterator it = ds_set.begin(); it != ds_set.end(); it++)
+    for (auto dsid : ds_set)
     {
-        ds = dspool->get_ro(*it);
-
-        if (ds == 0)
+        if ( auto ds = dspool->get_ro(dsid) )
         {
-            continue;
+            if (ds->get_type() == Datastore::SYSTEM_DS)
+            {
+                return dsid;
+            }
         }
-
-        if (ds->get_type() == Datastore::SYSTEM_DS)
-        {
-            ds->unlock();
-
-            return *it;
-        }
-
-        ds->unlock();
     }
 
     return -1;
