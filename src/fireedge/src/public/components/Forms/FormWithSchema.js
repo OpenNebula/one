@@ -1,55 +1,44 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  Grid,
-  TextField,
-  MenuItem,
-  FormControlLabel,
-  Checkbox
-} from '@material-ui/core';
-import { useFormContext, Controller } from 'react-hook-form';
+import { Grid } from '@material-ui/core';
+import { useFormContext } from 'react-hook-form';
 
 import { TYPE_INPUT } from 'client/constants';
-import ErrorHelper from 'client/components/FormControl/ErrorHelper';
+import TextController from 'client/components/FormControl/TextController';
+import SelectController from 'client/components/FormControl/SelectController';
+import CheckboxController from 'client/components/FormControl/CheckboxController';
+
+const InputController = {
+  [TYPE_INPUT.TEXT]: TextController,
+  [TYPE_INPUT.SELECT]: SelectController,
+  [TYPE_INPUT.CHECKBOX]: CheckboxController
+};
 
 const FormWithSchema = ({ id, cy, schema }) => {
-  const { register, control, errors } = useFormContext();
+  const { control, errors } = useFormContext();
 
   return (
     <Grid container spacing={3}>
-      {schema?.map(({ name, type, label, values }) => (
-        <Grid key={`${cy}-${name}`} item xs={12} md={6}>
-          {(type === TYPE_INPUT.TEXT || type === TYPE_INPUT.SELECT) && (
-            <Controller
-              as={
-                <TextField
-                  fullWidth
-                  select={type === TYPE_INPUT.SELECT}
-                  label={label}
-                  inputProps={{ 'data-cy': `${cy}-${name}` }}
-                  error={errors[name]}
-                  helperText={
-                    errors[name] && (
-                      <ErrorHelper label={errors[name]?.message} />
-                    )
-                  }
-                  FormHelperTextProps={{ 'data-cy': `${cy}-${name}-error` }}
-                >
-                  {type === TYPE_INPUT.SELECT &&
-                    values?.map(({ text, value }) => (
-                      <MenuItem key={`${name}-${value}`} value={`${value}`}>
-                        {text}
-                      </MenuItem>
-                    ))}
-                </TextField>
-              }
-              name={`${id}.${name}`}
-              control={control}
-            />
-          )}
-        </Grid>
-      ))}
+      {schema?.map(({ name, type, label, values }) => {
+        const dataCy = `${cy}-${name}`;
+        const inputName = id ? `${id}.${name}` : name;
+        const formError = id ? errors[id] : errors;
+        const inputError = formError ? formError[name] : false;
+
+        return (
+          <Grid key={`${cy}-${name}`} item xs={12} md={6}>
+            {React.createElement(InputController[type], {
+              control,
+              cy: dataCy,
+              name: inputName,
+              label,
+              values,
+              error: inputError
+            })}
+          </Grid>
+        );
+      })}
     </Grid>
   );
 };

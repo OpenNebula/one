@@ -8,13 +8,15 @@ import Steps from 'client/containers/Application/Create/steps';
 import { Container } from '@material-ui/core';
 
 function ApplicationCreate() {
-  const { steps, defaultValues } = Steps();
+  const { steps, defaultValues, resolvers } = Steps();
+
   const methods = useForm({
     mode: 'onBlur',
-    defaultValues
+    defaultValues,
+    resolver: yupResolver(resolvers)
   });
 
-  const onSubmit = formData => console.log('submit', formData);
+  const onSubmit = formData => console.log('submit', formData, methods.errors);
 
   return (
     <Container disableGutters>
