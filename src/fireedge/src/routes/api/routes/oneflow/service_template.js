@@ -26,14 +26,6 @@ const { parsePostData, returnSchemaError } = require('./functions');
 
 const { GET, POST, DELETE, PUT } = httpMethod;
 
-const serviceTemplateAll = (req, res, next, connect, zone, user) => {
-  if (req && res && user && next) {
-    conectionOneFlow(res, next, GET, user, '/service_template');
-  } else {
-    next();
-  }
-};
-
 const serviceTemplate = (req, res, next, connect, zone, user) => {
   if (req && res && user && next) {
     if (
@@ -47,12 +39,7 @@ const serviceTemplate = (req, res, next, connect, zone, user) => {
         req[fromData.resource].method
       ]);
     } else {
-      res.locals.httpCode = httpResponse(
-        methodNotAllowed,
-        '',
-        'invalid id service template'
-      );
-      next();
+      conectionOneFlow(res, next, GET, user, '/service_template');
     }
   } else {
     next();
@@ -122,7 +109,6 @@ const serviceTemplateCreate = (req, res, next, connect, zone, user) => {
   }
 };
 
-// PROBAR
 const serviceTemplateUpdate = (req, res, next, connect, zone, user) => {
   if (req && res && user && next) {
     if (
@@ -169,7 +155,6 @@ const serviceTemplateUpdate = (req, res, next, connect, zone, user) => {
   }
 };
 
-// PROBAR oneflow-server.rb
 const serviceTemplateAction = (req, res, next, connect, zone, user) => {
   if (req && res && user && next) {
     if (
@@ -216,7 +201,6 @@ const serviceTemplateAction = (req, res, next, connect, zone, user) => {
 };
 
 const serviceTemplateApi = {
-  serviceTemplateAll,
   serviceTemplate,
   serviceTemplateDelete,
   serviceTemplateCreate,
