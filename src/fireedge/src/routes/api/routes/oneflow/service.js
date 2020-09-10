@@ -26,14 +26,6 @@ const { parsePostData, returnSchemaError } = require('./functions');
 
 const { GET, POST, DELETE } = httpMethod;
 
-const serviceAll = (req, res, next, connect, zone, user) => {
-  if (req && res && user && next) {
-    conectionOneFlow(res, next, GET, user, '/service');
-  } else {
-    next();
-  }
-};
-
 const service = (req, res, next, connect, zone, user) => {
   if (req && res && user && next) {
     if (
@@ -52,12 +44,7 @@ const service = (req, res, next, connect, zone, user) => {
         req[fromData.resource].method
       );
     } else {
-      res.locals.httpCode = httpResponse(
-        methodNotAllowed,
-        '',
-        'invalid id service'
-      );
-      next();
+      conectionOneFlow(res, next, GET, user, '/service');
     }
   } else {
     next();
@@ -89,7 +76,6 @@ const serviceDelete = (req, res, next, connect, zone, user) => {
   }
 };
 
-// PROBAR oneflow-server.rb
 const serviceAddAction = (req, res, next, connect, zone, user) => {
   if (req && res && user && next) {
     if (
@@ -135,7 +121,6 @@ const serviceAddAction = (req, res, next, connect, zone, user) => {
   }
 };
 
-// PROBAR
 const serviceAddScale = (req, res, next, connect, zone, user) => {
   if (req && res && user && next) {
     if (
@@ -181,7 +166,6 @@ const serviceAddScale = (req, res, next, connect, zone, user) => {
   }
 };
 
-// PROBAR oneflow-server.rb
 const serviceAddRoleAction = (req, res, next, connect, zone, user) => {
   if (req && res && user && next) {
     if (
@@ -229,7 +213,6 @@ const serviceAddRoleAction = (req, res, next, connect, zone, user) => {
 };
 
 const serviceApi = {
-  serviceAll,
   service,
   serviceDelete,
   serviceAddAction,

@@ -13,7 +13,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 const {
-  serviceAll,
   service,
   serviceDelete,
   serviceAddAction,
@@ -21,7 +20,6 @@ const {
   serviceAddRoleAction
 } = require('./service');
 const {
-  serviceTemplateAll,
   serviceTemplate,
   serviceTemplateDelete,
   serviceTemplateCreate,
@@ -30,17 +28,11 @@ const {
 } = require('./service_template');
 const { httpMethod } = require('../../../../utils/constants/defaults');
 const {
-  SERVICE_ALL,
   SERVICE,
-  SERVICE_DELETE,
-  SERVICE_ADD_ACTION,
-  SERVICE_ADD_SCALE,
-  SERVICE_ADD_ROLE_ACTION,
-  SERVICE_TEMPLATE_ALL,
+  SERVICE_ACTION,
+  SERVICE_SCALE,
+  SERVICE_ROLE_ACTION,
   SERVICE_TEMPLATE,
-  SERVICE_TEMPLATE_DELETE,
-  SERVICE_TEMPLATE_CREATE,
-  SERVICE_TEMPLATE_UPDATE,
   SERVICE_TEMPLATE_ACTION
 } = require('./string-routes');
 
@@ -49,38 +41,28 @@ const { GET, POST, DELETE, PUT } = httpMethod;
 const privateRoutes = [
   {
     httpMethod: GET,
-    endpoint: SERVICE_ALL,
-    action: serviceAll
-  },
-  {
-    httpMethod: GET,
     endpoint: SERVICE,
     action: service
   },
   {
     httpMethod: DELETE,
-    endpoint: SERVICE_DELETE,
+    endpoint: SERVICE,
     action: serviceDelete
   },
   {
     httpMethod: POST,
-    endpoint: SERVICE_ADD_ACTION,
+    endpoint: SERVICE_ACTION,
     action: serviceAddAction
   },
   {
     httpMethod: POST,
-    endpoint: SERVICE_ADD_SCALE,
+    endpoint: SERVICE_SCALE,
     action: serviceAddScale
   },
   {
     httpMethod: POST,
-    endpoint: SERVICE_ADD_ROLE_ACTION,
+    endpoint: SERVICE_ROLE_ACTION,
     action: serviceAddRoleAction
-  },
-  {
-    httpMethod: GET,
-    endpoint: SERVICE_TEMPLATE_ALL,
-    action: serviceTemplateAll
   },
   {
     httpMethod: GET,
@@ -89,17 +71,17 @@ const privateRoutes = [
   },
   {
     httpMethod: DELETE,
-    endpoint: SERVICE_TEMPLATE_DELETE,
+    endpoint: SERVICE_TEMPLATE,
     action: serviceTemplateDelete
   },
   {
     httpMethod: POST,
-    endpoint: SERVICE_TEMPLATE_CREATE,
+    endpoint: SERVICE_TEMPLATE,
     action: serviceTemplateCreate
   },
   {
     httpMethod: PUT,
-    endpoint: SERVICE_TEMPLATE_UPDATE,
+    endpoint: SERVICE_TEMPLATE,
     action: serviceTemplateUpdate
   },
   {
