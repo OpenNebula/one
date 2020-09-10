@@ -1489,13 +1489,9 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
             continue;
         }
 
-        Datastore * ds = ds_pool->get(val);
-
-        if ( ds != 0)
+        if (auto ds = ds_pool->get(val))
         {
             ds->get_compatible_system_ds(csystem_ds);
-
-            ds->unlock();
 
             int rc = check_and_set_datastores_id(csystem_ds, ds_ids);
 

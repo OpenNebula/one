@@ -103,9 +103,9 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
+    auto zone = pool->get<Zone>(id);
 
-    if ( zone == 0 )
+    if ( zone == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -124,9 +124,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
     {
         std::vector<int> zids;
 
-        pool->update(zone);
-
-        zone->unlock();
+        pool->update(zone.get());
     }
     else
     {
@@ -140,7 +138,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
         ErrorCode ec = master_update_zone(oid, tmpl_xml, att);
 
-        zone->unlock();
+        zone.reset();
 
         if ( ec != SUCCESS )
         {
@@ -158,16 +156,12 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
             while (!updated)
             {
-                Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
-
-                if ( zone != 0 )
+                if ( auto zone = pool->get_ro<Zone>(id) )
                 {
                     if ( zone->get_server(zs_id) != 0 )
                     {
                         updated = true;
                     }
-
-                    zone->unlock();
                 }
 
                 usleep(250000);
@@ -207,9 +201,9 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Zone * zone = (static_cast<ZonePool *>(pool))->get(id);
+    auto zone = pool->get<Zone>(id);
 
-    if ( zone == 0 )
+    if ( zone == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -220,7 +214,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
     if ( zone->delete_server(zs_id, att.resp_msg) == -1 )
     {
         failure_response(ACTION, att);
-        zone->unlock();
 
         return;
     }
@@ -231,9 +224,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
     {
         std::vector<int> zids;
 
-        pool->update(zone);
-
-        zone->unlock();
+        pool->update(zone.get());
     }
     else
     {
@@ -244,8 +235,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         zone->to_xml(tmpl_xml);
 
         ErrorCode ec = master_update_zone(oid, tmpl_xml, att);
-
-        zone->unlock();
 
         if ( ec != SUCCESS )
         {

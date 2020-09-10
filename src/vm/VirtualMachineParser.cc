@@ -64,7 +64,6 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     Nebula& nd = Nebula::instance();
 
     ImagePool * ipool = nd.get_ipool();
-    Image *     img   = 0;
 
     int img_id;
 
@@ -72,7 +71,6 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     Image::ImageState state;
 
     DatastorePool * ds_pool = nd.get_dspool();
-    Datastore *     ds;
     int             ds_id;
 
     string attr;
@@ -105,9 +103,9 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     img_id = img_ids.back();
 
-    img = ipool->get_ro(img_id);
+    auto img = ipool->get_ro(img_id);
 
-    if ( img == 0 )
+    if ( img == nullptr )
     {
         error_str = "Image no longer exists in attribute: " + attr;
         return -1;
@@ -124,7 +122,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     os->replace(base_name_source, img->get_source());
     os->replace(base_name_ds_id,  img->get_ds_id());
 
-    img->unlock();
+    img.reset();
 
     type_str = Image::type_to_str(type);
 
@@ -150,9 +148,9 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    ds = ds_pool->get_ro(ds_id);
+    auto ds = ds_pool->get_ro(ds_id);
 
-    if ( ds == 0 )
+    if ( ds == nullptr )
     {
         error_str = "Associated datastore for image does not exist";
         return -1;
@@ -166,8 +164,6 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     {
         os->replace(base_name_cluster, one_util::join(cluster_ids, ','));
     }
-
-    ds->unlock();
 
     return 0;
 }

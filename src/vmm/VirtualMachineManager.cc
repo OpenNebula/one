@@ -195,12 +195,10 @@ string VirtualMachineManager::format_message(
     ostringstream oss;
 
     string ds_tmpl = "";
-    Datastore * ds = ds_pool->get_ro(ds_id);
 
-    if ( ds != nullptr )
+    if ( auto ds = ds_pool->get_ro(ds_id) )
     {
         ds->to_xml(ds_tmpl);
-        ds->unlock();
     }
 
     oss << "<VMM_DRIVER_ACTION_DATA>"
@@ -336,7 +334,6 @@ static int do_context_command(VirtualMachine * vm, const string& password,
 void VirtualMachineManager::trigger_deploy(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
         int rc;
 
@@ -347,21 +344,22 @@ void VirtualMachineManager::trigger_deploy(int vid)
         string        vm_tmpl;
         string        drv_msg;
 
-        vm = vmpool->get(vid);
+        int uid;
+        int owner_id;
 
-        if (vm == nullptr)
+        if ( auto vm = vmpool->get(vid) )
+        {
+            uid = vm->get_created_by_uid();
+            owner_id = vm->get_uid();
+        }
+        else
         {
             return;
         }
 
-        int uid = vm->get_created_by_uid();
-        int owner_id = vm->get_uid();
-
-        vm->unlock();
-
         password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -388,14 +386,14 @@ void VirtualMachineManager::trigger_deploy(int vid)
 
         os.str("");
 
-        rc = vmd->deployment_description(vm,vm->get_deployment_file());
+        rc = vmd->deployment_description(vm.get(), vm->get_deployment_file());
 
         if (rc != 0)
         {
             goto error_file;
         }
 
-        if ( do_context_command(vm, password, prolog_cmd, disk_path) == -1 )
+        if ( do_context_command(vm.get(), password, prolog_cmd, disk_path) == -1 )
         {
             goto error_no_tm_command;
         }
@@ -417,9 +415,7 @@ void VirtualMachineManager::trigger_deploy(int vid)
 
         vmd->deploy(vid, drv_msg);
 
-        vmpool->update(vm);
-
-        vm->unlock();
+        vmpool->update(vm.get());
 
         return;
 
@@ -445,7 +441,6 @@ void VirtualMachineManager::trigger_deploy(int vid)
             lcm->trigger_deploy_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -456,7 +451,6 @@ void VirtualMachineManager::trigger_deploy(int vid)
 void VirtualMachineManager::trigger_save(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         string   hostname, checkpoint_file;
@@ -467,7 +461,7 @@ void VirtualMachineManager::trigger_save(int vid)
         ostringstream os;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -523,8 +517,6 @@ void VirtualMachineManager::trigger_save(int vid)
 
         vmd->save(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -544,7 +536,6 @@ void VirtualMachineManager::trigger_save(int vid)
             lcm->trigger_save_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -555,7 +546,6 @@ void VirtualMachineManager::trigger_save(int vid)
 void VirtualMachineManager::trigger_shutdown(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         string        hostname;
@@ -566,7 +556,7 @@ void VirtualMachineManager::trigger_shutdown(int vid)
         int      ds_id;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -620,8 +610,6 @@ void VirtualMachineManager::trigger_shutdown(int vid)
 
         vmd->shutdown(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -641,7 +629,6 @@ void VirtualMachineManager::trigger_shutdown(int vid)
             lcm->trigger_shutdown_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -652,7 +639,6 @@ void VirtualMachineManager::trigger_shutdown(int vid)
 void VirtualMachineManager::trigger_reboot(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         string        vm_tmpl;
@@ -660,7 +646,7 @@ void VirtualMachineManager::trigger_reboot(int vid)
         ostringstream os;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -697,8 +683,6 @@ void VirtualMachineManager::trigger_reboot(int vid)
 
         vmd->reboot(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -710,7 +694,6 @@ void VirtualMachineManager::trigger_reboot(int vid)
 
         error_common:
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -721,7 +704,6 @@ void VirtualMachineManager::trigger_reboot(int vid)
 void VirtualMachineManager::trigger_reset(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         string        vm_tmpl;
@@ -729,7 +711,7 @@ void VirtualMachineManager::trigger_reset(int vid)
         ostringstream os;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -766,8 +748,6 @@ void VirtualMachineManager::trigger_reset(int vid)
 
         vmd->reset(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -779,7 +759,6 @@ void VirtualMachineManager::trigger_reset(int vid)
 
         error_common:
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -790,7 +769,6 @@ void VirtualMachineManager::trigger_reset(int vid)
 void VirtualMachineManager::trigger_cancel(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm;
         ostringstream    os;
 
         string   hostname;
@@ -801,7 +779,7 @@ void VirtualMachineManager::trigger_cancel(int vid)
         const VirtualMachineManagerDriver *   vmd;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -855,8 +833,6 @@ void VirtualMachineManager::trigger_cancel(int vid)
 
         vmd->cancel(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -876,7 +852,6 @@ void VirtualMachineManager::trigger_cancel(int vid)
             lcm->trigger_shutdown_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -887,7 +862,6 @@ void VirtualMachineManager::trigger_cancel(int vid)
 void VirtualMachineManager::trigger_cancel_previous(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm;
         ostringstream    os;
 
         string   vm_tmpl;
@@ -896,7 +870,7 @@ void VirtualMachineManager::trigger_cancel_previous(int vid)
         const VirtualMachineManagerDriver * vmd;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -933,8 +907,6 @@ void VirtualMachineManager::trigger_cancel_previous(int vid)
 
         vmd->cancel(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -946,7 +918,6 @@ void VirtualMachineManager::trigger_cancel_previous(int vid)
 
         error_common:
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -957,7 +928,6 @@ void VirtualMachineManager::trigger_cancel_previous(int vid)
 void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
 {
     trigger([this, vid, cancel_previous] {
-        VirtualMachine * vm;
         ostringstream    os;
 
         string   vm_tmpl;
@@ -971,7 +941,7 @@ void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
         Nebula& nd = Nebula::instance();
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -998,7 +968,7 @@ void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
 
         if (!vm->get_host_is_cloud())
         {
-            if ( nd.get_tm()->epilog_delete_commands(vm, os, false, false) != 0 )
+            if ( nd.get_tm()->epilog_delete_commands(vm.get(), os, false, false) != 0 )
             {
                 goto error_epligo_command;
             }
@@ -1023,8 +993,6 @@ void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
 
         vmd->cleanup(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -1042,7 +1010,6 @@ void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
             nd.get_lcm()->trigger_cleanup_callback(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1053,7 +1020,6 @@ void VirtualMachineManager::trigger_cleanup(int vid, bool cancel_previous)
 void VirtualMachineManager::trigger_cleanup_previous(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm;
         ostringstream    os;
 
         string   vm_tmpl;
@@ -1065,7 +1031,7 @@ void VirtualMachineManager::trigger_cleanup_previous(int vid)
         Nebula& nd = Nebula::instance();
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1085,7 +1051,7 @@ void VirtualMachineManager::trigger_cleanup_previous(int vid)
             goto error_driver;
         }
 
-        if ( nd.get_tm()->epilog_delete_commands(vm, os, false, true) != 0 )
+        if ( nd.get_tm()->epilog_delete_commands(vm.get(), os, false, true) != 0 )
         {
             goto error_epilog_command;
         }
@@ -1109,8 +1075,6 @@ void VirtualMachineManager::trigger_cleanup_previous(int vid)
 
         vmd->cleanup(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -1128,7 +1092,6 @@ void VirtualMachineManager::trigger_cleanup_previous(int vid)
             nd.get_lcm()->trigger_cleanup_callback(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1139,7 +1102,6 @@ void VirtualMachineManager::trigger_cleanup_previous(int vid)
 void VirtualMachineManager::trigger_migrate(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1147,7 +1109,7 @@ void VirtualMachineManager::trigger_migrate(int vid)
         string   drv_msg;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1172,7 +1134,7 @@ void VirtualMachineManager::trigger_migrate(int vid)
             goto error_previous_history;
         }
 
-        Nebula::instance().get_tm()->migrate_transfer_command(vm, os);
+        Nebula::instance().get_tm()->migrate_transfer_command(vm.get(), os);
 
         // Invoke driver method
         drv_msg = format_message(
@@ -1190,8 +1152,6 @@ void VirtualMachineManager::trigger_migrate(int vid)
             -1);
 
         vmd->migrate(vid, drv_msg);
-
-        vm->unlock();
 
         return;
 
@@ -1212,7 +1172,6 @@ void VirtualMachineManager::trigger_migrate(int vid)
             lcm->trigger_deploy_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1223,7 +1182,6 @@ void VirtualMachineManager::trigger_migrate(int vid)
 void VirtualMachineManager::trigger_restore(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1236,21 +1194,22 @@ void VirtualMachineManager::trigger_restore(int vid)
 
         string drv_msg;
 
-        vm = vmpool->get(vid);
+        int uid;
+        int owner_id;
 
-        if (vm == nullptr)
+        if ( auto vm = vmpool->get(vid) )
+        {
+            uid = vm->get_created_by_uid();
+            owner_id = vm->get_uid();
+        }
+        else
         {
             return;
         }
 
-        int uid = vm->get_created_by_uid();
-        int owner_id = vm->get_uid();
-
-        vm->unlock();
-
         password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1269,7 +1228,7 @@ void VirtualMachineManager::trigger_restore(int vid)
             goto error_driver;
         }
 
-        if ( do_context_command(vm, password, prolog_cmd, disk_path) == -1 )
+        if ( do_context_command(vm.get(), password, prolog_cmd, disk_path) == -1 )
         {
             goto error_no_tm_command;
         }
@@ -1291,9 +1250,7 @@ void VirtualMachineManager::trigger_restore(int vid)
 
         vmd->restore(vid, drv_msg);
 
-        vmpool->update(vm);
-
-        vm->unlock();
+        vmpool->update(vm.get());
 
         return;
 
@@ -1314,7 +1271,6 @@ void VirtualMachineManager::trigger_restore(int vid)
             lcm->trigger_deploy_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1325,13 +1281,12 @@ void VirtualMachineManager::trigger_restore(int vid)
 void VirtualMachineManager::trigger_driver_cancel(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine * vm;
         ostringstream    os;
 
         const VirtualMachineManagerDriver * vmd;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1354,7 +1309,6 @@ void VirtualMachineManager::trigger_driver_cancel(int vid)
         // Invoke driver method
         vmd->driver_cancel(vid);
 
-        vm->unlock();
         return;
 
         error_history:
@@ -1366,7 +1320,6 @@ void VirtualMachineManager::trigger_driver_cancel(int vid)
 
         error_common:
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1377,7 +1330,6 @@ void VirtualMachineManager::trigger_driver_cancel(int vid)
 void VirtualMachineManager::trigger_attach(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os, error_os;
@@ -1399,7 +1351,7 @@ void VirtualMachineManager::trigger_attach(int vid)
         TransferManager * tm = nd.get_tm();
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1432,7 +1384,7 @@ void VirtualMachineManager::trigger_attach(int vid)
         opennebula_hostname = nd.get_nebula_hostname();
 
         rc = tm->prolog_transfer_command(
-                vm,
+                vm.get(),
                 disk,
                 vm_tm_mad,
                 opennebula_hostname,
@@ -1448,7 +1400,7 @@ void VirtualMachineManager::trigger_attach(int vid)
 
         os.str("");
 
-        tm->epilog_transfer_command(vm, vm->get_hostname(), disk, os);
+        tm->epilog_transfer_command(vm.get(), vm->get_hostname(), disk, os);
 
         epilog_cmd = os.str();
 
@@ -1476,8 +1428,6 @@ void VirtualMachineManager::trigger_attach(int vid)
             -1);
 
         vmd->attach(vid, drv_msg);
-
-        vm->unlock();
 
         return;
 
@@ -1507,7 +1457,6 @@ void VirtualMachineManager::trigger_attach(int vid)
             lcm->trigger_attach_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1518,7 +1467,6 @@ void VirtualMachineManager::trigger_attach(int vid)
 void VirtualMachineManager::trigger_detach(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1538,7 +1486,7 @@ void VirtualMachineManager::trigger_detach(int vid)
         TransferManager * tm = nd.get_tm();
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1570,7 +1518,7 @@ void VirtualMachineManager::trigger_detach(int vid)
 
         disk_id = disk->get_disk_id();
 
-        tm->epilog_transfer_command(vm, vm->get_hostname(), disk, os);
+        tm->epilog_transfer_command(vm.get(), vm->get_hostname(), disk, os);
 
         epilog_cmd = os.str();
 
@@ -1596,8 +1544,6 @@ void VirtualMachineManager::trigger_detach(int vid)
 
         vmd->detach(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_disk:
@@ -1621,7 +1567,6 @@ void VirtualMachineManager::trigger_detach(int vid)
             lcm->trigger_detach_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1632,7 +1577,6 @@ void VirtualMachineManager::trigger_detach(int vid)
 void VirtualMachineManager::trigger_snapshot_create(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1641,7 +1585,7 @@ void VirtualMachineManager::trigger_snapshot_create(int vid)
         string  drv_msg;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1677,8 +1621,6 @@ void VirtualMachineManager::trigger_snapshot_create(int vid)
 
         vmd->snapshot_create(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
     error_history:
@@ -1697,7 +1639,6 @@ void VirtualMachineManager::trigger_snapshot_create(int vid)
         lcm->trigger_snapshot_create_failure(vid);
 
         vm->log("VMM", Log::ERROR, os);
-        vm->unlock();
         return;
     });
 }
@@ -1708,7 +1649,6 @@ void VirtualMachineManager::trigger_snapshot_create(int vid)
 void VirtualMachineManager::trigger_snapshot_revert(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1717,7 +1657,7 @@ void VirtualMachineManager::trigger_snapshot_revert(int vid)
         string  drv_msg;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1753,8 +1693,6 @@ void VirtualMachineManager::trigger_snapshot_revert(int vid)
 
         vmd->snapshot_revert(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -1773,7 +1711,6 @@ void VirtualMachineManager::trigger_snapshot_revert(int vid)
             lcm->trigger_snapshot_revert_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1784,7 +1721,6 @@ void VirtualMachineManager::trigger_snapshot_revert(int vid)
 void VirtualMachineManager::trigger_snapshot_delete(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1793,7 +1729,7 @@ void VirtualMachineManager::trigger_snapshot_delete(int vid)
         string  drv_msg;
 
         // Get the VM from the pool
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1829,8 +1765,6 @@ void VirtualMachineManager::trigger_snapshot_delete(int vid)
 
         vmd->snapshot_delete(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_history:
@@ -1849,7 +1783,6 @@ void VirtualMachineManager::trigger_snapshot_delete(int vid)
             lcm->trigger_snapshot_delete_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1860,7 +1793,6 @@ void VirtualMachineManager::trigger_snapshot_delete(int vid)
 void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -1880,7 +1812,7 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
         Nebula& nd           = Nebula::instance();
         TransferManager * tm = nd.get_tm();
 
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1904,7 +1836,7 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
             goto error_disk;
         }
 
-        rc = tm->snapshot_transfer_command(vm, "SNAP_CREATE", os);
+        rc = tm->snapshot_transfer_command(vm.get(), "SNAP_CREATE", os);
 
         snap_cmd = os.str();
 
@@ -1936,8 +1868,6 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
 
         vmd->disk_snapshot_create(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_disk:
@@ -1962,7 +1892,6 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
             lcm->trigger_disk_snapshot_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -1973,7 +1902,6 @@ void VirtualMachineManager::trigger_disk_snapshot_create(int vid)
 void VirtualMachineManager::trigger_disk_resize(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         VirtualMachineDisk * disk;
@@ -1989,7 +1917,7 @@ void VirtualMachineManager::trigger_disk_resize(int vid)
         Nebula& nd           = Nebula::instance();
         TransferManager * tm = nd.get_tm();
 
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -2015,7 +1943,7 @@ void VirtualMachineManager::trigger_disk_resize(int vid)
             goto error_disk;
         }
 
-        tm->resize_command(vm, disk, os);
+        tm->resize_command(vm.get(), disk, os);
 
         resize_cmd = os.str();
 
@@ -2047,8 +1975,6 @@ void VirtualMachineManager::trigger_disk_resize(int vid)
 
         vmd->disk_resize(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error_disk:
@@ -2073,7 +1999,6 @@ void VirtualMachineManager::trigger_disk_resize(int vid)
             lcm->trigger_disk_snapshot_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -2094,7 +2019,7 @@ void VirtualMachineManager::trigger_update_conf(int vid)
         string  resize_cmd;
         string  disk_path;
 
-        VirtualMachine *vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
         const VirtualMachineManagerDriver * vmd;
 
         int uid, owner_id;
@@ -2122,7 +2047,7 @@ void VirtualMachineManager::trigger_update_conf(int vid)
         owner_id = vm->get_uid();
 
         password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
-        if ( do_context_command(vm, password, prolog_cmd, disk_path) == -1 )
+        if ( do_context_command(vm.get(), password, prolog_cmd, disk_path) == -1 )
         {
             os << "Cannot set context disk to update it for VM " << vm->get_oid();
             goto error;
@@ -2145,8 +2070,6 @@ void VirtualMachineManager::trigger_update_conf(int vid)
 
         vmd->update_conf(vid, drv_msg);
 
-        vm->unlock();
-
         return;
 
         error:
@@ -2155,7 +2078,6 @@ void VirtualMachineManager::trigger_update_conf(int vid)
             lcm->trigger_update_conf_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -2166,7 +2088,6 @@ void VirtualMachineManager::trigger_update_conf(int vid)
 void VirtualMachineManager::trigger_attach_nic(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -2178,21 +2099,23 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
         string  disk_path;
         string  password;
 
-        // Get the VM from the pool
-        vm = vmpool->get(vid);
+        int uid;
+        int owner_id;
 
-        if (vm == nullptr)
+        // Get the VM from the pool
+        if ( auto vm = vmpool->get(vid) )
+        {
+            uid = vm->get_created_by_uid();
+            owner_id = vm->get_uid();
+        }
+        else
         {
             return;
         }
 
-        int uid = vm->get_created_by_uid();
-        int owner_id = vm->get_uid();
-        vm->unlock();
-
         password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -2212,7 +2135,7 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
             goto error_driver;
         }
 
-        if ( do_context_command(vm, password, prolog_cmd, disk_path) == -1 )
+        if ( do_context_command(vm.get(), password, prolog_cmd, disk_path) == -1 )
         {
             goto error_no_tm_command;
         }
@@ -2234,9 +2157,7 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
 
         vmd->attach_nic(vid, drv_msg);
 
-        vmpool->update(vm);
-
-        vm->unlock();
+        vmpool->update(vm.get());
 
         return;
 
@@ -2261,7 +2182,6 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
             lcm->trigger_attach_nic_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }
@@ -2272,7 +2192,6 @@ void VirtualMachineManager::trigger_attach_nic(int vid)
 void VirtualMachineManager::trigger_detach_nic(int vid)
 {
     trigger([this, vid] {
-        VirtualMachine *                    vm;
         const VirtualMachineManagerDriver * vmd;
 
         ostringstream os;
@@ -2283,21 +2202,23 @@ void VirtualMachineManager::trigger_detach_nic(int vid)
         string  disk_path;
         string  password;
 
-        // Get the VM from the pool
-        vm = vmpool->get(vid);
+        int uid;
+        int owner_id;
 
-        if (vm == nullptr)
+        // Get the VM from the pool
+        if ( auto vm = vmpool->get(vid) )
+        {
+            uid = vm->get_created_by_uid();
+            owner_id = vm->get_uid();
+        }
+        else
         {
             return;
         }
 
-        int uid = vm->get_created_by_uid();
-        int owner_id = vm->get_uid();
-        vm->unlock();
-
         password = Nebula::instance().get_upool()->get_token_password(uid, owner_id);
 
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -2317,7 +2238,7 @@ void VirtualMachineManager::trigger_detach_nic(int vid)
             goto error_driver;
         }
 
-        if ( do_context_command(vm, password, prolog_cmd, disk_path) == -1 )
+        if ( do_context_command(vm.get(), password, prolog_cmd, disk_path) == -1 )
         {
             goto error_no_tm_command;
         }
@@ -2338,8 +2259,6 @@ void VirtualMachineManager::trigger_detach_nic(int vid)
             -1);
 
         vmd->detach_nic(vid, drv_msg);
-
-        vm->unlock();
 
         return;
 
@@ -2364,7 +2283,6 @@ void VirtualMachineManager::trigger_detach_nic(int vid)
             lcm->trigger_detach_nic_failure(vid);
 
             vm->log("VMM", Log::ERROR, os);
-            vm->unlock();
             return;
     });
 }

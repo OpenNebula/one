@@ -263,34 +263,23 @@ void Quotas::quota_del(QuotaType type, int uid, int gid, Template * tmpl)
     UserPool *  upool = nd.get_upool();
     GroupPool * gpool = nd.get_gpool();
 
-    User *  user;
-    Group * group;
-
     if ( uid != UserPool::ONEADMIN_ID )
     {
-        user = upool->get(uid);
-
-        if ( user != 0 )
+        if ( auto user = upool->get(uid) )
         {
             user->quota.quota_del(type, tmpl);
 
-            upool->update_quotas(user);
-
-            user->unlock();
+            upool->update_quotas(user.get());
         }
     }
 
     if ( gid != GroupPool::ONEADMIN_ID )
     {
-        group = gpool->get(gid);
-
-        if ( group != 0 )
+        if ( auto group = gpool->get(gid) )
         {
             group->quota.quota_del(type, tmpl);
 
-            gpool->update_quotas(group);
-
-            group->unlock();
+            gpool->update_quotas(group.get());
         }
     }
 }
@@ -304,35 +293,27 @@ void Quotas::quota_check(QuotaType type, int uid, int gid, Template * tmpl,
 
     if ( uid != UserPool::ONEADMIN_ID )
     {
-        User * user = upool->get(uid);
-
-        if ( user != 0 )
+        if ( auto user = upool->get(uid) )
         {
             DefaultQuotas defaultq = nd.get_default_user_quota();
 
             if ( user->quota.quota_check(type, tmpl, defaultq, error) )
             {
-                upool->update_quotas(user);
+                upool->update_quotas(user.get());
             }
-
-            user->unlock();
         }
     }
 
     if ( gid != GroupPool::ONEADMIN_ID )
     {
-        Group * group = gpool->get(gid);
-
-        if ( group != 0 )
+        if ( auto group = gpool->get(gid) )
         {
             DefaultQuotas defaultq = nd.get_default_group_quota();
 
             if ( group->quota.quota_check(type, tmpl, defaultq, error) )
             {
-                gpool->update_quotas(group);
+                gpool->update_quotas(group.get());
             }
-
-            group->unlock();
         }
     }
 }
@@ -360,14 +341,12 @@ void Quotas::ds_del_recreate(int uid, int gid, vector<Template *>& ds_quotas)
 
         if ( img_owner )
         {
-            Image* img = ipool->get_ro(image_id);
-
-            if(img != 0)
+            if (auto img = ipool->get_ro(image_id))
             {
                 int img_uid = img->get_uid();
                 int img_gid = img->get_gid();
 
-                img->unlock();
+                img.reset();
 
                 quota_del(DATASTORE, img_uid, img_gid, tmpl);
             }

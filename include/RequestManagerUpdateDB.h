@@ -65,7 +65,7 @@ protected:
     ErrorCode request_execute(int oid, const std::string& xml,
             RequestAttributes& att)
     {
-        PoolObjectSQL * object = pool->get(oid);
+        auto object = pool->get<PoolObjectSQL>(oid);
 
         if ( object == 0 )
         {
@@ -80,7 +80,6 @@ protected:
         if ( object->from_xml(xml) != 0 )
         {
             object->from_xml(old_xml);
-            object->unlock();
 
             att.resp_msg = "Cannot update object from XML";
             return INTERNAL;
@@ -89,15 +88,12 @@ protected:
         if ( object->get_oid() != oid )
         {
             object->from_xml(old_xml);
-            object->unlock();
 
             att.resp_msg = "Consistency check failed";
             return INTERNAL;
         }
 
-        pool->update(object);
-
-        object->unlock();
+        pool->update(object.get());
 
         return SUCCESS;
     }

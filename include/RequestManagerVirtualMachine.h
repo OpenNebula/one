@@ -101,9 +101,9 @@ protected:
                     int                ds_id,
                     RequestAttributes& att);
 
-    VirtualMachine * get_vm(int id, RequestAttributes& att);
+    std::unique_ptr<VirtualMachine> get_vm(int id, RequestAttributes& att);
 
-    VirtualMachine * get_vm_ro(int id, RequestAttributes& att);
+    std::unique_ptr<VirtualMachine> get_vm_ro(int id, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */

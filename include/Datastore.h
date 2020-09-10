@@ -88,6 +88,8 @@ public:
         }
     };
 
+    virtual ~Datastore() = default;
+
     /**
      * Function to print the Datastore object into a string in XML format
      *  @param xml the resulting XML string
@@ -343,8 +345,6 @@ private:
             int                 umask,
             DatastoreTemplate*  ds_template,
             const std::set<int> &cluster_ids);
-
-    virtual ~Datastore() = default;
 
     /**
      *  Sets the DISK_TYPE attribute for the datastore. This function will

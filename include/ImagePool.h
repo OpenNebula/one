@@ -19,7 +19,6 @@
 
 #include "PoolSQL.h"
 #include "Image.h"
-#include "NebulaLog.h"
 #include "Datastore.h"
 #include "OneDB.h"
 
@@ -88,54 +87,54 @@ public:
         std::string&             error_str);
 
     /**
-     **  Function to get a Image from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Image unique id
-     *    @param lock locks the Image mutex
-     *    @return a pointer to the Image, 0 if the Image could not be loaded
-     */
-    Image * get(int oid)
-    {
-        return static_cast<Image *>(PoolSQL::get(oid));
-    };
-
-     /**
-     **  Function to get a read only Image from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Image unique id
-     *    @return a pointer to the Image, 0 if the Image could not be loaded
-     */
-    Image * get_ro(int oid)
-    {
-        return static_cast<Image *>(PoolSQL::get(oid));
-    };
-
-    /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param uid id of owner
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Image unique identifier
+     *   @return a pointer to the Image, nullptr in case of failure
      */
-    Image * get(const std::string& name, int uid)
+    std::unique_ptr<Image> get(int oid)
     {
-        return static_cast<Image *>(PoolSQL::get(name,uid));
-    };
+        return PoolSQL::get<Image>(oid);
+    }
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Image unique identifier
+     *   @return a pointer to the Image, nullptr in case of failure
+     */
+    std::unique_ptr<Image> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<Image>(oid);
+    }
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param name of the object
      *   @param uid id of owner
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    Image * get_ro(const std::string& name, int uid)
+    std::unique_ptr<Image> get(const std::string& name, int uid)
     {
-        return static_cast<Image *>(PoolSQL::get_ro(name,uid));
-    };
+        return PoolSQL::get<Image>(name,uid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    std::unique_ptr<Image> get_ro(const std::string& name, int uid)
+    {
+        return PoolSQL::get_ro<Image>(name, uid);
+    }
 
     /**
      *  Bootstraps the database table(s) associated to the Image pool

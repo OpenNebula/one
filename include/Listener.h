@@ -34,8 +34,45 @@
 class Timer
 {
 public:
+    /**
+     *  Empty constructor, call start method to start the thread timer
+     **/
+    Timer() = default;
+
+    /**
+     *  Starts async thread, which call 'timer' method every 's' seconds
+     **/
     Timer(double s, std::function<void()> timer)
     {
+        start(s, timer);
+    }
+
+    /**
+     * Destructor, stops the running thread
+     **/
+    ~Timer()
+    {
+        stop();
+
+        if (timer_thread.joinable())
+        {
+            timer_thread.join();
+        }
+    }
+
+    /**
+     * Starts async thread, which call 'timer' method every 's' seconds
+     * Can be called only if default constructor is used, to start the thread
+     * Can be called only once per class instance
+     **/
+    void start(double s, std::function<void()> timer)
+    {
+        if (timer_thread.joinable())
+        {
+            NebulaLog::error("TMR", "Trying to start Timer thread twice!");
+            return;
+        }
+
         end = false;
 
         timer_thread = std::thread([&, s, timer]{
@@ -58,15 +95,12 @@ public:
                 }
             }
         });
-    };
-
-    ~Timer()
-    {
-        stop();
-
-        timer_thread.join();
     }
 
+    /**
+     * Stops the running thread. It's not necessery to call this method,
+     * the thread is stopped in destructor
+     **/
     void stop()
     {
         std::unique_lock<std::mutex> ul(lock);
@@ -75,6 +109,7 @@ public:
 
         cond.notify_one();
     }
+
 private:
     std::atomic<bool> end;
 

@@ -35,6 +35,8 @@ class User : public PoolObjectSQL
 {
 public:
 
+    virtual ~User() = default;
+
     /**
      *  Characters that can not be in a name
      */
@@ -267,6 +269,7 @@ private:
     // -------------------------------------------------------------------------
 
     friend class UserPool;
+    friend class PoolSQL;
 
     // -------------------------------------------------------------------------
     // User Attributes
@@ -326,6 +329,7 @@ private:
         return db->exec_local_wr(oss_user);
     }
 
+protected:
     /**
      *  Reads the User (identified with its OID) from the database.
      *    @param db pointer to the db
@@ -390,8 +394,6 @@ protected:
     {
         obj_template = new UserTemplate;
     }
-
-    virtual ~User() = default;
 
     // *************************************************************************
     // DataBase implementation

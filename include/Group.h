@@ -31,6 +31,8 @@ class Group : public PoolObjectSQL
 {
 public:
 
+    virtual ~Group() = default;
+
     /**
      * Function to print the Group object into a string in XML format
      *  @param xml the resulting XML string
@@ -172,14 +174,13 @@ private:
     // -------------------------------------------------------------------------
 
     friend class GroupPool;
+    friend class PoolSQL;
 
     // *************************************************************************
     // Constructor
     // *************************************************************************
 
     Group(int id, const std::string& name);
-
-    virtual ~Group() = default;
 
     // *************************************************************************
     // Administrators

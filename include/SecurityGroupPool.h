@@ -60,27 +60,27 @@ public:
             std::string&       error_str);
 
     /**
-     *  Function to get a SecurityGroup from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid SecurityGroup unique id
-     *    @param lock locks the SecurityGroup mutex
-     *    @return a pointer to the SecurityGroup, 0 if the SecurityGroup could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the SecurityGroup unique identifier
+     *   @return a pointer to the SecurityGroup, nullptr in case of failure
      */
-    SecurityGroup * get(int oid)
+    std::unique_ptr<SecurityGroup> get(int oid)
     {
-        return static_cast<SecurityGroup *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<SecurityGroup>(oid);
+    }
 
     /**
-     *  Function to get a read only SecurityGroup from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid SecurityGroup unique id
-     *    @return a pointer to the SecurityGroup, 0 if the SecurityGroup could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the SecurityGroup unique identifier
+     *   @return a pointer to the SecurityGroup, nullptr in case of failure
      */
-    SecurityGroup * get_ro(int oid)
+    std::unique_ptr<SecurityGroup> get_ro(int oid)
     {
-        return static_cast<SecurityGroup *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<SecurityGroup>(oid);
+    }
 
     /** Update a particular SecurityGroup
      *    @param securitygroup pointer to SecurityGroup

@@ -64,20 +64,21 @@ protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 
-    PoolObjectSQL * get_and_quota(int                       oid,
-                                  int                       new_uid,
-                                  int                       new_gid,
-                                  RequestAttributes&        att)
+    std::unique_ptr<PoolObjectSQL> get_and_quota(int                oid,
+                                                 int                new_uid,
+                                                 int                new_gid,
+                                                 RequestAttributes& att)
     {
         return get_and_quota(oid, new_uid, new_gid, att, pool, auth_object);
     }
 
-    PoolObjectSQL * get_and_quota(int                       oid,
-                                  int                       new_uid,
-                                  int                       new_gid,
-                                  RequestAttributes&        att,
-                                  PoolSQL *                 pool,
-                                  PoolObjectSQL::ObjectType auth_object);
+    std::unique_ptr<PoolObjectSQL> get_and_quota(
+            int                       oid,
+            int                       new_uid,
+            int                       new_gid,
+            RequestAttributes&        att,
+            PoolSQL *                 pool,
+            PoolObjectSQL::ObjectType auth_object);
 
     /**
      * Checks if the new owner cannot has other object with the same name (if

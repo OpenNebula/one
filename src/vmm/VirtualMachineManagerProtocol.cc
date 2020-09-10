@@ -66,18 +66,19 @@ void VirtualMachineManager::log_error(int           vm_id,
 
     oss << msg;
 
-    auto vm = vmpool->get(vm_id);
-
-    if (!payload.empty() && payload[0] != '-')
+    if ( auto vm = vmpool->get(vm_id) )
     {
-        oss << ": " << payload;
-        vm->set_template_error_message(oss.str());
-        vmpool->update(vm);
+        if (!payload.empty() && payload[0] != '-')
+        {
+            oss << ": " << payload;
+
+            vm->set_template_error_message(oss.str());
+
+            vmpool->update(vm.get());
+        }
+
+        vm->log("VMM", Log::ERROR, oss);
     }
-
-    vm->log("VMM", Log::ERROR, oss);
-
-    vm->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -99,12 +100,8 @@ bool VirtualMachineManager::check_vm_state(int vm_id, vm_msg_t* msg)
         msg->write_to(oss);
         vm->log("VMM", Log::WARNING, oss);
 
-        vm->unlock();
-
         return false;
     }
-
-    vm->unlock();
 
     return true;
 }
@@ -135,27 +132,26 @@ void VirtualMachineManager::_deploy(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get(id);
-
-        istringstream is(msg->payload());
-
-        string deploy_id;
-
-        is >> deploy_id;
-
-        if (!deploy_id.empty())
+        if (auto vm = vmpool->get(id))
         {
-            vm->set_deploy_id(deploy_id);
-        }
-        else
-        {
-            action = &LifeCycleManager::trigger_deploy_failure;
-            log_error(vm, msg->payload(), "Empty deploy ID for virtual machine");
-        }
+            istringstream is(msg->payload());
 
-        vmpool->update(vm);
+            string deploy_id;
 
-        vm->unlock();
+            is >> deploy_id;
+
+            if (!deploy_id.empty())
+            {
+                vm->set_deploy_id(deploy_id);
+            }
+            else
+            {
+                action = &LifeCycleManager::trigger_deploy_failure;
+                log_error(vm.get(), msg->payload(), "Empty deploy ID for virtual machine");
+            }
+
+            vmpool->update(vm.get());
+        }
     }
     else
     {
@@ -209,9 +205,10 @@ void VirtualMachineManager::_reset(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
-        vm->log("VMM", Log::INFO, "VM successfully rebooted-hard.");
-        vm->unlock();
+        if (auto vm = vmpool->get_ro(id))
+        {
+            vm->log("VMM", Log::INFO, "VM successfully rebooted-hard.");
+        }
     }
     else
     {
@@ -235,9 +232,10 @@ void VirtualMachineManager::_reboot(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
-        vm->log("VMM", Log::INFO, "VM successfully rebooted.");
-        vm->unlock();
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM successfully rebooted.");
+        }
     }
     else
     {
@@ -288,11 +286,10 @@ void VirtualMachineManager::_cleanup(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
-
-        vm->log("VMM", Log::INFO, "Host successfully cleaned.");
-
-        vm->unlock();
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "Host successfully cleaned.");
+        }
     }
     else
     {
@@ -403,13 +400,12 @@ void VirtualMachineManager::_attachdisk(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM Disk successfully attached.");
 
-        vm->log("VMM", Log::INFO, "VM Disk successfully attached.");
-
-        vm->unlock();
-
-        lcm->trigger_attach_success(id);
+            lcm->trigger_attach_success(id);
+        }
     }
     else
     {
@@ -435,13 +431,12 @@ void VirtualMachineManager::_detachdisk(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM",Log::INFO,"VM Disk successfully detached.");
 
-        vm->log("VMM",Log::INFO,"VM Disk successfully detached.");
-
-        vm->unlock();
-
-        lcm->trigger_detach_success(id);
+            lcm->trigger_detach_success(id);
+        }
     }
     else
     {
@@ -467,13 +462,12 @@ void VirtualMachineManager::_attachnic(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM NIC Successfully attached.");
 
-        vm->log("VMM", Log::INFO, "VM NIC Successfully attached.");
-
-        vm->unlock();
-
-        lcm->trigger_attach_nic_success(id);
+            lcm->trigger_attach_nic_success(id);
+        }
     }
     else
     {
@@ -499,13 +493,12 @@ void VirtualMachineManager::_detachnic(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM",Log::INFO, "VM NIC Successfully detached.");
 
-        vm->log("VMM",Log::INFO, "VM NIC Successfully detached.");
-
-        vm->unlock();
-
-        lcm->trigger_detach_nic_success(id);
+            lcm->trigger_detach_nic_success(id);
+        }
     }
     else
     {
@@ -537,16 +530,16 @@ void VirtualMachineManager::_snapshotcreate(unique_ptr<vm_msg_t> msg)
 
         is >> hypervisor_id;
 
-        auto vm = vmpool->get(id);
-        vm->update_snapshot_id(hypervisor_id);
+        if ( auto vm = vmpool->get(id) )
+        {
+            vm->update_snapshot_id(hypervisor_id);
 
-        vmpool->update(vm);
+            vmpool->update(vm.get());
 
-        vm->log("VMM", Log::INFO, "VM Snapshot successfully created.");
+            vm->log("VMM", Log::INFO, "VM Snapshot successfully created.");
 
-        vm->unlock();
-
-        lcm->trigger_snapshot_create_success(id);
+            lcm->trigger_snapshot_create_success(id);
+        }
     }
     else
     {
@@ -572,13 +565,12 @@ void VirtualMachineManager::_snapshotrevert(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM",Log::INFO,"VM Snapshot successfully reverted.");
 
-        vm->log("VMM",Log::INFO,"VM Snapshot successfully reverted.");
-
-        vm->unlock();
-
-        lcm->trigger_snapshot_revert_success(id);
+            lcm->trigger_snapshot_revert_success(id);
+        }
     }
     else
     {
@@ -604,13 +596,12 @@ void VirtualMachineManager::_snapshotdelete(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM",Log::INFO,"VM Snapshot successfully deleted.");
 
-        vm->log("VMM",Log::INFO,"VM Snapshot successfully deleted.");
-
-        vm->unlock();
-
-        lcm->trigger_snapshot_delete_success(id);
+            lcm->trigger_snapshot_delete_success(id);
+        }
     }
     else
     {
@@ -636,13 +627,12 @@ void VirtualMachineManager::_disksnapshotcreate(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS" )
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM disk snapshot successfully created.");
 
-        vm->log("VMM", Log::INFO, "VM disk snapshot successfully created.");
-
-        vm->unlock();
-
-        lcm->trigger_disk_snapshot_success(id);
+            lcm->trigger_disk_snapshot_success(id);
+        }
     }
     else
     {
@@ -668,13 +658,12 @@ void VirtualMachineManager::_disksnapshotrevert(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS")
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM disk state reverted.");
 
-        vm->log("VMM", Log::INFO, "VM disk state reverted.");
-
-        vm->unlock();
-
-        lcm->trigger_disk_snapshot_success(id);
+            lcm->trigger_disk_snapshot_success(id);
+        }
     }
     else
     {
@@ -700,13 +689,12 @@ void VirtualMachineManager::_resizedisk(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS" )
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM disk successfully resized");
 
-        vm->log("VMM", Log::INFO, "VM disk successfully resized");
-
-        vm->unlock();
-
-        lcm->trigger_disk_resize_success(id);
+            lcm->trigger_disk_resize_success(id);
+        }
     }
     else
     {
@@ -732,13 +720,12 @@ void VirtualMachineManager::_updateconf(unique_ptr<vm_msg_t> msg)
 
     if (msg->status() == "SUCCESS" )
     {
-        auto vm = vmpool->get_ro(id);
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM update conf succesfull.");
 
-        vm->log("VMM", Log::INFO, "VM update conf succesfull.");
-
-        vm->unlock();
-
-        lcm->trigger_update_conf_success(id);
+            lcm->trigger_update_conf_success(id);
+        }
     }
     else
     {
@@ -776,9 +763,8 @@ void VirtualMachineManager::_updatesg(unique_ptr<vm_msg_t> msg)
     }
 
     SecurityGroupPool* sgpool = Nebula::instance().get_secgrouppool();
-    SecurityGroup*     sg     = sgpool->get(sgid);
 
-    if (sg != nullptr)
+    if (auto sg = sgpool->get(sgid))
     {
         sg->del_updating(id);
 
@@ -791,14 +777,10 @@ void VirtualMachineManager::_updatesg(unique_ptr<vm_msg_t> msg)
             sg->add_error(id);
         }
 
-        sgpool->update(sg);
-
-        sg->unlock();
+        sgpool->update(sg.get());
     }
 
-    auto vm = vmpool->get(id);
-
-    if (vm != nullptr)
+    if (auto vm = vmpool->get(id))
     {
         if (msg->status() == "SUCCESS")
         {
@@ -806,12 +788,10 @@ void VirtualMachineManager::_updatesg(unique_ptr<vm_msg_t> msg)
         }
         else
         {
-            log_error(vm, msg->payload(), "Error updating security groups.");
+            log_error(vm.get(), msg->payload(), "Error updating security groups.");
 
-            vmpool->update(vm);
+            vmpool->update(vm.get());
         }
-
-        vm->unlock();
     }
 
     lcm->trigger_updatesg(sgid);

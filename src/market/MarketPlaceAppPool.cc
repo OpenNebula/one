@@ -230,19 +230,15 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
         }
     }
 
-    MarketPlaceApp * mp_aux = get(app->name, 0);
-
-    if( mp_aux != 0 ) //Marketplace app already imported
+    if ( auto mp_aux = get(app->name, 0) ) //Marketplace app already imported
     {
         app_id = mp_aux->oid;
 
         if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 )
         {
             mp_aux->from_template64(t64, error_str);
-            update(mp_aux);
+            update(mp_aux.get());
         }
-
-        mp_aux->unlock();
 
         delete app;
 

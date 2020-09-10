@@ -421,14 +421,13 @@ void VirtualRouter::release_network_leases()
 int VirtualRouter::release_network_leases(const VectorAttribute * nic)
 {
     VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
-    VirtualNetwork*     vn;
 
     int     vnid;
     int     ar_id;
     string  mac;
     string  error_msg;
 
-    if ( nic == 0 )
+    if (nic == nullptr)
     {
         return -1;
     }
@@ -440,9 +439,9 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
 
     mac = nic->vector_value("VROUTER_MAC");
 
-    vn = vnpool->get(vnid);
+    auto vn = vnpool->get(vnid);
 
-    if ( vn == 0 )
+    if (vn == nullptr)
     {
         return -1;
     }
@@ -456,9 +455,7 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         vn->free_addr(PoolObjectSQL::VROUTER, oid, mac);
     }
 
-    vnpool->update(vn);
-
-    vn->unlock();
+    vnpool->update(vn.get());
 
     return 0;
 }

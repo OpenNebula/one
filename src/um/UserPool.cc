@@ -81,26 +81,24 @@ UserPool::UserPool(SqlDB * db, time_t __session_expiration_time, bool is_slave,
     // Set restricted attributes
     UserTemplate::parse_restricted(restricted_attrs);
 
-    User * oneadmin_user = get_ro(0);
+    auto oneadmin_user = get_ro(0);
 
     //Slaves do not need to init the pool, just the oneadmin username
     if (is_slave)
     {
-        if (oneadmin_user == 0)
+        if (!oneadmin_user)
         {
             throw("Database has not been bootstrapped with master data.");
         }
 
         oneadmin_name = oneadmin_user->get_name();
-        oneadmin_user->unlock();
 
         return;
     }
 
-    if (oneadmin_user != 0)
+    if (oneadmin_user)
     {
         oneadmin_name = oneadmin_user->get_name();
-        oneadmin_user->unlock();
 
         return;
     }
@@ -388,7 +386,7 @@ int UserPool::allocate(
 
     gname = gpool->get_name(gid);
 
-    if(gname.empty())
+    if (gname.empty())
     {
         goto error_no_groups;
     }
@@ -397,9 +395,9 @@ int UserPool::allocate(
     user = new User(-1, gid, uname, gname, upass, auth_driver, enabled);
 
     // Add the primary and secondary groups to the collection
-    for(set<int>::const_iterator it = gids.begin(); it != gids.end(); it++)
+    for (auto gid : gids)
     {
-        user->add_group(*it);
+        user->add_group(gid);
     }
 
     // Set a password for the OneGate tokens
@@ -414,37 +412,33 @@ int UserPool::allocate(
     }
 
     // Add the user to the main and secondary groups
-    for(set<int>::const_iterator it = gids.begin(); it != gids.end(); it++)
+    for (auto gid : gids)
     {
-        Group * group = gpool->get(*it);
+        auto group = gpool->get(gid);
 
-        if( group == 0 ) //Secondary group no longer exists
+        if (!group) //Secondary group no longer exists
         {
             goto error_group;
         }
 
         group->add_user(*oid);
 
-        gpool->update(group);
-
-        group->unlock();
+        gpool->update(group.get());
     }
 
     // Set the user group admin
-    for(set<int>::const_iterator it = agids.begin(); it != agids.end(); it++)
+    for (auto gid : agids)
     {
-        Group * group = gpool->get(*it);
+        auto group = gpool->get(gid);
 
-        if( group == 0 ) //Secondary group no longer exists
+        if (!group) //Secondary group no longer exists
         {
             goto error_group;
         }
 
         group->add_admin(*oid, error_str);
 
-        gpool->update(group);
-
-        group->unlock();
+        gpool->update(group.get());
     }
 
     return *oid;
@@ -466,33 +460,23 @@ error_no_groups:
     goto error_common;
 
 error_group:
-    user = get(*oid);
-
-    if ( user != 0 )
+    if ( auto user = get(*oid) )
     {
         string aux_str;
 
-        drop(user, aux_str);
-
-        user->unlock();
+        drop(user.get(), aux_str);
     }
 
     // Remove from all the groups, just in case the user id was added to a any
     // of them before a non-existing group was found
-    for(set<int>::const_iterator it = gids.begin(); it != gids.end(); it++)
+    for (auto gid : gids)
     {
-        Group * group = gpool->get(*it);
-
-        if( group == 0 ) //Secondary group no longer exists
+        if ( auto group = gpool->get(gid) )
         {
-            continue;
+            group->del_user(*oid);
+
+            gpool->update(group.get());
         }
-
-        group->del_user(*oid);
-
-        gpool->update(group);
-
-        group->unlock();
     }
 
     oss << "One or more of the groups "
@@ -638,7 +622,7 @@ static int parse_auth_msg(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool UserPool::authenticate_internal(User *        user,
+bool UserPool::authenticate_internal(unique_ptr<User> user,
                                      const string& token,
                                      string&       password,
                                      int&          user_id,
@@ -667,12 +651,10 @@ bool UserPool::authenticate_internal(User *        user,
     set<int> groups_remove;
     set<int> groups_add;
     set<int> groups_same;
-    set<int>::iterator it;
 
     Nebula&     nd      = Nebula::instance();
     AuthManager * authm = nd.get_authm();
 
-    Group* group;
     GroupPool* gpool = nd.get_gpool();
 
     // -------------------------------------------------------------------------
@@ -710,7 +692,7 @@ bool UserPool::authenticate_internal(User *        user,
 
         if ( rc == 0 )
         {
-            update(user);
+            update(user.get());
         }
     }
 
@@ -725,14 +707,10 @@ bool UserPool::authenticate_internal(User *        user,
         {
             user->login_tokens.reset(token);
 
-            update(user);
-
-            user->unlock();
+            update(user.get());
 
             goto auth_failure_egid;
         }
-
-        user->unlock();
 
         if ( egid != -1 )
         {
@@ -747,16 +725,14 @@ bool UserPool::authenticate_internal(User *        user,
     }
     else if (user->session->is_valid(token))
     {
-        user->unlock();
         return true;
     }
     else if ( exists_token )
     {
-        user->unlock();
         goto auth_failure_token;
     }
 
-    user->unlock();
+    user.reset();
 
     // -------------------------------------------------------------------------
     // Not a valid token, perform authentication
@@ -810,7 +786,7 @@ bool UserPool::authenticate_internal(User *        user,
     //--------------------------------------------------------------------------
     user = get(user_id);
 
-    if ( user == 0 )
+    if (!user)
     {
         return false;
     }
@@ -818,27 +794,21 @@ bool UserPool::authenticate_internal(User *        user,
     user->session->set(token, _session_expiration_time);
 
     // Search and store previous groups where user was admin
-    for(it = group_ids.begin(); it != group_ids.end(); it++)
+    for (auto gid : group_ids)
     {
-        group = gpool->get_ro(*it);
-        if( group == 0 ) // group no longer exists
+        if ( auto group = gpool->get_ro(gid) )
         {
-            continue;
+            if ( group->is_admin(user_id) )
+            {
+                group_admin_ids.insert(gid);
+            }
         }
-
-        if ( group->is_admin(user_id) )
-        {
-            group_admin_ids.insert(*it);
-        }
-
-        group->unlock();
     }
 
     if ( !driver_managed_groups || new_gid == -1 ||
             ( new_group_ids == group_ids
               && group_admin_ids == new_group_admin_ids ) )
     {
-        user->unlock();
         return true;
     }
 
@@ -869,95 +839,81 @@ bool UserPool::authenticate_internal(User *        user,
             new_group_ids.begin(), new_group_ids.end(),
             std::inserter(groups_same, groups_same.end()));
 
-    for(it = groups_add.begin(); it != groups_add.end(); it++)
+    for (auto gid : groups_add)
     {
-        if ( gpool->exist(*it) != -1 )
+        if ( gpool->exist(gid) != -1 )
         {
-            user->add_group(*it);
+            user->add_group(gid);
         }
     }
 
-    for(it = groups_remove.begin(); it != groups_remove.end(); it++)
+    for (auto gid : groups_remove)
     {
-        user->del_group(*it);
+        user->del_group(gid);
     }
 
     group_ids = user->get_groups();
 
-    update(user);
+    update(user.get());
 
-    user->unlock();
+    user.reset();
 
     // -------------------------------------------------------------------------
     // Add/remove user ID from the group objects
     // -------------------------------------------------------------------------
-    for(it = groups_add.begin(); it != groups_add.end(); it++)
+    for (auto gid : groups_add)
     {
-        group = gpool->get(*it);
-
-        if (group == 0)
+        if ( auto group = gpool->get(gid) )
         {
-            continue;
+            if ( new_group_admin_ids.find(gid) != new_group_admin_ids.end() )
+            {
+                group->add_admin(user_id, error_str);
+            }
+
+            group->add_user(user_id);
+
+            gpool->update(group.get());
         }
-
-        if ( new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
-        {
-            group->add_admin(user_id, error_str);
-        }
-
-        group->add_user(user_id);
-
-        gpool->update(group);
-
-        group->unlock();
     }
 
-    for(it = groups_remove.begin(); it != groups_remove.end(); it++)
+    for (auto gid : groups_remove)
     {
-        group = gpool->get(*it);
-
-        if (group == 0)
+        if ( auto group = gpool->get(gid) )
         {
-            continue;
+            group->del_user(user_id);
+
+            gpool->update(group.get());
         }
-
-        group->del_user(user_id);
-
-        gpool->update(group);
-
-        group->unlock();
     }
 
     // -------------------------------------------------------------------------
     // For groups which user remained member also check if the admin status
     // did not changed
     // -------------------------------------------------------------------------
-    for(it = groups_same.begin(); it != groups_same.end(); it++)
+    for (auto gid : groups_same)
     {
         // user was admin before but is not now
-        if ( group_admin_ids.find(*it) != group_admin_ids.end()
-             && new_group_admin_ids.find(*it) == new_group_admin_ids.end() )
+        if ( group_admin_ids.find(gid) != group_admin_ids.end()
+             && new_group_admin_ids.find(gid) == new_group_admin_ids.end() )
         {
-            group = gpool->get(*it);
+            if ( auto group = gpool->get(gid) )
+            {
+                group->del_admin(user_id, error_str);
 
-            group->del_admin(user_id, error_str);
-
-            gpool->update(group);
-
-            group->unlock();
+                gpool->update(group.get());
+            }
         }
 
         // user was not admin before but is now
-        if ( group_admin_ids.find(*it) == group_admin_ids.end()
-             && new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
+        if ( group_admin_ids.find(gid) == group_admin_ids.end()
+             && new_group_admin_ids.find(gid) != new_group_admin_ids.end() )
         {
-            group = gpool->get(*it);
+            if ( auto group = gpool->get(gid) )
+            {
+                group->add_admin(user_id, error_str);
 
-            group->add_admin(user_id, error_str);
-
-            gpool->update(group);
-
-            group->unlock();
+                gpool->update(group.get());
+            }
         }
     }
 
@@ -1015,7 +971,7 @@ auth_failure:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool UserPool::authenticate_server(User *        user,
+bool UserPool::authenticate_server(unique_ptr<User> user,
                                    const string& token,
                                    string&       password,
                                    int&          user_id,
@@ -1052,7 +1008,7 @@ bool UserPool::authenticate_server(User *        user,
 
     AuthRequest ar(user->oid, user->get_groups());
 
-    user->unlock();
+    user.reset();
 
     // token = target_username:second_token
     int rc = User::split_secret(token, target_username, second_token);
@@ -1085,7 +1041,7 @@ bool UserPool::authenticate_server(User *        user,
 
     user = get_ro(target_username);
 
-    if ( user == 0 )
+    if (!user)
     {
         goto auth_failure_user;
     }
@@ -1104,7 +1060,7 @@ bool UserPool::authenticate_server(User *        user,
 
     umask  = user->get_umask();
 
-    user->unlock();
+    user.reset();
 
     //server_admin token set a EGID, update auth info
     if ( egid_i != - 1 )
@@ -1145,7 +1101,6 @@ bool UserPool::authenticate_server(User *        user,
     if (user != 0)
     {
         user->session->set(second_token, _session_expiration_time);
-        user->unlock();
     }
 
     return true;
@@ -1266,14 +1221,14 @@ bool UserPool::authenticate_external(const string&  username,
         group_id = GroupPool::USERS_ID;
         gname    = GroupPool::USERS_NAME;
 
-        group_ids.insert( group_id );
+        group_ids.insert(group_id);
     }
     else
     {
         group_id = gid;
         gname    = gpool->get_name(group_id);
 
-        if(gname.empty())
+        if (gname.empty())
         {
             error_str = "Primary Group no longer exist";
             goto auth_failure_user;
@@ -1349,7 +1304,6 @@ bool UserPool::authenticate(const string& session,
                             set<int>&     group_ids,
                             int&          umask)
 {
-    User * user = 0;
     string username;
     string token;
     string error_str;
@@ -1370,20 +1324,18 @@ bool UserPool::authenticate(const string& session,
         return false;
     }
 
-    user = get(username);
-
-    if (user != 0 ) //User known to OpenNebula
+    if ( auto user = get(username) ) //User known to OpenNebula
     {
-        string driver = user->get_auth_driver();
+        const string& driver = user->get_auth_driver();
 
         if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
         {
-            ar = authenticate_server(user, token, password, user_id, group_id,
+            ar = authenticate_server(std::move(user), token, password, user_id, group_id,
                 uname, gname, group_ids, umask);
         }
         else
         {
-            ar = authenticate_internal(user, token, password, user_id, group_id,
+            ar = authenticate_internal(std::move(user), token, password, user_id, group_id,
                 uname, gname, group_ids, umask);
         }
     }
@@ -1485,25 +1437,18 @@ int UserPool::dump(string& oss, const string& where, int sid, int eid, bool desc
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string UserPool::get_token_password(int oid, int bck_oid){
-
+string UserPool::get_token_password(int oid, int bck_oid)
+{
     string token_password = "";
-    User * user = get_ro(oid);
 
-    if (user != 0)
+    if (auto user = get_ro(oid))
     {
         user->get_template_attribute("TOKEN_PASSWORD", token_password);
-        user->unlock();
     }
-    else
+    else if ( auto user_bck = get_ro(bck_oid) )
     {
-        user = get_ro(bck_oid);
-
-        if (user != 0)
-        {
-            user->get_template_attribute("TOKEN_PASSWORD", token_password);
-            user->unlock();
-        }
+        user_bck->get_template_attribute("TOKEN_PASSWORD", token_password);
     }
+
     return token_password;
 }

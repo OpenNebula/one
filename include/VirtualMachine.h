@@ -149,6 +149,8 @@ public:
 
     static std::string& lcm_state_to_str(std::string& st, LcmState state);
 
+    virtual ~VirtualMachine();
+
     /**
      * Returns the VM state to string, using the lcm state if the current state
      * is ACTIVE.
@@ -1301,9 +1303,9 @@ public:
     {
         VirtualMachineDisk * disk = disks.delete_attach();
 
-        if (disk == 0)
+        if (disk == nullptr)
         {
-            return 0;
+            return nullptr;
         }
 
         obj_template->remove(disk->vector_attribute());
@@ -1642,6 +1644,7 @@ private:
     // Friends
     // -------------------------------------------------------------------------
     friend class VirtualMachinePool;
+    friend class PoolSQL;
 
     // *************************************************************************
     // Virtual Machine Attributes
@@ -2146,8 +2149,6 @@ protected:
                    const std::string& gname,
                    int umask,
                    VirtualMachineTemplate * _vm_template);
-
-    virtual ~VirtualMachine();
 
     // *************************************************************************
     // DataBase implementation

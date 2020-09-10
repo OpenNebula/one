@@ -46,9 +46,9 @@ protected:
             return;
         }
 
-        PoolObjectSQL * object = pool->get(oid);
+        auto object = pool->get<PoolObjectSQL>(oid);
 
-        if ( object == 0 )
+        if (!object)
         {
             att.resp_id = oid;
             failure_response(NO_EXISTS, att);
@@ -56,7 +56,7 @@ protected:
             return;
         }
 
-        if ( pool->drop(object, error) != 0 )
+        if ( pool->drop(object.get(), error) != 0 )
         {
             att.resp_msg = error;
             failure_response(ACTION, att);
@@ -65,8 +65,6 @@ protected:
         {
             success_response(oid, att);
         }
-
-        object->unlock();
 
         return;
     }

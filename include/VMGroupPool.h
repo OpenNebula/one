@@ -53,30 +53,30 @@ public:
         std::string& error_str);
 
     /**
-     *  Function to get a VMGroup from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid VMGroup unique id
-     *    @param lock locks the VMGroup mutex
-     *    @return a pointer to the VMGroup, 0 if the VMGroup could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the VMGroup unique identifier
+     *   @return a pointer to the VMGroup, nullptr in case of failure
      */
-    VMGroup * get(int oid)
+    std::unique_ptr<VMGroup> get(int oid)
     {
-        return static_cast<VMGroup *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<VMGroup>(oid);
+    }
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param name of the object
      *   @param uid id of owner
-     *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VMGroup * get(const std::string& name, int uid)
+    std::unique_ptr<VMGroup> get(const std::string& name, int uid)
     {
-        return static_cast<VMGroup *>(PoolSQL::get(name, uid));
-    };
+        return PoolSQL::get<VMGroup>(name, uid);
+    }
 
     /** Update a VMGroup
      *    @param vmgroup pointer to VMGroup
@@ -155,7 +155,8 @@ private:
      *    @param va the VectorAttribute
      *    @param _uid default uid to look for the VMGroup
      */
-    VMGroup * get_from_attribute(const VectorAttribute *va, int _uid);
+    std::unique_ptr<VMGroup> get_from_attribute(const VectorAttribute *va,
+                                                int _uid);
 };
 
 #endif /*VMGROUP_POOL_H_*/

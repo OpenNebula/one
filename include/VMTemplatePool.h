@@ -57,28 +57,26 @@ public:
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param oid the object unique identifier
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the VMTemplate unique identifier
+     *   @return a pointer to the VMTemplate, nullptr in case of failure
      */
-    VMTemplate * get(int oid)
+    std::unique_ptr<VMTemplate> get(int oid)
     {
-        return static_cast<VMTemplate *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<VMTemplate>(oid);
+    }
 
     /**
-     *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param oid the object unique identifier
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the VMTemplate unique identifier
+     *   @return a pointer to the VMTemplate, nullptr in case of failure
      */
-    VMTemplate * get_ro(int oid)
+    std::unique_ptr<VMTemplate> get_ro(int oid)
     {
-        return static_cast<VMTemplate *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<VMTemplate>(oid);
+    }
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the

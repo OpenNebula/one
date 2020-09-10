@@ -33,9 +33,9 @@ void HostStatus::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Host * host = hpool->get(id);
+    auto host = hpool->get(id);
 
-    if ( host  == 0 )
+    if ( host == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -58,13 +58,10 @@ void HostStatus::request_execute(xmlrpc_c::paramList const& paramList,
             att.resp_msg = "Wrong status code";
             failure_response(INTERNAL, att);
 
-            host->unlock();
             return;
     }
 
-    hpool->update(host);
-
-    host->unlock();
+    hpool->update(host.get());
 
     success_response(id, att);
 }

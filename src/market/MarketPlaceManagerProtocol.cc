@@ -32,7 +32,7 @@ static void app_failure_action(
         int                  id,
         const string&        msg)
 {
-    MarketPlaceApp * app = apppool->get(id);
+    auto app = apppool->get(id);
 
     if (app == nullptr)
     {
@@ -45,9 +45,7 @@ static void app_failure_action(
 
     app->set_state(MarketPlaceApp::ERROR);
 
-    apppool->update(app);
-
-    app->unlock();
+    apppool->update(app.get());
 }
 
 /* ************************************************************************** */
@@ -72,7 +70,6 @@ void MarketPlaceManager::_import(unique_ptr<market_msg_t> msg)
 
     string   error;
 
-    MarketPlaceApp *       app;
     MarketPlaceAppTemplate tmpl;
 
     string source;
@@ -116,7 +113,7 @@ void MarketPlaceManager::_import(unique_ptr<market_msg_t> msg)
         return;
     }
 
-    app = apppool->get(id);
+    auto app = apppool->get(id);
 
     if (app == nullptr)
     {
@@ -132,9 +129,7 @@ void MarketPlaceManager::_import(unique_ptr<market_msg_t> msg)
 
     app->set_state(MarketPlaceApp::READY);
 
-    apppool->update(app);
-
-    app->unlock();
+    apppool->update(app.get());
 
     NebulaLog::info("MKP", "Marketplace app successfully imported");
 }
@@ -155,7 +150,7 @@ void MarketPlaceManager::_delete(unique_ptr<market_msg_t> msg)
     ostringstream eoss("Error removing app from marketplace", ios::ate);
 
     int id = msg->oid();
-    MarketPlaceApp * app = apppool->get(id);
+    auto app = apppool->get(id);
 
     if (app == nullptr)
     {
@@ -164,9 +159,7 @@ void MarketPlaceManager::_delete(unique_ptr<market_msg_t> msg)
 
     source = app->get_source();
 
-    rc = apppool->drop(app, error);
-
-    app->unlock();
+    rc = apppool->drop(app.get(), error);
 
     if (msg->status() == "FAILURE")
     {
@@ -236,21 +229,22 @@ void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
         return;
     }
 
-    MarketPlace * market = mppool->get(id);
+    set<int> apps_mp;
+    string name;
 
-    if (market == nullptr)
+    if ( auto market = mppool->get(id) )
+    {
+        apps_mp = market->get_marketapp_ids();
+        name = market->get_name();
+
+        market->update_monitor(monitor_data);
+
+        mppool->update(market.get());
+    }
+    else
     {
         return;
     }
-
-    set<int> apps_mp = market->get_marketapp_ids();
-    string name = market->get_name();
-
-    market->update_monitor(monitor_data);
-
-    mppool->update(market);
-
-    market->unlock();
 
     vector<SingleAttribute *> apps;
     string err;
@@ -268,15 +262,11 @@ void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
         }
         else if (rc >= 0) //-2 means app already imported
         {
-            MarketPlace * market = mppool->get(id);
-
-            if (market != nullptr)
+            if ( auto market = mppool->get(id) )
             {
                 market->add_marketapp(rc);
 
-                mppool->update(market);
-
-                market->unlock();
+                mppool->update(market.get());
             }
         }
 
@@ -293,24 +283,20 @@ void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
             {
                 string error;
 
-                MarketPlaceApp * app = apppool->get(i);
-
-                if (app == nullptr)
+                if (auto app = apppool->get(i))
+                {
+                    rc = apppool->drop(app.get(), error);
+                }
+                else
                 {
                     continue;
                 }
 
-                rc = apppool->drop(app, error);
-
-                app->unlock();
-
-                market = mppool->get(id);
+                auto market = mppool->get(id);
 
                 market->del_marketapp(i);
 
-                mppool->update(market);
-
-                market->unlock();
+                mppool->update(market.get());
             }
         }
     }

@@ -197,15 +197,11 @@ int VirtualMachinePool::allocate(
 
     if (*oid >= 0)
     {
-        vm = get_ro(*oid);
-
-        if ( vm != nullptr)
+        if (auto vm = get_ro(*oid))
         {
-            std::string event = HookStateVM::format_message(vm);
+            std::string event = HookStateVM::format_message(vm.get());
 
             Nebula::instance().get_hm()->trigger_send_event(event);
-
-            vm->unlock();
         }
     }
 
@@ -492,8 +488,6 @@ int VirtualMachinePool::calculate_showback(
 
     map<time_t, SBRecord>::iterator vm_month_it;
 
-    VirtualMachine* vm;
-
     int             rc;
     ostringstream   oss;
     ostringstream   body;
@@ -758,15 +752,13 @@ int VirtualMachinePool::calculate_showback(
         {
             int vmid = vm_it->first;
 
-            vm = get_ro(vmid);
-
             int uid = 0;
             int gid = 0;
             string uname = "";
             string gname = "";
             string vmname = "";
 
-            if (vm != 0)
+            if (auto vm = get_ro(vmid))
             {
                 uid = vm->get_uid();
                 gid = vm->get_gid();
@@ -775,8 +767,6 @@ int VirtualMachinePool::calculate_showback(
                 gname = vm->get_gname();
 
                 vmname = vm->get_name();
-
-                vm->unlock();
             }
 
             localtime_r(&vm_month_it->first, &tmp_tm);
@@ -889,70 +879,65 @@ int VirtualMachinePool::calculate_showback(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::delete_attach_disk(int vid)
+void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
 {
-    VirtualMachine *  vm;
-
     int uid;
     int gid;
     int oid;
 
-    vm = get(vid);
+    VirtualMachineDisk * disk = nullptr;
 
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    VirtualMachineDisk * disk = vm->delete_attach_disk();
+    disk = vm->delete_attach_disk();
 
     uid  = vm->get_uid();
     gid  = vm->get_gid();
     oid  = vm->get_oid();
 
-    update(vm);
+    update(vm.get());
 
-    vm->unlock();
+    vm.reset();
 
-    if ( disk != 0 )
+    if ( disk == nullptr )
     {
-        Nebula&       nd     = Nebula::instance();
-        ImageManager* imagem = nd.get_imagem();
+        return;
+    }
 
-        Template tmpl;
-        int      image_id;
+    Nebula&       nd     = Nebula::instance();
+    ImageManager* imagem = nd.get_imagem();
 
-        tmpl.set(disk->vector_attribute());
-        tmpl.add("VMS", 0);
+    Template tmpl;
+    int      image_id;
 
-        if (disk->is_volatile())
+    tmpl.set(disk->vector_attribute());
+    tmpl.add("VMS", 0);
+
+    if (disk->is_volatile())
+    {
+        Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
+    }
+    else
+    {
+        disk->vector_value("IMAGE_ID", image_id);
+
+        Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
+
+        if (!disk->is_persistent())
         {
             Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
         }
+
+        const Snapshots * snaps = disk->get_snapshots();
+
+        if (snaps != nullptr)
+        {
+            imagem->set_image_snapshots(image_id, *snaps);
+        }
         else
         {
-            disk->vector_value("IMAGE_ID", image_id);
-
-            Quotas::quota_del(Quotas::IMAGE, uid, gid, &tmpl);
-
-            if (!disk->is_persistent())
-            {
-                Quotas::quota_del(Quotas::VM, uid, gid, &tmpl);
-            }
-
-            const Snapshots * snaps = disk->get_snapshots();
-
-            if (snaps != 0)
-            {
-                imagem->set_image_snapshots(image_id, *snaps);
-            }
-            else
-            {
-                imagem->clear_image_snapshots(image_id);
-            }
-
-            imagem->release_image(oid, image_id, false);
+            imagem->clear_image_snapshots(image_id);
         }
+
+        imagem->release_image(oid, image_id, false);
     }
 
     delete disk;
@@ -961,9 +946,8 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachinePool::delete_attach_nic(int vid)
+void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
 {
-    VirtualMachine *  vm;
     VirtualMachineNic * nic;
 
     int uid;
@@ -974,22 +958,13 @@ void VirtualMachinePool::delete_attach_nic(int vid)
 
     Template tmpl;
 
-    vm = get(vid);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
     vm->get_security_groups(pre);
 
     nic = vm->delete_attach_nic();
 
-    if ( nic == 0 )
+    if ( nic == nullptr )
     {
-        update(vm);
-
-        vm->unlock();
+        update(vm.get());
 
         return;
     }
@@ -1016,11 +991,11 @@ void VirtualMachinePool::delete_attach_nic(int vid)
 
     vm->get_security_groups(post);
 
-    for (set<int>::iterator it = pre.begin(); it != pre.end(); ++it)
+    for (auto sg :pre)
     {
-        if ( post.find(*it) == post.end() )
+        if ( post.find(sg) == post.end() )
         {
-            vm->remove_security_group(*it);
+            vm->remove_security_group(sg);
         }
     }
 
@@ -1028,15 +1003,17 @@ void VirtualMachinePool::delete_attach_nic(int vid)
 
     one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
 
-    for(std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
+    for (auto a_id : a_ids)
     {
         int alias_id;
 
-        vm->get_nic(*it)->vector_value("ALIAS_ID", alias_id);
+        auto nic_a = vm->get_nic(a_id);
 
-        tmpl.set(vm->get_nic(*it)->vector_attribute()->clone());
+        nic_a->vector_value("ALIAS_ID", alias_id);
 
-        vm->get_nic(*it)->release_network_leases(oid);
+        tmpl.set(nic_a->vector_attribute()->clone());
+
+        nic_a->release_network_leases(oid);
 
         vm->clear_nic_alias_context(nic_id, alias_id);
     }
@@ -1045,9 +1022,9 @@ void VirtualMachinePool::delete_attach_nic(int vid)
 
     vm->delete_attach_alias(nic);
 
-    update(vm);
+    update(vm.get());
 
-    vm->unlock();
+    vm.reset();
 
     tmpl.set(nic->vector_attribute());
 

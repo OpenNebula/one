@@ -577,8 +577,11 @@ int LibVirtDriver::deployment_description_kvm(
     string  vm_xml;
 
     Nebula& nd = Nebula::instance();
-    Host* host = nd.get_hpool()->get_ro(vm->get_hid());
-    Cluster* cluster = nd.get_clpool()->get_ro(vm->get_cid());
+    auto host_ptr    = nd.get_hpool()->get_ro(vm->get_hid());
+    auto cluster_ptr = nd.get_clpool()->get_ro(vm->get_cid());
+
+    auto host    = host_ptr.get();
+    auto cluster = cluster_ptr.get();
 
     // ------------------------------------------------------------------------
 
@@ -586,7 +589,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (file.fail() == true)
     {
-        goto error_file;
+        vm->log("VMM", Log::ERROR, "Could not open KVM deployment file.");
+        return -1;
     }
 
     // ------------------------------------------------------------------------
@@ -641,7 +645,8 @@ int LibVirtDriver::deployment_description_kvm(
     }
     else
     {
-        goto error_memory;
+        vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
+        return -1;
     }
 
     // ------------------------------------------------------------------------
@@ -661,7 +666,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (arch.empty())
     {
-        goto error_arch;
+        vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
+        return -1;
     }
 
     file << "\t\t<type arch=" << one_util::escape_xml_attr(arch);
@@ -894,7 +900,8 @@ int LibVirtDriver::deployment_description_kvm(
 
         if (target.empty())
         {
-            goto error_disk;
+            vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
+            return -1;
         }
 
         readonly = false;
@@ -1729,28 +1736,5 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "</domain>" << endl;
 
-    if (host) host->unlock();
-    if (cluster) cluster->unlock();
-
     return 0;
-
-error_file:
-    vm->log("VMM", Log::ERROR, "Could not open KVM deployment file.");
-    goto error_common;
-
-error_memory:
-    vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
-    goto error_common;
-
-error_arch:
-    vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
-    goto error_common;
-
-error_disk:
-    vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
-
-error_common:
-    if (host) host->unlock();
-    if (cluster) cluster->unlock();
-    return -1;
 }

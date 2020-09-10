@@ -47,20 +47,21 @@ void VMTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
         clone_template = xmlrpc_c::value_boolean(paramList.getBoolean(5));
     }
 
-    VMTemplate * tmpl = static_cast<VMTemplatePool* > (pool)->get_ro(id);
+    bool is_vrouter;
+    string original_tmpl_name;
 
-    if ( tmpl == 0 )
+    if ( auto tmpl = pool->get_ro<VMTemplate>(id) )
+    {
+        is_vrouter = tmpl->is_vrouter();
+
+        original_tmpl_name = tmpl->get_name();
+    }
+    else
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    bool is_vrouter = tmpl->is_vrouter();
-
-    string original_tmpl_name = tmpl->get_name();
-
-    tmpl->unlock();
 
     if (is_vrouter)
     {
@@ -138,11 +139,9 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     VirtualMachineTemplate * tmpl;
     VirtualMachineTemplate extended_tmpl;
     VirtualMachineTemplate uattrs;
-    VMTemplate *           rtmpl;
 
     vector<Template *> ds_quotas;
     vector<Template *> applied;
-    vector<Template *>::iterator it;
 
     string aname;
     string tmpl_name;
@@ -150,20 +149,18 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
     /* ---------------------------------------------------------------------- */
-    rtmpl = tpool->get_ro(id);
+    if ( auto rtmpl = tpool->get_ro(id) )
+    {
+        tmpl_name = rtmpl->get_name();
+        tmpl      = rtmpl->clone_template();
 
-    if ( rtmpl == 0 )
+        rtmpl->get_permissions(perms);
+    }
+    else
     {
         att.resp_id = id;
         return NO_EXISTS;
     }
-
-    tmpl_name = rtmpl->get_name();
-    tmpl      = rtmpl->clone_template();
-
-    rtmpl->get_permissions(perms);
-
-    rtmpl->unlock();
 
     ErrorCode ec = merge(tmpl, str_uattrs, att);
 
@@ -173,7 +170,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         return ec;
     }
 
-    if ( extra_attrs != 0 )
+    if ( extra_attrs != nullptr )
     {
         tmpl->merge(extra_attrs);
     }
@@ -259,9 +256,9 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
 
     VirtualMachineDisks::image_ds_quotas(&extended_tmpl, ds_quotas);
 
-    for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+    for ( auto ds : ds_quotas )
     {
-        if ( quota_authorization(*it, Quotas::DATASTORE, att, att.resp_msg)
+        if ( quota_authorization(ds, Quotas::DATASTORE, att, att.resp_msg)
                 == false )
         {
             ds_quota_auth = false;
@@ -269,7 +266,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         }
         else
         {
-            applied.push_back(*it);
+            applied.push_back(ds);
         }
     }
 
@@ -277,14 +274,14 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     {
         quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
 
-        for ( it = applied.begin() ; it != applied.end() ; ++it )
+        for ( auto ds : applied )
         {
-            quota_rollback(*it, Quotas::DATASTORE, att);
+            quota_rollback(ds, Quotas::DATASTORE, att);
         }
 
-        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        for ( auto ds : ds_quotas )
         {
-            delete *it;
+            delete ds;
         }
 
         delete tmpl;
@@ -299,18 +296,18 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     {
         quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
 
-        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        for ( auto ds : ds_quotas )
         {
-            quota_rollback(*it, Quotas::DATASTORE, att);
-            delete *it;
+            quota_rollback(ds, Quotas::DATASTORE, att);
+            delete ds;
         }
 
         return ALLOCATE;
     }
 
-    for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+    for ( auto ds : ds_quotas )
     {
-        delete *it;
+        delete ds;
     }
 
     return SUCCESS;

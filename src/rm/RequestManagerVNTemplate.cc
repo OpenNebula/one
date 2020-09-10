@@ -49,19 +49,16 @@ void VNTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     string name = xmlrpc_c::value_string(paramList.getString(2));
     string str_uattrs = xmlrpc_c::value_string(paramList.getString(3));
 
-
-    VNTemplate * tmpl = static_cast<VNTemplatePool* > (pool)->get_ro(id);
-
-    if ( tmpl == 0 )
+    if ( auto tmpl = pool->get_ro<VNTemplate>(id) )
+    {
+        string original_tmpl_name = tmpl->get_name();
+    }
+    else
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    string original_tmpl_name = tmpl->get_name();
-
-    tmpl->unlock();
 
     int instantiate_id = id;
 
@@ -99,38 +96,30 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
 
     VirtualNetworkTemplate * tmpl;
     VirtualNetworkTemplate extended_tmpl;
-    VNTemplate *           rtmpl;
 
     string tmpl_name;
 
     string cluster_ids_str;
     set<int> cluster_ids;
-    set<int>::iterator clusters_it;
 
 
     /* ---------------------------------------------------------------------- */
     /* Get, check and clone the template                                      */
     /* ---------------------------------------------------------------------- */
-    rtmpl = vntpool->get_ro(id);
+    if ( auto rtmpl = vntpool->get_ro(id) )
+    {
+        tmpl_name = rtmpl->get_name();
+        tmpl      = rtmpl->clone_template();
 
-    if ( rtmpl == 0 )
+        rtmpl->get_permissions(perms);
+
+        rtmpl->get_template_attribute("CLUSTER_IDS", cluster_ids_str);
+    }
+    else
     {
         att.resp_id = id;
         return NO_EXISTS;
     }
-
-    tmpl_name   = rtmpl->get_name();
-    tmpl        = rtmpl->clone_template();
-
-    rtmpl->get_permissions(perms);
-
-    /* ---------------------------------------------------------------------- */
-    /* Get network clusters                                                   */
-    /* ---------------------------------------------------------------------- */
-
-    rtmpl->get_template_attribute("CLUSTER_IDS", cluster_ids_str);
-
-    rtmpl->unlock();
 
     if (!cluster_ids_str.empty())
     {
@@ -197,21 +186,13 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
         return ALLOCATE;
     }
 
-    for (clusters_it = cluster_ids.begin(); clusters_it != cluster_ids.end(); ++clusters_it)
+    for (auto cid : cluster_ids)
     {
-        Cluster* cluster;
-        string str_error;
-
-        cluster = clpool->get(*clusters_it);
-
-        if (cluster == 0)
+        if ( auto cluster = clpool->get(cid) )
         {
-            continue;
+            string _er;
+            clpool->add_to_cluster(PoolObjectSQL::NET, cluster.get(), vid, _er);
         }
-
-        clpool->add_to_cluster(PoolObjectSQL::NET, cluster, vid, str_error);
-
-        cluster->unlock();
     }
 
     return SUCCESS;
@@ -225,35 +206,33 @@ Request::ErrorCode VNTemplateInstantiate::merge(
                 const string    &str_uattrs,
                 RequestAttributes& att)
 {
+    int rc;
 
+    VirtualNetworkTemplate  uattrs;
+    string                  aname;
 
-	int rc;
+    rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
 
-	VirtualNetworkTemplate  uattrs;
-	string                  aname;
-
-	rc = uattrs.parse_str_or_xml(str_uattrs, att.resp_msg);
-
-	if ( rc != 0 )
-	{
-		return INTERNAL;
+    if ( rc != 0 )
+    {
+        return INTERNAL;
     }
     else if (uattrs.empty())
     {
         return SUCCESS;
-	}
+    }
 
-	if (!att.is_admin())
-	{
+    if (!att.is_admin())
+    {
         if (uattrs.check_restricted(aname, tmpl))
-		{
-			att.resp_msg ="User Template includes a restricted attribute " + aname;
+        {
+            att.resp_msg ="User Template includes a restricted attribute " + aname;
 
-			return AUTHORIZATION;
-		}
-	}
+            return AUTHORIZATION;
+        }
+    }
 
-	tmpl->merge(&uattrs);
+    tmpl->merge(&uattrs);
 
     return SUCCESS;
 }

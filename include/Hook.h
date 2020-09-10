@@ -29,6 +29,8 @@ class Hook : public PoolObjectSQL
 {
 public:
 
+    ~Hook();
+
     /**
      *  Defines the hook type, so a whole hook class can be masked
      */
@@ -94,8 +96,6 @@ private:
     // *************************************************************************
 
     Hook(Template * tmpl);
-
-    ~Hook();
 
     /**
      * Set hook implementation attribute depending of the hook type.

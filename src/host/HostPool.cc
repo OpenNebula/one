@@ -96,18 +96,14 @@ int HostPool::allocate (
 
     if (*oid >= 0)
     {
-        host = get(*oid);
-
-        if (host != nullptr)
+        if ( auto host = get(*oid) )
         {
-            std::string event = HookStateHost::format_message(host);
+            std::string event = HookStateHost::format_message(host.get());
 
             Nebula::instance().get_hm()->trigger_send_event(event);
 
             auto *im = Nebula::instance().get_im();
-            im->update_host(host);
-
-            host->unlock();
+            im->update_host(host.get());
         }
     }
 
@@ -139,7 +135,7 @@ int HostPool::update(PoolObjectSQL * objsql)
 {
     Host * host = dynamic_cast<Host *>(objsql);
 
-    if ( host == 0 )
+    if ( host == nullptr )
     {
         return -1;
     }

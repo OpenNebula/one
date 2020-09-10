@@ -112,6 +112,8 @@ public:
         return st;
     }
 
+    virtual ~Host() = default;
+
     /**
      * Function to print the Host object into a string in XML format
      *  @param xml the resulting XML string
@@ -356,8 +358,6 @@ private:
 
     Host(int id, const std::string& hostname, const std::string& im_mad,
          const std::string& vmm_mad, int clusterid, const std::string& cluster);
-
-    virtual ~Host() = default;
 
 
     // *************************************************************************

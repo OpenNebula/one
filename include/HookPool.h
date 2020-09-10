@@ -41,25 +41,26 @@ public:
     int allocate (Template * tmpl, std::string& error_str);
 
     /**
-     *  Function to get a Hook from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Hook unique id
-     *    @return a pointer to the Hook, 0 if the Hook could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Hook unique identifier
+     *   @return a pointer to the Hook, nullptr in case of failure
      */
-    Hook * get(int oid)
+    std::unique_ptr<Hook> get(int oid)
     {
-        return static_cast<Hook *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Hook>(oid);
+    }
 
     /**
-     *  Function to get a read only Hook from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Hook unique id
-     *    @return a pointer to the Hook, 0 if the Host could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Hook unique identifier
+     *   @return a pointer to the Hook, nullptr in case of failure
      */
-    Hook * get_ro(int oid)
+    std::unique_ptr<Hook> get_ro(int oid)
     {
-        return static_cast<Hook *>(PoolSQL::get_ro(oid));
+        return PoolSQL::get_ro<Hook>(oid);
     }
 
     /**

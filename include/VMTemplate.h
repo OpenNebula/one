@@ -30,6 +30,8 @@ class VMTemplate : public PoolObjectSQL
 {
 public:
 
+    virtual ~VMTemplate() = default;
+
     /**
      * Function to print the VMTemplate object into a string in XML format
      *  @param xml the resulting XML string
@@ -178,8 +180,6 @@ protected:
                const std::string& gname,
                int umask,
                VirtualMachineTemplate * _template_contents);
-
-    virtual ~VMTemplate() = default;
 
     // *************************************************************************
     // DataBase implementation

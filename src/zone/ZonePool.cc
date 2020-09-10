@@ -211,9 +211,9 @@ unsigned int ZonePool::get_zone_servers(int zone_id,
 
     ZoneServers::zone_iterator zit;
 
-    Zone * zone = get(zone_id);
+    auto zone = get_ro(zone_id);
 
-    if ( zone == 0 )
+    if ( zone == nullptr )
     {
         _serv.clear();
         return 0;
@@ -230,8 +230,6 @@ unsigned int ZonePool::get_zone_servers(int zone_id,
     }
 
     _num_servers = zone->servers_size();
-
-    zone->unlock();
 
     return _num_servers;
 }

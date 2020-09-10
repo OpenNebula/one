@@ -29,6 +29,9 @@
 class Cluster : public PoolObjectSQL
 {
 public:
+
+    virtual ~Cluster() = default;
+
     // *************************************************************************
     // Object Collections (Public)
     // *************************************************************************
@@ -101,6 +104,7 @@ private:
     // -------------------------------------------------------------------------
 
     friend class ClusterPool;
+    friend class PoolSQL;
 
     // *************************************************************************
     // VNC Port management function
@@ -136,8 +140,6 @@ private:
     // *************************************************************************
     Cluster(int id, const std::string& name, ClusterTemplate*  cl_template,
             const VectorAttribute& vnc_conf);
-
-    virtual ~Cluster() = default;
 
     // *************************************************************************
     // Attributes (Private)

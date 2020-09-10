@@ -67,34 +67,32 @@ public:
         bool                     on_hold = false);
 
     /**
-     *  Function to get a VM from the pool, if the object is not in memory
-     *  it is loade from the DB
-     *    @param oid VM unique id
-     *    @param lock locks the VM mutex
-     *    @return a pointer to the VM, 0 if the VM could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the VM unique identifier
+     *   @return a pointer to the VM, nullptr in case of failure
      */
-    VirtualMachine * get(
-        int     oid)
+    std::unique_ptr<VirtualMachine> get(int     oid)
     {
-        return static_cast<VirtualMachine *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<VirtualMachine>(oid);
+    }
 
     /**
-     *  Function to get a read only VM from the pool, if the object is not
-     *  in memory it is loade from the DB
-     *    @param oid VM unique id
-     *    @return a pointer to the VM, 0 if the VM could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the VM unique identifier
+     *   @return a pointer to the VM, nullptr in case of failure
      */
-    VirtualMachine * get_ro(
-        int     oid)
+    std::unique_ptr<VirtualMachine> get_ro(int     oid)
     {
-        return static_cast<VirtualMachine *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<VirtualMachine>(oid);
+    }
 
     /**
      *  Function to get a VM from the pool, string version for VM ID
      */
-    VirtualMachine * get(const std::string& oid_s)
+    std::unique_ptr<VirtualMachine> get(const std::string& oid_s)
     {
         std::istringstream iss(oid_s);
         int                oid;
@@ -106,13 +104,13 @@ public:
             return 0;
         }
 
-        return static_cast<VirtualMachine *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<VirtualMachine>(oid);
+    }
 
     /**
      *  Function to get a read only VM from the pool, string version for VM ID
      */
-    VirtualMachine * get_ro(const std::string& oid_s)
+    std::unique_ptr<VirtualMachine> get_ro(const std::string& oid_s)
     {
         std::istringstream iss(oid_s);
         int                oid;
@@ -124,8 +122,8 @@ public:
             return 0;
         }
 
-        return static_cast<VirtualMachine *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<VirtualMachine>(oid);
+    }
 
     /**
      *  Updates a VM in the data base. The VM SHOULD be locked. It also updates
@@ -375,16 +373,16 @@ public:
      * Deletes the DISK that was in the process of being attached. Releases
      * Images and updates usage quotas
      *
-     * @param vid VM id
+     * @param vm unique_ptr to VM, will be release in the method
      */
-    void delete_attach_disk(int vid);
+    void delete_attach_disk(std::unique_ptr<VirtualMachine> vm);
 
     /**
      * Deletes the NIC that was in the process of being attached/detached
      *
-     * @param vid VM id
+     * @param vm unique_ptr to VM, will be release in the method
      */
-    void delete_attach_nic(int vid);
+    void delete_attach_nic(std::unique_ptr<VirtualMachine> vm);
 
     /**
      * Deletes an entry in the HV-2-vmid mapping table for imported VMs

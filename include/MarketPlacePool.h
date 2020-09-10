@@ -60,28 +60,27 @@ public:
             std::string&       error_str);
 
     /**
-     *  Function to get a MarketPlace from the pool, the object is loaded if not
-     *  in memory
-     *    @param oid MarketPlace unique id
-     *    @param lock locks the MarketPlace mutex
-     *    @return a pointer to the MarketPlace, 0 if not loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the MarketPlace unique identifier
+     *   @return a pointer to the MarketPlace, nullptr in case of failure
      */
-    MarketPlace * get(int oid)
+    std::unique_ptr<MarketPlace> get(int oid)
     {
-        return static_cast<MarketPlace *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<MarketPlace>(oid);
+    }
 
     /**
-     *  Function to get a read only MarketPlace from the pool, the object is loaded if not
-     *  in memory
-     *    @param oid MarketPlace unique id
-     *    @param lock locks the MarketPlace mutex
-     *    @return a pointer to the MarketPlace, 0 if not loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the MarketPlace unique identifier
+     *   @return a pointer to the MarketPlace, nullptr in case of failure
      */
-    MarketPlace * get_ro(int oid)
+    std::unique_ptr<MarketPlace> get_ro(int oid)
     {
-        return static_cast<MarketPlace *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<MarketPlace>(oid);
+    }
 
     /** Update a particular MarketPlace
      *    @param  objsql points to the market

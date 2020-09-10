@@ -30,6 +30,8 @@
 class MarketPlace : public PoolObjectSQL
 {
 public:
+    virtual ~MarketPlace() = default;
+
     /**
      * Function to print the MarketPlace object into a string in XML format
      *  @param xml the resulting XML string
@@ -183,8 +185,6 @@ private:
             const std::string&   gname,
             int                  umask,
             MarketPlaceTemplate* mp_template);
-
-    virtual ~MarketPlace() = default;
 
     // *************************************************************************
     // DataBase implementation (Private)

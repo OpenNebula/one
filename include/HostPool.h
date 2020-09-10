@@ -60,53 +60,52 @@ public:
     virtual int update(PoolObjectSQL * objsql);
 
     /**
-     *  Function to get a Host from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Host unique id
-     *    @param lock locks the Host mutex
-     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Host unique identifier
+     *   @return a pointer to the Host, nullptr in case of failure
      */
-    Host * get(int oid)
+    std::unique_ptr<Host> get(int oid)
     {
-        return static_cast<Host *>(PoolSQL::get(oid));
-    };
+        return PoolSQL::get<Host>(oid);
+    }
 
     /**
-     *  Function to get a read only Host from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Host unique id
-     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Host unique identifier
+     *   @return a pointer to the Host, nullptr in case of failure
      */
-    Host * get_ro(int oid)
+    std::unique_ptr<Host> get_ro(int oid)
     {
-        return static_cast<Host *>(PoolSQL::get_ro(oid));
-    };
+        return PoolSQL::get_ro<Host>(oid);
+    }
 
     /**
-     *  Function to get a Host from the pool, if the object is not in memory
-     *  it is loaded from the DB
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *    @param hostname
-     *    @param lock locks the Host mutex
-     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     *    @return a pointer to the Host, nullptr if the Host could not be loaded
      */
-    Host * get(std::string name)
+    std::unique_ptr<Host> get(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Host *>(PoolSQL::get(name,-1));
-    };
+        return PoolSQL::get<Host>(name, -1);
+    }
 
     /**
-     *  Function to get a Host from the pool, if the object is not in memory
-     *  it is loaded from the DB
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
      *    @param hostname
-     *    @param lock locks the Host mutex
      *    @return a pointer to the Host, 0 if the Host could not be loaded
      */
-    Host * get_ro(std::string name)
+    std::unique_ptr<Host> get_ro(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Host *>(PoolSQL::get_ro(name,-1));
-    };
+        return PoolSQL::get_ro<Host>(name, -1);
+    }
 
     /**
      *  Generate an index key for the object
@@ -152,15 +151,12 @@ public:
     int add_capacity(int oid, HostShareCapacity &sr)
     {
         int rc = 0;
-        Host * host = get(oid);
 
-        if ( host != 0 )
+        if ( auto host = get(oid) )
         {
           host->add_capacity(sr);
 
-          update(host);
-
-          host->unlock();
+          update(host.get());
         }
         else
         {
@@ -168,7 +164,7 @@ public:
         }
 
         return rc;
-    };
+    }
 
     /**
      * De-Allocates a given capacity to the host
@@ -181,17 +177,13 @@ public:
      */
     void del_capacity(int oid, HostShareCapacity &sr)
     {
-        Host *  host = get(oid);
-
-        if ( host != 0 )
+        if ( auto host = get(oid) )
         {
             host->del_capacity(sr);
 
-            update(host);
-
-            host->unlock();
+            update(host.get());
         }
-    };
+    }
 
     int drop(PoolObjectSQL * objsql, std::string& error_msg)
     {

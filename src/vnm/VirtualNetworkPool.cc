@@ -148,23 +148,21 @@ int VirtualNetworkPool::allocate (
     // Get a free VLAN_ID from the pool if needed
     if ( *oid != -1 )
     {
-        vn = get(*oid);
+        if ( auto vnet = get(*oid) )
+        {
+            if ( set_vlan_id(vnet.get()) != 0 )
+            {
+                error_str = "Cannot automatically assign VLAN_ID to network.";
+                drop(vnet.get(), error_str);
 
-        if (vn == 0)
+                *oid = -1;
+            }
+        }
+        else
         {
             error_str = "An error occurred while allocating the virtual network.";
             goto error_common;
         }
-
-        if ( set_vlan_id(vn) != 0 )
-        {
-            error_str = "Cannot automatically assign VLAN_ID to network.";
-            drop(vn, error_str);
-
-            *oid = -1;
-        };
-
-        vn->unlock();
     }
 
     return *oid;
@@ -186,8 +184,12 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VirtualMachineNic * nic,
-        const string& name, int _uid, bool ro, string& error)
+unique_ptr<VirtualNetwork> VirtualNetworkPool::get_nic_by_name(
+        VirtualMachineNic * nic,
+        const string& name,
+        int _uid,
+        bool ro,
+        string& error)
 {
     int uid = nic->get_uid(_uid, error);
 
@@ -196,17 +198,18 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VirtualMachineNic * nic,
         return 0;
     }
 
-    VirtualNetwork * vnet;
+    unique_ptr<VirtualNetwork> vnet;
 
     if (ro)
     {
         vnet = get_ro(name, uid);
     }
-    else{
+    else
+    {
         vnet = get(name, uid);
     }
 
-    if (vnet == 0)
+    if (vnet == nullptr)
     {
         ostringstream oss;
         oss << "User " << uid << " does not own a network with name: " << name
@@ -220,13 +223,14 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_name(VirtualMachineNic * nic,
 
 /* -------------------------------------------------------------------------- */
 
-VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s, bool ro,
-    string& error)
+unique_ptr<VirtualNetwork> VirtualNetworkPool::get_nic_by_id(const string& id_s,
+                                                             bool ro,
+                                                             string& error)
 {
     istringstream  is;
     int            id;
 
-    VirtualNetwork * vnet = 0;
+    unique_ptr<VirtualNetwork> vnet;
 
     is.str(id_s);
     is >> id;
@@ -244,7 +248,7 @@ VirtualNetwork * VirtualNetworkPool::get_nic_by_id(const string& id_s, bool ro,
 
     }
 
-    if (vnet == 0)
+    if (vnet == nullptr)
     {
         ostringstream oss;
         oss << "Virtual network with ID: " << id_s << " does not exist";
@@ -268,7 +272,7 @@ int VirtualNetworkPool::nic_attribute(
 {
     int              rc;
     string           network;
-    VirtualNetwork * vnet = 0;
+    unique_ptr<VirtualNetwork> vnet;
 
     nic->replace("NIC_ID", nic_id);
 
@@ -285,7 +289,7 @@ int VirtualNetworkPool::nic_attribute(
         return -2;
     }
 
-    if (vnet == 0)
+    if (vnet == nullptr)
     {
         return -1;
     }
@@ -301,7 +305,7 @@ int VirtualNetworkPool::nic_attribute(
 
     if ( rc == 0 )
     {
-        update(vnet);
+        update(vnet.get());
     }
     else
     {
@@ -311,9 +315,6 @@ int VirtualNetworkPool::nic_attribute(
 
         error = oss.str();
     }
-
-    vnet->unlock();
-
 
     return rc;
 }
@@ -329,9 +330,10 @@ void VirtualNetworkPool::authorize_nic(
         set<int> &                  sgs,
         bool                 check_lock)
 {
-    string           network;
-    VirtualNetwork * vnet = 0;
     PoolObjectAuth   perm;
+
+    std::unique_ptr<VirtualNetwork> vnet;
+    string           network;
     string           error;
 
     if (!(network = nic->vector_value("NETWORK_ID")).empty())
@@ -342,7 +344,7 @@ void VirtualNetworkPool::authorize_nic(
     {
         vnet = get_nic_by_name(nic, network, uid, true, error);
 
-        if ( vnet != 0 )
+        if ( vnet != nullptr )
         {
             nic->replace("NETWORK_ID", vnet->get_oid());
         }
@@ -352,7 +354,7 @@ void VirtualNetworkPool::authorize_nic(
         return;
     }
 
-    if (vnet == 0)
+    if (vnet == nullptr)
     {
         return;
     }
@@ -361,7 +363,7 @@ void VirtualNetworkPool::authorize_nic(
 
     vnet->get_security_groups(sgs);
 
-    vnet->unlock();
+    vnet.reset();
 
     if ( check_lock )
     {
@@ -562,9 +564,9 @@ void VirtualNetworkPool::release_vlan_id(VirtualNetwork *vn)
 
 AddressRange * VirtualNetworkPool::allocate_ar(int rid, string &err)
 {
-    VirtualNetwork * rvn = get(rid);
+    auto rvn = get(rid);
 
-    if ( rvn == 0 )
+    if ( rvn == nullptr )
     {
         ostringstream oss;
         oss << "Virtual network " << rid << " does not exist";
@@ -575,18 +577,16 @@ AddressRange * VirtualNetworkPool::allocate_ar(int rid, string &err)
 
     AddressRange *ar = rvn->allocate_ar("internal");
 
-    update(rvn);
-
-    rvn->unlock();
+    update(rvn.get());
 
     return ar;
 }
 
 int VirtualNetworkPool::add_ar(int rid, AddressRange *rar, string &err)
 {
-    VirtualNetwork * rvn = get(rid);
+    auto rvn = get(rid);
 
-    if ( rvn == 0 )
+    if ( rvn == nullptr )
     {
         delete rar;
 
@@ -599,9 +599,7 @@ int VirtualNetworkPool::add_ar(int rid, AddressRange *rar, string &err)
 
     int rc = rvn->add_ar(rar);
 
-    update(rvn);
-
-    rvn->unlock();
+    update(rvn.get());
 
     if ( rc != 0 )
     {
@@ -625,9 +623,19 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, strin
         return -1;
     }
 
-    VirtualNetwork * pvn = get(pid);
+    if (auto pvn = get(pid))
+    {
+        int rc = pvn->reserve_addr(rid, rsize, rar, err);
 
-    if ( pvn == 0 )
+        update(pvn.get());
+
+        if (rc != 0)
+        {
+            delete rar;
+            return -1;
+        }
+    }
+    else
     {
         delete rar;
 
@@ -635,18 +643,6 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, strin
         oss << "Virtual network " << pid << " does not exist";
 
         err = oss.str();
-        return -1;
-    }
-
-    int rc = pvn->reserve_addr(rid, rsize, rar, err);
-
-    update(pvn);
-
-    pvn->unlock();
-
-    if ( rc != 0)
-    {
-        delete rar;
         return -1;
     }
 
@@ -665,9 +661,19 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, unsig
         return -1;
     }
 
-    VirtualNetwork * pvn = get(pid);
+    if (auto pvn = get(pid))
+    {
+        int rc = pvn->reserve_addr(rid, rsize, ar_id, rar, err);
 
-    if ( pvn == 0 )
+        update(pvn.get());
+
+        if (rc != 0)
+        {
+            delete rar;
+            return -1;
+        }
+    }
+    else
     {
         delete rar;
 
@@ -675,18 +681,6 @@ int VirtualNetworkPool::reserve_addr(int pid, int rid, unsigned int rsize, unsig
         oss << "Virtual network " << pid << " does not exist";
 
         err = oss.str();
-        return -1;
-    }
-
-    int rc = pvn->reserve_addr(rid, rsize, ar_id, rar, err);
-
-    update(pvn);
-
-    pvn->unlock();
-
-    if ( rc != 0)
-    {
-        delete rar;
         return -1;
     }
 
@@ -700,14 +694,24 @@ int VirtualNetworkPool::reserve_addr_by_ip6(int pid, int rid, unsigned int rsize
 {
     AddressRange * rar = allocate_ar(rid, err);
 
-    if ( rar == 0 )
+    if ( rar == nullptr )
     {
         return -1;
     }
 
-    VirtualNetwork * pvn = get(pid);
+    if (auto pvn = get(pid))
+    {
+        int rc = pvn->reserve_addr_by_ip6(rid, rsize, ar_id, ip, rar, err);
 
-    if ( pvn == 0 )
+        update(pvn.get());
+
+        if ( rc != 0)
+        {
+            delete rar;
+            return -1;
+        }
+    }
+    else
     {
         delete rar;
 
@@ -715,18 +719,6 @@ int VirtualNetworkPool::reserve_addr_by_ip6(int pid, int rid, unsigned int rsize
         oss << "Virtual network " << pid << " does not exist";
 
         err = oss.str();
-        return -1;
-    }
-
-    int rc = pvn->reserve_addr_by_ip6(rid, rsize, ar_id, ip, rar, err);
-
-    update(pvn);
-
-    pvn->unlock();
-
-    if ( rc != 0)
-    {
-        delete rar;
         return -1;
     }
 
@@ -740,14 +732,24 @@ int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
 {
     AddressRange * rar = allocate_ar(rid, err);
 
-    if ( rar == 0 )
+    if ( rar == nullptr )
     {
         return -1;
     }
 
-    VirtualNetwork * pvn = get(pid);
+    if (auto pvn = get(pid))
+    {
+        int rc = pvn->reserve_addr_by_ip(rid, rsize, ar_id, ip, rar, err);
 
-    if ( pvn == 0 )
+        update(pvn.get());
+
+        if ( rc != 0)
+        {
+            delete rar;
+            return -1;
+        }
+    }
+    else
     {
         delete rar;
 
@@ -755,18 +757,6 @@ int VirtualNetworkPool::reserve_addr_by_ip(int pid, int rid, unsigned int rsize,
         oss << "Virtual network " << pid << " does not exist";
 
         err = oss.str();
-        return -1;
-    }
-
-    int rc = pvn->reserve_addr_by_ip(rid, rsize, ar_id, ip, rar, err);
-
-    update(pvn);
-
-    pvn->unlock();
-
-    if ( rc != 0)
-    {
-        delete rar;
         return -1;
     }
 
@@ -780,14 +770,24 @@ int VirtualNetworkPool::reserve_addr_by_mac(int pid, int rid, unsigned int rsize
 {
     AddressRange * rar = allocate_ar(rid, err);
 
-    if ( rar == 0 )
+    if ( rar == nullptr )
     {
         return -1;
     }
 
-    VirtualNetwork * pvn = get(pid);
+    if (auto pvn = get(pid))
+    {
+        int rc = pvn->reserve_addr_by_mac(rid, rsize, ar_id, mac, rar, err);
 
-    if ( pvn == 0 )
+        update(pvn.get());
+
+        if ( rc != 0)
+        {
+            delete rar;
+            return -1;
+        }
+    }
+    else
     {
         delete rar;
 
@@ -795,18 +795,6 @@ int VirtualNetworkPool::reserve_addr_by_mac(int pid, int rid, unsigned int rsize
         oss << "Virtual network " << pid << " does not exist";
 
         err = oss.str();
-        return -1;
-    }
-
-    int rc = pvn->reserve_addr_by_mac(rid, rsize, ar_id, mac, rar, err);
-
-    update(pvn);
-
-    pvn->unlock();
-
-    if ( rc != 0)
-    {
-        delete rar;
         return -1;
     }
 

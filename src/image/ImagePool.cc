@@ -184,15 +184,11 @@ int ImagePool::allocate (
 
             if ( rc == -1 )
             {
-                img = get(*oid);
-
-                if ( img != 0 )
+                if ( auto img = get(*oid) )
                 {
                     string aux_str;
 
-                    drop(img, aux_str);
-
-                    img->unlock();
+                    drop(img.get(), aux_str);
                 }
 
                 *oid = -1;
@@ -206,15 +202,11 @@ int ImagePool::allocate (
 
             if (rc == -1)
             {
-                img = get(*oid);
-
-                if ( img != 0 )
+                if ( auto img = get(*oid) )
                 {
                     string aux_str;
 
-                    drop(img, aux_str);
-
-                    img->unlock();
+                    drop(img.get(), aux_str);
                 }
 
                 *oid = -1;
@@ -265,7 +257,7 @@ int ImagePool::acquire_disk(int               vm_id,
                             string&           error_str)
 {
     string  source;
-    Image * img = 0;
+    unique_ptr<Image> img;
     int     rc  = 0;
     int     datastore_id;
     int     iid;
@@ -281,7 +273,7 @@ int ImagePool::acquire_disk(int               vm_id,
     {
         img = imagem->acquire_image(vm_id, iid, attach, error_str);
 
-        if ( img == 0 )
+        if ( img == nullptr )
         {
             return -1;
         }
@@ -303,7 +295,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         img = imagem->acquire_image(vm_id, source, uiid, attach, error_str);
 
-        if ( img == 0 )
+        if ( img == nullptr )
         {
             return -1;
         }
@@ -343,7 +335,7 @@ int ImagePool::acquire_disk(int               vm_id,
         }
     }
 
-    if ( img != 0 )
+    if ( img != nullptr )
     {
         DatastorePool * ds_pool = nd.get_dspool();
 
@@ -352,7 +344,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if (has_size && img->is_persistent() && size != img->get_size())
         {
-            img->unlock();
+            img.reset();
 
             imagem->release_image(vm_id, iid, false);
 
@@ -365,7 +357,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if (has_size && img->get_type() == Image::CDROM && size != img->get_size())
         {
-            img->unlock();
+            img.reset();
 
             imagem->release_image(vm_id, iid, false);
 
@@ -378,7 +370,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if (has_size && size < img->get_size())
         {
-            img->unlock();
+            img.reset();
 
             imagem->release_image(vm_id, iid, false);
 
@@ -401,7 +393,7 @@ int ImagePool::acquire_disk(int               vm_id,
             (*snap)->set_disk_id(disk_id);
         }
 
-        img->unlock();
+        img.reset();
 
         if ( ds_pool->disk_attribute(datastore_id, disk) == -1 )
         {
@@ -429,7 +421,7 @@ void ImagePool::disk_attribute(
         int                 uid)
 {
     string  source;
-    Image * img = 0;
+    unique_ptr<Image> img;
     int     datastore_id;
     int     iid;
 
@@ -455,13 +447,13 @@ void ImagePool::disk_attribute(
         }
     }
 
-    if ( img != 0 )
+    if ( img != nullptr )
     {
         img->disk_attribute(disk, img_type, dev_prefix, inherit_attrs);
 
         datastore_id = img->get_ds_id();
 
-        img->unlock();
+        img.reset();
 
         ds_pool->disk_attribute(datastore_id, disk);
     }

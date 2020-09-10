@@ -82,56 +82,54 @@ public:
     };
 
     /**
-     *  Function to get a VN from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid VN unique id
-     *    @param lock locks the VN mutex
-     *    @return a pointer to the VN, 0 if the VN could not be loaded
-     */
-    VirtualNetwork * get(int oid)
-    {
-        return static_cast<VirtualNetwork *>(PoolSQL::get(oid));
-    };
-
-    /**
-     *  Function to get a read only VN from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid VN unique id
-     *    @param lock locks the VN mutex
-     *    @return a pointer to the VN, 0 if the VN could not be loaded
-     */
-    VirtualNetwork * get_ro(int oid)
-    {
-        return static_cast<VirtualNetwork *>(PoolSQL::get_ro(oid));
-    };
-
-    /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param uid id of owner
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the VN unique identifier
+     *   @return a pointer to the VN, nullptr in case of failure
      */
-    VirtualNetwork * get(const std::string& name, int uid)
+    std::unique_ptr<VirtualNetwork> get(int oid)
     {
-        return static_cast<VirtualNetwork *>(PoolSQL::get(name,uid));
-    };
+        return PoolSQL::get<VirtualNetwork>(oid);
+    }
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the VN unique identifier
+     *   @return a pointer to the VN, nullptr in case of failure
+     */
+    std::unique_ptr<VirtualNetwork> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<VirtualNetwork>(oid);
+    }
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param name of the object
      *   @param uid id of owner
-     *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    VirtualNetwork * get_ro(const std::string& name, int uid)
+    std::unique_ptr<VirtualNetwork> get(const std::string& name, int uid)
     {
-        return static_cast<VirtualNetwork *>(PoolSQL::get_ro(name,uid));
-    };
+        return PoolSQL::get<VirtualNetwork>(name,uid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    std::unique_ptr<VirtualNetwork> get_ro(const std::string& name, int uid)
+    {
+        return PoolSQL::get_ro<VirtualNetwork>(name,uid);
+    }
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualNetwork pool
@@ -322,16 +320,17 @@ private:
      *  Function to get a VirtualNetwork by its name, as provided by a VM
      *  template
      */
-    VirtualNetwork * get_nic_by_name(VirtualMachineNic * nic,
-                                     const std::string&  name,
-                                     int                 _uidi,
-                                     bool                ro,
-                                     std::string&        error);
+    std::unique_ptr<VirtualNetwork> get_nic_by_name(VirtualMachineNic * nic,
+                                                    const std::string&  name,
+                                                    int                 _uidi,
+                                                    bool                ro,
+                                                    std::string&        error);
     /**
      *  Function to get a VirtualNetwork by its id, as provided by a VM template
      */
-    VirtualNetwork * get_nic_by_id(const std::string& id_s, bool ro,
-                                   std::string& error);
+    std::unique_ptr<VirtualNetwork> get_nic_by_id(const std::string& id_s,
+                                                  bool ro,
+                                                  std::string& error);
 
     //--------------------------------------------------------------------------
     // VLAN ID management functions

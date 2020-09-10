@@ -114,7 +114,6 @@ void get_image_attribute(VirtualMachine * vm,
     Nebula& nd = Nebula::instance();
 
     ImagePool * ipool = nd.get_ipool();
-    Image  *    img;
     int         iid = -1;
 
     int num;
@@ -159,9 +158,9 @@ void get_image_attribute(VirtualMachine * vm,
     // ----------------------------------------------
     // Get the attribute template from the image
     // ----------------------------------------------
-    img = ipool->get_ro(iid);
+    auto img = ipool->get_ro(iid);
 
-    if ( img == 0 )
+    if ( img == nullptr )
     {
         return;
     }
@@ -174,8 +173,6 @@ void get_image_attribute(VirtualMachine * vm,
     {
         img->get_template_attribute(attr_name, attr_value);
     }
-
-    img->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -190,7 +187,6 @@ void get_network_attribute(VirtualMachine * vm,
     Nebula& nd = Nebula::instance();
 
     VirtualNetworkPool * vnpool = nd.get_vnpool();
-    VirtualNetwork  *    vn;
     int                  ar_id, vnet_id = -1;
 
     int num;
@@ -264,9 +260,9 @@ void get_network_attribute(VirtualMachine * vm,
     // ----------------------------------------------
     // Get the attribute template from the image
     // ----------------------------------------------
-    vn = vnpool->get_ro(vnet_id);
+    auto vn = vnpool->get_ro(vnet_id);
 
-    if ( vn == 0 )
+    if (vn == nullptr)
     {
         return;
     }
@@ -279,8 +275,6 @@ void get_network_attribute(VirtualMachine * vm,
     {
         vn->get_template_attribute(attr_name, attr_value, ar_id);
     }
-
-    vn->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -293,13 +287,12 @@ void get_user_attribute(VirtualMachine * vm,
     Nebula& nd = Nebula::instance();
 
     UserPool * upool = nd.get_upool();
-    User *     user;
 
     attr_value.clear();
 
-    user = upool->get_ro(vm->get_uid());
+    auto user = upool->get_ro(vm->get_uid());
 
-    if ( user == 0 )
+    if ( user == nullptr )
     {
         return;
     }
@@ -312,8 +305,6 @@ void get_user_attribute(VirtualMachine * vm,
     {
         user->get_template_attribute(attr_name, attr_value);
     }
-
-    user->unlock();
 }
 
 /* -------------------------------------------------------------------------- */

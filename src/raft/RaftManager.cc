@@ -60,7 +60,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     , term(0)
     , num_servers(0)
     , reconciling(false)
-    , timer_thread(timer_period_ms / 1000.0, [this](){timer_action();})
+    , timer_thread()
+    , purge_thread(log_purge, [this](){purge_action();})
     , commit(0)
     , leader_hook(0)
     , follower_hook(0)
@@ -183,8 +184,10 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     {
         follower_hook->execute();
     }
-};
 
+    // timer_thread has short period, start it at the end of the constructor
+    timer_thread.start(timer_period_ms / 1000.0, [this](){timer_action();});
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -192,6 +195,7 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
 void RaftManager::finalize()
 {
     timer_thread.stop();
+    purge_thread.stop();
 
     if (is_leader())
     {
@@ -696,40 +700,11 @@ int RaftManager::update_votedfor(int _votedfor)
 
 void RaftManager::timer_action()
 {
-    static int mark_tics  = 0;
-    static int purge_tics = 0;
-    ostringstream oss;
-
     Nebula& nd = Nebula::instance();
 
     if ( nd.is_cache() )
     {
         return;
-    }
-
-    mark_tics++;
-    purge_tics++;
-
-    // Thread heartbeat
-    if ( (mark_tics * timer_period_ms) >= 600000 )
-    {
-        NebulaLog::log("RCM",Log::INFO,"--Mark--");
-        mark_tics = 0;
-    }
-
-    // Database housekeeping
-    if ( (purge_tics * timer_period_ms) >= purge_period_ms )
-    {
-        LogDB * logdb = nd.get_logdb();
-
-        int rc = logdb->purge_log();
-
-        purge_tics = 0;
-
-        if (rc > 0 && purge_period_ms > 60000) //logs removed, wakeup in 60s
-        {
-            purge_tics = (int) ((purge_period_ms - 60000)/timer_period_ms);
-        }
     }
 
     // Leadership
@@ -773,6 +748,38 @@ void RaftManager::timer_action()
     else //SOLO or CANDIDATE, do nothing
     {
     }
+
+    return;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RaftManager::purge_action()
+{
+    static int mark_tics  = 0;
+    ostringstream oss;
+
+    Nebula& nd = Nebula::instance();
+
+    if ( nd.is_cache() )
+    {
+        return;
+    }
+
+    mark_tics++;
+
+    // Thread heartbeat
+    if ( (mark_tics * purge_period_ms) >= 600000 )
+    {
+        NebulaLog::log("RCM",Log::INFO,"--Mark--");
+        mark_tics = 0;
+    }
+
+    // Database housekeeping
+    LogDB * logdb = nd.get_logdb();
+
+    logdb->purge_log();
 
     return;
 }

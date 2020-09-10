@@ -358,7 +358,6 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
         int     rc;
         string  error_str;
 
-        VirtualMachine * vm;
         Nebula&          nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -370,7 +369,7 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
         // -------------------------------------------------------------------------
         // Setup & Transfer script
         // -------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -413,7 +412,7 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
 
         for (auto disk : disks)
         {
-            rc = prolog_transfer_command(vm, disk, vm_tm_mad, opennebula_hostname,
+            rc = prolog_transfer_command(vm.get(), disk, vm_tm_mad, opennebula_hostname,
                     xfr, os);
 
             if ( rc != 0 )
@@ -435,14 +434,14 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
             bool update = false;
 
             kernel = prolog_os_transfer_commands(
-                        vm,
+                        vm.get(),
                         os_attr,
                         "KERNEL",
                         opennebula_hostname,
                         xfr);
 
             initrd = prolog_os_transfer_commands(
-                        vm,
+                        vm.get(),
                         os_attr,
                         "INITRD",
                         opennebula_hostname,
@@ -464,13 +463,13 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
 
             if ( update )
             {
-                vmpool->update(vm);
+                vmpool->update(vm.get());
             }
         }
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -500,7 +499,6 @@ void TransferManager::trigger_prolog(VirtualMachine * vm)
             nd.get_lcm()->trigger_prolog_failure(vid);
             vm->log("TrM", Log::ERROR, os);
 
-            vm->unlock();
             return;
     });
 }
@@ -533,14 +531,12 @@ void TransferManager::trigger_prolog_migr(VirtualMachine * vm)
         int ds_id;
         int disk_id;
 
-        VirtualMachine *    vm;
-
         const Driver<transfer_msg_t> * tm_md;
 
         // -------------------------------------------------------------------------
         // Setup & Transfer script
         // -------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -624,7 +620,7 @@ void TransferManager::trigger_prolog_migr(VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -652,7 +648,6 @@ void TransferManager::trigger_prolog_migr(VirtualMachine * vm)
             Nebula::instance().get_lcm()->trigger_prolog_failure(vid);
             vm->log("TrM", Log::ERROR, os);
 
-            vm->unlock();
             return;
     });
 }
@@ -685,7 +680,6 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
         int ds_id;
         int disk_id;
 
-        VirtualMachine * vm;
         Nebula&          nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -693,7 +687,7 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
         // -------------------------------------------------------------------------
         // Setup & Transfer script
         // -------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -779,7 +773,7 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -807,8 +801,6 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
             nd.get_lcm()->trigger_prolog_failure(vid);
 
             vm->log("TrM", Log::ERROR, os);
-
-            vm->unlock();
             return;
     });
 }
@@ -842,7 +834,6 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
         int     rc;
         string  error_str;
 
-        VirtualMachine * vm;
         Nebula&          nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -851,7 +842,7 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
         // Setup & Transfer script
         // -------------------------------------------------------------------------
 
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -891,7 +882,7 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
             goto error_disk;
         }
 
-        rc = prolog_transfer_command(vm,
+        rc = prolog_transfer_command(vm.get(),
                                     disk,
                                     vm_tm_mad,
                                     opennebula_hostname,
@@ -905,7 +896,7 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -940,7 +931,6 @@ void TransferManager::trigger_prolog_attach(VirtualMachine * vm)
             nd.get_lcm()->trigger_prolog_failure(vid);
             vm->log("TrM", Log::ERROR, os);
 
-            vm->unlock();
             return;
     });
 }
@@ -1054,7 +1044,6 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
         string error_str;
         string host;
 
-        VirtualMachine *    vm;
         Nebula&             nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -1062,7 +1051,7 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
         // ------------------------------------------------------------------------
         // Setup & Transfer script
         // ------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1106,7 +1095,7 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
         // -------------------------------------------------------------------------
         for (auto disk : disks)
         {
-            epilog_transfer_command(vm, host, disk, xfr);
+            epilog_transfer_command(vm.get(), host, disk, xfr);
         }
 
         //DELETE vm_tm_mad hostname:remote_system_dir vmid ds_id
@@ -1118,13 +1107,12 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
             tm_md->write(msg);
         }
-
 
         return;
 
@@ -1147,7 +1135,6 @@ void TransferManager::trigger_epilog(bool local, VirtualMachine * vm)
             nd.get_lcm()->trigger_epilog_failure(vid);
             vm->log("TrM", Log::ERROR, os);
 
-            vm->unlock();
             return;
     });
 }
@@ -1180,7 +1167,6 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
         int ds_id;
         int disk_id;
 
-        VirtualMachine * vm;
         Nebula&          nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -1188,7 +1174,7 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
         // ------------------------------------------------------------------------
         // Setup & Transfer script
         // ------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1269,7 +1255,7 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -1297,7 +1283,6 @@ void TransferManager::trigger_epilog_stop(VirtualMachine * vm)
             nd.get_lcm()->trigger_epilog_failure(vid);
             vm->log("TrM", Log::ERROR, os);
 
-            vm->unlock();
             return;
     });
 }
@@ -1455,7 +1440,6 @@ void TransferManager::trigger_epilog_delete(bool local, VirtualMachine * vm)
         ofstream xfr;
         string   xfr_name;
 
-        VirtualMachine * vm;
         Nebula&          nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -1465,7 +1449,7 @@ void TransferManager::trigger_epilog_delete(bool local, VirtualMachine * vm)
         // ------------------------------------------------------------------------
         // Setup & Transfer script
         // ------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1487,7 +1471,7 @@ void TransferManager::trigger_epilog_delete(bool local, VirtualMachine * vm)
             goto error_file;
         }
 
-        rc = epilog_delete_commands(vm, xfr, local, false);
+        rc = epilog_delete_commands(vm.get(), xfr, local, false);
 
         if ( rc != 0 )
         {
@@ -1496,7 +1480,7 @@ void TransferManager::trigger_epilog_delete(bool local, VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -1518,7 +1502,6 @@ void TransferManager::trigger_epilog_delete(bool local, VirtualMachine * vm)
             vm->log("TrM", Log::ERROR, os);
             (nd.get_lcm())->trigger_epilog_failure(vid);
 
-            vm->unlock();
             return;
     });
 }
@@ -1545,7 +1528,6 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
         ofstream xfr;
         string   xfr_name;
 
-        VirtualMachine * vm;
         Nebula&          nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -1555,7 +1537,7 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
         // ------------------------------------------------------------------------
         // Setup & Transfer script
         // ------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1577,7 +1559,7 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
             goto error_file;
         }
 
-        rc = epilog_delete_commands(vm, xfr, false, true);
+        rc = epilog_delete_commands(vm.get(), xfr, false, true);
 
         if ( rc != 0 )
         {
@@ -1586,7 +1568,7 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -1608,7 +1590,6 @@ void TransferManager::trigger_epilog_delete_previous(VirtualMachine * vm)
             vm->log("TrM", Log::ERROR, os);
             (nd.get_lcm())->trigger_epilog_failure(vid);
 
-            vm->unlock();
             return;
     });
 }
@@ -1635,7 +1616,6 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
         ofstream xfr;
         string   xfr_name;
 
-        VirtualMachine * vm;
         Nebula&          nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -1645,7 +1625,7 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
         // ------------------------------------------------------------------------
         // Setup & Transfer script
         // ------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1667,8 +1647,8 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
             goto error_file;
         }
 
-        rc = epilog_delete_commands(vm, xfr, false, false); //current
-        rc = epilog_delete_commands(vm, xfr, false, true);  //previous
+        rc = epilog_delete_commands(vm.get(), xfr, false, false); //current
+        rc = epilog_delete_commands(vm.get(), xfr, false, true);  //previous
 
         if ( rc != 0 )
         {
@@ -1677,7 +1657,7 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -1699,7 +1679,6 @@ void TransferManager::trigger_epilog_delete_both(VirtualMachine * vm)
             vm->log("TrM", Log::ERROR, os);
             (nd.get_lcm())->trigger_epilog_failure(vid);
 
-            vm->unlock();
             return;
     });
 }
@@ -1729,7 +1708,6 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
 
         const VirtualMachineDisk * disk;
 
-        VirtualMachine *    vm;
         Nebula&             nd = Nebula::instance();
 
         const Driver<transfer_msg_t> * tm_md;
@@ -1737,7 +1715,7 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
         // ------------------------------------------------------------------------
         // Setup & Transfer script
         // ------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1776,11 +1754,11 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
             goto error_disk;
         }
 
-        epilog_transfer_command(vm, vm->get_hostname(), disk, xfr);
+        epilog_transfer_command(vm.get(), vm->get_hostname(), disk, xfr);
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -1813,7 +1791,6 @@ void TransferManager::trigger_epilog_detach(VirtualMachine * vm)
             (nd.get_lcm())->trigger_epilog_failure(vid);
             vm->log("TrM", Log::ERROR, os);
 
-            vm->unlock();
             return;
     });
 }
@@ -1833,15 +1810,6 @@ void TransferManager::trigger_driver_cancel(int vid)
         {
             return;
         }
-
-        VirtualMachine * vm = vmpool->get(vid);
-
-        if (vm == nullptr)
-        {
-            return;
-        }
-
-        vm->unlock();
 
         // ------------------------------------------------------------------------
         // Cancel the current operation
@@ -1880,7 +1848,6 @@ void TransferManager::trigger_saveas_hot(int vid)
         ofstream xfr;
         string   xfr_name;
 
-        VirtualMachine * vm;
         const Driver<transfer_msg_t> * tm_md;
         VirtualMachineDisk * disk;
 
@@ -1889,7 +1856,7 @@ void TransferManager::trigger_saveas_hot(int vid)
         // ------------------------------------------------------------------------
         // Setup & Transfer script
         // ------------------------------------------------------------------------
-        vm = vmpool->get(vid);
+        auto vm = vmpool->get(vid);
 
         if (vm == nullptr)
         {
@@ -1945,7 +1912,7 @@ void TransferManager::trigger_saveas_hot(int vid)
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -1976,7 +1943,6 @@ void TransferManager::trigger_saveas_hot(int vid)
 
             nd.get_lcm()->trigger_saveas_failure(vid);
 
-            vm->unlock();
             return;
     });
 }
@@ -2055,7 +2021,7 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
     ofstream xfr;
     string   xfr_name;
 
-    VirtualMachine * vm;
+    unique_ptr<VirtualMachine> vm;
     int rc;
 
     Nebula& nd = Nebula::instance();
@@ -2087,7 +2053,7 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
         goto error_file;
     }
 
-    rc = snapshot_transfer_command(vm, snap_action, xfr);
+    rc = snapshot_transfer_command(vm.get(), snap_action, xfr);
 
     xfr.close();
 
@@ -2096,7 +2062,7 @@ void TransferManager::do_snapshot_action(int vid, const char * snap_action)
         goto error_common;
     }
 
-    vm->unlock();
+    vm.reset();
 
     {
         transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -2122,7 +2088,6 @@ error_common:
 
     nd.get_lcm()->trigger_disk_snapshot_failure(vid);
 
-    vm->unlock();
     return;
 }
 
@@ -2205,7 +2170,7 @@ void TransferManager::trigger_resize(int vid)
         ofstream xfr;
         string   xfr_name;
 
-        VirtualMachine * vm;
+        unique_ptr<VirtualMachine> vm;
         VirtualMachineDisk * disk;
 
         Nebula& nd = Nebula::instance();
@@ -2244,11 +2209,11 @@ void TransferManager::trigger_resize(int vid)
             goto error_disk;
         }
 
-        resize_command(vm, disk, xfr);
+        resize_command(vm.get(), disk, xfr);
 
         xfr.close();
 
-        vm->unlock();
+        vm.reset();
 
         {
             transfer_msg_t msg(TransferManagerMessages::TRANSFER, "", vid, xfr_name);
@@ -2278,7 +2243,6 @@ void TransferManager::trigger_resize(int vid)
 
             nd.get_lcm()->trigger_disk_resize_failure(vid);
 
-            vm->unlock();
             return;
     });
 }

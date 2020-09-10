@@ -42,16 +42,14 @@ void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
     bool enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     int  rc;
 
-    MarketPlaceApp * app;
-
     if ( basic_authorization(id, att) == false )
     {
         return;
     }
 
-    app = static_cast<MarketPlaceApp *>(pool->get(id));
+    auto app = pool->get<MarketPlaceApp>(id);
 
-    if ( app == 0 )
+    if ( app == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -64,13 +62,10 @@ void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
     {
         failure_response(INTERNAL, att);
 
-        app->unlock();
         return;
     }
 
-    pool->update(app);
-
-    app->unlock();
+    pool->update(app.get());
 
     success_response(id, att);
 }

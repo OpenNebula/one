@@ -57,26 +57,24 @@ ClusterPool::ClusterPool(SqlDB * db,
 
         allocate(DEFAULT_CLUSTER_NAME, &rc, error_str);
 
-        if( rc != DEFAULT_CLUSTER_ID )
+        if (rc != DEFAULT_CLUSTER_ID)
         {
             goto error_bootstrap;
         }
 
-        Cluster* cluster = get(DEFAULT_CLUSTER_ID);
+        auto cluster = get(DEFAULT_CLUSTER_ID);
 
-        if (cluster == 0)
+        if (!cluster)
         {
             goto error_bootstrap;
         }
 
-        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::SYSTEM_DS_ID,
-                error_str);
-        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::DEFAULT_DS_ID,
-                error_str);
-        add_to_cluster(PoolObjectSQL::DATASTORE, cluster, DatastorePool::FILE_DS_ID,
-                error_str);
-
-        cluster->unlock();
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
+                DatastorePool::SYSTEM_DS_ID, error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
+                DatastorePool::DEFAULT_DS_ID, error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
+                DatastorePool::FILE_DS_ID, error_str);
 
         // User created clusters will start from ID 100
         set_lastOID(99);

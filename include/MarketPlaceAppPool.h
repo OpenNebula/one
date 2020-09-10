@@ -84,52 +84,54 @@ public:
             int& app_id, std::string& error_str);
 
     /**
-     *  Function to get a MarketPlaceApp from the pool
-     *    @param oid MarketPlaceApp unique id
-     *    @param lock locks the MarketPlaceApp mutex
-     *    @return a pointer to the MarketPlaceApp, 0 if not loaded
-     */
-    MarketPlaceApp * get(int oid)
-    {
-        return static_cast<MarketPlaceApp *>(PoolSQL::get(oid));
-    };
-
-    /**
-     *  Function to get a read only MarketPlaceApp from the pool
-     *    @param oid MarketPlaceApp unique id
-     *    @return a pointer to the MarketPlaceApp, 0 if not loaded
-     */
-    MarketPlaceApp * get_ro(int oid)
-    {
-        return static_cast<MarketPlaceApp *>(PoolSQL::get_ro(oid));
-    };
-
-    /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param uid id of owner
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the MarketPlaceApp unique identifier
+     *   @return a pointer to the MarketPlaceApp, nullptr in case of failure
      */
-    MarketPlaceApp * get(const std::string& name, int uid)
+    std::unique_ptr<MarketPlaceApp> get(int oid)
     {
-        return static_cast<MarketPlaceApp *>(PoolSQL::get(name, uid));
-    };
+        return PoolSQL::get<MarketPlaceApp>(oid);
+    }
 
     /**
      *  Gets a read only object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the MarketPlaceApp unique identifier
+     *   @return a pointer to the MarketPlaceApp, nullptr in case of failure
+     */
+    std::unique_ptr<MarketPlaceApp> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<MarketPlaceApp>(oid);
+    }
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param name of the object
      *   @param uid id of owner
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    MarketPlaceApp * get_ro(const std::string& name, int uid)
+    std::unique_ptr<MarketPlaceApp> get(const std::string& name, int uid)
     {
-        return static_cast<MarketPlaceApp *>(PoolSQL::get_ro(name, uid));
-    };
+        return PoolSQL::get<MarketPlaceApp>(name, uid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    std::unique_ptr<MarketPlaceApp> get_ro(const std::string& name, int uid)
+    {
+        return PoolSQL::get_ro<MarketPlaceApp>(name, uid);
+    }
 
     /**
      *  Bootstraps the database table(s) associated to the MarketPlace pool

@@ -28,6 +28,7 @@ class ZoneServer;
 class Zone : public PoolObjectSQL
 {
 public:
+    virtual ~Zone();
 
     /**
      * Function to print the Zone object into a string in XML format
@@ -94,8 +95,6 @@ private:
     // Constructor
     // -------------------------------------------------------------------------
     Zone(int id, Template* zone_template);
-
-    virtual ~Zone();
 
     // -------------------------------------------------------------------------
     // Zone servers
