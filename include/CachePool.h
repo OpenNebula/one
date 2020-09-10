@@ -17,7 +17,7 @@
 #ifndef CACHE_POOL_H_
 #define CACHE_POOL_H_
 
-#include <pthread.h>
+#include <mutex>
 #include <map>
 
 
@@ -27,30 +27,23 @@
 template<typename T> class CachePool
 {
 public:
-    CachePool()
-    {
-        pthread_mutex_init(&resource_lock, 0);
-    }
+    CachePool() = default;
 
     ~CachePool()
     {
-        pthread_mutex_lock(&resource_lock);
+        std::lock_guard<std::mutex> lock(resource_lock);
 
         for (auto it = resources.begin(); it != resources.end() ; ++it)
         {
             delete it->second;
         }
-
-        pthread_mutex_unlock(&resource_lock);
-
-        pthread_mutex_destroy(&resource_lock);
-    };
+    }
 
     T * get_resource(int oid)
     {
         T * res;
 
-        pthread_mutex_lock(&resource_lock);
+        std::lock_guard<std::mutex> lock(resource_lock);
 
         auto it = resources.find(oid);
 
@@ -65,15 +58,13 @@ public:
             res = it->second;
         }
 
-        pthread_mutex_unlock(&resource_lock);
-
         return res;
     }
 
 
     void delete_resource(int oid)
     {
-        pthread_mutex_lock(&resource_lock);
+        std::lock_guard<std::mutex> lock(resource_lock);
 
         auto it = resources.find(oid);
 
@@ -83,13 +74,11 @@ public:
 
             resources.erase(it);
         }
-
-        pthread_mutex_unlock(&resource_lock);
     }
 
 private:
 
-    pthread_mutex_t resource_lock;
+    std::mutex resource_lock;
 
     std::map<int, T *> resources;
 };

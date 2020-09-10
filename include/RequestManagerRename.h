@@ -50,10 +50,8 @@ protected:
                          const std::string& params = "A:sis")
         :Request(method_name,params,help)
     {
-        pthread_mutex_init(&mutex, 0);
-
         auth_op = AuthRequest::MANAGE;
-    };
+    }
 
     ~RequestManagerRename() = default;
 
@@ -79,13 +77,9 @@ protected:
      */
     bool test_and_set_rename(int oid)
     {
-        std::pair<std::set<int>::iterator,bool> rc;
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        pthread_mutex_lock(&mutex);
-
-        rc = rename_ids.insert(oid);
-
-        pthread_mutex_unlock(&mutex);
+        auto rc = rename_ids.insert(oid);
 
         return rc.second == true;
     }
@@ -95,11 +89,9 @@ protected:
      */
     void clear_rename(int oid)
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         rename_ids.erase(oid);
-
-        pthread_mutex_unlock(&mutex);
     }
 
     /**
@@ -111,13 +103,13 @@ protected:
     virtual int extra_updates(PoolObjectSQL * obj)
     {
         return 0;
-    };
+    }
 
 private:
     /**
      *  Mutex to control concurrent access to the ongoing rename operations
      */
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Set of IDs being renamed;

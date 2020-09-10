@@ -37,50 +37,6 @@ const time_t ReplicaThread::max_retry_timeout = 2.5e9;
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-extern "C" void * replication_thread(void *arg)
-{
-    ReplicaThread * rt;
-
-    int oldstate;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    rt = static_cast<ReplicaThread *>(arg);
-
-    rt->_thread_id = pthread_self();
-
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
-
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldstate);
-
-    rt->do_replication();
-
-    NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
-
-    delete rt;
-
-    return 0;
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-static void set_timeout(struct timespec& timeout, time_t nsec )
-{
-    clock_gettime(CLOCK_REALTIME, &timeout);
-
-    timeout.tv_nsec += nsec;
-
-    while ( timeout.tv_nsec >= 1000000000 )
-    {
-        timeout.tv_sec  += 1;
-        timeout.tv_nsec -= 1000000000;
-    }
-}
-
 void ReplicaThread::do_replication()
 {
     int rc;
@@ -89,28 +45,25 @@ void ReplicaThread::do_replication()
 
     while ( _finalize == false )
     {
-        pthread_mutex_lock(&mutex);
-
-        while ( _pending_requests == false )
         {
-            struct timespec timeout;
+            std::unique_lock<std::mutex> lock(_mutex);
 
-            set_timeout(timeout, retry_timeout);
-
-            if ( pthread_cond_timedwait(&cond, &mutex, &timeout) == ETIMEDOUT )
+            while ( _pending_requests == false )
             {
-                _pending_requests = retry_request || _pending_requests;
+                if (cond.wait_for(lock, chrono::nanoseconds(retry_timeout))
+                    == std::cv_status::timeout)
+                {
+                    _pending_requests = retry_request || _pending_requests;
+                }
+
+                if ( _finalize )
+                {
+                    return;
+                }
             }
 
-            if ( _finalize )
-            {
-                return;
-            }
+            _pending_requests = false;
         }
-
-        _pending_requests = false;
-
-        pthread_mutex_unlock(&mutex);
 
         rc = replicate();
 
@@ -129,6 +82,8 @@ void ReplicaThread::do_replication()
             retry_request = false;
         }
     }
+
+    NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
 }
 
 // -----------------------------------------------------------------------------
@@ -136,15 +91,13 @@ void ReplicaThread::do_replication()
 
 void ReplicaThread::finalize()
 {
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
 
     _finalize = true;
 
     _pending_requests = false;
 
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
+    cond.notify_one();
 }
 
 // -----------------------------------------------------------------------------
@@ -152,13 +105,11 @@ void ReplicaThread::finalize()
 
 void ReplicaThread::add_request()
 {
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
 
     _pending_requests = true;
 
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
+    cond.notify_one();
 }
 
 // -----------------------------------------------------------------------------

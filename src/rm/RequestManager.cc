@@ -80,6 +80,7 @@ RequestManager::RequestManager(
         const string& call_log_format,
         const string& _listen_address,
         int message_size):
+            end(false),
             port(_port),
             socket_fd(-1),
             max_conn(_max_conn),
@@ -95,74 +96,31 @@ RequestManager::RequestManager(
     xmlrpc_limit_set(XMLRPC_XML_SIZE_LIMIT_ID, message_size);
 }
 
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-/**
- *  Connection class is used to pass arguments to connection threads.
- */
-struct Connection
+RequestManager::~RequestManager()
 {
-    Connection(int c, ConnectionManager * cm):conn_fd(c), conn_manager(cm){};
-
-    int conn_fd;
-
-    ConnectionManager * conn_manager;
-};
-
-/**
- *  Connection Thread runs a xml-rpc method for a connected client
- */
-extern "C" void * rm_do_connection(void *arg)
-{
-    Connection * rc = static_cast<Connection *>(arg);
-
-    rc->conn_manager->run_connection(rc->conn_fd);
-
-    rc->conn_manager->del();
-
-    close(rc->conn_fd);
-
-    delete rc;
-
-    pthread_exit(0);
-
-    return 0;
-};
-
-/**
- *  Connection Manager Thread waits for client connections and starts a new
- *  thread to handle the request.
- */
-extern "C" void * rm_xml_server_loop(void *arg)
-{
-    if ( arg == 0 )
+    if (xml_server_thread.joinable())
     {
-        return 0;
+        xml_server_thread.join();
     }
+}
 
-    RequestManager * rm = static_cast<RequestManager *>(arg);
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+void RequestManager::xml_server_loop()
+{
     // -------------------------------------------------------------------------
     // Set cancel state for the thread
     // -------------------------------------------------------------------------
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
-
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
-
-    listen(rm->socket_fd, rm->max_conn_backlog);
-
-    pthread_attr_t pattr;
-    pthread_t      thread_id;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_DETACHED);
+    listen(socket_fd, max_conn_backlog);
 
     // -------------------------------------------------------------------------
     // Main connection loop
     // -------------------------------------------------------------------------
-    std::unique_ptr<ConnectionManager> cm{new ConnectionManager(rm, rm->max_conn)};
+    cm = make_unique<ConnectionManager>(max_conn);
 
     while (true)
     {
@@ -170,12 +128,25 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
         cm->wait();
 
+        {
+            std::lock_guard<std::mutex> lock(end_lock);
+
+            if (end)
+            {
+                break;
+            }
+        }
+
         struct sockaddr_storage addr;
 
         socklen_t addr_len = sizeof(struct sockaddr_storage);
 
-        int client_fd = accept(rm->socket_fd, (struct sockaddr*) &addr,
-                &addr_len);
+        int client_fd = accept(socket_fd, (struct sockaddr*) &addr, &addr_len);
+
+        if (client_fd == -1)
+        {
+            break;
+        }
 
         int nc = cm->add();
 
@@ -183,12 +154,20 @@ extern "C" void * rm_xml_server_loop(void *arg)
 
         NebulaLog::log("ReM", Log::DDEBUG, oss);
 
-        Connection * rc = new Connection(client_fd, cm.get());
+        thread conn_thread([client_fd, this]{
+            cm->run_connection(this, client_fd);
 
-        pthread_create(&thread_id, &pattr, rm_do_connection, (void *) rc);
+            cm->del();
+
+            close(client_fd);
+
+            return;
+        });
+
+        conn_thread.detach();
     }
 
-    return 0;
+    NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -311,14 +290,10 @@ int RequestManager::start()
 
     register_xml_methods();
 
-    pthread_attr_t  pattr;
-    pthread_attr_init(&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_JOINABLE);
-
     oss << "Starting XML-RPC server, port " << port << " ...";
     NebulaLog::log("ReM",Log::INFO,oss);
 
-    pthread_create(&rm_xml_server_thread,&pattr,rm_xml_server_loop,(void *)this);
+    xml_server_thread = thread(&RequestManager::xml_server_loop, this);
 
     NebulaLog::log("ReM",Log::INFO,"Request Manager started");
 
@@ -1217,11 +1192,19 @@ void RequestManager::register_xml_methods()
 
 void RequestManager::finalize()
 {
-    pthread_cancel(rm_xml_server_thread);
+    NebulaLog::log("ReM",Log::INFO,"Stopping XML-RPC server...");
 
-    pthread_join(rm_xml_server_thread,0);
+    {
+        std::lock_guard<std::mutex> lock(end_lock);
+        end = true;
+    }
 
-    NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
+    if (cm)
+    {
+        cm->terminate();
+    }
+
+    shutdown(socket_fd, SHUT_RDWR);
 
     if (socket_fd != -1)
     {

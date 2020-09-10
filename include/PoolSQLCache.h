@@ -18,9 +18,7 @@
 #define POOL_SQL_CACHE_H_
 
 #include <map>
-#include <string>
-#include <queue>
-#include <pthread.h>
+#include <mutex>
 
 #include "PoolObjectSQL.h"
 
@@ -36,10 +34,7 @@ public:
 
     PoolSQLCache();
 
-    virtual ~PoolSQLCache()
-    {
-        pthread_mutex_destroy(&mutex);
-    };
+    ~PoolSQLCache() = default;
 
     /**
      *  Allocates a new cache line to hold an active pool object. If the line
@@ -50,7 +45,7 @@ public:
      *
      *  @param oid of the object
      */
-    pthread_mutex_t * lock_line(int oid);
+    std::mutex * lock_line(int oid);
 
 private:
     /**
@@ -61,33 +56,29 @@ private:
     {
         CacheLine():active(0)
         {
-            pthread_mutex_init(&mutex, 0);
-        };
-
-        ~CacheLine()
-        {
-            pthread_mutex_destroy(&mutex);
         }
+
+        ~CacheLine() = default;
 
         void lock()
         {
-            pthread_mutex_lock(&mutex);
-        };
+            _mutex.lock();
+        }
 
         void unlock()
         {
-            pthread_mutex_unlock(&mutex);
+            _mutex.unlock();
         }
 
-        int trylock()
+        bool trylock()
         {
-            return pthread_mutex_trylock(&mutex);
+            return _mutex.try_lock();
         }
 
         /**
          *  Concurrent access to object
          */
-        pthread_mutex_t mutex;
+        std::mutex _mutex;
 
         /**
          *  Number of threads waiting on the line mutex
@@ -113,17 +104,8 @@ private:
     /**
      *  Controls concurrent access to the cache map.
      */
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    }
 };
 
 #endif /*POOL_SQL_CACHE_H_*/

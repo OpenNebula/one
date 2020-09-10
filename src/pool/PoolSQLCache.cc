@@ -21,13 +21,12 @@ unsigned int PoolSQLCache::MAX_ELEMENTS = 10000;
 
 PoolSQLCache::PoolSQLCache()
 {
-    pthread_mutex_init(&mutex, 0);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-pthread_mutex_t * PoolSQLCache::lock_line(int oid)
+std::mutex * PoolSQLCache::lock_line(int oid)
 {
     static unsigned int num_locks = 0;
 
@@ -35,28 +34,28 @@ pthread_mutex_t * PoolSQLCache::lock_line(int oid)
 
     CacheLine * cl;
 
-    lock();
-
-    it = cache.find(oid);
-
-    if ( it == cache.end() )
     {
-        cl = new CacheLine();
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        cache.insert(std::make_pair(oid, cl));
+        it = cache.find(oid);
+
+        if ( it == cache.end() )
+        {
+            cl = new CacheLine();
+
+            cache.insert(std::make_pair(oid, cl));
+        }
+        else
+        {
+            cl = it->second;
+        }
+
+        cl->active++;
     }
-    else
-    {
-        cl = it->second;
-    }
-
-    cl->active++;
-
-    unlock();
 
     cl->lock();
 
-    lock();
+    std::lock_guard<std::mutex> lock(_mutex);
 
     cl->active--;
 
@@ -70,9 +69,7 @@ pthread_mutex_t * PoolSQLCache::lock_line(int oid)
         }
     }
 
-    unlock();
-
-    return &(cl->mutex);
+    return &(cl->_mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -84,9 +81,9 @@ void PoolSQLCache::flush_cache_lines()
     {
         CacheLine * cl = it->second;
 
-        int rc = cl->trylock();
+        bool rc = cl->trylock();
 
-        if ( rc == EBUSY ) // cache line locked
+        if ( !rc ) // cache line locked
         {
             ++it;
             continue;
@@ -104,5 +101,5 @@ void PoolSQLCache::flush_cache_lines()
 
         it = cache.erase(it);
     }
-};
+}
 

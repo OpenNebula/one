@@ -54,11 +54,9 @@ int PoolSQL::get_lastOID()
 {
     int _last_oid;
 
-    lock();
+    lock_guard<mutex> lock(_mutex);
 
     _last_oid = _get_lastOID(db, table);
-
-    unlock();
 
     return _last_oid;
 }
@@ -77,31 +75,25 @@ static int _set_lastOID(int _last_oid, SqlDB * db, const string& table)
 
 void PoolSQL::set_lastOID(int _last_oid)
 {
-    lock();
+    lock_guard<mutex> lock(_mutex);
 
     _set_lastOID(_last_oid, db, table);
-
-    unlock();
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * _table):db(_db), table(_table)
+PoolSQL::PoolSQL(SqlDB * _db, const char * _table)
+    : db(_db)
+    , table(_table)
 {
-    pthread_mutex_init(&mutex,0);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 PoolSQL::~PoolSQL()
 {
-    vector<PoolObjectSQL *>::iterator it;
-
-    pthread_mutex_lock(&mutex);
-
-    pthread_mutex_destroy(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -114,7 +106,7 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
     int rc;
     int lastOID;
 
-    lock();
+    lock_guard<mutex> lock(_mutex);
 
     lastOID = _get_lastOID(db, table);
 
@@ -127,8 +119,6 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 
     if ( _set_lastOID(lastOID, db, table) == -1 )
     {
-        unlock();
-
         return -1;
     }
 
@@ -156,8 +146,6 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 
         _set_lastOID(lastOID, db, table);
     }
-
-    unlock();
 
     return rc;
 }

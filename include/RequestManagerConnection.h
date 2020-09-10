@@ -18,7 +18,7 @@
 #define REQUEST_MANAGER_CONNECTION_H_
 
 #include "RequestManager.h"
-
+#include <condition_variable>
 
 /**
  *  The connection manager class synchronizes the connection and manager threads
@@ -26,84 +26,84 @@
 class ConnectionManager
 {
 public:
-    ConnectionManager(RequestManager *_rm, int mc):rm(_rm), connections(0),
-    max_connections(mc)
+    ConnectionManager(int mc)
+        : connections(0)
+        , max_connections(mc)
+        , end(false)
     {
-        pthread_mutex_init(&mutex,0);
+    }
 
-        pthread_cond_init(&cond,0);
-
-    };
-
-    ~ConnectionManager()
-    {
-        pthread_mutex_destroy(&mutex);
-
-        pthread_cond_destroy(&cond);
-    };
+    ~ConnectionManager() = default;
 
     /**
      *  Increments number of active connections
      */
     int add()
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        int temp_connections = ++connections;
-
-        pthread_mutex_unlock(&mutex);
-
-        return temp_connections;
-    };
+        return ++connections;
+    }
 
     /**
      *  Decrements number of active connections and signals management thread
      */
     void del()
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         --connections;
 
-        pthread_cond_signal(&cond);
-
-        pthread_mutex_unlock(&mutex);
-    };
+        cond.notify_one();
+    }
 
     /**
      *  Waits for active connections to be under the max_connection threshold
      */
     void wait()
     {
-        pthread_mutex_lock(&mutex);
+        std::unique_lock<std::mutex> lock(_mutex);
 
-        while ( connections >= max_connections )
+        if (end)
         {
-            pthread_cond_wait(&cond, &mutex);
+            return;
         }
 
-        pthread_mutex_unlock(&mutex);
-    };
+        cond.wait(lock, [&]{
+                return (connections < max_connections) || end; });
+    }
+
+    /**
+     *  Interrupts and prevents wait() operations
+     */
+    void terminate()
+    {
+        std::lock_guard<std::mutex> lock(_mutex);
+
+        end = true;
+
+        cond.notify_one();
+    }
 
     /**
      *  Run an xmlrpc connection
      *    @param fd connected socket
      */
-    void run_connection(int fd)
+    void run_connection(RequestManager *rm, int fd)
     {
         xmlrpc_c::serverAbyss * as = rm->create_abyss();
 
         as->runConn(fd);
 
         delete as;
-    };
+    }
 
 private:
     /**
      *  Synchronization for connection threads and listener thread
      */
-    pthread_mutex_t mutex;
-    pthread_cond_t  cond;
+    std::mutex _mutex;
+    std::condition_variable cond;
 
     /**
      *  RequestManager to create an AbyssSever class to handle each request
@@ -119,6 +119,11 @@ private:
      *  Max number of active connections
      */
     int max_connections;
+
+    /**
+     *  Terminate wait
+     */
+    std::atomic<bool> end;
 };
 
 #endif

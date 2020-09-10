@@ -745,7 +745,6 @@ static const flex_int32_t yy_rule_can_match_eol[13] =
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 
 #include "template_syntax.h"
 #include "mem_collector.h"

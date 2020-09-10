@@ -42,8 +42,6 @@ extern "C" int sqlite_callback (
 
 SqliteDB::SqliteDB(const string& db_name, int timeout)
 {
-    pthread_mutex_init(&mutex,0);
-
     int rc = sqlite3_open(db_name.c_str(), &db);
 
     if ( rc != SQLITE_OK )
@@ -75,8 +73,6 @@ SqliteDB::SqliteDB(const string& db_name, int timeout)
 
 SqliteDB::~SqliteDB()
 {
-    pthread_mutex_destroy(&mutex);
-
     sqlite3_close(db);
 }
 
@@ -110,21 +106,21 @@ int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
         arg      = static_cast<void *>(obj);
     }
 
-    lock();
-
-    rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
-
-    if (obj != 0 && obj->get_affected_rows() == 0)
     {
-        int num_rows = sqlite3_changes(db);
+        lock_guard<mutex> lock(_mutex);
 
-        if (num_rows > 0)
+        rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
+
+        if (obj != 0 && obj->get_affected_rows() == 0)
         {
-            obj->set_affected_rows(num_rows);
+            int num_rows = sqlite3_changes(db);
+
+            if (num_rows > 0)
+            {
+                obj->set_affected_rows(num_rows);
+            }
         }
     }
-
-    unlock();
 
     switch(rc)
     {

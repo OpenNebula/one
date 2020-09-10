@@ -70,28 +70,13 @@ private:
     /**
      *  Fine-grain mutex for DB access
      */
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Pointer to the database.
      */
     sqlite3 * db;
 
-    /**
-     *  Function to lock the DB
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the DB
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
 };
 #else
 //CLass stub

@@ -276,7 +276,7 @@ protected:
     };
 
 private:
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  The Database was started in solo mode (no server_id defined)

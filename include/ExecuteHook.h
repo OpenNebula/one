@@ -20,17 +20,6 @@
 #define EXECUTE_HOOK_MAX_ARG 50
 
 #include <string>
-#include <sstream>
-#include <iostream>
-
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <pthread.h>
-
-extern "C" void * execute_thread(void *arg);
 
 class ExecuteHook
 {
@@ -38,13 +27,11 @@ public:
     ExecuteHook(const std::string& _name, const std::string& _cmd,
         const std::string& _arg, const std::string& rl);
 
-    virtual ~ExecuteHook() = default;
+    ~ExecuteHook() = default;
 
     void execute();
 
 private:
-    friend void * execute_thread(void *arg);
-
     /**
      *  Name of the Hook
      */

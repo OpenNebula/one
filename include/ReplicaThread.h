@@ -17,9 +17,8 @@
 #ifndef REPLICA_THREAD_H_
 #define REPLICA_THREAD_H_
 
-#include <pthread.h>
-
-extern "C" void * replication_thread(void *arg);
+#include <mutex>
+#include <condition_variable>
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -31,16 +30,16 @@ extern "C" void * replication_thread(void *arg);
 class ReplicaThread
 {
 public:
-    ReplicaThread(int _follower_id):follower_id(_follower_id), _finalize(false),
-        _pending_requests(false), retry_timeout(1e8)
+    ReplicaThread(int _follower_id)
+        : follower_id(_follower_id)
+        , _finalize(false)
+        , _pending_requests(false)
+        , retry_timeout(1e8)
     {
-        pthread_mutex_init(&mutex, 0);
-
-        pthread_cond_init(&cond, 0);
-    };
+    }
 
 
-    virtual ~ReplicaThread(){};
+    virtual ~ReplicaThread() = default;
 
     /**
      *  Notify this replica thread that are new records in the log to replicate
@@ -52,13 +51,6 @@ public:
      */
     void finalize();
 
-    /**
-     *  @return the ID of the thread
-     */
-    pthread_t thread_id() const
-    {
-        return _thread_id;
-    }
 protected:
     /**
      * Specific logic for the replicate process
@@ -78,20 +70,14 @@ private:
      */
     void do_replication();
 
-    /**
-     * C linkage function to start the thread
-     *   @param arg pointer to "this"
-     */
-    friend void * replication_thread(void *arg);
+    friend class ReplicaManager;
 
     // -------------------------------------------------------------------------
     // pthread synchronization variables
     // -------------------------------------------------------------------------
-    pthread_t _thread_id;
+    std::mutex _mutex;
 
-    pthread_mutex_t mutex;
-
-    pthread_cond_t cond;
+    std::condition_variable cond;
 
     bool _finalize;
 

@@ -704,7 +704,6 @@ static const flex_int32_t yy_rule_can_match_eol[13] =
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 
 #include "vm_var_syntax.h"
 #include "vm_file_var_syntax.h"

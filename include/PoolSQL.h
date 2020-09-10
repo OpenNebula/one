@@ -70,7 +70,7 @@ public:
             return nullptr;
         }
 
-        pthread_mutex_t * object_lock = cache.lock_line(oid);
+        std::mutex * object_lock = cache.lock_line(oid);
 
         std::unique_ptr<T> objectsql(static_cast<T *>(create()));
 
@@ -78,7 +78,7 @@ public:
 
         objectsql->ro  = false;
 
-        objectsql->mutex = object_lock;
+        objectsql->_mutex = object_lock;
 
         int rc = objectsql->select(db);
 
@@ -455,7 +455,7 @@ protected:
 
 private:
 
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Tablename for this pool
@@ -474,21 +474,6 @@ private:
      */
     virtual PoolObjectSQL * create() = 0;
 
-    /**
-     *  Function to lock the pool
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the pool
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
 };
 
 #endif /*POOL_SQL_H_*/

@@ -21,7 +21,6 @@
 #include "ObjectXML.h"
 #include "Template.h"
 
-#include <pthread.h>
 #include <string>
 
 class PoolObjectAuth;
@@ -182,16 +181,16 @@ public:
              lock_req_id(-1),
              lock_time(0),
              ro(false),
-             mutex(0),
+             _mutex(nullptr),
              table(_table)
     {
     };
 
     virtual ~PoolObjectSQL()
     {
-        if (!ro && mutex != 0)
+        if (!ro && _mutex != nullptr)
         {
-            pthread_mutex_unlock(mutex);
+            _mutex->unlock();
         }
 
         delete obj_template;
@@ -825,7 +824,7 @@ private:
      * The mutex for the PoolObject. This implementation assumes that the mutex
      * IS LOCKED when the class destructor is called.
      */
-    pthread_mutex_t * mutex;
+    std::mutex * _mutex;
 
     /**
      *  Pointer to the SQL table for the PoolObjectSQL

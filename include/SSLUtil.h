@@ -19,6 +19,8 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
+#include <memory>
 
 namespace ssl_util
 {
@@ -91,10 +93,11 @@ namespace ssl_util
 
 
     extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
-    int line);
+                                           int line);
 
     extern "C" unsigned long sslmutex_id_callback();
 
+    // Needed for openssl version < 1.1.0
     class SSLMutex
     {
     public:
@@ -112,7 +115,7 @@ namespace ssl_util
 
         static SSLMutex * ssl_mutex;
 
-        static std::vector<pthread_mutex_t *> vmutex;
+        static std::vector<std::unique_ptr<std::mutex>> vmutex;
     };
 
 } // namespace ssl_util

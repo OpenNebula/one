@@ -21,6 +21,8 @@
 #include "FedReplicaManager.h"
 #include "RaftManager.h"
 
+#include <unistd.h>
+
 using namespace std;
 
 /* -------------------------------------------------------------------------- */
