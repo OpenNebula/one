@@ -15,6 +15,9 @@
 
 const { Map } = require('immutable');
 const {
+  AUTH,
+} = require('./string-routes');
+const {
   httpMethod,
   defaultMethodLogin
 } = require('../../../../utils/constants/defaults');
@@ -48,11 +51,12 @@ const {
 
 const { POST } = httpMethod;
 
-const privateRoutes = {};
+const privateRoutes = [];
 
-const publicRoutes = {
-  auth: {
+const publicRoutes = [
+  {
     httpMethod: POST,
+    endpoint: AUTH,
     action: (req, res, next, connect) => {
       if (req && res && connect) {
         setReq(req);
@@ -119,7 +123,7 @@ const publicRoutes = {
       }
     }
   }
-};
+];
 
 const functionRoutes = {
   private: privateRoutes,

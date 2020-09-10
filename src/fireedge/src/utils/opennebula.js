@@ -118,8 +118,11 @@ const getMethodForOpennebulaCommand = () => {
 };
 
 const commandXML = (resource = '', method = '', defaultMethod = '') => {
+  let command = '';
   const allowedActions = getMethodForOpennebulaCommand();
-  let command = `${resource}`;
+  if (resource && resource.length) {
+    command = `${resource}`;
+  }
   const commandWithDefault = defaultMethod
     ? `${command}.${defaultMethod}`
     : command;
@@ -157,14 +160,19 @@ const getAllowedQueryParams = () => {
 };
 
 const getRouteForOpennebulaCommand = () => {
-  const rtn = {};
+  const rtn = [];
   if (commandsParams) {
     const commands = Object.keys(commandsParams);
     commands.forEach(command => {
       if (command && command.length) {
-        const commandString = command.split('.');
-        if (!(commandString[0] in rtn)) {
-          rtn[commandString[0]] = false; // false is a opennebula command
+        let commandString = command.split('.');
+        commandString = commandString[0];
+        const finderCommand = rtnCommand =>
+          rtnCommand &&
+          rtnCommand.endpoint &&
+          rtnCommand.endpoint === commandString;
+        if (!rtn.some(finderCommand)) {
+          rtn.push({ endpoint: commandString });
         }
       }
     });

@@ -17,10 +17,10 @@ const express = require('express');
 const { defaults, httpCodes, params } = require('../../utils/constants');
 const {
   opennebulaConnect,
-  checkRouteFunction,
+  checkIfIsARouteFunction,
   commandXML,
   checkOpennebulaCommand,
-  validateRouteFunction,
+  checkMethodRouteFunction,
   responseOpennebula,
   httpResponse
 } = require('../../utils');
@@ -85,7 +85,7 @@ router.all(
         pass = getPassOpennebula()
       ) => opennebulaConnect(user, pass, RPC);
       const { resource } = req.params;
-      const routeFunction = checkRouteFunction(resource);
+      const routeFunction = checkIfIsARouteFunction(resource, httpMethod);
       res.locals.httpCode = httpResponse(methodNotAllowed);
       const dataSources = {
         [fromData.resource]: getParamsState(),
@@ -93,7 +93,7 @@ router.all(
         [fromData.postBody]: req.body
       };
       if (routeFunction) {
-        const valRouteFunction = validateRouteFunction(
+        const valRouteFunction = checkMethodRouteFunction(
           routeFunction,
           httpMethod
         );

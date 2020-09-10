@@ -13,9 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const privateRoutes = {};
+const privateRoutes = [];
 
-const publicRoutes = {};
+const publicRoutes = [];
 
 const functionRoutes = {
   private: privateRoutes,
