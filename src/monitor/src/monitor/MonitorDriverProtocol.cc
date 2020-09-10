@@ -51,7 +51,7 @@ static void log_message(const monitor_msg_t& msg)
     localtime_r(&ts, &tms);
 
     oss << "[" << tms.tm_hour << ":" << tms.tm_min << ":" << tms.tm_sec
-        << "] Recieved " << msg.type_str() << " message from host "
+        << "] Received " << msg.type_str() << " message from host "
         << msg.oid() << ":\n" << msg.payload();
 
     NebulaLog::ddebug("MDP", oss.str());
