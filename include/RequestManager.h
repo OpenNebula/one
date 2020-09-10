@@ -22,9 +22,11 @@
 #include <xmlrpc-c/server_abyss.hpp>
 
 #include <set>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
-
-extern "C" void * rm_xml_server_loop(void *arg);
+class ConnectionManager;
 
 class RequestManager
 {
@@ -42,7 +44,7 @@ public:
             const std::string& _listen_address,
             int message_size);
 
-    ~RequestManager() = default;
+    ~RequestManager();
 
     /**
      *  This functions starts the associated listener thread (XML server), and
@@ -83,16 +85,28 @@ private:
         }
     };
 
-    //--------------------------------------------------------------------------
-    // Friends, thread functions require C-linkage
-    //--------------------------------------------------------------------------
-
-    friend void * rm_xml_server_loop(void *arg);
+    /**
+     *  XML Server main thread loop. Waits for client connections and starts
+     *  a new thread to handle the request.
+     */
+    void xml_server_loop();
 
     /**
      *  Thread id for the XML Server
      */
-    pthread_t rm_xml_server_thread;
+    std::thread xml_server_thread;
+
+    /**
+     *  Manage the number of connections to the RM
+     */
+    std::unique_ptr<ConnectionManager> cm;
+
+    /**
+     *  Flag to end the main server loop
+     */
+    std::mutex end_lock;
+
+    std::atomic<bool> end;
 
     /**
      *  Port number where the connection will be open

@@ -14,8 +14,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include "NebulaUtil.h"
 #include "PostgreSqlDB.h"
+#include "NebulaUtil.h"
+#include "NebulaLog.h"
 
 #include <libpq-fe.h>
 
@@ -97,10 +98,6 @@ PostgreSqlDB::PostgreSqlDB(
         {SqlFeature::FTS, false},
         {SqlFeature::COMPARE_BINARY, false}
     };
-
-    pthread_mutex_init(&mutex, 0);
-
-    pthread_cond_init(&cond, 0);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,9 +114,6 @@ PostgreSqlDB::~PostgreSqlDB()
     }
 
     PQfinish(db_escape_connect);
-
-    pthread_mutex_destroy(&mutex);
-    pthread_cond_destroy(&cond);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -248,17 +242,12 @@ PGconn * PostgreSqlDB::get_db_connection()
 {
     PGconn* conn;
 
-    pthread_mutex_lock(&mutex);
+    unique_lock<mutex> lock(_mutex);
 
-    while (db_connect.empty() == true)
-    {
-        pthread_cond_wait(&cond, &mutex);
-    }
+    cond.wait(lock, [&]{ return !db_connect.empty(); });
 
     conn = db_connect.front();
     db_connect.pop();
-
-    pthread_mutex_unlock(&mutex);
 
     return conn;
 }
@@ -267,13 +256,11 @@ PGconn * PostgreSqlDB::get_db_connection()
 
 void PostgreSqlDB::free_db_connection(PGconn * db)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> lock(_mutex);
 
     db_connect.push(db);
 
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
+    cond.notify_one();
 }
 
 /* -------------------------------------------------------------------------- */

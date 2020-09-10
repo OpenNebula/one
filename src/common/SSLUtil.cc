@@ -364,15 +364,15 @@ namespace ssl_util
     extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
         int line)
     {
-        pthread_mutex_t * pm = SSLMutex::ssl_mutex->vmutex[type];
+        const auto& pm = SSLMutex::ssl_mutex->vmutex[type];
 
         if (mode & CRYPTO_LOCK)
         {
-            pthread_mutex_lock(pm);
+            pm->lock();
         }
         else
         {
-            pthread_mutex_unlock(pm);
+            pm->unlock();
         }
     }
 
@@ -384,9 +384,9 @@ namespace ssl_util
         return (unsigned long) pthread_self();
     }
 
-    SSLMutex * SSLMutex::ssl_mutex;
+    SSLMutex * SSLMutex::ssl_mutex = nullptr;
 
-    std::vector<pthread_mutex_t *> SSLMutex::vmutex;
+    std::vector<std::unique_ptr<std::mutex>> SSLMutex::vmutex;
 
     /* -------------------------------------------------------------------------- */
     /* -------------------------------------------------------------------------- */
@@ -412,13 +412,9 @@ namespace ssl_util
 
     SSLMutex::SSLMutex()
     {
-        pthread_mutex_t * pm;
         for (int i=0; i<CRYPTO_num_locks(); i++)
         {
-            pm = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
-            pthread_mutex_init(pm, NULL);
-
-            vmutex.push_back(pm);
+            vmutex.push_back(std::make_unique<std::mutex>());
         }
 
         CRYPTO_set_id_callback((unsigned long (*)()) sslmutex_id_callback);
@@ -432,12 +428,6 @@ namespace ssl_util
 
     SSLMutex::~SSLMutex()
     {
-        for (int i=0; i<CRYPTO_num_locks(); i++)
-        {
-            pthread_mutex_destroy(vmutex[i]);
-            free(vmutex[i]);
-        }
-
         CRYPTO_set_locking_callback(NULL);
     }
 

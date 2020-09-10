@@ -15,133 +15,16 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ExecuteHook.h"
-#include "Nebula.h"
+#include "NebulaLog.h"
 
-#include <string>
 #include <sstream>
-#include <iostream>
+#include <thread>
 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <pthread.h>
-
-
-void * execute_thread(void *arg)
-{
-    int out[2];
-    int err[2];
-
-    char buffer[500];
-
-    int rcode;
-    std::string s_out;
-    std::string s_err;
-
-    ExecuteHook * eh = static_cast<ExecuteHook *>(arg);
-
-    if ( pipe(out) == -1 )
-    {
-        NebulaLog::log("HKM", Log::ERROR, "Executing Hook: " + eh->name);
-        return 0;
-    }
-
-    if ( pipe(err) == -1 )
-    {
-        NebulaLog::log("HKM", Log::ERROR, "Executing Hook: " + eh->name);
-        return  0;
-    }
-
-    pid_t pid = fork();
-
-    switch (pid)
-    {
-        case 0: //child
-        {
-            int dev_null = open("/dev/null", O_RDWR);
-
-            if ( dev_null == -1 )
-            {
-                exit(-1);
-            }
-
-            close(out[0]);
-            close(err[0]);
-
-            dup2(dev_null, 0);
-            dup2(out[1], 1);
-            dup2(err[1], 2);
-
-            close(out[1]);
-            close(err[1]);
-            close(dev_null);
-
-            execvp(eh->cmd.c_str(), (char * const *) eh->c_args);
-
-            exit(-1);
-        }
-        break;
-
-        case -1: //failure
-            NebulaLog::log("HKM", Log::ERROR, "Executing Hook: " + eh->name);
-        break;
-
-        default: //parent
-        {
-            int nbytes;
-
-            close(out[1]);
-            close(err[1]);
-
-            while ( (nbytes = read(out[0], buffer, 500)) > 0 )
-            {
-                s_out.append(buffer, nbytes);
-            }
-
-            while ( (nbytes = read(err[0], buffer, 500)) > 0 )
-            {
-                s_err.append(buffer, nbytes);
-            }
-
-            close(out[0]);
-            close(err[0]);
-
-            waitpid(pid, &rcode, 0);
-
-            rcode = WEXITSTATUS(rcode);
-        }
-        break;
-    }
-
-    std::ostringstream oss;
-
-    oss << "Hook: " << eh->name << ", ";
-
-    if ( rcode == 0 )
-    {
-        oss << "successfully executed.\n";
-    }
-    else
-    {
-        oss << "execution error (" << rcode << ").\n";
-    }
-
-    if (!s_out.empty())
-    {
-        oss << "Hook stdout: " << s_out << "\n";
-    }
-
-    if (!s_err.empty())
-    {
-        oss << "Hook stderr: " << s_err << "\n";
-    }
-
-    NebulaLog::log("HKM", Log::INFO, oss);
-
-    return 0;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -178,14 +61,117 @@ ExecuteHook::ExecuteHook(const std::string& _name, const std::string& _cmd,
 
 void ExecuteHook::execute()
 {
-    pthread_attr_t pattr;
-    pthread_t thid;
+    std::thread thr([this]{
+        int out[2];
+        int err[2];
 
-    pthread_attr_init(&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
+        char buffer[500];
 
-    pthread_create(&thid, &pattr, execute_thread, (void *) this);
+        int rcode;
+        std::string s_out;
+        std::string s_err;
 
-    pthread_attr_destroy(&pattr);
+        if ( pipe(out) == -1 )
+        {
+            NebulaLog::log("HKM", Log::ERROR, "Executing Hook: " + name);
+            return 0;
+        }
+
+        if ( pipe(err) == -1 )
+        {
+            NebulaLog::log("HKM", Log::ERROR, "Executing Hook: " + name);
+            return  0;
+        }
+
+        pid_t pid = fork();
+
+        switch (pid)
+        {
+            case 0: //child
+            {
+                int dev_null = open("/dev/null", O_RDWR);
+
+                if ( dev_null == -1 )
+                {
+                    exit(-1);
+                }
+
+                close(out[0]);
+                close(err[0]);
+
+                dup2(dev_null, 0);
+                dup2(out[1], 1);
+                dup2(err[1], 2);
+
+                close(out[1]);
+                close(err[1]);
+                close(dev_null);
+
+                execvp(cmd.c_str(), (char * const *) c_args);
+
+                exit(-1);
+            }
+            break;
+
+            case -1: //failure
+                NebulaLog::log("HKM", Log::ERROR, "Executing Hook: " + name);
+            break;
+
+            default: //parent
+            {
+                int nbytes;
+
+                close(out[1]);
+                close(err[1]);
+
+                while ( (nbytes = read(out[0], buffer, 500)) > 0 )
+                {
+                    s_out.append(buffer, nbytes);
+                }
+
+                while ( (nbytes = read(err[0], buffer, 500)) > 0 )
+                {
+                    s_err.append(buffer, nbytes);
+                }
+
+                close(out[0]);
+                close(err[0]);
+
+                waitpid(pid, &rcode, 0);
+
+                rcode = WEXITSTATUS(rcode);
+            }
+            break;
+        }
+
+        std::ostringstream oss;
+
+        oss << "Hook: " << name << ", ";
+
+        if ( rcode == 0 )
+        {
+            oss << "successfully executed.\n";
+        }
+        else
+        {
+            oss << "execution error (" << rcode << ").\n";
+        }
+
+        if (!s_out.empty())
+        {
+            oss << "Hook stdout: " << s_out << "\n";
+        }
+
+        if (!s_err.empty())
+        {
+            oss << "Hook stderr: " << s_err << "\n";
+        }
+
+        NebulaLog::log("HKM", Log::INFO, oss);
+
+        return 0;
+    });
+
+    thr.detach();
 }
 

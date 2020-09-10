@@ -313,10 +313,6 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
         {SqlFeature::FTS, version >= min_fts_version},
         {SqlFeature::COMPARE_BINARY, one_util::toupper(_compare_binary) == "YES"}
     };
-
-    pthread_mutex_init(&mutex,0);
-
-    pthread_cond_init(&cond,0);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -336,10 +332,6 @@ MySqlDB::~MySqlDB()
 
     // End use of the MySQL library
     mysql_library_end();
-
-    pthread_mutex_destroy(&mutex);
-
-    pthread_cond_destroy(&cond);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -510,18 +502,13 @@ MYSQL * MySqlDB::get_db_connection()
 {
     MYSQL *db;
 
-    pthread_mutex_lock(&mutex);
+    unique_lock<mutex> lock(_mutex);
 
-    while ( db_connect.empty() == true )
-    {
-        pthread_cond_wait(&cond, &mutex);
-    }
+    cond.wait(lock, [&]{ return !db_connect.empty(); });
 
     db = db_connect.front();
 
     db_connect.pop();
-
-    pthread_mutex_unlock(&mutex);
 
     return db;
 }
@@ -530,12 +517,10 @@ MYSQL * MySqlDB::get_db_connection()
 
 void MySqlDB::free_db_connection(MYSQL * db)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> lock(_mutex);
 
     db_connect.push(db);
 
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
+    cond.notify_one();
 }
 

@@ -114,9 +114,6 @@ void ReplicaManager::delete_replica_thread(int follower_id)
 
 void ReplicaManager::add_replica_thread(int follower_id)
 {
-    pthread_attr_t pattr;
-    pthread_t thid;
-
     Nebula& nd  = Nebula::instance();
     int this_id = nd.get_server_id();
 
@@ -129,13 +126,14 @@ void ReplicaManager::add_replica_thread(int follower_id)
 
     thread_pool.insert(std::make_pair(follower_id, rthread));
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
+    std::thread replica_thread([rthread] {
+        rthread->do_replication();
 
-    pthread_create(&thid, &pattr, replication_thread, (void *) rthread);
+        delete rthread;
+    });
 
-    pthread_attr_destroy(&pattr);
-};
+    replica_thread.detach();
+}
 
 // -----------------------------------------------------------------------------
 

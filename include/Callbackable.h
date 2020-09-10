@@ -17,7 +17,7 @@
 #ifndef CALLBACKABLE_H_
 #define CALLBACKABLE_H_
 
-#include <pthread.h>
+#include <mutex>
 #include <sstream>
 #include <set>
 #include <vector>
@@ -31,15 +31,14 @@ class Callbackable
 {
 public:
 
-    Callbackable():cb(0),arg(0),affected_rows(0)
+    Callbackable()
+        : cb(nullptr)
+        , arg(nullptr)
+        , affected_rows(0)
     {
-        pthread_mutex_init(&mutex,0);
-    };
+    }
 
-    virtual ~Callbackable()
-    {
-        pthread_mutex_destroy(&mutex);
-    };
+    virtual ~Callbackable() = default;
 
     /**
      *  Datatype for call back pointers
@@ -54,11 +53,11 @@ public:
      */
     void set_callback(Callback _cb, void * _arg = nullptr)
     {
-        pthread_mutex_lock(&mutex);
+        _mutex.lock();
 
         cb  = _cb;
         arg = _arg;
-    };
+    }
 
     /**
      *  Test if the CallBack is set for the object.
@@ -66,8 +65,8 @@ public:
      */
     virtual bool isCallBackSet()
     {
-        return (cb != 0);
-    };
+        return (cb != nullptr);
+    }
 
     /**
      *  Call the callback funcion set. This method must be called only if
@@ -79,17 +78,17 @@ public:
         ++affected_rows;
 
         return (this->*cb)(arg, num, values, names);
-    };
+    }
 
     /**
      *  Unset the callback function.
      */
     void unset_callback()
     {
-        cb  = 0;
-        arg = 0;
+        cb  = nullptr;
+        arg = nullptr;
 
-        pthread_mutex_unlock(&mutex);
+        _mutex.unlock();
     }
 
      /**
@@ -128,7 +127,7 @@ private:
     /**
      *  Mutex for locking the callback function.
      */
-    pthread_mutex_t             mutex;
+    std::mutex _mutex;
 };
 
 /* -------------------------------------------------------------------------- */

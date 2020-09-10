@@ -104,21 +104,15 @@ private:
 
 /**
  * This class represents a map of replication requests. It syncs access between
- * RaftManager and DB writer threads. A DB writer allocates and set the 
+ * RaftManager and DB writer threads. A DB writer allocates and set the
  * request and then it waits on it for completion.
  */
 class ReplicaRequestMap
 {
 public:
-    ReplicaRequestMap()
-    {
-        pthread_mutex_init(&mutex, 0);
-    };
+    ReplicaRequestMap() = default;
 
-    virtual ~ReplicaRequestMap()
-    {
-        pthread_mutex_destroy(&mutex);
-    }
+    virtual ~ReplicaRequestMap() = default;
 
     /**
      *  Increments the number of replicas of this request. If it can be
@@ -131,7 +125,7 @@ public:
     {
         int to_commit = -1;
 
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
 
@@ -147,8 +141,6 @@ public:
             }
         }
 
-        pthread_mutex_unlock(&mutex);
-
         return to_commit;
     }
 
@@ -159,11 +151,9 @@ public:
      */
     void allocate(uint64_t rindex)
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         requests.insert(std::make_pair(rindex, (ReplicaRequest*) 0));
-
-        pthread_mutex_unlock(&mutex);
     }
 
     /**
@@ -174,20 +164,9 @@ public:
      */
     void set(uint64_t rindex, ReplicaRequest * rr)
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
-
-        if ( it == requests.end() )
-        {
-            requests.insert(std::make_pair(rindex, rr));
-        }
-        else if ( it->second == 0 )
-        {
-            it->second = rr;
-        }
-
-        pthread_mutex_unlock(&mutex);
+        requests[rindex] = rr;
     }
 
     /**
@@ -196,16 +175,9 @@ public:
      */
     void remove(uint64_t rindex)
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
-
-        if ( it != requests.end() )
-        {
-            requests.erase(it);
-        }
-
-        pthread_mutex_unlock(&mutex);
+        requests.erase(rindex);
     }
 
     /**
@@ -213,11 +185,9 @@ public:
      */
     void clear()
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        std::map<uint64_t, ReplicaRequest *>::iterator it;
-
-        for ( it = requests.begin() ; it != requests.end() ; ++it )
+        for ( auto it = requests.begin() ; it != requests.end() ; ++it )
         {
             if ( it->second == 0 )
             {
@@ -232,8 +202,6 @@ public:
         }
 
         requests.clear();
-
-        pthread_mutex_unlock(&mutex);
     }
 
     /**
@@ -241,21 +209,16 @@ public:
      */
     bool is_replicable(uint64_t rindex)
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
+        auto it = requests.find(rindex);
 
-        bool rc = it == requests.end() ||
-            (it != requests.end() && it->second != 0);
-
-        pthread_mutex_unlock(&mutex);
-
-        return rc;
+        return (it == requests.end()) || (it->second != nullptr);
     }
 
 private:
 
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      * Clients waiting for a log replication

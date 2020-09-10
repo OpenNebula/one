@@ -135,26 +135,21 @@ public:
               std::ios_base::openmode  mode     = std::ios_base::app)
                        :FileLog(file_name,level,mode)
     {
-        pthread_mutex_init(&log_mutex,0);
     }
 
-    ~FileLogTS()
-    {
-        pthread_mutex_destroy(&log_mutex);
-    }
+    ~FileLogTS() = default;
 
     void log(
         const char *            module,
         const MessageType       type,
         const char *            message)
     {
-        pthread_mutex_lock(&log_mutex);
+        std::lock_guard <std::mutex> lock(log_mutex);
         FileLog::log(module,type,message);
-        pthread_mutex_unlock(&log_mutex);
     }
 
 private:
-    pthread_mutex_t log_mutex;
+    std::mutex log_mutex;
 };
 
 

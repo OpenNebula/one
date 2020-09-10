@@ -18,12 +18,11 @@
 #define POSTGRESQL_DB_H_
 
 #include <string>
-#include <stdexcept>
 #include <queue>
+#include <mutex>
+#include <condition_variable>
 
-#include "NebulaLog.h"
 #include "SqlDB.h"
-#include "ObjectSQL.h"
 
 #ifdef POSTGRESQL_DB
 
@@ -121,12 +120,12 @@ private:
     /**
      *  Fine-grain mutex for DB access (pool of DB connections)
      */
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Conditional variable to wake-up waiting threads.
      */
-    pthread_cond_t  cond;
+    std::condition_variable cond;
 
     /**
      *  Gets a free DB connection from the pool.

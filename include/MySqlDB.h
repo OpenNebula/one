@@ -21,6 +21,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <queue>
+#include <condition_variable>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -120,12 +121,12 @@ private:
     /**
      *  Fine-grain mutex for DB access (pool of DB connections)
      */
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Conditional variable to wake-up waiting threads.
      */
-    pthread_cond_t  cond;
+    std::condition_variable  cond;
 
     /**
      *  Gets a free DB connection from the pool.

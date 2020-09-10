@@ -23,6 +23,7 @@
 #include <set>
 #include <algorithm>
 #include <random>
+#include <mutex>
 
 #include <openssl/crypto.h>
 
@@ -91,18 +92,16 @@ namespace one_util
     template<typename Integer, typename std::enable_if<std::is_integral<Integer>::value>::type* = nullptr>
     Integer random(Integer min = 0, Integer max = std::numeric_limits<Integer>::max())
     {
-        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        static std::mutex _mutex;
 
         static std::random_device rd;
         static std::mt19937_64    rng(rd());
 
         std::uniform_int_distribution<Integer> distribution(min, max);
 
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         Integer i = distribution(rng);
-
-        pthread_mutex_unlock(&mutex);
 
         return i;
     }
@@ -116,18 +115,16 @@ namespace one_util
     template<typename Floating, typename std::enable_if<std::is_floating_point<Floating>::value>::type* = nullptr>
     Floating random(Floating min = 0, Floating max = std::numeric_limits<Floating>::max())
     {
-        static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        static std::mutex _mutex;
 
         static std::random_device rd;
         static std::mt19937_64    rng(rd());
 
         std::uniform_real_distribution<Floating> distribution(min, max);
 
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         Floating f = distribution(rng);
-
-        pthread_mutex_unlock(&mutex);
 
         return f;
     }
