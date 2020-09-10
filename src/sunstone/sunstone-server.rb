@@ -123,6 +123,12 @@ require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
 
+require 'sinatra-websocket'
+require 'eventmachine'
+require 'json'
+require 'active_support/core_ext/hash'
+require 'ffi-rzmq'
+
 begin
     require "SunstoneWebAuthn"
     webauthn_avail = true
@@ -161,6 +167,7 @@ CloudServer.print_configuration($conf)
 set :config, $conf
 set :bind, $conf[:host]
 set :port, $conf[:port]
+set :sockets, []
 
 if (proxy = $conf[:proxy])
     ENV['http_proxy'] = proxy
@@ -260,6 +267,35 @@ configure do
     set :run, false
     set :vnc, $vnc
     set :erb, :trim => '-'
+end
+
+#start Autorefresh server
+
+## 0MQ variables
+@context    = ZMQ::Context.new(1)
+@subscriber = @context.socket(ZMQ::SUB)
+
+## Subscribe to VM changes
+@subscriber.setsockopt(ZMQ::SUBSCRIBE, "EVENT VM")
+@subscriber.connect($conf[:zeromq_server])
+
+# Create a thread to get ZeroMQ messages
+Thread.new do
+    loop do
+        key = ''
+        content = ''
+        
+        @subscriber.recv_string(key)
+        @subscriber.recv_string(content)
+    
+        message = Hash.from_xml(Base64.decode64(content)).to_json
+    
+        if (key != '')
+            settings.sockets.each do |client|
+                client.send(message)
+            end
+        end
+    end 
 end
 
 $addons = OpenNebulaAddons.new(logger)
@@ -461,6 +497,9 @@ helpers do
             session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
         end
 
+        autorefresh_wss = $conf[:autorefresh_support_wss]
+        session[:autorefresh_wss] = autorefresh_wss == 'yes'? 'wss' : 'ws'
+
         # end user options
 
         # secure cookies
@@ -507,7 +546,7 @@ before do
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get).include?(request.path)
+    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get /ws).include?(request.path)
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
@@ -624,6 +663,27 @@ get '/' do
             :support    => $conf[:locals][:support],
             :upgrade    => $conf[:locals][:upgrade]
     }
+end
+
+get '/ws' do
+    logger.info { 'Incomming WS connection' }
+    if request.websocket? 
+        request.websocket do |ws|
+            ws.onopen do
+                logger.info { "New client registered" } 
+                settings.sockets << ws
+            end
+        
+            ws.onmessage do |msg|
+                logger.info { "New message received: #{msg}" } 
+            end
+        
+            ws.onclose do
+                logger.info { "Client disconnected." } 
+                settings.sockets.delete(ws)
+            end
+        end 
+    end
 end
 
 get '/login' do
