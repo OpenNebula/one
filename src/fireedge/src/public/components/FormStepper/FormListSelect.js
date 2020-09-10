@@ -2,33 +2,38 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { Box, Grid } from '@material-ui/core';
+import { useFormContext } from 'react-hook-form';
+
+import ErrorHelper from '../FormControl/ErrorHelper';
 
 function FormListSelect({ step, data, setFormData }) {
+  const { errors } = useFormContext();
   const { id, onlyOneSelect, preRender, list, InfoComponent } = step;
 
   useEffect(() => {
     preRender && preRender();
   }, []);
 
-  const handleSelect = index => {
-    // select index => add select to data form
+  const handleSelect = index =>
     setFormData(prevData => ({
       ...prevData,
       [id]: onlyOneSelect ? [index] : [...prevData[id], index]
     }));
-  };
 
-  const handleUnselect = indexRemove => {
-    // unselect index => remove selected from data form
+  const handleUnselect = indexRemove =>
     setFormData(prevData => ({
       ...prevData,
       [id]: prevData[id]?.filter(index => index !== indexRemove)
     }));
-  };
 
   return (
     <Box component="form">
       <Grid container spacing={3}>
+        {typeof errors[id]?.message === 'string' && (
+          <Grid item xs={12}>
+            <ErrorHelper label={errors[id]?.message} />
+          </Grid>
+        )}
         {Array.isArray(list) &&
           list?.map((info, index) => (
             <Grid key={`${id}-${index}`} item xs={6} sm={4} md={3} lg={1}>

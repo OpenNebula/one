@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { useFormContext } from 'react-hook-form';
-import { debounce } from '@material-ui/core';
 
 function FormStep({ step, data, setFormData }) {
   const { reset, errors } = useFormContext();
@@ -13,14 +12,7 @@ function FormStep({ step, data, setFormData }) {
     reset({ [id]: data }, { errors: true });
   }, []);
 
-  useEffect(() => {
-    // setFormData(prev => ({ ...prev, [id]: watch() }));
-    console.log('errors', errors);
-  }, [errors]);
-
-  const handleSubmit = dataForm => console.log(dataForm);
-
-  return React.useMemo(() => <FormComponent id={id} />, [id, errors]);
+  return React.useMemo(() => <FormComponent id={id} />, [id]);
 }
 
 FormStep.propTypes = {

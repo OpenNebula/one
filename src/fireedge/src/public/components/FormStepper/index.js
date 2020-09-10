@@ -6,16 +6,12 @@ import { useMediaQuery } from '@material-ui/core';
 
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper';
 import CustomStepper from 'client/components/FormStepper/Stepper';
-import { console } from 'window-or-global';
 
 const FIRST_STEP = 0;
 
 const FormStepper = ({ steps, initialValue, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
-  const {
-    watch,
-    formState: { isValid }
-  } = useFormContext();
+  const { watch, trigger, reset } = useFormContext();
 
   const [activeStep, setActiveStep] = useState(FIRST_STEP);
   const [formData, setFormData] = useState(initialValue);
@@ -24,14 +20,23 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
   const lastStep = useMemo(() => totalSteps - 1, [totalSteps]);
   const disabledBack = useMemo(() => activeStep === FIRST_STEP, [activeStep]);
 
+  useEffect(() => {
+    reset({ ...formData }, { errors: true });
+  }, [formData]);
+
   const handleNext = () => {
-    // TODO check if errors
-    if (activeStep === lastStep) {
-      onSubmit(formData);
-    } else if (isValid) {
-      setFormData(prevData => ({ ...prevData, ...watch() }));
-      setActiveStep(prevActiveStep => prevActiveStep + 1);
-    }
+    const { id } = steps[activeStep];
+
+    trigger(id).then(isValid => {
+      if (!isValid) return;
+
+      if (activeStep === lastStep) {
+        onSubmit(formData);
+      } else {
+        setFormData(prevData => ({ ...prevData, ...watch() }));
+        setActiveStep(prevActiveStep => prevActiveStep + 1);
+      }
+    });
   };
 
   const handleBack = useCallback(() => {
@@ -62,7 +67,6 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
           handleBack={handleBack}
         />
       )}
-
       {/* FORM CONTENT */}
       {React.useMemo(() => {
         const { id, content: Content } = steps[activeStep];
@@ -70,10 +74,9 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
         return (
           Content && (
             <Content
-              formData={formData}
+              step={steps[activeStep]}
               data={formData[id]}
               setFormData={setFormData}
-              step={steps[activeStep]}
             />
           )
         );
@@ -97,7 +100,7 @@ FormStepper.propTypes = {
 FormStepper.defaultProps = {
   steps: [],
   initialValue: {},
-  onSubmit: dataForm => console.log(dataForm)
+  onSubmit: console.log
 };
 
 export default FormStepper;

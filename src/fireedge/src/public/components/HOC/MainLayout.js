@@ -50,13 +50,11 @@ const MainLayout = ({ children }) => {
 
   // PROTECTED ROUTE
   if (authRoute && !isLogged && !isLoginInProcess) {
-    console.log('protected route needs redirect to LOGIN');
     return <Redirect to={PATH.LOGIN} />;
   }
 
   // PUBLIC ROUTE
   if (!authRoute && isLogged && !isLoginInProcess) {
-    console.log('public route needs redirect to DASHBOARD');
     return <Redirect to={PATH.DASHBOARD} />;
   }
 

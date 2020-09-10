@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import * as yup from 'yup';
 
 import useOpennebula from 'client/hooks/useOpennebula';
 
@@ -9,7 +10,10 @@ import FormDialog from 'client/components/FormStepper/FormDialog';
 import FormListSelect from 'client/components/FormStepper/FormListSelect';
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema';
-import Schema from 'client/containers/Application/Create/schema';
+import Schema, {
+  SHUTDOWN_ACTIONS,
+  STRATEGIES_DEPLOY
+} from 'client/containers/Application/Create/schema';
 
 function Steps() {
   const {
@@ -30,6 +34,22 @@ function Steps() {
           (val, { name, initial }) => ({ ...val, [name]: initial }),
           {}
         ),
+        resolver: yup.object().shape({
+          name: yup
+            .string()
+            .min(5)
+            .trim()
+            .required('is required'),
+          description: yup.string().trim(),
+          deployment: yup
+            .string()
+            .required()
+            .oneOf(STRATEGIES_DEPLOY.map(({ value }) => value)),
+          shutdown_action: yup
+            .string()
+            .oneOf(SHUTDOWN_ACTIONS.map(({ value }) => value)),
+          ready_status_gate: yup.boolean()
+        }),
         FormComponent: props => (
           <FormWithSchema cy="form-flow" schema={Schema} {...props} />
         )
@@ -43,6 +63,10 @@ function Steps() {
           getVNetworksTemplates();
         },
         defaultValue: [],
+        resolver: yup
+          .array()
+          .min(2)
+          .required(),
         addCardAction: true,
         DEFAULT_DATA: {
           mandatory: true,
@@ -61,6 +85,10 @@ function Steps() {
         content: FormDialog,
         preRender: getTemplates,
         defaultValue: [],
+        resolver: yup
+          .array()
+          .min(1)
+          .required(),
         addCardAction: true,
         DEFAULT_DATA: {
           name: 'Master_dev',
@@ -77,6 +105,11 @@ function Steps() {
         label: 'Where will it run?',
         content: FormListSelect,
         defaultValue: [],
+        resolver: yup
+          .array()
+          .min(1)
+          .max(1)
+          .required(),
         onlyOneSelect: true,
         preRender: getClusters,
         list: clusters,
@@ -95,7 +128,21 @@ function Steps() {
     [steps]
   );
 
-  return { steps, defaultValues };
+  const resolvers = useMemo(
+    () =>
+      yup
+        .object()
+        .shape(
+          steps.reduce(
+            (values, { id, resolver }) => ({ ...values, [id]: resolver }),
+            {}
+          )
+        )
+        .required(),
+    [steps]
+  );
+
+  return { steps, defaultValues, resolvers };
 }
 
 export default Steps;

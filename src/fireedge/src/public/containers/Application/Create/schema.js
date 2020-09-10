@@ -6,7 +6,7 @@ export const STRATEGIES_DEPLOY = [
 ];
 
 export const SHUTDOWN_ACTIONS = [
-  { text: 'None', value: '' },
+  { text: 'None', value: 'none' },
   { text: 'Terminate', value: 'shutdown' },
   { text: 'Terminate hard', value: 'shutdown-hard' }
 ];
@@ -36,7 +36,7 @@ export default [
     name: 'shutdown_action',
     label: 'Select a VM shutdown action',
     type: TYPE_INPUT.SELECT,
-    initial: SHUTDOWN_ACTIONS[1].value,
+    initial: SHUTDOWN_ACTIONS[0].value,
     values: SHUTDOWN_ACTIONS
   },
   {

@@ -10,6 +10,9 @@ import {
   Grid
 } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
+import { useFormContext } from 'react-hook-form';
+
+import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
 const useStyles = makeStyles(() => ({
   cardPlus: {
@@ -22,6 +25,7 @@ const useStyles = makeStyles(() => ({
 
 function FormDialog({ step, data, setFormData }) {
   const classes = useStyles();
+  const { errors } = useFormContext();
   const [dialogFormData, setDialogFormData] = useState({});
   const [showDialog, setShowDialog] = useState(false);
 
@@ -78,17 +82,26 @@ function FormDialog({ step, data, setFormData }) {
   return (
     <Box component="form">
       <Grid container spacing={3}>
-        {addCardAction && (
-          <Grid item xs={12} sm={4} md={3} lg={2}>
-            <Card className={classes.cardPlus} raised>
-              <CardActionArea onClick={() => handleOpen()}>
-                <CardContent>
-                  <Add />
-                </CardContent>
-              </CardActionArea>
-            </Card>
+        {typeof errors[id]?.message === 'string' && (
+          <Grid item xs={12}>
+            <ErrorHelper label={errors[id]?.message} />
           </Grid>
         )}
+        {addCardAction &&
+          React.useMemo(
+            () => (
+              <Grid item xs={12} sm={4} md={3} lg={2}>
+                <Card className={classes.cardPlus} raised>
+                  <CardActionArea onClick={() => handleOpen()}>
+                    <CardContent>
+                      <Add />
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            ),
+            [handleOpen, classes]
+          )}
         {Array.isArray(data) &&
           data?.map((info, index) => (
             <Grid key={`${id}-${index}`} item xs={12} sm={4} md={3} lg={2}>
