@@ -124,6 +124,7 @@ group :sunstone do
     gem 'memcache-client'
     gem 'dalli'
     gem 'rotp'
+    gem 'sinatra-websocket'
 end
 
 group :oca do
