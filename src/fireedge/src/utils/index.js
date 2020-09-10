@@ -91,7 +91,7 @@ const includeCSSbyHTML = (path = '') => {
   return scripts;
 };
 
-const validateRouteFunction = (routeFunction, httpMethod = '') => {
+const checkMethodRouteFunction = (routeFunction, httpMethod = '') => {
   let rtn;
   if (
     routeFunction &&
@@ -105,12 +105,23 @@ const validateRouteFunction = (routeFunction, httpMethod = '') => {
   return rtn;
 };
 
-const checkRouteFunction = route => {
+const checkIfIsARouteFunction = (route, httpMethod) => {
   let rtn = false;
-  const { private: functionPrivate, public: functionPublic } = functionRoutes;
-  const functions = { ...functionPrivate, ...functionPublic };
-  if (route in functions) {
-    rtn = functions[route];
+  if (route && route.length) {
+    const { private: functionPrivate, public: functionPublic } = functionRoutes;
+    const functions = [...functionPrivate, ...functionPublic];
+    const finderCommand = rtnCommand =>
+      rtnCommand &&
+      rtnCommand.endpoint &&
+      rtnCommand.endpoint === route &&
+      rtnCommand.httpMethod &&
+      rtnCommand.httpMethod === httpMethod &&
+      rtnCommand.action &&
+      typeof rtnCommand.action === 'function';
+    const find = functions.find(finderCommand);
+    if (find) {
+      rtn = find;
+    }
   }
   return rtn;
 };
@@ -130,9 +141,9 @@ module.exports = {
   getRouteForOpennebulaCommand,
   getMethodForOpennebulaCommand,
   commandXML,
-  checkRouteFunction,
+  checkIfIsARouteFunction,
   checkOpennebulaCommand,
-  validateRouteFunction,
+  checkMethodRouteFunction,
   responseOpennebula,
   getConfig,
   httpResponse

@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
-import { hydrate } from 'react-dom';
+import { hydrate, render } from 'react-dom';
 import { createStore } from 'redux';
 import root from 'window-or-global';
 
@@ -38,5 +38,7 @@ const element = document.getElementById('preloadState');
 if (element) {
   element.remove();
 }
+const mainDiv = document.getElementById('root');
+const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render;
 
-hydrate(<App store={store} />, document.getElementById('root'));
+renderMethod(<App store={store} />, document.getElementById('root'));

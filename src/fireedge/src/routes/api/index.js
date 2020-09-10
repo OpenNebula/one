@@ -40,9 +40,8 @@ const {
 } = require('./routes/zendesk');
 
 const opennebulaActions = getRouteForOpennebulaCommand();
-
 const routes = {
-  private: {
+  private: [
     ...opennebulaActions,
     ...functions2faPrivate,
     ...functionsAuthPrivate,
@@ -50,14 +49,14 @@ const routes = {
     ...functionsSupportPrivate,
     ...functionsVcenterPrivate,
     ...functionsZendeskPrivate
-  },
-  public: {
+  ],
+  public: [
     ...functions2faPublic,
     ...functionsAuthPublic,
     ...functionsOneflowPublic,
     ...functionsSupportPublic,
     ...functionsVcenterPublic,
     ...functionsZendeskPublic
-  }
+  ]
 };
 module.exports = routes;

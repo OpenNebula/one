@@ -26,6 +26,11 @@ const {
   default2FAOpennebulaTmpVar
 } = require('../../../../utils/constants/defaults');
 const {
+  TWO_FACTOR_QR,
+  TWO_FACTOR_DELETE,
+  TWO_FACTOR_SETUP
+} = require('./string-routes');
+const {
   ok,
   unauthorized,
   internalServerError
@@ -91,9 +96,10 @@ const getUserInfoAuthenticated = (connect, userId, callback, next) => {
   }
 };
 
-const privateRoutes = {
-  '2fqr': {
+const privateRoutes = [
+  {
     httpMethod: POST,
+    endpoint: TWO_FACTOR_QR,
     action: (req, res, next, connect, userId) => {
       const secret = speakeasy.generateSecret({
         length: 10,
@@ -163,8 +169,9 @@ const privateRoutes = {
       }
     }
   },
-  '2fsetup': {
+  {
     httpMethod: POST,
+    endpoint: TWO_FACTOR_SETUP,
     action: (req, res, next, connect, userId) => {
       const connectOpennebula = connect();
       getUserInfoAuthenticated(
@@ -231,8 +238,9 @@ const privateRoutes = {
       );
     }
   },
-  '2fdelete': {
+  {
     httpMethod: DELETE,
+    endpoint: TWO_FACTOR_DELETE,
     action: (req, res, next, connect, userId) => {
       const connectOpennebula = connect();
       getUserInfoAuthenticated(
@@ -283,9 +291,9 @@ const privateRoutes = {
       );
     }
   }
-};
+];
 
-const publicRoutes = {};
+const publicRoutes = [];
 
 const functionRoutes = {
   private: privateRoutes,

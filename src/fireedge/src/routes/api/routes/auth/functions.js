@@ -107,7 +107,7 @@ const setDates = () => {
   const { MIN, MAX } = limitToken;
   now = DateTime.local();
   nowUnix = now.toSeconds();
-  nowWithDays = now.plus({"days": extended ? MAX : MIN});
+  nowWithDays = now.plus({ days: extended ? MAX : MIN });
   const diff = nowWithDays.diff(now, 'seconds');
   relativeTime = diff.seconds;
 };

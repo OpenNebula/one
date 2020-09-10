@@ -46,7 +46,9 @@ const validateResource = (req, res, next) => {
   if (req && req.params && req.params.resource) {
     const resource = req.params.resource;
     status = serviceUnavailable;
-    if (resource in authenticated) {
+    const finderCommand = rtnCommand =>
+      rtnCommand && rtnCommand.endpoint && rtnCommand.endpoint === resource;
+    if (authenticated.some(finderCommand)) {
       const session = validateAuth(req);
       if (
         session &&
@@ -76,7 +78,7 @@ const validateResource = (req, res, next) => {
       }
       status = unauthorized;
     }
-    if (resource in nonAuthenticated) {
+    if (nonAuthenticated.some(finderCommand)) {
       next();
       return;
     }

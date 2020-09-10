@@ -42,62 +42,74 @@ const {
   SERVICE_TEMPLATE_CREATE,
   SERVICE_TEMPLATE_UPDATE,
   SERVICE_TEMPLATE_ACTION
-} = require('./oneflow-routes');
+} = require('./string-routes');
 
 const { GET, POST, DELETE, PUT } = httpMethod;
 
-const privateRoutes = {
-  [SERVICE_ALL]: {
+const privateRoutes = [
+  {
     httpMethod: GET,
+    endpoint: SERVICE_ALL,
     action: serviceAll
   },
-  [SERVICE]: {
+  {
     httpMethod: GET,
+    endpoint: SERVICE,
     action: service
   },
-  [SERVICE_DELETE]: {
+  {
     httpMethod: DELETE,
+    endpoint: SERVICE_DELETE,
     action: serviceDelete
   },
-  [SERVICE_ADD_ACTION]: {
+  {
     httpMethod: POST,
+    endpoint: SERVICE_ADD_ACTION,
     action: serviceAddAction
   },
-  [SERVICE_ADD_SCALE]: {
+  {
     httpMethod: POST,
+    endpoint: SERVICE_ADD_SCALE,
     action: serviceAddScale
   },
-  [SERVICE_ADD_ROLE_ACTION]: {
+  {
     httpMethod: POST,
+    endpoint: SERVICE_ADD_ROLE_ACTION,
     action: serviceAddRoleAction
   },
-  [SERVICE_TEMPLATE_ALL]: {
+  {
     httpMethod: GET,
+    endpoint: SERVICE_TEMPLATE_ALL,
     action: serviceTemplateAll
   },
-  [SERVICE_TEMPLATE]: {
+  {
     httpMethod: GET,
+    endpoint: SERVICE_TEMPLATE,
     action: serviceTemplate
   },
-  [SERVICE_TEMPLATE_DELETE]: {
+  {
     httpMethod: DELETE,
+    endpoint: SERVICE_TEMPLATE_DELETE,
     action: serviceTemplateDelete
   },
-  [SERVICE_TEMPLATE_CREATE]: {
+  {
     httpMethod: POST,
+    endpoint: SERVICE_TEMPLATE_CREATE,
     action: serviceTemplateCreate
   },
-  [SERVICE_TEMPLATE_UPDATE]: {
+  {
     httpMethod: PUT,
+    endpoint: SERVICE_TEMPLATE_UPDATE,
     action: serviceTemplateUpdate
   },
-  [SERVICE_TEMPLATE_ACTION]: {
+  {
     httpMethod: POST,
+    endpoint: SERVICE_TEMPLATE_ACTION,
     action: serviceTemplateAction
   }
-};
+];
 
-const publicRoutes = {};
+const publicRoutes = [];
 
 const functionRoutes = {
   private: privateRoutes,
