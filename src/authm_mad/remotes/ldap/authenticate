@@ -56,17 +56,17 @@ begin
 
     user   = URI_PARSER.unescape(xml['/AUTHN/USERNAME'])
     secret = URI_PARSER.unescape(xml['/AUTHN/SECRET'])
-rescue
-    STDERR.puts "Invalid XML input"
+rescue StandardError
+    STDERR.puts 'Invalid XML input'
     exit(-1)
 end
 
 options=YAML.load(File.read(ETC_LOCATION+'/auth/ldap_auth.conf'))
 
 user_full = user
-order,user = get_server_order(options, user)
+order, user = get_server_order(options, user)
 
-STDERR.puts "Using group of servers: #{servers.join(', ')}" if order.length>1
+STDERR.puts "Using group of servers: #{order.join(' ')}" if order.length>1
 
 order.each do |servers|
     servers.each do |server_name|
@@ -74,7 +74,7 @@ order.each do |servers|
 
         server_conf=options[server_name]
         if !server_conf
-            STDERR.puts "Configuration for server not found"
+            STDERR.puts 'Configuration for server not found'
             break
         end
 
@@ -95,7 +95,7 @@ order.each do |servers|
 
                 if !user_uid.nil? && user_uid.downcase != user.downcase
                     STDERR.puts "User \"#{user}\" and \"#{user_uid}\" "\
-                                "differes (leading/trailing whitespace)"
+                                'differes (leading/trailing whitespace)'
                     break
                 end
 
@@ -110,7 +110,7 @@ order.each do |servers|
                     groups = ldap.get_groups
                     if groups.empty?
                         if !server_conf[:mapping_default]
-                            STDERR.puts "User does not belong to a mapped group"
+                            STDERR.puts 'User does not belong to a mapped group'
                             break
                         else
                             groups = [server_conf[:mapping_default]]
@@ -126,7 +126,7 @@ order.each do |servers|
                     puts "ldap #{escaped_user} #{escaped_secret} #{group_list}"
                     exit
                 else
-                    STDERR.puts "Bad user/password"
+                    STDERR.puts 'Bad user/password'
                     break
                 end
             end
