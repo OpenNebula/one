@@ -422,7 +422,7 @@ module OpenNebula
                     !role['elasticity_policies'].empty?) ||
                    (role['scheduled_policies'] &&
                    !role['scheduled_policies'].empty?)) &&
-                   role['min_vms'].nil? || role['max_vms'].nil?
+                   (role['min_vms'].nil? || role['max_vms'].nil?)
                     raise Validator::ParseException,
                           "Role '#{role['name']}' with " \
                           " 'elasticity_policies' or " \
