@@ -1,17 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Button, Stepper, Step, StepLabel, Box } from '@material-ui/core';
+import {
+  styled,
+  Button,
+  Stepper,
+  Step,
+  StepLabel,
+  Box
+} from '@material-ui/core';
 
 import { Tr } from 'client/components/HOC';
 
-/*
-position: sticky;
-top: 0;
-backdrop-filter: blur(5px);
-background: #000000aa;
-z-index: 1;
-*/
+const StickyStepper = styled(Stepper)({
+  position: 'sticky',
+  top: -15,
+  backdropFilter: 'blur(5px)',
+  background: '#fafafa9c',
+  zIndex: 1
+});
 
 const CustomStepper = ({
   steps,
@@ -22,13 +29,13 @@ const CustomStepper = ({
   handleBack
 }) => (
   <>
-    <Stepper activeStep={activeStep}>
+    <StickyStepper activeStep={activeStep}>
       {steps?.map(({ label }) => (
         <Step key={label}>
           <StepLabel>{label}</StepLabel>
         </Step>
       ))}
-    </Stepper>
+    </StickyStepper>
     <Box marginY={2}>
       <Button onClick={handleBack} disabled={disabledBack}>
         {Tr('Back')}

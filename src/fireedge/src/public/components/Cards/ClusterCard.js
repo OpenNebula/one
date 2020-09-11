@@ -57,9 +57,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const ClusterCard = React.memo(
-  ({ info, isSelected, handleSelect, handleUnselect }) => {
+  ({ value, isSelected, handleSelect, handleUnselect }) => {
     const classes = useStyles();
-    const { ID, NAME, HOSTS, VNETS, DATASTORES } = info;
+    const { ID, NAME, HOSTS, VNETS, DATASTORES } = value;
 
     const hosts = [HOSTS?.ID ?? []].flat();
     const vnets = [VNETS?.ID ?? []].flat();

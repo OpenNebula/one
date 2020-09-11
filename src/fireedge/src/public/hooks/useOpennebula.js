@@ -17,6 +17,7 @@ export default function useOpennebula() {
     vNetworksTemplates,
     templates,
     clusters,
+    apps,
     filterPool: filter
   } = useSelector(
     state => ({
@@ -66,6 +67,14 @@ export default function useOpennebula() {
       .catch(err => dispatch(failureOneRequest({ error: err })));
   }, [dispatch, filter]);
 
+  const getMarketApps = useCallback(() => {
+    dispatch(startOneRequest());
+    return servicePool
+      .getMarketApps({ filter })
+      .then(data => dispatch(actions.setApps(data)))
+      .catch(err => dispatch(failureOneRequest({ error: err })));
+  }, [dispatch, filter]);
+
   const getClusters = useCallback(() => {
     dispatch(startOneRequest());
     return servicePool
@@ -85,6 +94,8 @@ export default function useOpennebula() {
     getVNetworksTemplates,
     templates,
     getTemplates,
+    apps,
+    getMarketApps,
     clusters,
     getClusters
   };

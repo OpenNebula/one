@@ -42,9 +42,9 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { files }
   }),
-  setMarketplaces: marketPlaces => ({
+  setMarketplaces: marketplaces => ({
     type: SUCCESS_ONE_REQUEST,
-    payload: { marketPlaces }
+    payload: { marketplaces }
   }),
   setApps: apps => ({
     type: SUCCESS_ONE_REQUEST,

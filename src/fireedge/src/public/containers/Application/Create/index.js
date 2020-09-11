@@ -1,11 +1,11 @@
 import React from 'react';
 
+import { Container } from '@material-ui/core';
 import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 
 import FormStepper from 'client/components/FormStepper';
-import Steps from 'client/containers/Application/Create/steps';
-import { Container } from '@material-ui/core';
+import Steps from 'client/containers/Application/Create/Steps';
 
 function ApplicationCreate() {
   const { steps, defaultValues, resolvers } = Steps();
@@ -19,7 +19,10 @@ function ApplicationCreate() {
   const onSubmit = formData => console.log('submit', formData, methods.errors);
 
   return (
-    <Container disableGutters>
+    <Container
+      disableGutters
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       <FormProvider {...methods}>
         <FormStepper
           steps={steps}

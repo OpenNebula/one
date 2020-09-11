@@ -36,9 +36,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const NetworkCard = React.memo(
-  ({ info, handleEdit, handleClone, handleRemove }) => {
+  ({ value, handleEdit, handleClone, handleRemove }) => {
     const classes = useStyles();
-    const { mandatory, name, description, type, id, extra } = info;
+    const { mandatory, name, description, type, id, extra } = value;
 
     return (
       <Fade in unmountOnExit={false}>

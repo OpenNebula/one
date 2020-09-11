@@ -1,10 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Button, MobileStepper } from '@material-ui/core';
+import { styled, Button, MobileStepper } from '@material-ui/core';
 import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
 
 import { Tr } from 'client/components/HOC';
+
+const StickyMobileStepper = styled(MobileStepper)({
+  position: 'sticky',
+  top: -15,
+  backdropFilter: 'blur(5px)',
+  background: '#fafafa9c',
+  zIndex: 1
+});
 
 const CustomMobileStepper = ({
   totalSteps,
@@ -14,12 +22,11 @@ const CustomMobileStepper = ({
   handleNext,
   handleBack
 }) => (
-  <MobileStepper
+  <StickyMobileStepper
     variant="progress"
     position="static"
     steps={totalSteps}
     activeStep={activeStep}
-    style={{ flexGrow: 1 }}
     backButton={
       <Button size="small" onClick={handleBack} disabled={disabledBack}>
         <KeyboardArrowLeft /> {Tr('Back')}

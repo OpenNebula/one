@@ -3,6 +3,7 @@ import Group from 'server/utils/constants/commands/group';
 import VNet from 'server/utils/constants/commands/vn';
 import VNetTemplate from 'server/utils/constants/commands/vntemplate';
 import Template from 'server/utils/constants/commands/template';
+import MarketApp from 'server/utils/constants/commands/marketapp';
 import Cluster from 'server/utils/constants/commands/cluster';
 
 import httpCodes from 'server/utils/constants/http-codes';
@@ -78,6 +79,20 @@ export const getTemplates = ({ filter }) => {
   });
 };
 
+export const getMarketApps = ({ filter }) => {
+  const name = MarketApp.Actions.MARKETAPP_POOL_INFO;
+  const { url, options } = requestParams(
+    { filter },
+    { name, ...MarketApp.Commands[name] }
+  );
+
+  return requestData(url, options).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
+
+    return [res?.data?.MARKETPLACEAPP_POOL?.MARKETPLACEAPP ?? []].flat();
+  });
+};
+
 export const getClusters = ({ filter }) => {
   const name = Cluster.Actions.CLUSTER_POOL_INFO;
   const { url, options } = requestParams(
@@ -98,5 +113,6 @@ export default {
   getVNetworks,
   getVNetworksTemplates,
   getTemplates,
+  getMarketApps,
   getClusters
 };
