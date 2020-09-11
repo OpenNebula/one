@@ -903,8 +903,6 @@ define(function(require) {
       break;
     }
     if(attr.visor){
-      var min = attr.min != undefined ? attr.min : "";
-      var max = attr.max != undefined ? attr.max : "";
       input += '<input type="number" class="visor" value="'+value+'" required>';
     }
     return input;
