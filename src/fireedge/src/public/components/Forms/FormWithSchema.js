@@ -15,12 +15,12 @@ const InputController = {
   [TYPE_INPUT.CHECKBOX]: CheckboxController
 };
 
-const FormWithSchema = ({ id, cy, schema }) => {
+const FormWithSchema = ({ id, cy, fields }) => {
   const { control, errors } = useFormContext();
 
   return (
-    <Grid container spacing={3}>
-      {schema?.map(({ name, type, label, values }) => {
+    <Grid container spacing={1}>
+      {fields?.map(({ name, type, label, values }) => {
         const dataCy = `${cy}-${name}`;
         const inputName = id ? `${id}.${name}` : name;
         const formError = id ? errors[id] : errors;
@@ -28,14 +28,15 @@ const FormWithSchema = ({ id, cy, schema }) => {
 
         return (
           <Grid key={`${cy}-${name}`} item xs={12} md={6}>
-            {React.createElement(InputController[type], {
-              control,
-              cy: dataCy,
-              name: inputName,
-              label,
-              values,
-              error: inputError
-            })}
+            {InputController[type] &&
+              React.createElement(InputController[type], {
+                control,
+                cy: dataCy,
+                name: inputName,
+                label,
+                values,
+                error: inputError
+              })}
           </Grid>
         );
       })}
@@ -46,13 +47,13 @@ const FormWithSchema = ({ id, cy, schema }) => {
 FormWithSchema.propTypes = {
   id: PropTypes.string,
   cy: PropTypes.string,
-  schema: PropTypes.arrayOf(PropTypes.object)
+  fields: PropTypes.arrayOf(PropTypes.object)
 };
 
 FormWithSchema.defaultProps = {
   id: '',
   cy: 'form',
-  schema: []
+  fields: []
 };
 
 export default FormWithSchema;

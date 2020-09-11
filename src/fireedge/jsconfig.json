@@ -5,5 +5,7 @@
       "client/*": ["public/*"],
       "server/*": ["*"]
     }
-  }
+  },
+  "include": ["./src/*"],
+  "exclude": ["node_modules"]
 }

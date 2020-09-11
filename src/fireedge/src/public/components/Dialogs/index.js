@@ -1,4 +1,3 @@
-import NetworkDialog from 'client/components/Dialogs/NetworkDialog';
-import RoleDialog from 'client/components/Dialogs/RoleDialog';
+import DialogForm from 'client/components/Dialogs/DialogForm';
 
-export { NetworkDialog, RoleDialog };
+export { DialogForm };

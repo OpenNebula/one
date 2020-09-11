@@ -8,7 +8,7 @@ import ErrorHelper from '../FormControl/ErrorHelper';
 
 function FormListSelect({ step, data, setFormData }) {
   const { errors } = useFormContext();
-  const { id, onlyOneSelect, preRender, list, InfoComponent } = step;
+  const { id, onlyOneSelect, preRender, list, ItemComponent } = step;
 
   useEffect(() => {
     preRender && preRender();
@@ -37,7 +37,7 @@ function FormListSelect({ step, data, setFormData }) {
         {Array.isArray(list) &&
           list?.map((info, index) => (
             <Grid key={`${id}-${index}`} item xs={6} sm={4} md={3} lg={1}>
-              <InfoComponent
+              <ItemComponent
                 info={info}
                 isSelected={data?.some(selected => selected === info?.ID)}
                 handleSelect={handleSelect}

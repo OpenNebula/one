@@ -25,7 +25,7 @@ const initial = {
   vmGroups: [],
   images: [],
   files: [],
-  marketPlaces: [],
+  marketplaces: [],
   apps: [],
   vNetworks: [],
   vNetworksTemplates: [],

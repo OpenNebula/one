@@ -1,42 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
-import {
-  makeStyles,
-  Box,
-  CardActionArea,
-  CardContent,
-  Card,
-  Grid
-} from '@material-ui/core';
-import { Add } from '@material-ui/icons';
+import { Box } from '@material-ui/core';
 import { useFormContext } from 'react-hook-form';
 
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
-const useStyles = makeStyles(() => ({
-  cardPlus: {
-    height: '100%',
-    minHeight: 140,
-    display: 'flex',
-    textAlign: 'center'
-  }
-}));
-
-function FormDialog({ step, data, setFormData }) {
-  const classes = useStyles();
+function FormList({ step, data, setFormData }) {
   const { errors } = useFormContext();
   const [dialogFormData, setDialogFormData] = useState({});
   const [showDialog, setShowDialog] = useState(false);
 
-  const {
-    id,
-    addCardAction,
-    preRender,
-    InfoComponent,
-    DialogComponent,
-    DEFAULT_DATA
-  } = step;
+  const { id, preRender, ListComponent, DialogComponent, DEFAULT_DATA } = step;
 
   useEffect(() => {
     preRender && preRender();
@@ -81,43 +56,22 @@ function FormDialog({ step, data, setFormData }) {
 
   return (
     <Box component="form">
-      <Grid container spacing={3}>
-        {typeof errors[id]?.message === 'string' && (
-          <Grid item xs={12}>
-            <ErrorHelper label={errors[id]?.message} />
-          </Grid>
-        )}
-        {addCardAction &&
-          React.useMemo(
-            () => (
-              <Grid item xs={12} sm={4} md={3} lg={2}>
-                <Card className={classes.cardPlus} raised>
-                  <CardActionArea onClick={() => handleOpen()}>
-                    <CardContent>
-                      <Add />
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            ),
-            [handleOpen, classes]
-          )}
-        {Array.isArray(data) &&
-          data?.map((info, index) => (
-            <Grid key={`${id}-${index}`} item xs={12} sm={4} md={3} lg={2}>
-              <InfoComponent
-                info={info}
-                handleEdit={() => handleOpen(index)}
-                handleClone={() => handleClone(index)}
-                handleRemove={() => handleRemove(index)}
-              />
-            </Grid>
-          ))}
-      </Grid>
+      {typeof errors[id]?.message === 'string' && (
+        <ErrorHelper label={errors[id]?.message} />
+      )}
+      <ListComponent
+        list={data}
+        addCardClick={() => handleOpen()}
+        itemsProps={({ index }) => ({
+          handleEdit: () => handleOpen(index),
+          handleClone: () => handleClone(index),
+          handleRemove: () => handleRemove(index)
+        })}
+      />
       {showDialog && DialogComponent && (
         <DialogComponent
           open={showDialog}
-          info={dialogFormData?.data}
+          values={dialogFormData?.data}
           onSubmit={handleSubmit}
           onCancel={handleClose}
         />
@@ -126,16 +80,16 @@ function FormDialog({ step, data, setFormData }) {
   );
 }
 
-FormDialog.propTypes = {
+FormList.propTypes = {
   step: PropTypes.objectOf(PropTypes.any).isRequired,
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   setFormData: PropTypes.func.isRequired
 };
 
-FormDialog.defaultProps = {
+FormList.defaultProps = {
   step: {},
   data: [],
   setFormData: data => data
 };
 
-export default FormDialog;
+export default FormList;
