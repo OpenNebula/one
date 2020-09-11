@@ -546,7 +546,8 @@ module VCenterDriver
             dc_name,
             template_ref,
             dc_ref,
-            vm_id
+            vm_id,
+            vi_client
         )
             config = {}
             config[:refs] = nic[:refs]
@@ -724,7 +725,6 @@ module VCenterDriver
                           .get_cluster_id(config[:one_ids])
 
             one_vn = VCenterDriver::Network.create_one_network(config)
-            allocated_networks << one_vn
             VCenterDriver::VIHelper.clean_ref_hash
             one_vn.info
 
@@ -787,7 +787,10 @@ module VCenterDriver
                                                            dc_name,
                                                            template_ref,
                                                            dc_ref,
-                                                           vm_id)
+                                                           vm_id,
+                                                           vi_client)
+
+                        allocated_networks << one_vn
 
                         nic_info << nic_from_network_created(one_vn, nic)
 

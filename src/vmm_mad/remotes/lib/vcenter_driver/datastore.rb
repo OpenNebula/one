@@ -349,7 +349,7 @@ module VCenterDriver
             check_item(item, RbVmomi::VIM::StoragePod)
             @item = item
 
-            super
+            super()
         end
 
         # This is never cached
@@ -373,7 +373,7 @@ module VCenterDriver
             @item = item
             @one_item = {}
 
-            super
+            super()
         end
 
         def delete_virtual_disk(img_name)
