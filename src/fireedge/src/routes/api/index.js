@@ -14,49 +14,33 @@
 /* -------------------------------------------------------------------------- */
 
 const { getRouteForOpennebulaCommand } = require('../../utils/opennebula');
-const {
-  private: functions2faPrivate,
-  public: functions2faPublic
-} = require('./routes/2fa');
-const {
-  private: functionsAuthPrivate,
-  public: functionsAuthPublic
-} = require('./routes/auth');
-const {
-  private: functionsOneflowPrivate,
-  public: functionsOneflowPublic
-} = require('./routes/oneflow');
-const {
-  private: functionsSupportPrivate,
-  public: functionsSupportPublic
-} = require('./routes/support');
-const {
-  private: functionsVcenterPrivate,
-  public: functionsVcenterPublic
-} = require('./routes/vcenter');
-const {
-  private: functionsZendeskPrivate,
-  public: functionsZendeskPublic
-} = require('./routes/zendesk');
 
+const files = ['2fa','auth','oneflow','support','vcenter', 'zendesk'];
+const filesDataPrivate = [];
+const filesDataPublic = [];
+files.map(file =>{
+  try {
+    const fileInfo = require(`./routes/${file}`);
+    if(fileInfo.private && fileInfo.private.length){
+      filesDataPrivate.push(fileInfo.private);
+    }
+    if(fileInfo.public && fileInfo.public.length){
+      filesDataPublic.push(fileInfo.public);
+    }
+  } catch (error) {
+    if (error instanceof Error && error.code === "MODULE_NOT_FOUND"){
+      console.log("-->", error.message);
+    }else{
+      throw e;
+    }
+  }
+});
 const opennebulaActions = getRouteForOpennebulaCommand();
 const routes = {
   private: [
     ...opennebulaActions,
-    ...functions2faPrivate,
-    ...functionsAuthPrivate,
-    ...functionsOneflowPrivate,
-    ...functionsSupportPrivate,
-    ...functionsVcenterPrivate,
-    ...functionsZendeskPrivate
+    ...filesDataPrivate.flat()
   ],
-  public: [
-    ...functions2faPublic,
-    ...functionsAuthPublic,
-    ...functionsOneflowPublic,
-    ...functionsSupportPublic,
-    ...functionsVcenterPublic,
-    ...functionsZendeskPublic
-  ]
+  public: [...filesDataPublic.flat()]
 };
 module.exports = routes;
