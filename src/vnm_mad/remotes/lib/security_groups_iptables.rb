@@ -451,7 +451,7 @@ module SGIPTables
 
             ipv6s = Array.new
 
-            [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
+            [:ip6, :ip6_global, :ip6_link, :ip6_ula, :vrouter_ip6, :vrouter_ip6_global, :vrouter_ip6_link, :vrouter_ip6_ula].each do |key|
                 ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
             end
 
