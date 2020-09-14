@@ -16,42 +16,202 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/../../etc/vmm/kvm/kvmrc
-source $(dirname $0)/../../scripts_common.sh
+DRIVER_PATH=$(dirname $0)
+source "$DRIVER_PATH/../../etc/vmm/kvm/kvmrc"
+source "$DRIVER_PATH/../../scripts_common.sh"
+XPATH="$DRIVER_PATH/../../datastore/xpath.rb"
 
-deploy_id=$1
-dest_host=$2
+get_qemu_img_version() {
+    qemu-img --version | head -1 | awk '{print $3}' | \
+        sed -e 's/[^0-9\.]//' | awk -F. '{ printf("%d%03d%03d\n", $1,$2,$3); }'
+}
+
+is_readonly() {
+    local DOMAIN=$1
+    local DISK=$2
+
+    READ_ONLY=$(virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \
+        $XPATH --stdin --subtree \
+        "//domain/devices/disk[source/@file='$DISK']/readonly")
+
+    [ "$READ_ONLY" = '<readonly/>' ]
+}
+
+get_size_and_format_of_disk_img() {
+    local QEMU_IMG_PATH="$1"
+    local PARAM="$2"
+
+    if [ ! -f "$QEMU_IMG_PATH" ]; then
+        # assume network disk
+        echo unknown network-disk
+        return
+    fi
+
+    IMG_INFO=$(qemu-img info $PARAM "$QEMU_IMG_PATH" --output json)
+
+    if [ -z "$IMG_INFO" ]; then
+        echo "Failed to get image info for $QEMU_IMG_PATH"
+        exit 1
+    fi
+
+    SIZE=$(echo $IMG_INFO | sed -nE 's/^.*virtual-size.: ([0-9]+).*/\1/p')
+    FORMAT=$(echo $IMG_INFO | sed -nE 's/^.*format.: "([a-z0-9]+)".*/\1/p')
+
+    if [ -z "$SIZE" ] || [ -z "$FORMAT" ]; then
+        echo "Failed to get image $QEMU_IMG_PATH size or format"
+        exit 1
+    fi
+
+    echo $SIZE $FORMAT
+}
+
+create_target_disk_img() {
+    local DEST_HOST=$1
+    local QEMU_IMG_PATH="$2"
+    local SIZE="$3"
+    local IMG_DIR=$(dirname "$QEMU_IMG_PATH")
+
+    ssh_monitor_and_log "$DEST_HOST" \
+        "mkdir -v -p '$IMG_DIR'" \
+        "Failed to make remote directory for $QEMU_IMG_PATH image"
+
+    ssh_monitor_and_log "$DEST_HOST" \
+        "qemu-img create -f qcow2 '$QEMU_IMG_PATH' '$SIZE'" \
+        "Failed to create new qcow image for $QEMU_IMG_PATH"
+}
+
+STDIN=$(cat -)
+DEPLOY_ID=$1
+DEST_HOST=$2
+DISKS=$(virsh --connect $LIBVIRT_URI domblklist "$DEPLOY_ID" \
+    | tail -n+3 | awk '{print $2}' | tr '\n' ' ')
+
+unset i j XPATH_ELEMENTS
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(echo $STDIN| $XPATH \
+			/VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED \
+			/VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH)
+
+SHARED="${XPATH_ELEMENTS[j++]}"
+VM_DIR="${XPATH_ELEMENTS[j++]}"
+
+
+# use "force-share" param for qemu >= 2.10
+[ "$(get_qemu_img_version)" -ge 2010000 ] && QEMU_IMG_PARAM="-U"
 
 # migration can't be done with domain snapshots, drop them first
-snaps=$(monitor_and_log \
-   "virsh --connect $LIBVIRT_URI snapshot-list $deploy_id --name 2>/dev/null" \
-   "Failed to get snapshots for $deploy_id")
+SNAPS=$(monitor_and_log \
+   "virsh --connect $LIBVIRT_URI snapshot-list $DEPLOY_ID --name 2>/dev/null" \
+   "Failed to get snapshots for $DEPLOY_ID")
 
-for snap in $snaps; do
+for SNAP in $SNAPS; do
     exec_and_log \
-        "virsh --connect $LIBVIRT_URI snapshot-delete $deploy_id --snapshotname $snap --metadata" \
-        "Failed to delete snapshot $snap from $deploy_id"
+        "virsh --connect $LIBVIRT_URI snapshot-delete $DEPLOY_ID --snapshotname $SNAP --metadata" \
+        "Failed to delete snapshot $SNAP from $DEPLOY_ID"
 done
 
-# do live migration, but cleanup target host in case of error
-virsh --connect $LIBVIRT_URI migrate --live $MIGRATE_OPTIONS $deploy_id $QEMU_PROTOCOL://$dest_host/system
+if [ "$SHARED" = "YES" ]; then
+    virsh --connect $LIBVIRT_URI migrate \
+        --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system
 
-RC=$?
+    RC=$?
+else
+    if [[ -z "$DISKS" ]]; then
+        error_message "No disks discovered on the VM"
+        exit 1
+    fi
 
-if [ $RC -ne 0 ]; then
-    for CLEAN_OP in destroy undefine; do
-        virsh --connect $QEMU_PROTOCOL://$dest_host/system "${CLEAN_OP}" $deploy_id >/dev/null 2>&1
+    for DISK in $DISKS; do
+        read -r SIZE FORMAT <<<"$(get_size_and_format_of_disk_img "$DISK" "$QEMU_IMG_PARAM")"
+
+        if [ "$FORMAT" = "raw" ]; then
+            if ! is_readonly $DEPLOY_ID $DISK; then
+                RAW_DISKS+=" $DISK"
+            fi
+            # do initial rsync
+            exec_and_log "rsync $DISK $DEST_HOST:$DISK" \
+                "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
+
+        elif [ "$FORMAT" = "qcow2" ]; then
+            create_target_disk_img "$DEST_HOST" "$DISK" "$SIZE"
+
+        elif [ "$FORMAT" = "network-disk" ]; then
+            true # skip
+        fi
+
+        # copy disk snapshots
+        if [[ -d "${DISK}.snap"  ]]; then
+            DISK_DIR=$(dirname "$DISK")
+            exec_and_log "rsync -r ${DISK}.snap $DEST_HOST:$DISK_DIR" \
+                "Failed to rsync disk snapshot ${DISK}.snap to $DEST_HOST:$DISK_DIR"
+        fi
     done
 
-    error_message "Could not migrate $deploy_id to $dest_host"
+    # freeze/suspend domain and rsync raw disks again
+    if [ -n "$RAW_DISKS" ]; then
+        if virsh --connect $LIBVIRT_URI domfsfreeze $DEPLOY_ID; then
+            # local domfsthaw for the case migration fails
+            trap "virsh --connect $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
+            FREEZE="yes"
+        else
+            if virsh --connect $LIBVIRT_URI suspend $DEPLOY_ID; then
+                # local resume for the case migration fails
+                trap "virsh --connect $LIBVIRT_URI resume $DEPLOY_ID" EXIT TERM INT HUP
+                SUSPEND="yes"
+            else
+                error_message "Could not freeze or suspend the domain"
+                exit 1
+            fi
+        fi
+
+        for DISK in $RAW_DISKS; do
+            exec_and_log "rsync $DISK $DEST_HOST:$DISK" \
+                "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
+        done
+    fi
+
+    virsh --connect $LIBVIRT_URI migrate \
+        --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system \
+        --copy-storage-all
+    RC=$?
+
+    # remote domfsthaw/resume, give it time
+    if [ $RC -eq 0 ]; then
+        if [ "$FREEZE" = "yes" ]; then
+            for I in $(seq 5); do
+                virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system domfsthaw $DEPLOY_ID \
+                    && break
+                sleep 2
+            done
+        elif [ "$SUSPEND" = "yes" ]; then
+            for I in $(seq 5); do
+                virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system resume $DEPLOY_ID \
+                    && break
+                sleep 2
+            done
+        fi
+    fi
+fi
+
+# cleanup target host in case of error
+if [ $RC -ne 0 ]; then
+    for CLEAN_OP in destroy undefine; do
+        virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system "${CLEAN_OP}" $DEPLOY_ID >/dev/null 2>&1
+    done
+
+    ssh $DEST_HOST "rm -rf $VM_DIR"
+
+    error_message "Could not migrate $DEPLOY_ID to $DEST_HOST"
     exit $RC
 fi
 
+# sync time delay
 if [ "$SYNC_TIME" = "yes" ]; then
     (
-        for i in $(seq 3); do
-            virsh --connect $QEMU_PROTOCOL://$dest_host/system domtime --sync $deploy_id && break
-            [ "$i" -gt 1 ] && sleep 6
+        for I in $(seq 3); do
+            virsh --connect $QEMU_PROTOCOL://$DEST_HOST/system domtime --sync $DEPLOY_ID && break
+            [ "$I" -gt 1 ] && sleep 6
         done
     ) &> /dev/null &
 fi
