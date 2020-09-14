@@ -1146,7 +1146,7 @@ void VirtualMachineManager::trigger_migrate(int vid)
             "",
             os.str(),
             "",
-            "",
+            vm->get_system_dir(),
             vm->to_xml(vm_tmpl),
             vm->get_previous_ds_id(),
             -1);
