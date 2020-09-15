@@ -1126,29 +1126,25 @@ module VCenterDriver
                 case nr[:action]
                 when :update_dpg
                     begin
-                            nr[:dpg]
-                                .ReconfigureDVPortgroup_Task(
-                                    :spec => nr[:spec]
-                                ).wait_for_completion
+                        nr[:dpg].ReconfigureDVPortgroup_Task(:spec => nr[:spec])
+                                .wait_for_completion
                     rescue StandardError => e
                         raise "A rollback operation for distributed \
                         port group #{nr[:name]} could not \
                         be performed. Reason: #{e.message}"
-                        end
+                    end
                 when :update_dvs
                     begin
-                            nr[:dvs]
-                                .ReconfigureDvs_Task(
-                                    :spec => nr[:spec]
-                                ).wait_for_completion
+                        nr[:dvs].ReconfigureDvs_Task(:spec => nr[:spec])
+                                .wait_for_completion
                     rescue StandardError => e
                         raise "A rollback operation for distributed\
                          standard switch #{nr[:name]} could \
                          not be performed. Reason: #{e.message}"
-                        end
+                    end
                 when :delete_dvs
                     begin
-                            nr[:dvs].Destroy_Task.wait_for_completion
+                        nr[:dvs].Destroy_Task.wait_for_completion
                     rescue RbVmomi::VIM::ResourceInUse
                         next # Ignore if switch in use
                     rescue RbVmomi::VIM::NotFound
@@ -1157,7 +1153,7 @@ module VCenterDriver
                         raise "A rollback operation \
                         for standard switch #{nr[:name]} \
                             could not be performed. Reason: #{e.message}"
-                        end
+                    end
                 when :delete_dpg
                     begin
                         nr[:dpg].Destroy_Task.wait_for_completion

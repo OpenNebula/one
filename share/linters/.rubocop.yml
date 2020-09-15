@@ -727,6 +727,9 @@ Style/GlobalStdStream:
 # LINT
 ######
 
+Lint/ConstantDefinitionInBlock:
+    Enabled: false
+
 Lint/FloatComparison:
     Enabled: false
 
