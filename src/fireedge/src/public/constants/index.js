@@ -16,7 +16,7 @@
 module.exports = {
   jwtName: 'SunstoneToken',
   by: {
-    text: 'Opennebula',
+    text: 'OpenNebula',
     url: 'https://opennebula.io/'
   },
   endpointsRoutes: {
