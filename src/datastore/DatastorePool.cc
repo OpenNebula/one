@@ -62,7 +62,6 @@ DatastorePool::DatastorePool(
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
-        DatastoreTemplate * ds_tmpl;
         int      rc;
         set<int> cluster_ids;
 
@@ -76,7 +75,7 @@ DatastorePool::DatastorePool(
             << "TYPE   = SYSTEM_DS" << endl
             << "TM_MAD = ssh";
 
-        ds_tmpl = new DatastoreTemplate;
+        auto ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
 
         if( rc < 0 )
@@ -89,7 +88,7 @@ DatastorePool::DatastorePool(
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 0137,
-                ds_tmpl,
+                move(ds_tmpl),
                 &rc,
                 cluster_ids,
                 error_str);
@@ -109,7 +108,7 @@ DatastorePool::DatastorePool(
             << "DS_MAD = fs" << endl
             << "TM_MAD = ssh";
 
-        ds_tmpl = new DatastoreTemplate;
+        ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
 
         if( rc < 0 )
@@ -122,7 +121,7 @@ DatastorePool::DatastorePool(
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 0137,
-                ds_tmpl,
+                move(ds_tmpl),
                 &rc,
                 cluster_ids,
                 error_str);
@@ -142,7 +141,7 @@ DatastorePool::DatastorePool(
             << "DS_MAD = fs" << endl
             << "TM_MAD = ssh";
 
-        ds_tmpl = new DatastoreTemplate;
+        ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
 
         if( rc < 0 )
@@ -155,7 +154,7 @@ DatastorePool::DatastorePool(
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 0137,
-                ds_tmpl,
+                move(ds_tmpl),
                 &rc,
                 cluster_ids,
                 error_str);
@@ -191,7 +190,7 @@ int DatastorePool::allocate(
         const string&       uname,
         const string&       gname,
         int                 umask,
-        DatastoreTemplate * ds_template,
+        std::unique_ptr<DatastoreTemplate> ds_template,
         int *               oid,
         const set<int>      &cluster_ids,
         string&             error_str)
@@ -204,7 +203,7 @@ int DatastorePool::allocate(
     ostringstream oss;
 
     ds = new Datastore(uid, gid, uname, gname, umask,
-            ds_template, cluster_ids);
+            move(ds_template), cluster_ids);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

@@ -186,7 +186,7 @@ void VirtualNetworkReserve::request_execute(
     int rc;
     set<int> cluster_ids;
 
-    VirtualNetworkTemplate * vtmpl;
+    unique_ptr<VirtualNetworkTemplate> vtmpl;
 
     PoolObjectAuth reserv_perms;
 
@@ -352,8 +352,6 @@ void VirtualNetworkReserve::request_execute(
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
 
-        delete vtmpl;
-
         return;
     }
 
@@ -365,7 +363,7 @@ void VirtualNetworkReserve::request_execute(
         vtmpl->replace("NAME", name);
 
         rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                id, vtmpl, &rid, cluster_ids, att.resp_msg);
+                id, move(vtmpl), &rid, cluster_ids, att.resp_msg);
 
         if (rc < 0)
         {

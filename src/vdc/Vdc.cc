@@ -26,7 +26,7 @@ const int    Vdc::ALL_RESOURCES = -10;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Vdc::Vdc(int id, Template* vdc_template):
+Vdc::Vdc(int id, unique_ptr<Template> vdc_template):
         PoolObjectSQL(id, VDC, "", -1, -1, "", "", one_db::vdc_table),
         clusters(PoolObjectSQL::CLUSTER),
         hosts(PoolObjectSQL::HOST),
@@ -34,13 +34,13 @@ Vdc::Vdc(int id, Template* vdc_template):
         vnets(PoolObjectSQL::NET)
 
 {
-    if (vdc_template != 0)
+    if (vdc_template)
     {
-        obj_template = vdc_template;
+        obj_template = move(vdc_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 }
 

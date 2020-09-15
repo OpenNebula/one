@@ -658,19 +658,17 @@ int VirtualMachine::parse_file_attribute(string       attribute,
 int VirtualMachine::parse_public_clouds(const char * pname, string& error)
 {
     vector<VectorAttribute *>           attrs;
-    vector<VectorAttribute *>::iterator it;
 
-    string * str;
     string p_vatt;
 
     int rc  = 0;
     int num = user_obj_template->remove(pname, attrs);
 
-    for (it = attrs.begin(); it != attrs.end(); it++)
+    for (auto attr : attrs)
     {
-        str = (*it)->marshall();
+        string str = attr->marshall();
 
-        if ( str == 0 )
+        if ( str.empty() )
         {
             ostringstream oss;
             oss << "Internal error processing " << pname;
@@ -679,9 +677,7 @@ int VirtualMachine::parse_public_clouds(const char * pname, string& error)
             break;
         }
 
-        rc = parse_template_attribute(*str, p_vatt, error);
-
-        delete str;
+        rc = parse_template_attribute(str, p_vatt, error);
 
         if ( rc != 0 )
         {

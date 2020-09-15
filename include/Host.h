@@ -304,9 +304,9 @@ public:
     /**
      *  Factory method for host templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new HostTemplate;
+        return std::make_unique<HostTemplate>();
     }
 
     /**

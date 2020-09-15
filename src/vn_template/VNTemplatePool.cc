@@ -31,12 +31,10 @@ int VNTemplatePool::allocate (
         const string&            uname,
         const string&            gname,
         int                      umask,
-        VirtualNetworkTemplate * template_contents,
+        unique_ptr<VirtualNetworkTemplate> template_contents,
         int *                    oid,
         string&                  error_str)
 {
-    VNTemplate *  vn_template;
-
     int     db_oid;
     string  name;
 
@@ -45,7 +43,8 @@ int VNTemplatePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new VNTemplate object
     // ------------------------------------------------------------------------
-    vn_template = new VNTemplate(-1, uid, gid, uname, gname, umask, template_contents);
+    auto vn_template = new VNTemplate(-1, uid, gid, uname, gname, umask,
+                                      move(template_contents));
 
     // Check name
     vn_template->get_template_attribute("NAME", name);
@@ -67,7 +66,7 @@ int VNTemplatePool::allocate (
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
-    *oid = PoolSQL::allocate(vn_template, error_str);
+    *oid = PoolSQL::allocate(move(vn_template), error_str);
 
     return *oid;
 

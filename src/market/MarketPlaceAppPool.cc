@@ -73,7 +73,7 @@ int MarketPlaceAppPool:: allocate(
             const std::string& uname,
             const std::string& gname,
             int                umask,
-            MarketPlaceAppTemplate * apptemplate,
+            std::unique_ptr<MarketPlaceAppTemplate> apptemplate,
             int                mp_id,
             const std::string& mp_name,
             int *              oid,
@@ -90,7 +90,7 @@ int MarketPlaceAppPool:: allocate(
     // -------------------------------------------------------------------------
     // Build the marketplace app object
     // -------------------------------------------------------------------------
-    mp = new MarketPlaceApp(uid, gid, uname, gname, umask, apptemplate);
+    mp = new MarketPlaceApp(uid, gid, uname, gname, umask, move(apptemplate));
 
     mp->market_id   = mp_id;
     mp->market_name = mp_name;

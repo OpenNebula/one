@@ -94,7 +94,7 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
     VNTemplatePool*     vntpool = nd.get_vntpool();
     ClusterPool*        clpool  = nd.get_clpool();
 
-    VirtualNetworkTemplate * tmpl;
+    unique_ptr<VirtualNetworkTemplate> tmpl;
     VirtualNetworkTemplate extended_tmpl;
 
     string tmpl_name;
@@ -131,11 +131,10 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
         cluster_ids.insert(0);
     }
 
-    ErrorCode ec = merge(tmpl, str_uattrs, att);
+    ErrorCode ec = merge(tmpl.get(), str_uattrs, att);
 
     if (ec != SUCCESS)
     {
-        delete tmpl;
         return ec;
     }
 
@@ -144,11 +143,10 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
         tmpl->merge(extra_attrs);
     }
 
-    ec = as_uid_gid(tmpl, att);
+    ec = as_uid_gid(tmpl.get(), att);
 
     if ( ec != SUCCESS )
     {
-        delete tmpl;
         return ec;
     }
 
@@ -174,12 +172,11 @@ Request::ErrorCode VNTemplateInstantiate::request_execute(int id, string name,
     {
         att.resp_msg = ar.message;
 
-        delete tmpl;
         return AUTHORIZATION;
     }
 
     rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            -1, tmpl, &vid, cluster_ids, att.resp_msg);
+            -1, move(tmpl), &vid, cluster_ids, att.resp_msg);
 
     if ( rc < 0 )
     {

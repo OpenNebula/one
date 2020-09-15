@@ -94,7 +94,7 @@ private:
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    Zone(int id, Template* zone_template);
+    Zone(int id, std::unique_ptr<Template> zone_template);
 
     // -------------------------------------------------------------------------
     // Zone servers
@@ -143,9 +143,9 @@ private:
     /**
      *  Factory method for Zone templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
     /**

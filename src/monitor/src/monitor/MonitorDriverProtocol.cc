@@ -355,7 +355,7 @@ void MonitorDriverProtocol::_start_monitor(unique_ptr<monitor_msg_t> msg)
 
         ssl_util::base64_decode(payload64, payload);
 
-        unique_ptr<monitor_msg_t> m(new monitor_msg_t);
+        auto m = make_unique<monitor_msg_t>();
 
         m->type(it);
 

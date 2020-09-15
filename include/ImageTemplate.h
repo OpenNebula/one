@@ -27,7 +27,7 @@ class ImageTemplate : public Template
 public:
     ImageTemplate() : Template(true,'=',"TEMPLATE"){};
 
-    ImageTemplate(const ImageTemplate& tmpl):Template(tmpl){};
+    ImageTemplate(const Template& tmpl):Template(tmpl){};
 
     ~ImageTemplate(){};
 

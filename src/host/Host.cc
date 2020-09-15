@@ -44,7 +44,7 @@ Host::Host(
         vmm_mad_name(_vmm_mad_name),
         vm_collection("VMS")
 {
-    obj_template = new HostTemplate;
+    obj_template = make_unique<HostTemplate>();
 
     add_template_attribute("RESERVED_CPU", "");
     add_template_attribute("RESERVED_MEM", "");

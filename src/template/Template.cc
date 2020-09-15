@@ -171,21 +171,18 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
 
 void Template::marshall(string &str, const char delim)
 {
-    multimap<string,Attribute *>::iterator  it;
-    string *                                attr;
+    str = "";
 
-    for(it=attributes.begin(),str="";it!=attributes.end();it++)
+    for(auto it = attributes.begin(); it != attributes.end(); it++)
     {
-        attr = it->second->marshall();
+        string attr = it->second->marshall();
 
-        if ( attr == 0 )
+        if ( attr.empty() )
         {
             continue;
         }
 
-        str += it->first + "=" + *attr + delim;
-
-        delete attr;
+        str += it->first + "=" + attr + delim;
     }
 }
 
@@ -487,16 +484,12 @@ string& Template::to_token(string& str) const
 string& Template::to_str(string& str) const
 {
     ostringstream os;
-    multimap<string,Attribute *>::const_iterator  it;
-    string *                                s;
 
-    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
     {
-        s = it->second->marshall(",");
+        string s = it->second->marshall(",");
 
-        os << it->first << separator << *s << endl;
-
-        delete s;
+        os << it->first << separator << s << endl;
     }
 
     str = os.str();

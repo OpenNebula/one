@@ -96,7 +96,7 @@ int VirtualMachineBase::init_attributes()
     /**************************************************************************/
     if (get_nodes("/VM/TEMPLATE", nodes) > 0)
     {
-        vm_template = new VirtualMachineTemplate;
+        vm_template = make_unique<VirtualMachineTemplate>();
 
         vm_template->from_xml_node(nodes[0]);
 
@@ -111,7 +111,7 @@ int VirtualMachineBase::init_attributes()
 
     if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
     {
-        user_template = new VirtualMachineTemplate;
+        user_template = make_unique<VirtualMachineTemplate>();
 
         user_template->from_xml_node(nodes[0]);
 

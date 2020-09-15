@@ -51,12 +51,12 @@ public:
                  const std::string&       uname,
                  const std::string&       gname,
                  int                      umask,
-                 Template *               template_contents,
+                 std::unique_ptr<Template> template_contents,
                  int *                    oid,
                  std::string&             error_str)
     {
         *oid = PoolSQL::allocate(
-            new VirtualRouter(-1, uid, gid, uname, gname, umask, template_contents),
+            new VirtualRouter(-1, uid, gid, uname, gname, umask, move(template_contents)),
             error_str);
 
         return *oid;

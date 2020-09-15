@@ -56,7 +56,7 @@ protected:
 	/**
      *  Function to clone the base template
      */
-    virtual Template * clone_template(PoolObjectSQL* obj) = 0;
+    virtual std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) = 0;
 
 	/**
      *  Function to merge user/additional attributes in the cloned object
@@ -70,8 +70,8 @@ protected:
 	/**
      *  Function to allocated the new clone object
      */
-    virtual int pool_allocate(int source_id, Template * tmpl, int& id,
-            RequestAttributes& att) = 0;
+    virtual int pool_allocate(int source_id, std::unique_ptr<Template> tmpl,
+                              int& id, RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -107,20 +107,21 @@ protected:
                     bool recursive, const std::string& s_a,
                     RequestAttributes& att) override;
 
-    Template * clone_template(PoolObjectSQL* obj) override
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<VMTemplate*>(obj)->clone_template();
-    };
+    }
 
-    int pool_allocate(int sid, Template * tmpl, int& id,
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl, int& id,
                       RequestAttributes& att) override
     {
         VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
-        VirtualMachineTemplate * t = static_cast<VirtualMachineTemplate*>(tmpl);
+        std::unique_ptr<VirtualMachineTemplate> t(
+            static_cast<VirtualMachineTemplate*>(tmpl.release()));
 
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                t, &id, att.resp_msg);
-    };
+                std::move(t), &id, att.resp_msg);
+    }
 
     ErrorCode merge(Template * tmpl, const std::string &s_a,
                     RequestAttributes& att) override
@@ -161,19 +162,21 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj) override
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<VNTemplate*>(obj)->clone_template();
-    };
+    }
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl,
+                      int& id, RequestAttributes& att) override
     {
         VNTemplatePool * tpool     = static_cast<VNTemplatePool *>(pool);
-        VirtualNetworkTemplate * t = static_cast<VirtualNetworkTemplate*>(tmpl);
+        std::unique_ptr<VirtualNetworkTemplate> t(
+            static_cast<VirtualNetworkTemplate*>(tmpl.release()));
 
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                t, &id, att.resp_msg);
-    };
+                std::move(t), &id, att.resp_msg);
+    }
 
 };
 
@@ -197,12 +200,13 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj) override
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<Document*>(obj)->clone_template();
-    };
+    }
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl,
+                      int& id, RequestAttributes& att) override
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
         auto           doc     = docpool->get_ro(sid);
@@ -215,8 +219,8 @@ protected:
         int dtype = doc->get_document_type();
 
         return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
-            att.umask, dtype, tmpl, &id, att.resp_msg);
-    };
+            att.umask, dtype, std::move(tmpl), &id, att.resp_msg);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -239,18 +243,19 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj) override
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<SecurityGroup*>(obj)->clone_template();
-    };
+    }
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att) override
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl,
+                      int& id, RequestAttributes& att) override
     {
         SecurityGroupPool * sg = static_cast<SecurityGroupPool *>(pool);
 
         return sg->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                tmpl, &id, att.resp_msg);
-    };
+                std::move(tmpl), &id, att.resp_msg);
+    }
 };
 
 /* -------------------------------------------------------------------------- */

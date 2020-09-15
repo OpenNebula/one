@@ -20,8 +20,8 @@
 using namespace std;
 
 int VMGroupPool::allocate(int uid, int gid, const string& uname,
-        const string& gname, int umask, Template * vmgroup_template, int * oid,
-        string& error_str)
+        const string& gname, int umask, unique_ptr<Template> vmgroup_template,
+        int * oid, string& error_str)
 {
     VMGroup * vmgrp;
 
@@ -30,7 +30,7 @@ int VMGroupPool::allocate(int uid, int gid, const string& uname,
 
     ostringstream os;
 
-    vmgrp = new VMGroup(uid, gid, uname, gname, umask, vmgroup_template);
+    vmgrp = new VMGroup(uid, gid, uname, gname, umask, move(vmgroup_template));
 
     vmgrp->get_template_attribute("NAME", name);
 

@@ -43,7 +43,7 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                int                      _umask,
                                int                      _pvid,
                                const set<int>           &_cluster_ids,
-                               VirtualNetworkTemplate * _vn_template):
+                               unique_ptr<VirtualNetworkTemplate> _vn_template):
             PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,one_db::vn_table),
             Clusterable(_cluster_ids),
             bridge(""),
@@ -52,13 +52,13 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
             parent_vid(_pvid),
             vrouters("VROUTERS")
 {
-    if (_vn_template != 0)
+    if (_vn_template)
     {
-        obj_template = _vn_template;
+        obj_template = move(_vn_template);
     }
     else
     {
-        obj_template = new VirtualNetworkTemplate;
+        obj_template = make_unique<VirtualNetworkTemplate>();
     }
 
     set_umask(_umask);
@@ -274,7 +274,8 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     // -------------------------------------------------------------------------
     // Check consistency for PHYDEV, BRIDGE and VLAN_IDs based on the driver
     // -------------------------------------------------------------------------
-    rc = parse_phydev_vlans(obj_template, vn_mad, phydev, bridge, vlan_id_automatic, vlan_id,
+    rc = parse_phydev_vlans(obj_template.get(), vn_mad, phydev, bridge,
+                            vlan_id_automatic, vlan_id,
                             outer_vlan_id_automatic, outer_vlan_id, error_str);
 
     if (rc != 0)

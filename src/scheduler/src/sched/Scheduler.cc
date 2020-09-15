@@ -1702,9 +1702,9 @@ int Scheduler::do_scheduled_actions()
 
         vm = static_cast<VirtualMachineXML *>(vm_it->second);
 
-        SchedActions * sas = vm->get_actions();
+        SchedActions sas = vm->get_actions();
 
-        for ( action = sas->begin(); action != sas->end(); ++action)
+        for ( action = sas.begin(); action != sas.end(); ++action)
         {
             ostringstream oss;
 
@@ -1761,12 +1761,10 @@ int Scheduler::do_scheduled_actions()
             NebulaLog::log("VM", Log::INFO, oss);
         }
 
-        if ( !sas->empty() ) //Do not update VMs without SCHED_ACTION
+        if ( !sas.empty() ) //Do not update VMs without SCHED_ACTION
         {
             vmpool->update(vm);
         }
-
-        delete sas;
     }
 
     return 0;

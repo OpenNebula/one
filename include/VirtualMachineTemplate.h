@@ -37,7 +37,7 @@ public:
 
     ~VirtualMachineTemplate(){};
 
-    VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};
+    VirtualMachineTemplate(const Template& vmt):Template(vmt){};
 
     VirtualMachineTemplate& operator=(const VirtualMachineTemplate& t)
     {

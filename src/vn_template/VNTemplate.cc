@@ -30,17 +30,17 @@ VNTemplate::VNTemplate(int id,
                        const string& _uname,
                        const string& _gname,
                        int umask,
-                       VirtualNetworkTemplate * _template_contents):
+                       unique_ptr<VirtualNetworkTemplate> _template_contents):
     PoolObjectSQL(id,VNTEMPLATE,"",_uid,_gid,_uname,_gname,one_db::vn_template_table),
     regtime(time(0))
 {
-    if (_template_contents != 0)
+    if (_template_contents)
     {
-        obj_template = _template_contents;
+        obj_template = move(_template_contents);
     }
     else
     {
-        obj_template = new VirtualNetworkTemplate;
+        obj_template = make_unique<VirtualNetworkTemplate>();
     }
 
     set_umask(umask);
@@ -87,7 +87,8 @@ int VNTemplate::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("OUTER_VLAN_ID", outer_id);
 
-    rc = VirtualNetwork::parse_phydev_vlans(obj_template, vn_mad, phydev, bridge, auto_id, vlan_id, auto_outer, outer_id, error_str);
+    rc = VirtualNetwork::parse_phydev_vlans(obj_template.get(), vn_mad, phydev,
+            bridge, auto_id, vlan_id, auto_outer, outer_id, error_str);
 
     if (rc == -1)
     {

@@ -21,7 +21,7 @@
 using namespace std;
 
 
-int HookPool::allocate (Template * tmpl, string& error_str)
+int HookPool::allocate(unique_ptr<Template> tmpl, string& error_str)
 {
     Hook * hook;
     int db_oid;
@@ -45,7 +45,7 @@ int HookPool::allocate (Template * tmpl, string& error_str)
         goto error_duplicated;
     }
 
-    hook = new Hook(tmpl);
+    hook = new Hook(move(tmpl));
 
     oid = PoolSQL::allocate(hook, error_str);
 

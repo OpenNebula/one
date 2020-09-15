@@ -259,10 +259,10 @@ int PoolObjectSQL::replace_template(
 {
     string ra;
 
-    Template * old_tmpl = 0;
-    Template * new_tmpl = get_new_template();
+    unique_ptr<Template> old_tmpl = 0;
+    unique_ptr<Template> new_tmpl = get_new_template();
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -270,51 +270,43 @@ int PoolObjectSQL::replace_template(
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
-    if (obj_template != 0)
+    if (obj_template)
     {
-        if ( keep_restricted &&  new_tmpl->check_restricted(ra, obj_template) )
+        if ( keep_restricted &&
+             new_tmpl->check_restricted(ra, obj_template.get()) )
         {
             error = "Tried to change restricted attribute: " + ra;
 
-            delete new_tmpl;
             return -1;
         }
 
-        old_tmpl = new Template(*obj_template);
+        old_tmpl = std::make_unique<Template>(*obj_template);
     }
     else if ( keep_restricted && new_tmpl->check_restricted(ra) )
     {
         error = "Tried to set restricted attribute: " + ra;
 
-        delete new_tmpl;
         return -1;
     }
 
-    delete obj_template;
-
-    obj_template = new_tmpl;
+    obj_template = move(new_tmpl);
 
     if (post_update_template(error) == -1)
     {
-        delete obj_template;
-
-        if (old_tmpl != 0)
+        if (old_tmpl)
         {
-            obj_template = old_tmpl;
+            obj_template = move(old_tmpl);
         }
         else
         {
-            obj_template = 0;
+            obj_template = nullptr;
         }
 
         return -1;
     }
-
-    delete old_tmpl;
 
     encrypt();
 
@@ -327,11 +319,11 @@ int PoolObjectSQL::replace_template(
 int PoolObjectSQL::append_template(
         const string& tmpl_str, bool keep_restricted, string& error)
 {
-    Template * old_tmpl = 0;
-    Template * new_tmpl = get_new_template();
+    unique_ptr<Template> old_tmpl;
+    unique_ptr<Template> new_tmpl = get_new_template();
     string rname;
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -339,50 +331,42 @@ int PoolObjectSQL::append_template(
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
-    if ( obj_template != 0 )
+    if ( obj_template )
     {
-        if (keep_restricted && new_tmpl->check_restricted(rname, obj_template))
+        if (keep_restricted &&
+            new_tmpl->check_restricted(rname, obj_template.get()))
         {
             error ="User Template includes a restricted attribute " + rname;
-            delete new_tmpl;
             return -1;
         }
-        obj_template->merge(new_tmpl);
-
-        delete new_tmpl;
+        obj_template->merge(new_tmpl.get());
     }
     else
     {
         if (keep_restricted && new_tmpl->check_restricted(rname))
         {
             error ="User Template includes a restricted attribute " + rname;
-            delete new_tmpl;
             return -1;
         }
-        obj_template = new_tmpl;
+        obj_template = move(new_tmpl);
     }
 
     if (post_update_template(error) == -1)
     {
-        delete obj_template;
-
-        if (old_tmpl != 0)
+        if (old_tmpl)
         {
-            obj_template = old_tmpl;
+            obj_template = move(old_tmpl);
         }
         else
         {
-            obj_template = 0;
+            obj_template = nullptr;
         }
 
         return -1;
     }
-
-    delete old_tmpl;
 
     encrypt();
 

@@ -34,7 +34,7 @@ Group::Group(int id, const string& name):
     // Allow users in this group to see it
     group_u = 1;
 
-    obj_template = new GroupTemplate;
+    obj_template = make_unique<GroupTemplate>();
 }
 
 /* ************************************************************************ */

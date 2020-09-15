@@ -304,7 +304,7 @@ Request::ErrorCode ImageClone::request_execute(
     Image::DiskType disk_type;
     PoolObjectAuth  perms, ds_perms, ds_perms_orig;
 
-    ImageTemplate * tmpl;
+    unique_ptr<ImageTemplate> tmpl;
     Template        img_usage;
 
     Nebula&  nd = Nebula::instance();
@@ -365,7 +365,7 @@ Request::ErrorCode ImageClone::request_execute(
     }
     else //Update from base image
     {
-        Image::test_set_persistent(tmpl, att.uid, att.gid, false);
+        Image::test_set_persistent(tmpl.get(), att.uid, att.gid, false);
     }
 
     // ----------------------- Get target Datastore info -----------------------
@@ -376,7 +376,6 @@ Request::ErrorCode ImageClone::request_execute(
         {
             att.resp_msg = "Clone only supported for IMAGE_DS Datastores";
 
-            delete tmpl;
             return ACTION;
         }
 
@@ -396,7 +395,6 @@ Request::ErrorCode ImageClone::request_execute(
         att.resp_obj = PoolObjectSQL::DATASTORE;
         att.resp_id  = ds_id;
 
-        delete tmpl;
         return NO_EXISTS;
     }
 
@@ -409,7 +407,6 @@ Request::ErrorCode ImageClone::request_execute(
             att.resp_obj = PoolObjectSQL::DATASTORE;
             att.resp_id  = ds_id_orig;
 
-            delete tmpl;
             return NO_EXISTS;
         }
 
@@ -417,7 +414,6 @@ Request::ErrorCode ImageClone::request_execute(
         {
             att.resp_msg = "Clone only supported for IMAGE_DS Datastores";
 
-            delete tmpl;
             return ACTION;
         }
 
@@ -425,7 +421,6 @@ Request::ErrorCode ImageClone::request_execute(
         {
             att.resp_msg = "Clone only supported to same DS_MAD Datastores";
 
-            delete tmpl;
             return ACTION;
         }
 
@@ -441,7 +436,6 @@ Request::ErrorCode ImageClone::request_execute(
     {
         att.resp_msg = "Not enough space in datastore";
 
-        delete tmpl;
         return ACTION;
     }
 
@@ -471,7 +465,6 @@ Request::ErrorCode ImageClone::request_execute(
     {
         att.resp_msg = ar.message;
 
-        delete tmpl;
         return AUTHORIZATION;
     }
 
@@ -480,7 +473,6 @@ Request::ErrorCode ImageClone::request_execute(
     if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
                 att.resp_msg) == false )
     {
-        delete tmpl;
         return AUTHORIZATION;
     }
 
@@ -489,7 +481,7 @@ Request::ErrorCode ImageClone::request_execute(
                          att.uname,
                          att.gname,
                          att.umask,
-                         tmpl,
+                         move(tmpl),
                          ds_id,
                          ds_name,
                          disk_type,

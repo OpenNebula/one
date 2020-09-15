@@ -1164,6 +1164,8 @@ void Nebula::start(bool bootstrap_only)
     // Stop the managers & free resources
     // -----------------------------------------------------------
 
+    rm->finalize();
+
     if (!cache)
     {
         vmm->finalize();
@@ -1193,7 +1195,6 @@ void Nebula::start(bool bootstrap_only)
     raftm->finalize();
     aclm->finalize();
 
-    rm->finalize();
     authm->finalize();
 
     authm->join_thread();

@@ -322,7 +322,7 @@ private:
     // Constructor
     // *************************************************************************
 
-    Vdc(int id, Template* vdc_template);
+    Vdc(int id, std::unique_ptr<Template> vdc_template);
 
     // *************************************************************************
     // Attributes (Private)
@@ -382,9 +382,9 @@ private:
     /**
      *  Factory method for Vdc templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 };
 

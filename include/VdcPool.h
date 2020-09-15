@@ -43,7 +43,7 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(Template *   vdc_template,
+    int allocate(std::unique_ptr<Template> vdc_template,
                  int *        oid,
                  std::string& error_str);
 

@@ -77,17 +77,17 @@ VirtualRouter::VirtualRouter(   int             id,
                                 const string&   _uname,
                                 const string&   _gname,
                                 int             _umask,
-                                Template * _template_contents):
+                                unique_ptr<Template> _template_contents):
         PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,one_db::vr_table),
         vms("VMS")
 {
-    if (_template_contents != 0)
+    if (_template_contents)
     {
-        obj_template = _template_contents;
+        obj_template = move(_template_contents);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 
     set_umask(_umask);
@@ -156,7 +156,7 @@ int VirtualRouter::drop(SqlDB * db)
     {
         release_network_leases();
 
-        Quotas::quota_del(Quotas::VIRTUALROUTER, uid, gid, obj_template);
+        Quotas::quota_del(Quotas::VIRTUALROUTER, uid, gid, obj_template.get());
     }
 
     return rc;
@@ -509,10 +509,10 @@ Template * VirtualRouter::get_vm_template() const
 int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
 		string& error)
 {
-    Template * new_tmpl = get_new_template();
+    auto       new_tmpl = get_new_template();
     string     new_str;
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -520,24 +520,21 @@ int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
     new_tmpl->erase("NIC");
 
     vector<const VectorAttribute*> nics;
-	vector<const VectorAttribute*>::const_iterator it;
 
     get_template_attribute("NIC", nics);
 
-    for (it = nics.begin(); it != nics.end(); it++)
+    for (auto nic : nics)
     {
-        new_tmpl->set((*it)->clone());
+        new_tmpl->set(nic->clone());
     }
 
     new_tmpl->to_xml(new_str);
-    delete new_tmpl;
 
     return PoolObjectSQL::replace_template(new_str, keep_restricted, error);
 }
@@ -548,10 +545,10 @@ int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
 int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
 	   	string& error)
 {
-    Template * new_tmpl = get_new_template();
+    auto       new_tmpl = get_new_template();
     string     new_str;
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -559,14 +556,12 @@ int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
     new_tmpl->erase("NIC");
 
     new_tmpl->to_xml(new_str);
-    delete new_tmpl;
 
     return PoolObjectSQL::append_template(new_str, keep_restricted, error);
 }

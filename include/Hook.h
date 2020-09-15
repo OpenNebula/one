@@ -95,7 +95,7 @@ private:
     // Constructor/Destructor
     // *************************************************************************
 
-    Hook(Template * tmpl);
+    Hook(std::unique_ptr<Template> tmpl);
 
     /**
      * Set hook implementation attribute depending of the hook type.
@@ -105,9 +105,9 @@ private:
     /**
      *  Factory method for Hook templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
 

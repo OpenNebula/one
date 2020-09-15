@@ -410,7 +410,7 @@ public:
      */
     bool is_saving()
     {
-        return (static_cast<ImageTemplate *>(obj_template))->is_saving();
+        return static_cast<ImageTemplate*>(obj_template.get())->is_saving();
     }
 
     /**
@@ -482,9 +482,9 @@ public:
     /**
      *  Factory method for image templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new ImageTemplate;
+        return std::make_unique<ImageTemplate>();
     }
 
     /**
@@ -517,7 +517,7 @@ public:
      * @param new_name Value for the NAME attribute
      * @return Pointer to the new tempalte 0 in case of success
      */
-    ImageTemplate * clone_template(const std::string& new_name) const;
+    std::unique_ptr<ImageTemplate> clone_template(const std::string& new_name) const;
 
     /* ---------------------------------------------------------------------- */
     /* Snapshots functions                                                    */
@@ -718,7 +718,7 @@ protected:
           const std::string&  uname,
           const std::string&  gname,
           int                 umask,
-          ImageTemplate*      img_template);
+          std::unique_ptr<ImageTemplate> img_template);
 
     // *************************************************************************
     // DataBase implementation

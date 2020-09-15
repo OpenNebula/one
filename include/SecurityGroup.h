@@ -48,10 +48,10 @@ public:
      *  Returns a copy of the Template
      *    @return A copy of the Template
      */
-    Template * clone_template() const
+    std::unique_ptr<Template> clone_template() const
     {
-        return new Template(*obj_template);
-    };
+        return std::make_unique<Template>(*obj_template);
+    }
 
     /* ---------------------------------------------------------------------- */
     /*   Access VM Counter                                                    */
@@ -171,7 +171,7 @@ private:
                     const std::string& _uname,
                     const std::string& _gname,
                     int                _umask,
-                    Template*          sgroup_template);
+                    std::unique_ptr<Template> sgroup_template);
 
     /**
      *  Check that a rule is valid
@@ -228,9 +228,9 @@ private:
     /**
      *  Factory method for SecurityGroup templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
     /**

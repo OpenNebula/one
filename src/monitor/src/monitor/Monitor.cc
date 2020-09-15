@@ -44,8 +44,8 @@ void Monitor::start()
             oned_filename);
     }
 
-    config.reset(new MonitorConfigTemplate(get_defaults_location(),
-                conf_filename));
+    config = make_unique<MonitorConfigTemplate>(get_defaults_location(),
+                conf_filename);
 
     if (config->load_configuration() != 0)
     {
@@ -104,7 +104,7 @@ void Monitor::start()
         int    timeout;
         _db->vector_value("TIMEOUT", timeout, 2500);
 
-        sqlDB.reset(new SqliteDB(get_var_location() + "one.db", timeout));
+        sqlDB = make_unique<SqliteDB>(get_var_location() + "one.db", timeout);
     }
     else
     {
@@ -129,13 +129,13 @@ void Monitor::start()
 
         if ( db_backend == "postgresql" )
         {
-            sqlDB.reset(new PostgreSqlDB(server, port, user, passwd, db_name,
-                    connections));
+            sqlDB = make_unique<PostgreSqlDB>(server, port, user, passwd, db_name,
+                    connections);
         }
         else if ( db_backend == "mysql" )
         {
-            sqlDB.reset(new MySqlDB(server, port, user, passwd, db_name,
-                        encoding, connections, compare_binary));
+            sqlDB = make_unique<MySqlDB>(server, port, user, passwd, db_name,
+                        encoding, connections, compare_binary);
         }
         else
         {
@@ -152,8 +152,8 @@ void Monitor::start()
     config->get("HOST_MONITORING_EXPIRATION_TIME", host_exp);
     config->get("VM_MONITORING_EXPIRATION_TIME", vm_exp);
 
-    hpool.reset(new HostRPCPool(sqlDB.get(), host_exp));
-    vmpool.reset(new VMRPCPool(sqlDB.get(), vm_exp));
+    hpool = make_unique<HostRPCPool>(sqlDB.get(), host_exp);
+    vmpool = make_unique<VMRPCPool>(sqlDB.get(), vm_exp);
 
     // -------------------------------------------------------------------------
     // Close stds in drivers
@@ -201,11 +201,11 @@ void Monitor::start()
         udp_conf->replace("PUBKEY", buffer.str());
     }
 
-    hm.reset(new HostMonitorManager(hpool.get(), vmpool.get(),
+    hm = make_unique<HostMonitorManager>(hpool.get(), vmpool.get(),
                 addr, port, threads,
                 get_mad_location(),
                 timer_period,
-                monitor_interval_host));
+                monitor_interval_host);
 
     if (hm->load_monitor_drivers(drivers_conf) != 0)
     {

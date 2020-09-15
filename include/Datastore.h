@@ -343,7 +343,7 @@ private:
             const std::string&  uname,
             const std::string&  gname,
             int                 umask,
-            DatastoreTemplate*  ds_template,
+            std::unique_ptr<DatastoreTemplate> ds_template,
             const std::set<int> &cluster_ids);
 
     /**
@@ -398,9 +398,9 @@ private:
     /**
      *  Factory method for datastore templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new DatastoreTemplate;
+        return std::make_unique<DatastoreTemplate>();
     }
 
     /**

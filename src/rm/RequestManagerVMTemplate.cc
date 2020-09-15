@@ -136,12 +136,9 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     VirtualMachinePool* vmpool  = nd.get_vmpool();
     VMTemplatePool *    tpool   = nd.get_tpool();
 
-    VirtualMachineTemplate * tmpl;
+    unique_ptr<VirtualMachineTemplate> tmpl;
     VirtualMachineTemplate extended_tmpl;
     VirtualMachineTemplate uattrs;
-
-    vector<Template *> ds_quotas;
-    vector<Template *> applied;
 
     string aname;
     string tmpl_name;
@@ -162,11 +159,10 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         return NO_EXISTS;
     }
 
-    ErrorCode ec = merge(tmpl, str_uattrs, att);
+    ErrorCode ec = merge(tmpl.get(), str_uattrs, att);
 
     if (ec != SUCCESS)
     {
-        delete tmpl;
         return ec;
     }
 
@@ -175,11 +171,10 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         tmpl->merge(extra_attrs);
     }
 
-    ec = as_uid_gid(tmpl, att);
+    ec = as_uid_gid(tmpl.get(), att);
 
     if ( ec != SUCCESS )
     {
-        delete tmpl;
         return ec;
     }
 
@@ -200,9 +195,8 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         tmpl->set(new SingleAttribute("NAME",name));
     }
 
-    if (VirtualMachine::parse_topology(tmpl, att.resp_msg) != 0)
+    if (VirtualMachine::parse_topology(tmpl.get(), att.resp_msg) != 0)
     {
-        delete tmpl;
         return ALLOCATE;
     }
 
@@ -233,7 +227,6 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     {
         att.resp_msg = ar.message;
 
-        delete tmpl;
         return AUTHORIZATION;
     }
 
@@ -248,17 +241,19 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     if (quota_authorization(&extended_tmpl, Quotas::VIRTUALMACHINE, att,
                 att.resp_msg) == false)
     {
-        delete tmpl;
         return AUTHORIZATION;
     }
 
     bool ds_quota_auth = true;
 
+    vector<unique_ptr<Template>> ds_quotas;
+    vector<unique_ptr<Template>> applied;
+
     VirtualMachineDisks::image_ds_quotas(&extended_tmpl, ds_quotas);
 
-    for ( auto ds : ds_quotas )
+    for ( auto& ds : ds_quotas )
     {
-        if ( quota_authorization(ds, Quotas::DATASTORE, att, att.resp_msg)
+        if ( quota_authorization(ds.get(), Quotas::DATASTORE, att, att.resp_msg)
                 == false )
         {
             ds_quota_auth = false;
@@ -266,7 +261,7 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
         }
         else
         {
-            applied.push_back(ds);
+            applied.push_back(move(ds));
         }
     }
 
@@ -274,40 +269,27 @@ Request::ErrorCode VMTemplateInstantiate::request_execute(int id, string name,
     {
         quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
 
-        for ( auto ds : applied )
+        for ( auto& ds : applied )
         {
-            quota_rollback(ds, Quotas::DATASTORE, att);
+            quota_rollback(ds.get(), Quotas::DATASTORE, att);
         }
-
-        for ( auto ds : ds_quotas )
-        {
-            delete ds;
-        }
-
-        delete tmpl;
 
         return AUTHORIZATION;
     }
 
     rc = vmpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-            tmpl, &vid, att.resp_msg, on_hold);
+            move(tmpl), &vid, att.resp_msg, on_hold);
 
     if ( rc < 0 )
     {
         quota_rollback(&extended_tmpl, Quotas::VIRTUALMACHINE, att);
 
-        for ( auto ds : ds_quotas )
+        for ( auto& ds : ds_quotas )
         {
-            quota_rollback(ds, Quotas::DATASTORE, att);
-            delete ds;
+            quota_rollback(ds.get(), Quotas::DATASTORE, att);
         }
 
         return ALLOCATE;
-    }
-
-    for ( auto ds : ds_quotas )
-    {
-        delete ds;
     }
 
     return SUCCESS;

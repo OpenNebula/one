@@ -34,7 +34,7 @@ Datastore::Datastore(
         const string&       uname,
         const string&       gname,
         int                 umask,
-        DatastoreTemplate*  ds_template,
+        unique_ptr<DatastoreTemplate>  ds_template,
         const set<int>      &cluster_ids):
             PoolObjectSQL(-1,DATASTORE,"",uid,gid,uname,gname,one_db::ds_table),
             Clusterable(cluster_ids),
@@ -49,13 +49,13 @@ Datastore::Datastore(
             state(READY),
             images("IMAGES")
 {
-    if (ds_template != 0)
+    if (ds_template)
     {
-        obj_template = ds_template;
+        obj_template = move(ds_template);
     }
     else
     {
-        obj_template = new DatastoreTemplate;
+        obj_template = make_unique<DatastoreTemplate>();
     }
 
     set_umask(umask);

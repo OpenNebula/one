@@ -138,7 +138,8 @@ private:
     // *************************************************************************
     // Constructor
     // *************************************************************************
-    Cluster(int id, const std::string& name, ClusterTemplate*  cl_template,
+    Cluster(int id, const std::string& name,
+            std::unique_ptr<ClusterTemplate>  cl_template,
             const VectorAttribute& vnc_conf);
 
     // *************************************************************************
@@ -256,9 +257,9 @@ private:
     /**
      *  Factory method for cluster templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new ClusterTemplate;
+        return std::make_unique<ClusterTemplate>();
     }
 
     /**

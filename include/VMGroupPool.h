@@ -49,7 +49,8 @@ public:
      *   @return the oid assigned to the object, -1 in case of failure
      */
     int allocate(int uid, int gid, const std::string& uname,
-        const std::string& gname, int umask, Template * vmgrp_tmpl, int * oid,
+        const std::string& gname, int umask,
+        std::unique_ptr<Template> vmgrp_tmpl, int * oid,
         std::string& error_str);
 
     /**

@@ -31,12 +31,10 @@ int VMTemplatePool::allocate (
         const string&            uname,
         const string&            gname,
         int                      umask,
-        VirtualMachineTemplate * template_contents,
+        unique_ptr<VirtualMachineTemplate> template_contents,
         int *                    oid,
         string&                  error_str)
 {
-    VMTemplate *  vm_template;
-
     int     db_oid;
     string  name;
 
@@ -45,7 +43,8 @@ int VMTemplatePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new VMTemplate object
     // ------------------------------------------------------------------------
-    vm_template = new VMTemplate(-1, uid, gid, uname, gname, umask, template_contents);
+    auto vm_template = new VMTemplate(-1, uid, gid, uname, gname, umask,
+                                      move(template_contents));
 
     // Check name
     vm_template->get_template_attribute("NAME", name);
@@ -67,7 +66,7 @@ int VMTemplatePool::allocate (
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
-    *oid = PoolSQL::allocate(vm_template, error_str);
+    *oid = PoolSQL::allocate(move(vm_template), error_str);
 
     return *oid;
 

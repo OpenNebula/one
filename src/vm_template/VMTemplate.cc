@@ -32,17 +32,17 @@ VMTemplate::VMTemplate(int id,
                        const string& _uname,
                        const string& _gname,
                        int umask,
-                       VirtualMachineTemplate * _template_contents):
+                       unique_ptr<Template> _template_contents):
     PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,one_db::vm_template_table),
     regtime(time(0))
 {
-    if (_template_contents != 0)
+    if (_template_contents)
     {
-        obj_template = _template_contents;
+        obj_template = move(_template_contents);
     }
     else
     {
-        obj_template = new VirtualMachineTemplate;
+        obj_template = make_unique<VirtualMachineTemplate>();
     }
 
     set_umask(umask);
@@ -72,7 +72,7 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     // ------------------------------------------------------------------------
     // Validate RAW attribute
     // ------------------------------------------------------------------------
-    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error_str);
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template.get(), error_str);
 
     if (rc != 0)
     {
@@ -188,7 +188,7 @@ int VMTemplate::bootstrap(SqlDB * db)
 
 int VMTemplate::parse_sched_action(string& error_str)
 {
-    SchedActions sactions(obj_template);
+    SchedActions sactions(obj_template.get());
 
     return sactions.parse(error_str, true);
 }
@@ -207,7 +207,7 @@ int VMTemplate::post_update_template(string& error)
         return rc;
     }
 
-    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error);
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template.get(), error);
 
     if (rc != 0)
     {
@@ -223,7 +223,7 @@ int VMTemplate::post_update_template(string& error)
 
 string& VMTemplate::to_xml(string& xml) const
 {
-    return to_xml(xml, obj_template);
+    return to_xml(xml, obj_template.get());
 }
 
 /* ------------------------------------------------------------------------ */
