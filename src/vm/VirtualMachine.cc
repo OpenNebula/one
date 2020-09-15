@@ -45,7 +45,7 @@ VirtualMachine::VirtualMachine(int           id,
                                const string& _uname,
                                const string& _gname,
                                int           umask,
-                               VirtualMachineTemplate * _vm_template):
+                               unique_ptr<VirtualMachineTemplate> _vm_template):
         PoolObjectSQL(id,VM,"",_uid,_gid,_uname,_gname,one_db::vm_table),
         state(INIT),
         prev_state(INIT),
@@ -66,14 +66,14 @@ VirtualMachine::VirtualMachine(int           id,
         // This is a VM Template, with the root TEMPLATE.
         _vm_template->set_xml_root("USER_TEMPLATE");
 
-        user_obj_template = _vm_template;
+        user_obj_template = move(_vm_template);
     }
     else
     {
-        user_obj_template = new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
+        user_obj_template = make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
     }
 
-    obj_template = new VirtualMachineTemplate;
+    obj_template = make_unique<VirtualMachineTemplate>();
 
     set_umask(umask);
 }
@@ -86,7 +86,6 @@ VirtualMachine::~VirtualMachine()
     }
 
     delete _log;
-    delete user_obj_template;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -893,12 +892,12 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Check the CPU Model attribute
     // ------------------------------------------------------------------------
-    parse_cpu_model(user_obj_template);
+    parse_cpu_model(user_obj_template.get());
 
     // ------------------------------------------------------------------------
     // Validate RAW attribute
     // ------------------------------------------------------------------------
-    rc = Nebula::instance().get_vmm()->validate_raw(obj_template, error_str);
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template.get(), error_str);
 
     if (rc != 0)
     {
@@ -908,7 +907,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // PCI Devices (Needs to be parsed before network)
     // ------------------------------------------------------------------------
-    rc = parse_pci(error_str, user_obj_template);
+    rc = parse_pci(error_str, user_obj_template.get());
 
     if ( rc != 0 )
     {
@@ -918,7 +917,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Parse the defaults to merge
     // ------------------------------------------------------------------------
-    rc = parse_defaults(error_str, user_obj_template);
+    rc = parse_defaults(error_str, user_obj_template.get());
 
     if ( rc != 0 )
     {
@@ -928,7 +927,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Parse the virtual router attributes
     // ------------------------------------------------------------------------
-    rc = parse_vrouter(error_str, user_obj_template);
+    rc = parse_vrouter(error_str, user_obj_template.get());
 
     if ( rc != 0 )
     {
@@ -974,7 +973,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // -------------------------------------------------------------------------
     // Set boot order
     // -------------------------------------------------------------------------
-    rc = set_boot_order(obj_template, error_str);
+    rc = set_boot_order(obj_template.get(), error_str);
 
     if ( rc != 0 )
     {
@@ -1005,7 +1004,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    if ( parse_graphics(error_str, user_obj_template) != 0 )
+    if ( parse_graphics(error_str, user_obj_template.get()) != 0 )
     {
         goto error_graphics;
     }
@@ -1530,14 +1529,14 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
     obj_template->erase("AUTOMATIC_NIC_REQUIREMENTS");
 
-    int rc = get_cluster_requirements(obj_template, cluster_ids, error_str);
+    int rc = get_cluster_requirements(obj_template.get(), cluster_ids, error_str);
 
     if (rc != 0)
     {
         return -1;
     }
 
-    rc = get_datastore_requirements(obj_template, datastore_ids, error_str);
+    rc = get_datastore_requirements(obj_template.get(), datastore_ids, error_str);
 
     if (rc == -1)
     {
@@ -1984,7 +1983,7 @@ int VirtualMachine::resize(float cpu, long int memory, unsigned int vcpu,
 
     remove_template_attribute("NUMA_NODE");
 
-    return parse_topology(obj_template, error);
+    return parse_topology(obj_template.get(), error);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2519,8 +2518,8 @@ int VirtualMachine::replace_template(
 {
     string ra;
 
-    VirtualMachineTemplate * new_tmpl =
-            new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
+    auto new_tmpl =
+        make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
 
     if ( new_tmpl == 0 )
     {
@@ -2530,7 +2529,6 @@ int VirtualMachine::replace_template(
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
@@ -2538,11 +2536,10 @@ int VirtualMachine::replace_template(
     /*  Parse attributes in USER_TEMPLATE:                                    */
     /*  - SCHED_ACTION                                                        */
     /* ---------------------------------------------------------------------- */
-    SchedActions sactions(new_tmpl);
+    SchedActions sactions(new_tmpl.get());
 
     if ( sactions.parse(error, false) == -1 )
     {
-        delete new_tmpl;
         return -1;
     }
 
@@ -2550,13 +2547,13 @@ int VirtualMachine::replace_template(
     /* Replace new_tmpl to the current user_template                          */
     /* ---------------------------------------------------------------------- */
 
-    if (user_obj_template != 0)
+    if (user_obj_template)
     {
-        if (keep_restricted && new_tmpl->check_restricted(ra, user_obj_template))
+        if (keep_restricted &&
+            new_tmpl->check_restricted(ra, user_obj_template.get()))
         {
             error = "Tried to change restricted attribute: " + ra;
 
-            delete new_tmpl;
             return -1;
         }
     }
@@ -2564,23 +2561,18 @@ int VirtualMachine::replace_template(
     {
         error = "Tried to set restricted attribute: " + ra;
 
-        delete new_tmpl;
         return -1;
     }
 
-    auto old_user_tmpl = user_obj_template;
-    user_obj_template  = new_tmpl;
+    auto old_user_tmpl = move(user_obj_template);
+    user_obj_template  = move(new_tmpl);
 
     if (post_update_template(error) == -1)
     {
-        delete user_obj_template;
-
-        user_obj_template = old_user_tmpl;
+        user_obj_template = move(old_user_tmpl);
 
         return -1;
     }
-
-    delete old_user_tmpl;
 
     encrypt();
 
@@ -2595,8 +2587,8 @@ int VirtualMachine::append_template(
         bool            keep_restricted,
         string&         error)
 {
-    VirtualMachineTemplate * new_tmpl =
-            new VirtualMachineTemplate(false,'=',"USER_TEMPLATE");
+    auto new_tmpl =
+        make_unique<VirtualMachineTemplate>(false,'=',"USER_TEMPLATE");
     string rname;
 
     if ( new_tmpl == 0 )
@@ -2607,7 +2599,6 @@ int VirtualMachine::append_template(
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
@@ -2615,34 +2606,29 @@ int VirtualMachine::append_template(
     /*  Parse attributes in USER_TEMPLATE:                                    */
     /*  - SCHED_ACTION                                                        */
     /* ---------------------------------------------------------------------- */
-    SchedActions sactions(new_tmpl);
+    SchedActions sactions(new_tmpl.get());
 
     if ( sactions.parse(error, false) == -1 )
     {
-        delete new_tmpl;
         return -1;
     }
 
     /* ---------------------------------------------------------------------- */
     /* Append new_tmpl to the current user_template                           */
     /* ---------------------------------------------------------------------- */
-    auto old_user_tmpl = new VirtualMachineTemplate(*user_obj_template);
+    auto old_user_tmpl = make_unique<VirtualMachineTemplate>(*user_obj_template);
 
     if (user_obj_template != 0)
     {
-        if (keep_restricted && new_tmpl->check_restricted(rname, user_obj_template))
+        if (keep_restricted &&
+            new_tmpl->check_restricted(rname, user_obj_template.get()))
         {
             error ="User Template includes a restricted attribute " + rname;
-
-            delete new_tmpl;
-            delete old_user_tmpl;
 
             return -1;
         }
 
-        user_obj_template->merge(new_tmpl);
-
-        delete new_tmpl;
+        user_obj_template->merge(new_tmpl.get());
     }
     else
     {
@@ -2650,25 +2636,18 @@ int VirtualMachine::append_template(
         {
             error ="User Template includes a restricted attribute " + rname;
 
-            delete new_tmpl;
-            delete old_user_tmpl;
-
             return -1;
         }
 
-        user_obj_template = new_tmpl;
+        user_obj_template = move(new_tmpl);
     }
 
     if (post_update_template(error) == -1)
     {
-        delete user_obj_template;
-
-        user_obj_template = old_user_tmpl;
+        user_obj_template = move(old_user_tmpl);
 
         return -1;
     }
-
-    delete old_user_tmpl;
 
     encrypt();
 
@@ -2895,22 +2874,22 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
-    replace_vector_values(obj_template, &tmpl, "OS");
+    replace_vector_values(obj_template.get(), &tmpl, "OS");
 
-    if ( set_boot_order(obj_template, err) != 0 )
+    if ( set_boot_order(obj_template.get(), err) != 0 )
     {
         return -1;
     }
 
-    replace_vector_values(obj_template, &tmpl, "FEATURES");
+    replace_vector_values(obj_template.get(), &tmpl, "FEATURES");
 
-    replace_vector_values(obj_template, &tmpl, "INPUT");
+    replace_vector_values(obj_template.get(), &tmpl, "INPUT");
 
-    replace_vector_values(obj_template, &tmpl, "GRAPHICS");
+    replace_vector_values(obj_template.get(), &tmpl, "GRAPHICS");
 
-    replace_vector_values(obj_template, &tmpl, "RAW");
+    replace_vector_values(obj_template.get(), &tmpl, "RAW");
 
-    replace_vector_values(obj_template, &tmpl, "CPU_MODEL");
+    replace_vector_values(obj_template.get(), &tmpl, "CPU_MODEL");
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
@@ -2959,7 +2938,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Parse graphics attribute
     // -------------------------------------------------------------------------
-    if ( parse_graphics(err, obj_template) != 0 )
+    if ( parse_graphics(err, obj_template.get()) != 0 )
     {
         NebulaLog::log("ONE",Log::ERROR, err);
         return -1;
@@ -2971,19 +2950,19 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VirtualMachineTemplate * VirtualMachine::get_updateconf_template() const
+unique_ptr<VirtualMachineTemplate> VirtualMachine::get_updateconf_template() const
 {
-    VirtualMachineTemplate * conf_tmpl = new VirtualMachineTemplate();
+    auto conf_tmpl = make_unique<VirtualMachineTemplate>();
 
-    copy_vector_values(obj_template, conf_tmpl, "OS");
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "OS");
 
-    copy_vector_values(obj_template, conf_tmpl, "FEATURES");
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "FEATURES");
 
-    copy_vector_values(obj_template, conf_tmpl, "INPUT");
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "INPUT");
 
-    copy_vector_values(obj_template, conf_tmpl, "GRAPHICS");
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "GRAPHICS");
 
-    copy_vector_values(obj_template, conf_tmpl, "RAW");
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "RAW");
 
 	VectorAttribute * context = obj_template->get("CONTEXT");
 
@@ -3564,7 +3543,7 @@ void VirtualMachine::release_vmgroup()
 
 int VirtualMachine::parse_sched_action(string& error_str)
 {
-    SchedActions sactions(user_obj_template);
+    SchedActions sactions(user_obj_template.get());
 
     return sactions.parse(error_str, false);
 }

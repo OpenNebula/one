@@ -77,11 +77,11 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual Template * get_object_template() const { return 0; };
+    virtual std::unique_ptr<Template> get_object_template() const { return 0; };
 
     virtual Request::ErrorCode pool_allocate(
                               xmlrpc_c::paramList const& _paramList,
-                              Template * tmpl,
+                              std::unique_ptr<Template> tmpl,
                               int& id,
                               RequestAttributes& att)
     {
@@ -90,13 +90,13 @@ protected:
 
     virtual Request::ErrorCode pool_allocate(
                               xmlrpc_c::paramList const& _paramList,
-                              Template * tmpl,
+                              std::unique_ptr<Template> tmpl,
                               int& id,
                               RequestAttributes& att,
                               int cluster_id,
                               const std::string& cluster_name)
     {
-        return pool_allocate(_paramList, tmpl, id, att);
+        return pool_allocate(_paramList, move(tmpl), id, att);
     };
 
     virtual int get_cluster_id(xmlrpc_c::paramList const& paramList) const
@@ -158,13 +158,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new VirtualMachineTemplate;
+        return std::make_unique<VirtualMachineTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 
@@ -194,13 +194,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new VirtualNetworkTemplate;
+        return std::make_unique<VirtualNetworkTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      Template * tmpl,
+                      std::unique_ptr<Template> tmpl,
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
@@ -266,13 +266,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new VirtualMachineTemplate;
+        return std::make_unique<VirtualMachineTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 
@@ -299,13 +299,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new VirtualMachineTemplate;
+        return std::make_unique<VirtualMachineTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 
@@ -336,7 +336,7 @@ public:
     /* --------------------------------------------------------------------- */
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      Template * tmpl,
+                      std::unique_ptr<Template> tmpl,
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
@@ -379,7 +379,7 @@ public:
     ~UserAllocate(){};
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 
@@ -412,7 +412,7 @@ public:
     ~GroupAllocate(){};
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 
@@ -441,13 +441,13 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new DatastoreTemplate;
+        return std::make_unique<DatastoreTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      Template * tmpl,
+                      std::unique_ptr<Template> tmpl,
                       int& id,
                       RequestAttributes& att,
                       int cluster_id,
@@ -487,7 +487,7 @@ public:
     ~ClusterAllocate(){};
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 };
@@ -513,13 +513,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 };
@@ -548,13 +548,13 @@ public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 };
@@ -580,13 +580,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att);
 };
@@ -612,13 +612,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 };
@@ -645,13 +645,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 
@@ -681,13 +681,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new MarketPlaceTemplate;
+        return std::make_unique<MarketPlaceTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      Template *                 tmpl,
+                      std::unique_ptr<Template>  tmpl,
                       int&                       id,
                       RequestAttributes&         att) override;
 };
@@ -714,13 +714,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new MarketPlaceAppTemplate;
+        return std::make_unique<MarketPlaceAppTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      Template *                 tmpl,
+                      std::unique_ptr<Template>  tmpl,
                       int&                       id,
                       RequestAttributes&         att) override;
 private:
@@ -748,13 +748,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const override
+    std::unique_ptr<Template> get_object_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,
-                                     Template *                  tmpl,
+                                     std::unique_ptr<Template>   tmpl,
                                      int&                        id,
                                      RequestAttributes&          att) override;
 };
@@ -781,13 +781,13 @@ public:
 
     /* --------------------------------------------------------------------- */
 
-    Template * get_object_template() const
+    std::unique_ptr<Template> get_object_template() const
     {
-        return new Template;
+        return std::make_unique<Template>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const& _paramList,
-                      Template * tmpl,
+                      std::unique_ptr<Template> tmpl,
                       int& id,
                       RequestAttributes& att);
 

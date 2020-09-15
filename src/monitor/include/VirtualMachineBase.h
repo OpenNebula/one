@@ -44,11 +44,7 @@ public:
         init_attributes();
     }
 
-    virtual ~VirtualMachineBase()
-    {
-        delete vm_template;
-        delete user_template;
-    }
+    virtual ~VirtualMachineBase() = default;
 
     /**
      * Rebuilds the object from an xml formatted string
@@ -125,8 +121,8 @@ protected:
 
     // std::map<int, VirtualMachineNicXML *> nics;
 
-    VirtualMachineTemplate * vm_template = nullptr;
-    VirtualMachineTemplate * user_template = nullptr;
+    std::unique_ptr<VirtualMachineTemplate> vm_template;
+    std::unique_ptr<VirtualMachineTemplate> user_template;
 };
 
 #endif // VIRTUAL_MACHINE_BASE_H_

@@ -56,11 +56,7 @@ public:
         long long bcast, long long election, time_t xmlrpc,
         const std::string& remotes_location);
 
-    ~RaftManager()
-    {
-        delete leader_hook;
-        delete follower_hook;
-    };
+    ~RaftManager() = default;
 
     // -------------------------------------------------------------------------
     // Raft associated actions (synchronous)
@@ -414,8 +410,8 @@ private:
     // Hooks
     // -------------------------------------------------------------------------
 
-    ExecuteHook * leader_hook;
-    ExecuteHook * follower_hook;
+    std::unique_ptr<ExecuteHook> leader_hook;
+    std::unique_ptr<ExecuteHook> follower_hook;
 
     // -------------------------------------------------------------------------
     // Internal Raft functions

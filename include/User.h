@@ -156,9 +156,9 @@ public:
     /**
      *  Factory method for image templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new UserTemplate;
+        return std::make_unique<UserTemplate>();
     }
 
     /**
@@ -392,7 +392,7 @@ protected:
         groups("GROUPS"),
         session(0)
     {
-        obj_template = new UserTemplate;
+        obj_template = std::make_unique<UserTemplate>();
     }
 
     // *************************************************************************

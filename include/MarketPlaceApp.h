@@ -355,7 +355,7 @@ private:
             const std::string&      uname,
             const std::string&      gname,
             int                     umask,
-            MarketPlaceAppTemplate* app_template);
+            std::unique_ptr<MarketPlaceAppTemplate> app_template);
 
     // *************************************************************************
     // DataBase implementation (Private)
@@ -413,9 +413,9 @@ private:
     /**
      *  Factory method for marketplace app templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new MarketPlaceAppTemplate;
+        return std::make_unique<MarketPlaceAppTemplate>();
     }
 };
 

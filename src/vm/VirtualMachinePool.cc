@@ -131,19 +131,17 @@ int VirtualMachinePool::allocate(
     const string&  uname,
     const string&  gname,
     int            umask,
-    VirtualMachineTemplate * vm_template,
+    unique_ptr<VirtualMachineTemplate> vm_template,
     int *          oid,
     string&        error_str,
     bool           on_hold)
 {
-    VirtualMachine * vm;
-
     string deploy_id;
 
     // ------------------------------------------------------------------------
     // Build a new Virtual Machine object
     // ------------------------------------------------------------------------
-    vm = new VirtualMachine(-1, uid, gid, uname, gname, umask, vm_template);
+    auto vm = new VirtualMachine(-1, uid, gid, uname, gname, umask, move(vm_template));
 
     if ( _submit_on_hold == true || on_hold )
     {

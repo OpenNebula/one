@@ -46,7 +46,7 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
 
         string error;
 
-        Template * default_tmpl = new Template;
+        auto default_tmpl = make_unique<Template>();
         char * error_parse;
 
         default_tmpl->parse(default_sg, &error_parse);
@@ -57,7 +57,7 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db)
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                default_tmpl);
+                move(default_tmpl));
 
         secgroup->set_permissions(1,1,1,1,0,0,1,0,0,error);
 
@@ -87,18 +87,17 @@ int SecurityGroupPool::allocate(
         const string&   uname,
         const string&   gname,
         int             umask,
-        Template *      sgroup_template,
+        unique_ptr<Template> sgroup_template,
         int *           oid,
         string&         error_str)
 {
-    SecurityGroup * secgroup;
-
     int    db_oid;
     string name;
 
     ostringstream oss;
 
-    secgroup = new SecurityGroup(uid, gid, uname, gname, umask, sgroup_template);
+    auto secgroup = new SecurityGroup(uid, gid, uname, gname, umask,
+                                      move(sgroup_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -118,7 +117,7 @@ int SecurityGroupPool::allocate(
         goto error_duplicated;
     }
 
-    *oid = PoolSQL::allocate(secgroup, error_str);
+    *oid = PoolSQL::allocate(move(secgroup), error_str);
 
     return *oid;
 

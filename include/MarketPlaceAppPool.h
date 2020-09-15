@@ -54,7 +54,7 @@ public:
             const std::string& uname,
             const std::string& gname,
             int                umask,
-            MarketPlaceAppTemplate * apptemplate,
+            std::unique_ptr<MarketPlaceAppTemplate> apptemplate,
             int                mp_id,
             const std::string& mp_name,
             int *              oid,

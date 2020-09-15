@@ -66,7 +66,7 @@ public:
         const std::string&          gname,
         int                         umask,
         int                         parent_vid,
-        VirtualNetworkTemplate *    vn_template,
+        std::unique_ptr<VirtualNetworkTemplate> vn_template,
         int *                       oid,
         const std::set<int>         &cluster_ids,
         std::string&                error_str);

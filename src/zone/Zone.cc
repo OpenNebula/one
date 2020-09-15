@@ -30,18 +30,18 @@ const char * ZoneServers::SERVER_ID_NAME = "ID";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Zone::Zone(int id, Template* zone_template):
+Zone::Zone(int id, unique_ptr<Template> zone_template):
     PoolObjectSQL(id, ZONE, "", -1, -1, "", "", one_db::zone_table),
     servers_template(false, '=', "SERVER_POOL"),
     servers(0)
 {
-    if (zone_template != 0)
+    if (zone_template)
     {
-        obj_template = zone_template;
+        obj_template = move(zone_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 }
 

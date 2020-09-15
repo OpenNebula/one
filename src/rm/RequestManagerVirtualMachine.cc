@@ -1400,7 +1400,7 @@ void VirtualMachineDiskSaveas::request_execute(
     Image::ImageType type;
     Image::DiskType  ds_disk_type;
 
-    ImageTemplate * itemplate;
+    unique_ptr<ImageTemplate> itemplate;
     Template        img_usage;
 
     int    rc;
@@ -1499,7 +1499,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Create a template for the new Image
     // -------------------------------------------------------------------------
-    itemplate = new ImageTemplate;
+    itemplate = make_unique<ImageTemplate>();
 
     itemplate->add("NAME", img_name);
     itemplate->add("SIZE", size);
@@ -1533,7 +1533,7 @@ void VirtualMachineDiskSaveas::request_execute(
         itemplate->add("DEV_PREFIX", dev_prefix);
     }
 
-    Image::test_set_persistent(itemplate, att.uid, att.gid, false);
+    Image::test_set_persistent(itemplate.get(), att.uid, att.gid, false);
 
     img_usage.add("SIZE",      size);
     img_usage.add("DATASTORE", ds_id);
@@ -1541,7 +1541,7 @@ void VirtualMachineDiskSaveas::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation & check quotas
     // -------------------------------------------------------------------------
-    rc_auth = vm_authorization(id, itemplate, 0, att, 0, &ds_perms, 0);
+    rc_auth = vm_authorization(id, itemplate.get(), 0, att, 0, &ds_perms, 0);
 
     if ( rc_auth == true )
     {
@@ -1561,7 +1561,7 @@ void VirtualMachineDiskSaveas::request_execute(
                          att.uname,
                          att.gname,
                          att.umask,
-                         itemplate,
+                         move(itemplate),
                          ds_id,
                          ds_name,
                          ds_disk_type,
@@ -1617,7 +1617,6 @@ error_size:
     goto error_common;
 
 error_auth:
-    delete itemplate;
     goto error_common;
 
 error_allocate:
@@ -2970,11 +2969,9 @@ void VirtualMachineUpdateConf::request_execute(
     {
         string aname;
 
-        VirtualMachineTemplate * conf_tmpl = vm->get_updateconf_template();
+        auto conf_tmpl = vm->get_updateconf_template();
 
-        bool has_restricted = tmpl.check_restricted(aname, conf_tmpl);
-
-        delete conf_tmpl;
+        bool has_restricted = tmpl.check_restricted(aname, conf_tmpl.get());
 
         if (has_restricted)
         {

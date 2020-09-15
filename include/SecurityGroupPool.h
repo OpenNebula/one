@@ -55,7 +55,7 @@ public:
             const std::string& uname,
             const std::string& gname,
             int                umask,
-            Template *         sgroup_template,
+            std::unique_ptr<Template> sgroup_template,
             int *              oid,
             std::string&       error_str);
 

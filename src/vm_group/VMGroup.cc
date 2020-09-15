@@ -28,16 +28,16 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 
 VMGroup::VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
-        int _umask, Template * group_template):
+        int _umask, unique_ptr<Template> group_template):
     PoolObjectSQL(-1, VMGROUP, "", _uid, _gid, _uname, _gname, one_db::vm_group_table)
 {
-    if (group_template != 0)
+    if (group_template)
     {
-        obj_template = group_template;
+        obj_template = move(group_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 
     set_umask(_umask);

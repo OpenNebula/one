@@ -57,20 +57,19 @@ public:
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new VirtualMachineTemplate;
+        return std::make_unique<VirtualMachineTemplate>();
     }
 
     /**
      *  Returns a copy of the VirtualMachineTemplate
      *    @return A copy of the VirtualMachineTemplate
      */
-    VirtualMachineTemplate * clone_template() const
+    std::unique_ptr<VirtualMachineTemplate> clone_template() const
     {
-        return new VirtualMachineTemplate(
-                *(static_cast<VirtualMachineTemplate *>(obj_template)));
-    };
+        return std::make_unique<VirtualMachineTemplate>(*obj_template);
+    }
 
     /**
      * Returns a copy of the DISK attributes of this template, the attributes
@@ -179,7 +178,7 @@ protected:
                const std::string& uname,
                const std::string& gname,
                int umask,
-               VirtualMachineTemplate * _template_contents);
+               std::unique_ptr<Template> _template_contents);
 
     // *************************************************************************
     // DataBase implementation

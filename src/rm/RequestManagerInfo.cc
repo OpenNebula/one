@@ -86,7 +86,7 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 {
     VMTemplatePool * tpool   = static_cast<VMTemplatePool *>(pool);
 
-    VirtualMachineTemplate * extended_tmpl = nullptr;
+    unique_ptr<VirtualMachineTemplate> extended_tmpl;
 
     PoolObjectAuth perms;
 
@@ -122,9 +122,9 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (extended)
     {
-        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl, false);
+        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl.get(), false);
 
-        VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
+        VirtualMachineDisks::extended_info(att.uid, extended_tmpl.get());
     }
 
     if (UserPool::authorize(ar) == -1)
@@ -132,7 +132,6 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_msg = ar.message;
         failure_response(AUTHORIZATION, att);
 
-        delete extended_tmpl;
         return;
     }
 
@@ -151,14 +150,12 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (extended)
     {
-        vm_tmpl->to_xml(str, extended_tmpl);
+        vm_tmpl->to_xml(str, extended_tmpl.get());
     }
     else
     {
         vm_tmpl->to_xml(str);
     }
-
-    delete extended_tmpl;
 
     success_response(str, att);
 

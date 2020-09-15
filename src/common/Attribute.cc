@@ -26,10 +26,9 @@ using namespace std;
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
 
-string * VectorAttribute::marshall(const char * _sep) const
+string VectorAttribute::marshall(const char * _sep) const
 {
     ostringstream os;
-    string *      rs;
     const char *  my_sep;
 
     map<string,string>::const_iterator it;
@@ -57,11 +56,7 @@ string * VectorAttribute::marshall(const char * _sep) const
         os << my_sep << it->first << "=" << it->second;
     }
 
-    rs = new string;
-
-    *rs = os.str();
-
-    return rs;
+    return os.str();
 }
 
 /* -------------------------------------------------------------------------- */

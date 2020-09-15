@@ -43,7 +43,7 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(Template *   zone_template,
+    int allocate(std::unique_ptr<Template> zone_template,
                  int *        oid,
                  std::string& error_str);
 

@@ -73,7 +73,7 @@ public:
         const std::string&       uname,
         const std::string&       gname,
         int                      umask,
-        ImageTemplate *          img_template,
+        std::unique_ptr<ImageTemplate> img_template,
         int                      ds_id,
         const std::string&       ds_name,
         Image::DiskType          disk_type,

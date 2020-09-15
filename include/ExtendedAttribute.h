@@ -87,7 +87,7 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
-    std::string * marshall(const char * _sep = 0) const
+    std::string marshall(const char * _sep = 0) const
     {
         return va->marshall(_sep);
     };

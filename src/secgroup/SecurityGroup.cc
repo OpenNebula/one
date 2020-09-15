@@ -32,20 +32,20 @@ SecurityGroup::SecurityGroup(
         const string&   _uname,
         const string&   _gname,
         int             _umask,
-        Template*       sgroup_template):
+        unique_ptr<Template> sgroup_template):
     PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,one_db::sg_table),
     updated("UPDATED_VMS"),
     outdated("OUTDATED_VMS"),
     updating("UPDATING_VMS"),
     error("ERROR_VMS")
 {
-    if (sgroup_template != 0)
+    if (sgroup_template)
     {
-        obj_template = sgroup_template;
+        obj_template = move(sgroup_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 
     set_umask(_umask);

@@ -286,8 +286,6 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
 {
     vector<Template *> ds_quotas;
 
-    Template * quota_tmpl;
-
     int vmid;
     int uid;
     int gid;
@@ -295,7 +293,7 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
     int vrid = -1;
     unsigned int port;
 
-    quota_tmpl = vm->clone_template();
+    auto quota_tmpl = vm->clone_template();
 
     if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
          (vm->get_state() == VirtualMachine::PENDING) ||
@@ -352,9 +350,7 @@ void DispatchManager::free_vm_resources(unique_ptr<VirtualMachine> vm,
 
     vm.reset(); //force unlock of vm mutex
 
-    Quotas::vm_del(uid, gid, quota_tmpl);
-
-    delete quota_tmpl;
+    Quotas::vm_del(uid, gid, quota_tmpl.get());
 
     if ( !ds_quotas.empty() )
     {

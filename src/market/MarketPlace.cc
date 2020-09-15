@@ -33,7 +33,7 @@ MarketPlace::MarketPlace(
     const std::string&    uname,
     const std::string&    gname,
     int                   umask,
-    MarketPlaceTemplate * mp_template):
+    unique_ptr<MarketPlaceTemplate> mp_template):
         PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, one_db::mp_table),
         market_mad(""),
         total_mb(0),
@@ -42,13 +42,13 @@ MarketPlace::MarketPlace(
         zone_id(-1),
         marketapps("MARKETPLACEAPPS")
 {
-    if (mp_template != 0)
+    if (mp_template)
     {
-        obj_template = mp_template;
+        obj_template = move(mp_template);
     }
     else
     {
-        obj_template = new MarketPlaceTemplate;
+        obj_template = make_unique<MarketPlaceTemplate>();
     }
 
     set_umask(umask);

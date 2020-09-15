@@ -132,11 +132,9 @@ error_limits:
 
     oss <<  "Negative limits or bad format in quota " << template_name;
 
-    string * quota_str = (*it)->marshall(",");
+    string quota_str = (*it)->marshall(",");
 
-    oss << " = [ " << *quota_str << " ]";
-
-    delete quota_str;
+    oss << " = [ " << quota_str << " ]";
 
     error = oss.str();
 

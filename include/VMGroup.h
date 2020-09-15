@@ -114,7 +114,7 @@ private:
     // -------------------------------------------------------------------------
     VMGroup(int _uid, int _gid,
             const std::string& _uname, const std::string& _gname,
-            int _umask, Template * group_template);
+            int _umask, std::unique_ptr<Template> group_template);
 
     // -------------------------------------------------------------------------
     // Role Management
@@ -188,9 +188,9 @@ private:
     /**
      *  Factory method for VMGroup templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
     // -------------------------------------------------------------------------

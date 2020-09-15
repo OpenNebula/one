@@ -82,7 +82,7 @@ int ImagePool::allocate (
         const string&            uname,
         const string&            gname,
         int                      umask,
-        ImageTemplate *          img_template,
+        unique_ptr<ImageTemplate> img_template,
         int                      ds_id,
         const string&            ds_name,
         Image::DiskType          disk_type,
@@ -108,7 +108,7 @@ int ImagePool::allocate (
     int db_oid;
     int rc;
 
-    img = new Image(uid, gid, uname, gname, umask, img_template);
+    img = new Image(uid, gid, uname, gname, umask, move(img_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

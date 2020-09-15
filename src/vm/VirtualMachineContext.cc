@@ -312,7 +312,6 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
     int rc;
 
     string  parsed;
-    string* str;
 
     VectorAttribute tmp_context("TMP_CONTEXT");
 
@@ -394,17 +393,15 @@ int VirtualMachine::generate_network_context(VectorAttribute* context,
         return 0;
     }
 
-    str = tmp_context.marshall();
+    string str = tmp_context.marshall();
 
-    if (str == 0)
+    if (str.empty())
     {
         error_str = "Internal error generating network context";
         return -1;
     }
 
-    rc = parse_template_attribute(*str, parsed, error_str);
-
-    delete str;
+    rc = parse_template_attribute(str, parsed, error_str);
 
     if (rc != 0)
     {
@@ -661,17 +658,15 @@ int VirtualMachine::parse_context_variables(VectorAttribute ** context,
 {
     int rc;
 
-    string   parsed;
-    string * str = (*context)->marshall();
+    string parsed;
+    string str = (*context)->marshall();
 
-    if (str == 0)
+    if (str.empty())
     {
         return -1;
     }
 
-    rc = parse_template_attribute(*str, parsed, error_str);
-
-    delete str;
+    rc = parse_template_attribute(str, parsed, error_str);
 
     if (rc != 0)
     {

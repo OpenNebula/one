@@ -30,17 +30,17 @@ Document::Document( int id,
                     const string& _gname,
                     int _umask,
                     int _type,
-                    Template * _template_contents)
+                    std::unique_ptr<Template> _template_contents)
     : PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,one_db::doc_table)
     , type(_type)
 {
-    if (_template_contents != 0)
+    if (_template_contents)
     {
-        obj_template = _template_contents;
+        obj_template = move(_template_contents);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 
     set_umask(_umask);

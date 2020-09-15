@@ -63,10 +63,9 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
     if (get_lastOID() == -1)
     {
         int         rc;
-        Template *  tmpl;
 
         // Build the local zone
-        tmpl = new Template;
+        auto tmpl = make_unique<Template>();
         rc = tmpl->parse_str_or_xml(
                 zone_tmpl.str(),
                 error_str);
@@ -76,7 +75,7 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
             goto error_bootstrap;
         }
 
-        allocate(tmpl, &rc, error_str);
+        allocate(move(tmpl), &rc, error_str);
 
         if( rc < 0 )
         {
@@ -102,7 +101,7 @@ error_bootstrap:
 /* -------------------------------------------------------------------------- */
 
 int ZonePool::allocate(
-        Template *  zone_template,
+        unique_ptr<Template> zone_template,
         int *       oid,
         string&     error_str)
 {
@@ -122,7 +121,7 @@ int ZonePool::allocate(
         return -1;
     }
 
-    zone = new Zone(-1, zone_template);
+    zone = new Zone(-1, move(zone_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

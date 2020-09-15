@@ -117,20 +117,17 @@ int VirtualNetworkPool::allocate (
         const string&               gname,
         int                         umask,
         int                         pvid,
-        VirtualNetworkTemplate *    vn_template,
+        unique_ptr<VirtualNetworkTemplate> vn_template,
         int *                       oid,
         const set<int>              &cluster_ids,
         string&                     error_str)
 {
-    VirtualNetwork * vn;
+    VirtualNetwork * vn = nullptr;
 
     int    db_oid;
     string name;
 
     ostringstream oss;
-
-    vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
-                            cluster_ids, vn_template);
 
     vn_template->get("NAME", name);
 
@@ -141,6 +138,9 @@ int VirtualNetworkPool::allocate (
     {
         goto error_duplicated;
     }
+
+    vn = new VirtualNetwork(uid, gid, uname, gname, umask, pvid,
+                            cluster_ids, move(vn_template));
 
     // Insert the VN in the DB
     *oid = PoolSQL::allocate(vn, error_str);

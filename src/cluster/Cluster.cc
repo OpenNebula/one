@@ -31,7 +31,7 @@ using namespace std;
 Cluster::Cluster(
         int id,
         const string& name,
-        ClusterTemplate*  cl_template,
+        std::unique_ptr<ClusterTemplate>  cl_template,
         const VectorAttribute& vnc_conf):
             PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",one_db::cluster_table),
             hosts("HOSTS"),
@@ -39,13 +39,13 @@ Cluster::Cluster(
             vnets("VNETS"),
             vnc_bitmap(vnc_conf, id, one_db::cluster_bitmap_table)
 {
-    if (cl_template != 0)
+    if (cl_template)
     {
-        obj_template = cl_template;
+        obj_template = move(cl_template);
     }
     else
     {
-        obj_template = new ClusterTemplate;
+        obj_template = make_unique<ClusterTemplate>();
     }
 
     add_template_attribute("RESERVED_CPU", "");

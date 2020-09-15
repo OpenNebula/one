@@ -63,7 +63,7 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
     int rc;
     PoolObjectAuth perms;
 
-    Template * tmpl;
+    unique_ptr<Template> tmpl;
 
     if ( auto source_obj = pool->get_ro<PoolObjectSQL>(source_id) )
     {
@@ -77,11 +77,10 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
         return NO_EXISTS;
     }
 
-    ErrorCode ec = merge(tmpl, s_uattr, att);
+    ErrorCode ec = merge(tmpl.get(), s_uattr, att);
 
     if (ec != SUCCESS)
     {
-        delete tmpl;
         return ec;
     }
 
@@ -102,11 +101,10 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
     {
         att.resp_msg = ar.message;
 
-        delete tmpl;
         return AUTHORIZATION;
     }
 
-    rc = pool_allocate(source_id, tmpl, new_id, att);
+    rc = pool_allocate(source_id, move(tmpl), new_id, att);
 
     if ( rc < 0 )
     {

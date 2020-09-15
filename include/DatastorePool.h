@@ -90,7 +90,7 @@ public:
             const std::string&   uname,
             const std::string&   gname,
             int                  umask,
-            DatastoreTemplate *  ds_template,
+            std::unique_ptr<DatastoreTemplate> ds_template,
             int *                oid,
             const std::set<int>& cluster_ids,
             std::string&         error_str);

@@ -46,20 +46,19 @@ public:
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new VirtualNetworkTemplate;
+        return std::make_unique<VirtualNetworkTemplate>();
     }
 
     /**
      *  Returns a copy of the VirtualNetworkTemplate
      *    @return A copy of the VirtualNetworkTemplate
      */
-    VirtualNetworkTemplate * clone_template() const
+    std::unique_ptr<VirtualNetworkTemplate> clone_template() const
     {
-        return new VirtualNetworkTemplate(
-                *(static_cast<VirtualNetworkTemplate *>(obj_template)));
-    };
+        return std::make_unique<VirtualNetworkTemplate>(*obj_template);
+    }
 
 private:
     // -------------------------------------------------------------------------
@@ -115,7 +114,7 @@ protected:
                const std::string& uname,
                const std::string& gname,
                int umask,
-               VirtualNetworkTemplate * _template_contents);
+               std::unique_ptr<VirtualNetworkTemplate> _template_contents);
 
     // *************************************************************************
     // DataBase implementation

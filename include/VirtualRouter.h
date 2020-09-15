@@ -72,19 +72,19 @@ public:
     /**
      *  Factory method for VirtualRouter templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
     /**
      *  Returns a copy of the Template
      *    @return A copy of the VirtualMachineTemplate
      */
-    Template * clone_template() const
+    std::unique_ptr<Template> clone_template() const
     {
-        return new Template(obj_template);
-    };
+        return std::make_unique<Template>(obj_template.get());
+    }
 
     Template * get_vm_template() const;
 
@@ -225,7 +225,7 @@ private:
                   const std::string& uname,
                   const std::string& gname,
                   int umask,
-                  Template * _template_contents);
+                  std::unique_ptr<Template> _template_contents);
 
     // *************************************************************************
     // DataBase implementation

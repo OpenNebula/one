@@ -618,7 +618,7 @@ long long VirtualMachineDisks::system_ds_size(Template * ds_tmpl)
 /* -------------------------------------------------------------------------- */
 
 void VirtualMachineDisks::image_ds_quotas(Template * tmpl,
-        vector<Template *>& ds_quotas)
+        vector<unique_ptr<Template>>& ds_quotas)
 {
     VirtualMachineDisks disks(tmpl, false);
 
@@ -628,13 +628,13 @@ void VirtualMachineDisks::image_ds_quotas(Template * tmpl,
 
         if ( ds_size != 0 )
         {
-            Template * d_ds = new Template();
+            auto d_ds = make_unique<Template>();
 
             d_ds->add("DATASTORE", (*it)->vector_value("DATASTORE_ID"));
             d_ds->add("SIZE", ds_size);
             d_ds->add("IMAGES", 0);
 
-            ds_quotas.push_back(d_ds);
+            ds_quotas.push_back(move(d_ds));
         }
     }
 }

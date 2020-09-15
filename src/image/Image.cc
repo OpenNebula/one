@@ -39,7 +39,7 @@ Image::Image(int             _uid,
              const string&   _uname,
              const string&   _gname,
              int             _umask,
-             ImageTemplate * _image_template):
+             unique_ptr<ImageTemplate> _image_template):
         PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,one_db::image_table),
         type(OS),
         disk_type(FILE),
@@ -60,13 +60,13 @@ Image::Image(int             _uid,
         snapshots(-1, Snapshots::DENY),
         target_snapshot(-1)
     {
-        if (_image_template != 0)
+        if (_image_template)
         {
-            obj_template = _image_template;
+            obj_template = move(_image_template);
         }
         else
         {
-            obj_template = new ImageTemplate;
+            obj_template = make_unique<ImageTemplate>();
         }
 
         set_umask(_umask);
@@ -716,11 +716,10 @@ int Image::set_type(string& _type, string& error)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-ImageTemplate * Image::clone_template(const string& new_name) const
+std::unique_ptr<ImageTemplate> Image::clone_template(const string& new_name) const
 {
 
-    ImageTemplate * tmpl = new ImageTemplate(
-            *(static_cast<ImageTemplate *>(obj_template)));
+    auto tmpl = make_unique<ImageTemplate>(*obj_template);
 
     tmpl->replace("NAME",   new_name);
     tmpl->replace("TYPE",   type_to_str(type));

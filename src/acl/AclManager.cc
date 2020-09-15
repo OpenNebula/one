@@ -133,7 +133,7 @@ int AclManager::start()
 
     if (is_federation_slave)
     {
-        timer_thread.reset(new Timer(timer_period, [this](){timer_action();}));
+        timer_thread = make_unique<Timer>(timer_period, [this](){timer_action();});
     }
 
     NebulaLog::log("ACL",Log::INFO,"ACL Manager started.");

@@ -51,7 +51,7 @@ public:
 
     ~HostMonitorManager();
 
-    OneMonitorDriver* get_oned_driver() const { return oned_driver; }
+    OneMonitorDriver* get_oned_driver() const { return oned_driver.get(); }
 
     //--------------------------------------------------------------------------
     //  Driver Interface
@@ -165,13 +165,13 @@ public:
 private:
     using driver_manager_t = DriverManager<MonitorDriver>;
 
-    driver_manager_t* driver_manager;
+    std::unique_ptr<driver_manager_t> driver_manager;
 
-    OneMonitorDriver* oned_driver;
+    std::unique_ptr<OneMonitorDriver> oned_driver;
 
-    UDPMonitorDriver* udp_driver;
+    std::unique_ptr<UDPMonitorDriver> udp_driver;
 
-    TCPMonitorDriver* tcp_driver;
+    std::unique_ptr<TCPMonitorDriver> tcp_driver;
 
     HostRPCPool* hpool;
 

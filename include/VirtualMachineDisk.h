@@ -494,7 +494,7 @@ public:
      *    @param ds_quotas templates for quota updates
      */
     static void image_ds_quotas(Template * tmpl,
-                                std::vector<Template *>& ds_quotas);
+                                std::vector<std::unique_ptr<Template>>& ds_quotas);
 
     /**
      *  Sets Datastore information on volatile disks

@@ -891,20 +891,19 @@ public:
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new VirtualMachineTemplate;
+        return std::make_unique<VirtualMachineTemplate>();
     }
 
     /**
      *  Returns a copy of the VirtualMachineTemplate
      *    @return A copy of the VirtualMachineTemplate
      */
-    VirtualMachineTemplate * clone_template() const
+    std::unique_ptr<VirtualMachineTemplate> clone_template() const
     {
-        return new VirtualMachineTemplate(
-                *(static_cast<VirtualMachineTemplate *>(obj_template)));
-    };
+        return std::make_unique<VirtualMachineTemplate>(*obj_template);
+    }
 
     /**
      *  This function replaces the *user template*.
@@ -1171,7 +1170,7 @@ public:
      *    @param err description if any
      *    @return template with the attributes
      */
-    VirtualMachineTemplate * get_updateconf_template() const;
+    std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
@@ -1751,7 +1750,7 @@ private:
     /**
      *  User template to store custom metadata. This template can be updated
      */
-    VirtualMachineTemplate * user_obj_template;
+    std::unique_ptr<VirtualMachineTemplate> user_obj_template;
 
     /**
      *  Monitoring information for the VM
@@ -2129,12 +2128,12 @@ private:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt() override;
+    void encrypt() override;
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt() override;
+    void decrypt() override;
 
 protected:
 
@@ -2148,7 +2147,7 @@ protected:
                    const std::string& uname,
                    const std::string& gname,
                    int umask,
-                   VirtualMachineTemplate * _vm_template);
+                   std::unique_ptr<VirtualMachineTemplate> _vm_template);
 
     // *************************************************************************
     // DataBase implementation

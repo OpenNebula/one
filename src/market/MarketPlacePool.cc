@@ -65,10 +65,10 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
 
         string error;
 
-        MarketPlaceTemplate * default_tmpl = new MarketPlaceTemplate;
-        MarketPlaceTemplate * lxc_tmpl     = new MarketPlaceTemplate;
-        MarketPlaceTemplate * tk_tmpl      = new MarketPlaceTemplate;
-        MarketPlaceTemplate * dh_tmpl      = new MarketPlaceTemplate;
+        auto default_tmpl = make_unique<MarketPlaceTemplate>();
+        auto lxc_tmpl     = make_unique<MarketPlaceTemplate>();
+        auto tk_tmpl      = make_unique<MarketPlaceTemplate>();
+        auto dh_tmpl      = make_unique<MarketPlaceTemplate>();
 
         char * error_parse;
 
@@ -83,7 +83,7 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                default_tmpl);
+                move(default_tmpl));
 
         MarketPlace * lxc_marketplace = new MarketPlace(
                 oneadmin->get_uid(),
@@ -91,7 +91,7 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                lxc_tmpl);
+                move(lxc_tmpl));
 
         MarketPlace * tk_marketplace = new MarketPlace(
                 oneadmin->get_uid(),
@@ -99,7 +99,7 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                tk_tmpl);
+                move(tk_tmpl));
 
         MarketPlace * dh_marketplace = new MarketPlace(
                 oneadmin->get_uid(),
@@ -107,7 +107,7 @@ MarketPlacePool::MarketPlacePool(SqlDB * db, bool is_federation_slave)
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                dh_tmpl);
+                move(dh_tmpl));
 
         marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
         lxc_marketplace->set_permissions(1,1,1, 1,0,0, 1,0,0, error);
@@ -156,7 +156,7 @@ int MarketPlacePool::allocate(
         const std::string&    uname,
         const std::string&    gname,
         int                   umask,
-        MarketPlaceTemplate * mp_template,
+        unique_ptr<MarketPlaceTemplate> mp_template,
         int *                 oid,
         std::string&          error_str)
 {
@@ -170,7 +170,7 @@ int MarketPlacePool::allocate(
     // -------------------------------------------------------------------------
     // Build the marketplace object
     // -------------------------------------------------------------------------
-    mp = new MarketPlace(uid, gid, uname, gname, umask, mp_template);
+    mp = new MarketPlace(uid, gid, uname, gname, umask, move(mp_template));
 
     mp->get_template_attribute("NAME", name);
 

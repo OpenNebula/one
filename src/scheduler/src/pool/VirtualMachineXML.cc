@@ -154,23 +154,22 @@ void VirtualMachineXML::init_attributes()
 
         for (auto it_nodes = nodes.begin(); it_nodes != nodes.end(); ++it_nodes)
         {
-            VirtualMachineTemplate * nic_template = new VirtualMachineTemplate;
+            VirtualMachineTemplate nic_template;
 
-            nic_template->from_xml_node(*it_nodes);
+            nic_template.from_xml_node(*it_nodes);
 
-            bool rc = nic_template->get("NETWORK_MODE", net_mode);
+            bool rc = nic_template.get("NETWORK_MODE", net_mode);
             one_util::toupper(net_mode);
 
             if ( !rc || net_mode != "AUTO" )
             {
-                delete nic_template;
                 continue;
             }
 
             std::string reqs, rank;
             int nic_id;
 
-            nic_template->get("NIC_ID", nic_id);
+            nic_template.get("NIC_ID", nic_id);
 
             nics_ids_auto.insert(nic_id);
 
@@ -178,7 +177,7 @@ void VirtualMachineXML::init_attributes()
 
             nics.insert(make_pair(nic_id, the_nic));
 
-            if ( nic_template->get("SCHED_REQUIREMENTS", reqs) )
+            if ( nic_template.get("SCHED_REQUIREMENTS", reqs) )
             {
                 if ( !automatic_nic_requirements.empty() )
                 {
@@ -192,12 +191,10 @@ void VirtualMachineXML::init_attributes()
                 the_nic->set_requirements(reqs);
             }
 
-            if ( nic_template->get("SCHED_RANK", rank) )
+            if ( nic_template.get("SCHED_RANK", rank) )
             {
                 the_nic->set_rank(rank);
             }
-
-            delete nic_template;
         }
 
         free_nodes(nodes);
@@ -210,7 +207,7 @@ void VirtualMachineXML::init_attributes()
     /**************************************************************************/
     if (get_nodes("/VM/TEMPLATE", nodes) > 0)
     {
-        vm_template = new VirtualMachineTemplate;
+        vm_template = make_unique<VirtualMachineTemplate>();
 
         vm_template->from_xml_node(nodes[0]);
 
@@ -218,14 +215,14 @@ void VirtualMachineXML::init_attributes()
     }
     else
     {
-        vm_template = 0;
+        vm_template = nullptr;
     }
 
     nodes.clear();
 
     if (get_nodes("/VM/USER_TEMPLATE", nodes) > 0)
     {
-        user_template = new VirtualMachineTemplate;
+        user_template = make_unique<VirtualMachineTemplate>();
 
         user_template->from_xml_node(nodes[0]);
 

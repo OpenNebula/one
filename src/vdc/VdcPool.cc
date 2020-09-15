@@ -42,7 +42,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
     if (get_lastOID() == -1)
     {
         ostringstream vdc_tmpl;
-        Template *    tmpl = new Template;
+        auto tmpl = make_unique<Template>();
 
         // Build the default vdc
         vdc_tmpl << "NAME=" << DEFAULT_NAME << endl
@@ -57,7 +57,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
             goto error_bootstrap;
         }
 
-        allocate(tmpl, &rc, error_str);
+        allocate(move(tmpl), &rc, error_str);
 
         if( rc < 0 )
         {
@@ -90,12 +90,10 @@ error_bootstrap:
 /* -------------------------------------------------------------------------- */
 
 int VdcPool::allocate(
-        Template *  vdc_template,
+        unique_ptr<Template> vdc_template,
         int *       oid,
         string&     error_str)
 {
-    Vdc * vdc;
-
     int    db_oid;
     string name;
 
@@ -110,7 +108,7 @@ int VdcPool::allocate(
         return -1;
     }
 
-    vdc = new Vdc(-1, vdc_template);
+    auto vdc = new Vdc(-1, move(vdc_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates

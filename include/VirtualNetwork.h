@@ -202,9 +202,9 @@ public:
     /**
      *  Factory method for virtual network templates
      */
-    Template * get_new_template() const override
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new VirtualNetworkTemplate;
+        return std::make_unique<VirtualNetworkTemplate>();
     }
 
     /**
@@ -555,10 +555,9 @@ public:
     /**
      *    @return A copy of the VNET Template
      */
-    VirtualNetworkTemplate * clone_template() const
+    std::unique_ptr<VirtualNetworkTemplate> clone_template() const
     {
-        VirtualNetworkTemplate * new_vn = new VirtualNetworkTemplate(
-                *(static_cast<VirtualNetworkTemplate *>(obj_template)));
+        auto new_vn = std::make_unique<VirtualNetworkTemplate>(*obj_template);
 
         //Clone non-template attributes
         //  AUTOMATIC_VLAN_ID
@@ -587,12 +586,12 @@ public:
     /**
      *  Encrypt all secret attributes
      */
-    virtual void encrypt() override;
+    void encrypt() override;
 
     /**
      *  Decrypt all secret attributes
      */
-    virtual void decrypt() override;
+    void decrypt() override;
 
 private:
 
@@ -808,7 +807,7 @@ private:
                    int                      _umask,
                    int                      _parent_vid,
                    const std::set<int>      &_cluster_ids,
-                   VirtualNetworkTemplate * _vn_template = 0);
+                   std::unique_ptr<VirtualNetworkTemplate> _vn_template = 0);
 
     // *************************************************************************
     // DataBase implementation

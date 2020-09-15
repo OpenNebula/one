@@ -119,16 +119,6 @@ public:
 
     ~VirtualMachineXML()
     {
-        if (vm_template != 0)
-        {
-            delete vm_template;
-        }
-
-        if (user_template != 0)
-        {
-            delete user_template;
-        }
-
         for (auto nic : nics)
         {
             delete nic.second;
@@ -410,13 +400,13 @@ public:
     }
 
     /**
-     * Removes (but does not delete) the scheduled actions of the VM
+     * Get scheduled actions of the VM
      *
      * @param attributes to hold the VM actions
      */
-    SchedActions * get_actions() const
+    SchedActions get_actions() const
     {
-        return new SchedActions(user_template);
+        return SchedActions(user_template.get());
     }
 
     /**
@@ -508,8 +498,8 @@ protected:
 
     std::map<int, VirtualMachineNicXML *> nics;
 
-    VirtualMachineTemplate * vm_template;   /**< The VM template */
-    VirtualMachineTemplate * user_template; /**< The VM user template */
+    std::unique_ptr<VirtualMachineTemplate> vm_template;   /**< The VM template */
+    std::unique_ptr<VirtualMachineTemplate> user_template; /**< The VM user template */
 };
 
 #endif /* VM_XML_H_ */

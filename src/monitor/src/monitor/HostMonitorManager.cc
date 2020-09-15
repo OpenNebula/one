@@ -52,10 +52,10 @@ HostMonitorManager::HostMonitorManager(
     , monitor_interval_host(monitor_interval_host)
     , is_leader(false)
 {
-    oned_driver    = new OneMonitorDriver(this);
-    udp_driver     = new UDPMonitorDriver(addr, port);
-    tcp_driver     = new TCPMonitorDriver(addr, port);
-    driver_manager = new driver_manager_t(driver_path);
+    oned_driver    = make_unique<OneMonitorDriver>(this);
+    udp_driver     = make_unique<UDPMonitorDriver>(addr, port);
+    tcp_driver     = make_unique<TCPMonitorDriver>(addr, port);
+    driver_manager = make_unique<driver_manager_t>(driver_path);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -63,10 +63,6 @@ HostMonitorManager::HostMonitorManager(
 
 HostMonitorManager::~HostMonitorManager()
 {
-    delete oned_driver;
-    delete udp_driver;
-    delete tcp_driver;
-    delete driver_manager;
 }
 
 /* -------------------------------------------------------------------------- */

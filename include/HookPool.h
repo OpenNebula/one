@@ -38,7 +38,7 @@ public:
      *    @param oid the id assigned to the Hook
      *    @return the oid assigned to the object or -1 in case of failure
      */
-    int allocate (Template * tmpl, std::string& error_str);
+    int allocate (std::unique_ptr<Template> tmpl, std::string& error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the

@@ -30,19 +30,19 @@ using namespace std;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Hook::Hook(Template * tmpl):
+Hook::Hook(unique_ptr<Template> tmpl):
     PoolObjectSQL(-1, HOOK, "", -1, -1, "", "", one_db::hook_table),
     type(HookType::UNDEFINED), cmd(""), remote(false), _hook(0)
 {
-    if (tmpl != 0)
+    if (tmpl)
     {
-        obj_template = tmpl;
+        obj_template = move(tmpl);
     }
     else
     {
-        obj_template = new Template();
+        obj_template = make_unique<Template>();
     }
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -130,7 +130,7 @@ int Hook::from_xml(const std::string& xml)
         return -1;
     }
 
-    rc += _hook->from_template(obj_template, error_msg);
+    rc += _hook->from_template(obj_template.get(), error_msg);
 
     get_template_attribute("COMMAND", cmd);
     get_template_attribute("REMOTE",  remote);
@@ -176,7 +176,7 @@ int Hook::post_update_template(string& error)
         replace_template_attribute("REMOTE", remote);
     }
 
-    return _hook->post_update_template(obj_template, error);
+    return _hook->post_update_template(obj_template.get(), error);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -234,7 +234,7 @@ int Hook::insert(SqlDB *db, std::string& error_str)
         goto error_common;
     }
 
-    rc = _hook->parse_template(obj_template, error_str);
+    rc = _hook->parse_template(obj_template.get(), error_str);
 
     if (rc == -1)
     {

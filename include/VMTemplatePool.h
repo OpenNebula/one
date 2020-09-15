@@ -51,7 +51,7 @@ public:
                  const std::string&       uname,
                  const std::string&       gname,
                  int                      umask,
-                 VirtualMachineTemplate * template_contents,
+                 std::unique_ptr<VirtualMachineTemplate> template_contents,
                  int *                    oid,
                  std::string&             error_str);
 

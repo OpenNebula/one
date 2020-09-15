@@ -33,7 +33,7 @@ MarketPlaceApp::MarketPlaceApp(
     const std::string&       uname,
     const std::string&       gname,
     int                      umask,
-    MarketPlaceAppTemplate * app_template):
+    unique_ptr<MarketPlaceAppTemplate> app_template):
         PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, one_db::mp_app_table),
         source(""),
         md5(""),
@@ -47,17 +47,17 @@ MarketPlaceApp::MarketPlaceApp(
         type(IMAGE),
         zone_id(-1)
 {
-    if (app_template != 0)
+    if (app_template)
     {
-        obj_template = app_template;
+        obj_template = move(app_template);
     }
     else
     {
-        obj_template = new MarketPlaceAppTemplate;
+        obj_template = make_unique<MarketPlaceAppTemplate>();
     }
 
     set_umask(umask);
-};
+}
 
 /* ************************************************************************ */
 /* MartketPlaceApp:: Database Access Functions                              */

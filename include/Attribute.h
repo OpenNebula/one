@@ -70,11 +70,10 @@ public:
     };
 
     /**
-     *  Marshall the attribute in a single string. The string MUST be freed
-     *  by the calling function.
-     *    @return a string (allocated in the heap) holding the attribute value.
+     *  Marshall the attribute in a single string.
+     *    @return a string holding the attribute value.
      */
-    virtual std::string * marshall(const char * _sep = 0) const = 0;
+    virtual std::string marshall(const char * _sep = 0) const = 0;
 
     /**
      *  Write the attribute using a simple XML format. The string MUST be freed
@@ -153,17 +152,12 @@ public:
     };
 
     /**
-     *  Marshall the attribute in a single string. The string MUST be freed
-     *  by the calling function.
-     *    @return a string (allocated in the heap) holding the attribute value.
+     *  Marshall the attribute in a single string.
+     *    @return a string holding the attribute value.
      */
-    std::string * marshall(const char * _sep = 0) const override
+    std::string marshall(const char * _sep = 0) const override
     {
-        auto rs = new std::string;
-
-        *rs = attribute_value;
-
-        return rs;
+        return attribute_value;
     };
 
     /**
@@ -391,7 +385,7 @@ public:
      *  "VAL_NAME_1=VAL_VALUE_1,...,VAL_NAME_N=VAL_VALUE_N".
      *    @return a string (allocated in the heap) holding the attribute value.
      */
-    std::string * marshall(const char * _sep = 0) const override;
+    std::string marshall(const char * _sep = 0) const override;
 
     /**
      *  Write the attribute using a simple XML format:

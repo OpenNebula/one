@@ -63,8 +63,6 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     , timer_thread()
     , purge_thread(log_purge, [this](){purge_action();})
     , commit(0)
-    , leader_hook(0)
-    , follower_hook(0)
 {
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
@@ -154,8 +152,8 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            leader_hook = new ExecuteHook("RAFT_LEADER_HOOK", cmd, arg,
-                    remotes_location);
+            leader_hook = make_unique<ExecuteHook>("RAFT_LEADER_HOOK",
+                            cmd, arg, remotes_location);
         }
     }
 
@@ -175,12 +173,12 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
         }
         else
         {
-            follower_hook = new ExecuteHook("RAFT_FOLLOWER_HOOK", cmd, arg,
-                    remotes_location);
+            follower_hook = make_unique<ExecuteHook>("RAFT_FOLLOWER_HOOK",
+                                cmd, arg, remotes_location);
         }
     }
 
-    if ( state == FOLLOWER && follower_hook != 0 )
+    if ( state == FOLLOWER && follower_hook )
     {
         follower_hook->execute();
     }
@@ -364,7 +362,7 @@ void RaftManager::leader()
 
         requests.clear();
 
-        if ( leader_hook != 0 )
+        if ( leader_hook )
         {
             leader_hook->execute();
         }
@@ -460,7 +458,7 @@ void RaftManager::follower(unsigned int _term)
     {
         std::lock_guard<mutex> lock(raft_mutex);
 
-        if ( state == LEADER && follower_hook != 0 )
+        if ( state == LEADER && follower_hook )
         {
             follower_hook->execute();
         }

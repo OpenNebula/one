@@ -51,7 +51,7 @@ public:
                  const std::string&       uname,
                  const std::string&       gname,
                  int                      umask,
-                 VirtualNetworkTemplate * template_contents,
+                 std::unique_ptr<VirtualNetworkTemplate> template_contents,
                  int *                    oid,
                  std::string&             error_str);
 

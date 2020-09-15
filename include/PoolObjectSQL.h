@@ -175,7 +175,6 @@ public:
              other_u(0),
              other_m(0),
              other_a(0),
-             obj_template(0),
              locked(LockStates::ST_NONE),
              lock_owner(-1),
              lock_req_id(-1),
@@ -192,8 +191,6 @@ public:
         {
             _mutex->unlock();
         }
-
-        delete obj_template;
     };
 
     /* --------------------------------------------------------------------- */
@@ -485,9 +482,9 @@ public:
      *  by classes that uses templates
      *    @return a new template
      */
-    virtual Template * get_new_template() const
+    virtual std::unique_ptr<Template> get_new_template() const
     {
-        return 0;
+        return nullptr;
     }
 
     /**
@@ -777,7 +774,7 @@ protected:
     /**
      *  Template for this object, will be allocated if needed
      */
-    Template * obj_template;
+    std::unique_ptr<Template> obj_template;
 
     /**
      *  Flag for the DB lock
