@@ -458,8 +458,6 @@ post '/service_template' do
     s_template = OpenNebula::ServiceTemplate.new(xml, @client)
 
     begin
-        # require 'pry-byebug'
-        # binding.pry
         rc = s_template.allocate(request.body.read)
     rescue Validator::ParseException, JSON::ParserError => e
         return internal_error(e.message, VALIDATION_EC)
