@@ -16,7 +16,13 @@
 
 package acl
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+)
 
 // Pool represents an OpenNebula ACL pool
 type Pool struct {
@@ -75,3 +81,137 @@ const (
 	Admin  Rights = 0x4 // Auth. to perform administrative actions
 	Create Rights = 0x8 // Auth. to create an object
 )
+
+var resourceMap = map[string]Resources{
+	"VM":             VM,
+	"HOST":           Host,
+	"NET":            Net,
+	"IMAGE":          Image,
+	"USER":           User,
+	"TEMPLATE":       Template,
+	"GROUP":          Group,
+	"DATASTORE":      Datastore,
+	"CLUSTER":        Cluster,
+	"DOCUMENT":       Document,
+	"ZONE":           Zone,
+	"SECGROUP":       SecGroup,
+	"VDC":            Vdc,
+	"VROUTER":        VRouter,
+	"MARKETPLACE":    MarketPlace,
+	"MARKETPLACEAPP": MarketPlaceApp,
+	"VMGROUP":        VMGroup,
+	"VNTEMPLATE":     VNTemplate,
+}
+
+var rightMap = map[string]Rights{
+	"USE":    Use,
+	"MANAGE": Manage,
+	"ADMIN":  Admin,
+	"CREATE": Create,
+}
+
+// CalculateIDs Calculate hex from User selector (#0, @0, *, %0)
+func CalculateIDs(idString string) (int64, error) {
+	match, err := regexp.Match("^([\\#@\\%]\\d+|\\*)$", []byte(idString))
+	if err != nil {
+		return 0, err
+	}
+	if !match {
+		return 0, fmt.Errorf("ID String %+v malformed", idString)
+	}
+
+	var value int64
+
+	// Match by UID
+	if strings.HasPrefix(idString, "#") {
+		id, err := strconv.Atoi(strings.TrimLeft(idString, "#"))
+		if err != nil {
+			return 0, err
+		}
+		value = int64(UID) + int64(id)
+	}
+
+	// Match by GID
+	if strings.HasPrefix(idString, "@") {
+		id, err := strconv.Atoi(strings.TrimLeft(idString, "@"))
+		if err != nil {
+			return 0, err
+		}
+		value = int64(GID) + int64(id)
+	}
+
+	// Match all
+	if strings.HasPrefix(idString, "*") {
+		value = int64(All)
+	}
+
+	// Match by cluster
+	if strings.HasPrefix(idString, "%") {
+		id, err := strconv.Atoi(strings.TrimLeft(idString, "%"))
+		if err != nil {
+			return 0, err
+		}
+		value = int64(ClusterUsr) + int64(id)
+	}
+
+	return value, nil
+}
+
+// ParseUsers Converts a string in the form [#<id>, @<id>, *] to a hex. number
+func ParseUsers(users string) (string, error) {
+	value, err := CalculateIDs(users)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%X", value), err
+}
+
+// ParseResources Converts a resources string to a hex. number (e.g. NET+VROUTER/@190)
+func ParseResources(resources string) (string, error) {
+	var ret int64
+	resourceParts := strings.Split(resources, "/")
+	if len(resourceParts) != 2 {
+		return "", fmt.Errorf("resource '%+v' malformed", resources)
+	}
+
+	res := strings.Split(resourceParts[0], "+")
+	for _, resource := range res {
+		val, ok := resourceMap[strings.ToUpper(resource)]
+		if !ok {
+			return "", fmt.Errorf("resource '%+v' does not exist", resource)
+		}
+		ret += int64(val)
+	}
+	ids, err := CalculateIDs(resourceParts[1])
+	if err != nil {
+		return "", err
+	}
+	ret += ids
+
+	return fmt.Sprintf("%x", ret), nil
+}
+
+// ParseRights Converts a rights string to a hex. number (MANAGE+ADMIN)
+func ParseRights(rights string) (string, error) {
+	var ret int64
+
+	rightsParts := strings.Split(rights, "+")
+	for _, right := range rightsParts {
+		val, ok := rightMap[strings.ToUpper(right)]
+		if !ok {
+			return "", fmt.Errorf("right '%+v' does not exist", right)
+		}
+		ret += int64(val)
+	}
+
+	return fmt.Sprintf("%x", ret), nil
+}
+
+// ParseZone Convert a zone part of the ACL String (#0)
+func ParseZone(zone string) (string, error) {
+	ids, err := CalculateIDs(zone)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", ids), nil
+}
