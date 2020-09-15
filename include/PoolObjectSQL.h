@@ -22,6 +22,7 @@
 #include "Template.h"
 
 #include <string>
+#include <memory>
 
 class PoolObjectAuth;
 
