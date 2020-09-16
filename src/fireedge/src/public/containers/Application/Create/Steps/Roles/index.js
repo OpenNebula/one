@@ -9,13 +9,13 @@ import FlowWithFAB from 'client/components/Flows/FlowWithFAB';
 import Steps from './Steps';
 
 const Roles = () => {
-  const STEP_ID = 'roles';
+  const STEP_ID = 'tiers';
   const { steps, defaultValues, resolvers } = Steps();
 
   return useMemo(
     () => ({
       id: STEP_ID,
-      label: 'Defining each role',
+      label: 'Tier Definition',
       content: FormList,
       DEFAULT_DATA: defaultValues,
       resolver: yup

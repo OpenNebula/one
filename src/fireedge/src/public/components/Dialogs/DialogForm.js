@@ -31,7 +31,11 @@ const DialogForm = memo(
         maxWidth="lg"
         scroll="paper"
         PaperProps={{
-          style: { height: '100%', minHeight: '80%', minWidth: '80%' }
+          style: {
+            height: isMobile ? '100%' : '80%',
+            minHeight: '80%',
+            minWidth: '80%'
+          }
         }}
       >
         <DialogTitle>{title}</DialogTitle>
