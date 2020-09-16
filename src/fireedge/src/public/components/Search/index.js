@@ -1,54 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import { TextField, Box } from '@material-ui/core';
+import Fuse from 'fuse.js';
+import { TextField, Box, debounce } from '@material-ui/core';
+
+import ListInfiniteScroll from 'client/components/List/ListInfiniteScroll';
 
 const Search = ({
   list,
-  maxResults,
-  filterSearch,
+  listOptions,
   renderResult,
-  ResultBoxProps
+  startAdornment,
+  searchBoxProps
 }) => {
-  const [search, setSearch] = useState('');
-  const [result, setResult] = useState(list);
+  const [query, setQuery] = useState('');
+  const [result, setResult] = useState(undefined);
+  const listFuse = useMemo(
+    () => new Fuse(list, listOptions, Fuse.createIndex(listOptions.keys, list)),
+    [list, listOptions]
+  );
 
-  useEffect(() => {
-    setResult(list?.filter(item => filterSearch(item, search)));
-  }, [search, list]);
+  const debounceResult = React.useCallback(
+    debounce(value => {
+      const search = listFuse.search(value)?.map(({ item }) => item);
 
-  const handleChange = event => setSearch(event.target.value);
+      setResult(value ? search : undefined);
+    }, 1000),
+    [list]
+  );
+
+  const handleChange = event => {
+    const { value: nextValue } = event?.target;
+
+    setQuery(nextValue);
+    debounceResult(nextValue);
+  };
 
   return (
     <>
-      <TextField
-        type="search"
-        value={search}
-        onChange={handleChange}
-        fullWidth
-        placeholder="Search..."
-      />
-      <Box {...ResultBoxProps}>
-        {result?.slice(0, maxResults).map(renderResult)}
+      <Box {...searchBoxProps}>
+        {startAdornment && startAdornment}
+        <TextField
+          type="search"
+          value={query}
+          onChange={handleChange}
+          fullWidth
+          placeholder="Search..."
+        />
       </Box>
+      {result?.length === 0 ? (
+        <h4>{`Your search did not match`}</h4>
+      ) : (
+        <ListInfiniteScroll list={result ?? list} renderResult={renderResult} />
+      )}
     </>
   );
 };
 
 Search.propTypes = {
   list: PropTypes.arrayOf(PropTypes.object).isRequired,
-  maxResults: PropTypes.number,
-  filterSearch: PropTypes.func,
+  listOptions: PropTypes.shape({
+    isCaseSensitive: PropTypes.bool,
+    shouldSort: PropTypes.bool,
+    sortFn: PropTypes.func,
+    keys: PropTypes.arrayOf(PropTypes.string)
+  }),
   renderResult: PropTypes.func,
-  ResultBoxProps: PropTypes.objectOf(PropTypes.object)
+  startAdornment: PropTypes.objectOf(PropTypes.any),
+  searchBoxProps: PropTypes.objectOf(PropTypes.any)
 };
 
 Search.defaultProps = {
-  list: [],
-  maxResults: undefined,
-  filterSearch: (item, search) => item.toLowerCase().includes(search),
+  fullList: [],
+  listOptions: {},
   renderResult: item => item,
-  ResultBoxProps: {}
+  startAdornment: undefined,
+  searchBoxProps: {}
 };
 
 export default Search;

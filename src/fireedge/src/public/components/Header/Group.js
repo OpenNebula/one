@@ -23,9 +23,6 @@ const Group = () => {
     group && setPrimaryGroup({ group });
   };
 
-  const filterSearch = ({ NAME }, search) =>
-    NAME?.toLowerCase().includes(search);
-
   const renderResult = ({ ID, NAME }, handleClose) => {
     const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
@@ -47,16 +44,18 @@ const Group = () => {
     );
   };
 
+  const sortGroupAsMainFirst = (a, b) => {
+    if (a.ID === authUser?.GUID) {
+      return -1;
+    } else if (b.ID === authUser?.GUID) {
+      return 1;
+    }
+    return 0;
+  };
+
   const sortMainGroupFirst = groups
     ?.concat({ ID: ALL_RESOURCES, NAME: 'Show All' })
-    ?.sort((a, b) => {
-      if (a.ID === authUser?.GUID) {
-        return -1;
-      } else if (b.ID === authUser?.GUID) {
-        return 1;
-      }
-      return 0;
-    });
+    ?.sort(sortGroupAsMainFirst);
 
   return (
     <HeaderPopover
@@ -68,8 +67,12 @@ const Group = () => {
       {({ handleClose }) => (
         <Search
           list={sortMainGroupFirst}
+          listOptions={{
+            shouldSort: true,
+            sortFn: sortGroupAsMainFirst,
+            keys: ['NAME']
+          }}
           maxResults={5}
-          filterSearch={filterSearch}
           renderResult={group => renderResult(group, handleClose)}
         />
       )}

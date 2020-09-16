@@ -7,6 +7,7 @@ import actions, {
 } from 'client/actions/pool';
 
 import * as servicePool from 'client/services/pool';
+import { filterBy } from 'client/utils/helpers';
 
 export default function useOpennebula() {
   const dispatch = useDispatch();
@@ -59,21 +60,31 @@ export default function useOpennebula() {
       .catch(err => dispatch(failureOneRequest({ error: err })));
   }, [dispatch, filter]);
 
-  const getTemplates = useCallback(() => {
-    dispatch(startOneRequest());
-    return servicePool
-      .getTemplates({ filter })
-      .then(data => dispatch(actions.setTemplates(data)))
-      .catch(err => dispatch(failureOneRequest({ error: err })));
-  }, [dispatch, filter]);
+  const getTemplates = useCallback(
+    ({ end, start } = { end: -1, start: -1 }) => {
+      dispatch(startOneRequest());
+      return servicePool
+        .getTemplates({ filter, end, start })
+        .then(data =>
+          dispatch(actions.setTemplates(filterBy(templates.concat(data), 'ID')))
+        )
+        .catch(err => dispatch(failureOneRequest({ error: err })));
+    },
+    [dispatch, filter, templates]
+  );
 
-  const getMarketApps = useCallback(() => {
-    dispatch(startOneRequest());
-    return servicePool
-      .getMarketApps({ filter })
-      .then(data => dispatch(actions.setApps(data)))
-      .catch(err => dispatch(failureOneRequest({ error: err })));
-  }, [dispatch, filter]);
+  const getMarketApps = useCallback(
+    ({ end, start } = { end: -1, start: -1 }) => {
+      dispatch(startOneRequest());
+      return servicePool
+        .getMarketApps({ filter, end, start })
+        .then(data =>
+          dispatch(actions.setApps(filterBy(apps.concat(data), 'ID')))
+        )
+        .catch(err => dispatch(failureOneRequest({ error: err })));
+    },
+    [dispatch, filter, apps]
+  );
 
   const getClusters = useCallback(() => {
     dispatch(startOneRequest());

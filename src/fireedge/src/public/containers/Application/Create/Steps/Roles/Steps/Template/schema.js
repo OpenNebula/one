@@ -1,21 +1,22 @@
 import * as yup from 'yup';
-import { TYPE_INPUT } from 'client/constants';
 import { getValidationFromFields } from 'client/utils/helpers';
 
 export const FORM_FIELDS = [
   {
     name: 'template',
-    label: 'Template VM',
-    type: TYPE_INPUT.TEXT,
-    validation: yup
-      .string()
-      .min(1)
-      .trim()
-      .required('Template field is required')
-      .default('0')
+    validation: yup.string().trim()
+  },
+  {
+    name: 'app',
+    validation: yup.string().trim()
+  },
+  {
+    name: 'docker',
+    validation: yup.string().trim()
   }
 ];
 
-export const STEP_FORM_SCHEMA = yup.object(
-  getValidationFromFields(FORM_FIELDS)
-);
+export const STEP_FORM_SCHEMA = yup
+  .object(getValidationFromFields(FORM_FIELDS))
+  .required('Template is required')
+  .default(undefined);

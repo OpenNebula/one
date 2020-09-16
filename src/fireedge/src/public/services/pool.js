@@ -65,10 +65,10 @@ export const getVNetworksTemplates = ({ filter }) => {
   });
 };
 
-export const getTemplates = ({ filter }) => {
+export const getTemplates = ({ filter, end, start }) => {
   const name = Template.Actions.TEMPLATE_POOL_INFO;
   const { url, options } = requestParams(
-    { filter },
+    { filter, end, start },
     { name, ...Template.Commands[name] }
   );
 
@@ -79,10 +79,10 @@ export const getTemplates = ({ filter }) => {
   });
 };
 
-export const getMarketApps = ({ filter }) => {
+export const getMarketApps = ({ filter, end, start }) => {
   const name = MarketApp.Actions.MARKETAPP_POOL_INFO;
   const { url, options } = requestParams(
-    { filter },
+    { filter, end, start },
     { name, ...MarketApp.Commands[name] }
   );
 
