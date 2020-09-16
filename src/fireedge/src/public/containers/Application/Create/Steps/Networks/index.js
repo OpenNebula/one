@@ -18,7 +18,7 @@ const Networks = () => {
   return useMemo(
     () => ({
       id: STEP_ID,
-      label: 'Networks configuration',
+      label: 'Configure Networking',
       content: FormList,
       preRender: () => {
         getVNetworks();
