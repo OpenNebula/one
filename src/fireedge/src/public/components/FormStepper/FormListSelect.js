@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { Grid } from '@material-ui/core';
 import { useFormContext } from 'react-hook-form';
 
-import ErrorHelper from '../FormControl/ErrorHelper';
+import ErrorHelper from 'client/components/FormControl/ErrorHelper';
+import { EmptyCard } from 'client/components/Cards';
 
 function FormListSelect({ step, data, setFormData }) {
   const { errors } = useFormContext();
@@ -33,7 +34,11 @@ function FormListSelect({ step, data, setFormData }) {
           <ErrorHelper label={errors[id]?.message} />
         </Grid>
       )}
-      {Array.isArray(list) &&
+      {list?.length === 0 ? (
+        <Grid item xs={6} sm={4} md={3} lg={1}>
+          <EmptyCard name={id} />
+        </Grid>
+      ) : (
         list?.map((info, index) => (
           <Grid key={`${id}-${index}`} item xs={6} sm={4} md={3} lg={1}>
             <ItemComponent
@@ -43,7 +48,8 @@ function FormListSelect({ step, data, setFormData }) {
               handleUnselect={handleUnselect}
             />
           </Grid>
-        ))}
+        ))
+      )}
     </Grid>
   );
 }
