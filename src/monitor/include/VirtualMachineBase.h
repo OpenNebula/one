@@ -21,6 +21,7 @@
 #include <ostream>
 #include <set>
 #include <map>
+#include <memory>
 
 #include "BaseObject.h"
 #include "VirtualMachineTemplate.h"
