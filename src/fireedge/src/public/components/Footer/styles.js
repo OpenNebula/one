@@ -18,6 +18,7 @@ export default makeStyles(theme => ({
     color: theme.palette.error.dark
   },
   link: {
-    color: theme.palette.primary.light
+    color: theme.palette.primary.light,
+    marginLeft: theme.spacing(1)
   }
 }));

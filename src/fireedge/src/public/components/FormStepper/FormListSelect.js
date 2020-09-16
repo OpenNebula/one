@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Grid } from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { useFormContext } from 'react-hook-form';
 
 import ErrorHelper from '../FormControl/ErrorHelper';
@@ -11,7 +11,7 @@ function FormListSelect({ step, data, setFormData }) {
   const { id, onlyOneSelect, preRender, list, ItemComponent } = step;
 
   useEffect(() => {
-    preRender && preRender();
+    if (preRender) preRender();
   }, []);
 
   const handleSelect = index =>
@@ -27,26 +27,24 @@ function FormListSelect({ step, data, setFormData }) {
     }));
 
   return (
-    <Box component="form">
-      <Grid container spacing={3}>
-        {typeof errors[id]?.message === 'string' && (
-          <Grid item xs={12}>
-            <ErrorHelper label={errors[id]?.message} />
+    <Grid container spacing={3}>
+      {typeof errors[id]?.message === 'string' && (
+        <Grid item xs={12}>
+          <ErrorHelper label={errors[id]?.message} />
+        </Grid>
+      )}
+      {Array.isArray(list) &&
+        list?.map((info, index) => (
+          <Grid key={`${id}-${index}`} item xs={6} sm={4} md={3} lg={1}>
+            <ItemComponent
+              value={info}
+              isSelected={data?.some(selected => selected === info?.ID)}
+              handleSelect={handleSelect}
+              handleUnselect={handleUnselect}
+            />
           </Grid>
-        )}
-        {Array.isArray(list) &&
-          list?.map((info, index) => (
-            <Grid key={`${id}-${index}`} item xs={6} sm={4} md={3} lg={1}>
-              <ItemComponent
-                info={info}
-                isSelected={data?.some(selected => selected === info?.ID)}
-                handleSelect={handleSelect}
-                handleUnselect={handleUnselect}
-              />
-            </Grid>
-          ))}
-      </Grid>
-    </Box>
+        ))}
+    </Grid>
   );
 }
 

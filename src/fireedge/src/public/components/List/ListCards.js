@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -19,17 +19,17 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-function ListCards({ addCardClick, list, CardComponent, cardsProps }) {
+function ListCards({ handleCreate, list, CardComponent, cardsProps }) {
   const classes = useStyles();
 
   return (
     <Grid container spacing={3}>
-      {addCardClick &&
-        React.useMemo(
+      {handleCreate &&
+        useMemo(
           () => (
             <Grid item xs={12} sm={4} md={3} lg={2}>
               <Card className={classes.cardPlus} raised>
-                <CardActionArea onClick={addCardClick}>
+                <CardActionArea onClick={handleCreate}>
                   <CardContent>
                     <AddIcon />
                   </CardContent>
@@ -37,7 +37,7 @@ function ListCards({ addCardClick, list, CardComponent, cardsProps }) {
               </Card>
             </Grid>
           ),
-          [addCardClick, classes]
+          [handleCreate, classes]
         )}
       {Array.isArray(list) &&
         list?.map((value, index) => (
@@ -51,7 +51,7 @@ function ListCards({ addCardClick, list, CardComponent, cardsProps }) {
 
 ListCards.propTypes = {
   list: PropTypes.arrayOf(PropTypes.any).isRequired,
-  addCardClick: PropTypes.func,
+  handleCreate: PropTypes.func,
   CardComponent: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.object,
@@ -62,7 +62,7 @@ ListCards.propTypes = {
 
 ListCards.defaultProps = {
   list: [],
-  addCardClick: [],
+  handleCreate: undefined,
   CardComponent: null,
   cardsProps: () => undefined
 };

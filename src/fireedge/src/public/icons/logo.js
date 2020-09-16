@@ -87,7 +87,7 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
 
 Logo.propTypes = {
   width: oneOfType([number, string]).isRequired,
-  height: number.isRequired,
+  height: oneOfType([number, string]).isRequired,
   viewBox: string,
   spinner: bool,
   withText: bool
@@ -100,4 +100,5 @@ Logo.defaultProps = {
   spinner: false,
   withText: false
 };
+
 export default Logo;

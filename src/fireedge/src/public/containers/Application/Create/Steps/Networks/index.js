@@ -26,10 +26,10 @@ const Networks = () => {
       },
       resolver: STEP_FORM_SCHEMA,
       DEFAULT_DATA: NETWORK_FORM_SCHEMA.default(),
-      ListComponent: ({ list, addCardClick, itemsProps }) => (
+      ListComponent: ({ list, handleCreate, itemsProps }) => (
         <ListCards
           list={list}
-          addCardClick={addCardClick}
+          handleCreate={handleCreate}
           CardComponent={NetworkCard}
           cardsProps={itemsProps}
         />

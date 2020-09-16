@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 
-import { Box } from '@material-ui/core';
 import { useFormContext } from 'react-hook-form';
 
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
@@ -14,7 +13,7 @@ function FormList({ step, data, setFormData }) {
   const { id, preRender, ListComponent, DialogComponent, DEFAULT_DATA } = step;
 
   useEffect(() => {
-    preRender && preRender();
+    if (preRender) preRender();
   }, []);
 
   const handleSubmit = values => {
@@ -55,19 +54,24 @@ function FormList({ step, data, setFormData }) {
   const handleClose = () => setShowDialog(false);
 
   return (
-    <Box component="form">
+    <>
       {typeof errors[id]?.message === 'string' && (
         <ErrorHelper label={errors[id]?.message} />
       )}
-      <ListComponent
-        list={data}
-        addCardClick={() => handleOpen()}
-        itemsProps={({ index }) => ({
-          handleEdit: () => handleOpen(index),
-          handleClone: () => handleClone(index),
-          handleRemove: () => handleRemove(index)
-        })}
-      />
+      {useMemo(
+        () => (
+          <ListComponent
+            list={data}
+            handleCreate={() => handleOpen()}
+            itemsProps={({ index }) => ({
+              handleEdit: () => handleOpen(index),
+              handleClone: () => handleClone(index),
+              handleRemove: () => handleRemove(index)
+            })}
+          />
+        ),
+        [data, handleOpen, handleClone, handleRemove]
+      )}
       {showDialog && DialogComponent && (
         <DialogComponent
           open={showDialog}
@@ -76,7 +80,7 @@ function FormList({ step, data, setFormData }) {
           onCancel={handleClose}
         />
       )}
-    </Box>
+    </>
   );
 }
 
