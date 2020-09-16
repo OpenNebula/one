@@ -19,6 +19,7 @@
 
 #include <queue>
 #include <set>
+#include <memory>
 
 #include "VirtualMachineAttribute.h"
 #include "Snapshots.h"
