@@ -19,7 +19,6 @@ const SelectController = memo(
           error={Boolean(error)}
           helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
           FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
-          style={{ marginTop: 12 }}
         >
           {Array.isArray(values) &&
             values?.map(({ text, value }) => (
