@@ -244,6 +244,16 @@ define(function(require) {
       that.service_template_json.DOCUMENT.TEMPLATE.BODY &&
       that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles
     ){
+      var charters = "";
+      if(config && config.system_config && config.system_config.leases ){
+        $(".service-charters", context).find("tr").each(function(index){
+          var time = $(this).attr("data-time");
+          var action = $(this).attr("data-action");
+          if(time.length>0 && action.length>0){
+            charters += TemplateUtils.templateToString({SCHED_ACTION:{ACTION:action, TIME: time, ID: index.toString()}});
+          }
+        });
+      }
       $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
         var temp_role = role;
         var div_id = "user_input_role_"+index;
@@ -267,7 +277,7 @@ define(function(require) {
             temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
           }
         });
-        if(charters.length){
+        if(charters && charters.length){
           if(temp_role.vm_template_contents !== undefined){
             temp_role.vm_template_contents += charters;
           }else{
@@ -276,6 +286,7 @@ define(function(require) {
         }
         extra_info.merge_template.roles.push(temp_role);
       });
+      charters = "";
     }
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){
