@@ -230,7 +230,6 @@ int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
         RequestAttributes& att)
 {
     vector<VectorAttribute *> vdisks;
-    vector<VectorAttribute *>::iterator i;
 
     VirtualMachineDisks disks(true);
 
@@ -272,8 +271,7 @@ int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
     if ( !error_ids.empty() )
     {
         att.resp_msg = "Cannot delete " + object_name(PoolObjectSQL::IMAGE) +
-            ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
-            error_ids.end(), ',');
+            ": " + one_util::join(error_ids.begin(), error_ids.end(), ',');
 
         return -1;
     }

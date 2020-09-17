@@ -900,10 +900,9 @@ error_duplicated_target:
 error_common:
     ImageManager *  imagem = nd.get_imagem();
 
-    for ( std::vector<int>::iterator img_it = acquired_images.begin() ;
-            img_it != acquired_images.end(); ++img_it )
+    for ( auto img_id : acquired_images )
     {
-        imagem->release_image(vm_id, *img_it, false);
+        imagem->release_image(vm_id, img_id, false);
     }
 
     return -1;

@@ -54,13 +54,12 @@ static void prepare_nic_vm(VectorAttribute * nic)
         vrouter_prefix(nic, "VLAN_ID");
 
         std::set<std::string> restricted;
-        std::set<std::string>::iterator it;
 
         VirtualMachineTemplate::restricted_nic(restricted);
 
-        for (it = restricted.begin(); it != restricted.end(); ++it)
+        for (const auto& restr : restricted)
         {
-            nic->remove(*it);
+            nic->remove(restr);
         }
     }
 }
@@ -169,17 +168,13 @@ int VirtualRouter::shutdown_vms(const set<int>& _vms, const RequestAttributes& r
 {
     DispatchManager * dm = Nebula::instance().get_dm();
 
-    set<int>::const_iterator  it;
-
     string error;
 
     int rc;
     int result = 0;
 
-    for (it = _vms.begin(); it != _vms.end(); it++)
+    for (auto vm_id : _vms)
     {
-        int vm_id = *it;
-
         rc = dm->terminate(vm_id, true, ra, error);
 
         if (rc != 0)
@@ -575,8 +570,6 @@ VectorAttribute * VirtualRouter::attach_nic(
     VirtualNetworkPool *        vnpool;
     vector<VectorAttribute *>   nics;
 
-    vector<VectorAttribute *>::const_iterator it;
-
     int rc;
     int nic_id;
 
@@ -590,9 +583,9 @@ VectorAttribute * VirtualRouter::attach_nic(
 
     obj_template->get("NIC", nics);
 
-    for (it = nics.begin(); it != nics.end(); it++)
+    for (auto nic : nics)
     {
-        (*it)->vector_value("NIC_ID", nic_id);
+        nic->vector_value("NIC_ID", nic_id);
 
         if ( nic_id > max_nic_id )
         {
@@ -673,17 +666,16 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
     int tnic_id;
 
     vector<VectorAttribute  *> nics;
-    vector<VectorAttribute *>::iterator nic_it;
 
     obj_template->get("NIC", nics);
 
-    for (nic_it = nics.begin(); nic_it != nics.end(); nic_it++)
+    for (auto nic : nics)
     {
-        (*nic_it)->vector_value("NIC_ID", tnic_id);
+        nic->vector_value("NIC_ID", tnic_id);
 
         if ( tnic_id == nic_id )
         {
-            return (*nic_it);
+            return nic;
         }
     }
 
@@ -696,12 +688,11 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
 void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
                                     bool check_lock)
 {
-    VirtualMachineNics::nic_iterator nic;
     VirtualMachineNics tnics(tmpl);
 
-    for (nic = tnics.begin(); nic != tnics.end(); ++nic)
+    for (auto nic : tnics)
     {
-        (*nic)->authorize_vrouter(uid, &ar, check_lock);
+        nic->authorize_vrouter(uid, &ar, check_lock);
     }
 }
 

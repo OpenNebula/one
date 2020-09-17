@@ -232,18 +232,15 @@ bool AclManager::authorize(
 
     if (!obj_perms.disable_cluster_acl)
     {
-        set<int>::iterator i;
-
-        for(i = obj_perms.cids.begin(); i != obj_perms.cids.end(); i++)
+        for (auto perm : obj_perms.cids)
         {
-            resource_cid_req.insert(    obj_perms.obj_type |
-                                        AclRule::CLUSTER_ID |
-                                        *i
-                                    );
+            resource_cid_req.insert(obj_perms.obj_type |
+                                    AclRule::CLUSTER_ID |
+                                    perm);
         }
     }
 
-    long long resource_all_req ;
+    long long resource_all_req;
 
     if (!obj_perms.disable_all_acl)
     {
@@ -357,11 +354,9 @@ bool AclManager::authorize(
     // Look for rules that apply to each one of the user's groups
     // ----------------------------------------------------------
 
-    set<int>::iterator  g_it;
-
-    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+    for (auto group : user_groups)
     {
-        user_req = AclRule::GROUP_ID | *g_it;
+        user_req = AclRule::GROUP_ID | group;
         auth     = match_rules_wrapper(user_req,
                                        resource_oid_req,
                                        resource_gid_req,
@@ -463,12 +458,10 @@ static bool match_cluster_req(
         long long resource_cid_mask,
         long long rule_resource)
 {
-    set<long long>::iterator i;
-
-    for(i = resource_cid_req.begin(); i != resource_cid_req.end(); i++)
+    for (auto cid : resource_cid_req)
     {
         // rule's object type and cluster object ID match
-        if ( ( rule_resource & resource_cid_mask ) == *i )
+        if ( ( rule_resource & resource_cid_mask ) == cid )
         {
             return true;
         }
@@ -495,18 +488,13 @@ bool AclManager::match_rules(
     bool auth = false;
     ostringstream oss;
 
-    multimap<long long, AclRule *>::const_iterator        it;
-
-    pair<multimap<long long, AclRule *>::const_iterator,
-         multimap<long long, AclRule *>::const_iterator>  index;
-
     long long zone_oid_mask = AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL;
     long long zone_req      = AclRule::INDIVIDUAL_ID | zone_id;
     long long zone_all_req  = AclRule::ALL_ID;
 
-    index = rules.equal_range( user_req );
+    auto index = rules.equal_range( user_req );
 
-    for ( it = index.first; it != index.second; it++)
+    for ( auto it = index.first; it != index.second; it++)
     {
         if (NebulaLog::log_level() >= Log::DDEBUG)
         {
@@ -582,15 +570,11 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
     ostringstream   oss;
     int             rc;
 
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
-
     bool found = false;
 
-    index = acl_rules.equal_range( user );
+    auto index = acl_rules.equal_range( user );
 
-    for ( it = index.first; (it != index.second && !found); it++)
+    for ( auto it = index.first; (it != index.second && !found); it++)
     {
         found = *(it->second) == *rule;
     }
@@ -652,11 +636,6 @@ error_common:
 
 int AclManager::del_rule(int oid, string& error_str)
 {
-
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
-
     AclRule *   rule;
     int         rc;
     bool        found = false;
@@ -690,9 +669,9 @@ int AclManager::del_rule(int oid, string& error_str)
 
     found = false;
 
-    index = acl_rules.equal_range( rule->user );
+    auto index = acl_rules.equal_range( rule->user );
 
-    it = index.first;
+    auto it = index.first;
     while ( !found && it != index.second )
     {
         found = *rule == *(it->second);
@@ -854,7 +833,6 @@ void AclManager::del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type)
 void AclManager::del_user_matching_rules(long long user_req)
 {
     vector<int>             oids;
-    vector<int>::iterator   oid_it;
     string                  error_str;
 
     {
@@ -868,9 +846,9 @@ void AclManager::del_user_matching_rules(long long user_req)
         }
     }
 
-    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    for ( auto oid : oids )
     {
-        del_rule(*oid_it, error_str);
+        del_rule(oid, error_str);
     }
 }
 

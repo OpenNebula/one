@@ -58,8 +58,6 @@ VirtualNetworkPool::VirtualNetworkPool(
     int           count = 0;
     unsigned int  tmp;
 
-    vector<const SingleAttribute *>::const_iterator it;
-
     BitMap<4096> vlan_id_bitmap(vlan_conf, VLAN_BITMAP_ID, vlan_table);
 
     string mac = prefix;
@@ -101,9 +99,9 @@ VirtualNetworkPool::VirtualNetworkPool(
     // Parse encrypted attributes
     VirtualNetworkTemplate::parse_encrypted(encrypted_attrs);
 
-    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+    for (auto attr : _inherit_attrs)
     {
-        inherit_attrs.push_back((*it)->value());
+        inherit_attrs.push_back(attr->value());
     }
 }
 

@@ -178,13 +178,11 @@ int VirtualMachine::parse_os(string& error_str)
     vector<Attribute *> os_attr;
     VectorAttribute *   os;
 
-    vector<Attribute *>::iterator it;
-
     num = user_obj_template->remove("OS", os_attr);
 
-    for (it=os_attr.begin(); it != os_attr.end(); it++)
+    for (auto attr : os_attr)
     {
-        obj_template->set(*it);
+        obj_template->set(attr);
     }
 
     if ( num == 0 )
@@ -349,13 +347,12 @@ static int check_pci_attributes(VectorAttribute * pci, const string& default_bus
 int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
 {
     vector<VectorAttribute *> array_pci;
-    vector<VectorAttribute *>::iterator it;
 
     int pci_id = 0;
 
     tmpl->remove("PCI", array_pci);
 
-    for (it = array_pci.begin(); it !=array_pci.end(); ++it, ++pci_id)
+    for (auto it = array_pci.begin(); it !=array_pci.end(); ++it, ++pci_id)
     {
         (*it)->replace("PCI_ID", pci_id);
 
@@ -367,9 +364,9 @@ int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
 
     nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
 
-    for (it = array_pci.begin(); it !=array_pci.end(); ++it)
+    for (auto attr : array_pci)
     {
-        if ( check_pci_attributes(*it, default_bus, error_str) != 0 )
+        if ( check_pci_attributes(attr, default_bus, error_str) != 0 )
         {
             return -1;
         }
@@ -706,7 +703,6 @@ int VirtualMachine::parse_public_clouds(const char * pname, string& error)
 int VirtualMachine::parse_cpu_model(Template * tmpl)
 {
     vector<VectorAttribute *> cm_attr;
-    vector<VectorAttribute *>::iterator it;
 
     int num = tmpl->remove("CPU_MODEL", cm_attr);
 
@@ -715,7 +711,7 @@ int VirtualMachine::parse_cpu_model(Template * tmpl)
         return 0;
     }
 
-    it = cm_attr.begin();
+    auto it = cm_attr.begin();
 
     obj_template->set(*it);
 

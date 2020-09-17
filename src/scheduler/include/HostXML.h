@@ -327,14 +327,13 @@ private:
 
         if (s_name == "CURRENT_VMS")
         {
-            typename std::vector<T>::iterator it;
             std::vector<T> results;
 
             xpaths(results, "/HOST/VMS/ID");
 
-            for (it=results.begin(); it!=results.end(); it++)
+            for (const auto& vm_id : results)
             {
-                if (*it == value)
+                if (vm_id == value)
                 {
                     return 0; //VMID found in VMS value is VMID
                 }

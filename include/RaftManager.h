@@ -220,12 +220,11 @@ public:
      */
     uint64_t get_next_index(int follower_id)
     {
-        std::map<int, uint64_t>::iterator it;
         uint64_t _index = UINT64_MAX;
 
         std::lock_guard<std::mutex> lock(raft_mutex);
 
-        it = next.find(follower_id);
+        auto it = next.find(follower_id);
 
         if ( it != next.end() )
         {

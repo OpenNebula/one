@@ -267,7 +267,6 @@ int Group::from_xml(const string& xml)
     string error;
 
     vector<xmlNodePtr> content;
-    vector<xmlNodePtr>::iterator it;
 
     // Initialize the internal XML object
     update_from_str(xml);

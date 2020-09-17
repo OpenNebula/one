@@ -183,13 +183,12 @@ namespace one_util
     void split_unique(const std::string& st, char delim, std::set<T>& result)
     {
         T elem;
-        std::vector<std::string>::const_iterator it;
 
         std::vector<std::string> strings = split(st, delim, true);
 
-        for (it = strings.begin(); it != strings.end(); it++)
+        for (const auto& str : strings)
         {
-            std::istringstream iss(*it);
+            std::istringstream iss(str);
             iss >> elem;
 
             if ( iss.fail() )

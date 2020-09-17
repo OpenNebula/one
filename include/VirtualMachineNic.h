@@ -187,7 +187,6 @@ public:
         std::vector<VectorAttribute *> vas;
         std::vector<VectorAttribute *> alias;
         std::vector<VectorAttribute *> pcis;
-        std::vector<VectorAttribute *>::iterator it;
 
         tmpl->get(NIC_NAME, vas);
 
@@ -195,17 +194,17 @@ public:
 
         tmpl->get("PCI", pcis);
 
-        for ( it=pcis.begin(); it != pcis.end() ; ++it)
+        for (auto pci : pcis)
         {
-            if ( (*it)->vector_value("TYPE") == "NIC" )
+            if ( pci->vector_value("TYPE") == "NIC" )
             {
-                vas.push_back(*it);
+                vas.push_back(pci);
             }
         }
 
-        for ( it=alias.begin(); it != alias.end(); ++it)
+        for (auto al : alias)
         {
-            vas.push_back(*it);
+            vas.push_back(al);
         }
 
         init(vas, false);

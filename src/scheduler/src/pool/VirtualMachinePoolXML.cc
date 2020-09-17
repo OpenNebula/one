@@ -121,8 +121,6 @@ int VirtualMachinePoolXML::set_up()
 
     if ( rc == 0 )
     {
-        map<int, ObjectXML*>::iterator it;
-
         if (objects.empty())
         {
             return -2;
@@ -130,7 +128,7 @@ int VirtualMachinePoolXML::set_up()
 
         vm_resources.clear();
 
-        for ( it = objects.begin(); it != objects.end(); ++it )
+        for ( auto it = objects.begin(); it != objects.end(); ++it )
         {
             vm_resources.add_resource(it->first);
         }
@@ -149,7 +147,7 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-            for (it = objects.begin() ; it != objects.end() ; ++it)
+            for (auto it = objects.begin() ; it != objects.end() ; ++it)
             {
                 HostShareCapacity sr;
 
@@ -178,9 +176,8 @@ int VirtualMachinePoolXML::set_up()
                     << right << setw(11) << sr.disk       << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
-                map<int,long long>::const_iterator ds_it;
 
-                for ( ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
+                for ( auto ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
                 {
                     oss << " DS " << ds_it->first << ": " << ds_it->second <<" ";
                 }
@@ -361,9 +358,7 @@ int VirtualMachineActionsPoolXML::set_up()
         oss.str("");
         oss << "VMs with scheduled actions:" << endl;
 
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
+        for (auto it=objects.begin(); it!=objects.end(); it++)
         {
             oss << " " << it->first;
         }
@@ -547,9 +542,7 @@ int VirtualMachineRolePoolXML::set_up()
 
         oss << "VMs in VMGroups:" << endl;
 
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
+        for (auto it=objects.begin(); it!=objects.end(); it++)
         {
             oss << " " << it->first;
         }

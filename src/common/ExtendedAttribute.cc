@@ -21,9 +21,7 @@
 
 ExtendedAttributeSet::~ExtendedAttributeSet()
 {
-    std::map<int, ExtendedAttribute *>::iterator it;
-
-    for (it = a_set.begin(); it != a_set.end(); ++it)
+    for (auto it = a_set.begin(); it != a_set.end(); ++it)
     {
         if ( dispose )
         {
@@ -39,11 +37,11 @@ ExtendedAttributeSet::~ExtendedAttributeSet()
 
 ExtendedAttribute * ExtendedAttributeSet::get_attribute(int id) const
 {
-    std::map<int, ExtendedAttribute*>::const_iterator it = a_set.find(id);
+    auto it = a_set.find(id);
 
     if ( it == a_set.end() )
     {
-        return 0;
+        return nullptr;
     }
 
     return it->second;
@@ -55,10 +53,10 @@ ExtendedAttribute * ExtendedAttributeSet::get_attribute(int id) const
 void ExtendedAttributeSet::init_attribute_map(const std::string& id_name,
         std::vector<VectorAttribute *>& vas)
 {
-    std::vector<VectorAttribute *>::iterator it;
-    int id, auto_id;
+    int id;
+    int auto_id = 0;
 
-    for (it = vas.begin(), auto_id = 0; it != vas.end(); ++it, ++auto_id)
+    for (auto it = vas.begin(); it != vas.end(); ++it, ++auto_id)
     {
         if (id_name.empty())
         {
@@ -80,11 +78,11 @@ void ExtendedAttributeSet::init_attribute_map(const std::string& id_name,
 
 ExtendedAttribute * ExtendedAttributeSet::delete_attribute(int id)
 {
-    std::map<int, ExtendedAttribute*>::iterator it = a_set.find(id);
+    auto it = a_set.find(id);
 
     if ( it == a_set.end() )
     {
-        return 0;
+        return nullptr;
     }
 
     a_set.erase(it);

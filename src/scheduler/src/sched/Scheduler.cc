@@ -388,7 +388,6 @@ int Scheduler::set_up_pools()
 {
     int                             rc;
     ostringstream                   oss;
-    map<int,int>::const_iterator    it;
     map<int, int>                   shares;
 
     //--------------------------------------------------------------------------
@@ -841,11 +840,6 @@ void Scheduler::match_schedule()
 
     string m_error;
 
-    map<int, ObjectXML*>::const_iterator  vm_it;
-    map<int, ObjectXML*>::const_iterator  obj_it;
-
-    vector<SchedulerPolicy *>::iterator it;
-
     const map<int, ObjectXML*> pending_vms = vmpool->get_objects();
     const map<int, ObjectXML*> hosts       = hpool->get_objects();
     const map<int, ObjectXML*> datastores  = dspool->get_objects();
@@ -862,7 +856,7 @@ void Scheduler::match_schedule()
 
     time_t stime = time(0);
 
-    for (vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
+    for (auto vm_it=pending_vms.begin(); vm_it != pending_vms.end(); vm_it++)
     {
         vm = static_cast<VirtualMachineXML*>(vm_it->second);
 
@@ -902,7 +896,7 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
         profile(true);
 
-        for (obj_it=hosts.begin(); obj_it != hosts.end(); obj_it++)
+        for (auto obj_it=hosts.begin(); obj_it != hosts.end(); obj_it++)
         {
             host = static_cast<HostXML *>(obj_it->second);
 
@@ -981,9 +975,9 @@ void Scheduler::match_schedule()
         // ---------------------------------------------------------------------
         profile(true);
 
-        for (it=host_policies.begin() ; it != host_policies.end() ; it++)
+        for (auto sp : host_policies)
         {
-            (*it)->schedule(vm);
+            sp->schedule(vm);
         }
 
         vm->sort_match_hosts();
@@ -1009,7 +1003,7 @@ void Scheduler::match_schedule()
         n_error   = 0;
         n_fits    = 0;
 
-        for (obj_it=datastores.begin(); obj_it != datastores.end(); obj_it++)
+        for (auto obj_it=datastores.begin(); obj_it != datastores.end(); obj_it++)
         {
             ds = static_cast<DatastoreXML *>(obj_it->second);
 
@@ -1100,9 +1094,9 @@ void Scheduler::match_schedule()
 
         profile(true);
 
-        for (it=ds_policies.begin() ; it != ds_policies.end() ; it++)
+        for (auto sp : ds_policies)
         {
-            (*it)->schedule(vm);
+            sp->schedule(vm);
         }
 
         vm->sort_match_datastores();
@@ -1115,7 +1109,6 @@ void Scheduler::match_schedule()
 
         profile(true);
 
-        set<int>::iterator it_nic;
         const set<int>& nics_ids = vm->get_nics_ids();
 
         bool not_matched = false;
@@ -1130,7 +1123,7 @@ void Scheduler::match_schedule()
             n_fits    = 0;
 
 
-            for (obj_it = nets.begin(); obj_it != nets.end(); ++obj_it)
+            for (auto obj_it = nets.begin(); obj_it != nets.end(); ++obj_it)
             {
                 net = static_cast<VirtualNetworkXML *>(obj_it->second);
 
@@ -1202,9 +1195,9 @@ void Scheduler::match_schedule()
 
             profile(true);
 
-            for (it = nic_policies.begin() ; it != nic_policies.end() ; it++)
+            for (auto sp : nic_policies)
             {
-                (*it)->schedule(vm->get_nic(nic_id));
+                sp->schedule(vm->get_nic(nic_id));
             }
 
             vm->sort_match_networks(nic_id);
@@ -1253,7 +1246,7 @@ void Scheduler::match_schedule()
 
         oss << "Scheduling Results:" << endl;
 
-        for (map<int, ObjectXML*>::const_iterator vm_it=pending_vms.begin();
+        for (auto vm_it=pending_vms.begin();
             vm_it != pending_vms.end(); vm_it++)
         {
             vm = static_cast<VirtualMachineXML*>(vm_it->second);
@@ -1288,16 +1281,14 @@ void Scheduler::dispatch()
 
     vector<Resource *>::const_reverse_iterator i, j, k, n;
 
-    vector<SchedulerPolicy *>::iterator sp_it;
-
     ostringstream extra;
 
     //--------------------------------------------------------------------------
     // Schedule pending VMs according to the VM policies (e.g. User priority)
     //--------------------------------------------------------------------------
-    for (sp_it = vm_policies.begin() ; sp_it != vm_policies.end() ; ++sp_it)
+    for (auto sp : vm_policies)
     {
-        (*sp_it)->schedule(0);
+        sp->schedule(0);
     }
 
     vmpool->sort_vm_resources();
@@ -1571,9 +1562,7 @@ void Scheduler::dispatch()
 
             if ( num_matched_networks < nics_ids.size())
             {
-                map<int,int>::iterator it;
-
-                for (it = matched_networks.begin(); it != matched_networks.end(); it++)
+                for (auto it = matched_networks.begin(); it != matched_networks.end(); it++)
                 {
                     net = vnetpool->get(it->first);
 
@@ -1588,9 +1577,7 @@ void Scheduler::dispatch()
             //------------------------------------------------------------------
             if (vmpool->dispatch((*k)->oid, hid, dsid, vm->is_resched(), extra.str()) != 0)
             {
-                map<int,int>::iterator it;
-
-                for ( it = matched_networks.begin(); it != matched_networks.end(); it++)
+                for ( auto it = matched_networks.begin(); it != matched_networks.end(); it++)
                 {
                     net = vnetpool->get(it->first);
 
@@ -1635,11 +1622,9 @@ void Scheduler::dispatch()
 
             if ( affined_vms.size() > 0 )
             {
-                set<int>::const_iterator it;
-
-                for ( it = affined_vms.begin(); it != affined_vms.end(); ++it )
+                for ( auto vm_id : affined_vms )
                 {
-                    VirtualMachineXML * avm = vmpool->get(*it);
+                    VirtualMachineXML * avm = vmpool->get(vm_id);
 
                     if ( avm == 0 )
                     {
@@ -1690,31 +1675,28 @@ int Scheduler::do_scheduled_actions()
     VirtualMachineXML* vm;
 
     const map<int, ObjectXML*>  vms = vmapool->get_objects();
-    map<int, ObjectXML*>::const_iterator vm_it;
 
     string action_st, args_st, error_msg;
 
     string time_str = one_util::log_time(time(0));
 
-    for (vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
+    for (auto vm_it=vms.begin(); vm_it != vms.end(); vm_it++)
     {
-        SchedActions::schedaction_iterator action;
-
         vm = static_cast<VirtualMachineXML *>(vm_it->second);
 
         SchedActions sas = vm->get_actions();
 
-        for ( action = sas.begin(); action != sas.end(); ++action)
+        for ( auto action : sas)
         {
             ostringstream oss;
 
-            if (!(*action)->is_due(vm->get_stime()))
+            if (!action->is_due(vm->get_stime()))
             {
                 continue;
             }
 
-            action_st = (*action)->vector_value("ACTION");
-            args_st   = (*action)->vector_value("ARGS");
+            action_st = action->vector_value("ACTION");
+            args_st   = action->vector_value("ARGS");
 
             int rc = VirtualMachineXML::parse_action_name(action_st);
 
@@ -1734,13 +1716,13 @@ int Scheduler::do_scheduled_actions()
                     time_t done_time = time(0);
                     time_t next_time;
 
-                    (*action)->remove("MESSAGE");
+                    action->remove("MESSAGE");
 
-                    (*action)->replace("DONE", done_time);
+                    action->replace("DONE", done_time);
 
                     do
                     {
-                        next_time = (*action)->next_action();
+                        next_time = action->next_action();
                     } while ( next_time < done_time && next_time != -1 );
 
                     oss << "Success.";
@@ -1753,7 +1735,7 @@ int Scheduler::do_scheduled_actions()
 
                 oss_aux << time_str << " : " << error_msg;
 
-                (*action)->replace("MESSAGE", oss_aux.str());
+                action->replace("MESSAGE", oss_aux.str());
 
                 oss << "Failure. " << error_msg;
             }
@@ -1775,14 +1757,13 @@ int Scheduler::do_scheduled_actions()
 
 void Scheduler::do_vm_groups()
 {
-    map<int, ObjectXML*>::const_iterator it;
     const map<int, ObjectXML*> vmgrps = vmgpool->get_objects();
 
     ostringstream oss;
 
     oss << "VM Group Scheduling information\n";
 
-    for (it = vmgrps.begin(); it != vmgrps.end() ; ++it)
+    for (auto it = vmgrps.begin(); it != vmgrps.end() ; ++it)
     {
         VMGroupXML * grp = static_cast<VMGroupXML*>(it->second);
 

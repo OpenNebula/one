@@ -315,7 +315,7 @@ const int MarketPlaceAppPool::MAX_MISSING_MONITORS = 3;
 
 bool MarketPlaceAppPool::test_map_check(int app_id)
 {
-    map<int, int>::iterator it = map_check.find(app_id);
+    auto it = map_check.find(app_id);
 
     if ( it == map_check.end() )
     {
@@ -338,7 +338,7 @@ bool MarketPlaceAppPool::test_map_check(int app_id)
 
 void MarketPlaceAppPool::reset_map_check(int app_id)
 {
-    map<int, int>::iterator it = map_check.find(app_id);
+    auto it = map_check.find(app_id);
 
     if ( it == map_check.end() )
     {

@@ -229,9 +229,7 @@ int RaftManager::get_leader_endpoint(std::string& endpoint)
     }
     else
     {
-        std::map<int, std::string>::iterator it;
-
-        it = servers.find(leader_id);
+        auto it = servers.find(leader_id);
 
         if ( it == servers.end() )
         {
@@ -332,7 +330,6 @@ void RaftManager::leader()
 
     FedReplicaManager * frm = nd.get_frm();
 
-    std::map<int, std::string>::iterator it;
     std::vector<int> _follower_ids;
 
     uint64_t index, _applied, _next_index;
@@ -383,7 +380,7 @@ void RaftManager::leader()
             _next_index = index + 1;
         }
 
-        for (it = servers.begin(); it != servers.end() ; ++it )
+        for (auto it = servers.begin(); it != servers.end() ; ++it)
         {
             if ( it->first == server_id )
             {
@@ -523,9 +520,7 @@ void RaftManager::replicate_log(ReplicaRequest * request)
     //Count servers that need to replicate this record
     int to_commit = num_servers / 2;
 
-    std::map<int, uint64_t>::iterator it;
-
-    for (it = next.begin(); it != next.end() ; ++it)
+    for (auto it = next.begin(); it != next.end() ; ++it)
     {
         if ( request->index() < it->second )
         {
@@ -561,11 +556,6 @@ void RaftManager::replicate_log(ReplicaRequest * request)
 
 void RaftManager::replicate_success(int follower_id)
 {
-    std::map<int, ReplicaRequest *>::iterator it;
-
-    std::map<int, uint64_t>::iterator next_it;
-    std::map<int, uint64_t>::iterator match_it;
-
     Nebula& nd    = Nebula::instance();
     LogDB * logdb = nd.get_logdb();
 
@@ -576,8 +566,8 @@ void RaftManager::replicate_success(int follower_id)
 
     std::lock_guard<mutex> lock(raft_mutex);
 
-    next_it  = next.find(follower_id);
-    match_it = match.find(follower_id);
+    auto next_it  = next.find(follower_id);
+    auto match_it = match.find(follower_id);
 
     if ( next_it == next.end() || match_it == match.end() )
     {
@@ -606,11 +596,9 @@ void RaftManager::replicate_success(int follower_id)
 
 void RaftManager::replicate_failure(int follower_id)
 {
-    std::map<int, uint64_t>::iterator next_it;
-
     std::lock_guard<mutex> lock(raft_mutex);
 
-    next_it = next.find(follower_id);
+    auto next_it = next.find(follower_id);
 
     if ( next_it != next.end() )
     {
@@ -795,8 +783,6 @@ void RaftManager::request_vote()
     int _server_id;
 
     std::map<int, std::string> _servers;
-    std::map<int, std::string>::iterator it;
-
 
     std::ostringstream oss;
 
@@ -858,7 +844,7 @@ void RaftManager::request_vote()
         /* ------------------------------------------------------------------ */
         /* Request vote on all the followers                                  */
         /* ------------------------------------------------------------------ */
-        for (it = _servers.begin(); it != _servers.end() ; ++it, oss.str("") )
+        for (auto it = _servers.begin(); it != _servers.end() ; ++it, oss.str("") )
         {
             int id = it->first;
 
@@ -969,14 +955,12 @@ int RaftManager::xmlrpc_replicate_log(int follower_id, LogDBRecord * lr,
 
     std::string follower_edp;
 
-    std::map<int, std::string>::iterator it;
-
     int xml_rc = 0;
 
     {
         std::lock_guard<mutex> lock(raft_mutex);
 
-        it = servers.find(follower_id);
+        auto it = servers.find(follower_id);
 
         if ( it == servers.end() )
         {
@@ -1065,14 +1049,12 @@ int RaftManager::xmlrpc_request_vote(int follower_id, uint64_t lindex,
 
     std::string follower_edp;
 
-    std::map<int, std::string>::iterator it;
-
     int xml_rc = 0;
 
     {
         std::lock_guard<mutex> lock(raft_mutex);
 
-        it = servers.find(follower_id);
+        auto it = servers.find(follower_id);
 
         if ( it == servers.end() )
         {
@@ -1195,8 +1177,6 @@ std::string& RaftManager::to_xml(std::string& raft_xml)
 
 void RaftManager::reset_index(int follower_id)
 {
-    std::map<int, uint64_t>::iterator next_it;
-
     unsigned int log_term;
     uint64_t log_index;
 
@@ -1206,7 +1186,7 @@ void RaftManager::reset_index(int follower_id)
 
     std::lock_guard<mutex> lock(raft_mutex);
 
-    next_it = next.find(follower_id);
+    auto next_it = next.find(follower_id);
 
     if ( next_it != next.end() )
     {

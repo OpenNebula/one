@@ -264,8 +264,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
 
     set<int> sg_ids;
 
-    vector<Attribute*>::iterator it, it_a;
-    int nic_id;
+    int nic_id = 0;
 
     vector<Attribute *> alias_nics;
 
@@ -274,7 +273,7 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
     /* ---------------------------------------------------------------------- */
     /* Get the interface network information                                  */
     /* ---------------------------------------------------------------------- */
-    for (it=nics.begin(), nic_id=0 ; it != nics.end() ; ++it)
+    for (auto it=nics.begin(); it != nics.end() ; ++it)
     {
         VectorAttribute * vnic = static_cast<VectorAttribute *>(*it);
         std::string net_mode   = vnic->vector_value("NETWORK_MODE");
@@ -339,16 +338,14 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
     /*    - NIC_ID                                                            */
     /*    - NIC attributes (IP, MAC,...)                                      */
     /* ---------------------------------------------------------------------- */
-    for (it=alias_nics.begin(); it != alias_nics.end() ; ++it, ++nic_id)
+    for (auto it=alias_nics.begin(); it != alias_nics.end() ; ++it, ++nic_id)
     {
-        std::map<std::string, NicAliasID>::iterator nit;
-
         VirtualMachineNic * nic = new
             VirtualMachineNic(static_cast<VectorAttribute *>(*it), nic_id);
 
         std::string pnic = nic->vector_value("PARENT");
 
-        nit = nic_map.find(pnic);
+        auto nit = nic_map.find(pnic);
 
         if ( nit == nic_map.end() )
         {
@@ -388,15 +385,13 @@ int VirtualMachineNics::get_network_leases(int vm_id, int uid,
     /* ---------------------------------------------------------------------- */
     /* Set the ALIAS ids on the parent interfaces                             */
     /* ---------------------------------------------------------------------- */
-    for (it=nics.begin(); it != nics.end() ; ++it)
+    for (auto it=nics.begin(); it != nics.end() ; ++it)
     {
-        std::map<std::string, NicAliasID>::iterator nit;
-
         VectorAttribute * vnic = static_cast<VectorAttribute *>(*it);
 
         std::string nic_name = vnic->vector_value("NAME");
 
-        nit = nic_map.find(nic_name);
+        auto nit = nic_map.find(nic_name);
 
         if ( nit == nic_map.end() || nit->second.alias_id_s.empty())
         {
@@ -651,9 +646,9 @@ int VirtualMachineNics::set_up_attach_nic(int vmid, int uid, int cluster_id,
 
         nic->get_security_groups(nic_sgs);
 
-        for (set<int>::iterator it = vm_sgs.begin(); it != vm_sgs.end(); ++it)
+        for (auto sg : vm_sgs)
         {
-            nic_sgs.erase(*it);
+            nic_sgs.erase(sg);
         }
 
         sgpool->get_security_group_rules(vmid, nic_sgs, sgs);

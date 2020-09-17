@@ -475,16 +475,11 @@ int VirtualMachinePool::calculate_showback(
         string &error_str)
 {
     vector<xmlNodePtr>              nodes;
-    vector<xmlNodePtr>::iterator    node_it;
 
     vector<time_t>                  showback_slots;
-    vector<time_t>::iterator        slot_it;
 
 
     map<int, map<time_t, SBRecord> >           vm_cost;
-    map<int, map<time_t, SBRecord> >::iterator vm_it;
-
-    map<time_t, SBRecord>::iterator vm_month_it;
 
     int             rc;
     ostringstream   oss;
@@ -613,7 +608,7 @@ int VirtualMachinePool::calculate_showback(
     showback_slots.push_back(end_time);
 
 #ifdef SBDDEBUG
-    for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end(); slot_it++ )
+    for ( auto slot_it = showback_slots.begin(); slot_it != showback_slots.end(); slot_it++ )
     {
         debug.str("");
         debug << "Slot: " << put_time(*slot_it);
@@ -627,9 +622,9 @@ int VirtualMachinePool::calculate_showback(
 
     rc = xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
 
-    for ( node_it = nodes.begin(); node_it != nodes.end(); node_it++ )
+    for ( auto node : nodes )
     {
-        ObjectXML history(*node_it);
+        ObjectXML history(node);
 
         history.xpath(vid,      "/HISTORY/OID", -1);
 
@@ -663,7 +658,7 @@ int VirtualMachinePool::calculate_showback(
         NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
 #endif
 
-        for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end()-1; slot_it++ )
+        for ( auto slot_it = showback_slots.begin(); slot_it != showback_slots.end()-1; slot_it++ )
         {
             time_t t      = *slot_it;
             time_t t_next = *(slot_it+1);
@@ -742,11 +737,11 @@ int VirtualMachinePool::calculate_showback(
 
     int n_entries = 0;
 
-    for ( vm_it = vm_cost.begin(); vm_it != vm_cost.end(); vm_it++ )
+    for ( auto vm_it = vm_cost.begin(); vm_it != vm_cost.end(); vm_it++ )
     {
         map<time_t, SBRecord>& totals = vm_it->second;
 
-        for ( vm_month_it = totals.begin(); vm_month_it != totals.end(); vm_month_it++ )
+        for ( auto vm_month_it = totals.begin(); vm_month_it != totals.end(); vm_month_it++ )
         {
             int vmid = vm_it->first;
 

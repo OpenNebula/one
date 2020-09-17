@@ -58,13 +58,11 @@ public:
 
     VMGroupRule(VMGroupPolicy p, std::set<int> roles_id):policy(p)
     {
-        std::set<int>::iterator it;
-
-        for ( it = roles_id.begin(); it != roles_id.end(); ++it )
+        for ( auto rid : roles_id )
         {
-            if ( *it < VMGroupRoles::MAX_ROLES )
+            if ( rid < VMGroupRoles::MAX_ROLES )
             {
-                roles[*it] = 1;
+                roles[rid] = 1;
             }
         }
     };

@@ -324,7 +324,6 @@ private:
     {
         std::vector<std::string> strings;
         std::vector<std::string> range;
-        std::vector<std::string>::const_iterator it;
 
         std::istringstream iss;
 
@@ -332,10 +331,10 @@ private:
 
         strings = one_util::split(reserved, ',', true);
 
-        for (it = strings.begin(); it != strings.end(); it++)
+        for (const auto& str : strings)
         {
             // Try to split it by ':'
-            range = one_util::split(*it, ':', true);
+            range = one_util::split(str, ':', true);
 
             iss.clear();
             iss.str(range[0]);

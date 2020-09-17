@@ -1473,13 +1473,12 @@ yyreduce:
 #line 135 "expr_bool.y"
     {
             std::vector<int> val;
-            std::vector<int>::iterator it;
 
             (yyval.val_int) = false;
 
             oxml->search((yyvsp[-3].val_str),val);
 
-            for (it=val.begin(); it != val.end(); ++it)
+            for (auto it=val.begin(); it != val.end(); ++it)
             {
                 if ((yyvsp[0].val_int) == *it)
                 {
@@ -1539,13 +1538,12 @@ yyreduce:
 #line 181 "expr_bool.y"
     {
             std::vector<float> val;
-            std::vector<float>::iterator it;
 
             (yyval.val_int) = false;
 
             oxml->search((yyvsp[-3].val_str),val);
 
-            for (it=val.begin(); it != val.end(); ++it)
+            for (auto it=val.begin(); it != val.end(); ++it)
             {
                 if ((yyvsp[0].val_float) == *it)
                 {
@@ -1585,7 +1583,6 @@ yyreduce:
 #line 215 "expr_bool.y"
     {
             std::vector<std::string> val;
-            std::vector<std::string>::iterator it;
 
             (yyval.val_int) = false;
 
@@ -1593,7 +1590,7 @@ yyreduce:
             {
                 oxml->search((yyvsp[-3].val_str),val);
 
-                for (it=val.begin(); it != val.end(); ++it)
+                for (auto it=val.begin(); it != val.end(); ++it)
                 {
                     if ( fnmatch((yyvsp[0].val_str), (*it).c_str(), 0) == 0 )
                     {

@@ -134,13 +134,12 @@ expr:   STRING '=' INTEGER {
 
         | STRING '@''>' INTEGER {
             std::vector<int> val;
-            std::vector<int>::iterator it;
 
             $$ = false;
 
             oxml->search($1,val);
 
-            for (it=val.begin(); it != val.end(); ++it)
+            for (auto it=val.begin(); it != val.end(); ++it)
             {
                 if ($4 == *it)
                 {
@@ -180,13 +179,12 @@ expr:   STRING '=' INTEGER {
 
         | STRING '@''>' FLOAT {
             std::vector<float> val;
-            std::vector<float>::iterator it;
 
             $$ = false;
 
             oxml->search($1,val);
 
-            for (it=val.begin(); it != val.end(); ++it)
+            for (auto it=val.begin(); it != val.end(); ++it)
             {
                 if ($4 == *it)
                 {
@@ -214,7 +212,6 @@ expr:   STRING '=' INTEGER {
 
         | STRING '@''>' STRING {
             std::vector<std::string> val;
-            std::vector<std::string>::iterator it;
 
             $$ = false;
 
@@ -222,7 +219,7 @@ expr:   STRING '=' INTEGER {
             {
                 oxml->search($1,val);
 
-                for (it=val.begin(); it != val.end(); ++it)
+                for (auto it=val.begin(); it != val.end(); ++it)
                 {
                     if ( fnmatch($4, (*it).c_str(), 0) == 0 )
                     {

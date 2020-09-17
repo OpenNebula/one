@@ -546,13 +546,12 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
 void AddressRange::to_xml(ostringstream &oss) const
 {
     const map<string,string>& ar_attrs = attr->value();
-    map<string,string>::const_iterator it;
 
     unsigned int mac_end[2];
 
     oss << "<AR>";
 
-    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
         if ( it->first == "ALLOCATED" )
         {
@@ -634,7 +633,6 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         const vector<int>& vns, const vector<int>& vrs) const
 {
     const map<string,string>&          ar_attrs = attr->value();
-    map<string,string>::const_iterator it;
 
     int          rc;
     unsigned int mac_end[2];
@@ -646,7 +644,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
     oss << "<AR>";
 
-    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
         if ( it->first == "ALLOCATED" )
         {
@@ -725,14 +723,12 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
     }
     else
     {
-        map<unsigned int, long long>::const_iterator it;
-
         VectorAttribute lease("LEASE");
         bool            is_in;
 
         oss << "<LEASES>";
 
-        for (it = allocated.begin(); it != allocated.end(); it++)
+        for (auto it = allocated.begin(); it != allocated.end(); it++)
         {
             lease.clear();
 
@@ -1262,9 +1258,7 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
         nic->replace("VLAN_ID", vlanid);
     }
 
-    vector<string>::const_iterator it;
-
-    for (it = inherit.begin(); it != inherit.end(); it++)
+    for (auto it = inherit.begin(); it != inherit.end(); it++)
     {
         string inherit_val = attr->vector_value(*it);
 
@@ -1286,11 +1280,9 @@ void AddressRange::allocated_to_attr()
         return;
     }
 
-    map<unsigned int, long long>::const_iterator it;
-
     ostringstream oss;
 
-    for (it = allocated.begin(); it != allocated.end(); it++)
+    for (auto it = allocated.begin(); it != allocated.end(); it++)
     {
         oss << " " << it->first << " " << it->second;
     }
@@ -1351,9 +1343,7 @@ int AddressRange::free_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
 {
     long long lobid = obid & 0x00000000FFFFFFFFLL;
 
-    map<unsigned int, long long>::iterator it;
-
-    it = allocated.find(addr_index);
+    auto it = allocated.find(addr_index);
 
     if (it != allocated.end() && it->second == (ot|lobid))
     {
@@ -1618,7 +1608,7 @@ int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
 
 int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
 {
-    map<unsigned int, long long>::iterator it = allocated.begin();
+    auto it = allocated.begin();
 
     long long obj_pack = ot | (obid & 0x00000000FFFFFFFFLL);
 
@@ -1630,9 +1620,7 @@ int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
     {
         if (it->second == obj_pack && free_addr(it->first, error_msg) == 0)
         {
-            map<unsigned int, long long>::iterator prev_it = it++;
-
-            allocated.erase(prev_it);
+            it = allocated.erase(it);
 
             freed++;
         }
@@ -1665,7 +1653,7 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
 
     if ((mac[0] <= mac_i[0]) && (index < size))
     {
-        map<unsigned int, long long>::iterator it = allocated.find(index);
+        auto it = allocated.find(index);
 
         if (it == allocated.end())
         {
@@ -1679,9 +1667,7 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
             if (it != allocated.end() && it->second == obj_pack &&
                      free_addr(it->first, error_msg) == 0)
             {
-                map<unsigned int, long long>::iterator prev_it = it++;
-
-                allocated.erase(prev_it);
+                it = allocated.erase(it);
 
                 freed++;
             }
@@ -1981,9 +1967,8 @@ bool AddressRange::check(string& rs_attr) const
     }
 
     const map<string,string>& ar_attrs = attr->value();
-    map<string,string>::const_iterator it;
 
-    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
         if (restricted_attributes.count(it->first) > 0)
         {
@@ -2017,16 +2002,15 @@ void AddressRange::set_restricted_attributes(vector<const SingleAttribute *>& ra
 
 void AddressRange::remove_restricted(VectorAttribute* va)
 {
-    set<string>::const_iterator it;
     size_t pos;
 
-    for (it=restricted_attributes.begin(); it!=restricted_attributes.end(); it++)
+    for (const auto& restricted : restricted_attributes)
     {
-        pos = it->find("AR/");
+        pos = restricted.find("AR/");
 
         if (pos != string::npos)
         {
-            va->remove( it->substr(pos+3) );
+            va->remove(restricted.substr(pos+3));
         }
     }
 }
@@ -2036,12 +2020,11 @@ void AddressRange::remove_restricted(VectorAttribute* va)
 
 void AddressRange::remove_all_except_restricted(VectorAttribute* va)
 {
-    map<string,string>::iterator it;
     map<string,string> vals = va->value();
 
     ostringstream oss;
 
-    for(it = vals.begin(); it != vals.end(); it++)
+    for (auto it = vals.begin(); it != vals.end(); it++)
     {
         oss.str("");
         oss << "AR/" << it->first;

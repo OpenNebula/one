@@ -1176,7 +1176,6 @@ bool UserPool::authenticate_external(const string&  username,
     int gid = -1;
     int rc;
 
-    set<int>::iterator it;
     set<int> empty_set;
     set<int> group_admin_ids;
 

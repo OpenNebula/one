@@ -33,9 +33,7 @@ using namespace std;
 
 Template::~Template()
 {
-    multimap<string,Attribute *>::iterator  it;
-
-    for ( it = attributes.begin(); it != attributes.end(); it++)
+    for ( auto it = attributes.begin(); it != attributes.end(); it++)
     {
         delete it->second;
     }
@@ -193,13 +191,9 @@ void Template::set(Attribute * attr)
 {
     if ( replace_mode == true )
     {
-        multimap<string, Attribute *>::iterator         i;
-        pair<multimap<string, Attribute *>::iterator,
-        multimap<string, Attribute *>::iterator>        index;
+        auto index = attributes.equal_range(attr->name());
 
-        index = attributes.equal_range(attr->name());
-
-        for ( i = index.first; i != index.second; i++)
+        for ( auto i = index.first; i != index.second; i++)
         {
             delete i->second;
         }
@@ -215,19 +209,13 @@ void Template::set(Attribute * attr)
 
 int Template::replace(const string& name, const string& value)
 {
-    pair<multimap<string, Attribute *>::iterator,
-         multimap<string, Attribute *>::iterator>   index;
-
-    index = attributes.equal_range(name);
+    auto index = attributes.equal_range(name);
 
     if (index.first != index.second )
     {
-        multimap<string, Attribute *>::iterator i;
-
-        for ( i = index.first; i != index.second; i++)
+        for ( auto i = index.first; i != index.second; i++)
         {
-            Attribute * attr = i->second;
-            delete attr;
+            delete i->second;
         }
 
         attributes.erase(index.first, index.second);
@@ -247,19 +235,13 @@ int Template::replace(const string& name, const bool& value)
 {
     string s_val;
 
-    pair<multimap<string, Attribute *>::iterator,
-         multimap<string, Attribute *>::iterator>   index;
-
-    index = attributes.equal_range(name);
+    auto index = attributes.equal_range(name);
 
     if (index.first != index.second )
     {
-        multimap<string, Attribute *>::iterator i;
-
-        for ( i = index.first; i != index.second; i++)
+        for ( auto i = index.first; i != index.second; i++)
         {
-            Attribute * attr = i->second;
-            delete attr;
+            delete i->second;
         }
 
         attributes.erase(index.first, index.second);
@@ -286,25 +268,18 @@ int Template::replace(const string& name, const bool& value)
 
 int Template::erase(const string& name)
 {
-    multimap<string, Attribute *>::iterator         i;
+    int                                             j = 0;
 
-    pair<
-        multimap<string, Attribute *>::iterator,
-        multimap<string, Attribute *>::iterator
-        >                                           index;
-    int                                             j;
-
-    index = attributes.equal_range(name);
+    auto index = attributes.equal_range(name);
 
     if (index.first == index.second )
     {
         return 0;
     }
 
-    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
+    for ( auto i = index.first; i != index.second; i++,j++ )
     {
-        Attribute * attr = i->second;
-        delete attr;
+        delete i->second;
     }
 
     attributes.erase(index.first,index.second);
@@ -317,16 +292,9 @@ int Template::erase(const string& name)
 
 Attribute * Template::remove(Attribute * att)
 {
-    multimap<string, Attribute *>::iterator         i;
+    auto index = attributes.equal_range( att->name() );
 
-    pair<
-        multimap<string, Attribute *>::iterator,
-        multimap<string, Attribute *>::iterator
-        >                                           index;
-
-    index = attributes.equal_range( att->name() );
-
-    for ( i = index.first; i != index.second; i++ )
+    for ( auto i = index.first; i != index.second; i++ )
     {
         if ( i->second == att )
         {
@@ -387,12 +355,11 @@ bool Template::get(const string& name, bool& value) const
 
 string& Template::to_xml(string& xml) const
 {
-    multimap<string,Attribute *>::const_iterator it;
     ostringstream oss;
 
     oss << "<" << xml_root << ">";
 
-    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
     {
         it->second->to_xml(oss);
     }
@@ -406,14 +373,13 @@ string& Template::to_xml(string& xml) const
 
 string& Template::to_json(string& json) const
 {
-    multimap<string, Attribute *>::const_iterator it;
     ostringstream oss;
 
     bool is_first = true;
 
     oss << "\"" << xml_root << "\": {";
 
-    for ( it = attributes.begin(); it!=attributes.end(); )
+    for ( auto it = attributes.begin(); it!=attributes.end(); )
     {
         if (!is_first)
         {
@@ -467,9 +433,8 @@ string& Template::to_json(string& json) const
 string& Template::to_token(string& str) const
 {
     ostringstream os;
-    multimap<string,Attribute *>::const_iterator  it;
 
-    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
     {
         it->second->to_token(os);
     }
@@ -672,9 +637,7 @@ void Template::clear()
         return;
     }
 
-    multimap<string,Attribute *>::iterator it;
-
-    for ( it = attributes.begin(); it != attributes.end(); it++)
+    for ( auto it = attributes.begin(); it != attributes.end(); it++)
     {
         delete it->second;
     }
@@ -691,14 +654,12 @@ void Template::clear()
 
 void Template::merge(const Template * from)
 {
-    multimap<string, Attribute *>::const_iterator it, jt;
-
-    for (it = from->attributes.begin(); it != from->attributes.end(); ++it)
+    for (auto it = from->attributes.begin(); it != from->attributes.end(); ++it)
     {
         erase(it->first);
     }
 
-    for (it = from->attributes.begin(); it != from->attributes.end(); ++it)
+    for (auto it = from->attributes.begin(); it != from->attributes.end(); ++it)
     {
         if ( it->second->type() == Attribute::VECTOR )
         {
@@ -722,11 +683,9 @@ void Template::merge(const Template * from)
 static void parse_attributes(const vector<const SingleAttribute *>& as,
         std::map<std::string, std::set<std::string> >& as_m)
 {
-    vector<const SingleAttribute *>::const_iterator it;
-
-    for (it = as.begin(); it != as.end(); ++it)
+    for (auto attr : as)
     {
-        string va  = (*it)->value();
+        string va  = attr->value();
         size_t pos = va.find("/");
 
         if (pos != string::npos) //Vector Attribute
@@ -734,9 +693,7 @@ static void parse_attributes(const vector<const SingleAttribute *>& as,
             string avector = va.substr(0,pos);
             string vattr   = va.substr(pos+1);
 
-            map<std::string, std::set<string> >::iterator jt;
-
-            jt = as_m.find(avector);
+            auto jt = as_m.find(avector);
 
             if ( jt == as_m.end() )
             {
@@ -787,18 +744,17 @@ static bool restricted_values(const string& vname, const set<string>& vsubs,
     string value;
     bool exists;
 
-    vector<const VectorAttribute *>::const_iterator va_it;
     vector<const VectorAttribute *> va;
 
     exists = tmpl->get(vname, va);
 
-    for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
+    for ( auto vattr : va )
     {
-        for (set<string>::iterator jt = vsubs.begin(); jt != vsubs.end(); ++jt)
+        for (const auto& sub : vsubs)
         {
-            if ( (*va_it)->vector_value(*jt, value) == 0 )
+            if ( vattr->vector_value(sub, value) == 0 )
             {
-                rstrings.push_back(*jt + value);
+                rstrings.push_back(sub + value);
             }
         }
     }
@@ -811,9 +767,7 @@ static bool restricted_values(const string& vname, const set<string>& vsubs,
 bool Template::check_restricted(string& ra, const Template* base,
         const std::map<std::string, std::set<std::string> >& ras)
 {
-    std::map<std::string, std::set<std::string> >::const_iterator rit;
-
-    for ( rit = ras.begin(); rit != ras.end(); ++rit )
+    for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {
         if (!(rit->second).empty())
         {
@@ -866,9 +820,7 @@ bool Template::check_restricted(string& ra, const Template* base,
 bool Template::check_restricted(string& ra,
         const std::map<std::string, std::set<std::string> >& ras)
 {
-    std::map<std::string, std::set<std::string> >::const_iterator rit;
-
-    for ( rit = ras.begin(); rit != ras.end(); ++rit )
+    for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {
         const std::set<std::string>& sub = rit->second;
 
@@ -876,20 +828,17 @@ bool Template::check_restricted(string& ra,
         {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
-            std::set<std::string>::iterator jt;
-            std::vector<VectorAttribute *>::iterator va_it;
-
             std::vector<VectorAttribute *> va;
 
             get(rit->first, va);
 
-            for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
+            for ( auto vattr : va )
             {
-                for ( jt = sub.begin(); jt != sub.end(); ++jt )
+                for ( const auto& s : sub )
                 {
-                    if ( (*va_it)->vector_value(*jt, ra) == 0 )
+                    if ( vattr->vector_value(s, ra) == 0 )
                     {
-                        ra = *jt;
+                        ra = s;
                         return true;
                     }
                 }

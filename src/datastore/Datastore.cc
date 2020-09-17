@@ -99,8 +99,6 @@ void Datastore::disk_attribute(
     string current_val;
     string type;
 
-    vector<string>::const_iterator it;
-
     disk->replace("DATASTORE",    get_name());
     disk->replace("DATASTORE_ID", oid);
     disk->replace("TM_MAD",       get_tm_mad());
@@ -155,14 +153,14 @@ void Datastore::disk_attribute(
         disk->replace("LN_TARGET", st);
     }
 
-    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
+    for (const auto& inherit : inherit_attrs)
     {
-        current_val = disk->vector_value(*it);
-        get_template_attribute(*it, inherit_val);
+        current_val = disk->vector_value(inherit);
+        get_template_attribute(inherit, inherit_val);
 
         if ( current_val.empty() && !inherit_val.empty() )
         {
-            disk->replace(*it, inherit_val);
+            disk->replace(inherit, inherit_val);
         }
     }
 
@@ -252,7 +250,7 @@ int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
     std::vector <std::string> vrequired_attrs;
 
     int    rc;
-    std::string required_attrs, required_attr, value;
+    std::string required_attrs, value;
 
     std::ostringstream oss;
 
@@ -277,11 +275,8 @@ int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
 
     vrequired_attrs = one_util::split(required_attrs, ',');
 
-    for ( std::vector<std::string>::const_iterator it = vrequired_attrs.begin();
-         it != vrequired_attrs.end(); it++ )
+    for ( auto& required_attr : vrequired_attrs )
     {
-        required_attr = *it;
-
         required_attr = one_util::trim(required_attr);
         one_util::toupper(required_attr);
 
@@ -289,7 +284,9 @@ int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
 
         if ( value.empty() )
         {
-            goto error_required;
+            oss << "Datastore template is missing the \"" << required_attr
+                << "\" attribute or it's empty.";
+            goto error_common;
         }
     }
 
@@ -298,10 +295,6 @@ int Datastore::set_ds_mad(std::string &mad, std::string &error_str)
 error_conf:
     oss << "DS_MAD named \"" << mad << "\" is not defined in oned.conf";
     goto error_common;
-
-error_required:
-    oss << "Datastore template is missing the \"" << required_attr
-        << "\" attribute or it's empty.";
 
 error_common:
     error_str = oss.str();
@@ -368,17 +361,15 @@ int Datastore::set_tm_mad(string &tm_mad, string &error_str)
 
         if (!st.empty())
         {
-            std::vector<std::string>::iterator it;
-
             replace_template_attribute("TM_MAD_SYSTEM", st);
 
             modes = one_util::split(st, ',', true);
 
             string s;
 
-            for (it = modes.begin() ; it != modes.end(); ++it)
+            for (const auto &mode : modes)
             {
-                string tm_mad_t = one_util::trim(*it);
+                string tm_mad_t = one_util::trim(mode);
                 string tm_mad = one_util::toupper(tm_mad_t);
 
                 st = vatt->vector_value("LN_TARGET_" + tm_mad);

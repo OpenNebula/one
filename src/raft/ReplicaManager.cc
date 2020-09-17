@@ -24,9 +24,7 @@
 
 ReplicaThread * ReplicaManager::get_thread(int server_id)
 {
-    std::map<int, ReplicaThread *>::iterator it;
-
-    it = thread_pool.find(server_id);
+    auto it = thread_pool.find(server_id);
 
     if ( it == thread_pool.end() )
     {
@@ -41,11 +39,9 @@ ReplicaThread * ReplicaManager::get_thread(int server_id)
 
 void ReplicaManager::start_replica_threads(std::vector<int>& fids)
 {
-    std::vector<int>::iterator it;
-
-    for (it = fids.begin(); it != fids.end(); ++it)
+    for (auto id : fids)
     {
-        add_replica_thread(*it);
+        add_replica_thread(id);
     }
 };
 
@@ -54,9 +50,7 @@ void ReplicaManager::start_replica_threads(std::vector<int>& fids)
 
 void ReplicaManager::stop_replica_threads()
 {
-    std::map<int, ReplicaThread *>::iterator it;
-
-    for ( it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
+    for ( auto it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
     {
         it->second->finalize();
     }
@@ -69,9 +63,7 @@ void ReplicaManager::stop_replica_threads()
 
 void ReplicaManager::replicate()
 {
-    std::map<int, ReplicaThread *>::iterator it;
-
-    for ( it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
+    for ( auto it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
     {
         it->second->add_request();
     }
@@ -94,10 +86,7 @@ void ReplicaManager::replicate(int follower)
 
 void ReplicaManager::delete_replica_thread(int follower_id)
 {
-
-    std::map<int, ReplicaThread *>::iterator it;
-
-    it = thread_pool.find(follower_id);
+    auto it = thread_pool.find(follower_id);
 
     if ( it == thread_pool.end() )
     {

@@ -578,8 +578,6 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
 {
     ostringstream   os;
 
-    vector<int>::const_iterator it;
-
     string clusters_xml;
     string vrouters_xml;
     string template_xml;
@@ -665,11 +663,11 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
     {
         os << "<VROUTERS>";
 
-        for (it = vrs.begin(); it != vrs.end(); it++)
+        for (auto vr_id : vrs)
         {
-            if (vrouters.contains(*it))
+            if (vrouters.contains(vr_id))
             {
-                os << "<ID>" << *it << "</ID>";
+                os << "<ID>" << vr_id << "</ID>";
             }
         }
 
@@ -791,8 +789,6 @@ int VirtualNetwork::nic_attribute(
 
     ostringstream oss;
 
-    vector<string>::const_iterator it;
-
     set<int> nic_sgs;
     int      ar_id;
 
@@ -847,13 +843,13 @@ int VirtualNetwork::nic_attribute(
         nic->replace("BRIDGE_TYPE", bridge_type);
     }
 
-    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
+    for (const auto& inherited : inherit_attrs)
     {
-        PoolObjectSQL::get_template_attribute(*it, inherit_val);
+        PoolObjectSQL::get_template_attribute(inherited, inherit_val);
 
         if (!inherit_val.empty())
         {
-            nic->replace(*it, inherit_val);
+            nic->replace(inherited, inherit_val);
         }
     }
 
@@ -927,7 +923,6 @@ int VirtualNetwork::vrouter_nic_attribute(
 {
     int     rc = 0;
     bool    floating;
-    vector<string>::const_iterator it;
 
     //--------------------------------------------------------------------------
     //  Set default values from the Virtual Network
@@ -1001,9 +996,9 @@ void VirtualNetwork::process_security_rule(
 
 int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
 {
-    for (vector<VectorAttribute *>::iterator it=var.begin(); it!=var.end(); it++)
+    for (auto vattr : var)
     {
-        VectorAttribute * ar = (*it)->clone();
+        VectorAttribute * ar = vattr->clone();
 
         if (ar_pool.from_vattr(ar, error_msg) != 0)
         {
@@ -1370,11 +1365,9 @@ bool VirtualNetwork::is_reservation() const
 
 void VirtualNetwork::get_security_groups(set<int> & sgs)
 {
-    std::set<int>::const_iterator it;
-
-    for (it = security_groups.begin(); it != security_groups.end(); it++)
+    for (auto sg_id : security_groups)
     {
-        sgs.insert(*it);
+        sgs.insert(sg_id);
     }
 
     ar_pool.get_all_security_groups(sgs);

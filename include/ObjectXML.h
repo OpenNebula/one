@@ -262,11 +262,9 @@ public:
      */
     void free_nodes(std::vector<xmlNodePtr>& content) const
     {
-        std::vector<xmlNodePtr>::iterator it;
-
-        for (it = content.begin(); it < content.end(); it++)
+        for (auto it : content)
         {
-            xmlFreeNode(*it);
+            xmlFreeNode(it);
         }
     };
 

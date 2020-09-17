@@ -369,9 +369,7 @@ int Snapshots::rename_snapshot(int id, const string& name, string& str_error)
 
 const VectorAttribute * Snapshots::get_snapshot(int id) const
 {
-    map<int, VectorAttribute *>::const_iterator it;
-
-    it = snapshot_pool.find(id);
+    auto it = snapshot_pool.find(id);
 
     if (it == snapshot_pool.end())
     {
@@ -456,10 +454,9 @@ bool Snapshots::test_delete(int id, string& error) const
 
 long long Snapshots::get_total_size() const
 {
-    map<int, VectorAttribute *>::const_iterator it;
     long long size_mb, total_mb = 0;
 
-    for ( it = snapshot_pool.begin(); it !=  snapshot_pool.end(); it++)
+    for ( auto it = snapshot_pool.begin(); it !=  snapshot_pool.end(); it++)
     {
         if (it->second->vector_value("SIZE", size_mb) == 0)
         {

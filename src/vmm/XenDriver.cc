@@ -250,10 +250,8 @@ int XenDriver::deployment_description(
 
             boots = one_util::split(boot, ',');
 
-            for (vector<string>::const_iterator it=boots.begin(); it!=boots.end(); it++)
+            for (auto& boot_option : boots)
             {
-                string boot_option = *it;
-
                 one_util::tolower(boot_option);
 
                 if ( boot_option == "hd" )
