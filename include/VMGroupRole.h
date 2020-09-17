@@ -347,13 +347,11 @@ private:
 
         VMGroupRole * get(T k)
         {
-            typename std::map<T, VMGroupRole *>::iterator it;
-
-            it = roles.find(k);
+            auto it = roles.find(k);
 
             if ( it == roles.end() )
             {
-                return 0;
+                return nullptr;
             }
 
             return it->second;

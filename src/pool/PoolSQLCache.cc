@@ -30,14 +30,12 @@ std::mutex * PoolSQLCache::lock_line(int oid)
 {
     static unsigned int num_locks = 0;
 
-    std::map<int, CacheLine *>::iterator it;
-
     CacheLine * cl;
 
     {
         std::lock_guard<std::mutex> lock(_mutex);
 
-        it = cache.find(oid);
+        auto it = cache.find(oid);
 
         if ( it == cache.end() )
         {
@@ -77,7 +75,7 @@ std::mutex * PoolSQLCache::lock_line(int oid)
 
 void PoolSQLCache::flush_cache_lines()
 {
-    for (std::map<int,CacheLine *>::iterator it=cache.begin(); it!=cache.end();)
+    for (auto it=cache.begin(); it!=cache.end();)
     {
         CacheLine * cl = it->second;
 

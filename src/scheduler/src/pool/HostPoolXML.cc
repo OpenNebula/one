@@ -33,9 +33,7 @@ int HostPoolXML::set_up()
         {
             oss << "Discovered Hosts (enabled):" << endl;
 
-            map<int, ObjectXML*>::iterator it;
-
-            for (it=objects.begin();it!=objects.end();it++)
+            for (auto it=objects.begin(); it!=objects.end(); it++)
             {
                 HostXML * h = dynamic_cast<HostXML *>(it->second);
 
@@ -98,15 +96,13 @@ int HostPoolXML::load_info(xmlrpc_c::value &result)
 
 void HostPoolXML::merge_clusters(ClusterPoolXML * clpool)
 {
-    map<int,ObjectXML*>::iterator it;
-
     ClusterXML* cluster;
     HostXML*    host;
 
     int cluster_id;
     vector<xmlNodePtr> nodes;
 
-    for (it=objects.begin(); it!=objects.end(); it++)
+    for (auto it=objects.begin(); it!=objects.end(); it++)
     {
         host = static_cast<HostXML*>(it->second);
 
@@ -135,11 +131,9 @@ void HostPoolXML::merge_clusters(ClusterPoolXML * clpool)
 
 void HostPoolXML::merge_monitoring(MonitorPoolXML * mpool)
 {
-    map<int,ObjectXML*>::iterator it;
-
     vector<xmlNodePtr> nodes;
 
-    for (it=objects.begin(); it!=objects.end(); it++)
+    for (auto it=objects.begin(); it!=objects.end(); it++)
     {
         HostXML* host = static_cast<HostXML*>(it->second);
 

@@ -156,12 +156,11 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 void PoolSQL::exist(const string& id_str, std::set<int>& id_list)
 {
     std::vector<int> existing_items;
-    std::set<int>::iterator iterator;
 
     one_util::split_unique(id_str, ',', id_list);
     search(existing_items, table.c_str(), "1 order by 1 ASC");
 
-    for (iterator = id_list.begin(); iterator != id_list.end(); ++iterator)
+    for (auto iterator = id_list.begin(); iterator != id_list.end(); ++iterator)
     {
         if (!std::binary_search(existing_items.begin(), existing_items.end(), *iterator))
         {
@@ -291,7 +290,6 @@ void PoolSQL::acl_filter(int                       uid,
     AclManager* aclm = nd.get_aclm();
 
     ostringstream         acl_filter;
-    vector<int>::iterator it;
 
     vector<int> oids;
     vector<int> gids;
@@ -309,14 +307,14 @@ void PoolSQL::acl_filter(int                       uid,
                          gids,
                          cids);
 
-    for ( it = oids.begin(); it < oids.end(); it++ )
+    for ( auto oid : oids )
     {
-        acl_filter << " OR oid = " << *it;
+        acl_filter << " OR oid = " << oid;
     }
 
-    for ( it = gids.begin(); it < gids.end(); it++ )
+    for ( auto gid : gids )
     {
-        acl_filter << " OR gid = " << *it;
+        acl_filter << " OR gid = " << gid;
     }
 
     ClusterPool::cluster_acl_filter(acl_filter, auth_object, cids);
@@ -336,8 +334,6 @@ void PoolSQL::usr_filter(int                uid,
 {
     ostringstream uid_filter;
 
-    set<int>::iterator g_it;
-
     if ( filter_flag == RequestManagerPoolInfoFilter::MINE )
     {
         uid_filter << "uid = " << uid;
@@ -352,9 +348,9 @@ void PoolSQL::usr_filter(int                uid,
 
         string sep = " ";
 
-        for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+        for (auto g_id : user_groups)
         {
-            uid_filter << sep << "( gid = " << *g_it << " )";
+            uid_filter << sep << "( gid = " << g_id << " )";
             sep = " OR ";
         }
 
@@ -364,9 +360,9 @@ void PoolSQL::usr_filter(int                uid,
         {
             uid_filter << " AND ( other_u = 1";
 
-            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            for (auto g_id : user_groups)
             {
-                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+                uid_filter << " OR ( gid = " << g_id << " AND group_u = 1 )";
             }
 
             uid_filter << acl_str << ")";
@@ -381,9 +377,9 @@ void PoolSQL::usr_filter(int                uid,
             uid_filter << " uid = " << uid
                     << " OR other_u = 1";
 
-            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            for (auto g_id : user_groups)
             {
-                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+                uid_filter << " OR ( gid = " << g_id << " AND group_u = 1 )";
             }
 
             uid_filter << acl_str;
@@ -397,9 +393,9 @@ void PoolSQL::usr_filter(int                uid,
         {
             uid_filter << " AND ( other_u = 1";
 
-            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            for (auto g_id : user_groups)
             {
-                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+                uid_filter << " OR ( gid = " << g_id << " AND group_u = 1 )";
             }
 
             uid_filter << acl_str << ")";

@@ -53,11 +53,9 @@ DatastorePool::DatastorePool(
     ostringstream oss;
     string        error_str;
 
-    vector<const SingleAttribute *>::const_iterator it;
-
-    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+    for (auto sattr : _inherit_attrs)
     {
-        inherit_attrs.push_back((*it)->value());
+        inherit_attrs.push_back(sattr->value());
     }
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb

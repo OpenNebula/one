@@ -32,9 +32,7 @@ AddressRangePool::AddressRangePool():ar_template(false,'=',"AR_POOL"),
 
 AddressRangePool::~AddressRangePool()
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         delete it->second;
     }
@@ -93,10 +91,9 @@ AddressRange * AddressRangePool::allocate_ar(const string& ipam_mad,
 
 int AddressRangePool::add_ar(AddressRange * ar)
 {
-    pair<map<unsigned int, AddressRange *>::iterator, bool> rc;
     string one_key;
 
-    rc = ar_pool.insert(make_pair(ar->ar_id(), ar));
+    auto rc = ar_pool.insert(make_pair(ar->ar_id(), ar));
 
     if (rc.second == false)
     {
@@ -117,20 +114,17 @@ int AddressRangePool::add_ar(AddressRange * ar)
 int AddressRangePool::update_ar(vector<VectorAttribute *> ars, bool keep_restricted,
         string& error_msg)
 {
-    vector<VectorAttribute *>::iterator it;
-    map<unsigned int, AddressRange *>::iterator ar_it;
-
     unsigned int arid;
 
-    for (it = ars.begin(); it != ars.end(); it++)
+    for (auto attr : ars)
     {
-        if ((*it)->vector_value("AR_ID", arid) != 0)
+        if (attr->vector_value("AR_ID", arid) != 0)
         {
             error_msg = "AR/AR_ID attribute is missing.";
             return -1;
         }
 
-        ar_it = ar_pool.find(arid);
+        auto ar_it = ar_pool.find(arid);
 
         if (ar_it == ar_pool.end())
         {
@@ -142,7 +136,7 @@ int AddressRangePool::update_ar(vector<VectorAttribute *> ars, bool keep_restric
             return -1;
         }
 
-        return ar_it->second->update_attributes(*it, keep_restricted, error_msg);
+        return ar_it->second->update_attributes(attr, keep_restricted, error_msg);
     }
 
     error_msg = "Wrong AR definition. AR vector attribute is missing.";
@@ -193,9 +187,7 @@ int AddressRangePool::from_xml_node(const xmlNodePtr node)
 
 int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -246,9 +238,7 @@ int AddressRangePool::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 
 int AddressRangePool::rm_ars(string& error_msg)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for ( it = ar_pool.begin(); it != ar_pool.end(); )
+    for ( auto it = ar_pool.begin(); it != ar_pool.end(); )
     {
         if(it->second->is_ipam())
         {
@@ -290,11 +280,10 @@ string& AddressRangePool::to_xml(string& sstream, bool extended,
     if (extended)
     {
         ostringstream oss;
-        map<unsigned int, AddressRange *>::const_iterator it;
 
         oss << "<AR_POOL>";
 
-        for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+        for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
         {
             it->second->to_xml(oss, vms, vnets, vrs);
         }
@@ -315,9 +304,7 @@ string& AddressRangePool::to_xml(string& sstream, bool extended,
 int AddressRangePool::allocate_addr(PoolObjectSQL::ObjectType ot, int obid,
     VectorAttribute * nic, const vector<string> &inherit)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->allocate_addr(ot, obid, nic, inherit) == 0)
         {
@@ -336,9 +323,7 @@ int AddressRangePool::allocate_by_mac(const string &mac,
     PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
     const vector<string> &inherit)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->allocate_by_mac(mac, ot, obid, nic, inherit) == 0)
         {
@@ -357,9 +342,7 @@ int AddressRangePool::allocate_by_ip(const string &ip,
     PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
     const vector<string> &inherit)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->allocate_by_ip(ip, ot, obid, nic, inherit) == 0)
         {
@@ -378,9 +361,7 @@ int AddressRangePool::allocate_by_ip6(const string &ip,
     PoolObjectSQL::ObjectType ot, int obid, VectorAttribute * nic,
     const vector<string> &inherit)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->allocate_by_ip6(ip, ot, obid, nic, inherit) == 0)
         {
@@ -398,9 +379,7 @@ int AddressRangePool::allocate_by_ip6(const string &ip,
 void AddressRangePool::free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot,
     int obid, const string& mac)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(arid);
+    auto it = ar_pool.find(arid);
 
     if (it!=ar_pool.end())
     {
@@ -417,9 +396,7 @@ void AddressRangePool::free_addr(unsigned int arid, PoolObjectSQL::ObjectType ot
 void AddressRangePool::free_addr_by_ip(unsigned int arid,
     PoolObjectSQL::ObjectType ot, int obid, const string& ip)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(arid);
+    auto it = ar_pool.find(arid);
 
     if (it!=ar_pool.end())
     {
@@ -436,9 +413,7 @@ void AddressRangePool::free_addr_by_ip(unsigned int arid,
 void AddressRangePool::free_addr_by_ip6(unsigned int arid,
     PoolObjectSQL::ObjectType ot, int obid, const string& ip)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(arid);
+    auto it = ar_pool.find(arid);
 
     if (it!=ar_pool.end())
     {
@@ -455,9 +430,7 @@ void AddressRangePool::free_addr_by_ip6(unsigned int arid,
 void AddressRangePool::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     const string& mac_s)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->free_addr(ot, obid, mac_s) == 0)
         {
@@ -472,9 +445,7 @@ void AddressRangePool::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 void AddressRangePool::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
     const string& ip_s)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->free_addr_by_ip(ot, obid, ip_s) == 0)
         {
@@ -489,9 +460,7 @@ void AddressRangePool::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 void AddressRangePool::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
     const string& ip_s)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->free_addr_by_ip6(ot, obid, ip_s) == 0)
         {
@@ -505,10 +474,9 @@ void AddressRangePool::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
 
 int AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
 {
-    map<unsigned int, AddressRange *>::iterator it;
     unsigned int used_addr_ini = used_addr;
 
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         used_addr -= it->second->free_addr_by_owner(ot, oid);
     }
@@ -522,11 +490,9 @@ int AddressRangePool::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int oid)
 int AddressRangePool::free_addr_by_range(unsigned int arid,
     PoolObjectSQL::ObjectType ot, int obid, const string& mac, unsigned int rsize)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
     unsigned int freed = 0;
 
-    it = ar_pool.find(arid);
+    auto it = ar_pool.find(arid);
 
     if (it!=ar_pool.end())
     {
@@ -544,7 +510,7 @@ int AddressRangePool::free_addr_by_range(unsigned int arid,
 void AddressRangePool::get_attribute(const string& name, string& value,
     int ar_id) const
 {
-    map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     value.clear();
 
@@ -560,7 +526,7 @@ void AddressRangePool::get_attribute(const string& name, string& value,
 int AddressRangePool::get_attribute(const string& name, int& value,
     int ar_id) const
 {
-    map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     int rc = -1;
 
@@ -577,7 +543,7 @@ int AddressRangePool::get_attribute(const string& name, int& value,
 
 const set<int>& AddressRangePool::get_security_groups(int ar_id) const
 {
-    map<unsigned int, AddressRange *>::const_iterator it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -591,9 +557,7 @@ const set<int>& AddressRangePool::get_security_groups(int ar_id) const
 
 void AddressRangePool::get_all_security_groups(set<int>& sgs) const
 {
-    map<unsigned int, AddressRange *>::const_iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         it->second->get_security_groups(sgs);
     }
@@ -619,11 +583,9 @@ int AddressRangePool::get_ar_parent(int ar_id) const
 
 unsigned int AddressRangePool::get_size() const
 {
-    map<unsigned int, AddressRange *>::const_iterator it;
-
     unsigned int total = 0;
 
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         total += it->second->get_size();
     }
@@ -636,9 +598,7 @@ unsigned int AddressRangePool::get_size() const
 
 int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
 {
-    map<unsigned int, AddressRange *>::const_iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -660,10 +620,9 @@ int AddressRangePool::hold_by_ip(unsigned int ar_id, const string& ip_s)
 
 int AddressRangePool::hold_by_ip(const string& ip_s)
 {
-    map<unsigned int, AddressRange *>::iterator it;
     int rc = -1;
 
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->hold_by_ip(ip_s) == 0) //At least one AR hold the IP
         {
@@ -680,9 +639,7 @@ int AddressRangePool::hold_by_ip(const string& ip_s)
 
 int AddressRangePool::hold_by_ip6(unsigned int ar_id, const string& ip_s)
 {
-    map<unsigned int, AddressRange *>::const_iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -704,10 +661,9 @@ int AddressRangePool::hold_by_ip6(unsigned int ar_id, const string& ip_s)
 
 int AddressRangePool::hold_by_ip6(const string& ip_s)
 {
-    map<unsigned int, AddressRange *>::iterator it;
     int rc = -1;
 
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->hold_by_ip6(ip_s) == 0) //At least one AR hold the IP
         {
@@ -724,9 +680,7 @@ int AddressRangePool::hold_by_ip6(const string& ip_s)
 
 int AddressRangePool::hold_by_mac(unsigned int ar_id, const string& mac_s)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -748,10 +702,9 @@ int AddressRangePool::hold_by_mac(unsigned int ar_id, const string& mac_s)
 
 int AddressRangePool::hold_by_mac(const string& mac_s)
 {
-    map<unsigned int, AddressRange *>::iterator it;
     int rc = -1;
 
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if (it->second->hold_by_mac(mac_s) == 0) //At least one AR hold the IP
         {
@@ -769,9 +722,7 @@ int AddressRangePool::hold_by_mac(const string& mac_s)
 int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
     AddressRange *rar)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         if ((it->second->get_free_addr() >= rsize) &&
             (it->second->reserve_addr(vid, rsize, rar) == 0))
@@ -790,9 +741,7 @@ int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
 int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
     unsigned int ar_id, AddressRange *rar)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -815,9 +764,7 @@ int AddressRangePool::reserve_addr(int vid, unsigned int rsize,
 int AddressRangePool::reserve_addr_by_ip(int vid, unsigned int rsize,
     unsigned int ar_id, const string& ip, AddressRange *rar)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -839,9 +786,7 @@ int AddressRangePool::reserve_addr_by_ip(int vid, unsigned int rsize,
 int AddressRangePool::reserve_addr_by_mac(int vid, unsigned int rsize,
     unsigned int ar_id, const string& mac, AddressRange *rar)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -863,9 +808,7 @@ int AddressRangePool::reserve_addr_by_mac(int vid, unsigned int rsize,
 int AddressRangePool::reserve_addr_by_ip6(int vid, unsigned int rsize,
     unsigned int ar_id, const string& ip, AddressRange *rar)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    it = ar_pool.find(ar_id);
+    auto it = ar_pool.find(ar_id);
 
     if (it == ar_pool.end())
     {
@@ -888,9 +831,7 @@ void AddressRangePool::process_security_rule(
         VectorAttribute *        rule,
         vector<VectorAttribute*> &new_rules)
 {
-    map<unsigned int, AddressRange *>::iterator it;
-
-    for (it=ar_pool.begin(); it!=ar_pool.end(); it++)
+    for (auto it=ar_pool.begin(); it!=ar_pool.end(); it++)
     {
         VectorAttribute* new_rule = new VectorAttribute(
                                     "SECURITY_GROUP_RULE", rule->value());

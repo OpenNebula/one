@@ -31,8 +31,6 @@ string VectorAttribute::marshall(const char * _sep) const
     ostringstream os;
     const char *  my_sep;
 
-    map<string,string>::const_iterator it;
-
     if ( _sep == 0 )
     {
         my_sep = magic_sep;
@@ -47,7 +45,7 @@ string VectorAttribute::marshall(const char * _sep) const
         return 0;
     }
 
-    it = attribute_value.begin();
+    auto it = attribute_value.begin();
 
     os << it->first << "=" << it->second;
 
@@ -64,11 +62,9 @@ string VectorAttribute::marshall(const char * _sep) const
 
 void VectorAttribute::to_xml(ostringstream &oss) const
 {
-    map<string,string>::const_iterator it;
-
     oss << "<" << name() << ">";
 
-    for (it=attribute_value.begin();it!=attribute_value.end();it++)
+    for (auto it=attribute_value.begin(); it!=attribute_value.end(); it++)
     {
         if ( it->first.empty() )
         {
@@ -91,7 +87,7 @@ void VectorAttribute::to_json(std::ostringstream& s) const
         return;
     }
 
-    map<string,string>::const_iterator it = attribute_value.begin();
+    auto it = attribute_value.begin();
     bool is_first = true;
 
     s << "{";
@@ -121,9 +117,7 @@ void VectorAttribute::to_json(std::ostringstream& s) const
 
 void VectorAttribute::to_token(std::ostringstream& s) const
 {
-    map<string,string>::const_iterator it;
-
-    for (it=attribute_value.begin(); it!=attribute_value.end(); it++)
+    for (auto it=attribute_value.begin(); it!=attribute_value.end(); it++)
     {
         if (it->first.empty() || it->second.empty())
         {
@@ -205,14 +199,11 @@ void VectorAttribute::replace(const map<string,string>& attr)
 
 void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
 {
-    map<string, string>::const_iterator it;
-    map<string, string>::iterator       jt;
-
     const map<string,string>& source_values = vattr->value();
 
-    for(it=source_values.begin(); it!=source_values.end(); it++)
+    for (auto it=source_values.begin(); it!=source_values.end(); it++)
     {
-        jt = attribute_value.find(it->first);
+        auto jt = attribute_value.find(it->first);
 
         if (jt != attribute_value.end())
         {
@@ -235,9 +226,7 @@ void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
 
 void VectorAttribute::replace(const string& name, const string& value)
 {
-    map<string,string>::iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if ( it != attribute_value.end() )
     {
@@ -252,9 +241,7 @@ void VectorAttribute::replace(const string& name, const string& value)
 
 void VectorAttribute::remove(const string& name)
 {
-    map<string,string>::iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if ( it != attribute_value.end() )
     {
@@ -267,9 +254,7 @@ void VectorAttribute::remove(const string& name)
 
 string VectorAttribute::vector_value(const string& name) const
 {
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if ( it == attribute_value.end() )
     {
@@ -286,9 +271,7 @@ string VectorAttribute::vector_value(const string& name) const
 
 int VectorAttribute::vector_value(const string& name, string& value) const
 {
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if (it == attribute_value.end())
     {
@@ -305,10 +288,8 @@ int VectorAttribute::vector_value(const string& name, string& value) const
 
 int VectorAttribute::vector_value(const string& name, bool& value) const
 {
-    map<string,string>::const_iterator it;
-
     value = false;
-    it    = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if (it == attribute_value.end())
     {

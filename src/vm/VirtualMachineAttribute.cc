@@ -62,12 +62,10 @@ int VirtualMachineAttributeSet::set_flag(int a_id, const string& flag_name)
 VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
         const string& flag)
 {
-    std::map<int, ExtendedAttribute*>::const_iterator it;
-
     VirtualMachineAttribute * vma;
     VirtualMachineAttribute * tmp = 0;
 
-    for( it = a_set.begin(); it != a_set.end(); ++it)
+    for (auto it = a_set.begin(); it != a_set.end(); ++it)
     {
         vma = static_cast<VirtualMachineAttribute *>(it->second);
 
@@ -88,11 +86,9 @@ VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
 VirtualMachineAttribute * VirtualMachineAttributeSet::clear_flag(
         const string& flag)
 {
-    std::map<int, ExtendedAttribute *>::iterator it;
-
     VirtualMachineAttribute * vma;
 
-    for( it = a_set.begin(); it != a_set.end(); ++it)
+    for (auto it = a_set.begin(); it != a_set.end(); ++it)
     {
         vma = static_cast<VirtualMachineAttribute *>(it->second);
 

@@ -127,9 +127,9 @@ public:
 
         std::lock_guard<std::mutex> lock(_mutex);
 
-        std::map<uint64_t, ReplicaRequest *>::iterator it = requests.find(rindex);
+        auto it = requests.find(rindex);
 
-        if ( it != requests.end() && it->second != 0 )
+        if ( it != requests.end() && it->second )
         {
             it->second->add_replica();
 

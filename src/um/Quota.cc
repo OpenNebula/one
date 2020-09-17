@@ -151,7 +151,6 @@ bool Quota::check_quota(const string& qid,
 {
     VectorAttribute * q;
     VectorAttribute * default_q;
-    map<string, float>::iterator it;
 
     bool check;
     float limit;
@@ -208,7 +207,7 @@ bool Quota::check_quota(const string& qid,
 
         metrics_used += "_USED";
 
-        it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metrics[i]);
 
         if (it == usage_req.end())
         {
@@ -259,7 +258,7 @@ bool Quota::check_quota(const string& qid,
 
         metrics_used += "_USED";
 
-        it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metrics[i]);
 
         if (it == usage_req.end())
         {
@@ -278,7 +277,6 @@ bool Quota::check_quota(const string& qid,
 void Quota::del_quota(const string& qid, map<string, float>& usage_req)
 {
     VectorAttribute * q;
-    map<string, float>::iterator it;
 
     if ( get_quota(qid, &q) == -1)
     {
@@ -296,7 +294,7 @@ void Quota::del_quota(const string& qid, map<string, float>& usage_req)
 
         metrics_used += "_USED";
 
-        it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metrics[i]);
 
         if (it == usage_req.end())
         {

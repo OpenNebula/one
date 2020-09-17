@@ -308,9 +308,6 @@ int Zone::post_update_template(string& error)
 
 int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
 {
-    vector<VectorAttribute *> vs;
-    vector<VectorAttribute *>::iterator it;
-
     VectorAttribute * server;
 
     sid = -1;

@@ -138,7 +138,6 @@ error_name:
 void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
     vector<VectorAttribute*> &rules)
 {
-    vector<VectorAttribute*>::iterator rule_it;
     vector<VectorAttribute*> sg_rules;
 
     int vnet_id;
@@ -160,13 +159,11 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
         return;
     }
 
-    for (rule_it = sg_rules.begin(); rule_it != sg_rules.end(); rule_it++)
+    for (auto rule : sg_rules)
     {
-        if ( (*rule_it)->vector_value("NETWORK_ID", vnet_id) != -1 )
+        if ( rule->vector_value("NETWORK_ID", vnet_id) != -1 )
         {
             vector<VectorAttribute*> vnet_rules;
-
-            VectorAttribute* rule = *rule_it;
 
             if ( auto vnet = vnet_pool->get_ro(vnet_id) )
             {
@@ -184,7 +181,7 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
         }
         else
         {
-            rules.push_back(*rule_it);
+            rules.push_back(rule);
         }
     }
 }

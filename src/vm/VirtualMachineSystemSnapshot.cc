@@ -78,16 +78,14 @@ int set_active_snapshot(int snap_id, const string& action,
 {
     int s_id;
 
-    vector<VectorAttribute *>::iterator it;
-
-    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    for ( auto snap : snaps )
     {
-        (*it)->vector_value("SNAPSHOT_ID", s_id);
+        snap->vector_value("SNAPSHOT_ID", s_id);
 
         if ( s_id == snap_id )
         {
-            (*it)->replace("ACTIVE", "YES");
-            (*it)->replace("ACTION", action);
+            snap->replace("ACTIVE", "YES");
+            snap->replace("ACTION", action);
             return 0;
         }
     }
@@ -119,15 +117,14 @@ int VirtualMachine::set_delete_snapshot(int snap_id)
 void VirtualMachine::update_snapshot_id(const string& hypervisor_id)
 {
     vector<VectorAttribute *> snaps;
-    vector<VectorAttribute *>::iterator it;
 
     obj_template->get("SNAPSHOT", snaps);
 
-    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    for ( auto snap : snaps )
     {
-        if ( (*it)->vector_value("ACTIVE") == "YES" )
+        if ( snap->vector_value("ACTIVE") == "YES" )
         {
-            (*it)->replace("HYPERVISOR_ID", hypervisor_id);
+            snap->replace("HYPERVISOR_ID", hypervisor_id);
             break;
         }
     }
@@ -136,16 +133,15 @@ void VirtualMachine::update_snapshot_id(const string& hypervisor_id)
 void VirtualMachine::update_snapshot_id()
 {
     vector<VectorAttribute *> snaps;
-    vector<VectorAttribute *>::iterator it;
 
     obj_template->get("SNAPSHOT", snaps);
 
-    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    for ( auto snap : snaps )
     {
-        if ( (*it)->vector_value("ACTIVE") == "YES" )
+        if ( snap->vector_value("ACTIVE") == "YES" )
         {
-            string snap_id = (*it)->vector_value("SNAPSHOT_ID");
-            (*it)->replace("HYPERVISOR_ID", snap_id);
+            string snap_id = snap->vector_value("SNAPSHOT_ID");
+            snap->replace("HYPERVISOR_ID", snap_id);
             break;
         }
     }
@@ -159,15 +155,14 @@ string VirtualMachine::get_snapshot_action() const
     string action;
 
     vector<VectorAttribute *> snaps;
-    vector<VectorAttribute *>::iterator it;
 
     obj_template->get("SNAPSHOT", snaps);
 
-    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    for ( auto snap : snaps )
     {
-        if ( (*it)->vector_value("ACTIVE") == "YES" )
+        if ( snap->vector_value("ACTIVE") == "YES" )
         {
-            action = (*it)->vector_value("ACTION");
+            action = snap->vector_value("ACTION");
             break;
         }
     }
@@ -181,16 +176,15 @@ string VirtualMachine::get_snapshot_action() const
 void VirtualMachine::clear_active_snapshot()
 {
     vector<VectorAttribute *> snaps;
-    vector<VectorAttribute *>::iterator it;
 
     obj_template->get("SNAPSHOT", snaps);
 
-    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    for ( auto snap : snaps )
     {
-        if ( (*it)->vector_value("ACTIVE") == "YES" )
+        if ( snap->vector_value("ACTIVE") == "YES" )
         {
-            (*it)->remove("ACTIVE");
-            (*it)->remove("ACTION");
+            snap->remove("ACTIVE");
+            snap->remove("ACTION");
             return;
         }
     }
@@ -202,15 +196,14 @@ void VirtualMachine::clear_active_snapshot()
 void VirtualMachine::delete_active_snapshot()
 {
     vector<VectorAttribute *> snaps;
-    vector<VectorAttribute *>::iterator it;
 
     obj_template->get("SNAPSHOT", snaps);
 
-    for ( it = snaps.begin() ; it != snaps.end() ; ++it )
+    for ( auto snap : snaps )
     {
-        if ( (*it)->vector_value("ACTIVE") == "YES" )
+        if ( snap->vector_value("ACTIVE") == "YES" )
         {
-            delete obj_template->remove(*it);
+            delete obj_template->remove(snap);
 
             return;
         }

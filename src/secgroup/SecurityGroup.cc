@@ -57,7 +57,6 @@ SecurityGroup::SecurityGroup(
 
 int SecurityGroup::insert(SqlDB *db, string& error_str)
 {
-    vector<const VectorAttribute*>::const_iterator it;
     vector<const VectorAttribute*> rules;
 
     erase_template_attribute("NAME",name);
@@ -69,9 +68,9 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("RULE", rules);
 
-    for ( it = rules.begin(); it != rules.end(); it++ )
+    for ( auto rule : rules )
     {
-        if (!isValidRule(*it, error_str))
+        if (!isValidRule(rule, error_str))
         {
             goto error_valid;
         }
@@ -280,15 +279,14 @@ int SecurityGroup::from_xml(const string& xml)
 
 void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
 {
-    vector<const VectorAttribute*>::const_iterator it;
     vector<const VectorAttribute*> rules;
 
     get_template_attribute("RULE", rules);
 
-    for ( it = rules.begin(); it != rules.end(); it++ )
+    for ( auto rule : rules )
     {
         VectorAttribute* new_rule = new VectorAttribute(
-                                    "SECURITY_GROUP_RULE", (*it)->value());
+                                    "SECURITY_GROUP_RULE", rule->value());
 
         new_rule->replace("SECURITY_GROUP_ID", this->get_oid());
         new_rule->replace("SECURITY_GROUP_NAME", this->get_name());
@@ -435,14 +433,13 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
 
 int SecurityGroup::post_update_template(string& error)
 {
-    vector<const VectorAttribute*>::const_iterator it;
     vector<const VectorAttribute*> rules;
 
     get_template_attribute("RULE", rules);
 
-    for ( it = rules.begin(); it != rules.end(); it++ )
+    for ( auto rule : rules )
     {
-        if (!isValidRule(*it, error))
+        if (!isValidRule(rule, error))
         {
             return -1;
         }

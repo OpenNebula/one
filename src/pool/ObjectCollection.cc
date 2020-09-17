@@ -106,9 +106,7 @@ string& ObjectCollection::to_xml(string& xml) const
 
 int ObjectCollection::add(int id)
 {
-    pair<set<int>::iterator,bool> ret;
-
-    ret = collection_set.insert(id);
+    auto ret = collection_set.insert(id);
 
     if( !ret.second )
     {
@@ -141,7 +139,7 @@ int ObjectCollection::pop(int& elem)
         return -1;
     }
 
-    set<int>::iterator it = collection_set.begin();
+    auto it = collection_set.begin();
 
     elem = *it;
 

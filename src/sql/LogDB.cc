@@ -818,13 +818,11 @@ uint64_t LogDB::last_federated()
 
 uint64_t LogDB::previous_federated(uint64_t i)
 {
-    set<uint64_t>::iterator it;
-
     lock_guard<mutex> lock(_mutex);
 
     uint64_t findex = UINT64_MAX;
 
-    it = fed_log.find(i);
+    auto it = fed_log.find(i);
 
     if ( it != fed_log.end() && it != fed_log.begin() )
     {
@@ -838,13 +836,11 @@ uint64_t LogDB::previous_federated(uint64_t i)
 
 uint64_t LogDB::next_federated(uint64_t i)
 {
-    set<uint64_t>::iterator it;
-
     lock_guard<mutex> lock(_mutex);
 
     uint64_t findex = UINT64_MAX;
 
-    it = fed_log.find(i);
+    auto it = fed_log.find(i);
 
     if ( it != fed_log.end() && it != --fed_log.end() )
     {

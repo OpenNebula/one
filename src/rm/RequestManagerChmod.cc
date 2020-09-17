@@ -248,8 +248,7 @@ Request::ErrorCode TemplateChmod::chmod(
     if ( !error_ids.empty() )
     {
         att.resp_msg = "Cannot chmod " + object_name(PoolObjectSQL::IMAGE) +
-            ": " + one_util::join<set<int>::iterator>(error_ids.begin(),
-            error_ids.end(), ',');
+            ": " + one_util::join(error_ids.begin(), error_ids.end(), ',');
 
         return ACTION;
     }

@@ -41,9 +41,7 @@ FedReplicaManager::~FedReplicaManager()
 {
     Nebula& nd = Nebula::instance();
 
-    std::map<int, ZoneServers *>::iterator it;
-
-    for ( it = zones.begin() ; it != zones.end() ; ++it )
+    for ( auto it = zones.begin() ; it != zones.end() ; ++it )
     {
         delete it->second;
     }
@@ -89,8 +87,6 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
-    vector<int>::iterator it;
-
     int zone_id = nd.get_zone_id();
 
     if ( zpool->list_zones(zone_ids) != 0 )
@@ -104,7 +100,7 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
 
     zones.clear();
 
-    for (it = zone_ids.begin() ; it != zone_ids.end(); )
+    for (auto it = zone_ids.begin() ; it != zone_ids.end(); )
     {
         if ( *it == zone_id )
         {
@@ -174,11 +170,9 @@ void FedReplicaManager::delete_zone(int zone_id)
 {
     std::ostringstream oss;
 
-    std::map<int, ZoneServers *>::iterator it;
-
     lock_guard<mutex> ul(fed_mutex);
 
-    it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
@@ -212,7 +206,7 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
 {
     lock_guard<mutex> ul(fed_mutex);
 
-    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
@@ -275,7 +269,7 @@ void FedReplicaManager::replicate_success(int zone_id)
 {
     lock_guard<mutex> ul(fed_mutex);
 
-    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
@@ -300,7 +294,7 @@ void FedReplicaManager::replicate_failure(int zone_id, uint64_t last_zone)
 {
     lock_guard<mutex> ul(fed_mutex);
 
-    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it != zones.end() )
     {

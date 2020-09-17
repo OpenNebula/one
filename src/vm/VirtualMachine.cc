@@ -645,7 +645,7 @@ static int set_boot_order(Template * tmpl, string& error_str)
 
     int index = 1;
 
-    for (vector<string>::iterator i = bdevs.begin(); i != bdevs.end(); ++i)
+    for (auto& str_dev : bdevs)
     {
         vector<VectorAttribute *> * dev;
         int    max;
@@ -654,16 +654,16 @@ static int set_boot_order(Template * tmpl, string& error_str)
 
         const char * id_name;
 
-        one_util::toupper(*i);
+        one_util::toupper(str_dev);
 
-        int rc = one_util::regex_match("^(DISK|NIC)[[:digit:]]+$", (*i).c_str());
+        int rc = one_util::regex_match("^(DISK|NIC)[[:digit:]]+$", str_dev.c_str());
 
         if (rc != 0)
         {
             goto error_parsing;
         }
 
-        if ((*i).compare(0,4,"DISK") == 0)
+        if (str_dev.compare(0,4,"DISK") == 0)
         {
             pos = 4;
 
@@ -672,7 +672,7 @@ static int set_boot_order(Template * tmpl, string& error_str)
 
             id_name = "DISK_ID";
         }
-        else if ((*i).compare(0,3,"NIC") == 0)
+        else if (str_dev.compare(0,3,"NIC") == 0)
         {
             pos = 3;
 
@@ -686,7 +686,7 @@ static int set_boot_order(Template * tmpl, string& error_str)
             goto error_parsing;
         }
 
-        istringstream iss((*i).substr(pos, string::npos));
+        istringstream iss(str_dev.substr(pos, string::npos));
 
         iss >> disk_id;
 
@@ -1545,7 +1545,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     if ( !cluster_ids.empty() )
     {
-        set<int>::iterator i = cluster_ids.begin();
+        auto i = cluster_ids.begin();
 
         oss << "(CLUSTER_ID = " << *i;
 
@@ -1574,7 +1574,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
     if (num_public != 0)
     {
-        set<string>::iterator it = clouds.begin();
+        auto it = clouds.begin();
 
         oss << " | (PUBLIC_CLOUD = YES & (";
 
@@ -1598,7 +1598,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
     {
         if ( !cluster_ids.empty() )
         {
-            set<int>::iterator i = cluster_ids.begin();
+            auto i = cluster_ids.begin();
 
             oss << "(\"CLUSTERS/ID\" @> " << *i;
 
@@ -1619,7 +1619,7 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
 
         if ( !datastore_ids.empty() )
         {
-            set<int>::iterator i = datastore_ids.begin();
+            auto i = datastore_ids.begin();
 
             oss << "(\"ID\" @> " << *i;
 
@@ -2081,20 +2081,18 @@ void VirtualMachine::set_auth_request(int uid,
                                       VirtualMachineTemplate *tmpl,
                                       bool check_lock)
 {
-    VirtualMachineDisks::disk_iterator disk;
     VirtualMachineDisks tdisks(tmpl, false);
 
-    for (disk = tdisks.begin(); disk != tdisks.end(); ++disk)
+    for (auto disk : tdisks)
     {
-        (*disk)->authorize(uid, &ar, check_lock);
+        disk->authorize(uid, &ar, check_lock);
     }
 
-    VirtualMachineNics::nic_iterator nic;
     VirtualMachineNics tnics(tmpl);
 
-    for (nic = tnics.begin(); nic != tnics.end(); ++nic)
+    for (auto nic : tnics)
     {
-        (*nic)->authorize(uid, &ar, check_lock);
+        nic->authorize(uid, &ar, check_lock);
     }
 
     const VectorAttribute * vmgroup = tmpl->get("VMGROUP");
@@ -2168,7 +2166,7 @@ string& VirtualMachine::to_xml_extended(string& xml, int n_history) const
 
     VirtualMachineDisks::disk_iterator disk;
 
-    for (disk = const_cast<VirtualMachineDisks *>(&disks)->begin() ;
+    for (auto disk = const_cast<VirtualMachineDisks *>(&disks)->begin() ;
             disk != const_cast<VirtualMachineDisks *>(&disks)->end() ; ++disk)
     {
         const Snapshots * snapshots = (*disk)->get_snapshots();
@@ -2397,7 +2395,6 @@ int VirtualMachine::from_xml(const string &xml_str)
     rc += obj_template->from_xml_node(content[0]);
 
     vector<VectorAttribute *> vdisks, vnics, alias, pcis;
-    vector<VectorAttribute *>::iterator it;
 
     obj_template->get("DISK", vdisks);
 
@@ -2409,17 +2406,17 @@ int VirtualMachine::from_xml(const string &xml_str)
 
     obj_template->get("PCI", pcis);
 
-    for (it =pcis.begin(); it != pcis.end(); ++it)
+    for (auto vattr : pcis)
     {
-        if ( (*it)->vector_value("TYPE") == "NIC" )
+        if ( vattr->vector_value("TYPE") == "NIC" )
         {
-            vnics.push_back(*it);
+            vnics.push_back(vattr);
         }
     }
 
-    for (it =alias.begin(); it != alias.end(); ++it)
+    for (auto vattr : alias)
     {
-        vnics.push_back(*it);
+        vnics.push_back(vattr);
     }
 
     nics.init(vnics, true);
@@ -2467,11 +2464,11 @@ int VirtualMachine::from_xml(const string &xml_str)
     // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/VM/SNAPSHOTS", content);
 
-    for (vector<xmlNodePtr>::iterator it=content.begin();it!=content.end();it++)
+    for (auto node : content)
     {
         Snapshots * snap = new Snapshots(-1, Snapshots::DENY);
 
-        rc += snap->from_xml_node(*it);
+        rc += snap->from_xml_node(node);
 
         if ( rc != 0)
         {
@@ -2692,7 +2689,6 @@ void VirtualMachine::clear_template_error_message()
 void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds) const
 {
     vector<VectorAttribute *>                 attrs;
-    vector<VectorAttribute *>::const_iterator it;
 
     user_obj_template->get(pname, attrs);
 
@@ -2701,9 +2697,9 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
 	    clouds.insert("ec2");
     }
 
-    for (it = attrs.begin(); it != attrs.end(); it++)
+    for (auto vattr : attrs)
     {
-        string type = (*it)->vector_value("TYPE");
+        string type = vattr->vector_value("TYPE");
 
         if (!type.empty())
         {
@@ -2747,17 +2743,16 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
     else
     {
 		std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
-		std::vector<std::string>::iterator it;
 
-        for (it = vnames.begin(); it != vnames.end(); ++it)
+        for (const auto& vname : vnames)
         {
-            if ( new_attr->vector_value(*it, value) == -1 )
+            if ( new_attr->vector_value(vname, value) == -1 )
             {
-                old_attr->remove(*it);
+                old_attr->remove(vname);
             }
             else
             {
-                old_attr->replace(*it, value);
+                old_attr->replace(vname, value);
             }
         }
     }
@@ -2781,15 +2776,14 @@ static void copy_vector_values(Template *old_tmpl, Template *new_tmpl,
     VectorAttribute * new_vattr = new VectorAttribute(name);
 
     std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
-    std::vector<std::string>::iterator it;
 
-    for (it = vnames.begin(); it != vnames.end(); ++it)
+    for (const auto& vname : vnames)
     {
-        std::string vval = old_attr->vector_value(*it);
+        std::string vval = old_attr->vector_value(vname);
 
         if (!vval.empty())
         {
-            new_vattr->replace(*it, vval);
+            new_vattr->replace(vname, vval);
         }
     }
 
@@ -2985,12 +2979,10 @@ int VirtualMachine::get_disk_images(string& error_str)
     vector<Attribute *> adisks;
     vector<Attribute *> acontext_disks;
 
-    vector<Attribute*>::iterator it;
-
     int num_context = user_obj_template->remove("CONTEXT", acontext_disks);
     int num_disks   = user_obj_template->remove("DISK", adisks);
 
-    for (it = acontext_disks.begin(); it != acontext_disks.end(); )
+    for (auto it = acontext_disks.begin(); it != acontext_disks.end(); )
     {
         if ( (*it)->type() != Attribute::VECTOR )
         {
@@ -3005,7 +2997,7 @@ int VirtualMachine::get_disk_images(string& error_str)
         }
     }
 
-    for (it = adisks.begin(); it != adisks.end(); )
+    for (auto it = adisks.begin(); it != adisks.end(); )
     {
         if ( (*it)->type() != Attribute::VECTOR )
         {
@@ -3188,7 +3180,6 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
         string& estr)
 {
     vector<VectorAttribute *> vnics;
-    vector<VectorAttribute*>::iterator it;
 
     int nic_id;
 
@@ -3197,11 +3188,11 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
     /* ---------------------------------------------------------------------- */
     tmpl->get("NIC", vnics);
 
-    for (it = vnics.begin(); it != vnics.end(); ++it)
+    for (auto vattr : vnics)
     {
         std::string net_mode;
 
-        (*it)->vector_value("NIC_ID", nic_id);
+        vattr->vector_value("NIC_ID", nic_id);
 
         VirtualMachineNic * nic = get_nic(nic_id);
 
@@ -3220,7 +3211,7 @@ int VirtualMachine::get_auto_network_leases(VirtualMachineTemplate * tmpl,
             return -1;
         }
 
-        nic->replace("NETWORK_ID", (*it)->vector_value("NETWORK_ID"));
+        nic->replace("NETWORK_ID", vattr->vector_value("NETWORK_ID"));
     }
 
     /* ---------------------------------------------------------------------- */
@@ -3270,7 +3261,7 @@ int VirtualMachine::get_network_leases(string& estr)
 
     user_obj_template->remove("NIC", anics);
 
-    for (vector<Attribute*>::iterator it = anics.begin(); it != anics.end(); )
+    for (auto it = anics.begin(); it != anics.end(); )
     {
         if ( (*it)->type() != Attribute::VECTOR )
         {
@@ -3286,7 +3277,7 @@ int VirtualMachine::get_network_leases(string& estr)
 
     user_obj_template->remove("NIC_ALIAS", alias);
 
-    for (vector<Attribute*>::iterator it = alias.begin(); it != alias.end(); )
+    for (auto it = alias.begin(); it != alias.end(); )
     {
         if ( (*it)->type() != Attribute::VECTOR )
         {
@@ -3302,15 +3293,14 @@ int VirtualMachine::get_network_leases(string& estr)
     }
 
     vector<VectorAttribute *> pcis;
-    vector<VectorAttribute *>::iterator it;
 
     get_template_attribute("PCI", pcis);
 
-    for (it =pcis.begin(); it != pcis.end(); ++it)
+    for (auto vattr : pcis)
     {
-        if ( (*it)->vector_value("TYPE") == "NIC" )
+        if ( vattr->vector_value("TYPE") == "NIC" )
         {
-            anics.push_back(*it);
+            anics.push_back(vattr);
         }
     }
 
@@ -3381,9 +3371,9 @@ int VirtualMachine::set_up_attach_nic(VirtualMachineTemplate * tmpl, string& err
 
     obj_template->set(new_nic);
 
-    for (vector<VectorAttribute*>::iterator it=sgs.begin(); it!=sgs.end(); ++it)
+    for (auto vattr : sgs)
     {
-        obj_template->set(*it);
+        obj_template->set(vattr);
     }
 
     return 0;
@@ -3426,9 +3416,9 @@ int VirtualMachine::set_detach_nic(int nic_id)
 
         one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
 
-        for (std::set<int>::iterator it = a_ids.begin(); it != a_ids.end(); ++it)
+        for (const auto& id : a_ids)
         {
-            if ( *it == nic_id )
+            if ( id == nic_id )
             {
                 continue;
             }
@@ -3438,7 +3428,7 @@ int VirtualMachine::set_detach_nic(int nic_id)
                 oss << ",";
             }
 
-            oss << *it;
+            oss << id;
         }
 
         nic->replace("ALIAS_IDS", oss.str());
@@ -3456,11 +3446,11 @@ void VirtualMachine::delete_attach_alias(VirtualMachineNic *nic)
 
     one_util::split_unique(nic->vector_value("ALIAS_IDS"), ',', a_ids);
 
-    for (const auto& id : a_ids)
+    for (auto id : a_ids)
     {
         VirtualMachineNic * nic_a = nics.delete_nic(id);
 
-        if (nic_a != 0)
+        if (nic_a)
         {
             obj_template->remove(nic_a->vector_attribute());
         }
@@ -3476,14 +3466,13 @@ void VirtualMachine::delete_attach_alias(VirtualMachineNic *nic)
 int VirtualMachine::get_vmgroup(string& error)
 {
     vector<Attribute  *> vmgroups;
-    vector<Attribute*>::iterator it;
 
-    bool found;
+    bool found = false;
     VectorAttribute * thegroup = 0;
 
     user_obj_template->remove("VMGROUP", vmgroups);
 
-    for (it = vmgroups.begin(), found = false; it != vmgroups.end(); )
+    for (auto it = vmgroups.begin(); it != vmgroups.end(); )
     {
         if ( (*it)->type() != Attribute::VECTOR || found )
         {

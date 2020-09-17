@@ -30,16 +30,14 @@ bool VMGroupRule::compatible(rule_set& affined, rule_set& anti,VMGroupRule& err)
 {
     VMGroupRule ta, taa;
 
-    rule_set::iterator it;
-
-    for (it=affined.begin() ; it != affined.end(); ++it)
+    for (const auto& rule : affined)
     {
-        ta |= *it;
+        ta |= rule;
     }
 
-    for (it=anti.begin() ; it != anti.end(); ++it)
+    for (const auto& rule : anti)
     {
-        taa |= *it;
+        taa |= rule;
     }
 
     err = ta & taa;

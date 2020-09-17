@@ -787,7 +787,6 @@ bool UserAllocate::allocate_authorization(
         PoolObjectAuth *    cluster_perms)
 {
     vector<xmlrpc_c::value> param_arr;
-    vector<xmlrpc_c::value>::const_iterator it;
 
     if ( paramList.size() > 4 )
     {
@@ -799,7 +798,7 @@ bool UserAllocate::allocate_authorization(
 
     ar.add_create_auth(att.uid, att.gid, auth_object, "");
 
-    for (it = param_arr.begin(); it != param_arr.end(); it++)
+    for (auto it = param_arr.begin(); it != param_arr.end(); it++)
     {
         int tmp_gid = xmlrpc_c::value_int(*it);
 
@@ -856,7 +855,6 @@ Request::ErrorCode UserAllocate::pool_allocate(
     int gid = -1;
 
     vector<xmlrpc_c::value> param_arr;
-    vector<xmlrpc_c::value>::const_iterator it;
 
     if ( paramList.size() > 4 )
     {
@@ -866,7 +864,7 @@ Request::ErrorCode UserAllocate::pool_allocate(
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    for (it = param_arr.begin(); it != param_arr.end(); it++)
+    for (auto it = param_arr.begin(); it != param_arr.end(); it++)
     {
         int tmp_gid = xmlrpc_c::value_int(*it);
 

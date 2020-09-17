@@ -56,16 +56,15 @@ static void do_network_hosts(ofstream& file,
         return;
     }
 
-    vector<string>::const_iterator it;
     vector<string> hosts;
 
     hosts = one_util::split(cg_host, ' ');
 
     file << ">" << endl;
 
-    for (it = hosts.begin(); it != hosts.end(); it++)
+    for (const auto& host_str : hosts)
     {
-        vector<string> parts = one_util::split(*it, ':');
+        vector<string> parts = one_util::split(host_str, ':');
 
         if (parts.empty())
         {

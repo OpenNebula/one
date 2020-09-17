@@ -157,11 +157,9 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
 
         if ( get("PUBLIC_CLOUD", attrs) > 0 )
         {
-            vector<const VectorAttribute *>::const_iterator it;
-
-            for (it = attrs.begin(); it != attrs.end(); it++)
+            for (auto vattr : attrs)
             {
-                (*it)->to_xml(oss);
+                vattr->to_xml(oss);
             }
         }
 
@@ -169,11 +167,9 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
 
         if ( get("SCHED_ACTION", attrs) > 0 )
         {
-            vector<const VectorAttribute *>::const_iterator it;
-
-            for (it = attrs.begin(); it != attrs.end(); it++)
+            for (auto vattr : attrs)
             {
-                (*it)->to_xml(oss);
+                vattr->to_xml(oss);
             }
         }
 

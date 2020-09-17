@@ -39,9 +39,7 @@ int VirtualNetworkPoolXML::set_up()
                 << right << setw(8)  << "Leases" << " " <<  endl
                 << setw(20) << setfill('-') << "-" << setfill(' ') << endl;
 
-            map<int, ObjectXML*>::iterator it;
-
-            for (it=objects.begin();it!=objects.end();it++)
+            for (auto it=objects.begin(); it!=objects.end(); it++)
             {
                 VirtualNetworkXML * n = dynamic_cast<VirtualNetworkXML *>(it->second);
 

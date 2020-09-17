@@ -1298,7 +1298,6 @@ int Nebula::get_conf_attribute(
     const std::string& name,
     const VectorAttribute* &value) const
 {
-    std::vector<const VectorAttribute*>::const_iterator it;
     std::vector<const VectorAttribute*> values;
     std::string template_name;
     std::string name_upper = name;
@@ -1307,20 +1306,20 @@ int Nebula::get_conf_attribute(
 
     nebula_configuration->get(key, values);
 
-    for (it = values.begin(); it != values.end(); it ++)
+    for (auto vattr : values)
     {
-        value         = *it;
-        template_name = (*it)->vector_value("NAME");
+        template_name = vattr->vector_value("NAME");
 
         one_util::toupper(template_name);
 
         if ( template_name == name_upper )
         {
+            value = vattr;
             return 0;
         }
     }
 
-    value = 0;
+    value = nullptr;
     return -1;
 };
 

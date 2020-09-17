@@ -326,19 +326,16 @@ static bool not_space(int c)
 
 string one_util::trim(const string& str)
 {
-    string::const_iterator        wfirst;
-    string::const_reverse_iterator rwlast;
-
-    wfirst = find_if(str.begin(), str.end(), not_space);
+    auto wfirst = find_if(str.begin(), str.end(), not_space);
 
     if (wfirst == str.end())
     {
         return string();
     }
 
-    rwlast = find_if(str.rbegin(),str.rend(),not_space);
+    auto rwlast = find_if(str.rbegin(),str.rend(),not_space);
 
-    string::const_iterator wlast(rwlast.base());
+    auto wlast(rwlast.base());
 
     string tstr(wfirst, wlast);
 
@@ -376,13 +373,11 @@ string one_util::gsub(const string& st, const string& sfind,
 
 void one_util::escape_json(const string& str, ostringstream& s)
 {
-    string::const_iterator it;
-
     s << "\"";
 
-    for (it = str.begin(); it != str.end(); ++it)
+    for (auto ch : str)
     {
-        switch (*it)
+        switch (ch)
         {
             case '\\': s << "\\\\"; break;
             case '"' : s << "\\\""; break;
@@ -392,7 +387,7 @@ void one_util::escape_json(const string& str, ostringstream& s)
             case '\n': s << "\\n";  break;
             case '\r': s << "\\r";  break;
             case '\t': s << "\\t";  break;
-            default  : s << *it;
+            default  : s << ch;
         }
     }
 
@@ -404,11 +399,9 @@ void one_util::escape_json(const string& str, ostringstream& s)
 
 void one_util::escape_token(const string& str, ostringstream& s)
 {
-    string::const_iterator it;
-
-    for (it = str.begin(); it != str.end(); ++it)
+    for (auto ch : str)
     {
-        switch (*it)
+        switch (ch)
         {
             case '-':
             case '_':
@@ -417,7 +410,7 @@ void one_util::escape_token(const string& str, ostringstream& s)
                 s << '_';
                 break;
             default :
-                s << *it;
+                s << ch;
         }
     }
 }
@@ -428,12 +421,10 @@ void one_util::escape_token(const string& str, ostringstream& s)
 template<>
 void one_util::split_unique(const string& st, char delim, set<string>& res)
 {
-    vector<string>::const_iterator it;
-
     vector<string> strings = split(st, delim, true);
 
-    for (it = strings.begin(); it != strings.end(); it++)
+    for (const auto& str : strings)
     {
-        res.insert(*it);
+        res.insert(str);
     }
 }

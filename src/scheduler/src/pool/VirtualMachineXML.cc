@@ -271,7 +271,6 @@ static bool isVolatile(const VectorAttribute * disk)
 void VirtualMachineXML::init_storage_usage()
 {
     vector<Attribute  *>            disks;
-    vector<Attribute*>::iterator    it;
 
     long long   size;
     long long   snapshot_size;
@@ -283,11 +282,11 @@ void VirtualMachineXML::init_storage_usage()
 
     int num = vm_template->remove("DISK", disks);
 
-    for (it=disks.begin(); it != disks.end(); it++)
+    for (const auto attr : disks)
     {
-        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(*it);
+        const VectorAttribute * disk = dynamic_cast<const VectorAttribute*>(attr);
 
-        if (disk == 0)
+        if (!disk)
         {
             continue;
         }

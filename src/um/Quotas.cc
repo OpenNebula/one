@@ -326,12 +326,9 @@ void Quotas::ds_del_recreate(int uid, int gid, vector<Template *>& ds_quotas)
     Nebula&     nd    = Nebula::instance();
     ImagePool * ipool = nd.get_ipool();
 
-    vector<Template *>::iterator it;
-
-    for (it = ds_quotas.begin(); it != ds_quotas.end(); it++)
+    for (auto tmpl : ds_quotas)
     {
         int        image_id = -1;
-        Template * tmpl = *it;
 
         bool vm_owner, img_owner;
 

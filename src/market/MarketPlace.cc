@@ -66,7 +66,7 @@ int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
     std::vector <std::string> vrequired_attrs;
 
     int    rc;
-    std::string required_attrs, required_attr, value;
+    std::string required_attrs, value;
 
     std::ostringstream oss;
 
@@ -86,11 +86,8 @@ int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
 
     vrequired_attrs = one_util::split(required_attrs, ',');
 
-    for ( std::vector<std::string>::const_iterator it = vrequired_attrs.begin();
-         it != vrequired_attrs.end(); it++ )
+    for ( auto& required_attr : vrequired_attrs )
     {
-        required_attr = *it;
-
         required_attr = one_util::trim(required_attr);
         one_util::toupper(required_attr);
 
@@ -98,7 +95,10 @@ int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
 
         if ( value.empty() )
         {
-            goto error_required;
+            oss << "MarketPlace template is missing the \"" << required_attr
+                << "\" attribute or it's empty.";
+
+            goto error_common;
         }
     }
 
@@ -107,10 +107,6 @@ int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
 error_conf:
     oss << "MARKET_MAD_CONF named \"" << mad << "\" is not defined in oned.conf";
     goto error_common;
-
-error_required:
-    oss << "MarketPlace template is missing the \"" << required_attr
-        << "\" attribute or it's empty.";
 
 error_common:
     error_str = oss.str();
@@ -292,16 +288,15 @@ static void set_supported_actions(ActionSet<MarketPlaceApp::Action>& as,
         const string& astr)
 {
     std::vector<std::string> actions;
-    std::vector<std::string>::iterator vit;
 
     std::string action;
     MarketPlaceApp::Action id;
 
     actions = one_util::split(astr, ',');
 
-    for (vit = actions.begin() ; vit != actions.end() ; ++vit)
+    for (const auto& act : actions)
     {
-        action = one_util::trim(*vit);
+        action = one_util::trim(act);
 
         if ( MarketPlaceApp::action_from_str(action, id) != 0 )
         {

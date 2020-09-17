@@ -493,8 +493,6 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     bool ro;
 
-    vector<string>::const_iterator it;
-
     img_type   = type;
     target     = disk->vector_value("TARGET");
     driver     = disk->vector_value("DRIVER");
@@ -654,13 +652,13 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         disk->replace("TARGET", template_target);
     }
 
-    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
+    for (const auto& inherit : inherit_attrs)
     {
-        get_template_attribute(*it, inherit_val);
+        get_template_attribute(inherit, inherit_val);
 
         if (!inherit_val.empty())
         {
-            disk->replace(*it, inherit_val);
+            disk->replace(inherit, inherit_val);
         }
     }
 }
@@ -845,9 +843,9 @@ void Image::set_state(ImageState _state)
         LifeCycleManager* lcm = Nebula::instance().get_lcm();
         const set<int>& vms   = vm_collection.get_collection();
 
-        for (set<int>::iterator i = vms.begin(); i != vms.end(); i++)
+        for (auto vm_id : vms)
         {
-            lcm->trigger_disk_lock_failure(*i);
+            lcm->trigger_disk_lock_failure(vm_id);
         }
     }
     else if (state == LOCKED)
@@ -915,9 +913,9 @@ void Image::set_state_unlock()
     {
         const set<int>& vms = vm_collection.get_collection();
 
-        for (set<int>::iterator i = vms.begin(); i != vms.end(); i++)
+        for (auto vm_id : vms)
         {
-            lcm->trigger_disk_lock_success(*i);
+            lcm->trigger_disk_lock_success(vm_id);
         }
     }
 }

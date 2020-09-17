@@ -208,7 +208,7 @@ void ClusterPool::cluster_acl_filter(ostringstream& filter,
             return;
     }
 
-    for ( vector<int>::const_iterator it = cids.begin(); it < cids.end(); it++ )
+    for ( auto it = cids.begin(); it != cids.end(); it++ )
     {
         if ( it != cids.begin() )
         {

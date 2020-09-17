@@ -233,7 +233,6 @@ int VMGroup::bootstrap(SqlDB * db)
 int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 {
     vector<const SingleAttribute *> affined;
-    vector<const SingleAttribute *>::const_iterator jt;
 
     std::ostringstream oss;
     oss << policy;
@@ -242,16 +241,16 @@ int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 
     obj_template->get(aname, affined);
 
-    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    for ( auto sattr : affined )
     {
         std::set<int> id_set;
 
-        if ( roles.names_to_ids((*jt)->value(), id_set) != 0 )
+        if ( roles.names_to_ids(sattr->value(), id_set) != 0 )
         {
             std::ostringstream oss;
 
             oss << "Some roles used in " << aname << " attribute ("
-                << (*jt)->value() << ") are not defined";
+                << sattr->value() << ") are not defined";
 
             error = oss.str();
 
@@ -269,7 +268,6 @@ int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
         std::string& error_str)
 {
     vector<const SingleAttribute *> affined;
-    vector<const SingleAttribute *>::const_iterator jt;
 
     std::ostringstream oss;
     oss << policy;
@@ -278,23 +276,21 @@ int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
 
     obj_template->get(aname, affined);
 
-    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    for ( auto sattr : affined )
     {
         std::set<int> id_set;
 
-        std::pair<std::set<VMGroupRule>::iterator, bool> rc;
-
-        roles.names_to_ids((*jt)->value(), id_set);
+        roles.names_to_ids(sattr->value(), id_set);
 
         VMGroupRule rule(policy, id_set);
 
-        rc = rules.insert(rule);
+        auto rc = rules.insert(rule);
 
         if ( rc.second == false )
         {
             std::ostringstream oss;
 
-            oss << "Duplicated " << aname << " rule (" << (*jt)->value()
+            oss << "Duplicated " << aname << " rule (" << sattr->value()
                 << ") detected.";
 
             error_str = oss.str();
@@ -313,8 +309,6 @@ int VMGroup::check_rule_consistency(std::string& error)
 {
     VMGroupRule::rule_set affined, anti;
 
-    VMGroupRule::rule_set::iterator it;
-
     VMGroupRule error_rule;
 
     if ( get_rules(VMGroupPolicy::AFFINED, affined, error) == -1 )
@@ -322,9 +316,9 @@ int VMGroup::check_rule_consistency(std::string& error)
         return -1;
     }
 
-    for (it=affined.begin() ; it != affined.end(); ++it)
+    for (auto rule : affined)
     {
-        const VMGroupRule::role_bitset rs = (*it).get_roles();
+        const VMGroupRule::role_bitset rs = rule.get_roles();
 
         for (int i = 0; i < VMGroupRoles::MAX_ROLES; ++i)
         {
@@ -381,7 +375,6 @@ int VMGroup::check_rule_consistency(std::string& error)
 int VMGroup::insert(SqlDB *db, string& error_str)
 {
     vector<Attribute*> va_roles;
-    vector<Attribute*>::iterator it;
 
     erase_template_attribute("NAME", name);
 
@@ -395,9 +388,9 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 
     if ( num_role > VMGroupRoles::MAX_ROLES )
     {
-        for ( it = va_roles.begin(); it != va_roles.end(); ++it )
+        for ( auto attr : va_roles )
         {
-            delete *it;
+            delete attr;
         }
 
         error_str = "Maximum number of roles in a VM Group reached";
@@ -405,19 +398,19 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 
     bool error = false;
 
-    for ( it = va_roles.begin(); it != va_roles.end(); ++it )
+    for ( auto attr : va_roles )
     {
-        VectorAttribute * vatt = dynamic_cast<VectorAttribute *>(*it);
+        VectorAttribute * vatt = dynamic_cast<VectorAttribute *>(attr);
 
         if (vatt == 0 || error)
         {
-            delete *it;
+            delete attr;
             continue;
         }
 
         if ( roles.add_role(vatt, error_str) == -1 )
         {
-            delete *it;
+            delete attr;
             error = true;
         }
     }
