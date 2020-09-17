@@ -58,8 +58,9 @@ export const FORM_FIELDS = [
   },
   {
     name: 'ready_status_gate',
-    label:
-      'Wait for VMs to report that they are READY via OneGate to consider them running',
+    label: 'Wait for Tier Full Boot',
+    tooltip:
+      'Wait for VM/containers to finish their boot process to report that they are READY and allow children tiers to spawn',
     type: TYPE_INPUT.CHECKBOX,
     validation: yup.boolean().default(false)
   }

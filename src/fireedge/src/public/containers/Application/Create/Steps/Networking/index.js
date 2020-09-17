@@ -12,7 +12,7 @@ import ListCards from 'client/components/List/ListCards';
 import { FORM_FIELDS, NETWORK_FORM_SCHEMA, STEP_FORM_SCHEMA } from './schema';
 
 const Networks = () => {
-  const STEP_ID = 'networks';
+  const STEP_ID = 'networking';
   const { getVNetworks, getVNetworksTemplates } = useOpennebula();
 
   return useMemo(
