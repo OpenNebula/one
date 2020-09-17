@@ -17,7 +17,6 @@ const Clusters = () => {
       label: 'Where will it run?',
       content: FormListSelect,
       resolver: STEP_FORM_SCHEMA,
-      onlyOneSelect: true,
       preRender: getClusters,
       list: clusters?.sort((a, b) => a.ID - b.ID),
       ItemComponent: ClusterCard

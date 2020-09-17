@@ -11,7 +11,7 @@ function ApplicationCreate() {
   const { steps, defaultValues, resolvers } = Steps();
 
   const methods = useForm({
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues,
     resolver: yupResolver(resolvers)
   });

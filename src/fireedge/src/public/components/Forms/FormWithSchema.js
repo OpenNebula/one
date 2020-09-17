@@ -22,7 +22,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
 
   return (
     <Grid container spacing={1}>
-      {fields?.map(({ name, type, label, values, dependOf }) => {
+      {fields?.map(({ name, type, label, values, dependOf, tooltip }) => {
         const dataCy = `${cy}-${name}`;
         const inputName = id ? `${id}.${name}` : name;
         const formError = id ? errors[id] : errors;
@@ -39,6 +39,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
                 cy: dataCy,
                 name: inputName,
                 label,
+                tooltip,
                 values: dependOf ? values(dependValue) : values,
                 error: inputError
               })}

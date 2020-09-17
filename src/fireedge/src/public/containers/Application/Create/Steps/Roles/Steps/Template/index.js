@@ -34,7 +34,7 @@ const Template = () => {
 
   return {
     id: STEP_ID,
-    label: 'Template VM',
+    label: 'Template',
     content: FormStep,
     resolver: STEP_FORM_SCHEMA,
     FormComponent: props => ProcessScreen({ screens: SCREENS, ...props })

@@ -12,7 +12,7 @@ export const FORM_FIELDS = [
       .min(1)
       .trim()
       .required('Name field is required')
-      .default('Main')
+      .default('')
   },
   {
     name: 'cardinality',

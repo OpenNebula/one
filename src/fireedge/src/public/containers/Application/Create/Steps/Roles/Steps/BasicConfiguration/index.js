@@ -10,7 +10,7 @@ const BasicConfiguration = () => {
 
   return {
     id: STEP_ID,
-    label: 'Role configuration',
+    label: 'Configuration',
     content: FormStep,
     resolver: STEP_FORM_SCHEMA,
     FormComponent: () => (

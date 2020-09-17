@@ -1,31 +1,38 @@
 import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
-import { FormControl, FormControlLabel, Checkbox } from '@material-ui/core';
+import {
+  FormControl,
+  FormControlLabel,
+  Checkbox,
+  Tooltip
+} from '@material-ui/core';
 import { Controller } from 'react-hook-form';
 
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
 const CheckboxController = memo(
-  ({ control, cy, name, label, error }) => (
+  ({ control, cy, name, label, tooltip, error }) => (
     <Controller
       render={({ onChange, value }) => (
-        <FormControl error={Boolean(error)}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                onChange={e => onChange(e.target.checked)}
-                name={name}
-                checked={value}
-                color="primary"
-                inputProps={{ 'data-cy': cy }}
-              />
-            }
-            label={label}
-            labelPlacement="end"
-          />
-          {Boolean(error) && <ErrorHelper label={error?.message} />}
-        </FormControl>
+        <Tooltip title={tooltip ?? ''}>
+          <FormControl error={Boolean(error)}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  onChange={e => onChange(e.target.checked)}
+                  name={name}
+                  checked={value}
+                  color="primary"
+                  inputProps={{ 'data-cy': cy }}
+                />
+              }
+              label={label}
+              labelPlacement="end"
+            />
+            {Boolean(error) && <ErrorHelper label={error?.message} />}
+          </FormControl>
+        </Tooltip>
       )}
       name={name}
       control={control}
@@ -39,6 +46,7 @@ CheckboxController.propTypes = {
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
+  tooltip: PropTypes.string,
   error: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
@@ -50,6 +58,7 @@ CheckboxController.defaultProps = {
   cy: 'cy',
   name: '',
   label: '',
+  tooltip: undefined,
   values: [],
   error: false
 };

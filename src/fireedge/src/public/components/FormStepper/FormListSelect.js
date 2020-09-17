@@ -9,7 +9,7 @@ import { EmptyCard } from 'client/components/Cards';
 
 function FormListSelect({ step, data, setFormData }) {
   const { errors } = useFormContext();
-  const { id, onlyOneSelect, preRender, list, ItemComponent } = step;
+  const { id, multiple, preRender, list, ItemComponent } = step;
 
   useEffect(() => {
     if (preRender) preRender();
@@ -18,7 +18,7 @@ function FormListSelect({ step, data, setFormData }) {
   const handleSelect = index =>
     setFormData(prevData => ({
       ...prevData,
-      [id]: onlyOneSelect ? [index] : [...prevData[id], index]
+      [id]: multiple ? [...prevData[id], index] : [index]
     }));
 
   const handleUnselect = indexRemove =>
