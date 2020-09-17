@@ -19,7 +19,7 @@ const Clusters = () => {
       resolver: STEP_FORM_SCHEMA,
       onlyOneSelect: true,
       preRender: getClusters,
-      list: clusters,
+      list: clusters?.sort((a, b) => a.ID - b.ID),
       ItemComponent: ClusterCard
     }),
     [getClusters, clusters]

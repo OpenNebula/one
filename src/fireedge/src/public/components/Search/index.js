@@ -71,11 +71,11 @@ Search.propTypes = {
 };
 
 Search.defaultProps = {
-  fullList: [],
+  list: [],
   listOptions: {},
   renderResult: item => item,
   startAdornment: undefined,
-  searchBoxProps: {}
+  searchBoxProps: undefined
 };
 
 export default Search;

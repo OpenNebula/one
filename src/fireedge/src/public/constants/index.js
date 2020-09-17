@@ -33,6 +33,7 @@ module.exports = {
   TYPE_INPUT: {
     TEXT: 'text',
     SELECT: 'select',
-    CHECKBOX: 'checkbox'
+    CHECKBOX: 'checkbox',
+    AUTOCOMPLETE: 'autocomplete'
   }
 };

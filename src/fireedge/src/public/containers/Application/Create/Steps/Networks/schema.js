@@ -1,15 +1,7 @@
 import * as yup from 'yup';
 import { TYPE_INPUT } from 'client/constants';
 import { getValidationFromFields } from 'client/utils/helpers';
-
-const DEFAULT_NETWORK = {
-  mandatory: true,
-  name: 'Public_dev',
-  description: 'Public network in development mode',
-  type: 'id',
-  id: '0',
-  extra: 'size=5'
-};
+import useOpennebula from 'client/hooks/useOpennebula';
 
 export const SELECT = {
   template: 'template',
@@ -66,7 +58,27 @@ export const FORM_FIELDS = [
   {
     name: 'id',
     label: `Select a network`,
-    type: TYPE_INPUT.TEXT,
+    type: TYPE_INPUT.AUTOCOMPLETE,
+    dependOf: 'type',
+    values: dependValue => {
+      const { vNetworks, vNetworksTemplates } = useOpennebula();
+      const type = TYPES_NETWORKS.find(({ value }) => value === dependValue);
+
+      switch (type?.select) {
+        case SELECT.network:
+          return vNetworks.map(({ ID, NAME }) => ({
+            text: NAME,
+            value: ID
+          }));
+        case SELECT.template:
+          return vNetworksTemplates.map(({ ID, NAME }) => ({
+            text: NAME,
+            value: ID
+          }));
+        default:
+          return [];
+      }
+    },
     validation: yup
       .string()
       .when('type', {
@@ -84,7 +96,7 @@ export const FORM_FIELDS = [
           .required('Network template is required field')
       })
       .required()
-      .default('')
+      .default(null)
   },
   {
     name: 'extra',
@@ -105,6 +117,4 @@ export const NETWORK_FORM_SCHEMA = yup.object(
 export const STEP_FORM_SCHEMA = yup
   .array()
   .of(NETWORK_FORM_SCHEMA)
-  .min(2)
-  .required()
-  .default([DEFAULT_NETWORK, DEFAULT_NETWORK]);
+  .default([]);

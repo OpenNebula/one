@@ -23,7 +23,7 @@ export const FORM_FIELDS = [
       .min(5)
       .trim()
       .required('Name field is required')
-      .default('One_service')
+      .default('One_application')
   },
   {
     name: 'description',
