@@ -13,20 +13,10 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const SERVICE = 'service';
-const SERVICE_ACTION = 'service-action';
-const SERVICE_SCALE = 'service-scale';
-const SERVICE_ROLE_ACTION = 'service-role-action';
-const SERVICE_TEMPLATE = 'service_template';
-const SERVICE_TEMPLATE_ACTION = 'service_template-action';
+const { createReadStream, generateFile } = require('fireedge-pojson');
 
-const Actions = {
-  SERVICE,
-  SERVICE_ACTION,
-  SERVICE_SCALE,
-  SERVICE_ROLE_ACTION,
-  SERVICE_TEMPLATE,
-  SERVICE_TEMPLATE_ACTION
-};
+const testFolder = './src/public/assets/languages';
 
-module.exports = Actions;
+createReadStream(testFolder, { exportPath: testFolder });
+
+generateFile();

@@ -15,18 +15,20 @@
 
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
-import { findStorageData } from '../../../utils';
+import { findStorageData } from 'client/utils';
 import constants from 'client/constants';
+import { defaultPort } from 'server/utils/constants/defaults';
 
 const { jwtName } = constants;
 
-const ENDPOINT = 'http://127.0.0.1:3000';
+const ENDPOINT = `http://127.0.0.1:${defaultPort}`;
 
-function Webconsole() {
+const Webconsole = () => {
   const [response, setResponse] = useState({});
 
   useEffect(() => {
     const socket = io(ENDPOINT, {
+      path: '/zeromq',
       query: {
         token: findStorageData(jwtName)
       }
@@ -37,6 +39,5 @@ function Webconsole() {
   }, []);
   console.log('-->', response);
   return <p />;
-}
-
+};
 export default Webconsole;

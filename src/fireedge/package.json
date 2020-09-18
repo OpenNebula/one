@@ -12,7 +12,8 @@
     "start": "node dist/index",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --headless --browser chrome --spec \"cypress/integration/**/*.spec.js\"",
-    "genPot": "node genPotFile.js",
+    "pot": "node potfile.js",
+    "po2json": "node po2json.js",
     "copy_static_assets": "node copyStaticAssets.js"
   },
   "keywords": [
@@ -41,11 +42,11 @@
     "concurrently": "^5.2.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "fireedge-genpotfile": "^1.0.0",
     "fs-extra": "^9.0.1",
     "fuse.js": "^6.4.1",
     "helmet": "^3.23.3",
     "http": "0.0.1-security",
+    "http-proxy-middleware": "^1.0.5",
     "immutable": "^4.0.0-rc.12",
     "intersection-observer": "^0.11.0",
     "jsonschema": "^1.2.6",
@@ -101,20 +102,17 @@
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-cypress": "^2.11.1",
     "file-loader": "^6.0.0",
+    "fireedge-genpotfile": "^1.0.0",
+    "fireedge-pojson": "^1.0.1",
     "jloboescalona-eslint-config": "^1.1.0",
     "node-sass": "^4.12.0",
     "nodemon": "^1.18.10",
-    "once": "^1.4.0",
+    "path": "^0.12.7",
     "react-addons-test-utils": "^15.6.2",
-    "readdirp": "^3.4.0",
-    "split": "^1.0.1",
-    "stream-combiner": "^0.2.2",
     "style-loader": "^1.0.0",
-    "through2": "^4.0.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.7",
     "webpack-livereload-plugin": "^2.3.0",
-    "webpack-node-externals": "^1.7.2",
-    "xgettext-regex": "^0.3.0"
+    "webpack-node-externals": "^1.7.2"
   }
 }

@@ -14,9 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const { Map } = require('immutable');
-const {
-  AUTH,
-} = require('./string-routes');
+const { AUTH } = require('./string-routes');
 const {
   httpMethod,
   defaultMethodLogin

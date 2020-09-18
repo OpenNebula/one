@@ -63,6 +63,7 @@ const defaults = {
   defaultLang: 'en_US',
   defaultIP: defaultIp,
   defaultProtocolHotReload: 'http',
+  defaultPort: 2616,
   defaultPortHotReload: '3001',
   translations: {
     en_US: 'English',
