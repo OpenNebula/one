@@ -14,14 +14,13 @@
 /* -------------------------------------------------------------------------- */
 
 const atob = require('atob');
-
+const socketIO = require('socket.io');
 const { socket: socketZeroMQ } = require('zeromq');
 const xml2js = require('xml2js');
 
-const { messageTerminal } = require('./general');
-const { getConfig } = require('./yml');
-const { validateAuth } = require('./jwt');
-// const { unauthorized } = require('./constants/http-codes');
+const { messageTerminal } = require('../../../utils/general');
+const { getConfig } = require('../../../utils/yml');
+const { validateAuth } = require('../../../utils/jwt');
 
 // user config
 const appConfig = getConfig();
@@ -30,7 +29,8 @@ const zeromqType = appConfig.ZEROTYPE || 'tcp';
 const zeromqPort = appConfig.ZEROPORT || 2101;
 const zeromqHost = appConfig.ZEROHOST || '127.0.0.1';
 
-const addWsServer = appServer => {
+const endpoint = '/zeromq';
+const oneHooksEmits = appServer => {
   // connect to zeromq
   const zeromqSock = socketZeroMQ('sub');
   const address = `${zeromqType}://${zeromqHost}:${zeromqPort}`;
@@ -86,11 +86,6 @@ const addWsServer = appServer => {
             );
           }
         });
-
-        /* socketServer.on('disconnect', () => {
-          console.log('Client disconnected');
-          clearInterval(interval);
-        }); */
       });
   } catch (error) {
     const configErrorZeroMQ = {
@@ -102,6 +97,19 @@ const addWsServer = appServer => {
   }
 };
 
+const oneHooks = appServer => {
+  if (
+    appServer &&
+    appServer.constructor &&
+    appServer.constructor.name &&
+    appServer.constructor.name === 'Server'
+  ) {
+    const io = socketIO({ path: endpoint }).listen(appServer);
+    oneHooksEmits(io);
+  }
+};
+
 module.exports = {
-  addWsServer
+  endpoint,
+  oneHooks
 };

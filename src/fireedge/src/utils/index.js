@@ -20,7 +20,6 @@ const functionRoutes = require('../routes/api');
 const { validateAuth } = require('./jwt');
 const { httpResponse } = require('./server');
 const { messageTerminal, addPrintf } = require('./general');
-const { addWsServer } = require('./ws-zeromq');
 const { getConfig } = require('./yml');
 
 // user config
@@ -127,7 +126,6 @@ const checkIfIsARouteFunction = (route, httpMethod) => {
 };
 
 module.exports = {
-  addWsServer,
   validateAuth,
   createParamsState,
   getAllowedQueryParams,

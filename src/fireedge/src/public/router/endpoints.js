@@ -26,6 +26,7 @@ import Login from 'client/containers/Login';
 import Dashboard from 'client/containers/Dashboard';
 import Settings from 'client/containers/Settings';
 import TestApi from 'client/containers/TestApi';
+import Webconsole from 'client/containers/Webconsole';
 import {
   ApplicationCreate,
   ApplicationDeploy,
@@ -73,6 +74,14 @@ const ENDPOINTS = [
     devMode: true,
     icon: BallotIcon,
     component: TestApi
+  },
+  {
+    label: 'Webconsole',
+    path: '/webconsole',
+    authenticated: true,
+    devMode: true,
+    icon: BallotIcon,
+    component: Webconsole
   },
   {
     label: 'Create Application',

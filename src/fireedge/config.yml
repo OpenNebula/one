@@ -21,3 +21,8 @@ TOKEN_SECRET: secret_token
 LIMIT_TOKEN:
   MIN: 14
   MAX: 30
+
+# VMRC
+VMRC: 
+  TARGET: 'http://opennebula.io'
+  TOKENS_PATH: '/var/lib/one/sunstone_vnc_tokens/vmrc'

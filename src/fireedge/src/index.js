@@ -19,7 +19,6 @@ const helmet = require('helmet');
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
-const socketIO = require('socket.io');
 const cors = require('cors');
 const {
   accessSync,
@@ -33,7 +32,8 @@ const bodyParser = require('body-parser');
 const {
   defaultConfigLogPath,
   defaultConfigLogFile,
-  defaultTypeLog
+  defaultTypeLog,
+  defaultPort
 } = require('./utils/constants/defaults');
 const { validateServerIsSecure, getCert, getKey } = require('./utils/server');
 const {
@@ -41,13 +41,15 @@ const {
   entrypointApi,
   entrypointApp
 } = require('./routes/entrypoints');
-const { messageTerminal, addWsServer, getConfig } = require('./utils');
+const { oneHooks } = require('./routes/websockets/zeromq');
+const { vmrcUpgrade } = require('./routes/websockets/vmrc');
+const { messageTerminal, getConfig } = require('./utils');
 
 const app = express();
 
 // settings
 const appConfig = getConfig();
-const port = appConfig.PORT || 3000;
+const port = appConfig.PORT || defaultPort;
 const userLog = appConfig.LOG || 'dev';
 
 let log = morgan('dev');
@@ -102,9 +104,7 @@ const appServer = validateServerIsSecure()
     )
   : unsecureServer(app);
 
-// connect to websocket
-const io = socketIO.listen(appServer);
-addWsServer(io);
+oneHooks(appServer);
 
 appServer.listen(port, () => {
   const config = {
@@ -114,3 +114,4 @@ appServer.listen(port, () => {
   };
   messageTerminal(config);
 });
+vmrcUpgrade(appServer);

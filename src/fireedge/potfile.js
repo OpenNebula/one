@@ -13,20 +13,33 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const SERVICE = 'service';
-const SERVICE_ACTION = 'service-action';
-const SERVICE_SCALE = 'service-scale';
-const SERVICE_ROLE_ACTION = 'service-role-action';
-const SERVICE_TEMPLATE = 'service_template';
-const SERVICE_TEMPLATE_ACTION = 'service_template-action';
+const { createReadStream, generateFile } = require('fireedge-genpotfile');
+const constants = require('./src/utils/constants');
+const clientConstants = require('./src/public/constants');
 
-const Actions = {
-  SERVICE,
-  SERVICE_ACTION,
-  SERVICE_SCALE,
-  SERVICE_ROLE_ACTION,
-  SERVICE_TEMPLATE,
-  SERVICE_TEMPLATE_ACTION
+const testFolder = './src/public';
+const exportFile = './src/public/assets/languages/messages.pot';
+const definitions = { ...constants, ...clientConstants };
+
+// function Tr()
+const optsFunc = {
+  regex: /Tr(\("|\('|\()[a-zA-Z0-9_ ]*("\)|'\)|\))/g,
+  removeStart: /Tr(\()/g,
+  removeEnd: /(\))/g,
+  regexTextCaptureIndex: 0,
+  definitions
 };
 
-module.exports = Actions;
+// React component <Translate word="word"/>
+const optsComponent = {
+  regex: /<Translate word=('|"|{|{'|{")[a-zA-Z0-9_ ]*('|"|}|'}|"}) \/>/g,
+  removeStart: /<Translate word=('|"|{|{'|{")/g,
+  removeEnd: /('|"|}|'}|"}) \/>/g,
+  regexTextCaptureIndex: 0,
+  definitions
+};
+
+createReadStream(testFolder, optsFunc);
+createReadStream(testFolder, optsComponent);
+
+generateFile(exportFile);
