@@ -7,7 +7,7 @@ import { SelectCard } from 'client/components/Cards';
 
 const sortByID = (a, b) => a.ID - b.ID;
 
-function ListMarketApp({ backButton, currentValue, handleSetData }) {
+const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
   const { apps, getMarketApps } = useOpennebula();
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function ListMarketApp({ backButton, currentValue, handleSetData }) {
       }}
     />
   );
-}
+};
 
 ListMarketApp.propTypes = {
   backButton: PropTypes.node,

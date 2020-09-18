@@ -22,7 +22,7 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
   const disabledBack = useMemo(() => activeStep === FIRST_STEP, [activeStep]);
 
   useEffect(() => {
-    reset({ ...formData }, { errors: true });
+    reset({ ...formData }, { errors: false });
   }, [formData]);
 
   const handleNext = () => {
@@ -31,10 +31,12 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
     trigger(id).then(isValid => {
       if (!isValid) return;
 
+      const data = { ...formData, ...watch() };
+
       if (activeStep === lastStep) {
-        onSubmit(formData);
+        onSubmit(data);
       } else {
-        setFormData(prevData => ({ ...prevData, ...watch() }));
+        setFormData(data);
         setActiveStep(prevActiveStep => prevActiveStep + 1);
       }
     });
@@ -45,6 +47,12 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
 
     setActiveStep(prevActiveStep => prevActiveStep - 1);
   }, [activeStep]);
+
+  const { id, content: Content } = React.useMemo(() => steps[activeStep], [
+    formData,
+    activeStep,
+    setFormData
+  ]);
 
   return (
     <>
@@ -69,20 +77,10 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
         />
       )}
       {/* FORM CONTENT */}
-      {React.useMemo(() => {
-        const { id, content: Content } = steps[activeStep];
-
-        return (
-          Content && (
-            <>
-              {typeof errors[id]?.message === 'string' && (
-                <ErrorHelper label={errors[id]?.message} />
-              )}
-              <Content data={formData[id]} setFormData={setFormData} />
-            </>
-          )
-        );
-      }, [steps, errors, formData, activeStep, setFormData])}
+      {typeof errors[id]?.message === 'string' && (
+        <ErrorHelper label={errors[id]?.message} />
+      )}
+      {Content && <Content data={formData[id]} setFormData={setFormData} />}
     </>
   );
 };

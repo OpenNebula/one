@@ -7,7 +7,7 @@ import { SelectCard } from 'client/components/Cards';
 
 const sortByID = (a, b) => a.ID - b.ID;
 
-function ListTemplates({ backButton, currentValue, handleSetData }) {
+const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
   const { templates, getTemplates } = useOpennebula();
 
   useEffect(() => {
@@ -42,7 +42,7 @@ function ListTemplates({ backButton, currentValue, handleSetData }) {
       }}
     />
   );
-}
+};
 
 ListTemplates.propTypes = {
   backButton: PropTypes.node,

@@ -6,7 +6,7 @@ const useListSelect = ({ multiple, key, list, setList, defaultValue }) => {
   const handleSelect = index =>
     setList(prevData => ({
       ...prevData,
-      [key]: multiple ? [...prevData[key], index] : [index]
+      [key]: multiple ? [...(prevData[key] ?? []), index] : [index]
     }));
 
   const handleUnselect = indexRemove =>
