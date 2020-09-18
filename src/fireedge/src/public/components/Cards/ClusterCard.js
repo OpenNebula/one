@@ -74,7 +74,7 @@ const ClusterCard = React.memo(
         >
           <CardActionArea
             className={classes.actionArea}
-            onClick={() => (isSelected ? handleUnselect(ID) : handleSelect(ID))}
+            onClick={() => (isSelected ? handleUnselect() : handleSelect())}
           >
             <CardHeader
               avatar={<StorageIcon />}
