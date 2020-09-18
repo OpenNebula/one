@@ -6,12 +6,13 @@ import { useMediaQuery } from '@material-ui/core';
 
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper';
 import CustomStepper from 'client/components/FormStepper/Stepper';
+import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
 const FIRST_STEP = 0;
 
 const FormStepper = ({ steps, initialValue, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
-  const { watch, trigger, reset } = useFormContext();
+  const { watch, trigger, reset, errors } = useFormContext();
 
   const [activeStep, setActiveStep] = useState(FIRST_STEP);
   const [formData, setFormData] = useState(initialValue);
@@ -73,14 +74,15 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
 
         return (
           Content && (
-            <Content
-              step={steps[activeStep]}
-              data={formData[id]}
-              setFormData={setFormData}
-            />
+            <>
+              {typeof errors[id]?.message === 'string' && (
+                <ErrorHelper label={errors[id]?.message} />
+              )}
+              <Content data={formData[id]} setFormData={setFormData} />
+            </>
           )
         );
-      }, [steps, formData, activeStep, setFormData])}
+      }, [steps, errors, formData, activeStep, setFormData])}
     </>
   );
 };
@@ -90,7 +92,7 @@ FormStepper.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       label: PropTypes.string.isRequired,
-      content: PropTypes.func.isRequired
+      content: PropTypes.any.isRequired
     })
   ),
   initialValue: PropTypes.objectOf(PropTypes.any),

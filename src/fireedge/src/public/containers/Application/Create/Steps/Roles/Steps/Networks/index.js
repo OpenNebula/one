@@ -1,34 +1,32 @@
-import React, { useEffect, useCallback } from 'react';
-
-import useOpennebula from 'client/hooks/useOpennebula';
+import React, { useCallback, useContext } from 'react';
 
 import useListForm from 'client/hooks/useListForm';
 import ListCards from 'client/components/List/ListCards';
-import { ClusterCard } from 'client/components/Cards';
 
+import { STEP_ID as NETWORKING } from 'client/containers/Application/Create/Steps/Networking';
+import { Context } from 'client/containers/Application/Create/Steps/Roles';
 import { STEP_FORM_SCHEMA } from './schema';
 
-export const STEP_ID = 'clusters';
+export const STEP_ID = 'networks';
 
-const Clusters = () => ({
+const Networks = () => ({
   id: STEP_ID,
-  label: 'Where will it run?',
+  label: 'Networks',
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
-    const { clusters, getClusters } = useOpennebula();
+    const { nestedForm: list } = useContext(Context);
     const { handleSelect, handleUnselect } = useListForm({
       key: STEP_ID,
+      multiple: true,
       setList: setFormData
     });
 
-    useEffect(() => {
-      getClusters();
-    }, []);
+    console.log('list', list);
 
     return (
       <ListCards
-        list={clusters}
-        CardComponent={ClusterCard}
+        list={list[NETWORKING]}
+        CardComponent={() => <h1>hi</h1>}
         cardsProps={({ value }) => {
           const { ID } = value;
 
@@ -43,4 +41,4 @@ const Clusters = () => ({
   }, [])
 });
 
-export default Clusters;
+export default Networks;
