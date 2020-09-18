@@ -81,22 +81,15 @@ export const FORM_FIELDS = [
     },
     validation: yup
       .string()
-      .when('type', {
-        is: type =>
-          TYPES_NETWORKS.some(
-            ({ value, select }) => type === value && select === SELECT.network
-          ),
-        then: yup
-          .string()
-          .trim()
-          .required('Network is required field'),
-        otherwise: yup
-          .string()
-          .trim()
-          .required('Network template is required field')
-      })
-      .required()
-      .default(null)
+      .trim()
+      .when('type', (type, schema) =>
+        TYPES_NETWORKS.some(
+          ({ value, select }) => type === value && select === SELECT.network
+        )
+          ? schema.required('Network is required field')
+          : schema.required('Network template is required field')
+      )
+      .default(undefined)
   },
   {
     name: 'extra',
