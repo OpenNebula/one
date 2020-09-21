@@ -41,7 +41,7 @@ const defaults = {
     HOST: defaultIp,
     PORT: 2474
   },
-  defaultConfigFile: `${__dirname}/../config.yml`,
+  defaultConfigFile: `${__dirname}/../fireedge-server.conf`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultWebpackDevTool: 'inline-source-map',
