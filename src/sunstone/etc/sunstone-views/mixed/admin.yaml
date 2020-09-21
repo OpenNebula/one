@@ -419,6 +419,7 @@ tabs:
             VM.edit_labels: true
             VM.menu_labels: true
             VM.startvnc: true
+            VM.startvmrc: true
             VM.startspice: true
             VM.vnc: true
             VM.ssh: true

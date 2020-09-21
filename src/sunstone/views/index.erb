@@ -42,9 +42,10 @@
             'threshold_low' : '<%= $conf[:threshold_low] %>',
             'threshold_high' : '<%= $conf[:threshold_high] %>',
             'guac_port' : '<%= $conf[:guac_port] %>',
+            'vmrc_port' : '<%= $conf[:vmrc_port] %>',
         },
         'system_config' : {
-            'paginate': '<%= $conf[:paginate] %>',
+          'paginate': '<%= $conf[:paginate] %>',
             'marketplace_url' : '<%= $conf[:marketplace_url] %>',
             'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
             'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
@@ -57,7 +58,7 @@
             'autorefresh_wss': '<%= session[:autorefresh_wss] %>',
             'autorefresh_ip': '<%= $conf[:autorefresh_ip] %>',
             'autorefresh_port': '<%= $conf[:port] %>',
-
+            'is_fireedge_up': '<%= $conf[:fireedge_up] %>',
         },
         'view' : view,
         'available_views' : available_views,
@@ -117,7 +118,6 @@
       </div>
       <div class="large-12 columns" id="dialogs"></div>
     </div>
-
 
     <% if $conf[:env] == 'dev' %>
       <script src="bower_components/requirejs/require.js" data-main="app/main"></script>

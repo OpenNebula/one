@@ -122,6 +122,7 @@ require "sunstone_2f_auth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
+require 'OpenNebulaValidateFireedge'
 
 require 'sinatra-websocket'
 require 'eventmachine'
@@ -146,6 +147,8 @@ rescue Exception => e
     STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
+
+$conf[:fireedge_up] = false
 
 if $conf[:one_xmlrpc_timeout]
     ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
@@ -227,6 +230,12 @@ use Rack::Deflater
 include CloudLogger
 logger=enable_logging(SUNSTONE_LOG, $conf[:debug_level].to_i)
 
+@ValidateFireedge = ValidateFireedge.new($conf, logger)
+
+Thread.new do
+    @ValidateFireedge.validate_fireedge_running
+end
+
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
     $cloud_auth = CloudAuth.new($conf, logger)
@@ -263,9 +272,13 @@ $vnc = OpenNebulaVNC.new($conf, logger)
 #init Guacamole server
 $guac = OpenNebulaGuac.new($conf, logger)
 
+#init VMRC server
+$vmrc = OpenNebulaVMRC.new($conf, logger)
+
 configure do
     set :run, false
     set :vnc, $vnc
+    set :vmrc, $vmrc
     set :erb, :trim => '-'
 end
 
@@ -546,7 +559,7 @@ before do
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get /ws).include?(request.path)
+    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get /ws /vmrc).include?(request.path)
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
@@ -736,6 +749,20 @@ get '/vnc' do
         erb :login
     else
         erb :vnc, :locals =>  {
+          :logos_conf => $conf[:locals][:logos_conf],
+          :oned_conf  => $conf[:locals][:oned_conf],
+          :support    => $conf[:locals][:support],
+          :upgrade    => $conf[:locals][:upgrade]
+        }
+    end
+end
+
+get '/vmrc' do
+    content_type 'text/html', :charset => 'utf-8'
+    if !authorized?
+        erb :login
+    else
+        erb :vmrc, :locals =>  {
           :logos_conf => $conf[:locals][:logos_conf],
           :oned_conf  => $conf[:locals][:oned_conf],
           :support    => $conf[:locals][:support],
@@ -1104,6 +1131,14 @@ post '/vm/:id/guac/:type' do
     type_connection = params[:type]
 
     @SunstoneServer.startguac(vm_id, type_connection, $guac)
+end
+
+##############################################################################
+# Start VMRC Session for a target VM
+##############################################################################
+post '/vm/:id/startvmrc' do
+    vm_id = params[:id]
+    @SunstoneServer.startvmrc(vm_id, $vmrc)
 end
 
 ##############################################################################

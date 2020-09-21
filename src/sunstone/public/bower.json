@@ -20,7 +20,8 @@
     "jquery-ui": "~1.12.1",
     "wickedpicker": "https://github.com/OpenNebula/sunstone-deps.git#9398b3f",
     "guacamole-common-js": "https://github.com/OpenNebula/sunstone-deps.git#1633556e63",
-    "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz"
+    "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz",
+    "wmks": "https://github.com/OpenNebula/sunstone-deps.git#cb0251c"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",

@@ -200,6 +200,12 @@ define(function(require) {
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info"
     },
+    "VM.startvmrc" : {
+      type: "action",
+      text: Locale.tr("VMRC"),
+      layout: "vmsremote_buttons",
+      custom_classes: "only-sunstone-info vmrc-sunstone-info"
+    },
     "VM.startspice" : {
       type: "action",
       text: Locale.tr("SPICE"),

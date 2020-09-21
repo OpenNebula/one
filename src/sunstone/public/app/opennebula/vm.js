@@ -533,6 +533,26 @@ define(function(require) {
         }
       });
     },
+    "vmrc" : function(params) {
+      var callback = params.success;
+      var callback_error = params.error;
+      var id = params.data.id;
+      var resource = RESOURCE;
+
+      var request = OpenNebulaHelper.request(resource, null, params.data);
+      $.ajax({
+        url: "vm/" + id + "/startvmrc",
+        type: "POST",
+        dataType: "json",
+        success: function(response) {
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callback_error ?
+              callback_error(request, OpenNebulaError(response)) : null;
+        }
+      });
+    },
     "append": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param, append : true};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
@@ -688,6 +708,7 @@ define(function(require) {
     "isNICAttachSupported": isNICAttachSupported,
     "isVNCSupported": isVNCSupported,
     "isConnectionSupported": isConnectionSupported,
+    "isVMRCSupported": isVMRCSupported,
     "isSPICESupported": isSPICESupported,
     "isWFileSupported": isWFileSupported,
     "hasConnection": hasConnection,
@@ -949,6 +970,14 @@ define(function(require) {
   // returns true if the vnc button should be enabled
   function isVNCSupported(element) {
     return (Config.isTabActionEnabled("vms-tab", "VM.vnc") && graphicSupported(element, "vnc"))
+      ? true : false;
+  }
+
+  // returns true if the vmrc button should be enabled
+  function isVMRCSupported(element) {
+    var action_enabled = Config.isTabActionEnabled("vms-tab", "VM.startvmrc");
+    var graphics = graphicSupported(element, "vmrc");
+    return (action_enabled && graphics)
       ? true : false;
   }
 

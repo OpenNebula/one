@@ -170,6 +170,7 @@ define(function(require) {
     "filterView": _config["view"]["filter-view"],
     "doCountAnimation": _config["view"]["do_count_animation"],
     "guacPort": _config["user_config"]["guac_port"],
+    "vmrcPort": _config["user_config"]["vmrc_port"],
 
     "allTabs": function() {
       return Object.keys(_config["view"]["tabs"]);
