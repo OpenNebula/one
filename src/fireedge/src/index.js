@@ -43,6 +43,7 @@ const {
 } = require('./routes/entrypoints');
 const { oneHooks } = require('./routes/websockets/zeromq');
 const { vmrcUpgrade } = require('./routes/websockets/vmrc');
+const { guacamole } = require('./routes/websockets/guacamole');
 const { messageTerminal, getConfig } = require('./utils');
 
 const app = express();
@@ -115,3 +116,4 @@ appServer.listen(port, () => {
   messageTerminal(config);
 });
 vmrcUpgrade(appServer);
+guacamole(appServer);
