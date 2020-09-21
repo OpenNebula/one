@@ -16,11 +16,9 @@ function useList({ list, initLength }) {
     if (list?.length === 0 || shortList.length !== 0) return;
 
     setLoading(true);
-
-    fakeDelay(200)
-      .then(() => setFullList(list))
-      .then(() => setShortList(list.slice(0, initLength)))
-      .then(() => setLoading(false));
+    setFullList(list);
+    setShortList(list.slice(0, initLength));
+    setLoading(false);
   }, [list]);
 
   useEffect(() => {

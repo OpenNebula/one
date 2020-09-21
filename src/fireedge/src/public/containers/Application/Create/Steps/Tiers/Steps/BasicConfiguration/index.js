@@ -4,7 +4,7 @@ import FormWithSchema from 'client/components/Forms/FormWithSchema';
 
 import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema';
 
-export const STEP_ID = 'role';
+export const STEP_ID = 'tier';
 
 const BasicConfiguration = () => ({
   id: STEP_ID,

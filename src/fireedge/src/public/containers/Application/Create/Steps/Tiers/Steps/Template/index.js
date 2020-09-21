@@ -58,7 +58,7 @@ const Template = () => ({
     useEffect(() => {
       if (Object.keys(data).length > 0) {
         const currentScreen = Object.keys(data)[0];
-        setScreen(SCREENS.find(src => src.id === currentScreen.id));
+        setScreen(SCREENS.find(src => src.id === currentScreen));
       }
     }, []);
 
