@@ -29,7 +29,7 @@ define(function(require) {
   var _html = function(host, hostShareFlag) {
     var hostShare = hostShareFlag ? host : host && host.HOST_SHARE;
     var hostMonitoring = hostShareFlag ? host : host.MONITORING && host.MONITORING.CAPACITY
-    var maxCPU = parseInt(hostShare.TOTAL_CPU||0);
+    var maxCPU = parseInt(hostShare.MAX_CPU||0);
     var infoStr;
     var allocatedCPUBar
     if (hostShare.CPU_USAGE) {
