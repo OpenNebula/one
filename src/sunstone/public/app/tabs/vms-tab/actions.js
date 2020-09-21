@@ -22,6 +22,7 @@ define(function(require) {
   var OpenNebulaVM = require('opennebula/vm');
   var CommonActions = require('utils/common-actions');
   var Vnc = require('utils/vnc');
+  var Vmrc = require('utils/vmrc');
   var Spice = require('utils/spice');
   var Files = require('utils/files');
 
@@ -30,6 +31,7 @@ define(function(require) {
   var DEPLOY_DIALOG_ID           = require('./dialogs/deploy/dialogId');
   var MIGRATE_DIALOG_ID          = require('./dialogs/migrate/dialogId');
   var VNC_DIALOG_ID              = require('./dialogs/vnc/dialogId');
+  var VMRC_DIALOG_ID              = require('./dialogs/vmrc/dialogId');
   var SPICE_DIALOG_ID            = require('./dialogs/spice/dialogId');
   var GUAC_DIALOG_ID            = require('./dialogs/guac/dialogId');
   var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
@@ -280,6 +282,36 @@ define(function(require) {
       error: function(req, resp) {
         Notifier.onError(req, resp);
         Vnc.unlock();
+      },
+      notify: true
+    },
+    "VM.startvmrc" : {
+      type: "custom",
+      call: function() {
+        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
+          if (!Vmrc.lockStatus()) {
+            Vmrc.lock();
+            var vm_name = OpenNebulaVM.getName(elem);
+            Sunstone.runAction("VM.startvmrc_action", elem, vm_name);
+          } else {
+            Notifier.notifyError(Locale.tr("VMRC Connection in progress"))
+            return false;
+          }
+        });
+      }
+    },
+    "VM.startvmrc_action" : {
+      type: "single",
+      call: OpenNebulaVM.vmrc,
+      callback: function(request, response) {
+       var dialog = Sunstone.getDialog(VMRC_DIALOG_ID);
+       response["vm_name"] = request.request.data[0].extra_param;
+       dialog.setElement(response);
+       dialog.show();
+      },
+      error: function(req, resp) {
+        Notifier.onError(req, resp);
+        Vmrc.unlock();
       },
       notify: true
     },

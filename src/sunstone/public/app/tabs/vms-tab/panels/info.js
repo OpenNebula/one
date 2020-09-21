@@ -171,6 +171,20 @@ define(function(require) {
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
     
+    if (config.system_config &&
+      config.system_config.is_fireedge_up &&
+      config.system_config.is_fireedge_up === "false"){
+      $("a.vmrc-sunstone-info").attr("data-toggle",'tooltip');
+      $("a.vmrc-sunstone-info").attr("title",'Fireedge Server is not running, please contact your cloud administrator');
+      $("a.vmrc-sunstone-info").css("color",'gray');
+    }
+    else{
+      $("a.vmrc-sunstone-info").removeAttr("data-toggle");
+      $("a.vmrc-sunstone-info").removeAttr("title");
+      $("a.vmrc-sunstone-info").css("color",'');
+    }
+
+
     Websocket.subscribe(this.element.ID);
 
   }

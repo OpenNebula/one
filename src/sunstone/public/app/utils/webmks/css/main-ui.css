@@ -1,0 +1,155 @@
+/******************************************************************************
+ * Copyright 2013 VMware, Inc.  All rights reserved.
+ *****************************************************************************/
+
+/*
+ * main-ui.css
+ *
+ *    Defines style for the wmks ui widgets.
+ *
+ *    Use CSS3 for touch devices as jquery effects break when browser handles
+ *    orientation changes, or page bouncing.
+ *
+ *    TODO: Need to handle Retina mode for iPad.
+ */
+
+/*
+ * jQuery UI Dialog 1.8.16
+ */
+.ui-dialog {
+   padding: 0;
+   box-shadow: 0px 5px 7px         rgba(0,0,0,.5);
+}
+
+.ui-dialog .ui-dialog-titlebar {
+   padding: .8em .8em;
+   border-bottom-left-radius: 0;
+   border-bottom-right-radius: 0;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+   right: .4em;
+   margin-top: -11px;
+}
+
+.ui-widget-content {
+   border: 0;
+   background: #ffffff;
+   color: #333333;
+}
+
+.ui-widget-header a {
+   color: #333333;
+}
+
+
+/* Touch feedback indicator */
+.ui-touch-feedback-icon {
+   background-image: url('../img/touch_sprite_feedback.png');
+   width: 300px;
+   height: 120px;
+   position: absolute;
+   left: -9999px;
+   top: -9999px;
+   z-index: 2;
+}
+
+.feedback-container {
+   z-index: 2;
+   position: absolute;
+   display: none;
+}
+
+.feedback-container.cursor-icon {
+   background: url('../img/touch_sprite_feedback.png') -260px -15px no-repeat;
+   width: 17px;
+   height: 23px;
+}
+
+.feedback-container.tap-icon {
+   background: url('../img/touch_sprite_feedback.png') -300px -15px no-repeat;
+   width: 36px;
+   height: 36px;
+}
+
+.feedback-container.drag-icon {
+   background: url('../img/touch_sprite_feedback.png') -10px -10px no-repeat;
+   width: 100px;
+   height: 100px;
+}
+
+.feedback-container.pulse-icon {
+   background: url('../img/touch_sprite_feedback.png') -111px -10px no-repeat;
+   width: 100px;
+   height: 100px;
+}
+
+.feedback-container.scroll-icon {
+   background: url('../img/touch_sprite_feedback.png') -212px -10px no-repeat;
+   width: 27px;
+   height: 100px;
+}
+
+/* CSS3 feedback indicator animation. Keep it simple (uses lower cpu cycles)
+   as there may be multiple animation requests made in quick successions. */
+.animate-feedback-indicator {
+   display: block;
+   opacity: 0;
+   animation-name: showfadeout;
+   animation-duration: 350ms;
+   -webkit-animation-name: showfadeout;
+   -webkit-animation-duration: 350ms;
+   -moz-animation-name: showfadeout;
+   -moz-animation-duration: 350ms;
+   -ms-animation-name: showfadeout;
+   -ms-animation-duration: 350ms;
+}
+
+@-webkit-keyframes showfadeout {
+   0%    { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-moz-keyframes showfadeout {
+   0%    { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-ms-keyframes showfadeout {
+   0%    { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+.animate-double-feedback-indicator {
+   display: block;
+   opacity: 0;
+   animation-name: showdoublefadeout;
+   animation-duration: 400ms;
+   -webkit-animation-name: showdoublefadeout;
+   -webkit-animation-duration: 400ms;
+   -moz-animation-name: showdoublefadeout;
+   -moz-animation-duration: 400ms;
+   -ms-animation-name: showdoublefadeout;
+   -ms-animation-duration: 400ms;
+}
+
+@-webkit-keyframes showdoublefadeout {
+   0%    { opacity: 1; }
+   40%   { opacity: 0; }
+   70%   { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-moz-keyframes showdoublefadeout {
+   0%    { opacity: 1; }
+   40%   { opacity: 0; }
+   70%   { opacity: 1; }
+   100%  { opacity: 0; }
+}
+
+@-ms-keyframes showdoublefadeout {
+   0%    { opacity: 1; }
+   40%   { opacity: 0; }
+   70%   { opacity: 1; }
+   100%  { opacity: 0; }
+}

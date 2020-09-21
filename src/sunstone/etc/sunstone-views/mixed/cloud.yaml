@@ -92,6 +92,7 @@ tabs:
             VM.lockU: true
             VM.unlock: true
             VM.startvnc: true
+            VM.startvmrc: true
             VM.startspice: true
             VM.vnc: true
             VM.ssh: true

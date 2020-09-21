@@ -900,6 +900,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
                 src/sunstone/OpenNebulaGuac.rb \
+                src/sunstone/OpenNebulaVMRC.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/nsx/nsx_driver.rb \
@@ -2406,7 +2407,8 @@ SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                        src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb \
                        src/sunstone/models/OpenNebula2FA/sunstone_qr_code.rb \
                        src/sunstone/models/OpenNebula2FA/sunstone_optp.rb \
-                       src/sunstone/models/OpenNebula2FA/sunstone_2f_auth.rb "
+                       src/sunstone/models/OpenNebula2FA/sunstone_2f_auth.rb \
+                       src/sunstone/models/OpenNebulaValidateFireedge.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \
@@ -2432,6 +2434,7 @@ SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
 SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/login.erb \
                       src/sunstone/views/vnc.erb \
+                      src/sunstone/views/vmrc.erb \
                       src/sunstone/views/spice.erb \
                       src/sunstone/views/_login_standard.erb \
                       src/sunstone/views/_login_x509.erb"
