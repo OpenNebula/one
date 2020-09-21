@@ -1,0 +1,163 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ARG_IP=""
+ARG_NET=""
+NET_IDS=$(onevnet list | grep -v ID | awk '{print $1}')
+
+if [ $1 == "-c" ] || [ $1 == "--check" ]
+then
+	if [[ $2 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+	then
+		ARG_IP=$2
+	else
+		echo "#############################################"
+		echo "  This ($2) is not valid ip format"
+		echo "#############################################" 	
+		exit
+	fi
+fi
+if [ $1 == "-g" ] || [ $1 == "--get" ]
+then
+	NET_EXISTS=false
+	ARG_NET="$2"
+	for i in "${NET_IDS[@]}"
+	do
+		if [[ $i == $ARG_NET ]] 
+		then
+			NET_EXISTS=true
+		fi
+	done
+	if [[ $NET_EXISTS == "true" ]]
+	then
+		echo "#############################################"
+		echo "  Net with this if ($2) does not exists"
+		echo "#############################################" 	
+		exit
+	fi
+fi
+
+
+
+ALL_IPS=""
+for NETS in $NET_IDS
+do
+	NET_RANGES=$(onevnet show $NETS | grep "^IP" | awk '{print $2 "-" $3}')
+	for RANGE in $NET_RANGES
+	do
+			RANGE_FIRST=$(echo $RANGE | awk -F \- '{print $1}')
+			RANGE_LAST=$(echo $RANGE | awk -F \- '{print $2}')
+			WILD_CARD=$(echo $RANGE_FIRST | awk -F \. '{print $1"."$2"."$3".%g" }')
+			RANGE_START=$(echo $RANGE_FIRST | awk -F \. '{print $4}')
+			RANGE_LAST=$(echo $RANGE_LAST | awk -F \. '{print $4}')
+			SUBNET_IPS=$(seq -f "$WILD_CARD" $RANGE_START $RANGE_LAST)
+			ALL_IPS="$ALL_IPS $SUBNET_IPS"
+	done
+done
+
+case $1 in
+
+	"-c" | "--check")
+		IP_PINGED=false
+		IP_RESERVED=false
+		IP_USED=false
+		IP_IS_IN_SUBNET_BUT_NOT_USED=false
+		for NET in $NET_IDS
+		do
+			IP_IN_SUBNET=$(onevnet show $NET|grep -i " $2 ")
+			if [ -z "$IP_IN_SUBNET" ]
+			then
+				if ping -c1 -w2 $2 >/dev/null 2>&1
+				then
+					IP_PINGED=true
+				fi
+			else
+				if [[ ! -z "$IP_IN_SUBNET" ]]
+				then
+					VM_ID=$(echo $IP_IN_SUBNET | awk '{print $2}' | awk -F\: '{print $2}')
+				fi
+				if [ "$VM_ID" == "-1" ]
+				then
+					IP_RESERVED=true
+					echo "#############################################"
+					echo "  This ip is reserved"
+					echo "#############################################"
+				else
+					IP_USED=true
+					VM_NAME=$(onevm show $VM_ID | grep ^NAME | awk '{print $3}')
+					VM_HOST=$(onevm show $VM_ID | grep ^HOST | awk '{print $3}')
+					echo "#############################################"
+					echo "  This ip is on VM"
+					echo "  VM   : $VM_NAME"
+					echo "  Host : $VM_HOST"
+					echo "#############################################"
+				fi
+			fi
+		done
+		if [ "$IP_PINGED" == "true" ] && [ "$IP_RESERVED" == "false" ] && [ "$IP_USED" == "false" ]
+		then
+        	        echo "#############################################"
+        	        echo "  This IP is not used by opennebula but it is pingable"
+        	        echo "#############################################"
+		fi
+		if [ "$IP_PINGED" == "false" ] && [ "$IP_RESERVED" == "false" ] && [ "$IP_USED" == "false" ]
+                then
+                        echo "#############################################"
+                        echo "  IP is FREE"
+                        echo "#############################################"
+                fi
+
+	;;
+
+	"-g" | "--give")
+		USED_IPS=$(onevnet show $NET_ID | grep -Eo '[0-9]+[.][0-9]+[.][0-9]+[.][0-9]+')
+		FOUND_IP=false	
+		for IP in $SUBNET_IPS
+		do
+			for used_ip in $USED_IPS
+			do
+				if [ $IP == $used_ip ]
+				then
+					FOUND_IP=true
+					break
+				else
+					FOUND_IP=false
+					continue
+				fi
+			done
+			if [ $FOUND_IP == "false" ]
+			then
+				if ping -c1 -w3 $IP >/dev/null 2>&1
+				then
+					continue
+				else
+					echo $IP is free
+					exit
+				fi
+			fi
+		done
+	;;
+
+	*)
+		echo 
+		echo "oneip --check 172.16.77.134"
+		echo "oneip -c 172.16.77.134"
+		echo "oneip --get [NET_ID]"
+		echo "oneip -g [NET_ID]"
+	;;
+esac
