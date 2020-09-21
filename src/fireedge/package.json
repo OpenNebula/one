@@ -41,6 +41,7 @@
     "compression": "^1.7.4",
     "concurrently": "^5.2.0",
     "cors": "^2.8.5",
+    "dagre": "^0.8.5",
     "express": "^4.17.1",
     "fs-extra": "^9.0.1",
     "fuse.js": "^6.4.1",

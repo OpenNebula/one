@@ -3,21 +3,21 @@ import * as yup from 'yup';
 import BasicConfiguration from './BasicConfiguration';
 import Clusters from './Clusters';
 import Networking from './Networking';
-import Roles from './Roles';
+import Tiers from './Tiers';
 
 const Steps = () => {
   const basic = BasicConfiguration();
   const clusters = Clusters();
   const networking = Networking();
-  const roles = Roles();
+  const tiers = Tiers();
 
-  const steps = [basic, clusters, networking, roles];
+  const steps = [basic, clusters, networking, tiers];
 
   const resolvers = yup.object({
     [basic.id]: basic.resolver,
     [clusters.id]: clusters.resolver,
     [networking.id]: networking.resolver,
-    [roles.id]: roles.resolver
+    [tiers.id]: tiers.resolver
   });
 
   const defaultValues = resolvers.default();
