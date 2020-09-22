@@ -2350,6 +2350,7 @@ ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
                         src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/driver.rb \
                         src/oneprovision/lib/provision.rb \
+                        src/oneprovision/lib/provision_pool.rb \
                         src/oneprovision/lib/resources.rb \
                         src/oneprovision/lib/utils.rb"
 

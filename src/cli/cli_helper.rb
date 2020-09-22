@@ -181,7 +181,7 @@ module CLIHelper
     ANSI_YELLOW = "\33[33m"
 
     # CLI states
-    OK_STATES      = %w[runn rdy on configured SUCCESS RUNNING]
+    OK_STATES      = %w[runn rdy on SUCCESS RUNNING]
     BAD_STATES     = %w[fail
                         err
                         error
@@ -189,7 +189,7 @@ module CLIHelper
                         FAILED_DEPLOYING
                         FAILED_UNDEPLOYING
                         FAILED_SCALING]
-    REGULAR_STATES = %w[pending WARNING]
+    REGULAR_STATES = %w[PENDING DEPLOYING CONFIGURING WARNING]
 
     # Set state color
     #

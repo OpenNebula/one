@@ -61,6 +61,10 @@ require 'one_helper/onecluster_helper'
 require 'one_helper/onehost_helper'
 require 'one_helper/onedatastore_helper'
 require 'one_helper/onevnet_helper'
+require 'one_helper/oneimage_helper'
+require 'one_helper/onetemplate_helper'
+require 'one_helper/onevntemplate_helper'
+require 'one_helper/oneflowtemplate_helper'
 
 require 'oneprovision'
 
@@ -150,7 +154,6 @@ CommandParser::CmdParser.new(ARGV) do
         :large => '--fail-quit',
         :description => 'Set batch failover mode to quit (default)'
     }
-
 
     FAIL_SLEEP = {
         :name => 'fail_sleep',
@@ -248,6 +251,12 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Dump the configuration file result.'
     }
 
+    DONE = {
+        :name => 'done',
+        :large => '--done',
+        :description => 'List provisions in DONE state'
+    }
+
     ########################################################################
 
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
@@ -302,7 +311,15 @@ CommandParser::CmdParser.new(ARGV) do
             skip = :none
         end
 
-        helper.create(args[0], (options.key? :cleanup), timeout, skip)
+        rc = helper.create(args[0], (options.key? :cleanup), timeout, skip)
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit(-1)
+        else
+            puts "ID: #{rc}"
+            0
+        end
     end
 
     ###
@@ -311,7 +328,7 @@ CommandParser::CmdParser.new(ARGV) do
         Validate configuration file
     EOT
 
-    command :validate, validate_desc, %i[config_file], :options => DUMP do
+    command :validate, validate_desc, [:config_file], :options => DUMP do
         dump = options.key? :dump
 
         OneProvision::Utils.validate_configuration(args[0], dump)
@@ -327,8 +344,12 @@ CommandParser::CmdParser.new(ARGV) do
             provision_list_desc,
             :options => CommandParser::OPTIONS +
                         CLIHelper::OPTIONS +
-                        [OpenNebulaHelper::FORMAT] do
-        helper.list(options)
+                        [OpenNebulaHelper::FORMAT, DONE] do
+        if !(options.key? :filter) && !(options.key? :done)
+            options[:filter] = ['STAT!=DONE']
+        end
+
+        helper.list_pool(options)
     end
 
     ###
@@ -341,7 +362,7 @@ CommandParser::CmdParser.new(ARGV) do
             provision_show_desc,
             :provisionid,
             :options => CommandParser::OPTIONS + OpenNebulaHelper::FORMAT do
-        helper.show(args[0], options)
+        helper.show_resource(args[0], options)
     end
 
     ###
@@ -356,7 +377,14 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [MODES, FORCE] do
         helper.parse_options(options)
 
-        helper.configure(args[0], (options.key?(:force)))
+        rc = helper.configure(args[0], options.key?(:force))
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit(-1)
+        else
+            0
+        end
     end
 
     ###
@@ -377,55 +405,13 @@ CommandParser::CmdParser.new(ARGV) do
             timeout = options[:cleanup_timeout]
         end
 
-        helper.delete(args[0], (options.key? :cleanup), timeout)
-    end
+        rc = helper.delete(args[0], (options.key? :cleanup), timeout)
 
-    ########################################################################
-    # Cluster Commands
-    ########################################################################
-
-    cluster_list_desc = <<-EOT
-        List all availables clusters
-    EOT
-
-    command %i[cluster list],
-            cluster_list_desc,
-            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        columns = %w[hosts networks datastores]
-
-        cluster_helper = OneClusterHelper.new
-        list           = helper.get_list(columns)
-
-        cluster_helper.format_pool(options).show(list, options)
-
-        0
-    end
-
-    ###
-
-    cluster_delete_desc = <<-EOT
-        Deletes and unprovisions the given cluster
-    EOT
-
-    command %i[cluster delete],
-            cluster_delete_desc,
-            %i[range clusterid_list],
-            :options => [MODES, FORCE] do
-        cluster_helper = OneClusterHelper.new
-        cluster_helper.set_client(options)
-
-        cluster_helper.perform_actions(args[0], options, 'deleted') do |cluster|
-            msg = "Deleting cluster #{cluster['ID']}"
-
-            OneProvision::OneProvisionLogger.info(msg)
-
-            rc = cluster.delete
-
-            if OpenNebula.is_error?(rc)
-                OneProvision::Utils.fail(rc.message)
-            end
-
-            rc
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit(-1)
+        else
+            0
         end
     end
 
@@ -437,13 +423,18 @@ CommandParser::CmdParser.new(ARGV) do
         Resume the host
     EOT
 
-    command %i[host resume],
+    command [:host, :resume],
             host_resume_desc,
-            %i[range hostid_list],
+            [:range, :hostid_list],
             :options => [MODES] do
         operation =  { :operation => 'resume', :message => 'enabled' }
 
-        helper.resources_operation(args, operation, options, 'HOST')
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
     end
 
     ###
@@ -452,13 +443,18 @@ CommandParser::CmdParser.new(ARGV) do
         Power off the host
     EOT
 
-    command %i[host poweroff],
+    command [:host, :poweroff],
             host_poweroff_desc,
-            %i[range hostid_list],
+            [:range, :hostid_list],
             :options => [MODES] do
         operation =  { :operation => 'poweroff', :message => 'disabled' }
 
-        helper.resources_operation(args, operation, options, 'HOST')
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
     end
 
     ###
@@ -467,13 +463,18 @@ CommandParser::CmdParser.new(ARGV) do
         Reboot the host
     EOT
 
-    command %i[host reboot],
+    command [:host, :reboot],
             host_reboot_desc,
-            %i[range hostid_list],
+            [:range, :hostid_list],
             :options => [MODES, HARD] do
         operation =  { :operation => 'reboot', :message => 'enabled' }
 
-        helper.resources_operation(args, operation, options, 'HOST')
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
     end
 
     ###
@@ -482,13 +483,18 @@ CommandParser::CmdParser.new(ARGV) do
         Unprovisions and deletes the given Host
     EOT
 
-    command %i[host delete],
+    command [:host, :delete],
             host_delete_desc,
-            %i[range hostid_list],
+            [:range, :hostid_list],
             :options => [MODES] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
-        helper.resources_operation(args, operation, options, 'HOST')
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
     end
 
     ###
@@ -497,13 +503,18 @@ CommandParser::CmdParser.new(ARGV) do
         Run configuration on the host
     EOT
 
-    command %i[host configure],
+    command [:host, :configure],
             host_configure_desc,
-            %i[range hostid_list],
+            [:range, :hostid_list],
             :options => [MODES, FORCE] do
         operation =  { :operation => 'configure', :message => 'enabled' }
 
-        helper.resources_operation(args, operation, options, 'HOST')
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
     end
 
     ###
@@ -512,13 +523,18 @@ CommandParser::CmdParser.new(ARGV) do
         Establish SSH conection to the host
     EOT
 
-    command %i[host ssh],
+    command [:host, :ssh],
             host_ssh_desc,
             :hostid,
             [:command, nil] do
-        operation =  { :operation => 'ssh', :message => 'enabled' }
+        operation = { :operation => 'ssh', :message => 'enabled' }
 
-        helper.resources_operation(args, operation, options, 'HOST')
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
     end
 
     ###
@@ -527,21 +543,10 @@ CommandParser::CmdParser.new(ARGV) do
         Lists bare metal Hosts in the pool
     EOT
 
-    command %i[host list],
+    command [:host, :list],
             host_list_desc,
             :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        if !options.key? :filter
-            options[:filter] = ['PROVIDER!=-']
-        end
-
-        if !options.key? :list
-            options[:list] = %w[ID NAME CLUSTER ALLOCATED_CPU
-                                ALLOCATED_MEM PROVIDER STAT]
-        end
-
-        host_helper = OneHostHelper.new
-        host_helper.set_client(options)
-        host_helper.list_pool(options)
+        helper.list_objects('HOSTS', options)
     end
 
     ###
@@ -550,89 +555,52 @@ CommandParser::CmdParser.new(ARGV) do
         Lists bare metal Hosts continuously
     EOT
 
-    command %i[host top],
+    command [:host, :top],
             host_top_desc,
             :options => ONE_OPTIONS do
-        if !options.key? :filter
-            options[:filter] = ['PROVIDER!=-']
-        end
-
-        if !options.key? :list
-            options[:list] = %w[ID NAME CLUSTER ALLOCATED_CPU
-                                ALLOCATED_MEM PROVIDER STAT]
-        end
-
-        host_helper = OneHostHelper.new
-        host_helper.set_client(options)
-        host_helper.list_pool(options, true)
+        helper.list_objects('HOSTS', options, true)
     end
 
     ########################################################################
-    # Datastores Commands
+    # Resources Commands
     ########################################################################
 
-    datastore_list_desc = <<-EOT
-        List all availables datastores
-    EOT
+    (OneProvision::Provision::RESOURCES +
+     OneProvision::Provision::FULL_CLUSTER -
+        %w[hosts marketplaceapps flowtemplates]).each do |resource|
+        list_desc = <<-EOT
+            List all available #{resource}
+        EOT
 
-    command %i[datastore list], datastore_list_desc,
-            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        datastore_helper = OneDatastoreHelper.new
-        datastore        = OneProvision::Datastore.new.get
-        datastore.map! {|d| d.to_hash['DATASTORE'] }
-
-        datastore_helper.format_pool(options).show(datastore)
-
-        0
+        command [resource.chomp('s').to_sym, :list],
+                list_desc,
+                :options => [MODES, FORCE] do
+            helper.list_objects(resource.upcase, options)
+        end
     end
 
     ###
 
-    datastore_delete_desc = <<-EOT
-        Deletes and unprovisions the given datastore
-    EOT
+    (OneProvision::Provision::RESOURCES +
+     OneProvision::Provision::FULL_CLUSTER -
+     %w[hosts marketplaceapps]).each do |resource|
+        delete_desc = <<-EOT
+            Deletes and unprovisions the given #{resource}
+        EOT
 
-    command %i[datastore delete],
-            datastore_delete_desc,
-            %i[range datastoreid_list],
-            :options => [MODES, FORCE] do
-        operation =  { :operation => 'delete', :message => 'deleted' }
+        command [resource.chomp('s').to_sym, :delete],
+                delete_desc,
+                [:range, :id_list],
+                :options => [MODES, FORCE] do
+            rc = helper.resources_operation(args,
+                                            {},
+                                            options,
+                                            resource.upcase)
 
-        helper.resources_operation(args, operation, options, 'DATASTORE')
-    end
+            return 0 unless OpenNebula.is_error?(rc)
 
-    ########################################################################
-    # Vnets Commands
-    ########################################################################
-
-    vnet_list_desc = <<-EOT
-        List all availables virtual networks
-    EOT
-
-    command %i[vnet list],
-            vnet_list_desc,
-            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
-        vnet_helper = OneVNetHelper.new
-        network     = OneProvision::Network.new.get
-        network.map! {|n| n.to_hash['VNET'] }
-
-        vnet_helper.format_pool(options).show(network, options)
-
-        0
-    end
-
-    ###
-
-    vnet_delete_desc = <<-EOT
-        Deletes and unprovisions the given virtual network
-    EOT
-
-    command %i[vnet delete],
-            vnet_delete_desc,
-            %i[range vnetid_list],
-            :options => [MODES, FORCE] do
-        operation =  { :operation => 'delete', :message => 'deleted' }
-
-        helper.resources_operation(args, operation, options, 'VNET')
+            STDERR.puts rc.message
+            exit(-1)
+        end
     end
 end

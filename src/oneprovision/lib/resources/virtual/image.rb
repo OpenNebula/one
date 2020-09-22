@@ -31,16 +31,14 @@ module OneProvision
 
         # Creates a new object in OpenNebula
         #
-        # @param template     [Hash]   Object attributes
-        # @param provision_id [String] Provision ID
+        # @param template [Hash]   Object attributes
         #
         # @return [Integer] Resource ID
-        def create(template, provision_id)
+        def create(template)
             meta = template['meta']
 
             wait, timeout = OneProvision::ObjectOptions.get_wait(meta)
-            info          = { 'provision_id' => provision_id,
-                              'wait'         => wait,
+            info          = { 'wait'         => wait,
                               'wait_timeout' => timeout }
 
             check_wait(wait)
@@ -62,7 +60,7 @@ module OneProvision
 
             return @one.id.to_i unless wait
 
-            ready?(template, provision_id)
+            ready?(template)
         end
 
         # Info an specific object
@@ -82,11 +80,10 @@ module OneProvision
 
         # Wait until the image is ready, retry if fail
         #
-        # @param template     [Hash]   Object attributes
-        # @param provision_id [String] Provision ID
+        # @param template [Hash] Object attributes
         #
         # @return [Integer] Resource ID
-        def ready?(template, provision_id)
+        def ready?(template)
             Driver.retry_loop 'Fail to create image' do
                 wait_state('READY', template['timeout'])
 
@@ -96,7 +93,7 @@ module OneProvision
                 case @one.state_str
                 when 'LOCKED'
                     # if locked, keep waiting
-                    ready?(template, provision_id)
+                    ready?(template)
                 when 'ERROR'
                     # if error, delete the image and try to create it again
                     raise OneProvisionLoopException

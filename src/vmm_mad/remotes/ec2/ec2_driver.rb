@@ -271,7 +271,7 @@ class EC2Driver
         # ----------------------------------------------------------------------
         @xmlhost = host_info(host, id)
 
-        if @xmlhost['TEMPLATE/PM_MAD']
+        if @xmlhost['TEMPLATE/PROVISION']
             @provision_type = :host
             @state_change_timeout = \
                 @ec2_conf[:state_wait_pm_timeout_seconds].to_i

@@ -23,13 +23,10 @@ module OneProvision
 
         # Creates a new object in OpenNebula
         #
-        # @param template     [Hash]   Object attributes
-        # @param provision_id [String] Provision ID
+        # @param template [Hash] Object attributes
         #
         # @return [Integer] Resource ID
-        def create(template, provision_id)
-            add_provision_id(template, provision_id)
-
+        def create(template)
             # create ONE object
             new_object
 

@@ -957,7 +957,14 @@ EOT
             if options[:xml]
                 return 0, resource.to_xml(true)
             elsif options[:json]
-                return 0, ::JSON.pretty_generate(check_resource_xsd(resource))
+                # If body is set, the resource contains a JSON inside
+                if options[:body]
+                    return 0, check_resource_xsd(resource)
+                else
+                    return 0, ::JSON.pretty_generate(
+                        check_resource_xsd(resource)
+                    )
+                end
             elsif options[:yaml]
                 return 0, check_resource_xsd(resource).to_yaml(:indent => 4)
             else
@@ -1365,6 +1372,7 @@ EOT
         when "VNET"        then OpenNebula::VirtualNetworkPool.new(client)
         when "IMAGE"       then OpenNebula::ImagePool.new(client)
         when "VMTEMPLATE"  then OpenNebula::TemplatePool.new(client)
+        when "VNTEMPLATES" then OpenNebula::VNTemplatePool.new(client)
         when "VM"          then OpenNebula::VirtualMachinePool.new(client)
         when "ZONE"        then OpenNebula::ZonePool.new(client)
         when "MARKETPLACE" then OpenNebula::MarketPlacePool.new(client)

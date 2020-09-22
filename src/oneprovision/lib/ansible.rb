@@ -70,97 +70,50 @@ module OneProvision
                 end
             end
 
-            # Checks if hosts are configured or not
+            # TODO: expect multiple hosts
+            # Configures host via ansible
             #
-            # @param hosts [Array of OpenNebula::Host] Hosts to configure
-            # @param force [Boolean] True to force configuration
-            #                             in configured hosts
-            def configure(hosts, force = nil)
-                configured = ''
-
+            # @param hosts [OpenNebula::Host Array] Hosts to configure
+            # @param ping  [Boolean]                True to check ping to hosts
+            def configure(hosts, ping = true)
                 return if hosts.nil? || hosts.empty?
 
-                hosts.each do |host|
-                    host.info
-
-                    status = host['TEMPLATE/PROVISION_CONFIGURATION_STATUS']
-
-                    id   = host['ID']
-                    host = Host.new
-
-                    host.info(id)
-                    host.check
-
-                    if status == 'configured' && !force
-                        configured &&= true
-                    else
-                        configured &&= false
-                    end
-                end
-
-                if configured && !force
-                    Utils.fail('Hosts are already configured')
-                end
-
                 Driver.retry_loop 'Failed to configure hosts' do
-                    configure_all(hosts)
-                end
-            end
+                    check_ansible_version
 
-            # TODO: expect multiple hosts
-            # Configures the hosts
-            #
-            # @param hosts [Array of OpenNebula::Host] Hosts to configure
-            # @param ping  [Boolean] True to check ping to hosts
-            def configure_all(hosts, ping = true)
-                check_ansible_version
+                    ansible_dir = generate_ansible_configs(hosts)
 
-                hosts.each do |host|
-                    host.update(
-                        'PROVISION_CONFIGURATION_STATUS=configured',
-                        true
-                    )
-                end
+                    try_ssh(ansible_dir) if ping
 
-                ansible_dir = generate_ansible_configs(hosts)
+                    OneProvisionLogger.info('Configuring hosts')
 
-                try_ssh(ansible_dir) if ping
+                    @inventories.each do |i|
+                        # build Ansible command
+                        cmd = "ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg "
+                        cmd << "ansible-playbook #{ANSIBLE_ARGS}"
+                        cmd << " -i #{ansible_dir}/inventory"
+                        cmd << " -i #{ANSIBLE_LOCATION}/inventories/#{i}"
+                        cmd << " #{ANSIBLE_LOCATION}/#{i}.yml"
 
-                # offline ONE host
-                OneProvisionLogger.info('Configuring hosts')
+                        o, _e, s = Driver.run(cmd)
 
-                @inventories.each do |inventory|
-                    # build Ansible command
-                    cmd = "ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg "
-                    cmd << "ansible-playbook #{ANSIBLE_ARGS}"
-                    cmd << " -i #{ansible_dir}/inventory"
-                    cmd << " -i #{ANSIBLE_LOCATION}/inventories/#{inventory}"
-                    cmd << " #{ANSIBLE_LOCATION}/#{inventory}.yml"
-
-                    o, _e, s = Driver.run(cmd)
-
-                    if s && s.success? && inventory == @inventories.last
-                        # enable configured ONE host back
-                        OneProvisionLogger.debug('Enabling OpenNebula hosts')
-
-                        hosts.each do |host|
-                            host.update(
-                                'PROVISION_CONFIGURATION_STATUS=configured',
-                                true
+                        if s && s.success? && i == @inventories.last
+                            # enable configured ONE host back
+                            OneProvisionLogger.debug(
+                                'Enabling OpenNebula hosts'
                             )
-                            host.enable
-                        end
-                    elsif s && !s.success?
-                        hosts.each do |host|
-                            host.update(
-                                'PROVISION_CONFIGURATION_STATUS=error',
-                                true
-                            )
-                        end
 
-                        errors = parse_ansible(o) if o
+                            hosts.each do |h|
+                                host = Host.new
 
-                        raise OneProvisionLoopException, errors
+                                host.info(h['id'])
+                                host.one.enable
+                            end
+                        elsif s && !s.success?
+                            errors = parse_ansible(o) if o
+
+                            raise OneProvisionLoopException, errors
+                        end
                     end
                 end
 
@@ -169,14 +122,48 @@ module OneProvision
                 raise OneProvisionLoopException, e
             end
 
+            # Checks ssh connection
+            #
+            # @param ansible_dir [Dir] Directory with ansible information
+            #
+            # @return [Boolean] True if the ssh connection works
+            def ansible_ssh(ansible_dir)
+                # Note: We want only to check the working SSH connection, but
+                # Ansible "ping" module requires also Python to be installed on
+                # the remote side, otherwise fails. So we use only "raw"
+                # module with simple command. Python should be
+                # installed by "configure" phase later.
+                #
+                # Older approach with "ping" module:
+                # ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg ansible
+                # #{ANSIBLE_ARGS} -m ping all -i #{ansible_dir}/inventory
+
+                cmd = "ANSIBLE_CONFIG=#{ansible_dir}"
+                cmd += '/ansible.cfg ANSIBLE_BECOME=false'
+                cmd << " ansible #{ANSIBLE_ARGS}"
+                cmd << " -i #{ansible_dir}/inventory"
+                cmd << ' -m raw all -a /bin/true'
+
+                o, _e, s = Driver.run(cmd)
+
+                raise OneProvisionLoopException if !s || !s.success?
+
+                hosts = o.lines.count do |l|
+                    l =~ /success/i || l =~ /CHANGED/i
+                end
+
+                raise OneProvisionLoopException if hosts.zero?
+
+                true
+            end
+
             # Retries ssh connection
             #
-            # @param ansible_dir [Dir]  Directory with all
-            #                               the ansible information
+            # @param ansible_dir [Dir] Directory with ansible information
             #
-            # @return            [Boolean] True if the ssh connection works
+            # @return [Boolean] True if the ssh connection works
             def retry_ssh(ansible_dir)
-                ret = false
+                ret     = false
                 retries = 0
 
                 while !ret && retries < Options.ping_retries
@@ -193,8 +180,7 @@ module OneProvision
 
             # Checks ssh connection
             #
-            # @param ansible_dir [Dir] Directory with all
-            #                               the ansible information
+            # @param ansible_dir [Dir] Directory with ansible information
             def try_ssh(ansible_dir)
                 OneProvisionLogger.info('Checking working SSH connection')
 
@@ -205,13 +191,13 @@ module OneProvision
                 end
             end
 
-            # Parses the ansible output
+            # Parses ansible output
             #
             # @param stdout [String] Ansible ouput
             #
-            # return        [String] Parsed output
+            # @return [String] Parsed output
             def parse_ansible(stdout)
-                rtn = []
+                rtn  = []
                 task = 'UNKNOWN'
 
                 stdout.lines.each do |line|
@@ -248,49 +234,13 @@ module OneProvision
                 rtn.join("\n")
             end
 
-            # Checks ssh connection
-            #
-            # @param ansible_dir [Dir]     Directory with
-            #                                   all the ansible information
-            #
-            # @return            [Boolean] True if the ssh connection works
-            def ansible_ssh(ansible_dir)
-                # Note: We want only to check the working SSH connection, but
-                # Ansible "ping" module requires also Python to be installed on
-                # the remote side, otherwise fails. So we use only "raw"
-                # module with simple command. Python should be
-                # installed by "configure" phase later.
-                #
-                # Older approach with "ping" module:
-                # ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg ansible
-                # #{ANSIBLE_ARGS} -m ping all -i #{ansible_dir}/inventory
-
-                cmd = "ANSIBLE_CONFIG=#{ansible_dir}"
-                cmd += '/ansible.cfg ANSIBLE_BECOME=false'
-                cmd << " ansible #{ANSIBLE_ARGS}"
-                cmd << " -i #{ansible_dir}/inventory"
-                cmd << ' -m raw all -a /bin/true'
-
-                o, _e, s = Driver.run(cmd)
-
-                raise OneProvisionLoopException if !s || !s.success?
-
-                hosts = o.lines.count do |l|
-                    l =~ /success/i || l =~ /CHANGED/i
-                end
-
-                raise OneProvisionLoopException if hosts.zero?
-
-                true
-            end
-
             # TODO: support different variables and
             #   connection parameters for each host
             # Generates ansible configurations
             #
-            # @param hosts [Array of OpenNebula::Host] Hosts to configure
+            # @param hosts [OpenNebula::Host array] Hosts to configure
             #
-            # @return [Dir] Directory with all the Ansible information
+            # @return [Dir] Directory with Ansible information
             def generate_ansible_configs(hosts)
                 ansible_dir = Dir.mktmpdir
                 msg = "Generating Ansible configurations into #{ansible_dir}"
@@ -301,8 +251,10 @@ module OneProvision
                 c = "[nodes]\n"
 
                 hosts.each do |h|
-                    h.info
-                    c << "#{h['NAME']}\n"
+                    host = Host.new
+                    host.info(h['id'])
+
+                    c << "#{host.one['NAME']}\n"
                 end
 
                 c << "\n"
@@ -310,11 +262,12 @@ module OneProvision
                 c << "[targets]\n"
 
                 hosts.each do |h|
-                    h.info
+                    host = Host.new
+                    host.info(h['id'])
 
-                    conn = get_host_template_conn(h)
+                    conn = get_host_template_conn(host.one)
 
-                    c << "#{h['NAME']} "
+                    c << "#{host.one['NAME']} "
                     c << 'ansible_connection=ssh '
                     c << "ansible_ssh_private_key_file=#{conn['private_key']} "
                     c << "ansible_user=#{conn['remote_user']} "
@@ -327,18 +280,22 @@ module OneProvision
                 Dir.mkdir("#{ansible_dir}/host_vars")
 
                 hosts.each do |h|
-                    h.info
+                    host = Host.new
+                    host.info(h['id'])
 
-                    var = h['TEMPLATE/PROVISION_CONFIGURATION_BASE64']
+                    var = host.one['TEMPLATE/PROVISION_CONFIGURATION_BASE64']
                     var = YAML.safe_load(Base64.decode64(var)) if var
                     var ||= {}
                     c = YAML.dump(var)
-                    fname = "#{ansible_dir}/host_vars/#{h['NAME']}.yml"
+                    fname = "#{ansible_dir}/host_vars/#{host.one['NAME']}.yml"
                     Driver.write_file_log(fname, c)
                 end
 
-                if hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOK']
-                    @inventories = hosts[0]['TEMPLATE/ANSIBLE_PLAYBOOK']
+                host = Host.new
+                host.info(hosts[0]['id'])
+
+                if host.one['TEMPLATE/ANSIBLE_PLAYBOOK']
+                    @inventories = host.one['TEMPLATE/ANSIBLE_PLAYBOOK']
                     @inventories = @inventories.split(',')
                 else
                     @inventories = [ANSIBLE_INVENTORY_DEFAULT]
@@ -366,7 +323,7 @@ module OneProvision
             #
             # @param host [OpenNebula::Host] Host to get connections options
             #
-            # @return     [Key-Value Object] Connections options
+            # @return [Hash] Connections options
             def get_host_template_conn(host)
                 conn = {}
 

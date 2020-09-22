@@ -27,11 +27,14 @@ module OneProvision
         # rubocop:enable Style/ClassVars
 
         # Class constructor
-        def initialize
-            super
+        #
+        # @param driver [String] Host driver
+        def initialize(driver = nil)
+            super()
 
-            @pool = OpenNebula::HostPool.new(@client)
-            @type = 'host'
+            @pool   = OpenNebula::HostPool.new(@client)
+            @type   = 'host'
+            @driver = driver
         end
 
         # Checks if there are Running VMs on the HOST
@@ -81,8 +84,7 @@ module OneProvision
         #
         # @param dfile     [String]  XML with all the HOST information
         # @param cluster   [Integer] ID of the CLUSTER where
-        #                               the HOST will be allocated
-        # @param playbooks [String]  Ansible playbooks for configuring the HOST
+        # @param playbooks [String]  Ansible playbooks to configure host
         #
         # @retun [OpenNebula::Host] The ONE HOST object
         def create(dfile, cluster, playbooks)
@@ -116,8 +118,6 @@ module OneProvision
 
         # Resumes the HOST
         def resume
-            pm_mad = @one['TEMPLATE/PM_MAD']
-
             check
 
             begin
@@ -130,7 +130,7 @@ module OneProvision
 
                 params = [resume_file.path, @one.name]
 
-                Driver.pm_driver_action(pm_mad, 'deploy', params, @one)
+                Driver.pm_driver_action(@driver, 'deploy', params, @one)
 
                 OneProvisionLogger.debug("Enabling OpenNebula host: #{@one.id}")
 
@@ -144,7 +144,6 @@ module OneProvision
 
         # Powers off the HOST
         def poweroff
-            pm_mad    = @one['TEMPLATE/PM_MAD']
             deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
             name      = @one.name
 
@@ -154,7 +153,7 @@ module OneProvision
 
             params = [deploy_id, name, 'SHUTDOWN_POWEROFF']
 
-            Driver.pm_driver_action(pm_mad, 'shutdown', params, @one)
+            Driver.pm_driver_action(@driver, 'shutdown', params, @one)
 
             OneProvisionLogger.debug("Offlining OpenNebula host: #{@one.id}")
 
@@ -173,7 +172,6 @@ module OneProvision
 
         # Deletes the HOST
         def delete
-            pm_mad    = @one['TEMPLATE/PM_MAD']
             deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
             name      = @one.name
             id        = @one.id
@@ -195,7 +193,7 @@ module OneProvision
 
                 params = [deploy_id, name]
 
-                Driver.pm_driver_action(pm_mad, 'cancel', params, @one)
+                Driver.pm_driver_action(@driver, 'cancel', params, @one)
             end
 
             # delete ONE host
@@ -211,15 +209,13 @@ module OneProvision
         # @param force [Boolean] Force the configuration if the HOST
         #   is already configured
         def configure(force)
-            Ansible.configure([@one], force)
+            Ansible.configure([{ 'id' => @one['ID'] }], force)
         end
 
         # Checks that the HOST is a baremetal HOST
         def check
-            pm_mad = @one['TEMPLATE/PM_MAD']
-
-            Utils.fail('Not a valid bare metal host') if pm_mad.nil?
-            Utils.fail('Not a valid bare metal host') if pm_mad.empty?
+            Utils.fail('Not a valid bare metal host') if @driver.nil?
+            Utils.fail('Not a valid bare metal host') if @driver.empty?
         end
 
         # Monitors the HOST
@@ -227,7 +223,6 @@ module OneProvision
         # @return [Key-Value object] All the monitoring information, such as
         #   IPS, MEMORY, CPU..
         def monitoring
-            pm_mad    = @one['TEMPLATE/PM_MAD']
             deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
             name      = @one.name
             id        = @one.id
@@ -239,7 +234,7 @@ module OneProvision
 
                 params = [deploy_id, name]
 
-                pm_ret = Driver.pm_driver_action(pm_mad, 'poll', params, @one)
+                pm_ret = Driver.pm_driver_action(@driver, 'poll', params, @one)
 
                 begin
                     poll = {}
@@ -277,7 +272,6 @@ module OneProvision
         # @param action [String] Action to execute (reset, reboot)
         # @param action [String] Message for logging
         def reset_reboot(action, message)
-            pm_mad    = @one['TEMPLATE/PM_MAD']
             deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
             name      = @one.name
 
@@ -287,7 +281,7 @@ module OneProvision
             @one.offline
 
             OneProvisionLogger.info("#{message} host: #{@one.id}")
-            Driver.pm_driver_action(pm_mad, action, [deploy_id, name], @one)
+            Driver.pm_driver_action(@driver, action, [deploy_id, name], @one)
 
             OneProvisionLogger.debug("Enabling OpenNebula host: #{@one.id}")
 

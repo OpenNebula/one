@@ -313,4 +313,13 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
         answers
     end
 
+    def factory(id = nil)
+        if id
+            OpenNebula::ServiceTemplate.new_with_id(id, @client)
+        else
+            xml = OpenNebula::ServiceTemplate.build_xml
+            OpenNebula::ServiceTemplate.new(xml, @client)
+        end
+    end
+
 end

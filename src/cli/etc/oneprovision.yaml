@@ -1,7 +1,7 @@
 ---
 :ID:
   :desc: Provision identifier
-  :size: 36
+  :size: 4
 
 :NAME:
   :desc: Name of the Provision
@@ -17,23 +17,23 @@
   :desc: Number of Hosts
   :size: 5
 
-:VNETS:
+:NETWORKS:
   :desc: Number of Networks
-  :size: 5
+  :size: 8
 
 :DATASTORES:
   :desc: Number of Datastores
   :size: 10
 
 :STAT:
-  :desc: Status of the Provision
-  :size: 15
+  :desc: Provision state
+  :size: 12
 
 :default:
 - :ID
 - :NAME
 - :CLUSTERS
 - :HOSTS
-- :VNETS
+- :NETWORKS
 - :DATASTORES
 - :STAT

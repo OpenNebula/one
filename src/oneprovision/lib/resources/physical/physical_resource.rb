@@ -23,22 +23,11 @@ module OneProvision
 
         # Creates the object in OpenNebula
         #
-        # @param cluster_id     [Integer] Cluster ID
-        # @param template       [Hash]    Object attributes
-        # @param pm_mad         [String]  Provision Manager Driver
-        # @param provision_id   [String]  Provision ID
-        # @param provision_name [String]  Provision name
+        # @param template   [Hash]    Object attributes
+        # @param cluster_id [Integer] Cluster ID
         #
         # @return [Integer] Resource ID
-        def create(cluster_id, template, pm_mad, provision_id, provision_name)
-            info = { 'provision_id' => provision_id,
-                     'name'         => provision_name }
-
-            # update template with provision information
-            add_provision_info(template, info)
-
-            template['pm_mad'] = pm_mad
-
+        def create(template, cluster_id)
             # create ONE object
             new_object
 
