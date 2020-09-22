@@ -30,11 +30,10 @@ module OneProvision
 
         # Creates a new object in OpenNebula
         #
-        # @param template     [String] Object template
-        # @param provision_id [String] Provision ID
+        # @param template [String] Object template
         #
         # @return [Integer] Resource ID
-        def create(template, provision_id)
+        def create(template)
             meta = template['meta']
 
             app_id        = template['appid'] || name_to_id(template['appname'])
@@ -77,14 +76,12 @@ module OneProvision
             @template = Template.new
 
             @template.info(template_id)
-            @template.update_provision_id(provision_id)
 
             # get new created image and update it with provision ID
             @image = Image.new
 
             @image.info(image_id)
             @image.update_provision_info({ 'wait'         => wait,
-                                           'provision_id' => provision_id,
                                            'wait_timeout' => timeout })
 
             # Change permissions and ownership
@@ -97,24 +94,8 @@ module OneProvision
 
             @image.wait_state('READY', timeout)
 
-            [image_id, template_id]
-        end
-
-        # Append one object to provision for ERB evaluation
-        #
-        # @param provision [OneProvision::Provision] Full provision
-        def append_object(provision)
-            images    = provision.instance_variable_get('@images')
-            templates = provision.instance_variable_get('@templates')
-
-            images    ||= []
-            templates ||= []
-
-            images << @image.one
-            templates << @template.one
-
-            provision.instance_variable_set('@images', images)
-            provision.instance_variable_set('@templates', templates)
+            [{ 'id' => image_id, 'name' => @image.one['NAME'] },
+             { 'id' => template_id, 'name' => @template.one['NAME'] }]
         end
 
         ########################################################################

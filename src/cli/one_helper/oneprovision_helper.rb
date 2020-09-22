@@ -14,31 +14,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'nokogiri'
-require 'securerandom'
+require 'json'
 
 # OneProvision Helper
 class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
-    RESOURCES = %w[
-        CLUSTERS
-        DATASTORES
-        HOSTS
-        NETWORKS
-        IMAGES
-        TEMPLATES
-        VNTEMPLATES
-        FLOWTEMPLATES
-    ]
-
+    # Resource name
     def self.rname
-        'PROVISION'
+        'DOCUMENT'
     end
 
+    # Configuration file name
     def self.conf_file
         'oneprovision.yaml'
     end
 
+    # Parse user CLI options
+    #
+    # @param options [Hash] User CLI options
     def parse_options(options)
         OneProvision::OneProvisionLogger.get_logger(options)
         OneProvision::Mode.get_run_mode(options)
@@ -46,11 +39,12 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         OneProvision::ObjectOptions.get_obj_options(options)
     end
 
-    def format_pool
+    # Format pool for CLI list operation
+    def format_pool(_)
         config_file = self.class.table_conf
 
         CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, 'Identifier for the Provision', :size => 36 do |p|
+            column :ID, 'Identifier for the Provision', :size => 4 do |p|
                 p['ID']
             end
 
@@ -59,55 +53,129 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, 'Number of Clusters', :size => 8 do |p|
-                p['CLUSTERS']['ID'].size rescue 0
+                p = OneProvisionHelper.body(p)
+                p['provision']['infrastructure']['clusters'].size rescue 0
             end
 
             column :HOSTS, 'Number of Hosts', :size => 5 do |p|
-                p['HOSTS']['ID'].size rescue 0
+                p = OneProvisionHelper.body(p)
+                p['provision']['infrastructure']['hosts'].size rescue 0
             end
 
-            column :NETWORKS, 'Number of Networks', :size => 5 do |p|
-                p['NETWORKS']['ID'].size rescue 0
+            column :NETWORKS, 'Number of Networks', :size => 8 do |p|
+                p = OneProvisionHelper.body(p)
+                p['provision']['infrastructure']['networks'].size rescue 0
             end
 
             column :DATASTORES, 'Number of Datastores', :size => 10 do |p|
-                p['DATASTORES']['ID'].size rescue 0
+                p = OneProvisionHelper.body(p)
+                p['provision']['infrastructure']['datastores'].size rescue 0
             end
 
-            column :STAT, 'Status of the Provision', :left, :size => 15 do |p|
-                p['STATUS'] rescue '-'
+            column :STAT, 'Provision state', :size => 12 do |p|
+                p = OneProvisionHelper.body(p)
+                OneProvision::Provision::STATE_STR[p['state']] rescue '-'
             end
 
             default :ID, :NAME, :CLUSTERS, :HOSTS, :NETWORKS, :DATASTORES, :STAT
         end
     end
 
+    # Shows provision information
+    #
+    # @param id      [Integer] Provision ID
+    # @param options [Hash]    User CLI options
+    #
+    # @return [Array] [rc, information to show]
+    def show_resource(id, options)
+        # Add body paremter to get resource in hash format
+        options[:body] = true
+        info           = super
+
+        return info if info[0] != 0
+
+        if options[:json]
+            info[1]['DOCUMENT']['TEMPLATE']['BODY'] = JSON.parse(
+                info[1]['DOCUMENT']['TEMPLATE']['BODY']
+            )
+            info[1] = JSON.pretty_generate(info[1])
+        end
+
+        info
+    end
+
+    # Format resource to output it in show command
+    #
+    # @param provision [Hash] Provision information
+    def format_resource(provision, _)
+        str_h1 = '%-80s'
+        id     = provision['ID']
+        body   = provision.body
+
+        CLIHelper.print_header(str_h1 % "PROVISION #{id} INFORMATION")
+        puts format('ID    : %<s>s', :s => id)
+        puts format('NAME  : %<s>s', :s => provision['NAME'])
+        puts format('STATE : %<s>s',
+                    :s => OneProvision::Provision::STATE_STR[body['state']])
+
+        infrastructure = provision.infrastructure_objects
+        resource       = provision.resource_objects
+
+        if infrastructure
+            show_resources(OneProvision::Provision::FULL_CLUSTER,
+                           infrastructure,
+                           'Infrastructure')
+        end
+
+        return if !resource || resource.empty?
+
+        show_resources(OneProvision::Provision::RESOURCES, resource, 'Resource')
+    end
+
     #######################################################################
     # Helper provision functions
     #######################################################################
 
-    def create(config, cleanup, timeout, virtual)
-        msg = 'OpenNebula is not running'
+    # Creates a new provision
+    #
+    # @param config  [String]  Path to deployment file
+    # @param cleanup [Boolean] True to cleanup everything
+    # @param timeout [Integer] Timeout in seconds to connect to hosts
+    # @param skip    [Symbol]  Skip provision, configuration or anything
+    #
+    # @param [Intenger] New provision ID
+    def create(config, cleanup, timeout, skip)
+        xml       = OneProvision::Provision.build_xml
+        provision = OneProvision::Provision.new(xml, @client)
 
-        OneProvision::Utils.fail(msg) if OneProvision::Utils.one_running?
-
-        provision = OneProvision::Provision.new(SecureRandom.uuid)
-
-        provision.create(config, cleanup, timeout, virtual)
+        provision.deploy(config, cleanup, timeout, skip)
     end
 
-    def configure(provision_id, force)
-        provision = OneProvision::Provision.new(provision_id)
+    # Configures provision hosts
+    #
+    # @param id    [Integer] Provision ID
+    # @param force [Boolean] True to configure hosts anyway
+    def configure(id, force)
+        provision = OneProvision::Provision.new_with_id(id, @client)
 
-        provision.refresh
+        rc = provision.info
+
+        return rc if OpenNebula.is_error?(rc)
 
         provision.configure(force)
     end
 
-    def delete(provision_id, cleanup, timeout)
-        provision = OneProvision::Provision.new(provision_id)
+    # Deletes an existing provision
+    #
+    # @param id      [Intenger] Provision ID
+    # @param cleanup [Boolean]  True to delete VMs and images
+    # @param timeout [Intenger] Timeout in seconds to wait in delete
+    def delete(id, cleanup, timeout)
+        provision = OneProvision::Provision.new_with_id(id, @client)
 
-        provision.refresh
+        rc = provision.info
+
+        return rc if OpenNebula.is_error?(rc)
 
         provision.delete(cleanup, timeout)
     end
@@ -116,8 +184,25 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Helper host functions
     #######################################################################
 
-    def host_operation(id, operation, options, args)
-        host = OneProvision::Host.new
+    # Executes an operation in a host
+    #
+    # @param host      [OpenNebula::Host]
+    # @param operation [String]  Operation to perform
+    # @param options   [Hash]    User CLI options
+    # @param args      [Array]   Operation arguments
+    def host_operation(host, operation, options, args)
+        p_id = host['TEMPLATE/PROVISION_ID']
+
+        return OpenNebula::Error.new('No provision ID found') unless p_id
+
+        provision = OneProvision::Provision.new_with_id(p_id, @client)
+
+        rc = provision.info
+
+        return rc if OpenNebula.is_error?(rc)
+
+        id   = host['ID']
+        host = OneProvision::Host.new(provision.provider)
         host.info(id)
 
         case operation[:operation]
@@ -128,7 +213,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         when 'reboot'
             host.reboot((options.key? :hard))
         when 'delete'
-            host.delete
+            provision.update_objects('hosts', :remove, host.one['ID'])
         when 'configure'
             host.configure((options.key? :force))
         when 'ssh'
@@ -137,234 +222,193 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     end
 
     #######################################################################
-    # Helper datastore functions
-    #######################################################################
-
-    def datastore_operation(datastore, operation)
-        case operation[:operation]
-        when 'delete'
-            msg = "Deleting datastore #{datastore['ID']}"
-
-            OneProvision::OneProvisionLogger.info(msg)
-
-            datastore.delete
-        end
-    end
-
-    #######################################################################
-    # Helper network functions
-    #######################################################################
-
-    def network_operation(network, operation)
-        case operation[:operation]
-        when 'delete'
-            msg = "Deleting network #{network['ID']}"
-
-            OneProvision::OneProvisionLogger.info(msg)
-
-            network.delete
-        end
-    end
-
-    #######################################################################
     # Helper resource functions
     #######################################################################
 
+    # Executes an operation in a resource
+    #
+    # @param args      [Array]   Operation arguments
+    # @param operation [String]  Operation to perform
+    # @param options   [Hash]    User CLI options
+    # @param type      [String]  Object type
     def resources_operation(args, operation, options, type)
         parse_options(options)
 
-        helper = nil
-
-        case type
-        when 'HOST'      then helper = OneHostHelper.new
-        when 'DATASTORE' then helper = OneDatastoreHelper.new
-        when 'NETWORK'   then helper = OneVNetHelper.new
-        end
 
         objects = names_to_ids(args[0], type)
 
-        helper.set_client(options)
-        helper.perform_actions(objects,
-                               options,
-                               operation[:message]) do |obj|
+        return [-1, objects.message] if OpenNebula.is_error?(objects)
+
+        helper(type).perform_actions(objects,
+                                     options,
+                                     operation[:message]) do |obj|
+            rc = obj.info
+
+            return rc if OpenNebula.is_error?(rc)
+
             case type
-            when 'HOST'
-                host_operation(obj['ID'], operation, options, args[1])
-            when 'DATASTORE'
-                datastore_operation(obj, operation)
-            when 'NETWORK'
-                network_operation(obj, operation)
-            end
-        end
-    end
+            when 'HOSTS'
+                host_operation(obj, operation, options, args[1])
+            else
+                msg = "Deleting #{type} #{obj['ID']}"
 
-    #######################################################################
-    # Utils functions
-    #######################################################################
+                OneProvision::OneProvisionLogger.info(msg)
 
-    def provision_ids
-        clusters = OneProvision::Cluster.new.pool
-        rc = clusters.info
-
-        if OpenNebula.is_error?(rc)
-            OneProvision::Utils.fail(rc.message)
-        end
-
-        clusters = clusters.reject do |x|
-            x['TEMPLATE/PROVISION/PROVISION_ID'].nil?
-        end
-
-        clusters = clusters.uniq do |x|
-            x['TEMPLATE/PROVISION/PROVISION_ID']
-        end
-
-        ids = []
-
-        clusters.each {|c| ids << c['TEMPLATE/PROVISION/PROVISION_ID'] }
-
-        ids
-    end
-
-    def names_to_ids(objects, type)
-        [objects].flatten.map do |obj|
-            OpenNebulaHelper.rname_to_id(obj.to_s, type)[1]
-        end
-    end
-
-    def get_list(provision_list)
-        ret = []
-        ids = provision_ids
-
-        ids.each do |i|
-            provision = OneProvision::Provision.new(i)
-            provision.refresh
-
-            element = {}
-
-            element['ID'] = i if provision_list
-            element['ID'] = provision.clusters[0]['ID'] unless provision_list
-
-            element['NAME'] = provision.name
-            element['STATUS'] = provision.status
-
-            RESOURCES.each do |c|
-                obj     = OneProvision::Resource.object(c)
-                obj_ids = obj.get(i).map do |o|
-                    o['ID']
+                if type != 'FLOWTEMPLATES'
+                    p_id = obj['TEMPLATE/PROVISION_ID']
+                else
+                    p_id = JSON.parse(obj.template)['PROVISION_ID']
                 end
 
-                next if obj_ids.empty?
+                unless p_id
+                    return OpenNebula::Error.new('No provision ID found')
+                end
 
-                element[c.to_s.upcase]       = { 'ID' => [] }
-                element[c.to_s.upcase]['ID'] = obj_ids
-            end
+                provision = OneProvision::Provision.new_with_id(p_id, @client)
 
-            ret << element
-        end
+                rc = provision.info
 
-        ret
-    end
+                return rc if OpenNebula.is_error?(rc)
 
-    def list(options)
-        list = get_list(true)
-
-        if options.key? :xml
-            list.map {|e| to_xml(e) }
-        elsif options.key? :json
-            puts JSON.pretty_generate(list)
-        elsif options.key? :yaml
-            puts list.to_yaml(:indent => 4)
-        else
-            format_pool.show(list, options)
-        end
-
-        0
-    end
-
-    def show(provision_id, options)
-        provision = OneProvision::Provision.new(provision_id)
-
-        provision.refresh
-
-        OneProvision::Utils.fail('Provision not found.') unless provision.exists
-
-        ret = {}
-        ret['ID']     = provision_id
-        ret['NAME']   = provision.name
-        ret['STATUS'] = provision.status
-
-        RESOURCES.each do |r|
-            obj = OneProvision::Resource.object(r)
-
-            next unless obj
-
-            obj_ids = obj.get(provision_id).map {|o| o['ID'] }
-
-            next if obj_ids.empty?
-
-            ret[r] = obj_ids
-        end
-
-        if options.key? :xml
-            to_xml(ret)
-        elsif options.key? :json
-            puts JSON.pretty_generate(ret)
-        elsif options.key? :yaml
-            puts ret.to_yaml(:indent => 4)
-        else
-            format_resource(ret)
-        end
-
-        0
-    end
-
-    def format_resource(provision)
-        str_h1 = '%-80s'
-        status = provision['STATUS']
-        id     = provision['ID']
-
-        CLIHelper.print_header(str_h1 % "PROVISION #{id} INFORMATION")
-        puts format('ID      : %<s>s', :s => id)
-        puts format('NAME    : %<s>s', :s => provision['NAME'])
-        puts format('STATUS  : %<s>s', :s => CLIHelper.color_state(status))
-
-        RESOURCES.each do |r|
-            next unless provision[r]
-
-            puts
-            CLIHelper.print_header(format('%<s>s', :s => r.upcase))
-            provision[r].each do |i|
-                puts format('%<s>s', :s => i)
+                provision.update_objects(type.downcase, :remove, obj['ID'])
             end
         end
+    end
+
+    # List provision obects
+    #
+    # @param type    [Symbol]  Object to list
+    # @param options [Hash]    User CLI options
+    # @param top     [Boolean] True to list objects continuously
+    def list_objects(type, options, top = false)
+        unless options[:filter]
+            if OneProvision::Provision::FULL_CLUSTER.include?(type.downcase)
+                path = 'infrastructure'
+            else
+                path = 'resource'
+            end
+
+            pool = factory_pool(options)
+            rc   = pool.info
+
+            return rc if OpenNebula.is_error?(rc)
+
+            pool = pool.to_hash['DOCUMENT_POOL']['DOCUMENT']
+            pool = [pool].flatten
+
+            options[:filter]   = []
+            options[:operator] = 'OR'
+
+            # Iterate over pool to get IDs and get the filter option
+            pool.each do |obj|
+                body = OneProvisionHelper.body(obj)
+
+                next unless body['provision'][path][type.downcase]
+
+                body['provision'][path][type.downcase].each do |e|
+                    options[:filter] << "ID=#{e['id']}"
+                end
+            end
+        end
+
+        # if filter is empty, add fake filter to avoid showing anything
+        options[:filter] << 'ID=nil' if options[:filter].empty?
+
+        helper = helper(type)
+
+        if OpenNebula.is_error?(helper)
+            STDERR.puts helper.message
+            exit(-1)
+        end
+
+        helper.list_pool(options, top)
+
+        0
     end
 
     private
 
-    def to_xml(provision)
-        xml = "<PROVISION>
-            <ID>#{provision['ID']}</ID>
-            <NAME>#{provision['NAME']}</NAME>
-            <STATUS>#{provision['STATUS']}</STATUS>
-            #{
-                RESOURCES.map do |r|
-                    next unless provision[r]
+    # Get object IDs from name
+    #
+    # @param objects [Array]  Objects name
+    # @param type    [String] Object type class
+    def names_to_ids(objects, type)
+        [objects].flatten.map do |obj|
+            rc = OpenNebulaHelper.rname_to_id(obj.to_s, type)
 
-                    provision[r] = provision[r]['ID'] if provision[r].is_a? Hash
+            return OpenNebula::Error.new(rc[1]) unless rc[0] == 0
 
-                    ids = provision[r].map do |id|
-                        "<ID>#{id}</ID>"
-                    end.join("\n")
+            rc[1]
+        end
+    end
 
-                    "<#{r.upcase}>
-                    #{ids}
-                    </#{r.upcase}"
-                end.join("\n")
-            }
-        </PROVISION>"
+    # Returns a new provision object
+    #
+    # @param id [Integer] Provision ID
+    def factory(id = nil)
+        if id
+            OneProvision::Provision.new_with_id(id, @client)
+        else
+            OneProvision::Provision.new(OneProvision::Provision.build_xml,
+                                        @client)
+        end
+    end
 
-        doc = Nokogiri.XML(xml) {|config| config.default_xml.noblanks }
-        puts doc.root.to_xml(:indent => 2)
+    # Returns provision pool
+    def factory_pool(_)
+        OneProvision::ProvisionPool.new(@client)
+    end
+
+    class << self
+
+        # Returns provision body in JSON format
+        #
+        # @param document [Hash] Provision document
+        def body(document)
+            JSON.parse(document['TEMPLATE']['BODY'])
+        end
+
+    end
+
+    # Returns helper and filter depending on type
+    #
+    # @param type [String] Helper type
+    #
+    # @returns [OpenNebula::Helper] Helper
+    def helper(type)
+        case type
+        when 'HOSTS'         then helper = OneHostHelper.new
+        when 'DATASTORES'    then helper = OneDatastoreHelper.new
+        when 'NETWORKS'      then helper = OneVNetHelper.new
+        when 'CLUSTERS'      then helper = OneClusterHelper.new
+        when 'IMAGES'        then helper = OneImageHelper.new
+        when 'TEMPLATES'     then helper = OneTemplateHelper.new
+        when 'VNTEMPLATES'   then helper = OneVNTemplateHelper.new
+        when 'FLOWTEMPLATES' then helper = OneFlowTemplateHelper.new
+        end
+
+        helper.set_client({})
+        helper
+    end
+
+    # Shows resources
+    #
+    # @param resources_names [Array]  Resources types
+    # @param resources       [Array]  Resources information
+    # @param type            [String] Resource or Infrastructure resources
+    def show_resources(resources_names, resources, type)
+        puts
+        CLIHelper.print_header("Provision #{type} Resources")
+
+        resources_names.sort.each do |r|
+            next if !resources[r] || resources[r].empty?
+
+            puts
+            CLIHelper.print_header(format('%<s>s', :s => r.upcase))
+            resources[r].each do |i|
+                puts format('%<s>s', :s => "#{i['id']}: #{i['name']}")
+            end
+        end
     end
 
 end

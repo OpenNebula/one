@@ -17,6 +17,7 @@
 require 'ansible'
 require 'driver'
 require 'provision'
+require 'provision_pool'
 require 'resources'
 require 'utils'
 

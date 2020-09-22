@@ -38,8 +38,9 @@ module OneProvision
 
         # Factory to return new object
         #
-        # @param type [String] Object type
-        def self.object(type)
+        # @param type     [String] Object type
+        # @param provider [String] Provider to execute remote operations
+        def self.object(type, provider = nil)
             type = type.downcase[0..-2].to_sym
 
             case type
@@ -48,7 +49,7 @@ module OneProvision
             when :datastore
                 Datastore.new
             when :host
-                Host.new
+                Host.new(provider)
             when :image
                 Image.new
             when :network
@@ -63,26 +64,6 @@ module OneProvision
                 MarketPlaceApp.new
             else
                 nil
-            end
-        end
-
-        # Gets all resources or just provision resources
-        #
-        # @param id [Integer]  ID of the provision
-        #
-        # @return [Array] with provision resource if id!=nil
-        #                 with all resources if if==nil
-        def get(id = nil)
-            Utils.exception(@pool.info_all)
-
-            if id
-                @pool.select do |resource|
-                    resource['TEMPLATE/PROVISION/PROVISION_ID'] == id
-                end
-            else
-                @pool.reject do |resource|
-                    resource['TEMPLATE/PROVISION/PROVISION_ID'].nil?
-                end
             end
         end
 
@@ -142,17 +123,6 @@ module OneProvision
             @one.delete
         end
 
-        # Append one object to provision for ERB evaluation
-        #
-        # @param provision [OneProvision::Provision] Full provision
-        def append_object(provision)
-            objects   = provision.instance_variable_get("@#{@type}s")
-            objects ||= []
-
-            objects << @one
-            provision.instance_variable_set("@#{@type}s", objects)
-        end
-
         protected
 
         # Get template in string format
@@ -176,16 +146,6 @@ module OneProvision
             end
         end
 
-        # Add provision ID to object
-        #
-        # @param template     [Hash]   Current object template
-        # @param provision_id [String] Provision ID
-        def add_provision_id(template, provision_id)
-            template['provision'] = {} unless template['provision']
-
-            template['provision']['provision_id'] = provision_id
-        end
-
         # Add provision info to ONE object
         #
         # @param info [Hash] Information to add in provision section
@@ -204,13 +164,6 @@ module OneProvision
             @one.update(update_str, true)
         end
 
-        # Add provision ID to ONE object
-        #
-        # @param provision_id [String] Provision ID
-        def update_provision_id(provision_id)
-            @one.update("PROVISION=[PROVISION_ID=#{provision_id}]", true)
-        end
-
         private
 
         # Change owner and group
@@ -223,7 +176,7 @@ module OneProvision
             user  ||= 0
             group ||= 0
 
-            if user == @one['UID'].to_i && group == @one['GID'].to_i
+            if user == @one['UID'].to_i || group == @one['GID'].to_i
                 OneProvisionLogger.debug(
                     "Ownership for #{@type} #{@one.id} is already " \
                     "#{user}:#{group}"

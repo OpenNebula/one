@@ -21,6 +21,7 @@ require 'open3'
 require 'tempfile'
 require 'highline'
 require 'highline/import'
+require 'securerandom'
 
 # Cleanup Exception
 class OneProvisionCleanupException < RuntimeError
@@ -48,14 +49,6 @@ module OneProvision
 
             ERROR_OPEN  = 'ERROR MESSAGE --8<------'
             ERROR_CLOSE = 'ERROR MESSAGE ------>8--'
-
-            # Checks if oned is running
-            def one_running?
-                system = OpenNebula::System.new(OpenNebula::Client.new)
-                config = system.get_configuration
-
-                OpenNebula.is_error?(config)
-            end
 
             # Validates the configuration file
             #
@@ -289,14 +282,17 @@ module OneProvision
                 end
 
                 template = ERB.new value
-                ret = template.result(provision._binding)
+                begin
+                    ret = template.result(provision._binding)
 
-                if ret.empty?
-                    raise OneProvisionLoopException,
-                          "#{value} not found."
+                    if ret.empty?
+                        raise OneProvisionLoopException, "#{value} not found."
+                    end
+
+                    ret
+                rescue StandardError
+                    raise OneProvisionLoopException, "#{value} not found."
                 end
-
-                ret
             end
 
             # Evaluates ERB values
@@ -339,16 +335,13 @@ module OneProvision
 
             # Creates the host deployment file
             #
-            # @param host           [Hash]   Hash with host information
-            # @param provision_id   [String] ID of the provision
-            # @param provision_name [String] Name of the provision
+            # @param host [Hash] Hash with host information
             #
-            # @return             [Nokogiri::XML] XML with the host information
-            def create_deployment_file(host, provision_id, provision_name)
+            # @return [Nokogiri::XML] XML with the host information
+            def create_deployment_file(host)
                 ssh_key = try_read_file(host['connection']['public_key'])
-                config = Base64.strict_encode64(host['configuration'].to_yaml)
-
-                reject = %w[im_mad vm_mad provision connection configuration]
+                config  = Base64.strict_encode64(host['configuration'].to_yaml)
+                reject  = %w[im_mad vm_mad provision connection configuration]
 
                 Nokogiri::XML::Builder.new do |xml|
                     xml.HOST do
@@ -356,20 +349,18 @@ module OneProvision
                         xml.TEMPLATE do
                             xml.IM_MAD host['im_mad']
                             xml.VM_MAD host['vm_mad']
-                            xml.PM_MAD host['provision']['driver']
                             xml.PROVISION do
                                 host['provision'].each do |key, value|
                                     if key != 'driver'
                                         xml.send(key.upcase, value)
                                     end
                                 end
-                                xml.send('PROVISION_ID', provision_id)
-                                xml.send('NAME', provision_name)
                             end
+
                             if host['configuration']
                                 xml.PROVISION_CONFIGURATION_BASE64 config
                             end
-                            xml.PROVISION_CONFIGURATION_STATUS 'pending'
+
                             if host['connection']
                                 xml.PROVISION_CONNECTION do
                                     host['connection'].each do |key, value|
@@ -377,6 +368,7 @@ module OneProvision
                                     end
                                 end
                             end
+
                             if host['connection']
                                 xml.CONTEXT do
                                     if host['connection']['public_key']

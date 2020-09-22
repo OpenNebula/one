@@ -14,47 +14,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/virtual/virtual_resource'
-require 'models'
-
-require 'json'
+require 'opennebula/document_pool_json'
 
 module OneProvision
 
-    # FlowTemplate
-    class FlowTemplate < VirtualResource
+    # ProvisionPool class
+    class ProvisionPool < DocumentPoolJSON
 
-        # Class constructor
-        def initialize
-            super
+        DOCUMENT_TYPE = 103
 
-            @pool = OpenNebula::ServiceTemplatePool.new(@client)
-            @type = 'flowtemplate'
+        def initialize(client, user_id = -2)
+            super(client, user_id)
         end
 
-        # Info an specific object
-        #
-        # @param id [String] Object ID
-        def info(id)
-            @one = OpenNebula::ServiceTemplate.new_with_id(id, @client)
-            @one.info
-        end
-
-        # Get template in json format
-        #
-        # @param template [Hash] Key value template
-        def format_template(template)
-            obj_template(template).to_json
-        end
-
-        private
-
-        # Create new object
-        def new_object
-            @one = OpenNebula::ServiceTemplate.new(
-                OpenNebula::ServiceTemplate.build_xml,
-                @client
-            )
+        def factory(element_xml)
+            provision = OpenNebula::Provision.new(element_xml, @client)
+            provision.load_body
+            provision
         end
 
     end

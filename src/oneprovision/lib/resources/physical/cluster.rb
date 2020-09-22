@@ -29,21 +29,12 @@ module OneProvision
             @type = 'cluster'
         end
 
-        # Creates a new CLUSTER in OpenNebula
+        # Creates a new cluster in OpenNebula
         #
-        # @param template       [String] Template of the CLUSTER
-        # @param provision_id   [String] ID of the provision
-        # @param provision_name [String] Name of the provision
+        # @param template [Hash] Cluster template information
         #
         # @return [Integer] Resource ID
-        def create(template, provision_id, provision_name)
-            info = { 'provision_id' => provision_id,
-                     'name'         => provision_name }
-
-            # update template with provision information
-            add_provision_info(template, info)
-
-            # create ONE object
+        def create(template)
             new_object
 
             rc = @one.allocate(template['name'])
@@ -58,7 +49,7 @@ module OneProvision
 
         # Info an specific object
         #
-        # @param id [String] Object ID
+        # @param id [Integer] Object ID
         def info(id)
             @one = OpenNebula::Cluster.new_with_id(id, @client)
             @one.info
@@ -66,7 +57,7 @@ module OneProvision
 
         private
 
-        # Create new object
+        # Creates new ONE object
         def new_object
             @one = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml,
                                            @client)
