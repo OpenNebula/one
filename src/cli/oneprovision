@@ -574,7 +574,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         command [resource.chomp('s').to_sym, :list],
                 list_desc,
-                :options => [MODES, FORCE] do
+                :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
             helper.list_objects(resource.upcase, options)
         end
     end
