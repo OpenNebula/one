@@ -68,6 +68,10 @@ require 'open3'
 # Arguments
 ################################################################################
 
+# Get arguments from standard input
+standard_input = STDIN.read
+ARGV.replace(standard_input.split(' '))
+
 raw_host_template = Base64.decode64(ARGV[0])
 xml_host_template = Nokogiri::XML(raw_host_template)
 
@@ -207,12 +211,12 @@ if fencing
     log "Fencing enabled"
 
     begin
-        i, oe, w = Open3.popen2e(FENCE_HOST, host64)
-        if w.value.success?
-            log oe.read
+        oe, w = Open3.capture2e(FENCE_HOST, :stdin_data=>host64)
+        if w.success?
+            log oe
             log "Fencing success"
         else
-            raise oe.read << "\n" << "Fencing error"
+            raise oe << "\n" << "Fencing error"
         end
     rescue Exception => e
         log_error e.to_s
