@@ -41,7 +41,16 @@
 # WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 #############################################################################
 
+# Configuration attributes
+SLEEP_TIME="1"
+RETRIES="5"
+USERNAME=""
+PASSWORD=''
+ACTION="off"
+
 # @param $1 the host information in base64
+HOST_TEMPLATE=$(cat -)
+
 # @return 0 on success. Make sure this script does not return 0 if it fails.
 
 # To enable remove this line
@@ -62,7 +71,7 @@ if [ ! -x "$XPATH" ]; then
     exit 1
 fi
 
-XPATH="${XPATH} -b $1"
+XPATH="${XPATH} -b ${HOST_TEMPLATE}"
 
 unset i j XPATH_ELEMENTS
 
@@ -85,5 +94,18 @@ fi
 # Fence
 #-------------------------------------------------------------------------------
 
-# Example:
-# fence_ilo -a $FENCE_IP -l <username> -p <password>
+# Examples:
+#
+# Without retries
+# fence_ilo -a $FENCE_IP -l <username> -p <password> && exit 0
+#
+# With retries
+# while [ "$RETRIES" -gt 0 ]
+# do
+#     fence_ilo5 -P --ip=$FENCE_IP --password="${PASSWORD}" --username="${USERNAME}" --action="${ACTION}" && exit 0
+#     RETRIES=$((RETRIES-1))
+#     sleep $SLEEP_TIME
+# done
+
+# Reaching this point means fencing failed
+exit 1
