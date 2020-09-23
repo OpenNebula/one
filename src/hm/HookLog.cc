@@ -164,7 +164,7 @@ int HookLog::add(int hkid, int hkrc, std::string &xml_result)
 
     cb.set_callback(&query_output);
 
-    oss << "SELECT IFNULL(MAX(exeid), -1), COUNT(*) FROM hook_log" << " WHERE hkid = " << hkid;
+    oss << "SELECT coalesce(MAX(exeid), -1), COUNT(*) FROM " << one_db::hook_log_table << " WHERE hkid = " << hkid;
 
     int rc = db->exec_rd(oss, &cb);
 
