@@ -334,12 +334,11 @@ int VirtualMachinePool::dump_monitoring(
 
     cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
         << one_db::vm_monitor_table
-        << " INNER JOIN " << one_db::vm_table
-        << " WHERE vmid = oid";
+        << " INNER JOIN " << one_db::vm_table    << " ON vmid = oid";
 
     if ( !where.empty() )
     {
-        cmd << " AND " << where;
+        cmd << " WHERE " << where;
     }
 
     cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
