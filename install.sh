@@ -2596,7 +2596,7 @@ FIREEDGE_DEV_FILES="src/fireedge/src \
                 src/fireedge/webpack.config.js \
                 src/fireedge/copyStaticAssets.js \
                 src/fireedge/package.json \
-                src/fireedge/config.yml"
+                src/fireedge/fireedge-server.conf"
 
 #-----------------------------------------------------------------------------
 # OneGate files
