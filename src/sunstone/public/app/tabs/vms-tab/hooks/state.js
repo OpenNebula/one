@@ -45,8 +45,7 @@ define(function(require) {
       isSPICESupported = Boolean(OpenNebulaVM.isSPICESupported(element)),
       isWFileSupported = Boolean(OpenNebulaVM.isWFileSupported(element)),
       isRDPSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'rdp')),
-      isSSHSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'ssh')),
-      isVMRCSupported = Boolean(OpenNebulaVM.isVMRCSupported(element));
+      isSSHSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'ssh'));
 
     // All remote buttons are disabled
     var allDisabled = (
@@ -54,8 +53,7 @@ define(function(require) {
       !isSPICESupported &&
       !isWFileSupported &&
       !isRDPSupported &&
-      !isSSHSupported &&
-      !isVMRCSupported
+      !isSSHSupported
     );
     
     $("#vmsremote_buttons").toggle(!allDisabled);
@@ -63,24 +61,16 @@ define(function(require) {
     if (isVNCSupported) {
       $(".vnc-sunstone-info").show();
       $(".spice-sunstone-info").hide();
-      $(".vmrc-sunstone-info").hide();
 
     }
     else if (isSPICESupported) {
       $(".spice-sunstone-info").show();
       $(".vnc-sunstone-info").hide();
-      $(".vmrc-sunstone-info").hide();
 
-    }
-    else if (isVMRCSupported){
-      $(".vmrc-sunstone-info").show();
-      $(".vnc-sunstone-info").hide();
-      $(".spice-sunstone-info").hide();
     }
     else {
       $(".spice-sunstone-info").hide();
       $(".vnc-sunstone-info").hide();
-      $(".vmrc-sunstone-info").hide();
     }
     
     // Show / hide virt-viewer button

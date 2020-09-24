@@ -42,7 +42,6 @@
             'threshold_low' : '<%= $conf[:threshold_low] %>',
             'threshold_high' : '<%= $conf[:threshold_high] %>',
             'guac_port' : '<%= $conf[:guac_port] %>',
-            'vmrc_port' : '<%= $conf[:vmrc_port] %>',
         },
         'system_config' : {
           'paginate': '<%= $conf[:paginate] %>',
@@ -58,7 +57,8 @@
             'autorefresh_wss': '<%= session[:autorefresh_wss] %>',
             'autorefresh_ip': '<%= $conf[:autorefresh_ip] %>',
             'autorefresh_port': '<%= $conf[:port] %>',
-            'is_fireedge_up': '<%= $conf[:fireedge_up] %>',
+            'fireedge_endpoint': '<%= $conf[:fireedge_endpoint] ? $conf[:fireedge_endpoint] : "http://localhost:2616" %>',
+            'max_waiting_tries': '<%= $conf[:max_waiting_tries] ? $conf[:max_waiting_tries] : 5 %>',
         },
         'view' : view,
         'available_views' : available_views,
