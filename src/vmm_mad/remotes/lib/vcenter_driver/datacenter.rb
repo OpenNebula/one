@@ -411,6 +411,8 @@ class DatacenterFolder
                       one_host,
                       args)
 
+        full_process = !args[:short]
+
         # Initialize network hash
         network = {}
         # Add name to network hash
@@ -421,9 +423,11 @@ class DatacenterFolder
         # Initialize opts hash used to inject data into one template
         opts = {}
 
-        # Add network type to network hash
-        network_type = VCenterDriver::Network.get_network_type(vc_network)
-        network[vc_network._ref][:network_type] = network_type
+        if full_process
+            # Add network type to network hash
+            network_type = VCenterDriver::Network.get_network_type(vc_network)
+            network[vc_network._ref][:network_type] = network_type
+        end
 
         # Determine if the network must be excluded
         network[vc_network._ref][:excluded] =  exclude_network?(vc_network,
@@ -431,6 +435,7 @@ class DatacenterFolder
                                                                args)
         return nil if network[vc_network._ref][:excluded] == true
 
+        if full_process
         case network[vc_network._ref][:network_type]
         # Distributed PortGroups
         when VCenterDriver::Network::NETWORK_TYPE_DPG
@@ -465,6 +470,7 @@ class DatacenterFolder
         else
             raise 'Unknown network type: ' \
                   "#{network[vc_network._ref][:network_type]}"
+        end
         end
 
         # Multicluster nets support
@@ -505,6 +511,7 @@ class DatacenterFolder
         # Mark network as processed
         network[vc_network._ref][:processed] = true
 
+        if full_process
         # General net_info related to datacenter
         opts[:vcenter_uuid] = vcenter_uuid
         opts[:vcenter_instance_name] = vcenter_instance_name
@@ -516,6 +523,11 @@ class DatacenterFolder
         network[vc_network._ref] = \
             network[vc_network._ref].merge(VCenterDriver::Network
                                                     .to_one_template(opts))
+        else
+          network[vc_network._ref][:ref] = vc_network._ref
+          network[vc_network._ref][:name] = network[vc_network._ref]['name']
+        end
+
         network
     end
 
