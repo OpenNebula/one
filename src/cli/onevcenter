@@ -155,6 +155,7 @@ CommandParser::CmdParser.new(ARGV) do
         begin
             args = helper.parse_opts(options)
             args[:filter] = true
+            args[:short] = true
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter
                        .new_child(helper.client, vi_client, options[:object])
@@ -185,6 +186,7 @@ CommandParser::CmdParser.new(ARGV) do
         begin
             args = helper.parse_opts(options)
             args[:filter] = false
+            args[:short] = true
             vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
             importer = VCenterDriver::VcImporter
                        .new_child(helper.client, vi_client, options[:object])
