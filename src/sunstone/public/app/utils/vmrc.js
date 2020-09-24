@@ -75,7 +75,9 @@ define(function (require) {
     var hostname = window.location.hostname;
     var port = window.location.port;
     var protocol = window.location.protocol;
-    var vmrc_port = Config.vmrcPort;
+    var fireedge_endpoint = Config.fireedgeEndpoint.split("//")[1];
+    var fireedge_host = fireedge_endpoint.split(":")[0];
+    var fireedge_port = fireedge_endpoint.split(":")[1];
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -93,15 +95,14 @@ define(function (require) {
       _is_encrypted ="unencrypted";
     }
 
-    URL += "://" + hostname;
-    URL += ":" + vmrc_port + "/";
+    URL += "://" + fireedge_endpoint + "/";
     
     var re = new RegExp("^(ws|wss):\\/\\/[\\w\\D]*?\\/", "gi");
     var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/vmrc?");
 
     URL += "vmrc/" + ticket;
-    link += "host=" + hostname;
-    link += "&port=" + vmrc_port;
+    link += "host=" + fireedge_host;
+    link += "&port=" + fireedge_port;
     link += "&ticket=" + ticket;
 
     try {

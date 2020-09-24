@@ -122,7 +122,6 @@ require "sunstone_2f_auth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
-require 'OpenNebulaValidateFireedge'
 
 require 'sinatra-websocket'
 require 'eventmachine'
@@ -147,8 +146,6 @@ rescue Exception => e
     STDERR.puts "Error parsing config file #{CONFIGURATION_FILE}: #{e.message}"
     exit 1
 end
-
-$conf[:fireedge_up] = false
 
 if $conf[:one_xmlrpc_timeout]
     ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
@@ -230,12 +227,6 @@ use Rack::Deflater
 include CloudLogger
 logger=enable_logging(SUNSTONE_LOG, $conf[:debug_level].to_i)
 
-@ValidateFireedge = ValidateFireedge.new($conf, logger)
-
-Thread.new do
-    @ValidateFireedge.validate_fireedge_running
-end
-
 begin
     ENV["ONE_CIPHER_AUTH"] = SUNSTONE_AUTH
     $cloud_auth = CloudAuth.new($conf, logger)
@@ -273,7 +264,7 @@ $vnc = OpenNebulaVNC.new($conf, logger)
 $guac = OpenNebulaGuac.new($conf, logger)
 
 #init VMRC server
-$vmrc = OpenNebulaVMRC.new($conf, logger)
+$vmrc = OpenNebulaVMRC.new(logger)
 
 configure do
     set :run, false

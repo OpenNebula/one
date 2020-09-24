@@ -21,7 +21,8 @@ define(function(require) {
     OpenNebulaCluster = require("./cluster"),
     Locale = require("utils/locale"),
     Config = require("sunstone-config"),
-    Navigation = require("utils/navigation");
+    Navigation = require("utils/navigation"),
+    FireedgeValidator = require("utils/fireedge-validator");
 
   var RESOURCE = "VM";
 
@@ -528,6 +529,7 @@ define(function(require) {
           return callback ? callback(request, response) : null;
         },
         error: function(response) {
+          sessionStorage.removeItem(FireedgeValidator.sessionVar);
           return callback_error ?
               callback_error(request, OpenNebulaError(response)) : null;
         }
@@ -548,6 +550,7 @@ define(function(require) {
           return callback ? callback(request, response) : null;
         },
         error: function(response) {
+          sessionStorage.removeItem(FireedgeValidator.sessionVar);
           return callback_error ?
               callback_error(request, OpenNebulaError(response)) : null;
         }

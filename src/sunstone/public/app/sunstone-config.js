@@ -170,7 +170,6 @@ define(function(require) {
     "filterView": _config["view"]["filter-view"],
     "doCountAnimation": _config["view"]["do_count_animation"],
     "guacPort": _config["user_config"]["guac_port"],
-    "vmrcPort": _config["user_config"]["vmrc_port"],
 
     "allTabs": function() {
       return Object.keys(_config["view"]["tabs"]);
@@ -185,6 +184,8 @@ define(function(require) {
     "autorefreshWSS": _config["system_config"]["autorefresh_wss"],
     "autorefreshIP": _config["system_config"]["autorefresh_ip"],
     "autorefreshPort": _config["system_config"]["autorefresh_port"],
+    "fireedgeEndpoint": _config["system_config"]["fireedge_endpoint"],
+    "maxWaitingTries": _config["system_config"]["max_waiting_tries"],
   };
 
   return Config;

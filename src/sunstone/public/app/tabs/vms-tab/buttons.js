@@ -198,13 +198,13 @@ define(function(require) {
       type: "action",
       text: Locale.tr("VNC"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info vnc-sunstone-info"
+      custom_classes: "only-sunstone-info vnc-sunstone-info vnc-button"
     },
     "VM.startvmrc" : {
       type: "action",
       text: Locale.tr("VMRC"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info vmrc-sunstone-info"
+      custom_classes: "only-sunstone-info vnc-sunstone-info vmrc-button"
     },
     "VM.startspice" : {
       type: "action",
@@ -222,7 +222,7 @@ define(function(require) {
       type: "action",
       text: Locale.tr("GUAC VNC"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info vnc-sunstone-info"
+      custom_classes: "only-sunstone-info vnc-sunstone-info guac-button"
     },
     "VM.guac_ssh" : {
       type: "action",

@@ -28,6 +28,7 @@ define(function(require) {
   var OpenNebula = require("opennebula");
   var Navigation = require("utils/navigation");
   var Websocket = require("utils/websocket");
+  var FireedgeValidator = require("utils/fireedge-validator");
 
   /*
     TEMPLATES
@@ -170,20 +171,36 @@ define(function(require) {
     }
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
+
+    var success_function = function() {
+      sessionStorage.setItem(FireedgeValidator.sessionVar, "true");
+    };
+
+    var error_function = function() {
+      sessionStorage.removeItem(FireedgeValidator.sessionVar);
+    }  
     
-    if (config.system_config &&
-      config.system_config.is_fireedge_up &&
-      config.system_config.is_fireedge_up === "false"){
-      $("a.vmrc-sunstone-info").attr("data-toggle",'tooltip');
-      $("a.vmrc-sunstone-info").attr("title",'Fireedge Server is not running, please contact your cloud administrator');
-      $("a.vmrc-sunstone-info").css("color",'gray');
+    FireedgeValidator.request(success_function,error_function);
+    
+    if (sessionStorage.getItem(FireedgeValidator.sessionVar)){
+      $(".vnc-button").hide();
+      if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
+        if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
+          $(".vmrc-button").show();
+          $(".guac-button").hide();
+        }
+        if (that.element.USER_TEMPLATE.HYPERVISOR == "kvm"){
+          $(".guac-button").show();
+          $(".vmrc-button").hide();
+        }
+      }
     }
     else{
-      $("a.vmrc-sunstone-info").removeAttr("data-toggle");
-      $("a.vmrc-sunstone-info").removeAttr("title");
-      $("a.vmrc-sunstone-info").css("color",'');
+      $(".vnc-button").show();
+      // Verify hipervisor
+      $(".guac-button").hide();
+      $(".vmrc-button").hide();
     }
-
 
     Websocket.subscribe(this.element.ID);
 

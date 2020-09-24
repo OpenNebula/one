@@ -40,6 +40,7 @@ define(function(require) {
   var Locale = require('utils/locale');
   var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
   var Websocket = require("utils/websocket");
+  var FireedgeValidator = require("utils/fireedge-validator")
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
@@ -75,6 +76,7 @@ define(function(require) {
     }
 
     Websocket.start();
+    FireedgeValidator.validateFireedge();
 
     $('#loading').hide();
   });
