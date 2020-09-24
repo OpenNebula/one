@@ -234,7 +234,6 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     def resources_operation(args, operation, options, type)
         parse_options(options)
 
-
         objects = names_to_ids(args[0], type)
 
         return [-1, objects.message] if OpenNebula.is_error?(objects)
