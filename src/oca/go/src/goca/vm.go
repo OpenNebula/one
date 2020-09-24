@@ -217,9 +217,17 @@ func (vc *VMsController) Accounting(filter, startTime, endTime int) error {
 //   a right boundary.
 // lastYear: Can be -1, in which case the time interval won't have a right
 //   boundary.
-func (vc *VMsController) Showback(filter, firstMonth, firstYear, lastMonth, lastYear int) error {
-	_, err := vc.c.Client.Call("one.vmpool.showback", filter, firstMonth, firstYear, lastMonth, lastYear)
-	return err
+func (vc *VMsController) Showback(filter, firstMonth, firstYear, lastMonth, lastYear int) (*vm.ShowbackRecord, error) {
+	res, err := vc.c.Client.Call("one.vmpool.showback", filter, firstMonth, firstYear, lastMonth, lastYear)
+	if err != nil {
+		return nil, err
+	}
+	showbackData := &vm.ShowbackRecord{}
+	err = xml.Unmarshal([]byte(res.Body()), &showbackData)
+	if err != nil {
+		return nil, err
+	}
+	return showbackData, err
 }
 
 // CalculateShowback processes all the history records, and stores the monthly cost for each VM

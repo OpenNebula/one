@@ -87,3 +87,23 @@ type HistoryRecord struct {
 	GID       int    `xml:"GID"`
 	RequestID string `xml:"REQUEST_ID"`
 }
+
+// Showback Records
+type ShowbackRecord struct {
+	XMLName  xml.Name `xml:"SHOWBACK_RECORDS"`
+	SHOWBACK []struct {
+		VMID       string `xml:"VMID"`
+		VMNAME     string `xml:"VMNAME"`
+		UID        string `xml:"UID"`
+		GID        string `xml:"GID"`
+		UNAME      string `xml:"UNAME"`
+		GNAME      string `xml:"GNAME"`
+		YEAR       string `xml:"YEAR"`
+		MONTH      string `xml:"MONTH"`
+		CPUCOST    string `xml:"CPU_COST"`
+		MEMORYCOST string `xml:"MEMORY_COST"`
+		DISKCOST   string `xml:"DISK_COST"`
+		TOTALCOST  string `xml:"TOTAL_COST"`
+		HOURS      string `xml:"HOURS"`
+	} `xml:"SHOWBACK"`
+}
