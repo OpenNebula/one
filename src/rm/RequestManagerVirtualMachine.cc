@@ -478,16 +478,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     VMActions::Action action;
 
     VirtualMachineTemplate quota_tmpl;
-
-    // Compatibility with 4.x
-    if (action_st == "shutdown-hard" || action_st == "delete" )
-    {
-        action_st = "terminate-hard";
-    }
-    else if (action_st == "shutdown")
-    {
-        action_st = "terminate";
-    }
+    RequestAttributes& att_aux(att);
 
     VMActions::action_from_str(action_st, action);
 
@@ -499,48 +490,21 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    RequestAttributes& att_aux(att);
+    auto vm = get_vm_ro(id, att);
 
-    if ( auto vm = get_vm(id, att) )
+    if (vm == nullptr)
     {
-        // Check if the action is supported for imported VMs
-        if (vm->is_imported() && !vm->is_imported_action_supported(action))
-        {
-            att.resp_msg = "Action \"" + action_st + "\" is not supported for "
-                "imported VMs";
-
-            failure_response(ACTION, att);
-
-            return;
-        }
-
-        // Generate quota information for resume action
-        if (action == VMActions::RESUME_ACTION)
-        {
-            vm->get_template_attribute("MEMORY", memory);
-            vm->get_template_attribute("CPU", cpu);
-
-            quota_tmpl.add("RUNNING_MEMORY", memory);
-            quota_tmpl.add("RUNNING_CPU", cpu);
-            quota_tmpl.add("RUNNING_VMS", 1);
-
-            quota_tmpl.add("VMS", 0);
-            quota_tmpl.add("MEMORY", 0);
-            quota_tmpl.add("CPU", 0);
-
-            att_aux.uid = vm->get_uid();
-            att_aux.gid = vm->get_gid();
-        }
-    }
-    else
-    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
 
-    if (action == VMActions::RESUME_ACTION && !quota_authorization(&quota_tmpl,
-             Quotas::VIRTUALMACHINE, att_aux, att.resp_msg))
+    // Check if the action is supported for imported VMs
+    if (vm->is_imported() && !vm->is_imported_action_supported(action))
     {
-        failure_response(ACTION, att);
+        att.resp_msg = "Action \"" + action_st + "\" is not supported for "
+            "imported VMs";
+
         return;
     }
 
@@ -565,7 +529,35 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             rc = dm->suspend(id, att, error);
             break;
         case VMActions::RESUME_ACTION:
+            // Generate quota information for resume action
+            vm->get_template_attribute("MEMORY", memory);
+            vm->get_template_attribute("CPU", cpu);
+
+            quota_tmpl.add("RUNNING_MEMORY", memory);
+            quota_tmpl.add("RUNNING_CPU", cpu);
+            quota_tmpl.add("RUNNING_VMS", 1);
+
+            quota_tmpl.add("VMS", 0);
+            quota_tmpl.add("MEMORY", 0);
+            quota_tmpl.add("CPU", 0);
+
+            att_aux.uid = vm->get_uid();
+            att_aux.gid = vm->get_gid();
+
+
+            if (!quota_authorization(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux, att.resp_msg))
+            {
+                failure_response(ACTION, att);
+                return;
+            }
+
             rc = dm->resume(id, att, error);
+
+            if (rc < 0)
+            {
+                quota_rollback(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux);
+            }
+
             break;
         case VMActions::REBOOT_ACTION:
             rc = dm->reboot(id, false, att, error);
