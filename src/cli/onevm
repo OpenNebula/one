@@ -37,6 +37,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/onevm_helper'
+require 'opennebula/virtual_machine_ext'
 
 CommandParser::CmdParser.new(ARGV) do
     usage '`onevm` <command> [<args>] [<options>]'
@@ -1210,6 +1211,8 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :save, save_desc, :vmid, :name, :options => [PERSISTENT] do
         helper.perform_action(args[0], options, 'Saving VM') do |vm|
+            vm.extend(VirtualMachineExt)
+
             res = vm.save_as_template(args[1], options[:persistent])
 
             if !OpenNebula.is_error?(res)

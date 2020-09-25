@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebulaJSON/JSONUtils'
+require 'opennebula/virtual_machine_ext'
 
 module OpenNebulaJSON
 
@@ -215,6 +216,9 @@ module OpenNebulaJSON
         def save_as_template(params=Hash.new)
             vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id),
                                         @client)
+
+            vm_new.extend(VirtualMachineExt)
+
             vm_new.save_as_template(params['name'],params['description'], params['persistent'])
         end
     end

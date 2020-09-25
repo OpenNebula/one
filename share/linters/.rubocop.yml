@@ -315,7 +315,6 @@ AllCops:
     - src/cli/one_helper/oneacct_helper.rb
     - src/cli/one_helper/onequota_helper.rb
     - src/cli/one_helper/oneuser_helper.rb
-    - src/cli/one_helper/onemarketapp_helper.rb
     - src/cli/one_helper/onegroup_helper.rb
     - src/cli/one_helper/onevnet_helper.rb
     - src/cli/one_helper/onevcenter_helper.rb
@@ -359,6 +358,7 @@ AllCops:
     - src/oca/ruby/opennebula/template.rb
     - src/oca/ruby/opennebula/group.rb
     - src/oca/ruby/opennebula/virtual_network.rb
+    - src/oca/ruby/opennebula/virtual_machine_ext.rb
     - src/oca/ruby/opennebula/security_group_pool.rb
     - src/oca/ruby/opennebula/pool_element.rb
     - src/oca/ruby/opennebula/document_pool.rb
@@ -519,11 +519,9 @@ AllCops:
     - src/market_mad/remotes/s3/S3.rb
     - src/market_mad/one_market.rb
     - src/tm_mad/one_tm.rb
-    - src/flow/lib/grammar.rb
-    - src/flow/lib/validator.rb
+    - src/oca/ruby/opennebula/flow/grammar.rb
+    - src/oca/ruby/opennebula/flow/validator.rb
   NewCops: enable
-
-
 
 ########
 # LAYOUT

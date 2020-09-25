@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebulaJSON/JSONUtils'
+require 'opennebula/marketplaceapp_ext'
 
 module OpenNebulaJSON
     class MarketPlaceAppJSON < OpenNebula::MarketPlaceApp
@@ -72,11 +73,13 @@ module OpenNebulaJSON
         end
 
         def export(params=Hash.new)
+            self.extend(MarketPlaceAppExt)
+
             dsid = params['dsid'] ? params['dsid'].to_i : params['dsid']
             name = params['name']
             vmtemplate_name = params['vmtemplate_name']
             tag ="tag=#{params['tag']}" if params['tag'] && !params['tag'].empty?
-            rc = super({
+            rc = export({
                 :dsid => dsid,
                 :name => name,
                 :vmtemplate_name => vmtemplate_name,

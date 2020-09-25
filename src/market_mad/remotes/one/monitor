@@ -78,6 +78,88 @@ class OneMarket
         [response.code.to_i, response.msg]
     end
 
+    def render_image(tmpl, app)
+        return if app['files'].nil? || app['files'][0].nil?
+
+        file = app['files'][0]
+        size = 0
+
+        size = file['size'].to_i / (2**20) if file['size'].to_i != 0
+
+        print_var(tmpl, 'SIZE', size)
+        print_var(tmpl, 'MD5', file['md5'])
+
+        tmpl64 = ''
+        print_var(tmpl64, 'DEV_PREFIX', file['dev_prefix'])
+        print_var(tmpl64, 'TYPE', file['type'])
+
+        if !tmpl64.empty?
+            print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(tmpl64))
+        end
+
+        ot = app['opennebula_template']
+
+        return if ot.nil? || ot.empty?
+
+        begin
+            print_var(tmpl, 'VMTEMPLATE64',
+                      Base64.strict_encode64(template_to_str(JSON.parse(ot))))
+        rescue StandardError
+            nil
+        end
+    end
+
+    def render_vmtemplate(tmpl, app)
+        print_var(tmpl, 'SIZE', 0)
+        print_var(tmpl, 'MD5',  app['md5'])
+
+        if app['disks']
+            app['disks'].each do |disk|
+                dname = disk.keys.first
+
+                tmpl << <<-EOT.strip
+                  DISK = [ NAME = "#{dname}", APP="#{disk[dname]}]
+                EOT
+            end
+        end
+
+        ot = app['opennebula_template']
+
+        return if ot.nil? || ot.empty?
+
+        begin
+            print_var(tmpl, 'APPTEMPLATE64',
+                      Base64.strict_encode64(template_to_str(JSON.parse(ot))))
+        rescue StandardError
+            nil
+        end
+    end
+
+    def render_service_template(tmpl, app)
+        print_var(tmpl, 'SIZE', 0)
+        print_var(tmpl, 'MD5',  app['md5'])
+
+        if app['roles']
+            app['roles'].each do |disk|
+                rname = disk.keys.first
+
+                tmpl << <<-EOT.strip
+                  ROLE = [ NAME = "#{rname}", APP="#{role[rname]}]
+                EOT
+            end
+        end
+
+        ot = app['opennebula_template']
+
+        return if ot.nil? || ot.empty?
+
+        begin
+            print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(ot))
+        rescue StandardError
+            nil
+        end
+    end
+
     def fetch_appliances
         rc, body = get('/appliance')
         if rc != 0
@@ -93,6 +175,9 @@ class OneMarket
             source = "#{link}/download/0"
             tmpl = ''
 
+            #-------------------------------------------------------------------
+            # Common App attributes
+            #-------------------------------------------------------------------
             app['type'] = 'IMAGE' unless app['type']
 
             print_var(tmpl, 'NAME',        app['name'])
@@ -104,44 +189,24 @@ class OneMarket
             print_var(tmpl, 'FORMAT',      app['format'])
             print_var(tmpl, 'DESCRIPTION', app['short_description'])
             print_var(tmpl, 'VERSION',     app['version'])
-            print_var(tmpl, 'TAGS',        app['tags'].join(', '))
-            print_var(tmpl, 'REGTIME',     app['creation_time'])
-            print_var(tmpl, 'LINK',        link)
+            print_var(tmpl, 'TAGS', app['tags'].join(', ')) if app['tags']
 
-            if !app['files'].nil? && !app['files'][0].nil?
-                file = app['files'][0]
-                size = 0
+            print_var(tmpl, 'REGTIME', app['creation_time'])
+            print_var(tmpl, 'LINK',    link)
 
-                if file['size'].to_i != 0
-                    size = file['size'].to_i / (2**20)
-                end
+            #-------------------------------------------------------------------
+            # Specific App attributes & APPTEMPLATE64
+            #-------------------------------------------------------------------
 
-                print_var(tmpl, 'SIZE', size)
-                print_var(tmpl, 'MD5',  file['md5'])
-
-                tmpl64 = ''
-                print_var(tmpl64, 'DEV_PREFIX', file['dev_prefix'])
-                print_var(tmpl64, 'DRIVER',     file['driver'])
-                print_var(tmpl64, 'TYPE',       file['type'])
-
-                if !tmpl64.empty?
-                    print_var(tmpl,
-                              'APPTEMPLATE64',
-                              Base64.strict_encode64(tmpl64))
-                end
-            end
-
-            begin
-                if !app['opennebula_template'].nil?
-                    vmtmpl64 = template_to_str(
-                        JSON.parse(app['opennebula_template'])
-                    )
-                    print_var(tmpl,
-                              'VMTEMPLATE64',
-                              Base64.strict_encode64(vmtmpl64))
-                end
-            rescue StandardError
-                nil
+            case app['type']
+            when 'IMAGE'
+                render_image(tmpl, app)
+            when 'VMTEMPLATE'
+                render_vmtemplate(tmpl, app)
+            when 'SERVICE_TEMPLATE'
+                render_service_template(tmpl, app)
+            else
+                next
             end
 
             appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"

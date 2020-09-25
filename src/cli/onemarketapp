@@ -83,6 +83,31 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'DockerHub image tag (default latest)'
     }
 
+    YES = {
+        :name => 'yes',
+        :large => '--yes',
+        :description => 'Import associated VM templates/images',
+        :proc => lambda do |_, options|
+            options[:yes] = 'yes'
+        end
+    }
+
+    NO = {
+        :name => 'no',
+        :large => '--no',
+        :description => 'Do not import associated VM templates/images',
+        :proc => lambda do |_, options|
+            options[:no] = 'no'
+        end
+    }
+
+    MARKET = {
+        :name => 'market',
+        :large => '--market market_id',
+        :format => Integer,
+        :description => 'Market to import all objects'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -95,8 +120,10 @@ CommandParser::CmdParser.new(ARGV) do
 
     CREATE_OPTIONS = [OneMarketPlaceHelper::MARKETPLACE]
     EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE,
+                      OneDatastoreHelper::FILE_DATASTORE,
                       OneMarketPlaceAppHelper::VMNAME,
                       TAG]
+    IMPORT_OPTIONS = [YES, NO, MARKET, OneMarketPlaceAppHelper::VMNAME]
 
     ########################################################################
     # Formatters for arguments
@@ -175,6 +202,60 @@ CommandParser::CmdParser.new(ARGV) do
         end
     end
 
+    import_desc = <<-EOT.unindent
+        Imports a service template into the marketplace
+    EOT
+
+    command [:'service-template', :import],
+            import_desc,
+            :service_template_id,
+            :options => IMPORT_OPTIONS do
+        helper.import(args[0], ServiceTemplate) do |id|
+            helper.import_service_template(id, options)
+        end
+    end
+
+    vm_import_desc = <<-EOT.unindent
+        Imports a VM template into the marketplace
+    EOT
+
+    command [:'vm-template', :import],
+            vm_import_desc,
+            :vm_template_id,
+            :options => IMPORT_OPTIONS do
+        helper.import(args[0], TemplatePool) do |id|
+            helper.import_vm_template(id, options)
+        end
+    end
+
+    vm_import_desc = <<-EOT.unindent
+        Imports a VM into the marketplace
+    EOT
+
+    command [:vm, :import],
+            vm_import_desc,
+            :vm_id,
+            :options => IMPORT_OPTIONS do
+        t_id = helper.save_as_template(
+            helper.get_obj_id(args[0], VirtualMachinePool)
+        )
+
+        if OpenNebula.is_error?(t_id)
+            STDERR.puts t_id.message
+            exit(-1)
+        else
+            helper.import(t_id, TemplatePool) do |id|
+                helper.import_vm_template(id, options)
+            end
+        end
+
+        puts
+        puts 'To delete saved template use: ' \
+             "`onetemplate delete #{t_id} --recursive`"
+
+        0
+    end
+
     export_desc = <<-EOT.unindent
         Exports the marketplace app to the OpenNebula cloud
     EOT
@@ -183,6 +264,8 @@ CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0], options, 'exported') do |obj|
             tag ="tag=#{options[:tag]}" if options[:tag]
 
+            obj.extend(MarketPlaceAppExt)
+
             rc = obj.export(
                 :dsid => options[:datastore],
                 :name => args[1],
@@ -190,13 +273,14 @@ CommandParser::CmdParser.new(ARGV) do
                 :url_args => tag
             )
 
-            next rc if OpenNebula.is_error?(rc)
-
             rc.each  do |key, value|
+                next if value.nil? || value.empty? || key == :image_type
+
                 puts key.to_s.upcase
                 value.each do |id|
                     if OpenNebula.is_error?(id)
                         puts id.to_str
+                        exit(-1)
                     else
                         puts "    ID: #{id}"
                     end
