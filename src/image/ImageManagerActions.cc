@@ -803,7 +803,7 @@ int ImageManager::register_image(int iid,
             imd->write(msg);
 
             oss << "Creating disk at " << source << " of "<<  img->get_size()
-                << "Mb (type: " <<  img->get_fstype() << ")";
+                << "Mb (format: " <<  img->get_format() << ")";
         }
     }
     else //PATH -> COPY TO REPOSITORY AS SOURCE

@@ -25,7 +25,7 @@
 #   - dsid is the target datastore (0 is the system datastore)
 
 SIZE=$1
-FSTYPE=$2
+FORMAT=$2
 DST=$3
 
 VMID=$4
@@ -46,6 +46,7 @@ DRIVER_PATH=$(dirname $0)
 source $TMCOMMON
 
 source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
@@ -75,13 +76,15 @@ done < <(onevm show -x $VMID | $XPATH  \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/POOL_NAME \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT)
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
+FS="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Get Datastore information
@@ -125,18 +128,37 @@ RBD_SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
 
 ssh_make_path $DST_HOST $DST_DIR
 
-# if user requested a swap, we need to create a local
-# swap formatted image and upload into existing Ceph image
-MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
+set -e -o pipefail
+
+# if user requested a swap or specifies a FS, we need to create a local
+# formatted image and upload into existing Ceph image
+FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
+MKFS_CMD=`mkfs_command $DST_PATH raw $SIZE "$SUPPORTED_FS" "$FS" "$FS_OPTS"`
 
 MKIMAGE_CMD=$(cat <<EOF
     set -e -o pipefail
 
     export PATH=/usr/sbin:/sbin:\$PATH
+EOF
+)
+
+if [ ! -z "${FS}" ]; then
+MKIMAGE_CMD=$(cat <<EOF
+    $MKIMAGE_CMD
+
+    ${MKFS_CMD}
+
+    $RBD import $FORMAT_OPT $DST_PATH $RBD_SOURCE
+    $RM -f $TMP_DST
+EOF
+)
+else
+MKIMAGE_CMD=$(cat <<EOF
+    $MKIMAGE_CMD
 
     $RBD create $FORMAT_OPT ${EC_POOL_OPT} $RBD_SOURCE --size ${SIZE}
 
-    if [ "$FSTYPE" = "swap" ]; then
+    if [ "$FORMAT" = "swap" ]; then
         ${MKFS_CMD}
 
         ${QEMU_IMG} convert -n \
@@ -147,6 +169,7 @@ MKIMAGE_CMD=$(cat <<EOF
     fi
 EOF
 )
+fi
 
 DELIMAGE_CMD=$(cat <<EOF
     export PATH=/usr/sbin:/sbin:\$PATH

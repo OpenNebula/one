@@ -97,11 +97,10 @@ void Datastore::disk_attribute(
     string st, tm_mad;
     string inherit_val;
     string current_val;
-    string type;
 
-    disk->replace("DATASTORE",    get_name());
+    disk->replace("DATASTORE", get_name());
     disk->replace("DATASTORE_ID", oid);
-    disk->replace("TM_MAD",       get_tm_mad());
+    disk->replace("TM_MAD", get_tm_mad());
 
     const set<int>& cluster_ids = get_cluster_ids();
 
@@ -156,6 +155,7 @@ void Datastore::disk_attribute(
     for (const auto& inherit : inherit_attrs)
     {
         current_val = disk->vector_value(inherit);
+
         get_template_attribute(inherit, inherit_val);
 
         if ( current_val.empty() && !inherit_val.empty() )
@@ -178,17 +178,54 @@ void Datastore::disk_attribute(
         disk->replace("DISK_TYPE", Image::disk_type_to_str(get_disk_type()));
     }
 
-    type = disk->vector_value("TYPE");
-
-    if (type != "CDROM")
+    /* Set DRIVER & FORMAT for volatile disks, precedence:
+     *  1. TM_MAD_CONF/DRIVER in oned.conf
+     *  2. DRIVER in system DS template
+     *  3. DRIVER in DISK
+     *  4. Default set to "raw"
+     */
+    if (disk->vector_value("TYPE") != "CDROM" && disk->is_volatile())
     {
-        get_template_attribute("DRIVER", st);
+        string driver = get_ds_driver();
 
-        if (!st.empty() && disk->vector_value("DRIVER").empty())
+        if (!driver.empty()) /* DRIVER in TM_MAD_CONF or DS Template */
         {
-            disk->replace("DRIVER", st);
+            disk->replace("DRIVER", driver);
+            disk->replace("FORMAT", driver);
+        }
+        else if (!disk->vector_value("FORMAT").empty()) /* DRIVER in DISK */
+        {
+            disk->replace("DRIVER", disk->vector_value("FORMAT"));
+        }
+        else /* Default for volatiles */
+        {
+            disk->replace("DRIVER", "raw");
+            disk->replace("FORMAT", "raw");
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string Datastore::get_ds_driver()
+{
+    string driver = "";
+    const VectorAttribute* vatt;
+
+    int rc = Nebula::instance().get_tm_conf_attribute(get_tm_mad(), vatt);
+
+    if ( rc == 0 )
+    {
+        vatt->vector_value("DRIVER", driver);
+    }
+
+    if (driver.empty())
+    {
+        get_template_attribute("DRIVER", driver);
+    }
+
+    return driver;
 }
 
 /* ************************************************************************ */

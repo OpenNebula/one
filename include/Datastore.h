@@ -270,6 +270,18 @@ public:
                            std::string& ln_target,
                            std::string& clone_target,
                            std::string& disk_type) const;
+    /**
+     *  Returns the default DRIVER to use with images and disks in this DS. The
+     *  precedence is:
+     *    1. TM_MAD_CONF/DRIVER in oned.conf
+     *    2. DRIVER in the DS template
+     *
+     *    @param dsid of the datastore
+     *
+     *    @return driver name or "" if not set or missing DS
+     */
+
+    std::string get_ds_driver();
 
 private:
 

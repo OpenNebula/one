@@ -170,4 +170,4 @@ EOF
 ssh_exec_and_log    "$DST_HOST" "$REGISTER_CMD" \
                     "Error registering $RBD_SOURCE in $DST_HOST"
 
-echo "$RBD_SOURCE"
+echo "$RBD_SOURCE raw"

@@ -23,6 +23,7 @@
 #include "LifeCycleManager.h"
 #include "VirtualMachineDisk.h"
 #include "Nebula.h"
+#include "DatastorePool.h"
 
 #include <sstream>
 #include <openssl/evp.h>
@@ -46,7 +47,8 @@ Image::Image(int             _uid,
         regtime(time(0)),
         source(""),
         path(""),
-        fs_type(""),
+        format(""),
+        fs(""),
         size_mb(0),
         state(INIT),
         running_vms(0),
@@ -158,11 +160,18 @@ int Image::insert(SqlDB *db, string& error_str)
     iss.str(size_attr);
     iss >> size_mb;
 
-    // ------------ PATH & SOURCE --------------------
+    // ------------ SIZE --------------------
+
+    erase_template_attribute("FS", fs);
+
+    // ------------ DRIVER (generate, cannot be set by user) -------------------
+    remove_template_attribute("DRIVER");
+
+    // ------------ PATH & SOURCE & FORMAT --------------------
 
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
-    erase_template_attribute("FSTYPE", fs_type);
+    erase_template_attribute("FORMAT", format);
     erase_template_attribute("TM_MAD", tm_mad);
 
     if (!is_saving())
@@ -175,33 +184,41 @@ int Image::insert(SqlDB *db, string& error_str)
         {
             goto error_path_and_source;
         }
-
+ 
+        /* MKFS image, FORMAT is mandatory, precedence:
+         *   1. TM_MAD_CONF/DRIVER in oned.conf
+         *   2. DRIVER in DS Template
+         *   3. IMAGE template
+         *   4. "raw" Default
+         */
         if ( path.empty() && (type == Image::DATABLOCK || type == Image::OS))
         {
-            if ( fs_type.empty() )
+            DatastorePool * ds_pool = Nebula::instance().get_dspool();
+
+            string ds_driver = ds_pool->get_ds_driver(ds_id);
+
+            // If the DS have a driver defined we force the DS driver.
+            if (!ds_driver.empty())
             {
-                string driver;
+                replace_template_attribute("DRIVER", ds_driver);
 
-                fs_type = "raw"; //Default
-
-                get_template_attribute("DRIVER", driver);
-
-                one_util::tolower(driver);
-
-                if (driver == "qcow2" || (driver.empty() &&  tm_mad == "qcow2"))
-                {
-                    fs_type = "qcow2";
-                }
+                format = ds_driver;
             }
+            else if (format.empty())
+            {
+                format = "raw"; //Default
+            }
+            // else format in the IMAGE template
         }
         else
         {
-            fs_type = "";
+            // It's filled by the driver depending on the type of file.
+            format = "";
         }
     }
     else
     {
-        fs_type = "save_as";
+        format = "save_as";
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -366,7 +383,8 @@ string& Image::to_xml(string& xml) const
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
             "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
-            "<FSTYPE>"         << one_util::escape_xml(fs_type)<< "</FSTYPE>" <<
+            "<FORMAT>"         << one_util::escape_xml(format) << "</FORMAT>" <<
+            "<FS>"             << one_util::escape_xml(fs)     << "</FS>"     <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
@@ -412,10 +430,11 @@ int Image::from_xml(const string& xml)
 
     rc += xpath(name,   "/IMAGE/NAME", "not_found");
 
-    rc += xpath(int_type,       "/IMAGE/TYPE",      0);
-    rc += xpath(int_disk_type,  "/IMAGE/DISK_TYPE", 0);
-    rc += xpath(persistent_img, "/IMAGE/PERSISTENT",0);
-    rc += xpath<time_t>(regtime,"/IMAGE/REGTIME",   0);
+    rc += xpath(int_type,        "/IMAGE/TYPE",      0);
+    rc += xpath(int_disk_type,   "/IMAGE/DISK_TYPE", 0);
+    rc += xpath(persistent_img,  "/IMAGE/PERSISTENT",0);
+    rc += xpath<time_t>(regtime, "/IMAGE/REGTIME",   0);
+    rc += xpath(format,          "/IMAGE/FORMAT",   "");
 
     rc += xpath<long long>(size_mb, "/IMAGE/SIZE", 0);
 
@@ -436,7 +455,7 @@ int Image::from_xml(const string& xml)
 
     //Optional image attributes
     xpath(path,"/IMAGE/PATH", "");
-    xpath(fs_type,"/IMAGE/FSTYPE","");
+    xpath(fs, "/IMAGE/FS", "");
 
     type      = static_cast<ImageType>(int_type);
     disk_type = static_cast<DiskType>(int_disk_type);
@@ -495,7 +514,6 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     img_type   = type;
     target     = disk->vector_value("TARGET");
-    driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
 
     long long snap_size;
@@ -549,11 +567,17 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     snap_size = snapshots.get_total_size();
     disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 
-    if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
+    // Force FORMAT and DRIVER from image
+    if (!format.empty())
     {
-        disk->replace("DRIVER",template_driver);
+        disk->replace("DRIVER", format);
+        disk->replace("FORMAT", format);
     }
-
+    else
+    {
+        disk->remove("DRIVER");
+        disk->remove("FORMAT");
+    }
     disk->replace("IMAGE_STATE", state);
 
     //--------------------------------------------------------------------------
@@ -722,7 +746,7 @@ std::unique_ptr<ImageTemplate> Image::clone_template(const string& new_name) con
     tmpl->replace("NAME",   new_name);
     tmpl->replace("TYPE",   type_to_str(type));
     tmpl->replace("PATH",   source);
-    tmpl->replace("FSTYPE", fs_type);
+    tmpl->replace("FORMAT", format);
     tmpl->replace("SIZE",   size_mb);
     tmpl->erase("VCENTER_IMPORTED");
 
@@ -976,3 +1000,5 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     return persistent;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

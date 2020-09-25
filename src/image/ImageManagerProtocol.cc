@@ -59,13 +59,14 @@ void ImageManager::_stat(unique_ptr<image_msg_t> msg)
 
 void ImageManager::_cp(unique_ptr<image_msg_t> msg)
 {
-    NebulaLog::dddebug("ImM", "_cp: " + msg->payload());
+    const auto& info = msg->payload();
+    NebulaLog::dddebug("ImM", "_cp: " + info);
 
-    string  source;
+    string  source, format;
     int     ds_id = -1;
 
     ostringstream oss;
-    istringstream is(msg->payload());
+    istringstream is(info);
 
     auto image = ipool->get(msg->oid());
 
@@ -101,7 +102,17 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
         goto error;
     }
 
+    is >> format >> ws;
+
+    if (is.fail() || format.empty())
+    {
+        oss << "CP operation succeeded but image FORMAT was not returned.";
+        goto error_common;
+    }
+
     image->set_source(source);
+
+    image->set_format(format);
 
     image->set_state_unlock();
 
@@ -119,13 +130,12 @@ void ImageManager::_cp(unique_ptr<image_msg_t> msg)
 error:
     oss << "Error copying image in the datastore";
 
-    const auto& info = msg->payload();
-
     if (!info.empty() && (info[0] != '-'))
     {
         oss << ": " << info;
     }
 
+error_common:
     NebulaLog::log("ImM", Log::ERROR, oss);
 
     image->set_template_error_message(oss.str());
