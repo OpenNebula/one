@@ -25,7 +25,7 @@
 #   - dsid is the target datastore (0 is the system datastore)
 
 SIZE=$1
-FSTYPE=$2
+FORMAT=$2
 DST=$3
 
 VMID=$4
@@ -37,7 +37,11 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
+DRIVER_PATH=$(dirname $0)
+
 . $TMCOMMON
+
+source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -46,12 +50,32 @@ DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
 
+DISK_ID=$(echo $DST|awk -F. '{print $NF}')
+
+#-------------------------------------------------------------------------------
+#  Get Image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID | $XPATH  \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS)
+
+FS="${XPATH_ELEMENTS[j++]}"
+
 #-------------------------------------------------------------------------------
 # Make the new image (file-based)
 #-------------------------------------------------------------------------------
 ssh_make_path $DST_HOST $DST_DIR
 
-MKFS_CMD=`mkfs_command $DST_PATH $FSTYPE $SIZE`
+set -e -o pipefail
+
+FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
+MKFS_CMD=`mkfs_command $DST_PATH $FORMAT $SIZE "$SUPPORTED_FS" "$FS" "$FS_OPTS"`
 
 MKSCRIPT=$(cat <<EOF
 export PATH=/usr/sbin:/sbin:\$PATH
@@ -67,7 +91,7 @@ exit \$rc
 EOF
 )
 
-log "Making filesystem of ${SIZE}M and type $FSTYPE at $DST"
+log "Making image of ${SIZE}M and type $FORMAT at $DST"
 
 ssh_exec_and_log $DST_HOST "$MKSCRIPT" "Could not create image $DST_PATH"
 

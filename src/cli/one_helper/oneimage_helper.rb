@@ -291,7 +291,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         str_h1='%-80s'
 
         path = image['PATH']
-        fstype = image['FSTYPE']
+        iformat = image['FORMAT']
 
         size = OpenNebulaHelper.unit_to_str(image['SIZE'].to_i, {}, 'M')
         lock = OpenNebulaHelper.level_lock_to_str(image['LOCK/LOCKED'])
@@ -310,7 +310,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         puts format(str, 'PERSISTENT', pers)
         puts format(str, 'SOURCE', image['SOURCE'])
         puts format(str, 'PATH', path) if path && !path.empty?
-        puts format(str, 'FSTYPE', fstype) if fstype && !fstype.empty?
+        puts format(str, 'FORMAT', iformat) if iformat && !iformat.empty?
         puts format(str, 'SIZE', size)
         puts format(str, 'STATE', image.short_state_str)
         puts format(str, 'RUNNING_VMS', image['RUNNING_VMS'])

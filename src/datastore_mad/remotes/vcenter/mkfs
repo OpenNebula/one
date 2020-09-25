@@ -62,7 +62,7 @@ disk_type    = drv_action[DRV_ACTION_IMG + 'TEMPLATE/VCENTER_DISK_TYPE'] ||
                VCenterDriver::VIHelper
                .get_default('IMAGE/TEMPLATE/VCENTER_DISK_TYPE')
 size         = drv_action[DRV_ACTION_IMG + 'SIZE']
-fs_type      = drv_action[DRV_ACTION_IMG + 'FSTYPE']
+img_format   = drv_action[DRV_ACTION_IMG + 'FORMAT']
 
 check_valid img_id, 'img_id'
 check_valid adapter_type, 'adapter_type'
@@ -74,7 +74,7 @@ check_valid ds_ref, 'ds_ref'
 
 img_name = "#{ds_image_dir}/#{img_id}/one-#{img_id}"
 
-if fs_type == 'save_as'
+if img_format == 'save_as'
     puts img_name + '.vmdk'
     exit 0
 end

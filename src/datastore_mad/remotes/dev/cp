@@ -53,5 +53,5 @@ done < <($XPATH /DS_DRIVER_ACTION_DATA/IMAGE/PATH)
 
 SRC="${XPATH_ELEMENTS[0]}"
 
-echo "$SRC"
+echo "$SRC raw"
 

@@ -99,7 +99,6 @@ int ImagePool::allocate (
     Image *         img;
     string          name;
     string          type;
-    string          fs_type;
     string          driver;
     ostringstream   oss;
 
@@ -330,6 +329,14 @@ int ImagePool::acquire_disk(int               vm_id,
             dev_prefix = _default_dev_prefix;
 
             disk->replace("DEV_PREFIX", dev_prefix);
+        }
+
+        string format = disk->vector_value("FORMAT");
+
+        if (format.empty())
+        {
+            error_str = "FORMAT attribute is not set correctly.";
+            return -1;
         }
     }
 

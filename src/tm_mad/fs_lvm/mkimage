@@ -24,7 +24,7 @@
 #   - dsid is the target datastore (0 is the system datastore)
 
 SIZE=$1
-FSTYPE=$2
+FORMAT=$2
 DST=$3
 VM_ID=$4
 
@@ -39,6 +39,7 @@ DRIVER_PATH=$(dirname $0)
 source $TMCOMMON
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
@@ -52,6 +53,20 @@ DS_SYS_ID=$(basename $(dirname $DST_DIR))
 DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
 DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
 
+#-------------------------------------------------------------------------------
+#  Get Image information
+#-------------------------------------------------------------------------------
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID | $XPATH  \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS)
+
+FS="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Create the logical volume and link it
@@ -87,7 +102,19 @@ MKIMAGE_CMD=$(cat <<EOF
         ${DD} if=/dev/zero of="${DEV}" bs=${DD_BLOCK_SIZE:-64k} || :
     fi
 
-    [ "$FSTYPE" = "swap" ] && mkswap ${DEV}
+    [ "$FORMAT" = "swap" ] && mkswap ${DEV}
+
+    if [ ! -z "$FS" ]; then
+        contains "${SUPPORTED_FS}" "${FS}" ","
+
+        if [ $? != 0 ]; then
+            log_error "Unsupported file system type: ${FS}. Supported types are: ${SUPPORTED_FS}"
+            exit -1
+        fi
+
+        FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
+        $MKFS -t ${FS} ${FS_OPTS} ${DEV}
+    fi
 
     rm -f "$DST_PATH"
     ln -s "$DEV" "$DST_PATH"

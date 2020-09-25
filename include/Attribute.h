@@ -484,7 +484,7 @@ public:
     /**
      *  @return true if the vector attribute contains no values
      */
-    bool empty()
+    bool empty() const
     {
         return attribute_value.empty();
     }

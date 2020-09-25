@@ -26,4 +26,3 @@
 
 # Options sent to qemu-img for clone images
 #QCOW2_OPTIONS="-o compat=0.10"
-

@@ -229,12 +229,20 @@ public:
     }
 
     /**
-     *  Returns the fs_type for the image (defined for datablocks)
-     *     @return fs_type
+     *  Returns the format of the image (defined for datablocks)
+     *     @return format
      */
-    const std::string& get_fstype() const
+    const std::string& get_format() const
     {
-        return fs_type;
+        return format;
+    }
+
+    /**
+     *  Sets the format of the image
+     */
+    void set_format(const std::string& _format)
+    {
+        format = _format;
     }
 
     /**
@@ -513,7 +521,7 @@ public:
 
     /**
      * Clones this image template including image specific attributes: NAME,
-     * TYPE, PATH, FSTYPE, SIZE and PERSISTENT
+     * TYPE, PATH, FORMAT, SIZE and PERSISTENT
      * @param new_name Value for the NAME attribute
      * @return Pointer to the new tempalte 0 in case of success
      */
@@ -616,9 +624,14 @@ private:
     std::string       path;
 
     /**
-     *  File system type for the image (mandatory for datablocks)
+     *  Format of the image file (e.g qcow2, raw, ...)
      */
-    std::string       fs_type;
+    std::string       format;
+
+    /**
+     *  Filesystem of the image file (e.g ext4, xfs, ...)
+     */
+    std::string       fs;
 
     /**
      *  Size of the image in MB

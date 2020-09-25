@@ -343,22 +343,63 @@ function force_shutdown {
     fi
 }
 
+function contains {
+    LIST=$1
+    ELEMENT=$2
+    SEPARATOR=$3
+
+    MATCH=0
+    for i in $(echo $LIST | sed "s/$SEPARATOR/ /g"); do
+        if [[ "${ELEMENT}" = "${i}" ]]; then
+            MATCH=1
+            break
+        fi
+    done
+
+    if [ "${MATCH}" = "0" ]; then
+        return 1
+    fi
+
+    return 0
+}
+
 # This function will return a command that upon execution will format a
 # filesystem with its proper parameters based on the filesystem type
 function mkfs_command {
     DST=$1
-    FSTYPE=$2
+    FORMAT=$2
     SIZE=${3:-0}
+    SUPPORTED_FS=$4
+    FS=$5
+    FS_OPTS=$6
 
-    if [ "$FSTYPE" = "qcow2" ]; then
-        QEMU_FORMAT="qcow2"
+    if [ ! -z "${FS}" ]; then
+        contains "${SUPPORTED_FS}" "${FS}" ","
+
+        if [ $? != 0 ]; then
+            log_error "Unsupported file system type: ${FS}. Supported types are: ${SUPPORTED_FS}"
+            exit -1
+        fi
+
+        # Image create is required because of old MKFS version in c7
+        echo "$QEMU_IMG create -f raw ${DST} ${SIZE}M"
+        echo "$MKFS -F -t ${FS} ${FS_OPTS} ${DST}"
+
+        if [ "$FORMAT" = "qcow2" ]; then
+            echo "$QEMU_IMG convert -f raw -O qcow2 ${DST} ${DST}.qcow2"
+            echo "mv ${DST}.qcow2 ${DST}"
+        fi
     else
-        QEMU_FORMAT="raw"
+        if [ "$FORMAT" = "qcow2" ]; then
+            QEMU_FORMAT="qcow2"
+        else
+            QEMU_FORMAT="raw"
+        fi
+
+        echo "$QEMU_IMG create -f ${QEMU_FORMAT} ${DST} ${SIZE}M"
     fi
 
-    echo "$QEMU_IMG create -f ${QEMU_FORMAT} ${DST} ${SIZE}M"
-
-    if [ "$FSTYPE" = "swap" ]; then
+    if [ "$FORMAT" = "swap" ]; then
         echo "$MKSWAP -L swap $DST"
     fi
 }
