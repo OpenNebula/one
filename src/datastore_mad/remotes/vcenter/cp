@@ -174,7 +174,7 @@ files_to_upload.each_with_index do |f, index|
     stdout_str, status = Open3.capture2(cmd)
 
     if last_file_to_upload?(index, files_to_upload)
-        puts stdout_str
+        puts  "%s %s" % [stdout_str, "vmdk"]
     end
 
     next if status.success?
