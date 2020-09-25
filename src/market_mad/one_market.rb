@@ -195,9 +195,20 @@ class MarketPlaceDriver < OpenNebulaDriver
             return
         end
 
-        rc, info = do_action(id,mp_mad,nil,:delete,"#{drv_message} #{id}",false)
+        # Marketplace apps types that don't call the driver action
+        # VMTEMPLATE (2) and pSERVICE_TEMPLATE (3)
+        if ![2, 3].include?(xml['MARKETPLACEAPP/TYPE'].to_i)
+            rc, info = do_action(id,
+                                 mp_mad,
+                                 nil,
+                                 :delete,
+                                 "#{drv_message} #{id}",
+                                 false)
 
-        send_message(ACTION[:delete], rc, id, info)
+            send_message(ACTION[:delete], rc, id, info)
+        else
+            send_message(ACTION[:delete], 0, id, nil)
+        end
     end
 
     ############################################################################

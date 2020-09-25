@@ -114,7 +114,14 @@ int MarketPlaceApp::parse_template(string& error_str)
         version = "0.0";
     }
 
-    state = LOCKED;
+    if ( type == Type::VMTEMPLATE || type == Type::SERVICE_TEMPLATE )
+    {
+        state = READY;
+    }
+    else
+    {
+        state = LOCKED;
+    }
 
     return 0;
 

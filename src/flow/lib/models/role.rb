@@ -16,7 +16,7 @@
 
 require 'treetop'
 require 'treetop/version'
-require 'grammar'
+require 'opennebula/flow/grammar'
 require 'parse-cron'
 
 if Gem::Version.create('1.6.3') >= Gem.loaded_specs['treetop'].version

@@ -14,19 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula'
-
-# rubocop:disable Style/MixinUsage
-include OpenNebula
-# rubocop:enable Style/MixinUsage
-
-require 'opennebula/document_json'
-require 'opennebula/document_pool_json'
-require 'opennebula/flow/service_pool.rb'
-require 'opennebula/flow/service_template_pool.rb'
-require 'opennebula/flow/service_template.rb'
-
+require 'treetop'
+require 'treetop/version'
+require 'opennebula/flow/grammar'
+require 'opennebula/flow/service_pool'
+require 'opennebula/flow/service_template_pool'
+require 'opennebula/flow/service_template'
 require 'opennebula/flow/validator'
-
-require 'models/role'
-require 'models/service'

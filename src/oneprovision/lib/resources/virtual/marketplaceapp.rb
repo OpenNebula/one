@@ -52,7 +52,10 @@ module OneProvision
 
             # export the APP from marktplace
             rc = app.info
+
             Utils.exception(rc)
+            app.extend(MarketPlaceAppExt)
+
             rc = app.export(
                 :dsid => template['dsid'].to_i,
                 :name => template['name'],

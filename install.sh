@@ -274,6 +274,7 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
+          $LIB_LOCATION/ruby/opennebula/flow \
           $LIB_LOCATION/ruby/cloud/ \
           $LIB_LOCATION/ruby/cloud/econe \
           $LIB_LOCATION/ruby/cloud/econe/views \
@@ -529,6 +530,7 @@ INSTALL_FILES=(
     RUBY_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
+    RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
     MAD_RUBY_LIB_FILES:$LIB_LOCATION/ruby
     MAD_RUBY_LIB_FILES:$VAR_LOCATION/remotes
     MAD_SH_LIB_FILES:$LIB_LOCATION/sh
@@ -708,6 +710,7 @@ INSTALL_CLIENT_FILES=(
     CLI_CONF_FILES:$ETC_LOCATION/cli
     OCA_LIB_FILES:$LIB_LOCATION/ruby
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
+    RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
     RUBY_AUTH_LIB_FILES:$LIB_LOCATION/ruby/opennebula
 )
 
@@ -726,6 +729,7 @@ INSTALL_ONEPROVISION_FILES=(
 
 INSTALL_SUNSTONE_RUBY_FILES=(
     RUBY_OPENNEBULA_LIB_FILES:$LIB_LOCATION/ruby/opennebula
+    RUBY_OPENNEBULA_LIB_FLOW_FILES:$LIB_LOCATION/ruby/opennebula/flow
     OCA_LIB_FILES:$LIB_LOCATION/ruby
 )
 
@@ -2109,11 +2113,13 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/system.rb \
                             src/oca/ruby/opennebula/template_pool.rb \
                             src/oca/ruby/opennebula/template.rb \
+                            src/oca/ruby/opennebula/template_ext.rb \
                             src/oca/ruby/opennebula/user_pool.rb \
                             src/oca/ruby/opennebula/user.rb \
                             src/oca/ruby/opennebula/vdc_pool.rb \
                             src/oca/ruby/opennebula/vdc.rb \
                             src/oca/ruby/opennebula/virtual_machine.rb \
+                            src/oca/ruby/opennebula/virtual_machine_ext.rb \
                             src/oca/ruby/opennebula/virtual_machine_pool.rb \
                             src/oca/ruby/opennebula/virtual_network_pool.rb \
                             src/oca/ruby/opennebula/virtual_network.rb \
@@ -2128,12 +2134,21 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/marketplace.rb \
                             src/oca/ruby/opennebula/marketplaceapp_pool.rb \
                             src/oca/ruby/opennebula/marketplaceapp.rb \
+                            src/oca/ruby/opennebula/marketplaceapp_ext.rb \
                             src/oca/ruby/opennebula/utils.rb \
                             src/oca/ruby/opennebula/vntemplate_pool.rb \
                             src/oca/ruby/opennebula/vntemplate.rb \
                             src/oca/ruby/opennebula/hook_pool.rb \
                             src/oca/ruby/opennebula/hook.rb \
-                            src/oca/ruby/opennebula/hook_log.rb"
+                            src/oca/ruby/opennebula/hook_log.rb \
+                            src/oca/ruby/opennebula/flow.rb"
+
+RUBY_OPENNEBULA_LIB_FLOW_FILES="src/oca/ruby/opennebula/flow/grammar.rb \
+                                 src/oca/ruby/opennebula/flow/service_pool.rb \
+                                 src/oca/ruby/opennebula/flow/service_template_pool.rb \
+                                 src/oca/ruby/opennebula/flow/service_template.rb \
+                                 src/oca/ruby/opennebula/flow/service_template_ext.rb \
+                                 src/oca/ruby/opennebula/flow/validator.rb"
 
 #-------------------------------------------------------------------------------
 # Common Cloud Files
@@ -2619,24 +2634,19 @@ ONEFLOW_BIN_FILES="src/flow/bin/oneflow-server"
 
 ONEFLOW_ETC_FILES="src/flow/etc/oneflow-server.conf"
 
-ONEFLOW_LIB_FILES="src/flow/lib/grammar.rb \
-                    src/flow/lib/grammar.treetop \
+ONEFLOW_LIB_FILES="src/flow/lib/grammar.treetop \
                     src/flow/lib/LifeCycleManager.rb \
                     src/flow/lib/ServiceWatchDog.rb \
                     src/flow/lib/ServiceAutoScaler.rb \
                     src/flow/lib/log.rb \
                     src/flow/lib/models.rb \
                     src/flow/lib/strategy.rb \
-                    src/flow/lib/validator.rb \
                     src/flow/lib/EventManager.rb"
 
 ONEFLOW_LIB_STRATEGY_FILES="src/flow/lib/strategy/straight.rb"
 
 ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
-                          src/flow/lib/models/service_pool.rb \
-                          src/flow/lib/models/service.rb \
-                          src/flow/lib/models/service_template_pool.rb \
-                          src/flow/lib/models/service_template.rb"
+                          src/flow/lib/models/service.rb"
 
 #-----------------------------------------------------------------------------
 # OneHem files

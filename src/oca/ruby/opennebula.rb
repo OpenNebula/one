@@ -49,7 +49,9 @@ require 'opennebula/datastore_pool'
 require 'opennebula/cluster'
 require 'opennebula/cluster_pool'
 require 'opennebula/document'
+require 'opennebula/document_json'
 require 'opennebula/document_pool'
+require 'opennebula/document_pool_json'
 require 'opennebula/zone'
 require 'opennebula/zone_pool'
 require 'opennebula/security_group'
@@ -70,6 +72,7 @@ require 'opennebula/vntemplate_pool'
 require 'opennebula/hook'
 require 'opennebula/hook_pool'
 require 'opennebula/hook_log'
+require 'opennebula/flow'
 
 module OpenNebula
 

@@ -101,6 +101,7 @@ int MarketPlaceManager::import_app(
 
         case MarketPlaceApp::VMTEMPLATE:
         case MarketPlaceApp::SERVICE_TEMPLATE:
+            break;
         case MarketPlaceApp::UNKNOWN:
             goto error_type;
     }
@@ -231,6 +232,7 @@ int MarketPlaceManager::delete_app(int appid, const std::string& market_data,
 
         case MarketPlaceApp::VMTEMPLATE:
         case MarketPlaceApp::SERVICE_TEMPLATE:
+            break;
         case MarketPlaceApp::UNKNOWN:
             return -1;
     }

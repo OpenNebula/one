@@ -28,6 +28,16 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         }
     }
 
+    FILE_DATASTORE = {
+        :name   => "file_datastore",
+        :large  => "--file-datastore id|name" ,
+        :description => "Selects the file datastore",
+        :format => String,
+        :proc   => lambda { |o, options|
+            OpenNebulaHelper.rname_to_id(o, "DATASTORE")
+        }
+    }
+
     def self.rname
         "DATASTORE"
     end

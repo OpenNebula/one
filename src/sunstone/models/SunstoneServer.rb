@@ -69,7 +69,7 @@ class SunstoneServer < CloudServer
                 error = Error.new("Error: #{kind} resource not supported")
                 return [404, error.to_json]
         end
-        
+
         if kind == "vm" && $conf[:get_extended_vm_info]
           rc = pool.get_hash_extended
         else
@@ -542,7 +542,7 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(marketapp)
             return [404, marketapp.to_json]
         end
-        
+
         # Get MarketPlace
         market_id = marketapp["MARKETPLACE_ID"]
         market = retrieve_resource("marketplace", market_id)
@@ -560,11 +560,11 @@ class SunstoneServer < CloudServer
         loop  do
             uri = URI(url)
             req = Net::HTTP::Get.new(uri.request_uri)
-            
+
             req['User-Agent'] = "OpenNebula"
-            
+
             opts = { :use_ssl => true }
-            
+
             rc = Net::HTTP.start(uri.hostname, uri.port, nil, nil, opts) do |http|
                 http.request(req)
             end
