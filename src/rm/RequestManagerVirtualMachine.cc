@@ -505,6 +505,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     VirtualMachine * vm;
 
+    RequestAttributes& att_aux(att);
+
     // Compatibility with 4.x
     if (action_st == "shutdown-hard" || action_st == "delete" )
     {
@@ -520,12 +522,12 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
     // Update the authorization level for the action
     att.set_auth_op(action);
 
-    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
+    if ((vm = get_vm_ro(id, att)) == nullptr)
     {
         return;
     }
 
-    if ((vm = get_vm(id, att)) == nullptr)
+    if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
     {
         return;
     }
@@ -539,35 +541,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
         failure_response(ACTION, att);
 
         vm->unlock();
-        return;
-    }
-
-    // Generate quota information for resume action
-    RequestAttributes& att_aux(att);
-
-    if (action == VMActions::RESUME_ACTION)
-    {
-        vm->get_template_attribute("MEMORY", memory);
-        vm->get_template_attribute("CPU", cpu);
-
-        quota_tmpl.add("RUNNING_MEMORY", memory);
-        quota_tmpl.add("RUNNING_CPU", cpu);
-        quota_tmpl.add("RUNNING_VMS", 1);
-
-        quota_tmpl.add("VMS", 0);
-        quota_tmpl.add("MEMORY", 0);
-        quota_tmpl.add("CPU", 0);
-
-        att_aux.uid = vm->get_uid();
-        att_aux.gid = vm->get_gid();
-    }
-
-    vm->unlock();
-
-     if (action == VMActions::RESUME_ACTION && !quota_authorization(&quota_tmpl,
-             Quotas::VIRTUALMACHINE, att_aux, att.resp_msg))
-    {
-        failure_response(ACTION, att);
         return;
     }
 
@@ -592,7 +565,36 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             rc = dm->suspend(id, att, error);
             break;
         case VMActions::RESUME_ACTION:
+            // Generate quota information for resume action
+            vm->get_template_attribute("MEMORY", memory);
+            vm->get_template_attribute("CPU", cpu);
+
+            quota_tmpl.add("RUNNING_MEMORY", memory);
+            quota_tmpl.add("RUNNING_CPU", cpu);
+            quota_tmpl.add("RUNNING_VMS", 1);
+
+            quota_tmpl.add("VMS", 0);
+            quota_tmpl.add("MEMORY", 0);
+            quota_tmpl.add("CPU", 0);
+
+            att_aux.uid = vm->get_uid();
+            att_aux.gid = vm->get_gid();
+
+
+            if (!quota_authorization(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux, att.resp_msg))
+            {
+                vm->unlock();
+                failure_response(ACTION, att);
+                return;
+            }
+
             rc = dm->resume(id, att, error);
+
+            if (rc < 0)
+            {
+                quota_rollback(&quota_tmpl, Quotas::VIRTUALMACHINE, att_aux);
+            }
+
             break;
         case VMActions::REBOOT_ACTION:
             rc = dm->reboot(id, false, att, error);
@@ -622,6 +624,8 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
             rc = -3;
             break;
     }
+
+    vm->unlock();
 
     switch (rc)
     {
