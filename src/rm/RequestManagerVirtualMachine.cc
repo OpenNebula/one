@@ -494,8 +494,6 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (vm == nullptr)
     {
-        att.resp_id = id;
-        failure_response(NO_EXISTS, att);
         return;
     }
 
