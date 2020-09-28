@@ -65,7 +65,7 @@ module VCenterDriver
         end
 
         def self.remote?(file)
-            file.match(%r{^https?://})
+            file.match(%r{^https?://}) || file.match(%r{^s3?://})
         end
 
         def self.vmdk?(file)
