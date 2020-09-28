@@ -209,16 +209,19 @@ define(function(require) {
     });
 
     // Custom Adapter Type
-    var custom_attrs = ["vcenter_adapter_type",
-                        "vcenter_disk_type",
-                        "img_dev_prefix",
-                        "img_driver"];
+    var custom_attrs = [
+      "vcenter_adapter_type",
+      "vcenter_disk_type",
+      "img_dev_prefix",
+      "img_driver"
+    ];
 
-    for (var i in custom_attrs){
-      var field = custom_attrs[i];
+    $(custom_attrs).each(function(_, field) {
       $('input[name="custom_'+field+'"]',context).parent().hide();
-      $('select#'+field,context).change(function(){
+
+      $('select#'+field, context).on("change", function() {
         var field = $(this).attr('name');
+
         if ($(this).val() == "custom"){
           $('input[name="custom_'+field+'"]',context).parent().show();
           $('input[name="custom_'+field+'"]',context).attr('required', '');
@@ -227,7 +230,7 @@ define(function(require) {
           $('input[name="custom_'+field+'"]',context).removeAttr('required');
         }
       });
-    }
+    });
 
     $('#img_path,#img_size,#file-uploader', context).closest('.row').hide();
 
