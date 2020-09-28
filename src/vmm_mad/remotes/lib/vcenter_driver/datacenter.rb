@@ -536,6 +536,8 @@ module VCenterDriver
             one_host = params[:one_host]
             args = params[:args]
 
+            full_process = !args[:short]
+
             # Initialize network hash
             network = {}
             # Add name to network hash
@@ -546,9 +548,12 @@ module VCenterDriver
             # Initialize opts hash used to inject data into one template
             opts = {}
 
-            # Add network type to network hash
-            network_type = VCenterDriver::Network.get_network_type(vc_network)
-            network[vc_network._ref][:network_type] = network_type
+            if full_process
+                # Add network type to network hash
+                network_type = \
+                    VCenterDriver::Network.get_network_type(vc_network)
+                network[vc_network._ref][:network_type] = network_type
+            end
 
             # Determine if the network must be excluded
             network[vc_network._ref][:excluded] = exclude_network?(vc_network,
@@ -556,44 +561,49 @@ module VCenterDriver
                                                                    args)
             return if network[vc_network._ref][:excluded] == true
 
-            case network[vc_network._ref][:network_type]
-            # Distributed PortGroups
-            when VCenterDriver::Network::NETWORK_TYPE_DPG
-                network[vc_network._ref][:sw_name] = \
-                    vc_network.config.distributedVirtualSwitch.name
-                # For DistributedVirtualPortgroups there is networks and uplinks
-                network[vc_network._ref][:uplink] = \
-                    vc_network.config.uplink
-            # network[vc_network._ref][:uplink] = false
-            # NSX-V PortGroups
-            when VCenterDriver::Network::NETWORK_TYPE_NSXV
-                network[vc_network._ref][:sw_name] = \
-                    vc_network.config.distributedVirtualSwitch.name
-                # For NSX-V ( is the same as DistributedVirtualPortgroups )
-                # there is networks and uplinks
-                network[vc_network._ref][:uplink] = \
-                    vc_network.config.uplink
-                network[vc_network._ref][:uplink] = false
-            # Standard PortGroups
-            when VCenterDriver::Network::NETWORK_TYPE_PG
-                # There is no uplinks for standard portgroups, so all Standard
-                # PortGroups are networks and no uplinks
-                network[vc_network._ref][:uplink] = false
-                network[vc_network._ref][:sw_name] =
-                    VCenterDriver::Network
-                    .virtual_switch(
-                        vc_network
-                    )
-            # NSX-T PortGroups
-            when VCenterDriver::Network::NETWORK_TYPE_NSXT
-                network[vc_network._ref][:sw_name] = \
-                    vc_network.summary.opaqueNetworkType
-                # There is no uplinks for NSX-T networks, so all NSX-T networks
-                # are networks and no uplinks
-                network[vc_network._ref][:uplink] = false
-            else
-                raise 'Unknown network type: ' \
-                      "#{network[vc_network._ref][:network_type]}"
+            if full_process
+                case network[vc_network._ref][:network_type]
+                # Distributed PortGroups
+                when VCenterDriver::Network::NETWORK_TYPE_DPG
+                    network[vc_network._ref][:sw_name] = \
+                        vc_network.config.distributedVirtualSwitch.name
+                    # For DistributedVirtualPortgroups there
+                    # is networks and uplinks
+                    network[vc_network._ref][:uplink] = \
+                        vc_network.config.uplink
+                # network[vc_network._ref][:uplink] = false
+                # NSX-V PortGroups
+                when VCenterDriver::Network::NETWORK_TYPE_NSXV
+                    network[vc_network._ref][:sw_name] = \
+                        vc_network.config.distributedVirtualSwitch.name
+                    # For NSX-V ( is the same as DistributedVirtualPortgroups )
+                    # there is networks and uplinks
+                    network[vc_network._ref][:uplink] = \
+                        vc_network.config.uplink
+                    network[vc_network._ref][:uplink] = false
+                # Standard PortGroups
+                when VCenterDriver::Network::NETWORK_TYPE_PG
+                    # There is no uplinks for standard portgroups,
+                    # so all Standard
+                    # PortGroups are networks and no uplinks
+                    network[vc_network._ref][:uplink] = false
+                    network[vc_network._ref][:sw_name] =
+                        VCenterDriver::Network
+                        .virtual_switch(
+                            vc_network
+                        )
+                # NSX-T PortGroups
+                when VCenterDriver::Network::NETWORK_TYPE_NSXT
+                    network[vc_network._ref][:sw_name] = \
+                        vc_network.summary.opaqueNetworkType
+                    # There is no uplinks for NSX-T networks,
+                    # so all NSX-T networks
+                    # are networks and no uplinks
+                    network[vc_network._ref][:uplink] = false
+                else
+                    raise 'Unknown network type: ' \
+                          "#{network[vc_network._ref][:network_type]}"
+                end
             end
 
             # Multicluster nets support
@@ -635,17 +645,26 @@ module VCenterDriver
             # Mark network as processed
             network[vc_network._ref][:processed] = true
 
-            # General net_info related to datacenter
-            opts[:vcenter_uuid] = vcenter_uuid
-            opts[:vcenter_instance_name] = vcenter_instance_name
-            opts[:network_name] = network[vc_network._ref]['name']
-            opts[:network_ref]  = network.keys.first
-            opts[:network_type] = network[vc_network._ref][:network_type]
-            opts[:sw_name] = network[vc_network._ref][:sw_name]
+            if full_process
+                # General net_info related to datacenter
+                opts[:vcenter_uuid] = vcenter_uuid
+                opts[:vcenter_instance_name] = vcenter_instance_name
+                opts[:network_name] = network[vc_network._ref]['name']
+                opts[:network_ref]  = network.keys.first
+                opts[:network_type] = network[vc_network._ref][:network_type]
+                opts[:sw_name] = network[vc_network._ref][:sw_name]
 
-            network[vc_network._ref] = \
-                network[vc_network._ref].merge(VCenterDriver::Network
-                                                        .to_one_template(opts))
+                network[vc_network._ref] = \
+                    network[vc_network._ref]
+                    .merge(VCenterDriver::Network
+                    .to_one_template(opts))
+            else
+                network[vc_network._ref][:ref] = \
+                    vc_network._ref
+                network[vc_network._ref][:name] = \
+                    network[vc_network._ref]['name']
+            end
+
             network
         end
 
