@@ -63,8 +63,8 @@ start()
   LASTPID=$!
 
   if [ $LASTRC -ne 0 ]; then
-        echo "Error executing fireedge-server."
-        echo "Check $FIREEDGE_LOG_ERROR and $FIREEDGE_LOG for more information"
+    echo "Error executing fireedge-server."
+    echo "Check $FIREEDGE_LOG_ERROR and $FIREEDGE_LOG for more information"
     exit 1
   else
     echo $LASTPID > $FIREEDGE_PID
