@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -20,31 +20,27 @@ const StickyStepper = styled(Stepper)({
   zIndex: 1
 });
 
-const CustomStepper = ({
-  steps,
-  activeStep,
-  lastStep,
-  disabledBack,
-  handleNext,
-  handleBack
-}) => (
-  <>
-    <StickyStepper activeStep={activeStep}>
-      {steps?.map(({ label }) => (
-        <Step key={label}>
-          <StepLabel>{label}</StepLabel>
-        </Step>
-      ))}
-    </StickyStepper>
-    <Box marginY={2}>
-      <Button onClick={handleBack} disabled={disabledBack}>
-        {Tr('Back')}
-      </Button>
-      <Button variant="contained" color="primary" onClick={handleNext}>
-        {Tr(activeStep === lastStep ? 'Finish' : 'Next')}
-      </Button>
-    </Box>
-  </>
+const CustomStepper = memo(
+  ({ steps, activeStep, lastStep, disabledBack, handleNext, handleBack }) => (
+    <>
+      <StickyStepper activeStep={activeStep}>
+        {steps?.map(({ label }) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </StickyStepper>
+      <Box marginY={2}>
+        <Button onClick={handleBack} disabled={disabledBack}>
+          {Tr('Back')}
+        </Button>
+        <Button variant="contained" color="primary" onClick={handleNext}>
+          {activeStep === lastStep ? Tr('Finish') : Tr('Next')}
+        </Button>
+      </Box>
+    </>
+  ),
+  (prev, next) => prev.activeStep === next.activeStep
 );
 
 CustomStepper.propTypes = {

@@ -62,15 +62,21 @@ const NetworkCard = React.memo(
             }}
           />
           <CardActions>
-            <Button variant="contained" size="small" onClick={handleEdit}>
-              {Tr('Edit')}
-            </Button>
-            <Button variant="contained" size="small" onClick={handleClone}>
-              {Tr('Clone')}
-            </Button>
-            <Button size="small" onClick={handleRemove}>
-              {Tr('Remove')}
-            </Button>
+            {handleEdit && (
+              <Button variant="contained" size="small" onClick={handleEdit}>
+                {Tr('Edit')}
+              </Button>
+            )}
+            {handleClone && (
+              <Button variant="contained" size="small" onClick={handleClone}>
+                {Tr('Clone')}
+              </Button>
+            )}
+            {handleRemove && (
+              <Button size="small" onClick={handleRemove}>
+                {Tr('Remove')}
+              </Button>
+            )}
           </CardActions>
         </Card>
       </Fade>

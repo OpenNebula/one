@@ -42,7 +42,7 @@ function ListCards({ handleCreate, list, CardComponent, cardsProps }) {
       {Array.isArray(list) &&
         list?.map((value, index) => (
           <Grid key={`card-${index}`} item xs={12} sm={4} md={3} lg={2}>
-            <CardComponent value={value} {...cardsProps({ value, index })} />
+            <CardComponent value={value} {...cardsProps({ index, value })} />
           </Grid>
         ))}
     </Grid>

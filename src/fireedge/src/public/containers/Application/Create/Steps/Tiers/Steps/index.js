@@ -1,4 +1,5 @@
 import * as yup from 'yup';
+import { v4 as uuidv4 } from 'uuid';
 
 import BasicConfiguration from './BasicConfiguration';
 import Networks from './Networks';
@@ -14,13 +15,22 @@ const Steps = () => {
   const steps = [basic, networks, template, policies];
 
   const resolvers = yup.object({
+    id: yup
+      .string()
+      .uuid()
+      .default(uuidv4),
     [basic.id]: basic.resolver,
     [networks.id]: networks.resolver,
     [template.id]: template.resolver,
-    [policies.id]: policies.resolver
+    [policies.id]: policies.resolver,
+    parents: yup.array().default([]),
+    position: yup.object({
+      x: yup.number().default(0),
+      y: yup.number().default(0)
+    })
   });
 
-  const defaultValues = resolvers.default();
+  const defaultValues = () => resolvers.default();
 
   return { steps, defaultValues, resolvers };
 };

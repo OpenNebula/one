@@ -25,7 +25,7 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
     reset({ ...formData }, { errors: false });
   }, [formData]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     const { id } = steps[activeStep];
 
     trigger(id).then(isValid => {
@@ -40,7 +40,7 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
         setActiveStep(prevActiveStep => prevActiveStep + 1);
       }
     });
-  };
+  }, [activeStep, watch]);
 
   const handleBack = useCallback(() => {
     if (activeStep <= FIRST_STEP) return;
@@ -48,7 +48,7 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
     setActiveStep(prevActiveStep => prevActiveStep - 1);
   }, [activeStep]);
 
-  const { id, content: Content } = React.useMemo(() => steps[activeStep], [
+  const { id, content: Content } = useMemo(() => steps[activeStep], [
     formData,
     activeStep,
     setFormData
@@ -90,7 +90,7 @@ FormStepper.propTypes = {
     PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       label: PropTypes.string.isRequired,
-      content: PropTypes.any.isRequired
+      content: PropTypes.func.isRequired
     })
   ),
   initialValue: PropTypes.objectOf(PropTypes.any),

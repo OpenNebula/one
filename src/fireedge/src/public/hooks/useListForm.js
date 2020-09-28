@@ -1,78 +1,108 @@
 import { useCallback, useState } from 'react';
 
+const NEXT_INDEX = index => index + 1;
+const EXISTS_INDEX = index => index !== -1;
+
+const getIndexById = (list, id) =>
+  list.findIndex(({ id: itemId }) => itemId === id);
+
 const useListSelect = ({ multiple, key, list, setList, defaultValue }) => {
   const [editingData, setEditingData] = useState({});
 
   const handleSelect = useCallback(
-    index =>
-      setList(prevData => ({
-        ...prevData,
-        [key]: multiple ? [...(prevData[key] ?? []), index] : [index]
+    id =>
+      setList(prevList => ({
+        ...prevList,
+        [key]: multiple ? [...(prevList[key] ?? []), id] : [id]
       })),
-    [key, list, multiple]
+    [key, setList, multiple]
   );
 
   const handleUnselect = useCallback(
-    indexRemove =>
-      setList(prevData => ({
-        ...prevData,
-        [key]: prevData[key]?.filter(index => index !== indexRemove)
+    id =>
+      setList(prevList => ({
+        ...prevList,
+        [key]: prevList[key]?.filter(item => item !== id)
       })),
     [key, list]
   );
 
-  const handleSave = useCallback(
-    values => {
-      setList(prevData => ({
-        ...prevData,
-        [key]: Object.assign(prevData[key], {
-          [editingData.index]: values
-        })
-      }));
-    },
-    [key, list, editingData]
-  );
-
-  const handleEdit = useCallback(
-    (index = list?.length) => {
-      const openData = list[index] ?? defaultValue;
-
-      setEditingData({ index, data: openData });
-    },
-    [list, defaultValue]
-  );
-
   const handleClone = useCallback(
-    index => {
-      const item = list[index];
-      const cloneItem = { ...item, name: `${item?.name}_clone` };
-      const cloneData = [...list];
-      cloneData.splice(index + 1, 0, cloneItem);
+    id => {
+      const itemIndex = getIndexById(list, id);
+      const { id: itemId, name, ...item } = list[itemIndex];
+      const cloneList = [...list];
+      const cloneItem = {
+        ...item,
+        id: defaultValue.id,
+        name: `${name ?? itemId}_clone`
+      };
 
-      setList(prevData => ({ ...prevData, [key]: cloneData }));
+      const ZERO_DELETE_COUNT = 0;
+      cloneList.splice(NEXT_INDEX(itemIndex), ZERO_DELETE_COUNT, cloneItem);
+
+      setList(prevList => ({ ...prevList, [key]: cloneList }));
     },
-    [list]
+    [list, setList]
   );
 
   const handleRemove = useCallback(
-    indexRemove => {
+    id => {
       // TODO confirmation??
-      setList(prevData => ({
-        ...prevData,
-        [key]: prevData[key]?.filter((_, index) => index !== indexRemove)
+      setList(prevList => ({
+        ...prevList,
+        [key]: prevList[key]?.filter(item => item.id !== id)
       }));
     },
-    [key, list]
+    [key, setList]
+  );
+
+  const handleSetList = useCallback(
+    newList => {
+      setList(prevList => ({ ...prevList, [key]: newList }));
+    },
+    [key, setList]
+  );
+
+  const handleSave = useCallback(
+    (values, id) => {
+      setList(prevList => {
+        const itemIndex = getIndexById(prevList[key], id ?? editingData.id);
+        const index = EXISTS_INDEX(itemIndex)
+          ? itemIndex
+          : prevList[key].length;
+
+        return {
+          ...prevList,
+          [key]: Object.assign(prevList[key], {
+            [index]: { ...editingData, ...values }
+          })
+        };
+      });
+    },
+    [key, setList, editingData]
+  );
+
+  const handleEdit = useCallback(
+    id => {
+      const index = list.findIndex(item => item.id === id);
+      const openData = list[index] ?? defaultValue;
+
+      setEditingData(openData);
+    },
+    [list, defaultValue]
   );
 
   return {
     editingData,
     handleSelect,
     handleUnselect,
-    handleSave,
-    handleEdit,
     handleClone,
-    handleRemove
+    handleRemove,
+    handleSetList,
+
+    handleSave,
+    handleEdit
   };
 };
 

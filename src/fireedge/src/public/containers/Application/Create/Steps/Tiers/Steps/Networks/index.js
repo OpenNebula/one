@@ -26,12 +26,12 @@ const Networks = () => ({
       <ListCards
         list={list[NETWORKING]}
         CardComponent={SelectCard}
-        cardsProps={({ value, index }) => ({
-          ID: String(index),
-          NAME: value?.name,
-          isSelected: data?.some(selected => selected === index),
-          handleSelect: () => handleSelect(index),
-          handleUnselect: () => handleUnselect(index)
+        cardsProps={({ value: { id, name } }) => ({
+          ID: id,
+          NAME: name,
+          isSelected: data?.some(selected => selected === id),
+          handleSelect: () => handleSelect(id),
+          handleUnselect: () => handleUnselect(id)
         })}
       />
     );

@@ -1,8 +1,11 @@
 import dagre from 'dagre';
 
-const generateFlow = (graph, elements = []) => {
+const generateFlow = (elements = []) => {
   const NODE_WIDTH = 400;
   const NODE_HEIGHT = 200;
+  const graph = new dagre.graphlib.Graph();
+  graph.setGraph({});
+  graph.setDefaultEdgeLabel(() => ({}));
 
   elements.forEach(({ id, type, data, parents = [] }) => {
     graph.setNode(id, {

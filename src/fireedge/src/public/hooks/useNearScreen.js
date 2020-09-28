@@ -26,7 +26,6 @@ const useNearScreen = ({ externalRef, distance, once = true } = {}) => {
         : import('intersection-observer')
     ).then(() => {
       observer = new IntersectionObserver(onChange, {
-        // root: listRef.current
         rootMargin: distance
       });
 
