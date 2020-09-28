@@ -1,30 +1,49 @@
 import React, { useEffect, useState, useCallback, createContext } from 'react';
 
 import * as yup from 'yup';
-import { useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
-import { Add as AddIcon, Refresh as RefreshIcon } from '@material-ui/icons';
-import ReactFlow, {
-  ReactFlowProvider,
-  Background,
-  addEdge
-} from 'react-flow-renderer';
-import dagre from 'dagre';
+import { ReactFlowProvider } from 'react-flow-renderer';
+import { Box } from '@material-ui/core';
 
 import useListForm from 'client/hooks/useListForm';
 import FormStepper from 'client/components/FormStepper';
 import { DialogForm } from 'client/components/Dialogs';
-import { generateFlow } from 'client/utils/flow';
-import SpeedDials from 'client/components/SpeedDials';
+import { STEP_ID as NETWORKING_ID } from 'client/containers/Application/Create/Steps/Networking';
+import { STEP_ID as NETWORKS_ID } from 'client/containers/Application/Create/Steps/Tiers/Steps/Networks';
 
 import Steps from './Steps';
-import CustomNode from './Flow/CustomNode';
+import Flow from './Flow';
 
 export const Context = createContext({});
 export const STEP_ID = 'tiers';
 
 const Tiers = () => {
   const { steps, defaultValues, resolvers } = Steps();
+
+  const FRONTEND = {
+    ...defaultValues(),
+    parents: [],
+    tier: { name: 'frontend', cardinality: 1 }
+  };
+
+  const MASTER = {
+    ...defaultValues(),
+    parents: [FRONTEND.id],
+    tier: { name: 'master', cardinality: 1 }
+  };
+
+  const MINION = {
+    ...defaultValues(),
+    parents: [FRONTEND.id],
+    tier: { name: 'minion', cardinality: 1 }
+  };
+
+  const WORKER = {
+    ...defaultValues(),
+    parents: [MASTER.id, MINION.id],
+    tier: { name: 'worker', cardinality: 10 }
+  };
 
   return {
     id: STEP_ID,
@@ -34,122 +53,76 @@ const Tiers = () => {
       .of(resolvers)
       .min(1)
       .required()
-      .default([]),
+      .default([FRONTEND, MASTER, MINION, WORKER]),
     content: useCallback(({ data, setFormData }) => {
-      const [flow, setFlow] = useState([]);
       const [showDialog, setShowDialog] = useState(false);
       const [nestedForm, setNestedForm] = useState({});
       const form = useWatch({});
 
-      const { editingData, handleEdit, handleSave } = useListForm({
+      const {
+        editingData,
+        handleSetList,
+        handleSave,
+        handleEdit
+      } = useListForm({
         key: STEP_ID,
         list: data,
         setList: setFormData,
-        defaultValue: defaultValues
+        defaultValue: defaultValues()
       });
 
-      const graph = new dagre.graphlib.Graph();
-      graph.setGraph({});
-      graph.setDefaultEdgeLabel(() => ({}));
-
-      const reDrawFlow = () => {
-        setFlow(
-          generateFlow(
-            graph,
-            data?.map((item, index) => ({
-              id: item.tier.name,
-              type: 'tier',
-              data: {
-                ...item,
-                handleEdit: () => {
-                  handleEdit(index);
-                  setShowDialog(true);
-                }
-              },
-              parents: item.tier.parents ?? []
-            })) ?? []
-          )
-        );
+      const handleEditTier = id => {
+        handleEdit(id);
+        setShowDialog(true);
       };
 
       useEffect(() => {
         setNestedForm(form);
       }, []);
 
-      const actions = [
-        {
-          icon: <AddIcon />,
-          name: 'Add',
-          handleClick: () => {
-            handleEdit();
-            setShowDialog(true);
-          }
-        },
-        {
-          icon: <RefreshIcon />,
-          name: 'Refresh',
-          handleClick: () => reDrawFlow()
-        }
-      ];
+      const formSteps = React.useMemo(() => {
+        const networking = nestedForm[NETWORKING_ID] ?? [];
+
+        return steps.filter(
+          ({ id }) => id !== NETWORKS_ID || networking.length !== 0
+        );
+      }, [nestedForm]);
 
       return (
-        <ReactFlowProvider>
-          <div style={{ height: '100%', flexGrow: 1 }}>
-            <ReactFlow
-              elements={flow}
-              nodeTypes={{ tier: CustomNode }}
-              onConnect={({ source, target }) => {
-                const indexChild = data?.findIndex(
-                  item => item?.tier?.name === target
-                );
-                const child = { ...data[indexChild] };
-                child.tier.parents = [...(child?.tier?.parents ?? []), source];
-
-                handleEdit(indexChild);
-                handleSave(child);
-                setFlow(prevFlow =>
-                  addEdge({ source, target, animated: true }, prevFlow)
-                );
-              }}
-              onLoad={reactFlowInstance => {
-                reDrawFlow();
-                reactFlowInstance.fitView();
-              }}
-            >
-              <SpeedDials actions={actions} />
-              <Background color="#aaa" gap={16} />
-            </ReactFlow>
-          </div>
+        <>
+          <ReactFlowProvider>
+            <Box height={1} flexGrow={1}>
+              <Flow
+                dataFields={Object.keys(resolvers.fields)}
+                handleCreate={() => handleEditTier()}
+                handleEdit={handleEditTier}
+                handleSetData={handleSetList}
+              />
+            </Box>
+          </ReactFlowProvider>
           {showDialog && (
             <Context.Provider value={{ nestedForm }}>
               <DialogForm
                 open={showDialog}
                 title={'Tier form'}
                 resolver={resolvers}
-                values={editingData.data}
+                values={editingData}
                 onCancel={() => setShowDialog(false)}
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%'
-                  }}
-                >
+                <Box display="flex" flexDirection="column" height={1}>
                   <FormStepper
-                    steps={steps}
-                    initialValue={editingData.data}
+                    steps={formSteps}
+                    initialValue={editingData}
                     onSubmit={values => {
                       handleSave(values);
                       setShowDialog(false);
-                      reDrawFlow();
                     }}
                   />
-                </div>
+                </Box>
               </DialogForm>
             </Context.Provider>
           )}
-        </ReactFlowProvider>
+        </>
       );
     }, [])
   };

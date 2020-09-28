@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 
 import { styled, Button, MobileStepper } from '@material-ui/core';
@@ -14,31 +14,34 @@ const StickyMobileStepper = styled(MobileStepper)({
   zIndex: 1
 });
 
-const CustomMobileStepper = ({
-  totalSteps,
-  activeStep,
-  lastStep,
-  disabledBack,
-  handleNext,
-  handleBack
-}) => (
-  <StickyMobileStepper
-    variant="progress"
-    position="static"
-    steps={totalSteps}
-    activeStep={activeStep}
-    backButton={
-      <Button size="small" onClick={handleBack} disabled={disabledBack}>
-        <KeyboardArrowLeft /> {Tr('Back')}
-      </Button>
-    }
-    nextButton={
-      <Button size="small" onClick={handleNext}>
-        {Tr(activeStep === lastStep ? 'Finish' : 'Next')}
-        <KeyboardArrowRight />
-      </Button>
-    }
-  />
+const CustomMobileStepper = memo(
+  ({
+    totalSteps,
+    activeStep,
+    lastStep,
+    disabledBack,
+    handleNext,
+    handleBack
+  }) => (
+    <StickyMobileStepper
+      variant="progress"
+      position="static"
+      steps={totalSteps}
+      activeStep={activeStep}
+      backButton={
+        <Button size="small" onClick={handleBack} disabled={disabledBack}>
+          <KeyboardArrowLeft /> {Tr('Back')}
+        </Button>
+      }
+      nextButton={
+        <Button size="small" onClick={handleNext}>
+          {activeStep === lastStep ? Tr('Finish') : Tr('Next')}
+          <KeyboardArrowRight />
+        </Button>
+      }
+    />
+  ),
+  (prev, next) => prev.activeStep === next.activeStep
 );
 
 CustomMobileStepper.propTypes = {

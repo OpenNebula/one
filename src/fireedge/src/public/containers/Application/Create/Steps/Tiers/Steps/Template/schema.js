@@ -18,5 +18,5 @@ export const FORM_FIELDS = [
 
 export const STEP_FORM_SCHEMA = yup
   .object(getValidationFromFields(FORM_FIELDS))
-  .required('Template is required')
+  // .required('Template is required')
   .default(undefined);

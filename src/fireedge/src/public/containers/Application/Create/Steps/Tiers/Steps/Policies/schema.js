@@ -10,7 +10,6 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .trim()
-      .required()
       .default('')
   },
   {
@@ -20,7 +19,6 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .trim()
-      .required()
       .default('')
   }
 ];
