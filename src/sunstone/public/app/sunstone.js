@@ -885,7 +885,7 @@ define(function(require) {
 
     context.html(html);
     $.each(SunstoneCfg["tabs"][tabName]["panelInstances"], function(panelName, panel) {
-      if (!autorefresh || panelName == "vm_info_tab"){
+      if (!autorefresh){
         panel.setup(context);
 
         if(isRefresh && prevPanelStates[panelName] && panel.setState){
@@ -916,7 +916,7 @@ define(function(require) {
     }
   };
 
-  var _autorefreshVM = function(tabName, info, contextTabId, context) {
+  var _autorefresh = function(tabName, info, contextTabId, context) {
     _insertPanels(tabName, info, contextTabId, context, true);
   };
 
@@ -1365,7 +1365,7 @@ define(function(require) {
 
     "insertTabs": _insertTabs,
     "insertPanels": _insertPanels,
-    "autorefreshVM": _autorefreshVM,
+    "autorefresh": _autorefresh,
     "getElementRightInfo": _getElementRightInfo,
 
     "showTab": _showTab,

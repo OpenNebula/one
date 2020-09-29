@@ -27,7 +27,6 @@ define(function(require) {
   var TemplateTableVcenter = require("utils/panel/template-table");
   var OpenNebula = require("opennebula");
   var Navigation = require("utils/navigation");
-  var Websocket = require("utils/websocket");
   var FireedgeValidator = require("utils/fireedge-validator");
 
   /*
@@ -201,8 +200,6 @@ define(function(require) {
       $(".guac-button").hide();
       $(".vmrc-button").hide();
     }
-
-    Websocket.subscribe(this.element.ID);
 
   }
 });
