@@ -825,7 +825,7 @@ class ClusterSet
                         next unless (Time.now.to_i - last_mon) > probe_frequency
 
                         # Refresh the vCenter connection in the least frequent probe
-                        if probe_name.eql?('system_host')
+                        if probe_name.eql?(:system_host)
                             c[:cluster].connect_vcenter
                         end
 
