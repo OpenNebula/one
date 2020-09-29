@@ -173,7 +173,7 @@ files_to_upload.each_with_index do |f, index|
     cmd = "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
 
     target, stderr, status = Open3.capture3(cmd)
-  
+
     if !status.success?
         STDERR.puts "Cannot upload file #{f}: #{stderr}"
         FileUtils.rm_rf(temp_file) if temp_file
