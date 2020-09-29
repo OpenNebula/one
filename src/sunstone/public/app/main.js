@@ -99,7 +99,10 @@ require.config({
     "Navigo": "../bower_components/navigo/lib/navigo.min",
 
     /* sprintf */
-    "sprintf": "../bower_components/sprintf/dist/sprintf.min"
+    "sprintf": "../bower_components/sprintf/dist/sprintf.min",
+
+    /* socket.io-client */
+    "socket-io-client": "../bower_components/socket.io-client/dist/socket.io.slim"
   },
   shim: {
     /* Tabs */

@@ -18,94 +18,73 @@ define(function (require) {
 
   var Config = require("sunstone-config");
   var Sunstone = require('sunstone');
-
-
-  // user config
-  const wss = Config.autorefreshWSS || 'ws';
-  const port = Config.autorefreshPort || 9869;
-  const host = Config.autorefreshIP || '127.0.0.1';
-
-  var address = wss + "://" + host + ":" + port + "/ws";
-  var ws = new WebSocket(address);
-
+  var FireedgeValidator = require('utils/fireedge-validator');
+  var io = require('socket-io-client');  
+  
   var _start = function () {
-    ws.addEventListener('open', function (event) {
-      console.log("Connected to websocket");
-      ws.readyState = 1;
-      // Send CSRF token
-      var msg = {
-        "STATE": ws.readyState,
-        "ACTION": "authenticate",
-      }
-
-      ws.send(JSON.stringify(msg));
-    });
-
-    // Listen for messages
-    ws.addEventListener('message', function (event) {
-      var vm_info = JSON.parse(event.data);
-      // console.log(vm_info);
-      var response = { "VM": vm_info.HOOK_MESSAGE.VM };
-      var request = {
-        "request": {
-          "data": [response.ID],
-          "method": "show",
-          "resource": "VM"
+    if (sessionStorage.getItem(FireedgeValidator.sessionVar) == 'true'){
+      const socket = io(Config.fireedgeEndpoint, {
+        path: '/zeromq',
+        query: {
+          token: fireedge_token
         }
-      }
+      });
 
-      // update VM
+      // Listen for messages
+      socket.on('zeroMQ', function (event) {
+        var event_data = event.data;
+        // console.log(vm_info);
+        if (event_data && event_data.HOOK_MESSAGE && event_data.HOOK_MESSAGE.HOOK_TYPE && event_data.HOOK_MESSAGE.HOOK_TYPE != 'API'){
+          
+          var tab_id;
+          if (event_data.HOOK_MESSAGE.HOOK_OBJECT){
+            var object = event_data.HOOK_MESSAGE.HOOK_OBJECT;
 
-      var TAB_ID = "vms-tab";
-      var tab = $('#' + TAB_ID);
-      Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-      if (Sunstone.rightInfoVisible(tab) && vm_info.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
-        Sunstone.autorefreshVM(TAB_ID, response);
-      }
+            switch (object) {
+              case "VM":
+                tab_id = "vms-tab"
+                break;
+              case "HOST":
+                tab_id = "hosts-tab"
+                break;
+              default:
+                break;
+              }
 
-      if (vm_info.HOOK_MESSAGE.STATE == "DONE"){
-        Sunstone.getDataTable(TAB_ID).waitingNodes();
-        Sunstone.runAction("VM.list", {force: true});
-      }
+            var response = {};
+            response[object] = event_data.HOOK_MESSAGE[object];
+            var request = {
+              "request": {
+                "data": [response.ID],
+                "method": "show",
+                "resource": object
+              }
+            }
 
-    });
+            // update VM and HOST
+            var tab = $('#' + tab_id);
+            Sunstone.getDataTable(tab_id).updateElement(request, response);
+            if (Sunstone.rightInfoVisible(tab) && event_data.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
+              Sunstone.autorefresh(tab_id, response);
+            }
 
-    // Close Socket when close browser or tab.
-    window.onbeforeunload = function () {
-      _close();
-    };
-  };
+            if (event_data.HOOK_MESSAGE.STATE == "DONE"){
+              Sunstone.getDataTable(tab_id).waitingNodes();
+              Sunstone.runAction(object + ".list", {force: true});
+            }
+          }
+        }
+      });
 
-  var _subscribe = function (vm_id, context) {
-    var msg = {
-      "SUBSCRIBE": true,
-      "VM": vm_id
+      // Close Socket when close browser or tab.
+      window.onbeforeunload = function () {
+        socket.close();
+      };
     }
-
-    ws.send(JSON.stringify(msg));
   };
-
-  var _unsubscribe = function (vm_id) {
-    var msg = {
-      "SUBSCRIBE": false,
-      "VM": vm_id
-    }
-
-    ws.send(JSON.stringify(msg));
-  };
-
-  var _close = function () {
-    ws.onclose = function () { }; // disable onclose handler first
-    ws.close()
-  };
-
-
 
   var websocket = {
-    "start": _start,
-    "subscribe": _subscribe,
-    "unsubscribe": _unsubscribe,
-    "close": _close
+    "start": _start
   };
 
   return websocket;

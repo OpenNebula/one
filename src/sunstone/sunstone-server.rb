@@ -123,11 +123,7 @@ require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
 
-require 'sinatra-websocket'
-require 'eventmachine'
-require 'json'
-require 'active_support/core_ext/hash'
-require 'ffi-rzmq'
+require 'net/http'
 
 begin
     require "SunstoneWebAuthn"
@@ -271,35 +267,6 @@ configure do
     set :vnc, $vnc
     set :vmrc, $vmrc
     set :erb, :trim => '-'
-end
-
-#start Autorefresh server
-
-## 0MQ variables
-@context    = ZMQ::Context.new(1)
-@subscriber = @context.socket(ZMQ::SUB)
-
-## Subscribe to VM changes
-@subscriber.setsockopt(ZMQ::SUBSCRIBE, "EVENT VM")
-@subscriber.connect($conf[:zeromq_server])
-
-# Create a thread to get ZeroMQ messages
-Thread.new do
-    loop do
-        key = ''
-        content = ''
-        
-        @subscriber.recv_string(key)
-        @subscriber.recv_string(content)
-    
-        message = Hash.from_xml(Base64.decode64(content)).to_json
-    
-        if (key != '')
-            settings.sockets.each do |client|
-                client.send(message)
-            end
-        end
-    end 
 end
 
 $addons = OpenNebulaAddons.new(logger)
@@ -534,6 +501,16 @@ helpers do
         session[:zone_id]   = zone.id
         session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
         session[:mode] = $conf[:mode]
+
+        # Fireedge running
+        uri = URI($conf[:fireedge_endpoint]+'/api/auth')
+        user_pass = Base64.decode64(request.env['HTTP_AUTHORIZATION'].split(' ')[1])
+        username = user_pass.split(":")[0]
+        password = user_pass.split(":")[1]
+        params = { :user => username, :pass => password }
+
+        res = Net::HTTP.post_form(uri, params)
+        session[:fireedge_token] = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
 
         [204, ""]
     end

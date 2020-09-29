@@ -18,6 +18,7 @@
     <% halt 500, "OpenNebula is unreachable" if view.nil? %>
     <script type="text/javascript">
       var csrftoken = '<%= session[:csrftoken] %>';
+      var fireedge_token = '<%= session[:fireedge_token] %>';
       var view = JSON.parse('<%= view.to_json %>')
       var available_views = JSON.parse('["<%=
           $views_config.available_views(session[:user], session[:user_gname]).join('","')
