@@ -261,7 +261,7 @@ end
 $vnc = OpenNebulaVNC.new($conf, logger)
 
 #init Guacamole server
-$guac = OpenNebulaGuac.new($conf, logger)
+$guac = OpenNebulaGuac.new(logger)
 
 #init VMRC server
 $vmrc = OpenNebulaVMRC.new(logger)

@@ -237,7 +237,6 @@ AllCops:
     - src/authm_mad/remotes/x509/x509_auth.rb
     - src/authm_mad/remotes/ssh/ssh_auth.rb
     - src/sunstone/sunstone-server.rb
-    - src/sunstone/OpenNebulaGuac.rb
     - src/sunstone/test/spec/spec_helper.rb
     - src/sunstone/test/spec/vnet_spec.rb
     - src/sunstone/test/spec/image_spec.rb
