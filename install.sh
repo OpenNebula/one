@@ -2398,7 +2398,6 @@ SUNSTONE_FILES="src/sunstone/sunstone-server.rb \
                 src/sunstone/config.ru"
 
 SUNSTONE_BIN_FILES="src/sunstone/bin/sunstone-server \
-                    src/sunstone/bin/guac-server \
                     src/sunstone/bin/novnc-server"
 
 SUNSTONE_ETC_FILES="src/sunstone/etc/sunstone-server.conf \
