@@ -2607,7 +2607,8 @@ src/sunstone/public/locale/languages/tr_datatable.txt"
 
 FIREEDGE_BIN_FILES="src/fireedge/bin/fireedge-server"
 
-FIREEDGE_MINIFIED_FILES="src/fireedge/dist"
+FIREEDGE_MINIFIED_FILES="src/fireedge/dist \
+                src/fireedge/node_modules"
 
 FIREEDGE_DEV_FILES="src/fireedge/src \
                 src/fireedge/webpack.config.js \

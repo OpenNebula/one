@@ -22,13 +22,16 @@ dependencies() {
 }
 
 install() {
+    clean
     dependencies
     npm run build
 }
 
 install_enterprise() {
+    clean
     dependencies
-    npm run build-enterprise
+    # npm run build-enterprise
+    npm run build
 }
 
 #-------------------------------------------------------------------------------
