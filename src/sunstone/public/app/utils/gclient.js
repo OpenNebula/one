@@ -63,9 +63,13 @@ define(function(require) {
     }
     else setLoading(true);
 
-    var port = Config.guacPort || '29877';
-    var host = window.location.hostname || 'localhost';
-    var wsprotocol = (window.location.protocol == 'https:') ? 'wss:' : 'ws:';
+    var fireedge_protocol = Config.fireedgeEndpoint.split("//")[0];
+    var fireedge_host = Config.fireedgeEndpoint.split("//")[1].split(":")[0];
+    var fireedge_port = Config.fireedgeEndpoint.split("//")[1].split(":")[1];
+
+    var port = fireedge_port || '2616';
+    var host = fireedge_host || 'localhost';
+    var wsprotocol = (fireedge_protocol == 'https:') ? 'wss:' : 'ws:';
 
     var tunnel = new Guacamole.WebSocketTunnel(wsprotocol + '//' + host + ':' + port + '/guacamole')
     var guac = this._client = new Guacamole.Client(tunnel);

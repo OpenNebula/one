@@ -904,7 +904,7 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/oca/ruby/opennebula.rb \
                 src/sunstone/OpenNebulaVNC.rb \
-                src/sunstone/OpenNebulaGuac.rb \
+                src/sunstone/opennebula_guac.rb \
                 src/sunstone/opennebula_vmrc.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \

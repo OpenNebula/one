@@ -22,13 +22,33 @@ if [ -z "$ONE_LOCATION" ]; then
     FIREEDGE_LOCK_FILE=/var/lock/one/.fireedge.lock
     FIREEDGE_LOG=/var/log/one/fireedge.log
     FIREEDGE_LOG_ERROR=/var/log/one/fireedge.error
+    GUACD_PID=/var/run/one/guacd.pid
 else
     FIREEDGE_PID=$ONE_LOCATION/var/fireedge.pid
     FIREEDGE_SERVER=$ONE_LOCATION/lib/fireedge/dist/index.js
     FIREEDGE_LOCK_FILE=$ONE_LOCATION/var/.fireedge.lock
     FIREEDGE_LOG=$ONE_LOCATION/var/fireedge.log
     FIREEDGE_LOG_ERROR=$ONE_LOCATION/var/fireedge.error
+    GUACD_PID=$ONE_LOCATION/var/guacd.pid
 fi
+
+GUACD_BIN=guacd
+
+get_pid()
+{
+	if [ -f "$1" ]; then
+		read PID < "$1"
+
+		# if pidfile contains PID and PID is valid
+		if [ -n "$PID" ] && ps "$PID" > /dev/null 2>&1; then
+			echo "$PID"
+			return 0
+		fi
+	fi
+
+	# pidfile/pid not found, or process is dead
+	return 1
+}
 
 setup()
 {
@@ -56,7 +76,7 @@ start()
 
   touch $FIREEDGE_LOCK_FILE
 
-  # Start the oneflow-server daemon
+  # Start the fireedge-server daemon
   node $FIREEDGE_SERVER >$FIREEDGE_LOG 2>$FIREEDGE_LOG_ERROR &
 
   LASTRC=$?
@@ -74,8 +94,8 @@ start()
   ps $LASTPID > /dev/null 2>&1
 
   if [ $? -ne 0 ]; then
-        echo "Error executing fireedge-server."
-        echo "Check $FIREEDGE_LOG_ERROR and $FIREEDGE_LOG for more information"
+    echo "Error executing fireedge-server."
+    echo "Check $FIREEDGE_LOG_ERROR and $FIREEDGE_LOG for more information"
     exit 1
   fi
 }
@@ -96,18 +116,71 @@ stop()
   rm -f $FIREEDGE_LOCK_FILE &> /dev/null
 }
 
+start_guacd()
+{
+	if [ ! -f "$GUACD_BIN" ]; then
+		echo "Cannot find $GUACD_BIN."
+		return 1
+	fi
+
+	PID=`get_pid $GUACD_PID`
+	if [ $? -eq 0 ]; then
+		echo "Guacamole proxy daemon already running"
+		return 1
+	fi
+
+	echo -n "Starting guacd: "
+	$GUACD_BIN -p "$GUACD_PID" > /dev/null 2>&1
+
+	case "$?" in
+		0)
+		echo "SUCCESS"
+		;;
+		*)
+		echo "FAIL"
+		;;
+	esac
+}
+
+stop_guacd()
+{
+	echo -n "Stopping guacd: "
+
+	PID=`get_pid $GUACD_PID`
+	case "$?" in
+		0)
+		if kill -9 $PID > /dev/null 2>&1
+		then
+			echo "SUCCESS"
+			return 0
+		fi
+
+		echo "FAIL"
+		return 0
+		;;
+		*)
+		echo "SUCCESS (not running)"
+		return 0
+		;;
+	esac
+}
+
 case "$1" in
   start)
+    start_guacd
     setup
     start
     echo "fireedge-server started"
     ;;
   stop)
+    stop_guacd
     stop
     echo "fireedge-server stopped"
     ;;
   restart)
+    stop_guacd 2> /dev/null
     stop 2> /dev/null
+    start_guacd
     setup
     start
     echo "fireedge-server restarted"
