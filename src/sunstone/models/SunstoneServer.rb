@@ -140,8 +140,12 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
-            resource.info
-            return [201, resource.to_json]
+            rc = resource.info
+            if OpenNebula.is_error?(rc)
+                return [201, "{\"#{kind.upcase}\": {\"ID\": \"#{resource.id}\"}}"]
+            else
+                return [201, resource.to_json]
+            end
         end
     end
 
@@ -219,6 +223,7 @@ class SunstoneServer < CloudServer
             return [404, resource.to_json]
         end
         rc = resource.perform_action(action_json)
+
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
