@@ -111,10 +111,17 @@ end
 
 cmd = "#{UTILS_PATH}/downloader.sh #{import_source} -"
 
-Open3.popen3(cmd) do |_, o, _, _|
+Open3.popen3(cmd) do |_, o, e, _|
     body = o.read(read_length)
 
     if o.eof?
+        error = Thread.new { e.read }.value
+
+        unless error.empty?
+            STDERR.puts error
+            exit 1
+        end
+
         s3.put_object(body)
     else
         s3.create_multipart_upload
