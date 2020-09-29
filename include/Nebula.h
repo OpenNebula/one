@@ -403,7 +403,7 @@ public:
      */
     static std::string shared_db_version()
     {
-        return "5.12.0";
+        return "6.0.0";
     }
 
     /**
@@ -412,7 +412,7 @@ public:
      */
     static std::string local_db_version()
     {
-        return "5.12.0";
+        return "6.0.0";
     }
 
     /**
