@@ -75,7 +75,7 @@ check_valid img_path, 'img_path'
 if img_path.start_with? 'vcenter://'
     img_path = img_path.sub('vcenter://', '')
     img_path = VCenterDriver::FileHelper.escape_path(img_path)
-    puts img_path
+    puts "#{img_path.gsub("\n", '')} vmdk"
     exit(0)
 end
 
