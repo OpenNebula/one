@@ -503,15 +503,19 @@ helpers do
         session[:mode] = $conf[:mode]
 
         # Fireedge running
-        uri = URI($conf[:fireedge_endpoint]+'/api/auth')
-        user_pass = Base64.decode64(request.env['HTTP_AUTHORIZATION'].split(' ')[1])
-        username = user_pass.split(":")[0]
-        password = user_pass.split(":")[1]
-        params = { :user => username, :pass => password }
+        begin
+            uri = URI($conf[:fireedge_endpoint]+'/api/auth')
+            user_pass = Base64.decode64(request.env['HTTP_AUTHORIZATION'].split(' ')[1])
+            username = user_pass.split(":")[0]
+            password = user_pass.split(":")[1]
+            params = { :user => username, :pass => password }
 
-        res = Net::HTTP.post_form(uri, params)
-        session[:fireedge_token] = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
-
+            res = Net::HTTP.post_form(uri, params)
+            session[:fireedge_token] = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
+        rescue
+            logger.info("Fireedge server is not running.")
+        end
+        
         [204, ""]
     end
 
