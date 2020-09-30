@@ -330,14 +330,6 @@ int ImagePool::acquire_disk(int               vm_id,
 
             disk->replace("DEV_PREFIX", dev_prefix);
         }
-
-        string format = disk->vector_value("FORMAT");
-
-        if (format.empty())
-        {
-            error_str = "FORMAT attribute is not set correctly.";
-            return -1;
-        }
     }
 
     if ( img != nullptr )
