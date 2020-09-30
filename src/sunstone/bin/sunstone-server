@@ -25,7 +25,6 @@ if [ -z "$ONE_LOCATION" ]; then
     SUNSTONE_LOG_ERROR=/var/log/one/sunstone.error
     SUNSTONE_CONF=/etc/one/sunstone-server.conf
     NOVNC_SERVER=/usr/bin/novnc-server
-    GUACAMOLE_SERVER=/usr/bin/guac-server
 else
     SUNSTONE_PID=$ONE_LOCATION/var/sunstone.pid
     SUNSTONE_SERVER=$ONE_LOCATION/lib/sunstone/sunstone-server.rb
@@ -34,7 +33,6 @@ else
     SUNSTONE_LOG_ERROR=$ONE_LOCATION/var/sunstone.error
     SUNSTONE_CONF=$ONE_LOCATION/etc/sunstone-server.conf
     NOVNC_SERVER=$ONE_LOCATION/bin/novnc-server
-    GUACAMOLE_SERVER=$ONE_LOCATION/bin/guac-server
 fi
 
 setup()
@@ -63,10 +61,9 @@ setup()
 
 start()
 {
-  while getopts "ng" opt; do
+  while getopts "n" opt; do
     case "${opt}" in
       n) novnc=1 ;;
-      g) guacamole=1 ;;
       *) echo "Invalid option: $OPTARG" 1>&2 ;;
     esac
   done
@@ -85,15 +82,6 @@ start()
     fi
   fi
 
-  if [ "$guacamole" = "1" ]; then
-    # Start guacamole server
-    $GUACAMOLE_SERVER start
-
-    if [ "$?" != "0" ]; then
-      echo "Could not start Guacamole server" 1>&2
-    fi
-  fi
-
   # Start the sunstone daemon
   touch $SUNSTONE_LOCK_FILE
 
@@ -101,7 +89,6 @@ start()
     echo "Error creating lock file" 1>&2
 
     $NOVNC_SERVER stop
-    $GUACAMOLE_SERVER stop
     exit 1
   fi
 
@@ -112,7 +99,6 @@ start()
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
     [ "$novnc" = "1" ] && $NOVNC_SERVER stop
-    [ "$guacamole" = "1" ] && $GUACAMOLE_SERVER stop
     exit 1
   else
     echo $LASTPID > $SUNSTONE_PID
@@ -125,7 +111,6 @@ start()
     echo "Error executing sunstone-server."
     echo "Check $SUNSTONE_LOG_ERROR and $SUNSTONE_LOG for more information"
     [ "$novnc" = "1" ] && $NOVNC_SERVER stop
-    [ "$guacamole" = "1" ] && $GUACAMOLE_SERVER stop
     exit 1
   fi
 
@@ -137,19 +122,15 @@ start()
 #
 stop()
 {
-  while getopts "ng" opt; do
+  while getopts "n" opt; do
     case "${opt}" in
       n) novnc=1 ;;
-      g) guacamole=1 ;;
       *) echo "Invalid option: $OPTARG" 1>&2 ;;
     esac
   done
 
   # Stop novnc server
   [ "$novnc" = "1" ] && $NOVNC_SERVER stop
-
-  # Stop guacamole server
-  [ "$guacamole" = "1" ] && $GUACAMOLE_SERVER stop
 
   if [ ! -f $SUNSTONE_PID ]; then
     echo "Couldn't find sunstone-server process pid." >&2
@@ -170,16 +151,16 @@ stop()
 case "$1" in
   start)
     setup
-    start -ng
+    start -n
     ;;
   stop)
-    stop -ng
+    stop -n
     exit $?
     ;;
   restart)
-    stop -ng 2> /dev/null
+    stop -n 2> /dev/null
     setup
-    start -ng
+    start -n
     ;;
   start-sunstone)
     setup
@@ -189,7 +170,7 @@ case "$1" in
     stop
     ;;
   restart-sunstone)
-    stop -ng 2> /dev/null
+    stop -n 2> /dev/null
     setup
     start
     ;;
