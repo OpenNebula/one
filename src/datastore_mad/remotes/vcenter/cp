@@ -181,7 +181,6 @@ files_to_upload.each_with_index do |f, index|
     end
 
     if last_file_to_upload?(index, files_to_upload)
-        puts stdout_str
         puts "#{target.gsub("\n", '')} vmdk"
     end
 end
