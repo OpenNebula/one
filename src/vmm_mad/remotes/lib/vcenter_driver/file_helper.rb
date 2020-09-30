@@ -49,7 +49,7 @@ class FileHelper
     end
 
     def self.is_remote_or_needs_unpack?(file)
-        return !is_remote?(file).nil? || needs_unpack?(file)
+        return !remote?(file).nil? || needs_unpack?(file)
     end
 
     def self.remote?(file)
