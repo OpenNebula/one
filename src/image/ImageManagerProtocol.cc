@@ -243,6 +243,8 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
 
     ostringstream    oss;
 
+    string format;
+
     Nebula& nd                  = Nebula::instance();
     VirtualMachinePool * vmpool = nd.get_vmpool();
     TransferManager *  tm       = nd.get_tm();
@@ -316,6 +318,13 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
             goto error_save_state;
         }
 
+        format = vm->get_disk(disk_id)->vector_value("FORMAT");
+
+        if (format.empty())
+        {
+            format = vm->get_disk(disk_id)->vector_value("DRIVER");
+        }
+
         tm->trigger_saveas_hot(vm_id);
 
         vmpool->update(vm.get());
@@ -325,6 +334,20 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
         goto error_save_get;
     }
 
+    if (format.empty())
+    {
+        goto error_fmt;
+    }
+
+    if (image = ipool->get(msg->oid()))
+    {
+        image->set_format(format);
+        
+        ipool->update(image.get());
+    }
+    
+    image.reset();
+
     monitor_datastore(ds_id);
 
     return;
@@ -332,6 +355,10 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
 error_img:
     oss << "Error creating datablock";
     goto error;
+
+error_fmt:
+    oss << "Image created to save as a disk but VM disk does not contains either FORMAT or DRIVER attribute.";
+    goto error_save;
 
 error_save_get:
     oss << "Image created to save as a disk but VM does not exist.";
