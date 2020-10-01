@@ -184,7 +184,7 @@ int Image::insert(SqlDB *db, string& error_str)
         {
             goto error_path_and_source;
         }
- 
+
         /* MKFS image, FORMAT is mandatory, precedence:
          *   1. TM_MAD_CONF/DRIVER in oned.conf
          *   2. DRIVER in DS Template

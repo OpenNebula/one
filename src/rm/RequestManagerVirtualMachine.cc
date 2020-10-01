@@ -1376,7 +1376,6 @@ void VirtualMachineDiskSaveas::request_execute(
     string ds_mad;
     string tm_mad;
 
-    string driver;
     string target;
     string dev_prefix;
 
@@ -1440,7 +1439,6 @@ void VirtualMachineDiskSaveas::request_execute(
         iname_orig  = img->get_name();
         iuname_orig = img->get_uname();
 
-        img->get_template_attribute("DRIVER", driver);
         img->get_template_attribute("TARGET", target);
         img->get_template_attribute("DEV_PREFIX", dev_prefix);
     }
@@ -1506,11 +1504,6 @@ void VirtualMachineDiskSaveas::request_execute(
     else
     {
         itemplate->add("TYPE", img_type);
-    }
-
-    if (!driver.empty())
-    {
-        itemplate->add("DRIVER", driver);
     }
 
     if (!target.empty())
