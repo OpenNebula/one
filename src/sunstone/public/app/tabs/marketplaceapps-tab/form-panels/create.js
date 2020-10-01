@@ -19,30 +19,30 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseFormPanel = require('utils/form-panels/form-panel');
-  var Sunstone = require('sunstone');
-  var Locale = require('utils/locale');
-  var Notifier = require('utils/notifier');
-  var Tips = require('utils/tips');
-  var ImagesTable = require('tabs/images-tab/datatable');
-  var MarketPlacesTable = require('tabs/marketplaces-tab/datatable');
-  var Config = require('sunstone-config');
-  var WizardFields = require('utils/wizard-fields');
-  var OpenNebula = require('opennebula');
+  var BaseFormPanel = require("utils/form-panels/form-panel");
+  var Sunstone = require("sunstone");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var Tips = require("utils/tips");
+  var ImagesTable = require("tabs/images-tab/datatable");
+  var MarketPlacesTable = require("tabs/marketplaces-tab/datatable");
+  var Config = require("sunstone-config");
+  var WizardFields = require("utils/wizard-fields");
+  var OpenNebula = require("opennebula");
 
   /*
     TEMPLATES
    */
 
-  var TemplateWizardHTML = require('hbs!./create/wizard');
-  var TemplateAdvancedHTML = require('hbs!./create/advanced');
+  var TemplateWizardHTML = require("hbs!./create/wizard");
+  var TemplateAdvancedHTML = require("hbs!./create/advanced");
 
   /*
     CONSTANTS
    */
 
-  var FORM_PANEL_ID = require('./create/formPanelId');
-  var TAB_ID = require('../tabId');
+  var FORM_PANEL_ID = require("./create/formPanelId");
+  var TAB_ID = require("../tabId");
 
   /*
     CONSTRUCTOR
@@ -52,52 +52,48 @@ define(function(require) {
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
     this.actions = {
-      'create': {
-        'title': Locale.tr("Create MarketPlace App"),
-        'buttonText': Locale.tr("Create"),
-        'resetButton': true
+      "create": {
+        "title": Locale.tr("Create MarketPlace App"),
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       },
-      'export': {
-        'title': Locale.tr("Create MarketPlace App from Image"),
-        'buttonText': Locale.tr("Create"),
-        'resetButton': true
+      "export": {
+        "title": Locale.tr("Create MarketPlace App from Image"),
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       }
     };
 
     this.imagesTable = new ImagesTable(
-      FORM_PANEL_ID + 'imagesTable',
-      { 'select': true,
-        'selectOptions': {
-          'filter_fn': function(image) {
+      FORM_PANEL_ID + "imagesTable",
+      { "select": true,
+        "selectOptions": {
+          "filter_fn": function(image) {
             return OpenNebula.Datastore.isMarketExportSupported(image.DATASTORE_ID);
           }
         }
       });
 
     this.marketPlacesTable = new MarketPlacesTable(
-      FORM_PANEL_ID + 'marketPlacesTable',
-      { 'select': true,
-        'selectOptions': {
-          'filter_fn': function(market) {
+      FORM_PANEL_ID + "marketPlacesTable",
+      { "select": true,
+        "selectOptions": {
+          "filter_fn": function(market) {
             var valid = market.ZONE_ID == config.zone_id;
-
-            if (valid){
-              valid = $(config.oned_conf.MARKET_MAD_CONF)
+            valid = $(config.oned_conf.MARKET_MAD_CONF)
                 .filter(function(_, marketMad){
-                  return marketMad.NAME == market.MARKET_MAD && marketMad.APP_ACTIONS.indexOf('create') !== -1;
+                  return marketMad.NAME == market.MARKET_MAD && marketMad.APP_ACTIONS.indexOf("create") !== -1;
                 }).length > 0;
-            }
-
             return valid;
           }
         }
       });
 
     this.marketPlacesTableAdvanced = new MarketPlacesTable(
-      FORM_PANEL_ID + 'marketPlacesTableAdvanced',
-      { 'select': true,
-        'selectOptions': {
-          'filter_fn': function(market) {
+      FORM_PANEL_ID + "marketPlacesTableAdvanced",
+      { "select": true,
+        "selectOptions": {
+          "filter_fn": function(market) {
             return market.ZONE_ID == config.zone_id;
           }
         }
@@ -125,16 +121,16 @@ define(function(require) {
 
   function _htmlWizard() {
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId,
-      'imagesTableHTML': this.imagesTable.dataTableHTML,
-      'marketPlacesTableHTML': this.marketPlacesTable.dataTableHTML
+      "formPanelId": this.formPanelId,
+      "imagesTableHTML": this.imagesTable.dataTableHTML,
+      "marketPlacesTableHTML": this.marketPlacesTable.dataTableHTML
     });
   }
 
   function _htmlAdvanced() {
     return TemplateAdvancedHTML({
-      'formPanelId': this.formPanelId,
-      'marketPlacesTableAdvancedHTML': this.marketPlacesTableAdvanced.dataTableHTML
+      "formPanelId": this.formPanelId,
+      "marketPlacesTableAdvancedHTML": this.marketPlacesTableAdvanced.dataTableHTML
     });
   }
 
@@ -151,8 +147,8 @@ define(function(require) {
   function _setImageId(imageId) {
     var selectedResources = {
       ids : imageId
-    }
-    
+    };
+
     this.imagesTable.selectResourceTableSelect(selectedResources);
   }
 
@@ -165,11 +161,11 @@ define(function(require) {
     this.marketPlacesTableAdvanced.initialize();
 
     this.imagesTable.idInput().
-      attr('required', '').
-      attr('wizard_field', 'ORIGIN_ID');
+      attr("required", "").
+      attr("wizard_field", "ORIGIN_ID");
 
-    this.marketPlacesTable.idInput().attr('required', '');
-    this.marketPlacesTableAdvanced.idInput().attr('required', '');
+    this.marketPlacesTable.idInput().attr("required", "");
+    this.marketPlacesTableAdvanced.idInput().attr("required", "");
   }
 
 
@@ -187,7 +183,7 @@ define(function(require) {
   }
 
   function _submitAdvanced(context) {
-    var template = $('#template', context).val();
+    var template = $("#template", context).val();
     var marketPlaceAppObj = {
       "marketplaceapp" : {
         "marketplaceapp_raw" : template
