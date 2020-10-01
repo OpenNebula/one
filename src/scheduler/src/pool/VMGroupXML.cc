@@ -273,7 +273,7 @@ static void schecule_affined_set(const std::set<int>& vms,
     {
         VirtualMachineXML * vm = vm_roles_pool->get(*it);
 
-        if ( vm )
+        if ( vm == 0 )
         {
             continue;
         }
@@ -300,13 +300,13 @@ static void schecule_affined_set(const std::set<int>& vms,
         {
             vm = vmpool->get(*it);
 
-            if ( !vm )
+            if ( vm != 0 )
             {
                 break;
             }
         }
 
-        if ( vm )
+        if ( vm == 0 )
         {
             return;
         }
@@ -323,7 +323,7 @@ static void schecule_affined_set(const std::set<int>& vms,
 
             VirtualMachineXML * tmp = vmpool->get(*it);
 
-            if ( tmp )
+            if ( tmp == 0 )
             {
                 continue;
             }
@@ -360,7 +360,7 @@ static void schecule_affined_set(const std::set<int>& vms,
         {
             VirtualMachineXML * vm = vmpool->get(*it);
 
-            if ( vm || reqs.empty())
+            if ( vm == 0 || reqs.empty())
             {
                 continue;
             }
@@ -429,7 +429,7 @@ void VMGroupXML::set_affinity_requirements(VirtualMachinePoolXML * vmpool,
 
             VMGroupRole * r = roles.get(i);
 
-            if ( r )
+            if ( r == 0 )
             {
                 continue;
             }
