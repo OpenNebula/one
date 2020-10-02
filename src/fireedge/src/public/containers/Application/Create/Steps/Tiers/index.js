@@ -21,30 +21,6 @@ export const STEP_ID = 'tiers';
 const Tiers = () => {
   const { steps, defaultValues, resolvers } = Steps();
 
-  const FRONTEND = {
-    ...defaultValues(),
-    parents: [],
-    tier: { name: 'frontend', cardinality: 1 }
-  };
-
-  const MASTER = {
-    ...defaultValues(),
-    parents: [FRONTEND.id],
-    tier: { name: 'master', cardinality: 1 }
-  };
-
-  const MINION = {
-    ...defaultValues(),
-    parents: [FRONTEND.id],
-    tier: { name: 'minion', cardinality: 1 }
-  };
-
-  const WORKER = {
-    ...defaultValues(),
-    parents: [MASTER.id, MINION.id],
-    tier: { name: 'worker', cardinality: 10 }
-  };
-
   return {
     id: STEP_ID,
     label: 'Tier Definition',
@@ -53,7 +29,7 @@ const Tiers = () => {
       .of(resolvers)
       .min(1)
       .required()
-      .default([FRONTEND, MASTER, MINION, WORKER]),
+      .default([]),
     content: useCallback(({ data, setFormData }) => {
       const [showDialog, setShowDialog] = useState(false);
       const [nestedForm, setNestedForm] = useState({});
@@ -112,7 +88,6 @@ const Tiers = () => {
                 <Box display="flex" flexDirection="column" height={1}>
                   <FormStepper
                     steps={formSteps}
-                    initialValue={editingData}
                     onSubmit={values => {
                       handleSave(values);
                       setShowDialog(false);

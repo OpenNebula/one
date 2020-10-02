@@ -21,6 +21,7 @@ import {
   Reddit as RedditIcon,
   Build as BuildIcon
 } from '@material-ui/icons';
+import { matchPath } from 'react-router-dom';
 
 import Login from 'client/containers/Login';
 import Dashboard from 'client/containers/Dashboard';
@@ -39,7 +40,8 @@ export const PATH = {
   APPLICATION: {
     CREATE: '/application/create',
     MANAGE: '/application/manage',
-    DEPLOY: '/application/deploy'
+    DEPLOY: '/application/deploy',
+    EDIT: '/application/edit/:id'
   },
   SETTINGS: '/settings',
   TEST_API: '/test-api'
@@ -56,6 +58,7 @@ const ENDPOINTS = [
     label: 'Dashboard',
     path: PATH.DASHBOARD,
     authenticated: true,
+    sidebar: true,
     icon: DashboardIcon,
     component: Dashboard
   },
@@ -72,6 +75,7 @@ const ENDPOINTS = [
     path: PATH.TEST_API,
     authenticated: true,
     devMode: true,
+    sidebar: true,
     icon: BallotIcon,
     component: TestApi
   },
@@ -80,6 +84,7 @@ const ENDPOINTS = [
     path: '/webconsole',
     authenticated: true,
     devMode: true,
+    sidebar: true,
     icon: BallotIcon,
     component: Webconsole
   },
@@ -91,9 +96,17 @@ const ENDPOINTS = [
     component: ApplicationCreate
   },
   {
+    label: 'Edit Application',
+    path: PATH.APPLICATION.EDIT,
+    authenticated: true,
+    icon: PaletteIcon,
+    component: ApplicationCreate
+  },
+  {
     label: 'Deploy Application',
     path: PATH.APPLICATION.DEPLOY,
     authenticated: true,
+    sidebar: true,
     icon: RedditIcon,
     component: ApplicationDeploy
   },
@@ -101,14 +114,22 @@ const ENDPOINTS = [
     label: 'Manage Application',
     path: PATH.APPLICATION.MANAGE,
     authenticated: true,
+    sidebar: true,
     icon: BuildIcon,
     component: ApplicationManage
   }
 ];
 
-export const findRouteByPathname = pathname =>
-  ENDPOINTS.flatMap(({ routes, ...item }) => routes ?? item)?.find(
-    ({ path }) => path === pathname
-  ) ?? {};
+export const findRouteByPathname = pathname => {
+  const routes = ENDPOINTS.flatMap(
+    ({ endpoints, ...item }) => endpoints ?? item
+  );
+
+  const route = routes?.find(({ path }) =>
+    matchPath(pathname, { path, exact: true })
+  );
+
+  return route ?? {};
+};
 
 export default ENDPOINTS;

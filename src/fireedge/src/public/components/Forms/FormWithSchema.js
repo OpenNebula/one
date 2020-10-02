@@ -22,30 +22,34 @@ const FormWithSchema = ({ id, cy, fields }) => {
 
   return (
     <Grid container spacing={1}>
-      {fields?.map(({ name, type, label, values, dependOf, tooltip }) => {
-        const dataCy = `${cy}-${name}`;
-        const inputName = id ? `${id}.${name}` : name;
-        const formError = id ? errors[id] : errors;
-        const inputError = formError ? formError[name] : false;
-        const dependValue = dependOf
-          ? useWatch({ control, name: id ? `${id}.${dependOf}` : dependOf })
-          : null;
+      {fields?.map(
+        ({ name, type, htmlType, label, values, dependOf, tooltip, grid }) => {
+          const dataCy = `${cy}-${name}`;
+          const inputName = id ? `${id}.${name}` : name;
+          const formError = id ? errors[id] : errors;
+          const inputError = formError ? formError[name] : false;
+          const dependValue = dependOf
+            ? useWatch({ control, name: id ? `${id}.${dependOf}` : dependOf })
+            : null;
 
-        return (
-          <Grid key={`${cy}-${name}`} item xs={12} md={6}>
-            {InputController[type] &&
-              React.createElement(InputController[type], {
-                control,
-                cy: dataCy,
-                name: inputName,
-                label,
-                tooltip,
-                values: dependOf ? values(dependValue) : values,
-                error: inputError
-              })}
-          </Grid>
-        );
-      })}
+          return (
+            InputController[type] && (
+              <Grid key={`${cy}-${name}`} item xs={12} md={6} {...grid}>
+                {React.createElement(InputController[type], {
+                  control,
+                  cy: dataCy,
+                  type: htmlType,
+                  name: inputName,
+                  label,
+                  tooltip,
+                  values: dependOf ? values(dependValue) : values,
+                  error: inputError
+                })}
+              </Grid>
+            )
+          );
+        }
+      )}
     </Grid>
   );
 };

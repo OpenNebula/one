@@ -17,11 +17,15 @@ const TYPES_NETWORKS = [
 
 const ID = {
   name: 'id',
+  label: 'ID',
+  type: TYPE_INPUT.TEXT,
+  htmlType: 'hidden',
   validation: yup
     .string()
     .uuid()
     .required()
-    .default(uuidv4)
+    .default(uuidv4),
+  grid: { style: { display: 'none' } }
 };
 
 const MANDATORY = {
@@ -31,7 +35,8 @@ const MANDATORY = {
   validation: yup
     .boolean()
     .required()
-    .default(false)
+    .default(false),
+  grid: { md: 12 }
 };
 
 const NAME = {
@@ -41,7 +46,7 @@ const NAME = {
   validation: yup
     .string()
     .trim()
-    .required('Name is a required field')
+    .required('Name field is a required')
     .default('')
 };
 
@@ -64,12 +69,12 @@ const TYPE = {
   validation: yup
     .string()
     .oneOf(TYPES_NETWORKS.map(({ value }) => value))
-    .required('Type is required field')
+    .required('Type field is required')
     .default(TYPES_NETWORKS[0].value)
 };
 
 const ID_VNET = {
-  name: 'id_vnet',
+  name: 'idVnet',
   label: `Select a network`,
   type: TYPE_INPUT.AUTOCOMPLETE,
   dependOf: TYPE.name,
@@ -91,8 +96,8 @@ const ID_VNET = {
       TYPES_NETWORKS.some(
         ({ value, select }) => type === value && select === SELECT.network
       )
-        ? schema.required('Network is required field')
-        : schema.required('Network template is required field')
+        ? schema.required('Network field is required')
+        : schema.required('Network template field is required')
     )
     .default(undefined)
 };

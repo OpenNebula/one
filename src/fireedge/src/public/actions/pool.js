@@ -18,9 +18,13 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { templates }
   }),
-  setServices: services => ({
+  setApplications: applications => ({
     type: SUCCESS_ONE_REQUEST,
-    payload: { services }
+    payload: { applications }
+  }),
+  setApplicationsTemplates: applicationsTemplates => ({
+    type: SUCCESS_ONE_REQUEST,
+    payload: { applicationsTemplates }
   }),
   setDatastores: datastores => ({
     type: SUCCESS_ONE_REQUEST,
@@ -54,7 +58,7 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { vNetworks }
   }),
-  setVNetworkTemplates: vNetworksTemplates => ({
+  setVNetworksTemplates: vNetworksTemplates => ({
     type: SUCCESS_ONE_REQUEST,
     payload: { vNetworksTemplates }
   }),

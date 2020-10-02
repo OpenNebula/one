@@ -32,8 +32,8 @@ const renderRoute = ({
     key={`key-${label.replace(' ', '-')}`}
     exact
     path={path}
-    component={props => (
-      <InternalLayout label={label} authRoute={authenticated} {...props}>
+    component={() => (
+      <InternalLayout label={label} authRoute={authenticated}>
         <Component />
       </InternalLayout>
     )}

@@ -2,15 +2,15 @@ import * as yup from 'yup';
 import { TYPE_INPUT } from 'client/constants';
 import { getValidationFromFields } from 'client/utils/helpers';
 
-export const STRATEGIES_DEPLOY = [
-  { text: 'None', value: 'none' },
+const STRATEGIES_DEPLOY = [
+  { text: 'None', value: '""' },
   { text: 'Straight', value: 'straight' }
 ];
 
-export const SHUTDOWN_ACTIONS = [
-  { text: 'None', value: 'none' },
-  { text: 'Terminate', value: 'shutdown' },
-  { text: 'Terminate hard', value: 'shutdown-hard' }
+const SHUTDOWN_ACTIONS = [
+  { text: 'None', value: '""' },
+  { text: 'Terminate', value: 'terminate' },
+  { text: 'Terminate hard', value: 'terminate-hard' }
 ];
 
 export const FORM_FIELDS = [
@@ -23,7 +23,7 @@ export const FORM_FIELDS = [
       .min(5)
       .trim()
       .required('Name field is required')
-      .default('One_application')
+      .default('')
   },
   {
     name: 'description',
@@ -33,7 +33,7 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .trim()
-      .default('OpenNebula is so cool!')
+      .default('')
   },
   {
     name: 'deployment',
@@ -44,7 +44,7 @@ export const FORM_FIELDS = [
       .string()
       .required()
       .oneOf(STRATEGIES_DEPLOY.map(({ value }) => value))
-      .default(STRATEGIES_DEPLOY[0].value)
+      .default(STRATEGIES_DEPLOY[1].value)
   },
   {
     name: 'shutdown_action',
@@ -54,7 +54,7 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .oneOf(SHUTDOWN_ACTIONS.map(({ value }) => value))
-      .default(SHUTDOWN_ACTIONS[0].value)
+      .default(SHUTDOWN_ACTIONS[1].value)
   },
   {
     name: 'ready_status_gate',
