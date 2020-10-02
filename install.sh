@@ -1693,8 +1693,11 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/resize"
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
+              src/tm_mad/ssh/clone.replica \
+              src/tm_mad/ssh/sshrc \
               src/tm_mad/ssh/delete \
               src/tm_mad/ssh/ln \
+              src/tm_mad/ssh/ln.replica \
               src/tm_mad/ssh/mkswap \
               src/tm_mad/ssh/mkimage \
               src/tm_mad/ssh/mv \

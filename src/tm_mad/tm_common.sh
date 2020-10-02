@@ -47,7 +47,11 @@ function arg_host
 function arg_path
 {
     ARG_PATH=`echo $1 | $SED 's/^[^:]*:(.*)$/\1/'`
-    fix_dir_slashes "$ARG_PATH"
+    if [ "$2" = "NOFIX" ]; then
+        echo "$ARG_PATH"
+    else
+        fix_dir_slashes "$ARG_PATH"
+    fi
 }
 
 #Return 1 if the first argument is a disk
@@ -157,4 +161,107 @@ function migrate_other
             PROCESSED+=" $TM "
         fi
     done
+}
+
+# ------------------------------------------------------------------------------
+# Returns REPLICA_HOST attribute from DATASTORE template
+# ------------------------------------------------------------------------------
+function get_replica_host {
+    local DS_ID=$1
+
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+    LOC='/DATASTORE/TEMPLATE/REPLICA_HOST'
+
+    echo "$(awk 'gsub(/[\0]/, x)' <(onedatastore show $DS_ID -x|$XPATH $LOC))"
+}
+
+# ------------------------------------------------------------------------------
+# Computes md5sum for image or for image with snapshots
+# ------------------------------------------------------------------------------
+function md5sum_with_snaps {
+    local IMG=$1
+    local DIR=${2:-.snap}
+
+    SNAPS="$(ls ${IMG}${DIR} 2>/dev/null)"
+
+    if [ -z "$SNAPS" ]; then
+        md5sum $IMG | awk '{print $1}'
+    else
+        CMD="md5sum $IMG"
+
+        for S in $SNAPS; do
+            CMD+=" ${IMG}${DIR}/${S}"
+        done
+
+        $CMD | md5sum | awk '{print $1}'
+    fi
+}
+
+# ------------------------------------------------------------------------------
+# Compares md5sum of image on REPLICA_HOST and local
+# ------------------------------------------------------------------------------
+function repl_img_outdated {
+    local IMG_PATH="$1"
+    local REPLICA_HOST="$2"
+
+    if [ ! -f "${IMG_PATH}.md5sum" ]; then
+        md5sum_with_snaps "$IMG_PATH" > "${IMG_PATH}.md5sum"
+    fi
+
+    SRC_MD5SUM=$(cat "${IMG_PATH}.md5sum")
+
+    # replica can not reuse md5sum_with_snaps, duplicate it
+    SCRIPT=$(cat <<EOF
+        if [ -f ${IMG_PATH}.md5sum ]; then
+            cat ${IMG_PATH}.md5sum
+        else
+            SNAPS="\$(ls ${IMG_PATH}.snap 2>/dev/null)"
+
+            if [ -z "\$SNAPS" ]; then
+                md5sum $IMG_PATH 2>/dev/null | cut -d " " -f 1 > ${IMG_PATH}.md5sum
+            else
+                CMD="md5sum $IMG_PATH"
+
+                for S in \$SNAPS; do
+                    CMD+=" ${IMG_PATH}.snap/${S}"
+                done
+
+                \$CMD | md5sum | cut -d " " -f 1 > ${IMG_PATH}.md5sum
+            fi
+
+            cat ${IMG_PATH}.md5sum
+        fi
+EOF
+)
+
+    DST_MD5SUM=$(ssh "$REPLICA_HOST" "$SCRIPT")
+
+    [ "$SRC_MD5SUM" != "$DST_MD5SUM" ]
+}
+
+# ------------------------------------------------------------------------------
+# Rsync (tar|ssh) IMG_PATH to the REPLICA_HOST
+# ------------------------------------------------------------------------------
+function rsync_img_to_replica {
+    local IMG_PATH="$1"
+    local REPLICA_HOST="$2"
+    local LOCK_TIMEOUT="${REPLICA_COPY_LOCK_TIMEOUT:-600}"
+    local DST_DIR=$(dirname $IMG_PATH)
+
+    ssh_make_path $REPLICA_HOST $DST_DIR
+
+    # sync to replica, include .md5sum and .snap dir
+    LOCK="$REPLICA_HOST-${IMG_PATH//\//-}"
+    if exclusive "$LOCK" "$LOCK_TIMEOUT" repl_img_outdated $IMG_PATH $REPLICA_HOST; then
+        LOCK="replica-$REPLICA_HOST-${IMG_PATH//\//-}"
+        RSYNC_CMD=$(cat <<EOF
+            set -e -o pipefail
+            tar -cSf - ${IMG_PATH}* | \
+                ssh $REPLICA_SSH_FE_OPTS $REPLICA_HOST 'tar xSf - -C / '
+EOF
+)
+        exclusive "$LOCK" "$LOCK_TIMEOUT" \
+            multiline_exec_and_log "$RSYNC_CMD" \
+                "Failed to rsync $IMG_PATH to $REPLICA_HOST"
+    fi
 }

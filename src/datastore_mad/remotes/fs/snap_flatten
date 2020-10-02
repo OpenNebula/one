@@ -103,5 +103,7 @@ else
 
         exec_and_log "rm -rf ${SNAP_DIR}" \
             "Error removing ${SNAP_DIR}"
+
+        rm -f ${SRC_PATH}.md5sum
     fi
 fi
