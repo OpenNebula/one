@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import clsx from 'clsx';
 import {
   List,
@@ -33,18 +33,6 @@ import SidebarLink from 'client/components/Sidebar/SidebarLink';
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem';
 import Logo from 'client/icons/logo';
 
-const Endpoints = React.memo(() =>
-  endpoints
-    ?.filter(({ authenticated, header = false }) => authenticated && !header)
-    ?.map((endpoint, index) =>
-      endpoint.routes ? (
-        <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
-      ) : (
-        <SidebarLink key={`item-${index}`} {...endpoint} />
-      )
-    )
-);
-
 const Sidebar = () => {
   const classes = sidebarStyles();
   const { isFixMenu, fixMenu } = useGeneral();
@@ -52,7 +40,23 @@ const Sidebar = () => {
 
   const handleSwapMenu = () => fixMenu(!isFixMenu);
 
-  return React.useMemo(
+  const SidebarEndpoints = useMemo(
+    () =>
+      endpoints
+        ?.filter(
+          ({ authenticated, sidebar = false }) => authenticated && sidebar
+        )
+        ?.map((endpoint, index) =>
+          endpoint.routes ? (
+            <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
+          ) : (
+            <SidebarLink key={`item-${index}`} {...endpoint} />
+          )
+        ),
+    [endpoints]
+  );
+
+  return useMemo(
     () => (
       <Drawer
         variant={'permanent'}
@@ -83,7 +87,7 @@ const Sidebar = () => {
         <Divider />
         <Box className={classes.menu}>
           <List className={classes.list} disablePadding>
-            <Endpoints />
+            {SidebarEndpoints}
           </List>
         </Box>
       </Drawer>

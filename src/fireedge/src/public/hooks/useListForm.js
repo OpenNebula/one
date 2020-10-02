@@ -30,12 +30,12 @@ const useListSelect = ({ multiple, key, list, setList, defaultValue }) => {
   const handleClone = useCallback(
     id => {
       const itemIndex = getIndexById(list, id);
-      const { id: itemId, name, ...item } = list[itemIndex];
+      const { id: itemId, name = itemId, ...item } = list[itemIndex];
       const cloneList = [...list];
       const cloneItem = {
         ...item,
         id: defaultValue.id,
-        name: `${name ?? itemId}_clone`
+        name: `${name}_clone`
       };
 
       const ZERO_DELETE_COUNT = 0;
@@ -65,9 +65,9 @@ const useListSelect = ({ multiple, key, list, setList, defaultValue }) => {
   );
 
   const handleSave = useCallback(
-    (values, id) => {
+    (values, id = editingData.id) => {
       setList(prevList => {
-        const itemIndex = getIndexById(prevList[key], id ?? editingData.id);
+        const itemIndex = getIndexById(prevList[key], id);
         const index = EXISTS_INDEX(itemIndex)
           ? itemIndex
           : prevList[key].length;

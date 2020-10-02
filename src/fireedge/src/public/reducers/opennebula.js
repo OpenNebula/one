@@ -19,7 +19,8 @@ const { Actions: UserActions } = require('../actions/user');
 const initial = {
   vm: [],
   templates: [],
-  services: [],
+  applications: [],
+  applicationsTemplates: [],
   datastores: [],
   virtualRouters: [],
   vmGroups: [],

@@ -7,11 +7,12 @@ import { Controller } from 'react-hook-form';
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
 const TextController = memo(
-  ({ control, cy, name, label, error }) => (
+  ({ control, cy, type, name, label, error }) => (
     <Controller
       as={
         <TextField
           fullWidth
+          type={type}
           label={label}
           inputProps={{ 'data-cy': cy }}
           error={Boolean(error)}
@@ -29,6 +30,7 @@ const TextController = memo(
 TextController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
+  type: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   error: PropTypes.oneOfType([
@@ -40,6 +42,7 @@ TextController.propTypes = {
 TextController.defaultProps = {
   control: {},
   cy: 'cy',
+  type: 'text',
   name: '',
   label: '',
   error: false

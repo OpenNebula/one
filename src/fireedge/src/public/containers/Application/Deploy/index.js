@@ -13,49 +13,66 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 
 import {
-  makeStyles,
-  Card,
-  Chip,
-  CardContent,
+  Box,
+  Tab,
+  Tabs,
+  Paper,
   Typography,
-  LinearProgress,
-  Box
+  Container
 } from '@material-ui/core';
 
-import useGeneral from 'client/hooks/useGeneral';
-import useOpennebula from 'client/hooks/useOpennebula';
+import ApplicationsTemplatesList from './Templates';
 
-const useStyles = makeStyles({
-  card: {
-    minWidth: 275,
-    marginBottom: '2em'
-  },
-  title: {
-    fontSize: 14
-  }
-});
+const TABS = {
+  TEMPLATES: 'templates',
+  APPLICATIONS: 'applications'
+};
 
 function ApplicationDeploy() {
-  const classes = useStyles();
-  const { isLoading } = useGeneral();
-  const { groups, getUsers } = useOpennebula();
+  const [value, setValue] = useState(TABS.TEMPLATES);
 
-  useEffect(() => {
-    if (!isLoading) {
-      getUsers();
-    }
-  }, [getUsers]);
-
-  const getGroupById = findId => groups?.find(({ ID }) => ID === findId);
+  const handleChange = (_, newValue) => {
+    setValue(newValue);
+  };
 
   return (
-    <>
-      {isLoading && <LinearProgress style={{ width: '100%' }} />}
-      Deploy
-    </>
+    <Container
+      disableGutters
+      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
+      <Paper>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          indicatorColor="primary"
+          textColor="primary"
+        >
+          <Tab
+            value={TABS.TEMPLATES}
+            label="Applications templates"
+            id={`tab-${TABS.TEMPLATES}`}
+          />
+          <Tab
+            value={TABS.APPLICATIONS}
+            label="Applications deployed"
+            id={`tab-${TABS.APPLICATIONS}`}
+          />
+        </Tabs>
+      </Paper>
+      <div hidden={value !== TABS.TEMPLATES}>
+        {value === TABS.TEMPLATES && <ApplicationsTemplatesList />}
+      </div>
+      <div hidden={value !== TABS.APPLICATIONS}>
+        {value === TABS.APPLICATIONS && (
+          <Box p={3}>
+            <Typography>{'Applications deployed'}</Typography>
+          </Box>
+        )}
+      </div>
+    </Container>
   );
 }
 

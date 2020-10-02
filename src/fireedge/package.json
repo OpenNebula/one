@@ -57,7 +57,6 @@
     "luxon": "^1.25.0",
     "morgan": "^1.10.0",
     "node-pre-gyp": "^0.15.0",
-    "one-datatable": "sbbarragan/material-table#develop",
     "prop-types": "^15.7.2",
     "qrcode": "^1.4.2",
     "react": "^16.8.6",

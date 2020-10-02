@@ -14,8 +14,8 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react';
-import { Translate } from '../../components/HOC';
-import constants from '../../constants';
+import { Translate } from 'client/components/HOC';
+import constants from 'client/constants';
 
 const { settings } = constants;
 const Settings = () => (

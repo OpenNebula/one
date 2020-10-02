@@ -41,7 +41,8 @@ const MainLayout = ({ children }) => {
     }
   }, [isLogged, isLoginInProcess]);
 
-  const { authenticated: authRoute } = findRouteByPathname(pathname);
+  const { authenticated } = findRouteByPathname(pathname);
+  const authRoute = Boolean(authenticated);
 
   // PENDING TO AUTHENTICATING OR FIRST RENDERING
   if (firstRender || (isLogged && authRoute && !authUser && !groups?.length)) {

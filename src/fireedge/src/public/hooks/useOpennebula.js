@@ -56,7 +56,7 @@ export default function useOpennebula() {
     dispatch(startOneRequest());
     return servicePool
       .getVNetworksTemplates({ filter })
-      .then(data => dispatch(actions.setVNetworkTemplates(data)))
+      .then(data => dispatch(actions.setVNetworksTemplates(data)))
       .catch(err => dispatch(failureOneRequest({ error: err })));
   }, [dispatch, filter]);
 

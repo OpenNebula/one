@@ -10,12 +10,12 @@ import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
 const FIRST_STEP = 0;
 
-const FormStepper = ({ steps, initialValue, onSubmit }) => {
+const FormStepper = ({ steps, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
   const { watch, trigger, reset, errors } = useFormContext();
 
+  const [formData, setFormData] = useState(() => watch());
   const [activeStep, setActiveStep] = useState(FIRST_STEP);
-  const [formData, setFormData] = useState(initialValue);
 
   const totalSteps = useMemo(() => steps?.length, [steps]);
   const lastStep = useMemo(() => totalSteps - 1, [totalSteps]);
@@ -26,9 +26,9 @@ const FormStepper = ({ steps, initialValue, onSubmit }) => {
   }, [formData]);
 
   const handleNext = useCallback(() => {
-    const { id } = steps[activeStep];
+    const idSteps = steps.slice(0, activeStep + 1).map(({ id }) => id);
 
-    trigger(id).then(isValid => {
+    trigger(idSteps).then(isValid => {
       if (!isValid) return;
 
       const data = { ...formData, ...watch() };

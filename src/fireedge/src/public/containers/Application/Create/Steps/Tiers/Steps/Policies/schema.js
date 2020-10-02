@@ -4,7 +4,7 @@ import { getValidationFromFields } from 'client/utils/helpers';
 
 export const FORM_FIELDS = [
   {
-    name: 'elasticity',
+    name: 'elasticityPolicies',
     label: 'Elasticity',
     type: TYPE_INPUT.TEXT,
     validation: yup
@@ -13,7 +13,7 @@ export const FORM_FIELDS = [
       .default('')
   },
   {
-    name: 'scheduled',
+    name: 'scheduledPolicies',
     label: 'Scheduled',
     type: TYPE_INPUT.TEXT,
     validation: yup
