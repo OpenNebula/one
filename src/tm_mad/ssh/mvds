@@ -55,4 +55,6 @@ if $SSH $SRC_HOST ls ${SRC_PATH_SNAP} >/dev/null 2>&1; then
     exec_and_log "rsync -r --delete ${SRC_HOST}:${SRC_PATH_SNAP}/ ${DST_SNAP}"
 fi
 
+rm -f ${DST}.md5sum
+
 exit 0

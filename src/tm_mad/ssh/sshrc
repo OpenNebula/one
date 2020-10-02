@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+#----------------------------------------------------------------------------- #
+
+#-------------------------------------------------------------------------------
+# Configuration file for the replica feature of SSH drivers
+#-------------------------------------------------------------------------------
+# WARNING! WARNING! This file must follow shell syntax WARNING! WARNING!
+#-------------------------------------------------------------------------------
+
+# Timeout to expire lock operations it should be adjusted to the maximum
+# image transfer time between Image Datastores and clusters.
+REPLICA_COPY_LOCK_TIMEOUT=600
+
+# Default directory to store the recovery snapshots. These snapshots are used to
+# recover VMs in case of host failure in a cluster
+if [ -z "$ONE_LOCATION" ]; then
+    REPLICA_RECOVERY_SNAPS_DIR="/var/lib/one/datastores/replica_snaps"
+else
+    REPLICA_RECOVERY_SNAPS_DIR="$ONE_LOCATION/var/datastores/replica_snaps"
+fi
+
+# ssh options when copying from the replica to the hypervisor, prefer speed.
+# Prefer weaker ciphers on secure networks (e.g. arcfour or blowfish)
+REPLICA_SSH_OPTS="-c aes128-gcm@openssh.com -m umac-64@openssh.com"
+
+# ssh options when copying from the frontend to the replica, prefer security
+REPLICA_SSH_FE_OPTS=""

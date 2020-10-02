@@ -16,13 +16,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# clone fe:SOURCE host:remote_system_ds/disk.i vmid dsid
+# clone fe:SOURCE host:remote_system_ds/disk.i vmid dsid [replica_host]
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
 #   - remote_system_ds is the path for the system datastore in the host
 #   - vmid is the id of the VM
-#   - dsid is the target datastore (0 is the system datastore)
+#   - dsid is the target datastore (0 is the system datastore
+#   - replica_host is an optional paramter when called from the tm/ssh/clone
 
 SRC=$1
 DST=$2
@@ -30,13 +31,18 @@ DST=$2
 VMID=$3
 DSID=$4
 
+REPLICA_HOST=$5
+
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    SSH_RC=/var/lib/one/remotes/tm/ssh/sshrc
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    SSH_RC=$ONE_LOCATION/var/remotes/tm/ssh/sshrc
 fi
 
 . $TMCOMMON
+. $SSH_RC
 
 DRIVER_PATH=$(dirname $0)
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
@@ -44,24 +50,20 @@ XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
+SRC_PATH=$(arg_path $SRC)
+DST_PATH=$(arg_path $DST)
+SRC_FILE=$(basename $SRC_PATH)
+DST_FILE=$(basename $DST_PATH)
 
-SRC_PATH=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
+SRC_HOST=$(arg_host $SRC)
+DST_HOST=$(arg_host $DST)
 
-SRC_PATH_SNAP="${SRC_PATH}.snap"
-DST_PATH_SNAP="${DST_PATH}.snap"
-
-SRC_HOST=`arg_host $SRC`
-DST_HOST=`arg_host $DST`
-
-DST_DIR=`dirname $DST_PATH`
-
-ssh_make_path $DST_HOST $DST_DIR "ssh"
+SRC_DIR=$(dirname $SRC_PATH)
+DST_DIR=$(dirname $DST_PATH)
 
 #-------------------------------------------------------------------------------
-# Get Image information
+# Get Image and System DS information
 #-------------------------------------------------------------------------------
-
 DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
 
 unset i j XPATH_ELEMENTS
@@ -77,29 +79,83 @@ SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 SYS_DS_ID="${XPATH_ELEMENTS[j++]}"
 
-#-------------------------------------------------------------------------------
-# Check for REPLICA_HOST in DATASTORE TEMPLATE and exec ./$0.replica if found
-#-------------------------------------------------------------------------------
-REPLICA_HOST=$(get_replica_host $SYS_DS_ID)
+# ------------------------------------------------------------------------------
+# Get REPLICA_HOST from DATASTORE (if not passed as 5th arg)
+# ------------------------------------------------------------------------------
+if [ -z "$REPLICA_HOST" ]; then
+    REPLICA_HOST=$(get_replica_host $SYS_DS_ID)
 
-if [ -n "$REPLICA_HOST" ]; then
-    $0.replica $@ "$REPLICA_HOST"
-    exit 0
+    if [ -z "$REPLICA_HOST" ]; then
+        error_message "No REPLICA_HOST in datastore $SYS_DS_ID template"
+        exit 1
+    fi
 fi
 
 #-------------------------------------------------------------------------------
-# Copy files to the remote host
+# Create DST path
 #-------------------------------------------------------------------------------
-log "Cloning $SRC in $DST_PATH"
-ssh_forward exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
+ssh_make_path $DST_HOST $DST_DIR "ssh"
 
-if [ -d "${SRC_PATH_SNAP}" ]; then
-    ssh_forward exec_and_log "$SCP -r $SRC_HOST:${SRC_PATH_SNAP} $DST_HOST:${DST_PATH_SNAP}" \
-        "Error copying $SRC to $DST"
+# ------------------------------------------------------------------------------
+# Get REPLICA_STORAGE_IP from host template
+# ------------------------------------------------------------------------------
+REPLICA_STORAGE_IP=$(awk 'gsub(/[\0]/, x)' \
+    <( onehost show $DST_HOST -x | $XPATH /HOST/TEMPLATE/REPLICA_STORAGE_IP ))
+
+# ------------------------------------------------------------------------------
+#  Synchronize Image Datastore in the Replica Host. Use a recovery snapshot
+#  if present in the RECOVERY_SNAPS_DIR
+# ------------------------------------------------------------------------------
+if ssh $REPLICA_HOST \
+    "test -e ${REPLICA_RECOVERY_SNAPS_DIR}/$VMID/${DST_FILE}.replica_snap"; then
+
+    # point to [disk].replica_snap files
+    SRC_DIR=${REPLICA_RECOVERY_SNAPS_DIR}/$VMID
+    SRC_FILE="${DST_FILE}.replica_snap"
+else
+    rsync_img_to_replica "$SRC_PATH" "$REPLICA_HOST"
+
+    if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
+       RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+    fi
 fi
 
-if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
-   RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+#-------------------------------------------------------------------------------
+# Clone (tar|ssh) SRC into DST
+#-------------------------------------------------------------------------------
+log "Cloning $SRC_PATH via replica $REPLICA_HOST in $DST"
+
+# copy locally, we hit the replica
+if [ "$REPLICA_HOST" = "$DST_HOST" ]; then
+    CLONE_CMD=$(cat <<EOF
+        cd $SRC_DIR
+        cp $SRC_FILE $DST_PATH
+
+        if [ -d $SRC_PATH.snap ]; then
+            cp -r $SRC_PATH.snap $DST_PATH.snap
+        fi
+EOF
+)
+else
+    # copy to remote using faster tar|ssh
+    CLONE_CMD=$(cat <<EOF
+        if [ -d "${SRC_PATH}.snap" ]; then
+            SRC_SNAP="${SRC_FILE}.snap"
+        fi
+
+        cd $SRC_DIR
+        tar --transform="flags=r;s|$SRC_FILE|$DST_FILE|" -cSf - $SRC_FILE \$SRC_SNAP | \
+            ssh $REPLICA_SSH_OPTS ${REPLICA_STORAGE_IP:-$DST_HOST} "tar xSf - -C $DST_DIR"
+EOF
+)
+fi
+
+ssh_forward ssh_exec_and_log $REPLICA_HOST "$CLONE_CMD" \
+    "Error copying $SRC to $DST"
+
+if [ -n "$RESIZE_CMD" ]; then
    ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \
        "Error resizing image $DST"
 fi
+
+exit 0
