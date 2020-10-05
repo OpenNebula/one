@@ -42,6 +42,10 @@ fi
 
 . $TMCOMMON
 
+XPATH="$(dirname $0)/../../datastore/xpath.rb --stdin"
+SHARED=$(awk 'gsub(/[\0]/, x)' \
+    <( onedatastore show $DSID -x | $XPATH /DATASTORE/TEMPLATE/SHARED ))
+
 CMD=$(cat <<EOF
     set -ex -o pipefail
     $SYNC
@@ -56,6 +60,10 @@ CMD=$(cat <<EOF
             fi
         fi
     done
+
+    if [ "$SHARED" != "YES" ]; then
+        rm -rf "$DST_PATH"
+    fi
 EOF
 )
 

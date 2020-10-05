@@ -45,21 +45,26 @@ fi
 CMD=$(cat <<EOF
     set -ex -o pipefail
     $SYNC
-    $SUDO $LVSCAN
+    $SUDO $LVSCAN > /dev/null
 
     for disk in \$(ls ${DST_PATH}/disk.*); do
         if [ -L "\$disk" ]; then
             DEVICE=\$(readlink "\$disk")
 
             if echo "\$DEVICE" | grep -q '^/dev/vg-one'; then
-                $SUDO $LVCHANGE -ay \$DEVICE
+                echo "$SUDO $LVCHANGE -ay \$DEVICE; "
             fi
         fi
     done
 EOF
 )
 
-ssh_exec_and_log $DST_HOST "$CMD" \
-    "Error running fs_lvm premigrate"
+TODO=$(ssh $SRC_HOST "$CMD")
+
+if [ -n "$TODO" ]; then
+
+    ssh_exec_and_log $DST_HOST "$TODO" \
+        "Error running fs_lvm premigrate"
+fi
 
 migrate_other "$@"
