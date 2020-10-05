@@ -33,6 +33,7 @@ define(function(require) {
   var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
   var TemplateUtils = require('utils/template-utils');
+  var FireedgeValidator = require('utils/fireedge-validator');
 
   /*
     CONSTANTS
@@ -233,13 +234,73 @@ define(function(require) {
     });
 
     $('#' + this.dataTableId).on("click", '.vnc', function() {
-      var data = $(this).data();
+      var that = this;
 
-      if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
-        Vnc.lock();
-        Sunstone.runAction("VM.startvnc_action", String(data.id));
-      } else {
-        Notifier.notifyError(Locale.tr("VNC Connection in progress"));
+      function promiseVmInfo(id, success) {
+        return $.ajax({
+          url: "vm/" + id,
+          type: "GET",
+          dataType: "json",
+          success: success
+        })
+      }
+
+      function callVNC() {
+        var data = $(that).data();
+
+        if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
+          Vnc.lock();
+          Sunstone.runAction("VM.startvnc_action", String(data.id));
+        } else {
+          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
+        }
+      }
+
+      function callVMRC(){
+        var data = $(that).data();
+
+        (data.hasOwnProperty("id"))
+          ? Sunstone.runAction("VM.startvmrc_action", String(data.id), 'vnc')
+          : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
+      }
+
+      function callGuac(){
+        var data = $(that).data();
+
+        (data.hasOwnProperty("id"))
+          ? Sunstone.runAction("VM.startguac_action", String(data.id), 'vnc')
+          : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
+      }
+
+      var success_function = function() {
+        sessionStorage.setItem(FireedgeValidator.sessionVar, "true");
+        var data = $(that).data();
+        // Get VM info
+        if (data.hasOwnProperty('id')){
+          promiseVmInfo(data['id'], function(data){
+            if (data && data.VM && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.HYPERVISOR == 'vcenter'){
+              callVMRC();
+            }
+            else{
+              callGuac();
+            }
+          });
+        }
+      };
+  
+      var error_function = function() {
+        sessionStorage.removeItem(FireedgeValidator.sessionVar);
+        callVNC();
+      }  
+
+      if (!sessionStorage.getItem(FireedgeValidator.sessionVar)){
+        FireedgeValidator.request(success_function,error_function);
+      }
+      else if (sessionStorage.getItem(FireedgeValidator.sessionVar) == 'true'){
+        success_function();
+      }
+      else{
+        error_function();
       }
 
       return false;
