@@ -23,7 +23,10 @@
           <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioNoneType{{uniqueId}}" value="">
           <label for="radioNoneType{{uniqueId}}">{{tr "None"}}</label>
           <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioVncType{{uniqueId}}" value="VNC" checked>
-          <label for="radioVncType{{uniqueId}}">VNC</label>
+          <label for="radioVncType{{uniqueId}}">VNC
+            <span class="hypervisor only_vcenter vmrc_inout_option">&nbsp;/&nbsp;VMRC</span>
+            <span class="hypervisor only_kvm guac_inout_option">&nbsp;/&nbsp;GUAC</span>
+          </label>
           <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm not_lxd" >
           <label class="hypervisor only_kvm not_lxd"  for="radioSdlType{{uniqueId}}">SDL</label>
           <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSpiceType{{uniqueId}}" value="SPICE" class="hypervisor only_kvm not_lxd" >
