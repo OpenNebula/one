@@ -125,6 +125,7 @@ else
     MIGRATE_DISKS=""
 
     for DISK_STR in $DISKS; do
+
         DISK_DEV=${DISK_STR/,*/}
         DISK_PATH=${DISK_STR/*,/}
 
@@ -133,17 +134,16 @@ else
         if [ "$FORMAT" = "raw" ]; then
             if ! is_readonly $DEPLOY_ID $DISK_PATH; then
                 RAW_DISKS+=" $DISK_PATH"
-                MIGRATE_DISKS+="${DISK_DEV},"
+                MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
             fi
 
             # do initial rsync
-            multiline_exec_and_log "tar -cSf - $DISK_PATH | ssh $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "tar -cSf - $DISK_PATH | $SSH $DEST_HOST 'tar xSf - -C / '" \
                 "Failed to rsync disk $DISK_PATH to $DEST_HOST:$DISK_PATH"
 
-        elif [ "$FORMAT" = "qcow2" ] && [ ! -L "$DISK_PATH" ]; then
+        elif [ "$FORMAT" = "qcow2" ]; then
             create_target_disk_img "$DEST_HOST" "$DISK_PATH" "$SIZE"
-            MIGRATE_DISKS+="${DISK_DEV},"
-
+            MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
 
         elif [ "$FORMAT" = "network-disk" ]; then
             true # skip
@@ -151,15 +151,15 @@ else
 
         # copy disk snapshots
         if [ -d "${DISK_PATH}.snap" ] || [ -L "${DISK_PATH}.snap" ]; then
-            multiline_exec_and_log "tar -cSf - $DISK_PATH.snap | ssh $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "tar -cSf - $DISK_PATH.snap | $SSH $DEST_HOST 'tar xSf - -C / '" \
                 "Failed to rsync disk snapshot ${DISK_PATH}.snap to $DEST_HOST"
         fi
 
         # recreate symlinks
         if [ -L "$DISK_PATH" ]; then
             LINK_TARGET=$(readlink $DISK_PATH)
-            ssh_exec_and_log "$DEST_HOST" "ln -s \"$LINK_TARGET\" \"$DISK_PATH\"" \
-                "Faild to create symlink $DISK_PATH -> $LINK_TARGET on $DEST_HOST"
+            ssh_exec_and_log "$DEST_HOST" "[ -L \"$DISK_PATH\" ] || ln -s \"$LINK_TARGET\" \"$DISK_PATH\""
+                "Failed to create symlink $DISK_PATH -> $LINK_TARGET on $DEST_HOST"
         fi
     done
 
@@ -181,21 +181,21 @@ else
         fi
 
         for DISK in $RAW_DISKS; do
-            multiline_exec_and_log "tar -cSf - $DISK | ssh $DEST_HOST 'tar xSf - -C / '" \
+            multiline_exec_and_log "tar -cSf - $DISK | $SSH $DEST_HOST 'tar xSf - -C / '" \
                 "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
         done
     fi
 
-    # Enumerate disks to copy, remove trailing comma
+    # Enumerate disks to copy
     if [ -n "$MIGRATE_DISKS" ]; then
-        DISK_OPTS="--copy-storage-all --migrate-disks ${MIGRATE_DISKS::-1}"
+        DISK_OPTS="--copy-storage-all --migrate-disks ${MIGRATE_DISKS}"
     fi
 
     virsh --connect $LIBVIRT_URI migrate \
         --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system \
         $DISK_OPTS
-
     RC=$?
+
     # remote domfsthaw/resume, give it time
     if [ $RC -eq 0 ]; then
         if [ "$FREEZE" = "yes" ]; then
