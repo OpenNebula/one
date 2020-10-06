@@ -96,8 +96,16 @@
       </select>
     </div>
     <div class="medium-6 columns">
+      <label for="TYPE">
+        {{tr "Filesystem"}}
+      </label>
+      <select class="hypervisor only_kvm" wizard_field="FS" id="TYPE_KVM" name="type">
+        {{{pepe}}}
+      </select>
+    </div>
+    <div class="medium-6 columns">
       <label for="FORMAT">
-        {{tr "Filesystem format"}}
+        {{tr "Format"}}
       </label>
       <select class="hypervisor only_kvm" wizard_field="FORMAT" name="format" id="FORMAT_KVM">
         <option value="raw" selected="selected">raw</option>
