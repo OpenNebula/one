@@ -362,8 +362,7 @@ helpers do
             logger.info { 'Unauthorized login attempt' }
             return [401, '']
         end
-
-        client  = $cloud_auth.client(result)
+        client  = $cloud_auth.client(result, $conf[:one_xmlrpc])
         user_id = OpenNebula::User::SELF
 
         user    = OpenNebula::User.new_with_id(user_id, client)
