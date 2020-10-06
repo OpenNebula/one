@@ -32,6 +32,7 @@ class OneProvisionLoopException < RuntimeError
     attr_reader :text
 
     def initialize(text = nil)
+        super
         @text = text
     end
 

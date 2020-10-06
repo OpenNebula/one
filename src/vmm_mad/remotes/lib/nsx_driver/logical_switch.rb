@@ -25,12 +25,6 @@ module NSXDriver
         attr_reader :display_name
         attr_reader :description
 
-        # CONSTRUCTOR
-
-        def initialize(nsx_client)
-            super(nsx_client)
-        end
-
         def ls?; end
 
         # Get logical switch's name
