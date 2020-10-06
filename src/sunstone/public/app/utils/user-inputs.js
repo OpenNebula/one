@@ -825,7 +825,6 @@ define(function(require) {
   function _attributeInput(attr) {
     var input;
     var clss = "";
-    var defaultInput = attr && attr.type ? attr.type : "";
     var required = (attr.mandatory ? "required" : "");
     var wizard_field = "wizard_field='" + TemplateUtils.htmlEncode(attr.name) + "'";
     if (attr.wizard_field_disabled == true){
@@ -898,7 +897,7 @@ define(function(require) {
         input = "<input type='text' value='"+value+"' "+wizard_field+" "+required+" disabled/>";
       break;
       default:
-          input = "<textarea type='text' rows='1' default='"+defaultInput+"' "+wizard_field+" "+required+">"+TemplateUtils.htmlEncode(value)+"</textarea>";
+          input = "<textarea type='text' rows='1' "+wizard_field+" "+required+">"+TemplateUtils.htmlEncode(value)+"</textarea>";
       break;
     }
     if(attr.visor){
