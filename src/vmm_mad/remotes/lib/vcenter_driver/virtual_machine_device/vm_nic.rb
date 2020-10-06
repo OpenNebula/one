@@ -18,10 +18,6 @@ module VirtualMachineDevice
     # Nic class
     class Nic < Device
 
-        def initialize(id, one_res, vc_res)
-            super(id, one_res, vc_res)
-        end
-
         # Create the OpenNebula nic representation
         # Allow as to create the class without vCenter representation
         # example: attached nics not synced with vCenter

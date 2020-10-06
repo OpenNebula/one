@@ -21,11 +21,6 @@ module NSXDriver
         # ATTRIBUTES
         attr_reader :tz_id
 
-        # CONSTRUCTOR
-        def initialize(nsx_client)
-            super(nsx_client)
-        end
-
         def self.new_child(nsx_client)
             case nsx_client.nsx_type.upcase
             when NSXConstants::NSXT

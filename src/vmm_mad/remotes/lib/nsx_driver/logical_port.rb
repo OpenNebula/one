@@ -22,10 +22,6 @@ module NSXDriver
 
         # CONSTRUCTOR
 
-        def initialize(nsx_client)
-            super(nsx_client)
-        end
-
         def self.new_child(nsx_client, id = nil)
             case nsx_client.nsx_type.upcase
             when NSXConstants::NSXT
