@@ -77,9 +77,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
     end
 
     def format_pool(_options)
-        config_file = self.class.table_conf
-
-        table = CLIHelper::ShowTable.new(config_file, self) do
+        CLIHelper::ShowTable.new(self.class.table_conf, self) do
             column :ID,
                    'ONE identifier for the marketplace app',
                    :size=>4 do |d|
@@ -129,8 +127,6 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                     :MARKET,
                     :ZONE
         end
-
-        table
     end
 
     def self.create_template_options_used?(options)

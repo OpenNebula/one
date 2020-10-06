@@ -22,9 +22,9 @@ include OpenNebula
 
 require 'opennebula/document_json'
 require 'opennebula/document_pool_json'
-require 'opennebula/flow/service_pool.rb'
-require 'opennebula/flow/service_template_pool.rb'
-require 'opennebula/flow/service_template.rb'
+require 'opennebula/flow/service_pool'
+require 'opennebula/flow/service_template_pool'
+require 'opennebula/flow/service_template'
 
 require 'opennebula/flow/validator'
 
