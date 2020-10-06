@@ -197,7 +197,9 @@ module VCenterDriver
                     .dirname(
                         descriptor_url.host+descriptor_url.path
                     )
-                next unless ds.is_descriptor?(image_path + '/' + file_to_download)
+                next unless ds.is_descriptor?(
+                    image_path + '/' + file_to_download
+                )
 
                 files_to_download <<
                     download_all_filenames_in_descriptor(
