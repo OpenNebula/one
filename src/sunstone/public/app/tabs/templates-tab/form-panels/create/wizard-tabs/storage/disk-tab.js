@@ -64,10 +64,21 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
+  function optionsFilesystem(){
+    var rtn = "";
+    if(config && config.system_config && config.system_config.support_fs && Array.isArray(config.system_config.support_fs)){
+      config.system_config.support_fs.forEach(element => {
+        rtn += "<option>"+element+"</option>";
+      });
+    }
+    return rtn;
+  };
+
   function _html() {
     return TemplateHTML({
       "diskTabId": this.diskTabId,
-      "imageTableSelectHTML": this.imageTable.dataTableHTML
+      "imageTableSelectHTML": this.imageTable.dataTableHTML,
+      "pepe": optionsFilesystem()
     });
   }
 

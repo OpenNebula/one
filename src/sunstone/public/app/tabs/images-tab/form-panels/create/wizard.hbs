@@ -179,16 +179,14 @@
           </div>
         </div>
         <div class="row not_vcenter">
-          <div class="large-12 columns">
+          <div class="large-12 columns datablock-input">
             <label for="img_driver">
-              {{tr "Image mapping driver"}}
+              {{tr "Format"}}
             </label>
             <select name="img_driver" id="img_driver">
-              <option value=""></option>
+              <option value="" selected="selected">--</option>
               <option value="raw">raw</option>
-              <option value="bochs">bochs</option>
               <option value="qcow2">qcow2</option>
-              <option value="qed">qed</option>
               <option value="custom">custom</option>
             </select>
             <div>

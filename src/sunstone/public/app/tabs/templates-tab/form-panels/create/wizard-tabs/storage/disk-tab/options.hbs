@@ -7,21 +7,16 @@
     </label>
     <input type="text" wizard_field="TARGET" id="TARGET" name="target" placeholder="sdc"/>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm not_firecracker">
-    <label for="DRIVER">
-      {{tr "Image mapping driver"}}
+  <div class="medium-6 columns hypervisor only_kvm">
+    <label for="READONLY">
+      {{tr "Read-only"}}
     </label>
-    <select wizard_field="DRIVER" id="DRIVER" name="DRIVER">
+    <select wizard_field="READONLY" id="READONLY" name="READONLY">
       <option value=""></option>
-      <option value="raw">raw</option>
-      <option value="bochs">bochs</option>
-      <option value="qcow2">qcow2</option>
-      <option value="qed">qed</option>
-      <option value="custom">custom</option>
+      <option value="yes">{{tr "yes"}}</option>
+      <option value="no">{{tr "no"}}</option>
     </select>
   </div>
-</div>
-<div class="row">
   <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label>
       {{tr "BUS"}}
@@ -36,16 +31,6 @@
     <div>
       <input type="text" id="custom_disk_dev_prefix" name="custom_disk_dev_prefix" />
     </div>
-  </div>
-  <div class="medium-6 columns hypervisor only_kvm">
-    <label for="READONLY">
-      {{tr "Read-only"}}
-    </label>
-    <select wizard_field="READONLY" id="READONLY" name="READONLY">
-      <option value=""></option>
-      <option value="yes">{{tr "yes"}}</option>
-      <option value="no">{{tr "no"}}</option>
-    </select>
   </div>
   <div class="medium-6 columns hypervisor only_vcenter not_firecracker">
     <label for="vcenter_adapter_type">
