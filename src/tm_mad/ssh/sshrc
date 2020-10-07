@@ -38,3 +38,10 @@ REPLICA_SSH_OPTS="-c aes128-gcm@openssh.com -m umac-64@openssh.com"
 
 # ssh options when copying from the frontend to the replica, prefer security
 REPLICA_SSH_FE_OPTS=""
+
+# Maximum size of cached images on replica in MB, if not specified
+# REPLICA_MAX_USED_PERC is used
+REPLICA_MAX_SIZE_MB=""
+
+# Maximum usage in % of the replica filesystem
+REPLICA_MAX_USED_PERC=90

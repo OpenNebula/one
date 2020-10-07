@@ -1696,7 +1696,6 @@ TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
 
 TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/clone.replica \
-              src/tm_mad/ssh/sshrc \
               src/tm_mad/ssh/delete \
               src/tm_mad/ssh/ln \
               src/tm_mad/ssh/ln.replica \
@@ -1715,7 +1714,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/monitor \
               src/tm_mad/ssh/monitor_ds \
               src/tm_mad/ssh/cpds \
-              src/tm_mad/ssh/resize"
+              src/tm_mad/ssh/resize \
+              src/tm_mad/ssh/ssh_utils.sh"
 
 TM_SSH_ETC_FILES="src/tm_mad/ssh/sshrc"
 
