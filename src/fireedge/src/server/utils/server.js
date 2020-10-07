@@ -12,9 +12,16 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+const { env } = require('process');
 const { Map } = require('immutable');
 const { existsSync } = require('fs-extra');
+
 const { internalServerError } = require('./constants/http-codes');
+const {
+  defaultLogFilename,
+  defaultLogPath,
+  defaultVmrcTokens
+} = require('./constants/defaults');
 
 let cert = '';
 let key = '';
@@ -41,6 +48,23 @@ const httpResponse = (response, data, message) => {
     rtn.message = message;
   }
   return rtn;
+};
+
+const genPathResources = () => {
+  const ONE_LOCATION = env && env.ONE_LOCATION;
+  const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`;
+  const VMRC_LOCATION = !ONE_LOCATION
+    ? defaultVmrcTokens
+    : `${ONE_LOCATION}/${defaultVmrcTokens}`;
+
+  if (global) {
+    if (!global.VMRC_TOKENS) {
+      global.VMRC_TOKENS = `${VMRC_LOCATION}/`;
+    }
+    if (!global.FIREEDGE_LOG) {
+      global.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`;
+    }
+  }
 };
 
 module.exports = {

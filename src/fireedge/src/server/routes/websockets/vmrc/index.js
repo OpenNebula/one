@@ -16,22 +16,24 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const { readFileSync } = require('fs-extra');
 const { getConfig } = require('server/utils/yml');
 const { messageTerminal } = require('server/utils/general');
+const { genPathResources } = require('server/utils/server');
+const { endpointVmrc } = require('server/utils/constants/defaults');
+
+genPathResources();
 
 const appConfig = getConfig();
 const vmrcData = appConfig.VMRC || {};
-
-const endpoint = '/vmrc';
 const url = vmrcData.TARGET || '';
 const config = {
   color: 'red'
 };
-const vmrcProxy = createProxyMiddleware(endpoint, {
+const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   target: url,
   changeOrigin: false,
   ws: true,
   secure: /^(https):\/\/[^ "]+$/.test(url),
   logLevel: 'debug',
-  pathRewrite: path => path.replace(endpoint, '/ticket'),
+  pathRewrite: path => path.replace(endpointVmrc, '/ticket'),
   onError: err => {
     config.type = err.message;
     config.message = 'Error connection : %s';
@@ -43,7 +45,7 @@ const vmrcProxy = createProxyMiddleware(endpoint, {
       const ticket = req.url.split('/')[2] || '';
       try {
         const esxi = readFileSync(
-          `${vmrcData.TOKENS_PATH || ''}/${ticket}`
+          `${global.VMRC_TOKENS || ''}/${ticket}`
         ).toString();
         return esxi;
       } catch (error) {
@@ -55,11 +57,6 @@ const vmrcProxy = createProxyMiddleware(endpoint, {
   }
 });
 
-const vmrc = appServer => {
-  if (appServer) {
-    appServer(endpoint, vmrcProxy);
-  }
-};
 const vmrcUpgrade = appServer => {
   if (
     appServer &&
@@ -73,7 +70,5 @@ const vmrcUpgrade = appServer => {
 };
 
 module.exports = {
-  endpoint,
-  vmrc,
   vmrcUpgrade
 };
