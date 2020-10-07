@@ -841,7 +841,7 @@ define(function(require) {
     switch (attr.type) {
       case "text64":
         try {
-          input = "<textarea type='text' rows='1' wizard_field_64='true' "+wizard_field+" "+required+">"+TemplateUtils.htmlEncode(btoa(value))+"</textarea>";
+          input = "<textarea type='text' rows='1' wizard_field_64='true' "+wizard_field+" "+required+">"+TemplateUtils.htmlEncode(value)+"</textarea>";
         } catch(e){
           console.error(e.message);
           input = "<p>"+e.message+"</p>";
