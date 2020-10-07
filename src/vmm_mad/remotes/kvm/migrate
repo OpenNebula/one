@@ -30,9 +30,10 @@ is_readonly() {
     local DOMAIN=$1
     local DISK=$2
 
-    READ_ONLY=$(virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \
-        $XPATH --stdin --subtree \
-        "//domain/devices/disk[source/@file='$DISK']/readonly")
+    READ_ONLY=$(awk 'gsub(/[\0]/, x)' \
+        <( virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \
+            $XPATH --stdin --subtree \
+            "//domain/devices/disk[source/@file='$DISK']/readonly"))
 
     [ "$READ_ONLY" = '<readonly/>' ]
 }
@@ -41,8 +42,8 @@ get_size_and_format_of_disk_img() {
     local QEMU_IMG_PATH="$1"
     local PARAM="$2"
 
-    if [ ! -f "$QEMU_IMG_PATH" ]; then
-        # assume network disk
+    if [ -L "$QEMU_IMG_PATH" ]; then
+        # symlink, assume network disk
         echo unknown network-disk
         return
     fi
@@ -69,11 +70,6 @@ create_target_disk_img() {
     local DEST_HOST=$1
     local QEMU_IMG_PATH="$2"
     local SIZE="$3"
-    local IMG_DIR=$(dirname "$QEMU_IMG_PATH")
-
-    ssh_monitor_and_log "$DEST_HOST" \
-        "mkdir -v -p '$IMG_DIR'" \
-        "Failed to make remote directory for $QEMU_IMG_PATH image"
 
     ssh_monitor_and_log "$DEST_HOST" \
         "qemu-img create -f qcow2 '$QEMU_IMG_PATH' '$SIZE'" \
@@ -84,14 +80,15 @@ STDIN=$(cat -)
 DEPLOY_ID=$1
 DEST_HOST=$2
 DISKS=$(virsh --connect $LIBVIRT_URI domblklist "$DEPLOY_ID" \
-    | tail -n+3 | awk '{print $2}' | tr '\n' ' ')
+    | tail -n+3 | grep -v "^$" | awk '{print $1 "," $2}')
+
 
 unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(echo $STDIN| $XPATH \
-			/VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED \
-			/VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH)
+            /VMM_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SHARED \
+            /VMM_DRIVER_ACTION_DATA/DISK_TARGET_PATH)
 
 SHARED="${XPATH_ELEMENTS[j++]}"
 VM_DIR="${XPATH_ELEMENTS[j++]}"
@@ -122,29 +119,47 @@ else
         exit 1
     fi
 
-    for DISK in $DISKS; do
-        read -r SIZE FORMAT <<<"$(get_size_and_format_of_disk_img "$DISK" "$QEMU_IMG_PARAM")"
+    ssh_monitor_and_log "$DEST_HOST" "mkdir -p '$VM_DIR'" \
+        "Failed to make remote directory $VM_DIR image"
+
+    MIGRATE_DISKS=""
+
+    for DISK_STR in $DISKS; do
+
+        DISK_DEV=${DISK_STR/,*/}
+        DISK_PATH=${DISK_STR/*,/}
+
+        read -r SIZE FORMAT <<<"$(get_size_and_format_of_disk_img "$DISK_PATH" "$QEMU_IMG_PARAM")"
 
         if [ "$FORMAT" = "raw" ]; then
-            if ! is_readonly $DEPLOY_ID $DISK; then
-                RAW_DISKS+=" $DISK"
+            if ! is_readonly $DEPLOY_ID $DISK_PATH; then
+                RAW_DISKS+=" $DISK_PATH"
+                MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
             fi
+
             # do initial rsync
-            exec_and_log "rsync $DISK $DEST_HOST:$DISK" \
-                "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
+            multiline_exec_and_log "tar -cSf - $DISK_PATH | $SSH $DEST_HOST 'tar xSf - -C / '" \
+                "Failed to rsync disk $DISK_PATH to $DEST_HOST:$DISK_PATH"
 
         elif [ "$FORMAT" = "qcow2" ]; then
-            create_target_disk_img "$DEST_HOST" "$DISK" "$SIZE"
+            create_target_disk_img "$DEST_HOST" "$DISK_PATH" "$SIZE"
+            MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
 
         elif [ "$FORMAT" = "network-disk" ]; then
             true # skip
         fi
 
         # copy disk snapshots
-        if [[ -d "${DISK}.snap"  ]]; then
-            DISK_DIR=$(dirname "$DISK")
-            exec_and_log "rsync -r ${DISK}.snap $DEST_HOST:$DISK_DIR" \
-                "Failed to rsync disk snapshot ${DISK}.snap to $DEST_HOST:$DISK_DIR"
+        if [ -d "${DISK_PATH}.snap" ] || [ -L "${DISK_PATH}.snap" ]; then
+            multiline_exec_and_log "tar -cSf - $DISK_PATH.snap | $SSH $DEST_HOST 'tar xSf - -C / '" \
+                "Failed to rsync disk snapshot ${DISK_PATH}.snap to $DEST_HOST"
+        fi
+
+        # recreate symlinks
+        if [ -L "$DISK_PATH" ]; then
+            LINK_TARGET=$(readlink $DISK_PATH)
+            ssh_exec_and_log "$DEST_HOST" "[ -L \"$DISK_PATH\" ] || ln -s \"$LINK_TARGET\" \"$DISK_PATH\""
+                "Failed to create symlink $DISK_PATH -> $LINK_TARGET on $DEST_HOST"
         fi
     done
 
@@ -166,14 +181,19 @@ else
         fi
 
         for DISK in $RAW_DISKS; do
-            exec_and_log "rsync $DISK $DEST_HOST:$DISK" \
+            multiline_exec_and_log "tar -cSf - $DISK | $SSH $DEST_HOST 'tar xSf - -C / '" \
                 "Failed to rsync disk $DISK to $DEST_HOST:$DISK"
         done
     fi
 
+    # Enumerate disks to copy
+    if [ -n "$MIGRATE_DISKS" ]; then
+        DISK_OPTS="--copy-storage-all --migrate-disks ${MIGRATE_DISKS}"
+    fi
+
     virsh --connect $LIBVIRT_URI migrate \
         --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system \
-        --copy-storage-all
+        $DISK_OPTS
     RC=$?
 
     # remote domfsthaw/resume, give it time
