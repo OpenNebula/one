@@ -273,6 +273,11 @@ CommandParser::CmdParser.new(ARGV) do
                 :url_args => tag
             )
 
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
             rc.each  do |key, value|
                 next if value.nil? || value.empty? || key == :image_type
 
