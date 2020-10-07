@@ -19,4 +19,4 @@ const testFolder = './src/public/assets/languages';
 
 createReadStream(testFolder, { exportPath: testFolder });
 
-generateFile();
+generateFile(true);

@@ -5,9 +5,9 @@
   ],
   "parser": "babel-eslint",
   "env": {
-    "browser": true
+    "browser": true,
+    "node": true
   },
-  "globals": {},
   "plugins": [],
   "rules": {
     "import/no-extraneous-dependencies": [
@@ -19,16 +19,5 @@
       }
     ],
     "default-case": 0
-  },
-  "settings": {
-    "import/resolver": {
-      "alias" : {
-        "map" : [
-          ["client","./src/public/"],
-          ["server","./src/"]
-        ],
-        "extensions": [".js"]
-      }
-    }
   }
 }

@@ -13,33 +13,34 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-genpotfile');
-const constants = require('./src/server/utils/constants');
-const clientConstants = require('./src/client/constants');
+const GuacamoleLite = require('guacamole-lite');
+const { getConfig } = require('server/utils/yml');
+const { clientOptions, clientCallbacks } = require('./options');
 
-const testFolder = './src/public';
-const exportFile = './src/public/assets/languages/messages.pot';
-const definitions = { ...constants, ...clientConstants };
+const appConfig = getConfig();
+const guacd = appConfig.GUACD || {};
+const guacdPort = guacd.PORT || 4822;
+const guacdHost = guacd.HOST || '127.0.0.1';
 
-// function Tr()
-const optsFunc = {
-  regex: /Tr(\("|\('|\()[a-zA-Z0-9_ ]*("\)|'\)|\))/g,
-  removeStart: /Tr(\()/g,
-  removeEnd: /(\))/g,
-  regexTextCaptureIndex: 0,
-  definitions
+const endpoint = '/guacamole';
+const guacamole = appServer => {
+  if (
+    appServer &&
+    appServer.constructor &&
+    appServer.constructor.name &&
+    appServer.constructor.name === 'Server'
+  ) {
+    // eslint-disable-next-line no-new
+    new GuacamoleLite(
+      { server: appServer, path: endpoint }, // server fireedge
+      { host: guacdHost, port: guacdPort }, // guacD
+      clientOptions,
+      clientCallbacks
+    );
+  }
 };
 
-// React component <Translate word="word"/>
-const optsComponent = {
-  regex: /<Translate word=('|"|{|{'|{")[a-zA-Z0-9_ ]*('|"|}|'}|"}) \/>/g,
-  removeStart: /<Translate word=('|"|{|{'|{")/g,
-  removeEnd: /('|"|}|'}|"}) \/>/g,
-  regexTextCaptureIndex: 0,
-  definitions
+module.exports = {
+  endpoint,
+  guacamole
 };
-
-createReadStream(testFolder, optsFunc);
-createReadStream(testFolder, optsComponent);
-
-generateFile(exportFile);

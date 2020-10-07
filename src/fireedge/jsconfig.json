@@ -2,10 +2,10 @@
   "compilerOptions": {
     "baseUrl": "./src",
     "paths": {
-      "client/*": ["public/*"],
-      "server/*": ["*"]
+      "client/*": ["client/*"],
+      "server/*": ["server/*"]
     }
   },
-  "include": ["./src/*"],
+  "include": ["./src/client/*","./src/server/*"],
   "exclude": ["node_modules"]
 }
