@@ -25,15 +25,18 @@ VMID=$3
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
     SSH_RC=/var/lib/one/remotes/etc/tm/ssh/sshrc
+    SSH_UTILS=/var/lib/one/remotes/tm/ssh/ssh_utils.sh
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
     SSH_RC=$ONE_LOCATION/var/remotes/etc/tm/ssh/sshrc
+    SSH_UTILS=$ONE_LOCATION/var/remotes/tm/ssh/ssh_utils.sh
 fi
 
 DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
 source $SSH_RC
+source $SSH_UTILS
 
 SRC_PATH=$(arg_path $SRC NOFIX)
 SRC_HOST=$(arg_host $SRC)
