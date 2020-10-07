@@ -30,6 +30,10 @@ router.get('*', (req, res) => {
   let component = '';
   let css = '';
   let storeRender = '';
+  let chunks = '';
+  if (env.NODE_ENV === 'production') {
+    chunks = `<script src='/client/1.bundle.js'></script>`;
+  }
 
   if (env && env.NODE_ENV === 'production') {
     const composeEnhancer =
@@ -62,7 +66,7 @@ router.get('*', (req, res) => {
       ${storeRender}
       <script>${`langs = ${JSON.stringify(scriptLanguages)}`}</script>
       <script src='/client/bundle.js'></script>
-      <script src='/client/1.bundle.js'></script>
+      ${chunks}
     </body>
     </html>
   `;

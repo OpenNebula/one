@@ -70,6 +70,7 @@ const genPathResources = () => {
 module.exports = {
   httpResponse,
   validateServerIsSecure,
+  genPathResources,
   getCert,
   getKey
 };
