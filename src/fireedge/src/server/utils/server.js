@@ -14,9 +14,7 @@
 /* -------------------------------------------------------------------------- */
 const { Map } = require('immutable');
 const { existsSync } = require('fs-extra');
-import { env } from 'process';
 const { internalServerError } = require('./constants/http-codes');
-const { defaultConfigLogPath } = require('./constants/defaults')
 
 let cert = '';
 let key = '';
@@ -45,18 +43,9 @@ const httpResponse = (response, data, message) => {
   return rtn;
 };
 
-const genPathResources = ()=>{
-  let logPath = `${defaultConfigLogPath}`;
-  if (env && env.ONE_LOCATION) {
-    logPath = env.ONE_LOCATION + logPath;
-  }
-  
-}
-
 module.exports = {
   httpResponse,
   validateServerIsSecure,
   getCert,
-  getKey,
-  genPathResources
+  getKey
 };
