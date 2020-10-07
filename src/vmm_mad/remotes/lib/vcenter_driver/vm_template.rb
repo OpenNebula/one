@@ -835,7 +835,7 @@ class Template
 
         res[:net_name]  = deviceNetwork.name
         res[:net_ref]   = deviceNetwork._ref
-        res[:pg_type]   = VCenterDriver::Network.get_network_type(deviceNetwork)
+        res[:pg_type]   = VCenterDriver::Network.get_network_type(deviceNetwork, res[:net_name])
         res[:network]   = deviceNetwork
 
         res
