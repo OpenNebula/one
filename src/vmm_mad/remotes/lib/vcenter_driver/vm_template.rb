@@ -973,7 +973,8 @@ module VCenterDriver
             res[:pg_type]   =
                 VCenterDriver::Network
                 .get_network_type(
-                    device_network
+                    device_network,
+                    res[:net_name]
                 )
             res[:network]   =
                 device_network

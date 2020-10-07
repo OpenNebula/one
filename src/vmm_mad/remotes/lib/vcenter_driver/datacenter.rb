@@ -492,7 +492,11 @@ module VCenterDriver
         end
 
         # Determine if a network must be excluded from the list
-        def exclude_network?(vc_network, one_host, args)
+        def exclude_network?(vc_network, one_host, args, vc_network_hash)
+            vc_network_name = vc_network_hash[:vc_network_name]
+            vc_network_host = vc_network_hash[:vc_network_host]
+            vc_network_tag = vc_network_hash[:vc_network_tag]
+
             # Exclude some networks if filter = true
             if args[:filter]
                 if one_host && one_host['TEMPLATE/NSX_PASSWORD'].nil?
@@ -503,18 +507,21 @@ module VCenterDriver
 
                     # Only NSX-V and NSX-T can be excluded
                     network_type = VCenterDriver::Network
-                                   .get_network_type(vc_network)
+                                   .get_network_type(
+                                       vc_network,
+                                       vc_network_name
+                                   )
 
                     return true if network_types.include? network_type
                 end
                 # Exclude networks without hosts
-                if vc_network['host'].empty?
+                if vc_network_host.empty?
                     return true
                 end
 
                 # Exclude DVS uplinks
-                if !vc_network['tag'].empty? &&
-                   vc_network['tag'][0][:key] == 'SYSTEM/DVS.UPLINKPG'
+                if !vc_network_tag.empty? &&
+                   vc_network_tag[0][:key] == 'SYSTEM/DVS.UPLINKPG'
                     return true
                 end
                 # Exclude portgroup used for VXLAN communication in NSX
@@ -538,12 +545,23 @@ module VCenterDriver
 
             full_process = !args[:short]
 
+            vc_network_ref = vc_network._ref
+            vc_network_name = vc_network.name
+            vc_network_host = vc_network['host']
+            vc_network_tag = vc_network['tag']
+
+            vc_network_hash = {}
+            vc_network_hash[:vc_network_ref] = vc_network_ref
+            vc_network_hash[:vc_network_name] = vc_network_name
+            vc_network_hash[:vc_network_host] = vc_network_host
+            vc_network_hash[:vc_network_tag] = vc_network_tag
+
             # Initialize network hash
             network = {}
             # Add name to network hash
-            network[vc_network._ref] = { 'name' => vc_network.name }
+            network[vc_network_ref] = { 'name' => vc_network_name }
             # By default no network is excluded
-            network[vc_network._ref][:excluded] = false
+            network[vc_network_ref][:excluded] = false
 
             # Initialize opts hash used to inject data into one template
             opts = {}
@@ -551,66 +569,73 @@ module VCenterDriver
             if full_process
                 # Add network type to network hash
                 network_type = \
-                    VCenterDriver::Network.get_network_type(vc_network)
-                network[vc_network._ref][:network_type] = network_type
+                    VCenterDriver::Network.get_network_type(
+                        vc_network,
+                        vc_network_name
+                    )
+                network[vc_network_ref][:network_type] = network_type
             end
 
             # Determine if the network must be excluded
-            network[vc_network._ref][:excluded] = exclude_network?(vc_network,
-                                                                   one_host,
-                                                                   args)
-            return if network[vc_network._ref][:excluded] == true
+            network[vc_network_ref][:excluded] = exclude_network?(
+                vc_network,
+                one_host,
+                args,
+                vc_network_hash
+            )
+
+            return if network[vc_network_ref][:excluded] == true
 
             if full_process
-                case network[vc_network._ref][:network_type]
+                case network[vc_network_ref][:network_type]
                 # Distributed PortGroups
                 when VCenterDriver::Network::NETWORK_TYPE_DPG
-                    network[vc_network._ref][:sw_name] = \
+                    network[vc_network_ref][:sw_name] = \
                         vc_network.config.distributedVirtualSwitch.name
                     # For DistributedVirtualPortgroups there
                     # is networks and uplinks
-                    network[vc_network._ref][:uplink] = \
+                    network[vc_network_ref][:uplink] = \
                         vc_network.config.uplink
-                # network[vc_network._ref][:uplink] = false
+                # network[vc_network_ref][:uplink] = false
                 # NSX-V PortGroups
                 when VCenterDriver::Network::NETWORK_TYPE_NSXV
-                    network[vc_network._ref][:sw_name] = \
+                    network[vc_network_ref][:sw_name] = \
                         vc_network.config.distributedVirtualSwitch.name
                     # For NSX-V ( is the same as DistributedVirtualPortgroups )
                     # there is networks and uplinks
-                    network[vc_network._ref][:uplink] = \
+                    network[vc_network_ref][:uplink] = \
                         vc_network.config.uplink
-                    network[vc_network._ref][:uplink] = false
+                    network[vc_network_ref][:uplink] = false
                 # Standard PortGroups
                 when VCenterDriver::Network::NETWORK_TYPE_PG
                     # There is no uplinks for standard portgroups,
                     # so all Standard
                     # PortGroups are networks and no uplinks
-                    network[vc_network._ref][:uplink] = false
-                    network[vc_network._ref][:sw_name] =
+                    network[vc_network_ref][:uplink] = false
+                    network[vc_network_ref][:sw_name] =
                         VCenterDriver::Network
                         .virtual_switch(
                             vc_network
                         )
                 # NSX-T PortGroups
                 when VCenterDriver::Network::NETWORK_TYPE_NSXT
-                    network[vc_network._ref][:sw_name] = \
+                    network[vc_network_ref][:sw_name] = \
                         vc_network.summary.opaqueNetworkType
                     # There is no uplinks for NSX-T networks,
                     # so all NSX-T networks
                     # are networks and no uplinks
-                    network[vc_network._ref][:uplink] = false
+                    network[vc_network_ref][:uplink] = false
                 else
                     raise 'Unknown network type: ' \
-                          "#{network[vc_network._ref][:network_type]}"
+                          "#{network[vc_network_ref][:network_type]}"
                 end
             end
 
             # Multicluster nets support
-            network[vc_network._ref][:clusters] = {}
-            network[vc_network._ref][:clusters][:refs] = []
-            network[vc_network._ref][:clusters][:one_ids] = []
-            network[vc_network._ref][:clusters][:names] = []
+            network[vc_network_ref][:clusters] = {}
+            network[vc_network_ref][:clusters][:refs] = []
+            network[vc_network_ref][:clusters][:one_ids] = []
+            network[vc_network_ref][:clusters][:names] = []
 
             # Get hosts related to this network and add them if is not
             # excluded
@@ -618,51 +643,58 @@ module VCenterDriver
             vc_hosts.each do |vc_host|
                 # Get vCenter Cluster
                 vc_cluster = vc_host.parent
+                vc_cluster_ref = vc_cluster._ref
+                vc_cluster_name = vc_cluster.name
                 # Get one host from each vCenter cluster
                 one_host = VCenterDriver::VIHelper
                            .find_by_ref(OpenNebula::HostPool,
                                         'TEMPLATE/VCENTER_CCR_REF',
-                                        vc_cluster._ref,
+                                        vc_cluster_ref,
                                         vcenter_uuid)
                 # Check if network is excluded from each host
-                next if exclude_network?(vc_network, one_host, args)
+                next if exclude_network?(
+                    vc_network,
+                    one_host,
+                    args,
+                    vc_network_hash
+                )
 
                 # Insert vCenter cluster ref
-                network[vc_network._ref][:clusters][:refs] << vc_cluster._ref
+                network[vc_network_ref][:clusters][:refs] << vc_cluster_ref
                 # Insert OpenNebula cluster id
                 cluster_id = one_cluster_id(one_host)
-                network[vc_network._ref][:clusters][:one_ids] << cluster_id
+                network[vc_network_ref][:clusters][:one_ids] << cluster_id
                 # Insert vCenter cluster name
-                network[vc_network._ref][:clusters][:names] << vc_cluster.name
-                opts[:dc_name] = vc_cluster.name
+                network[vc_network_ref][:clusters][:names] << vc_cluster_name
+                opts[:dc_name] = vc_cluster_name
             end
 
             # Remove duplicate entries
-            network[vc_network._ref][:clusters][:refs].uniq!
-            network[vc_network._ref][:clusters][:one_ids].uniq!
-            network[vc_network._ref][:clusters][:names].uniq!
+            network[vc_network_ref][:clusters][:refs].uniq!
+            network[vc_network_ref][:clusters][:one_ids].uniq!
+            network[vc_network_ref][:clusters][:names].uniq!
 
             # Mark network as processed
-            network[vc_network._ref][:processed] = true
+            network[vc_network_ref][:processed] = true
 
             if full_process
                 # General net_info related to datacenter
                 opts[:vcenter_uuid] = vcenter_uuid
                 opts[:vcenter_instance_name] = vcenter_instance_name
-                opts[:network_name] = network[vc_network._ref]['name']
+                opts[:network_name] = network[vc_network_ref]['name']
                 opts[:network_ref]  = network.keys.first
-                opts[:network_type] = network[vc_network._ref][:network_type]
-                opts[:sw_name] = network[vc_network._ref][:sw_name]
+                opts[:network_type] = network[vc_network_ref][:network_type]
+                opts[:sw_name] = network[vc_network_ref][:sw_name]
 
-                network[vc_network._ref] = \
-                    network[vc_network._ref]
+                network[vc_network_ref] = \
+                    network[vc_network_ref]
                     .merge(VCenterDriver::Network
                     .to_one_template(opts))
             else
-                network[vc_network._ref][:ref] = \
-                    vc_network._ref
-                network[vc_network._ref][:name] = \
-                    network[vc_network._ref]['name']
+                network[vc_network_ref][:ref] = \
+                    vc_network_ref
+                network[vc_network_ref][:name] = \
+                    network[vc_network_ref]['name']
             end
 
             network
