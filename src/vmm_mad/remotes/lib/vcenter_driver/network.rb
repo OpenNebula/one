@@ -248,10 +248,10 @@ class Network
         one_vn
     end
 
-    def self.get_network_type(network)
+    def self.get_network_type(network, network_name)
         case network
         when RbVmomi::VIM::DistributedVirtualPortgroup
-            if network['name']
+            if network_name
               .match(/^vxw-dvs-(.*)-virtualwire-(.*)-sid-(.*)/)
                 VCenterDriver::Network::NETWORK_TYPE_NSXV
             else
@@ -383,7 +383,7 @@ class NetImporter < VCenterDriver::VcImporter
     end
 
     def get_list(args = {})
-	    dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
+        dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
 
         # OpenNebula's VirtualNetworkPool
         npool = VCenterDriver::VIHelper.one_pool(OpenNebula::VirtualNetworkPool, false)
