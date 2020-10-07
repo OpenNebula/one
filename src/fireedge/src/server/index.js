@@ -15,13 +15,13 @@ import {
 } from 'fs-extra';
 import http from 'http';
 import https from 'https';
+import { defaultTypeLog, defaultPort } from './utils/constants/defaults';
 import {
-  defaultConfigLogPath,
-  defaultConfigLogFile,
-  defaultTypeLog,
-  defaultPort
-} from './utils/constants/defaults';
-import { validateServerIsSecure, getCert, getKey } from './utils/server';
+  validateServerIsSecure,
+  getCert,
+  getKey,
+  genPathResources
+} from './utils/server';
 import {
   entrypoint404,
   entrypointApi,
@@ -31,6 +31,9 @@ import { oneHooks } from './routes/websockets/zeromq';
 import { vmrcUpgrade } from './routes/websockets/vmrc';
 import { guacamole } from './routes/websockets/guacamole';
 import { messageTerminal, getConfig } from './utils';
+
+// set paths
+genPathResources();
 
 // destructure imports
 const unsecureServer = http.createServer;
@@ -71,19 +74,20 @@ if (env.NODE_ENV === 'development') {
   frontPath = '../client';
 }
 let log = morgan('dev');
-if (userLog === defaultTypeLog) {
-  let logPath = `${defaultConfigLogPath}`;
-  if (env && env.ONE_LOCATION) {
-    logPath = env.ONE_LOCATION + logPath;
-  }
+if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
   try {
-    accessSync(logPath, constants.W_OK);
-    const logStream = createWriteStream(logPath + defaultConfigLogFile, {
+    accessSync(global.FIREEDGE_LOG, constants.W_OK);
+    const logStream = createWriteStream(global.FIREEDGE_LOG, {
       flags: 'a'
     });
     log = morgan('combined', { stream: logStream });
   } catch (err) {
-    console.error('no access!');
+    const config = {
+      color: 'red',
+      message: 'Error: %s',
+      type: err.message || ''
+    };
+    messageTerminal(config);
   }
 }
 app.use(helmet.hidePoweredBy());
