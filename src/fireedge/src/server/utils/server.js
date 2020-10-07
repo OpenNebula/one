@@ -12,34 +12,51 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+const { Map } = require('immutable');
+const { existsSync } = require('fs-extra');
+import { env } from 'process';
+const { internalServerError } = require('./constants/http-codes');
+const { defaultConfigLogPath } = require('./constants/defaults')
 
-const { createReadStream, generateFile } = require('fireedge-genpotfile');
-const constants = require('./src/server/utils/constants');
-const clientConstants = require('./src/client/constants');
+let cert = '';
+let key = '';
 
-const testFolder = './src/public';
-const exportFile = './src/public/assets/languages/messages.pot';
-const definitions = { ...constants, ...clientConstants };
-
-// function Tr()
-const optsFunc = {
-  regex: /Tr(\("|\('|\()[a-zA-Z0-9_ ]*("\)|'\)|\))/g,
-  removeStart: /Tr(\()/g,
-  removeEnd: /(\))/g,
-  regexTextCaptureIndex: 0,
-  definitions
+const validateServerIsSecure = () => {
+  cert = `${__dirname}/../cert/cert.pem`;
+  key = `${__dirname}/../cert/key.pem`;
+  return existsSync && key && cert && existsSync(key) && existsSync(cert);
 };
 
-// React component <Translate word="word"/>
-const optsComponent = {
-  regex: /<Translate word=('|"|{|{'|{")[a-zA-Z0-9_ ]*('|"|}|'}|"}) \/>/g,
-  removeStart: /<Translate word=('|"|{|{'|{")/g,
-  removeEnd: /('|"|}|'}|"}) \/>/g,
-  regexTextCaptureIndex: 0,
-  definitions
+const getCert = () => cert;
+const getKey = () => key;
+
+const httpResponse = (response, data, message) => {
+  let rtn = Map(internalServerError).toObject();
+  rtn.data = data;
+  if (response) {
+    rtn = Map(response).toObject();
+  }
+  if (data || data === 0) {
+    rtn.data = data;
+  }
+  if (message) {
+    rtn.message = message;
+  }
+  return rtn;
 };
 
-createReadStream(testFolder, optsFunc);
-createReadStream(testFolder, optsComponent);
+const genPathResources = ()=>{
+  let logPath = `${defaultConfigLogPath}`;
+  if (env && env.ONE_LOCATION) {
+    logPath = env.ONE_LOCATION + logPath;
+  }
+  
+}
 
-generateFile(exportFile);
+module.exports = {
+  httpResponse,
+  validateServerIsSecure,
+  getCert,
+  getKey,
+  genPathResources
+};

@@ -13,33 +13,39 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-genpotfile');
-const constants = require('./src/server/utils/constants');
-const clientConstants = require('./src/client/constants');
+const { generateQR, twoFactorSetup, twoFactorDelete } = require('./functions');
+const { httpMethod } = require('server/utils/constants/defaults'); // ../../../utils/constants/defaults'
+const {
+  TWO_FACTOR_QR,
+  TWO_FACTOR_DELETE,
+  TWO_FACTOR_SETUP
+} = require('./string-routes');
 
-const testFolder = './src/public';
-const exportFile = './src/public/assets/languages/messages.pot';
-const definitions = { ...constants, ...clientConstants };
+const { POST, DELETE } = httpMethod;
 
-// function Tr()
-const optsFunc = {
-  regex: /Tr(\("|\('|\()[a-zA-Z0-9_ ]*("\)|'\)|\))/g,
-  removeStart: /Tr(\()/g,
-  removeEnd: /(\))/g,
-  regexTextCaptureIndex: 0,
-  definitions
+const privateRoutes = [
+  {
+    httpMethod: POST,
+    endpoint: TWO_FACTOR_QR,
+    action: generateQR
+  },
+  {
+    httpMethod: POST,
+    endpoint: TWO_FACTOR_SETUP,
+    action: twoFactorSetup
+  },
+  {
+    httpMethod: DELETE,
+    endpoint: TWO_FACTOR_DELETE,
+    action: twoFactorDelete
+  }
+];
+
+const publicRoutes = [];
+
+const functionRoutes = {
+  private: privateRoutes,
+  public: publicRoutes
 };
 
-// React component <Translate word="word"/>
-const optsComponent = {
-  regex: /<Translate word=('|"|{|{'|{")[a-zA-Z0-9_ ]*('|"|}|'}|"}) \/>/g,
-  removeStart: /<Translate word=('|"|{|{'|{")/g,
-  removeEnd: /('|"|}|'}|"}) \/>/g,
-  regexTextCaptureIndex: 0,
-  definitions
-};
-
-createReadStream(testFolder, optsFunc);
-createReadStream(testFolder, optsComponent);
-
-generateFile(exportFile);
+module.exports = functionRoutes;

@@ -1,3 +1,4 @@
+/* eslint-disable import/no-dynamic-require */
 /* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
@@ -13,33 +14,36 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-genpotfile');
-const constants = require('./src/server/utils/constants');
-const clientConstants = require('./src/client/constants');
+const { messageTerminal } = require('server/utils/general');
+const { getRouteForOpennebulaCommand } = require('server/utils/opennebula');
 
-const testFolder = './src/public';
-const exportFile = './src/public/assets/languages/messages.pot';
-const definitions = { ...constants, ...clientConstants };
-
-// function Tr()
-const optsFunc = {
-  regex: /Tr(\("|\('|\()[a-zA-Z0-9_ ]*("\)|'\)|\))/g,
-  removeStart: /Tr(\()/g,
-  removeEnd: /(\))/g,
-  regexTextCaptureIndex: 0,
-  definitions
+const config = {
+  color: 'red',
+  message: 'file not found: %s'
 };
-
-// React component <Translate word="word"/>
-const optsComponent = {
-  regex: /<Translate word=('|"|{|{'|{")[a-zA-Z0-9_ ]*('|"|}|'}|"}) \/>/g,
-  removeStart: /<Translate word=('|"|{|{'|{")/g,
-  removeEnd: /('|"|}|'}|"}) \/>/g,
-  regexTextCaptureIndex: 0,
-  definitions
+const files = ['2fa', 'auth', 'oneflow', 'support', 'vcenter', 'zendesk'];
+const filesDataPrivate = [];
+const filesDataPublic = [];
+files.map(file => {
+  try {
+    // eslint-disable-next-line global-require
+    const fileInfo = require(`./${file}`);
+    if (fileInfo.private && fileInfo.private.length) {
+      filesDataPrivate.push(fileInfo.private);
+    }
+    if (fileInfo.public && fileInfo.public.length) {
+      filesDataPublic.push(fileInfo.public);
+    }
+  } catch (error) {
+    if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
+      config.type = error.message;
+      messageTerminal(config);
+    }
+  }
+});
+const opennebulaActions = getRouteForOpennebulaCommand();
+const routes = {
+  private: [...opennebulaActions, ...filesDataPrivate.flat()],
+  public: [...filesDataPublic.flat()]
 };
-
-createReadStream(testFolder, optsFunc);
-createReadStream(testFolder, optsComponent);
-
-generateFile(exportFile);
+module.exports = routes;

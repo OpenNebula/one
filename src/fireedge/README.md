@@ -1,3 +1,8 @@
+### Host the app from a server (app must have been built)
+```sh
+npm run serve
+```
+
 # Fire Edge
 
 Fire Edge server and client
@@ -6,7 +11,7 @@ Fire Edge server and client
 
 - **yarn** (this command import the dependecies).
 - **yarn build** (execute the javascript build "bundle")
-- **yarn start** (start the server in port 3000)
+- **yarn start** (start the server in port 2616)
 
 ## Development
 - **yarn dev** (run server in mode development)
@@ -17,11 +22,11 @@ Fire Edge server and client
 
   REST Interface. Usually Returns OpenNebula resource info. Login returns a JSON Web Token (`JWT`).
 
-  - Login: POST: `http://localhost:3000/api/auth` with params: `user` and `pass`.
+  - Login: POST: `http://localhost:2616/api/auth` with params: `user` and `pass`.
   - Other: check file `src/config/command-params.js`. if requires it to be in a specific zone you must put it at the end but before the query /feredation=ZONE_ID (replace ZONE_ID for the zone id)
 
 - **zeroMQ**
-  Websocket connection call to: `ws://127.0.0.1:3000/?token=JWT`
+  Websocket connection call to: `ws://127.0.0.1:2616/?token=JWT`
 
 ## Troubleshooting
 

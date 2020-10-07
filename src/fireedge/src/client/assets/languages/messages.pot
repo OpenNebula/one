@@ -1,0 +1,54 @@
+#: ./src/public/components/Cards/ClusterCard.js:94msgid "Hosts"msgstr ""
+
+#: ./src/public/components/Cards/ClusterCard.js:104msgid "Virtual networks"msgstr ""
+
+#: ./src/public/components/Cards/ClusterCard.js:114msgid "Datastores"msgstr ""
+
+#: ./src/public/components/Cards/NetworkCard.js:66#: ./src/public/components/Cards/TierCard.js:70msgid "Edit"msgstr ""
+
+#: ./src/public/components/Cards/NetworkCard.js:69#: ./src/public/components/Cards/TierCard.js:75msgid "Clone"msgstr ""
+
+#: ./src/public/components/Cards/NetworkCard.js:72#: ./src/public/components/Cards/TierCard.js:80msgid "Remove"msgstr ""
+
+#: ./src/public/components/Dialogs/DialogForm.js:50msgid "Cancel"msgstr ""
+
+#: ./src/public/components/Dialogs/DialogForm.js:60msgid "Save"msgstr ""
+
+#: ./src/public/components/FormControl/GroupSelect.js:65msgid "Select a group"msgstr ""
+
+#: ./src/public/components/FormControl/GroupSelect.js:69msgid "Show all"msgstr ""
+
+#: ./src/public/components/FormControl/SubmitButton.js:29msgid "Submit"msgstr ""
+
+#: ./src/public/components/FormStepper/MobileStepper.js:32#: ./src/public/components/FormStepper/Stepper.js:41msgid "Back"msgstr ""
+
+#: ./src/public/components/Header/Popover.js:88msgid "headerTitle"msgstr ""
+
+#: ./src/public/components/Header/User.js:30msgid "Settings"msgstr ""
+
+#: ./src/public/components/Header/User.js:33msgid "SignOut"msgstr ""
+
+#: ./src/public/components/Header/Zone.js:33msgid "Zone"msgstr ""
+
+#: ./src/public/containers/Login/Forms/Form2fa.js:41msgid "Token2FA"msgstr ""
+
+#: ./src/public/containers/Login/Forms/Form2fa.js:58#: ./src/public/containers/Login/Forms/FormGroup.js:28msgid "Next"msgstr ""
+
+#: ./src/public/containers/Login/Forms/FormUser.js:48msgid "Username"msgstr ""
+
+#: ./src/public/containers/Login/Forms/FormUser.js:64msgid "Password"msgstr ""
+
+#: ./src/public/containers/Login/Forms/FormUser.js:82msgid "KeepLoggedIn"msgstr ""
+
+#: ./src/public/containers/Login/Forms/FormUser.js:88msgid "SignIn"msgstr ""
+
+#: ./src/public/containers/TestApi/index.js:39msgid "Select request"msgstr ""
+
+#: ./src/public/containers/Error404/index.js:24msgid "NotFound"msgstr ""
+
+#: ./src/public/containers/Infrastructure/Clusters.js:33#: ./src/public/containers/Infrastructure/Hosts.js:34#: ./src/public/containers/Infrastructure/Zones.js:34msgid "name"msgstr ""
+
+#: ./src/public/containers/Settings/index.js:23msgid "settings"msgstr ""
+
+#: ./src/public/containers/TestApi/index.js:44msgid "none"msgstr ""
+
