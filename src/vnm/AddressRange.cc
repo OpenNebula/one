@@ -1258,13 +1258,14 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
         nic->replace("VLAN_ID", vlanid);
     }
 
-    for (auto it = inherit.begin(); it != inherit.end(); it++)
+    for (const auto& inherited : inherit)
     {
-        string inherit_val = attr->vector_value(*it);
+        string current_val = nic->vector_value(inherited);
+        string inherit_val = attr->vector_value(inherited);
 
-        if (!inherit_val.empty())
+        if (current_val.empty() && !inherit_val.empty())
         {
-            nic->replace((*it).c_str(), inherit_val);
+            nic->replace(inherited, inherit_val);
         }
     }
 }

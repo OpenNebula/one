@@ -678,9 +678,10 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     for (const auto& inherit : inherit_attrs)
     {
+        string current_val = disk->vector_value(inherit);
         get_template_attribute(inherit, inherit_val);
 
-        if (!inherit_val.empty())
+        if (current_val.empty() && !inherit_val.empty())
         {
             disk->replace(inherit, inherit_val);
         }
