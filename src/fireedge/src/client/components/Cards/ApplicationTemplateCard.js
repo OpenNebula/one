@@ -24,17 +24,6 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column'
   },
-  selected: {
-    color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.main,
-    '& $badge': {
-      color: theme.palette.primary.main,
-      backgroundColor: theme.palette.common.white
-    }
-  },
-  actionArea: {
-    height: '100%'
-  },
   header: {
     overflowX: 'hidden',
     flexGrow: 1

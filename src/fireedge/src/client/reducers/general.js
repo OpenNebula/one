@@ -19,7 +19,7 @@ const { Actions: GeneralActions } = require('../actions/general');
 
 const initial = {
   zone: 0,
-  errors: [],
+  notifications: [],
   isLoading: false,
   isOpenMenu: false,
   isFixMenu: false
@@ -32,10 +32,30 @@ const General = (state = initial, action) => {
     case PoolActions.SUCCESS_ONE_REQUEST:
       return { ...state, isLoading: false };
     case PoolActions.FAILURE_ONE_REQUEST:
+      return { ...state, isLoading: false };
+    case GeneralActions.ENQUEUE_SNACKBAR:
       return {
         ...state,
-        errors: [...state.errors, action.payload.error],
-        isLoading: false
+        notifications: [
+          ...state.notifications,
+          { key: action.key, ...action.notification }
+        ]
+      };
+    case GeneralActions.CLOSE_SNACKBAR:
+      return {
+        ...state,
+        notifications: state.notifications.map(notification =>
+          action.dismissAll || notification.key === action.key
+            ? { ...notification, dismissed: true }
+            : { ...notification }
+        )
+      };
+    case GeneralActions.REMOVE_SNACKBAR:
+      return {
+        ...state,
+        notifications: state.notifications.filter(
+          notification => notification.key !== action.key
+        )
       };
     case GeneralActions.CHANGE_ZONE:
       return { ...state, ...action.payload };

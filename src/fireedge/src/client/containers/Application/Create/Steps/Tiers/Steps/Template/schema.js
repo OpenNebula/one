@@ -4,11 +4,11 @@ import { getValidationFromFields } from 'client/utils/helpers';
 export const FORM_FIELDS = [
   {
     name: 'template',
-    validation: yup.string().trim()
+    validation: yup.number().min(0, 'Invalid template')
   },
   {
     name: 'app',
-    validation: yup.string().trim()
+    validation: yup.number().min(0, 'Invalid market app template')
   },
   {
     name: 'docker',

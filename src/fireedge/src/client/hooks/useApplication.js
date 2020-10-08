@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 
-import actions, {
-  startOneRequest,
-  failureOneRequest
-} from 'client/actions/pool';
+import { setApplications, setApplicationsTemplates } from 'client/actions/pool';
+
+import { enqueueError, enqueueSuccess } from 'client/actions/general';
 
 import * as serviceApplication from 'client/services/application';
 import { filterBy } from 'client/utils/helpers';
@@ -24,68 +23,74 @@ export default function useOpennebula() {
   );
 
   const getApplications = useCallback(
-    ({ end, start } = { end: -1, start: -1 }) => {
-      dispatch(startOneRequest());
-      return serviceApplication
+    ({ end, start } = { end: -1, start: -1 }) =>
+      serviceApplication
         .getApplications({ filter, end, start })
-        .then(data =>
-          dispatch(
-            actions.setApplications(filterBy(applications.concat(data), 'ID'))
-          )
-        )
+        .then(doc => dispatch(setApplications(doc)))
         .catch(err => {
-          dispatch(failureOneRequest({ error: err }));
-        });
-    },
+          dispatch(enqueueError(err ?? 'Error GET applications'));
+        }),
     [dispatch, filter, applications]
   );
 
   const getApplicationTemplate = useCallback(
-    ({ id }) => {
-      dispatch(startOneRequest());
-      return serviceApplication.getTemplate({ id }).catch(err => {
-        dispatch(failureOneRequest({ error: err }));
-      });
-    },
+    ({ id }) =>
+      serviceApplication.getTemplate({ id }).catch(err => {
+        dispatch(enqueueError(err ?? `Error GET (${id}) application template`));
+      }),
     [dispatch]
   );
 
   const getApplicationsTemplates = useCallback(
-    ({ end, start } = { end: -1, start: -1 }) => {
-      dispatch(startOneRequest());
-      return serviceApplication
+    ({ end, start } = { end: -1, start: -1 }) =>
+      serviceApplication
         .getTemplates({ filter, end, start })
-        .then(data =>
-          dispatch(
-            actions.setApplicationsTemplates(
-              filterBy(applicationsTemplates.concat(data), 'ID')
-            )
-          )
-        )
+        .then(doc => dispatch(setApplicationsTemplates(doc)))
         .catch(err => {
-          dispatch(failureOneRequest({ error: err }));
-        });
-    },
+          dispatch(enqueueError(err ?? 'Error GET applications templates'));
+        }),
     [dispatch, filter, applicationsTemplates]
   );
 
   const createApplicationTemplate = useCallback(
-    ({ data }) => {
-      dispatch(startOneRequest());
-      return serviceApplication.createTemplate({ data }).catch(err => {
-        dispatch(failureOneRequest({ error: err }));
-      });
-    },
-    [dispatch]
+    ({ data }) =>
+      serviceApplication
+        .createTemplate({ data })
+        .then(doc => {
+          dispatch(
+            setApplicationsTemplates(
+              filterBy([doc].concat(applicationsTemplates), 'ID')
+            )
+          );
+
+          return dispatch(enqueueSuccess(`Template created - ID: ${doc.ID}`));
+        })
+        .catch(err => {
+          dispatch(
+            enqueueError(err?.message ?? 'Error CREATE application template')
+          );
+        }),
+    [dispatch, applicationsTemplates]
   );
 
   const updateApplicationTemplate = useCallback(
-    ({ id, data }) => {
-      dispatch(startOneRequest());
-      return serviceApplication.updateTemplate({ id, data }).catch(err => {
-        dispatch(failureOneRequest({ error: err }));
-      });
-    },
+    ({ id, data }) =>
+      serviceApplication
+        .updateTemplate({ id, data })
+        .then(doc => {
+          dispatch(
+            setApplicationsTemplates(
+              filterBy([doc].concat(applicationsTemplates), 'ID')
+            )
+          );
+
+          return dispatch(enqueueSuccess(`Template updated - ID: ${doc.ID}`));
+        })
+        .catch(err => {
+          dispatch(
+            enqueueError(err?.message ?? 'Error UPDATE application template')
+          );
+        }),
     [dispatch]
   );
 

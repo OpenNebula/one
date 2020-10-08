@@ -1,16 +1,14 @@
-import React from 'react';
 import * as yup from 'yup';
 import { TYPE_INPUT } from 'client/constants';
 import { getValidationFromFields } from 'client/utils/helpers';
-import { Translate, Tr } from 'client/components/HOC/Translate';
 
 const STRATEGIES_DEPLOY = [
-  { text: 'None', value: '""' },
+  { text: 'None', value: 'none' },
   { text: 'Straight', value: 'straight' }
 ];
 
 const SHUTDOWN_ACTIONS = [
-  { text: 'None', value: '""' },
+  { text: 'None', value: 'none' },
   { text: 'Terminate', value: 'terminate' },
   { text: 'Terminate hard', value: 'terminate-hard' }
 ];
@@ -18,11 +16,12 @@ const SHUTDOWN_ACTIONS = [
 export const FORM_FIELDS = [
   {
     name: 'name',
-    label: Tr('Name'), // <Translate word="Name" />,
+    label: 'Name',
     type: TYPE_INPUT.TEXT,
     validation: yup
       .string()
-      .min(5)
+      .min(1, 'Name field is required')
+      .matches(/^[\w+\s*]+$/g, { message: 'Invalid characters' })
       .trim()
       .required('Name field is required')
       .default('')
@@ -44,7 +43,8 @@ export const FORM_FIELDS = [
     values: STRATEGIES_DEPLOY,
     validation: yup
       .string()
-      .required()
+      .trim()
+      .required('Strategy deployment field is required')
       .oneOf(STRATEGIES_DEPLOY.map(({ value }) => value))
       .default(STRATEGIES_DEPLOY[1].value)
   },
@@ -56,7 +56,7 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .oneOf(SHUTDOWN_ACTIONS.map(({ value }) => value))
-      .default(SHUTDOWN_ACTIONS[1].value)
+      .default(SHUTDOWN_ACTIONS[0].value)
   },
   {
     name: 'ready_status_gate',

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { useHistory } from 'react-router-dom';
-import { Box } from '@material-ui/core';
+import { Box, LinearProgress } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 
 import useApplication from 'client/hooks/useApplication';
@@ -33,7 +33,7 @@ const ApplicationsTemplatesList = () => {
   }
 
   if (loading) {
-    return <div>loading</div>;
+    return <LinearProgress />;
   }
 
   return (

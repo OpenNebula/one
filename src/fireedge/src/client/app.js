@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,48 +13,39 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useEffect } from 'react';
-import { StaticRouter, BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import React from 'react';
 import PropTypes from 'prop-types';
 
-import { CssBaseline, ThemeProvider, StylesProvider } from '@material-ui/core';
+import { StaticRouter, BrowserRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
-import theme, { generateClassName } from 'client/assets/theme';
+import MuiProvider from 'client/providers/muiProvider';
+import NotistackProvider from 'client/providers/notistackProvider';
 import { TranslateProvider } from 'client/components/HOC';
+
 import Router from 'client/router';
 
-const App = ({ location, context, store }) => {
-  useEffect(() => {
-    const jssStyles = document.querySelector('#jss-server-side');
-    if (jssStyles) {
-      jssStyles.parentElement.removeChild(jssStyles);
-    }
-  }, []);
-
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <StylesProvider generateClassName={generateClassName}>
-        <Provider store={store}>
-          <TranslateProvider>
-            {location && context ? (
-              // server build
-              <StaticRouter location={location} context={context}>
-                <Router />
-              </StaticRouter>
-            ) : (
-              // browser build
-              <BrowserRouter>
-                <Router />
-              </BrowserRouter>
-            )}
-          </TranslateProvider>
-        </Provider>
-      </StylesProvider>
-    </ThemeProvider>
-  );
-};
+const App = ({ location, context, store }) => (
+  <MuiProvider>
+    <Provider store={store}>
+      <NotistackProvider>
+        <TranslateProvider>
+          {location && context ? (
+            // server build
+            <StaticRouter location={location} context={context}>
+              <Router />
+            </StaticRouter>
+          ) : (
+            // browser build
+            <BrowserRouter>
+              <Router />
+            </BrowserRouter>
+          )}
+        </TranslateProvider>
+      </NotistackProvider>
+    </Provider>
+  </MuiProvider>
+);
 
 App.propTypes = {
   location: PropTypes.string,
