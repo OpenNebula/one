@@ -18,7 +18,7 @@ clean() {
 }
 
 dependencies() {
-    npm i
+    npm i --production
 }
 
 install() {
