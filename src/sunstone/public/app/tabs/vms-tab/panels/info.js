@@ -71,7 +71,9 @@ define(function(require) {
     var prettyStartTime = Humanize.prettyTime(this.element.STIME);
 
     var stateStr = OpenNebula.VM.stateStr(this.element.STATE);
+    var stateClass = OpenNebula.VM.stateClass(this.element.STATE);
     var lcmStateStr = OpenNebula.VM.lcmStateStr(this.element.LCM_STATE);
+    var lcmStateClass = OpenNebula.VM.lcmStateClass(this.element.LCM_STATE);
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
     var vrouterHTML = "--";
 
@@ -131,7 +133,9 @@ define(function(require) {
       "element": this.element,
       "renameTrHTML": renameTrHTML,
       "stateStr": stateStr,
+      "stateClass": stateClass,
       "lcmStateStr": lcmStateStr,
+      "lcmStateClass": lcmStateClass,
       "hostnameHTML": hostnameHTML,
       "prettyStartTime": prettyStartTime,
       "deployId": deployId,

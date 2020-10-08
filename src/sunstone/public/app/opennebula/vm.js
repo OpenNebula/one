@@ -41,6 +41,21 @@ define(function(require) {
     "CLONING_FAILURE"
   ];
 
+  var STATES_CLASSES = [
+    "info", // INIT
+    "info", // PENDING
+    "info", // HOLD
+    "", // ACTIVE
+    "info", // STOPPED
+    "info", // SUSPENDED
+    "info", // DONE
+    "info", // FAILED
+    "info", // POWEROFF
+    "info", // UNDEPLOYED
+    "info", // CLONING
+    "info" // CLONING_FAILURE
+  ];
+
   var STATES = {
     INIT            : 0,
     PENDING         : 1,
@@ -123,6 +138,75 @@ define(function(require) {
     "DISK_RESIZE_POWEROFF",
     "DISK_RESIZE_UNDEPLOYED",
     "HOTPLUG_NIC_POWEROFF"
+  ];
+
+  var LCM_STATES_CLASSES = [
+    "info", // LCM_INIT
+    "info", // PROLOG
+    "info", // BOOT
+    "success",  // RUNNING
+    "info",  // MIGRATE
+    "info",  // SAVE_STOP
+    "info", // SAVE_SUSPEND
+    "info", // SAVE_MIGRATE
+    "info", // PROLOG_MIGRATE
+    "info",  // PROLOG_RESUME
+    "info",  // EPILOG_STOP
+    "info", // EPILOG
+    "info", // SHUTDOWN
+    "info", // CANCEL
+    "alert",  // FAILURE
+    "info", // CLEANUP_RESUBMIT
+    "info",  // UNKNOWN
+    "info",  // HOTPLUG
+    "info",  // SHUTDOWN_POWEROFF
+    "info", // BOOT_UNKNOWN
+    "info",  // BOOT_POWEROFF
+    "info", // BOOT_SUSPENDED
+    "info", // BOOT_STOPPED
+    "info", // CLEANUP_DELETE
+    "info", // HOTPLUG_SNAPSHOT
+    "info",  // HOTPLUG_NIC
+    "info", // HOTPLUG_SAVEAS
+    "info",  // HOTPLUG_SAVEAS_POWEROFF
+    "info", // HOTPLUG_SAVEAS_SUSPENDED
+    "info",  // SHUTDOWN_UNDEPLOY
+    "info",  // EPILOG_UNDEPLOY
+    "info",  // PROLOG_UNDEPLOY
+    "info",  // BOOT_UNDEPLOY
+    "info",  // HOTPLUG_PROLOG_POWEROFF
+    "info",  // HOTPLUG_EPILOG_POWEROFF
+    "info", // BOOT_MIGRATE
+    "alert", // BOOT_FAILURE
+    "alert", // BOOT_MIGRATE_FAILURE
+    "alert", // PROLOG_MIGRATE_FAILURE
+    "alert", // PROLOG_FAILURE
+    "alert", // EPILOG_FAILURE
+    "alert",  // EPILOG_STOP_FAILURE
+    "alert",  // EPILOG_UNDEPLOY_FAILURE
+    "info",  // PROLOG_MIGRATE_POWEROFF
+    "alert",  // PROLOG_MIGRATE_POWEROFF_FAILURE
+    "info", // PROLOG_MIGRATE_SUSPEND
+    "alert", // PROLOG_MIGRATE_SUSPEND_FAILURE
+    "alert",  // BOOT_UNDEPLOY_FAILURE
+    "alert", // BOOT_STOPPED_FAILURE
+    "alert",  // PROLOG_RESUME_FAILURE
+    "alert",  // PROLOG_UNDEPLOY_FAILURE
+    "info", // DISK_SNAPSHOT_POWEROFF
+    "info",  // DISK_SNAPSHOT_REVERT_POWEROFF
+    "info",  // DISK_SNAPSHOT_DELETE_POWEROFF
+    "info",  // DISK_SNAPSHOT_SUSPENDED
+    "info", // DISK_SNAPSHOT_REVERT_SUSPENDED
+    "info", // DISK_SNAPSHOT_DELETE_SUSPENDED
+    "info",  // DISK_SNAPSHOT
+    "info", // DISK_SNAPSHOT_REVERT (deprecated)
+    "info", // DISK_SNAPSHOT_DELETE
+    "info", // PROLOG_MIGRATE_UNKNOWN
+    "alert", // PROLOG_MIGRATE_UNKNOWN_FAILURE
+    "info",  // DISK_RESIZE
+    "info", // DISK_RESIZE_POWEROFF
+    "info", // DISK_RESIZE_UNDEPLOYED
+    "info"  // HOTPLUG_NIC_POWEROFF
   ];
 
   var LCM_STATES = {
@@ -631,9 +715,15 @@ define(function(require) {
     "stateStr": function(stateId) {
       return STATES_STR[stateId];
     },
+    "stateClass": function(stateId) {
+      return STATES_CLASSES[stateId];
+    },
     "STATES": STATES,
     "lcmStateStr": function(stateId) {
       return LCM_STATES_STR[stateId];
+    },
+    "lcmStateClass": function(stateId) {
+      return LCM_STATES_CLASSES[stateId];
     },
     "LCM_STATES": LCM_STATES,
     "shortLcmStateStr": function(stateId) {
