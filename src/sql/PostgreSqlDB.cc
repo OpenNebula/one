@@ -159,6 +159,29 @@ int PostgreSqlDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quie
 
     PGresult* res = PQexec(conn, c_str);
 
+    if ( PQstatus(conn) == CONNECTION_BAD )
+    {
+        PQreset(conn);
+
+        if ( PQstatus(conn) == CONNECTION_BAD )
+        {
+            NebulaLog::error("ONE", "Lost connection to DB, unable to reconnect");
+
+            PQclear(res);
+            free_db_connection(conn);
+
+            return SqlDB::CONNECTION;
+        }
+        else
+        {
+            NebulaLog::info("ONE", "Succesfully reconnected to DB");
+
+            // Re-execute the query
+            PQclear(res);
+            res = PQexec(conn, c_str);
+        }
+    }
+
     if ( PQresultStatus(res) != PGRES_COMMAND_OK &&
          PQresultStatus(res) != PGRES_TUPLES_OK )
     {
