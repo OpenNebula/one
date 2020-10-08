@@ -19,7 +19,8 @@ import {
   TranslateContext,
   TranslateProvider,
   Translate,
-  Tr
+  Tr,
+  SelectTranslate
 } from 'client/components/HOC/Translate';
 
 export {
@@ -28,5 +29,6 @@ export {
   TranslateContext,
   TranslateProvider,
   Translate,
-  Tr
+  Tr,
+  SelectTranslate
 };

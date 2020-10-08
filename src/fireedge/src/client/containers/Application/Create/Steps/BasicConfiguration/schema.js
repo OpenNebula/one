@@ -18,13 +18,13 @@ const SHUTDOWN_ACTIONS = [
 export const FORM_FIELDS = [
   {
     name: 'name',
-    label: <Translate word="Name" />,
+    label: Tr('Name'), // <Translate word="Name" />,
     type: TYPE_INPUT.TEXT,
     validation: yup
       .string()
       .min(5)
       .trim()
-      .required(Tr('Name field is required'))
+      .required('Name field is required')
       .default('')
   },
   {

@@ -13,12 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, {
-  useContext,
-  useState,
-  useEffect,
-  createContext as CreateContext
-} from 'react';
+import React, { useContext, useState, useEffect, createContext } from 'react';
 import PropTypes from 'prop-types';
 import { Select } from '@material-ui/core';
 import { sprintf } from 'sprintf-js';
@@ -26,7 +21,7 @@ import root from 'window-or-global';
 import { defaultLang } from 'server/utils/constants/defaults';
 
 const defaultFunction = () => undefined;
-const TranslateContext = new CreateContext();
+const TranslateContext = createContext();
 const document = root.document;
 let languageScript =
   document && document.createElement && document.createElement('script');
@@ -82,39 +77,33 @@ const TranslateProvider = ({ children }) => {
   );
 };
 
-const Tr = (str = '', context = {}) => {
+const translate = (str = '', values) => {
+  const context = useContext(TranslateContext);
   let key = str;
-  let replaceValues;
-  let languagesContext = context;
-
-  if (Array.isArray(str)) {
-    key = str[0] || '';
-    replaceValues = str[1];
+  if (context && context.hash && context.hash[key]) {
+    key = context.hash[key];
   }
-
-  if (
-    Object.keys(languagesContext).length === 0 &&
-    languagesContext.constructor === Object
-  ) {
-    try {
-      languagesContext = useContext(TranslateContext);
-      // eslint-disable-next-line no-empty
-    } catch (error) {}
-  }
-
-  if (languagesContext && languagesContext.hash && languagesContext.hash[key]) {
-    const translate = languagesContext.hash[key];
-    key = translate;
-  }
-
-  if (!!replaceValues && Array.isArray(replaceValues)) {
-    key = sprintf(key, ...replaceValues);
+  if (!!values && Array.isArray(values)) {
+    key = sprintf(key, ...values);
   }
   return key;
 };
 
-const Translate = ({ word, values }) => {
+const Tr = (str = '') => {
+  let key = str;
+  let values;
+
+  if (Array.isArray(str)) {
+    key = str[0] || '';
+    values = str[1];
+  }
+  return <Translate word={key} values={values} />;
+};
+
+const SelectTranslate = () => {
   const context = useContext(TranslateContext);
+  const languages =
+    root && root.langs && Array.isArray(root.langs) ? root.langs : [];
   const handleChange = (e, changeLang) => {
     if (
       e &&
@@ -127,29 +116,25 @@ const Translate = ({ word, values }) => {
     }
   };
 
-  const selector = current => {
-    if (!word && current.changeLang && context.lang) {
-      if (root.langs && Array.isArray(root.langs)) {
-        const languages = root.langs;
-        return (
-          <Select
-            native
-            type="select"
-            onChange={e => handleChange(e, current.changeLang)}
-            defaultValue={context.lang}
-          >
-            {languages.map(({ key, value }) => (
-              <option value={key} key={key}>{`${value}`}</option>
-            ))}
-          </Select>
-        );
-      }
-    }
-    const valuesTr = !!values && !Array.isArray(values) ? [values] : values;
-    return Tr([word, valuesTr], context);
-  };
+  return (
+    <Select
+      native
+      type="select"
+      onChange={e => handleChange(e, context.changeLang)}
+      defaultValue={context.lang}
+    >
+      {languages.map(({ key, value }) => (
+        <option value={key} key={key}>
+          {value}
+        </option>
+      ))}
+    </Select>
+  );
+};
 
-  return <TranslateContext.Consumer>{selector}</TranslateContext.Consumer>;
+const Translate = ({ word = '', values }) => {
+  const valuesTr = !!values && !Array.isArray(values) ? [values] : values;
+  return translate(word, valuesTr);
 };
 
 TranslateProvider.propTypes = {
@@ -173,4 +158,4 @@ Translate.defaultProps = {
   values: ''
 };
 
-export { TranslateContext, TranslateProvider, Translate, Tr };
+export { TranslateContext, TranslateProvider, SelectTranslate, Translate, Tr };

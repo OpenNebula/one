@@ -4,7 +4,7 @@ import { MenuItem, MenuList, Divider } from '@material-ui/core';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import useAuth from 'client/hooks/useAuth';
-import { Tr, Translate } from 'client/components/HOC';
+import { Tr, SelectTranslate } from 'client/components/HOC';
 
 import { SignOut } from 'client/constants/translates';
 import { PATH } from 'client/router/endpoints';
@@ -28,7 +28,7 @@ const User = React.memo(() => {
       {() => (
         <MenuList>
           <MenuItem>
-            <Translate />
+            <SelectTranslate />
           </MenuItem>
           <MenuItem onClick={handleGoToSettings}>{Tr('Settings')}</MenuItem>
           <Divider />
