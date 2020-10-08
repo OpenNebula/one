@@ -109,7 +109,8 @@ define(function(require) {
       "min-width":"8rem",
       "font-family": '"Lato","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif',
       "font-weight": "100",
-      "color":"#000"
+      "color":"#000",
+      "font-weight": "bold"
     };
     $(".describeCharter").off("mouseenter").on("mouseenter",function(e){
       $(this).find(".charterInfo").remove();
@@ -121,7 +122,7 @@ define(function(require) {
         if(typeof date === "number"){
           $(this).append(
             $("<div/>",{"class":classInfo}).css(styleTips).append(
-              $("<b/>").css({"display":"inline"}).text(action).add(
+              $("<div/>").css({"display":"inline"}).text(action).add(
                 $("<div/>").css({"display":"inline"}).text(
                   " "+Locale.tr("will run in")+" "+ScheduleActions.parseTime(date)
                 )
