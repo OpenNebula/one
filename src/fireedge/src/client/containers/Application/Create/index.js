@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
+import { Redirect, useHistory, useParams } from 'react-router-dom';
 
 import { Container } from '@material-ui/core';
 import { useForm, FormProvider } from 'react-hook-form';
@@ -37,12 +37,12 @@ function ApplicationCreate() {
     const application = mapFormToApplication(formData);
 
     if (id)
-      updateApplicationTemplate({ id, data: application }).then(() =>
-        history.push(PATH.APPLICATION.DEPLOY)
+      updateApplicationTemplate({ id, data: application }).then(
+        res => res && history.push(PATH.APPLICATION.DEPLOY)
       );
     else
-      createApplicationTemplate({ data: application }).then(() =>
-        history.push(PATH.APPLICATION.DEPLOY)
+      createApplicationTemplate({ data: application }).then(
+        res => res && history.push(PATH.APPLICATION.DEPLOY)
       );
   };
 
@@ -62,20 +62,23 @@ function ApplicationCreate() {
 
   useEffect(() => {
     const formData = data ? mapApplicationToForm(data) : {};
-    methods.reset({ ...defaultValues, ...formData }, { errors: false });
+    methods.reset(resolvers.cast(formData), { errors: false });
   }, [data]);
+
+  if (error) {
+    return <Redirect to={PATH.DASHBOARD} />;
+  }
 
   return (
     <Container
       disableGutters
       style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
     >
-      {error && <div>error!</div>}
-      {!error && loading ? (
+      {loading ? (
         <div>is loading...</div>
       ) : (
         <FormProvider {...methods}>
-          <FormStepper steps={steps} onSubmit={onSubmit} />
+          <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
         </FormProvider>
       )}
     </Container>

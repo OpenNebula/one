@@ -34,7 +34,7 @@ const MANDATORY = {
   type: TYPE_INPUT.CHECKBOX,
   validation: yup
     .boolean()
-    .required()
+    .required('Mandatory field is required')
     .default(false),
   grid: { md: 12 }
 };
@@ -46,7 +46,8 @@ const NAME = {
   validation: yup
     .string()
     .trim()
-    .required('Name field is a required')
+    .matches(/^[\w+\s*]+$/g, { message: 'Invalid characters' })
+    .required('Name field is required')
     .default('')
 };
 

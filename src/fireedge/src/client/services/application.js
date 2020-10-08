@@ -51,16 +51,24 @@ export const getTemplates = ({ filter }) =>
 export const createTemplate = ({ data = {} }) =>
   requestData(`/api/${SERVICE_TEMPLATE}`, {
     data,
-    method: httpMethod.POST,
-    error: err => err?.message
-  }).then(console.log);
+    method: httpMethod.POST
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
+    if (!res?.data?.DOCUMENT?.ID) throw new Error('Error');
+
+    return res?.data?.DOCUMENT ?? {};
+  });
 
 export const updateTemplate = ({ id, data = {} }) =>
   requestData(`/api/${SERVICE_TEMPLATE}/${id}`, {
     data,
-    method: httpMethod.PUT,
-    error: err => err?.message
-  }).then(console.log);
+    method: httpMethod.PUT
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
+    if (!res?.data?.DOCUMENT?.ID) throw new Error('Error');
+
+    return res?.data?.DOCUMENT ?? {};
+  });
 
 export default {
   getApplication,

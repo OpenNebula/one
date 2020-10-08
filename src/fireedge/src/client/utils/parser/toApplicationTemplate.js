@@ -17,6 +17,7 @@ const mapNetworkToUserInput = network => {
 const mapTiersToRoles = (tiers, networking, cluster) =>
   tiers?.map(data => {
     const { template, networks, parents, policies, position, tier } = data;
+    const { shutdown_action: action, ...information } = tier;
 
     const networksValue = networks
       ?.reduce((res, id, idx) => {
@@ -34,9 +35,10 @@ const mapTiersToRoles = (tiers, networking, cluster) =>
     }, []);
 
     return {
-      ...tier,
+      ...information,
+      ...(action !== 'none' && { shutdown_action: action }),
       parents: parentsValue,
-      vm_template: template ? parseInt(template?.template, 10) : undefined,
+      vm_template: template?.template ?? template?.app,
       vm_template_contents: networksValue,
       elasticity_policies: [],
       scheduled_policies: [],
@@ -52,8 +54,11 @@ const mapFormToApplication = data => {
     [TIERS_ID]: tiers
   } = data;
 
+  const { shutdown_action: action, ...information } = application;
+
   return {
-    ...application,
+    ...information,
+    ...(action !== 'none' && { shutdown_action: action }),
     networks:
       networking?.reduce(
         (res, { name, ...network }) => ({

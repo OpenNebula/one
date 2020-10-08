@@ -22,6 +22,7 @@ import useOpennebula from 'client/hooks/useOpennebula';
 
 import LoadingScreen from 'client/components/LoadingScreen';
 import Sidebar from 'client/components/Sidebar';
+import Notifier from 'client/components/Notifier';
 import { PATH, findRouteByPathname } from 'client/router/endpoints';
 
 const MainLayout = ({ children }) => {
@@ -63,6 +64,7 @@ const MainLayout = ({ children }) => {
     <>
       {authRoute && isLogged && <Sidebar />}
       {children}
+      <Notifier />
     </>
   );
 };

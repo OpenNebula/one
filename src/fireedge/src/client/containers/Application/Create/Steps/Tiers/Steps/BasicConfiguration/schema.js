@@ -3,7 +3,7 @@ import { TYPE_INPUT } from 'client/constants';
 import { getValidationFromFields } from 'client/utils/helpers';
 
 const SHUTDOWN_ACTIONS = [
-  { text: 'None', value: '""' },
+  { text: 'None', value: 'none' },
   { text: 'Shutdown', value: 'shutdown' },
   { text: 'Shutdown hard', value: 'shutdown-hard' }
 ];
@@ -15,8 +15,8 @@ export const FORM_FIELDS = [
     type: TYPE_INPUT.TEXT,
     validation: yup
       .string()
-      .min(1)
       .trim()
+      .matches(/^[\w+\s*]+$/g, { message: 'Invalid characters' })
       .required('Name field is required')
       .default('')
   },
@@ -24,10 +24,11 @@ export const FORM_FIELDS = [
     name: 'cardinality',
     label: 'Cardinality',
     type: TYPE_INPUT.TEXT,
+    htmlType: 'number',
     validation: yup
       .number()
-      .min(1)
-      .required()
+      .min(1, 'Cardinality field is required')
+      .required('Cardinality field is required')
       .default(1)
   },
   {
@@ -38,7 +39,7 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .oneOf(SHUTDOWN_ACTIONS.map(({ value }) => value))
-      .default(SHUTDOWN_ACTIONS[1].value)
+      .default(SHUTDOWN_ACTIONS[0].value)
   }
 ];
 

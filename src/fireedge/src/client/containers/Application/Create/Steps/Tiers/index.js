@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, createContext } from 'react';
 
 import * as yup from 'yup';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 
 import { ReactFlowProvider } from 'react-flow-renderer';
 import { Box } from '@material-ui/core';
@@ -25,10 +25,9 @@ const Tiers = () => {
     id: STEP_ID,
     label: 'Tier Definition',
     resolver: yup
-      .array()
-      .of(resolvers)
-      .min(1)
-      .required()
+      .array(resolvers)
+      .min(1, 'Should be at least one tier')
+      .required('Tiers field is required')
       .default([]),
     content: useCallback(({ data, setFormData }) => {
       const [showDialog, setShowDialog] = useState(false);
@@ -88,6 +87,7 @@ const Tiers = () => {
                 <Box display="flex" flexDirection="column" height={1}>
                   <FormStepper
                     steps={formSteps}
+                    schema={resolvers}
                     onSubmit={values => {
                       handleSave(values);
                       setShowDialog(false);
