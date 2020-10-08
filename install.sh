@@ -2618,8 +2618,6 @@ FIREEDGE_MINIFIED_FILES="src/fireedge/dist \
                 src/fireedge/node_modules"
 
 FIREEDGE_DEV_FILES="src/fireedge/src \
-                src/fireedge/webpack.config.js \
-                src/fireedge/copyStaticAssets.js \
                 src/fireedge/package.json"
 
 FIREEDGE_ETC_FILES="src/fireedge/fireedge-server.conf"
