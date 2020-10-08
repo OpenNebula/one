@@ -787,9 +787,10 @@ INSTALL_SUNSTONE_ETC_FILES=(
     SUNSTONE_ETC_VIEW_MIXED:$ETC_LOCATION/sunstone-views/mixed
 )
 
-INSTALL_FIREEDGE_MINIFIED_DIRS=(
+INSTALL_FIREEDGE_FILES=(
   FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
   FIREEDGE_BIN_FILES:$BIN_LOCATION
+  FIREEDGE_ETC_FILES:$ETC_LOCATION
 )
 
 INSTALL_FIREEDGE_DEV_DIRS=(
@@ -2619,8 +2620,9 @@ FIREEDGE_MINIFIED_FILES="src/fireedge/dist \
 FIREEDGE_DEV_FILES="src/fireedge/src \
                 src/fireedge/webpack.config.js \
                 src/fireedge/copyStaticAssets.js \
-                src/fireedge/package.json \
-                src/fireedge/fireedge-server.conf"
+                src/fireedge/package.json"
+
+FIREEDGE_ETC_FILES="src/fireedge/fireedge-server.conf"
 
 #-----------------------------------------------------------------------------
 # OneGate files
@@ -2862,10 +2864,10 @@ elif [ "$SUNSTONE" = "yes" ]; then
   fi
 elif [ "$FIREEDGE" = "yes" ]; then
   if [ "$FIREEDGE_DEV" = "no" ]; then
-    INSTALL_SET="${INSTALL_FIREEDGE_MINIFIED_DIRS[@]}"
+    INSTALL_SET="${INSTALL_FIREEDGE_FILES[@]}"
   else
     INSTALL_SET="${INSTALL_FIREEDGE_DEV_DIRS[@]} \
-                 ${INSTALL_FIREEDGE_MINIFIED_DIRS[@]}"
+                 ${INSTALL_FIREEDGE_FILES[@]}"
   fi
 elif [ "$ONEFLOW" = "yes" ]; then
     INSTALL_SET="${INSTALL_ONEFLOW_FILES[@]}"
@@ -2888,7 +2890,7 @@ elif [ "$FIREEDGE_DEV" = "no" ]; then
 else
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
-                 ${INSTALL_FIREEDGE_MINIFIED_DIRS[@]} ${INSTALL_FIREEDGE_DEV_DIRS[@]}\
+                 ${INSTALL_FIREEDGE_FILES[@]} ${INSTALL_FIREEDGE_DEV_DIRS[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
