@@ -843,16 +843,6 @@ int VirtualNetwork::nic_attribute(
         nic->replace("BRIDGE_TYPE", bridge_type);
     }
 
-    for (const auto& inherited : inherit_attrs)
-    {
-        PoolObjectSQL::get_template_attribute(inherited, inherit_val);
-
-        if (!inherit_val.empty())
-        {
-            nic->replace(inherited, inherit_val);
-        }
-    }
-
     //--------------------------------------------------------------------------
     //  Get the lease from the Virtual Network
     //--------------------------------------------------------------------------
@@ -890,6 +880,17 @@ int VirtualNetwork::nic_attribute(
     {
         rc = allocate_addr(PoolObjectSQL::VM, vid, nic->vector_attribute(),
                 inherit_attrs);
+    }
+
+    for (const auto& inherited : inherit_attrs)
+    {
+        string current_val = nic->vector_value(inherited);
+        PoolObjectSQL::get_template_attribute(inherited, inherit_val);
+
+        if (current_val.empty() && !inherit_val.empty())
+        {
+            nic->replace(inherited, inherit_val);
+        }
     }
 
     //--------------------------------------------------------------------------
