@@ -137,7 +137,7 @@ define(function(require) {
     });
 
     //add actions official support
-    _addAction(null, 'official-support-tab');
+    _addAction(null, "official-support-tab");
   };
 
   var _addDialogs = function(dialogs) {
@@ -472,7 +472,7 @@ define(function(require) {
           options = {
             class: strClass.join(" "),
             href: buttonName,
-          }
+          };
           if(button && button.tip){
             options.title = button.tip;
           }
@@ -678,7 +678,7 @@ define(function(require) {
         button.removeClass("superHide");
       }
     }
-  }
+  };
 
   var _showRighList = function(tabName) {
     var tab = $("#" + tabName);
@@ -1353,10 +1353,10 @@ define(function(require) {
     var rtn = [[6, 12, 36, 72], [6, 12, 36, 72]];
     if(config && config.system_config && config.system_config.paginate){
       var paginate = config.system_config.paginate;
-      rtn = typeof paginate === 'string' ? JSON.parse(paginate) : paginate;
+      rtn = typeof paginate === "string" ? JSON.parse(paginate) : paginate;
     }
     return rtn;
-  }
+  };
 
   var Sunstone = {
     "addMainTabs": _addMainTabs,

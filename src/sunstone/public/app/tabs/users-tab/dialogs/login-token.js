@@ -94,6 +94,12 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+    if(that && !that.element){
+      var jqueryDta = $(".sunstone-list", $("#" + Sunstone.getTab()));
+      if(jqueryDta && jqueryDta.data("element")){
+        that.element = jqueryDta.data("element");
+      }
+    }
 
     ResourceSelect.insert({
       context: $(".token-group-selector", context),
@@ -197,7 +203,6 @@ define(function(require) {
 
   function _onShow(context) {
     var tabId = Sunstone.getTab();
-
     if (tabId == USERS_TAB_ID){
       this.setNames( Sunstone.getDataTable(USERS_TAB_ID).elements({names: true}) );
     }

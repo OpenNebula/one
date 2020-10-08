@@ -29,8 +29,8 @@ define(function(require) {
 
   var _dialogs = [
     require("tabs/users-tab/dialogs/password"),
-    require('./users-tab/dialogs/login-token'),
-    require('./users-tab/dialogs/two-factor-auth')
+    require("./users-tab/dialogs/login-token"),
+    require("./users-tab/dialogs/two-factor-auth")
   ];
 
   var _panels = [
