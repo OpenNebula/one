@@ -202,6 +202,9 @@ MySqlDB::MySqlDB(const string& s, int p, const string& u, const string& _p,
     {
         connections[i] = mysql_init(NULL);
 
+        bool reconnect = true;
+        mysql_options(connections[i], MYSQL_OPT_RECONNECT, &reconnect);
+
         rc = mysql_real_connect(connections[i], server.c_str(), user.c_str(),
                 password.c_str(), 0, port, NULL, 0);
 
