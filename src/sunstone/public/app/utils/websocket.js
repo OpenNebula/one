@@ -20,7 +20,13 @@ define(function (require) {
   var Sunstone = require('sunstone');
   var FireedgeValidator = require('utils/fireedge-validator');
   var io = require('socket-io-client');  
+  var OpenNebula = require("opennebula");
   
+  var VM_header = require('tabs/vms-tab/hooks/header');
+  var VM_state = require('tabs/vms-tab/hooks/state');
+
+  // var Host_header = require('tabs/vms-tab/hooks/header');
+
   var _start = function () {
     if (sessionStorage.getItem(FireedgeValidator.sessionVar) == 'true'){
       const socket = io(Config.fireedgeEndpoint, {
@@ -33,45 +39,68 @@ define(function (require) {
       // Listen for messages
       socket.on('zeroMQ', function (event) {
         var event_data = event.data;
-        // console.log(vm_info);
-        if (event_data && event_data.HOOK_MESSAGE && event_data.HOOK_MESSAGE.HOOK_TYPE && event_data.HOOK_MESSAGE.HOOK_TYPE != 'API'){
+        if (event_data && event_data.HOOK_MESSAGE && event_data.HOOK_MESSAGE.HOOK_OBJECT){
           
-          var tab_id;
-          if (event_data.HOOK_MESSAGE.HOOK_OBJECT){
-            var object = event_data.HOOK_MESSAGE.HOOK_OBJECT;
+          var tab_id, callFunction;
+          var object = event_data.HOOK_MESSAGE.HOOK_OBJECT;
 
-            switch (object) {
-              case "VM":
-                tab_id = "vms-tab"
-                break;
-              case "HOST":
-                tab_id = "hosts-tab"
-                break;
-              default:
-                break;
+          switch (object) {
+            case "VM":
+              tab_id = "vms-tab"
+              callFunction = function(data_vm){
+                // Update Header and Buttons
+                VM_header.pre(data_vm);
+                VM_state.pre(data_vm);
+                
+                // Update VM Info
+                var vm_state = OpenNebula.VM.stateStr(data_vm.VM.STATE);
+                var vm_state_class = OpenNebula.VM.stateClass(data_vm.VM.STATE);
+                var vm_lcm_state = OpenNebula.VM.lcmStateStr(data_vm.VM.LCM_STATE);
+                var vm_lcm_state_class = OpenNebula.VM.lcmStateClass(data_vm.VM.LCM_STATE);
+
+                if (vm_state_class == ""){
+                  $('#state_value').html(vm_state);
+                  $('#lcm_state_value').html("<span class='label " + vm_lcm_state_class + " round' style='border-radius: 1em; font-weight: bold;'>" + vm_lcm_state + "</span>");
+                }
+                else{
+                  $('#state_value').html("<span class='label " + vm_state_class + " round' style='border-radius: 1em; font-weight: bold;'>" + vm_state + "</span>");
+                  $('#lcm_state_value').html(vm_lcm_state);
+                }
               }
-
-            var response = {};
-            response[object] = event_data.HOOK_MESSAGE[object];
-            var request = {
-              "request": {
-                "data": [response.ID],
-                "method": "show",
-                "resource": object
+              break;
+            case "HOST":
+              tab_id = "hosts-tab"
+              callFunction = function(data_host){
+                var host_state = OpenNebula.Host.stateStr(data_host.HOST.STATE);
+                $('#host_state_value').html(host_state);
               }
-            }
+              break;
+            default:
+              break;
+          }
 
-            // update VM and HOST
-            var tab = $('#' + tab_id);
-            Sunstone.getDataTable(tab_id).updateElement(request, response);
-            if (Sunstone.rightInfoVisible(tab) && event_data.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
-              Sunstone.autorefresh(tab_id, response);
+          var response = {};
+          response[object] = event_data.HOOK_MESSAGE[object];
+          var request = {
+            "request": {
+              "data": [response.ID],
+              "method": "show",
+              "resource": object
             }
+          }
 
-            if (event_data.HOOK_MESSAGE.STATE == "DONE"){
-              Sunstone.getDataTable(tab_id).waitingNodes();
-              Sunstone.runAction(object + ".list", {force: true});
-            }
+          // update VM and HOST
+          var tab = $('#' + tab_id);
+          
+          Sunstone.getDataTable(tab_id).updateElement(request, response);
+          
+          if (Sunstone.rightInfoVisible(tab) && event_data.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
+            callFunction(response);
+          }
+
+          if (event_data.HOOK_MESSAGE.STATE == "DONE"){
+            Sunstone.getDataTable(tab_id).waitingNodes();
+            Sunstone.runAction(object + ".list", {force: true});
           }
         }
       });
