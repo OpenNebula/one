@@ -222,7 +222,7 @@ delete '/service/:id' do
 
     rc = service.info
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
     # Starts service undeploying async
@@ -398,7 +398,7 @@ get '/service_template' do
 
     rc = s_template_pool.info
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
     status 200
@@ -412,7 +412,7 @@ get '/service_template/:id' do
 
     rc = service_template.info
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
     status 200
@@ -426,7 +426,7 @@ delete '/service_template/:id' do
 
     rc = service_template.delete
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
     status 204
@@ -443,7 +443,7 @@ put '/service_template/:id' do
     end
 
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
     service_template.info
@@ -464,7 +464,7 @@ post '/service_template' do
     end
 
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 
     s_template.info
@@ -687,7 +687,7 @@ post '/service_template/:id/action' do
     # rubocop:enable Style/ConditionalAssignment
 
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
+        return internal_error(rc.message, one_error_to_http(rc.errno))
     end
 end
 # rubocop:enable Naming/FileName
