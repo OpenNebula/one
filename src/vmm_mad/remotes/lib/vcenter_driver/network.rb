@@ -100,11 +100,13 @@ module VCenterDriver
         NETWORK_TYPE_NSXT = 'Opaque Network'
         NETWORK_TYPE_UNKNOWN = 'Unknown Network'
 
-        def initialize(item, vi_client = nil)
-            begin
-                check_item(item, RbVmomi::VIM::Network)
-            rescue StandardError
-                check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
+        def initialize(item, vi_client = nil, check = true)
+            if check
+                begin
+                    check_item(item, RbVmomi::VIM::Network)
+                rescue StandardError
+                    check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
+                end
             end
 
             @vi_client = vi_client
@@ -374,10 +376,10 @@ module VCenterDriver
     ##########################################################################
     class PortGroup < Network
 
-        def initialize(item, vi_client = nil)
+        def initialize(item, vi_client = nil, _check = true)
             check_item(item, RbVmomi::VIM::Network)
 
-            super
+            super(item, vi_client, false)
         end
 
         def clusters
@@ -403,10 +405,10 @@ module VCenterDriver
     ##########################################################################
     class DistributedPortGroup < Network
 
-        def initialize(item, vi_client = nil)
+        def initialize(item, vi_client = nil, _check = true)
             check_item(item, RbVmomi::VIM::DistributedVirtualPortgroup)
 
-            super
+            super(item, vi_client, false)
         end
 
         def clusters
@@ -435,10 +437,10 @@ module VCenterDriver
     ##########################################################################
     class OpaqueNetwork < Network
 
-        def initialize(item, vi_client = nil)
+        def initialize(item, vi_client = nil, _check = true)
             check_item(item, RbVmomi::VIM::OpaqueNetwork)
 
-            super
+            super(item, vi_client, false)
         end
 
         def clusters
@@ -464,10 +466,10 @@ module VCenterDriver
     ##########################################################################
     class DistributedVirtualSwitch < Network
 
-        def initialize(item, vi_client = nil)
+        def initialize(item, vi_client = nil, _check = true)
             check_item(item, RbVmomi::VIM::VmwareDistributedVirtualSwitch)
 
-            super
+            super(item, vi_client, false)
         end
 
     end
