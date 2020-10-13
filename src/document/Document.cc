@@ -36,7 +36,7 @@ Document::Document( int id,
 {
     if (_template_contents)
     {
-        obj_template = make_unique<DocumentTemplate>(*_template_contents);
+        obj_template = move(_template_contents);
     }
     else
     {
