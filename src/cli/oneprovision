@@ -29,7 +29,7 @@ else
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes'
-    ANSIBLE_LOCATION  = ONE_LOCATION + '/usr/share/oneprovision/ansible'
+    ANSIBLE_LOCATION  = ONE_LOCATION + '/share/oneprovision/ansible'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -42,16 +42,6 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 $LOAD_PATH << LIB_LOCATION      + '/oneprovision/lib'
 $LOAD_PATH << LIB_LOCATION      + '/oneflow/lib'
-
-PING_TIMEOUT_DEFAULT  = 20
-PING_RETRIES_DEFAULT  = 10
-MAX_RETRIES_DEFAULT   = 3
-RUN_MODE_DEFAULT      = :interactive
-FAIL_CHOICE_DEFAULT   = :quit
-DEFAULT_FAIL_MODES    = [:cleanup, :retry, :skip, :quit]
-CLEANUP_DEFAULT       = false
-THREADS_DEFAULT       = 3
-WAIT_TIMEOUT_DEFAULT  = 60
 
 require 'command_parser'
 
@@ -79,211 +69,23 @@ CommandParser::CmdParser.new(ARGV) do
     end
 
     ########################################################################
-    # Global Options
+    # Global options
     ########################################################################
 
-    ############################ Output Modes ##############################
-
-    VERBOSE = {
-        :name => 'verbose',
-        :short => '-d',
-        :large => '--verbose',
-        :description => 'Set verbose logging mode'
-    }
-
-    DEBUG = {
-        :name => 'debug',
-        :short => '-D',
-        :large => '--debug',
-        :description => 'Set debug logging mode',
-        :format => String
-    }
-
-    ############################# Run Modes ################################
-
-    BATCH = {
-        :name => 'batch',
-        :short => '-b',
-        :large => '--batch',
-        :description => 'Run in non-interactive mode (no questions)',
-        :format => String
-    }
-
-    FAIL_MODES = {
-        :name => 'fail_modes',
-        :large => '--fail-modes mode1,mode2',
-        :description => 'Fail modes to apply in order',
-        :format => Array,
-        :proc => lambda do |_, options|
-            options = options[:fail_modes].map do |v|
-                v = v.downcase.to_sym
-
-                unless DEFAULT_FAIL_MODES.include?(v)
-                    STDERR.puts "Wrong fail mode `#{v}`"
-                    exit(-1)
-                end
-
-                v
-            end
-
-            [0, options]
-        end
-    }
-
-    FAIL_RETRY = {
-        :name => 'fail_retry',
-        :large => '--fail-retry number',
-        :description => 'Set batch failover mode to number of retries',
-        :format => Integer
-    }
-
-    FAIL_CLEANUP = {
-        :name => 'fail_cleanup',
-        :large => '--fail-cleanup',
-        :description => 'Set batch failover mode to clean up and quit'
-    }
-
-    FAIL_SKIP = {
-        :name => 'fail_skip',
-        :large => '--fail-skip',
-        :description => 'Set batch failover mode to skip failing part'
-    }
-
-    FAIL_QUIT = {
-        :name => 'fail_quit',
-        :large => '--fail-quit',
-        :description => 'Set batch failover mode to quit (default)'
-    }
-
-    FAIL_SLEEP = {
-        :name => 'fail_sleep',
-        :large => '--fail-sleep seconds',
-        :description => 'Time in seconds between each fail mode is executed ' \
-                        'and between each retry',
-        :format => Integer
-    }
-
-    ############################## Create ##################################
-
-    PING_TIMEOUT = {
-        :name => 'ping_timeout',
-        :large => '--ping-timeout seconds',
-        :description => 'Set timeout for ping ' \
-                        "(default: #{PING_TIMEOUT_DEFAULT} secs)",
-        :format => Integer
-    }
-
-    PING_RETRIES = {
-        :name => 'ping_retries',
-        :large => '--ping-retries number',
-        :description => 'Set retries for ping ' \
-                        "(default: #{PING_RETRIES_DEFAULT})",
-        :format => Integer
-    }
-
-    SKIP_PROVISION = {
-        :name => 'skip_provision',
-        :large => '--skip-provision',
-        :description => 'Skip provision and configuration hosts phases'
-    }
-
-    SKIP_CONFIG = {
-        :name => 'skip_config',
-        :large => '--skip-config',
-        :description => 'Skip configuration hosts phase'
-    }
-
-    WAIT_READY = {
-        :name => 'wait_ready',
-        :large => '--wait-ready',
-        :description => 'Wait resources to be ready in OpenNebula'
-    }
-
-    WAIT_TIMEOUT = {
-        :name => 'wait_timeout',
-        :large => '--wait-timeout timeout',
-        :description => 'Timeout to wait objects to be ready',
-        :format      => Integer
-    }
+    cmd_options = CommandParser::OPTIONS - [CommandParser::VERBOSE]
+    set :option, cmd_options + OpenNebulaHelper::CLIENT_OPTIONS
 
     ########################################################################
-
-    THREADS = {
-        :name => 'threads',
-        :short => '-t threads',
-        :large => '--threads threads',
-        :description => "Set threads for create (default: #{THREADS_DEFAULT})",
-        :format => Integer
-    }
-
-    FORCE = {
-        :name => 'force',
-        :short => '-F',
-        :large => '--force',
-        :description => 'Force configure to execute',
-        :format => String
-    }
-
-    HARD = {
-        :name => 'hard',
-        :short => '-H',
-        :large => '--hard',
-        :description => 'Reset the host',
-        :format => String
-    }
-
-    CLEANUP = {
-        :name => 'cleanup',
-        :large => '--cleanup',
-        :description => 'Delete all vms and images first, ' \
-                        'then delete the resources.'
-    }
-
-    CLEANUP_TIMEOUT = {
-        :name => 'cleanup_timeout',
-        :large => '--cleanup-timeout timeout',
-        :description => 'Change the default timeout when deleting VMs/Images.'
-    }
-
-    DUMP = {
-        :name => 'dump',
-        :large => '--dump',
-        :description => 'Dump the configuration file result.'
-    }
-
-    DONE = {
-        :name => 'done',
-        :large => '--done',
-        :description => 'List provisions in DONE state'
-    }
-
+    # Formatters for arguments
     ########################################################################
 
-    MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
-            [VERBOSE,
-             DEBUG,
-             BATCH,
-             FAIL_RETRY,
-             FAIL_CLEANUP,
-             FAIL_SKIP,
-             FAIL_QUIT,
-             FAIL_MODES,
-             FAIL_SLEEP]
+    set :format, :provisionid, OneProvisionHelper.to_id_desc do |arg|
+        helper.to_id(arg)
+    end
 
-    CREATE_OPTIONS = [THREADS,
-                      MODES,
-                      PING_TIMEOUT,
-                      PING_RETRIES,
-                      CLEANUP,
-                      CLEANUP_TIMEOUT,
-                      SKIP_PROVISION,
-                      SKIP_CONFIG,
-                      WAIT_READY,
-                      WAIT_TIMEOUT]
-
-    ONE_OPTIONS = CommandParser::OPTIONS +
-                  CLIHelper::OPTIONS +
-                  OpenNebulaHelper::OPTIONS
+    set :format, :provisionid_list, OneProvisionHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
+    end
 
     ########################################################################
     # Provision Commands
@@ -293,7 +95,10 @@ CommandParser::CmdParser.new(ARGV) do
         Provision a new cluster via bare metal provider
     EOT
 
-    command :create, create_desc, :config, :options => CREATE_OPTIONS do
+    command :create,
+            create_desc,
+            :config,
+            :options => OneProvisionHelper::CREATE_OPTIONS do
         helper.parse_options(options)
 
         if options[:cleanup_timeout].nil?
@@ -311,7 +116,11 @@ CommandParser::CmdParser.new(ARGV) do
             skip = :none
         end
 
-        rc = helper.create(args[0], (options.key? :cleanup), timeout, skip)
+        rc = helper.create(args[0],
+                           (options.key? :cleanup),
+                           timeout,
+                           skip,
+                           options[:provider])
 
         if OpenNebula.is_error?(rc)
             STDERR.puts rc.message
@@ -328,7 +137,10 @@ CommandParser::CmdParser.new(ARGV) do
         Validate configuration file
     EOT
 
-    command :validate, validate_desc, [:config_file], :options => DUMP do
+    command :validate,
+            validate_desc,
+            [:config_file],
+            :options => OneProvisionHelper::DUMP do
         dump = options.key? :dump
 
         OneProvision::Utils.validate_configuration(args[0], dump)
@@ -342,9 +154,8 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list,
             provision_list_desc,
-            :options => CommandParser::OPTIONS +
-                        CLIHelper::OPTIONS +
-                        [OpenNebulaHelper::FORMAT, DONE] do
+            :options => CLIHelper::OPTIONS +
+                        [OpenNebulaHelper::FORMAT, OneProvisionHelper::DONE] do
         if !(options.key? :filter) && !(options.key? :done)
             options[:filter] = ['STAT!=DONE']
         end
@@ -361,7 +172,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :show,
             provision_show_desc,
             :provisionid,
-            :options => CommandParser::OPTIONS + OpenNebulaHelper::FORMAT do
+            :options => OpenNebulaHelper::FORMAT do
         helper.show_resource(args[0], options)
     end
 
@@ -374,7 +185,8 @@ CommandParser::CmdParser.new(ARGV) do
     command :configure,
             provision_configure_desc,
             :provisionid,
-            :options => [MODES, FORCE] do
+            :options => [OneProvisionHelper::MODES,
+                         OneProvisionHelper::FORCE] do
         helper.parse_options(options)
 
         rc = helper.configure(args[0], options.key?(:force))
@@ -396,7 +208,10 @@ CommandParser::CmdParser.new(ARGV) do
     command :delete,
             provision_delete_desc,
             :provisionid,
-            :options => [MODES, THREADS, CLEANUP, CLEANUP_TIMEOUT] do
+            :options => [OneProvisionHelper::MODES,
+                         OneProvisionHelper::THREADS,
+                         OneProvisionHelper::CLEANUP,
+                         OneProvisionHelper::CLEANUP_TIMEOUT] do
         helper.parse_options(options)
 
         if options[:cleanup_timeout].nil?
@@ -426,7 +241,7 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :resume],
             host_resume_desc,
             [:range, :hostid_list],
-            :options => [MODES] do
+            :options => [OneProvisionHelper::MODES] do
         operation =  { :operation => 'resume', :message => 'enabled' }
 
         rc = helper.resources_operation(args, operation, options, 'HOSTS')
@@ -446,7 +261,7 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :poweroff],
             host_poweroff_desc,
             [:range, :hostid_list],
-            :options => [MODES] do
+            :options => [OneProvisionHelper::MODES] do
         operation =  { :operation => 'poweroff', :message => 'disabled' }
 
         rc = helper.resources_operation(args, operation, options, 'HOSTS')
@@ -466,7 +281,7 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :reboot],
             host_reboot_desc,
             [:range, :hostid_list],
-            :options => [MODES, HARD] do
+            :options => [OneProvisionHelper::MODES, OneProvisionHelper::HARD] do
         operation =  { :operation => 'reboot', :message => 'enabled' }
 
         rc = helper.resources_operation(args, operation, options, 'HOSTS')
@@ -486,7 +301,7 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :delete],
             host_delete_desc,
             [:range, :hostid_list],
-            :options => [MODES] do
+            :options => [OneProvisionHelper::MODES] do
         operation =  { :operation => 'delete', :message => 'deleted' }
 
         rc = helper.resources_operation(args, operation, options, 'HOSTS')
@@ -506,8 +321,9 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :configure],
             host_configure_desc,
             [:range, :hostid_list],
-            :options => [MODES, FORCE] do
-        operation =  { :operation => 'configure', :message => 'enabled' }
+            :options => [OneProvisionHelper::MODES,
+                         OneProvisionHelper::FORCE] do
+        operation = { :operation => 'configure', :message => 'enabled' }
 
         rc = helper.resources_operation(args, operation, options, 'HOSTS')
 
@@ -545,7 +361,8 @@ CommandParser::CmdParser.new(ARGV) do
 
     command [:host, :list],
             host_list_desc,
-            :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+            :options => OneProvisionHelper::ONE_OPTIONS +
+                        [OpenNebulaHelper::DESCRIBE] do
         helper.list_objects('HOSTS', options)
     end
 
@@ -557,7 +374,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command [:host, :top],
             host_top_desc,
-            :options => ONE_OPTIONS do
+            :options => OneProvisionHelper::ONE_OPTIONS do
         helper.list_objects('HOSTS', options, true)
     end
 
@@ -574,7 +391,8 @@ CommandParser::CmdParser.new(ARGV) do
 
         command [resource.chomp('s').to_sym, :list],
                 list_desc,
-                :options => ONE_OPTIONS + [OpenNebulaHelper::DESCRIBE] do
+                :options => OneProvisionHelper::ONE_OPTIONS +
+                            [OpenNebulaHelper::DESCRIBE] do
             helper.list_objects(resource.upcase, options)
         end
     end
@@ -591,7 +409,8 @@ CommandParser::CmdParser.new(ARGV) do
         command [resource.chomp('s').to_sym, :delete],
                 delete_desc,
                 [:range, :id_list],
-                :options => [MODES, FORCE] do
+                :options => [OneProvisionHelper::MODES,
+                             OneProvisionHelper::FORCE] do
             rc = helper.resources_operation(args,
                                             {},
                                             options,

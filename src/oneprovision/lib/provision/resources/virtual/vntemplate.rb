@@ -14,32 +14,35 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
+require 'provision/resources/virtual/virtual_resource'
 
 module OneProvision
 
-    # Represents the virtual resources
-    class VirtualResource < Resource
+    # VnTemplate
+    class VnTemplate < VirtualResource
 
-        # Creates a new object in OpenNebula
+        # Class constructor
+        def initialize
+            super
+
+            @pool = OpenNebula::VNTemplatePool.new(@client)
+            @type = 'vntemplate'
+        end
+
+        # Info an specific object
         #
-        # @param template [Hash] Object attributes
-        #
-        # @return [Integer] Resource ID
-        def create(template)
-            # create ONE object
-            new_object
+        # @param id [String] Object ID
+        def info(id)
+            @one = OpenNebula::VNTemplate.new_with_id(id, @client)
+            @one.info
+        end
 
-            rc = @one.allocate(format_template(template))
-            Utils.exception(rc)
-            rc = @one.info
-            Utils.exception(rc)
+        private
 
-            OneProvisionLogger.debug(
-                "#{@type} created with ID: #{@one.id}"
-            )
-
-            @one.id.to_i
+        # Create new object
+        def new_object
+            @one = OpenNebula::VNTemplate.new(OpenNebula::VNTemplate.build_xml,
+                                              @client)
         end
 
     end

@@ -86,8 +86,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def info()
-            rc = super(DOCUMENT_METHODS[:info], 'DOCUMENT')
+        def info(decrypt = false)
+            rc = super(DOCUMENT_METHODS[:info], 'DOCUMENT', decrypt)
 
             if !OpenNebula.is_error?(rc) && self['TYPE'].to_i != document_type
                 return OpenNebula::Error.new("[DocumentInfo] Error getting document [#{@pe_id}].")

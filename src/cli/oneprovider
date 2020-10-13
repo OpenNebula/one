@@ -1,0 +1,214 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    LIB_LOCATION      = '/usr/lib/one'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+else
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << LIB_LOCATION      + '/oneprovision/lib'
+$LOAD_PATH << LIB_LOCATION      + '/oneflow/lib'
+
+require 'command_parser'
+
+require 'one_helper'
+require 'one_helper/onegroup_helper'
+require 'one_helper/oneprovider_helper'
+
+require 'oneprovision'
+
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneprovider` <command> [<file>] [<args>] [<options>]'
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper = OneProviderHelper.new
+
+    before_proc do
+        helper.set_client(options)
+    end
+
+    ########################################################################
+    # Global options
+    ########################################################################
+
+    cmd_options = CommandParser::OPTIONS - [CommandParser::VERBOSE]
+    set :option, cmd_options + OpenNebulaHelper::CLIENT_OPTIONS
+
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+
+    set :format, :providerid, OneProviderHelper.to_id_desc do |arg|
+        helper.to_id(arg)
+    end
+
+    set :format, :providerid_list, OneProviderHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
+    end
+
+    set :format, :groupid, OneGroupHelper.to_id_desc do |arg|
+        h = OneGroupHelper.new
+        h.set_client(options)
+        h.to_id(arg)
+    end
+
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
+    end
+
+    ########################################################################
+    # Commands
+    ########################################################################
+
+    create_desc = <<-EOT.unindent
+        Allocate a new provider. Configuration file must be written in YAML.
+
+        $ cat packet.yaml
+        name: packet
+        connection:
+            packet_token:   "Packet token"
+            packet_project: "Packet project"
+            facility:       "Packet facility"
+
+        $ cat ec2.yaml
+        name: "ec2",
+        connection:
+            ec2_access:        "AWS access key"
+            ec2_secret:        "AWS secret key"
+            region_name:       "AWS region name""
+    EOT
+
+    command :create, create_desc, :template do
+        rc = helper.create(args[0])
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit(-1)
+        else
+            puts "ID: #{rc}"
+            0
+        end
+    end
+
+    ###
+
+    delete_desc = <<-EOT.unindent
+        Delete a provider
+    EOT
+
+    command :delete, delete_desc, [:range, :providerid_list] do
+        helper.perform_actions(args[0], options, 'deleted') do |provider|
+            provider.delete
+        end
+    end
+
+    ###
+
+    list_desc = <<-EOT.unindent
+        List all avaliable providers
+    EOT
+
+    command :list,
+            list_desc,
+            :options => CLIHelper::OPTIONS + [OpenNebulaHelper::FORMAT] do
+        options[:decrypt] = true
+        helper.list_pool(options)
+    end
+
+    ###
+
+    show_desc = <<-EOT.unindent
+        Show provider details
+    EOT
+
+    command :show,
+            show_desc,
+            :providerid,
+            :options => OpenNebulaHelper::FORMAT do
+        helper.show_resource(args[0], options)
+    end
+
+    ###
+
+    update_desc = <<-EOT.unindent
+        Update provider information
+    EOT
+
+    command :update, update_desc, :providerid, [:file, nil] do
+        helper.perform_action(args[0], options, 'updated') do |obj|
+            helper.update(obj, args[1])
+        end
+    end
+
+    ###
+
+    chgrp_desc = <<-EOT.unindent
+        Changes the Provider group
+    EOT
+
+    command :chgrp, chgrp_desc, [:range, :providerid_list], :groupid do
+        helper.perform_actions(args[0], options, 'Group changed') do |p|
+            p.chown(-1, args[1].to_i)
+        end
+    end
+
+    ###
+
+    chown_desc = <<-EOT.unindent
+        Changes the Provider owner and group
+    EOT
+
+    command :chown,
+            chown_desc,
+            [:range, :providerid_list],
+            :userid,
+            [:groupid, nil] do
+        args[2].nil? ? gid = -1 : gid = args[2].to_i
+
+        helper.perform_actions(args[0], options, 'Owner/Group changed') do |p|
+            p.chown(args[1].to_i, gid)
+        end
+    end
+
+    ###
+
+    chmod_desc = <<-EOT.unindent
+        Changes the Provider permissions
+    EOT
+
+    command :chmod, chmod_desc, [:range, :providerid_list], :octet do
+        helper.perform_actions(args[0], options, 'Permissions changed') do |p|
+            p.chmod_octet(args[1])
+        end
+    end
+end

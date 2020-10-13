@@ -58,16 +58,27 @@ module OneProvision
 
         # Allocates a new document
         #
-        # @param template [Hash] Document information
-        def allocate(template)
-            super(generate_document_json(template), template['name'])
+        # @param template [Hash]   Document information
+        # @param provider [String] Provision provider
+        def allocate(template, provider)
+            rc = nil
+
+            begin
+                rc = to_json(template, provider)
+
+                return rc if OpenNebula.is_error?(rc)
+            rescue StandardError => e
+                return OpenNebula::Error.new(e)
+            end
+
+            super(rc, template['name'])
         end
 
         # Returns provision state
         #
         # @return [Intenger] Provision state
         def state
-            @body['state'].to_i
+            Integer(@body['state'])
         end
 
         # Returns provision state in string format
@@ -116,16 +127,58 @@ module OneProvision
 
         # Deploys a new provision
         #
-        # @param config  [String]  Path to the configuration file
-        # @param cleanup [Boolean] True to delete everything if something fails
-        # @param timeout [Integer] Timeout for deleting running VMs
-        # @param skip    [Symbol]  Skip provision, config or none phases
-        def deploy(config, cleanup, timeout, skip)
+        # @param config   [String]   Path to deployment file
+        # @param cleanup  [Boolean]  True to cleanup everything
+        # @param timeout  [Integer]  Timeout in seconds to connect to hosts
+        # @param skip     [Symbol]   Skip provision, configuration or anything
+        # @param provider [Provider] Provider to deploy the provision
+        #
+        # @return [Integer] Provision ID
+        def deploy(config, cleanup, timeout, skip, provider)
             Ansible.check_ansible_version
 
             begin
+                cfg = Utils.read_config(config)
+
+                if provider
+                    # Respect user information, only add provider info if
+                    # the user hasn't specified any
+                    cfg['defaults'] = {} unless cfg['defaults']
+
+                    # Get user UID to see if merge is possible or not
+                    # only merge attributes if the provider is owned by user
+                    info = Nokogiri::XML(@client.call('user.info', -1))
+                    uid  = info.xpath('/USER/ID').text
+
+                    # Get provider connection information
+                    conn = provider.connection
+
+                    if uid == provider['UID']
+                        cfg['defaults']['provision'] = conn.merge(
+                            cfg['defaults']['provision']
+                        )
+
+                        OneProvisionLogger.debug('Merging provider connection')
+                    else
+                        cfg['defaults']['provision'] = conn
+
+                        OneProvisionLogger.debug('Using provider connection')
+                    end
+                end
+
                 # read provision file
-                cfg = Utils.create_config(Utils.read_config(config))
+                cfg = Utils.create_config(cfg)
+
+                # read provider information
+                if provider
+                    provider = provider['NAME']
+                else
+                    provider = Provision.read_provider(cfg)
+                end
+
+                unless provider
+                    return OpenNebula::Error.new('No provider found')
+                end
 
                 # @name is used for ERB evaluation
                 @name = cfg['name']
@@ -144,9 +197,9 @@ module OneProvision
                 create_infra_resources(cfg, cfg['cluster']['id'])
                 create_hosts(cfg, cfg['cluster']['id'])
 
-                allocate(cfg)
+                allocate(cfg, provider)
 
-                info
+                self.info
 
                 # @id is used for ERB evaluation
                 @id = self['ID']
@@ -366,32 +419,43 @@ module OneProvision
             binding
         end
 
+        # Reads provider name from template
+        #
+        # @param template [Hash] Provision information
+        #
+        # @return [String] Provider name
+        def self.read_provider(template)
+            provider = nil
+
+            # Provider can be set in provision defaults or in hosts
+            # it's the same for all hosts, taking the first one is enough
+            if template['defaults'] && template['defaults']['provision']
+                provider = template['defaults']['provision']['provider']
+            end
+
+            if !provider && template['hosts'][0]['provision']
+                provider = template['hosts'][0]['provision']['provider']
+            end
+
+            provider
+        end
+
         private
 
         # Generates document JSON information
         #
-        # @param template [Hash] Provision information
+        # @param template [Hash]   Provision information
+        # @param provider [String] Provision provider
         #
         # @return [JSON] Document information in JSON format
-        def generate_document_json(template)
+        def to_json(template, provider)
             document = {}
 
             document['name']        = template['name']
             document['description'] = template['description']
             document['start_time']  = Time.now.to_i
             document['state']       = STATE['DEPLOYING']
-
-            # Driver can be set in provision defaults or in hosts
-            # it's the same for all hosts, taking the first one is enough
-            if template['defaults'] && template['defaults']['provision']
-                driver = template['defaults']['provision']['driver']
-            end
-
-            if !driver && template['hosts'][0]['provision']
-                driver = template['hosts'][0]['provision']['driver']
-            end
-
-            document['provider'] = driver
+            document['provider']    = provider
 
             # Fill provision objects information
             document['provision'] = {}
@@ -529,7 +593,7 @@ module OneProvision
 
                     host      = Host.new
                     host      = host.create(dfile.to_xml, cid, playbooks)
-                    h['id']   = host['ID']
+                    h['id']   = Integer(host['ID'])
                     h['name'] = host['NAME']
 
                     host.offline
@@ -621,7 +685,7 @@ module OneProvision
 
                 Utils.exception(host.info(h['id']))
 
-                return true if host.one['HOST_SHARE/RUNNING_VMS'].to_i > 0
+                return true if Integer(host.one['HOST_SHARE/RUNNING_VMS']) > 0
             end
 
             false
@@ -646,7 +710,7 @@ module OneProvision
                     next unless resource_objects['images']
 
                     resource_objects['images'].find do |value|
-                        true if image.to_i == value['id'].to_i
+                        true if Integer(image) == Integer(value['id'])
                     end
                 end
 
@@ -668,7 +732,7 @@ module OneProvision
 
                     Utils.exception(host.info(h['id']))
 
-                    next unless host.one['HOST_SHARE/RUNNING_VMS'].to_i > 0
+                    next unless Integer(host.one['HOST_SHARE/RUNNING_VMS']) > 0
 
                     d_hosts << host.one
                 end

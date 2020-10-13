@@ -613,8 +613,15 @@ EOT
                 pname = pool.pool_name
                 ename = pool.element_name
 
-                page  = pool.to_hash
-                elems = page["#{pname}"]["#{ename}"]
+                if options[:decrypt]
+                    page = pool.map do |element|
+                        element.info(true)
+                        element.to_hash[ename]
+                    end
+                else
+                    page  = pool.to_hash
+                    elems = page[pname][ename]
+                end
 
                 if elems.class == Array
                     elements = elems.length
@@ -1559,6 +1566,39 @@ EOT
 
             return editor_input(resource.template_like_str(xpath))
         end
+    end
+
+    def OpenNebulaHelper.update_obj(obj, file)
+        rc = obj.info(true)
+
+        return rc if OpenNebula.is_error?(rc)
+
+        if file
+            path = file
+        else
+            tmp  = Tempfile.new(obj['ID'])
+            path = tmp.path
+
+            tmp.write(yield(obj)) if block_given?
+            tmp.flush
+
+            if ENV['EDITOR']
+                editor_path = ENV['EDITOR']
+            else
+                editor_path = EDITOR_PATH
+            end
+
+            system("#{editor_path} #{path}")
+
+            unless $CHILD_STATUS.exitstatus.zero?
+                STDERR.puts 'Editor not defined'
+                exit(-1)
+            end
+
+            tmp.close
+        end
+
+        obj.update(File.read(path))
     end
 
     def OpenNebulaHelper.editor_input(contents=nil)

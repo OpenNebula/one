@@ -21,6 +21,15 @@ module OpenNebula
 
         TEMPLATE_TAG = "BODY"
 
+        # Returns current template tag
+        def template_tag
+            if @tag
+                @tag
+            else
+                TEMPLATE_TAG
+            end
+        end
+
         # Allocate a new Document containing the json inside the TEMPLATE
         #
         # @param [String] template_json json to be inserted in the TEMPLATE
@@ -30,7 +39,9 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         #
-        def allocate(template_json, name=nil)
+        def allocate(template_json, name = nil, tag = nil)
+            @tag = tag if tag
+
             text = build_template_xml(template_json, name)
 
             super(text)
@@ -41,8 +52,8 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         #
-        def info
-            rc = super
+        def info(decrypt = false)
+            rc = super(decrypt)
             if OpenNebula.is_error?(rc)
                 return rc
             end
@@ -90,10 +101,10 @@ module OpenNebula
         def to_json(pretty_generate=true)
             hash = self.to_hash
 
-            body = hash['DOCUMENT']['TEMPLATE']["#{TEMPLATE_TAG}"]
+            body = hash['DOCUMENT']['TEMPLATE']["#{template_tag}"]
             if body
                 body_hash = JSON.parse(body)
-                hash['DOCUMENT']['TEMPLATE']["#{TEMPLATE_TAG}"] = body_hash
+                hash['DOCUMENT']['TEMPLATE']["#{template_tag}"] = body_hash
             end
 
             if pretty_generate
@@ -106,7 +117,7 @@ module OpenNebula
 
         # Fill the @body hash with the values of the template
         def load_body
-            body_str = self["TEMPLATE/#{TEMPLATE_TAG}"]
+            body_str = self["TEMPLATE/#{template_tag}"]
 
             if body_str
                 begin
@@ -134,9 +145,9 @@ module OpenNebula
 
             text << "<NAME>#{name}</NAME>" if name
 
-            text << "<#{TEMPLATE_TAG}>"
+            text << "<#{template_tag}>"
             text << "<![CDATA[#{template_json}]]>"
-            text << "</#{TEMPLATE_TAG}>"
+            text << "</#{template_tag}>"
 
             text << "</TEMPLATE>"
 

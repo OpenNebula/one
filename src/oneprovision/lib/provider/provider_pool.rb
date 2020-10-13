@@ -14,37 +14,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/physical/physical_resource'
+require 'opennebula/document_pool_json'
 
 module OneProvision
 
-    # Network
-    class Network < PhysicalResource
+    # ProviderPool class
+    class ProviderPool < DocumentPoolJSON
 
-        # Class constructor
-        def initialize
-            super
+        DOCUMENT_TYPE = 102
 
-            @pool = OpenNebula::VirtualNetworkPool.new(@client)
-            @type = 'network'
+        def initialize(client, user_id = -2)
+            super(client, user_id)
         end
 
-        # Info an specific object
-        #
-        # @param id [String] Object ID
-        def info(id)
-            @one = OpenNebula::VirtualNetwork.new_with_id(id, @client)
-            @one.info
-        end
-
-        private
-
-        # Create new object
-        def new_object
-            @one = OpenNebula::VirtualNetwork.new(
-                OpenNebula::VirtualNetwork.build_xml,
-                @client
-            )
+        def factory(element_xml)
+            provider = OneProvision::Provider.new(element_xml, @client)
+            provider.info(true)
+            provider.load_body
+            provider
         end
 
     end

@@ -28,7 +28,10 @@ class DocumentPool : public PoolSQL
 {
 public:
 
-    DocumentPool(SqlDB * db) : PoolSQL(db, one_db::doc_table) {};
+    DocumentPool(SqlDB * db, std::vector<const SingleAttribute *>& ea) :
+        PoolSQL(db, one_db::doc_table) {
+        DocumentTemplate::parse_encrypted(ea);
+    };
 
     ~DocumentPool(){};
 

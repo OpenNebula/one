@@ -14,24 +14,55 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'provision_element'
-require 'provision/oneprovision'
-require 'provision_template/provision_template'
-require 'provision_template/provision_template_pool'
-require 'provider/provider'
-require 'provider/provider_pool'
+require 'provision/resources/resource'
 
-# OneProvision module
 module OneProvision
 
-    PING_TIMEOUT_DEFAULT  = 20
-    PING_RETRIES_DEFAULT  = 10
-    MAX_RETRIES_DEFAULT   = 3
-    RUN_MODE_DEFAULT      = :interactive
-    FAIL_CHOICE_DEFAULT   = :quit
-    DEFAULT_FAIL_MODES    = [:cleanup, :retry, :skip, :quit]
-    CLEANUP_DEFAULT       = false
-    THREADS_DEFAULT       = 3
-    WAIT_TIMEOUT_DEFAULT  = 60
+    # Cluster
+    class Cluster < Resource
+
+        # Class constructor
+        def initialize
+            super
+
+            @pool = OpenNebula::ClusterPool.new(@client)
+            @type = 'cluster'
+        end
+
+        # Creates a new cluster in OpenNebula
+        #
+        # @param template [Hash] Cluster template information
+        #
+        # @return [Integer] Resource ID
+        def create(template)
+            new_object
+
+            rc = @one.allocate(template['name'])
+            Utils.exception(rc)
+            rc = @one.update(Utils.template_like_str(template), true)
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
+
+            Integer(@one.id)
+        end
+
+        # Info an specific object
+        #
+        # @param id [Integer] Object ID
+        def info(id)
+            @one = OpenNebula::Cluster.new_with_id(id, @client)
+            @one.info
+        end
+
+        private
+
+        # Creates new ONE object
+        def new_object
+            @one = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml,
+                                           @client)
+        end
+
+    end
 
 end

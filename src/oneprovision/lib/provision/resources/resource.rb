@@ -176,7 +176,7 @@ module OneProvision
             user  ||= 0
             group ||= 0
 
-            if user == @one['UID'].to_i || group == @one['GID'].to_i
+            if user == Integer(@one['UID']) || group == Integer(@one['GID'])
                 OneProvisionLogger.debug(
                     "Ownership for #{@type} #{@one.id} is already " \
                     "#{user}:#{group}"

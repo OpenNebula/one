@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/virtual/virtual_sync_resource'
+require 'provision/resources/virtual/virtual_sync_resource'
 
 module OneProvision
 
@@ -55,11 +55,16 @@ module OneProvision
 
             Utils.exception(rc)
             app.extend(MarketPlaceAppExt)
+            url_args = "tag=#{template['tag']}" if template['tag']
+            rc       = app.info
+
+            Utils.exception(rc)
 
             rc = app.export(
-                :dsid => template['dsid'].to_i,
+                :dsid => Integer(template['dsid']),
                 :name => template['name'],
-                :vmtemplate_name => template['vmname']
+                :vmtemplate_name => template['vmname'],
+                :url_args => url_args
             )
             Utils.exception(rc[:image].first) if rc[:image]
             Utils.exception(rc[:vmtemplate].first) if rc[:vmtemplate]

@@ -14,12 +14,51 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/virtual/image'
-require 'resources/virtual/marketplaceapp'
-require 'resources/virtual/template'
-require 'resources/virtual/flowtemplate'
-require 'resources/virtual/vntemplate'
+require 'opennebula/document_json'
 
-# Module OneProvision
+# OneProvision module
 module OneProvision
+
+    # Provision element
+    class ProvisionElement < DocumentJSON
+
+        TEMPLATE_TAG = 'PROVISION_BODY'
+
+        # Body tag
+        attr_reader :tag
+
+        # Body
+        attr_reader :body
+
+        # Class constructor
+        def initialize(xml, client)
+            super
+
+            @tag = TEMPLATE_TAG
+        end
+
+        # Replaces the template contents
+        #
+        # @param template_json [String] New template contents
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(template_json)
+            template_json = JSON.parse(template_json)
+
+            if template_json.keys != @body.keys
+                return OpenNebula::Error.new('Keys can not be changed')
+            end
+
+            self.class::UNMUTABLE_ATTRS.each do |attr|
+                next if template_json[attr] == @body[attr]
+
+                return OpenNebula::Error.new("`#{attr}` can not be changed")
+            end
+
+            super(template_json.to_json)
+        end
+
+    end
+
 end

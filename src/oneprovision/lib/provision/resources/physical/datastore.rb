@@ -14,24 +14,37 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'provision_element'
-require 'provision/oneprovision'
-require 'provision_template/provision_template'
-require 'provision_template/provision_template_pool'
-require 'provider/provider'
-require 'provider/provider_pool'
+require 'provision/resources/physical/physical_resource'
 
-# OneProvision module
 module OneProvision
 
-    PING_TIMEOUT_DEFAULT  = 20
-    PING_RETRIES_DEFAULT  = 10
-    MAX_RETRIES_DEFAULT   = 3
-    RUN_MODE_DEFAULT      = :interactive
-    FAIL_CHOICE_DEFAULT   = :quit
-    DEFAULT_FAIL_MODES    = [:cleanup, :retry, :skip, :quit]
-    CLEANUP_DEFAULT       = false
-    THREADS_DEFAULT       = 3
-    WAIT_TIMEOUT_DEFAULT  = 60
+    # Datastore
+    class Datastore < PhysicalResource
+
+        # Class constructor
+        def initialize
+            super
+
+            @pool = OpenNebula::DatastorePool.new(@client)
+            @type = 'datastore'
+        end
+
+        # Info an specific object
+        #
+        # @param id [String] Object ID
+        def info(id)
+            @one = OpenNebula::Datastore.new_with_id(id, @client)
+            @one.info
+        end
+
+        private
+
+        # Create new object
+        def new_object
+            @one = OpenNebula::Datastore.new(OpenNebula::Datastore.build_xml,
+                                             @client)
+        end
+
+    end
 
 end

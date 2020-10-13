@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
+require 'provision/resources/resource'
 
 module OneProvision
 

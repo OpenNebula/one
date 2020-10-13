@@ -16,8 +16,226 @@
 
 require 'json'
 
+require 'oneprovision'
+
 # OneProvision Helper
 class OneProvisionHelper < OpenNebulaHelper::OneHelper
+
+    ########################################################################
+    # Global Options
+    ########################################################################
+
+    ############################ Output Modes ##############################
+
+    VERBOSE = {
+        :name => 'verbose',
+        :short => '-d',
+        :large => '--verbose',
+        :description => 'Set verbose logging mode'
+    }
+
+    DEBUG = {
+        :name => 'debug',
+        :short => '-D',
+        :large => '--debug',
+        :description => 'Set debug logging mode',
+        :format => String
+    }
+
+    ############################# Run Modes ################################
+
+    BATCH = {
+        :name => 'batch',
+        :short => '-b',
+        :large => '--batch',
+        :description => 'Run in non-interactive mode (no questions)',
+        :format => String
+    }
+
+    FAIL_MODES = {
+        :name => 'fail_modes',
+        :large => '--fail-modes mode1,mode2',
+        :description => 'Fail modes to apply in order',
+        :format => Array,
+        :proc => lambda do |_, options|
+            options = options[:fail_modes].map do |v|
+                v = v.downcase.to_sym
+
+                unless OneProvision::DEFAULT_FAIL_MODES.include?(v)
+                    STDERR.puts "Wrong fail mode `#{v}`"
+                    exit(-1)
+                end
+
+                v
+            end
+
+            [0, options]
+        end
+    }
+
+    FAIL_RETRY = {
+        :name => 'fail_retry',
+        :large => '--fail-retry number',
+        :description => 'Set batch failover mode to number of retries',
+        :format => Integer
+    }
+
+    FAIL_CLEANUP = {
+        :name => 'fail_cleanup',
+        :large => '--fail-cleanup',
+        :description => 'Set batch failover mode to clean up and quit'
+    }
+
+    FAIL_SKIP = {
+        :name => 'fail_skip',
+        :large => '--fail-skip',
+        :description => 'Set batch failover mode to skip failing part'
+    }
+
+    FAIL_QUIT = {
+        :name => 'fail_quit',
+        :large => '--fail-quit',
+        :description => 'Set batch failover mode to quit (default)'
+    }
+
+    FAIL_SLEEP = {
+        :name => 'fail_sleep',
+        :large => '--fail-sleep seconds',
+        :description => 'Time in seconds between each fail mode is executed ' \
+                        'and between each retry',
+        :format => Integer
+    }
+
+    ############################## Create ##################################
+
+    PING_TIMEOUT = {
+        :name => 'ping_timeout',
+        :large => '--ping-timeout seconds',
+        :description => 'Set timeout for ping ' \
+                        "(default: #{OneProvision::PING_TIMEOUT_DEFAULT} secs)",
+        :format => Integer
+    }
+
+    PING_RETRIES = {
+        :name => 'ping_retries',
+        :large => '--ping-retries number',
+        :description => 'Set retries for ping ' \
+                        "(default: #{OneProvision::PING_RETRIES_DEFAULT})",
+        :format => Integer
+    }
+
+    SKIP_PROVISION = {
+        :name => 'skip_provision',
+        :large => '--skip-provision',
+        :description => 'Skip provision and configuration hosts phases'
+    }
+
+    SKIP_CONFIG = {
+        :name => 'skip_config',
+        :large => '--skip-config',
+        :description => 'Skip configuration hosts phase'
+    }
+
+    WAIT_READY = {
+        :name => 'wait_ready',
+        :large => '--wait-ready',
+        :description => 'Wait resources to be ready in OpenNebula'
+    }
+
+    WAIT_TIMEOUT = {
+        :name => 'wait_timeout',
+        :large => '--wait-timeout timeout',
+        :description => 'Timeout to wait objects to be ready',
+        :format      => Integer
+    }
+
+    PROVIDER = {
+        :name => 'provider',
+        :large => '--provider provider',
+        :description => 'Provider to deploy provision',
+        :format => String
+    }
+
+    ########################################################################
+
+    THREADS = {
+        :name => 'threads',
+        :short => '-t threads',
+        :large => '--threads threads',
+        :description => 'Set threads for create (default: ' \
+                        "#{OneProvision::THREADS_DEFAULT})",
+        :format => Integer
+    }
+
+    FORCE = {
+        :name => 'force',
+        :short => '-F',
+        :large => '--force',
+        :description => 'Force configure to execute',
+        :format => String
+    }
+
+    HARD = {
+        :name => 'hard',
+        :short => '-H',
+        :large => '--hard',
+        :description => 'Reset the host',
+        :format => String
+    }
+
+    CLEANUP = {
+        :name => 'cleanup',
+        :large => '--cleanup',
+        :description => 'Delete all vms and images first, ' \
+                        'then delete the resources.'
+    }
+
+    CLEANUP_TIMEOUT = {
+        :name => 'cleanup_timeout',
+        :large => '--cleanup-timeout timeout',
+        :description => 'Change the default timeout when deleting VMs/Images.'
+    }
+
+    DUMP = {
+        :name => 'dump',
+        :large => '--dump',
+        :description => 'Dump the configuration file result.'
+    }
+
+    DONE = {
+        :name => 'done',
+        :large => '--done',
+        :description => 'List provisions in DONE state'
+    }
+
+    ########################################################################
+
+    MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +
+            [VERBOSE,
+             DEBUG,
+             BATCH,
+             FAIL_RETRY,
+             FAIL_CLEANUP,
+             FAIL_SKIP,
+             FAIL_QUIT,
+             FAIL_MODES,
+             FAIL_SLEEP]
+
+    CREATE_OPTIONS = [THREADS,
+                      MODES,
+                      PING_TIMEOUT,
+                      PING_RETRIES,
+                      CLEANUP,
+                      CLEANUP_TIMEOUT,
+                      SKIP_PROVISION,
+                      SKIP_CONFIG,
+                      WAIT_READY,
+                      WAIT_TIMEOUT,
+                      PROVIDER]
+
+    ONE_OPTIONS = CommandParser::OPTIONS +
+                  CLIHelper::OPTIONS +
+                  OpenNebulaHelper::OPTIONS
 
     # Resource name
     def self.rname
@@ -53,27 +271,37 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, 'Number of Clusters', :size => 8 do |p|
-                p = OneProvisionHelper.body(p)
+                p.extend(CLIHelper::HashWithSearch)
+                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+
                 p['provision']['infrastructure']['clusters'].size rescue 0
             end
 
             column :HOSTS, 'Number of Hosts', :size => 5 do |p|
-                p = OneProvisionHelper.body(p)
+                p.extend(CLIHelper::HashWithSearch)
+                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+
                 p['provision']['infrastructure']['hosts'].size rescue 0
             end
 
             column :NETWORKS, 'Number of Networks', :size => 8 do |p|
-                p = OneProvisionHelper.body(p)
+                p.extend(CLIHelper::HashWithSearch)
+                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+
                 p['provision']['infrastructure']['networks'].size rescue 0
             end
 
             column :DATASTORES, 'Number of Datastores', :size => 10 do |p|
-                p = OneProvisionHelper.body(p)
+                p.extend(CLIHelper::HashWithSearch)
+                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+
                 p['provision']['infrastructure']['datastores'].size rescue 0
             end
 
             column :STAT, 'Provision state', :size => 12 do |p|
-                p = OneProvisionHelper.body(p)
+                p.extend(CLIHelper::HashWithSearch)
+                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+
                 OneProvision::Provision::STATE_STR[p['state']] rescue '-'
             end
 
@@ -113,10 +341,11 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         body   = provision.body
 
         CLIHelper.print_header(str_h1 % "PROVISION #{id} INFORMATION")
-        puts format('ID    : %<s>s', :s => id)
-        puts format('NAME  : %<s>s', :s => provision['NAME'])
-        puts format('STATE : %<s>s',
+        puts format('ID        : %<s>s', :s => id)
+        puts format('NAME      : %<s>s', :s => provision['NAME'])
+        puts format('STATE     : %<s>s',
                     :s => OneProvision::Provision::STATE_STR[body['state']])
+        puts format('PROVIDER  : %<s>s', :s => body['provider'])
 
         infrastructure = provision.infrastructure_objects
         resource       = provision.resource_objects
@@ -138,17 +367,27 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
     # Creates a new provision
     #
-    # @param config  [String]  Path to deployment file
-    # @param cleanup [Boolean] True to cleanup everything
-    # @param timeout [Integer] Timeout in seconds to connect to hosts
-    # @param skip    [Symbol]  Skip provision, configuration or anything
+    # @param config   [String]         Path to deployment file
+    # @param cleanup  [Boolean]        True to cleanup everything
+    # @param timeout  [Integer]        Timeout in seconds to connect to hosts
+    # @param skip     [Symbol]         Skip provision, configuration or anything
+    # @param provider [String/Integer] Provider to deploy the provision
     #
     # @param [Intenger] New provision ID
-    def create(config, cleanup, timeout, skip)
+    def create(config, cleanup, timeout, skip, provider)
         xml       = OneProvision::Provision.build_xml
         provision = OneProvision::Provision.new(xml, @client)
 
-        provision.deploy(config, cleanup, timeout, skip)
+        # If user has sepcified a provider, get it from the pool
+        if provider
+            provider = OneProvision::Provider.by_name(@client, provider)
+
+            return provider if OpenNebula.is_error?(provider)
+
+            return OpenNebula::Error.new('Provider not found') unless provider
+        end
+
+        provision.deploy(config, cleanup, timeout, skip, provider)
     end
 
     # Configures provision hosts
@@ -300,7 +539,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
             # Iterate over pool to get IDs and get the filter option
             pool.each do |obj|
-                body = OneProvisionHelper.body(obj)
+                obj.extend(CLIHelper::HashWithSearch)
+                body = JSON.parse(obj.dsearch('TEMPLATE/BODY'))
 
                 next unless body['provision'][path][type.downcase]
 
@@ -356,17 +596,6 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # Returns provision pool
     def factory_pool(_)
         OneProvision::ProvisionPool.new(@client)
-    end
-
-    class << self
-
-        # Returns provision body in JSON format
-        #
-        # @param document [Hash] Provision document
-        def body(document)
-            JSON.parse(document['TEMPLATE']['BODY'])
-        end
-
     end
 
     # Returns helper and filter depending on type
