@@ -14,35 +14,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/virtual/virtual_resource'
+require 'opennebula/document_pool_json'
 
 module OneProvision
 
-    # Template
-    class Template < VirtualResource
+    # Provision Template Pool class
+    class ProvisionTemplatePool < DocumentPoolJSON
 
-        # Class constructor
-        def initialize
-            super
+        DOCUMENT_TYPE = 104
 
-            @pool = OpenNebula::TemplatePool.new(@client)
-            @type = 'template'
+        def initialize(client, user_id = -2)
+            super(client, user_id)
         end
 
-        # Info an specific object
-        #
-        # @param id [String] Object ID
-        def info(id)
-            @one = OpenNebula::Template.new_with_id(id, @client)
-            @one.info
-        end
-
-        private
-
-        # Create new object
-        def new_object
-            @one = OpenNebula::Template.new(OpenNebula::Template.build_xml,
-                                            @client)
+        def factory(element_xml)
+            template = OneProvision::ProvisionTemplate.new(element_xml, @client)
+            template.info(true)
+            template.load_body
+            template
         end
 
     end

@@ -14,33 +14,23 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
+require 'opennebula/document_pool_json'
 
 module OneProvision
 
-    # Represents a physical resource for the provision
-    class PhysicalResource < Resource
+    # ProvisionPool class
+    class ProvisionPool < DocumentPoolJSON
 
-        # Creates the object in OpenNebula
-        #
-        # @param template   [Hash]    Object attributes
-        # @param cluster_id [Integer] Cluster ID
-        #
-        # @return [Integer] Resource ID
-        def create(template, cluster_id)
-            # create ONE object
-            new_object
+        DOCUMENT_TYPE = 103
 
-            rc = @one.allocate(format_template(template), cluster_id)
-            Utils.exception(rc)
-            rc = @one.info
-            Utils.exception(rc)
+        def initialize(client, user_id = -2)
+            super(client, user_id)
+        end
 
-            OneProvisionLogger.debug(
-                "#{@type} created with ID: #{@one.id}"
-            )
-
-            @one.id.to_i
+        def factory(element_xml)
+            provision = OneProvision::Provision.new(element_xml, @client)
+            provision.load_body
+            provision
         end
 
     end

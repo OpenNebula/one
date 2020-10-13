@@ -765,7 +765,11 @@ void Nebula::start(bool bootstrap_only)
         dspool = new DatastorePool(logdb, inherit_ds_attrs, ds_encrypted_attrs);
 
         /* ----- Document, Zone, VDC, VMTemplate, SG and Makerket Pools ----- */
-        docpool  = new DocumentPool(logdb);
+        vector<const SingleAttribute *> doc_encrypted_attrs;
+
+        nebula_configuration->get("DOCUMENT_ENCRYPTED_ATTR", doc_encrypted_attrs);
+
+        docpool  = new DocumentPool(logdb, doc_encrypted_attrs);
         zonepool = new ZonePool(db_ptr, is_federation_slave());
         vdcpool  = new VdcPool(db_ptr, is_federation_slave());
 

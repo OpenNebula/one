@@ -18,7 +18,7 @@
 #define DOCUMENT_H_
 
 #include "PoolObjectSQL.h"
-#include "Template.h"
+#include "DocumentTemplate.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -48,7 +48,7 @@ public:
      */
     std::unique_ptr<Template> get_new_template() const override
     {
-        return std::make_unique<Template>();
+        return std::make_unique<DocumentTemplate>();
     }
 
     /**
@@ -57,7 +57,7 @@ public:
      */
     std::unique_ptr<Template> clone_template() const
     {
-        return std::make_unique<Template>(*obj_template);
+        return std::make_unique<DocumentTemplate>(*obj_template);
     };
 
     /**

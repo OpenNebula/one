@@ -14,35 +14,32 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/physical/physical_resource'
+require 'provision/resources/resource'
 
 module OneProvision
 
-    # Datastore
-    class Datastore < PhysicalResource
+    # Represents the virtual resources
+    class VirtualResource < Resource
 
-        # Class constructor
-        def initialize
-            super
-
-            @pool = OpenNebula::DatastorePool.new(@client)
-            @type = 'datastore'
-        end
-
-        # Info an specific object
+        # Creates a new object in OpenNebula
         #
-        # @param id [String] Object ID
-        def info(id)
-            @one = OpenNebula::Datastore.new_with_id(id, @client)
-            @one.info
-        end
+        # @param template [Hash] Object attributes
+        #
+        # @return [Integer] Resource ID
+        def create(template)
+            # create ONE object
+            new_object
 
-        private
+            rc = @one.allocate(format_template(template))
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
 
-        # Create new object
-        def new_object
-            @one = OpenNebula::Datastore.new(OpenNebula::Datastore.build_xml,
-                                             @client)
+            OneProvisionLogger.debug(
+                "#{@type} created with ID: #{@one.id}"
+            )
+
+            Integer(@one.id)
         end
 
     end

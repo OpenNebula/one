@@ -351,7 +351,7 @@ module OneProvision
                             xml.VM_MAD host['vm_mad']
                             xml.PROVISION do
                                 host['provision'].each do |key, value|
-                                    if key != 'driver'
+                                    if key != 'provider'
                                         xml.send(key.upcase, value)
                                     end
                                 end

@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
+require 'provision/resources/resource'
 
 module OneProvision
 
@@ -28,18 +28,18 @@ module OneProvision
 
         # Class constructor
         #
-        # @param driver [String] Host driver
-        def initialize(driver = nil)
+        # @param provider [String] Host provider
+        def initialize(provider = nil)
             super()
 
-            @pool   = OpenNebula::HostPool.new(@client)
-            @type   = 'host'
-            @driver = driver
+            @pool     = OpenNebula::HostPool.new(@client)
+            @type     = 'host'
+            @provider = provider
         end
 
         # Checks if there are Running VMs on the HOST
         def running_vms?
-            @one['HOST_SHARE/RUNNING_VMS'].to_i > 0
+            Integer(@one['HOST_SHARE/RUNNING_VMS']) > 0
         end
 
         # Establishes an SSH connection to the HOST
@@ -130,7 +130,7 @@ module OneProvision
 
                 params = [resume_file.path, @one.name]
 
-                Driver.pm_driver_action(@driver, 'deploy', params, @one)
+                Driver.pm_driver_action(@provider, 'deploy', params, @one)
 
                 OneProvisionLogger.debug("Enabling OpenNebula host: #{@one.id}")
 
@@ -153,7 +153,7 @@ module OneProvision
 
             params = [deploy_id, name, 'SHUTDOWN_POWEROFF']
 
-            Driver.pm_driver_action(@driver, 'shutdown', params, @one)
+            Driver.pm_driver_action(@provider, 'shutdown', params, @one)
 
             OneProvisionLogger.debug("Offlining OpenNebula host: #{@one.id}")
 
@@ -193,7 +193,7 @@ module OneProvision
 
                 params = [deploy_id, name]
 
-                Driver.pm_driver_action(@driver, 'cancel', params, @one)
+                Driver.pm_driver_action(@provider, 'cancel', params, @one)
             end
 
             # delete ONE host
@@ -214,8 +214,8 @@ module OneProvision
 
         # Checks that the HOST is a baremetal HOST
         def check
-            Utils.fail('Not a valid bare metal host') if @driver.nil?
-            Utils.fail('Not a valid bare metal host') if @driver.empty?
+            Utils.fail('Not a valid bare metal host') if @provider.nil?
+            Utils.fail('Not a valid bare metal host') if @provider.empty?
         end
 
         # Monitors the HOST
@@ -234,7 +234,10 @@ module OneProvision
 
                 params = [deploy_id, name]
 
-                pm_ret = Driver.pm_driver_action(@driver, 'poll', params, @one)
+                pm_ret = Driver.pm_driver_action(@provider,
+                                                 'poll',
+                                                 params,
+                                                 @one)
 
                 begin
                     poll = {}
@@ -281,7 +284,7 @@ module OneProvision
             @one.offline
 
             OneProvisionLogger.info("#{message} host: #{@one.id}")
-            Driver.pm_driver_action(@driver, action, [deploy_id, name], @one)
+            Driver.pm_driver_action(@provider, action, [deploy_id, name], @one)
 
             OneProvisionLogger.debug("Enabling OpenNebula host: #{@one.id}")
 

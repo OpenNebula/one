@@ -36,11 +36,11 @@ Document::Document( int id,
 {
     if (_template_contents)
     {
-        obj_template = move(_template_contents);
+        obj_template = make_unique<DocumentTemplate>(*_template_contents);
     }
     else
     {
-        obj_template = make_unique<Template>();
+        obj_template = make_unique<DocumentTemplate>();
     }
 
     set_umask(_umask);
@@ -71,6 +71,9 @@ int Document::insert(SqlDB *db, string& error_str)
         error_str = "NAME is too long; max length is 128 chars.";
         return -1;
     }
+
+    // Encrypt all the secrets
+    encrypt();
 
     // ------------------------------------------------------------------------
     // Insert the Document

@@ -292,9 +292,12 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/vcenter_driver \
           $LIB_LOCATION/ruby/nsx_driver \
           $LIB_LOCATION/oneprovision/lib \
-          $LIB_LOCATION/oneprovision/lib/resources \
-          $LIB_LOCATION/oneprovision/lib/resources/virtual \
-          $LIB_LOCATION/oneprovision/lib/resources/physical"
+          $LIB_LOCATION/oneprovision/lib/provision \
+          $LIB_LOCATION/oneprovision/lib/provision_template \
+          $LIB_LOCATION/oneprovision/lib/provider \
+          $LIB_LOCATION/oneprovision/lib/provision/resources \
+          $LIB_LOCATION/oneprovision/lib/provision/resources/virtual \
+          $LIB_LOCATION/oneprovision/lib/provision/resources/physical"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -725,9 +728,12 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_EXAMPLES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
-    ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/resources
-    ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/resources/physical
-    ONEPROVISION_LIB_VIRTUAL_R_FILES:$LIB_LOCATION/oneprovision/lib/resources/virtual
+    ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
+    ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources
+    ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/physical
+    ONEPROVISION_LIB_VIRTUAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/virtual
+    ONEPROVISION_LIB_PROVIDER_FILES:$LIB_LOCATION/oneprovision/lib/provider
+    ONEPROVISION_LIB_PROVISION_TEMPLATE_FILES:$LIB_LOCATION/oneprovision/lib/provision_template
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
@@ -2360,11 +2366,17 @@ CLI_CONF_FILES="src/cli/etc/onegroup.yaml \
 # Provision files
 #-----------------------------------------------------------------------------
 
-ONEPROVISION_BIN_FILES="src/cli/oneprovision"
+ONEPROVISION_BIN_FILES="src/cli/oneprovision \
+                        src/cli/oneprovider \
+                        src/cli/oneprovision-template"
 
-ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helper.rb"
+ONEPROVISION_ONE_LIB_FILES="src/cli/one_helper/oneprovision_helper.rb \
+                            src/cli/one_helper/oneprovider_helper.rb \
+                            src/cli/one_helper/oneprovision_template_helper.rb"
 
-ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml"
+ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
+                         src/cli/etc/oneprovider.yaml \
+                         src/cli/etc/oneprovision_template.yaml"
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
@@ -2372,31 +2384,40 @@ ONEPROVISION_TEMPLATES_FILES="share/oneprovision/templates"
 
 ONEPROVISION_EXAMPLES_FILES="share/oneprovision/examples"
 
-ONEPROVISION_LIB_FILES="src/oneprovision/lib/ansible.rb \
-                        src/oneprovision/lib/oneprovision.rb \
-                        src/oneprovision/lib/driver.rb \
-                        src/oneprovision/lib/provision.rb \
-                        src/oneprovision/lib/provision_pool.rb \
-                        src/oneprovision/lib/resources.rb \
-                        src/oneprovision/lib/utils.rb"
+ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
+                        src/oneprovision/lib/provision_element.rb"
 
-ONEPROVISION_LIB_RESOURCES_FILES="src/oneprovision/lib/resources/virtual.rb \
-                                  src/oneprovision/lib/resources/resource.rb \
-                                  src/oneprovision/lib/resources/physical.rb"
+ONEPROVISION_LIB_PROVISION_FILES="src/oneprovision/lib/provision/ansible.rb \
+                                  src/oneprovision/lib/provision/oneprovision.rb \
+                                  src/oneprovision/lib/provision/driver.rb \
+                                  src/oneprovision/lib/provision/provision.rb \
+                                  src/oneprovision/lib/provision/provision_pool.rb \
+                                  src/oneprovision/lib/provision/resources.rb \
+                                  src/oneprovision/lib/provision/utils.rb"
 
-ONEPROVISION_LIB_PHYSICAL_R_FILES="src/oneprovision/lib/resources/physical/cluster.rb \
-                                   src/oneprovision/lib/resources/physical/datastore.rb \
-                                   src/oneprovision/lib/resources/physical/host.rb \
-                                   src/oneprovision/lib/resources/physical/physical_resource.rb \
-                                   src/oneprovision/lib/resources/physical/network.rb"
+ONEPROVISION_LIB_RESOURCES_FILES="src/oneprovision/lib/provision/resources/virtual.rb \
+                                  src/oneprovision/lib/provision/resources/resource.rb \
+                                  src/oneprovision/lib/provision/resources/physical.rb"
 
-ONEPROVISION_LIB_VIRTUAL_R_FILES="src/oneprovision/lib/resources/virtual/virtual_resource.rb \
-                                  src/oneprovision/lib/resources/virtual/virtual_sync_resource.rb \
-                                  src/oneprovision/lib/resources/virtual/image.rb \
-                                  src/oneprovision/lib/resources/virtual/marketplaceapp.rb \
-                                  src/oneprovision/lib/resources/virtual/template.rb \
-                                  src/oneprovision/lib/resources/virtual/flowtemplate.rb \
-                                  src/oneprovision/lib/resources/virtual/vntemplate.rb"
+ONEPROVISION_LIB_PHYSICAL_R_FILES="src/oneprovision/lib/provision/resources/physical/cluster.rb \
+                                   src/oneprovision/lib/provision/resources/physical/datastore.rb \
+                                   src/oneprovision/lib/provision/resources/physical/host.rb \
+                                   src/oneprovision/lib/provision/resources/physical/physical_resource.rb \
+                                   src/oneprovision/lib/provision/resources/physical/network.rb"
+
+ONEPROVISION_LIB_VIRTUAL_R_FILES="src/oneprovision/lib/provision/resources/virtual/virtual_resource.rb \
+                                  src/oneprovision/lib/provision/resources/virtual/virtual_sync_resource.rb \
+                                  src/oneprovision/lib/provision/resources/virtual/image.rb \
+                                  src/oneprovision/lib/provision/resources/virtual/marketplaceapp.rb \
+                                  src/oneprovision/lib/provision/resources/virtual/template.rb \
+                                  src/oneprovision/lib/provision/resources/virtual/flowtemplate.rb \
+                                  src/oneprovision/lib/provision/resources/virtual/vntemplate.rb"
+
+ONEPROVISION_LIB_PROVIDER_FILES="src/oneprovision/lib/provider/provider.rb \
+                                 src/oneprovision/lib/provider/provider_pool.rb"
+
+ONEPROVISION_LIB_PROVISION_TEMPLATE_FILES="src/oneprovision/lib/provision_template/provision_template.rb \
+                                           src/oneprovision/lib/provision_template/provision_template_pool.rb"
 
 #-----------------------------------------------------------------------------
 # Sunstone files

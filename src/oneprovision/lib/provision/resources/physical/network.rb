@@ -14,53 +14,37 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/resource'
+require 'provision/resources/physical/physical_resource'
 
 module OneProvision
 
-    # Cluster
-    class Cluster < Resource
+    # Network
+    class Network < PhysicalResource
 
         # Class constructor
         def initialize
             super
 
-            @pool = OpenNebula::ClusterPool.new(@client)
-            @type = 'cluster'
-        end
-
-        # Creates a new cluster in OpenNebula
-        #
-        # @param template [Hash] Cluster template information
-        #
-        # @return [Integer] Resource ID
-        def create(template)
-            new_object
-
-            rc = @one.allocate(template['name'])
-            Utils.exception(rc)
-            rc = @one.update(Utils.template_like_str(template), true)
-            Utils.exception(rc)
-            rc = @one.info
-            Utils.exception(rc)
-
-            @one.id.to_i
+            @pool = OpenNebula::VirtualNetworkPool.new(@client)
+            @type = 'network'
         end
 
         # Info an specific object
         #
-        # @param id [Integer] Object ID
+        # @param id [String] Object ID
         def info(id)
-            @one = OpenNebula::Cluster.new_with_id(id, @client)
+            @one = OpenNebula::VirtualNetwork.new_with_id(id, @client)
             @one.info
         end
 
         private
 
-        # Creates new ONE object
+        # Create new object
         def new_object
-            @one = OpenNebula::Cluster.new(OpenNebula::Cluster.build_xml,
-                                           @client)
+            @one = OpenNebula::VirtualNetwork.new(
+                OpenNebula::VirtualNetwork.build_xml,
+                @client
+            )
         end
 
     end

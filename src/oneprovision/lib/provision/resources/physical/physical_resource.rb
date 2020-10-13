@@ -14,24 +14,35 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'provision_element'
-require 'provision/oneprovision'
-require 'provision_template/provision_template'
-require 'provision_template/provision_template_pool'
-require 'provider/provider'
-require 'provider/provider_pool'
+require 'provision/resources/resource'
 
-# OneProvision module
 module OneProvision
 
-    PING_TIMEOUT_DEFAULT  = 20
-    PING_RETRIES_DEFAULT  = 10
-    MAX_RETRIES_DEFAULT   = 3
-    RUN_MODE_DEFAULT      = :interactive
-    FAIL_CHOICE_DEFAULT   = :quit
-    DEFAULT_FAIL_MODES    = [:cleanup, :retry, :skip, :quit]
-    CLEANUP_DEFAULT       = false
-    THREADS_DEFAULT       = 3
-    WAIT_TIMEOUT_DEFAULT  = 60
+    # Represents a physical resource for the provision
+    class PhysicalResource < Resource
+
+        # Creates the object in OpenNebula
+        #
+        # @param template   [Hash]    Object attributes
+        # @param cluster_id [Integer] Cluster ID
+        #
+        # @return [Integer] Resource ID
+        def create(template, cluster_id)
+            # create ONE object
+            new_object
+
+            rc = @one.allocate(format_template(template), cluster_id)
+            Utils.exception(rc)
+            rc = @one.info
+            Utils.exception(rc)
+
+            OneProvisionLogger.debug(
+                "#{@type} created with ID: #{@one.id}"
+            )
+
+            Integer(@one.id)
+        end
+
+    end
 
 end

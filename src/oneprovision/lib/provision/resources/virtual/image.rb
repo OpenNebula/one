@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'resources/virtual/virtual_sync_resource'
+require 'provision/resources/virtual/virtual_sync_resource'
 
 module OneProvision
 
@@ -49,7 +49,7 @@ module OneProvision
             new_object
 
             rc = @one.allocate(format_template(template),
-                               template['ds_id'].to_i)
+                               Integer(template['ds_id']))
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)
@@ -58,7 +58,7 @@ module OneProvision
                 "#{@type} created with ID: #{@one.id}"
             )
 
-            return @one.id.to_i unless wait
+            return Integer(@one.id) unless wait
 
             ready?(template)
         end
@@ -99,7 +99,7 @@ module OneProvision
                     raise OneProvisionLoopException
                 else
                     # if everything is ready, return the ID
-                    @one.id.to_i
+                    Integer(@one.id)
                 end
             end
         end
