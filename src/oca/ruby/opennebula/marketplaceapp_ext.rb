@@ -401,7 +401,9 @@ module OpenNebula::MarketPlaceAppExt
                 end
 
                 if OpenNebula.is_error?(rc)
-                    return rollback_export(exported, xpath != '//DISK')
+                    rc_rbck = rollback_export(exported, xpath != '//DISK')
+
+                    return rc_rbck if OpenNebula.is_error?(rc_rbck)
                 end
 
                 rc
