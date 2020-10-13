@@ -307,13 +307,15 @@ class Cluster
     end
 
     def cluster_monitoring
-        metrics = @cluster.item.collect(*(CLUSTER_PROPERTIES[0..4]))
+        resource_usage_summary = @cluster.item.GetResourceUsage()
 
-        total_cpu     = metrics[0].to_f
-        num_cpu_cores = metrics[1].to_f
-        effective_cpu = metrics[2].to_f
-        total_memory  = metrics[3].to_i
-        effective_mem = metrics[4].to_i
+        metrics = @cluster.item.collect(*(CLUSTER_PROPERTIES[1]))
+        num_cpu_cores = metrics[0].to_f
+
+        total_cpu     = resource_usage_summary.cpuCapacityMHz.to_f
+        effective_cpu = resource_usage_summary.cpuUsedMHz.to_f
+        total_memory  = resource_usage_summary.memCapacityMB.to_i
+        effective_mem = resource_usage_summary.memUsedMB.to_i
 
         if num_cpu_cores > 0
             mhz_core = total_cpu / num_cpu_cores
