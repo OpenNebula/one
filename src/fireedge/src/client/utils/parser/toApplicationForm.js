@@ -96,7 +96,7 @@ const mapApplicationToForm = data => {
   const {
     NAME,
     TEMPLATE: {
-      BODY: { networks, roles, ...application }
+      BODY: { networks = [], roles, ...application }
     }
   } = data;
 

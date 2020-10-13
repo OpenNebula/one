@@ -6,6 +6,7 @@ import { Autocomplete } from '@material-ui/lab';
 import { Controller } from 'react-hook-form';
 
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
+import { Tr } from 'client/components/HOC/Translate';
 
 const AutocompleteController = ({
   control,
@@ -30,7 +31,7 @@ const AutocompleteController = ({
           getOptionSelected={option => option.value === val}
           renderInput={({ inputProps, ...inputParams }) => (
             <TextField
-              label={label}
+              label={Tr(label)}
               inputProps={{ ...inputProps, 'data-cy': cy }}
               error={Boolean(error)}
               helperText={

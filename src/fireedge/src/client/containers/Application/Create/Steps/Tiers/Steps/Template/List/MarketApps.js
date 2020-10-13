@@ -20,7 +20,7 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
   const renderApp = app => (
     <SelectCard
       key={`app-${app.ID}`}
-      isSelected={app.ID === currentValue}
+      isSelected={app.ID === String(currentValue)}
       handleSelect={handleSelect}
       handleUnselect={handleUnselect}
       {...app}
@@ -46,7 +46,7 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
 
 ListMarketApp.propTypes = {
   backButton: PropTypes.node,
-  currentValue: PropTypes.string,
+  currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   handleSetData: PropTypes.func
 };
 

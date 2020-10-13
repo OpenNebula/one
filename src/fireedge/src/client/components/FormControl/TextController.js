@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { TextField } from '@material-ui/core';
 import { Controller } from 'react-hook-form';
+import { Tr } from 'client/components/HOC';
 
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
 
@@ -13,7 +14,7 @@ const TextController = memo(
         <TextField
           fullWidth
           type={type}
-          label={label}
+          label={Tr(label)}
           inputProps={{ 'data-cy': cy }}
           error={Boolean(error)}
           helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
@@ -32,7 +33,7 @@ TextController.propTypes = {
   cy: PropTypes.string,
   type: PropTypes.string,
   name: PropTypes.string.isRequired,
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  label: PropTypes.string,
   error: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)

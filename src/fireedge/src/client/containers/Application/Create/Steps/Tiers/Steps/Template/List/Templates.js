@@ -20,7 +20,7 @@ const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
   const renderTemplate = tmp => (
     <SelectCard
       key={`tmp-${tmp.ID}`}
-      isSelected={tmp.ID === currentValue}
+      isSelected={tmp.ID === String(currentValue)}
       handleSelect={handleSelect}
       handleUnselect={handleUnselect}
       {...tmp}
@@ -46,7 +46,7 @@ const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
 
 ListTemplates.propTypes = {
   backButton: PropTypes.node,
-  currentValue: PropTypes.string,
+  currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   handleSetData: PropTypes.func
 };
 

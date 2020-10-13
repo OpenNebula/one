@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import {
   makeStyles,
@@ -44,11 +44,11 @@ const useStyles = makeStyles(theme => ({
   icon: {}
 }));
 
-const ApplicationTemplateCard = React.memo(
-  ({ value, handleEdit, handleDeploy, handleRemove }) => {
+const ApplicationTemplateCard = memo(
+  ({ value, handleEdit, handleDeploy, handleShow, handleRemove }) => {
     const classes = useStyles();
     const { ID, NAME, TEMPLATE } = value;
-    const { description, networks, roles } = TEMPLATE.BODY;
+    const { description, networks = [], roles = [] } = TEMPLATE.BODY;
 
     const numberOfNetworks = Object.keys(networks)?.length ?? 0;
     const numberOfTiers = Object.keys(roles)?.length ?? 0;
@@ -108,7 +108,12 @@ const ApplicationTemplateCard = React.memo(
             )}
             {handleDeploy && (
               <Button variant="contained" size="small" onClick={handleDeploy}>
-                {Tr('Clone')}
+                {Tr('Deploy')}
+              </Button>
+            )}
+            {handleShow && (
+              <Button variant="contained" size="small" onClick={handleShow}>
+                {Tr('Info')}
               </Button>
             )}
             {handleRemove && (

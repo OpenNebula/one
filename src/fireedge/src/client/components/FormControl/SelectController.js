@@ -5,6 +5,7 @@ import { TextField, MenuItem } from '@material-ui/core';
 import { Controller } from 'react-hook-form';
 
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
+import { Tr } from 'client/components/HOC/Translate';
 
 const SelectController = memo(
   ({ control, cy, name, label, values, error }) => (
@@ -14,7 +15,7 @@ const SelectController = memo(
           select
           SelectProps={{ displayEmpty: true }}
           fullWidth
-          label={label}
+          label={Tr(label)}
           inputProps={{ 'data-cy': cy }}
           error={Boolean(error)}
           helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
