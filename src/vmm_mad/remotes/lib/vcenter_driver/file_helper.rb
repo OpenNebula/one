@@ -197,7 +197,7 @@ module VCenterDriver
                     .dirname(
                         descriptor_url.host+descriptor_url.path
                     )
-                next unless ds.is_descriptor?(
+                next unless ds.descriptor?(
                     image_path + '/' + file_to_download
                 )
 
@@ -225,7 +225,7 @@ module VCenterDriver
         # related files, creates a tar.gz and dumps it in stdout
         def self.dump_vmdk_tar_gz(vcenter_url, ds)
             image_source = vcenter_url.host + vcenter_url.path
-            if ds.is_descriptor?(image_source)
+            if ds.descriptor?(image_source)
                 files_to_download =
                     get_all_filenames_in_descriptor(
                         vcenter_url,

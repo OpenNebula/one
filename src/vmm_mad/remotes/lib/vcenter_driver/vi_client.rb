@@ -121,7 +121,9 @@ module VCenterDriver
         # @return RbVmomi::VIM::<type> objects
         def self.get_entities(folder, type, entities = [])
             if folder == []
-                return
+                # rubocop:disable Style/ReturnNil
+                return nil
+                # rubocop:enable Style/ReturnNil
             end
 
             folder.childEntity.each do |child|

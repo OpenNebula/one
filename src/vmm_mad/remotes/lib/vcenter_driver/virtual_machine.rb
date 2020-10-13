@@ -773,7 +773,7 @@ module VCenterDriver
             if key
                 query = vc_disks.select {|dev| key == dev[:key]}
             else
-                if has_snapshots?
+                if snapshots?
                     error = 'Disk metadata not present and snapshots exist. ' \
                             'OpenNebula cannot manage this VM.'
                     raise error
@@ -2186,7 +2186,7 @@ module VCenterDriver
             @item.ReconfigVM_Task(spec: spec).wait_for_completion
         end
 
-        def has_snapshots?
+        def snapshots?
             self.clear('rootSnapshot')
             self['rootSnapshot'] && !self['rootSnapshot'].empty?
         end
