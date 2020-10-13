@@ -33,7 +33,7 @@ const SubmitButton = ({ isSubmitting, label, ...rest }) => {
 
 SubmitButton.propTypes = {
   isSubmitting: PropTypes.bool,
-  label: PropTypes.string
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
 };
 
 SubmitButton.defaultProps = {

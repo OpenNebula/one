@@ -9,6 +9,7 @@ import {
   Typography
 } from '@material-ui/core';
 import { Info as InfoIcon } from '@material-ui/icons';
+import { Tr } from 'client/components/HOC/Translate';
 
 const useStyles = makeStyles(theme => {
   const getColor = theme.palette.type === 'light' ? darken : lighten;
@@ -42,7 +43,7 @@ const ErrorHelper = ({ label, ...rest }) => {
         component="span"
         data-cy="error-text"
       >
-        {label}
+        {Tr(label)}
       </Typography>
     </Box>
   );

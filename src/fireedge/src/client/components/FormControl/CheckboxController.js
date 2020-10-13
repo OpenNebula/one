@@ -10,12 +10,13 @@ import {
 import { Controller } from 'react-hook-form';
 
 import ErrorHelper from 'client/components/FormControl/ErrorHelper';
+import { Tr } from 'client/components/HOC/Translate';
 
 const CheckboxController = memo(
   ({ control, cy, name, label, tooltip, error }) => (
     <Controller
       render={({ onChange, value }) => (
-        <Tooltip title={tooltip ?? ''}>
+        <Tooltip title={Tr(tooltip) ?? ''}>
           <FormControl error={Boolean(error)}>
             <FormControlLabel
               control={
@@ -27,7 +28,7 @@ const CheckboxController = memo(
                   inputProps={{ 'data-cy': cy }}
                 />
               }
-              label={label}
+              label={Tr(label)}
               labelPlacement="end"
             />
             {Boolean(error) && <ErrorHelper label={error?.message} />}

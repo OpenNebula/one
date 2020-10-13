@@ -80,12 +80,15 @@ const TranslateProvider = ({ children }) => {
 const translate = (str = '', values) => {
   const context = useContext(TranslateContext);
   let key = str;
-  if (context && context.hash && context.hash[key]) {
+
+  if (context?.hash[key]) {
     key = context.hash[key];
   }
+
   if (!!values && Array.isArray(values)) {
     key = sprintf(key, ...values);
   }
+
   return key;
 };
 
@@ -97,7 +100,10 @@ const Tr = (str = '') => {
     key = str[0] || '';
     values = str[1];
   }
-  return <Translate word={key} values={values} />;
+
+  const valuesTr = !!values && !Array.isArray(values) ? [values] : values;
+
+  return translate(key, valuesTr);
 };
 
 const SelectTranslate = () => {
