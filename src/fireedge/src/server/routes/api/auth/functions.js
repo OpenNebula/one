@@ -22,7 +22,7 @@ const {
   default2FAOpennebulaVar,
   defaultNamespace,
   from: fromData
-} = require('server/utils/constants/defaults'); //'../../../utils/constants/defaults'
+} = require('server/utils/constants/defaults');
 const { getConfig } = require('server/utils/yml');
 const {
   ok,

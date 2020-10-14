@@ -54,8 +54,10 @@ function Login() {
 
   const handleSubmitUser = dataForm => {
     login({ ...user, ...dataForm }).then(data => {
+      console.log('-->', data);
       if (data?.token) {
         getAuthInfo().then(() => {
+          // eslint-disable-next-line no-unused-expressions
           data?.id !== ONEADMIN_ID && setStep(STEP.GROUP_FORM);
         });
       } else {

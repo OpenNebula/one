@@ -24,7 +24,7 @@ function FormUser({ onSubmit, error }) {
     resolver: yupResolver(
       yup.object().shape({
         user: yup.string().required('Username is a required field'),
-        pass: yup.string().required('Password is a required field'),
+        token: yup.string().required('Password is a required field'),
         remember: yup.boolean()
       })
     )
@@ -58,7 +58,7 @@ function FormUser({ onSubmit, error }) {
       <TextField
         fullWidth
         required
-        name="pass"
+        name="token"
         type="password"
         autoComplete="current-password"
         label={Tr(Password)}

@@ -20,7 +20,7 @@ const Form2fa = ({ onBack, onSubmit, error }) => {
     reValidateMode: 'onSubmit',
     resolver: yupResolver(
       yup.object().shape({
-        token: yup.string().required('Authenticator is a required field')
+        token2fa: yup.string().required('Authenticator is a required field')
       })
     )
   });
@@ -37,7 +37,7 @@ const Form2fa = ({ onBack, onSubmit, error }) => {
         autoFocus
         fullWidth
         required
-        name="token"
+        name="token2fa"
         label={Tr(Token2FA)}
         variant="outlined"
         inputRef={register}
