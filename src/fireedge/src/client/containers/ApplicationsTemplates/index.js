@@ -1,3 +1,3 @@
-import ApplicationsTemplatesCreate from 'client/containers/ApplicationsTemplates/Create';
+import ApplicationsTemplatesCreate from 'client/containers/ApplicationsTemplates/Create'
 
-export { ApplicationsTemplatesCreate };
+export { ApplicationsTemplatesCreate }

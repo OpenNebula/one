@@ -1,10 +1,10 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme =>
-  // const getColor = theme.palette.type === 'light' ? darken : lighten;
-  // const getBackgroundColor = theme.palette.type === 'light' ? lighten : darken;
-  // color: getColor(theme.palette.error.main, 0.6),
-  // backgroundColor: getBackgroundColor(theme.palette.error.main, 0.9)
+// const getColor = theme.palette.type === 'light' ? darken : lighten;
+// const getBackgroundColor = theme.palette.type === 'light' ? lighten : darken;
+// color: getColor(theme.palette.error.main, 0.6),
+// backgroundColor: getBackgroundColor(theme.palette.error.main, 0.9)
 
   ({
     root: {
@@ -40,4 +40,4 @@ export default makeStyles(theme =>
       animation: '1s ease-out 0s 1'
     }
   })
-);
+)

@@ -1,10 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from 'react'
 
-import FormWithSchema from 'client/components/Forms/FormWithSchema';
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema';
+import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
 
-export const STEP_ID = 'application';
+export const STEP_ID = 'application'
 
 const BasicConfiguration = () => ({
   id: STEP_ID,
@@ -14,6 +14,6 @@ const BasicConfiguration = () => ({
     () => <FormWithSchema cy="form-flow" fields={FORM_FIELDS} id={STEP_ID} />,
     []
   )
-});
+})
 
-export default BasicConfiguration;
+export default BasicConfiguration

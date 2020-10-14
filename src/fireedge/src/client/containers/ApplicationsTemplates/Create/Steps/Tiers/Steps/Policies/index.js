@@ -1,10 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback } from 'react'
 
-import FormWithSchema from 'client/components/Forms/FormWithSchema';
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
-import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema';
+import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
 
-export const STEP_ID = 'policies';
+export const STEP_ID = 'policies'
 
 const Policies = () => ({
   id: STEP_ID,
@@ -16,6 +16,6 @@ const Policies = () => ({
     ),
     []
   )
-});
+})
 
-export default Policies;
+export default Policies

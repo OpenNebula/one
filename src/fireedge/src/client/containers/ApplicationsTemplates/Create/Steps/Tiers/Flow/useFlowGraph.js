@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react'
 
 import {
   isNode,
@@ -6,19 +6,19 @@ import {
   addEdge,
   removeElements,
   useStoreActions
-} from 'react-flow-renderer';
+} from 'react-flow-renderer'
 
 const useFlowGraph = ({ nodeFields, setList }) => {
-  const [flow, setFlow] = useState([]);
+  const [flow, setFlow] = useState([])
   const setSelectedElements = useStoreActions(
     actions => actions.setSelectedElements
-  );
+  )
 
   const getParents = (currentFlow, childId) =>
     currentFlow
       .filter(isEdge)
       .filter(({ target }) => childId === target)
-      .map(({ source }) => source);
+      .map(({ source }) => source)
 
   const getList = currentFlow =>
     currentFlow?.filter(isNode)?.map(({ data: nodeData, position }) =>
@@ -33,7 +33,7 @@ const useFlowGraph = ({ nodeFields, setList }) => {
           }),
           {}
         )
-    );
+    )
 
   const handleRefreshFlow = useCallback((data, extraItemProps) => {
     setFlow(
@@ -55,35 +55,35 @@ const useFlowGraph = ({ nodeFields, setList }) => {
         ],
         []
       )
-    );
-  }, []);
+    )
+  }, [])
 
   const updateList = newFlow => {
-    const list = getList(newFlow);
-    setList(list);
-  };
+    const list = getList(newFlow)
+    setList(list)
+  }
 
   const handleRemoveElements = elements => {
-    const newFlow = removeElements(elements, flow);
-    updateList(newFlow);
-  };
+    const newFlow = removeElements(elements, flow)
+    updateList(newFlow)
+  }
 
   const handleConnect = params => {
-    const newFlow = addEdge({ ...params, animated: true }, flow);
-    updateList(newFlow);
-  };
+    const newFlow = addEdge({ ...params, animated: true }, flow)
+    updateList(newFlow)
+  }
 
   const handleUpdatePosition = (_, node) => {
     const newFlow = flow.map(element =>
       element.id === node.id ? node : element
-    );
-    updateList(newFlow);
-  };
+    )
+    updateList(newFlow)
+  }
 
   const handleSelectAll = useCallback(() => {
-    const nodes = flow.filter(isNode);
-    setSelectedElements(nodes.map(({ id, type }) => ({ id, type })));
-  }, [flow]);
+    const nodes = flow.filter(isNode)
+    setSelectedElements(nodes.map(({ id, type }) => ({ id, type })))
+  }, [flow])
 
   return {
     flow,
@@ -92,7 +92,7 @@ const useFlowGraph = ({ nodeFields, setList }) => {
     handleConnect,
     handleUpdatePosition,
     handleSelectAll
-  };
-};
+  }
+}
 
-export default useFlowGraph;
+export default useFlowGraph

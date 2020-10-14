@@ -1,5 +1,5 @@
-import { makeStyles } from '@material-ui/core';
-import { sidebar, toolbar, footer } from 'client/assets/theme/defaults';
+import { makeStyles } from '@material-ui/core'
+import { sidebar, toolbar, footer } from 'client/assets/theme/defaults'
 
 export default makeStyles(theme => ({
   root: {
@@ -70,4 +70,4 @@ export default makeStyles(theme => ({
   },
   enterDone: {},
   exitDone: {}
-}));
+}))

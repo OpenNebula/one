@@ -13,15 +13,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import InternalLayout from 'client/components/HOC/InternalLayout';
-import MainLayout from 'client/components/HOC/MainLayout';
+import InternalLayout from 'client/components/HOC/InternalLayout'
+import MainLayout from 'client/components/HOC/MainLayout'
 import {
   TranslateContext,
   TranslateProvider,
   Translate,
   Tr,
   SelectTranslate
-} from 'client/components/HOC/Translate';
+} from 'client/components/HOC/Translate'
 
 export {
   InternalLayout,
@@ -31,4 +31,4 @@ export {
   Translate,
   Tr,
   SelectTranslate
-};
+}

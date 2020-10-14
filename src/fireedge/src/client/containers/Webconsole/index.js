@@ -13,18 +13,18 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState, useEffect } from 'react';
-import io from 'socket.io-client';
-import { findStorageData } from 'client/utils';
-import constants from 'client/constants';
-import { defaultPort } from 'server/utils/constants/defaults';
+import React, { useState, useEffect } from 'react'
+import io from 'socket.io-client'
+import { findStorageData } from 'client/utils'
+import constants from 'client/constants'
+import { defaultPort } from 'server/utils/constants/defaults'
 
-const { jwtName } = constants;
+const { jwtName } = constants
 
-const ENDPOINT = `http://127.0.0.1:${defaultPort}`;
+const ENDPOINT = `http://127.0.0.1:${defaultPort}`
 
 const Webconsole = () => {
-  const [response, setResponse] = useState({});
+  const [response, setResponse] = useState({})
 
   useEffect(() => {
     const socket = io(ENDPOINT, {
@@ -32,12 +32,12 @@ const Webconsole = () => {
       query: {
         token: findStorageData(jwtName)
       }
-    });
+    })
     socket.on('zeroMQ', data => {
-      setResponse(data);
-    });
-  }, []);
-  console.log('-->', response);
-  return <p />;
-};
-export default Webconsole;
+      setResponse(data)
+    })
+  }, [])
+  console.log('-->', response)
+  return <p />
+}
+export default Webconsole

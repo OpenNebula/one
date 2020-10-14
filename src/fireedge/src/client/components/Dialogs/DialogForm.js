@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
 import {
   useMediaQuery,
@@ -8,22 +8,22 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions
-} from '@material-ui/core';
-import { useForm, FormProvider } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers';
+} from '@material-ui/core'
+import { useForm, FormProvider } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const DialogForm = memo(
   ({ open, title, values, resolver, onSubmit, onCancel, children }) => {
-    const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
+    const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
     const { handleSubmit, ...methods } = useForm({
       mode: 'onChange',
       reValidateMode: 'onSubmit',
       defaultValues: values,
       resolver: yupResolver(resolver)
-    });
+    })
 
     return (
       <Dialog
@@ -63,9 +63,9 @@ const DialogForm = memo(
           </DialogActions>
         )}
       </Dialog>
-    );
+    )
   }
-);
+)
 
 DialogForm.propTypes = {
   open: PropTypes.bool.isRequired,
@@ -81,7 +81,7 @@ DialogForm.propTypes = {
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node
   ])
-};
+}
 
 DialogForm.defaultProps = {
   open: true,
@@ -91,6 +91,6 @@ DialogForm.defaultProps = {
   onSubmit: undefined,
   onCancel: undefined,
   children: null
-};
+}
 
-export default DialogForm;
+export default DialogForm

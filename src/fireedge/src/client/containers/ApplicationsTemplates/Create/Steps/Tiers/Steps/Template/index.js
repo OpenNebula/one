@@ -1,23 +1,23 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react'
 
 import {
   ArrowBackIosOutlined as BackIcon,
   ShoppingCartOutlined as MarketplaceIcon,
   InsertDriveFileOutlined as TemplateIcon
-} from '@material-ui/icons';
-import { makeStyles, IconButton, Button, Fade } from '@material-ui/core';
-import DockerLogo from 'client/icons/docker';
+} from '@material-ui/icons'
+import { makeStyles, IconButton, Button, Fade } from '@material-ui/core'
+import DockerLogo from 'client/icons/docker'
 
-import ListTemplates from './List/Templates';
-import ListMarketApps from './List/MarketApps';
-import DockerFile from './List/Docker';
-import { STEP_FORM_SCHEMA } from './schema';
+import ListTemplates from './List/Templates'
+import ListMarketApps from './List/MarketApps'
+import DockerFile from './List/Docker'
+import { STEP_FORM_SCHEMA } from './schema'
 
-export const STEP_ID = 'template';
+export const STEP_ID = 'template'
 
 const SCREENS = [
   {
-    id: 'template',
+    id: 'id',
     button: <TemplateIcon style={{ fontSize: 100 }} />,
     content: ListTemplates
   },
@@ -31,7 +31,7 @@ const SCREENS = [
     button: <DockerLogo width="100" height="100%" color="#066da5" />,
     content: DockerFile
   }
-];
+]
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -45,35 +45,35 @@ const useStyles = makeStyles(() => ({
     flexWrap: 'wrap'
   },
   button: { backgroundColor: '#fff' }
-}));
+}))
 
 const Template = () => ({
   id: STEP_ID,
   label: 'Template',
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data = {}, setFormData }) => {
-    const classes = useStyles();
-    const [screen, setScreen] = useState(undefined);
+    const classes = useStyles()
+    const [screen, setScreen] = useState(undefined)
 
     useEffect(() => {
       if (Object.keys(data).length > 0) {
-        const currentScreen = Object.keys(data)[0];
-        setScreen(SCREENS.find(src => src.id === currentScreen));
+        const currentScreen = Object.keys(data)[0]
+        setScreen(SCREENS.find(src => src.id === currentScreen))
       }
-    }, []);
+    }, [])
 
     const handleSetTemplate = template =>
       setFormData(prevData => ({
         ...prevData,
         [STEP_ID]: template ? { [screen.id]: template } : undefined
-      }));
+      }))
 
     const handleBack = () => {
-      setScreen(undefined);
-      handleSetTemplate();
-    };
+      setScreen(undefined)
+      handleSetTemplate()
+    }
 
-    const Content = useMemo(() => screen?.content, [screen]);
+    const Content = useMemo(() => screen?.content, [screen])
 
     return screen !== undefined ? (
       <Content
@@ -101,8 +101,8 @@ const Template = () => ({
           ))}
         </div>
       </div>
-    );
+    )
   }, [])
-});
+})
 
-export default Template;
+export default Template

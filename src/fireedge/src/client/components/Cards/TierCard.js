@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
 import {
   makeStyles,
@@ -7,10 +8,10 @@ import {
   CardHeader,
   CardActions,
   Badge
-} from '@material-ui/core';
-import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows';
+} from '@material-ui/core'
+import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -32,12 +33,12 @@ const useStyles = makeStyles(() => ({
     lineClamp: 2,
     boxOrient: 'vertical'
   }
-}));
+}))
 
-const TierCard = React.memo(
+const TierCard = memo(
   ({ values, handleEdit, handleClone, handleRemove, cardProps }) => {
-    const classes = useStyles();
-    const { name = 'Tier name', cardinality } = values;
+    const classes = useStyles()
+    const { name, cardinality } = values
 
     return (
       <Card className={classes.root} {...cardProps}>
@@ -82,8 +83,32 @@ const TierCard = React.memo(
           )}
         </CardActions>
       </Card>
-    );
+    )
   }
-);
+)
 
-export default TierCard;
+TierCard.propTypes = {
+  values: PropTypes.shape({
+    name: PropTypes.string,
+    cardinality: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ])
+  }),
+  handleEdit: PropTypes.func,
+  handleClone: PropTypes.func,
+  handleRemove: PropTypes.func,
+  cardProps: PropTypes.object
+}
+
+TierCard.defaultProps = {
+  values: {},
+  handleEdit: undefined,
+  handleClone: undefined,
+  handleRemove: undefined,
+  cardProps: undefined
+}
+
+TierCard.displayName = 'TierCard'
+
+export default TierCard

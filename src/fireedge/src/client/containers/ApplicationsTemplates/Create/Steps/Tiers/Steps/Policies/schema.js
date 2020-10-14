@@ -1,6 +1,6 @@
-import * as yup from 'yup';
-import { TYPE_INPUT } from 'client/constants';
-import { getValidationFromFields } from 'client/utils/helpers';
+import * as yup from 'yup'
+import { TYPE_INPUT } from 'client/constants'
+import { getValidationFromFields } from 'client/utils/helpers'
 
 export const FORM_FIELDS = [
   {
@@ -21,8 +21,8 @@ export const FORM_FIELDS = [
       .trim()
       .default('')
   }
-];
+]
 
 export const STEP_FORM_SCHEMA = yup.object(
   getValidationFromFields(FORM_FIELDS)
-);
+)

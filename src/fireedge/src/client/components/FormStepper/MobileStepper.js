@@ -1,10 +1,10 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
-import { styled, Button, MobileStepper } from '@material-ui/core';
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons';
+import { styled, Button, MobileStepper } from '@material-ui/core'
+import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const StickyMobileStepper = styled(MobileStepper)({
   position: 'sticky',
@@ -12,7 +12,7 @@ const StickyMobileStepper = styled(MobileStepper)({
   backdropFilter: 'blur(5px)',
   background: '#fafafa9c',
   zIndex: 1
-});
+})
 
 const CustomMobileStepper = memo(
   ({
@@ -42,7 +42,7 @@ const CustomMobileStepper = memo(
     />
   ),
   (prev, next) => prev.activeStep === next.activeStep
-);
+)
 
 CustomMobileStepper.propTypes = {
   totalSteps: PropTypes.number,
@@ -51,7 +51,7 @@ CustomMobileStepper.propTypes = {
   disabledBack: PropTypes.bool,
   handleNext: PropTypes.func,
   handleBack: PropTypes.func
-};
+}
 
 CustomMobileStepper.defaultProps = {
   totalSteps: 0,
@@ -60,6 +60,8 @@ CustomMobileStepper.defaultProps = {
   disabledBack: false,
   handleNext: () => undefined,
   handleBack: () => undefined
-};
+}
 
-export default CustomMobileStepper;
+CustomMobileStepper.displayName = 'MobileStepper'
+
+export default CustomMobileStepper

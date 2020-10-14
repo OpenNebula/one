@@ -1,38 +1,34 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
 
-import useOpennebula from 'client/hooks/useOpennebula';
-import Search from 'client/components/Search';
-import { SelectCard } from 'client/components/Cards';
+import useOpennebula from 'client/hooks/useOpennebula'
+import Search from 'client/components/Search'
+import { SelectCard } from 'client/components/Cards'
 
-const sortByID = (a, b) => a.ID - b.ID;
+const sortByID = (a, b) => a.ID - b.ID
 
 const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
-  const { templates, getTemplates } = useOpennebula();
+  const { templates, getTemplates } = useOpennebula()
 
   useEffect(() => {
-    getTemplates();
-  }, []);
-
-  const handleSelect = index => handleSetData(index);
-  const handleUnselect = () => handleSetData();
-
-  const renderTemplate = tmp => (
-    <SelectCard
-      key={`tmp-${tmp.ID}`}
-      isSelected={tmp.ID === String(currentValue)}
-      handleSelect={handleSelect}
-      handleUnselect={handleUnselect}
-      {...tmp}
-    />
-  );
+    getTemplates()
+  }, [])
 
   return (
     <Search
       list={templates?.sort(sortByID)}
       listOptions={{ shouldSort: true, sortFn: sortByID, keys: ['NAME'] }}
-      renderResult={renderTemplate}
       startAdornment={backButton}
+      renderResult={({ ID, NAME }) => {
+        const isSelected = ID === String(currentValue)
+
+        return <SelectCard
+          key={`tmp-${ID}`}
+          title={`📁 ${NAME}`}
+          isSelected={isSelected}
+          handleClick={() => handleSetData(!isSelected && ID)}
+        />
+      }}
       searchBoxProps={{
         style: {
           display: 'flex',
@@ -41,19 +37,19 @@ const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
         }
       }}
     />
-  );
-};
+  )
+}
 
 ListTemplates.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   handleSetData: PropTypes.func
-};
+}
 
 ListTemplates.defaultProps = {
   backButton: null,
   currentValue: undefined,
   handleSetData: () => undefined
-};
+}
 
-export default ListTemplates;
+export default ListTemplates

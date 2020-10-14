@@ -1,16 +1,15 @@
-import { httpMethod } from 'server/utils/constants/defaults';
+import { httpMethod } from 'server/utils/constants/defaults'
 import {
   SERVICE,
   SERVICE_TEMPLATE
-} from 'server/routes/api/oneflow/string-routes';
+} from 'server/routes/api/oneflow/string-routes'
 
-import { jwtName } from 'client/constants';
-import { requestData, removeStoreData } from 'client/utils';
-import httpCodes from 'server/utils/constants/http-codes';
+import { requestData } from 'client/utils'
+import httpCodes from 'server/utils/constants/http-codes'
 
-export const getApplication = ({}) => {
+export const getApplication = () => {
   // request
-};
+}
 
 export const getApplications = ({ filter }) =>
   requestData(`/api/${SERVICE}`, {
@@ -18,24 +17,24 @@ export const getApplications = ({ filter }) =>
     method: httpMethod.GET,
     error: err => err?.message
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat();
-  });
+    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
+  })
 
-export const createApplication = ({}) => {
+export const createApplication = () => {
   // request
-};
+}
 
 export const getTemplate = ({ id }) =>
   requestData(`/api/${SERVICE_TEMPLATE}/${id}`, {
     method: httpMethod.GET,
     error: err => err?.message
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-    return res?.data?.DOCUMENT ?? {};
-  });
+    return res?.data?.DOCUMENT ?? {}
+  })
 
 export const getTemplates = ({ filter }) =>
   requestData(`/api/${SERVICE_TEMPLATE}`, {
@@ -43,32 +42,32 @@ export const getTemplates = ({ filter }) =>
     method: httpMethod.GET,
     error: err => err?.message
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat();
-  });
+    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
+  })
 
 export const createTemplate = ({ data = {} }) =>
   requestData(`/api/${SERVICE_TEMPLATE}`, {
     data,
     method: httpMethod.POST
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
-    if (!res?.data?.DOCUMENT?.ID) throw new Error('Error');
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    if (!res?.data?.DOCUMENT?.ID) throw new Error('Error')
 
-    return res?.data?.DOCUMENT ?? {};
-  });
+    return res?.data?.DOCUMENT ?? {}
+  })
 
 export const updateTemplate = ({ id, data = {} }) =>
   requestData(`/api/${SERVICE_TEMPLATE}/${id}`, {
     data,
     method: httpMethod.PUT
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res;
-    if (!res?.data?.DOCUMENT?.ID) throw new Error('Error');
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    if (!res?.data?.DOCUMENT?.ID) throw new Error('Error')
 
-    return res?.data?.DOCUMENT ?? {};
-  });
+    return res?.data?.DOCUMENT ?? {}
+  })
 
 export default {
   getApplication,
@@ -79,4 +78,4 @@ export default {
   getTemplates,
   createTemplate,
   updateTemplate
-};
+}

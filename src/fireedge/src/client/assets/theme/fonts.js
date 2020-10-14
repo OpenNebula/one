@@ -10,6 +10,6 @@ const UbuntuFont = {
     url(/client/assets/fonts/Ubuntu/ubuntu.ttf) format('truetype'),
     url(/client/assets/fonts/Ubuntu/ubuntu.svg#Ubuntu) format('svg');
   `
-};
+}
 
-export default UbuntuFont;
+export default UbuntuFont

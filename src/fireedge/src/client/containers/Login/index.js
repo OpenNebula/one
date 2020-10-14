@@ -1,19 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react'
 import {
   Paper,
   Box,
@@ -21,28 +6,28 @@ import {
   Slide,
   LinearProgress,
   useMediaQuery
-} from '@material-ui/core';
+} from '@material-ui/core'
 
-import useAuth from 'client/hooks/useAuth';
+import useAuth from 'client/hooks/useAuth'
 
-import FormUser from 'client/containers/Login/Forms/FormUser';
-import Form2fa from 'client/containers/Login/Forms/Form2fa';
-import FormGroup from 'client/containers/Login/Forms/FormGroup';
-import loginStyles from 'client/containers/Login/styles';
-import Logo from 'client/icons/logo';
-import { ONEADMIN_ID } from 'client/constants';
+import FormUser from 'client/containers/Login/Forms/FormUser'
+import Form2fa from 'client/containers/Login/Forms/Form2fa'
+import FormGroup from 'client/containers/Login/Forms/FormGroup'
+import loginStyles from 'client/containers/Login/styles'
+import Logo from 'client/icons/logo'
+import { ONEADMIN_ID } from 'client/constants'
 
 const STEP = {
   USER_FORM: 0,
   FA2_FORM: 1,
   GROUP_FORM: 2
-};
+}
 
-function Login() {
-  const classes = loginStyles();
-  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
-  const [user, setUser] = useState(undefined);
-  const [step, setStep] = useState(STEP.USER_FORM);
+function Login () {
+  const classes = loginStyles()
+  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
+  const [user, setUser] = useState(undefined)
+  const [step, setStep] = useState(STEP.USER_FORM)
   const {
     isLoading,
     error,
@@ -50,30 +35,28 @@ function Login() {
     logout,
     getAuthInfo,
     setPrimaryGroup
-  } = useAuth();
+  } = useAuth()
 
   const handleSubmitUser = dataForm => {
     login({ ...user, ...dataForm }).then(data => {
-      console.log('-->', data);
       if (data?.token) {
         getAuthInfo().then(() => {
-          // eslint-disable-next-line no-unused-expressions
-          data?.id !== ONEADMIN_ID && setStep(STEP.GROUP_FORM);
-        });
+          data?.id !== ONEADMIN_ID && setStep(STEP.GROUP_FORM)
+        })
       } else {
-        setStep(data ? STEP.FA2_FORM : step);
-        setUser(data ? dataForm : user);
+        setStep(data ? STEP.FA2_FORM : step)
+        setUser(data ? dataForm : user)
       }
-    });
-  };
+    })
+  }
 
-  const handleSubmitGroup = dataForm => setPrimaryGroup(dataForm);
+  const handleSubmitGroup = dataForm => setPrimaryGroup(dataForm)
 
   const handleBack = () => {
-    logout();
-    setUser(undefined);
-    setStep(STEP.USER_FORM);
-  };
+    logout()
+    setUser(undefined)
+    setStep(STEP.USER_FORM)
+  }
 
   return (
     <Container
@@ -131,11 +114,11 @@ function Login() {
         </Box>
       </Paper>
     </Container>
-  );
+  )
 }
 
-Login.propTypes = {};
+Login.propTypes = {}
 
-Login.defaultProps = {};
+Login.defaultProps = {}
 
-export default Login;
+export default Login

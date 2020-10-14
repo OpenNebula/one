@@ -13,51 +13,51 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { useLocation, Redirect } from 'react-router-dom';
+import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
+import { useLocation, Redirect } from 'react-router-dom'
 
-import useAuth from 'client/hooks/useAuth';
-import useOpennebula from 'client/hooks/useOpennebula';
+import useAuth from 'client/hooks/useAuth'
+import useOpennebula from 'client/hooks/useOpennebula'
 
-import LoadingScreen from 'client/components/LoadingScreen';
-import Sidebar from 'client/components/Sidebar';
-import Notifier from 'client/components/Notifier';
-import { PATH, findRouteByPathname } from 'client/router/endpoints';
+import LoadingScreen from 'client/components/LoadingScreen'
+import Sidebar from 'client/components/Sidebar'
+import Notifier from 'client/components/Notifier'
+import { PATH, findRouteByPathname } from 'client/router/endpoints'
 
 const MainLayout = ({ children }) => {
-  const { pathname } = useLocation();
-  const { groups } = useOpennebula();
+  const { pathname } = useLocation()
+  const { groups } = useOpennebula()
   const {
     isLogged,
     isLoginInProcess,
     getAuthInfo,
     authUser,
     firstRender
-  } = useAuth();
+  } = useAuth()
 
   useEffect(() => {
     if (isLogged && !isLoginInProcess) {
-      getAuthInfo();
+      getAuthInfo()
     }
-  }, [isLogged, isLoginInProcess]);
+  }, [isLogged, isLoginInProcess])
 
-  const { authenticated } = findRouteByPathname(pathname);
-  const authRoute = Boolean(authenticated);
+  const { authenticated } = findRouteByPathname(pathname)
+  const authRoute = Boolean(authenticated)
 
   // PENDING TO AUTHENTICATING OR FIRST RENDERING
   if (firstRender || (isLogged && authRoute && !authUser && !groups?.length)) {
-    return <LoadingScreen />;
+    return <LoadingScreen />
   }
 
   // PROTECTED ROUTE
   if (authRoute && !isLogged && !isLoginInProcess) {
-    return <Redirect to={PATH.LOGIN} />;
+    return <Redirect to={PATH.LOGIN} />
   }
 
   // PUBLIC ROUTE
   if (!authRoute && isLogged && !isLoginInProcess) {
-    return <Redirect to={PATH.DASHBOARD} />;
+    return <Redirect to={PATH.DASHBOARD} />
   }
 
   return (
@@ -66,8 +66,8 @@ const MainLayout = ({ children }) => {
       {children}
       <Notifier />
     </>
-  );
-};
+  )
+}
 
 MainLayout.propTypes = {
   children: PropTypes.oneOfType([
@@ -75,10 +75,10 @@ MainLayout.propTypes = {
     PropTypes.node,
     PropTypes.string
   ])
-};
+}
 
 MainLayout.defaultProps = {
   children: ''
-};
+}
 
-export default MainLayout;
+export default MainLayout

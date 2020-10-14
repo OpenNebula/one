@@ -1,8 +1,8 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import { SpeedDial, SpeedDialIcon, SpeedDialAction } from '@material-ui/lab';
-import { makeStyles } from '@material-ui/core/styles';
+import { SpeedDial, SpeedDialIcon, SpeedDialAction } from '@material-ui/lab'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -16,19 +16,19 @@ const useStyles = makeStyles(theme => ({
       left: theme.spacing(2)
     }
   }
-}));
+}))
 
 const SpeedDials = ({ hidden = false, actions = [] }) => {
-  const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+  const classes = useStyles()
+  const [open, setOpen] = React.useState(false)
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const handleOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   return (
     <SpeedDial
@@ -50,8 +50,8 @@ const SpeedDials = ({ hidden = false, actions = [] }) => {
         />
       ))}
     </SpeedDial>
-  );
-};
+  )
+}
 
 SpeedDials.propTypes = {
   hidden: PropTypes.bool,
@@ -62,11 +62,11 @@ SpeedDials.propTypes = {
       handleClick: PropTypes.func
     })
   )
-};
+}
 
 SpeedDials.defaultProps = {
   hidden: false,
   actions: []
-};
+}
 
-export default SpeedDials;
+export default SpeedDials

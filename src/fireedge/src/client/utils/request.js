@@ -1,6 +1,6 @@
-import { jwtName } from 'client/constants';
-import { removeStoreData } from 'client/utils';
-import { from as resourceFrom } from 'server/utils/constants/defaults';
+import { jwtName } from 'client/constants'
+import { removeStoreData } from 'client/utils'
+import { from as resourceFrom } from 'server/utils/constants/defaults'
 
 export const getQueries = params =>
   Object.entries(params)
@@ -9,22 +9,22 @@ export const getQueries = params =>
         from === resourceFrom.query && value !== undefined
     )
     ?.map(([name, { value }]) => `${name}=${encodeURI(value)}`)
-    ?.join('&');
+    ?.join('&')
 
 export const getResources = params =>
   Object.values(params)
     ?.filter(({ from }) => from === resourceFrom.resource)
     ?.map(({ value }) => value)
-    ?.join('/');
+    ?.join('/')
 
 export const getDataBody = params =>
   Object.entries(params)
     ?.filter(([, { from }]) => from === resourceFrom.postBody)
-    ?.reduce((acc, [name, { value }]) => ({ ...acc, [name]: value }), {});
+    ?.reduce((acc, [name, { value }]) => ({ ...acc, [name]: value }), {})
 
 export const requestParams = (data, command) => {
-  if (command === undefined) throw new Error('command not exists');
-  const { name, httpMethod, params } = command;
+  if (command === undefined) throw new Error('command not exists')
+  const { name, httpMethod, params } = command
 
   /* Spread 'from' values in current params */
   const mappedParams =
@@ -34,13 +34,13 @@ export const requestParams = (data, command) => {
         [param]: { from, value: data[param] }
       }),
       {}
-    ) ?? {};
+    ) ?? {}
 
-  const queries = getQueries(mappedParams);
-  const resources = getResources(mappedParams);
-  const body = getDataBody(mappedParams);
+  const queries = getQueries(mappedParams)
+  const resources = getResources(mappedParams)
+  const body = getDataBody(mappedParams)
 
-  const url = `/api/${name.replace('.', '/')}`;
+  const url = `/api/${name.replace('.', '/')}`
 
   return {
     url: `${url}/${resources}?${queries}`,
@@ -49,9 +49,9 @@ export const requestParams = (data, command) => {
       method: httpMethod,
       authenticate: true,
       error: err => {
-        removeStoreData(jwtName);
-        return err?.message;
+        removeStoreData(jwtName)
+        return err?.message
       }
     }
-  };
-};
+  }
+}

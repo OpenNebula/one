@@ -1,21 +1,22 @@
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import { MenuItem, MenuList, Divider } from '@material-ui/core';
-import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import React from 'react'
 
-import useAuth from 'client/hooks/useAuth';
-import { Tr, SelectTranslate } from 'client/components/HOC';
+import { useHistory } from 'react-router-dom'
+import { MenuItem, MenuList, Divider } from '@material-ui/core'
+import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
-import { SignOut } from 'client/constants/translates';
-import { PATH } from 'client/router/endpoints';
-import HeaderPopover from 'client/components/Header/Popover';
+import useAuth from 'client/hooks/useAuth'
+import { Tr, SelectTranslate } from 'client/components/HOC'
+
+import { SignOut } from 'client/constants/translates'
+import { PATH } from 'client/router/endpoints'
+import HeaderPopover from 'client/components/Header/Popover'
 
 const User = React.memo(() => {
-  const history = useHistory();
-  const { logout, authUser } = useAuth();
+  const history = useHistory()
+  const { logout, authUser } = useAuth()
 
-  const handleLogout = () => logout();
-  const handleGoToSettings = () => history.push(PATH.SETTINGS);
+  const handleLogout = () => logout()
+  const handleGoToSettings = () => history.push(PATH.SETTINGS)
 
   return (
     <HeaderPopover
@@ -38,7 +39,9 @@ const User = React.memo(() => {
         </MenuList>
       )}
     </HeaderPopover>
-  );
-});
+  )
+})
 
-export default User;
+User.displayName = 'UserHeaderComponent'
+
+export default User

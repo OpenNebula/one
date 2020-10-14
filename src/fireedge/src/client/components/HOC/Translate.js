@@ -13,18 +13,18 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useContext, useState, useEffect, createContext } from 'react';
-import PropTypes from 'prop-types';
-import { Select } from '@material-ui/core';
-import { sprintf } from 'sprintf-js';
-import root from 'window-or-global';
-import { defaultLang } from 'server/utils/constants/defaults';
+import React, { useContext, useState, useEffect, createContext } from 'react'
+import PropTypes from 'prop-types'
+import { Select } from '@material-ui/core'
+import { sprintf } from 'sprintf-js'
+import root from 'window-or-global'
+import { defaultLang } from 'server/utils/constants/defaults'
 
-const defaultFunction = () => undefined;
-const TranslateContext = createContext();
-const document = root.document;
+const defaultFunction = () => undefined
+const TranslateContext = createContext()
+const document = root.document
 let languageScript =
-  document && document.createElement && document.createElement('script');
+  document && document.createElement && document.createElement('script')
 
 const GenerateScript = (
   language = defaultLang,
@@ -32,84 +32,84 @@ const GenerateScript = (
   setHash = defaultFunction
 ) => {
   try {
-    const script = document.createElement('script');
-    script.src = `/client/assets/languages/${language}.js`;
-    script.async = true;
+    const script = document.createElement('script')
+    script.src = `/client/assets/languages/${language}.js`
+    script.async = true
     script.onload = () => {
-      setLang(language);
-      setHash(root.locale);
-    };
-    document.body.appendChild(script);
-    languageScript = script;
+      setLang(language)
+      setHash(root.locale)
+    }
+    document.body.appendChild(script)
+    languageScript = script
     // eslint-disable-next-line no-empty
   } catch (error) {}
-};
+}
 
 const RemoveScript = () => {
-  document.body.removeChild(languageScript);
-};
+  document.body.removeChild(languageScript)
+}
 
 const TranslateProvider = ({ children }) => {
-  const [lang, setLang] = useState(defaultLang);
-  const [hash, setHash] = useState({});
+  const [lang, setLang] = useState(defaultLang)
+  const [hash, setHash] = useState({})
   useEffect(() => {
-    GenerateScript(lang, setLang, setHash);
+    GenerateScript(lang, setLang, setHash)
     return () => {
-      RemoveScript();
-    };
-  }, []);
+      RemoveScript()
+    }
+  }, [])
 
   const changeLang = (language = defaultLang) => {
-    RemoveScript();
-    GenerateScript(language, setLang, setHash);
-  };
+    RemoveScript()
+    GenerateScript(language, setLang, setHash)
+  }
 
   const value = {
     lang,
     hash,
     changeLang
-  };
+  }
 
   return (
     <TranslateContext.Provider value={value}>
       {children}
     </TranslateContext.Provider>
-  );
-};
+  )
+}
 
 const translate = (str = '', values) => {
-  const context = useContext(TranslateContext);
-  let key = str;
+  const context = useContext(TranslateContext)
+  let key = str
 
   if (context?.hash[key]) {
-    key = context.hash[key];
+    key = context.hash[key]
   }
 
   if (!!values && Array.isArray(values)) {
-    key = sprintf(key, ...values);
+    key = sprintf(key, ...values)
   }
 
-  return key;
-};
+  return key
+}
 
 const Tr = (str = '') => {
-  let key = str;
-  let values;
+  let key = str
+  let values
 
   if (Array.isArray(str)) {
-    key = str[0] || '';
-    values = str[1];
+    key = str[0] || ''
+    values = str[1]
   }
 
-  const valuesTr = !!values && !Array.isArray(values) ? [values] : values;
+  const valuesTr = !!values && !Array.isArray(values) ? [values] : values
 
-  return translate(key, valuesTr);
-};
+  return translate(key, valuesTr)
+}
 
 const SelectTranslate = () => {
-  const context = useContext(TranslateContext);
+  const context = useContext(TranslateContext)
   const languages =
-    root && root.langs && Array.isArray(root.langs) ? root.langs : [];
+    root && root.langs && Array.isArray(root.langs) ? root.langs : []
   const handleChange = (e, changeLang) => {
     if (
       e &&
@@ -118,9 +118,9 @@ const SelectTranslate = () => {
       changeLang &&
       typeof changeLang === 'function'
     ) {
-      changeLang(e.target.value);
+      changeLang(e.target.value)
     }
-  };
+  }
 
   return (
     <Select
@@ -135,33 +135,33 @@ const SelectTranslate = () => {
         </option>
       ))}
     </Select>
-  );
-};
+  )
+}
 
 const Translate = ({ word = '', values }) => {
-  const valuesTr = !!values && !Array.isArray(values) ? [values] : values;
-  return translate(word, valuesTr);
-};
+  const valuesTr = !!values && !Array.isArray(values) ? [values] : values
+  return translate(word, valuesTr)
+}
 
 TranslateProvider.propTypes = {
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node
   ])
-};
+}
 
 TranslateProvider.defaultProps = {
   children: []
-};
+}
 
 Translate.propTypes = {
   word: PropTypes.string,
   values: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
-};
+}
 
 Translate.defaultProps = {
   word: '',
   values: ''
-};
+}
 
-export { TranslateContext, TranslateProvider, SelectTranslate, Translate, Tr };
+export { TranslateContext, TranslateProvider, SelectTranslate, Translate, Tr }

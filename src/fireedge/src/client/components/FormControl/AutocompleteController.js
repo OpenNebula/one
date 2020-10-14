@@ -1,12 +1,12 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import { TextField } from '@material-ui/core';
-import { Autocomplete } from '@material-ui/lab';
-import { Controller } from 'react-hook-form';
+import { TextField } from '@material-ui/core'
+import { Autocomplete } from '@material-ui/lab'
+import { Controller } from 'react-hook-form'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper';
-import { Tr } from 'client/components/HOC/Translate';
+import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import { Tr } from 'client/components/HOC/Translate'
 
 const AutocompleteController = ({
   control,
@@ -18,7 +18,7 @@ const AutocompleteController = ({
 }) => (
   <Controller
     render={({ value: val, onBlur, onChange }) => {
-      const selected = values.find(({ value }) => value === val) ?? null;
+      const selected = values.find(({ value }) => value === val) ?? null
 
       return (
         <Autocomplete
@@ -42,12 +42,12 @@ const AutocompleteController = ({
             />
           )}
         />
-      );
+      )
     }}
     name={name}
     control={control}
   />
-);
+)
 
 AutocompleteController.propTypes = {
   control: PropTypes.object,
@@ -59,7 +59,7 @@ AutocompleteController.propTypes = {
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
   ])
-};
+}
 
 AutocompleteController.defaultProps = {
   control: {},
@@ -68,6 +68,6 @@ AutocompleteController.defaultProps = {
   label: '',
   values: [],
   error: false
-};
+}
 
-export default AutocompleteController;
+export default AutocompleteController

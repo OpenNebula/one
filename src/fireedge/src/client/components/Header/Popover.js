@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 
 import {
   Box,
@@ -8,18 +8,18 @@ import {
   Popover,
   Typography,
   Button
-} from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+} from '@material-ui/core'
+import CloseIcon from '@material-ui/icons/Close'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
-import headerStyles from 'client/components/Header/styles';
-import clsx from 'clsx';
+import headerStyles from 'client/components/Header/styles'
+import clsx from 'clsx'
 
 const typeButton = {
   button: Button,
   iconButton: IconButton
-};
+}
 
 const HeaderPopover = ({
   id,
@@ -30,21 +30,21 @@ const HeaderPopover = ({
   disablePadding,
   children
 }) => {
-  const classes = headerStyles();
-  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'));
+  const classes = headerStyles()
+  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null)
 
-  const handleOpen = event => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
+  const handleOpen = event => setAnchorEl(event.currentTarget)
+  const handleClose = () => setAnchorEl(null)
 
-  const open = Boolean(anchorEl);
-  const anchorId = open ? id : undefined;
+  const open = Boolean(anchorEl)
+  const anchorId = open ? id : undefined
 
   const ButtonComponent = React.useMemo(
     () => (buttonLabel ? typeButton.button : typeButton.iconButton),
     [buttonLabel]
-  );
+  )
 
   return (
     <>
@@ -98,8 +98,8 @@ const HeaderPopover = ({
         {children({ handleClose })}
       </Popover>
     </>
-  );
-};
+  )
+}
 
 HeaderPopover.propTypes = {
   id: PropTypes.string,
@@ -109,7 +109,7 @@ HeaderPopover.propTypes = {
   headerTitle: PropTypes.string,
   disablePadding: PropTypes.bool,
   children: PropTypes.func
-};
+}
 
 HeaderPopover.defaultProps = {
   id: 'id-popover',
@@ -119,6 +119,6 @@ HeaderPopover.defaultProps = {
   headerTitle: null,
   disablePadding: false,
   children: () => undefined
-};
+}
 
-export default HeaderPopover;
+export default HeaderPopover

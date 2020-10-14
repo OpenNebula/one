@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
+import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
 
 import {
   List,
@@ -9,21 +9,21 @@ import {
   ListItemText,
   ListItemIcon,
   useMediaQuery
-} from '@material-ui/core';
-import ExpandLessIcon from '@material-ui/icons/ExpandLess';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+} from '@material-ui/core'
+import ExpandLessIcon from '@material-ui/icons/ExpandLess'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
-import useGeneral from 'client/hooks/useGeneral';
-import SidebarLink from 'client/components/Sidebar/SidebarLink';
-import sidebarStyles from 'client/components/Sidebar/styles';
+import useGeneral from 'client/hooks/useGeneral'
+import SidebarLink from 'client/components/Sidebar/SidebarLink'
+import sidebarStyles from 'client/components/Sidebar/styles'
 
 const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
-  const classes = sidebarStyles();
-  const { isFixMenu } = useGeneral();
-  const [expanded, setExpanded] = useState(false);
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
+  const classes = sidebarStyles()
+  const { isFixMenu } = useGeneral()
+  const [expanded, setExpanded] = useState(false)
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
 
-  const handleExpand = () => setExpanded(!expanded);
+  const handleExpand = () => setExpanded(!expanded)
 
   return (
     <>
@@ -58,8 +58,8 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
         </Collapse>
       ))}
     </>
-  );
-};
+  )
+}
 
 SidebarCollapseItem.propTypes = {
   label: PropTypes.string.isRequired,
@@ -70,12 +70,12 @@ SidebarCollapseItem.propTypes = {
       path: PropTypes.string
     })
   )
-};
+}
 
 SidebarCollapseItem.defaultProps = {
   label: '',
   icon: null,
   routes: []
-};
+}
 
-export default SidebarCollapseItem;
+export default SidebarCollapseItem

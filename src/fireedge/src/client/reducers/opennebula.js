@@ -13,8 +13,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { Actions: PoolActions } = require('../actions/pool');
-const { Actions: UserActions } = require('../actions/user');
+const { Actions: PoolActions } = require('../actions/pool')
+const { Actions: UserActions } = require('../actions/user')
 
 const initial = {
   vm: [],
@@ -38,17 +38,17 @@ const initial = {
   groups: [],
   vdc: [],
   acl: []
-};
+}
 
 const Opennebula = (state = initial, action) => {
   switch (action.type) {
     case PoolActions.SUCCESS_ONE_REQUEST:
-      return { ...state, ...action.payload };
+      return { ...state, ...action.payload }
     case UserActions.LOGOUT:
-      return { ...initial };
+      return { ...initial }
     default:
-      return state;
+      return state
   }
-};
+}
 
-module.exports = Opennebula;
+module.exports = Opennebula

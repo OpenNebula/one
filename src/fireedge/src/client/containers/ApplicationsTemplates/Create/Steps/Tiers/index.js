@@ -1,25 +1,25 @@
-import React, { useEffect, useState, useCallback, createContext } from 'react';
+import React, { useEffect, useState, useCallback, createContext } from 'react'
 
-import * as yup from 'yup';
-import { useWatch } from 'react-hook-form';
+import * as yup from 'yup'
+import { useWatch } from 'react-hook-form'
 
-import { ReactFlowProvider } from 'react-flow-renderer';
-import { Box } from '@material-ui/core';
+import { ReactFlowProvider } from 'react-flow-renderer'
+import { Box } from '@material-ui/core'
 
-import useListForm from 'client/hooks/useListForm';
-import FormStepper from 'client/components/FormStepper';
-import { DialogForm } from 'client/components/Dialogs';
-import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Networking';
-import { STEP_ID as NETWORKS_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers/Steps/Networks';
+import useListForm from 'client/hooks/useListForm'
+import FormStepper from 'client/components/FormStepper'
+import { DialogForm } from 'client/components/Dialogs'
+import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Networking'
+import { STEP_ID as NETWORKS_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers/Steps/Networks'
 
-import Steps from './Steps';
-import Flow from './Flow';
+import Steps from './Steps'
+import Flow from './Flow'
 
-export const Context = createContext({});
-export const STEP_ID = 'tiers';
+export const Context = createContext({})
+export const STEP_ID = 'tiers'
 
 const Tiers = () => {
-  const { steps, defaultValues, resolvers } = Steps();
+  const { steps, defaultValues, resolvers } = Steps()
 
   return {
     id: STEP_ID,
@@ -30,9 +30,9 @@ const Tiers = () => {
       .required('Tiers field is required')
       .default([]),
     content: useCallback(({ data, setFormData }) => {
-      const [showDialog, setShowDialog] = useState(false);
-      const [nestedForm, setNestedForm] = useState({});
-      const form = useWatch({});
+      const [showDialog, setShowDialog] = useState(false)
+      const [nestedForm, setNestedForm] = useState({})
+      const form = useWatch({})
 
       const {
         editingData,
@@ -44,24 +44,24 @@ const Tiers = () => {
         list: data,
         setList: setFormData,
         defaultValue: defaultValues()
-      });
+      })
 
       const handleEditTier = id => {
-        handleEdit(id);
-        setShowDialog(true);
-      };
+        handleEdit(id)
+        setShowDialog(true)
+      }
 
       useEffect(() => {
-        setNestedForm(form);
-      }, []);
+        setNestedForm(form)
+      }, [])
 
       const formSteps = React.useMemo(() => {
-        const networking = nestedForm[NETWORKING_ID] ?? [];
+        const networking = nestedForm[NETWORKING_ID] ?? []
 
         return steps.filter(
           ({ id }) => id !== NETWORKS_ID || networking.length !== 0
-        );
-      }, [nestedForm]);
+        )
+      }, [nestedForm])
 
       return (
         <>
@@ -89,8 +89,8 @@ const Tiers = () => {
                     steps={formSteps}
                     schema={resolvers}
                     onSubmit={values => {
-                      handleSave(values);
-                      setShowDialog(false);
+                      handleSave(values)
+                      setShowDialog(false)
                     }}
                   />
                 </Box>
@@ -98,9 +98,9 @@ const Tiers = () => {
             </Context.Provider>
           )}
         </>
-      );
+      )
     }, [])
-  };
-};
+  }
+}
 
-export default Tiers;
+export default Tiers

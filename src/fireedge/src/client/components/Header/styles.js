@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
   title: {
@@ -40,4 +40,4 @@ export default makeStyles(theme => ({
     fontSize: '1rem',
     margin: theme.spacing(0, 2)
   }
-}));
+}))

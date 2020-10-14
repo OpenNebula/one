@@ -1,18 +1,18 @@
-import React, { memo, useEffect, useMemo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo, useEffect, useMemo } from 'react'
+import PropTypes from 'prop-types'
 
-import { makeStyles, Box } from '@material-ui/core';
-import { Add as AddIcon, SelectAll as SelectAllIcon } from '@material-ui/icons';
-import ReactFlow, { Background } from 'react-flow-renderer';
-import { useFormContext } from 'react-hook-form';
+import { makeStyles } from '@material-ui/core'
+import { Add as AddIcon, SelectAll as SelectAllIcon } from '@material-ui/icons'
+import ReactFlow, { Background } from 'react-flow-renderer'
+import { useFormContext } from 'react-hook-form'
 
-import SpeedDials from 'client/components/SpeedDials';
-import { STEP_ID as TIER_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers';
+import SpeedDials from 'client/components/SpeedDials'
+import { STEP_ID as TIER_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers'
 
-import CustomNode from './CustomNode';
-import useFlowGraph from './useFlowGraph';
+import CustomNode from './CustomNode'
+import useFlowGraph from './useFlowGraph'
 
-const NOT_KEY_CODE = -1;
+const NOT_KEY_CODE = -1
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -26,11 +26,11 @@ const useStyles = makeStyles(() => ({
       }
     }
   }
-}));
+}))
 
 const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
-  const { watch } = useFormContext();
-  const classes = useStyles();
+  const { watch } = useFormContext()
+  const classes = useStyles()
   const {
     flow,
     handleRefreshFlow,
@@ -38,13 +38,13 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
     handleConnect,
     handleUpdatePosition,
     handleSelectAll
-  } = useFlowGraph({ nodeFields: dataFields, setList: handleSetData });
+  } = useFlowGraph({ nodeFields: dataFields, setList: handleSetData })
 
   useEffect(() => {
     handleRefreshFlow(watch(TIER_ID), ({ id }) => ({
       handleEdit: () => handleEdit(id)
-    }));
-  }, [watch]);
+    }))
+  }, [watch])
 
   const actions = useMemo(
     () => [
@@ -60,7 +60,7 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
       }
     ],
     [handleCreate, handleSelectAll]
-  );
+  )
 
   return (
     <ReactFlow
@@ -75,21 +75,21 @@ const Flow = memo(({ dataFields, handleCreate, handleEdit, handleSetData }) => {
       <SpeedDials actions={actions} />
       <Background color="#aaa" gap={16} />
     </ReactFlow>
-  );
-});
+  )
+})
 
 Flow.propTypes = {
   dataFields: PropTypes.arrayOf(PropTypes.string),
   handleCreate: PropTypes.func,
   handleEdit: PropTypes.func,
   handleSetData: PropTypes.func
-};
+}
 
 Flow.defaultProps = {
   dataFields: [],
   handleCreate: undefined,
   handleEdit: undefined,
   handleSetData: undefined
-};
+}
 
-export default Flow;
+export default Flow

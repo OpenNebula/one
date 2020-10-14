@@ -13,21 +13,21 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
+import React from 'react'
+import PropTypes from 'prop-types'
+import clsx from 'clsx'
 
-import { Box, Container } from '@material-ui/core';
-import { CSSTransition } from 'react-transition-group';
+import { Box, Container } from '@material-ui/core'
+import { CSSTransition } from 'react-transition-group'
 
-import useGeneral from 'client/hooks/useGeneral';
-import Footer from 'client/components/Footer';
-import Header from 'client/components/Header';
-import internalStyles from 'client/components/HOC/InternalLayout/styles';
+import useGeneral from 'client/hooks/useGeneral'
+import Footer from 'client/components/Footer'
+import Header from 'client/components/Header'
+import internalStyles from 'client/components/HOC/InternalLayout/styles'
 
 const InternalLayout = ({ authRoute, label, children }) => {
-  const classes = internalStyles();
-  const { isFixMenu } = useGeneral();
+  const classes = internalStyles()
+  const { isFixMenu } = useGeneral()
 
   return authRoute ? (
     <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
@@ -57,8 +57,8 @@ const InternalLayout = ({ authRoute, label, children }) => {
     </Box>
   ) : (
     children
-  );
-};
+  )
+}
 
 InternalLayout.propTypes = {
   children: PropTypes.oneOfType([
@@ -68,12 +68,12 @@ InternalLayout.propTypes = {
   ]),
   authRoute: PropTypes.bool.isRequired,
   label: PropTypes.string
-};
+}
 
 InternalLayout.defaultProps = {
   children: [],
   authRoute: false,
   label: null
-};
+}
 
-export default InternalLayout;
+export default InternalLayout

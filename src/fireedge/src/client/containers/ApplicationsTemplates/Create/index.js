@@ -1,72 +1,73 @@
-import React, { useEffect } from 'react';
-import { Redirect, useHistory, useParams } from 'react-router-dom';
+import React, { useEffect } from 'react'
+import { Redirect, useHistory, useParams } from 'react-router-dom'
 
-import { Container } from '@material-ui/core';
-import { useForm, FormProvider } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers';
+import { Container } from '@material-ui/core'
+import { useForm, FormProvider } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers'
 
-import FormStepper from 'client/components/FormStepper';
-import Steps from 'client/containers/ApplicationsTemplates/Create/Steps';
+import FormStepper from 'client/components/FormStepper'
+import Steps from 'client/containers/ApplicationsTemplates/Create/Steps'
 
-import { PATH } from 'client/router/endpoints';
-import useFetch from 'client/hooks/useFetch';
-import useApplication from 'client/hooks/useApplication';
-import mapApplicationToForm from 'client/utils/parser/toApplicationForm';
-import mapFormToApplication from 'client/utils/parser/toApplicationTemplate';
+import { PATH } from 'client/router/endpoints'
+import useFetch from 'client/hooks/useFetch'
+import useApplication from 'client/hooks/useApplication'
+import mapApplicationToForm from 'client/utils/parser/toApplicationForm'
+import mapFormToApplication from 'client/utils/parser/toApplicationTemplate'
 
-function ApplicationCreate() {
-  const history = useHistory();
-  const { id } = useParams();
-  const { steps, defaultValues, resolvers } = Steps();
+function ApplicationCreate () {
+  const history = useHistory()
+  const { id } = useParams()
+  const { steps, defaultValues, resolvers } = Steps()
   const {
     getApplicationTemplate,
     createApplicationTemplate,
     updateApplicationTemplate
-  } = useApplication();
+  } = useApplication()
   const { data, fetchRequest, loading, error } = useFetch(
     getApplicationTemplate
-  );
+  )
 
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
     resolver: yupResolver(resolvers)
-  });
+  })
 
   const onSubmit = formData => {
-    const application = mapFormToApplication(formData);
+    const application = mapFormToApplication(formData)
 
-    if (id)
+    if (id) {
       updateApplicationTemplate({ id, data: application }).then(
-        res => res && history.push(PATH.APPLICATION.LIST)
-      );
-    else
+        res => res && history.push(PATH.APPLICATIONS)
+      )
+    } else {
       createApplicationTemplate({ data: application }).then(
-        res => res && history.push(PATH.APPLICATION.LIST)
-      );
-  };
+        res => res && history.push(PATH.APPLICATIONS)
+      )
+    }
+  }
 
   useEffect(() => {
     try {
       if (id) {
-        const idNumber = parseInt(id, 10);
-        if (idNumber < 0) throw new Error();
+        const idNumber = parseInt(id, 10)
+        if (idNumber < 0) throw new Error()
 
-        fetchRequest({ id: idNumber });
+        fetchRequest({ id: idNumber })
       }
     } catch {
       // show error
-      history.push(PATH.DASHBOARD);
+      history.push(PATH.DASHBOARD)
     }
-  }, [id]);
+  }, [id])
 
   useEffect(() => {
-    const formData = data ? mapApplicationToForm(data) : {};
-    methods.reset(resolvers.cast(formData), { errors: false });
-  }, [data]);
+    const formData = data ? mapApplicationToForm(data) : {}
+    methods.reset(resolvers.cast(formData), { errors: false })
+  }, [data])
 
   if (error) {
-    return <Redirect to={PATH.DASHBOARD} />;
+    return <Redirect to={PATH.DASHBOARD} />
   }
 
   return (
@@ -82,11 +83,11 @@ function ApplicationCreate() {
         </FormProvider>
       )}
     </Container>
-  );
+  )
 }
 
-ApplicationCreate.propTypes = {};
+ApplicationCreate.propTypes = {}
 
-ApplicationCreate.defaultProps = {};
+ApplicationCreate.defaultProps = {}
 
-export default ApplicationCreate;
+export default ApplicationCreate

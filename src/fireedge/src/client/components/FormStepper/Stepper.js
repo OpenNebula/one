@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
 import {
   styled,
@@ -8,9 +8,9 @@ import {
   Step,
   StepLabel,
   Box
-} from '@material-ui/core';
+} from '@material-ui/core'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const StickyStepper = styled(Stepper)({
   position: 'sticky',
@@ -18,7 +18,7 @@ const StickyStepper = styled(Stepper)({
   backdropFilter: 'blur(5px)',
   background: '#fafafa9c',
   zIndex: 1
-});
+})
 
 const CustomStepper = memo(
   ({ steps, activeStep, lastStep, disabledBack, handleNext, handleBack }) => (
@@ -41,7 +41,7 @@ const CustomStepper = memo(
     </>
   ),
   (prev, next) => prev.activeStep === next.activeStep
-);
+)
 
 CustomStepper.propTypes = {
   steps: PropTypes.arrayOf(
@@ -55,7 +55,7 @@ CustomStepper.propTypes = {
   disabledBack: PropTypes.bool.isRequired,
   handleNext: PropTypes.func,
   handleBack: PropTypes.func
-};
+}
 
 CustomStepper.defaultProps = {
   steps: [],
@@ -64,6 +64,8 @@ CustomStepper.defaultProps = {
   disabledBack: false,
   handleNext: () => undefined,
   handleBack: () => undefined
-};
+}
 
-export default CustomStepper;
+CustomStepper.displayName = 'Stepper'
+
+export default CustomStepper

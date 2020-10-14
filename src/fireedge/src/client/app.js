@@ -13,17 +13,17 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import { StaticRouter, BrowserRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { StaticRouter, BrowserRouter } from 'react-router-dom'
+import { Provider } from 'react-redux'
 
-import MuiProvider from 'client/providers/muiProvider';
-import NotistackProvider from 'client/providers/notistackProvider';
-import { TranslateProvider } from 'client/components/HOC';
+import MuiProvider from 'client/providers/muiProvider'
+import NotistackProvider from 'client/providers/notistackProvider'
+import { TranslateProvider } from 'client/components/HOC'
 
-import Router from 'client/router';
+import Router from 'client/router'
 
 const App = ({ location, context, store }) => (
   <MuiProvider>
@@ -45,18 +45,18 @@ const App = ({ location, context, store }) => (
       </NotistackProvider>
     </Provider>
   </MuiProvider>
-);
+)
 
 App.propTypes = {
   location: PropTypes.string,
   context: PropTypes.shape({}),
   store: PropTypes.shape({})
-};
+}
 
 App.defaultProps = {
   location: '',
   context: {},
   store: {}
-};
+}
 
-export default App;
+export default App

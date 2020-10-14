@@ -1,12 +1,12 @@
-const START_ONE_REQUEST = 'START_ONE_REQUEST';
-const SUCCESS_ONE_REQUEST = 'SUCCESS_ONE_REQUEST';
-const FAILURE_ONE_REQUEST = 'FAILURE_ONE_REQUEST';
+const START_ONE_REQUEST = 'START_ONE_REQUEST'
+const SUCCESS_ONE_REQUEST = 'SUCCESS_ONE_REQUEST'
+const FAILURE_ONE_REQUEST = 'FAILURE_ONE_REQUEST'
 
 const Actions = {
   START_ONE_REQUEST,
   SUCCESS_ONE_REQUEST,
   FAILURE_ONE_REQUEST
-};
+}
 
 module.exports = {
   Actions,
@@ -101,4 +101,4 @@ module.exports = {
     type: FAILURE_ONE_REQUEST,
     payload: { error }
   })
-};
+}

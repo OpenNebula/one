@@ -13,11 +13,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { combineReducers } = require('redux');
-const Opennebula = require('./opennebula');
-const Zendesk = require('./zendesk');
-const General = require('./general');
-const Authenticated = require('./auth');
+const { combineReducers } = require('redux')
+const Opennebula = require('./opennebula')
+const Zendesk = require('./zendesk')
+const General = require('./general')
+const Authenticated = require('./auth')
 
 const rootReducers = () =>
   combineReducers({
@@ -25,6 +25,6 @@ const rootReducers = () =>
     Opennebula,
     Zendesk,
     General
-  });
+  })
 
-module.exports = rootReducers;
+module.exports = rootReducers

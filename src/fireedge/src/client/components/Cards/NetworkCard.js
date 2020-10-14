@@ -1,4 +1,5 @@
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types'
 
 import {
   makeStyles,
@@ -7,9 +8,9 @@ import {
   CardHeader,
   CardActions,
   Fade
-} from '@material-ui/core';
+} from '@material-ui/core'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,12 +34,12 @@ const useStyles = makeStyles(theme => ({
   remove: {
     backgroundColor: theme.palette.error.dark
   }
-}));
+}))
 
 const NetworkCard = React.memo(
   ({ value, handleEdit, handleClone, handleRemove }) => {
-    const classes = useStyles();
-    const { mandatory, name, description, type, id, extra } = value;
+    const classes = useStyles()
+    const { mandatory, name, description } = value
 
     return (
       <Fade in unmountOnExit={false}>
@@ -80,8 +81,31 @@ const NetworkCard = React.memo(
           </CardActions>
         </Card>
       </Fade>
-    );
+    )
   }
-);
+)
 
-export default NetworkCard;
+NetworkCard.propTypes = {
+  value: PropTypes.shape({
+    mandatory: PropTypes.bool,
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    type: PropTypes.string,
+    id: PropTypes.string,
+    extra: PropTypes.string
+  }),
+  handleEdit: PropTypes.func,
+  handleClone: PropTypes.func,
+  handleRemove: PropTypes.func
+}
+
+NetworkCard.defaultProps = {
+  value: {},
+  handleEdit: undefined,
+  handleClone: undefined,
+  handleRemove: undefined
+}
+
+NetworkCard.displayName = 'NetworkCard'
+
+export default NetworkCard

@@ -1,27 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'
 
-import useGeneral from 'client/hooks/useGeneral';
-import useApplication from 'client/hooks/useApplication';
+import useApplication from 'client/hooks/useApplication'
 
-import ListCards from 'client/components/List/ListCards';
-import { ClusterCard } from 'client/components/Cards';
+import ListCards from 'client/components/List/ListCards'
+import { ClusterCard } from 'client/components/Cards'
 
 const ApplicationsDeployed = () => {
-  const { applications, getApplications } = useApplication();
+  const { applications, getApplications } = useApplication()
 
   useEffect(() => {
-    getApplications();
-  }, []);
+    getApplications()
+  }, [])
 
   return (
     <ListCards
       list={applications}
       CardComponent={ClusterCard}
       cardsProps={({ value }) => {
-        console.log(value);
+        console.log(value)
       }}
     />
-  );
-};
+  )
+}
 
-export default ApplicationsDeployed;
+export default ApplicationsDeployed

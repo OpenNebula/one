@@ -1,25 +1,10 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
+import React from 'react'
 
-import React from 'react';
+import { MenuItem, MenuList } from '@material-ui/core'
+import LanguageIcon from '@material-ui/icons/Language'
 
-import { MenuItem, MenuList } from '@material-ui/core';
-import LanguageIcon from '@material-ui/icons/Language';
-
-import { Tr } from 'client/components/HOC';
-import HeaderPopover from 'client/components/Header/Popover';
+import { Tr } from 'client/components/HOC'
+import HeaderPopover from 'client/components/Header/Popover'
 
 const Zone = React.memo(() => (
   <HeaderPopover
@@ -34,6 +19,8 @@ const Zone = React.memo(() => (
       </MenuList>
     )}
   </HeaderPopover>
-));
+))
 
-export default Zone;
+Zone.displayName = 'ZoneHeaderComponent'
+
+export default Zone
