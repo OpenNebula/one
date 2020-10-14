@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers';
 
 import FormStepper from 'client/components/FormStepper';
-import Steps from 'client/containers/Application/Create/Steps';
+import Steps from 'client/containers/ApplicationsTemplates/Create/Steps';
 
 import { PATH } from 'client/router/endpoints';
 import useFetch from 'client/hooks/useFetch';
@@ -38,11 +38,11 @@ function ApplicationCreate() {
 
     if (id)
       updateApplicationTemplate({ id, data: application }).then(
-        res => res && history.push(PATH.APPLICATION.DEPLOY)
+        res => res && history.push(PATH.APPLICATION.LIST)
       );
     else
       createApplicationTemplate({ data: application }).then(
-        res => res && history.push(PATH.APPLICATION.DEPLOY)
+        res => res && history.push(PATH.APPLICATION.LIST)
       );
   };
 

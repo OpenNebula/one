@@ -40,11 +40,11 @@ const ApplicationsTemplatesList = () => {
     <Box p={3}>
       <ListCards
         list={applicationsTemplates}
-        handleCreate={() => history.push(PATH.APPLICATION.CREATE)}
+        handleCreate={() => history.push(PATH.APPLICATION_TEMPLATE.CREATE)}
         CardComponent={ApplicationTemplateCard}
         cardsProps={({ value: { ID } }) => ({
           handleEdit: () =>
-            history.push(PATH.APPLICATION.EDIT.replace(':id', ID)),
+            history.push(PATH.APPLICATION_TEMPLATE.EDIT.replace(':id', ID)),
           handleDeploy: undefined,
           handleRemove: undefined
         })}

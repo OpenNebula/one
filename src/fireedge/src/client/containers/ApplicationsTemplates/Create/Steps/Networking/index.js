@@ -9,7 +9,7 @@ import ListCards from 'client/components/List/ListCards';
 import { DialogForm } from 'client/components/Dialogs';
 import { NetworkCard } from 'client/components/Cards';
 
-import { STEP_ID as TIERS_ID } from 'client/containers/Application/Create/Steps/Tiers';
+import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers';
 import { FORM_FIELDS, NETWORK_FORM_SCHEMA, STEP_FORM_SCHEMA } from './schema';
 
 export const STEP_ID = 'networking';

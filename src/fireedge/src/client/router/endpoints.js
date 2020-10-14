@@ -28,20 +28,22 @@ import Dashboard from 'client/containers/Dashboard';
 import Settings from 'client/containers/Settings';
 import TestApi from 'client/containers/TestApi';
 import Webconsole from 'client/containers/Webconsole';
+import { ApplicationsTemplatesCreate } from 'client/containers/ApplicationsTemplates';
 import {
-  ApplicationCreate,
-  ApplicationDeploy,
-  ApplicationManage
-} from 'client/containers/Application';
+  ApplicationsList,
+  ApplicationsManage
+} from 'client/containers/Applications';
 
 export const PATH = {
   LOGIN: '/',
   DASHBOARD: '/dashboard',
+  APPLICATION_TEMPLATE: {
+    CREATE: '/applications-templates/create',
+    EDIT: '/applications-templates/edit/:id'
+  },
   APPLICATION: {
-    CREATE: '/application/create',
-    MANAGE: '/application/manage',
-    DEPLOY: '/application/deploy',
-    EDIT: '/application/edit/:id'
+    LIST: '/applications',
+    MANAGE: '/applications/manage'
   },
   SETTINGS: '/settings',
   TEST_API: '/test-api'
@@ -89,26 +91,26 @@ const ENDPOINTS = [
     component: Webconsole
   },
   {
-    label: 'Create Application',
-    path: PATH.APPLICATION.CREATE,
+    label: 'Create Application template',
+    path: PATH.APPLICATION_TEMPLATE.CREATE,
     authenticated: true,
     icon: PaletteIcon,
-    component: ApplicationCreate
+    component: ApplicationsTemplatesCreate
   },
   {
-    label: 'Edit Application',
-    path: PATH.APPLICATION.EDIT,
+    label: 'Edit Application template',
+    path: PATH.APPLICATION_TEMPLATE.EDIT,
     authenticated: true,
     icon: PaletteIcon,
-    component: ApplicationCreate
+    component: ApplicationsTemplatesCreate
   },
   {
-    label: 'Deploy Application',
-    path: PATH.APPLICATION.DEPLOY,
+    label: 'Applications',
+    path: PATH.APPLICATION.LIST,
     authenticated: true,
     sidebar: true,
     icon: RedditIcon,
-    component: ApplicationDeploy
+    component: ApplicationsList
   },
   {
     label: 'Manage Application',
@@ -116,7 +118,7 @@ const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: BuildIcon,
-    component: ApplicationManage
+    component: ApplicationsManage
   }
 ];
 

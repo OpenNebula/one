@@ -15,23 +15,17 @@
 
 import React, { useState } from 'react';
 
-import {
-  Box,
-  Tab,
-  Tabs,
-  Paper,
-  Typography,
-  Container
-} from '@material-ui/core';
+import { Tab, Tabs, Paper, Container } from '@material-ui/core';
 
 import ApplicationsTemplatesList from './Templates';
+import ApplicationsDeployed from './Deployed';
 
 const TABS = {
   TEMPLATES: 'templates',
   APPLICATIONS: 'applications'
 };
 
-function ApplicationDeploy() {
+function Applications() {
   const [value, setValue] = useState(TABS.TEMPLATES);
 
   const handleChange = (_, newValue) => {
@@ -66,18 +60,14 @@ function ApplicationDeploy() {
         {value === TABS.TEMPLATES && <ApplicationsTemplatesList />}
       </div>
       <div hidden={value !== TABS.APPLICATIONS}>
-        {value === TABS.APPLICATIONS && (
-          <Box p={3}>
-            <Typography>{'Applications deployed'}</Typography>
-          </Box>
-        )}
+        {value === TABS.APPLICATIONS && <ApplicationsDeployed />}
       </div>
     </Container>
   );
 }
 
-ApplicationDeploy.propTypes = {};
+Applications.propTypes = {};
 
-ApplicationDeploy.defaultProps = {};
+Applications.defaultProps = {};
 
-export default ApplicationDeploy;
+export default Applications;
