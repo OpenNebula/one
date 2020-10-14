@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { STEP_ID as APPLICATION_ID } from 'client/containers/Application/Create/Steps/BasicConfiguration';
-import { STEP_ID as CLUSTER_ID } from 'client/containers/Application/Create/Steps/Clusters';
-import { STEP_ID as NETWORKING_ID } from 'client/containers/Application/Create/Steps/Networking';
-import { STEP_ID as TIERS_ID } from 'client/containers/Application/Create/Steps/Tiers';
+import { STEP_ID as APPLICATION_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/BasicConfiguration';
+import { STEP_ID as CLUSTER_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Clusters';
+import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Networking';
+import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers';
 
 import parseTemplateToObject from './templateToObject';
 

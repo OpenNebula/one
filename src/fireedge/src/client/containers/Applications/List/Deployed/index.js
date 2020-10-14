@@ -6,7 +6,7 @@ import useApplication from 'client/hooks/useApplication';
 import ListCards from 'client/components/List/ListCards';
 import { ClusterCard } from 'client/components/Cards';
 
-const ApplicationsList = () => {
+const ApplicationsDeployed = () => {
   const { applications, getApplications } = useApplication();
 
   useEffect(() => {
@@ -24,4 +24,4 @@ const ApplicationsList = () => {
   );
 };
 
-export default ApplicationsList;
+export default ApplicationsDeployed;

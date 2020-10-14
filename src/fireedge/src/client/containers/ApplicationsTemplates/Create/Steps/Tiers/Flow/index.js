@@ -7,7 +7,7 @@ import ReactFlow, { Background } from 'react-flow-renderer';
 import { useFormContext } from 'react-hook-form';
 
 import SpeedDials from 'client/components/SpeedDials';
-import { STEP_ID as TIER_ID } from 'client/containers/Application/Create/Steps/Tiers';
+import { STEP_ID as TIER_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers';
 
 import CustomNode from './CustomNode';
 import useFlowGraph from './useFlowGraph';

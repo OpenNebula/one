@@ -4,8 +4,8 @@ import useListForm from 'client/hooks/useListForm';
 import ListCards from 'client/components/List/ListCards';
 import { SelectCard } from 'client/components/Cards';
 
-import { STEP_ID as NETWORKING } from 'client/containers/Application/Create/Steps/Networking';
-import { Context } from 'client/containers/Application/Create/Steps/Tiers';
+import { STEP_ID as NETWORKING } from 'client/containers/ApplicationsTemplates/Create/Steps/Networking';
+import { Context } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers';
 import { STEP_FORM_SCHEMA } from './schema';
 
 export const STEP_ID = 'networks';
