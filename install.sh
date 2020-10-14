@@ -2728,6 +2728,8 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/oneflow.1.gz \
         share/man/oneflow-template.1.gz \
         share/man/oneprovision.1.gz \
+        share/man/oneprovider.1.gz \
+        share/man/oneprovision-template.1.gz \
         share/man/onesecgroup.1.gz \
         share/man/onevdc.1.gz \
         share/man/onevrouter.1.gz \
