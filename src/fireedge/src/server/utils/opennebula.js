@@ -53,18 +53,58 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
             namespace + action,
             xmlParameters,
             (err, value) => {
-              if (!(err || (value && !value[0]))) {
+              const configParseXML = {
+                explicitArray: false,
+                trim: true,
+                normalize: true,
+                includeWhiteChars: true,
+                strict: false
+              };
+
+              if (err && err.body) {
+                xml2js.parseString(
+                  err.body,
+                  configParseXML,
+                  (error, result) => {
+                    if (error) {
+                      callback(error, undefined); // error parse xml
+                      return;
+                    }
+                    if (
+                      result &&
+                      result.METHODRESPONSE &&
+                      result.METHODRESPONSE.PARAMS &&
+                      result.METHODRESPONSE.PARAMS.PARAM &&
+                      result.METHODRESPONSE.PARAMS.PARAM.VALUE &&
+                      result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY &&
+                      result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA &&
+                      result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA
+                        .VALUE &&
+                      Array.isArray(
+                        result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA
+                          .VALUE
+                      )
+                    ) {
+                      const errorData = result.METHODRESPONSE.PARAMS.PARAM.VALUE.ARRAY.DATA.VALUE.filter(
+                        element => element.STRING
+                      );
+                      if (
+                        Array.isArray(errorData) &&
+                        errorData[0] &&
+                        errorData[0].STRING
+                      ) {
+                        callback(undefined, errorData[0].STRING);
+                      }
+                    }
+                  }
+                );
+                return;
+              } else if (value && value[0] && value[1]) {
                 const messageCall = value[1];
                 if (typeof messageCall === 'string' && messageCall.length > 0) {
                   xml2js.parseString(
                     messageCall,
-                    {
-                      explicitArray: false,
-                      trim: true,
-                      normalize: true,
-                      includeWhiteChars: true,
-                      strict: false
-                    },
+                    configParseXML,
                     (error, result) => {
                       if (error) {
                         callback(error, undefined); // error parse xml
@@ -79,7 +119,7 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
                   return;
                 }
               }
-              callback(err, value && value[1]); // error call opennebula
+              callback(err.message, value && value[1]); // error call opennebula
             }
           );
         }

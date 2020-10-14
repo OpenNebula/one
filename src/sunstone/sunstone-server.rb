@@ -507,7 +507,7 @@ helpers do
             user_pass = Base64.decode64(request.env['HTTP_AUTHORIZATION'].split(' ')[1])
             username = user_pass.split(":")[0]
             password = user_pass.split(":")[1]
-            params = { :user => username, :pass => password }
+            params = { :user => username, :token => password }
 
             res = Net::HTTP.post_form(uri, params)
             session[:fireedge_token] = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
