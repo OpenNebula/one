@@ -2,16 +2,16 @@ import {
   createMuiTheme,
   responsiveFontSizes,
   createGenerateClassName
-} from '@material-ui/core';
+} from '@material-ui/core'
 
-import UbuntuFont from 'client/assets/theme/fonts';
-import { toolbar, breakpoints } from 'client/assets/theme/defaults';
+import UbuntuFont from 'client/assets/theme/fonts'
+import { toolbar, breakpoints } from 'client/assets/theme/defaults'
 
-const { xs, sm } = breakpoints;
+const { xs, sm } = breakpoints
 
 export const generateClassName = createGenerateClassName({
   productionPrefix: 'one-'
-});
+})
 
 export default responsiveFontSizes(
   createMuiTheme({
@@ -117,4 +117,4 @@ export default responsiveFontSizes(
       }
     }
   })
-);
+)

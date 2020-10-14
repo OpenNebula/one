@@ -1,6 +1,7 @@
-import React from 'react';
-import clsx from 'clsx';
+import React from 'react'
+import PropTypes from 'prop-types'
 
+import clsx from 'clsx'
 import {
   makeStyles,
   Card,
@@ -10,13 +11,13 @@ import {
   CardContent,
   Badge,
   Box
-} from '@material-ui/core';
-import StorageIcon from '@material-ui/icons/Storage';
-import VideogameAssetIcon from '@material-ui/icons/VideogameAsset';
-import AccountTreeIcon from '@material-ui/icons/AccountTree';
-import FolderOpenIcon from '@material-ui/icons/FolderOpen';
+} from '@material-ui/core'
+import StorageIcon from '@material-ui/icons/Storage'
+import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
+import AccountTreeIcon from '@material-ui/icons/AccountTree'
+import FolderOpenIcon from '@material-ui/icons/FolderOpen'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -54,18 +55,18 @@ const useStyles = makeStyles(theme => ({
   },
   badge: {},
   icon: {}
-}));
+}))
 
 const ClusterCard = React.memo(
   ({ value, isSelected, handleSelect, handleUnselect }) => {
-    const classes = useStyles();
-    const { ID, NAME, HOSTS, VNETS, DATASTORES } = value;
+    const classes = useStyles()
+    const { NAME, HOSTS, VNETS, DATASTORES } = value
 
-    const hosts = [HOSTS?.ID ?? []].flat();
-    const vnets = [VNETS?.ID ?? []].flat();
-    const datastores = [DATASTORES?.ID ?? []].flat();
+    const hosts = [HOSTS?.ID ?? []].flat()
+    const vnets = [VNETS?.ID ?? []].flat()
+    const datastores = [DATASTORES?.ID ?? []].flat()
 
-    const badgePosition = { vertical: 'top', horizontal: 'right' };
+    const badgePosition = { vertical: 'top', horizontal: 'right' }
 
     return (
       <Fade in unmountOnExit={false}>
@@ -124,8 +125,39 @@ const ClusterCard = React.memo(
           </CardActionArea>
         </Card>
       </Fade>
-    );
+    )
   }
-);
+)
 
-export default ClusterCard;
+ClusterCard.propTypes = {
+  value: PropTypes.shape({
+    ID: PropTypes.string,
+    NAME: PropTypes.string.isRequired,
+    HOSTS: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.object
+    ]),
+    VNETS: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.object
+    ]),
+    DATASTORES: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.object
+    ])
+  }),
+  isSelected: PropTypes.bool,
+  handleSelect: PropTypes.func,
+  handleUnselect: PropTypes.func
+}
+
+ClusterCard.defaultProps = {
+  value: {},
+  isSelected: false,
+  handleSelect: undefined,
+  handleUnselect: undefined
+}
+
+ClusterCard.displayName = 'ClusterCard'
+
+export default ClusterCard

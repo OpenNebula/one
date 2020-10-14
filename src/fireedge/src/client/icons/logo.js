@@ -1,5 +1,5 @@
-import React from 'react';
-import { number, string, bool, oneOfType } from 'prop-types';
+import React from 'react'
+import { number, string, bool, oneOfType } from 'prop-types'
 
 const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
   const cloudColor = {
@@ -8,11 +8,11 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
     child3: { from: '#40b3d9', to: '#ffffff' },
     child4: { from: '#80cde6', to: '#ffffff' },
     child5: { from: '#bfe6f2', to: '#ffffff' }
-  };
+  }
   const textColor = {
     top: '#000000',
     bottom: '#0098c3'
-  };
+  }
   return (
     <svg viewBox={viewBox} width={width} height={height} {...props}>
       <defs>
@@ -82,8 +82,8 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
         </>
       )}
     </svg>
-  );
-};
+  )
+}
 
 Logo.propTypes = {
   width: oneOfType([number, string]).isRequired,
@@ -91,7 +91,7 @@ Logo.propTypes = {
   viewBox: string,
   spinner: bool,
   withText: bool
-};
+}
 
 Logo.defaultProps = {
   width: 360,
@@ -99,6 +99,6 @@ Logo.defaultProps = {
   viewBox: '0 0 640 640',
   spinner: false,
   withText: false
-};
+}
 
-export default Logo;
+export default Logo

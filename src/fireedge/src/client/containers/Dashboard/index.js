@@ -13,14 +13,14 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
+import React from 'react'
 
-import { Box, Typography } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core'
 
-import dashboardStyles from 'client/containers/Dashboard/styles';
+import dashboardStyles from 'client/containers/Dashboard/styles'
 
-function Dashboard() {
-  const classes = dashboardStyles();
+function Dashboard () {
+  const classes = dashboardStyles()
 
   return (
     <Box>
@@ -32,7 +32,7 @@ function Dashboard() {
         Dashboard
       </Typography>
     </Box>
-  );
+  )
 }
 
-export default Dashboard;
+export default Dashboard

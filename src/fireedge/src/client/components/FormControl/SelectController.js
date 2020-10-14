@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
-import { TextField, MenuItem } from '@material-ui/core';
-import { Controller } from 'react-hook-form';
+import { TextField, MenuItem } from '@material-ui/core'
+import { Controller } from 'react-hook-form'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper';
-import { Tr } from 'client/components/HOC/Translate';
+import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import { Tr } from 'client/components/HOC/Translate'
 
 const SelectController = memo(
   ({ control, cy, name, label, values, error }) => (
@@ -34,7 +34,7 @@ const SelectController = memo(
     />
   ),
   (prevProps, nextProps) => prevProps.error === nextProps.error
-);
+)
 
 SelectController.propTypes = {
   control: PropTypes.object,
@@ -46,7 +46,7 @@ SelectController.propTypes = {
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
   ])
-};
+}
 
 SelectController.defaultProps = {
   control: {},
@@ -55,6 +55,8 @@ SelectController.defaultProps = {
   label: '',
   values: [],
   error: false
-};
+}
 
-export default SelectController;
+SelectController.displayName = 'SelectController'
+
+export default SelectController

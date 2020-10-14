@@ -1,5 +1,5 @@
-import { makeStyles } from '@material-ui/core';
-import { sidebar, toolbar } from 'client/assets/theme/defaults';
+import { makeStyles } from '@material-ui/core'
+import { sidebar, toolbar } from 'client/assets/theme/defaults'
 
 export default makeStyles(theme => ({
   // -------------------------------
@@ -127,4 +127,4 @@ export default makeStyles(theme => ({
       backgroundColor: theme.palette.primary.light
     }
   }
-}));
+}))

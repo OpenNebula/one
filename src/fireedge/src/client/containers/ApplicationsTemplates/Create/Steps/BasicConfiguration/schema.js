@@ -1,17 +1,17 @@
-import * as yup from 'yup';
-import { TYPE_INPUT } from 'client/constants';
-import { getValidationFromFields } from 'client/utils/helpers';
+import * as yup from 'yup'
+import { TYPE_INPUT } from 'client/constants'
+import { getValidationFromFields } from 'client/utils/helpers'
 
 const STRATEGIES_DEPLOY = [
   { text: 'None', value: 'none' },
   { text: 'Straight', value: 'straight' }
-];
+]
 
 const SHUTDOWN_ACTIONS = [
   { text: 'None', value: 'none' },
   { text: 'Terminate', value: 'terminate' },
   { text: 'Terminate hard', value: 'terminate-hard' }
-];
+]
 
 export const FORM_FIELDS = [
   {
@@ -66,8 +66,8 @@ export const FORM_FIELDS = [
     type: TYPE_INPUT.CHECKBOX,
     validation: yup.boolean().default(false)
   }
-];
+]
 
 export const STEP_FORM_SCHEMA = yup.object(
   getValidationFromFields(FORM_FIELDS)
-);
+)

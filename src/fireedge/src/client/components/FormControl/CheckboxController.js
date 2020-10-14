@@ -1,16 +1,16 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
 import {
   FormControl,
   FormControlLabel,
   Checkbox,
   Tooltip
-} from '@material-ui/core';
-import { Controller } from 'react-hook-form';
+} from '@material-ui/core'
+import { Controller } from 'react-hook-form'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper';
-import { Tr } from 'client/components/HOC/Translate';
+import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import { Tr } from 'client/components/HOC/Translate'
 
 const CheckboxController = memo(
   ({ control, cy, name, label, tooltip, error }) => (
@@ -40,7 +40,7 @@ const CheckboxController = memo(
     />
   ),
   (prevProps, nextProps) => prevProps.error === nextProps.error
-);
+)
 
 CheckboxController.propTypes = {
   control: PropTypes.object,
@@ -52,7 +52,7 @@ CheckboxController.propTypes = {
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
   ])
-};
+}
 
 CheckboxController.defaultProps = {
   control: {},
@@ -62,6 +62,8 @@ CheckboxController.defaultProps = {
   tooltip: undefined,
   values: [],
   error: false
-};
+}
 
-export default CheckboxController;
+CheckboxController.displayName = 'CheckboxController'
+
+export default CheckboxController

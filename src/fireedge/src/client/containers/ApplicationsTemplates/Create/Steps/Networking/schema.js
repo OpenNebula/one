@@ -1,19 +1,19 @@
-import * as yup from 'yup';
-import { v4 as uuidv4 } from 'uuid';
-import { TYPE_INPUT } from 'client/constants';
-import { getValidationFromFields } from 'client/utils/helpers';
-import useOpennebula from 'client/hooks/useOpennebula';
+import * as yup from 'yup'
+import { v4 as uuidv4 } from 'uuid'
+import { TYPE_INPUT } from 'client/constants'
+import { getValidationFromFields } from 'client/utils/helpers'
+import useOpennebula from 'client/hooks/useOpennebula'
 
 const SELECT = {
   template: 'template',
   network: 'network'
-};
+}
 
 const TYPES_NETWORKS = [
   { text: 'Create', value: 'template_id', select: SELECT.template },
   { text: 'Reserve', value: 'reserve_from', select: SELECT.network },
   { text: 'Existing', value: 'id', select: SELECT.network }
-];
+]
 
 const ID = {
   name: 'id',
@@ -26,7 +26,7 @@ const ID = {
     .required()
     .default(uuidv4),
   grid: { style: { display: 'none' } }
-};
+}
 
 const MANDATORY = {
   name: 'mandatory',
@@ -37,7 +37,7 @@ const MANDATORY = {
     .required('Mandatory field is required')
     .default(false),
   grid: { md: 12 }
-};
+}
 
 const NAME = {
   name: 'name',
@@ -49,7 +49,7 @@ const NAME = {
     .matches(/^[\w+\s*]+$/g, { message: 'Invalid characters' })
     .required('Name field is required')
     .default('')
-};
+}
 
 const DESCRIPTION = {
   name: 'description',
@@ -60,7 +60,7 @@ const DESCRIPTION = {
     .string()
     .trim()
     .default('')
-};
+}
 
 const TYPE = {
   name: 'type',
@@ -72,23 +72,23 @@ const TYPE = {
     .oneOf(TYPES_NETWORKS.map(({ value }) => value))
     .required('Type field is required')
     .default(TYPES_NETWORKS[0].value)
-};
+}
 
 const ID_VNET = {
   name: 'idVnet',
-  label: `Select a network`,
+  label: 'Select a network',
   type: TYPE_INPUT.AUTOCOMPLETE,
   dependOf: TYPE.name,
   values: dependValue => {
-    const { vNetworks, vNetworksTemplates } = useOpennebula();
-    const type = TYPES_NETWORKS.find(({ value }) => value === dependValue);
+    const { vNetworks, vNetworksTemplates } = useOpennebula()
+    const type = TYPES_NETWORKS.find(({ value }) => value === dependValue)
 
     const values =
-      type?.select === SELECT.network ? vNetworks : vNetworksTemplates;
+      type?.select === SELECT.network ? vNetworks : vNetworksTemplates
 
     return values
       .map(({ ID: value, NAME: text }) => ({ text, value }))
-      .sort((a, b) => a.value - b.value);
+      .sort((a, b) => a.value - b.value)
   },
   validation: yup
     .string()
@@ -101,7 +101,7 @@ const ID_VNET = {
         : schema.required('Network template field is required')
     )
     .default(undefined)
-};
+}
 
 const EXTRA = {
   name: 'extra',
@@ -112,7 +112,7 @@ const EXTRA = {
     .string()
     .trim()
     .default('')
-};
+}
 
 export const FORM_FIELDS = [
   ID,
@@ -122,13 +122,13 @@ export const FORM_FIELDS = [
   TYPE,
   ID_VNET,
   EXTRA
-];
+]
 
 export const NETWORK_FORM_SCHEMA = yup.object(
   getValidationFromFields(FORM_FIELDS)
-);
+)
 
 export const STEP_FORM_SCHEMA = yup
   .array()
   .of(NETWORK_FORM_SCHEMA)
-  .default([]);
+  .default([])

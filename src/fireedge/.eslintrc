@@ -1,14 +1,21 @@
 {
-  "extends": [
-    "./node_modules/jloboescalona-eslint-config/index.js",
-    "plugin:cypress/recommended"
-  ],
-  "parser": "babel-eslint",
   "env": {
     "browser": true,
+    "es2021": true,
     "node": true
   },
-  "plugins": [],
+  "extends": [
+    "plugin:react/recommended",
+    "standard"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+        "jsx": true
+    },
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": ["react"],
   "rules": {
     "import/no-extraneous-dependencies": [
       "error",
@@ -21,6 +28,9 @@
     "default-case": 0
   },
   "settings": {
+    "react" : {
+      "version": "detect"
+    },
     "import/resolver": {
       "alias": {
         "map": [

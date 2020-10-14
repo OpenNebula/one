@@ -36,4 +36,4 @@ module.exports = {
     CHECKBOX: 'checkbox',
     AUTOCOMPLETE: 'autocomplete'
   }
-};
+}

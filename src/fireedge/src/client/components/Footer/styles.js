@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
   footer: {
@@ -21,4 +21,4 @@ export default makeStyles(theme => ({
     color: theme.palette.primary.light,
     marginLeft: theme.spacing(1)
   }
-}));
+}))

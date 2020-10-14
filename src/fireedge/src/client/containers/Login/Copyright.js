@@ -1,8 +1,8 @@
-import React from 'react';
-import { Typography, Link } from '@material-ui/core';
+import React from 'react'
+import { Typography, Link } from '@material-ui/core'
 
 const Copyright = () => {
-  const year = new Date().getFullYear();
+  const year = new Date().getFullYear()
 
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -12,7 +12,7 @@ const Copyright = () => {
       </Link>
       {` ${year}. `}
     </Typography>
-  );
+  )
 }
 
-export default Copyright;
+export default Copyright

@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
+import React, { useMemo } from 'react'
+import PropTypes from 'prop-types'
 
 import {
   makeStyles,
@@ -7,8 +7,8 @@ import {
   CardContent,
   Card,
   Grid
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
+} from '@material-ui/core'
+import AddIcon from '@material-ui/icons/Add'
 
 const useStyles = makeStyles(() => ({
   cardPlus: {
@@ -17,10 +17,10 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     textAlign: 'center'
   }
-}));
+}))
 
-function ListCards({ handleCreate, list, CardComponent, cardsProps }) {
-  const classes = useStyles();
+function ListCards ({ handleCreate, list, CardComponent, cardsProps }) {
+  const classes = useStyles()
 
   return (
     <Grid container spacing={3}>
@@ -46,7 +46,7 @@ function ListCards({ handleCreate, list, CardComponent, cardsProps }) {
           </Grid>
         ))}
     </Grid>
-  );
+  )
 }
 
 ListCards.propTypes = {
@@ -58,13 +58,13 @@ ListCards.propTypes = {
     PropTypes.element
   ]),
   cardsProps: PropTypes.func
-};
+}
 
 ListCards.defaultProps = {
   list: [],
   handleCreate: undefined,
   CardComponent: null,
   cardsProps: () => undefined
-};
+}
 
-export default ListCards;
+export default ListCards

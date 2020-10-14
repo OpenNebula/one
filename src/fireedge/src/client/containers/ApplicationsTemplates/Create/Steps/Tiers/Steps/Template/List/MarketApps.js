@@ -1,38 +1,34 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
 
-import useOpennebula from 'client/hooks/useOpennebula';
-import Search from 'client/components/Search';
-import { SelectCard } from 'client/components/Cards';
+import useOpennebula from 'client/hooks/useOpennebula'
+import Search from 'client/components/Search'
+import { SelectCard } from 'client/components/Cards'
 
-const sortByID = (a, b) => a.ID - b.ID;
+const sortByID = (a, b) => a.ID - b.ID
 
 const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
-  const { apps, getMarketApps } = useOpennebula();
+  const { apps, getMarketApps } = useOpennebula()
 
   useEffect(() => {
-    getMarketApps();
-  }, []);
-
-  const handleSelect = index => handleSetData(index);
-  const handleUnselect = () => handleSetData();
-
-  const renderApp = app => (
-    <SelectCard
-      key={`app-${app.ID}`}
-      isSelected={app.ID === String(currentValue)}
-      handleSelect={handleSelect}
-      handleUnselect={handleUnselect}
-      {...app}
-    />
-  );
+    getMarketApps()
+  }, [])
 
   return (
     <Search
       list={apps?.sort(sortByID)}
       listOptions={{ shouldSort: true, sortFn: sortByID, keys: ['NAME'] }}
-      renderResult={renderApp}
       startAdornment={backButton}
+      renderResult={({ ID, NAME }) => {
+        const isSelected = ID === String(currentValue)
+
+        return <SelectCard
+          key={`app-${ID}`}
+          title={`📦 ${NAME}`}
+          isSelected={isSelected}
+          handleClick={() => handleSetData(!isSelected && ID)}
+        />
+      }}
       searchBoxProps={{
         style: {
           display: 'flex',
@@ -41,19 +37,19 @@ const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
         }
       }}
     />
-  );
-};
+  )
+}
 
 ListMarketApp.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   handleSetData: PropTypes.func
-};
+}
 
 ListMarketApp.defaultProps = {
   backButton: null,
   currentValue: undefined,
   handleSetData: () => undefined
-};
+}
 
-export default ListMarketApp;
+export default ListMarketApp

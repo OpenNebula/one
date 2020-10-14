@@ -1,36 +1,36 @@
-import React from 'react';
-import { string, func, shape, object } from 'prop-types';
+import React from 'react'
+import { string, func, shape, object } from 'prop-types'
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form'
 import {
   TextField,
   Grid,
   Typography,
   FormControlLabel,
   Checkbox
-} from '@material-ui/core';
+} from '@material-ui/core'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton';
-import { requestData, requestParams } from 'client/utils';
+import ButtonSubmit from 'client/components/FormControl/SubmitButton'
+import { requestData, requestParams } from 'client/utils'
 
 const ResponseForm = ({
   handleChangeResponse,
   command: { name, httpMethod, params }
 }) => {
-  const { control, handleSubmit, errors, formState } = useForm();
+  const { control, handleSubmit, errors, formState } = useForm()
 
   const onSubmit = dataForm => {
     const { url, options } = requestParams(dataForm, {
       name,
       httpMethod,
       params
-    });
+    })
 
     requestData(url, options).then(({ id, ...res }) => {
-      id === 401 && console.log('ERROR');
-      id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'));
-    });
-  };
+      id === 401 && console.log('ERROR')
+      id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'))
+    })
+  }
 
   return (
     <>
@@ -81,8 +81,8 @@ const ResponseForm = ({
         </Grid>
       </Grid>
     </>
-  );
-};
+  )
+}
 
 ResponseForm.propTypes = {
   command: shape({
@@ -91,7 +91,7 @@ ResponseForm.propTypes = {
     params: object.isRequired
   }).isRequired,
   handleChangeResponse: func.isRequired
-};
+}
 
 ResponseForm.defaultProps = {
   command: {
@@ -100,5 +100,5 @@ ResponseForm.defaultProps = {
     params: {}
   },
   handleChangeResponse: () => undefined
-};
-export default ResponseForm;
+}
+export default ResponseForm

@@ -18,36 +18,29 @@ import {
   Settings as SettingsIcon,
   Ballot as BallotIcon,
   Palette as PaletteIcon,
-  Reddit as RedditIcon,
-  Build as BuildIcon
-} from '@material-ui/icons';
-import { matchPath } from 'react-router-dom';
+  Reddit as RedditIcon
+} from '@material-ui/icons'
+import { matchPath } from 'react-router-dom'
 
-import Login from 'client/containers/Login';
-import Dashboard from 'client/containers/Dashboard';
-import Settings from 'client/containers/Settings';
-import TestApi from 'client/containers/TestApi';
-import Webconsole from 'client/containers/Webconsole';
-import { ApplicationsTemplatesCreate } from 'client/containers/ApplicationsTemplates';
-import {
-  ApplicationsList,
-  ApplicationsManage
-} from 'client/containers/Applications';
+import Login from 'client/containers/Login'
+import Dashboard from 'client/containers/Dashboard'
+import Settings from 'client/containers/Settings'
+import TestApi from 'client/containers/TestApi'
+import Webconsole from 'client/containers/Webconsole'
+import { ApplicationsTemplatesCreate } from 'client/containers/ApplicationsTemplates'
+import Applications from 'client/containers/Applications'
 
 export const PATH = {
   LOGIN: '/',
   DASHBOARD: '/dashboard',
-  APPLICATION_TEMPLATE: {
+  APPLICATIONS_TEMPLATES: {
     CREATE: '/applications-templates/create',
     EDIT: '/applications-templates/edit/:id'
   },
-  APPLICATION: {
-    LIST: '/applications',
-    MANAGE: '/applications/manage'
-  },
+  APPLICATIONS: '/applications',
   SETTINGS: '/settings',
   TEST_API: '/test-api'
-};
+}
 
 const ENDPOINTS = [
   {
@@ -92,46 +85,38 @@ const ENDPOINTS = [
   },
   {
     label: 'Create Application template',
-    path: PATH.APPLICATION_TEMPLATE.CREATE,
+    path: PATH.APPLICATIONS_TEMPLATES.CREATE,
     authenticated: true,
     icon: PaletteIcon,
     component: ApplicationsTemplatesCreate
   },
   {
     label: 'Edit Application template',
-    path: PATH.APPLICATION_TEMPLATE.EDIT,
+    path: PATH.APPLICATIONS_TEMPLATES.EDIT,
     authenticated: true,
     icon: PaletteIcon,
     component: ApplicationsTemplatesCreate
   },
   {
     label: 'Applications',
-    path: PATH.APPLICATION.LIST,
+    path: PATH.APPLICATIONS,
     authenticated: true,
     sidebar: true,
     icon: RedditIcon,
-    component: ApplicationsList
-  },
-  {
-    label: 'Manage Application',
-    path: PATH.APPLICATION.MANAGE,
-    authenticated: true,
-    sidebar: true,
-    icon: BuildIcon,
-    component: ApplicationsManage
+    component: Applications
   }
-];
+]
 
 export const findRouteByPathname = pathname => {
   const routes = ENDPOINTS.flatMap(
     ({ endpoints, ...item }) => endpoints ?? item
-  );
+  )
 
   const route = routes?.find(({ path }) =>
     matchPath(pathname, { path, exact: true })
-  );
+  )
 
-  return route ?? {};
-};
+  return route ?? {}
+}
 
-export default ENDPOINTS;
+export default ENDPOINTS

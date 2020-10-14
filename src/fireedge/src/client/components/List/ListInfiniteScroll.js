@@ -1,40 +1,40 @@
-import React, { useRef, useEffect, useCallback, createRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useRef, useEffect, useCallback, createRef } from 'react'
+import PropTypes from 'prop-types'
 
-import { debounce, LinearProgress } from '@material-ui/core';
+import { debounce, LinearProgress } from '@material-ui/core'
 
-import useNearScreen from 'client/hooks/useNearScreen';
-import useList from 'client/hooks/useList';
+import useNearScreen from 'client/hooks/useNearScreen'
+import useList from 'client/hooks/useList'
 
 const ListInfiniteScroll = ({ list, renderResult }) => {
-  const gridRef = createRef();
+  const gridRef = createRef()
   const { loading, shortList, finish, reset, setLength } = useList({
     list,
     initLength: 50
-  });
+  })
 
-  const loaderRef = useRef();
+  const loaderRef = useRef()
   const { isNearScreen } = useNearScreen({
     distance: '100px',
     externalRef: loading ? null : loaderRef,
     once: false
-  });
+  })
 
   useEffect(() => {
-    reset(list);
-    gridRef.current.scrollIntoView({ block: 'start' });
-  }, [list]);
+    reset(list)
+    gridRef.current.scrollIntoView({ block: 'start' })
+  }, [list])
 
   const debounceHandleNextPage = useCallback(
     debounce(() => {
-      setLength(prevLength => prevLength + 20);
+      setLength(prevLength => prevLength + 20)
     }, 200),
     [setLength]
-  );
+  )
 
   useEffect(() => {
-    if (isNearScreen && !finish) debounceHandleNextPage();
-  }, [isNearScreen, finish, debounceHandleNextPage]);
+    if (isNearScreen && !finish) debounceHandleNextPage()
+  }, [isNearScreen, finish, debounceHandleNextPage])
 
   return (
     <div style={{ overflowY: 'auto', padding: 10 }}>
@@ -55,17 +55,17 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
         />
       )}
     </div>
-  );
-};
+  )
+}
 
 ListInfiniteScroll.propTypes = {
   list: PropTypes.arrayOf(PropTypes.any),
   renderResult: PropTypes.func
-};
+}
 
 ListInfiniteScroll.defaultProps = {
   list: [],
   renderResult: () => null
-};
+}
 
-export default ListInfiniteScroll;
+export default ListInfiniteScroll

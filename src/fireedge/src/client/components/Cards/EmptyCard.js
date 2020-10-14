@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import { Card, CardHeader, Fade, makeStyles } from '@material-ui/core';
+import { Card, CardHeader, Fade, makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -13,10 +13,10 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     textAlign: 'center'
   }
-}));
+}))
 
 const EmptyCard = React.memo(({ name }) => {
-  const classes = useStyles();
+  const classes = useStyles()
 
   return (
     <Fade in unmountOnExit>
@@ -27,15 +27,17 @@ const EmptyCard = React.memo(({ name }) => {
         />
       </Card>
     </Fade>
-  );
-});
+  )
+})
 
 EmptyCard.propTypes = {
   name: PropTypes.string
-};
+}
 
 EmptyCard.defaultProps = {
   name: undefined
-};
+}
 
-export default EmptyCard;
+EmptyCard.displayName = 'EmptyCard'
+
+export default EmptyCard

@@ -13,9 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { Actions: PoolActions } = require('../actions/pool');
-const { Actions: UserActions } = require('../actions/user');
-const { Actions: GeneralActions } = require('../actions/general');
+const { Actions: PoolActions } = require('../actions/pool')
+const { Actions: UserActions } = require('../actions/user')
+const { Actions: GeneralActions } = require('../actions/general')
 
 const initial = {
   zone: 0,
@@ -23,16 +23,16 @@ const initial = {
   isLoading: false,
   isOpenMenu: false,
   isFixMenu: false
-};
+}
 
 const General = (state = initial, action) => {
   switch (action.type) {
     case PoolActions.START_ONE_REQUEST:
-      return { ...state, isLoading: true };
+      return { ...state, isLoading: true }
     case PoolActions.SUCCESS_ONE_REQUEST:
-      return { ...state, isLoading: false };
+      return { ...state, isLoading: false }
     case PoolActions.FAILURE_ONE_REQUEST:
-      return { ...state, isLoading: false };
+      return { ...state, isLoading: false }
     case GeneralActions.ENQUEUE_SNACKBAR:
       return {
         ...state,
@@ -40,7 +40,7 @@ const General = (state = initial, action) => {
           ...state.notifications,
           { key: action.key, ...action.notification }
         ]
-      };
+      }
     case GeneralActions.CLOSE_SNACKBAR:
       return {
         ...state,
@@ -49,25 +49,25 @@ const General = (state = initial, action) => {
             ? { ...notification, dismissed: true }
             : { ...notification }
         )
-      };
+      }
     case GeneralActions.REMOVE_SNACKBAR:
       return {
         ...state,
         notifications: state.notifications.filter(
           notification => notification.key !== action.key
         )
-      };
+      }
     case GeneralActions.CHANGE_ZONE:
-      return { ...state, ...action.payload };
+      return { ...state, ...action.payload }
     case GeneralActions.TOGGLE_MENU:
-      return { ...state, isOpenMenu: action.isOpen };
+      return { ...state, isOpenMenu: action.isOpen }
     case GeneralActions.FIX_MENU:
-      return { ...state, isFixMenu: action.isFixed };
+      return { ...state, isFixMenu: action.isFixed }
     case UserActions.LOGOUT:
-      return { ...initial };
+      return { ...initial }
     default:
-      return state;
+      return state
   }
-};
+}
 
-module.exports = General;
+module.exports = General

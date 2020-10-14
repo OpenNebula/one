@@ -1,16 +1,16 @@
-import React from 'react';
-import { Box } from '@material-ui/core';
-import AceEditor from 'react-ace';
-import PropTypes from 'prop-types';
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-github';
+import React from 'react'
+import { Box } from '@material-ui/core'
+import AceEditor from 'react-ace'
+import PropTypes from 'prop-types'
+import 'ace-builds/src-noconflict/mode-json'
+import 'ace-builds/src-noconflict/theme-github'
 
-const { string } = PropTypes;
+const { string } = PropTypes
 
 const InputCode = ({ code, language, ...props }) => {
   const handleChange = newValue => {
-    console.log('change', newValue);
-  };
+    console.log('change', newValue)
+  }
 
   return (
     <Box height="100%" minHeight={200}>
@@ -36,17 +36,17 @@ const InputCode = ({ code, language, ...props }) => {
         {...props}
       />
     </Box>
-  );
-};
+  )
+}
 
 InputCode.propTypes = {
   code: string,
   language: string
-};
+}
 
 InputCode.defaultProps = {
   code: '',
   language: 'json'
-};
+}
 
-export default InputCode;
+export default InputCode

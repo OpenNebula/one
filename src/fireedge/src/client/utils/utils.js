@@ -13,12 +13,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import axios from 'axios';
-import root from 'window-or-global';
+import axios from 'axios'
+import root from 'window-or-global'
 
-import { messageTerminal } from 'server/utils/general';
-import { httpCodes } from 'server/utils/constants';
-import { jwtName } from 'client/constants';
+import { messageTerminal } from 'server/utils/general'
+import { httpCodes } from 'server/utils/constants'
+import { jwtName } from 'client/constants'
 
 const defaultData = {
   data: {},
@@ -28,48 +28,48 @@ const defaultData = {
   authenticate: true,
   onUploadProgress: null,
   error: e => e
-};
+}
 
 export const storage = (name = '', data = '', keepData = false) => {
   if (name && data && root && root.localStorage && root.sessionStorage) {
     if (keepData && root.localStorage.setItem) {
-      root.localStorage.setItem(name, data);
+      root.localStorage.setItem(name, data)
     } else if (root.sessionStorage.setItem) {
-      root.sessionStorage.setItem(name, data);
+      root.sessionStorage.setItem(name, data)
     }
   }
-};
+}
 
 export const removeStoreData = (items = []) => {
-  let itemsToRemove = items;
+  let itemsToRemove = items
   if (!Array.isArray(items)) {
-    itemsToRemove = [items];
+    itemsToRemove = [items]
   }
   itemsToRemove.forEach(item => {
     if (root && root.localStorage && root.sessionStorage) {
-      root.localStorage.removeItem(item);
-      root.sessionStorage.removeItem(item);
+      root.localStorage.removeItem(item)
+      root.sessionStorage.removeItem(item)
     }
-  });
-};
+  })
+}
 
 export const findStorageData = (name = '') => {
-  let rtn = false;
+  let rtn = false
   if (root && root.localStorage && root.sessionStorage && name) {
     if (root.localStorage.getItem && root.localStorage.getItem(name)) {
-      rtn = root.localStorage.getItem(name);
+      rtn = root.localStorage.getItem(name)
     } else if (
       root.sessionStorage.getItem &&
       root.sessionStorage.getItem(name)
     ) {
-      rtn = root.sessionStorage.getItem(name);
+      rtn = root.sessionStorage.getItem(name)
     }
   }
-  return rtn;
-};
+  return rtn
+}
 
 export const requestData = (url = '', data = {}) => {
-  const params = { ...defaultData, ...data };
+  const params = { ...defaultData, ...data }
   const config = {
     url,
     method: params.method,
@@ -77,25 +77,25 @@ export const requestData = (url = '', data = {}) => {
     headers: {},
     validateStatus: status =>
       Object.values(httpCodes).some(({ id }) => id === status)
-  };
-  const json = params.json ? params.json : true;
-  let rtn = null;
+  }
+  const json = params.json ? params.json : true
+  let rtn = null
   if (json) {
-    config.headers['Content-Type'] = 'application/json';
+    config.headers['Content-Type'] = 'application/json'
   }
   if (params.data && params.method.toUpperCase() !== 'GET') {
-    config.data = params.data;
+    config.data = params.data
   }
 
   if (
     params.onUploadProgress &&
     typeof params.onUploadProgress === 'function'
   ) {
-    config.onUploadProgress = params.onUploadProgress;
+    config.onUploadProgress = params.onUploadProgress
   }
 
   if (params.authenticate && findStorageData && findStorageData(jwtName)) {
-    config.headers.Authorization = `Bearer ${findStorageData(jwtName)}`;
+    config.headers.Authorization = `Bearer ${findStorageData(jwtName)}`
   }
 
   return axios
@@ -105,18 +105,18 @@ export const requestData = (url = '', data = {}) => {
         rtn =
           json && typeof response === 'string'
             ? response.data.json()
-            : response.data;
-        return rtn;
+            : response.data
+        return rtn
       }
-      throw new Error(response.statusText);
+      throw new Error(response.statusText)
     })
     .catch(err => {
       const configErrorParser = {
         color: 'red',
         type: err.message,
         message: 'Error request: %s'
-      };
-      messageTerminal(configErrorParser);
-      return params.error(err);
-    });
-};
+      }
+      messageTerminal(configErrorParser)
+      return params.error(err)
+    })
+}

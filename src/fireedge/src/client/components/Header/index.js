@@ -13,8 +13,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
 import {
   AppBar,
@@ -22,23 +22,23 @@ import {
   Typography,
   IconButton,
   useMediaQuery
-} from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
+} from '@material-ui/core'
+import MenuIcon from '@material-ui/icons/Menu'
 
-import useAuth from 'client/hooks/useAuth';
-import useGeneral from 'client/hooks/useGeneral';
-import User from 'client/components/Header/User';
-import Group from 'client/components/Header/Group';
-import Zone from 'client/components/Header/Zone';
-import headerStyles from 'client/components/Header/styles';
+import useAuth from 'client/hooks/useAuth'
+import useGeneral from 'client/hooks/useGeneral'
+import User from 'client/components/Header/User'
+import Group from 'client/components/Header/Group'
+import Zone from 'client/components/Header/Zone'
+import headerStyles from 'client/components/Header/styles'
 
 const Header = ({ title }) => {
-  const { isOneAdmin } = useAuth();
-  const { isFixMenu, fixMenu } = useGeneral();
-  const classes = headerStyles();
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
+  const { isOneAdmin } = useAuth()
+  const { isFixMenu, fixMenu } = useGeneral()
+  const classes = headerStyles()
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
 
-  const handleFixMenu = () => fixMenu(true);
+  const handleFixMenu = () => fixMenu(true)
 
   return React.useMemo(
     () => (
@@ -63,15 +63,15 @@ const Header = ({ title }) => {
       </AppBar>
     ),
     [isFixMenu, fixMenu, isUpLg, isOneAdmin]
-  );
-};
+  )
+}
 
 Header.propTypes = {
   title: PropTypes.string
-};
+}
 
 Header.defaultProps = {
   title: ''
-};
+}
 
-export default Header;
+export default Header

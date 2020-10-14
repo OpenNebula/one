@@ -13,5 +13,5 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-export * from './utils';
-export * from './request';
+export * from './utils'
+export * from './request'

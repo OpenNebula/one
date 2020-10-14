@@ -1,35 +1,35 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react'
 
 const useRequest = request => {
-  const [data, setData] = useState(undefined);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [data, setData] = useState(undefined)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
 
   const fetchRequest = useCallback(
     payload => {
-      let ignore = false;
-      setLoading(true);
-      setError(false);
+      let ignore = false
+      setLoading(true)
+      setError(false)
 
       request(payload)
         .then(response => {
           if (response !== undefined && !ignore) {
-            setData(response);
+            setData(response)
           } else {
-            setError(true);
+            setError(true)
           }
         })
         .finally(() => {
-          setLoading(false);
-        });
+          setLoading(false)
+        })
 
       return () => {
-        ignore = true;
-      };
+        ignore = true
+      }
     },
     [request]
-  );
+  )
 
-  return { data, fetchRequest, loading, error };
-};
-export default useRequest;
+  return { data, fetchRequest, loading, error }
+}
+export default useRequest

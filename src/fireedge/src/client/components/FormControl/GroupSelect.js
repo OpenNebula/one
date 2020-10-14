@@ -13,19 +13,19 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
+import React from 'react'
 
-import { MenuItem, TextField } from '@material-ui/core';
-import { FilterVintage } from '@material-ui/icons';
+import { MenuItem, TextField } from '@material-ui/core'
+import { FilterVintage } from '@material-ui/icons'
 
-import useAuth from 'client/hooks/useAuth';
-import useOpennebula from 'client/hooks/useOpennebula';
-import { Tr } from 'client/components/HOC';
-import { FILTER_POOL } from 'client/constants';
+import useAuth from 'client/hooks/useAuth'
+import useOpennebula from 'client/hooks/useOpennebula'
+import { Tr } from 'client/components/HOC'
+import { FILTER_POOL } from 'client/constants'
 
 const GroupSelect = props => {
-  const { filterPool, authUser } = useAuth();
-  const { groups } = useOpennebula();
+  const { filterPool, authUser } = useAuth()
+  const { groups } = useOpennebula()
 
   const defaultValue = React.useMemo(
     () =>
@@ -33,7 +33,7 @@ const GroupSelect = props => {
         ? FILTER_POOL.ALL_RESOURCES
         : authUser?.GID,
     [filterPool]
-  );
+  )
 
   const orderGroups = React.useMemo(
     () =>
@@ -53,7 +53,7 @@ const GroupSelect = props => {
           </MenuItem>
         )),
     [groups]
-  );
+  )
 
   return (
     <TextField
@@ -69,11 +69,11 @@ const GroupSelect = props => {
       <MenuItem value={FILTER_POOL.ALL_RESOURCES}>{Tr('Show all')}</MenuItem>
       {orderGroups}
     </TextField>
-  );
-};
+  )
+}
 
-GroupSelect.propTypes = {};
+GroupSelect.propTypes = {}
 
-GroupSelect.defaultProps = {};
+GroupSelect.defaultProps = {}
 
-export default GroupSelect;
+export default GroupSelect

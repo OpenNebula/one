@@ -18,20 +18,20 @@ const initial = {
     name: ''
   },
   tickets: []
-};
+}
 
 const Zendesk = (state = initial, action) => {
   switch (action.type) {
     case 'SETTICKET': {
-      const { tickets } = state;
+      const { tickets } = state
       return {
         ...state,
         tickets
-      };
+      }
     }
     default:
-      return state;
+      return state
   }
-};
+}
 
-module.exports = Zendesk;
+module.exports = Zendesk

@@ -13,13 +13,13 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
-import { Route, Switch } from 'react-router-dom';
-import { TransitionGroup } from 'react-transition-group';
+import React from 'react'
+import { Route, Switch } from 'react-router-dom'
+import { TransitionGroup } from 'react-transition-group'
 
-import { InternalLayout, MainLayout } from 'client/components/HOC';
-import Error404 from 'client/containers/Error404';
-import endpoints from 'client/router/endpoints';
+import { InternalLayout, MainLayout } from 'client/components/HOC'
+import Error404 from 'client/containers/Error404'
+import endpoints from 'client/router/endpoints'
 
 const renderRoute = ({
   label = '',
@@ -39,7 +39,7 @@ const renderRoute = ({
     )}
     {...route}
   />
-);
+)
 
 const Router = () => (
   <MainLayout>
@@ -52,6 +52,6 @@ const Router = () => (
       </Switch>
     </TransitionGroup>
   </MainLayout>
-);
+)
 
-export default Router;
+export default Router

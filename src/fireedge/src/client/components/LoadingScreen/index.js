@@ -1,7 +1,7 @@
-import React from 'react';
+import React from 'react'
 
-import { Box } from '@material-ui/core';
-import Logo from 'client/icons/logo';
+import { Box } from '@material-ui/core'
+import Logo from 'client/icons/logo'
 
 const LoadingScreen = () => (
   <Box
@@ -18,6 +18,6 @@ const LoadingScreen = () => (
   >
     <Logo width={360} height={360} spinner withText />
   </Box>
-);
+)
 
-export default LoadingScreen;
+export default LoadingScreen

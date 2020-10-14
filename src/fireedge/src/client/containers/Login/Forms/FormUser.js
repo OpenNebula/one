@@ -1,23 +1,23 @@
-import React from 'react';
-import { func, string } from 'prop-types';
-import { Box, Checkbox, TextField, FormControlLabel } from '@material-ui/core';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers';
-import * as yup from 'yup';
+import React from 'react'
+import { func, string } from 'prop-types'
+import { Box, Checkbox, TextField, FormControlLabel } from '@material-ui/core'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers'
+import * as yup from 'yup'
 
 import {
   SignIn,
   Username,
   Password,
   KeepLoggedIn
-} from 'client/constants/translates';
-import { Tr } from 'client/components/HOC';
-import ButtonSubmit from 'client/components/FormControl/SubmitButton';
-import ErrorHelper from 'client/components/FormControl/ErrorHelper';
-import loginStyles from 'client/containers/Login/styles';
+} from 'client/constants/translates'
+import { Tr } from 'client/components/HOC'
+import ButtonSubmit from 'client/components/FormControl/SubmitButton'
+import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import loginStyles from 'client/containers/Login/styles'
 
-function FormUser({ onSubmit, error }) {
-  const classes = loginStyles();
+function FormUser ({ onSubmit, error }) {
+  const classes = loginStyles()
 
   const { register, handleSubmit, errors } = useForm({
     reValidateMode: 'onSubmit',
@@ -28,10 +28,10 @@ function FormUser({ onSubmit, error }) {
         remember: yup.boolean()
       })
     )
-  });
+  })
 
-  const userError = Boolean(errors.user || error);
-  const passError = Boolean(errors.pass);
+  const userError = Boolean(errors.user || error)
+  const passError = Boolean(errors.pass)
 
   return (
     <Box
@@ -88,17 +88,17 @@ function FormUser({ onSubmit, error }) {
         label={Tr(SignIn)}
       />
     </Box>
-  );
+  )
 }
 
 FormUser.propTypes = {
   onSubmit: func.isRequired,
   error: string
-};
+}
 
 FormUser.defaultProps = {
   onSubmit: () => undefined,
   error: null
-};
+}
 
-export default FormUser;
+export default FormUser

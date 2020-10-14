@@ -13,21 +13,21 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { Fragment } from 'react';
+import React, { Fragment } from 'react'
 
-import { Translate } from 'client/components/HOC/Translate';
-import { NotFound } from 'client/constants/translates';
+import { Translate } from 'client/components/HOC/Translate'
+import { NotFound } from 'client/constants/translates'
 
-function Error404() {
+function Error404 () {
   return (
     <Fragment>
       <Translate word={NotFound} />
     </Fragment>
-  );
+  )
 }
 
-Error404.propTypes = {};
+Error404.propTypes = {}
 
-Error404.defaultProps = {};
+Error404.defaultProps = {}
 
-export default Error404;
+export default Error404

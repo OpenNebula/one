@@ -1,4 +1,5 @@
-import React, { memo } from 'react';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
 import {
   makeStyles,
@@ -10,12 +11,12 @@ import {
   CardHeader,
   CardContent,
   CardActions
-} from '@material-ui/core';
-import FileIcon from '@material-ui/icons/Description';
-import VideogameAssetIcon from '@material-ui/icons/VideogameAsset';
-import AccountTreeIcon from '@material-ui/icons/AccountTree';
+} from '@material-ui/core'
+import FileIcon from '@material-ui/icons/Description'
+import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
+import AccountTreeIcon from '@material-ui/icons/AccountTree'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -42,18 +43,18 @@ const useStyles = makeStyles(theme => ({
   },
   badge: {},
   icon: {}
-}));
+}))
 
 const ApplicationTemplateCard = memo(
   ({ value, handleEdit, handleDeploy, handleShow, handleRemove }) => {
-    const classes = useStyles();
-    const { ID, NAME, TEMPLATE } = value;
-    const { description, networks = [], roles = [] } = TEMPLATE.BODY;
+    const classes = useStyles()
+    const { NAME, TEMPLATE } = value
+    const { description, networks = [], roles = [] } = TEMPLATE.BODY
 
-    const numberOfNetworks = Object.keys(networks)?.length ?? 0;
-    const numberOfTiers = Object.keys(roles)?.length ?? 0;
+    const numberOfTiers = roles?.length ?? 0
+    const numberOfNetworks = Object.keys(networks)?.length ?? 0
 
-    const badgePosition = { vertical: 'top', horizontal: 'right' };
+    const badgePosition = { vertical: 'top', horizontal: 'right' }
 
     return (
       <Fade in unmountOnExit={false}>
@@ -124,8 +125,36 @@ const ApplicationTemplateCard = memo(
           </CardActions>
         </Card>
       </Fade>
-    );
+    )
   }
-);
+)
 
-export default ApplicationTemplateCard;
+ApplicationTemplateCard.propTypes = {
+  value: PropTypes.shape({
+    ID: PropTypes.string,
+    NAME: PropTypes.string.isRequired,
+    TEMPLATE: PropTypes.shape({
+      BODY: PropTypes.shape({
+        description: PropTypes.string,
+        networks: PropTypes.object,
+        roles: PropTypes.arrayOf(PropTypes.object)
+      }).isRequired
+    }).isRequired
+  }),
+  handleEdit: PropTypes.func,
+  handleDeploy: PropTypes.func,
+  handleShow: PropTypes.func,
+  handleRemove: PropTypes.func
+}
+
+ApplicationTemplateCard.defaultProps = {
+  value: {},
+  handleEdit: undefined,
+  handleDeploy: undefined,
+  handleShow: undefined,
+  handleRemove: undefined
+}
+
+ApplicationTemplateCard.displayName = 'Application TemplateCard'
+
+export default ApplicationTemplateCard

@@ -8,19 +8,19 @@ export const breakpoints = {
   tablet: 640,
   laptop: 1024,
   desktop: 1280
-};
+}
 
 export const toolbar = {
   regular: 56,
   xs: 48,
   sm: 64
-};
+}
 
 export const footer = {
   regular: 30
-};
+}
 
 export const sidebar = {
   minified: 60,
   fixed: 240
-};
+}

@@ -1,15 +1,15 @@
-import { useCallback } from 'react';
-import { useSelector, useDispatch, shallowEqual } from 'react-redux';
+import { useCallback } from 'react'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import { setApplications, setApplicationsTemplates } from 'client/actions/pool';
+import { setApplications, setApplicationsTemplates } from 'client/actions/pool'
 
-import { enqueueError, enqueueSuccess } from 'client/actions/general';
+import { enqueueError, enqueueSuccess } from 'client/actions/general'
 
-import * as serviceApplication from 'client/services/application';
-import { filterBy } from 'client/utils/helpers';
+import * as serviceApplication from 'client/services/application'
+import { filterBy } from 'client/utils/helpers'
 
-export default function useOpennebula() {
-  const dispatch = useDispatch();
+export default function useOpennebula () {
+  const dispatch = useDispatch()
   const {
     applications,
     applicationsTemplates,
@@ -20,7 +20,7 @@ export default function useOpennebula() {
       filterPool: state?.Authenticated?.filterPool
     }),
     shallowEqual
-  );
+  )
 
   const getApplications = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
@@ -28,18 +28,18 @@ export default function useOpennebula() {
         .getApplications({ filter, end, start })
         .then(doc => dispatch(setApplications(doc)))
         .catch(err => {
-          dispatch(enqueueError(err ?? 'Error GET applications'));
+          dispatch(enqueueError(err ?? 'Error GET applications'))
         }),
     [dispatch, filter, applications]
-  );
+  )
 
   const getApplicationTemplate = useCallback(
     ({ id }) =>
       serviceApplication.getTemplate({ id }).catch(err => {
-        dispatch(enqueueError(err ?? `Error GET (${id}) application template`));
+        dispatch(enqueueError(err ?? `Error GET (${id}) application template`))
       }),
     [dispatch]
-  );
+  )
 
   const getApplicationsTemplates = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
@@ -47,10 +47,10 @@ export default function useOpennebula() {
         .getTemplates({ filter, end, start })
         .then(doc => dispatch(setApplicationsTemplates(doc)))
         .catch(err => {
-          dispatch(enqueueError(err ?? 'Error GET applications templates'));
+          dispatch(enqueueError(err ?? 'Error GET applications templates'))
         }),
     [dispatch, filter, applicationsTemplates]
-  );
+  )
 
   const createApplicationTemplate = useCallback(
     ({ data }) =>
@@ -61,17 +61,17 @@ export default function useOpennebula() {
             setApplicationsTemplates(
               filterBy([doc].concat(applicationsTemplates), 'ID')
             )
-          );
+          )
 
-          return dispatch(enqueueSuccess(`Template created - ID: ${doc.ID}`));
+          return dispatch(enqueueSuccess(`Template created - ID: ${doc.ID}`))
         })
         .catch(err => {
           dispatch(
             enqueueError(err?.message ?? 'Error CREATE application template')
-          );
+          )
         }),
     [dispatch, applicationsTemplates]
-  );
+  )
 
   const updateApplicationTemplate = useCallback(
     ({ id, data }) =>
@@ -82,17 +82,17 @@ export default function useOpennebula() {
             setApplicationsTemplates(
               filterBy([doc].concat(applicationsTemplates), 'ID')
             )
-          );
+          )
 
-          return dispatch(enqueueSuccess(`Template updated - ID: ${doc.ID}`));
+          return dispatch(enqueueSuccess(`Template updated - ID: ${doc.ID}`))
         })
         .catch(err => {
           dispatch(
             enqueueError(err?.message ?? 'Error UPDATE application template')
-          );
+          )
         }),
     [dispatch]
-  );
+  )
 
   return {
     applications,
@@ -103,5 +103,5 @@ export default function useOpennebula() {
     getApplicationsTemplates,
     createApplicationTemplate,
     updateApplicationTemplate
-  };
+  }
 }

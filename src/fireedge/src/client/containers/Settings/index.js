@@ -13,15 +13,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react';
-import { Translate } from 'client/components/HOC';
-import constants from 'client/constants';
+import React from 'react'
+import { Translate } from 'client/components/HOC'
+import constants from 'client/constants'
 
-const { settings } = constants;
+const { settings } = constants
 const Settings = () => (
   <div>
     <Translate word={settings} />
   </div>
-);
+)
 
-export default Settings;
+export default Settings

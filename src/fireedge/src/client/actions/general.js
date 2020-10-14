@@ -1,11 +1,11 @@
-const CHANGE_ZONE = 'CHANGE_ZONE';
-const DISPLAY_LOADING = 'DISPLAY_LOADING';
-const TOGGLE_MENU = 'TOGGLE_MENU';
-const FIX_MENU = 'FIX_MENU';
+const CHANGE_ZONE = 'CHANGE_ZONE'
+const DISPLAY_LOADING = 'DISPLAY_LOADING'
+const TOGGLE_MENU = 'TOGGLE_MENU'
+const FIX_MENU = 'FIX_MENU'
 
-const ENQUEUE_SNACKBAR = 'ENQUEUE_SNACKBAR';
-const CLOSE_SNACKBAR = 'CLOSE_SNACKBAR';
-const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR';
+const ENQUEUE_SNACKBAR = 'ENQUEUE_SNACKBAR'
+const CLOSE_SNACKBAR = 'CLOSE_SNACKBAR'
+const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR'
 
 const Actions = {
   CHANGE_ZONE,
@@ -15,7 +15,7 @@ const Actions = {
   ENQUEUE_SNACKBAR,
   CLOSE_SNACKBAR,
   REMOVE_SNACKBAR
-};
+}
 
 module.exports = {
   Actions,
@@ -36,7 +36,7 @@ module.exports = {
     isFixed
   }),
   enqueueSnackbar: notification => {
-    const key = notification.options && notification.options.key;
+    const key = notification.options && notification.options.key
 
     return {
       type: ENQUEUE_SNACKBAR,
@@ -44,7 +44,7 @@ module.exports = {
         ...notification,
         key: key || new Date().getTime() + Math.random()
       }
-    };
+    }
   },
   enqueueError: message => ({
     type: ENQUEUE_SNACKBAR,
@@ -71,4 +71,4 @@ module.exports = {
     type: REMOVE_SNACKBAR,
     key
   })
-};
+}

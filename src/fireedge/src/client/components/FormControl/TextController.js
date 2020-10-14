@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
-import PropTypes from 'prop-types';
+import React, { memo } from 'react'
+import PropTypes from 'prop-types'
 
-import { TextField } from '@material-ui/core';
-import { Controller } from 'react-hook-form';
-import { Tr } from 'client/components/HOC';
+import { TextField } from '@material-ui/core'
+import { Controller } from 'react-hook-form'
+import { Tr } from 'client/components/HOC'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper';
+import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 
 const TextController = memo(
   ({ control, cy, type, name, label, error }) => (
@@ -26,7 +26,7 @@ const TextController = memo(
     />
   ),
   (prevProps, nextProps) => prevProps.error === nextProps.error
-);
+)
 
 TextController.propTypes = {
   control: PropTypes.object,
@@ -38,7 +38,7 @@ TextController.propTypes = {
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
   ])
-};
+}
 
 TextController.defaultProps = {
   control: {},
@@ -47,6 +47,8 @@ TextController.defaultProps = {
   name: '',
   label: '',
   error: false
-};
+}
 
-export default TextController;
+TextController.displayName = 'TextController'
+
+export default TextController

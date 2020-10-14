@@ -13,15 +13,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { Actions: UserActions } = require('../actions/user');
-const { jwtName, FILTER_POOL } = require('client/constants');
+const { Actions: UserActions } = require('../actions/user')
+const { jwtName, FILTER_POOL } = require('client/constants')
 
 const jwt =
   typeof window !== 'undefined'
     ? window.localStorage.getItem(jwtName) ??
       window.sessionStorage.getItem(jwtName) ??
       null
-    : null;
+    : null
 
 const initial = {
   jwt,
@@ -32,7 +32,7 @@ const initial = {
   isLoginInProcess: false,
   isLoading: false,
   firstRender: true
-};
+}
 
 const authentication = (state = initial, action) => {
   switch (action.type) {
@@ -42,7 +42,7 @@ const authentication = (state = initial, action) => {
         error: null,
         firstRender: false,
         isLoading: true
-      };
+      }
     case UserActions.SUCCESS_AUTH:
       return {
         ...state,
@@ -50,14 +50,14 @@ const authentication = (state = initial, action) => {
         firstRender: false,
         isLoading: false,
         ...action.payload
-      };
+      }
     case UserActions.SELECT_FILTER_GROUP:
       return {
         ...state,
         isLoading: false,
         isLoginInProcess: false,
         ...action.payload
-      };
+      }
     case UserActions.FAILURE_AUTH:
       return {
         ...state,
@@ -66,16 +66,16 @@ const authentication = (state = initial, action) => {
         isLoading: false,
         isLoginInProcess: false,
         ...action.payload
-      };
+      }
     case UserActions.LOGOUT:
       return {
         ...initial,
         jwt: null,
         firstRender: false
-      };
+      }
     default:
-      return state;
+      return state
   }
-};
+}
 
-module.exports = authentication;
+module.exports = authentication

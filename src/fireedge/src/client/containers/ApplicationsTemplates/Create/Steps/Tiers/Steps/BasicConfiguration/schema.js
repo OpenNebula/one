@@ -1,12 +1,12 @@
-import * as yup from 'yup';
-import { TYPE_INPUT } from 'client/constants';
-import { getValidationFromFields } from 'client/utils/helpers';
+import * as yup from 'yup'
+import { TYPE_INPUT } from 'client/constants'
+import { getValidationFromFields } from 'client/utils/helpers'
 
 const SHUTDOWN_ACTIONS = [
   { text: 'None', value: 'none' },
   { text: 'Shutdown', value: 'shutdown' },
   { text: 'Shutdown hard', value: 'shutdown-hard' }
-];
+]
 
 export const FORM_FIELDS = [
   {
@@ -41,8 +41,8 @@ export const FORM_FIELDS = [
       .oneOf(SHUTDOWN_ACTIONS.map(({ value }) => value))
       .default(SHUTDOWN_ACTIONS[0].value)
   }
-];
+]
 
 export const STEP_FORM_SCHEMA = yup.object(
   getValidationFromFields(FORM_FIELDS)
-);
+)

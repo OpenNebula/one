@@ -1,8 +1,8 @@
-const START_AUTH = 'START_AUTH';
-const SELECT_FILTER_GROUP = 'SELECT_FILTER_GROUP';
-const SUCCESS_AUTH = 'SUCCESS_AUTH';
-const FAILURE_AUTH = 'FAILURE_AUTH';
-const LOGOUT = 'LOGOUT';
+const START_AUTH = 'START_AUTH'
+const SELECT_FILTER_GROUP = 'SELECT_FILTER_GROUP'
+const SUCCESS_AUTH = 'SUCCESS_AUTH'
+const FAILURE_AUTH = 'FAILURE_AUTH'
+const LOGOUT = 'LOGOUT'
 
 const Actions = {
   START_AUTH,
@@ -10,7 +10,7 @@ const Actions = {
   SUCCESS_AUTH,
   FAILURE_AUTH,
   LOGOUT
-};
+}
 
 module.exports = {
   Actions,
@@ -32,4 +32,4 @@ module.exports = {
   logout: () => ({
     type: LOGOUT
   })
-};
+}

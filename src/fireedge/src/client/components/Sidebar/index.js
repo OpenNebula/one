@@ -13,8 +13,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useMemo } from 'react';
-import clsx from 'clsx';
+import React, { useMemo } from 'react'
+import clsx from 'clsx'
 import {
   List,
   Drawer,
@@ -22,23 +22,23 @@ import {
   Box,
   IconButton,
   useMediaQuery
-} from '@material-ui/core';
-import { Menu as MenuIcon, Close as CloseIcon } from '@material-ui/icons';
+} from '@material-ui/core'
+import { Menu as MenuIcon, Close as CloseIcon } from '@material-ui/icons'
 
-import useGeneral from 'client/hooks/useGeneral';
-import endpoints from 'client/router/endpoints';
+import useGeneral from 'client/hooks/useGeneral'
+import endpoints from 'client/router/endpoints'
 
-import sidebarStyles from 'client/components/Sidebar/styles';
-import SidebarLink from 'client/components/Sidebar/SidebarLink';
-import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem';
-import Logo from 'client/icons/logo';
+import sidebarStyles from 'client/components/Sidebar/styles'
+import SidebarLink from 'client/components/Sidebar/SidebarLink'
+import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
+import Logo from 'client/icons/logo'
 
 const Sidebar = () => {
-  const classes = sidebarStyles();
-  const { isFixMenu, fixMenu } = useGeneral();
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
+  const classes = sidebarStyles()
+  const { isFixMenu, fixMenu } = useGeneral()
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
 
-  const handleSwapMenu = () => fixMenu(!isFixMenu);
+  const handleSwapMenu = () => fixMenu(!isFixMenu)
 
   const SidebarEndpoints = useMemo(
     () =>
@@ -54,7 +54,7 @@ const Sidebar = () => {
           )
         ),
     [endpoints]
-  );
+  )
 
   return useMemo(
     () => (
@@ -93,7 +93,7 @@ const Sidebar = () => {
       </Drawer>
     ),
     [isFixMenu, fixMenu, isUpLg]
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

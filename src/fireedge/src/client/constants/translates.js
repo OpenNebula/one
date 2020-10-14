@@ -10,4 +10,4 @@ module.exports = {
   SignOut: 'Sign Out',
   Submit: 'Submit',
   Response: 'Response'
-};
+}

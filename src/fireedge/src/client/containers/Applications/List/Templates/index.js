@@ -1,26 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'
 
-import { useHistory } from 'react-router-dom';
-import { Box, LinearProgress } from '@material-ui/core';
-import { Alert } from '@material-ui/lab';
+import { useHistory } from 'react-router-dom'
+import { Box, LinearProgress } from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
 
-import useApplication from 'client/hooks/useApplication';
-import useFetch from 'client/hooks/useFetch';
+import useApplication from 'client/hooks/useApplication'
+import useFetch from 'client/hooks/useFetch'
 
-import ListCards from 'client/components/List/ListCards';
-import { ApplicationTemplateCard } from 'client/components/Cards';
-import { PATH } from 'client/router/endpoints';
+import ListCards from 'client/components/List/ListCards'
+import { ApplicationTemplateCard } from 'client/components/Cards'
+import { PATH } from 'client/router/endpoints'
 
-import { Tr } from 'client/components/HOC';
+import { Tr } from 'client/components/HOC'
 
 const ApplicationsTemplatesList = () => {
-  const history = useHistory();
-  const { applicationsTemplates, getApplicationsTemplates } = useApplication();
-  const { fetchRequest, loading, error } = useFetch(getApplicationsTemplates);
+  const history = useHistory()
+  const { applicationsTemplates, getApplicationsTemplates } = useApplication()
+  const { fetchRequest, loading, error } = useFetch(getApplicationsTemplates)
 
   useEffect(() => {
-    fetchRequest();
-  }, []);
+    fetchRequest()
+  }, [])
 
   if (error) {
     return (
@@ -29,28 +29,28 @@ const ApplicationsTemplatesList = () => {
           {Tr('Cannot connect to OneFlow server')}
         </Alert>
       </Box>
-    );
+    )
   }
 
   if (loading) {
-    return <LinearProgress />;
+    return <LinearProgress />
   }
 
   return (
     <Box p={3}>
       <ListCards
         list={applicationsTemplates}
-        handleCreate={() => history.push(PATH.APPLICATION_TEMPLATE.CREATE)}
+        handleCreate={() => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)}
         CardComponent={ApplicationTemplateCard}
         cardsProps={({ value: { ID } }) => ({
           handleEdit: () =>
-            history.push(PATH.APPLICATION_TEMPLATE.EDIT.replace(':id', ID)),
+            history.push(PATH.APPLICATIONS_TEMPLATES.EDIT.replace(':id', ID)),
           handleDeploy: undefined,
           handleRemove: undefined
         })}
       />
     </Box>
-  );
-};
+  )
+}
 
-export default ApplicationsTemplatesList;
+export default ApplicationsTemplatesList

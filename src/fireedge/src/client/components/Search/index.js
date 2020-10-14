@@ -1,10 +1,10 @@
-import React, { useState, useMemo } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useMemo } from 'react'
+import PropTypes from 'prop-types'
 
-import Fuse from 'fuse.js';
-import { TextField, Box, debounce } from '@material-ui/core';
+import Fuse from 'fuse.js'
+import { TextField, Box, debounce } from '@material-ui/core'
 
-import ListInfiniteScroll from 'client/components/List/ListInfiniteScroll';
+import ListInfiniteScroll from 'client/components/List/ListInfiniteScroll'
 
 const Search = ({
   list,
@@ -13,28 +13,28 @@ const Search = ({
   startAdornment,
   searchBoxProps
 }) => {
-  const [query, setQuery] = useState('');
-  const [result, setResult] = useState(undefined);
+  const [query, setQuery] = useState('')
+  const [result, setResult] = useState(undefined)
   const listFuse = useMemo(
     () => new Fuse(list, listOptions, Fuse.createIndex(listOptions.keys, list)),
     [list, listOptions]
-  );
+  )
 
   const debounceResult = React.useCallback(
     debounce(value => {
-      const search = listFuse.search(value)?.map(({ item }) => item);
+      const search = listFuse.search(value)?.map(({ item }) => item)
 
-      setResult(value ? search : undefined);
+      setResult(value ? search : undefined)
     }, 1000),
     [list]
-  );
+  )
 
   const handleChange = event => {
-    const { value: nextValue } = event?.target;
+    const { value: nextValue } = event?.target
 
-    setQuery(nextValue);
-    debounceResult(nextValue);
-  };
+    setQuery(nextValue)
+    debounceResult(nextValue)
+  }
 
   return (
     <>
@@ -49,13 +49,13 @@ const Search = ({
         />
       </Box>
       {result?.length === 0 ? (
-        <h4>{`Your search did not match`}</h4>
+        <h4>{'Your search did not match'}</h4>
       ) : (
         <ListInfiniteScroll list={result ?? list} renderResult={renderResult} />
       )}
     </>
-  );
-};
+  )
+}
 
 Search.propTypes = {
   list: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -68,7 +68,7 @@ Search.propTypes = {
   renderResult: PropTypes.func,
   startAdornment: PropTypes.objectOf(PropTypes.any),
   searchBoxProps: PropTypes.objectOf(PropTypes.any)
-};
+}
 
 Search.defaultProps = {
   list: [],
@@ -76,6 +76,6 @@ Search.defaultProps = {
   renderResult: item => item,
   startAdornment: undefined,
   searchBoxProps: undefined
-};
+}
 
-export default Search;
+export default Search

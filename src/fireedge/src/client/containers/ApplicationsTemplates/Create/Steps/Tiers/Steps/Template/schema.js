@@ -1,9 +1,9 @@
-import * as yup from 'yup';
-import { getValidationFromFields } from 'client/utils/helpers';
+import * as yup from 'yup'
+import { getValidationFromFields } from 'client/utils/helpers'
 
 export const FORM_FIELDS = [
   {
-    name: 'template',
+    name: 'id',
     validation: yup.number().min(0, 'Invalid template')
   },
   {
@@ -14,9 +14,9 @@ export const FORM_FIELDS = [
     name: 'docker',
     validation: yup.string().trim()
   }
-];
+]
 
 export const STEP_FORM_SCHEMA = yup
   .object(getValidationFromFields(FORM_FIELDS))
   .required('Template is required')
-  .default(undefined);
+  .default(undefined)

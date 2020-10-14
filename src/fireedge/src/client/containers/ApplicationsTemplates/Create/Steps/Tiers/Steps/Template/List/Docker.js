@@ -1,14 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from 'react'
+import PropTypes from 'prop-types'
 
-import AceEditor from 'react-ace';
-import 'ace-builds/src-noconflict/mode-dockerfile';
-import 'ace-builds/src-noconflict/theme-github';
+import AceEditor from 'react-ace'
+import 'ace-builds/src-noconflict/mode-dockerfile'
+import 'ace-builds/src-noconflict/theme-github'
 
 const DockerFile = ({ backButton, handleSetData, currentValue, ...props }) => {
   const handleChange = newValue => {
-    handleSetData(newValue);
-  };
+    handleSetData(newValue)
+  }
 
   return (
     <>
@@ -37,19 +37,19 @@ const DockerFile = ({ backButton, handleSetData, currentValue, ...props }) => {
         {...props}
       />
     </>
-  );
-};
+  )
+}
 
 DockerFile.propTypes = {
   backButton: PropTypes.node,
   currentValue: PropTypes.string,
   handleSetData: PropTypes.func
-};
+}
 
 DockerFile.defaultProps = {
   backButton: null,
   currentValue: undefined,
   handleSetData: PropTypes.func
-};
+}
 
-export default DockerFile;
+export default DockerFile

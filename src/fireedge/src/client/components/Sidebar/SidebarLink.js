@@ -1,7 +1,7 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { useHistory, useLocation } from 'react-router-dom';
-import clsx from 'clsx';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { useHistory, useLocation } from 'react-router-dom'
+import clsx from 'clsx'
 
 import {
   withStyles,
@@ -11,10 +11,10 @@ import {
   ListItemIcon,
   ListItemText,
   useMediaQuery
-} from '@material-ui/core';
+} from '@material-ui/core'
 
-import useGeneral from 'client/hooks/useGeneral';
-import sidebarStyles from 'client/components/Sidebar/styles';
+import useGeneral from 'client/hooks/useGeneral'
+import sidebarStyles from 'client/components/Sidebar/styles'
 
 const StyledBadge = withStyles(() => ({
   badge: {
@@ -22,21 +22,21 @@ const StyledBadge = withStyles(() => ({
     top: 13,
     fontSize: '0.7rem'
   }
-}))(Badge);
+}))(Badge)
 
 const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
-  const classes = sidebarStyles();
-  const history = useHistory();
-  const { pathname } = useLocation();
-  const { fixMenu } = useGeneral();
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'));
+  const classes = sidebarStyles()
+  const history = useHistory()
+  const { pathname } = useLocation()
+  const { fixMenu } = useGeneral()
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
 
   const handleClick = () => {
-    history.push(path);
-    !isUpLg && fixMenu(false);
-  };
+    history.push(path)
+    !isUpLg && fixMenu(false)
+  }
 
-  const isCurrentPathname = pathname === path;
+  const isCurrentPathname = pathname === path
 
   return (
     <ListItem
@@ -63,8 +63,8 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
         }
       />
     </ListItem>
-  );
-};
+  )
+}
 
 SidebarLink.propTypes = {
   label: PropTypes.string.isRequired,
@@ -79,7 +79,7 @@ SidebarLink.propTypes = {
   ]),
   devMode: PropTypes.bool,
   isSubItem: PropTypes.bool
-};
+}
 
 SidebarLink.defaultProps = {
   label: '',
@@ -87,6 +87,6 @@ SidebarLink.defaultProps = {
   icon: undefined,
   devMode: false,
   isSubItem: false
-};
+}
 
-export default SidebarLink;
+export default SidebarLink

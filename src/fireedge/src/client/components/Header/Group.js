@@ -1,32 +1,32 @@
-import React from 'react';
+import React from 'react'
 
-import { Button } from '@material-ui/core';
-import FilterIcon from '@material-ui/icons/FilterDrama';
-import SelectedIcon from '@material-ui/icons/FilterVintage';
+import { Button } from '@material-ui/core'
+import FilterIcon from '@material-ui/icons/FilterDrama'
+import SelectedIcon from '@material-ui/icons/FilterVintage'
 
-import useAuth from 'client/hooks/useAuth';
-import useOpennebula from 'client/hooks/useOpennebula';
-import Search from 'client/components/Search';
+import useAuth from 'client/hooks/useAuth'
+import useOpennebula from 'client/hooks/useOpennebula'
+import Search from 'client/components/Search'
 
-import { FILTER_POOL } from 'client/constants';
-import HeaderPopover from 'client/components/Header/Popover';
-import headerStyles from 'client/components/Header/styles';
+import { FILTER_POOL } from 'client/constants'
+import HeaderPopover from 'client/components/Header/Popover'
+import headerStyles from 'client/components/Header/styles'
 
-const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL;
+const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
 const Group = () => {
-  const classes = headerStyles();
-  const { authUser, filterPool, setPrimaryGroup } = useAuth();
-  const { groups } = useOpennebula();
+  const classes = headerStyles()
+  const { authUser, filterPool, setPrimaryGroup } = useAuth()
+  const { groups } = useOpennebula()
 
   const handleChangeGroup = group => {
-    group && setPrimaryGroup({ group });
-  };
+    group && setPrimaryGroup({ group })
+  }
 
   const renderResult = ({ ID, NAME }, handleClose) => {
     const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
-      (filterPool === PRIMARY_GROUP_RESOURCES && authUser?.GID === ID);
+      (filterPool === PRIMARY_GROUP_RESOURCES && authUser?.GID === ID)
 
     return (
       <Button
@@ -34,28 +34,28 @@ const Group = () => {
         fullWidth
         className={classes.groupButton}
         onClick={() => {
-          handleChangeGroup(ID);
-          handleClose();
+          handleChangeGroup(ID)
+          handleClose()
         }}
       >
         {NAME}
         {isSelected && <SelectedIcon className={classes.groupSelectedIcon} />}
       </Button>
-    );
-  };
+    )
+  }
 
   const sortGroupAsMainFirst = (a, b) => {
     if (a.ID === authUser?.GUID) {
-      return -1;
+      return -1
     } else if (b.ID === authUser?.GUID) {
-      return 1;
+      return 1
     }
-    return 0;
-  };
+    return 0
+  }
 
   const sortMainGroupFirst = groups
     ?.concat({ ID: ALL_RESOURCES, NAME: 'Show All' })
-    ?.sort(sortGroupAsMainFirst);
+    ?.sort(sortGroupAsMainFirst)
 
   return (
     <HeaderPopover
@@ -77,7 +77,7 @@ const Group = () => {
         />
       )}
     </HeaderPopover>
-  );
-};
+  )
+}
 
-export default Group;
+export default Group
