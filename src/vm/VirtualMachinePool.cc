@@ -940,7 +940,7 @@ void VirtualMachinePool::delete_attach_disk(std::unique_ptr<VirtualMachine> vm)
 
 void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
 {
-    VirtualMachineNic * nic;
+    VirtualMachineNic * nic, * p_nic;
 
     int uid;
     int gid;
@@ -975,6 +975,18 @@ void VirtualMachinePool::delete_attach_nic(std::unique_ptr<VirtualMachine> vm)
         nic->vector_value("ALIAS_ID", alias_id);
 
         vm->clear_nic_alias_context(parent_id, alias_id);
+
+        p_nic = vm->get_nic(parent_id);
+
+        // As NIC is an alias, parent ALIAS_IDS array should be updated
+        // to remove the alias_id
+        std::set<int> p_a_ids;
+
+        one_util::split_unique(p_nic->vector_value("ALIAS_IDS"), ',', p_a_ids);
+
+        p_a_ids.erase(nic_id);
+
+        p_nic->replace("ALIAS_IDS", one_util::join(p_a_ids, ','));
     }
 
     uid  = vm->get_uid();
