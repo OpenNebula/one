@@ -334,6 +334,8 @@ void  LifeCycleManager::migrate_action(const LCMAction& la)
         if ( vm->get_hid() != vm->get_previous_hid() )
         {
             hpool->del_capacity(vm->get_previous_hid(), sr);
+
+            vm->release_previous_vnc_port();
         }
 
         vm->set_stime(the_time);
