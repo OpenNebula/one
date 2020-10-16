@@ -20,13 +20,11 @@ bin/docker-machine-driver-opennebula: vendor
 	GOPATH=$(GOPATH) go build -ldflags "-B 0x$(BUILD_ID)" -o ./bin/docker-machine-driver-opennebula ./bin
 
 vendor:
-	rm -rf vendor/
-	GOPATH=$(GOPATH) dep ensure
+	GOPATH=$(GOPATH) go mod init
 ifeq ($(USE_LOCAL_GOCA),yes)
-	set -e; trap 'rm -rf vendor/' ERR; \
-	rm -rf vendor/github.com/OpenNebula/one; \
-	ln -s ${REPO_ROOT} vendor/github.com/OpenNebula/one
+	GOPATH=$(GOPATH) go mod edit -replace github.com/OpenNebula/one/src/oca/go/src/goca=$(REPO_ROOT)/src/oca/go/src/goca
 endif
+	GOPATH=$(GOPATH) go mod tidy
 
 clean:
-	-rm -rf vendor/ bin/docker-machine-driver-opennebula
+	-rm -rf go.mod go.sum bin/docker-machine-driver-opennebula
