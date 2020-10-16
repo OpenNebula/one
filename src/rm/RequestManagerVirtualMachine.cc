@@ -705,6 +705,52 @@ int set_vnc_port(VirtualMachine *vm, int cluster_id, RequestAttributes& att)
     return rc;
 }
 
+
+static int set_migrate_vnc_port(VirtualMachine *vm, int cluster_id, bool keep)
+{
+    ClusterPool * cpool = Nebula::instance().get_clpool();
+
+    VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+    unsigned int previous_port;
+    unsigned int port;
+
+    int rc;
+
+    // Do not update VM if no GRAPHICS or GRAPHICS/PORT defined
+    if (graphics == nullptr)
+    {
+        return 0;
+    }
+
+    if (graphics->vector_value("PORT", previous_port) != 0)
+    {
+        return 0;
+    }
+
+    //live migrations need to keep VNC port
+    if (keep)
+    {
+        rc = cpool->set_vnc_port(cluster_id, previous_port);
+
+        port = previous_port;
+    }
+    else
+    {
+        rc = cpool->get_vnc_port(cluster_id, vm->get_oid(), port);
+    }
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    graphics->replace("PREVIOUS_PORT", previous_port);
+    graphics->replace("PORT", port);
+
+    return 0;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -1015,6 +1061,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     PoolObjectAuth * auth_ds_perms;
 
     int    c_hid;
+    int    c_cluster_id;
     int    c_ds_id;
     string c_tm_mad, tm_mad;
     bool   c_is_public_cloud;
@@ -1211,6 +1258,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     if (auto host = nd.get_hpool()->get_ro(c_hid))
     {
         c_is_public_cloud = host->is_public_cloud();
+        c_cluster_id      = host->get_cluster_id();
     }
     else
     {
@@ -1220,7 +1268,6 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
 
         return;
     }
-
 
     if (!cluster_ids.empty() && cluster_ids.count(cluster_id) == 0)
     {
@@ -1301,7 +1348,8 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     {
         ostringstream oss;
 
-        oss << "Cannot migrate VM [" << id << "] to host [" << hid << "] and system datastore [" << ds_id << "]. Host is in cluster ["
+        oss << "Cannot migrate VM [" << id << "] to host [" << hid
+            << "] and system datastore [" << ds_id << "]. Host is in cluster ["
             << cluster_id << "], and the datastore is in cluster ["
             << one_util::join(ds_cluster_ids, ',') << "]";
 
@@ -1309,6 +1357,20 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
         failure_response(ACTION, att);
 
         return;
+    }
+
+    // -------------------------------------------------------------------------
+    // Request a new VNC port in the new cluster
+    // -------------------------------------------------------------------------
+    if ( c_cluster_id != cluster_id )
+    {
+        if ( set_migrate_vnc_port(vm.get(), cluster_id, live) == -1 )
+        {
+            att.resp_msg = "No free VNC port available in the new cluster";
+            failure_response(ACTION, att);
+
+            return;
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -1334,7 +1396,7 @@ void VirtualMachineMigrate::request_execute(xmlrpc_c::paramList const& paramList
     // Migrate the VM
     // ------------------------------------------------------------------------
 
-    if (live == true && vm->get_lcm_state() == VirtualMachine::RUNNING )
+    if (live && vm->get_lcm_state() == VirtualMachine::RUNNING )
     {
         dm->live_migrate(vm.get(), att);
     }

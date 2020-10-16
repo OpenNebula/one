@@ -62,6 +62,8 @@ void LifeCycleManager::start_prolog_migrate(VirtualMachine* vm)
     if ( vm->get_hid() != vm->get_previous_hid() )
     {
         hpool->del_capacity(vm->get_previous_hid(), sr);
+
+        vm->release_previous_vnc_port();
     }
 
     vmpool->update(vm);
@@ -95,6 +97,8 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
     if ( vm->get_hid() != vm->get_previous_hid() )
     {
         hpool->del_capacity(vm->get_hid(), sr);
+
+        vm->rollback_previous_vnc_port();
     }
 
     vm->set_previous_etime(the_time);
@@ -275,6 +279,8 @@ void LifeCycleManager::trigger_deploy_success(int vid)
                 vm->delete_snapshots();
             }
 
+            vm->release_previous_vnc_port();
+
             vmpool->update(vm.get());
         }
         else if ( vm->get_lcm_state() == VirtualMachine::BOOT ||
@@ -352,6 +358,8 @@ void LifeCycleManager::trigger_deploy_failure(int vid)
             vm->get_capacity(sr);
 
             hpool->del_capacity(vm->get_hid(), sr);
+
+            vm->rollback_previous_vnc_port();
 
             // --- Add new record by copying the previous one
 
