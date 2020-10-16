@@ -26,7 +26,7 @@ Fire Edge server and client
   - Other: check file `src/config/command-params.js`. if requires it to be in a specific zone you must put it at the end but before the query /feredation=ZONE_ID (replace ZONE_ID for the zone id)
 
 - **zeroMQ**
-  Websocket connection call to: `ws://127.0.0.1:2616/?token=JWT`
+  Websocket connection call to: `ws://127.0.0.1:2616/zeromq/?token=JWT`
 
 ## Troubleshooting
 

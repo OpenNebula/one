@@ -203,12 +203,6 @@ const setZones = () => {
   }
 };
 
-const setOneConfig = () => {
-  if (global && global.oneConfig && global.oneConfig.length === 0) {
-    console.log('setConfig');
-  }
-};
-
 const userInfo = userData => {
   if (user && opennebulaToken && userData && userData.USER) {
     const informationUser = userData.USER;
@@ -237,7 +231,6 @@ const userInfo = userData => {
                 value,
                 () => {
                   setZones();
-                  setOneConfig(); // esto debe de estar antes de hacer el JWT
                 },
                 next
               );

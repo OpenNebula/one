@@ -13,44 +13,38 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const jwt = require('jwt-simple');
-const { DateTime } = require('luxon');
-const { messageTerminal } = require('./general');
-const { getConfig } = require('./yml');
-
-// user config
-const appConfig = getConfig();
-
-const tokenSecret = appConfig.TOKEN_SECRET || null;
+const jwt = require('jwt-simple')
+const { DateTime } = require('luxon')
+const { messageTerminal } = require('./general')
 
 const createToken = (
   { id: iss, user: aud, token: jti },
   iat = '',
   exp = ''
 ) => {
-  let rtn = null;
-  if (iss && aud && jti && iat && exp && tokenSecret) {
+  let rtn = null
+  if (iss && aud && jti && iat && exp && global && global.FIREEDGE_KEY) {
     const payload = {
       iss,
       aud,
       jti,
       iat,
       exp
-    };
-    rtn = jwt.encode(payload, tokenSecret);
+    }
+    rtn = jwt.encode(payload, global.FIREEDGE_KEY)
   }
-  return rtn;
-};
+  return rtn
+}
 
 const validateAuth = req => {
-  let rtn = false;
+  let rtn = false
   if (req && req.headers && req.headers.authorization) {
-    const authorization = req.headers.authorization;
-    const removeBearer = new RegExp('^Bearer ', 'i');
-    const token = authorization.replace(removeBearer, '');
+    const authorization = req.headers.authorization
+    const removeBearer = new RegExp('^Bearer ', 'i')
+    const token = authorization.replace(removeBearer, '')
     try {
-      const payload = jwt.decode(token, tokenSecret);
-      const now = DateTime.local();
+      const payload = jwt.decode(token, global.FIREEDGE_KEY)
+      const now = DateTime.local()
       if (
         payload &&
         'iss' in payload &&
@@ -60,29 +54,29 @@ const validateAuth = req => {
         'exp' in payload &&
         payload.exp >= now.toSeconds()
       ) {
-        const { iss, aud, jti, iat, exp } = payload;
+        const { iss, aud, jti, iat, exp } = payload
         rtn = {
           iss,
           aud,
           jti,
           iat,
           exp
-        };
+        }
       }
     } catch (error) {
       const config = {
         color: 'red',
         type: 'ERROR',
-        error,
+        error: error.message || "",
         message: 'Error: %s'
-      };
-      messageTerminal(config);
+      }
+      messageTerminal(config)
     }
   }
-  return rtn;
-};
+  return rtn
+}
 
 module.exports = {
   createToken,
   validateAuth
-};
+}
