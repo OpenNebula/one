@@ -452,8 +452,8 @@ public:
     void replace(const std::string& name, const std::string& value);
 
     /**
-     * Removes given the vector attribute
-     * @param name of the vector attribute
+     * Removes the given attribute from the vector
+     * @param name of the attribute
      */
     void remove(const std::string& name);
 
