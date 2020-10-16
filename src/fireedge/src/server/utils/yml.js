@@ -13,22 +13,25 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const fs = require('fs-extra');
-const YAML = require('yaml');
-const { defaultConfigFile } = require('./constants/defaults');
+const { parse } = require('yaml');
+const { defaultConfigFile, defaultWebpackMode } = require('./constants/defaults');
+const { existsFile } = require('server/utils/server');
+const { messageTerminal } = require('server/utils/general');
 
 const getConfig = () => {
   let rtn = {};
-  if (
-    defaultConfigFile &&
-    fs &&
-    fs.readFileSync &&
-    fs.existsSync &&
-    fs.existsSync(defaultConfigFile)
-  ) {
-    const file = fs.readFileSync(defaultConfigFile, 'utf8');
-    rtn = YAML.parse(file);
-  }
+  const path = process && process.env && process.env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../`: `${__dirname}/`
+  const file = existsFile(path+defaultConfigFile, filedata => {
+    rtn = parse(filedata);
+  }, err => {
+    const config = {
+      color: 'red',
+      message: 'Error: %s',
+      type: err.message || ''
+    }
+    messageTerminal(config)
+  });
+
   return rtn;
 };
 

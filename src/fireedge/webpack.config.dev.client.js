@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const { defaultWebpackMode } = require('./src/server/utils/constants/defaults');
 
 const js = {
   test: /\.js$/,
@@ -8,7 +9,7 @@ const js = {
 };
 
 module.exports = {
-  mode: 'development',
+  mode: defaultWebpackMode,
   entry: [
     'webpack-hot-middleware/client',
     path.resolve(__dirname, 'src', 'client', 'front-app.js')
@@ -23,7 +24,7 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify('development')
+        NODE_ENV: JSON.stringify(defaultWebpackMode)
       }
     })
   ],

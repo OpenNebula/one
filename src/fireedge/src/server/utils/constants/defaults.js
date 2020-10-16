@@ -13,9 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET';
-const defaultIp = '127.0.0.1';
-const protocol = 'http';
+const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
+const defaultIp = '127.0.0.1'
+const protocol = 'http'
 const defaults = {
   httpMethod: {
     GET: 'GET',
@@ -41,7 +41,7 @@ const defaults = {
     HOST: defaultIp,
     PORT: 2474
   },
-  defaultConfigFile: `fireedge-server.conf`,
+  defaultConfigFile: 'fireedge-server.conf',
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultWebpackDevTool: 'inline-source-map',
@@ -49,7 +49,8 @@ const defaults = {
   defaultVarPath: '/var/lib/one',
   defaultEtcPath: '/etc/one',
   defaultLogFilename: 'fireedge.log',
-  defaultVmrcTokens: '/var/lib/one/sunstone_vnc_tokens/vmrc',
+  defaultKeyFilename: 'fireedge_key',
+  defaultVmrcTokens: 'sunstone_vnc_tokens/vmrc',
   defaultBaseURL: '',
   endpointVmrc: '/vmrc',
   defaultNamespace: 'one.',
@@ -109,6 +110,6 @@ const defaults = {
     zh_CN: 'Chinese (China)',
     zh_TW: 'Chinese (Taiwan)'
   }
-};
+}
 
-module.exports = defaults;
+module.exports = defaults
