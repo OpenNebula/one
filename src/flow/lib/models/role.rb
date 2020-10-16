@@ -770,9 +770,9 @@ module OpenNebula
             scheduled_pol  ||= []
 
             scheduled_pol.each do |policy|
-                diff = scale_time?(policy)
+                diff, cooldown_duration = scale_time?(policy)
 
-                return [diff, 0] if diff != 0
+                return [diff, cooldown_duration] if diff != 0
             end
 
             elasticity_pol.each do |policy|
@@ -951,10 +951,11 @@ module OpenNebula
 
                 new_cardinality = calculate_new_cardinality(elasticity_pol)
 
-                return new_cardinality - cardinality
+                return [new_cardinality - cardinality,
+                        elasticity_pol['cooldown']]
             end
 
-            0
+            [0, elasticity_pol['cooldown']]
         end
 
         # Returns a positive, 0, or negative number of nodes to adjust,
