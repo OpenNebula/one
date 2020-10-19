@@ -87,7 +87,8 @@ const genFireedgeKey = () => {
   if (global && !global.FIREEDGE_KEY) {
     const { v4 } = require('uuid')
     let uuidv4 = v4()
-    if (global.FIREEDGE_KEY_PATH) {
+    if (global.FIREEDGE_KEY_PATH && uuidv4) {
+      uuidv4 = uuidv4.replace(/-/g, "").toUpperCase()
       existsFile(
         global.FIREEDGE_KEY_PATH,
         filedata => {
@@ -97,7 +98,7 @@ const genFireedgeKey = () => {
         },
         () => {
           createFile(
-            global.FIREEDGE_KEY_PATH, uuidv4, () => undefined, err => {
+            global.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ""), () => undefined, err => {
               const config = {
                 color: 'red',
                 message: 'Error: %s',
