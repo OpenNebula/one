@@ -87,6 +87,17 @@ EOT
 
         if options[:xml]
             return 0, resource.to_xml(true)
+        elsif options[:json]
+            # If body is set, the resource contains a JSON inside
+            if options[:body]
+                return 0, check_resource_xsd(resource)
+            else
+                return 0, ::JSON.pretty_generate(
+                    check_resource_xsd(resource)
+                )
+            end
+        elsif options[:yaml]
+            return 0, check_resource_xsd(resource).to_yaml(:indent => 4)
         else
             format_resource(resource, options)
             return 0
