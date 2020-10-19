@@ -117,18 +117,6 @@ class OpenNebulaGuac
     end
 
     def proxy(vm_resource, type_connection = 'vnc')
-        # Check configurations and VM attributes
-        unless lockfile?
-            return error(400, 'Guacamole server is not running')
-        end
-
-        unless running?
-            return error(400, 'Guacamole server is not running')
-        end
-
-        unless guacd_running?
-            return error(400, 'Guacamole proxy daemon is not running')
-        end
 
         # Check configurations and VM attributes
         if !GUAC_STATES.include?(vm_resource['LCM_STATE'])
@@ -179,16 +167,6 @@ class OpenNebulaGuac
         [200, { :token => data }.to_json]
     end
 
-    def status
-        if running?
-            STDOUT.puts 'Guacamole server is running'
-            true
-        else
-            STDOUT.puts 'Guacamole server is NOT running'
-            false
-        end
-    end
-
     private
 
     def error(code, msg)
@@ -197,49 +175,6 @@ class OpenNebulaGuac
         end
 
         [code, OpenNebula::Error.new(msg).to_json]
-    end
-
-    def running?
-        if File.exist?(@lock_file)
-            pid=File.read(@lock_file).strip
-
-            if system("ps #{pid} 1> /dev/null")
-                return pid.to_i
-            end
-
-            @logger.info 'Deleting stale lock file'
-            File.delete(@lock_file)
-        end
-
-        false
-    end
-    alias get_guac_pid running?
-
-    def guacd_running?
-        if File.exist?(@guacd_pid_file)
-            pid=File.read(@guacd_pid_file).strip
-
-            if system("ps #{pid} 1> /dev/null")
-                return pid.to_i
-            end
-        end
-
-        false
-    end
-    alias get_guacd_pid guacd_running?
-
-    def lockfile?
-        dn = File.dirname(@lock_file)
-        bn = File.basename(@lock_file)
-
-        # Due to restrictions which doesn't allow to stat the lock file
-        # when Sunstone is running under Apache with SELinux enabled,
-        # as a workaround we read content of the whole lock directory.
-        begin
-            Dir.entries(dn).include?(bn)
-        rescue StandardError
-            false
-        end
     end
 
     if RUBY_VERSION<'1.9'
