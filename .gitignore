@@ -62,7 +62,6 @@ src/fireedge/yarn-error.log
 src/fireedge/.DS_Store
 src/fireedge/cypress/screenshots
 src/fireedge/yarn.lock
-src/fireedge/package-lock.json
 
 src/onedb/local/
 src/onedb/shared/
