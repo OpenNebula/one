@@ -38,25 +38,6 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
         "onevrouter.yaml"
     end
 
-    def show_resource(id, options)
-        resource = retrieve_resource(id)
-
-        if !options[:extended].nil?
-            rc = resource.info(options[:extended])
-        else
-            rc = resource.info
-        end
-
-        return -1, rc.message if OpenNebula.is_error?(rc)
-
-        if options[:xml]
-            return 0, resource.to_xml(true)
-        else
-            format_resource(resource, options)
-            return 0
-        end
-    end
-
     def format_pool(options)
         config_file = self.class.table_conf
 
