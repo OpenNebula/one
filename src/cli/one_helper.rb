@@ -1254,7 +1254,8 @@ EOT
         # @param elements [Array]  Keys to check
         # @param ename    [String] Element name to take XSD
         # @param xsd      [Hash]   XSD file content
-        def check_xsd(hash, elements, ename, xsd)
+        # @param parents  [Array]  Parent keys of current hash
+        def check_xsd(hash, elements, ename, xsd, parents = [])
             return unless hash
 
             if (hash.is_a? Hash) && !hash.empty?
@@ -1262,15 +1263,26 @@ EOT
                     vi = [vi].flatten if is_array?(xsd, [ki])
 
                     if (vi.is_a? Hash) && !vi.empty?
-                        vi.map do |kj, vj|
-                            vj = [vj].flatten if is_array?(xsd, [ki, kj])
+                        parents << ki
 
-                            hash[ki][kj] = check_xsd(vj, [ki, kj], ename, xsd)
+                        vi.map do |kj, vj|
+                            parents << kj
+
+                            path = (parents + [ki, kj]).uniq
+                            vj   = [vj].flatten if is_array?(xsd, path)
+
+                            hash[ki][kj] = check_xsd(vj,
+                                                     [ki, kj],
+                                                     ename,
+                                                     xsd,
+                                                     parents)
                         end
+
+                        parents.clear
                     elsif vi.is_a? Array
-                        hash[ki] = check_xsd(vi, [ki], ename, xsd)
+                        hash[ki] = check_xsd(vi, [ki], ename, xsd, parents)
                     else
-                        hash[ki] = check_xsd(vi, [ki], ename, xsd)
+                        hash[ki] = check_xsd(vi, [ki], ename, xsd, parents)
                     end
                 end
 
@@ -1278,7 +1290,9 @@ EOT
             elsif hash.is_a? Array
                 ret = []
 
-                hash.each {|v| ret << check_xsd(v, elements, ename, xsd) }
+                hash.each do |v|
+                    ret << check_xsd(v, elements, ename, xsd, parents)
+                end
 
                 ret
             else
