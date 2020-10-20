@@ -26,6 +26,13 @@ import java.net.URL;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.apache.xmlrpc.common.TypeFactoryImpl;
+import org.apache.xmlrpc.common.XmlRpcStreamConfig;
+import org.apache.xmlrpc.common.XmlRpcController;
+import org.apache.xmlrpc.parser.I8Parser;
+import org.apache.xmlrpc.parser.TypeParser;
+
+import org.apache.ws.commons.util.NamespaceContextImpl;
 
 
 /**
@@ -34,6 +41,28 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
  *
  */
 public class Client{
+
+    /**
+    * This class extends the TypeFactoryImpl for supporting i8 type.
+    *
+    */
+    public class ExtendedTypeFactoryImpl extends TypeFactoryImpl  {
+
+        private static final String LONG_XML_TAG_NAME = "i8";
+
+        public ExtendedTypeFactoryImpl(XmlRpcController pController) {
+            super(pController);
+        }
+
+        @Override
+        public TypeParser getParser(XmlRpcStreamConfig pConfig, NamespaceContextImpl pContext, String pURI, String pLocalName) {
+            if (LONG_XML_TAG_NAME.equals(pLocalName)) {
+                return new I8Parser();
+            } else {
+                return super.getParser(pConfig, pContext, pURI, pLocalName);
+            }
+        }
+    }
 
     //--------------------------------------------------------------------------
     //  PUBLIC INTERFACE
@@ -205,6 +234,7 @@ public class Client{
         }
 
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+	    config.setEnabledForExtensions(true);
 
         try
         {
@@ -217,6 +247,7 @@ public class Client{
         }
 
         client = new XmlRpcClient();
+        client.setTypeFactory(new ExtendedTypeFactoryImpl(client));
         client.setConfig(config);
     }
 }
