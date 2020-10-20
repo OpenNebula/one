@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { set } from 'client/utils/helpers'
 
 const NEXT_INDEX = index => index + 1
 const EXISTS_INDEX = index => index !== -1
@@ -6,8 +7,13 @@ const EXISTS_INDEX = index => index !== -1
 const getIndexById = (list, id) =>
   list.findIndex(({ id: itemId }) => itemId === id)
 
-const useListSelect = ({ multiple, key, list, setList, defaultValue }) => {
+const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
   const [editingData, setEditingData] = useState({})
+
+  const handleSetList = useCallback(
+    newList => setList(data => ({ ...set(data, key, newList) })),
+    [key, setList, list]
+  )
 
   const handleSelect = useCallback(
     id =>
@@ -41,46 +47,30 @@ const useListSelect = ({ multiple, key, list, setList, defaultValue }) => {
       const ZERO_DELETE_COUNT = 0
       cloneList.splice(NEXT_INDEX(itemIndex), ZERO_DELETE_COUNT, cloneItem)
 
-      setList(prevList => ({ ...prevList, [key]: cloneList }))
+      handleSetList(cloneList)
     },
-    [list, setList]
+    [list]
   )
 
   const handleRemove = useCallback(
-    id => {
-      // TODO confirmation??
-      setList(prevList => ({
-        ...prevList,
-        [key]: prevList[key]?.filter(item => item.id !== id)
-      }))
-    },
-    [key, setList]
-  )
+    (id) => {
+      const newList = list?.filter(item => item.id !== id)
 
-  const handleSetList = useCallback(
-    newList => {
-      setList(prevList => ({ ...prevList, [key]: newList }))
+      handleSetList(newList)
     },
-    [key, setList]
+    [key, list]
   )
 
   const handleSave = useCallback(
-    (values, id = editingData.id) => {
-      setList(prevList => {
-        const itemIndex = getIndexById(prevList[key], id)
-        const index = EXISTS_INDEX(itemIndex)
-          ? itemIndex
-          : prevList[key].length
+    (values, id = editingData?.id) => {
+      const itemIndex = getIndexById(list, id)
+      const index = EXISTS_INDEX(itemIndex) ? itemIndex : list.length
 
-        return {
-          ...prevList,
-          [key]: Object.assign(prevList[key], {
-            [index]: { ...editingData, ...values }
-          })
-        }
-      })
+      const newList = set(list, index, { ...editingData, ...values })
+
+      handleSetList(newList)
     },
-    [key, setList, editingData]
+    [key, list, editingData]
   )
 
   const handleEdit = useCallback(
@@ -106,4 +96,4 @@ const useListSelect = ({ multiple, key, list, setList, defaultValue }) => {
   }
 }
 
-export default useListSelect
+export default useListForm

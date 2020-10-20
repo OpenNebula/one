@@ -48,17 +48,7 @@ function ApplicationCreate () {
   }
 
   useEffect(() => {
-    try {
-      if (id) {
-        const idNumber = parseInt(id, 10)
-        if (idNumber < 0) throw new Error()
-
-        fetchRequest({ id: idNumber })
-      }
-    } catch {
-      // show error
-      history.push(PATH.DASHBOARD)
-    }
+    id && fetchRequest({ id })
   }, [id])
 
   useEffect(() => {
@@ -75,7 +65,7 @@ function ApplicationCreate () {
       disableGutters
       style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
     >
-      {loading ? (
+      {(id && !data) || loading ? (
         <div>is loading...</div>
       ) : (
         <FormProvider {...methods}>

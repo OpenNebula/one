@@ -32,8 +32,10 @@ module.exports = {
   },
   TYPE_INPUT: {
     TEXT: 'text',
+    HIDDEN: 'hidden',
     SELECT: 'select',
     CHECKBOX: 'checkbox',
+    SLIDER: 'slider',
     AUTOCOMPLETE: 'autocomplete'
   }
 }

@@ -10,22 +10,25 @@ import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 const TextController = memo(
   ({ control, cy, type, name, label, error }) => (
     <Controller
-      as={
+      render={({ value, ...props }) =>
         <TextField
           fullWidth
+          value={value ?? ''}
           type={type}
-          label={Tr(label)}
+          {...(label && { label: Tr(label) })}
           inputProps={{ 'data-cy': cy }}
           error={Boolean(error)}
           helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
           FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
+          {...props}
         />
       }
       name={name}
       control={control}
     />
   ),
-  (prevProps, nextProps) => prevProps.error === nextProps.error
+  (prevProps, nextProps) =>
+    prevProps.error === nextProps.error && prevProps.type === nextProps.type
 )
 
 TextController.propTypes = {

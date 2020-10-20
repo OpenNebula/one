@@ -16,8 +16,9 @@ const mapNetworkToUserInput = network => {
 
 const mapTiersToRoles = (tiers, networking, cluster) =>
   tiers?.map(data => {
-    const { template, networks, parents, position, tier } = data
+    const { template, networks, parents, policies, position, tier } = data
     const { shutdown_action: action, ...information } = tier
+    const { elasticity, scheduled, ...adjustments } = policies
 
     const networksValue = networks
       ?.reduce((res, id, idx) => {
@@ -34,14 +35,26 @@ const mapTiersToRoles = (tiers, networking, cluster) =>
       return [...res, parent?.tier?.name]
     }, [])
 
+    const elasticityValues = elasticity.map(({ id, ...policy }) =>
+      JSON.parse(JSON.stringify(policy))
+    )
+
+    const scheduledValues = scheduled.map(
+      ({ id, time_format: format, time_expression: expression, ...rest }) => ({
+        ...JSON.parse(JSON.stringify(rest)),
+        ...(expression && { [format]: expression })
+      })
+    )
+
     return {
       ...information,
+      ...adjustments,
       ...(action !== 'none' && { shutdown_action: action }),
       parents: parentsValue,
       vm_template: template?.id ?? template?.app,
       vm_template_contents: networksValue,
-      elasticity_policies: [],
-      scheduled_policies: [],
+      elasticity_policies: elasticityValues,
+      scheduled_policies: scheduledValues,
       position
     }
   })

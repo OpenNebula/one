@@ -45,8 +45,8 @@ const useStyles = makeStyles(theme => ({
   icon: {}
 }))
 
-const ApplicationTemplateCard = memo(
-  ({ value, handleEdit, handleDeploy, handleShow, handleRemove }) => {
+const ApplicationCard = memo(
+  ({ value, handleShow, handleRemove }) => {
     const classes = useStyles()
     const { NAME, TEMPLATE } = value
     const { description, networks = [], roles = [] } = TEMPLATE.BODY
@@ -102,23 +102,13 @@ const ApplicationTemplateCard = memo(
             </Box>
           </CardContent>
           <CardActions>
-            {handleEdit && (
-              <Button variant="contained" size="small" onClick={handleEdit} disableElevation>
-                {Tr('Edit')}
-              </Button>
-            )}
-            {handleDeploy && (
-              <Button variant="contained" size="small" onClick={handleDeploy} disableElevation>
-                {Tr('Deploy')}
-              </Button>
-            )}
             {handleShow && (
-              <Button variant="contained" size="small" onClick={handleShow} disableElevation>
+              <Button variant="contained" size="small" onClick={handleShow}>
                 {Tr('Info')}
               </Button>
             )}
             {handleRemove && (
-              <Button size="small" onClick={handleRemove} disableElevation>
+              <Button size="small" onClick={handleRemove}>
                 {Tr('Remove')}
               </Button>
             )}
@@ -129,7 +119,7 @@ const ApplicationTemplateCard = memo(
   }
 )
 
-ApplicationTemplateCard.propTypes = {
+ApplicationCard.propTypes = {
   value: PropTypes.shape({
     ID: PropTypes.string.isRequired,
     NAME: PropTypes.string.isRequired,
@@ -141,20 +131,16 @@ ApplicationTemplateCard.propTypes = {
       }).isRequired
     }).isRequired
   }),
-  handleEdit: PropTypes.func,
-  handleDeploy: PropTypes.func,
   handleShow: PropTypes.func,
   handleRemove: PropTypes.func
 }
 
-ApplicationTemplateCard.defaultProps = {
+ApplicationCard.defaultProps = {
   value: {},
-  handleEdit: undefined,
-  handleDeploy: undefined,
   handleShow: undefined,
   handleRemove: undefined
 }
 
-ApplicationTemplateCard.displayName = 'Application TemplateCard'
+ApplicationCard.displayName = 'Application TemplateCard'
 
-export default ApplicationTemplateCard
+export default ApplicationCard

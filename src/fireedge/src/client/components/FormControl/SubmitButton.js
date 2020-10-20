@@ -6,10 +6,9 @@ import { makeStyles, CircularProgress, Button } from '@material-ui/core'
 import { Submit } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles(() => ({
   button: {
-    transition: 'disabled 0.5s ease',
-    margin: theme.spacing(3, 0, 2)
+    transition: 'disabled 0.5s ease'
   }
 }))
 
