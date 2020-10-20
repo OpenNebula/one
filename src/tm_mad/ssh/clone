@@ -39,6 +39,7 @@ else
 fi
 
 . $TMCOMMON
+. $SSH_UTILS
 
 DRIVER_PATH=$(dirname $0)
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"

@@ -43,7 +43,7 @@ DATASTORE_PATH="${XPATH_ELEMENTS[i++]}"
 # -------- Create the snapshot and dump its metadata to xml file ------------
 
 SNAP_NAME="snap-${SNAP_ID}"
-data=`virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN --name "$SNAP_NAME"`
+data=`retry_if "active block job" 3 5 virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN --name "$SNAP_NAME"`
 
 if [ "$?" = "0" ]; then
     echo "$data" | awk '{print $3}'
@@ -52,7 +52,7 @@ if [ "$?" = "0" ]; then
         SNAP_XML_PATH="${DATASTORE_PATH}/${SNAP_NAME}.xml"
 
         # dump snapshot metadata xml to the VM location
-        virsh --connect $LIBVIRT_URI snapshot-dumpxml $DOMAIN $SNAP_NAME > $SNAP_XML_PATH || true
+        retry_if "active block job" 3 5 virsh --connect $LIBVIRT_URI snapshot-dumpxml $DOMAIN $SNAP_NAME > $SNAP_XML_PATH || true
     fi
 else
     error_message "Could not create snapshot $NAME for domain $DOMAIN."

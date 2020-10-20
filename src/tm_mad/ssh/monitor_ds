@@ -19,6 +19,8 @@
 dir="$1"
 
 vms=$(ls "$dir" | grep '^[0-9]\+$')
+one_dir=$(dirname $0 |  sed -e 's/tm\/ssh//')
+xpath="$one_dir/datastore/xpath.rb --stdin"
 
 for vm in $vms; do
     vmdir="${dir}/${vm}"
@@ -49,6 +51,28 @@ for vm in $vms; do
                 vm_monitor="${vm_monitor}\nSNAPSHOT_SIZE = "\
                     "[ ID=${snap}, DISK_ID=${disk_id}, SIZE=${snap_size}]"
             done
+        fi
+
+        # create disk recovery snapshot if required
+        if [ -f "${dir}/${vm}/vm.xml" ] && [ -f "${dir}/${vm}/ds.xml" ] ; then
+            freq=$(awk 'gsub(/[\0]/, x)' <(cat "${dir}/${vm}/vm.xml"| $xpath \
+                /VM/TEMPLATE/DISK[DISK_ID=$disk_id]/RECOVERY_SNAPSHOT_FREQ))
+
+            replica_host=$(awk 'gsub(/[\0]/, x)' <(cat "${dir}/${vm}/ds.xml"| $xpath \
+                /DATASTORE/TEMPLATE/REPLICA_HOST))
+
+            if [ -n "$freq" ] && [ -n "$replica_host" ]; then
+
+                snap_ts=$($one_dir/tm/ssh/recovery_snap_create_live \
+                    $vm $vmdir/$disk $freq $replica_host)
+                rc=$?
+
+                if [ -n "$snap_ts" ] && [ "$rc" = "0" ]; then
+                    vm_monitor="${vm_monitor}\nDISK_RECOVERY_SNAPSHOT = [ ID=${disk_id}, TIMESTAMP=${snap_ts}]"
+                else
+                    vm_monitor="${vm_monitor}\nDISK_RECOVERY_SNAPSHOT = [ ID=${disk_id}, MSG=\"ERROR $rc\"]"
+                fi
+            fi
         fi
     done
 

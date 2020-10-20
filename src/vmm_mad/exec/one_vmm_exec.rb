@@ -226,6 +226,7 @@ class VmmAction
                 end
 
                 stdin = step[:stdin] || @xml_data.to_s
+                no_extra_params = step[:no_extra_params] || false
 
                 result, info = @vmm.do_action(get_parameters(step[:parameters]),
                                               @id,
@@ -233,7 +234,8 @@ class VmmAction
                                               step[:action],
                                               :ssh_stream => ssh,
                                               :respond => false,
-                                              :stdin => stdin)
+                                              :stdin => stdin,
+                                              :no_extra_params => no_extra_params)
             when :vnm
                 if step[:destination]
                     vnm = @vnm_dst
@@ -408,12 +410,28 @@ class ExecDriver < VirtualMachineDriver
             }
         end
 
+        vm_dir=File.dirname(action.data[:remote_dfile])
+
         steps.concat([
                         # Execute pre-boot networking setup
                         {
                             :driver   => :vnm,
                             :action   => :pre
                         },
+                        # Store vm.xml and ds.xml
+                        {
+                            :driver       => :vmm,
+                            :action       => "/bin/cat - >#{vm_dir}/vm.xml",
+                            :stdin        => xml_data.elements['VM'].to_s,
+                            :no_extra_params => true
+                        },
+                        {
+                            :driver       => :vmm,
+                            :action       => "/bin/cat - >#{vm_dir}/ds.xml",
+                            :stdin        => xml_data.elements['DATASTORE'].to_s,
+                            :no_extra_params => true
+                        },
+
                         # Boot the Virtual Machine
                         {
                             :driver       => :vmm,

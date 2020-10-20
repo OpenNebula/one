@@ -1,4 +1,4 @@
-# -------------------------------------------------------------------------- #
+e -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
@@ -42,6 +42,7 @@ MKSWAP=${MKSWAP:-mkswap}
 QEMU_IMG=${QEMU_IMG:-qemu-img}
 RADOS=${RADOS:-rados}
 RBD=${RBD:-rbd}
+RDIFF=${RDIFF:-rdiff}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
@@ -160,6 +161,38 @@ function exclusive
     EXEC_RC=$?
     eval "exec ${FD}>&-"
     return $EXEC_RC
+}
+
+# Retries if command fails and STDERR matches
+function retry_if
+{
+    MATCH=$1
+    TRIES=$2
+    SLEEP=$3
+    shift 3
+
+    unset TSTD TERR RC
+
+    while [ $TRIES -gt 0 ]; do
+        TRIES=$(( TRIES - 1 ))
+
+        eval "$( ("$@" ) \
+                2> >(TERR=$(cat); typeset -p TERR) \
+                 > >(TSTD=$(cat); typeset -p TSTD); RC=$?; typeset -p RC )"
+
+        [ $RC -eq 0 ] && break
+
+        if echo "$TERR" | grep -q "$MATCH"; then
+            sleep $SLEEP;
+            continue
+        fi
+
+        break
+    done
+
+    echo $TERR >&2
+    echo $TSTD
+    return $RC
 }
 
 # Executes a command, if it fails returns error message and exits

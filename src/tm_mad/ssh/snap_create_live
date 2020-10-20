@@ -67,11 +67,12 @@ REPLICA_HOST=$(get_replica_host $DS_ID)
 
 CMD=$(cat <<EOT
 set -ex -o pipefail
+$(type retry_if| grep -v 'is a function')
 
 mkdir -p "${SNAP_DIR}"
 touch $SNAP_PATH
 
-virsh -q -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} \
+retry_if "active block job" 3 5  virsh -q -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} \
     --path ${SRC_PATH} --dest $SNAP_PATH --wait --finish
 
 if [ -n "$REPLICA_HOST" ]; then

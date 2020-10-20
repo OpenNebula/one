@@ -93,7 +93,6 @@ done < <(echo $STDIN| $XPATH \
 SHARED="${XPATH_ELEMENTS[j++]}"
 VM_DIR="${XPATH_ELEMENTS[j++]}"
 
-
 # use "force-share" param for qemu >= 2.10
 [ "$(get_qemu_img_version)" -ge 2010000 ] && QEMU_IMG_PARAM="-U"
 
@@ -109,7 +108,7 @@ for SNAP in $SNAPS; do
 done
 
 if [ "$SHARED" = "YES" ]; then
-    virsh --connect $LIBVIRT_URI migrate \
+    retry_if "active block job" 3 5 virsh --connect $LIBVIRT_URI migrate \
         --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system
 
     RC=$?
@@ -163,6 +162,7 @@ else
         fi
     done
 
+
     # freeze/suspend domain and rsync raw disks again
     if [ -n "$RAW_DISKS" ]; then
         if virsh --connect $LIBVIRT_URI domfsfreeze $DEPLOY_ID; then
@@ -191,7 +191,8 @@ else
         DISK_OPTS="--copy-storage-all --migrate-disks ${MIGRATE_DISKS}"
     fi
 
-    virsh --connect $LIBVIRT_URI migrate \
+    retry_if "active block job" 3 5 \
+        virsh --connect $LIBVIRT_URI migrate \
         --live $MIGRATE_OPTIONS $DEPLOY_ID $QEMU_PROTOCOL://$DEST_HOST/system \
         $DISK_OPTS
     RC=$?

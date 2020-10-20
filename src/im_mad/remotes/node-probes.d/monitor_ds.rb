@@ -48,7 +48,8 @@ class DSMonitor
             # Skip if datastore is not marked for local monitoring
             next unless File.exist? "#{@ds_location}/#{ds_id}/.monitor"
 
-            puts ds_usage(ds_id)
+            tm = File.read("#{@ds_location}/#{ds_id}/.monitor").strip
+            puts ds_usage(ds_id, tm)
         end
     end
 
@@ -64,16 +65,33 @@ class DSMonitor
         EOS
     end
 
-    def ds_usage(ds_id)
+    def replica_usage(path)
+        rs = 0
+        o, _e, s = Open3.capture3("du -sh #{path}")
+        
+        if s.exitstatus == 0 && !o.empty?
+            du_a = o.split
+            rs   = du_a.first if du_a
+        end
+        
+        'REPLICA_CACHE = "YES",' <<
+        "REPLICA_CACHE_SIZE = #{rs}," <<
+        "REPLICA_IMAGES = #{num_images(path)},"
+    end
+
+    def ds_usage(ds_id, tm)
         sizes = path_usage("#{@ds_location}/#{ds_id}")
 
-        unindent(<<-EOS)
-            DS = [ ID = #{ds_id},
+        usage = "DS = [ ID = #{ds_id},"
+        usage += replica_usage("#{@ds_location}/#{ds_id}") if tm == "replica"
+        usage << <<-EOS
                    USED_MB  = #{sizes[0]},
                    TOTAL_MB = #{sizes[1]},
                    FREE_MB  = #{sizes[2]}
           ]
         EOS
+
+        unindent(usage)
     end
 
     def path_usage(path)
@@ -85,6 +103,15 @@ class DSMonitor
 
         # [used, total, free]
         [metrics[2], metrics[1], metrics[3]]
+    end
+
+    def num_images(path)
+        o, _e, s = Open3.capture3(
+            "find #{path} -maxdepth 1 -mindepth 1 -type f " <<
+            "-regex '.*/[-a-f0-9]*' | wc -l 2>/dev/null")
+
+        return "unknown" if s.exitstatus != 0 || o.empty?
+        o.strip
     end
 
     def unindent(str)
