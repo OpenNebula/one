@@ -12,13 +12,23 @@ import {
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
+import ButtonSubmit from 'client/components/FormControl/SubmitButton'
 import { Tr } from 'client/components/HOC'
 
 const DialogForm = memo(
-  ({ open, title, values, resolver, onSubmit, onCancel, children }) => {
+  ({
+    open,
+    title,
+    values,
+    resolver,
+    onSubmit,
+    onCancel,
+    submitButtonProps,
+    children
+  }) => {
     const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-    const { handleSubmit, ...methods } = useForm({
+    const { handleSubmit, formState, ...methods } = useForm({
       mode: 'onChange',
       reValidateMode: 'onSubmit',
       defaultValues: values,
@@ -34,12 +44,11 @@ const DialogForm = memo(
         PaperProps={{
           style: {
             height: isMobile ? '100%' : '80%',
-            minHeight: '80%',
-            minWidth: '80%'
+            width: isMobile ? '100%' : '80%'
           }
         }}
       >
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle>{Tr(title)}</DialogTitle>
         <DialogContent dividers>
           <FormProvider {...methods}>{children}</FormProvider>
         </DialogContent>
@@ -51,14 +60,13 @@ const DialogForm = memo(
               </Button>
             )}
             {onSubmit && (
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
+              <ButtonSubmit
+                data-cy="dg-form-submit-button"
+                isSubmitting={formState.isSubmitting}
                 onClick={handleSubmit(onSubmit)}
-              >
-                {Tr('Save')}
-              </Button>
+                label={Tr('Save')}
+                {...submitButtonProps}
+              />
             )}
           </DialogActions>
         )}
@@ -77,6 +85,7 @@ DialogForm.propTypes = {
   resolver: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
   onSubmit: PropTypes.func,
   onCancel: PropTypes.func,
+  submitButtonProps: PropTypes.objectOf(PropTypes.any),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node
@@ -90,6 +99,7 @@ DialogForm.defaultProps = {
   resolver: {},
   onSubmit: undefined,
   onCancel: undefined,
+  submitButtonProps: undefined,
   children: null
 }
 

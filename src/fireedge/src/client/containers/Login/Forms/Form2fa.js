@@ -56,6 +56,7 @@ const Form2fa = ({ onBack, onSubmit, error }) => {
           data-cy="login-2fa-button"
           isSubmitting={false}
           label={Tr(Next)}
+          className={classes.submit}
         />
       </Box>
     </Box>

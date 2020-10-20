@@ -32,7 +32,7 @@ const Networks = () => ({
           return {
             title: name,
             isSelected,
-            handleClick: () => isSelected ? handleSelect(id) : handleUnselect(id)
+            handleClick: () => isSelected ? handleUnselect(id) : handleSelect(id)
           }
         }}
       />

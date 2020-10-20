@@ -64,17 +64,17 @@ const NetworkCard = React.memo(
           />
           <CardActions>
             {handleEdit && (
-              <Button variant="contained" size="small" onClick={handleEdit}>
+              <Button variant="contained" size="small" onClick={handleEdit} disableElevation>
                 {Tr('Edit')}
               </Button>
             )}
             {handleClone && (
-              <Button variant="contained" size="small" onClick={handleClone}>
+              <Button variant="contained" size="small" onClick={handleClone} disableElevation>
                 {Tr('Clone')}
               </Button>
             )}
             {handleRemove && (
-              <Button size="small" onClick={handleRemove}>
+              <Button size="small" onClick={handleRemove} disableElevation>
                 {Tr('Remove')}
               </Button>
             )}

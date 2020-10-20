@@ -18,21 +18,21 @@ import PropTypes from 'prop-types'
 
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import root from 'window-or-global';
-import { defaultWebpackMode } from 'server/utils/constants/defaults';
+import root from 'window-or-global'
+
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
 
 import Router from 'client/router'
 
-if(process?.env?.NODE_ENV === 'development'){
-  const webpackHotMiddlewareClient = require("webpack-hot-middleware/client");
+if (process?.env?.NODE_ENV === 'development') {
+  const webpackHotMiddlewareClient = require('webpack-hot-middleware/client')
   webpackHotMiddlewareClient.subscribeAll(function (message) {
-    if(message?.action === 'built' && root?.location?.reload){
-      root.location.reload();
+    if (message?.action === 'built' && root?.location?.reload) {
+      root.location.reload()
     }
- });
+  })
 }
 
 const App = ({ location, context, store }) => (

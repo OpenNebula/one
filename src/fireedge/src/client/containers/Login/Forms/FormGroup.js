@@ -26,6 +26,7 @@ function FormGroup ({ onBack, onSubmit }) {
         data-cy="login-group-button"
         isSubmitting={false}
         label={Tr(Next)}
+        className={classes.submit}
       />
     </Box>
   )

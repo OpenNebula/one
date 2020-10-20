@@ -86,6 +86,7 @@ function FormUser ({ onSubmit, error }) {
         data-cy="login-button"
         isSubmitting={false}
         label={Tr(SignIn)}
+        className={classes.submit}
       />
     </Box>
   )

@@ -12,8 +12,16 @@ const SELECT = {
 const TYPES_NETWORKS = [
   { text: 'Create', value: 'template_id', select: SELECT.template },
   { text: 'Reserve', value: 'reserve_from', select: SELECT.network },
-  { text: 'Existing', value: 'id', select: SELECT.network }
+  { text: 'Existing', value: 'id', select: SELECT.network, extra: false }
 ]
+
+const needExtraValue = type => TYPES_NETWORKS.some(
+  ({ value, extra }) => value === type && extra === false
+)
+
+const isNetworkSelector = type => TYPES_NETWORKS.some(
+  ({ value, select }) => value === type && select === SELECT.network
+)
 
 const ID = {
   name: 'id',
@@ -24,8 +32,7 @@ const ID = {
     .string()
     .uuid()
     .required()
-    .default(uuidv4),
-  grid: { style: { display: 'none' } }
+    .default(uuidv4)
 }
 
 const MANDATORY = {
@@ -81,10 +88,8 @@ const ID_VNET = {
   dependOf: TYPE.name,
   values: dependValue => {
     const { vNetworks, vNetworksTemplates } = useOpennebula()
-    const type = TYPES_NETWORKS.find(({ value }) => value === dependValue)
 
-    const values =
-      type?.select === SELECT.network ? vNetworks : vNetworksTemplates
+    const values = isNetworkSelector(dependValue) ? vNetworks : vNetworksTemplates
 
     return values
       .map(({ ID: value, NAME: text }) => ({ text, value }))
@@ -94,9 +99,7 @@ const ID_VNET = {
     .string()
     .trim()
     .when(TYPE.name, (type, schema) =>
-      TYPES_NETWORKS.some(
-        ({ value, select }) => type === value && select === SELECT.network
-      )
+      isNetworkSelector(type)
         ? schema.required('Network field is required')
         : schema.required('Network template field is required')
     )
@@ -108,9 +111,12 @@ const EXTRA = {
   label: 'Extra',
   multiline: true,
   type: TYPE_INPUT.TEXT,
+  dependOf: TYPE.name,
+  htmlType: dependValue => needExtraValue(dependValue) ? TYPE_INPUT.HIDDEN : TYPE_INPUT.TEXT,
   validation: yup
     .string()
     .trim()
+    .when(TYPE.name, (type, schema) => needExtraValue(type) ? schema.strip() : schema)
     .default('')
 }
 

@@ -73,6 +73,16 @@ export default function useOpennebula () {
     [dispatch, filter, templates]
   )
 
+  const getTemplate = useCallback(
+    ({ id }) => {
+      dispatch(startOneRequest())
+      return servicePool
+        .getTemplate({ filter, id })
+        .catch(err => dispatch(failureOneRequest({ error: err })))
+    },
+    [dispatch, filter]
+  )
+
   const getMarketApps = useCallback(
     ({ end, start } = { end: -1, start: -1 }) => {
       dispatch(startOneRequest())
@@ -105,6 +115,7 @@ export default function useOpennebula () {
     getVNetworksTemplates,
     templates,
     getTemplates,
+    getTemplate,
     apps,
     getMarketApps,
     clusters,

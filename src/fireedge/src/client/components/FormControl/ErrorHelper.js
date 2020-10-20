@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { string } from 'prop-types'
 
 import { Box, makeStyles, Typography } from '@material-ui/core'
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const ErrorHelper = ({ label, ...rest }) => {
+const ErrorHelper = memo(({ label, ...rest }) => {
   const classes = useStyles()
 
   return (
@@ -36,7 +36,7 @@ const ErrorHelper = ({ label, ...rest }) => {
       </Typography>
     </Box>
   )
-}
+})
 
 ErrorHelper.propTypes = {
   label: string
@@ -45,5 +45,7 @@ ErrorHelper.propTypes = {
 ErrorHelper.defaultProps = {
   label: 'Error'
 }
+
+ErrorHelper.displayName = 'ErrorHelper'
 
 export default ErrorHelper

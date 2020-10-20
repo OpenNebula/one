@@ -52,11 +52,14 @@ const parseTiers = (roles, networking) =>
         name,
         cardinality,
         parents,
+        min_vms: minVms,
+        max_vms: maxVms,
+        cooldown,
         shutdown_action: shutdownAction,
         vm_template: vmTemplate,
         vm_template_contents: content = '',
-        elasticity_policies: elasticityPolicies,
-        scheduled_policies: scheduledPolicies,
+        elasticity_policies: elasticityPolicies = [],
+        scheduled_policies: scheduledPolicies = [],
         position = { x: 0, y: 0 }
       } = data
 
@@ -70,6 +73,25 @@ const parseTiers = (roles, networking) =>
           return network.id
         }) ?? []
 
+      const elasticity = elasticityPolicies.map(({ id, ...policy }) =>
+        JSON.parse(JSON.stringify(policy))
+      )
+
+      const scheduled = scheduledPolicies.map(
+        ({ id, recurrence, start_time: time, ...rest }) => {
+          return {
+            ...JSON.parse(JSON.stringify(rest)),
+            ...(recurrence && {
+              time_format: 'recurrence',
+              time_expression: recurrence
+            }),
+            ...(time && {
+              time_format: 'start_time',
+              time_expression: time
+            })
+          }
+        })
+
       return [
         ...res,
         {
@@ -77,7 +99,13 @@ const parseTiers = (roles, networking) =>
           template: { id: String(vmTemplate) },
           networks,
           parents,
-          policies: { elasticityPolicies, scheduledPolicies },
+          policies: {
+            min_vms: minVms,
+            max_vms: maxVms,
+            cooldown,
+            elasticity,
+            scheduled
+          },
           position,
           tier: { name, cardinality, shutdown_action: shutdownAction }
         }
