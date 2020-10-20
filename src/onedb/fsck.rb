@@ -352,6 +352,7 @@ EOT
         log_time
 
         # VNC
+        check_vnc_ports
 
         # DATA: VNC Bitmap
 
