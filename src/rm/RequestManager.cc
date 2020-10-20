@@ -662,8 +662,6 @@ void RequestManager::register_xml_methods()
     RequestManagerRegistry.addMethod("one.hostpool.info", hostpool_info);
     RequestManagerRegistry.addMethod("one.hostpool.monitoring", host_pool_monitoring);
 
-    RequestManagerRegistry.setDialect(xmlrpc_dialect_apache);
-
     /* Group related methods */
 
     xmlrpc_c::method * group_allocate_pt;

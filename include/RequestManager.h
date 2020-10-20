@@ -101,11 +101,6 @@ private:
         {
             return registered_methods.find(call) != registered_methods.end();
         }
-
-	void setDialect(xmlrpc_dialect dialect)
-	{
-	    registry.setDialect(dialect);
-	}
     };
 
     //--------------------------------------------------------------------------
