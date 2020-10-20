@@ -205,7 +205,6 @@ public class Client{
         }
 
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-	config.setEnabledForExtensions(true);
 
         try
         {
