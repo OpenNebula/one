@@ -57,6 +57,8 @@ module DriverExecHelper
     # actions is remote or local. If the local actions has defined an special
     # script name this is used, otherwise the action name in downcase is
     # used as the script name.
+    # When action is a String starting with '/' it's considered alreay full
+    # path command and no modification is performed apart from adding params.
     #
     # @param [String, Symbol] action name of the action
     # @param [String] parameters arguments for the script
@@ -64,7 +66,10 @@ module DriverExecHelper
     # @param [String, ''] directory to append to the scripts path for actions
     # @return [String] command line needed to execute the action
     def action_command_line(action, parameters, default_name=nil, directory='')
-        if action_is_local? action
+        if action.is_a?(String) && action[0] == '/'
+            return action + " " + parameters if parameters
+            return action
+        elsif action_is_local? action
             script_path=File.join(@local_scripts_path, directory)
         else
             script_path=File.join(@remote_scripts_path, directory)

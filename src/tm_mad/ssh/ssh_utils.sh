@@ -43,20 +43,27 @@ function get_replica_host {
 # ------------------------------------------------------------------------------
 function md5sum_with_snaps {
     local IMG=$1
-    local DIR=${2:-.snap}
 
-    SNAPS="$(ls ${IMG}${DIR} 2>/dev/null)"
+    if [ -f "${IMG}.md5sum" ]; then
+        cat "${IMG}.md5sum"
+        return
+    fi
 
+    if [ ! -f "${IMG}" ]; then
+        return
+    fi
+
+    SNAPS="$(ls ${IMG}.snap 2>/dev/null)"
     if [ -z "$SNAPS" ]; then
-        md5sum $IMG | awk '{print $1}'
+        md5sum $IMG | awk '{print $1}' | tee ${IMG}.md5sum
     else
         CMD="md5sum $IMG"
 
         for S in $SNAPS; do
-            CMD+=" ${IMG}${DIR}/${S}"
+            CMD+=" ${IMG}$.snap/${S}"
         done
 
-        $CMD | md5sum | awk '{print $1}'
+        $CMD | md5sum | awk '{print $1}' | tee ${IMG}.md5sum
     fi
 }
 
@@ -67,37 +74,14 @@ function repl_img_outdated {
     local IMG_PATH="$1"
     local REPLICA_HOST="$2"
 
-    if [ ! -f "${IMG_PATH}.md5sum" ]; then
-        md5sum_with_snaps "$IMG_PATH" > "${IMG_PATH}.md5sum"
-    fi
+    SRC_MD5SUM=$(md5sum_with_snaps "$IMG_PATH")
 
-    SRC_MD5SUM=$(cat "${IMG_PATH}.md5sum")
-
-    # replica can not reuse md5sum_with_snaps, duplicate it
-    SCRIPT=$(cat <<EOF
-        if [ -f ${IMG_PATH}.md5sum ]; then
-            cat ${IMG_PATH}.md5sum
-        else
-            SNAPS="\$(ls ${IMG_PATH}.snap 2>/dev/null)"
-
-            if [ -z "\$SNAPS" ]; then
-                md5sum $IMG_PATH 2>/dev/null | cut -d " " -f 1 > ${IMG_PATH}.md5sum
-            else
-                CMD="md5sum $IMG_PATH"
-
-                for S in \$SNAPS; do
-                    CMD+=" ${IMG_PATH}.snap/${S}"
-                done
-
-                \$CMD | md5sum | cut -d " " -f 1 > ${IMG_PATH}.md5sum
-            fi
-
-            cat ${IMG_PATH}.md5sum
-        fi
-EOF
-)
-
-    DST_MD5SUM=$(ssh "$REPLICA_HOST" "$SCRIPT")
+    DST_MD5SUM=`ssh $REPLICA_HOST bash -s <<EOF
+    export LANG=C
+    export LC_ALL=C
+    $(type md5sum_with_snaps| grep -v 'is a function')
+    md5sum_with_snaps $IMG_PATH
+EOF`
 
     [ "$SRC_MD5SUM" != "$DST_MD5SUM" ]
 }
@@ -108,10 +92,11 @@ EOF
 function rsync_img_to_replica {
     local IMG_PATH="$1"
     local REPLICA_HOST="$2"
+
     local LOCK_TIMEOUT="${REPLICA_COPY_LOCK_TIMEOUT:-600}"
     local DST_DIR=$(dirname $IMG_PATH)
 
-    ssh_make_path $REPLICA_HOST $DST_DIR
+    ssh_make_path $REPLICA_HOST $DST_DIR "replica"
 
     # sync to replica, include .md5sum and .snap dir
     LOCK="$REPLICA_HOST-${IMG_PATH//\//-}"
@@ -131,7 +116,6 @@ EOF
             "clean_cache \"$(dirname $IMG_PATH)\"" \
             "$ONE_LOCAL_VAR/remotes/tm/ssh/ssh_utils.sh" \
             "Failed to run clean_cache on $REPLICA_HOST"
-
     fi
 }
 
@@ -185,4 +169,32 @@ function clean_cache() {
             fi
         done
     )
+}
+
+# ------------------------------------------------------------------------------
+# Checks if recovery snapshot exists for given VM/DISK,
+# If there is a newer image base and snap.rdiff it restores snapshot
+# ------------------------------------------------------------------------------
+function recovery_snap_exists() {
+    REPLICA_RECOVERY_SNAPS_DIR="/var/lib/one/datastores/replica_snaps"
+    local REPLICA_HOST=$1
+    local DISK=$2
+
+    SNAP_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.recovery_snapshot"
+    BASE_IMG_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.base"
+    RDIFF_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.rdiff"
+
+    SNAP_EXISTS_CMD=$(cat <<EOF
+    if [ "$SNAP_PATH" -nt "$RDIFF_PATH" ] ; then
+        true
+    elif [ "$RDIFF_PATH" -nt "$SNAP_PATH" ] && [ -e "$BASE_IMG_PATH" ]; then
+        rm -f "$SNAP_PATH"
+        $RDIFF patch "$BASE_IMG_PATH" "$RDIFF_PATH" "$SNAP_PATH"
+        true
+    else
+        false
+    fi
+EOF
+)
+    ssh "$REPLICA_HOST" "$SNAP_EXISTS_CMD"
 }

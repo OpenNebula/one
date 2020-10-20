@@ -20,11 +20,13 @@ DOMAIN=$1
 DISK_ID=$2
 DISK_SIZE=$3
 DRV_ACTION=$4
+VMID=$6
 
 source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 get_disk_information "DISK_ID=$DISK_ID"
 
-exec_and_log "virsh --connect ${LIBVIRT_URI} blockresize ${DOMAIN} ${DISK_TARGET} ${DISK_SIZE}M" \
+retry_if "is in use" 3 5 \
+    exec_and_log "virsh --connect ${LIBVIRT_URI} blockresize ${DOMAIN} ${DISK_TARGET} ${DISK_SIZE}M" \
     "Failed to resize disk ${DISK_ID} on ${DOMAIN}"

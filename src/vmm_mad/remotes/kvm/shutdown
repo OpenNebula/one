@@ -22,6 +22,7 @@ source $(dirname $0)/../../scripts_common.sh
 count=0
 
 deploy_id=$1
+VMID=$3
 
 shutdown_command="virsh --connect $LIBVIRT_URI shutdown $deploy_id"
 

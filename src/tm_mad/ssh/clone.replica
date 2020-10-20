@@ -76,10 +76,12 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RECOVERY_SNAPSHOT_FREQ \
                     /VM/HISTORY_RECORDS/HISTORY[last\(\)]/DS_ID)
 
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+RECOVERY_SNAPSHOT_FREQ="${XPATH_ELEMENTS[j++]}"
 SYS_DS_ID="${XPATH_ELEMENTS[j++]}"
 
 # ------------------------------------------------------------------------------
@@ -109,12 +111,11 @@ REPLICA_STORAGE_IP=$(awk 'gsub(/[\0]/, x)' \
 #  Synchronize Image Datastore in the Replica Host. Use a recovery snapshot
 #  if present in the RECOVERY_SNAPS_DIR
 # ------------------------------------------------------------------------------
-if ssh $REPLICA_HOST \
-    "test -e ${REPLICA_RECOVERY_SNAPS_DIR}/$VMID/${DST_FILE}.replica_snap"; then
-
-    # point to [disk].replica_snap files
+if recovery_snap_exists $REPLICA_HOST $VMID/$DST_FILE; then
+    # point to [disk].recovery_snaphost files
     SRC_DIR=${REPLICA_RECOVERY_SNAPS_DIR}/$VMID
-    SRC_FILE="${DST_FILE}.replica_snap"
+    SRC_FILE="${DST_FILE}.recovery_snapshot"
+    SRC_PATH="$SRC_DIR/$SRC_FILE"
 else
     rsync_img_to_replica "$SRC_PATH" "$REPLICA_HOST"
 
@@ -156,9 +157,38 @@ fi
 ssh_forward ssh_exec_and_log $REPLICA_HOST "$CLONE_CMD" \
     "Error copying $SRC to $DST"
 
+# Create uncopressed base image copy on REPLICA for recovery snapshots
+# and upload it's signature to the DST host
+
+if [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
+    SNAP_DIR="$REPLICA_RECOVERY_SNAPS_DIR/$VMID"
+
+    BASE_SIGN_CMD=$(cat <<EOF
+        set -e -o pipefail
+
+        mkdir -p $SNAP_DIR
+        cd $SNAP_DIR
+
+        if file $SRC_PATH | grep -q QCOW; then
+            qemu-img convert -O qcow2 $SRC_PATH ${DST_FILE}.base
+        else
+            cp $SRC_PATH ${DST_FILE}.base
+        fi
+
+        rm -f ${DST_FILE}.sign
+        $RDIFF signature ${DST_FILE}.base ${DST_FILE}.sign
+
+        tar -cSf - ${DST_FILE}.sign | \
+            ssh $REPLICA_SSH_OPTS ${REPLICA_STORAGE_IP:-$DST_HOST} "tar xSf - -C $DST_DIR"
+EOF
+)
+
+    ssh_forward ssh_exec_and_log "$REPLICA_HOST" "$BASE_SIGN_CMD" \
+        "Error computing or uploading base image or signature"
+fi
+
+
 if [ -n "$RESIZE_CMD" ]; then
    ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \
        "Error resizing image $DST"
 fi
-
-exit 0

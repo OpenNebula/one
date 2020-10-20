@@ -1722,7 +1722,8 @@ TM_SSH_FILES="src/tm_mad/ssh/clone \
               src/tm_mad/ssh/monitor_ds \
               src/tm_mad/ssh/cpds \
               src/tm_mad/ssh/resize \
-              src/tm_mad/ssh/ssh_utils.sh"
+              src/tm_mad/ssh/ssh_utils.sh \
+              src/tm_mad/ssh/recovery_snap_create_live"
 
 TM_SSH_ETC_FILES="src/tm_mad/ssh/sshrc"
 
