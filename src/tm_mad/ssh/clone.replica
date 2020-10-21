@@ -154,12 +154,8 @@ EOF
 )
 fi
 
-ssh_forward ssh_exec_and_log $REPLICA_HOST "$CLONE_CMD" \
-    "Error copying $SRC to $DST"
-
-# Create uncopressed base image copy on REPLICA for recovery snapshots
-# and upload it's signature to the DST host
-
+# Prepare uncopressed base image copy on REPLICA for recovery snapshots
+# to speedup first rsync
 if [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
     SNAP_DIR="$REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 
@@ -170,23 +166,16 @@ if [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
         cd $SNAP_DIR
 
         if file $SRC_PATH | grep -q QCOW; then
-            qemu-img convert -O qcow2 $SRC_PATH ${DST_FILE}.base
+            qemu-img convert -O qcow2 $SRC_PATH ${DST_FILE}.recovery_snapshot
         else
-            cp $SRC_PATH ${DST_FILE}.base
+            cp $SRC_PATH ${DST_FILE}.recovery_snapshot
         fi
-
-        rm -f ${DST_FILE}.sign
-        $RDIFF signature ${DST_FILE}.base ${DST_FILE}.sign
-
-        tar -cSf - ${DST_FILE}.sign | \
-            ssh $REPLICA_SSH_OPTS ${REPLICA_STORAGE_IP:-$DST_HOST} "tar xSf - -C $DST_DIR"
 EOF
 )
 
-    ssh_forward ssh_exec_and_log "$REPLICA_HOST" "$BASE_SIGN_CMD" \
-        "Error computing or uploading base image or signature"
-fi
 
+ssh_forward ssh_exec_and_log $REPLICA_HOST "$CLONE_CMD" \
+    "Error copying $SRC to $DST"
 
 if [ -n "$RESIZE_CMD" ]; then
    ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \

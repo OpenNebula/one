@@ -33,7 +33,6 @@ source ${DRIVER_PATH}/../../scripts_common.sh
 mkdir -p "${DISK_PATH}.snap"
 SNAP_PATH="${DISK_PATH}.snap/recovery_snapshot"
 DISK_NAME="$(basename $DISK_PATH)"
-VM_DIR="$(dirname $DISK_PATH)"
 
 if [ -f $SNAP_PATH ]; then
     SNAP_OLD=$(stat -c "%Y" $SNAP_PATH)
@@ -52,27 +51,9 @@ retry_if "active block job" 3 5\
     virsh -q -c ${LIBVIRT_URI} blockcopy one-${VMID} \
         --path ${DISK_PATH} --dest $SNAP_PATH --wait --finish
 
-cd $VM_DIR
+ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 
-if [ ! -f "$DISK_NAME.sign" ]; then
-    tar --transform="flags=r;s|${DISK_NAME}.snap/recovery_snapshot|${DISK_NAME}.recovery_snapshot|" \
-        -cSf - ${DISK_NAME}.snap/recovery_snapshot | \
-        ssh $REPLICA_SSH_OPTS ${REPLICA_HOST} \
-        "tar xSf - -C $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
-    RC=$?
-else
-    rm -f "$DISK_NAME.snap/recovery_snapshot.rdiff"
+rsync -q $SNAP_PATH \
+    $REPLICA_HOST:$REPLICA_RECOVERY_SNAPS_DIR/$VMID/${DISK_NAME}.recovery_snapshot > /dev/null
 
-    $RDIFF delta "$DISK_NAME.sign" "$DISK_NAME.snap/recovery_snapshot" \
-        "$DISK_NAME.snap/recovery_snapshot.rdiff"
-
-    tar --transform="flags=r;s|${DISK_NAME}.snap/recovery_snapshot.rdiff|${DISK_NAME}.rdiff|" \
-        -cSf - ${DISK_NAME}.snap/recovery_snapshot.rdiff | \
-        ssh $REPLICA_SSH_OPTS ${REPLICA_HOST} \
-        "tar xSf - -C $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
-    RC=$?
-fi
-
-if [ "$RC" = "0" ]; then
-    stat -c "%c" $DISK_NAME.snap/recovery_snapshot
-fi
+stat -c "%Y" $SNAP_PATH
