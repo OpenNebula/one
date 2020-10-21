@@ -42,7 +42,6 @@ MKSWAP=${MKSWAP:-mkswap}
 QEMU_IMG=${QEMU_IMG:-qemu-img}
 RADOS=${RADOS:-rados}
 RBD=${RBD:-rbd}
-RDIFF=${RDIFF:-rdiff}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
@@ -190,8 +189,8 @@ function retry_if
         break
     done
 
-    echo $TERR >&2
-    echo $TSTD
+    [ -n "$TERR" ] && echo $TERR >&2
+    [ -n "$TSTD" ] && echo $TSTD
     return $RC
 }
 

@@ -96,7 +96,8 @@ function rsync_img_to_replica {
     local LOCK_TIMEOUT="${REPLICA_COPY_LOCK_TIMEOUT:-600}"
     local DST_DIR=$(dirname $IMG_PATH)
 
-    ssh_make_path $REPLICA_HOST $DST_DIR "replica"
+    ssh_exec_and_log $REPLICA_HOST \
+        "mkdir -p $DST_DIR; echo replica > $DST_DIR/.monitor"
 
     # sync to replica, include .md5sum and .snap dir
     LOCK="$REPLICA_HOST-${IMG_PATH//\//-}"
@@ -173,7 +174,6 @@ function clean_cache() {
 
 # ------------------------------------------------------------------------------
 # Checks if recovery snapshot exists for given VM/DISK,
-# If there is a newer image base and snap.rdiff it restores snapshot
 # ------------------------------------------------------------------------------
 function recovery_snap_exists() {
     REPLICA_RECOVERY_SNAPS_DIR="/var/lib/one/datastores/replica_snaps"
@@ -181,20 +181,6 @@ function recovery_snap_exists() {
     local DISK=$2
 
     SNAP_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.recovery_snapshot"
-    BASE_IMG_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.base"
-    RDIFF_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.rdiff"
 
-    SNAP_EXISTS_CMD=$(cat <<EOF
-    if [ "$SNAP_PATH" -nt "$RDIFF_PATH" ] ; then
-        true
-    elif [ "$RDIFF_PATH" -nt "$SNAP_PATH" ] && [ -e "$BASE_IMG_PATH" ]; then
-        rm -f "$SNAP_PATH"
-        $RDIFF patch "$BASE_IMG_PATH" "$RDIFF_PATH" "$SNAP_PATH"
-        true
-    else
-        false
-    fi
-EOF
-)
-    ssh "$REPLICA_HOST" "$SNAP_EXISTS_CMD"
+    ssh "$REPLICA_HOST" "test -f \"$SNAP_PATH\""
 }
