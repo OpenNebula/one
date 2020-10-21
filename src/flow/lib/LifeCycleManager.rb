@@ -724,15 +724,18 @@ class ServiceLCM
             role        = service.roles[role_name]
             cardinality = role.cardinality - 1
 
+            next unless role.nodes.find {|n| n['deploy_id'] == node }
+
             # just update if the cardinality is positive
-            set_cardinality(role, cardinality, true) if cardinality >= 0
+            set_cardinality(role, cardinality, false) if cardinality >= 0
 
             role.nodes.delete_if {|n| n['deploy_id'] == node }
 
             service.update
 
             Log.info 'WD',
-                     "Update #{service_id}:#{role_name} " \
+                     "Node #{node} is done, " \
+                     "updating service #{service_id}:#{role_name} " \
                      "cardinality to #{cardinality}"
         end
 
