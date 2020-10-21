@@ -1,7 +1,7 @@
-import { STEP_ID as APPLICATION_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/BasicConfiguration'
-import { STEP_ID as CLUSTER_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Clusters'
-import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Networking'
-import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Create/Steps/Tiers'
+import { STEP_ID as APPLICATION_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/BasicConfiguration'
+import { STEP_ID as CLUSTER_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Clusters'
+import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Networking'
+import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers'
 
 const mapNetworkToUserInput = network => {
   const { mandatory, description, type, idVnet, extra } = network

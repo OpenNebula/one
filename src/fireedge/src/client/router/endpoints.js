@@ -1,24 +1,10 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
-/*                                                                            */
-/* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
-/* not use this file except in compliance with the License. You may obtain    */
-/* a copy of the License at                                                   */
-/*                                                                            */
-/* http://www.apache.org/licenses/LICENSE-2.0                                 */
-/*                                                                            */
-/* Unless required by applicable law or agreed to in writing, software        */
-/* distributed under the License is distributed on an "AS IS" BASIS,          */
-/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   */
-/* See the License for the specific language governing permissions and        */
-/* limitations under the License.                                             */
-/* -------------------------------------------------------------------------- */
-
 import {
   Dashboard as DashboardIcon,
-  Settings as SettingsIcon,
   Ballot as BallotIcon,
-  Palette as PaletteIcon,
-  Reddit as RedditIcon
+  FormatListBulleted as TemplatesIcons,
+  Apps as InstancesIcons,
+  Public as ProvidersIcon,
+  SettingsSystemDaydream as ProvisionsIcon
 } from '@material-ui/icons'
 import { matchPath } from 'react-router-dom'
 
@@ -27,17 +13,36 @@ import Dashboard from 'client/containers/Dashboard'
 import Settings from 'client/containers/Settings'
 import TestApi from 'client/containers/TestApi'
 import Webconsole from 'client/containers/Webconsole'
-import { ApplicationsTemplatesCreate } from 'client/containers/ApplicationsTemplates'
-import Applications from 'client/containers/Applications'
+
+import ApplicationsTemplates from 'client/containers/ApplicationsTemplates'
+import ApplicationsTemplatesCreateForm from 'client/containers/ApplicationsTemplates/Form/Create'
+
+import ApplicationsInstances from 'client/containers/ApplicationsInstances'
+
+import Providers from 'client/containers/Providers'
+import Provisions from 'client/containers/Provisions'
 
 export const PATH = {
   LOGIN: '/',
   DASHBOARD: '/dashboard',
   APPLICATIONS_TEMPLATES: {
+    LIST: '/applications-templates',
     CREATE: '/applications-templates/create',
     EDIT: '/applications-templates/edit/:id'
   },
-  APPLICATIONS: '/applications',
+  APPLICATIONS: {
+    LIST: '/applications'
+  },
+  PROVIDERS: {
+    LIST: '/providers',
+    CREATE: '/providers/create',
+    EDIT: '/providers/edit/:id'
+  },
+  PROVISIONS: {
+    LIST: '/provisions',
+    CREATE: '/provisions/create',
+    EDIT: '/provisions/edit/:id'
+  },
   SETTINGS: '/settings',
   TEST_API: '/test-api'
 }
@@ -62,7 +67,6 @@ const ENDPOINTS = [
     path: PATH.SETTINGS,
     authenticated: true,
     header: true,
-    icon: SettingsIcon,
     component: Settings
   },
   {
@@ -84,26 +88,48 @@ const ENDPOINTS = [
     component: Webconsole
   },
   {
+    label: 'Templates',
+    path: PATH.APPLICATIONS_TEMPLATES.LIST,
+    authenticated: true,
+    sidebar: true,
+    icon: TemplatesIcons,
+    component: ApplicationsTemplates
+  },
+  {
     label: 'Create Application template',
     path: PATH.APPLICATIONS_TEMPLATES.CREATE,
     authenticated: true,
-    icon: PaletteIcon,
-    component: ApplicationsTemplatesCreate
+    component: ApplicationsTemplatesCreateForm
   },
   {
     label: 'Edit Application template',
     path: PATH.APPLICATIONS_TEMPLATES.EDIT,
     authenticated: true,
-    icon: PaletteIcon,
-    component: ApplicationsTemplatesCreate
+    component: ApplicationsTemplatesCreateForm
   },
   {
-    label: 'Applications',
-    path: PATH.APPLICATIONS,
+    label: 'Instances',
+    path: PATH.APPLICATIONS.LIST,
     authenticated: true,
     sidebar: true,
-    icon: RedditIcon,
-    component: Applications
+    icon: InstancesIcons,
+    component: ApplicationsInstances
+  },
+  {
+    label: 'Providers',
+    path: PATH.PROVIDERS.LIST,
+    authenticated: true,
+    sidebar: true,
+    icon: ProvidersIcon,
+    component: Providers
+  },
+  {
+    label: 'Provisions',
+    path: PATH.PROVISIONS.LIST,
+    authenticated: true,
+    sidebar: true,
+    icon: ProvisionsIcon,
+    component: Provisions
   }
 ]
 

@@ -10,7 +10,7 @@ import ListCards from 'client/components/List/ListCards'
 import { ApplicationCard } from 'client/components/Cards'
 import { Tr } from 'client/components/HOC'
 
-const ApplicationsDeployed = () => {
+function ApplicationsInstances () {
   const { applications, getApplications } = useApplication()
   const { fetchRequest, loading, error } = useFetch(getApplications)
 
@@ -45,4 +45,4 @@ const ApplicationsDeployed = () => {
   )
 }
 
-export default ApplicationsDeployed
+export default ApplicationsInstances

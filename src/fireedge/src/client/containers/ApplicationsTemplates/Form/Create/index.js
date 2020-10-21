@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { Redirect, useHistory, useParams } from 'react-router-dom'
 
-import { Container } from '@material-ui/core'
+import { LinearProgress } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import FormStepper from 'client/components/FormStepper'
-import Steps from 'client/containers/ApplicationsTemplates/Create/Steps'
+import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
 import { PATH } from 'client/router/endpoints'
 import useFetch from 'client/hooks/useFetch'
@@ -14,7 +14,7 @@ import useApplication from 'client/hooks/useApplication'
 import mapApplicationToForm from 'client/utils/parser/toApplicationForm'
 import mapFormToApplication from 'client/utils/parser/toApplicationTemplate'
 
-function ApplicationCreate () {
+function ApplicationsTemplatesCreateForm () {
   const history = useHistory()
   const { id } = useParams()
   const { steps, defaultValues, resolvers } = Steps()
@@ -38,11 +38,11 @@ function ApplicationCreate () {
 
     if (id) {
       updateApplicationTemplate({ id, data: application }).then(
-        res => res && history.push(PATH.APPLICATIONS)
+        res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST)
       )
     } else {
       createApplicationTemplate({ data: application }).then(
-        res => res && history.push(PATH.APPLICATIONS)
+        res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST)
       )
     }
   }
@@ -60,24 +60,17 @@ function ApplicationCreate () {
     return <Redirect to={PATH.DASHBOARD} />
   }
 
-  return (
-    <Container
-      disableGutters
-      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-    >
-      {(id && !data) || loading ? (
-        <div>is loading...</div>
-      ) : (
-        <FormProvider {...methods}>
-          <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
-        </FormProvider>
-      )}
-    </Container>
+  return (id && !data) || loading ? (
+    <LinearProgress />
+  ) : (
+    <FormProvider {...methods}>
+      <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
+    </FormProvider>
   )
 }
 
-ApplicationCreate.propTypes = {}
+ApplicationsTemplatesCreateForm.propTypes = {}
 
-ApplicationCreate.defaultProps = {}
+ApplicationsTemplatesCreateForm.defaultProps = {}
 
-export default ApplicationCreate
+export default ApplicationsTemplatesCreateForm
