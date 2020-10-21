@@ -23,12 +23,10 @@ DOMAIN="$1"
 SOURCE="$2"
 TARGET="$3"
 TARGET_INDEX="$4"
-VMID="$5"
 
 DETACH_PARAMS="--domain $DOMAIN --target $TARGET"
 
-\
-    exec_and_log "virsh --connect $LIBVIRT_URI detach-disk $DETACH_PARAMS" \
+exec_and_log "virsh --connect $LIBVIRT_URI detach-disk $DETACH_PARAMS" \
     "Could not detach $TARGET from $DOMAIN"
 
 virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \

@@ -20,7 +20,6 @@ source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
-VMID=$3
 
 exec_and_log "virsh --connect $LIBVIRT_URI reset $deploy_id" \
     "Could not reset domain $deploy_id"
