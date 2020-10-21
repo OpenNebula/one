@@ -43,8 +43,9 @@ const Sidebar = () => {
   const SidebarEndpoints = useMemo(
     () =>
       endpoints
-        ?.filter(
-          ({ authenticated, sidebar = false }) => authenticated && sidebar
+        ?.filter(({ authenticated, sidebar = false }) => authenticated && sidebar)
+        ?.filter(({ devMode = false }) =>
+          !devMode || (process?.env?.NODE_ENV === 'development' && devMode)
         )
         ?.map((endpoint, index) =>
           endpoint.routes ? (

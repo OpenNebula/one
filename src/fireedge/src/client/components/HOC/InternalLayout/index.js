@@ -49,7 +49,9 @@ const InternalLayout = ({ authRoute, label, children }) => {
           unmountOnExit
         >
           <Container maxWidth={false} className={classes.scrollable}>
-            {children}
+            <Container className={classes.container} disableGutters>
+              {children}
+            </Container>
           </Container>
         </CSSTransition>
       </Box>
