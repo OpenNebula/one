@@ -233,21 +233,15 @@ class ServiceWD
 
         if WARNING_STATES.include?(vm_lcm_state) ||
            WARNING_STATES.include?(vm_state)
-            action     = :error_wd_cb
-            action_msg = 'Warning'
+            action = :error_wd_cb
         elsif vm_state == 'DONE'
-            action     = :done_wd_cb
-            action_msg = 'Warning'
+            action = :done_wd_cb
         elsif vm_lcm_state == 'RUNNING'
-            action     = :running_wd_cb
-            action_msg = 'Running'
+            action = :running_wd_cb
         else
             # in case there is other state, ignore it
             return
         end
-
-        Log.info LOG_COMP,
-                 "#{action_msg} #{service_id}: #{role_name} is #{vm_state}"
 
         # execute callback
         @lcm.trigger_action(action,
