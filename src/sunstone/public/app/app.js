@@ -75,8 +75,18 @@ define(function(require) {
       Sunstone.showTab(PROVISION_TAB_ID);
     }
 
-    Websocket.start();
-    FireedgeValidator.validateFireedge();
+    var success_function = function() {
+        sessionStorage.setItem(FireedgeValidator.sessionVar, "true");
+        Websocket.start();
+    };
+    var error_function = function() {
+        sessionStorage.removeItem(FireedgeValidator.sessionVar);
+        setTimeout(function(){
+            _is_fireedge_running(tries+1);
+        }, 1000);
+    } 
+    FireedgeValidator.validateFireedgeWithFunctions(success_function,error_function);
+    
 
     $('#loading').hide();
   });
