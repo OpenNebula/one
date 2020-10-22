@@ -27,9 +27,9 @@ require 'vcenter_driver'
 require 'fileutils'
 
 if !ONE_LOCATION
-    VMRC_TICKETS = '/var/lib/one/sunstone_vnc_tokens/vmrc/'
+    VMRC_TICKETS = '/var/lib/one/sunstone_vmrc_tokens/'
 else
-    VMRC_TICKETS = ONE_LOCATION + '/var/lib/one/sunstone_vnc_tokens/vmrc/'
+    VMRC_TICKETS = ONE_LOCATION + '/var/sunstone_vmrc_tokens/'
 end
 
 FileUtils.mkdir_p VMRC_TICKETS
