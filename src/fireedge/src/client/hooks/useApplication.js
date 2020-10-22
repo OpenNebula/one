@@ -22,6 +22,14 @@ export default function useOpennebula () {
     shallowEqual
   )
 
+  const getApplication = useCallback(
+    ({ id }) =>
+      serviceApplication.getApplication({ id }).catch(err => {
+        dispatch(enqueueError(err ?? `Error GET (${id}) application`))
+      }),
+    [dispatch]
+  )
+
   const getApplications = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
       serviceApplication
@@ -96,6 +104,7 @@ export default function useOpennebula () {
 
   return {
     applications,
+    getApplication,
     getApplications,
 
     applicationsTemplates,
