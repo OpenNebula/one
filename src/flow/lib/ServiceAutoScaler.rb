@@ -36,7 +36,15 @@ class ServiceAutoScaler
     def start
         loop do
             @srv_pool.info
+
             vm_pool = VirtualMachinePool.new(client)
+
+            # -2 to get all resources, 0 just to get last record
+            monitoring = vm_pool.monitoring_xml(-2, 0)
+            monitoring = XMLElement.new(XMLElement.build_xml(monitoring,
+                                                             'MONITORING_DATA'))
+            monitoring = monitoring.to_hash['MONITORING_DATA']['MONITORING']
+
             vm_pool.info_all_extended
 
             @srv_pool.each do |service|
@@ -49,7 +57,7 @@ class ServiceAutoScaler
                          'Checking policies for ' \
                          "service: #{service.id}"
 
-                apply_scaling_policies(service, vm_pool)
+                apply_scaling_policies(service, vm_pool, monitoring)
             end
 
             sleep(@interval)
@@ -67,10 +75,13 @@ class ServiceAutoScaler
     # If a role needs to scale, its cardinality is updated, and its state is set
     # to SCALING. Only one role is set to scale.
     #
-    # @param  [OpenNebula::Service] service
-    def apply_scaling_policies(service, vm_pool)
+    # @param service    [OpenNebula::Service]
+    # @param vm_pool    [OpenNebula::VirtualMachinePool] VM pool
+    # @param monitoring [Hash]                           Monitoring data
+    def apply_scaling_policies(service, vm_pool, monitoring)
         service.roles.each do |name, role|
-            diff, cooldown_duration = role.scale?(vm_pool)
+            diff, cooldown_duration = role.scale?({ :vm_pool    => vm_pool,
+                                                    :monitoring => monitoring })
 
             policies = {}
             policies['elasticity_policies'] = role.elasticity_policies
