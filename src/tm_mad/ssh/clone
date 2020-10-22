@@ -87,7 +87,7 @@ REPLICA_HOST=$(get_replica_host $SYS_DS_ID)
 
 if [ -n "$REPLICA_HOST" ]; then
     $0.replica $@ "$REPLICA_HOST"
-    exit 0
+    exit $?
 fi
 
 #-------------------------------------------------------------------------------
