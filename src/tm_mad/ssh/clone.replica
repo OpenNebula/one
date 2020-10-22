@@ -116,6 +116,7 @@ if recovery_snap_exists $REPLICA_HOST $VMID/$DST_FILE; then
     SRC_DIR=${REPLICA_RECOVERY_SNAPS_DIR}/$VMID
     SRC_FILE="${DST_FILE}.recovery_snapshot"
     SRC_PATH="$SRC_DIR/$SRC_FILE"
+    RECOVERY="YES"
 else
     rsync_img_to_replica "$SRC_PATH" "$REPLICA_HOST"
 
@@ -156,10 +157,10 @@ fi
 
 # Prepare uncopressed base image copy on REPLICA for recovery snapshots
 # to speedup first rsync
-if [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
+if [ -n "$RECOVERY_SNAPSHOT_FREQ" ] && [ "$RECOVERY" != "YES" ]; then
     SNAP_DIR="$REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 
-    BASE_SIGN_CMD=$(cat <<EOF
+    BASE_CMD=$(cat <<EOF
         set -e -o pipefail
 
         mkdir -p $SNAP_DIR
@@ -172,6 +173,10 @@ if [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
         fi
 EOF
 )
+    ssh_forward ssh_exec_and_log "$REPLICA_HOST" "$BASE_CMD" \
+        "Error uploading base image to replica"
+fi
+
 
 
 ssh_forward ssh_exec_and_log $REPLICA_HOST "$CLONE_CMD" \
