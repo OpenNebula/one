@@ -34,6 +34,7 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     private static final String ELEMENT_NAME          = "VM";
     private static final String INFO_METHOD           = "vmpool.info";
     private static final String INFO_EXTENDED_METHOD  = "vmpool.infoextended";
+    private static final String INFO_SET_METHOD       = "vmpool.infoset";
     private static final String MONITORING            = "vmpool.monitoring";
 
     /**
@@ -131,6 +132,20 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     public static OneResponse info_extended(Client client, int filter)
     {
         return client.call(INFO_EXTENDED_METHOD, filter, -1, -1, NOT_DONE);
+    }
+
+    /**
+     * Retrieves all of the Virtual Machines in the vm_ids list.
+     *
+     * @param client XML-RPC Client.
+     * @param vm_ids Comma separated list of VM IDs.
+     * @param extended If true the extended body is retrieved.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info_extended(Client client, int vm_ids, boolean extended)
+    {
+        return client.call(INFO_SET_METHOD, vm_ids, extended);
     }
 
     /**

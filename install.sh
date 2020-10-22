@@ -2649,7 +2649,8 @@ FIREEDGE_ETC_FILES="src/fireedge/fireedge-server.conf"
 #-----------------------------------------------------------------------------
 
 ONEGATE_FILES="src/onegate/onegate-server.rb \
-                src/onegate/config.ru"
+               src/onegate/config.ru \
+               share/onegate/onegate"
 
 ONEGATE_BIN_FILES="src/onegate/bin/onegate-server"
 
