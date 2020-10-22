@@ -27,10 +27,14 @@ require 'openssl'
 if !ONE_LOCATION
     GUAC_LOCK_FILE = '/var/lock/one/.guac.lock'
     GUACD_PID_FILE = '/var/run/one/guacd.pid'
+    VAR_LOCATION = '/var/lib/one/'
 else
     GUAC_LOCK_FILE= ONE_LOCATION + '/var/.guac.lock'
     GUACD_PID_FILE= ONE_LOCATION + '/var/guacd.pid'
+    VAR_LOCATION = ONE_LOCATION + '/var/'
 end
+
+FIREEDGE_KEY = VAR_LOCATION + '/.one/fireedge_key'
 
 GUAC_STATES = [
     # 0,  # LCM_INIT
@@ -117,7 +121,6 @@ class OpenNebulaGuac
     end
 
     def proxy(vm_resource, type_connection = 'vnc')
-
         # Check configurations and VM attributes
         if !GUAC_STATES.include?(vm_resource['LCM_STATE'])
             error_message = "Wrong state (#{vm_resource['LCM_STATE']})
@@ -148,6 +151,10 @@ class OpenNebulaGuac
         end
 
         return settings[:error] if settings.key?(:error)
+
+        if !File.exist?(FIREEDGE_KEY)
+            return error(400, 'Fireedge_key is not available')
+        end
 
         data = encrypt_data(
             {
@@ -276,8 +283,7 @@ class OpenNebulaGuac
     def encrypt_data(data)
         iv = OpenSSL::Random.random_bytes(16)
 
-        # OpenSSL::Random.random_bytes(32)
-        key = 'LSIOGCKYLSIOGCKYLSIOGCKYLSIOGCKY'
+        key = File.read(FIREEDGE_KEY)
 
         cipher = OpenSSL::Cipher.new('aes-256-cbc')
         cipher.encrypt
