@@ -1,7 +1,7 @@
 import * as yup from 'yup'
 import { v4 as uuidv4 } from 'uuid'
 
-import { TYPE_INPUT } from 'client/constants'
+import { INPUT_TYPES } from 'client/constants'
 import { TYPES_POLICY, TIME_FORMATS, hasMinValue, isDateFormat } from './types'
 
 const CRON_REG = /(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every (\d+(ns|us|µs|ms|s|m|h))+)|((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})/g
@@ -9,7 +9,7 @@ const CRON_REG = /(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@ever
 export const ID = {
   name: 'id',
   label: 'ID',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'hidden',
   validation: yup
     .string()
@@ -26,7 +26,7 @@ export const ID = {
 export const TYPE = {
   name: 'type',
   label: 'Type of adjustment',
-  type: TYPE_INPUT.SELECT,
+  type: INPUT_TYPES.SELECT,
   values: TYPES_POLICY,
   tooltip: `
     CHANGE: Add/subtract the given number of VMs
@@ -43,7 +43,7 @@ export const TYPE = {
 export const ADJUST = {
   name: 'adjust',
   label: 'Adjust value',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   tooltip: `
     CHANGE: -2, will subtract 2 VMs from the tier
@@ -59,12 +59,12 @@ export const ADJUST = {
 export const MIN_ADJUST_STEP = {
   name: 'min_adjust_step',
   label: 'Min adjust step',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   dependOf: TYPE.name,
   tooltip: `
     If present, the policy will change the cardinality by
     at least the number of VMs set in this attribute`,
-  htmlType: dependValue => hasMinValue(dependValue) ? TYPE_INPUT.HIDDEN : 'number',
+  htmlType: dependValue => hasMinValue(dependValue) ? INPUT_TYPES.HIDDEN : 'number',
   validation: yup
     .number()
     .typeError('Min. adjust step must be a number')
@@ -83,7 +83,7 @@ export const MIN_ADJUST_STEP = {
 export const EXPRESSION = {
   name: 'expression',
   label: 'Expression',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   validation: yup
     .string()
     .trim()
@@ -94,7 +94,7 @@ export const EXPRESSION = {
 export const PERIOD_NUMBER = {
   name: 'period_number',
   label: 'Period number',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   tooltip:
     'Number of periods that the expression must be true before the elasticity is triggered',
@@ -109,7 +109,7 @@ export const PERIOD_NUMBER = {
 export const PERIOD = {
   name: 'period',
   label: 'Period',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   tooltip: 'Duration, in seconds, of each period in period_number',
   validation: yup
@@ -126,7 +126,7 @@ export const PERIOD = {
 export const COOLDOWN = {
   name: 'cooldown',
   label: 'Cooldown',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   tooltip: `
     Cooldown period duration after a scale operation, in seconds.
@@ -146,7 +146,7 @@ export const COOLDOWN = {
 export const TIME_FORMAT = {
   name: 'time_format',
   label: 'Time format',
-  type: TYPE_INPUT.SELECT,
+  type: INPUT_TYPES.SELECT,
   values: TIME_FORMATS,
   tooltip: `
     START TIME: Exact time for the adjustment
@@ -163,10 +163,10 @@ export const TIME_FORMAT = {
 export const TIME_EXPRESSION = {
   name: 'time_expression',
   label: 'Time expression',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   dependOf: TIME_FORMAT.name,
   htmlType: dependValue => isDateFormat(dependValue)
-    ? 'datetime-local' : TYPE_INPUT.TEXT,
+    ? 'datetime-local' : INPUT_TYPES.TEXT,
   validation: yup
     .string()
     .trim()

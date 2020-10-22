@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { Box, Grid } from '@material-ui/core'
 import { useFormContext, useWatch } from 'react-hook-form'
 
-import { TYPE_INPUT } from 'client/constants'
+import { INPUT_TYPES } from 'client/constants'
 import TextController from 'client/components/FormControl/TextController'
 import SelectController from 'client/components/FormControl/SelectController'
 import CheckboxController from 'client/components/FormControl/CheckboxController'
@@ -12,10 +12,10 @@ import AutocompleteController from 'client/components/FormControl/AutocompleteCo
 import { get } from 'client/utils/helpers'
 
 const InputController = {
-  [TYPE_INPUT.TEXT]: TextController,
-  [TYPE_INPUT.SELECT]: SelectController,
-  [TYPE_INPUT.CHECKBOX]: CheckboxController,
-  [TYPE_INPUT.AUTOCOMPLETE]: AutocompleteController
+  [INPUT_TYPES.TEXT]: TextController,
+  [INPUT_TYPES.SELECT]: SelectController,
+  [INPUT_TYPES.CHECKBOX]: CheckboxController,
+  [INPUT_TYPES.AUTOCOMPLETE]: AutocompleteController
 }
 const HiddenInput = ({ isHidden, children }) =>
   isHidden ? <Box display="none">{children}</Box> : children
@@ -40,7 +40,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
             ? htmlType(dependValue)
             : htmlType
 
-          const isHidden = htmlTypeValue === TYPE_INPUT.HIDDEN
+          const isHidden = htmlTypeValue === INPUT_TYPES.HIDDEN
 
           return (
             InputController[type] && (

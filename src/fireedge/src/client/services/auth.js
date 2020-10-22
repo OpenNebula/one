@@ -1,14 +1,14 @@
 import { httpCodes } from 'server/utils/constants'
-import { jwtName, endpointsRoutes } from 'client/constants'
+import { JWT_NAME } from 'client/constants'
 import { requestData, removeStoreData } from 'client/utils'
 
 export const login = user =>
-  requestData(endpointsRoutes.login, {
+  requestData('/api/auth/', {
     data: user,
     method: 'POST',
     authenticate: false,
     error: err => {
-      removeStoreData(jwtName)
+      removeStoreData(JWT_NAME)
       return err?.message
     }
   }).then(res => {
@@ -21,9 +21,9 @@ export const login = user =>
   })
 
 export const getUser = () =>
-  requestData(endpointsRoutes.userInfo, {
+  requestData('/api/user/info', {
     error: err => {
-      removeStoreData(jwtName)
+      removeStoreData(JWT_NAME)
       return err?.message
     }
   }).then(res => {

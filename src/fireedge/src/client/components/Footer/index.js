@@ -3,9 +3,7 @@ import React, { memo } from 'react'
 import { Box, Link, Typography } from '@material-ui/core'
 
 import footerStyles from 'client/components/Footer/styles'
-import { by } from 'client/constants'
-
-const { text, url } = by
+import { BY } from 'client/constants'
 
 const Footer = memo(() => {
   const classes = footerStyles()
@@ -18,8 +16,8 @@ const Footer = memo(() => {
           {'❤️'}
         </span>
         {'by'}
-        <Link href={url} className={classes.link}>
-          {text}
+        <Link href={BY.url} className={classes.link}>
+          {BY.text}
         </Link>
       </Typography>
     </Box>

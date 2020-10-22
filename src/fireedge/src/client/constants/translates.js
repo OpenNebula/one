@@ -9,5 +9,6 @@ module.exports = {
   Token2FA: '2FA Token',
   SignOut: 'Sign Out',
   Submit: 'Submit',
-  Response: 'Response'
+  Response: 'Response',
+  Settings: 'Settings'
 }

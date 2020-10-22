@@ -15,12 +15,11 @@
 
 import React from 'react'
 import { Translate } from 'client/components/HOC'
-import constants from 'client/constants'
+import TRANSLATES from 'client/constants/translates'
 
-const { settings } = constants
 const Settings = () => (
   <div>
-    <Translate word={settings} />
+    <Translate word={TRANSLATES.Settings} />
   </div>
 )
 

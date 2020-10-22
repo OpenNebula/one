@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { TYPE_INPUT } from 'client/constants'
+import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils/helpers'
 
 const STRATEGIES_DEPLOY = [
@@ -17,7 +17,7 @@ export const FORM_FIELDS = [
   {
     name: 'name',
     label: 'Name',
-    type: TYPE_INPUT.TEXT,
+    type: INPUT_TYPES.TEXT,
     validation: yup
       .string()
       .min(1, 'Name field is required')
@@ -29,7 +29,7 @@ export const FORM_FIELDS = [
   {
     name: 'description',
     label: 'Description',
-    type: TYPE_INPUT.TEXT,
+    type: INPUT_TYPES.TEXT,
     multiline: true,
     validation: yup
       .string()
@@ -39,7 +39,7 @@ export const FORM_FIELDS = [
   {
     name: 'deployment',
     label: 'Select a strategy',
-    type: TYPE_INPUT.SELECT,
+    type: INPUT_TYPES.SELECT,
     values: STRATEGIES_DEPLOY,
     validation: yup
       .string()
@@ -51,7 +51,7 @@ export const FORM_FIELDS = [
   {
     name: 'shutdown_action',
     label: 'Select a VM shutdown action',
-    type: TYPE_INPUT.SELECT,
+    type: INPUT_TYPES.SELECT,
     values: SHUTDOWN_ACTIONS,
     validation: yup
       .string()
@@ -63,7 +63,7 @@ export const FORM_FIELDS = [
     label: 'Wait for Tier Full Boot',
     tooltip:
       'Wait for VM/containers to finish their boot process to report that they are READY and allow children tiers to spawn',
-    type: TYPE_INPUT.CHECKBOX,
+    type: INPUT_TYPES.CHECKBOX,
     validation: yup.boolean().default(false)
   }
 ]

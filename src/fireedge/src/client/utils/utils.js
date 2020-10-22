@@ -18,7 +18,7 @@ import root from 'window-or-global'
 
 import { messageTerminal } from 'server/utils/general'
 import { httpCodes } from 'server/utils/constants'
-import { jwtName } from 'client/constants'
+import { JWT_NAME } from 'client/constants'
 
 const defaultData = {
   data: {},
@@ -78,35 +78,30 @@ export const requestData = (url = '', data = {}) => {
     validateStatus: status =>
       Object.values(httpCodes).some(({ id }) => id === status)
   }
-  const json = params.json ? params.json : true
-  let rtn = null
-  if (json) {
+
+  if (params.json) {
     config.headers['Content-Type'] = 'application/json'
   }
+
   if (params.data && params.method.toUpperCase() !== 'GET') {
     config.data = params.data
   }
 
-  if (
-    params.onUploadProgress &&
-    typeof params.onUploadProgress === 'function'
-  ) {
+  if (typeof params.onUploadProgress === 'function') {
     config.onUploadProgress = params.onUploadProgress
   }
 
-  if (params.authenticate && findStorageData && findStorageData(jwtName)) {
-    config.headers.Authorization = `Bearer ${findStorageData(jwtName)}`
+  if (params.authenticate === true && findStorageData(JWT_NAME)) {
+    config.headers.Authorization = `Bearer ${findStorageData(JWT_NAME)}`
   }
 
   return axios
     .request(config)
     .then(response => {
       if (response?.data && response?.status < httpCodes.badRequest.id) {
-        rtn =
-          json && typeof response === 'string'
-            ? response.data.json()
-            : response.data
-        return rtn
+        return params.json && typeof response === 'string'
+          ? response.data.json()
+          : response.data
       }
       throw new Error(response.statusText)
     })

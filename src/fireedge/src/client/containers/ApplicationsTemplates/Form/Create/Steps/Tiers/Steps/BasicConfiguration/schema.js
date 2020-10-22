@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { TYPE_INPUT } from 'client/constants'
+import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils/helpers'
 
 const SHUTDOWN_ACTIONS = [
@@ -11,7 +11,7 @@ const SHUTDOWN_ACTIONS = [
 const NAME = {
   name: 'name',
   label: 'Name',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   validation: yup
     .string()
     .trim()
@@ -23,7 +23,7 @@ const NAME = {
 const CARDINALITY = {
   name: 'cardinality',
   label: 'Cardinality',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   validation: yup
     .number()
@@ -35,7 +35,7 @@ const CARDINALITY = {
 const SHUTDOWN_ACTION = {
   name: 'shutdown_action',
   label: 'Select a VM shutdown action',
-  type: TYPE_INPUT.SELECT,
+  type: INPUT_TYPES.SELECT,
   values: SHUTDOWN_ACTIONS,
   validation: yup
     .string()

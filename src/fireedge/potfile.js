@@ -13,13 +13,13 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-genpotfile');
-const constants = require('./src/server/utils/constants');
-const clientConstants = require('./src/client/constants');
+const { createReadStream, generateFile } = require('fireedge-genpotfile')
+const constants = require('./src/server/utils/constants')
+const clientConstants = require('./src/client/constants/translates')
 
-const testFolder = './src/public';
-const exportFile = './src/public/assets/languages/messages.pot';
-const definitions = { ...constants, ...clientConstants };
+const testFolder = './src/public'
+const exportFile = './src/public/assets/languages/messages.pot'
+const definitions = { ...constants, ...clientConstants }
 
 // function Tr()
 const optsFunc = {
@@ -28,7 +28,7 @@ const optsFunc = {
   removeEnd: /(\))/g,
   regexTextCaptureIndex: 0,
   definitions
-};
+}
 
 // React component <Translate word="word"/>
 const optsComponent = {
@@ -37,9 +37,9 @@ const optsComponent = {
   removeEnd: /('|"|}|'}|"}) \/>/g,
   regexTextCaptureIndex: 0,
   definitions
-};
+}
 
-createReadStream(testFolder, optsFunc);
-createReadStream(testFolder, optsComponent);
+createReadStream(testFolder, optsFunc)
+createReadStream(testFolder, optsComponent)
 
-generateFile(exportFile);
+generateFile(exportFile)

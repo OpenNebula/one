@@ -16,12 +16,10 @@
 import React, { useState, useEffect } from 'react'
 import io from 'socket.io-client'
 import { findStorageData } from 'client/utils'
-import constants from 'client/constants'
+import { JWT_NAME } from 'client/constants'
 import { defaultPort } from 'server/utils/constants/defaults'
 
-const { jwtName } = constants
-
-const ENDPOINT = `http://localhost:${defaultPort}`
+const ENDPOINT = `http://127.0.0.1:${defaultPort}`
 
 const Webconsole = () => {
   const [response, setResponse] = useState({})
@@ -30,7 +28,7 @@ const Webconsole = () => {
     const socket = io(ENDPOINT, {
       path: '/zeromq',
       query: {
-        token: findStorageData(jwtName)
+        token: findStorageData(JWT_NAME)
       }
     })
     socket.on('zeroMQ', data => {
