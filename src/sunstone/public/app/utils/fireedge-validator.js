@@ -26,7 +26,7 @@ define(function (require) {
     // Recursive function to validate if Fireedge Server is running 
     var _is_fireedge_running = function(tries) {
         var fireedge_running = sessionStorage.getItem(session_var);
-        if (!fireedge_running && tries <= max_tries){
+        if (!fireedge_running && (tries < max_tries)){
             var success_function = function() {
                 sessionStorage.setItem(session_var, "true");
             };
@@ -35,7 +35,15 @@ define(function (require) {
                 setTimeout(function(){
                     _is_fireedge_running(tries+1);
                 }, 1000);
-            }  
+            } 
+            _request(success_function,error_function);
+        }
+    }
+
+    // Recursive function to validate if Fireedge Server is running 
+    var _is_fireedge_running = function(tries, success_function, error_function) {
+        var fireedge_running = sessionStorage.getItem(session_var);
+        if (!fireedge_running && (tries < max_tries)){
             _request(success_function,error_function);
         }
     }
@@ -52,9 +60,14 @@ define(function (require) {
     var _validate_fireedge = function() {
         _is_fireedge_running(0);
     }
+
+    var _validate_fireedge_with_functions = function(success,error) {
+        _is_fireedge_running(0,success,error);
+    }
   
     var fireedge_validator = {
       "validateFireedge": _validate_fireedge,
+      "validateFireedgeWithFunctions": _validate_fireedge_with_functions,
       "request": _request,
       "sessionVar": session_var
     };
