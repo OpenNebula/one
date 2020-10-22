@@ -13,16 +13,51 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const GuacamoleLite = require('guacamole-lite');
-const { getConfig } = require('server/utils/yml');
-const { clientOptions, clientCallbacks } = require('./options');
+const GuacamoleLite = require('guacamole-lite')
+const { getConfig } = require('server/utils/yml')
+const { messageTerminal } = require('server/utils/general')
+const { genFireedgeKey } = require('server/utils/server')
 
-const appConfig = getConfig();
-const guacd = appConfig.GUACD || {};
-const guacdPort = guacd.PORT || 4822;
-const guacdHost = guacd.HOST || '127.0.0.1';
+// set fireedge_key
+genFireedgeKey()
 
-const endpoint = '/guacamole';
+const configError = (error) => ({
+  color: 'red',
+  message: 'Error: %s',
+  type: error && error.message
+})
+
+const clientOptions = {
+  crypt: {
+    cypher: 'AES-256-CBC',
+    key: global.FIREEDGE_KEY || ''
+  },
+  allowedUnencryptedConnectionSettings: {
+    rdp: ['width', 'height', 'dpi'],
+    vnc: ['width', 'height', 'dpi'],
+    ssh: ['color-scheme', 'font-name', 'font-size', 'width', 'height', 'dpi'],
+    telnet: ['color-scheme', 'font-name', 'font-size', 'width', 'height', 'dpi']
+  },
+  log: {
+    level: 'ERRORS'
+  }
+}
+
+const clientCallbacks = {
+  processConnectionSettings: (settings, callback) => {
+    if (settings.expiration && settings.expiration < Date.now()) {
+      return callback(new Error('Token expired'))
+    }
+    return callback(null, settings)
+  }
+}
+
+const appConfig = getConfig()
+const guacd = appConfig.GUACD || {}
+const guacdPort = guacd.PORT || 4822
+const guacdHost = guacd.HOST || '127.0.0.1'
+
+const endpoint = '/guacamole'
 const guacamole = appServer => {
   if (
     appServer &&
@@ -30,17 +65,19 @@ const guacamole = appServer => {
     appServer.constructor.name &&
     appServer.constructor.name === 'Server'
   ) {
-    // eslint-disable-next-line no-new
-    new GuacamoleLite(
-      { server: appServer, path: endpoint }, // server fireedge
-      { host: guacdHost, port: guacdPort }, // guacD
+    const guacamole = new GuacamoleLite(
+      { server: appServer, path: endpoint },
+      { host: guacdHost, port: guacdPort },
       clientOptions,
       clientCallbacks
-    );
+    )
+    guacamole.on('error', (clientConnection, error) => {
+      messageTerminal(configError(error))
+    })
   }
-};
+}
 
 module.exports = {
   endpoint,
   guacamole
-};
+}

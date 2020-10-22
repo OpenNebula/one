@@ -32,8 +32,7 @@ const defaults = {
     {
       ID: 0,
       NAME: 'OpenNebula',
-      RPC: `${protocol}://${defaultIp}:2633/RPC2`,
-      VNC: ''
+      RPC: `${protocol}://${defaultIp}:2633/RPC2`
     }
   ],
   defaultOneFlowServer: {

@@ -13,11 +13,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const express = require('express');
-const { defaults, httpCodes, params } = require('server/utils/constants');
-const { getConfig } = require('server/utils/yml');
+const express = require('express')
+const { defaults, httpCodes, params } = require('server/utils/constants')
+const { getConfig } = require('server/utils/yml')
 
-const appConfig = getConfig();
+const appConfig = getConfig()
 
 const {
   opennebulaConnect,
@@ -26,8 +26,9 @@ const {
   checkOpennebulaCommand,
   checkMethodRouteFunction,
   responseOpennebula,
-  httpResponse
-} = require('../../utils');
+  httpResponse,
+  getDataZone
+} = require('../../utils')
 
 const {
   validateResource,
@@ -39,72 +40,55 @@ const {
   getIdUserOpennebula,
   getUserOpennebula,
   getPassOpennebula
-} = require('./middlewares');
+} = require('./middlewares')
 
 const {
-  defaultOpennebulaZones,
   defaultMessageInvalidZone,
   defaultGetMethod,
   httpMethod: httpMethods,
   from: fromData
-} = defaults;
+} = defaults
 
-const defaultZones = appConfig.DEFAULT_ZONE
-  ? [appConfig.DEFAULT_ZONE]
-  : defaultOpennebulaZones;
+const defaultZones = appConfig.DEFAULT_ZONE ? [appConfig.DEFAULT_ZONE] : null
 
-const router = express.Router();
+const router = express.Router()
 
-express();
+express()
 
 const paramsToRoutes = () =>
   Object.keys(params).reduce(
     (resources, param) => String(resources).concat(`/:${params[param]}?`),
     '/:resource?'
-  );
-
-const getDataZone = () => {
-  let rtn;
-  const Zones = (global && global.zones) || defaultZones;
-  if (Zones && Array.isArray(Zones)) {
-    const { federation } = getParamsState();
-    rtn = Zones[0];
-    if (federation !== null) {
-      rtn = Zones.find(
-        zone => zone && zone.ID !== undefined && String(zone.ID) === federation
-      );
-    }
-  }
-  return rtn;
-};
+  )
 
 router.all(
   paramsToRoutes(),
   [validateResource, optionalParameters, optionalQueries],
   (req, res, next) => {
-    const { internalServerError, ok, methodNotAllowed } = httpCodes;
-    const { method: httpMethod } = req;
-    res.locals.httpCode = httpResponse(internalServerError);
-    const zone = getDataZone();
-    if (zone) {
-      const { RPC } = zone;
+    const { internalServerError, ok, methodNotAllowed } = httpCodes
+    const { method: httpMethod } = req
+    res.locals.httpCode = httpResponse(internalServerError)
+    const { zone } = getQueriesState()
+    const zoneData = getDataZone(zone, defaultZones)
+    if (zoneData) {
+      const { RPC } = zoneData
       const connectOpennebula = (
         user = getUserOpennebula(),
         pass = getPassOpennebula()
-      ) => opennebulaConnect(user, pass, RPC);
-      const { resource } = req.params;
-      const routeFunction = checkIfIsARouteFunction(resource, httpMethod);
-      res.locals.httpCode = httpResponse(methodNotAllowed);
+      ) => opennebulaConnect(user, pass, RPC)
+      const { resource } = req.params
+      const routeFunction = checkIfIsARouteFunction(resource, httpMethod)
+      res.locals.httpCode = httpResponse(methodNotAllowed)
       const dataSources = {
         [fromData.resource]: getParamsState(),
         [fromData.query]: getQueriesState(),
         [fromData.postBody]: req.body
-      };
+      }
       if (routeFunction) {
         const valRouteFunction = checkMethodRouteFunction(
           routeFunction,
           httpMethod
-        );
+        )
         if (valRouteFunction) {
           valRouteFunction(
             dataSources,
@@ -113,54 +97,54 @@ router.all(
             connectOpennebula,
             getIdUserOpennebula(),
             `${getUserOpennebula()}:${getPassOpennebula()}`
-          );
+          )
         } else {
-          next();
+          next()
         }
       } else {
-        const { method } = getParamsState();
+        const { method } = getParamsState()
         const command = commandXML(
           resource,
           method,
           httpMethod === httpMethods.GET && defaultGetMethod
-        );
-        const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod);
+        )
+        const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod)
         if (getOpennebulaMethod) {
           const response = (val = {}) => {
-            res.locals.httpCode = httpResponse(ok, val || val === 0 ? val : {});
+            res.locals.httpCode = httpResponse(ok, val || val === 0 ? val : {})
             if (typeof val === 'string') {
-              res.locals.httpCode = httpResponse(ok, undefined, val);
+              res.locals.httpCode = httpResponse(ok, undefined, val)
             }
-            next();
-          };
+            next()
+          }
 
           const updaterResponse = code => {
             if ('id' in code && 'message' in code) {
-              res.locals.httpCode = code;
+              res.locals.httpCode = code
             }
-          };
+          }
           const connect = connectOpennebula(
             getUserOpennebula(),
             getPassOpennebula(),
             RPC
-          );
+          )
           connect(command, getOpennebulaMethod(dataSources), (err, value) =>
             responseOpennebula(updaterResponse, err, value, response, next)
-          );
+          )
         } else {
-          next();
+          next()
         }
       }
     } else {
-      res.locals.httpCode.message += `: ${defaultMessageInvalidZone}`;
-      next();
+      res.locals.httpCode.message += `: ${defaultMessageInvalidZone}`
+      next()
     }
   },
   (req, res) => {
-    clearStates();
-    const { httpCode } = res.locals;
-    res.status(httpCode.id).json(httpCode);
+    clearStates()
+    const { httpCode } = res.locals
+    res.status(httpCode.id).json(httpCode)
   }
-);
+)
 
-module.exports = router;
+module.exports = router
