@@ -50,6 +50,7 @@ require 'rubygems'
 require 'sinatra'
 require 'yaml'
 require 'json'
+require 'set'
 
 require 'CloudAuth'
 require 'CloudServer'
@@ -74,6 +75,11 @@ RESTRICTED_ATTRS = [
 RESTRICTED_ACTIONS = [
     'reboot'
 ]
+
+# Attrs of the Virtual Network template that will be retrieved
+# with onegate vnet | get /vnet/:id requests.
+VNET_TEMPLATE_ATTRIBUTES = %w[NETWORK_ADDRESS NETWORK_MASK GATEWAY GATEWAY6 DNS
+                              GUEST_MTU CONTEXT_FORCE_IPV4 SEARCH_DOMAIN]
 
 include OpenNebula
 
@@ -162,13 +168,24 @@ helpers do
 
     def get_requested_vm(requested_vm_id, request_env, client)
         source_vm = get_source_vm(request_env, client)
-        if source_vm['ID'].to_i != requested_vm_id
+
+        return source_vm if Integer(source_vm['ID']) == requested_vm_id
+
+        if !source_vm['USER_TEMPLATE/SERVICE_ID'].nil?
             service_id = source_vm['USER_TEMPLATE/SERVICE_ID']
             check_vm_in_service(requested_vm_id, service_id, client)
-
-            requested_vm = get_vm(requested_vm_id, client)
+            get_vm(requested_vm_id, client)
+        elsif !source_vm['TEMPLATE/VROUTER_ID'].nil?
+            vrouter_id = source_vm['TEMPLATE/VROUTER_ID']
+            vrouter_hash = get_vrouter(vrouter_id, client).to_hash
+            check_vm_in_vrouter(requested_vm_id, vrouter_hash, source_vm)
+            get_vm(requested_vm_id, client)
         else
-            requested_vm = source_vm
+            error_msg = 'This VM does not belong to any Virtual Router or '\
+                        'Service, so it cannot retrieve information '\
+                        'from other VMs'
+            logger.error {error_msg}
+            halt 400, error_msg
         end
     end
 
@@ -241,6 +258,48 @@ helpers do
         service.body
     end
 
+    def get_vrouter(vrouter_id, client)
+        begin
+            vrouter_id = Integer(vrouter_id)
+        rescue TypeError
+            error_msg = 'Empty or invalid VROUTER_ID'
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        vrouter = VirtualRouter.new_with_id(vrouter_id, client)
+        rc = vrouter.info
+
+        if OpenNebula.is_error?(rc)
+            error_msg = "Virtual router #{vrouter_id} not found"
+            logger.error {error_msg}
+            halt 404, error_msg
+        end
+
+        vrouter
+    end
+
+    def get_vnet(vnet_id, client)
+        begin
+            vnet_id = Integer(vnet_id)
+        rescue TypeError
+            error_msg = 'Empty or invalid VNET_ID'
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+
+        vnet = VirtualNetwork.new_with_id(vnet_id, client)
+        rc = vnet.info
+
+        if OpenNebula.is_error?(rc)
+            error_msg = "Virtual network #{vnet_id} not found"
+            logger.error {error_msg}
+            halt 404, error_msg
+        end
+
+        vnet
+    end
+
     def parse_json(json_str, root_element)
         begin
             hash = JSON.parse(json_str)
@@ -294,6 +353,10 @@ helpers do
         end
     end
 
+    def get_vnet_template_attributes
+        $conf[:vnet_template_attributes] || VNET_TEMPLATE_ATTRIBUTES
+    end
+
     # Check if the source VM is part of a service and if the requested
     # VM is part of the same Service as the source VM.
     #
@@ -324,6 +387,91 @@ helpers do
         end
 
         return response
+    end
+
+    # Check if the source VM is part of a virtual router and if the
+    # requested VM is part of the same virtual router as the source VM.
+    # If false a halt is triggered
+    #
+    # @param requested_vm_id [Integer]
+    # @param vrouter_hash [Hash]
+    # @param source_vm [OpenNebula::VirtualMachine]
+    #
+    def check_vm_in_vrouter(requested_vm_id, vrouter_hash, source_vm)
+        # Check that the user has not spoofed the VROUTER_ID
+        vrouter_vm_ids = Array(vrouter_hash['VROUTER']['VMS']['ID']).map! do |vm|
+            Integer(vm)
+        end
+
+        if !vrouter_vm_ids.include?(requested_vm_id) ||
+           !vrouter_vm_ids.include?(source_vm.id)
+
+            error_msg = "Virtual Router #{vrouter_hash['VROUTER']['ID']} does "\
+                        "not contain VM #{requested_vm_id}."
+            logger.error {error_msg}
+            halt 400, error_msg
+        end
+    end
+
+    # Check if the requested VNET can be accessed from the curren VROUTER.
+    # If false a halt is triggered.
+    #
+    # @param req_vnet [OpenNebula::VirtualNetwork]
+    # @param vrouter_hash [Hash]
+    # @param client [OpenNebula::Client]
+    #
+    def check_vnet_in_vrouter(req_vnet, vrouter_hash, client)
+        valid_vnets = Set[]
+
+        # Get VR nics
+        nics = vrouter_hash['VROUTER']['TEMPLATE']['NIC']
+
+        if !nics.is_a?(Array)
+            nics = [nics]
+        end
+
+        # Get only one nic if multiple nic in same network
+        nics.uniq! {|n| n['NETWORK_ID'] }
+
+        have_access = false
+        nics.each do |nic|
+            # Get nic VNET
+            nic_vnet = get_vnet(nic['NETWORK_ID'], client)
+
+            # Provide access to nic's VNET
+            valid_vnets.add(Integer(nic['NETWORK_ID']))
+            # Provide access to nic's VNET parent (if exists)
+            if !nic_vnet['PARENT_NETWORK_ID'].nil? &&
+               !nic_vnet['PARENT_NETWORK_ID'].empty?
+                valid_vnets.add(Integer(nic_vnet['PARENT_NETWORK_ID']))
+            end
+            # Provide access to nic's VNET childs
+            xpath = '//LEASE/VNET'
+            childs = nic_vnet.retrieve_xmlelements(xpath)
+
+            childs.each do |c|
+                valid_vnets.add(Integer(c.text))
+            end
+            # Provide access to VNETs with same parent as NIC network
+            if !valid_vnets.include?(req_vnet.id)
+                # Get requested vnet parent
+                if !req_vnet['PARENT_NETWORK_ID'].empty?
+                    req_parent = Integer(req_vnet['PARENT_NETWORK_ID'])
+                end
+
+                next unless valid_vnets.include?(req_parent)
+            end
+
+            have_access = true
+            break
+        end
+
+        return if have_access
+
+        error_msg = "Virtual Network #{req_vnet.id} cannot be retrieved"\
+                    " from Virtual router #{vrouter_hash['VROUTER']['ID']}."
+        logger.error {error_msg}
+        halt 400, error_msg
     end
 
     # Escape data from user
@@ -420,7 +568,7 @@ helpers do
     end
 end
 
-NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC NAME PARENT)
+NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC NAME PARENT EXTERNAL)
 USER_TEMPLATE_INVALID_KEYS = %w(SCHED_MESSAGE)
 
 def build_vm_hash(vm_hash)
@@ -514,6 +662,161 @@ def build_service_hash(service_hash, client = nil, extended = false)
     }
 end
 
+def build_vrouter_hash(vrouter_hash, _client = nil, _extended = false)
+    vrouter = {
+        'VROUTER' => {
+            'NAME'      => vrouter_hash['VROUTER']['NAME'],
+            'ID'        => vrouter_hash['VROUTER']['ID'],
+            'VMS'       => vrouter_hash['VROUTER']['VMS'],
+            'TEMPLATE'  => vrouter_hash['VROUTER']['TEMPLATE']
+        }
+    }
+
+    # Manage special cases (arrays)
+    if !vrouter['VROUTER']['TEMPLATE']['NIC'].is_a?(Array)
+        if vrouter['VROUTER']['TEMPLATE']['NIC'].nil?
+            vrouter['VROUTER']['TEMPLATE']['NIC'] = []
+        else
+            vrouter['VROUTER']['TEMPLATE']['NIC'] = [
+                vrouter['VROUTER']['TEMPLATE']['NIC']
+            ]
+        end
+    end
+
+    if !vrouter_hash['VROUTER']['VMS']['ID'].is_a?(Array)
+        if vrouter_hash['VROUTER']['VMS']['ID'].nil?
+            vrouter_hash['VROUTER']['VMS']['ID'] = []
+        else
+            vrouter_hash['VROUTER']['VMS']['ID'] = [
+                vrouter_hash['VROUTER']['VMS']['ID']
+            ]
+        end
+    end
+
+    vrouter
+end
+
+VNET_ATTRIBUTES = %w[ID NAME USED_LEASES VROUTERS PARENT_NETWORK_ID AR_POOL]
+
+def process_vnet(vnet_hash)
+    template = {}
+
+    get_vnet_template_attributes.each do |key|
+        value = vnet_hash['VNET']['TEMPLATE'][key]
+        template[key] = value unless value.nil?
+    end
+
+    vnet = {}
+    VNET_ATTRIBUTES.each do |key|
+        vnet[key] = vnet_hash['VNET'][key]
+    end
+
+    vnet['TEMPLATE'] = template
+
+    # Manage special cases (arrays)
+    if !vnet['AR_POOL']['AR'].is_a?(Array)
+        if vnet['AR_POOL']['AR'].nil?
+            vnet['AR_POOL']['AR'] = []
+        else
+            vnet['AR_POOL']['AR'] = [vnet['AR_POOL']['AR']]
+        end
+    end
+
+    vnet['AR_POOL']['AR'].each do |ar|
+        if !ar['LEASES']['LEASE'].is_a?(Array)
+            if ar['LEASES']['LEASE'].nil?
+                ar['LEASES']['LEASE'] = []
+            else
+                ar['LEASES']['LEASE'] = [ar['LEASES']['LEASE']]
+            end
+        end
+    end
+
+    if !vnet['VROUTERS']['ID'].is_a?(Array)
+        if vnet['VROUTERS']['ID'].nil?
+            !vnet['VROUTERS']['ID'] = []
+        else
+            vnet['VROUTERS']['ID'] = [vnet['VROUTERS']['ID']]
+        end
+    end
+
+    vnet
+end
+
+def build_vnet_hash(vnet, client, extended)
+    # if extended flag is not set
+    if extended.nil? || extended.downcase != 'true'
+        vnet = vnet.to_hash
+        vnet['VNET'] = process_vnet(vnet)
+
+        return vnet
+    end
+
+    vm_pool = VirtualMachinePool.new(client)
+
+    # get VMs that are using the VNET
+    vms = ''
+    vnet.retrieve_xmlelements('//LEASE/VM').each do |vm|
+        vms << ',' unless vms.empty?
+        vms << vm.text
+    end
+
+    vnet = vnet.to_hash
+    vnet['VNET'] = process_vnet(vnet)
+
+    rc = vm_pool.info_set(vms, true)
+    if OpenNebula.is_error?(rc)
+        logger.error {"vmpool.info error: #{rc.message}"}
+        halt 404, rc.message
+    end
+
+    # Get ARs array
+    ars = vnet['VNET']['AR_POOL']['AR']
+    # rubocop:disable Style/ArrayCoercion
+    ars = [ars] unless ars.is_a?(Array)
+
+    ars.each do |ar|
+        leases = ar['LEASES']['LEASE']
+
+        next if leases.nil?
+
+        leases = [leases] unless leases.is_a?(Array)
+        # rubocop:enable Style/ArrayCoercion
+
+        leases.each do |lease|
+            next if lease['VM'].nil?
+
+            # Get the corresponding VM from pool
+            xpath = "/VM_POOL/VM[ID=#{lease['VM']}]"
+            vm = vm_pool.retrieve_xmlelements(xpath)[0]
+
+            # Get corresponding NIC from VM (MAC should be unique)
+            xpath = "./TEMPLATE/NIC[MAC=\"#{lease['MAC']}\"]"
+            nic = vm.retrieve_xmlelements(xpath)[0]
+
+            if nic.nil?
+                xpath = "./TEMPLATE/NIC_ALIAS[MAC=\"#{lease['MAC']}\"]"
+                nic = vm.retrieve_xmlelements(xpath)[0]
+
+                # get parent network
+                xpath = "./TEMPLATE/NIC[NIC_ID=\"#{nic['PARENT_ID']}\"]/NETWORK_ID"
+                parent_id = vm.retrieve_xmlelements(xpath)[0].text
+
+                # Get ALIAS extended info
+                lease['PARENT']            = nic['PARENT']
+                lease['PARENT_NETWORK_ID'] = parent_id
+                lease['EXTERNAL'] = !nic['EXTERNAL'].nil? &&
+                                    nic['EXTERNAL'].downcase == 'yes'
+            end
+
+            # Get extended info
+            lease['NIC_NAME'] = nic['NAME']
+        end
+    end
+
+    vnet
+end
+
 get '/' do
     client = authenticate(request.env, params)
 
@@ -562,6 +865,70 @@ get '/service' do
     service_id = source_vm['USER_TEMPLATE/SERVICE_ID']
 
     response = check_vm_in_service(source_vm['ID'], service_id, client, params['extended'])
+    [200, response.to_json]
+end
+
+get '/vrouter' do
+    check_permissions(:vrouter, :show)
+    client = authenticate(request.env, params)
+
+    source_vm    = get_source_vm(request.env, client)
+    vrouter_id   = source_vm['TEMPLATE/VROUTER_ID']
+    vrouter_hash = get_vrouter(vrouter_id, client).to_hash
+
+    check_vm_in_vrouter(Integer(source_vm['ID']), vrouter_hash, source_vm)
+
+    response = build_vrouter_hash(vrouter_hash, client, params['extended']) rescue nil
+    if response.nil?
+        error_msg = "Virtual router #{vrouter_id} is empty."
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
+
+    [200, response.to_json]
+end
+
+get '/vnet/:id' do
+    check_permissions(:vnet, :show_by_id)
+    client = authenticate(request.env, params)
+
+    # Check :id is an integer
+    vnet_id = begin
+        Integer(params[:id])
+    rescue ArgumentError
+        error_msg = "Invalid id format (ID: #{params[:id]}). "\
+                    'ID must be an integer.'
+        logger.error { error_msg }
+        halt 400, error_msg
+    end
+
+    source_vm = get_source_vm(request.env, client)
+    vrouter_id = source_vm['TEMPLATE/VROUTER_ID']
+
+    # Check if current VM is a VROUTER
+    if vrouter_id.nil? || vrouter_id.empty?
+        error_msg = 'Virtual networks information can only be' \
+                    ' retrieved from Virtual Routers.'
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
+
+    # Retrieve VROUTER information
+    vrouter_hash = get_vrouter(vrouter_id, client).to_hash
+    check_vm_in_vrouter(Integer(source_vm['ID']), vrouter_hash, source_vm)
+
+    # Retrieve requested VNET
+    req_vnet = get_vnet(Integer(vnet_id), client)
+    check_vnet_in_vrouter(req_vnet, vrouter_hash, client)
+
+    response = build_vnet_hash(req_vnet, client, params['extended']) rescue nil
+
+    if response.nil?
+        error_msg = "Virtual router #{vrouter_hash['VROUTER']['ID']} is empty."
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
+
     [200, response.to_json]
 end
 
@@ -616,4 +983,12 @@ put '/vms/:id' do
     update(requested_vm, params)
 
     [200, ""]
+end
+
+%w[get head post put delete options patch].each do |method|
+    send method, '/*' do
+        error_msg = 'OneGate server doesn\'t support this feature'
+        logger.error {error_msg}
+        halt 400, error_msg
+    end
 end

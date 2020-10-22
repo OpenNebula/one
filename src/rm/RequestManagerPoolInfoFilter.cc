@@ -368,6 +368,47 @@ void VirtualMachinePoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+VirtualMachinePoolInfoSet::VirtualMachinePoolInfoSet()
+    : RequestManagerPoolInfoFilter("one.vmpool.infoset",
+                                   "Returns a virtual machine instances set",
+                                   "A:ss")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmpool();
+    auth_object = PoolObjectSQL::VM;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolInfoSet::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    std::string ids_str = xmlrpc_c::value_string(paramList.getString(1));
+    extended            = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+
+    ostringstream and_filter;
+    ostringstream oss;
+    std::set<unsigned int> ids;
+
+    one_util::split_unique(ids_str, ',', ids);
+
+    if (ids.empty())
+    {
+        std::string empty_pool = "<VM_POOL></VM_POOL>";
+        success_response(empty_pool, att);
+        return;
+    }
+
+    and_filter << "oid in (" << one_util::join(ids, ',') << ")";
+
+    dump(att, -2, -1, -1, and_filter.str(), "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 VirtualMachinePoolAccounting::VirtualMachinePoolAccounting()
     : RequestManagerPoolInfoFilter("one.vmpool.accounting",
                                    "Returns the virtual machine history records",
