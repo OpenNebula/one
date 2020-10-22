@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 import { v4 as uuidv4 } from 'uuid'
-import { TYPE_INPUT } from 'client/constants'
+import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils/helpers'
 import useOpennebula from 'client/hooks/useOpennebula'
 
@@ -26,7 +26,7 @@ const isNetworkSelector = type => TYPES_NETWORKS.some(
 const ID = {
   name: 'id',
   label: 'ID',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'hidden',
   validation: yup
     .string()
@@ -38,7 +38,7 @@ const ID = {
 const MANDATORY = {
   name: 'mandatory',
   label: 'Mandatory',
-  type: TYPE_INPUT.CHECKBOX,
+  type: INPUT_TYPES.CHECKBOX,
   validation: yup
     .boolean()
     .required('Mandatory field is required')
@@ -49,7 +49,7 @@ const MANDATORY = {
 const NAME = {
   name: 'name',
   label: 'Name',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   validation: yup
     .string()
     .trim()
@@ -61,7 +61,7 @@ const NAME = {
 const DESCRIPTION = {
   name: 'description',
   label: 'Description',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   multiline: true,
   validation: yup
     .string()
@@ -72,7 +72,7 @@ const DESCRIPTION = {
 const TYPE = {
   name: 'type',
   label: 'Select a type',
-  type: TYPE_INPUT.SELECT,
+  type: INPUT_TYPES.SELECT,
   values: TYPES_NETWORKS,
   validation: yup
     .string()
@@ -84,7 +84,7 @@ const TYPE = {
 const ID_VNET = {
   name: 'idVnet',
   label: 'Select a network',
-  type: TYPE_INPUT.AUTOCOMPLETE,
+  type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: TYPE.name,
   values: dependValue => {
     const { vNetworks, vNetworksTemplates } = useOpennebula()
@@ -110,9 +110,9 @@ const EXTRA = {
   name: 'extra',
   label: 'Extra',
   multiline: true,
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   dependOf: TYPE.name,
-  htmlType: dependValue => needExtraValue(dependValue) ? TYPE_INPUT.HIDDEN : TYPE_INPUT.TEXT,
+  htmlType: dependValue => needExtraValue(dependValue) ? INPUT_TYPES.HIDDEN : INPUT_TYPES.TEXT,
   validation: yup
     .string()
     .trim()

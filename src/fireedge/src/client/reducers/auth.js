@@ -14,12 +14,12 @@
 /* -------------------------------------------------------------------------- */
 
 const { Actions: UserActions } = require('../actions/user')
-const { jwtName, FILTER_POOL } = require('client/constants')
+const { JWT_NAME, FILTER_POOL } = require('client/constants')
 
 const jwt =
   typeof window !== 'undefined'
-    ? window.localStorage.getItem(jwtName) ??
-      window.sessionStorage.getItem(jwtName) ??
+    ? window.localStorage.getItem(JWT_NAME) ??
+      window.sessionStorage.getItem(JWT_NAME) ??
       null
     : null
 

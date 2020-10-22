@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,29 +13,41 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-module.exports = {
-  jwtName: 'SunstoneToken',
-  by: {
-    text: 'OpenNebula',
-    url: 'https://opennebula.io/'
-  },
-  endpointsRoutes: {
-    login: '/api/auth/',
-    userInfo: '/api/user/info'
-  },
-  ONEADMIN_ID: '0',
-  FILTER_POOL: {
-    PRIMARY_GROUP_RESOURCES: '-4',
-    USER_RESOURCES: '-3',
-    ALL_RESOURCES: '-2',
-    USER_GROUPS_RESOURCES: '-1'
-  },
-  TYPE_INPUT: {
-    TEXT: 'text',
-    HIDDEN: 'hidden',
-    SELECT: 'select',
-    CHECKBOX: 'checkbox',
-    SLIDER: 'slider',
-    AUTOCOMPLETE: 'autocomplete'
-  }
+const JWT_NAME = 'SunstoneToken'
+
+const BASE_URL = {
+  default: '',
+  provision: '/provision'
+}
+
+const BY = {
+  text: 'OpenNebula',
+  url: 'https://opennebula.io/'
+}
+
+const ONEADMIN_ID = '0'
+
+const FILTER_POOL = {
+  PRIMARY_GROUP_RESOURCES: '-4',
+  USER_RESOURCES: '-3',
+  ALL_RESOURCES: '-2',
+  USER_GROUPS_RESOURCES: '-1'
+}
+
+const INPUT_TYPES = {
+  TEXT: 'text',
+  HIDDEN: 'hidden',
+  SELECT: 'select',
+  CHECKBOX: 'checkbox',
+  SLIDER: 'slider',
+  AUTOCOMPLETE: 'autocomplete'
+}
+
+export {
+  BY,
+  JWT_NAME,
+  BASE_URL,
+  ONEADMIN_ID,
+  FILTER_POOL,
+  INPUT_TYPES
 }

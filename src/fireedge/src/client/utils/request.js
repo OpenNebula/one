@@ -1,4 +1,4 @@
-import { jwtName } from 'client/constants'
+import { JWT_NAME } from 'client/constants'
 import { removeStoreData } from 'client/utils'
 import { from as resourceFrom } from 'server/utils/constants/defaults'
 
@@ -49,7 +49,7 @@ export const requestParams = (data, command) => {
       method: httpMethod,
       authenticate: true,
       error: err => {
-        removeStoreData(jwtName)
+        removeStoreData(JWT_NAME)
         return err?.message
       }
     }

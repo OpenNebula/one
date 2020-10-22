@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import { jwtName, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
+import { JWT_NAME, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
 import { storage, findStorageData, removeStoreData } from 'client/utils'
 import { fakeDelay } from 'client/utils/helpers'
 
@@ -30,7 +30,7 @@ export default function useAuth () {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    const tokenStorage = findStorageData(jwtName)
+    const tokenStorage = findStorageData(JWT_NAME)
 
     if ((tokenStorage && jwt && tokenStorage !== jwt) || firstRender) {
       fakeDelay(1500).then(() => dispatch(successAuth({ jwt: tokenStorage })))
@@ -48,7 +48,7 @@ export default function useAuth () {
           dispatch(successAuth())
 
           if (token) {
-            storage(jwtName, token, remember)
+            storage(JWT_NAME, token, remember)
             dispatch(
               successAuth({
                 jwt: token,
@@ -66,13 +66,13 @@ export default function useAuth () {
           dispatch(failureAuth({ error: err }))
         })
     },
-    [dispatch, jwtName]
+    [dispatch, JWT_NAME]
   )
 
   const logout = useCallback(() => {
-    removeStoreData([jwtName])
+    removeStoreData([JWT_NAME])
     dispatch(logoutRequest())
-  }, [dispatch, jwtName])
+  }, [dispatch, JWT_NAME])
 
   const getAuthInfo = useCallback(() => {
     dispatch(startAuth())
@@ -83,7 +83,7 @@ export default function useAuth () {
       .then(servicePool.getGroups)
       .then(groups => dispatch(setGroups(groups)))
       .catch(err => dispatch(failureAuth({ error: err })))
-  }, [dispatch, jwtName, authUser])
+  }, [dispatch, JWT_NAME, authUser])
 
   const setPrimaryGroup = useCallback(
     ({ group }) => {

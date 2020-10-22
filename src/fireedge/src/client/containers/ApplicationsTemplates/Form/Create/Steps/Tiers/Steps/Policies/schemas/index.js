@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { TYPE_INPUT } from 'client/constants'
+import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils/helpers'
 
 import { TAB_ID as ELASTICITY_ID, ELASTICITY_TAB_SCHEMA } from './elasticity'
@@ -10,7 +10,7 @@ import { COOLDOWN } from './fields'
 const MIN_VMS = {
   name: 'min_vms',
   label: 'Min. vms',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   tooltip: 'Minimum number of VMs for elasticity adjustments',
   validation: yup
@@ -27,7 +27,7 @@ const MIN_VMS = {
 const MAX_VMS = {
   name: 'max_vms',
   label: 'Max. vms',
-  type: TYPE_INPUT.TEXT,
+  type: INPUT_TYPES.TEXT,
   htmlType: 'number',
   tooltip: 'Maximum number of VMs for elasticity adjustments',
   validation: yup
