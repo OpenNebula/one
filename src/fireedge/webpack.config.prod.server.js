@@ -1,13 +1,13 @@
-const path = require('path');
-const webpack = require('webpack');
-const nodeExternals = require('webpack-node-externals');
-const CopyPlugin = require('copy-webpack-plugin');
+const path = require('path')
+const webpack = require('webpack')
+const nodeExternals = require('webpack-node-externals')
+const CopyPlugin = require('copy-webpack-plugin')
 
 const js = {
   test: /\.js$/,
   loader: 'babel-loader',
   include: path.resolve(__dirname, 'src')
-};
+}
 
 module.exports = {
   mode: 'production',
@@ -40,4 +40,4 @@ module.exports = {
     rules: [js]
   },
   devtool: ''
-};
+}

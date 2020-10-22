@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core'
-import { sidebar, toolbar, footer } from 'client/assets/theme/defaults'
+import { sidebar, toolbar, footer } from 'client/theme/defaults'
 
 export default makeStyles(theme => ({
   root: {

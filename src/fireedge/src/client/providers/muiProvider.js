@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { CssBaseline, ThemeProvider, StylesProvider } from '@material-ui/core'
-import theme, { generateClassName } from 'client/assets/theme'
+import theme, { generateClassName } from 'client/theme'
 
 const MuiProvider = ({ children }) => {
   useEffect(() => {

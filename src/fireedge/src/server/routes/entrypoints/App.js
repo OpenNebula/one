@@ -1,57 +1,58 @@
-const React = require('react');
-const { Router } = require('express');
-const { env } = require('process');
-const { renderToString } = require('react-dom/server');
-const root = require('window-or-global');
-const { createStore, compose, applyMiddleware } = require('redux');
-const thunk = require('redux-thunk').default;
-const { ServerStyleSheets } = require('@material-ui/core/styles');
-const rootReducer = require('client/reducers');
-const { getConfig } = require('server/utils/yml');
-const { availableLanguages } = require('server/utils/constants/defaults'); // '../../utils/constants/defaults'
+const React = require('react')
+const { Router } = require('express')
+const { env } = require('process')
+const { renderToString } = require('react-dom/server')
+const root = require('window-or-global')
+const { createStore, compose, applyMiddleware } = require('redux')
+const thunk = require('redux-thunk').default
+const { ServerStyleSheets } = require('@material-ui/core/styles')
+const rootReducer = require('client/reducers')
+const { getConfig } = require('server/utils/yml')
+const { availableLanguages } = require('server/utils/constants/defaults') // '../../utils/constants/defaults'
 
 // settings
-const appConfig = getConfig();
-const langs = appConfig.LANGS || availableLanguages;
-const scriptLanguages = [];
-const languages = Object.keys(langs);
+const appConfig = getConfig()
+const langs = appConfig.LANGS || availableLanguages
+const scriptLanguages = []
+const languages = Object.keys(langs)
 languages.map(language =>
   scriptLanguages.push({
     key: language,
     value: `${langs[language]}`
   })
-);
+)
 
-const router = Router();
+const router = Router()
 
 router.get('*', (req, res) => {
-  const context = {};
-  let store = '';
-  let component = '';
-  let css = '';
-  let storeRender = '';
-  let chunks = '';
+  let app = 'dev'
+  const context = {}
+  let store = ''
+  let component = ''
+  let css = ''
+  let storeRender = ''
+  let chunks = ''
   if (env.NODE_ENV === 'production') {
-    chunks = `<script src='/client/1.bundle.js'></script>`;
+    app = req.url.replace(/\//g, '')
+    chunks = `<script src='/client/1.bundle.${app}.js'></script>`
   }
 
   if (env && env.NODE_ENV === 'production') {
     const composeEnhancer =
       // eslint-disable-next-line no-underscore-dangle
-      (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
-    store = createStore(rootReducer(), composeEnhancer(applyMiddleware(thunk)));
+      (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
+    store = createStore(rootReducer(), composeEnhancer(applyMiddleware(thunk)))
     storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${JSON.stringify(
       store.getState()
-    ).replace(/</g, '\\u003c')}</script>`;
+    ).replace(/</g, '\\u003c')}</script>`
     // eslint-disable-next-line global-require
-    const App = require('../../../client/app').default;
-    const sheets = new ServerStyleSheets();
+    const App = require('../../../client/app').default
+    const sheets = new ServerStyleSheets()
     component = renderToString(
       sheets.collect(<App location={req.url} context={context} store={store} />)
-    );
-    css = `<style id="jss-server-side">${sheets.toString()}</style>`;
+    )
+    css = `<style id="jss-server-side">${sheets.toString()}</style>`
   }
-
   const html = `
   <!DOCTYPE html>
     <html>
@@ -65,12 +66,12 @@ router.get('*', (req, res) => {
       <div id="root">${component}</div>
       ${storeRender}
       <script>${`langs = ${JSON.stringify(scriptLanguages)}`}</script>
-      <script src='/client/bundle.js'></script>
+      <script src='/client/bundle.${app}.js'></script>
       ${chunks}
     </body>
     </html>
-  `;
-  res.send(html);
-});
+  `
+  res.send(html)
+})
 
-module.exports = router;
+module.exports = router

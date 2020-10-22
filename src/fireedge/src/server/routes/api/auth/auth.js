@@ -19,6 +19,7 @@ const {
   getPass,
   setUser,
   setPass,
+  setType,
   setTfaToken,
   setExtended,
   setNext,
@@ -58,14 +59,24 @@ const auth = (req, res, next, connect) => {
         (req &&
           from.postBody &&
           req[from.postBody] &&
-          req[from.postBody].user) ||
+          req[from.postBody].user &&
+          req[from.postBody].user.toLowerCase()) ||
           ''
       )
       setPass(
         (req &&
           from.postBody &&
           req[from.postBody] &&
-          req[from.postBody].token) ||
+          req[from.postBody].token &&
+          req[from.postBody].token.toLowerCase()) ||
+          ''
+      )
+      setType(
+        (req &&
+          from.postBody &&
+          req[from.postBody] &&
+          req[from.postBody].type &&
+          req[from.postBody].type.toLowerCase()) ||
           ''
       )
       setTfaToken(

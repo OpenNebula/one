@@ -17,7 +17,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
-import { Provider } from 'react-redux'
+import { Provider as ReduxProvider } from 'react-redux'
 import root from 'window-or-global'
 
 import MuiProvider from 'client/providers/muiProvider'
@@ -35,38 +35,42 @@ if (process?.env?.NODE_ENV === 'development') {
   })
 }
 
-const App = ({ location, context, store }) => (
-  <MuiProvider>
-    <Provider store={store}>
-      <NotistackProvider>
-        <TranslateProvider>
-          {location && context ? (
+const App = ({ location, context, store, app }) => {
+  return (
+    <MuiProvider app={app}>
+      <ReduxProvider store={store}>
+        <NotistackProvider>
+          <TranslateProvider>
+            {location && context ? (
             // server build
-            <StaticRouter location={location} context={context}>
-              <Router />
-            </StaticRouter>
-          ) : (
+              <StaticRouter location={location} context={context}>
+                <Router app={app}/>
+              </StaticRouter>
+            ) : (
             // browser build
-            <BrowserRouter>
-              <Router />
-            </BrowserRouter>
-          )}
-        </TranslateProvider>
-      </NotistackProvider>
-    </Provider>
-  </MuiProvider>
-)
+              <BrowserRouter basename = {app}>
+                <Router app={app}/>
+              </BrowserRouter>
+            )}
+          </TranslateProvider>
+        </NotistackProvider>
+      </ReduxProvider>
+    </MuiProvider>
+  )
+}
 
 App.propTypes = {
   location: PropTypes.string,
   context: PropTypes.shape({}),
-  store: PropTypes.shape({})
+  store: PropTypes.shape({}),
+  app: PropTypes.string
 }
 
 App.defaultProps = {
   location: '',
   context: {},
-  store: {}
+  store: {},
+  app: undefined
 }
 
 export default App

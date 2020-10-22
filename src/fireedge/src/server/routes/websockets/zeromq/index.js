@@ -58,7 +58,6 @@ const oneHooksEmits = appServer => {
       })
       .on('connection', socketServer => {
         const zeromqSock = socketZeroMQ('sub')
-        console.log('dasdasd', address)
         zeromqSock.connect(address)
         zeromqSock.subscribe('')
 

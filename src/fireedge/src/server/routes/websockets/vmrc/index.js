@@ -12,21 +12,21 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const { readFileSync } = require('fs-extra');
-const { getConfig } = require('server/utils/yml');
-const { messageTerminal } = require('server/utils/general');
-const { genPathResources } = require('server/utils/server');
-const { endpointVmrc } = require('server/utils/constants/defaults');
+const { createProxyMiddleware } = require('http-proxy-middleware')
+const { readFileSync } = require('fs-extra')
+const { getConfig } = require('server/utils/yml')
+const { messageTerminal } = require('server/utils/general')
+const { genPathResources } = require('server/utils/server')
+const { endpointVmrc } = require('server/utils/constants/defaults')
 
-genPathResources();
+genPathResources()
 
-const appConfig = getConfig();
-const vmrcData = appConfig.VMRC || {};
-const url = vmrcData.TARGET || '';
+const appConfig = getConfig()
+const vmrcData = appConfig.VMRC || {}
+const url = vmrcData.TARGET || ''
 const config = {
   color: 'red'
-};
+}
 const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   target: url,
   changeOrigin: false,
@@ -35,27 +35,27 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   logLevel: 'debug',
   pathRewrite: path => path.replace(endpointVmrc, '/ticket'),
   onError: err => {
-    config.type = err.message;
-    config.message = 'Error connection : %s';
-    messageTerminal(config);
+    config.type = err.message
+    config.message = 'Error connection : %s'
+    messageTerminal(config)
   },
   // eslint-disable-next-line consistent-return
   router: req => {
     if (req && req.url) {
-      const ticket = req.url.split('/')[2] || '';
+      const ticket = req.url.split('/')[2] || ''
       try {
         const esxi = readFileSync(
           `${global.VMRC_TOKENS || ''}/${ticket}`
-        ).toString();
-        return esxi;
+        ).toString()
+        return esxi
       } catch (error) {
-        config.type = error.message;
-        config.message = 'Error read vmrc token: %s';
-        messageTerminal(config);
+        config.type = error.message
+        config.message = 'Error read vmrc token: %s'
+        messageTerminal(config)
       }
     }
   }
-});
+})
 
 const vmrcUpgrade = appServer => {
   if (
@@ -65,10 +65,10 @@ const vmrcUpgrade = appServer => {
     appServer.constructor.name &&
     appServer.constructor.name === 'Server'
   ) {
-    appServer.on('upgrade', vmrcProxy.upgrade);
+    appServer.on('upgrade', vmrcProxy.upgrade)
   }
-};
+}
 
 module.exports = {
   vmrcUpgrade
-};
+}
