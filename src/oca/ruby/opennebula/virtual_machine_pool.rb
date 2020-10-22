@@ -23,14 +23,14 @@ module OpenNebula
         # Constants and Class attribute accessors
         #######################################################################
 
-
         VM_POOL_METHODS = {
-            :info               => "vmpool.info",
-            :info_extended      => "vmpool.infoextended",
-            :monitoring         => "vmpool.monitoring",
-            :accounting         => "vmpool.accounting",
-            :showback           => "vmpool.showback",
-            :calculate_showback => "vmpool.calculateshowback"
+            :info               => 'vmpool.info',
+            :info_extended      => 'vmpool.infoextended',
+            :info_set           => 'vmpool.infoset',
+            :monitoring         => 'vmpool.monitoring',
+            :accounting         => 'vmpool.accounting',
+            :showback           => 'vmpool.showback',
+            :calculate_showback => 'vmpool.calculateshowback'
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -40,7 +40,6 @@ module OpenNebula
         #######################################################################
         # Class constructor & Pool Methods
         #######################################################################
-
 
         # +client+ a Client object that represents a XML-RPC connection
         # +user_id+ is to refer to a Pool with VirtualMachines from that user
@@ -102,21 +101,21 @@ module OpenNebula
         end
 
         # Define info methods shortcuts for different filters
-        # info_all() 
+        # info_all()
         # info_all!()
-        # info_all_extended 
+        # info_all_extended
         # info_all_extended!()
-        # info_mine() 
+        # info_mine()
         # info_mine!()
-        # info_mine_extended 
+        # info_mine_extended
         # info_mine_extended!()
-        # info_group() 
+        # info_group()
         # info_group!()
-        # info_group_extended 
+        # info_group_extended
         # info_group_extended!()
-        # info_primary_group() 
+        # info_primary_group()
         # info_primary_group!()
-        # info_primary_group_extended 
+        # info_primary_group_extended
         # info_primary_group_extended!()
         %w[mine all group primary_group].each do |ifilter|
             const_name = "OpenNebula::Pool::INFO_#{ifilter.upcase}"
@@ -160,6 +159,14 @@ module OpenNebula
                         default_args[:query])
         end
 
+        # Retrieves the set of VMs especified in vm_ids
+        #
+        # @param [String] comma separated list of vm ids.
+        # @param [Boolean] if true extended body is retrieved.
+        #
+        def info_set(vm_ids, extended)
+            xmlrpc_info(VM_POOL_METHODS[:info_set], vm_ids, extended)
+        end
 
         # Retrieves the monitoring data for all the VMs in the pool
         #

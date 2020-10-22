@@ -135,6 +135,18 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualMachinePoolInfoSet : public RequestManagerPoolInfoFilter
+{
+public:
+    VirtualMachinePoolInfoSet();
+
+    void request_execute(
+            xmlrpc_c::paramList const& paramList, RequestAttributes& att) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualMachinePoolAccounting : public RequestManagerPoolInfoFilter
 {
 public:
