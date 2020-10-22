@@ -12,48 +12,48 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { request } = require('axios');
-const btoa = require('btoa');
-const { Map } = require('immutable');
+const { request } = require('axios')
+const btoa = require('btoa')
+const { Map } = require('immutable')
 
-const { defaultOneFlowServer } = require('server/utils/constants/defaults');
-const { getConfig } = require('server/utils/yml');
-const { httpMethod } = require('server/utils/constants/defaults');
-const { addPrintf } = require('server/utils/general');
-const { httpResponse } = require('server/utils/server');
+const { defaultOneFlowServer } = require('server/utils/constants/defaults')
+const { getConfig } = require('server/utils/yml')
+const { httpMethod } = require('server/utils/constants/defaults')
+const { addPrintf } = require('server/utils/general')
+const { httpResponse } = require('server/utils/server')
 const {
   ok,
   internalServerError
-} = require('server/utils/constants/http-codes');
+} = require('server/utils/constants/http-codes')
 
-const { GET, DELETE } = httpMethod;
+const { GET, DELETE } = httpMethod
 
-const appConfig = getConfig();
+const appConfig = getConfig()
 const oneFlowServiceDataConection =
-  appConfig.ONE_FLOW_SERVER || defaultOneFlowServer;
+  appConfig.ONE_FLOW_SERVER || defaultOneFlowServer
 
 const parsePostData = (postData = {}) => {
-  const rtn = {};
+  const rtn = {}
   Object.entries(postData).forEach(([key, value]) => {
     try {
       rtn[key] = JSON.parse(value, (k, val) => {
         try {
-          return JSON.parse(val);
+          return JSON.parse(val)
         } catch (error) {
-          return val;
+          return val
         }
-      });
+      })
     } catch (error) {
-      rtn[key] = value;
+      rtn[key] = value
     }
-  });
-  return rtn;
-};
+  })
+  return rtn
+}
 
 const returnSchemaError = (error = []) =>
   error
     .map(element => (element && element.stack ? element.stack : ''))
-    .toString();
+    .toString()
 
 const conectionOneFlow = (
   res,
@@ -73,21 +73,21 @@ const conectionOneFlow = (
         Authorization: `Basic ${btoa(user)}`
       },
       validateStatus: status => status
-    };
+    }
 
     if (requestData) {
-      options.url = addPrintf(path, requestData);
+      options.url = addPrintf(path, requestData)
     }
 
     if (postData) {
-      options.data = postData;
+      options.data = postData
     }
     request(options)
       .then(response => {
         if (response && response.statusText) {
           if (response.status >= 200 && response.status < 400) {
             if (response.data) {
-              return response.data;
+              return response.data
             }
             if (
               response.config.method &&
@@ -96,36 +96,36 @@ const conectionOneFlow = (
               const parseToNumber = validate =>
                 isNaN(parseInt(validate, 10))
                   ? validate
-                  : parseInt(validate, 10);
+                  : parseInt(validate, 10)
               return Array.isArray(requestData)
                 ? parseToNumber(requestData[0])
-                : parseToNumber(requestData);
+                : parseToNumber(requestData)
             }
           } else if (response.data) {
-            throw Error(response.data);
+            throw Error(response.data)
           }
         }
-        throw Error(response.statusText);
+        throw Error(response.statusText)
       })
       .then(data => {
-        res.locals.httpCode = httpResponse(ok, data);
-        next();
+        res.locals.httpCode = httpResponse(ok, data)
+        next()
       })
       .catch(e => {
-        const codeInternalServerError = Map(internalServerError).toObject();
+        const codeInternalServerError = Map(internalServerError).toObject()
         if (e && e.message) {
-          codeInternalServerError.data = e.message;
+          codeInternalServerError.data = e.message
         }
-        res.locals.httpCode = httpResponse(internalServerError, e && e.message);
-        next();
-      });
+        res.locals.httpCode = httpResponse(internalServerError, e && e.message)
+        next()
+      })
   }
-};
+}
 
 const functionRoutes = {
   conectionOneFlow,
   parsePostData,
   returnSchemaError
-};
+}
 
-module.exports = functionRoutes;
+module.exports = functionRoutes

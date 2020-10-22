@@ -12,45 +12,45 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { Map } = require('immutable');
-const { env } = require('process');
+const { Map } = require('immutable')
+const { env } = require('process')
 const {
   private: authenticated,
   public: nonAuthenticated
-} = require('../../../api');
-const { httpCodes, params } = require('server/utils/constants');
+} = require('../../../api')
+const { httpCodes, params } = require('server/utils/constants')
 const {
   validateAuth,
   getAllowedQueryParams,
   createParamsState,
   createQueriesState
-} = require('server/utils');
+} = require('server/utils')
 
-const defaultParams = Map(createParamsState());
-const defaultQueries = Map(createQueriesState());
+const defaultParams = Map(createParamsState())
+const defaultQueries = Map(createQueriesState())
 
-let paramsState = defaultParams.toObject();
-let queriesState = defaultQueries.toObject();
-let idUserOpennebula = '';
-let userOpennebula = '';
-let passOpennebula = '';
+let paramsState = defaultParams.toObject()
+let queriesState = defaultQueries.toObject()
+let idUserOpennebula = ''
+let userOpennebula = ''
+let passOpennebula = ''
 
-const getParamsState = () => paramsState;
-const getQueriesState = () => queriesState;
-const getIdUserOpennebula = () => idUserOpennebula;
-const getUserOpennebula = () => userOpennebula;
-const getPassOpennebula = () => passOpennebula;
+const getParamsState = () => paramsState
+const getQueriesState = () => queriesState
+const getIdUserOpennebula = () => idUserOpennebula
+const getUserOpennebula = () => userOpennebula
+const getPassOpennebula = () => passOpennebula
 
 const validateResource = (req, res, next) => {
-  const { badRequest, unauthorized, serviceUnavailable } = httpCodes;
-  let status = badRequest;
+  const { badRequest, unauthorized, serviceUnavailable } = httpCodes
+  let status = badRequest
   if (req && req.params && req.params.resource) {
-    const resource = req.params.resource;
-    status = serviceUnavailable;
+    const resource = req.params.resource
+    status = serviceUnavailable
     const finderCommand = rtnCommand =>
-      rtnCommand && rtnCommand.endpoint && rtnCommand.endpoint === resource;
+      rtnCommand && rtnCommand.endpoint && rtnCommand.endpoint === resource
     if (authenticated.some(finderCommand)) {
-      const session = validateAuth(req);
+      const session = validateAuth(req)
       if (
         session &&
         'iss' in session &&
@@ -59,9 +59,9 @@ const validateResource = (req, res, next) => {
         'iat' in session &&
         'exp' in session
       ) {
-        idUserOpennebula = session.iss;
-        userOpennebula = session.aud;
-        passOpennebula = session.jti;
+        idUserOpennebula = session.iss
+        userOpennebula = session.aud
+        passOpennebula = session.jti
         if (env.NODE_ENV === 'production') {
           if (
             global &&
@@ -69,80 +69,80 @@ const validateResource = (req, res, next) => {
             global.users[userOpennebula] &&
             global.users[userOpennebula] === passOpennebula
           ) {
-            next();
-            return;
+            next()
+            return
           }
         } else {
-          next();
-          return;
+          next()
+          return
         }
       }
-      status = unauthorized;
+      status = unauthorized
     }
     if (nonAuthenticated.some(finderCommand)) {
-      next();
-      return;
+      next()
+      return
     }
   }
-  res.status(status.id).json(status);
-};
+  res.status(status.id).json(status)
+}
 
 const optionalParameters = (req, res, next) => {
   if (req && req.params) {
-    let start = true;
-    const keys = Object.keys(req.params);
+    let start = true
+    const keys = Object.keys(req.params)
     keys.forEach(param => {
       if (start) {
-        start = false;
-        return start;
+        start = false
+        return start
       }
       if (req.params[param]) {
-        const matches = req.params[param].match(/(^[\w]*=)/gi);
+        const matches = req.params[param].match(/(^[\w]*=)/gi)
         if (matches && matches[0]) {
           params.forEach(parameter => {
             if (
               matches[0].replace(/=/g, '').toLowerCase() ===
               parameter.toLowerCase()
             ) {
-              const removeKey = new RegExp(`^${parameter}=`, 'i');
+              const removeKey = new RegExp(`^${parameter}=`, 'i')
               if (paramsState[parameter] === null) {
                 paramsState[parameter] = req.params[param].replace(
                   removeKey,
                   ''
-                );
+                )
               }
             }
-          });
+          })
         } else {
-          paramsState[param] = req.params[param];
+          paramsState[param] = req.params[param]
         }
       }
-      return '';
-    });
+      return ''
+    })
   }
-  next();
-};
+  next()
+}
 
 const optionalQueries = (req, res, next) => {
   if (req && req.query) {
-    const keys = Object.keys(req.query);
-    const queries = getAllowedQueryParams();
+    const keys = Object.keys(req.query)
+    const queries = getAllowedQueryParams()
     keys.forEach(query => {
       if (req.query[query] && queries.includes(query)) {
-        queriesState[query] = req.query[query];
+        queriesState[query] = req.query[query]
       }
-    });
+    })
   }
-  next();
-};
+  next()
+}
 
 const clearStates = () => {
-  paramsState = defaultParams.toObject();
-  queriesState = defaultQueries.toObject();
-  idUserOpennebula = '';
-  userOpennebula = '';
-  passOpennebula = '';
-};
+  paramsState = defaultParams.toObject()
+  queriesState = defaultQueries.toObject()
+  idUserOpennebula = ''
+  userOpennebula = ''
+  passOpennebula = ''
+}
 
 module.exports = {
   validateResource,
@@ -154,4 +154,4 @@ module.exports = {
   getIdUserOpennebula,
   getUserOpennebula,
   getPassOpennebula
-};
+}

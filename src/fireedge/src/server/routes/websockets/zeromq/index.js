@@ -13,31 +13,21 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const atob = require('atob');
-const socketIO = require('socket.io');
-const { socket: socketZeroMQ } = require('zeromq');
-const xml2js = require('xml2js');
+const atob = require('atob')
+const socketIO = require('socket.io')
+const { socket: socketZeroMQ } = require('zeromq')
+const xml2js = require('xml2js')
 
-const { messageTerminal } = require('server/utils/general');
-const { getConfig } = require('server/utils/yml');
-const { validateAuth } = require('server/utils/jwt');
+const { messageTerminal } = require('server/utils/general')
+const { validateAuth } = require('server/utils/jwt')
+const { defaultOpennebulaZones } = require('server/utils/constants/defaults')
 
 // user config
-const appConfig = getConfig();
 
-const zeromqType = appConfig.ZEROTYPE || 'tcp';
-const zeromqPort = appConfig.ZEROPORT || 2101;
-const zeromqHost = appConfig.ZEROHOST || '127.0.0.1';
-
-const endpoint = '/zeromq';
+const endpoint = '/zeromq'
 const oneHooksEmits = appServer => {
-  // connect to zeromq
-  const zeromqSock = socketZeroMQ('sub');
-  const address = `${zeromqType}://${zeromqHost}:${zeromqPort}`;
+  let address = ''
   try {
-    zeromqSock.connect(address);
-    zeromqSock.subscribe('');
-
     appServer
       .use((socketServer, next) => {
         if (
@@ -47,17 +37,40 @@ const oneHooksEmits = appServer => {
             headers: { authorization: socketServer.handshake.query.token }
           })
         ) {
-          next();
+          const configuredZones = global &&
+            global.zones &&
+            Array.isArray(global.zones)
+            ? global.zones
+            : defaultOpennebulaZones
+          const zone = socketServer.handshake.query.zone || '0'
+          const dataZone = configuredZones.find(
+            ({ ID, ZEROMQ }) => ID === zone && ZEROMQ
+          )
+          if (dataZone && dataZone.ZEROMQ) {
+            address = dataZone.ZEROMQ
+            next()
+          } else {
+            socketServer.disconnect(true)
+          }
         } else {
-          next(new Error('Authentication error'));
+          socketServer.disconnect(true)
         }
       })
       .on('connection', socketServer => {
+        const zeromqSock = socketZeroMQ('sub')
+        console.log('dasdasd', address)
+        zeromqSock.connect(address)
+        zeromqSock.subscribe('')
+
+        socketServer.on('disconnect', function () {
+          zeromqSock.close()
+        })
+
         zeromqSock.on('message', (...args) => {
-          const mssgs = [];
+          const mssgs = []
           Array.prototype.slice.call(args).forEach(arg => {
-            mssgs.push(arg.toString());
-          });
+            mssgs.push(arg.toString())
+          })
           if (mssgs[0] && mssgs[1]) {
             xml2js.parseString(
               atob(mssgs[1]),
@@ -74,28 +87,28 @@ const oneHooksEmits = appServer => {
                     color: 'red',
                     type: error,
                     message: 'Error parser: %s'
-                  };
-                  messageTerminal(configErrorParser);
+                  }
+                  messageTerminal(configErrorParser)
                 } else {
                   socketServer.emit('zeroMQ', {
                     command: mssgs[0],
                     data: result
-                  });
+                  })
                 }
               }
-            );
+            )
           }
-        });
-      });
+        })
+      })
   } catch (error) {
     const configErrorZeroMQ = {
       color: 'red',
       type: error,
       message: '%s'
-    };
-    messageTerminal(configErrorZeroMQ);
+    }
+    messageTerminal(configErrorZeroMQ)
   }
-};
+}
 
 const oneHooks = appServer => {
   if (
@@ -104,12 +117,12 @@ const oneHooks = appServer => {
     appServer.constructor.name &&
     appServer.constructor.name === 'Server'
   ) {
-    const io = socketIO({ path: endpoint }).listen(appServer);
-    oneHooksEmits(io);
+    const io = socketIO({ path: endpoint }).listen(appServer)
+    oneHooksEmits(io)
   }
-};
+}
 
 module.exports = {
   endpoint,
   oneHooks
-};
+}

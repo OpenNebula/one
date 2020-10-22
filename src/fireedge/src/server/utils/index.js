@@ -13,19 +13,19 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const fs = require('fs-extra');
-const params = require('./constants/params');
-const { defaultTypeLog } = require('./constants/defaults');
-const functionRoutes = require('../routes/api');
-const { validateAuth } = require('./jwt');
-const { httpResponse } = require('./server');
-const { messageTerminal, addPrintf } = require('./general');
-const { getConfig } = require('./yml');
+const fs = require('fs-extra')
+const params = require('./constants/params')
+const { defaultTypeLog } = require('./constants/defaults')
+const functionRoutes = require('../routes/api')
+const { validateAuth } = require('./jwt')
+const { httpResponse, getDataZone } = require('./server')
+const { messageTerminal, addPrintf } = require('./general')
+const { getConfig } = require('./yml')
 
 // user config
-const appConfig = getConfig();
+const appConfig = getConfig()
 
-const mode = appConfig.LOG || defaultTypeLog;
+const mode = appConfig.LOG || defaultTypeLog
 
 const {
   responseOpennebula,
@@ -35,63 +35,63 @@ const {
   getAllowedQueryParams,
   getRouteForOpennebulaCommand,
   checkOpennebulaCommand
-} = require('./opennebula');
+} = require('./opennebula')
 
 const createParamsState = () => {
-  const rtn = {};
+  const rtn = {}
   if (params && Array.isArray(params)) {
     params.forEach(param => {
-      rtn[param] = null;
-    });
+      rtn[param] = null
+    })
   }
-  return rtn;
-};
+  return rtn
+}
 
 const createQueriesState = () => {
-  const rtn = {};
-  const queries = getAllowedQueryParams();
+  const rtn = {}
+  const queries = getAllowedQueryParams()
   if (queries && Array.isArray(queries)) {
     queries.forEach(query => {
-      rtn[query] = null;
-    });
+      rtn[query] = null
+    })
   }
-  return rtn;
-};
+  return rtn
+}
 
 const includeMAPSJSbyHTML = (path = '') => {
-  let scripts = '';
+  let scripts = ''
   if (mode === defaultTypeLog) {
     fs.readdirSync(path).forEach(file => {
       if (file.match(/\w*\.js\.map+$\b/gi)) {
-        scripts += `<script src="/client/${file}" type="application/json"></script>`;
+        scripts += `<script src="/client/${file}" type="application/json"></script>`
       }
-    });
+    })
   }
-  return scripts;
-};
+  return scripts
+}
 
 const includeJSbyHTML = (path = '') => {
-  let scripts = '';
+  let scripts = ''
   fs.readdirSync(path).forEach(file => {
     if (file.match(/\w*\.js+$\b/gi)) {
-      scripts += `<script src="/client/${file}"></script>`;
+      scripts += `<script src="/client/${file}"></script>`
     }
-  });
-  return scripts;
-};
+  })
+  return scripts
+}
 
 const includeCSSbyHTML = (path = '') => {
-  let scripts = '';
+  let scripts = ''
   fs.readdirSync(path).forEach(file => {
     if (file.match(/\w*\.css+$\b/gi)) {
-      scripts += `<link rel="stylesheet" href="/client/${file}"></link>`;
+      scripts += `<link rel="stylesheet" href="/client/${file}"></link>`
     }
-  });
-  return scripts;
-};
+  })
+  return scripts
+}
 
 const checkMethodRouteFunction = (routeFunction, httpMethod = '') => {
-  let rtn;
+  let rtn
   if (
     routeFunction &&
     routeFunction.httpMethod &&
@@ -99,16 +99,16 @@ const checkMethodRouteFunction = (routeFunction, httpMethod = '') => {
     routeFunction.action &&
     typeof routeFunction.action === 'function'
   ) {
-    rtn = routeFunction.action;
+    rtn = routeFunction.action
   }
-  return rtn;
-};
+  return rtn
+}
 
 const checkIfIsARouteFunction = (route, httpMethod) => {
-  let rtn = false;
+  let rtn = false
   if (route && route.length) {
-    const { private: functionPrivate, public: functionPublic } = functionRoutes;
-    const functions = [...functionPrivate, ...functionPublic];
+    const { private: functionPrivate, public: functionPublic } = functionRoutes
+    const functions = [...functionPrivate, ...functionPublic]
     const finderCommand = rtnCommand =>
       rtnCommand &&
       rtnCommand.endpoint &&
@@ -116,14 +116,14 @@ const checkIfIsARouteFunction = (route, httpMethod) => {
       rtnCommand.httpMethod &&
       rtnCommand.httpMethod === httpMethod &&
       rtnCommand.action &&
-      typeof rtnCommand.action === 'function';
-    const find = functions.find(finderCommand);
+      typeof rtnCommand.action === 'function'
+    const find = functions.find(finderCommand)
     if (find) {
-      rtn = find;
+      rtn = find
     }
   }
-  return rtn;
-};
+  return rtn
+}
 
 module.exports = {
   validateAuth,
@@ -144,5 +144,6 @@ module.exports = {
   checkMethodRouteFunction,
   responseOpennebula,
   getConfig,
-  httpResponse
-};
+  httpResponse,
+  getDataZone
+}

@@ -13,16 +13,16 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { parse } = require('yaml');
-const { defaultConfigFile, defaultWebpackMode } = require('./constants/defaults');
-const { existsFile } = require('server/utils/server');
-const { messageTerminal } = require('server/utils/general');
+const { parse } = require('yaml')
+const { defaultConfigFile, defaultWebpackMode } = require('./constants/defaults')
+const { existsFile } = require('server/utils/server')
+const { messageTerminal } = require('server/utils/general')
 
 const getConfig = () => {
-  let rtn = {};
-  const path = process && process.env && process.env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../`: `${__dirname}/`
-  const file = existsFile(path+defaultConfigFile, filedata => {
-    rtn = parse(filedata);
+  let rtn = {}
+  const path = process && process.env && process.env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../` : `${__dirname}/`
+  existsFile(path + defaultConfigFile, filedata => {
+    rtn = parse(filedata)
   }, err => {
     const config = {
       color: 'red',
@@ -30,11 +30,11 @@ const getConfig = () => {
       type: err.message || ''
     }
     messageTerminal(config)
-  });
+  })
 
-  return rtn;
-};
+  return rtn
+}
 
 module.exports = {
   getConfig
-};
+}

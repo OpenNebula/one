@@ -14,36 +14,36 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { messageTerminal } = require('server/utils/general');
-const { getRouteForOpennebulaCommand } = require('server/utils/opennebula');
+const { messageTerminal } = require('server/utils/general')
+const { getRouteForOpennebulaCommand } = require('server/utils/opennebula')
 
 const config = {
   color: 'red',
   message: 'file not found: %s'
-};
-const files = ['2fa', 'auth', 'oneflow', 'support', 'vcenter', 'zendesk'];
-const filesDataPrivate = [];
-const filesDataPublic = [];
+}
+const files = ['2fa', 'auth', 'oneflow', 'support', 'vcenter', 'zendesk']
+const filesDataPrivate = []
+const filesDataPublic = []
 files.map(file => {
   try {
     // eslint-disable-next-line global-require
-    const fileInfo = require(`./${file}`);
+    const fileInfo = require(`./${file}`)
     if (fileInfo.private && fileInfo.private.length) {
-      filesDataPrivate.push(fileInfo.private);
+      filesDataPrivate.push(...fileInfo.private)
     }
     if (fileInfo.public && fileInfo.public.length) {
-      filesDataPublic.push(fileInfo.public);
+      filesDataPublic.push(...fileInfo.public)
     }
   } catch (error) {
     if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
-      config.type = error.message;
-      messageTerminal(config);
+      config.type = error.message
+      messageTerminal(config)
     }
   }
-});
-const opennebulaActions = getRouteForOpennebulaCommand();
+})
+const opennebulaActions = getRouteForOpennebulaCommand()
 const routes = {
-  private: [...opennebulaActions, ...filesDataPrivate.flat()],
-  public: [...filesDataPublic.flat()]
-};
-module.exports = routes;
+  private: [...opennebulaActions, ...filesDataPrivate],
+  public: [...filesDataPublic]
+}
+module.exports = routes

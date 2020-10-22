@@ -12,7 +12,7 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { Map } = require('immutable');
+const { Map } = require('immutable')
 const {
   authenticate,
   getUser,
@@ -29,30 +29,30 @@ const {
   getRelativeTime,
   connectOpennebula,
   updaterResponse
-} = require('./functions');
-const { internalServerError } = require('server/utils/constants/http-codes');
+} = require('./functions')
+const { internalServerError } = require('server/utils/constants/http-codes')
 const {
   httpMethod,
   defaultMethodLogin
-} = require('server/utils/constants/defaults');
+} = require('server/utils/constants/defaults')
 const {
   responseOpennebula,
   checkOpennebulaCommand
-} = require('server/utils/opennebula');
-const { from } = require('server/utils/constants/defaults');
+} = require('server/utils/opennebula')
+const { from } = require('server/utils/constants/defaults')
 
-const { POST } = httpMethod;
+const { POST } = httpMethod
 
 const auth = (req, res, next, connect) => {
   if (req && res && connect) {
-    setReq(req);
-    setRes(res);
-    setNext(next);
-    updaterResponse(Map(internalServerError).toObject());
+    setReq(req)
+    setRes(res)
+    setNext(next)
+    updaterResponse(Map(internalServerError).toObject())
     const getOpennebulaMethod = checkOpennebulaCommand(
       defaultMethodLogin,
       POST
-    );
+    )
     if (getOpennebulaMethod) {
       setUser(
         (req &&
@@ -60,45 +60,45 @@ const auth = (req, res, next, connect) => {
           req[from.postBody] &&
           req[from.postBody].user) ||
           ''
-      );
+      )
       setPass(
         (req &&
           from.postBody &&
           req[from.postBody] &&
           req[from.postBody].token) ||
           ''
-      );
+      )
       setTfaToken(
         (req && req[from.postBody] && req[from.postBody].token2fa) || ''
-      );
+      )
       setExtended(
         (req && req[from.postBody] && req[from.postBody].extended) || ''
-      );
-      setNodeConnect(connect);
+      )
+      setNodeConnect(connect)
       if (getUser() && getPass()) {
-        setDates();
-        const relativeTime = getRelativeTime();
-        const oneConnect = connectOpennebula();
-        const dataSourceWithExpirateDate = Map(req).toObject();
+        setDates()
+        const relativeTime = getRelativeTime()
+        const oneConnect = connectOpennebula()
+        const dataSourceWithExpirateDate = Map(req).toObject()
         // add expire time unix for opennebula creation token
-        dataSourceWithExpirateDate[from.postBody].expire = relativeTime;
+        dataSourceWithExpirateDate[from.postBody].expire = relativeTime
         oneConnect(
           defaultMethodLogin,
           getOpennebulaMethod(dataSourceWithExpirateDate),
           (err, value) => {
-            responseOpennebula(updaterResponse, err, value, authenticate, next);
+            responseOpennebula(updaterResponse, err, value, authenticate, next)
           }
-        );
+        )
       }
     } else {
-      next();
+      next()
     }
   } else {
-    next();
+    next()
   }
-};
+}
 
 const authApi = {
   auth
-};
-module.exports = authApi;
+}
+module.exports = authApi

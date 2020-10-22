@@ -21,7 +21,7 @@ import { defaultPort } from 'server/utils/constants/defaults'
 
 const { jwtName } = constants
 
-const ENDPOINT = `http://127.0.0.1:${defaultPort}`
+const ENDPOINT = `http://localhost:${defaultPort}`
 
 const Webconsole = () => {
   const [response, setResponse] = useState({})

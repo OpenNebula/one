@@ -18,7 +18,7 @@
   "author": "opennebula.io",
   "license": "ISC",
   "engines": {
-    "node": ">=12.18.2"
+    "node": ">=10.21.0"
   },
   "keywords": [
     "flow",

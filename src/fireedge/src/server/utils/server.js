@@ -24,7 +24,8 @@ const {
   defaultVmrcTokens,
   defaultVarPath,
   defaultKeyFilename,
-  defaultWebpackMode
+  defaultWebpackMode,
+  defaultOpennebulaZones
 } = require('./constants/defaults')
 
 let cert = ''
@@ -88,7 +89,7 @@ const genFireedgeKey = () => {
     const { v4 } = require('uuid')
     let uuidv4 = v4()
     if (global.FIREEDGE_KEY_PATH && uuidv4) {
-      uuidv4 = uuidv4.replace(/-/g, "").toUpperCase()
+      uuidv4 = uuidv4.replace(/-/g, '').toUpperCase()
       existsFile(
         global.FIREEDGE_KEY_PATH,
         filedata => {
@@ -98,7 +99,7 @@ const genFireedgeKey = () => {
         },
         () => {
           createFile(
-            global.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ""), () => undefined, err => {
+            global.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ''), () => undefined, err => {
               const config = {
                 color: 'red',
                 message: 'Error: %s',
@@ -111,6 +112,20 @@ const genFireedgeKey = () => {
     }
     global.FIREEDGE_KEY = uuidv4
   }
+}
+
+const getDataZone = (zone = 0, configuredZones) => {
+  let rtn
+  const Zones = (global && global.zones) || configuredZones || defaultOpennebulaZones
+  if (Zones && Array.isArray(Zones)) {
+    rtn = Zones[0]
+    if (zone !== null) {
+      rtn = Zones.find(
+        zone => zone && zone.ID !== undefined && String(zone.ID) === zone
+      )
+    }
+  }
+  return rtn
 }
 
 const genPathResources = () => {
@@ -133,6 +148,7 @@ const genPathResources = () => {
 }
 
 module.exports = {
+  getDataZone,
   existsFile,
   createFile,
   httpResponse,
