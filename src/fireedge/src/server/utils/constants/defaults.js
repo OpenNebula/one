@@ -49,7 +49,7 @@ const defaults = {
   defaultEtcPath: '/etc/one',
   defaultLogFilename: 'fireedge.log',
   defaultKeyFilename: 'fireedge_key',
-  defaultVmrcTokens: 'sunstone_vnc_tokens/vmrc',
+  defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
   endpointVmrc: '/vmrc',
   defaultNamespace: 'one.',
