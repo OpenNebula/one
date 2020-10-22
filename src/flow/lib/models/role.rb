@@ -244,6 +244,9 @@ module OpenNebula
         def info_nodes(vm_pool)
             ret = []
 
+            monitoring = vm_pool[:monitoring]
+            vm_pool    = vm_pool[:vm_pool]
+
             @body['nodes'].each do |node|
                 id = node['deploy_id']
                 vm = vm_pool.retrieve_xmlelements("/VM_POOL/VM[ID=#{id}]")[0]
@@ -255,7 +258,12 @@ module OpenNebula
                 else
                     obj = {}
                     obj['deploy_id'] = node['deploy_id']
-                    obj['vm_info']   = vm.to_hash
+
+                    hash     = vm.to_hash
+                    vm_monit = monitoring.select {|v| v['ID'].to_i == id }[0]
+
+                    hash['VM']['MONITORING'] = vm_monit if vm_monit
+                    obj['vm_info']           = hash
 
                     ret << obj
                 end
