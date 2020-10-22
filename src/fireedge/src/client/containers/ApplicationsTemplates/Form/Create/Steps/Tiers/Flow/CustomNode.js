@@ -71,7 +71,7 @@ const CustomNode = memo(({ data, selected, ...nodeProps }) => {
   return (
     <>
       <TierCard
-        values={tier}
+        value={tier}
         handleEdit={handleEdit}
         cardProps={{
           elevation: selected ? 6 : 1,

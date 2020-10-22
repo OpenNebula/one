@@ -7,9 +7,15 @@ import {
 import { requestData } from 'client/utils'
 import httpCodes from 'server/utils/constants/http-codes'
 
-export const getApplication = () => {
-  // request
-}
+export const getApplication = ({ id }) =>
+  requestData(`/api/${SERVICE}/${id}`, {
+    method: httpMethod.GET,
+    error: err => err?.message
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.DOCUMENT ?? {}
+  })
 
 export const getApplications = ({ filter }) =>
   requestData(`/api/${SERVICE}`, {

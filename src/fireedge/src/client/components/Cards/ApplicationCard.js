@@ -10,13 +10,13 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CardActions
+  CardActions,
+  Chip
 } from '@material-ui/core'
 import FileIcon from '@material-ui/icons/Description'
-import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
-import AccountTreeIcon from '@material-ui/icons/AccountTree'
 
 import { Tr } from 'client/components/HOC'
+import { APPLICATION_STATES } from 'client/constants/states'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -37,24 +37,17 @@ const useStyles = makeStyles(theme => ({
     lineClamp: 2,
     boxOrient: 'vertical'
   },
-  badgesWrapper: {
+  content: {
     display: 'flex',
     gap: theme.typography.pxToRem(12)
-  },
-  badge: {},
-  icon: {}
+  }
 }))
 
 const ApplicationCard = memo(
   ({ value, handleShow, handleRemove }) => {
     const classes = useStyles()
     const { NAME, TEMPLATE } = value
-    const { description, networks = [], roles = [] } = TEMPLATE.BODY
-
-    const numberOfTiers = roles?.length ?? 0
-    const numberOfNetworks = Object.keys(networks)?.length ?? 0
-
-    const badgePosition = { vertical: 'top', horizontal: 'right' }
+    const { description, state } = TEMPLATE.BODY
 
     return (
       <Fade in unmountOnExit={false}>
@@ -78,37 +71,18 @@ const ApplicationCard = memo(
             }}
           />
           <CardContent>
-            <Box className={classes.badgesWrapper}>
-              <Badge
-                showZero
-                title={Tr('Tiers')}
-                classes={{ badge: classes.badge }}
-                color="primary"
-                badgeContent={numberOfTiers}
-                anchorOrigin={badgePosition}
-              >
-                <VideogameAssetIcon />
-              </Badge>
-              <Badge
-                showZero
-                title={Tr('Networks')}
-                classes={{ badge: classes.badge }}
-                color="primary"
-                badgeContent={numberOfNetworks}
-                anchorOrigin={badgePosition}
-              >
-                <AccountTreeIcon />
-              </Badge>
+            <Box className={classes.content}>
+              <Chip size="small" label={APPLICATION_STATES[state + 1]?.name} />
             </Box>
           </CardContent>
           <CardActions>
             {handleShow && (
-              <Button variant="contained" size="small" onClick={handleShow}>
+              <Button variant="contained" size="small" onClick={handleShow} disableElevation>
                 {Tr('Info')}
               </Button>
             )}
             {handleRemove && (
-              <Button size="small" onClick={handleRemove}>
+              <Button size="small" onClick={handleRemove} disableElevation>
                 {Tr('Remove')}
               </Button>
             )}
@@ -126,6 +100,7 @@ ApplicationCard.propTypes = {
     TEMPLATE: PropTypes.shape({
       BODY: PropTypes.shape({
         description: PropTypes.string,
+        state: PropTypes.number,
         networks: PropTypes.object,
         roles: PropTypes.arrayOf(PropTypes.object)
       }).isRequired

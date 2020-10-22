@@ -36,9 +36,9 @@ const useStyles = makeStyles(() => ({
 }))
 
 const TierCard = memo(
-  ({ values, handleEdit, handleClone, handleRemove, cardProps }) => {
+  ({ value, handleEdit, handleClone, handleRemove, cardProps }) => {
     const classes = useStyles()
-    const { name, cardinality } = values
+    const { name, cardinality } = value
 
     return (
       <Card className={classes.root} {...cardProps}>
@@ -88,7 +88,7 @@ const TierCard = memo(
 )
 
 TierCard.propTypes = {
-  values: PropTypes.shape({
+  value: PropTypes.shape({
     name: PropTypes.string,
     cardinality: PropTypes.oneOfType([
       PropTypes.string,
@@ -102,7 +102,7 @@ TierCard.propTypes = {
 }
 
 TierCard.defaultProps = {
-  values: {},
+  value: {},
   handleEdit: undefined,
   handleClone: undefined,
   handleRemove: undefined,
