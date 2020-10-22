@@ -109,7 +109,9 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use('/api', entrypointApi) // opennebula Api routes
-app.get('/*', entrypointApp)
+app.get('/provision', entrypointApp)
+app.get('/fireedge', entrypointApp)
+app.get('/', (req, res) => res.send('index'))
 // 404 - public
 app.get('*', entrypoint404)
 

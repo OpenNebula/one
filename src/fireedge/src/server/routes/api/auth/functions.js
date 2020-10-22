@@ -51,6 +51,7 @@ const getOpennebulaMethod = checkOpennebulaCommand(defaultMethodLogin, POST)
 let opennebulaToken = ''
 let user = ''
 let pass = ''
+let type = ''
 let tfatoken = ''
 let extended = ''
 let next = () => undefined
@@ -76,6 +77,11 @@ const setUser = newUser => {
 const setPass = newPass => {
   pass = newPass
   return pass
+}
+
+const setType = newtype => {
+  type = newtype
+  return type
 }
 
 const setTfaToken = newTfaToken => {
@@ -282,6 +288,7 @@ const functionRoutes = {
   authenticate,
   getUser,
   getPass,
+  setType,
   setUser,
   setPass,
   setTfaToken,

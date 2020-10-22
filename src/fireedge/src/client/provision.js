@@ -13,12 +13,32 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const entrypoint404 = require('./404')
-const entrypointApi = require('./Api')
-const entrypointApp = require('./App')
+import React from 'react'
+import { hydrate, render } from 'react-dom'
+import { createStore } from 'redux'
+import root from 'window-or-global'
 
-module.exports = {
-  entrypoint404,
-  entrypointApi,
-  entrypointApp
+import rootReducer from 'client/reducers'
+import App from 'client/app'
+
+// eslint-disable-next-line no-underscore-dangle
+const preloadedState = root.__PRELOADED_STATE__
+
+// eslint-disable-next-line no-underscore-dangle
+delete root.__PRELOADED_STATE__
+
+const store = createStore(
+  rootReducer(),
+  preloadedState,
+  // eslint-disable-next-line no-underscore-dangle
+  root.__REDUX_DEVTOOLS_EXTENSION__ && root.__REDUX_DEVTOOLS_EXTENSION__()
+)
+
+const element = document.getElementById('preloadState')
+if (element) {
+  element.remove()
 }
+const mainDiv = document.getElementById('root')
+const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render
+
+renderMethod(<App store={store} app='provision' />, document.getElementById('root'))

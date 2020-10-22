@@ -4,8 +4,8 @@ import {
   createGenerateClassName
 } from '@material-ui/core'
 
-import UbuntuFont from 'client/assets/theme/fonts'
-import { toolbar, breakpoints } from 'client/assets/theme/defaults'
+import UbuntuFont from 'client/theme/fonts'
+import { toolbar, breakpoints } from 'client/theme/defaults'
 
 const { xs, sm } = breakpoints
 
