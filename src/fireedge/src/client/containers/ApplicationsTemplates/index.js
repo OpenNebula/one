@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { Box, LinearProgress } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 
-import { PATH } from 'client/router/endpoints'
+import { PATH } from 'client/router/fireedge'
 import useApplication from 'client/hooks/useApplication'
 import useFetch from 'client/hooks/useFetch'
 

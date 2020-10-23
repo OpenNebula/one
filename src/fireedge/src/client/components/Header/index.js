@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -40,7 +40,7 @@ const Header = ({ title }) => {
 
   const handleFixMenu = () => fixMenu(true)
 
-  return React.useMemo(
+  return useMemo(
     () => (
       <AppBar position="absolute" data-cy="header">
         <Toolbar>

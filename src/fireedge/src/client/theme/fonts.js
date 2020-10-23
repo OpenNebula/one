@@ -1,4 +1,4 @@
-const UbuntuFont = {
+export const UbuntuFont = {
   fontFamily: 'Ubuntu',
   fontStyle: 'normal',
   fontWeight: 400,
@@ -11,5 +11,3 @@ const UbuntuFont = {
     url(/client/assets/fonts/Ubuntu/ubuntu.svg#Ubuntu) format('svg');
   `
 }
-
-export default UbuntuFont

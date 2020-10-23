@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
 
 import { useFormContext } from 'react-hook-form'
 import { Box, Tab, Tabs, Fab, AppBar } from '@material-ui/core'
@@ -82,7 +82,7 @@ const Policies = () => ({
               fields={POLICIES_FORM_FIELDS}
             />
           </Box>
-          {React.useMemo(() => (
+          {useMemo(() => (
             <AppBar position="static">
               <Tabs value={tab} onChange={(_, tab) => setTab(tab)}>
                 {Object.keys(TABS).map(key =>
@@ -104,7 +104,7 @@ const Policies = () => ({
             >
               <AddIcon />
             </Fab>
-            {React.useMemo(() => (
+            {useMemo(() => (
               Object.keys(TABS).map(key => (
                 <Box key={`tab-${key}`} hidden={tab !== key} overflow="auto" height={1} p={2}>
                   <ListCards

@@ -1,22 +1,20 @@
 import React from 'react'
 
-import { useHistory } from 'react-router-dom'
-import { MenuItem, MenuList, Divider } from '@material-ui/core'
+import { MenuItem, MenuList, Divider, Link } from '@material-ui/core'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
 import useAuth from 'client/hooks/useAuth'
 import { Tr, SelectTranslate } from 'client/components/HOC'
 
 import { SignOut } from 'client/constants/translates'
-import { PATH } from 'client/router/endpoints'
+import { APPS } from 'client/constants'
 import HeaderPopover from 'client/components/Header/Popover'
+import { DevTypography } from 'client/components/Typography'
 
 const User = React.memo(() => {
-  const history = useHistory()
   const { logout, authUser } = useAuth()
 
   const handleLogout = () => logout()
-  const handleGoToSettings = () => history.push(PATH.SETTINGS)
 
   return (
     <HeaderPopover
@@ -31,11 +29,19 @@ const User = React.memo(() => {
           <MenuItem>
             <SelectTranslate />
           </MenuItem>
-          <MenuItem onClick={handleGoToSettings}>{Tr('Settings')}</MenuItem>
           <Divider />
           <MenuItem onClick={handleLogout} data-cy="header-logout-button">
             {Tr(SignOut)}
           </MenuItem>
+          {process?.env?.NODE_ENV === 'development' &&
+            Object.keys(APPS)?.map(appName => (
+              <MenuItem key={appName}>
+                <Link href={`/${appName}`} style={{ width: '100%' }}>
+                  <DevTypography label={appName} />
+                </Link>
+              </MenuItem>
+            ))
+          }
         </MenuList>
       )}
     </HeaderPopover>

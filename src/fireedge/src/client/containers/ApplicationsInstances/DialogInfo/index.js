@@ -19,7 +19,7 @@ const DialogInfo = ({ info, handleClose }) => {
   const [tabSelected, setTab] = useState(0)
   const { name } = info?.TEMPLATE?.BODY
 
-  const renderTabs = React.useMemo(() => (
+  const renderTabs = useMemo(() => (
     <AppBar position="static">
       <Tabs value={tabSelected} onChange={(_, tab) => setTab(tab)}>
         {TABS.map(({ name, icon: Icon }, idx) =>

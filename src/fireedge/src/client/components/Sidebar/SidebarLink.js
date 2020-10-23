@@ -4,9 +4,6 @@ import { useHistory, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 
 import {
-  withStyles,
-  Badge,
-  Typography,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -15,14 +12,7 @@ import {
 
 import useGeneral from 'client/hooks/useGeneral'
 import sidebarStyles from 'client/components/Sidebar/styles'
-
-const StyledBadge = withStyles(() => ({
-  badge: {
-    right: -25,
-    top: 13,
-    fontSize: '0.7rem'
-  }
-}))(Badge)
+import { DevTypography } from 'client/components/Typography'
 
 const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   const classes = sidebarStyles()
@@ -52,15 +42,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
         </ListItemIcon>
       )}
       <ListItemText
-        primary={
-          devMode ? (
-            <StyledBadge badgeContent="DEV" color="primary">
-              <Typography>{label}</Typography>
-            </StyledBadge>
-          ) : (
-            label
-          )
-        }
+        primary={devMode ? <DevTypography label={label} /> : label}
       />
     </ListItem>
   )

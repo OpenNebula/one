@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -41,7 +41,7 @@ const HeaderPopover = ({
   const open = Boolean(anchorEl)
   const anchorId = open ? id : undefined
 
-  const ButtonComponent = React.useMemo(
+  const ButtonComponent = useMemo(
     () => (buttonLabel ? typeButton.button : typeButton.iconButton),
     [buttonLabel]
   )

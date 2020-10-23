@@ -1,3 +1,5 @@
+import { UbuntuFont } from 'client/theme/fonts'
+
 export const breakpoints = {
   xs: 0,
   sm: 600,
@@ -23,4 +25,43 @@ export const footer = {
 export const sidebar = {
   minified: 60,
   fixed: 240
+}
+
+export default {
+  breakpoints: {
+    values: breakpoints,
+    keys: Object.keys(breakpoints)
+  },
+  typography: {
+    fontFamily: [
+      '"Ubuntu"',
+      'Roboto',
+      'Helvetica',
+      'Arial',
+      'sans-serif'
+    ].join(',')
+  },
+  mixins: {
+    toolbar: {
+      minHeight: toolbar.regular,
+      [`@media (min-width:${breakpoints.xs}px) and (orientation: landscape)`]: {
+        minHeight: toolbar.xs
+      },
+      [`@media (min-width:${breakpoints.sm}px)`]: {
+        minHeight: toolbar.sm
+      }
+    }
+  },
+  overrides: {
+    MuiFormControl: {
+      root: {
+        margin: '.5rem 0'
+      }
+    },
+    MuiCssBaseline: {
+      '@global': {
+        '@font-face': [UbuntuFont]
+      }
+    }
+  }
 }
