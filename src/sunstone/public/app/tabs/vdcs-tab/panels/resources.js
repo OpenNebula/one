@@ -19,19 +19,21 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Utils = require('../utils/common');
-  var ResourcesTab = require('../utils/resources-tab');
-  var OpenNebulaZone = require('opennebula/zone');
+  var Locale = require("utils/locale");
+  var Utils = require("../utils/common");
+  var ResourcesTab = require("../utils/resources-tab");
+  var OpenNebulaZone = require("opennebula/zone");
+  var OpenNebula = require("opennebula");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./resources/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./resources/panelId");
   var RESOURCE = "Vdc";
   var XML_ROOT = "VDC";
+  var ZONES = [];
 
   /*
     CONSTRUCTOR
@@ -50,6 +52,7 @@ define(function(require) {
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
+  Panel.prototype.onShow = _onShow;
 
   return Panel;
 
@@ -61,9 +64,28 @@ define(function(require) {
     return this.resourcesTab.html();
   }
 
+  function _onShow(context){
+    var that = this;
+    var renderZones = "";
+    $("select.vdc_zones_select", context).empty();
+    if(ZONES && ZONES.length){
+      ZONES.map(function(zone){
+        if(zone.ZONE){
+          renderZones += "<option value=\""+zone.ZONE.ID+"\">"+zone.ZONE.NAME+"</option>";
+        }
+      });
+      $("select.vdc_zones_select", context).append(renderZones);
+    }
+  }
+
   function _setup(context) {
     var that = this;
-    var indexed_resources = Utils.indexedVdcResources(this.element);
+    var indexed_resources = Utils.indexedVdcResources(that.element);
+    if(indexed_resources && !indexed_resources.ZONE){
+      OpenNebula.Zone.list({success:function(request, obj_list){
+        ZONES = obj_list;
+      }});
+    }
     $.each(indexed_resources, function(zone_id,objects){
       that.resourcesTab.addResourcesZone(
         zone_id,
@@ -71,7 +93,6 @@ define(function(require) {
         context,
         indexed_resources);
     });
-
     that.resourcesTab.setup(context);
     that.resourcesTab.onShow(context);
   }
