@@ -174,7 +174,11 @@ int Image::insert(SqlDB *db, string& error_str)
     erase_template_attribute("FORMAT", format);
     erase_template_attribute("TM_MAD", tm_mad);
 
-    if (!is_saving())
+    if (is_saving())
+    {
+        format = "save_as";
+    }
+    else if (get_cloning_id() == -1) // !is_saving() && !is_cloning
     {
         if ( source.empty() && path.empty() && type != DATABLOCK && type != OS)
         {
@@ -215,10 +219,6 @@ int Image::insert(SqlDB *db, string& error_str)
             // It's filled by the driver depending on the type of file.
             format = "";
         }
-    }
-    else
-    {
-        format = "save_as";
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
