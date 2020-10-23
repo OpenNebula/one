@@ -44,6 +44,7 @@ class ServiceAutoScaler
             monitoring = XMLElement.new(XMLElement.build_xml(monitoring,
                                                              'MONITORING_DATA'))
             monitoring = monitoring.to_hash['MONITORING_DATA']['MONITORING']
+            monitoring = [monitoring].flatten
 
             vm_pool.info_all_extended
 
