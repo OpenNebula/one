@@ -13,45 +13,68 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react'
-import { Route, Switch } from 'react-router-dom'
+import React, { useCallback, useMemo } from 'react'
+import PropTypes from 'prop-types'
+
+import { Redirect, Route, Switch } from 'react-router-dom'
 import { TransitionGroup } from 'react-transition-group'
 
+import * as endpoints from 'client/router/endpoints'
 import { InternalLayout, MainLayout } from 'client/components/HOC'
-import Error404 from 'client/containers/Error404'
-import endpoints from 'client/router/endpoints'
+import { APPS } from 'client/constants'
 
-const renderRoute = ({
-  label = '',
-  path = '',
-  authenticated = true,
-  component: Component,
-  ...route
-}) => (
-  <Route
-    key={`key-${label.replace(' ', '-')}`}
-    exact
-    path={path}
-    component={() => (
-      <InternalLayout label={label} authRoute={authenticated}>
-        <Component />
-      </InternalLayout>
-    )}
-    {...route}
-  />
-)
+const Router = ({ app }) => {
+  const { ENDPOINTS, PATH } = useMemo(() => ({
+    ...endpoints[app],
+    ...(process?.env?.NODE_ENV === 'development' &&
+      { ENDPOINTS: endpoints[app].ENDPOINTS.concat(endpoints.dev.ENDPOINTS) }
+    )
+  }), [app])
 
-const Router = () => (
-  <MainLayout>
-    <TransitionGroup>
-      <Switch>
-        {endpoints?.map(({ routes, ...endpoint }) =>
-          endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
-        )}
-        <Route component={Error404} />
-      </Switch>
-    </TransitionGroup>
-  </MainLayout>
-)
+  const renderRoute = useCallback(({
+    label = '',
+    path = '',
+    authenticated = true,
+    component: Component,
+    ...route
+  }) => (
+    <Route
+      key={`key-${label.replace(' ', '-')}`}
+      exact
+      path={path}
+      component={() => (
+        <InternalLayout
+          label={label}
+          endpoints={ENDPOINTS}
+          authRoute={authenticated}
+        >
+          <Component />
+        </InternalLayout>
+      )}
+      {...route}
+    />
+  ), [endpoints])
+
+  return (
+    <MainLayout endpoints={endpoints[app]}>
+      <TransitionGroup>
+        <Switch>
+          {ENDPOINTS?.map(({ routes, ...endpoint }) =>
+            endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
+          )}
+          <Route component={() => <Redirect to={PATH.LOGIN} />} />
+        </Switch>
+      </TransitionGroup>
+    </MainLayout>
+  )
+}
+
+Router.propTypes = {
+  app: PropTypes.oneOf([undefined, ...Object.keys(APPS)])
+}
+
+Router.defaultProps = {
+  app: undefined
+}
 
 export default Router

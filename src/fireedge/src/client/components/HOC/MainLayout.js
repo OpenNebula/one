@@ -21,11 +21,9 @@ import useAuth from 'client/hooks/useAuth'
 import useOpennebula from 'client/hooks/useOpennebula'
 
 import LoadingScreen from 'client/components/LoadingScreen'
-import Sidebar from 'client/components/Sidebar'
-import Notifier from 'client/components/Notifier'
-import { PATH, findRouteByPathname } from 'client/router/endpoints'
 
-const MainLayout = ({ children }) => {
+const MainLayout = ({ endpoints, children }) => {
+  const { PATH, findRouteByPathname } = endpoints
   const { pathname } = useLocation()
   const { groups } = useOpennebula()
   const {
@@ -60,16 +58,14 @@ const MainLayout = ({ children }) => {
     return <Redirect to={PATH.DASHBOARD} />
   }
 
-  return (
-    <>
-      {authRoute && isLogged && <Sidebar />}
-      {children}
-      <Notifier />
-    </>
-  )
+  return children
 }
 
 MainLayout.propTypes = {
+  endpoints: PropTypes.shape({
+    PATH: PropTypes.object,
+    findRouteByPathname: PropTypes.func
+  }),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
@@ -78,6 +74,10 @@ MainLayout.propTypes = {
 }
 
 MainLayout.defaultProps = {
+  endpoints: {
+    PATH: {},
+    findRouteByPathname: () => {}
+  },
   children: ''
 }
 

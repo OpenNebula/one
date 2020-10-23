@@ -15,9 +15,9 @@
 
 const JWT_NAME = 'SunstoneToken'
 
-const BASE_URL = {
-  default: '',
-  provision: '/provision'
+const APPS = {
+  fireedge: 'fireedge',
+  provision: 'provision'
 }
 
 const BY = {
@@ -46,7 +46,7 @@ const INPUT_TYPES = {
 export {
   BY,
   JWT_NAME,
-  BASE_URL,
+  APPS,
   ONEADMIN_ID,
   FILTER_POOL,
   INPUT_TYPES

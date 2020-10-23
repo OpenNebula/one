@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
-import { PATH } from 'client/router/endpoints'
+import { PATH } from 'client/router/fireedge'
 import useFetch from 'client/hooks/useFetch'
 import useApplication from 'client/hooks/useApplication'
 import mapApplicationToForm from 'client/utils/parser/toApplicationForm'

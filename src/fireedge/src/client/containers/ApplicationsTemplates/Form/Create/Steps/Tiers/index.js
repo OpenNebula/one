@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useCallback, createContext } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  createContext,
+  useMemo
+} from 'react'
 
 import * as yup from 'yup'
 import { useWatch } from 'react-hook-form'
@@ -55,7 +61,7 @@ const Tiers = () => {
         setNestedForm(form)
       }, [])
 
-      const formSteps = React.useMemo(() => {
+      const formSteps = useMemo(() => {
         const networking = nestedForm[NETWORKING_ID] ?? []
 
         return steps.filter(

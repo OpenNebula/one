@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
@@ -36,20 +36,30 @@ if (process?.env?.NODE_ENV === 'development') {
 }
 
 const App = ({ location, context, store, app }) => {
+  let appName = app
+  if (
+    process?.env?.NODE_ENV === 'development' &&
+    typeof window !== 'undefined'
+  ) {
+    appName = window.location.pathname.split('/')[1]
+  }
+
+  const basename = `/${appName}`
+
   return (
-    <MuiProvider app={app}>
+    <MuiProvider app={appName} location={location}>
       <ReduxProvider store={store}>
         <NotistackProvider>
           <TranslateProvider>
             {location && context ? (
             // server build
               <StaticRouter location={location} context={context}>
-                <Router app={app}/>
+                {/* <Router app={appName} /> */}
               </StaticRouter>
             ) : (
             // browser build
-              <BrowserRouter basename = {app}>
-                <Router app={app}/>
+              <BrowserRouter basename={basename}>
+                <Router app={appName} />
               </BrowserRouter>
             )}
           </TranslateProvider>

@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { MenuItem, TextField } from '@material-ui/core'
 import { FilterVintage } from '@material-ui/icons'
@@ -27,7 +27,7 @@ const GroupSelect = props => {
   const { filterPool, authUser } = useAuth()
   const { groups } = useOpennebula()
 
-  const defaultValue = React.useMemo(
+  const defaultValue = useMemo(
     () =>
       filterPool === FILTER_POOL.ALL_RESOURCES
         ? FILTER_POOL.ALL_RESOURCES
@@ -35,7 +35,7 @@ const GroupSelect = props => {
     [filterPool]
   )
 
-  const orderGroups = React.useMemo(
+  const orderGroups = useMemo(
     () =>
       groups
         ?.sort((a, b) => a.ID - b.ID)
