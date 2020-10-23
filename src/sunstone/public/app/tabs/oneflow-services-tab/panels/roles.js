@@ -200,6 +200,7 @@ define(function(require) {
   function _roleHTML(context, role_index) {
     var that = this;
     var role = this.element.TEMPLATE.BODY.roles[role_index];
+    var ready_status_gate = that.element.TEMPLATE.BODY.ready_status_gate;
     var promises = [];
     var roleVms = [];
 
@@ -215,6 +216,14 @@ define(function(require) {
 
         function successCallback (data) {
           if (data.VM && data.VM.ID === id) {
+            var ready = ""
+            if (ready_status_gate) {
+              ready = (data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.READY == "YES")
+                ? '<span class="has-tip" title="'+
+                  Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>'
+                : '<span class="has-tip" title="'+
+                  Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock"/></span>'
+            }
             ips = OpenNebulaVM.ipsStr(data.VM);
 
             if (OpenNebulaVM.isVNCSupported(data.VM)) {
@@ -234,7 +243,7 @@ define(function(require) {
             actions += ssh ? OpenNebulaVM.buttonSSH(id) : "";
           }
 
-          roleVms[index] = rowInfoRoleVm(id, name, uname, gname, ips, actions);
+          roleVms[index] = rowInfoRoleVm(ready, id, name, uname, gname, ips, actions);
         }
 
         promises.push(promiseVmInfo(id, successCallback))
@@ -265,8 +274,9 @@ define(function(require) {
     });
   }
 
-  function rowInfoRoleVm(id, name = "", uname = "", gname = "", ips = "", actions = "") {
+  function rowInfoRoleVm(ready, id, name = "", uname = "", gname = "", ips = "", actions = "") {
     return [
+      ready,
       '<input class="check_item" style="vertical-align: inherit;" type="checkbox" '+
         'id="vm_' + id + '" name="selected_items" value="' + id + '"/>',
       '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
