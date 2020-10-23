@@ -241,7 +241,7 @@ class ServiceLCM
                     service.set_state(Service::STATE['RUNNING'])
                     service.update
 
-                    @wd.add_service(service_id)
+                    @wd.add_service(service)
                 end
 
                 # If there is no node in PENDING the service is not modified.
@@ -484,8 +484,6 @@ class ServiceLCM
 
             if service.all_roles_running?
                 service.set_state(Service::STATE['RUNNING'])
-
-                @wd.add_service(service_id)
             elsif service.strategy == 'straight'
                 set_deploy_strategy(service)
 
@@ -497,7 +495,11 @@ class ServiceLCM
                              service.report_ready?)
             end
 
-            service.update
+            rc = service.update
+
+            return rc if OpenNebula.is_error?(rc)
+
+            @wd.add_service(service) if service.all_roles_running?
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -656,9 +658,9 @@ class ServiceLCM
             service.set_state(Service::STATE['RUNNING'])
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
-            @wd.add_service(service_id)
-
             service.update
+
+            @wd.add_service(service)
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)

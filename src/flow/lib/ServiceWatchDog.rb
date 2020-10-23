@@ -133,10 +133,16 @@ class ServiceWD
 
     # Add service to watch dog
     #
-    # @param service_id [String] Service ID
-    def add_service(service_id)
+    # @param service [Service] Service information
+    def add_service(service)
         @mutex.synchronize do
-            @services << service_id.to_i
+            @services << Integer(service.id)
+        end
+
+        service.roles.each do |name, role|
+            role.nodes_ids.each do |node|
+                check_role_state(client, service.id, name, node)
+            end
         end
     end
 
@@ -196,7 +202,7 @@ class ServiceWD
             end
 
             @mutex.synchronize do
-                @services << service.id.to_i
+                @services << Integer(service.id)
             end
 
             service.roles.each do |name, role|
