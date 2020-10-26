@@ -1,6 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const CopyPlugin = require('copy-webpack-plugin')
+const { defaultApps } = require('./src/server/utils/constants/defaults')
 
 const js = {
   test: /\.js$/,
@@ -41,4 +42,6 @@ const bundle = ({ assets = false, name = 'fireedge' }) => {
   }
 }
 
-module.exports = [bundle({ assets: true }), bundle({ name: 'provision' })]
+module.exports = () => Object.entries(defaultApps).map(([key, values]) =>
+  bundle({ ...values, name: key })
+)

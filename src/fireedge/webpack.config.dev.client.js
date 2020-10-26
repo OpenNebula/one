@@ -8,7 +8,8 @@ const js = {
   include: path.resolve(__dirname, 'src', 'client')
 }
 
-const bundle = ({ name = 'fireedge' } = {}) => {
+const bundle = () => {
+  const devPathFile = path.resolve(__dirname, 'src', 'client', 'dev.js')
   const plugins = [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
@@ -21,11 +22,11 @@ const bundle = ({ name = 'fireedge' } = {}) => {
     mode: defaultWebpackMode,
     entry: [
       'webpack-hot-middleware/client',
-      path.resolve(__dirname, 'src', 'client', 'dev.js')
+      devPathFile
     ],
     target: 'web',
     output: {
-      path: path.resolve(__dirname, 'src', 'client', 'dev.js'),
+      path: devPathFile,
       filename: 'bundle.dev.js',
       publicPath: '/client'
     },

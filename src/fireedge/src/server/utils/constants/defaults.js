@@ -13,10 +13,17 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const apps = {
+  fireedge: {
+    assets: true
+  },
+  provision: undefined
+}
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = '127.0.0.1'
 const protocol = 'http'
 const defaults = {
+  defaultApps: apps,
   httpMethod: {
     GET: 'GET',
     POST: 'POST',
