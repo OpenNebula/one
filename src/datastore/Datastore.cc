@@ -188,16 +188,24 @@ void Datastore::disk_attribute(
     {
         string driver = get_ds_driver();
 
-        if (!driver.empty()) /* DRIVER in TM_MAD_CONF or DS Template */
+        if (disk->vector_value("TYPE") == "FS") /* Volatile Datablock */
         {
-            disk->replace("DRIVER", driver);
-            disk->replace("FORMAT", driver);
+            if (!driver.empty()) /* DRIVER in TM_MAD_CONF or DS Template */
+            {
+                disk->replace("DRIVER", driver);
+                disk->replace("FORMAT", driver);
+            }
+            else if (!disk->vector_value("FORMAT").empty()) /* DRIVER in DISK */
+            {
+                disk->replace("DRIVER", disk->vector_value("FORMAT"));
+            }
+            else /* Default for volatiles */
+            {
+                disk->replace("DRIVER", "raw");
+                disk->replace("FORMAT", "raw");
+            }
         }
-        else if (!disk->vector_value("FORMAT").empty()) /* DRIVER in DISK */
-        {
-            disk->replace("DRIVER", disk->vector_value("FORMAT"));
-        }
-        else /* Default for volatiles */
+        else /* SWAP */
         {
             disk->replace("DRIVER", "raw");
             disk->replace("FORMAT", "raw");
