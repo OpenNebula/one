@@ -33,7 +33,7 @@ router.get('*', (req, res) => {
   let storeRender = ''
   let chunks = ''
   if (env.NODE_ENV === 'production') {
-    app = req.url.replace(/\//g, '')
+    app = req.url.split(/\//gi).filter(sub => sub && sub.length > 0)[0]
     chunks = `<script src='/client/1.bundle.${app}.js'></script>`
   }
 

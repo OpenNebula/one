@@ -15,7 +15,7 @@ import {
 } from 'fs-extra'
 import http from 'http'
 import https from 'https'
-import { defaultTypeLog, defaultPort, defaultWebpackMode } from './utils/constants/defaults'
+import { defaultTypeLog, defaultPort, defaultWebpackMode, defaultApps } from './utils/constants/defaults'
 import {
   validateServerIsSecure,
   getCert,
@@ -109,9 +109,12 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use('/api', entrypointApi) // opennebula Api routes
-app.get('/provision', entrypointApp)
-app.get('/fireedge', entrypointApp)
-app.get('/', (req, res) => res.send('index'))
+const frontApps = Object.keys(defaultApps)
+frontApps.map(frontApp => {
+  app.get(`/${frontApp}`, entrypointApp)
+  app.get(`/${frontApp}/*`, entrypointApp)
+})
+app.get('/*', (req, res) => res.send('index'))
 // 404 - public
 app.get('*', entrypoint404)
 
