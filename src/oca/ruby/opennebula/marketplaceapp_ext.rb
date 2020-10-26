@@ -92,6 +92,7 @@ module OpenNebula::MarketPlaceAppExt
             #     :url_args [String] optional URL arguments
             #     :dsid [String] Datastore id to create the image
             #     :f_dsid [String] Files Datastore id
+            #     :notemplate [Bool] if true do not create vm_template (if any)
             #   @return [Hash]
             #     :image [Array] of the new image
             #     :image_type [String] of the new image (CONTEXT, KERNEL, CDROM)
@@ -142,6 +143,12 @@ module OpenNebula::MarketPlaceAppExt
                     end
                 end
 
+                ds = OpenNebula::Datastore.new_with_id(dsid, @client)
+                rc = ds.info
+
+                is_vcenter = !OpenNebula.is_error?(rc) &&
+                    (ds['TEMPLATE/DRIVER'] == 'vcenter')
+
                 #---------------------------------------------------------------
                 # Allocate the image in OpenNebula
                 #---------------------------------------------------------------
@@ -158,6 +165,7 @@ module OpenNebula::MarketPlaceAppExt
 
                 image.delete_element('TEMPLATE/FORMAT')
                 image.delete_element('TEMPLATE/DRIVER')
+                image.delete_element('TEMPLATE/DEV_PREFIX') if is_vcenter
 
                 image.update(image.template_xml)
 
@@ -167,7 +175,7 @@ module OpenNebula::MarketPlaceAppExt
                 #---------------------------------------------------------------
                 # Created an associated VMTemplate if needed
                 #---------------------------------------------------------------
-                if self['TEMPLATE/VMTEMPLATE64'].nil?
+                if self['TEMPLATE/VMTEMPLATE64'].nil? || options[:notemplate]
                     return rc_info
                 end
 
