@@ -95,7 +95,7 @@ CommandParser::CmdParser.new(ARGV) do
     NO = {
         :name => 'no',
         :large => '--no',
-        :description => 'Do not import associated VM templates/images',
+        :description => 'Do not import/export associated VM templates/images',
         :proc => lambda do |_, options|
             options[:no] = 'no'
         end
@@ -122,7 +122,8 @@ CommandParser::CmdParser.new(ARGV) do
     EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE,
                       OneDatastoreHelper::FILE_DATASTORE,
                       OneMarketPlaceAppHelper::VMNAME,
-                      TAG]
+                      TAG,
+                      NO]
     IMPORT_OPTIONS = [YES, NO, MARKET, OneMarketPlaceAppHelper::VMNAME]
 
     ########################################################################
@@ -270,7 +271,8 @@ CommandParser::CmdParser.new(ARGV) do
                 :dsid => options[:datastore],
                 :name => args[1],
                 :vmtemplate_name => options[:vmname],
-                :url_args => tag
+                :url_args => tag,
+                :notemplate => options[:no] == 'no'
             )
 
             if OpenNebula.is_error?(rc)
