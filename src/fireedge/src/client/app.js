@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
@@ -44,8 +44,6 @@ const App = ({ location, context, store, app }) => {
     appName = window.location.pathname.split('/')[1]
   }
 
-  const basename = `/${appName}`
-
   return (
     <MuiProvider app={appName} location={location}>
       <ReduxProvider store={store}>
@@ -58,7 +56,7 @@ const App = ({ location, context, store, app }) => {
               </StaticRouter>
             ) : (
             // browser build
-              <BrowserRouter basename={basename}>
+              <BrowserRouter basename={`/${appName}`}>
                 <Router app={appName} />
               </BrowserRouter>
             )}

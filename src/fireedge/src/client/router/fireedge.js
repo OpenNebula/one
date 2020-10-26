@@ -1,6 +1,5 @@
 import {
   Dashboard as DashboardIcon,
-  Ballot as BallotIcon,
   FormatListBulleted as TemplatesIcons,
   Apps as InstancesIcons
 } from '@material-ui/icons'
@@ -9,8 +8,6 @@ import { matchPath } from 'react-router-dom'
 import Login from 'client/containers/Login'
 import Dashboard from 'client/containers/Dashboard'
 import Settings from 'client/containers/Settings'
-import TestApi from 'client/containers/TestApi'
-import Webconsole from 'client/containers/Webconsole'
 
 import ApplicationsTemplates from 'client/containers/ApplicationsTemplates'
 import ApplicationsTemplatesCreateForm from 'client/containers/ApplicationsTemplates/Form/Create'
@@ -82,15 +79,3 @@ export const ENDPOINTS = [
     component: ApplicationsInstances
   }
 ]
-
-export const findRouteByPathname = pathname => {
-  const routes = ENDPOINTS.flatMap(
-    ({ endpoints, ...item }) => endpoints ?? item
-  )
-
-  const route = routes?.find(({ path }) =>
-    matchPath(pathname, { path, exact: true })
-  )
-
-  return route ?? {}
-}

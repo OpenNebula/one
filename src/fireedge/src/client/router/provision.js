@@ -13,7 +13,7 @@ import Providers from 'client/containers/Providers'
 import Provisions from 'client/containers/Provisions'
 
 export const PATH = {
-  LOGIN: '/provision',
+  LOGIN: '/',
   DASHBOARD: '/dashboard',
   PROVIDERS: {
     LIST: '/providers',
@@ -68,15 +68,3 @@ export const ENDPOINTS = [
     component: Provisions
   }
 ]
-
-export const findRouteByPathname = pathname => {
-  const routes = ENDPOINTS.flatMap(
-    ({ endpoints, ...item }) => endpoints ?? item
-  )
-
-  const route = routes?.find(({ path }) =>
-    matchPath(pathname, { path, exact: true })
-  )
-
-  return route ?? {}
-}
