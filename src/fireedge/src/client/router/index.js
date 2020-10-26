@@ -53,10 +53,10 @@ const Router = ({ app }) => {
       )}
       {...route}
     />
-  ), [endpoints])
+  ), [ENDPOINTS])
 
   return (
-    <MainLayout endpoints={endpoints[app]}>
+    <MainLayout endpoints={{ ENDPOINTS, PATH }}>
       <TransitionGroup>
         <Switch>
           {ENDPOINTS?.map(({ routes, ...endpoint }) =>

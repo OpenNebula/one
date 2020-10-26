@@ -15,15 +15,27 @@
 
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
-import { useLocation, Redirect } from 'react-router-dom'
+import { useLocation, Redirect, matchPath } from 'react-router-dom'
 
 import useAuth from 'client/hooks/useAuth'
 import useOpennebula from 'client/hooks/useOpennebula'
 
 import LoadingScreen from 'client/components/LoadingScreen'
 
+const findRouteByPathname = (endpoints, pathname) => {
+  const routes = endpoints.flatMap(
+    ({ endpoint, ...item }) => endpoint ?? item
+  )
+
+  const route = routes?.find(({ path }) =>
+    matchPath(pathname, { path, exact: true })
+  )
+
+  return route ?? {}
+}
+
 const MainLayout = ({ endpoints, children }) => {
-  const { PATH, findRouteByPathname } = endpoints
+  const { PATH, ENDPOINTS } = endpoints
   const { pathname } = useLocation()
   const { groups } = useOpennebula()
   const {
@@ -40,7 +52,7 @@ const MainLayout = ({ endpoints, children }) => {
     }
   }, [isLogged, isLoginInProcess])
 
-  const { authenticated } = findRouteByPathname(pathname)
+  const { authenticated } = findRouteByPathname(ENDPOINTS, pathname)
   const authRoute = Boolean(authenticated)
 
   // PENDING TO AUTHENTICATING OR FIRST RENDERING
@@ -64,7 +76,7 @@ const MainLayout = ({ endpoints, children }) => {
 MainLayout.propTypes = {
   endpoints: PropTypes.shape({
     PATH: PropTypes.object,
-    findRouteByPathname: PropTypes.func
+    ENDPOINTS: PropTypes.array
   }),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
@@ -76,7 +88,7 @@ MainLayout.propTypes = {
 MainLayout.defaultProps = {
   endpoints: {
     PATH: {},
-    findRouteByPathname: () => {}
+    ENDPOINTS: []
   },
   children: ''
 }

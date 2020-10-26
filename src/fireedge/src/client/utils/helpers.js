@@ -1,9 +1,9 @@
 export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-export const getValidationFromFields = schema =>
-  schema.reduce(
-    (validation, field) => ({
-      ...validation,
+export const getValidationFromFields = fields =>
+  fields.reduce(
+    (schema, field) => ({
+      ...schema,
       [field?.name]: field?.validation
     }),
     {}
