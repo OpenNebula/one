@@ -4,7 +4,7 @@ import useOpennebula from 'client/hooks/useOpennebula'
 
 import useListForm from 'client/hooks/useListForm'
 import ListCards from 'client/components/List/ListCards'
-import { ClusterCard } from 'client/components/Cards'
+import { ClusterCard, EmptyCard } from 'client/components/Cards'
 
 import { STEP_FORM_SCHEMA } from './schema'
 
@@ -28,16 +28,13 @@ const Clusters = () => ({
     return (
       <ListCards
         list={clusters}
+        EmptyComponent={<EmptyCard name={'clusters'} />}
         CardComponent={ClusterCard}
-        cardsProps={({ value }) => {
-          const { ID } = value
-
-          return {
-            isSelected: data?.some(selected => selected === ID),
-            handleSelect: () => handleSelect(ID),
-            handleUnselect: () => handleUnselect(ID)
-          }
-        }}
+        cardsProps={({ value: { ID } }) => ({
+          isSelected: data?.some(selected => selected === ID),
+          handleSelect: () => handleSelect(ID),
+          handleUnselect: () => handleUnselect(ID)
+        })}
       />
     )
   }, [])
