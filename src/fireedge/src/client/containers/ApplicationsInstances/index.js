@@ -9,7 +9,7 @@ import useFetch from 'client/hooks/useFetch'
 import ListCards from 'client/components/List/ListCards'
 import DialogInfo from 'client/containers/ApplicationsInstances/DialogInfo'
 
-import { ApplicationCard } from 'client/components/Cards'
+import { ApplicationCard, EmptyCard } from 'client/components/Cards'
 import { Tr } from 'client/components/HOC'
 
 function ApplicationsInstances () {
@@ -39,6 +39,7 @@ function ApplicationsInstances () {
     <Box p={3}>
       <ListCards
         list={applications}
+        EmptyComponent={<EmptyCard name={'applications instances'} />}
         CardComponent={ApplicationCard}
         cardsProps={({ value }) => ({
           handleShow: () => setShowDialog(value)
