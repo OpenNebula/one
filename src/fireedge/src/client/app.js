@@ -52,7 +52,7 @@ const App = ({ location, context, store, app }) => {
             {location && context ? (
             // server build
               <StaticRouter location={location} context={context}>
-                {/* <Router app={appName} /> */}
+                <Router app={appName} />
               </StaticRouter>
             ) : (
             // browser build

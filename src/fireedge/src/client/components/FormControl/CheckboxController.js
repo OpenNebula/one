@@ -13,7 +13,7 @@ import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 import { Tr } from 'client/components/HOC/Translate'
 
 const CheckboxController = memo(
-  ({ control, cy, name, label, tooltip, error }) => (
+  ({ control, cy, name, label, tooltip, error, fieldProps }) => (
     <Controller
       render={({ onChange, value }) => (
         <Tooltip title={Tr(tooltip) ?? ''}>
@@ -26,6 +26,7 @@ const CheckboxController = memo(
                   checked={value}
                   color="primary"
                   inputProps={{ 'data-cy': cy }}
+                  {...fieldProps}
                 />
               }
               label={Tr(label)}
@@ -51,7 +52,8 @@ CheckboxController.propTypes = {
   error: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
-  ])
+  ]),
+  fieldProps: PropTypes.object
 }
 
 CheckboxController.defaultProps = {
@@ -61,7 +63,8 @@ CheckboxController.defaultProps = {
   label: '',
   tooltip: undefined,
   values: [],
-  error: false
+  error: false,
+  fieldProps: undefined
 }
 
 CheckboxController.displayName = 'CheckboxController'

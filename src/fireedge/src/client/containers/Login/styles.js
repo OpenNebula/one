@@ -13,7 +13,7 @@ export default makeStyles(theme =>
       justifyContent: 'center',
       height: '100vh'
     },
-    loading: {
+    progress: {
       height: 4,
       width: '100%',
       [theme.breakpoints.only('xs')]: {
@@ -23,18 +23,35 @@ export default makeStyles(theme =>
     },
     paper: {
       overflow: 'hidden',
-      padding: theme.spacing(3),
-      minHeight: 400,
+      padding: theme.spacing(2),
+      height: 440,
+      [theme.breakpoints.up('xs')]: {
+        display: 'flex',
+        flexDirection: 'column'
+      },
       [theme.breakpoints.only('xs')]: {
         border: 'none',
         height: 'calc(100vh - 4px)',
         backgroundColor: 'transparent'
       }
     },
+    wrapperForm: {
+      padding: theme.spacing(),
+      flexGrow: 1,
+      display: 'flex',
+      overflow: 'hidden'
+    },
     form: {
+      width: '100%',
+      flexShrink: 0,
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center'
+      [theme.breakpoints.up('xs')]: {
+        justifyContent: 'center'
+      }
+    },
+    loading: {
+      opacity: 0.7
     },
     helper: {
       animation: '1s ease-out 0s 1'
