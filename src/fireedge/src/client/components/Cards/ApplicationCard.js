@@ -5,7 +5,6 @@ import {
   makeStyles,
   Box,
   Fade,
-  Badge,
   Button,
   Card,
   CardHeader,

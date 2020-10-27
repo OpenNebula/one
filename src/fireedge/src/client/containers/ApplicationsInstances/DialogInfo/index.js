@@ -21,7 +21,12 @@ const DialogInfo = ({ info, handleClose }) => {
 
   const renderTabs = useMemo(() => (
     <AppBar position="static">
-      <Tabs value={tabSelected} onChange={(_, tab) => setTab(tab)}>
+      <Tabs
+        value={tabSelected}
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, tab) => setTab(tab)}
+      >
         {TABS.map(({ name, icon: Icon }, idx) =>
           <Tab
             key={`tab-${name}`}

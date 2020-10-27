@@ -26,7 +26,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
   return (
     <Grid container spacing={1}>
       {fields?.map(
-        ({ name, type, htmlType, label, values, dependOf, tooltip, grid }) => {
+        ({ name, type, htmlType, label, values, dependOf, tooltip, grid, fieldProps }) => {
           const dataCy = `${cy}-${name}`
           const inputName = id ? `${id}.${name}` : name
 
@@ -36,7 +36,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
             ? useWatch({ control, name: id ? `${id}.${dependOf}` : dependOf })
             : null
 
-          const htmlTypeValue = typeof htmlType === 'function' && dependOf
+          const htmlTypeValue = typeof htmlType === 'function'
             ? htmlType(dependValue)
             : htmlType
 
@@ -53,10 +53,11 @@ const FormWithSchema = ({ id, cy, fields }) => {
                     name: inputName,
                     label,
                     tooltip,
-                    values: typeof values === 'function' && dependOf
+                    values: typeof values === 'function'
                       ? values(dependValue)
                       : values,
-                    error: inputError
+                    error: inputError,
+                    fieldProps
                   })}
                 </Grid>
               </HiddenInput>

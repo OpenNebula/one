@@ -8,18 +8,19 @@ import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 import { Tr } from 'client/components/HOC/Translate'
 
 const SelectController = memo(
-  ({ control, cy, name, label, values, error }) => (
+  ({ control, cy, name, label, values, error, fieldProps }) => (
     <Controller
       as={
         <TextField
           select
-          SelectProps={{ displayEmpty: true }}
           fullWidth
+          SelectProps={{ displayEmpty: true }}
           label={Tr(label)}
           inputProps={{ 'data-cy': cy }}
           error={Boolean(error)}
           helperText={Boolean(error) && <ErrorHelper label={error?.message} />}
           FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
+          {...fieldProps}
         >
           {Array.isArray(values) &&
             values?.map(({ text, value }) => (
@@ -31,6 +32,7 @@ const SelectController = memo(
       }
       name={name}
       control={control}
+      defaultValue={values[0]?.value}
     />
   ),
   (prevProps, nextProps) => prevProps.error === nextProps.error
@@ -45,7 +47,8 @@ SelectController.propTypes = {
   error: PropTypes.oneOfType([
     PropTypes.bool,
     PropTypes.objectOf(PropTypes.any)
-  ])
+  ]),
+  fieldProps: PropTypes.object
 }
 
 SelectController.defaultProps = {
@@ -54,7 +57,8 @@ SelectController.defaultProps = {
   name: '',
   label: '',
   values: [],
-  error: false
+  error: false,
+  fieldProps: undefined
 }
 
 SelectController.displayName = 'SelectController'

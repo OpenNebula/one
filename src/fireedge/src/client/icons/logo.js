@@ -1,7 +1,7 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { number, string, bool, oneOfType } from 'prop-types'
 
-const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
+const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
   const cloudColor = {
     child1: { from: '#0098c3', to: '#ffffff' },
     child2: { from: '#0098c3', to: '#ffffff' },
@@ -83,7 +83,7 @@ const Logo = ({ width, height, spinner, withText, viewBox, ...props }) => {
       )}
     </svg>
   )
-}
+})
 
 Logo.propTypes = {
   width: oneOfType([number, string]).isRequired,
@@ -100,5 +100,7 @@ Logo.defaultProps = {
   spinner: false,
   withText: false
 }
+
+Logo.displayName = 'LogoOne'
 
 export default Logo

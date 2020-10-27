@@ -20,12 +20,12 @@ const CustomDialog = ({ title, handleClose, children }) => {
       fullScreen={isMobile}
       open
       onClose={handleClose}
-      maxWidth="lg"
+      maxWidth="xl"
       scroll="paper"
       PaperProps={{
         style: {
-          height: isMobile ? '100%' : '80%',
-          width: isMobile ? '100%' : '80%'
+          height: isMobile ? '100%' : '90%',
+          width: isMobile ? '100%' : '90%'
         }
       }}
     >
