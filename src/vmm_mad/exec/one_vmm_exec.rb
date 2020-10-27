@@ -418,7 +418,13 @@ class ExecDriver < VirtualMachineDriver
                             :driver   => :vnm,
                             :action   => :pre
                         },
-                        # Store vm.xml and ds.xml
+
+                        # Make vm_dir, store vm.xml and ds.xml
+                        {
+                            :driver       => :vmm,
+                            :action       => "/bin/mkdir -p",
+                            :parameters   => [vm_dir]
+                        },
                         {
                             :driver       => :vmm,
                             :action       => "/bin/cat - >#{vm_dir}/vm.xml",
@@ -445,6 +451,7 @@ class ExecDriver < VirtualMachineDriver
                                 }
                             ]
                         },
+
                         # Execute post-boot networking setup
                         {
                             :driver       => :vnm,
