@@ -324,10 +324,12 @@ public:
      *
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param seconds Retrieve monitor records in the last seconds
      *
      *  @return 0 on success
      */
-    int dump_monitoring(string& oss, const string&  where);
+    int dump_monitoring(std::string& oss, const std::string&  where,
+            const int seconds);
 
     /**
      *  Dumps the VM monitoring information  for a single VM
@@ -343,7 +345,7 @@ public:
 
         filter << "oid = " << vmid;
 
-        return dump_monitoring(oss, filter.str());
+        return dump_monitoring(oss, filter.str(), -1);
     }
 
     /**
