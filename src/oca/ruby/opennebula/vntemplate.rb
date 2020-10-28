@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
@@ -22,7 +22,6 @@ module OpenNebula
         #######################################################################
         # Constants and Class Methods
         #######################################################################
-
 
         TEMPLATE_METHODS = {
             :allocate    => "vntemplate.allocate",
@@ -57,6 +56,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, TEMPLATE_METHODS)
+
             super(xml,client)
 
             @client = client
@@ -229,16 +230,6 @@ module OpenNebula
 
         def owner_id
             self['UID'].to_i
-        end
-
-        # Lock a VNTemplate
-        def lock(level)
-            return call(TEMPLATE_METHODS[:lock], @pe_id, level)
-        end
-
-        # Unlock a VNTemplate
-        def unlock()
-            return call(TEMPLATE_METHODS[:unlock], @pe_id)
         end
 
         def public?

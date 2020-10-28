@@ -292,6 +292,9 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/vcenter_driver \
           $LIB_LOCATION/ruby/nsx_driver \
           $LIB_LOCATION/oneprovision/lib \
+          $LIB_LOCATION/oneprovision/lib/terraform \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates \
           $LIB_LOCATION/oneprovision/lib/provision \
           $LIB_LOCATION/oneprovision/lib/provision_template \
           $LIB_LOCATION/oneprovision/lib/provider \
@@ -365,10 +368,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/packet-probes.d/host/system \
           $VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/packet-probes.d/vm/status \
-          $VAR_LOCATION/remotes/pm \
-          $VAR_LOCATION/remotes/pm/ec2 \
-          $VAR_LOCATION/remotes/pm/dummy \
-          $VAR_LOCATION/remotes/pm/packet \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \
@@ -605,9 +604,6 @@ INSTALL_FILES=(
     AUTH_SERVER_CIPHER_FILES:$VAR_LOCATION/remotes/auth/server_cipher
     AUTH_DUMMY_FILES:$VAR_LOCATION/remotes/auth/dummy
     AUTH_PLAIN_FILES:$VAR_LOCATION/remotes/auth/plain
-    PM_EXEC_EC2_SCRIPTS:$VAR_LOCATION/remotes/pm/ec2
-    PM_EXEC_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/pm/dummy
-    PM_EXEC_PACKET_SCRIPTS:$VAR_LOCATION/remotes/pm/packet
     VMM_EXEC_LIB_VCENTER_FILES:$LIB_LOCATION/ruby/vcenter_driver
     VMM_EXEC_LIB_NSX_FILES:$LIB_LOCATION/ruby/nsx_driver
     VMM_EXEC_LIB:$VAR_LOCATION/remotes/vmm/lib
@@ -728,6 +724,9 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_EXAMPLES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
+    ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
+    ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
+    ONEPROVISION_LIB_PROVIDERS_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates
     ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
     ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources
     ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/physical
@@ -972,39 +971,6 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
               src/market_mad/one_market \
               src/ipamm_mad/one_ipam \
               src/ipamm_mad/one_ipam.rb"
-
-#-------------------------------------------------------------------------------
-# PM Driver EC2 scripts, installed under $REMOTES_LOCATION/pm/ec2
-#-------------------------------------------------------------------------------
-
-PM_EXEC_EC2_SCRIPTS="src/pm_mad/remotes/ec2/cancel \
-                     src/pm_mad/remotes/ec2/deploy \
-                     src/pm_mad/remotes/ec2/poll \
-                     src/pm_mad/remotes/ec2/reboot \
-                     src/pm_mad/remotes/ec2/reset \
-                     src/pm_mad/remotes/ec2/shutdown"
-
-#-------------------------------------------------------------------------------
-# PM Driver Dummy scripts, installed under $REMOTES_LOCATION/pm/dummy
-#-------------------------------------------------------------------------------
-
-PM_EXEC_DUMMY_SCRIPTS="src/pm_mad/remotes/dummy/cancel \
-                       src/pm_mad/remotes/dummy/deploy \
-                       src/pm_mad/remotes/dummy/poll \
-                       src/pm_mad/remotes/dummy/reboot \
-                       src/pm_mad/remotes/dummy/reset \
-                       src/pm_mad/remotes/dummy/shutdown"
-
-#-------------------------------------------------------------------------------
-# PM Driver Packet scripts, installed under $REMOTES_LOCATION/pm/packet
-#-------------------------------------------------------------------------------
-
-PM_EXEC_PACKET_SCRIPTS="src/pm_mad/remotes/packet/cancel \
-                        src/pm_mad/remotes/packet/deploy \
-                        src/pm_mad/remotes/packet/poll \
-                        src/pm_mad/remotes/packet/reboot \
-                        src/pm_mad/remotes/packet/reset \
-                        src/pm_mad/remotes/packet/shutdown"
 
 #-------------------------------------------------------------------------------
 # Common library files for VMM drivers
@@ -2121,6 +2087,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/host.rb \
                             src/oca/ruby/opennebula/image_pool.rb \
                             src/oca/ruby/opennebula/image.rb \
+                            src/oca/ruby/opennebula/lockable_ext.rb \
                             src/oca/ruby/opennebula/oneflow_client.rb \
                             src/oca/ruby/opennebula/pool_element.rb \
                             src/oca/ruby/opennebula/pool.rb \
@@ -2419,6 +2386,18 @@ ONEPROVISION_LIB_PROVIDER_FILES="src/oneprovision/lib/provider/provider.rb \
 
 ONEPROVISION_LIB_PROVISION_TEMPLATE_FILES="src/oneprovision/lib/provision_template/provision_template.rb \
                                            src/oneprovision/lib/provision_template/provision_template_pool.rb"
+
+ONEPROVISION_LIB_TF_FILES="src/oneprovision/lib/terraform/terraform.rb \
+                           src/oneprovision/lib/terraform/providers.rb"
+
+ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.rb \
+                                  src/oneprovision/lib/terraform/providers/dummy.rb \
+                                  src/oneprovision/lib/terraform/providers/packet.rb"
+
+ONEPROVISION_LIB_PROVIDERS_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/aws.erb \
+                                      src/oneprovision/lib/terraform/providers/templates/aws_device.erb \
+                                      src/oneprovision/lib/terraform/providers/templates/packet.erb \
+                                      src/oneprovision/lib/terraform/providers/templates/packet_device.erb"
 
 #-----------------------------------------------------------------------------
 # Sunstone files

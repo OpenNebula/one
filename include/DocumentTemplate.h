@@ -36,12 +36,12 @@ public:
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation
     // -------------------------------------------------------------------------
-    virtual void encrypt(const std::string& one_key)
+    void encrypt(const std::string& one_key) override
     {
         Template::encrypt(one_key, encrypted);
     }
 
-    virtual void decrypt(const std::string& one_key)
+    void decrypt(const std::string& one_key) override
     {
         Template::decrypt(one_key, encrypted);
     }

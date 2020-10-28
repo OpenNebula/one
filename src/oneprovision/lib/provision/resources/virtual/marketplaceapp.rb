@@ -55,6 +55,7 @@ module OneProvision
 
             Utils.exception(rc)
             app.extend(MarketPlaceAppExt)
+
             url_args = "tag=#{template['tag']}" if template['tag']
             rc       = app.info
 

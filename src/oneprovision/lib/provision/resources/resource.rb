@@ -38,8 +38,8 @@ module OneProvision
 
         # Factory to return new object
         #
-        # @param type     [String] Object type
-        # @param provider [String] Provider to execute remote operations
+        # @param type     [String]   Object type
+        # @param provider [Provider] Provider to execute remote operations
         def self.object(type, provider = nil)
             type = type.downcase[0..-2].to_sym
 
@@ -118,7 +118,7 @@ module OneProvision
         end
 
         # Deletes the ONE object
-        def delete
+        def delete(_ = nil)
             @one.info
             @one.delete
         end

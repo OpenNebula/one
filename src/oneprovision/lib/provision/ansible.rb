@@ -119,7 +119,7 @@ module OneProvision
 
                 0
             rescue StandardError => e
-                raise OneProvisionLoopException, e
+                raise e
             end
 
             # Checks ssh connection

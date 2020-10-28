@@ -28,7 +28,7 @@ module OneProvision
         SUPPORTED_MODES = %w[true false]
 
         # Delete object
-        def delete
+        def delete(_ = nil)
             @one.info
 
             id      = @one['ID']

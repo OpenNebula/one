@@ -1,7 +1,7 @@
 ---
 
 #############################################################
-# WARNING: You need to replace ***** values with your
+# WARNING: You need to create a provider with values with your
 # own credentials for the particular provider. You need to
 # uncomment and update list of hosts to deploy based
 # on your requirements.
@@ -11,16 +11,13 @@
 playbook: "static_vxlan"
 
 # Provision name to use in all resources
-name: "EC2Cluster"
+name: "AWSCluster"
 
 # Defaults sections with information related with Packet
 defaults:
   provision:
-    driver: "ec2"
+    provider: "aws"
     instancetype: "i3.metal"
-    ec2_access: "***********************************"
-    ec2_secret: "***********************************"
-    region_name: "us-east-1"
     cloud_init: true
 
 # Hosts to be deployed in Packet and created in OpenNebula

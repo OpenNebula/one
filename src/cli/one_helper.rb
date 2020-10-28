@@ -693,19 +693,19 @@ EOT
 
                 stop_pager(ppid)
             else
-                array = pool.get_hash
-                return -1, array.message if OpenNebula.is_error?(array)
+                rc = pool.info
 
-                rname    = self.class.rname
-                elements = array["#{rname}_POOL"][rname]
+                return rc if OpenNebula.is_error?(rc)
+
+                _, hash = print_page(pool, options)
 
                if options[:ids] && elements
-                    elements.reject! do |element|
+                    hash.reject! do |element|
                         !options[:ids].include?(element['ID'].to_i)
                     end
                 end
 
-                table.show(array, options)
+                table.show(hash, options)
             end
 
             return 0
@@ -1384,19 +1384,20 @@ EOT
         client=OneHelper.client
 
         pool = case poolname
-        when "HOST"        then OpenNebula::HostPool.new(client)
-        when "HOOK"        then OpenNebula::HookPool.new(client)
-        when "GROUP"       then OpenNebula::GroupPool.new(client)
-        when "USER"        then OpenNebula::UserPool.new(client)
-        when "DATASTORE"   then OpenNebula::DatastorePool.new(client)
-        when "CLUSTER"     then OpenNebula::ClusterPool.new(client)
-        when "VNET"        then OpenNebula::VirtualNetworkPool.new(client)
-        when "IMAGE"       then OpenNebula::ImagePool.new(client)
-        when "VMTEMPLATE"  then OpenNebula::TemplatePool.new(client)
-        when "VNTEMPLATES" then OpenNebula::VNTemplatePool.new(client)
-        when "VM"          then OpenNebula::VirtualMachinePool.new(client)
-        when "ZONE"        then OpenNebula::ZonePool.new(client)
-        when "MARKETPLACE" then OpenNebula::MarketPlacePool.new(client)
+        when "HOST"          then OpenNebula::HostPool.new(client)
+        when "HOOK"          then OpenNebula::HookPool.new(client)
+        when "GROUP"         then OpenNebula::GroupPool.new(client)
+        when "USER"          then OpenNebula::UserPool.new(client)
+        when "DATASTORE"     then OpenNebula::DatastorePool.new(client)
+        when "CLUSTER"       then OpenNebula::ClusterPool.new(client)
+        when "VNET"          then OpenNebula::VirtualNetworkPool.new(client)
+        when "IMAGE"         then OpenNebula::ImagePool.new(client)
+        when "VMTEMPLATE"    then OpenNebula::TemplatePool.new(client)
+        when "VNTEMPLATES"   then OpenNebula::VNTemplatePool.new(client)
+        when "VM"            then OpenNebula::VirtualMachinePool.new(client)
+        when "ZONE"          then OpenNebula::ZonePool.new(client)
+        when "MARKETPLACE"   then OpenNebula::MarketPlacePool.new(client)
+        when "FLOWTEMPLATES" then OpenNebula::ServiceTemplatePool.new(client)
         end
 
         rc = pool.info

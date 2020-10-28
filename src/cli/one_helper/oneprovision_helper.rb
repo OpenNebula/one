@@ -21,6 +21,8 @@ require 'oneprovision'
 # OneProvision Helper
 class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
+    TAG = OneProvision::ProvisionElement::TEMPLATE_TAG
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -272,35 +274,35 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
             column :CLUSTERS, 'Number of Clusters', :size => 8 do |p|
                 p.extend(CLIHelper::HashWithSearch)
-                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+                p = JSON.parse(p.dsearch("TEMPLATE/#{TAG}"))
 
                 p['provision']['infrastructure']['clusters'].size rescue 0
             end
 
             column :HOSTS, 'Number of Hosts', :size => 5 do |p|
                 p.extend(CLIHelper::HashWithSearch)
-                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+                p = JSON.parse(p.dsearch("TEMPLATE/#{TAG}"))
 
                 p['provision']['infrastructure']['hosts'].size rescue 0
             end
 
             column :NETWORKS, 'Number of Networks', :size => 8 do |p|
                 p.extend(CLIHelper::HashWithSearch)
-                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+                p = JSON.parse(p.dsearch("TEMPLATE/#{TAG}"))
 
                 p['provision']['infrastructure']['networks'].size rescue 0
             end
 
             column :DATASTORES, 'Number of Datastores', :size => 10 do |p|
                 p.extend(CLIHelper::HashWithSearch)
-                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+                p = JSON.parse(p.dsearch("TEMPLATE/#{TAG}"))
 
                 p['provision']['infrastructure']['datastores'].size rescue 0
             end
 
             column :STAT, 'Provision state', :size => 12 do |p|
                 p.extend(CLIHelper::HashWithSearch)
-                p = JSON.parse(p.dsearch('TEMPLATE/BODY'))
+                p = JSON.parse(p.dsearch("TEMPLATE/#{TAG}"))
 
                 OneProvision::Provision::STATE_STR[p['state']] rescue '-'
             end
@@ -315,18 +317,25 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # @param options [Hash]    User CLI options
     #
     # @return [Array] [rc, information to show]
-    def show_resource(id, options)
+    def show_resource(_, options)
         # Add body paremter to get resource in hash format
-        options[:body] = true
-        info           = super
+        options[:body]    = true
+        options[:decrypt] = true
+        info              = super
 
         return info if info[0] != 0
 
         if options[:json]
-            info[1]['DOCUMENT']['TEMPLATE']['BODY'] = JSON.parse(
-                info[1]['DOCUMENT']['TEMPLATE']['BODY']
+            info[1]['DOCUMENT']['TEMPLATE'][TAG] = JSON.parse(
+                info[1]['DOCUMENT']['TEMPLATE'][TAG]
             )
             info[1] = JSON.pretty_generate(info[1])
+        elsif options[:yaml]
+            yaml = YAML.safe_load(info[1])
+            yaml['DOCUMENT']['TEMPLATE'][TAG] = JSON.parse(
+                yaml['DOCUMENT']['TEMPLATE'][TAG]
+            )
+            info[1] = yaml.to_yaml(:indent => 4)
         end
 
         info
@@ -397,7 +406,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     def configure(id, force)
         provision = OneProvision::Provision.new_with_id(id, @client)
 
-        rc = provision.info
+        rc = provision.info(true)
 
         return rc if OpenNebula.is_error?(rc)
 
@@ -412,11 +421,13 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     def delete(id, cleanup, timeout)
         provision = OneProvision::Provision.new_with_id(id, @client)
 
-        rc = provision.info
+        rc = provision.info(true)
 
         return rc if OpenNebula.is_error?(rc)
 
-        provision.delete(cleanup, timeout)
+        provision.synchronize(3) do
+            provision.delete(cleanup, timeout)
+        end
     end
 
     #######################################################################
@@ -436,7 +447,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
         provision = OneProvision::Provision.new_with_id(p_id, @client)
 
-        rc = provision.info
+        rc = provision.info(true)
 
         return rc if OpenNebula.is_error?(rc)
 
@@ -445,12 +456,6 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         host.info(id)
 
         case operation[:operation]
-        when 'resume'
-            host.resume
-        when 'poweroff'
-            host.poweroff
-        when 'reboot'
-            host.reboot((options.key? :hard))
         when 'delete'
             provision.update_objects('hosts', :remove, host.one['ID'])
         when 'configure'
@@ -504,7 +509,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
                 provision = OneProvision::Provision.new_with_id(p_id, @client)
 
-                rc = provision.info
+                rc = provision.info(true)
 
                 return rc if OpenNebula.is_error?(rc)
 
@@ -531,7 +536,11 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
             return rc if OpenNebula.is_error?(rc)
 
-            pool = pool.to_hash['DOCUMENT_POOL']['DOCUMENT']
+            pool = pool.map do |e|
+                e.info(true)
+                e.to_hash['DOCUMENT']
+            end
+
             pool = [pool].flatten
 
             options[:filter]   = []
@@ -540,7 +549,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
             # Iterate over pool to get IDs and get the filter option
             pool.each do |obj|
                 obj.extend(CLIHelper::HashWithSearch)
-                body = JSON.parse(obj.dsearch('TEMPLATE/BODY'))
+                body = JSON.parse(obj.dsearch("TEMPLATE/#{TAG}"))
 
                 next unless body['provision'][path][type.downcase]
 

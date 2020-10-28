@@ -270,26 +270,11 @@ class EC2Driver
         # Init OpenNebula host information
         # ----------------------------------------------------------------------
         @xmlhost = host_info(host, id)
+        @state_change_timeout = @ec2_conf[:state_wait_timeout_seconds].to_i
 
-        if @xmlhost['TEMPLATE/PROVISION']
-            @provision_type = :host
-            @state_change_timeout = \
-                @ec2_conf[:state_wait_pm_timeout_seconds].to_i
-        else
-            @provision_type = :vm
-            @state_change_timeout = \
-                @ec2_conf[:state_wait_timeout_seconds].to_i
-        end
-
-        if @xmlhost['TEMPLATE/PROVISION']
-            tmpl_base = 'TEMPLATE/PROVISION'
-        else
-            tmpl_base = 'TEMPLATE'
-        end
-
-        @access_key = @xmlhost["#{tmpl_base}/EC2_ACCESS"]
-        @secret_key = @xmlhost["#{tmpl_base}/EC2_SECRET"]
-        @region_name = @xmlhost["#{tmpl_base}/REGION_NAME"]
+        @access_key = @xmlhost['TEMPLATE/EC2_ACCESS']
+        @secret_key = @xmlhost['TEMPLATE/EC2_SECRET']
+        @region_name = @xmlhost['TEMPLATE/REGION_NAME']
 
         # sanitize region data
         raise "access_key_id not defined for #{host}" if @access_key.nil?
@@ -353,8 +338,7 @@ class EC2Driver
         # is provided by the user
         if !ec2_value(ec2_info, 'USERDATA')
             xml = OpenNebula::XMLElement.new
-            xml.initialize_xml(xml_text,
-                               @provision_type == :host ? 'HOST' : 'VM')
+            xml.initialize_xml(xml_text, 'VM')
 
             if xml.has_elements?('TEMPLATE/CONTEXT')
                 # if requested, we generated cloud-init compatible data
@@ -424,20 +408,7 @@ class EC2Driver
             @ec2.client.associate_address(address)
         end
 
-        if @provision_type == :host
-            instance.create_tags(:tags => [{
-                                     :key => 'Name',
-                :value => host['//HOST/TEMPLATE/PROVISION/HOSTNAME']
-                                 }, {
-                                     :key => 'ONE_HOST_ID',
-                :value => 'TODO'
-                                 }])
-        else
-            instance.create_tags(:tags => [{
-                                     :key => 'ONE_ID',
-                :value => id
-                                 }])
-        end
+        instance.create_tags(:tags => [{:key => 'ONE_ID', :value => id}])
 
         puts(instance.id)
     end
@@ -574,12 +545,7 @@ class EC2Driver
         ec2 = nil
         ec2_deprecated = nil
 
-        if @provision_type == :host
-            all_ec2_elements = xml.root.get_elements('//TEMPLATE/PROVISION')
-        else
-            all_ec2_elements =
-                xml.root.get_elements('//USER_TEMPLATE/PUBLIC_CLOUD')
-        end
+        all_ec2_elements = xml.root.get_elements('//USER_TEMPLATE/PUBLIC_CLOUD')
 
         # First, let's see if we have an EC2 site that matches
         # our desired host name

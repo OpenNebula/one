@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
@@ -48,6 +49,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, VMGROUP_METHODS)
+
             super(xml,client)
 
             @client = client
@@ -129,16 +132,6 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(VMGROUP_METHODS[:rename], @pe_id, name)
-        end
-
-        # Lock a VMGroup
-        def lock(level)
-            return call(VMGROUP_METHODS[:lock], @pe_id, level)
-        end
-
-        # Unlock a VMGroup
-        def unlock()
-            return call(VMGROUP_METHODS[:unlock], @pe_id)
         end
 
         #######################################################################

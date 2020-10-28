@@ -14,53 +14,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula/document_json'
+require 'terraform/terraform'
 
-# OneProvision module
+# Module OneProvision
 module OneProvision
 
-    # Provision element
-    class ProvisionElement < DocumentJSON
-
-        TEMPLATE_TAG = 'PROVISION_BODY'
-
-        # Body tag
-        attr_reader :tag
-
-        # Body
-        attr_reader :body
+    # Packet Terraform Provider
+    class Packet < Terraform
 
         # Class constructor
-        def initialize(xml, client)
+        #
+        # @param state [String] Terraform state in base64
+        # @param conf  [String] Terraform config state in base64
+        def initialize(state, conf)
+            @device_erb = "#{PROVIDERS_LOCATION}/templates/packet_device.erb"
+            @erb        = "#{PROVIDERS_LOCATION}/templates/packet.erb"
+            @host_type  = 'packet_device'
+
+            # User data is in plain text
+            @base64 = false
+
             super
-
-            @tag = TEMPLATE_TAG
-        end
-
-        # Replaces the template contents
-        #
-        # @param template_json [String] New template contents
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def update(template_json = nil)
-            if template_json
-                template_json = JSON.parse(template_json)
-
-                if template_json.keys != @body.keys
-                    return OpenNebula::Error.new('Keys can not be changed')
-                end
-
-                self.class::UNMUTABLE_ATTRS.each do |attr|
-                    next if template_json[attr] == @body[attr]
-
-                    return OpenNebula::Error.new("`#{attr}` can not be changed")
-                end
-
-                super(template_json.to_json)
-            else
-                super
-            end
         end
 
     end

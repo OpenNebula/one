@@ -28,7 +28,7 @@ module OneProvision
 
         # Class constructor
         #
-        # @param provider [String] Host provider
+        # @param provider [Provider] Host provider
         def initialize(provider = nil)
             super()
 
@@ -64,20 +64,9 @@ module OneProvision
         # Gets the public IP of the HOST
         #
         # @return [String] Public IP which is the NAME of the HOST
-        def poll
-            poll = monitoring
-
-            if poll.key? 'GUEST_IP_ADDRESSES'
-                name = poll['GUEST_IP_ADDRESSES'].split(',')[0][1..-1] # TODO
-            elsif poll.key? 'AWS_PUBLIC_IP_ADDRESS'
-                name = poll['AWS_PUBLIC_IP_ADDRESS']
-            else
-                Utils.fail('Failed to get provision name')
-            end
-
-            # rubocop:disable Style/StringLiterals
-            name.gsub("\"", '')
-            # rubocop:enable Style/StringLiterals
+        def poll(tf)
+            terraform = Terraform.singleton(@provider, tf)
+            terraform.poll(@one['ID']).gsub("\n", '')
         end
 
         # Creates a new HOST in OpenNebula
@@ -95,11 +84,11 @@ module OneProvision
 
             OneProvisionLogger.debug("Creating OpenNebula host: #{name}")
 
-            one = OpenNebula::Client.new
+            one  = OpenNebula::Client.new
             host = OpenNebula::Host.new(OpenNebula::Host.build_xml, one)
 
-            im   = xhost['TEMPLATE/IM_MAD']
-            vm   = xhost['TEMPLATE/VM_MAD']
+            im = xhost['TEMPLATE/IM_MAD']
+            vm = xhost['TEMPLATE/VM_MAD']
 
             host.allocate(name, im, vm, cluster)
             host.update(xhost.template_str, true)
@@ -116,67 +105,17 @@ module OneProvision
             host
         end
 
-        # Resumes the HOST
-        def resume
-            check
-
-            begin
-                # create resume deployment file
-                resume_file = Tempfile.new('xmlResume')
-                resume_file.close
-                Driver.write_file_log(resume_file.path, @one.to_xml)
-
-                OneProvisionLogger.info("Resuming host: #{@one.id}")
-
-                params = [resume_file.path, @one.name]
-
-                Driver.pm_driver_action(@provider, 'deploy', params, @one)
-
-                OneProvisionLogger.debug("Enabling OpenNebula host: #{@one.id}")
-
-                name = poll
-                @one.rename(name)
-                @one.enable
-            ensure
-                resume_file.unlink
-            end
-        end
-
-        # Powers off the HOST
-        def poweroff
-            deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
-            name      = @one.name
-
-            check
-
-            OneProvisionLogger.info("Powering off host: #{@one.id}")
-
-            params = [deploy_id, name, 'SHUTDOWN_POWEROFF']
-
-            Driver.pm_driver_action(@provider, 'shutdown', params, @one)
-
-            OneProvisionLogger.debug("Offlining OpenNebula host: #{@one.id}")
-
-            # Fix broken pipe exception on ubuntu 14.04
-            @one.info
-
-            @one.offline
-        end
-
-        # Reboots or resets the HOST
-        #
-        # @param hard [Boolean] True to reset the HOST, false to reboot the HOST
-        def reboot(hard)
-            reset(hard)
-        end
-
         # Deletes the HOST
-        def delete
-            deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
-            name      = @one.name
-            id        = @one.id
-
+        #
+        # @param tf [Hash] Terraform :conf and :state
+        #
+        # @return [Array]
+        #   - Terraform state in base64
+        #   - Terraform config in base64
+        def delete(tf = nil)
             check
+
+            id = @one.id
 
             # offline ONE host
             if @one.state != 8
@@ -187,13 +126,9 @@ module OneProvision
                 end
             end
 
-            if deploy_id
-                # unprovision host
-                OneProvisionLogger.debug("Undeploying host: #{id}")
-
-                params = [deploy_id, name]
-
-                Driver.pm_driver_action(@provider, 'cancel', params, @one)
+            if tf && !tf.empty?
+                terraform   = Terraform.singleton(@provider, tf)
+                state, conf = terraform.destroy_host(id)
             end
 
             # delete ONE host
@@ -201,6 +136,12 @@ module OneProvision
 
             @@mutex.synchronize do
                 Utils.exception(@one.delete)
+            end
+
+            if state && conf
+                [state, conf]
+            else
+                0
             end
         end
 
@@ -215,81 +156,6 @@ module OneProvision
         # Checks that the HOST is a baremetal HOST
         def check
             Utils.fail('Not a valid bare metal host') if @provider.nil?
-            Utils.fail('Not a valid bare metal host') if @provider.empty?
-        end
-
-        # Monitors the HOST
-        #
-        # @return [Key-Value object] All the monitoring information, such as
-        #   IPS, MEMORY, CPU..
-        def monitoring
-            deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
-            name      = @one.name
-            id        = @one.id
-
-            OneProvisionLogger.debug("Monitoring host: #{id}")
-
-            Driver.retry_loop 'Monitoring metrics failed to parse' do
-                check
-
-                params = [deploy_id, name]
-
-                pm_ret = Driver.pm_driver_action(@provider,
-                                                 'poll',
-                                                 params,
-                                                 @one)
-
-                begin
-                    poll = {}
-
-                    pm_ret = pm_ret.split(' ').map do |x|
-                        x.split('=', 2)
-                    end
-
-                    pm_ret.each do |key, value|
-                        poll[key.upcase] = value
-                    end
-
-                    poll
-                rescue StandarError
-                    raise OneProvisionLoopException
-                end
-            end
-        end
-
-        # Resets or reboots the HOST
-        #
-        # @param hard [Boolean] True to reset, false to reboot
-        def reset(hard)
-            if hard
-                reset_reboot('reset', 'Resetting')
-                name = poll
-                @one.rename(name)
-            else
-                reset_reboot('reboot', 'Rebooting')
-            end
-        end
-
-        # Resets or reboots the HOST
-        #
-        # @param action [String] Action to execute (reset, reboot)
-        # @param action [String] Message for logging
-        def reset_reboot(action, message)
-            deploy_id = @one['TEMPLATE/PROVISION/DEPLOY_ID']
-            name      = @one.name
-
-            check
-
-            OneProvisionLogger.debug("Offlining OpenNebula host: #{@one.id}")
-            @one.offline
-
-            OneProvisionLogger.info("#{message} host: #{@one.id}")
-            Driver.pm_driver_action(@provider, action, [deploy_id, name], @one)
-
-            OneProvisionLogger.debug("Enabling OpenNebula host: #{@one.id}")
-
-            @one.info
-            @one.enable
         end
 
         # Info an specific object

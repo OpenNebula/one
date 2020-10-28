@@ -167,55 +167,6 @@ module OneProvision
                 rtn
             end
 
-            # Executes an action in the host
-            #
-            # @param pm_mad [String]           Provision Manager Driver
-            # @param action [String]           Action to executue
-            # @param args   [Array]            Arguments for the driver
-            # @param host   [OpenNebula::Host] Host where execute the action
-            #
-            # @return       [String]           Output of the commmand
-            def pm_driver_action(pm_mad, action, args, host = nil)
-                cmd = ["#{REMOTES_LOCATION}/pm/#{pm_mad}/#{action}"]
-
-                args.each do |arg|
-                    cmd << arg
-                end
-
-                # action always gets host ID/name
-                # if host defined, same as for VMs:
-                # https://github.com/OpenNebula/one/blob/d95b883e38a2cee8ca9230b0dbef58ce3b8d6d6c/src/mad/ruby/OpenNebulaDriver.rb#L95
-                @@mutex.synchronize do
-                    unless host.nil?
-                        cmd << host.id
-                        cmd << host.name
-                    end
-                end
-
-                unless File.executable? cmd[0]
-                    OneProvisionLogger.error('Command not found or ' \
-                                    "not executable #{cmd[0]}")
-                    Utils.fail('Driver action script not executable')
-                end
-
-                o = nil
-
-                retry_loop "Driver action '#{cmd[0]}' failed" do
-                    o, e, s = run(cmd.join(' '))
-
-                    unless s && s.success?
-                        err = Utils.get_error_message(e)
-
-                        text = err.lines[0].strip if err
-                        text = 'Unknown error' if text == '-'
-
-                        raise OneProvisionLoopException, text
-                    end
-                end
-
-                o
-            end
-
             # TODO: handle exceptions?
             #
             # Writes content to file
@@ -230,6 +181,37 @@ module OneProvision
                 f = File.new(name, 'w')
                 f.write(content)
                 f.close
+            end
+
+            # Execute action with Terraform
+            #
+            # @param provider [Provider] Provider to perform actions
+            # @param client   [Client]   OpenNebula client to make calls
+            # @param hosts    [Array]    Hosts to perform action
+            # @param action   [String]   Action to perform
+            # @param tf       [Hash]     Terraform :state and :conf
+            def tf_action(provider, hosts, action, tf = {})
+                hosts = hosts.map do |h|
+                    host = Host.new(provider)
+                    rc   = host.info(h['id'])
+
+                    if OpenNebula.is_error?(rc)
+                        raise OneProvisionLoopException, rc.message
+                    end
+
+                    host.one
+
+                    # Decrypt secrets
+                    host.one.info(true)
+
+                    host.one
+                end
+
+                terraform      = Terraform.singleton(provider, tf)
+                terraform.conn = provider.connection
+
+                terraform.generate_deployment_file(hosts)
+                terraform.send(action)
             end
 
         end

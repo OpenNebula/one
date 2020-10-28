@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
@@ -54,13 +55,15 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, HOOK_METHODS)
+
             super(xml, client)
 
             @client = client
         end
 
         #######################################################################
-        # XML-RPC Methods for the Template Object
+        # XML-RPC Methods for the Hook Object
         #######################################################################
 
         # Retrieves the information of the given Hook.
@@ -144,16 +147,6 @@ module OpenNebula
 
         def owner_id
             self['UID'].to_i
-        end
-
-        # Lock a Hook
-        def lock(level)
-            call(HOOK_METHODS[:lock], @pe_id, level)
-        end
-
-        # Unlock a Hook
-        def unlock
-            call(HOOK_METHODS[:unlock], @pe_id)
         end
 
     end

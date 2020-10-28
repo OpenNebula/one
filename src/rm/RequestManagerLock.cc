@@ -38,6 +38,12 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
     int oid   = xmlrpc_c::value_int(paramList.getInt(1));
     int level = xmlrpc_c::value_int(paramList.getInt(2));
     int owner = att.uid;
+    int test  = false;
+
+    if ( paramList.size() > 3 )
+    {
+        test = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
 
     string          error_str;
     int             rc;
@@ -58,18 +64,25 @@ void RequestManagerLock::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ((auth_object & PoolObjectSQL::LockableObject) != 0)
     {
-        rc = lock_db(object.get(), owner, att.req_id, level);
-
-        pool->update(object.get());
-
-        if (rc != 0)
+        if ( test && object->test_lock_db(att.resp_msg) != 0 )
         {
-            att.resp_msg = "Error trying to lock the resource.";
             failure_response(ACTION, att);
         }
         else
         {
-            success_response(oid, att);
+            rc = lock_db(object.get(), owner, att.req_id, level);
+
+            pool->update(object.get());
+
+            if (rc != 0)
+            {
+                att.resp_msg = "Error trying to lock the resource.";
+                failure_response(ACTION, att);
+            }
+            else
+            {
+                success_response(oid, att);
+            }
         }
     }
     else

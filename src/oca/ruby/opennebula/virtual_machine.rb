@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
@@ -271,6 +272,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, VM_METHODS)
+
             super(xml,client)
         end
 
@@ -713,16 +716,6 @@ module OpenNebula
         #   otherwise
 		def updateconf(new_conf)
             return call(VM_METHODS[:updateconf], @pe_id, new_conf)
-        end
-
-        # Lock a VM
-        def lock(level)
-            return call(VM_METHODS[:lock], @pe_id, level)
-        end
-
-        # Unlock a VM
-        def unlock()
-            return call(VM_METHODS[:unlock], @pe_id)
         end
 
         ########################################################################
