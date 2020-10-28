@@ -540,8 +540,9 @@ void VirtualMachinePoolMonitoring::request_execute(
 
     string oss;
     string where;
-    string and_clause = "";
     int rc;
+
+    int seconds = -1;
 
     if ( filter_flag < GROUP )
     {
@@ -552,33 +553,12 @@ void VirtualMachinePoolMonitoring::request_execute(
 
     if (paramList.size() > 2)
     {
-        ostringstream oss;
-        int s = xmlrpc_c::value_int(paramList.getInt(2));
-
-        switch (s)
-        {
-            case 0: //Get last monitor value
-                oss << one_db::vm_monitor_table << ".last_poll = "
-                    <<  "(SELECT MAX(last_poll) FROM " << one_db::vm_monitor_table
-                    << " AS t WHERE t.vmid = " << one_db::vm_monitor_table << ".vmid)";
-
-                and_clause = oss.str();
-                break;
-
-            case -1: //Get all monitoring
-                and_clause = "";
-                break;
-
-            default: //Get monitor in last s seconds
-                oss << one_db::vm_monitor_table << ".last_poll > " << time(nullptr) - s;
-                and_clause = oss.str();
-                break;
-        }
+        seconds = xmlrpc_c::value_int(paramList.getInt(2));
     }
 
-    where_filter(att, filter_flag, -1, -1, and_clause, "", false, false, false, where);
+    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
 
-    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, where);
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, where, seconds);
 
     if ( rc != 0 )
     {
@@ -760,41 +740,19 @@ void HostPoolMonitoring::request_execute(
 {
     string oss;
     string where;
-    string and_clause = "";
 
     int rc;
 
+    int seconds = -1;
+
     if (paramList.size() > 1)
     {
-        ostringstream oss;
-        int s = xmlrpc_c::value_int(paramList.getInt(1));
-
-        switch (s)
-        {
-            case 0: //Get last monitor value
-                oss << one_db::host_monitor_table << ".last_mon_time = "
-                    <<  "(SELECT MAX(last_mon_time) FROM " << one_db::host_monitor_table
-                    << " AS t WHERE t.hid = " << one_db::host_monitor_table << ".hid)";
-
-                and_clause = oss.str();
-                break;
-
-            case -1: //Get all monitoring
-                and_clause = "";
-                break;
-
-            default: //Get monitor in last s seconds
-                oss << one_db::host_monitor_table << ".last_mon_time > " << time(nullptr) - s;
-                and_clause = oss.str();
-                break;
-        }
-
-        and_clause = oss.str();
+        seconds = xmlrpc_c::value_int(paramList.getInt(1));
     }
 
-    where_filter(att, ALL, -1, -1, and_clause, "", false, false, false, where);
+    where_filter(att, ALL, -1, -1, "", "", false, false, false, where);
 
-    rc = (static_cast<HostPool *>(pool))->dump_monitoring(oss, where);
+    rc = (static_cast<HostPool *>(pool))->dump_monitoring(oss, where, seconds);
 
     if ( rc != 0 )
     {

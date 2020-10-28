@@ -326,20 +326,72 @@ int VirtualMachinePool::dump_showback(string& oss,
 
 int VirtualMachinePool::dump_monitoring(
         string& oss,
-        const string&  where)
+        const string&  where,
+        const int seconds)
 {
     ostringstream cmd;
 
-    cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
-        << one_db::vm_monitor_table
-        << " INNER JOIN " << one_db::vm_table    << " ON vmid = oid";
-
-    if ( !where.empty() )
+    switch (seconds)
     {
-        cmd << " WHERE " << where;
-    }
+        case 0: //Get last monitor value
+            /*
+            * SELECT vm_monitoring.body
+            * FROM vm_monitoring
+            *     INNER JOIN (
+            *         SELECT vmid, MAX(last_poll) as last_poll
+            *             FROM vm_monitoring
+            *             GROUP BY vmid
+            *     ) lpt on lpt.vmid = vm_monitoring.vmid AND lpt.last_poll = vm_monitoring.last_poll
+            *     INNER JOIN vm_pool ON vm_monitoring.vmid = oid
+            * ORDER BY oid;
+            */
+            cmd << "SELECT " << one_db::vm_monitor_table << ".body "
+                << "FROM " << one_db::vm_monitor_table << " INNER JOIN ("
+                << "SELECT vmid, MAX(last_poll) as last_poll FROM "
+                << one_db::vm_monitor_table << " GROUP BY vmid) as lpt "
+                << "ON lpt.vmid = " << one_db::vm_monitor_table << ".vmid "
+                << "AND lpt.last_poll = " << one_db::vm_monitor_table
+                << ".last_poll INNER JOIN " << one_db::vm_table
+                << " ON " << one_db::vm_monitor_table << ".vmid = oid";
 
-    cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY oid";
+
+            break;
+
+        case -1: //Get all monitoring
+            cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
+                << one_db::vm_monitor_table << " INNER JOIN " << one_db::vm_table
+                << " ON vmid = oid";
+
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
+
+            break;
+
+        default: //Get monitor in last s seconds
+            cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
+                << one_db::vm_monitor_table << " INNER JOIN " << one_db::vm_table
+                << " ON vmid = oid WHERE " << one_db::vm_monitor_table
+                << ".last_poll > " << time(nullptr) - seconds;
+
+            if ( !where.empty() )
+            {
+                cmd << " ANS " << where;
+            }
+
+            cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
+
+            break;
+    }
 
     return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
 }
