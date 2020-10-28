@@ -233,6 +233,8 @@ module OpenNebula
 
             ServiceTemplate.validate(template)
 
+            template['registration_time'] = Integer(Time.now)
+
             super(template.to_json, template['name'])
         end
 

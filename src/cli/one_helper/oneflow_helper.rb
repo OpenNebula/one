@@ -57,11 +57,18 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
                 d['NAME']
             end
 
+            column :STARTTIME, 'Start time of the Service', :size => 15 do |d|
+                d.extend(CLIHelper::HashWithSearch)
+                d = d.dsearch('TEMPLATE/BODY')
+
+                OpenNebulaHelper.time_to_str(d['start_time'])
+            end
+
             column :STAT, 'State', :size => 11, :left => true do |d|
                 Service.state_str(d['TEMPLATE']['BODY']['state'])
             end
 
-            default :ID, :USER, :GROUP, :NAME, :STAT
+            default :ID, :USER, :GROUP, :NAME, :STARTTIME, :STAT
         end
     end
 
@@ -266,9 +273,10 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
     #
     # @param document [Hash] Service document information
     def print_service_info(document)
-        str      = '%-20s: %-20s'
-        str_h1   = '%-80s'
-        template = document['TEMPLATE']['BODY']
+        str        = '%-20s: %-20s'
+        str_h1     = '%-80s'
+        template   = document['TEMPLATE']['BODY']
+        start_time = OpenNebulaHelper.time_to_str(template['start_time'])
 
         puts Kernel.format(str, 'ID', document['ID'])
         puts Kernel.format(str, 'NAME', document['NAME'])
@@ -279,6 +287,7 @@ class OneFlowHelper < OpenNebulaHelper::OneHelper
         puts Kernel.format(str,
                            'SERVICE STATE',
                            Service.state_str(template['state']))
+        puts Kernel.format(str, 'START TIME', start_time)
 
         if template['shutdown_action']
             puts Kernel.format(str, 'SHUTDOWN', template['shutdown_action'])

@@ -57,7 +57,16 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
                 d['NAME']
             end
 
-            default :ID, :USER, :GROUP, :NAME
+            column :REGTIME,
+                   'Registration time of the Service Template',
+                   :size => 15 do |d|
+                d.extend(CLIHelper::HashWithSearch)
+                d = d.dsearch('TEMPLATE/BODY')
+
+                OpenNebulaHelper.time_to_str(d['registration_time'])
+            end
+
+            default :ID, :USER, :GROUP, :NAME, :REGTIME
         end
     end
 
@@ -130,6 +139,9 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
 
                 document = JSON.parse(response.body)['DOCUMENT']
                 template = document['TEMPLATE']['BODY']
+                reg_time = OpenNebulaHelper.time_to_str(
+                    template['registration_time']
+                )
 
                 CLIHelper.print_header(
                     str_h1 % "SERVICE TEMPLATE #{document['ID']} INFORMATION"
@@ -139,6 +151,7 @@ class OneFlowTemplateHelper < OpenNebulaHelper::OneHelper
                 puts Kernel.format str, 'NAME', document['NAME']
                 puts Kernel.format str, 'USER', document['UNAME']
                 puts Kernel.format str, 'GROUP', document['GNAME']
+                puts Kernel.format str, 'REGISTRATION TIME', reg_time
 
                 puts
 
