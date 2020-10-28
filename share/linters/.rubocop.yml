@@ -567,6 +567,9 @@ Layout/SpaceAroundMethodCallOperator:
 Layout/EmptyLinesAroundAttributeAccessor:
     Enabled: true
 
+Layout/MultilineOperationIndentation:
+    Enabled: false
+
 #######
 # STYLE
 #######
@@ -720,6 +723,15 @@ Style/RedundantRegexpEscape:
   Enabled: False
 
 Style/GlobalStdStream:
+  Enabled: False
+
+Style/ClassEqualityComparison:
+  Enabled: False
+
+Style/LineEndConcatenation:
+  Enabled: False
+
+Style/MultilineIfModifier:
   Enabled: False
 
 ######
