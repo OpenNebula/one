@@ -553,6 +553,24 @@ public:
     }
 
     /**
+     * Checks if the object is currently locked
+     *
+     * @return 0 if not locked, return -1 if locked and fill the variable time
+     *      with the current locked time
+     */
+    int test_lock_db(std::string& time)
+    {
+        if ( locked != LockStates::ST_NONE )
+        {
+            time = std::to_string(lock_time);
+
+            return -1;
+        }
+
+        return 0;
+    }
+
+    /**
      *  Encrypt all secret attributes
      */
     virtual void encrypt();

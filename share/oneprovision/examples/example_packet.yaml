@@ -5,6 +5,9 @@
 # own credentials for the particular provider. You need to
 # uncomment and update list of hosts to deploy based
 # on your requirements.
+#
+# You also need to create a provider with credentials and location
+# information.
 #############################################################
 
 # Ansible playbook to configure hosts
@@ -16,10 +19,7 @@ name: "PacketCluster"
 # Defaults sections with information related with Packet
 defaults:
   provision:
-    driver: "packet"
-    packet_token: "**************************"
-    packet_project: "************************"
-    facility: "ams1"
+    provider: "packet"
     plan: "baremetal_0"
     os: "centos_7"
   configuration:

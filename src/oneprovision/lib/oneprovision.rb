@@ -16,10 +16,15 @@
 
 require 'provision_element'
 require 'provision/oneprovision'
+
 require 'provision_template/provision_template'
 require 'provision_template/provision_template_pool'
+
 require 'provider/provider'
 require 'provider/provider_pool'
+
+require 'terraform/providers'
+require 'terraform/terraform'
 
 # OneProvision module
 module OneProvision

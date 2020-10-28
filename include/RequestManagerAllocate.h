@@ -515,7 +515,7 @@ public:
 
     std::unique_ptr<Template> get_object_template() const override
     {
-        return std::make_unique<Template>();
+        return std::make_unique<DocumentTemplate>();
     };
 
     Request::ErrorCode pool_allocate(xmlrpc_c::paramList const&  paramList,

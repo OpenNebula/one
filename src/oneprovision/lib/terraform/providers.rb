@@ -14,26 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula/document_pool_json'
+require 'terraform/providers/aws'
+require 'terraform/providers/dummy'
+require 'terraform/providers/packet'
 
+# Module OneProvision
 module OneProvision
-
-    # ProvisionPool class
-    class ProvisionPool < DocumentPoolJSON
-
-        DOCUMENT_TYPE = 103
-
-        def initialize(client, user_id = -2)
-            super(client, user_id)
-        end
-
-        def factory(element_xml)
-            provision = OneProvision::Provision.new(element_xml, @client)
-            provision.info(true)
-            provision.load_body
-            provision
-        end
-
-    end
-
 end

@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/lockable_ext'
 require 'opennebula/marketplaceapp_ext'
 require 'opennebula/pool_element'
 
@@ -79,6 +80,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, MARKETPLACEAPP_METHODS)
+
             super(xml, client)
         end
 
@@ -204,16 +207,6 @@ module OpenNebula
         # Returns the state of the marketplace app (string value)
         def short_state_str
             SHORT_MARKETPLACEAPP_STATES[state_str]
-        end
-
-        # Locked a MarketplaceApp
-        def lock(level)
-            call(MARKETPLACEAPP_METHODS[:lock], @pe_id, level)
-        end
-
-        # Unlocked a MarketplaceApp
-        def unlock()
-            call(MARKETPLACEAPP_METHODS[:unlock], @pe_id)
         end
 
     end

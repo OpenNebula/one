@@ -22,7 +22,7 @@ module OneProvision
         DOCUMENT_TYPE = 102
 
         # These attributes can not be changed when updating the provider
-        UNMUTABLE_ATTRS = %w[provider registration_time]
+        UNMUTABLE_ATTRS = %w[provider]
 
         # Allocates a new document
         #
@@ -90,6 +90,9 @@ module OneProvision
 
         # Gets connection information
         def connection
+            # Dummy case
+            return unless @body
+
             conn             = @body['connection']
             conn['provider'] = self['NAME']
 
@@ -103,6 +106,8 @@ module OneProvision
         #
         # @return [Provider]
         def self.by_name(client, provider)
+            return Provider.new_with_id(-1) if provider == 'dummy'
+
             if provider.to_s.match(/^[0123456789]+$/)
                 provider = Provider.new_with_id(Integer(provider), client)
                 rc       = provider.info(true)

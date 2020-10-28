@@ -14,8 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
+
 require 'fileutils'
 
 module OpenNebula
@@ -92,6 +93,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, IMAGE_METHODS)
+
             super(xml,client)
 
             @client = client
@@ -296,14 +299,6 @@ module OpenNebula
         # [return] _Integer_ the element's group ID
         def gid
             self['GID'].to_i
-        end
-
-        def lock(level)
-            return call(IMAGE_METHODS[:lock], @pe_id, level)
-        end
-
-        def unlock()
-            return call(IMAGE_METHODS[:unlock], @pe_id)
         end
 
         def public?

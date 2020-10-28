@@ -19,17 +19,20 @@
 ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    LIB_LOCATION      = '/usr/lib/one'
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
-    GEMS_LOCATION     = '/usr/share/one/gems'
-    REMOTES_LOCATION  = '/var/lib/one/remotes'
-    ANSIBLE_LOCATION  = '/usr/share/one/oneprovision/ansible'
+    LIB_LOCATION       = '/usr/lib/one'
+    RUBY_LIB_LOCATION  = '/usr/lib/one/ruby'
+    GEMS_LOCATION      = '/usr/share/one/gems'
+    REMOTES_LOCATION   = '/var/lib/one/remotes'
+    ANSIBLE_LOCATION   = '/usr/share/one/oneprovision/ansible'
+    PROVIDERS_LOCATION = '/usr/lib/one/oneprovision/lib/terraform/providers'
 else
-    LIB_LOCATION      = ONE_LOCATION + '/lib'
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
-    REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes'
-    ANSIBLE_LOCATION  = ONE_LOCATION + '/share/oneprovision/ansible'
+    LIB_LOCATION       = ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION  = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION      = ONE_LOCATION + '/share/gems'
+    REMOTES_LOCATION   = ONE_LOCATION + '/var/remotes'
+    ANSIBLE_LOCATION   = ONE_LOCATION + '/share/oneprovision/ansible'
+    PROVIDERS_LOCATION = ONE_LOCATION +
+                         '/lib/oneprovision/lib/terraform/providers'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -159,7 +162,7 @@ CommandParser::CmdParser.new(ARGV) do
         if !(options.key? :filter) && !(options.key? :done)
             options[:filter] = ['STAT!=DONE']
         end
-
+        options[:decrypt] = true
         helper.list_pool(options)
     end
 
@@ -233,66 +236,6 @@ CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Host Commands
     ########################################################################
-
-    host_resume_desc = <<-EOT.unindent
-        Resume the host
-    EOT
-
-    command [:host, :resume],
-            host_resume_desc,
-            [:range, :hostid_list],
-            :options => [OneProvisionHelper::MODES] do
-        operation =  { :operation => 'resume', :message => 'enabled' }
-
-        rc = helper.resources_operation(args, operation, options, 'HOSTS')
-
-        return 0 unless OpenNebula.is_error?(rc)
-
-        STDERR.puts rc.message
-        exit(-1)
-    end
-
-    ###
-
-    host_poweroff_desc = <<-EOT.unindent
-        Power off the host
-    EOT
-
-    command [:host, :poweroff],
-            host_poweroff_desc,
-            [:range, :hostid_list],
-            :options => [OneProvisionHelper::MODES] do
-        operation =  { :operation => 'poweroff', :message => 'disabled' }
-
-        rc = helper.resources_operation(args, operation, options, 'HOSTS')
-
-        return 0 unless OpenNebula.is_error?(rc)
-
-        STDERR.puts rc.message
-        exit(-1)
-    end
-
-    ###
-
-    host_reboot_desc = <<-EOT.unindent
-        Reboot the host
-    EOT
-
-    command [:host, :reboot],
-            host_reboot_desc,
-            [:range, :hostid_list],
-            :options => [OneProvisionHelper::MODES, OneProvisionHelper::HARD] do
-        operation =  { :operation => 'reboot', :message => 'enabled' }
-
-        rc = helper.resources_operation(args, operation, options, 'HOSTS')
-
-        return 0 unless OpenNebula.is_error?(rc)
-
-        STDERR.puts rc.message
-        exit(-1)
-    end
-
-    ###
 
     host_delete_desc = <<-EOT.unindent
         Unprovisions and deletes the given Host
@@ -416,9 +359,9 @@ CommandParser::CmdParser.new(ARGV) do
                                             options,
                                             resource.upcase)
 
-            return 0 unless OpenNebula.is_error?(rc)
+            return 0 if rc[0] == 0
 
-            STDERR.puts rc.message
+            STDERR.puts rc[1]
             exit(-1)
         end
     end

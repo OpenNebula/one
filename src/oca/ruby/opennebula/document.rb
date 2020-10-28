@@ -14,6 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
@@ -75,6 +76,8 @@ module OpenNebula
         # @example
         #   doc = Document.new(Document.build_xml(3),rpc_client)
         def initialize(xml, client)
+            LockableExt.make_lockable(self, DOCUMENT_METHODS)
+
             super(xml,client)
         end
 
@@ -215,32 +218,6 @@ module OpenNebula
         #   otherwise
         def rename(name)
             return call(DOCUMENT_METHODS[:rename], @pe_id, name)
-        end
-
-        # Locks this object
-        #
-        # @param owner [String] String to identify the application requestiong
-        #   the lock
-        #
-        # @return [Bool, OpenNebula::Error] In case of success, true if the
-        #   lock was granted, and false if the object is already locked.
-        def lock(owner="")
-            return Error.new('ID not defined') if !@pe_id
-
-            rc = @client.call(DOCUMENT_METHODS[:lock], @pe_id, owner)
-
-            return rc
-        end
-
-        # Unlocks this object
-        #
-        # @param owner [String] String to identify the application requestiong
-        #   the unlock
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def unlock(owner="")
-            return call(DOCUMENT_METHODS[:unlock], @pe_id, owner)
         end
 
         #######################################################################

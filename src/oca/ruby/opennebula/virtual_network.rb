@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 require 'ipaddr'
 
@@ -62,6 +62,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, VN_METHODS)
+
             super(xml,client)
         end
 
@@ -336,14 +338,6 @@ module OpenNebula
             end
 
             return array
-        end
-
-        def lock(level)
-            return call(VN_METHODS[:lock], @pe_id, level)
-        end
-
-        def unlock()
-            return call(VN_METHODS[:unlock], @pe_id)
         end
 
     private

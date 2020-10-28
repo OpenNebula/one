@@ -1,0 +1,26 @@
+resource "aws_instance" "device_<%= host['ID'] %>" {
+    ami                    = "<%= provision['AMI'] %>"
+    instance_type          = "<%= provision['INSTANCETYPE'] %>"
+
+    <% if provision['SUBNETID'] && provision['SUBNETID'] != "" %>
+    subnet_id              = "<%= provision['SUBNETID'] %>"
+    <% end %>
+
+    <% if provision['SECURITYGROUPSIDS'] && provision['SECURITYGROUPSIDS'] != "" %>
+    vpc_security_group_ids = ["<%= provision['SECURITYGROUPSIDS'] %>"]
+    <% end %>
+
+    user_data              = "<%= user_data %>"
+    tags                   = {
+        Name = "<%= provision['HOSTNAME'] %>"
+    }
+}
+
+output "ip_<%= host['ID'] %>" {
+  value = aws_instance.device_<%= host['ID'] %>.public_ip
+}
+
+output "device_id_<%= host['ID'] %>" {
+  value = aws_instance.device_<%= host['ID'] %>.id
+}
+

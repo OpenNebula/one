@@ -14,54 +14,49 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'opennebula/document_json'
+require 'terraform/terraform'
 
-# OneProvision module
+# Module OneProvision
 module OneProvision
 
-    # Provision element
-    class ProvisionElement < DocumentJSON
+    # Dummy Provider
+    class Dummy < Terraform
 
-        TEMPLATE_TAG = 'PROVISION_BODY'
-
-        # Body tag
-        attr_reader :tag
-
-        # Body
-        attr_reader :body
-
-        # Class constructor
-        def initialize(xml, client)
-            super
-
-            @tag = TEMPLATE_TAG
+        # Generate Terraform deployment file
+        #
+        # @param hosts [Array] Hosts to deploy in Packet
+        def generate_deployment_file(hosts)
+            @hosts = hosts
         end
 
-        # Replaces the template contents
-        #
-        # @param template_json [String] New template contents
-        #
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def update(template_json = nil)
-            if template_json
-                template_json = JSON.parse(template_json)
-
-                if template_json.keys != @body.keys
-                    return OpenNebula::Error.new('Keys can not be changed')
-                end
-
-                self.class::UNMUTABLE_ATTRS.each do |attr|
-                    next if template_json[attr] == @body[attr]
-
-                    return OpenNebula::Error.new("`#{attr}` can not be changed")
-                end
-
-                super(template_json.to_json)
-            else
-                super
-            end
+        def deploy
+            [@hosts.map do |h|
+                h.to_hash['HOST']['TEMPLATE']['PROVISION']['HOSTNAME']
+            end,
+             nil,
+             nil]
         end
+
+        # Get polling information from a host
+        #
+        # @param id [String] Host ID
+        #
+        # @param [String] Host public IP
+        def poll(_) end
+
+        # Destroy infra via Terraform
+        #
+        # @param target [String] Target to destroy
+        #
+        # @return [Array]
+        #   - Terraform state in base64
+        #   - Terraform config in base64
+        def destroy(_ = nil) end
+
+        # Destroys a host
+        #
+        # @param host [String] Host ID
+        def destroy_host(_) end
 
     end
 

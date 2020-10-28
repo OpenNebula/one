@@ -12,15 +12,12 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'base64'
 require 'opennebula/document_json'
 
 module OneProvision
 
     # Provision class as wrapper of DocumentJSON
-    class Provision < DocumentJSON
-
-        attr_reader :body
+    class Provision < ProvisionElement
 
         DOCUMENT_TYPE = 103
 
@@ -58,8 +55,8 @@ module OneProvision
 
         # Allocates a new document
         #
-        # @param template [Hash]   Document information
-        # @param provider [String] Provision provider
+        # @param template [Hash]      Document information
+        # @param provider [Provision] Provision provider
         def allocate(template, provider)
             rc = nil
 
@@ -71,7 +68,7 @@ module OneProvision
                 return OpenNebula::Error.new(e)
             end
 
-            super(rc, template['name'])
+            super(rc, template['name'], TEMPLATE_TAG)
         end
 
         # Returns provision state
@@ -125,6 +122,23 @@ module OneProvision
             infrastructure_objects.merge(resource_objects)
         end
 
+        # Returns Terraform state
+        def tf_state
+            @body['tf']['state'] if @body['tf']
+        end
+
+        # Returns Terraform configuration
+        def tf_conf
+            @body['tf']['conf'] if @body['tf']
+        end
+
+        # Returns Terraform information
+        def tf
+            return if !tf_state && !tf_conf
+
+            { :state => tf_state, :conf => tf_conf }
+        end
+
         # Deploys a new provision
         #
         # @param config   [String]   Path to deployment file
@@ -135,50 +149,49 @@ module OneProvision
         #
         # @return [Integer] Provision ID
         def deploy(config, cleanup, timeout, skip, provider)
-            Ansible.check_ansible_version
+            Ansible.check_ansible_version if skip == :none
 
             begin
                 cfg = Utils.read_config(config)
 
-                if provider
-                    # Respect user information, only add provider info if
-                    # the user hasn't specified any
-                    cfg['defaults'] = {} unless cfg['defaults']
-
-                    # Get user UID to see if merge is possible or not
-                    # only merge attributes if the provider is owned by user
-                    info = Nokogiri::XML(@client.call('user.info', -1))
-                    uid  = info.xpath('/USER/ID').text
-
-                    # Get provider connection information
-                    conn = provider.connection
-
-                    if uid == provider['UID']
-                        cfg['defaults']['provision'] = conn.merge(
-                            cfg['defaults']['provision']
-                        )
-
-                        OneProvisionLogger.debug('Merging provider connection')
-                    else
-                        cfg['defaults']['provision'] = conn
-
-                        OneProvisionLogger.debug('Using provider connection')
-                    end
-                end
-
-                # read provision file
-                cfg = Utils.create_config(cfg)
-
                 # read provider information
-                if provider
-                    provider = provider['NAME']
-                else
+                unless provider
                     provider = Provision.read_provider(cfg)
+                    provider = Provider.by_name(@client, provider)
                 end
+
+                return provider if OpenNebula.is_error?(provider)
 
                 unless provider
                     return OpenNebula::Error.new('No provider found')
                 end
+
+                # Respect user information, only add provider info if
+                # the user hasn't specified any
+                cfg['defaults'] = {} unless cfg['defaults']
+
+                # Get user UID to see if merge is possible or not
+                # only merge attributes if the provider is owned by user
+                info = Nokogiri::XML(@client.call('user.info', -1))
+                uid  = info.xpath('/USER/ID').text
+
+                # Get provider connection information
+                conn = provider.connection
+
+                if uid == provider['UID']
+                    cfg['defaults']['provision'] = conn.merge(
+                        cfg['defaults']['provision']
+                    )
+
+                    OneProvisionLogger.debug('Merging provider connection')
+                else
+                    cfg['defaults']['provision'] = conn
+
+                    OneProvisionLogger.debug('Using provider connection')
+                end
+
+                # read provision file
+                cfg = Utils.create_config(cfg)
 
                 # @name is used for ERB evaluation
                 @name = cfg['name']
@@ -192,14 +205,14 @@ module OneProvision
                 # If cluster fails to create and user select skip, exit
                 exit if rc == :skip
 
-                Mode.new_cleanup(true)
-
                 create_infra_resources(cfg, cfg['cluster']['id'])
                 create_hosts(cfg, cfg['cluster']['id'])
 
                 allocate(cfg, provider)
 
-                self.info
+                Mode.new_cleanup(true)
+
+                self.info(true)
 
                 # @id is used for ERB evaluation
                 @id = self['ID']
@@ -211,19 +224,24 @@ module OneProvision
 
                     OneProvisionLogger.info('Deploying')
 
-                    deploy_ids = nil
+                    ips   = nil
+                    ids   = nil
+                    state = nil
+                    conf  = nil
 
                     Driver.retry_loop 'Failed to deploy hosts' do
-                        deploy_ids = deploy_hosts
-                    end
-
-                    if deploy_ids.nil? || deploy_ids.empty?
-                        Utils.fail('Deployment failed, no ID got from driver')
+                        ips, ids, state, conf = Driver.tf_action(provider,
+                                                                 hosts,
+                                                                 'deploy')
                     end
 
                     OneProvisionLogger.info('Monitoring hosts')
 
-                    update_hosts(deploy_ids)
+                    update_hosts(ips, ids)
+
+                    @body['tf']          = {}
+                    @body['tf']['state'] = state
+                    @body['tf']['conf']  = conf
                 end
 
                 if skip == :none
@@ -298,7 +316,7 @@ module OneProvision
                 )
             end
 
-            rc = info
+            rc = info(true)
 
             return rc if OpenNebula.is_error?(rc)
 
@@ -316,50 +334,19 @@ module OneProvision
 
             OneProvisionLogger.info("Deleting provision #{self['ID']}")
 
-            if hosts
-                # offline and (optionally) clean all hosts
-                OneProvisionLogger.debug('Offlining OpenNebula hosts')
+            provider = Provider.by_name(@client, provider())
 
-                hosts.each do |h|
-                    Driver.retry_loop 'Failed to offline host' do
-                        host = Host.new
+            if !hosts.empty? && tf_state && tf_conf
+                Driver.tf_action(provider, hosts, 'destroy', tf)
+            end
 
-                        host.info(h['id'])
+            Driver.retry_loop 'Failed to delete hosts' do
+                hosts.each do |host|
+                    id   = host['id']
+                    host = Host.new(provider)
 
-                        Utils.exception(host.one.offline)
-                    end
-                end
-
-                # undeploy hosts
-                OneProvisionLogger.info('Undeploying hosts')
-
-                threads = []
-
-                Driver.retry_loop 'Failed to delete hosts' do
-                    hosts.delete_if do |host|
-                        id   = host['id']
-                        host = Host.new(provider)
-
-                        host.info(id)
-
-                        if Options.threads > 1
-                            while Thread.list.count > Options.threads
-                                threads.map do |thread|
-                                    thread.join(5)
-                                end
-                            end
-
-                            threads << Thread.new do
-                                host.delete
-                            end
-                        else
-                            host.delete
-                        end
-                    end
-
-                    threads.map(&:join)
-
-                    true
+                    host.info(id)
+                    host.delete
                 end
             end
 
@@ -374,7 +361,9 @@ module OneProvision
 
             self.state = STATE['DONE']
 
-            update
+            rc = update
+
+            return rc if OpenNebula.is_error?(rc)
 
             0
         end
@@ -386,7 +375,7 @@ module OneProvision
         # @param id        [String] Object ID
         # @param name      [String] Object name
         def update_objects(object, operation, id, name = nil)
-            rc = info
+            rc = info(true)
 
             return rc if OpenNebula.is_error?(rc)
 
@@ -399,12 +388,22 @@ module OneProvision
             if operation == :append
                 @body['provision'][path][object] << { :id => id, :name => name }
             else
-                o = Resource.object(object, provider)
-                o.info(id)
+                provider = Provider.by_name(@client, provider())
 
-                rc = o.delete
+                o  = Resource.object(object, provider)
+                rc = o.info(id)
 
                 return rc if OpenNebula.is_error?(rc)
+
+                rc = o.delete(object == 'hosts' ? tf : nil)
+
+                return rc if OpenNebula.is_error?(rc)
+
+                # If it is an array, a host has been deleted
+                if rc.is_a? Array
+                    @body['tf']['state'] = rc[0]
+                    @body['tf']['conf']  = rc[1]
+                end
 
                 @body['provision'][path][object].delete_if do |obj|
                     true if obj['id'].to_s == id.to_s
@@ -455,7 +454,12 @@ module OneProvision
             document['description'] = template['description']
             document['start_time']  = Time.now.to_i
             document['state']       = STATE['DEPLOYING']
-            document['provider']    = provider
+
+            if provider['NAME']
+                document['provider'] = provider['NAME']
+            else
+                document['provider'] = 'dummy'
+            end
 
             # Fill provision objects information
             document['provision'] = {}
@@ -601,74 +605,24 @@ module OneProvision
             end
         end
 
-        # Deploys provision hosts
+        # Updates provision hosts with new name
         #
-        # @return [Array] Provider deploy ids
-        def deploy_hosts
-            deploy_ids = []
-            threads    = []
-            p_hosts    = 0
-
-            hosts.each do |h|
-                p_hosts += 1
-
-                host = Host.new(provider)
-                host.info(h['id'])
-                host = host.one
-
-                # deploy host
-                pm = provider
-                id = host['ID']
-
-                OneProvisionLogger.debug("Deploying host: #{id}")
-
-                deploy_file = Tempfile.new("xmlDeploy#{id}")
-                deploy_file.close
-
-                Driver.write_file_log(deploy_file.path, host.to_xml)
-
-                params = [deploy_file.path, 'TODO']
-
-                if Options.threads > 1
-                    threads << Thread.new do
-                        output = Driver.pm_driver_action(pm, 'deploy', params)
-                        Thread.current[:output] = output
-                    end
-
-                    if threads.size == Options.threads || p_hosts == hosts.size
-                        threads.map do |thread|
-                            thread.join
-                            deploy_ids << thread[:output]
-                            deploy_file.unlink
-                        end
-
-                        threads.clear
-                    end
-                else
-                    deploy_ids << Driver.pm_driver_action(pm, 'deploy', params)
-                end
-            end
-
-            deploy_ids
-        end
-
-        # Updates provision hosts with deploy_id
-        #
-        # @param deploy_ids [Array] Array with all the deploy ids
-        def update_hosts(deploy_ids)
+        # @param ips [Array] IPs for each host
+        # @param ids [Array] IDs for each host
+        def update_hosts(ips, ids)
             hosts.each do |h|
                 host = Host.new(provider)
                 host.info(h['id'])
 
-                deploy_id = deploy_ids.shift.strip
+                name = ips.shift
+                id   = ids.shift
 
-                host.one.add_element('//TEMPLATE/PROVISION',
-                                     'DEPLOY_ID' => deploy_id)
-                host.one.update(host.one.template_str)
-
-                name = host.poll
-
+                # Rename using public IP address
                 host.one.rename(name)
+
+                # Add deployment ID
+                host.one.add_element('//TEMPLATE/PROVISION', 'DEPLOY_ID' => id)
+                host.one.update(host.one.template_str)
 
                 h['name'] = name
             end

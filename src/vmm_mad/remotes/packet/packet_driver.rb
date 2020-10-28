@@ -129,24 +129,6 @@ class PacketDriver
         device.id
     end
 
-    def deploy_host(xhost)
-        deploy_id = xhost['//HOST/TEMPLATE/PROVISION/DEPLOY_ID']
-
-        # Restore if we need to
-        if deploy_id
-            restore(deploy_id)
-            return deploy_id
-        end
-
-        device = xobj2device(xhost, 'TEMPLATE/PROVISION', 'TEMPLATE/CONTEXT')
-        device.tags += ['OpenNebula', "ONE_HOST_ID=#{xhost['ID']}"]
-        @packet.create_device(device)
-
-        wait_state(:active, device.id)
-
-        device.id
-    end
-
     def restore(deploy_id)
         power_on(deploy_id)
         wait_state(:active, deploy_id)
@@ -392,17 +374,11 @@ class PacketDriver
     end
 
     def get_globals(xhost)
-        if xhost['TEMPLATE/PROVISION']
-            tmpl_base = 'TEMPLATE/PROVISION'
-        else
-            tmpl_base = 'TEMPLATE'
-        end
-
         conn_opts = {}
 
         begin
-            conn_opts['PACKET_TOKEN'] = xhost["#{tmpl_base}/PACKET_TOKEN"]
-            conn_opts['PROJECT']      = xhost["#{tmpl_base}/PACKET_PROJECT"]
+            conn_opts['PACKET_TOKEN'] = xhost['TEMPLATE/PACKET_TOKEN']
+            conn_opts['PROJECT']      = xhost['TEMPLATE/PACKET_PROJECT']
         rescue StandardError
             raise "HOST: #{xhost['NAME']} must have Packet credentials"
         end
