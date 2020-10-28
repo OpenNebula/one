@@ -42,7 +42,7 @@ module OpenNebula::LockableExt
         obj.instance_variable_set(:@lock_method, methods[:lock])
         obj.instance_variable_set(:@unlock_method, methods[:unlock])
 
-        obj.extend(LockableExt)
+        obj.extend(OpenNebula::LockableExt)
     end
 
     def self.extend_object(obj)
