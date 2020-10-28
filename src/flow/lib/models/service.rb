@@ -241,6 +241,8 @@ module OpenNebula
                 end
             end
 
+            template['start_time'] = Integer(Time.now)
+
             super(template.to_json, template['name'])
         end
 

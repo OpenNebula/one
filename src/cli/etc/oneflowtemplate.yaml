@@ -20,8 +20,13 @@
   :size: 8
   :left: true
 
+:REGTIME:
+  :desc: Registration time of the Service Template
+  :size: 15
+
 :default:
 - :ID
 - :USER
 - :GROUP
 - :NAME
+- :REGTIME

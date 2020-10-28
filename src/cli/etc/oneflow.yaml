@@ -20,6 +20,10 @@
   :left: true
   :expand: true
 
+:STARTTIME:
+  :desc: Start time of the Service
+  :size: 15
+
 :STAT:
   :desc: Actual status
   :size: 8
@@ -30,4 +34,5 @@
 - :USER
 - :GROUP
 - :NAME
+- :STARTTIME
 - :STAT
