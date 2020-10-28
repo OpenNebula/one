@@ -28,22 +28,42 @@ rescue LoadError
     exit -1
 end
 
+# #########################################################################
+# The Error Class represents a generic error in for OneDBBacKEnd.
+# #########################################################################
+class OneDBError < StandardError
+
+    attr_reader :code
+
+    ERR_CODES = {
+        :db_bootstrap_err => 1,
+        :other_err        => -1
+    }
+
+    def initialize(message, code)
+        @code=code
+        super(message)
+    end
+
+end
+
 class OneDBBacKEnd
-    FEDERATED_TABLES = %w(group_pool user_pool acl zone_pool vdc_pool
-                          marketplace_pool marketplaceapp_pool db_versioning)
+
+    FEDERATED_TABLES = %w[group_pool user_pool acl zone_pool vdc_pool
+                          marketplace_pool marketplaceapp_pool db_versioning]
 
     def read_db_version
-        connect_db
-
         ret = {}
 
         begin
-            ret[:version]   = "2.0"
-            ret[:timestamp] = 0
-            ret[:comment]   = ""
+            connect_db
 
-            @db.fetch("SELECT version, timestamp, comment FROM db_versioning " +
-                      "WHERE oid=(SELECT MAX(oid) FROM db_versioning)") do |row|
+            ret[:version]   = '2.0'
+            ret[:timestamp] = 0
+            ret[:comment]   = ''
+
+            @db.fetch('SELECT version, timestamp, comment FROM db_versioning '\
+                      'WHERE oid=(SELECT MAX(oid) FROM db_versioning)') do |row|
                 ret[:version]   = row[:version]
                 ret[:timestamp] = row[:timestamp]
                 ret[:comment]   = row[:comment]
@@ -54,46 +74,37 @@ class OneDBBacKEnd
             ret[:local_comment]   = ret[:comment]
             ret[:is_slave]        = false
 
-            begin
-               @db.fetch("SELECT version, timestamp, comment, is_slave FROM "+
-                        "local_db_versioning WHERE oid=(SELECT MAX(oid) "+
-                        "FROM local_db_versioning)") do |row|
-                    ret[:local_version]   = row[:version]
-                    ret[:local_timestamp] = row[:timestamp]
-                    ret[:local_comment]   = row[:comment]
-                    ret[:is_slave]        = row[:is_slave]
-               end
-            rescue Exception => e
-                if e.class == Sequel::DatabaseConnectionError
-                    raise e
-                end
+            @db.fetch('SELECT version, timestamp, comment, is_slave FROM '\
+                        'local_db_versioning WHERE oid=(SELECT MAX(oid) '\
+                        'FROM local_db_versioning)') do |row|
+                ret[:local_version]   = row[:version]
+                ret[:local_timestamp] = row[:timestamp]
+                ret[:local_comment]   = row[:comment]
+                ret[:is_slave]        = row[:is_slave]
             end
 
-            return ret
+            ret[:oned_version]       = OneDBBacKEnd::LATEST_DB_VERSION
+            ret[:oned_local_version] = OneDBBacKEnd::LATEST_LOCAL_DB_VERSION
 
+            ret
+        # rubocop:disable Lint/RescueException
         rescue Exception => e
             if e.class == Sequel::DatabaseConnectionError
-                raise e
-            elsif !db_exists?
-                # If the DB doesn't have db_version table, it means it is empty or a 2.x
-                raise "Database schema does not look to be created by " <<
-                      "OpenNebula: table user_pool is missing or empty, " <<
-                      "oneadmin user must always exist."
+                raise OneDBError.new(e.message,
+                                     OneDBError::ERR_CODES[:connection_err])
             end
 
-            begin
-                # Table image_pool is present only in 2.X DBs
-                @db.fetch("SELECT * FROM image_pool") { |row| }
-            rescue
-                raise "Database schema looks to be created by OpenNebula 1.X." <<
-                      "This tool only works with databases created by 2.X versions."
+            if !db_exists?
+                # If the DB doesn't have db_version table, it means it is empty
+                msg = 'Database is not correctly bootstraped.'
+
+                raise OneDBError.new(msg,
+                                     OneDBError::ERR_CODES[:db_bootstrap_err])
             end
 
-            comment = "Could not read any previous db_versioning data, " <<
-                      "assuming it is an OpenNebula 2.0 or 2.2 DB."
-
-            return ret
+            ret
         end
+        # rubocop:enable Lint/RescueException
     end
 
     def history

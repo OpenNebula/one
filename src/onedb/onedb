@@ -77,6 +77,13 @@ BACKUP={
     :format => String
 }
 
+NOBACKUP={
+    :name => 'no_backup',
+    :large => '--no-backup',
+    :description => 'If used the backup file won\'t be automatically '\
+                    'generated. Not recomended for production environments'
+}
+
 FEDERATED = {
     :name => 'federated',
     :large => '--federated',
@@ -376,12 +383,23 @@ CommandParser::CmdParser.new(ARGV) do
     version_desc = <<-EOT.unindent
         Prints the current DB version.
         Use -v flag to see also OpenNebula version
+
+        The version command will return different RC depending on the current
+        state of the installation:
+
+           - 0: The current version of the DB match with the source version.
+           - 1: The database has not been bootstraped yet.
+           - 2: The DB version is older than required (upgrade needed).
+           - 3: The DB version is newer and not supported by this release.
+           - -1: Any other problem (e.g connection issues)
     EOT
 
     command :version, version_desc do
         begin
             helper = OneDB.new(options)
             helper.version(options)
+        rescue OneDBError => e
+            [e.code, e.message]
         rescue StandardError => e
             [-1, e.message]
         end
@@ -433,7 +451,7 @@ CommandParser::CmdParser.new(ARGV) do
     command :upgrade,
             upgrade_desc,
             [:version, nil],
-            :options=>[FORCE, BACKUP] do
+            :options=>[FORCE, BACKUP, NOBACKUP] do
         begin
             helper = OneDB.new(options)
             helper.upgrade(args[0], options)

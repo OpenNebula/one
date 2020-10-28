@@ -30,6 +30,7 @@ require 'set'
 require 'nokogiri'
 
 require 'opennebula'
+require 'database_schema'
 
 require 'fsck/pool_control'
 require 'fsck/user'
@@ -52,8 +53,6 @@ require 'fsck/template'
 require 'fsck/quotas'
 
 module OneDBFsck
-    VERSION = "6.0.0"
-    LOCAL_VERSION = "6.0.0"
 
     def db_version
         if defined?(@db_version) && @db_version
@@ -66,12 +65,12 @@ module OneDBFsck
     def check_db_version()
         # db_version = read_db_version()
 
-        if ( db_version[:version] != VERSION ||
-             db_version[:local_version] != LOCAL_VERSION )
+        if ( db_version[:version] != OneDBBacKEnd::LATEST_DB_VERSION ||
+             db_version[:local_version] != OneDBBacKEnd::LATEST_LOCAL_DB_VERSION )
 
             raise <<-EOT
 Version mismatch: fsck file is for version
-Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+Shared: #{OneDBBacKEnd::LATEST_DB_VERSION}, Local: #{OneDBBacKEnd::LATEST_LOCAL_DB_VERSION}
 
 Current database is version
 Shared: #{db_version[:version]}, Local: #{db_version[:local_version]}
@@ -80,7 +79,7 @@ EOT
     end
 
     def one_version
-        "OpenNebula #{VERSION}"
+        "OpenNebula #{OneDBBacKEnd::LATEST_DB_VERSION}"
     end
 
     # def db_version
