@@ -68,12 +68,12 @@ class DSMonitor
     def replica_usage(path)
         rs = 0
         o, _e, s = Open3.capture3("du -sh #{path}")
-        
+
         if s.exitstatus == 0 && !o.empty?
             du_a = o.split
             rs   = du_a.first if du_a
         end
-        
+
         'REPLICA_CACHE = "YES",' <<
         "REPLICA_CACHE_SIZE = #{rs}," <<
         "REPLICA_IMAGES = #{num_images(path)},"

@@ -147,7 +147,7 @@ module OpenNebula::MarketPlaceAppExt
                 rc = ds.info
 
                 is_vcenter = !OpenNebula.is_error?(rc) &&
-                    (ds['TEMPLATE/DRIVER'] == 'vcenter')
+                             (ds['TEMPLATE/DRIVER'] == 'vcenter')
 
                 #---------------------------------------------------------------
                 # Allocate the image in OpenNebula
