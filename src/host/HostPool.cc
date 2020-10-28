@@ -165,20 +165,72 @@ int HostPool::update(PoolObjectSQL * objsql)
 
 int HostPool::dump_monitoring(
         string& oss,
-        const string&  where)
+        const string&  where,
+        const int seconds)
 {
     ostringstream cmd;
 
-    cmd << "SELECT " << one_db::host_monitor_table << ".body FROM "
-        << one_db::host_monitor_table << " INNER JOIN " << one_db::host_table
-        << " ON hid = oid";
-
-    if ( !where.empty() )
+    switch(seconds)
     {
-        cmd << " WHERE " << where;
-    }
+        case 0: //Get last monitor value
+            /*
+            * SELECT host_monitoring.body
+            * FROM host_monitoring
+            *     INNER JOIN (
+            *         SELECT hid, MAX(last_mon_time) as last_mon_time
+            *             FROM host_monitoring
+            *             GROUP BY hid
+            *     ) lmt on lmt.hid = host_monitoring.hid AND lmt.last_mon_time = host_monitoring.last_mon_time
+            *     INNER JOIN host_pool ON host_monitoring.hid = oid
+            * ORDER BY oid;
+            */
+            cmd << "SELECT " << one_db::host_monitor_table << ".body "
+                << "FROM " << one_db::host_monitor_table << " INNER JOIN ("
+                << "SELECT hid, MAX(last_mon_time) as last_mon_time FROM "
+                << one_db::host_monitor_table << " GROUP BY hid) as lmt "
+                << "ON lmt.hid = " << one_db::host_monitor_table << ".hid "
+                << "AND lmt.last_mon_time = " << one_db::host_monitor_table
+                << ".last_mon_time INNER JOIN " << one_db::host_table
+                << " ON " << one_db::host_monitor_table << ".hid = oid";
 
-    cmd << " ORDER BY hid, " << one_db::host_monitor_table << ".last_mon_time;";
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY oid";
+
+            break;
+
+        case -1: //Get all monitoring
+            cmd << "SELECT " << one_db::host_monitor_table << ".body FROM "
+                << one_db::host_monitor_table << " INNER JOIN " << one_db::host_table
+                << " ON hid = oid";
+
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY hid, " << one_db::host_monitor_table << ".last_mon_time;";
+
+            break;
+
+        default: //Get monitor in last s seconds
+            cmd << "SELECT " << one_db::host_monitor_table << ".body FROM "
+                << one_db::host_monitor_table << " INNER JOIN " << one_db::host_table
+                << " ON hid = oid WHERE " << one_db::host_monitor_table
+                << ".last_mon_time > " << time(nullptr) - seconds;
+
+            if ( !where.empty() )
+            {
+                cmd << " AND " << where;
+            }
+
+            cmd << " ORDER BY hid, " << one_db::host_monitor_table << ".last_mon_time;";
+
+            break;
+    }
 
     return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
 }
