@@ -424,6 +424,10 @@ class ServiceLCM
                 recover_scale(client, service)
             elsif Service::STATE['COOLDOWN'] == service.state
                 service.set_state(Service::STATE['RUNNING'])
+
+                service.roles.each do |_, role|
+                    role.set_state(Role::STATE['RUNNING'])
+                end
             else
                 break OpenNebula::Error.new(
                     'Service cannot be recovered in state: ' \
@@ -722,6 +726,8 @@ class ServiceLCM
     end
 
     def done_wd_cb(client, service_id, role_name, node)
+        undeploy = false
+
         rc = @srv_pool.get(service_id, client) do |service|
             role        = service.roles[role_name]
             cardinality = role.cardinality - 1
@@ -733,6 +739,9 @@ class ServiceLCM
 
             role.nodes.delete_if {|n| n['deploy_id'] == node }
 
+            # If the role has 0 nodes, delete role
+            undeploy = service.check_role(role)
+
             service.update
 
             Log.info 'WD',
@@ -742,6 +751,12 @@ class ServiceLCM
         end
 
         Log.error 'WD', rc.message if OpenNebula.is_error?(rc)
+
+        return unless undeploy
+
+        Log.info LOG_COMP, "Deleting automatically service #{service_id}"
+
+        undeploy_action(client, service_id)
     end
 
     def running_wd_cb(client, service_id, role_name, _node)

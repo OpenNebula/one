@@ -590,6 +590,25 @@ module OpenNebula
             state == Service::STATE['RUNNING']
         end
 
+        # Check if role is terminated or not
+        #
+        # @param role [OpenNebula::Role] Role information
+        #
+        # @return [Boolean]
+        #   True if the service should be undeployed
+        #   False otherwise
+        def check_role(role)
+            return unless @body['automatic_deletion']
+
+            return unless role.nodes.empty?
+
+            ret = true
+
+            @body['roles'].each {|r| ret &= r['nodes'].empty? }
+
+            ret
+        end
+
         private
 
         # Maximum number of log entries per service
