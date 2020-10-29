@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenNebula Guacamole Server
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/one/guacd
+Environment=HOME=/var/lib/one
+ExecStart=/usr/share/one/guacd/sbin/guacd -f $OPTS
+StartLimitInterval=60
+StartLimitBurst=3
+Restart=on-failure
+User=oneadmin
+Group=oneadmin
+
+[Install]
+WantedBy=multi-user.target

@@ -2,6 +2,7 @@
 Description=OpenNebula FireEdge Server
 After=syslog.target network.target
 After=opennebula.service
+Wants=opennebula-guacd.service
 #TODO?
 AssertFileNotEmpty=/var/lib/one/.one/sunstone_auth
 
