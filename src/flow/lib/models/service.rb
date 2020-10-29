@@ -91,6 +91,7 @@ module OpenNebula
         # networks_values: it only has sense when deploying, not in running
         # ready_status_gate: it only has sense when deploying, not in running
         # state: this is internal information managed by OneFlow server
+        # start_time: this is internal information managed by OneFlow server
         IMMUTABLE_ATTRS = %w[
             custom_attrs
             custom_attrs_values
@@ -101,6 +102,7 @@ module OpenNebula
             networks_values
             ready_status_gate
             state
+            start_time
         ]
 
         LOG_COMP = 'SER'

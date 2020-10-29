@@ -421,10 +421,12 @@ get '/service_template/:id' do
 end
 
 delete '/service_template/:id' do
+    delete_type      = JSON.parse(request.body.read)['delete_type']
     service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
                                                                @client)
 
-    rc = service_template.delete
+    rc = service_template.delete(delete_type)
+
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))
     end
@@ -435,11 +437,17 @@ end
 put '/service_template/:id' do
     service_template = OpenNebula::ServiceTemplate.new_with_id(params[:id],
                                                                @client)
+    rc = nil
 
     begin
         rc = service_template.update(request.body.read)
     rescue Validator::ParseException, JSON::ParserError => e
         return internal_error(e.message, VALIDATION_EC)
+    end
+
+    if (rc.is_a? Array) && !rc[0]
+        return internal_error("Immutable value: `#{rc[1]}` can not be changed",
+                              one_error_to_http(-1))
     end
 
     if OpenNebula.is_error?(rc)

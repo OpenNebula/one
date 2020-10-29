@@ -76,6 +76,20 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Clone the template recursively (just templates)'
     }
 
+    DELETE_TEMPLATES = {
+        :name => 'delete_templates',
+        :large => '--delete-vm-templates',
+        :description => 'Delete associated VM templates when deleting ' \
+                        'service template'
+    }
+
+    DELETE_IMAGES = {
+        :name => 'delete_images',
+        :large => '--delete-images',
+        :description => 'Delete associated VM templates and images when ' \
+                        'deleting service template'
+    }
+
     usage '`oneflow-template` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
@@ -177,11 +191,28 @@ CommandParser::CmdParser.new(ARGV) do
         Delete a given Service Template
     EOT
 
-    command :delete, delete_desc, [:range, :templateid_list] do
+    command :delete,
+            delete_desc,
+            [:range, :templateid_list],
+            :options => [DELETE_TEMPLATES, DELETE_IMAGES] do
         client = helper.client(options)
 
+        # :templates => delete just VM templates
+        # :all       => delete VM templates and images
+        # :none      => do not delete anything
+        if options.key?(:delete_templates)
+            delete = 'templates'
+        elsif options.key?(:delete_images)
+            delete = 'all'
+        else
+            delete = 'none'
+        end
+
+        body                = {}
+        body['delete_type'] = delete
+
         Service.perform_actions(args[0]) do |template_id|
-            client.delete("#{RESOURCE_PATH}/#{template_id}")
+            client.delete("#{RESOURCE_PATH}/#{template_id}", body.to_json)
         end
     end
 
