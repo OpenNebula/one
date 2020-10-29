@@ -40,7 +40,7 @@ public:
                  int                       _monitor_vm_disk):
             DriverManager(_mads_location),
             timer_thread(_timer_period, [this](){timer_action();}),
-            timer_period(_monitor_period),
+            timer_period(_timer_period),
             monitor_period(_monitor_period),
             monitor_vm_disk(_monitor_vm_disk),
             ipool(_ipool),
