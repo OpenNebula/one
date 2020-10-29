@@ -22,7 +22,10 @@ define(function(require) {
   };
 
   function _getExtraInfo(context) {
-    var custom_attrs_json = WizardFields.retrieve($(".custom_attr_class", context));
+    var custom_attrs_json = WizardFields.retrieve(
+      $("#instantiate_service_user_inputs .custom_attr_class", context)
+    );
+
     var networks_json = WizardFields.retrieve($(".network_attrs_class", context));
     var typePrefix = "type_";
     
