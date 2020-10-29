@@ -220,6 +220,13 @@ module OpenNebula
             }
         }
 
+        # List of attributes that can't be changed in update operation
+        #
+        # registration_time: this is internal info managed by OneFlow server
+        IMMUTABLE_ATTRS = %w[
+            registration_time
+        ]
+
         def self.init_default_vn_name_template(vn_name_template)
             # rubocop:disable Style/ClassVars
             @@vn_name_template = vn_name_template
@@ -238,6 +245,42 @@ module OpenNebula
             super(template.to_json, template['name'])
         end
 
+        # Delete service template
+        #
+        # @param type [String] Delete type
+        #   - none: just the service template
+        #   - all: delete VM templates, images and service template
+        #   - templates: delete VM templates and service template
+        def delete(type = nil)
+            case type
+            when 'all'
+                recursive = true
+            when 'templates'
+                recursive = false
+            end
+
+            if type != 'none'
+                rc = vm_template_ids
+
+                return rc if OpenNebula.is_error?(rc)
+
+                rc = rc.each do |t_id|
+                    t  = OpenNebula::Template.new_with_id(t_id, @client)
+                    rc = t.info
+
+                    break rc if OpenNebula.is_error?(rc)
+
+                    rc = t.delete(recursive)
+
+                    break rc if OpenNebula.is_error?(rc)
+                end
+            end
+
+            return rc if OpenNebula.is_error?(rc)
+
+            super()
+        end
+
         # Retrieves the template
         #
         # @return [String] json template
@@ -254,15 +297,19 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def update(template_json, append = false)
+            rc = info
+
+            return rc if OpenNebula.is_error?(rc)
+
             template = JSON.parse(template_json)
 
-            if append
-                rc = info
+            IMMUTABLE_ATTRS.each do |attr|
+                next if template[attr] == @body[attr]
 
-                return rc if OpenNebula.is_error?(rc)
-
-                template = @body.merge(template)
+                return [false, "service_template/#{attr}"]
             end
+
+            template = @body.merge(template) if append
 
             ServiceTemplate.validate(template)
 
@@ -496,6 +543,26 @@ module OpenNebula
                     end
                 end
             end
+        end
+
+        private
+
+        # Retreives all associated VM templates IDs
+        #
+        # @return [Array] VM templates IDs
+        def vm_template_ids
+            rc = info
+
+            return rc if OpenNebula.is_error?(rc)
+
+            ret = []
+
+            @body['roles'].each do |role|
+                t_id = Integer(role['vm_template'])
+                ret << t_id unless ret.include?(t_id)
+            end
+
+            ret
         end
 
     end

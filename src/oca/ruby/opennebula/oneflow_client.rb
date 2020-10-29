@@ -386,8 +386,9 @@ module Service
             do_request(req)
         end
 
-        def delete(path)
-            req =Net::HTTP::Proxy(@host, @port)::Delete.new(path)
+        def delete(path, body = nil)
+            req = Net::HTTP::Proxy(@host, @port)::Delete.new(path)
+            req.body = body if body
 
             do_request(req)
         end
