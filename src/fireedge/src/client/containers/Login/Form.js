@@ -17,8 +17,6 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
   const defaultValues = resolver.default()
   const classes = loginStyles()
 
-  console.log(defaultValues)
-
   const { handleSubmit, setError, ...methods } = useForm({
     reValidateMode: 'onSubmit',
     defaultValues,

@@ -9,7 +9,7 @@ const mapNetworkToUserInput = network => {
   const mandatoryValue = mandatory ? 'M' : 'O'
   const descriptionValue = description ?? ''
   const idVnetValue = idVnet ?? ''
-  const extraValue = `:${extra}` ?? ''
+  const extraValue = `:${extra ?? ''}`
 
   return `${mandatoryValue}|network|${descriptionValue}| |${type}:${idVnetValue}${extraValue}`
 }
@@ -28,7 +28,7 @@ const mapTiersToRoles = (tiers, networking, cluster) =>
         return [...res, networkString]
       }, [])
       ?.join('')
-      ?.concat(`SCHED_REQUIREMENTS = "ClUSTER_ID="${cluster}""`)
+      ?.concat(`SCHED_REQUIREMENTS = "ClUSTER_ID=\\"${cluster}\\""`)
 
     const parentsValue = parents?.reduce((res, id) => {
       const parent = tiers.find(t => t.id === id)
