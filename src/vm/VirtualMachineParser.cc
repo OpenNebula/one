@@ -408,10 +408,11 @@ int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
     }
 
     string random_passwd = graphics->vector_value("RANDOM_PASSWD");
+    string password = graphics->vector_value("PASSWD");
 
-    if ( !random_passwd.empty() )
+    if ( !random_passwd.empty() && password.empty() )
     {
-        string password = one_util::random_password();
+        password = one_util::random_password();
 
         if ( graphics->vector_value("TYPE") == "SPICE" )
         {
