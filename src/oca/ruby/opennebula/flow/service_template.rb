@@ -204,6 +204,10 @@ module OpenNebula
                     :type => :boolean,
                     :required => false
                 },
+                'automatic_deletion' => {
+                    :type => :boolean,
+                    :required => false
+                },
                 'networks' => {
                     :type => :object,
                     :properties => {},
