@@ -15,6 +15,14 @@ const SHUTDOWN_ACTIONS = [
 
 export const FORM_FIELDS = [
   {
+    name: 'registration_time',
+    type: INPUT_TYPES.TEXT,
+    htmlType: INPUT_TYPES.HIDDEN,
+    validation: yup
+      .number()
+      .default(undefined)
+  },
+  {
     name: 'name',
     label: 'Name',
     type: INPUT_TYPES.TEXT,
@@ -63,6 +71,12 @@ export const FORM_FIELDS = [
     label: 'Wait for Tier Full Boot',
     tooltip:
       'Wait for VM/containers to finish their boot process to report that they are READY and allow children tiers to spawn',
+    type: INPUT_TYPES.CHECKBOX,
+    validation: yup.boolean().default(false)
+  },
+  {
+    name: 'automatic_deletion',
+    label: 'Automatic delete service if all tiers are terminated',
     type: INPUT_TYPES.CHECKBOX,
     validation: yup.boolean().default(false)
   }

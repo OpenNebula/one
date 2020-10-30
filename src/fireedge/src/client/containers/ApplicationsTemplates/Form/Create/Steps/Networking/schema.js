@@ -27,7 +27,7 @@ const ID = {
   name: 'id',
   label: 'ID',
   type: INPUT_TYPES.TEXT,
-  htmlType: 'hidden',
+  htmlType: INPUT_TYPES.HIDDEN,
   validation: yup
     .string()
     .uuid()
