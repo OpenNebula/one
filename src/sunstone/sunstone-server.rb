@@ -143,6 +143,10 @@ rescue Exception => e
     exit 1
 end
 
+if $conf[:one_xmlrpc]
+    ENV['ONE_XMLRPC'] = $conf[:one_xmlrpc].to_s unless ENV['ONE_XMLRPC']
+end
+
 if $conf[:one_xmlrpc_timeout]
     ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
 end
