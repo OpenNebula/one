@@ -465,7 +465,7 @@ module VirtualMachineMonitor
         info_disks.each do |disk|
             next if disk[1].no_exists?
 
-            str_info << "DISK_#{disk[0]}_ACTUAL_PATH=\"[" <<
+            str_info << "DISK_#{disk[0].gsub(' ', '_')}_ACTUAL_PATH=\"[" <<
                 disk[1].ds.name << '] ' << disk[1].path << '" ' << "\n"
         end
 
