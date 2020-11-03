@@ -27,7 +27,7 @@ using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-int HostXML::host_num_paths =  6;
+int HostXML::host_num_paths = 7;
 
 const char *HostXML::host_paths[] = {
     "/HOST/TEMPLATE/",
