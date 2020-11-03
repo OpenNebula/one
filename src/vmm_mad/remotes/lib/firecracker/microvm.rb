@@ -84,8 +84,8 @@ class MicroVM
         path_log = "#{vm_location}/#{@fc['deployment-file']['logger']['log_fifo']}"
         path_metrics = "#{vm_location}/#{@fc['deployment-file']['logger']['metrics_fifo']}"
 
-        File.open(path_log, 'w') {}
-        File.open(path_metrics, 'w') {}
+        File.open(path_log, 'w')
+        File.open(path_metrics, 'w')
     end
 
     def vm_location

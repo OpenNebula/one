@@ -104,6 +104,7 @@ module NUMA
 
         mem_vars = %w[MemTotal MemFree MemUsed]
 
+        # rubocop:disable Style/DocumentDynamicEvalDefinition
         mem_vars.each {|var| bind.eval("#{var.downcase.to_sym} = 0") }
 
         File.readlines(meminfo_path).each do |line|
@@ -114,6 +115,7 @@ module NUMA
                 break if md
             end
         end
+        # rubocop:enable Style/DocumentDynamicEvalDefinition
 
         nodes[node_id]['memory'] = {
             'total' => bind.eval(:memtotal.to_s),

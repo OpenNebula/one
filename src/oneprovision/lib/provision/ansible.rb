@@ -208,7 +208,8 @@ module OneProvision
                     host = 'UNKNOWN'
                     text = ''
 
-                    if line =~ /^fatal: \[([^\]]+)\]: .* => ({.*})$/i
+                    case line
+                    when /^fatal: \[([^\]]+)\]: .* => ({.*})$/i
                         host = Regexp.last_match(1)
 
                         begin
@@ -222,7 +223,8 @@ module OneProvision
                         rescue StandardError => e
                             raise e
                         end
-                    elsif line =~ /^fatal: \[([^\]]+)\]: .* =>/i
+
+                    when /^fatal: \[([^\]]+)\]: .* =>/i
                         host = Regexp.last_match(1)
                     end
 
