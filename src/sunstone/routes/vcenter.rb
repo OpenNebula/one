@@ -62,7 +62,7 @@ helpers do
 
         if vpass.size > MAX_VCENTER_PASSWORD_LENGTH
             begin
-                client = OpenNebula::Client.new
+                client = OpenNebula::Client.new(token, $conf[:one_xmlrpc])
                 system = OpenNebula::System.new(client)
                 config = system.get_configuration
                 token = config["ONE_KEY"]
