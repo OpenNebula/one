@@ -39,8 +39,10 @@ $LOAD_PATH << RUBY_LIB_LOCATION
 require 'vcenter_driver'
 require 'nsx_driver'
 
+# rubocop:disable Lint/EmptyBlock
 helpers do
 end
+# rubocop:enable Lint/EmptyBlock
 
 # Return token if auth was successfully
 post '/nsx/auth' do

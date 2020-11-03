@@ -109,7 +109,9 @@ class FirecrackerClient
 
             break if response.class == Net::HTTPNoContent
 
+            # rubocop:disable Lint/EmptyBlock
             response.reading_body(@socket, request.response_body_permitted?) {}
+            # rubocop:enable Lint/EmptyBlock
 
             next if response.body.nil?
 

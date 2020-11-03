@@ -83,7 +83,7 @@ class DSMonitor
         sizes = path_usage("#{@ds_location}/#{ds_id}")
 
         usage = "DS = [ ID = #{ds_id},"
-        usage += replica_usage("#{@ds_location}/#{ds_id}") if tm == "replica"
+        usage += replica_usage("#{@ds_location}/#{ds_id}") if tm == 'replica'
         usage << <<-EOS
                    USED_MB  = #{sizes[0]},
                    TOTAL_MB = #{sizes[1]},
@@ -108,9 +108,11 @@ class DSMonitor
     def num_images(path)
         o, _e, s = Open3.capture3(
             "find #{path} -maxdepth 1 -mindepth 1 -type f " <<
-            "-regex '.*/[-a-f0-9]*' | wc -l 2>/dev/null")
+            "-regex '.*/[-a-f0-9]*' | wc -l 2>/dev/null"
+        )
 
-        return "unknown" if s.exitstatus != 0 || o.empty?
+        return 'unknown' if s.exitstatus != 0 || o.empty?
+
         o.strip
     end
 
