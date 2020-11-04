@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { Card, CardActionArea, Fade, makeStyles } from '@material-ui/core'
+import { Card, CardActionArea, CardContent, CardHeader, Fade, makeStyles } from '@material-ui/core'
 import { Skeleton } from '@material-ui/lab'
 
 import useNearScreen from 'client/hooks/useNearScreen'
@@ -13,17 +13,24 @@ const useStyles = makeStyles(theme => ({
   },
   selected: {
     color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: theme.palette.primary.main,
+    '& .badge': {
+      color: theme.palette.primary.main,
+      backgroundColor: theme.palette.common.white
+    }
   },
   actionArea: {
     height: '100%',
     minHeight: 140,
     padding: theme.spacing(1)
+  },
+  headerContent: {
+    overflowX: 'hidden'
   }
 }))
 
 const SelectCard = memo(
-  ({ title, isSelected, handleClick }) => {
+  ({ title, icon, isSelected, handleClick, children }) => {
     const classes = useStyles()
     const { isNearScreen, fromRef } = useNearScreen({
       distance: '100px'
@@ -35,7 +42,17 @@ const SelectCard = memo(
           <Fade in={isNearScreen}>
             <Card className={clsx(classes.root, { [classes.selected]: isSelected })}>
               <CardActionArea className={classes.actionArea} onClick={handleClick}>
-                <span>{title}</span>
+                <CardHeader
+                  avatar={icon}
+                  classes={{ content: classes.headerContent }}
+                  title={title}
+                  titleTypographyProps={{
+                    variant: 'body2',
+                    noWrap: true,
+                    title: title
+                  }}
+                />
+                {children && <CardContent>{children}</CardContent>}
               </CardActionArea>
             </Card>
           </Fade>
@@ -44,17 +61,23 @@ const SelectCard = memo(
         )}
       </div>
     )
-  }
+  },
+  (prev, next) => prev.isSelected === next.isSelected
 )
 
 SelectCard.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object
+  ]),
+  icon: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func
 }
 
 SelectCard.defaultProps = {
   title: undefined,
+  icon: undefined,
   isSelected: false,
   handleClick: () => undefined
 }

@@ -6,15 +6,15 @@ export default {
       default: '#fafafa'
     },
     primary: {
-      light: 'rgba(220, 185, 161, 1)',
-      main: 'rgba(174, 143, 122, 1)',
-      dark: 'rgba(164, 132, 112, 1)',
+      light: 'rgba(254, 250, 224, 1)',
+      main: 'rgba(221, 161, 94, 1)',
+      dark: 'rgba(188, 108, 37, 1)',
       contrastText: '#fff'
     },
     secondary: {
-      light: 'rgba(199, 201, 200, 1)',
-      main: 'rgba(87, 92, 91, 1)',
-      dark: 'rgba(53, 55, 53, 1)',
+      light: 'rgba(195, 216, 156, 1)',
+      main: 'rgba(96, 108, 56, 1)',
+      dark: 'rgba(40, 54, 24, 1)',
       contrastText: '#fff'
     },
     error: {

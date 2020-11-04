@@ -26,13 +26,11 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
     !isUpLg && fixMenu(false)
   }
 
-  const isCurrentPathname = pathname === path
-
   return (
     <ListItem
       button
       onClick={handleClick}
-      selected={isCurrentPathname}
+      selected={pathname === path}
       className={clsx({ [classes.subItem]: isSubItem })}
       classes={{ selected: classes.itemSelected }}
     >
@@ -70,5 +68,7 @@ SidebarLink.defaultProps = {
   devMode: false,
   isSubItem: false
 }
+
+SidebarLink.displayName = 'SidebarLink'
 
 export default SidebarLink

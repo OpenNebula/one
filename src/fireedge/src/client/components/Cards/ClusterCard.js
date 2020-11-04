@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
@@ -18,47 +18,17 @@ import AccountTreeIcon from '@material-ui/icons/AccountTree'
 import FolderOpenIcon from '@material-ui/icons/FolderOpen'
 
 import { Tr } from 'client/components/HOC'
+import SelectCard from './SelectCard'
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    height: '100%',
-    minHeight: 140,
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  selected: {
-    color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.main,
-    '& $badge': {
-      color: theme.palette.primary.main,
-      backgroundColor: theme.palette.common.white
-    }
-  },
-  actionArea: {
-    height: '100%'
-  },
-  header: {
-    overflowX: 'hidden',
-    flexGrow: 1
-  },
-  subheader: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'initial',
-    display: '-webkit-box',
-    lineClamp: 2,
-    boxOrient: 'vertical'
-  },
   badgesWrapper: {
     display: 'flex',
     gap: theme.typography.pxToRem(12)
-  },
-  badge: {},
-  icon: {}
+  }
 }))
 
-const ClusterCard = React.memo(
-  ({ value, isSelected, handleSelect, handleUnselect }) => {
+const ClusterCard = memo(
+  ({ value, isSelected, handleClick }) => {
     const classes = useStyles()
     const { NAME, HOSTS, VNETS, DATASTORES } = value
 
@@ -69,64 +39,48 @@ const ClusterCard = React.memo(
     const badgePosition = { vertical: 'top', horizontal: 'right' }
 
     return (
-      <Fade in unmountOnExit={false}>
-        <Card
-          className={clsx(classes.root, { [classes.selected]: isSelected })}
-        >
-          <CardActionArea
-            className={classes.actionArea}
-            onClick={() => (isSelected ? handleUnselect() : handleSelect())}
+      <SelectCard
+        title={NAME}
+        icon={<StorageIcon />}
+        isSelected={isSelected}
+        handleClick={handleClick}
+      >
+        <Box className={classes.badgesWrapper}>
+          <Badge
+            showZero
+            title={Tr('Hosts')}
+            classes={{ badge: 'badge' }}
+            color="primary"
+            badgeContent={hosts.length}
+            anchorOrigin={badgePosition}
           >
-            <CardHeader
-              avatar={<StorageIcon />}
-              className={classes.header}
-              classes={{ content: classes.headerContent }}
-              title={NAME}
-              titleTypographyProps={{
-                variant: 'body2',
-                noWrap: true,
-                title: NAME
-              }}
-            />
-            <CardContent>
-              <Box className={classes.badgesWrapper}>
-                <Badge
-                  showZero
-                  title={Tr('Hosts')}
-                  classes={{ badge: classes.badge }}
-                  color="primary"
-                  badgeContent={hosts.length}
-                  anchorOrigin={badgePosition}
-                >
-                  <VideogameAssetIcon />
-                </Badge>
-                <Badge
-                  showZero
-                  title={Tr('Virtual networks')}
-                  classes={{ badge: classes.badge }}
-                  color="primary"
-                  badgeContent={vnets.length}
-                  anchorOrigin={badgePosition}
-                >
-                  <AccountTreeIcon />
-                </Badge>
-                <Badge
-                  showZero
-                  title={Tr('Datastores')}
-                  classes={{ badge: classes.badge }}
-                  color="primary"
-                  badgeContent={datastores.length}
-                  anchorOrigin={badgePosition}
-                >
-                  <FolderOpenIcon />
-                </Badge>
-              </Box>
-            </CardContent>
-          </CardActionArea>
-        </Card>
-      </Fade>
+            <VideogameAssetIcon />
+          </Badge>
+          <Badge
+            showZero
+            title={Tr('Virtual networks')}
+            classes={{ badge: 'badge' }}
+            color="primary"
+            badgeContent={vnets.length}
+            anchorOrigin={badgePosition}
+          >
+            <AccountTreeIcon />
+          </Badge>
+          <Badge
+            showZero
+            title={Tr('Datastores')}
+            classes={{ badge: 'badge' }}
+            color="primary"
+            badgeContent={datastores.length}
+            anchorOrigin={badgePosition}
+          >
+            <FolderOpenIcon />
+          </Badge>
+        </Box>
+      </SelectCard>
     )
-  }
+  },
+  (prev, next) => prev.isSelected === next.isSelected
 )
 
 ClusterCard.propTypes = {
@@ -147,15 +101,13 @@ ClusterCard.propTypes = {
     ])
   }),
   isSelected: PropTypes.bool,
-  handleSelect: PropTypes.func,
-  handleUnselect: PropTypes.func
+  handleClick: PropTypes.func
 }
 
 ClusterCard.defaultProps = {
   value: {},
   isSelected: false,
-  handleSelect: undefined,
-  handleUnselect: undefined
+  handleClick: undefined
 }
 
 ClusterCard.displayName = 'ClusterCard'

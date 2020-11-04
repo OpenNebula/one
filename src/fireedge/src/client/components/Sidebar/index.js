@@ -13,7 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useMemo } from 'react'
+import React, { useMemo, memo } from 'react'
+import PropTypes from 'prop-types'
+
 import clsx from 'clsx'
 import {
   List,
@@ -32,7 +34,7 @@ import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
 import Logo from 'client/icons/logo'
 
-const Sidebar = ({ endpoints }) => {
+const Sidebar = memo(({ endpoints }) => {
   const classes = sidebarStyles()
   const { isFixMenu, fixMenu } = useGeneral()
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
@@ -50,47 +52,54 @@ const Sidebar = ({ endpoints }) => {
             <SidebarLink key={`item-${index}`} {...endpoint} />
           )
         ),
-    [endpoints]
+    []
   )
 
-  return useMemo(
-    () => (
-      <Drawer
-        variant={'permanent'}
-        className={clsx({ [classes.drawerFixed]: isFixMenu })}
-        classes={{
-          paper: clsx(classes.drawerPaper, {
-            [classes.drawerFixed]: isFixMenu
-          })
-        }}
-        anchor="left"
-        open={isFixMenu}
-      >
-        <Box className={classes.header}>
-          <Logo
-            width="100%"
-            height={100}
-            withText
-            viewBox="0 0 640 640"
-            className={classes.svg}
-          />
-          <IconButton
-            color={isFixMenu ? 'primary' : 'default'}
-            onClick={handleSwapMenu}
-          >
-            {isUpLg ? <MenuIcon /> : <CloseIcon />}
-          </IconButton>
-        </Box>
-        <Divider />
-        <Box className={classes.menu}>
-          <List className={classes.list} disablePadding>
-            {SidebarEndpoints}
-          </List>
-        </Box>
-      </Drawer>
-    ),
-    [isFixMenu, fixMenu, isUpLg]
+  return (
+    <Drawer
+      variant={'permanent'}
+      className={clsx({ [classes.drawerFixed]: isFixMenu })}
+      classes={{
+        paper: clsx(classes.drawerPaper, {
+          [classes.drawerFixed]: isFixMenu
+        })
+      }}
+      anchor="left"
+      open={isFixMenu}
+    >
+      <Box className={classes.header}>
+        <Logo
+          width="100%"
+          height={100}
+          withText
+          viewBox="0 0 640 640"
+          className={classes.svg}
+        />
+        <IconButton
+          color={isFixMenu ? 'primary' : 'default'}
+          onClick={handleSwapMenu}
+        >
+          {isUpLg ? <MenuIcon /> : <CloseIcon />}
+        </IconButton>
+      </Box>
+      <Divider />
+      <Box className={classes.menu}>
+        <List className={classes.list} disablePadding>
+          {SidebarEndpoints}
+        </List>
+      </Box>
+    </Drawer>
   )
+})
+
+Sidebar.propTypes = {
+  endpoints: PropTypes.array
 }
+
+Sidebar.defaultProps = {
+  endpoints: []
+}
+
+Sidebar.displayName = 'Sidebar'
 
 export default Sidebar

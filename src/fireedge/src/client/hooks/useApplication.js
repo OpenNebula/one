@@ -102,6 +102,27 @@ export default function useOpennebula () {
     [dispatch]
   )
 
+  const instantiateApplicationTemplate = useCallback(
+    ({ id, data }) =>
+      serviceApplication
+        .instantiateTemplate({ id, data })
+        .then(doc => {
+          dispatch(
+            setApplicationsTemplates(
+              filterBy([doc].concat(applicationsTemplates), 'ID')
+            )
+          )
+
+          return dispatch(enqueueSuccess(`Template instantiate - ID: ${doc.ID}`))
+        })
+        .catch(err => {
+          dispatch(
+            enqueueError(err?.message ?? 'Error INSTANTIATE application template')
+          )
+        }),
+    [dispatch]
+  )
+
   return {
     applications,
     getApplication,
@@ -111,6 +132,7 @@ export default function useOpennebula () {
     getApplicationTemplate,
     getApplicationsTemplates,
     createApplicationTemplate,
-    updateApplicationTemplate
+    updateApplicationTemplate,
+    instantiateApplicationTemplate
   }
 }

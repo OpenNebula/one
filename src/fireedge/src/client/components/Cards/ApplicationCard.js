@@ -45,8 +45,10 @@ const useStyles = makeStyles(theme => ({
 const ApplicationCard = memo(
   ({ value, handleShow, handleRemove }) => {
     const classes = useStyles()
-    const { NAME, TEMPLATE } = value
+    const { ID, NAME, TEMPLATE } = value
     const { description, state } = TEMPLATE.BODY
+
+    const stateInfo = APPLICATION_STATES[state]
 
     return (
       <Fade in unmountOnExit={false}>
@@ -55,7 +57,7 @@ const ApplicationCard = memo(
             avatar={<FileIcon />}
             className={classes.header}
             classes={{ content: classes.headerContent }}
-            title={NAME}
+            title={`${ID} - ${NAME}`}
             titleTypographyProps={{
               variant: 'body2',
               noWrap: true,
@@ -71,7 +73,11 @@ const ApplicationCard = memo(
           />
           <CardContent>
             <Box className={classes.content}>
-              <Chip size="small" label={APPLICATION_STATES[state + 1]?.name} />
+              <Chip
+                size="small"
+                label={stateInfo?.name}
+                style={{ backgroundColor: stateInfo?.color }}
+              />
             </Box>
           </CardContent>
           <CardActions>

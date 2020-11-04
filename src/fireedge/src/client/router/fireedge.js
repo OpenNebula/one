@@ -3,7 +3,6 @@ import {
   FormatListBulleted as TemplatesIcons,
   Apps as InstancesIcons
 } from '@material-ui/icons'
-import { matchPath } from 'react-router-dom'
 
 import Login from 'client/containers/Login'
 import Dashboard from 'client/containers/Dashboard'

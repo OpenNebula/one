@@ -27,6 +27,10 @@ const BY = {
 
 const ONEADMIN_ID = '0'
 
+const REQUEST_ACTIONS = {
+  INSTANTIATE: 'instantiate'
+}
+
 const FILTER_POOL = {
   PRIMARY_GROUP_RESOURCES: '-4',
   USER_RESOURCES: '-3',
@@ -49,5 +53,6 @@ export {
   APPS,
   ONEADMIN_ID,
   FILTER_POOL,
-  INPUT_TYPES
+  INPUT_TYPES,
+  REQUEST_ACTIONS
 }

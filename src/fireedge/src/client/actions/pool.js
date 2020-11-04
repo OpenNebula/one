@@ -94,6 +94,14 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { acl }
   }),
+  setProvidersTemplates: providersTemplates => ({
+    type: SUCCESS_ONE_REQUEST,
+    payload: { providersTemplates }
+  }),
+  setProviders: providers => ({
+    type: SUCCESS_ONE_REQUEST,
+    payload: { providers }
+  }),
   startOneRequest: () => ({
     type: START_ONE_REQUEST
   }),

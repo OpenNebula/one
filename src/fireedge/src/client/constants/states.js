@@ -1,74 +1,74 @@
-const PENDING = 'PENDING'
-const DEPLOYING = 'DEPLOYING'
-const RUNNING = 'RUNNING'
-const WARNING = 'WARNING'
-const SCALING = 'SCALING'
-const COOLDOWN = 'COOLDOWN'
-const UNDEPLOYING = 'UNDEPLOYING'
-const DONE = 'DONE'
-const FAILED_DEPLOYING = 'FAILED_DEPLOYING'
-const FAILED_UNDEPLOYING = 'FAILED_UNDEPLOYING'
-const FAILED_SCALING = 'FAILED_SCALING'
+export const PENDING = 'PENDING'
+export const DEPLOYING = 'DEPLOYING'
+export const RUNNING = 'RUNNING'
+export const UNDEPLOYING = 'UNDEPLOYING'
+export const WARNING = 'WARNING'
+export const DONE = 'DONE'
+export const FAILED_UNDEPLOYING = 'FAILED_UNDEPLOYING'
+export const FAILED_DEPLOYING = 'FAILED_DEPLOYING'
+export const SCALING = 'SCALING'
+export const FAILED_SCALING = 'FAILED_SCALING'
+export const COOLDOWN = 'COOLDOWN'
 
 export const APPLICATION_STATES = [
   {
     name: PENDING,
-    color: '',
+    color: '#4DBBD3',
     meaning: `
       The Application starts in this state, and will stay in
       it until the LCM decides to deploy it`
   },
   {
     name: DEPLOYING,
-    color: '',
+    color: '#4DBBD3',
     meaning: 'Some Tiers are being deployed'
   },
   {
     name: RUNNING,
-    color: '',
+    color: '#3adb76',
     meaning: 'All Tiers are deployed successfully'
   },
   {
-    name: WARNING,
-    color: '',
-    meaning: 'A VM was found in a failure state'
-  },
-  {
-    name: SCALING,
-    color: '',
-    meaning: 'A Tier is scaling up or down'
-  },
-  {
-    name: COOLDOWN,
-    color: '',
-    meaning: 'A Tier is in the cooldown period after a scaling operation'
-  },
-  {
     name: UNDEPLOYING,
-    color: '',
+    color: '#ffa07a',
     meaning: 'Some Tiers are being undeployed'
   },
   {
+    name: WARNING,
+    color: '#ffa07a',
+    meaning: 'A VM was found in a failure state'
+  },
+  {
     name: DONE,
-    color: '',
+    color: '#ec5840',
     meaning: `
       The Applications will stay in this state after
       a successful undeployment. It can be deleted`
   },
   {
-    name: FAILED_DEPLOYING,
-    color: '',
-    meaning: 'An error occurred while deploying the Application'
-  },
-  {
     name: FAILED_UNDEPLOYING,
-    color: '',
+    color: '#ec5840',
     meaning: 'An error occurred while undeploying the Application'
   },
   {
+    name: FAILED_DEPLOYING,
+    color: '#ec5840',
+    meaning: 'An error occurred while deploying the Application'
+  },
+  {
+    name: SCALING,
+    color: '#ffa07a',
+    meaning: 'A Tier is scaling up or down'
+  },
+  {
     name: FAILED_SCALING,
-    color: '',
+    color: '#ec5840',
     meaning: 'An error occurred while scaling the Application'
+  },
+  {
+    name: COOLDOWN,
+    color: '#ffa07a',
+    meaning: 'A Tier is in the cooldown period after a scaling operation'
   }
 ]
 
@@ -96,12 +96,12 @@ export const TIER_STATES = [
     meaning: 'A VM was found in a failure state'
   },
   {
-    name: 'SCALING',
+    name: SCALING,
     color: '',
     meaning: 'The Tier is waiting for VMs to be deployed or to be shutdown'
   },
   {
-    name: 'COOLDOWN',
+    name: COOLDOWN,
     color: '',
     meaning: 'The Tier is in the cooldown period after a scaling operation'
   },
@@ -123,7 +123,7 @@ export const TIER_STATES = [
     meaning: 'An error occurred while deploying the VMs'
   },
   {
-    name: 'FAILED UNDEPLOYING',
+    name: FAILED_UNDEPLOYING,
     color: '',
     meaning: 'An error occurred while undeploying the VMs'
   },
