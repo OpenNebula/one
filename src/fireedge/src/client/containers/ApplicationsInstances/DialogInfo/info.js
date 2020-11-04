@@ -20,6 +20,8 @@ const InfoTab = React.memo(({ info }) => {
     shutdown_action: shutdown
   } = TEMPLATE?.BODY
 
+  const stateInfo = APPLICATION_STATES[state]
+
   const isChecked = checked =>
     checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
 
@@ -52,7 +54,8 @@ const InfoTab = React.memo(({ info }) => {
               <Typography>{Tr('State')}</Typography>
               <Chip
                 size="small"
-                label={APPLICATION_STATES[state + 1]?.name}
+                label={stateInfo?.name}
+                style={{ backgroundColor: stateInfo?.color }}
               />
             </ListItem>
             <ListItem>

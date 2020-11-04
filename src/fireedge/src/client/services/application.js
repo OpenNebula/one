@@ -1,11 +1,13 @@
+import httpCodes from 'server/utils/constants/http-codes'
 import { httpMethod } from 'server/utils/constants/defaults'
 import {
   SERVICE,
-  SERVICE_TEMPLATE
+  SERVICE_TEMPLATE,
+  SERVICE_TEMPLATE_ACTION
 } from 'server/routes/api/oneflow/string-routes'
 
 import { requestData } from 'client/utils'
-import httpCodes from 'server/utils/constants/http-codes'
+import { REQUEST_ACTIONS } from 'client/constants'
 
 export const getApplication = ({ id }) =>
   requestData(`/api/${SERVICE}/${id}`, {
@@ -75,6 +77,22 @@ export const updateTemplate = ({ id, data = {} }) =>
     return res?.data?.DOCUMENT ?? {}
   })
 
+export const instantiateTemplate = ({ id, data = {} }) =>
+  requestData(`/api/${SERVICE_TEMPLATE_ACTION}/${id}`, {
+    data: {
+      action: {
+        perform: REQUEST_ACTIONS.INSTANTIATE,
+        params: { merge_template: data }
+      }
+    },
+    method: httpMethod.POST
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    if (!res?.data?.DOCUMENT?.ID) throw new Error('Error')
+
+    return res?.data?.DOCUMENT ?? {}
+  })
+
 export default {
   getApplication,
   getApplications,
@@ -83,5 +101,6 @@ export default {
   getTemplate,
   getTemplates,
   createTemplate,
-  updateTemplate
+  updateTemplate,
+  instantiateTemplate
 }

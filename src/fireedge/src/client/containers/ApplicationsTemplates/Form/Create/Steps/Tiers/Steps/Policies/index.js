@@ -52,7 +52,7 @@ const Policies = () => ({
       })
 
       const { watch } = useFormContext()
-      const policies = watch('policies')
+      const policies = watch(STEP_ID)
 
       useEffect(() => () => {
         handleSetList(policies)

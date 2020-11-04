@@ -37,7 +37,10 @@ const initial = {
   users: [],
   groups: [],
   vdc: [],
-  acl: []
+  acl: [],
+  providersTemplates: [],
+  providers: [],
+  provisions: []
 }
 
 const Opennebula = (state = initial, action) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { Box, LinearProgress } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
@@ -8,9 +8,10 @@ import useFetch from 'client/hooks/useFetch'
 
 import ListCards from 'client/components/List/ListCards'
 import DialogInfo from 'client/containers/ApplicationsInstances/DialogInfo'
-
 import { ApplicationCard, EmptyCard } from 'client/components/Cards'
 import { Tr } from 'client/components/HOC'
+
+import { DONE, APPLICATION_STATES } from 'client/constants/states'
 
 function ApplicationsInstances () {
   const { applications, getApplications } = useApplication()
@@ -20,6 +21,14 @@ function ApplicationsInstances () {
   useEffect(() => {
     fetchRequest()
   }, [])
+
+  const list = useMemo(() => (
+    applications.length > 0
+      ? applications?.filter(({ TEMPLATE: { BODY: { state } } }) =>
+        APPLICATION_STATES[state]?.name !== DONE
+      )
+      : applications
+  ), [applications])
 
   if (error) {
     return (
@@ -38,7 +47,7 @@ function ApplicationsInstances () {
   return (
     <Box p={3}>
       <ListCards
-        list={applications}
+        list={list}
         EmptyComponent={<EmptyCard name={'applications instances'} />}
         CardComponent={ApplicationCard}
         cardsProps={({ value }) => ({

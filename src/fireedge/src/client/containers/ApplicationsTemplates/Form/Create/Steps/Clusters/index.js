@@ -30,11 +30,12 @@ const Clusters = () => ({
         list={clusters}
         EmptyComponent={<EmptyCard name={'clusters'} />}
         CardComponent={ClusterCard}
-        cardsProps={({ value: { ID } }) => ({
-          isSelected: data?.some(selected => selected === ID),
-          handleSelect: () => handleSelect(ID),
-          handleUnselect: () => handleUnselect(ID)
-        })}
+        cardsProps={({ value: { ID } }) => {
+          const isSelected = data?.some(selected => selected === ID)
+          const handleClick = () => isSelected ? handleUnselect(ID) : handleSelect(ID)
+
+          return { isSelected, handleClick }
+        }}
       />
     )
   }, [])
