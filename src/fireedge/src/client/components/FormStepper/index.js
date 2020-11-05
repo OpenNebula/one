@@ -6,13 +6,12 @@ import { useMediaQuery } from '@material-ui/core'
 
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
-import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 
 const FIRST_STEP = 0
 
 const FormStepper = ({ steps, schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
-  const { watch, trigger, reset, errors } = useFormContext()
+  const { watch, reset, errors, setError } = useFormContext()
 
   const [formData, setFormData] = useState(() => watch())
   const [activeStep, setActiveStep] = useState(FIRST_STEP)
@@ -26,22 +25,27 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
   }, [formData])
 
   const handleNext = () => {
-    const { id, resolver } = steps[activeStep]
+    const { id, resolver, optionsValidate } = steps[activeStep]
     const currentData = watch()[id]
 
-    resolver
-      .validate(currentData)
-      .then(() => {
-        const validateData = { ...formData, [id]: currentData }
+    const stepSchema = typeof resolver === 'function' ? resolver() : resolver
 
+    stepSchema
+      .validate(currentData, optionsValidate)
+      .then(() => {
         if (activeStep === lastStep) {
-          onSubmit(schema.cast(validateData))
+          onSubmit(schema().cast({ ...formData, [id]: currentData }))
         } else {
-          setFormData(validateData)
+          setFormData(prev => ({ ...prev, [id]: currentData }))
           setActiveStep(prevActiveStep => prevActiveStep + 1)
         }
       })
-      .catch(() => trigger(id))
+      .catch(({ inner, ...err }) => {
+        setError(id, err)
+        inner?.forEach(({ path, type, message }) =>
+          setError(`${id}.${path}`, { type, message })
+        )
+      })
   }
 
   const handleBack = useCallback(() => {
@@ -52,21 +56,22 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
 
   const { id, content: Content } = useMemo(() => steps[activeStep], [
     formData,
-    activeStep,
-    setFormData
+    activeStep
   ])
 
   return (
     <>
       {/* STEPPER */}
-      {isMobile ? (
+      {useMemo(() => isMobile ? (
         <CustomMobileStepper
+          steps={steps}
           totalSteps={totalSteps}
           activeStep={activeStep}
           lastStep={lastStep}
           disabledBack={disabledBack}
           handleNext={handleNext}
           handleBack={handleBack}
+          errors={errors}
         />
       ) : (
         <CustomStepper
@@ -76,12 +81,10 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
           disabledBack={disabledBack}
           handleNext={handleNext}
           handleBack={handleBack}
+          errors={errors}
         />
-      )}
+      ), [isMobile, activeStep, errors[id]])}
       {/* FORM CONTENT */}
-      {typeof errors[id]?.message === 'string' && (
-        <ErrorHelper label={errors[id]?.message} />
-      )}
       {Content && <Content data={formData[id]} setFormData={setFormData} />}
     </>
   )
@@ -93,8 +96,17 @@ FormStepper.propTypes = {
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
       label: PropTypes.string.isRequired,
       content: PropTypes.func.isRequired,
-      resolver: PropTypes.oneOfType([PropTypes.func, PropTypes.object])
-        .isRequired
+      resolver: PropTypes.oneOfType([
+        PropTypes.func,
+        PropTypes.object
+      ]).isRequired,
+      optionsValidate: PropTypes.shape({
+        strict: PropTypes.bool,
+        abortEarly: PropTypes.bool,
+        stripUnknown: PropTypes.bool,
+        recursive: PropTypes.bool,
+        context: PropTypes.object
+      })
     })
   ),
   schema: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,

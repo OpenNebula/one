@@ -6,6 +6,9 @@ import SelectCard from 'client/components/Cards/SelectCard'
 import ApplicationTemplateCard from 'client/components/Cards/ApplicationTemplateCard'
 import ApplicationCard from 'client/components/Cards/ApplicationCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
+import ProviderTemplateCard from 'client/components/Cards/ProviderTemplateCard'
+import ProviderCard from 'client/components/Cards/ProviderCard'
+import LocationCard from 'client/components/Cards/LocationCard'
 
 export {
   ClusterCard,
@@ -15,5 +18,8 @@ export {
   SelectCard,
   ApplicationTemplateCard,
   ApplicationCard,
-  PolicyCard
+  PolicyCard,
+  ProviderTemplateCard,
+  ProviderCard,
+  LocationCard
 }
