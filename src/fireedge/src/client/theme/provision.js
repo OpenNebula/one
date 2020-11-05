@@ -6,9 +6,9 @@ export default {
       default: '#fafafa'
     },
     primary: {
-      light: 'rgba(254, 250, 224, 1)',
-      main: 'rgba(221, 161, 94, 1)',
-      dark: 'rgba(188, 108, 37, 1)',
+      light: 'rgba(251, 133, 84, 1)',
+      main: 'rgba(250, 108, 67, 1)',
+      dark: 'rgba(254, 90, 35, 1)',
       contrastText: '#fff'
     },
     secondary: {
