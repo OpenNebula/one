@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Redirect, useHistory, useParams } from 'react-router-dom'
 
-import { LinearProgress } from '@material-ui/core'
+import { LinearProgress, Container } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
@@ -63,9 +63,14 @@ function ApplicationsTemplatesCreateForm () {
   return (id && !data) || loading ? (
     <LinearProgress />
   ) : (
-    <FormProvider {...methods}>
-      <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
-    </FormProvider>
+    <Container
+      disableGutters
+      style={{ display: 'flex', flexFlow: 'column', height: '100%' }}
+    >
+      <FormProvider {...methods}>
+        <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
+      </FormProvider>
+    </Container>
   )
 }
 

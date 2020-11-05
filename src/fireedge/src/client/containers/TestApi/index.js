@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 import React, { useState, useMemo } from 'react'
-import { TextField, Grid, MenuItem } from '@material-ui/core'
+import { Container, TextField, Grid, MenuItem } from '@material-ui/core'
 
 import Commands from 'server/utils/constants/commands'
 import { Translate, Tr } from 'client/components/HOC'
@@ -30,44 +30,49 @@ const TestApi = () => {
   const handleChangeCommand = evt => setName(evt?.target?.value)
   const handleChangeResponse = res => setResponse(res)
   return (
-    <Grid container direction="row" spacing={2} className={classes.root}>
-      <Grid item xs={12} md={6}>
-        <TextField
-          fullWidth
-          select
-          variant="outlined"
-          label={Tr('Select request')}
-          value={name}
-          onChange={handleChangeCommand}
-        >
-          <MenuItem value="">
-            <Translate word="none" />
-          </MenuItem>
-          {useMemo(() =>
-            Object.keys(Commands)?.map(
-              commandName => (
-                <MenuItem
-                  key={`selector-request-${commandName}`}
-                  value={commandName}
-                >
-                  {commandName}
-                </MenuItem>
-              ),
-              []
-            )
+    <Container
+      disableGutters
+      style={{ display: 'flex', flexFlow: 'column', height: '100%' }}
+    >
+      <Grid container direction="row" spacing={2} className={classes.root}>
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            select
+            variant="outlined"
+            label={Tr('Select request')}
+            value={name}
+            onChange={handleChangeCommand}
+          >
+            <MenuItem value="">
+              <Translate word="none" />
+            </MenuItem>
+            {useMemo(() =>
+              Object.keys(Commands)?.map(
+                commandName => (
+                  <MenuItem
+                    key={`selector-request-${commandName}`}
+                    value={commandName}
+                  >
+                    {commandName}
+                  </MenuItem>
+                ),
+                []
+              )
+            )}
+          </TextField>
+          {name && name !== '' && (
+            <ResponseForm
+              handleChangeResponse={handleChangeResponse}
+              command={{ name, ...Commands[name] }}
+            />
           )}
-        </TextField>
-        {name && name !== '' && (
-          <ResponseForm
-            handleChangeResponse={handleChangeResponse}
-            command={{ name, ...Commands[name] }}
-          />
-        )}
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <InputCode code={response} readOnly />
+        </Grid>
       </Grid>
-      <Grid item xs={12} md={6}>
-        <InputCode code={response} readOnly />
-      </Grid>
-    </Grid>
+    </Container>
   )
 }
 

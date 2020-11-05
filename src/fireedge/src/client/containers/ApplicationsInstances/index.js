@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { Box, LinearProgress } from '@material-ui/core'
+import { LinearProgress, Container, Box } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 
 import useApplication from 'client/hooks/useApplication'
@@ -45,19 +45,21 @@ function ApplicationsInstances () {
   }
 
   return (
-    <Box p={3}>
-      <ListCards
-        list={list}
-        EmptyComponent={<EmptyCard name={'applications instances'} />}
-        CardComponent={ApplicationCard}
-        cardsProps={({ value }) => ({
-          handleShow: () => setShowDialog(value)
-        })}
-      />
-      {showDialog !== false && (
-        <DialogInfo info={showDialog} handleClose={() => setShowDialog(false)} />
-      )}
-    </Box>
+    <Container disableGutters>
+      <Box p={3}>
+        <ListCards
+          list={list}
+          EmptyComponent={<EmptyCard name={'applications instances'} />}
+          CardComponent={ApplicationCard}
+          cardsProps={({ value }) => ({
+            handleShow: () => setShowDialog(value)
+          })}
+        />
+        {showDialog !== false && (
+          <DialogInfo info={showDialog} handleClose={() => setShowDialog(false)} />
+        )}
+      </Box>
+    </Container>
   )
 }
 

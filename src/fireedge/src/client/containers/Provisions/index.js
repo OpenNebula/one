@@ -1,15 +1,56 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-import { Typography } from '@material-ui/core'
+import { useHistory } from 'react-router-dom'
+import { LinearProgress, Container, Box } from '@material-ui/core'
+import { Alert } from '@material-ui/lab'
 
-function Provisions () {
+import { PATH } from 'client/router/provision'
+import useProvision from 'client/hooks/useProvision'
+import useFetch from 'client/hooks/useFetch'
+
+import ListCards from 'client/components/List/ListCards'
+import { ProviderCard } from 'client/components/Cards'
+import { Tr } from 'client/components/HOC'
+
+const Provisions = () => {
+  const history = useHistory()
+  const { provisions, getProvisions } = useProvision()
+  const { fetchRequest, loading, error } = useFetch(getProvisions)
+
+  useEffect(() => {
+    fetchRequest()
+  }, [])
+
+  if (error) {
+    return (
+      <Box pt={3} display="flex" justifyContent="center">
+        <Alert severity="error" icon={false} variant="filled">
+          {Tr('Cannot connect to OneProvision server')}
+        </Alert>
+      </Box>
+    )
+  }
+
+  if (loading) {
+    return <LinearProgress />
+  }
+
   return (
-    <Typography>Provisions</Typography>
+    <Container disableGutters>
+      <Box p={3}>
+        <ListCards
+          list={provisions}
+          handleCreate={() => history.push(PATH.PROVISIONS.CREATE)}
+          CardComponent={ProviderCard}
+          cardsProps={({ value: { ID } }) => ({
+            handleEdit: () =>
+              history.push(PATH.PROVISIONS.EDIT.replace(':id', ID)),
+            handleRemove: undefined
+          })}
+        />
+      </Box>
+    </Container>
   )
 }
-
-Provisions.propTypes = {}
-
-Provisions.defaultProps = {}
 
 export default Provisions

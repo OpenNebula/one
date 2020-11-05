@@ -72,14 +72,20 @@ SelectCard.propTypes = {
   ]),
   icon: PropTypes.object,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
+  children: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+    PropTypes.string
+  ])
 }
 
 SelectCard.defaultProps = {
   title: undefined,
   icon: undefined,
   isSelected: false,
-  handleClick: () => undefined
+  handleClick: () => undefined,
+  children: undefined
 }
 
 SelectCard.displayName = 'SelectCard'

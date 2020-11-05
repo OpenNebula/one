@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import { setProvidersTemplates, setProviders } from 'client/actions/pool'
+import { setProvidersTemplates, setProviders, setProvisions } from 'client/actions/pool'
 
 import { enqueueError, enqueueSuccess } from 'client/actions/general'
 
@@ -12,6 +12,7 @@ export default function useOpennebula () {
   const {
     providersTemplates,
     providers,
+    provisions,
     filterPool: filter
   } = useSelector(
     state => ({
@@ -75,6 +76,46 @@ export default function useOpennebula () {
     [dispatch, providers]
   )
 
+  const getProvision = useCallback(
+    ({ id }) =>
+      serviceProvision.getProvision({ id }).catch(err => {
+        dispatch(enqueueError(err ?? `Error GET (${id}) provision`))
+      }),
+    [dispatch]
+  )
+
+  const getProvisions = useCallback(
+    ({ end, start } = { end: -1, start: -1 }) =>
+      serviceProvision
+        .getProvisions({ filter, end, start })
+        .then(doc => dispatch(setProvisions(doc)))
+        .catch(err => {
+          dispatch(enqueueError(err ?? 'Error GET providers'))
+        }),
+    [dispatch, filter]
+  )
+
+  const createProvision = useCallback(
+    ({ data }) =>
+      serviceProvision
+        .createProvision({ data })
+        .then(doc => {
+          /* dispatch(
+            setApplicationsTemplates(
+              filterBy([doc].concat(applicationsTemplates), 'ID')
+            )
+          ) */
+
+          return dispatch(enqueueSuccess(`Template created - ID: ${doc?.ID}`))
+        })
+        .catch(err => {
+          dispatch(
+            enqueueError(err?.message ?? 'Error CREATE Provision')
+          )
+        }),
+    [dispatch, provisions]
+  )
+
   return {
     providersTemplates,
     getProvidersTemplates,
@@ -82,6 +123,11 @@ export default function useOpennebula () {
     providers,
     getProvider,
     getProviders,
-    createProvider
+    createProvider,
+
+    provisions,
+    getProvision,
+    getProvisions,
+    createProvision
   }
 }

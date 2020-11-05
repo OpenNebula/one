@@ -17,7 +17,6 @@ const Steps = () => {
       [connection.id]: connection.resolver(),
       [locations.id]: locations.resolver()
     })
-    // .from(provider.id, 'provider')
 
   const defaultValues = resolvers().default()
 
