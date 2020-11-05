@@ -12,6 +12,7 @@ import Providers from 'client/containers/Providers'
 import ProvidersCreateForm from 'client/containers/Providers/Form/Create'
 
 import Provisions from 'client/containers/Provisions'
+import ProvisionCreateForm from 'client/containers/Provisions/Form/Create'
 
 export const PATH = {
   LOGIN: '/',
@@ -79,5 +80,17 @@ export const ENDPOINTS = [
     sidebar: true,
     icon: ProvisionsIcon,
     component: Provisions
+  },
+  {
+    label: 'Create Provision',
+    path: PATH.PROVISIONS.CREATE,
+    authenticated: true,
+    component: ProvisionCreateForm
+  },
+  {
+    label: 'Edit Provision template',
+    path: PATH.PROVISIONS.EDIT,
+    authenticated: true,
+    component: ProvisionCreateForm
   }
 ]

@@ -50,10 +50,6 @@ export default makeStyles(theme => ({
       color: theme.palette.primary.light
     }
   },
-  container: {
-    display: 'flex',
-    flexDirection: 'column'
-  },
   /* ROUTES TRANSITIONS */
   appear: {},
   appearActive: {},

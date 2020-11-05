@@ -1,17 +1,7 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
-import {
-  makeStyles,
-  Card,
-  CardHeader,
-  Fade,
-  CardActionArea,
-  CardContent,
-  Badge,
-  Box
-} from '@material-ui/core'
+import { makeStyles, Badge, Box } from '@material-ui/core'
 import StorageIcon from '@material-ui/icons/Storage'
 import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
 import AccountTreeIcon from '@material-ui/icons/AccountTree'

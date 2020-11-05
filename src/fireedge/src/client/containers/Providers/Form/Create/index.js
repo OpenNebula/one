@@ -1,6 +1,7 @@
 import React from 'react'
 import { useHistory } from 'react-router'
 
+import { Container } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
@@ -27,9 +28,11 @@ function ProviderCreateForm () {
   }
 
   return (
-    <FormProvider {...methods}>
-      <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
-    </FormProvider>
+    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
+      <FormProvider {...methods}>
+        <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
+      </FormProvider>
+    </Container>
   )
 }
 

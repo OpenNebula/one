@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Box, LinearProgress } from '@material-ui/core'
+import { LinearProgress, Container, Box } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 
 import { PATH } from 'client/router/fireedge'
@@ -38,22 +38,24 @@ const ApplicationsTemplates = () => {
   }
 
   return (
-    <Box p={3}>
-      <ListCards
-        list={applicationsTemplates}
-        handleCreate={() => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)}
-        CardComponent={ApplicationTemplateCard}
-        cardsProps={({ value: { ID } }) => ({
-          handleEdit: () =>
-            history.push(PATH.APPLICATIONS_TEMPLATES.EDIT.replace(':id', ID)),
-          // handleShow: () => setShowDialog(ID),
-          handleRemove: undefined
-        })}
-      />
-      {/* {showDialog !== false && (
+    <Container disableGutters>
+      <Box p={3}>
+        <ListCards
+          list={applicationsTemplates}
+          handleCreate={() => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)}
+          CardComponent={ApplicationTemplateCard}
+          cardsProps={({ value: { ID } }) => ({
+            handleEdit: () =>
+              history.push(PATH.APPLICATIONS_TEMPLATES.EDIT.replace(':id', ID)),
+            // handleShow: () => setShowDialog(ID),
+            handleRemove: undefined
+          })}
+        />
+        {/* {showDialog !== false && (
         <DeployForm id={showDialog} handleCancel={() => setShowDialog(false)} />
       )} */}
-    </Box>
+      </Box>
+    </Container>
   )
 }
 
