@@ -65,7 +65,6 @@ function set_proxy
     proxy_found=false
 
     for arg in $*; do
-        echo "arg: |${arg}|" >> /tmp/proxy
         if $proxy_found ; then
             proxy=$arg
             break
