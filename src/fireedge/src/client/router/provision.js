@@ -3,13 +3,14 @@ import {
   Public as ProvidersIcon,
   SettingsSystemDaydream as ProvisionsIcon
 } from '@material-ui/icons'
-import { matchPath } from 'react-router-dom'
 
 import Login from 'client/containers/Login'
 import Dashboard from 'client/containers/Dashboard'
 import Settings from 'client/containers/Settings'
 
 import Providers from 'client/containers/Providers'
+import ProvidersCreateForm from 'client/containers/Providers/Form/Create'
+
 import Provisions from 'client/containers/Provisions'
 
 export const PATH = {
@@ -58,6 +59,18 @@ export const ENDPOINTS = [
     sidebar: true,
     icon: ProvidersIcon,
     component: Providers
+  },
+  {
+    label: 'Create Provider',
+    path: PATH.PROVIDERS.CREATE,
+    authenticated: true,
+    component: ProvidersCreateForm
+  },
+  {
+    label: 'Edit Provider template',
+    path: PATH.PROVIDERS.EDIT,
+    authenticated: true,
+    component: ProvidersCreateForm
   },
   {
     label: 'Provisions',
