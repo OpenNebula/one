@@ -118,7 +118,8 @@ stop()
 
 start_guacd()
 {
-	if [ ! -f "$GUACD_BIN" ]; then
+
+  if ! hash $GUACD_BIN &>/dev/null; then
 		echo "Cannot find $GUACD_BIN."
 		return 1
 	fi
