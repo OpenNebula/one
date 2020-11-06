@@ -12,90 +12,43 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const {
-  service,
-  serviceDelete,
-  serviceAddAction,
-  serviceAddScale,
-  serviceAddRoleAction
-} = require('./service');
-const {
-  serviceTemplate,
-  serviceTemplateDelete,
-  serviceTemplateCreate,
-  serviceTemplateUpdate,
-  serviceTemplateAction
-} = require('./service_template');
-const { httpMethod } = require('server/utils/constants/defaults');
-const {
-  SERVICE,
-  SERVICE_ACTION,
-  SERVICE_SCALE,
-  SERVICE_ROLE_ACTION,
-  SERVICE_TEMPLATE,
-  SERVICE_TEMPLATE_ACTION
-} = require('./string-routes');
 
-const { GET, POST, DELETE, PUT } = httpMethod;
+const { main: service, routes: serviceRoutes } = require('./service')
+const { main: serviceTemplate, routes: serviceTemplateRoutes } = require('./service_template')
 
-const privateRoutes = [
-  {
-    httpMethod: GET,
-    endpoint: SERVICE,
-    action: service
-  },
-  {
-    httpMethod: DELETE,
-    endpoint: SERVICE,
-    action: serviceDelete
-  },
-  {
-    httpMethod: POST,
-    endpoint: SERVICE_ACTION,
-    action: serviceAddAction
-  },
-  {
-    httpMethod: POST,
-    endpoint: SERVICE_SCALE,
-    action: serviceAddScale
-  },
-  {
-    httpMethod: POST,
-    endpoint: SERVICE_ROLE_ACTION,
-    action: serviceAddRoleAction
-  },
-  {
-    httpMethod: GET,
-    endpoint: SERVICE_TEMPLATE,
-    action: serviceTemplate
-  },
-  {
-    httpMethod: DELETE,
-    endpoint: SERVICE_TEMPLATE,
-    action: serviceTemplateDelete
-  },
-  {
-    httpMethod: POST,
-    endpoint: SERVICE_TEMPLATE,
-    action: serviceTemplateCreate
-  },
-  {
-    httpMethod: PUT,
-    endpoint: SERVICE_TEMPLATE,
-    action: serviceTemplateUpdate
-  },
-  {
-    httpMethod: POST,
-    endpoint: SERVICE_TEMPLATE_ACTION,
-    action: serviceTemplateAction
+const { SERVICE, SERVICE_TEMPLATE } = require('./string-routes')
+
+const privateRoutes = []
+const publicRoutes = []
+
+const fillRoute = (method, endpoint, action) => ({
+  httpMethod: method,
+  endpoint,
+  action
+})
+
+const fillPrivateRoutes = (methods = {}, path = '', action = () => undefined) => {
+  if (Object.keys(methods).length > 0 && methods.constructor === Object) {
+    Object.keys(methods).forEach((method) => {
+      privateRoutes.push(
+        fillRoute(method, path,
+          (req, res, next, conection, userId, user) => {
+            action(req, res, next, methods[method], user)
+          })
+      )
+    })
   }
-];
+}
 
-const publicRoutes = [];
+const generatePrivateRoutes = () => {
+  fillPrivateRoutes(serviceRoutes, SERVICE, service)
+  fillPrivateRoutes(serviceTemplateRoutes, SERVICE_TEMPLATE, serviceTemplate)
+  return privateRoutes
+}
 
 const functionRoutes = {
-  private: privateRoutes,
+  private: generatePrivateRoutes(),
   public: publicRoutes
-};
+}
 
-module.exports = functionRoutes;
+module.exports = functionRoutes

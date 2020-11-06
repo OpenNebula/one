@@ -22,7 +22,7 @@ import useOpennebula from 'client/hooks/useOpennebula'
 
 import LoadingScreen from 'client/components/LoadingScreen'
 
-const findRouteByPathname = (endpoints, pathname) => {
+const findRouteByPathname = (endpoints=[], pathname='') => {
   const routes = endpoints.flatMap(
     ({ endpoint, ...item }) => endpoint ?? item
   )

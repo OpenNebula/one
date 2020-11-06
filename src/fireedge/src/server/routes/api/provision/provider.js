@@ -12,22 +12,29 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const { from: fromData } = require('server/utils/constants/defaults')
 const { getParamsForObject } = require('server/utils/server')
 const {
-  serviceTemplate,
-  serviceTemplateDelete,
-  serviceTemplateCreate,
-  serviceTemplateUpdate,
-  serviceTemplateAction
-} = require('./service_template-functions')
-const { GET, POST, DELETE, PUT } = httpMethod
+  getListProviders,
+  getProvidersTemplates,
+  createProviders,
+  updateProviders,
+  deleteProvider
+} = require('./provider-functions')
+const { httpMethod } = require('server/utils/constants/defaults')
+
+const { GET, POST, PUT, DELETE } = httpMethod
 
 const routes = {
   [GET]: {
     list: {
-      action: serviceTemplate,
+      action: getListProviders, // oneprovider list || show // creados en opennebula
+      params: {
+        id: { from: fromData.resource, name: 'id', front: true }
+      }
+    },
+    template: {
+      action: getProvidersTemplates, // leer los archivos yamls (todos) en caso de pasar el id se lee la info de uno
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       }
@@ -35,31 +42,23 @@ const routes = {
   },
   [POST]: {
     create: {
-      action: serviceTemplateCreate,
+      action: createProviders, // oneprovider create // yaml
       params: {
-        template: { from: fromData.postBody, front: true }
-      }
-    },
-    action: {
-      action: serviceTemplateAction,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true }
+        id: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },
   [PUT]: {
     update: {
-      action: serviceTemplateUpdate,
+      action: updateProviders, // oneprovider update //yaml
       params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true }
+        id: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },
   [DELETE]: {
     delete: {
-      action: serviceTemplateDelete,
+      action: deleteProvider, // oneprivider update //yaml
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       }
@@ -90,9 +89,8 @@ const main = (req = {}, res = {}, next = () => undefined, routes = {}, user = {}
   }
 }
 
-const serviceTemplateApi = {
+const providerApi = {
   main,
   routes
 }
-
-module.exports = serviceTemplateApi
+module.exports = providerApi

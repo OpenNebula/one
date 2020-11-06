@@ -2,16 +2,16 @@ import httpCodes from 'server/utils/constants/http-codes'
 import { httpMethod } from 'server/utils/constants/defaults'
 import {
   SERVICE,
-  SERVICE_TEMPLATE,
-  SERVICE_TEMPLATE_ACTION
+  SERVICE_TEMPLATE
 } from 'server/routes/api/oneflow/string-routes'
 
 import { requestData } from 'client/utils'
 import { REQUEST_ACTIONS } from 'client/constants'
+const { GET, POST, PUT } = httpMethod
 
 export const getApplication = ({ id }) =>
-  requestData(`/api/${SERVICE}/${id}`, {
-    method: httpMethod.GET,
+  requestData(`/api/${SERVICE}/list/${id}`, {
+    method: GET,
     error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -20,9 +20,9 @@ export const getApplication = ({ id }) =>
   })
 
 export const getApplications = ({ filter }) =>
-  requestData(`/api/${SERVICE}`, {
+  requestData(`/api/${SERVICE}/list`, {
     data: { filter },
-    method: httpMethod.GET,
+    method: GET,
     error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -35,8 +35,8 @@ export const createApplication = () => {
 }
 
 export const getTemplate = ({ id }) =>
-  requestData(`/api/${SERVICE_TEMPLATE}/${id}`, {
-    method: httpMethod.GET,
+  requestData(`/api/${SERVICE_TEMPLATE}/list/${id}`, {
+    method: GET,
     error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -45,9 +45,9 @@ export const getTemplate = ({ id }) =>
   })
 
 export const getTemplates = ({ filter }) =>
-  requestData(`/api/${SERVICE_TEMPLATE}`, {
+  requestData(`/api/${SERVICE_TEMPLATE}/list`, {
     data: { filter },
-    method: httpMethod.GET,
+    method: GET,
     error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
@@ -56,9 +56,9 @@ export const getTemplates = ({ filter }) =>
   })
 
 export const createTemplate = ({ data = {} }) =>
-  requestData(`/api/${SERVICE_TEMPLATE}`, {
+  requestData(`/api/${SERVICE_TEMPLATE}/create`, {
     data,
-    method: httpMethod.POST
+    method: POST
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
     if (!res?.data?.DOCUMENT?.ID) throw new Error('Error')
@@ -67,9 +67,9 @@ export const createTemplate = ({ data = {} }) =>
   })
 
 export const updateTemplate = ({ id, data = {} }) =>
-  requestData(`/api/${SERVICE_TEMPLATE}/${id}`, {
+  requestData(`/api/${SERVICE_TEMPLATE}/update/${id}`, {
     data,
-    method: httpMethod.PUT
+    method: PUT
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
     if (!res?.data?.DOCUMENT?.ID) throw new Error('Error')
@@ -78,14 +78,14 @@ export const updateTemplate = ({ id, data = {} }) =>
   })
 
 export const instantiateTemplate = ({ id, data = {} }) =>
-  requestData(`/api/${SERVICE_TEMPLATE_ACTION}/${id}`, {
+  requestData(`/api/${SERVICE_TEMPLATE}/action/${id}`, {
     data: {
       action: {
         perform: REQUEST_ACTIONS.INSTANTIATE,
         params: { merge_template: data }
       }
     },
-    method: httpMethod.POST
+    method: POST
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
     if (!res?.data?.DOCUMENT?.ID) throw new Error('Error')

@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 const {
-  validateResource,
+  validateResourceAndSession,
   optionalParameters,
   optionalQueries,
   clearStates,
@@ -25,7 +25,7 @@ const {
 } = require('./api');
 
 module.exports = {
-  validateResource,
+  validateResourceAndSession,
   optionalParameters,
   optionalQueries,
   clearStates,

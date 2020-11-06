@@ -25,7 +25,8 @@ const {
   defaultVarPath,
   defaultKeyFilename,
   defaultWebpackMode,
-  defaultOpennebulaZones
+  defaultOpennebulaZones,
+  defaultEtcPath
 } = require('./constants/defaults')
 
 let cert = ''
@@ -33,7 +34,7 @@ let key = ''
 
 const validateServerIsSecure = () => {
   const folder = '../cert/'
-  const path = process && process.env && process.env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../${folder}` : `${__dirname}/${folder}`
+  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../${folder}` : `${__dirname}/${folder}`
   cert = `${path}cert.pem`
   key = `${path}key.pem`
   return existsSync && key && cert && existsSync(key) && existsSync(cert)
@@ -132,6 +133,7 @@ const genPathResources = () => {
   const ONE_LOCATION = env && env.ONE_LOCATION
   const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
+  const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
 
   if (global) {
@@ -144,9 +146,41 @@ const genPathResources = () => {
     if (!global.FIREEDGE_KEY_PATH) {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }
+    if (!global.CPI) {
+      global.CPI = `${ETC_LOCATION}/fireedge`
+    }
   }
 }
 
+const getParamsForObject = (params = {}, req = {}) => {
+  const rtn = {}
+  if (params && Object.keys(params).length > 0 && params.constructor === Object) {
+    Object.entries(params).forEach(([param, value]) => {
+      if (param && value && value.from && req[value.from]) {
+        rtn[param] = value.name ? req[value.from][value.name] : req[value.from]
+      }
+    })
+  }
+  return rtn
+}
+
+const parsePostData = (postData = {}) => {
+  const rtn = {}
+  Object.entries(postData).forEach(([key, value]) => {
+    try {
+      rtn[key] = JSON.parse(value, (k, val) => {
+        try {
+          return JSON.parse(val)
+        } catch (error) {
+          return val
+        }
+      })
+    } catch (error) {
+      rtn[key] = value
+    }
+  })
+  return rtn
+}
 module.exports = {
   getDataZone,
   existsFile,
@@ -156,5 +190,7 @@ module.exports = {
   genPathResources,
   genFireedgeKey,
   getCert,
-  getKey
+  getKey,
+  parsePostData,
+  getParamsForObject
 }

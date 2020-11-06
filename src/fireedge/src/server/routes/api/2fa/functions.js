@@ -13,10 +13,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const speakeasy = require('speakeasy');
-const qrcode = require('qrcode');
-const { httpResponse } = require('server/utils/server'); //'../../../utils/server'
-const { getConfig } = require('server/utils/yml'); // '../../../utils/yml'
+const speakeasy = require('speakeasy')
+const qrcode = require('qrcode')
+const { Map } = require('immutable')
+const { httpResponse } = require('server/utils/server') // '../../../utils/server'
+const { getConfig } = require('server/utils/yml') // '../../../utils/yml'
 const {
   httpMethod,
   defaultMethodUserInfo,
@@ -24,27 +25,27 @@ const {
   default2FAIssuer,
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar
-} = require('server/utils/constants/defaults');
+} = require('server/utils/constants/defaults')
 
-const { POST, GET } = httpMethod;
+const { POST, GET } = httpMethod
 const {
   responseOpennebula,
   checkOpennebulaCommand,
   generateNewTemplate,
   check2Fa
-} = require('server/utils/opennebula');
-const { from: fromData } = require('server/utils/constants/defaults');
+} = require('server/utils/opennebula')
+const { from: fromData } = require('server/utils/constants/defaults')
 const {
   ok,
   unauthorized,
   internalServerError
-} = require('server/utils/constants/http-codes');
+} = require('server/utils/constants/http-codes')
 
 // user config
-const appConfig = getConfig();
+const appConfig = getConfig()
 
 const twoFactorAuthIssuer =
-  appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer;
+  appConfig.TWO_FACTOR_AUTH_ISSUER || default2FAIssuer
 
 const getUserInfoAuthenticated = (connect, userId, callback, next) => {
   if (
@@ -57,17 +58,17 @@ const getUserInfoAuthenticated = (connect, userId, callback, next) => {
     typeof next === 'function' &&
     defaultMethodUserInfo
   ) {
-    const connectOpennebula = connect();
-    const dataUser = {};
+    const connectOpennebula = connect()
+    const dataUser = {}
     // empty positions for validate...
-    dataUser[fromData.resource] = {};
-    dataUser[fromData.query] = {};
-    dataUser[fromData.postBody] = {};
-    dataUser[fromData.resource].id = userId;
+    dataUser[fromData.resource] = {}
+    dataUser[fromData.query] = {}
+    dataUser[fromData.postBody] = {}
+    dataUser[fromData.resource].id = userId
     const getOpennebulaMethod = checkOpennebulaCommand(
       defaultMethodUserInfo,
       GET
-    );
+    )
     connectOpennebula(
       defaultMethodUserInfo,
       getOpennebulaMethod(dataUser),
@@ -78,50 +79,50 @@ const getUserInfoAuthenticated = (connect, userId, callback, next) => {
           value,
           info => {
             if (info !== undefined && info !== null) {
-              callback(info);
+              callback(info)
             } else {
-              next();
+              next()
             }
           },
           next
-        );
+        )
       }
-    );
+    )
   }
-};
+}
 
 const generateQR = (req, res, next, connect, userId) => {
   const secret = speakeasy.generateSecret({
     length: 10,
     name: twoFactorAuthIssuer
-  });
+  })
   if (secret && secret.otpauth_url && secret.base32) {
-    const { otpauth_url: otpURL, base32 } = secret;
+    const { otpauth_url: otpURL, base32 } = secret
     qrcode.toDataURL(otpURL, (err, dataURL) => {
       if (err) {
-        res.locals.httpCode = httpResponse(internalServerError);
-        next();
+        res.locals.httpCode = httpResponse(internalServerError)
+        next()
       } else {
-        const connectOpennebula = connect();
+        const connectOpennebula = connect()
         getUserInfoAuthenticated(
           connect,
           userId,
           info => {
             if (info && info.USER && info.USER.TEMPLATE && req) {
-              const dataUser = Map(req).toObject();
-              const emptyTemplate = {};
-              emptyTemplate[default2FAOpennebulaTmpVar] = base32;
+              const dataUser = Map(req).toObject()
+              const emptyTemplate = {}
+              emptyTemplate[default2FAOpennebulaTmpVar] = base32
 
-              dataUser[fromData.resource].id = userId;
+              dataUser[fromData.resource].id = userId
               dataUser[fromData.postBody].template = generateNewTemplate(
                 info.USER.TEMPLATE.SUNSTONE || {},
                 emptyTemplate,
                 [default2FAOpennebulaVar]
-              );
+              )
               const getOpennebulaMethod = checkOpennebulaCommand(
                 defaultMethodUserUpdate,
                 POST
-              );
+              )
               connectOpennebula(
                 defaultMethodUserUpdate,
                 getOpennebulaMethod(dataUser),
@@ -134,31 +135,31 @@ const generateQR = (req, res, next, connect, userId) => {
                       if (pass !== undefined && pass !== null) {
                         res.locals.httpCode = httpResponse(ok, {
                           img: dataURL
-                        });
-                        next();
+                        })
+                        next()
                       } else {
-                        next();
+                        next()
                       }
                     },
                     next
-                  );
+                  )
                 }
-              );
+              )
             } else {
-              next();
+              next()
             }
           },
           next
-        );
+        )
       }
-    });
+    })
   } else {
-    next();
+    next()
   }
-};
+}
 
 const twoFactorSetup = (req, res, next, connect, userId) => {
-  const connectOpennebula = connect();
+  const connectOpennebula = connect()
   getUserInfoAuthenticated(
     connect,
     userId,
@@ -175,24 +176,24 @@ const twoFactorSetup = (req, res, next, connect, userId) => {
         req[fromData.postBody] &&
         req[fromData.postBody].token
       ) {
-        const sunstone = info.USER.TEMPLATE.SUNSTONE;
-        const token = req[fromData.postBody].token;
-        const secret = sunstone[default2FAOpennebulaTmpVar];
+        const sunstone = info.USER.TEMPLATE.SUNSTONE
+        const token = req[fromData.postBody].token
+        const secret = sunstone[default2FAOpennebulaTmpVar]
         if (check2Fa(secret, token)) {
-          const emptyTemplate = {};
-          emptyTemplate[default2FAOpennebulaVar] = secret;
+          const emptyTemplate = {}
+          emptyTemplate[default2FAOpennebulaVar] = secret
 
-          const dataUser = Map(req).toObject();
-          dataUser[fromData.resource].id = userId;
+          const dataUser = Map(req).toObject()
+          dataUser[fromData.resource].id = userId
           dataUser[fromData.postBody].template = generateNewTemplate(
             sunstone || {},
             emptyTemplate,
             [default2FAOpennebulaTmpVar]
-          );
+          )
           const getOpennebulaMethodUpdate = checkOpennebulaCommand(
             defaultMethodUserUpdate,
             POST
-          );
+          )
           connectOpennebula(
             defaultMethodUserUpdate,
             getOpennebulaMethodUpdate(dataUser),
@@ -203,27 +204,27 @@ const twoFactorSetup = (req, res, next, connect, userId) => {
                 value,
                 pass => {
                   if (pass !== undefined && pass !== null) {
-                    res.locals.httpCode = httpResponse(ok);
+                    res.locals.httpCode = httpResponse(ok)
                   }
-                  next();
+                  next()
                 },
                 next
-              );
+              )
             }
-          );
+          )
         } else {
-          res.locals.httpCode = httpResponse(unauthorized);
-          next();
+          res.locals.httpCode = httpResponse(unauthorized)
+          next()
         }
       } else {
-        next();
+        next()
       }
     },
     next
-  );
-};
+  )
+}
 const twoFactorDelete = (req, res, next, connect, userId) => {
-  const connectOpennebula = connect();
+  const connectOpennebula = connect()
   getUserInfoAuthenticated(
     connect,
     userId,
@@ -234,18 +235,18 @@ const twoFactorDelete = (req, res, next, connect, userId) => {
         info.USER.TEMPLATE &&
         info.USER.TEMPLATE.SUNSTONE
       ) {
-        const emptyTemplate = {};
-        const dataUser = Map(req).toObject();
-        dataUser[fromData.resource].id = userId;
+        const emptyTemplate = {}
+        const dataUser = Map(req).toObject()
+        dataUser[fromData.resource].id = userId
         dataUser[fromData.postBody].template = generateNewTemplate(
           info.USER.TEMPLATE.SUNSTONE || {},
           emptyTemplate,
           [default2FAOpennebulaTmpVar, default2FAOpennebulaVar]
-        );
+        )
         const getOpennebulaMethodUpdate = checkOpennebulaCommand(
           defaultMethodUserUpdate,
           POST
-        );
+        )
         connectOpennebula(
           defaultMethodUserUpdate,
           getOpennebulaMethodUpdate(dataUser),
@@ -256,24 +257,24 @@ const twoFactorDelete = (req, res, next, connect, userId) => {
               value,
               pass => {
                 if (pass !== undefined && pass !== null) {
-                  res.locals.httpCode = httpResponse(ok);
+                  res.locals.httpCode = httpResponse(ok)
                 }
-                next();
+                next()
               },
               next
-            );
+            )
           }
-        );
+        )
       } else {
-        next();
+        next()
       }
     },
     next
-  );
-};
+  )
+}
 module.exports = {
   getUserInfoAuthenticated,
   generateQR,
   twoFactorSetup,
   twoFactorDelete
-};
+}

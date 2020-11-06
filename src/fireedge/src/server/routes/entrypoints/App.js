@@ -8,7 +8,7 @@ const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@material-ui/core/styles')
 const rootReducer = require('client/reducers')
 const { getConfig } = require('server/utils/yml')
-const { availableLanguages } = require('server/utils/constants/defaults') // '../../utils/constants/defaults'
+const { availableLanguages, defaultWebpackMode } = require('server/utils/constants/defaults')
 
 // settings
 const appConfig = getConfig()
@@ -32,12 +32,10 @@ router.get('*', (req, res) => {
   let css = ''
   let storeRender = ''
   let chunks = ''
-  if (env.NODE_ENV === 'production') {
+  if (env && (!env.NODE_ENV || (env.NODE_ENV && env.NODE_ENV !== defaultWebpackMode))) {
     app = req.url.split(/\//gi).filter(sub => sub && sub.length > 0)[0]
     chunks = `<script src='/client/1.bundle.${app}.js'></script>`
-  }
 
-  if (env && env.NODE_ENV === 'production') {
     const composeEnhancer =
       // eslint-disable-next-line no-underscore-dangle
       (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose

@@ -49,7 +49,7 @@ const auth = (req, res, next, connect) => {
     setReq(req)
     setRes(res)
     setNext(next)
-    updaterResponse(Map(internalServerError).toObject())
+    updaterResponse(new Map(internalServerError).toObject())
     const getOpennebulaMethod = checkOpennebulaCommand(
       defaultMethodLogin,
       POST

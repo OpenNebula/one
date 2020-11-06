@@ -31,7 +31,7 @@ const {
 } = require('../../utils')
 
 const {
-  validateResource,
+  validateResourceAndSession,
   optionalParameters,
   optionalQueries,
   clearStates,
@@ -63,7 +63,7 @@ const paramsToRoutes = () =>
 
 router.all(
   paramsToRoutes(),
-  [validateResource, optionalParameters, optionalQueries],
+  [validateResourceAndSession, optionalParameters, optionalQueries],
   (req, res, next) => {
     const { internalServerError, ok, methodNotAllowed } = httpCodes
     const { method: httpMethod } = req
@@ -96,7 +96,7 @@ router.all(
             next,
             connectOpennebula,
             getIdUserOpennebula(),
-            `${getUserOpennebula()}:${getPassOpennebula()}`
+            { user: getUserOpennebula(), password: getPassOpennebula() }
           )
         } else {
           next()

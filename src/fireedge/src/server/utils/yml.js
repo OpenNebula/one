@@ -13,6 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const { env } = require('process')
 const { parse } = require('yaml')
 const { defaultConfigFile, defaultWebpackMode } = require('./constants/defaults')
 const { existsFile } = require('server/utils/server')
@@ -20,7 +21,7 @@ const { messageTerminal } = require('server/utils/general')
 
 const getConfig = () => {
   let rtn = {}
-  const path = process && process.env && process.env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../` : `${__dirname}/`
+  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../` : `${__dirname}/`
   existsFile(path + defaultConfigFile, filedata => {
     rtn = parse(filedata)
   }, err => {

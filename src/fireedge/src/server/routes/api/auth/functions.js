@@ -219,41 +219,7 @@ const setZones = () => {
 const userInfo = userData => {
   if (user && opennebulaToken && userData && userData.USER) {
     const informationUser = userData.USER
-    // remove opennebula user tokens
-    if (
-      informationUser.LOGIN_TOKEN &&
-      Array.isArray(informationUser.LOGIN_TOKEN)
-    ) {
-      informationUser.LOGIN_TOKEN.forEach(loginToken => {
-        if (
-          loginToken &&
-          loginToken.TOKEN &&
-          loginToken.TOKEN !== opennebulaToken
-        ) {
-          const dataSource = dataSourceWithExpirateDate()
-          dataSource[fromData.postBody].expire = 0
-          dataSource[fromData.postBody].token = loginToken.TOKEN
-          const oneConnect = connectOpennebula()
-          oneConnect(
-            defaultMethodLogin,
-            getOpennebulaMethod(dataSource),
-            (err, value) => {
-              responseOpennebula(
-                () => undefined,
-                err,
-                value,
-                () => {
-                  setZones()
-                },
-                next
-              )
-            }
-          )
-        }
-      })
-    } else {
-      setZones()
-    }
+    setZones()
     validate2faAuthentication(informationUser)
     genJWT(informationUser)
     next()

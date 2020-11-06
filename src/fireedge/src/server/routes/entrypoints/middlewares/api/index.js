@@ -18,13 +18,14 @@ const {
   private: authenticated,
   public: nonAuthenticated
 } = require('../../../api')
-const { httpCodes, params } = require('server/utils/constants')
+const { httpCodes, params, defaults } = require('server/utils/constants')
 const {
   validateAuth,
   getAllowedQueryParams,
   createParamsState,
   createQueriesState
 } = require('server/utils')
+const { defaultWebpackMode } = defaults
 
 const defaultParams = Map(createParamsState())
 const defaultQueries = Map(createQueriesState())
@@ -41,7 +42,7 @@ const getIdUserOpennebula = () => idUserOpennebula
 const getUserOpennebula = () => userOpennebula
 const getPassOpennebula = () => passOpennebula
 
-const validateResource = (req, res, next) => {
+const validateResourceAndSession = (req, res, next) => {
   const { badRequest, unauthorized, serviceUnavailable } = httpCodes
   let status = badRequest
   if (req && req.params && req.params.resource) {
@@ -51,18 +52,11 @@ const validateResource = (req, res, next) => {
       rtnCommand && rtnCommand.endpoint && rtnCommand.endpoint === resource
     if (authenticated.some(finderCommand)) {
       const session = validateAuth(req)
-      if (
-        session &&
-        'iss' in session &&
-        'aud' in session &&
-        'jti' in session &&
-        'iat' in session &&
-        'exp' in session
-      ) {
+      if (session) {
         idUserOpennebula = session.iss
         userOpennebula = session.aud
         passOpennebula = session.jti
-        if (env.NODE_ENV === 'production') {
+        if (env && (!env.NODE_ENV || env.NODE_ENV !== defaultWebpackMode)) {
           if (
             global &&
             global.users &&
@@ -145,7 +139,7 @@ const clearStates = () => {
 }
 
 module.exports = {
-  validateResource,
+  validateResourceAndSession,
   optionalParameters,
   optionalQueries,
   clearStates,

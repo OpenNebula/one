@@ -18,19 +18,25 @@ const action = {
   type: 'object',
   properties: {
     action: {
-      perform: {
-        type: 'string',
-        required: true
-      },
-      params: {
-        merge_template: {
+      type: 'object',
+      properties: {
+        perform: {
+          type: 'string',
+          required: true
+        },
+        params: {
           type: 'object',
-          required: false
+          properties: {
+            merge_template: {
+              type: 'object',
+              required: false
+            }
+          }
         }
       }
     }
   }
-};
+}
 
 const role = {
   id: '/Role',
@@ -151,7 +157,7 @@ const role = {
       }
     }
   }
-};
+}
 
 const service = {
   type: 'object',
@@ -207,12 +213,12 @@ const service = {
       required: false
     }
   }
-};
+}
 
-const functionRoutes = {
+const schemas = {
   action,
   role,
   service
-};
+}
 
-module.exports = functionRoutes;
+module.exports = schemas

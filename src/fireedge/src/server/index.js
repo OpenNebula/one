@@ -52,7 +52,7 @@ const appConfig = getConfig()
 const port = appConfig.PORT || defaultPort
 const userLog = appConfig.LOG || 'dev'
 
-if (env.NODE_ENV === defaultWebpackMode) {
+if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
   // eslint-disable-next-line global-require
   const config = require('../../webpack.config.dev.client')
   const compiler = webpack(config)
