@@ -784,7 +784,7 @@ def build_vnet_hash(vnet, client, extended)
         # rubocop:enable Style/ArrayCoercion
 
         leases.each do |lease|
-            next if lease['VM'].nil?
+            next if lease['VM'].nil? || Integer(lease['VM']) < 0
 
             # Get the corresponding VM from pool
             xpath = "/VM_POOL/VM[ID=#{lease['VM']}]"
