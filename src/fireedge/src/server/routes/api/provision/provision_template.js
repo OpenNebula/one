@@ -12,22 +12,23 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-
-const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
+const { from: fromData } = require('server/utils/constants/defaults')
 const { getParamsForObject } = require('server/utils/server')
 const {
-  serviceTemplate,
-  serviceTemplateDelete,
-  serviceTemplateCreate,
-  serviceTemplateUpdate,
-  serviceTemplateAction
-} = require('./service_template-functions')
-const { GET, POST, DELETE, PUT } = httpMethod
+  getListProvisionTemplates,
+  createProvisionTemplate,
+  instantiateProvisionTemplate,
+  updateProvisionTemplate,
+  deleteProvisionTemplate
+} = require('./provision_template-functions')
+const { httpMethod } = require('server/utils/constants/defaults')
+
+const { GET, POST, PUT, DELETE } = httpMethod
 
 const routes = {
   [GET]: {
     list: {
-      action: serviceTemplate,
+      action: getListProvisionTemplates,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       }
@@ -35,31 +36,29 @@ const routes = {
   },
   [POST]: {
     create: {
-      action: serviceTemplateCreate,
+      action: createProvisionTemplate,
       params: {
-        template: { from: fromData.postBody, front: true }
+        id: { from: fromData.resource, name: 'id', front: true }
       }
     },
-    action: {
-      action: serviceTemplateAction,
+    instantiate: {
+      action: instantiateProvisionTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true }
+        id: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },
   [PUT]: {
     update: {
-      action: serviceTemplateUpdate,
+      action: updateProvisionTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true },
-        template: { from: fromData.postBody, front: true }
+        id: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },
   [DELETE]: {
     delete: {
-      action: serviceTemplateDelete,
+      action: deleteProvisionTemplate,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       }
@@ -90,9 +89,8 @@ const main = (req = {}, res = {}, next = () => undefined, routes = {}, user = {}
   }
 }
 
-const serviceTemplateApi = {
+const provisionTemplateApi = {
   main,
   routes
 }
-
-module.exports = serviceTemplateApi
+module.exports = provisionTemplateApi

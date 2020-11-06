@@ -12,39 +12,43 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+const { main: provision, routes: provisionRoutes } = require('./provision')
+const { main: provisionTemplate, routes: provisionTemplateRoutes } = require('./provision_template')
+const { main: provider, routes: providerRoutes } = require('./provider')
 
-const { generateQR, twoFactorSetup, twoFactorDelete } = require('./functions')
-const { httpMethod } = require('server/utils/constants/defaults') // ../../../utils/constants/defaults'
-const {
-  TWO_FACTOR_QR,
-  TWO_FACTOR_DELETE,
-  TWO_FACTOR_SETUP
-} = require('./string-routes')
+const { PROVIDER, PROVISION, PROVISION_TEMPLATE } = require('./string-routes')
 
-const { POST, DELETE } = httpMethod
-
-const privateRoutes = [
-  {
-    httpMethod: POST,
-    endpoint: TWO_FACTOR_QR,
-    action: generateQR
-  },
-  {
-    httpMethod: POST,
-    endpoint: TWO_FACTOR_SETUP,
-    action: twoFactorSetup
-  },
-  {
-    httpMethod: DELETE,
-    endpoint: TWO_FACTOR_DELETE,
-    action: twoFactorDelete
-  }
-]
-
+const privateRoutes = []
 const publicRoutes = []
 
+const fillRoute = (method, endpoint, action) => ({
+  httpMethod: method,
+  endpoint,
+  action
+})
+
+const fillPrivateRoutes = (methods = {}, path = '', action = () => undefined) => {
+  if (Object.keys(methods).length > 0 && methods.constructor === Object) {
+    Object.keys(methods).forEach((method) => {
+      privateRoutes.push(
+        fillRoute(method, path,
+          (req, res, next, conection, userId, user) => {
+            action(req, res, next, methods[method], user)
+          })
+      )
+    })
+  }
+}
+
+const generatePrivateRoutes = () => {
+  fillPrivateRoutes(provisionRoutes, PROVISION, provision)
+  fillPrivateRoutes(provisionTemplateRoutes, PROVISION_TEMPLATE, provisionTemplate)
+  fillPrivateRoutes(providerRoutes, PROVIDER, provider)
+  return privateRoutes
+}
+
 const functionRoutes = {
-  private: privateRoutes,
+  private: generatePrivateRoutes(),
   public: publicRoutes
 }
 

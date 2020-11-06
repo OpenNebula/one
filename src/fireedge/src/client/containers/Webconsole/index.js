@@ -21,20 +21,22 @@ import { defaultPort } from 'server/utils/constants/defaults'
 
 const ENDPOINT = `http://127.0.0.1:${defaultPort}`
 
-const Webconsole = () => {
+const Webconsole = ({ zone }) => {
   const [response, setResponse] = useState({})
 
   useEffect(() => {
     const socket = io(ENDPOINT, {
       path: '/zeromq',
       query: {
-        token: findStorageData(JWT_NAME)
+        token: findStorageData(JWT_NAME),
+        zone: 'pepe'
       }
     })
     socket.on('zeroMQ', data => {
       setResponse(data)
     })
-  }, [])
+    return () => { socket.disconnect() }
+  }, [zone])
   console.log('-->', response)
   return <p />
 }

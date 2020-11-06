@@ -13,5 +13,5 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const params = ['method', 'id', 'federation'];
-module.exports = params;
+const params = ['method', 'id', 'id2']
+module.exports = params

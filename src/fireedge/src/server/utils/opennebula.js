@@ -119,7 +119,7 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
                   return
                 }
               }
-              callback(err.message, value && value[1]) // error call opennebula
+              callback(err && err.message, value && value[1]) // error call opennebula
             }
           )
         }

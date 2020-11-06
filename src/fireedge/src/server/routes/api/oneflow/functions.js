@@ -12,19 +12,13 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { request } = require('axios')
+const { request: axios } = require('axios')
 const btoa = require('btoa')
-const { Map } = require('immutable')
 
 const { defaultOneFlowServer } = require('server/utils/constants/defaults')
 const { getConfig } = require('server/utils/yml')
 const { httpMethod } = require('server/utils/constants/defaults')
 const { addPrintf } = require('server/utils/general')
-const { httpResponse } = require('server/utils/server')
-const {
-  ok,
-  internalServerError
-} = require('server/utils/constants/http-codes')
 
 const { GET, DELETE } = httpMethod
 
@@ -32,99 +26,67 @@ const appConfig = getConfig()
 const oneFlowServiceDataConection =
   appConfig.ONE_FLOW_SERVER || defaultOneFlowServer
 
-const parsePostData = (postData = {}) => {
-  const rtn = {}
-  Object.entries(postData).forEach(([key, value]) => {
-    try {
-      rtn[key] = JSON.parse(value, (k, val) => {
-        try {
-          return JSON.parse(val)
-        } catch (error) {
-          return val
-        }
-      })
-    } catch (error) {
-      rtn[key] = value
-    }
-  })
-  return rtn
-}
-
 const returnSchemaError = (error = []) =>
   error
     .map(element => (element && element.stack ? element.stack : ''))
     .toString()
 
-const conectionOneFlow = (
-  res,
-  next = () => undefined,
-  method = GET,
-  user = '',
-  path = '/',
-  requestData = '',
-  postData = ''
-) => {
-  if (res && next && method && user) {
-    const options = {
-      method,
-      baseURL: `${oneFlowServiceDataConection.PROTOCOL}://${oneFlowServiceDataConection.HOST}:${oneFlowServiceDataConection.PORT}`,
-      url: path,
-      headers: {
-        Authorization: `Basic ${btoa(user)}`
-      },
-      validateStatus: status => status
-    }
+const parseToNumber = validate =>
+  isNaN(parseInt(validate, 10))
+    ? validate
+    : parseInt(validate, 10)
 
-    if (requestData) {
-      options.url = addPrintf(path, requestData)
-    }
-
-    if (postData) {
-      options.data = postData
-    }
-    request(options)
-      .then(response => {
-        if (response && response.statusText) {
-          if (response.status >= 200 && response.status < 400) {
-            if (response.data) {
-              return response.data
-            }
-            if (
-              response.config.method &&
-              response.config.method.toUpperCase() === DELETE
-            ) {
-              const parseToNumber = validate =>
-                isNaN(parseInt(validate, 10))
-                  ? validate
-                  : parseInt(validate, 10)
-              return Array.isArray(requestData)
-                ? parseToNumber(requestData[0])
-                : parseToNumber(requestData)
-            }
-          } else if (response.data) {
-            throw Error(response.data)
-          }
-        }
-        throw Error(response.statusText)
-      })
-      .then(data => {
-        res.locals.httpCode = httpResponse(ok, data)
-        next()
-      })
-      .catch(e => {
-        const codeInternalServerError = Map(internalServerError).toObject()
-        if (e && e.message) {
-          codeInternalServerError.data = e.message
-        }
-        res.locals.httpCode = httpResponse(internalServerError, e && e.message)
-        next()
-      })
+const oneFlowConection = (requestData = {}, success = () => undefined, error = () => undefined) => {
+  const { method, path, user, password, request, post } = requestData
+  const optionMethod = method || GET
+  const optionPath = path || '/'
+  const optionAuth = btoa(`${user || ''}:${password || ''}`)
+  const options = {
+    method: optionMethod,
+    baseURL: `${oneFlowServiceDataConection.PROTOCOL}://${oneFlowServiceDataConection.HOST}:${oneFlowServiceDataConection.PORT}`,
+    url: request ? addPrintf(optionPath, request || '') : optionPath,
+    headers: {
+      Authorization: `Basic ${optionAuth}`
+    },
+    validateStatus: status => status
   }
+
+  if (post) {
+    options.data = post
+  }
+  console.log('axios options: ', options, requestData)
+
+  axios(options)
+    .then(response => {
+      if (response && response.statusText) {
+        if (response.status >= 200 && response.status < 400) {
+          if (response.data) {
+            return response.data
+          }
+          if (
+            response.config.method &&
+              response.config.method.toUpperCase() === DELETE
+          ) {
+            return Array.isArray(request)
+              ? parseToNumber(request[0])
+              : parseToNumber(request)
+          }
+        } else if (response.data) {
+          throw Error(response.data)
+        }
+      }
+      throw Error(response.statusText)
+    })
+    .then(data => {
+      success(data)
+    })
+    .catch(e => {
+      error(e)
+    })
 }
 
 const functionRoutes = {
-  conectionOneFlow,
-  parsePostData,
+  oneFlowConection,
   returnSchemaError
 }
 

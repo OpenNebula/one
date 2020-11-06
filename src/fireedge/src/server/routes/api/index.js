@@ -21,7 +21,15 @@ const config = {
   color: 'red',
   message: 'file not found: %s'
 }
-const files = ['2fa', 'auth', 'oneflow', 'support', 'vcenter', 'zendesk']
+const files = [
+  '2fa',
+  'auth',
+  'oneflow',
+  'support',
+  'vcenter',
+  'zendesk',
+  'provision'
+]
 const filesDataPrivate = []
 const filesDataPublic = []
 files.map(file => {

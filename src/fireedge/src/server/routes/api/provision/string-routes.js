@@ -13,32 +13,14 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const colors = require('colors')
+const PROVIDER = 'provider'
+const PROVISION = 'provision'
+const PROVISION_TEMPLATE = 'provision-template'
 
-const messageTerminal = ({ color, type, error, message }) => {
-  const colorConsole = color || 'red'
-  const typeConsole = type || ''
-  const errorConsole = error || ''
-  const messageConsole = message || 'Message Console '
-  const consoleColor =
-    colorConsole === 'green'
-      ? colors.green(messageConsole)
-      : colors.red(messageConsole)
-  console.log(consoleColor, typeConsole, errorConsole)
+const Actions = {
+  PROVIDER,
+  PROVISION,
+  PROVISION_TEMPLATE
 }
 
-const addPrintf = (string = '', args = '') => {
-  let rtn = string
-  if (string && args) {
-    const replacers = Array.isArray(args) ? args : [args]
-    rtn = string.replace(/{(\d+)}/g, (match, number) =>
-      typeof replacers[number] !== 'undefined' ? replacers[number] : match
-    )
-  }
-  return rtn
-}
-
-module.exports = {
-  messageTerminal,
-  addPrintf
-}
+module.exports = Actions

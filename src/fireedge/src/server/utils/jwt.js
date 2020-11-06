@@ -67,7 +67,7 @@ const validateAuth = req => {
       const config = {
         color: 'red',
         type: 'ERROR',
-        error: error.message || "",
+        error: (error && error.message) || '',
         message: 'Error: %s'
       }
       messageTerminal(config)
