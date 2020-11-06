@@ -22,11 +22,14 @@ module OneProvision
     class Cluster < Resource
 
         # Class constructor
-        def initialize
-            super
+        #
+        # @param provider [provider] Cluster provider
+        def initialize(provider = nil)
+            super()
 
-            @pool = OpenNebula::ClusterPool.new(@client)
-            @type = 'cluster'
+            @pool     = OpenNebula::ClusterPool.new(@client)
+            @type     = 'cluster'
+            @provider = provider
         end
 
         # Creates a new cluster in OpenNebula
@@ -52,7 +55,29 @@ module OneProvision
         # @param id [Integer] Object ID
         def info(id)
             @one = OpenNebula::Cluster.new_with_id(id, @client)
-            @one.info
+            @one.info(true)
+        end
+
+        # Deletes the cluster
+        #
+        # @param tf [Hash] Terraform :conf and :state
+        #
+        # @return [Array]
+        #   - Terraform state in base64
+        #   - Terraform config in base64
+        def delete(tf = nil)
+            if tf && !tf.empty?
+                terraform   = Terraform.singleton(@provider, tf)
+                state, conf = terraform.destroy_cluster(@one.id)
+            end
+
+            Utils.exception(@one.delete)
+
+            if state && conf
+                [state, conf]
+            else
+                0
+            end
         end
 
         private

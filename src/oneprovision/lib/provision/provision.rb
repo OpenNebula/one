@@ -114,7 +114,7 @@ module OneProvision
 
         # Returns provision provider
         def provider
-            @body['provider']
+            Provider.by_name(@client, @body['provider'])
         end
 
         # Returns infrastructure + resource objects
@@ -137,6 +137,42 @@ module OneProvision
             return if !tf_state && !tf_conf
 
             { :state => tf_state, :conf => tf_conf }
+        end
+
+        # Get OpenNebula information for specific objects
+        #
+        # @param object [String] Object to check
+        #
+        # @return [Array] OpenNebula objects
+        def info_objects(object)
+            rc = info(true)
+
+            if OpenNebula.is_error?(rc)
+                raise OneProvisionLoopException, rc.message
+            end
+
+            if FULL_CLUSTER.include?(object)
+                path = 'infrastructure'
+            else
+                path = 'resource'
+            end
+
+            return [] unless @body['provision'][path][object]
+
+            resource = Resource.object(object)
+            ret      = []
+
+            @body['provision'][path][object].each do |o|
+                rc = resource.info(o['id'])
+
+                if OpenNebula.is_error?(rc)
+                    raise OneProvisionLoopException, rc.message
+                end
+
+                ret << resource.one
+            end
+
+            ret
         end
 
         # Deploys a new provision
@@ -230,8 +266,7 @@ module OneProvision
                     conf  = nil
 
                     Driver.retry_loop 'Failed to deploy hosts' do
-                        ips, ids, state, conf = Driver.tf_action(provider,
-                                                                 hosts,
+                        ips, ids, state, conf = Driver.tf_action(self,
                                                                  'deploy')
                     end
 
@@ -334,16 +369,14 @@ module OneProvision
 
             OneProvisionLogger.info("Deleting provision #{self['ID']}")
 
-            provider = Provider.by_name(@client, provider())
-
             if !hosts.empty? && tf_state && tf_conf
-                Driver.tf_action(provider, hosts, 'destroy', tf)
+                Driver.tf_action(self, 'destroy', tf)
             end
 
             Driver.retry_loop 'Failed to delete hosts' do
                 hosts.each do |host|
                     id   = host['id']
-                    host = Host.new(provider)
+                    host = Host.new(provider['NAME'])
 
                     host.info(id)
                     host.delete
@@ -388,14 +421,12 @@ module OneProvision
             if operation == :append
                 @body['provision'][path][object] << { :id => id, :name => name }
             else
-                provider = Provider.by_name(@client, provider())
-
                 o  = Resource.object(object, provider)
                 rc = o.info(id)
 
                 return rc if OpenNebula.is_error?(rc)
 
-                rc = o.delete(object == 'hosts' ? tf : nil)
+                rc = o.delete(FULL_CLUSTER.include?(object) ? tf : nil)
 
                 return rc if OpenNebula.is_error?(rc)
 

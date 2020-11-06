@@ -1,0 +1,9 @@
+resource "aws_ebs_volume" "device_<%= obj['ID'] %>" {
+    availability_zone = "<%= provision['AWS_REGION'] %>"
+    size              = "<%= obj['TOTAL_MB'] %>"
+
+    tags = {
+        Name = "<%= obj['NAME'] %>"
+    }
+}
+

@@ -185,32 +185,15 @@ module OneProvision
 
             # Execute action with Terraform
             #
-            # @param provider [Provider] Provider to perform actions
-            # @param client   [Client]   OpenNebula client to make calls
-            # @param hosts    [Array]    Hosts to perform action
-            # @param action   [String]   Action to perform
-            # @param tf       [Hash]     Terraform :state and :conf
-            def tf_action(provider, hosts, action, tf = {})
-                hosts = hosts.map do |h|
-                    host = Host.new(provider)
-                    rc   = host.info(h['id'])
-
-                    if OpenNebula.is_error?(rc)
-                        raise OneProvisionLoopException, rc.message
-                    end
-
-                    host.one
-
-                    # Decrypt secrets
-                    host.one.info(true)
-
-                    host.one
-                end
-
+            # @param provision [Provision] Provision information
+            # @param action    [String]    Action to perform
+            # @param tf        [Hash]      Terraform :state and :conf
+            def tf_action(provision, action, tf = {})
+                provider       = provision.provider
                 terraform      = Terraform.singleton(provider, tf)
                 terraform.conn = provider.connection
 
-                terraform.generate_deployment_file(hosts)
+                terraform.generate_deployment_file(provision)
                 terraform.send(action)
             end
 

@@ -163,7 +163,7 @@ module OneProvision
         # @param id [String] Object ID
         def info(id)
             @one = OpenNebula::Host.new_with_id(id, @client)
-            @one.info
+            @one.info(true)
         end
 
         private

@@ -1,0 +1,19 @@
+resource "packet_device" "device_<%= obj['ID'] %>" {
+    hostname         = "<%= provision['HOSTNAME'] %>"
+    plan             = "<%= provision['PLAN'] %>"
+    facilities       = ["<%= provision['FACILITY'] %>"]
+    operating_system = "<%= provision['OS'] %>"
+    project_id       = "<%= provision['PACKET_PROJECT']%>"
+    billing_cycle    = "hourly"
+    user_data        = "<%= obj['user_data'] %>"
+    tags             = ["OpenNebula", "ONE_ID=<%= obj['ID'] %>"]
+}
+
+output "ip_<%= obj['ID'] %>" {
+  value = packet_device.device_<%= obj['ID'] %>.network[0].address
+}
+
+output "device_id_<%= obj['ID'] %>" {
+  value = packet_device.device_<%= obj['ID'] %>.id
+}
+

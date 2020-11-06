@@ -452,7 +452,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         return rc if OpenNebula.is_error?(rc)
 
         id   = host['ID']
-        host = OneProvision::Host.new(provision.provider)
+        host = OneProvision::Host.new(provision.provider['NAME'])
         host.info(id)
 
         case operation[:operation]

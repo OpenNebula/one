@@ -22,14 +22,19 @@ module OneProvision
     # Packet Terraform Provider
     class Packet < Terraform
 
+        # OpenNebula - Terraform equivalence
+        TYPES = {
+            :datastore => 'packet_volume',
+            :host      => 'packet_device',
+            :network   => 'packet_reserved_ip_block'
+        }
+
         # Class constructor
         #
         # @param state [String] Terraform state in base64
         # @param conf  [String] Terraform config state in base64
         def initialize(state, conf)
-            @device_erb = "#{PROVIDERS_LOCATION}/templates/packet_device.erb"
-            @erb        = "#{PROVIDERS_LOCATION}/templates/packet.erb"
-            @host_type  = 'packet_device'
+            @dir = "#{PROVIDERS_LOCATION}/templates/packet"
 
             # User data is in plain text
             @base64 = false

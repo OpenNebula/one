@@ -1,0 +1,10 @@
+resource "aws_subnet" "device_<%= obj['ID'] %>" {
+    vpc_id                  = aws_vpc.device_<%= c['ID'] %>.id
+    cidr_block              = "<%= provision['SUB_CIDR'] %>"
+    map_public_ip_on_launch = true
+
+    tags = {
+        Name = "<%= obj['NAME'] %>_subnet"
+    }
+}
+

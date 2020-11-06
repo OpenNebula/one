@@ -295,6 +295,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/oneprovision/lib/terraform \
           $LIB_LOCATION/oneprovision/lib/terraform/providers \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet \
           $LIB_LOCATION/oneprovision/lib/provision \
           $LIB_LOCATION/oneprovision/lib/provision_template \
           $LIB_LOCATION/oneprovision/lib/provider \
@@ -726,7 +728,8 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
     ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
     ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
-    ONEPROVISION_LIB_PROVIDERS_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates
+    ONEPROVISION_LIB_AWS_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws
+    ONEPROVISION_LIB_PACKET_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet
     ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
     ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources
     ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/physical
@@ -2394,10 +2397,17 @@ ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.r
                                   src/oneprovision/lib/terraform/providers/dummy.rb \
                                   src/oneprovision/lib/terraform/providers/packet.rb"
 
-ONEPROVISION_LIB_PROVIDERS_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/aws.erb \
-                                      src/oneprovision/lib/terraform/providers/templates/aws_device.erb \
-                                      src/oneprovision/lib/terraform/providers/templates/packet.erb \
-                                      src/oneprovision/lib/terraform/providers/templates/packet_device.erb"
+ONEPROVISION_LIB_AWS_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/aws/cluster.erb \
+                                src/oneprovision/lib/terraform/providers/templates/aws/datastore.erb \
+                                src/oneprovision/lib/terraform/providers/templates/aws/host.erb \
+                                src/oneprovision/lib/terraform/providers/templates/aws/network.erb \
+                                src/oneprovision/lib/terraform/providers/templates/aws/provider.erb"
+
+ONEPROVISION_LIB_PACKET_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/packet/cluster.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/packet/datastore.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/packet/host.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/packet/network.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/packet/provider.erb"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
