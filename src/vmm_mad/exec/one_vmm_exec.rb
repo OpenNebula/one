@@ -235,7 +235,8 @@ class VmmAction
                                               :ssh_stream => ssh,
                                               :respond => false,
                                               :stdin => stdin,
-                                              :no_extra_params => no_extra_params)
+                                              :no_extra_params => no_extra_params,
+                                              :is_local => step[:is_local])
             when :vnm
                 if step[:destination]
                     vnm = @vnm_dst
@@ -386,7 +387,9 @@ class ExecDriver < VirtualMachineDriver
 
         domain = File.read(local_dfile)
 
-        if action_is_local?(:deploy)
+        is_action_local = action_is_local?(:deploy)
+
+        if is_action_local
             dfile = action.data[:local_dfile]
         else
             dfile = action.data[:remote_dfile]
@@ -410,7 +413,7 @@ class ExecDriver < VirtualMachineDriver
             }
         end
 
-        vm_dir=File.dirname(action.data[:remote_dfile])
+        vm_dir=File.dirname(dfile)
 
         steps.concat([
                         # Execute pre-boot networking setup
@@ -421,19 +424,24 @@ class ExecDriver < VirtualMachineDriver
 
                         # Make vm_dir, store vm.xml and ds.xml
                         {
-                            :driver       => :vmm,
-                            :action       => "/bin/mkdir -p",
-                            :parameters   => [vm_dir]
+                            :driver          => :vmm,
+                            :action          => "/bin/mkdir -p",
+                            :is_local        => is_action_local,
+                            :stdin           => "",
+                            :no_extra_params => true,
+                            :parameters      => [vm_dir]
                         },
                         {
-                            :driver       => :vmm,
-                            :action       => "/bin/cat - >#{vm_dir}/vm.xml",
-                            :stdin        => xml_data.elements['VM'].to_s,
+                            :driver          => :vmm,
+                            :action          => "/bin/cat - >#{vm_dir}/vm.xml",
+                            :is_local        => is_action_local,
+                            :stdin           => xml_data.elements['VM'].to_s,
                             :no_extra_params => true
                         },
                         {
                             :driver       => :vmm,
                             :action       => "/bin/cat - >#{vm_dir}/ds.xml",
+                            :is_local     => is_action_local,
                             :stdin        => xml_data.elements['DATASTORE'].to_s,
                             :no_extra_params => true
                         },
