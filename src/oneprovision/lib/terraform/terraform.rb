@@ -73,48 +73,28 @@ module OneProvision
 
         # Generate Terraform deployment file
         #
-        # @param hosts [Array] Hosts to deploy in Packet
-        def generate_deployment_file(hosts)
+        # @param provision [Provision] Provision information
+        def generate_deployment_file(provision)
             return if @conf
 
             @conf = ''
 
-            c = File.read(@erb)
+            c = File.read("#{@dir}/provider.erb")
             c = ERBVal.render_from_hash(c, :conn => @conn)
 
             @conf << c
 
-            hosts.each do |host|
-                host      = host.to_hash['HOST']
-                provision = host['TEMPLATE']['PROVISION']
-                ssh_key   = host['TEMPLATE']['CONTEXT']['SSH_PUBLIC_KEY']
+            # Generate clusters Terraform configuration
+            cluster_info(provision)
 
-                # Add clod unit information into user_data
-                # This only applies for a set of spported providers
-                user_data = "#cloud-config\n"
+            # Generate hosts Terraform configuration
+            host_info(provision)
 
-                if ssh_key
-                    user_data << "ssh_authorized_keys:\n"
+            # Generate datastores Terraform configuration
+            ds_info(provision)
 
-                    ssh_key.split("\n").each do |key|
-                        user_data << "- #{key}\n"
-                    end
-                end
-
-                if @base64
-                    user_data = Base64.strict_encode64(user_data)
-                else
-                    # Escape \n to avoid multilines in Terraform deploy file
-                    user_data = user_data.gsub("\n", '\\n')
-                end
-
-                c = File.read(@device_erb)
-                c = ERBVal.render_from_hash(c,
-                                            :host      => host,
-                                            :provision => provision,
-                                            :user_data => user_data)
-                @conf << c
-            end
+            # Generate networks Terraform configuration
+            network_info(provision)
         end
 
         # Deploy infra via Terraform
@@ -134,7 +114,7 @@ module OneProvision
                 )
 
                 unless s && s.success?
-                    STDERR.puts '[ERROR] Hosts provision failed!!!' \
+                    STDERR.puts '[ERROR] Hosts provision failed!!! ' \
                                 'Please log in to your console to delete ' \
                                 'left resources'
 
@@ -209,14 +189,123 @@ module OneProvision
             FileUtils.rm_r(tempdir) if File.exist?(tempdir)
         end
 
+        # Destroys a cluster
+        #
+        # @param id [String] Host ID
+        def destroy_cluster(id)
+            destroy_resource(self.class::TYPES[:cluster], id)
+        end
+
         # Destroys a host
         #
-        # @param host [String] Host ID
+        # @param id [String] Host ID
         def destroy_host(id)
-            destroy_resource(@host_type, id)
+            destroy_resource(self.class::TYPES[:host], id)
+        end
+
+        # Destroys a datastore
+        #
+        # @param id [String] Datastore ID
+        def destroy_datastore(id)
+            destroy_resource(self.class::TYPES[:datastore], id)
+        end
+
+        # Destriys a network
+        #
+        # @param id [String] Network ID
+        def destroy_network(id)
+            destroy_resource(self.class::TYPES[:network], id)
         end
 
         private
+
+        ########################################################################
+        # Configuration file generation
+        ########################################################################
+
+        # Add clusters information to configuration
+        #
+        # @param provision [Provision] Provision information
+        def cluster_info(provision)
+            object_info(provision, 'clusters', 'CLUSTER', 'cluster.erb')
+        end
+
+        # Add hosts information to configuration
+        #
+        # @param provision [Provision] Provision information
+        def host_info(provision)
+            object_info(provision, 'hosts', 'HOST', 'host.erb') do |obj|
+                ssh_key = obj['TEMPLATE']['CONTEXT']['SSH_PUBLIC_KEY']
+
+                return if !ssh_key || ssh_key.empty?
+
+                # Add clod unit information into user_data
+                # This only applies for a set of spported providers
+                user_data = "#cloud-config\n"
+
+                user_data << "ssh_authorized_keys:\n"
+
+                ssh_key.split("\n").each {|key| user_data << "- #{key}\n" }
+
+                if @base64
+                    user_data = Base64.strict_encode64(user_data)
+                else
+                    # Escape \n to avoid multilines in Terraform deploy file
+                    user_data = user_data.gsub("\n", '\\n')
+                end
+
+                obj['user_data'] = user_data
+            end
+        end
+
+        # Add datastores information to configuration
+        #
+        # @param provision [Provision] Provision information
+        def ds_info(provision)
+            object_info(provision, 'datastores', 'DATASTORE', 'datastore.erb')
+        end
+
+        # Add networks information to configuration
+        #
+        # @param provision [Provision] Provision information
+        def network_info(provision)
+            object_info(provision, 'networks', 'VNET', 'network.erb')
+        end
+
+        # Generate object Terraform configuration
+        #
+        # @param provision [Provision] Provision information
+        # @param objects   [String]    Objects to get
+        # @param object    [String]    Object name
+        # @param erb       [String]    ERB file
+        def object_info(provision, objects, object, erb)
+            cluster = provision.info_objects('clusters')[0]
+            cluster = cluster.to_hash['CLUSTER']
+
+            provision.info_objects(objects).each do |obj|
+                obj = obj.to_hash[object]
+                p   = obj['TEMPLATE']['PROVISION']
+
+                next if !p || p.empty?
+
+                yield(obj) if block_given?
+
+                c = File.read("#{@dir}/#{erb}")
+
+                next if c.empty?
+
+                c = ERBVal.render_from_hash(c,
+                                            :c         => cluster,
+                                            :obj       => obj,
+                                            :provision => p)
+
+                @conf << c
+            end
+        end
+
+        ########################################################################
+        # Helper functions
+        ########################################################################
 
         # Initialize Terraform directory content
         #

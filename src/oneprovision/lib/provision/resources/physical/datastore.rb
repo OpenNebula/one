@@ -22,7 +22,9 @@ module OneProvision
     class Datastore < PhysicalResource
 
         # Class constructor
-        def initialize
+        #
+        # @param provider [Provider] Datastore provider
+        def initialize(provider = nil)
             super
 
             @pool = OpenNebula::DatastorePool.new(@client)
@@ -34,7 +36,15 @@ module OneProvision
         # @param id [String] Object ID
         def info(id)
             @one = OpenNebula::Datastore.new_with_id(id, @client)
-            @one.info
+            @one.info(true)
+        end
+
+        # Destroy datastore in provider
+        #
+        # @param tf [Hash] Terraform configuration
+        def destroy(tf)
+            terraform = Terraform.singleton(@provider, tf)
+            terraform.destroy_datastore(@one.id)
         end
 
         private

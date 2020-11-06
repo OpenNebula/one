@@ -22,14 +22,20 @@ module OneProvision
     # AWS Terraform Provider
     class AWS < Terraform
 
+        # OpenNebula - Terraform equivalence
+        TYPES = {
+            :cluster   => 'aws_vpc',
+            :datastore => 'aws_ebs_volume',
+            :host      => 'aws_instance',
+            :network   => 'aws_subnet'
+        }
+
         # Class constructor
         #
         # @param state  [String] Terraform state in base64
         # @param conf   [String] Terraform config state in base64
         def initialize(state, conf)
-            @device_erb = "#{PROVIDERS_LOCATION}/templates/aws_device.erb"
-            @erb        = "#{PROVIDERS_LOCATION}/templates/aws.erb"
-            @host_type  = 'aws_instance'
+            @dir = "#{PROVIDERS_LOCATION}/templates/aws"
 
             # User data should be encoded in base64
             @base64 = true

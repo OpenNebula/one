@@ -1,0 +1,6 @@
+resource "packet_reserved_ip_block" "device_<%= obj['ID'] %>" {
+  project_id = "<%= provision['PACKET_PROJECT'] %>"
+  facility   = "<%= provision['FACILITY'] %>"
+  quantity   = "<%= provision['SIZE'] %>"
+}
+

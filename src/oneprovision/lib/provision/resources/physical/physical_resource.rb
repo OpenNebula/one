@@ -21,6 +21,15 @@ module OneProvision
     # Represents a physical resource for the provision
     class PhysicalResource < Resource
 
+        # Class constructor
+        #
+        # @param provider [Provider] Resource provider
+        def initialize(provider)
+            super()
+
+            @provider = provider
+        end
+
         # Creates the object in OpenNebula
         #
         # @param template   [Hash]    Object attributes
@@ -41,6 +50,25 @@ module OneProvision
             )
 
             Integer(@one.id)
+        end
+
+        # Deletes the resource
+        #
+        # @param tf [Hash] Terraform :conf and :state
+        #
+        # @return [Array]
+        #   - Terraform state in base64
+        #   - Terraform config in base64
+        def delete(tf = nil)
+            state, conf = destroy(tf) if tf && !tf.empty?
+
+            Utils.exception(@one.delete)
+
+            if state && conf
+                [state, conf]
+            else
+                0
+            end
         end
 
     end

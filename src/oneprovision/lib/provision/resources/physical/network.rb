@@ -22,7 +22,9 @@ module OneProvision
     class Network < PhysicalResource
 
         # Class constructor
-        def initialize
+        #
+        # @param provider [provider] Network provider
+        def initialize(provider = nil)
             super
 
             @pool = OpenNebula::VirtualNetworkPool.new(@client)
@@ -34,7 +36,15 @@ module OneProvision
         # @param id [String] Object ID
         def info(id)
             @one = OpenNebula::VirtualNetwork.new_with_id(id, @client)
-            @one.info
+            @one.info(true)
+        end
+
+        # Destroy network in provider
+        #
+        # @param tf [Hash] Terraform configuration
+        def destroy(tf)
+            terraform = Terraform.singleton(@provider, tf)
+            terraform.destroy_network(@one.id)
         end
 
         private

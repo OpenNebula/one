@@ -223,7 +223,6 @@ module OneProvision
                         rescue StandardError => e
                             raise e
                         end
-
                     when /^fatal: \[([^\]]+)\]: .* =>/i
                         host = Regexp.last_match(1)
                     end

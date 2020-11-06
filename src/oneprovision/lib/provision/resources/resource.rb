@@ -45,15 +45,15 @@ module OneProvision
 
             case type
             when :cluster
-                Cluster.new
+                Cluster.new(provider)
             when :datastore
                 Datastore.new
             when :host
                 Host.new(provider)
             when :image
-                Image.new
+                Image.new(provider)
             when :network
-                Network.new
+                Network.new(provider)
             when :template
                 Template.new
             when :vntemplate
