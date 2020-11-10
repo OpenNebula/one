@@ -438,6 +438,15 @@ int DispatchManager::terminate(int vid, bool hard, const RequestAttributes& ra,
                     lcm->trigger_delete(vid, ra);
                     break;
 
+                case VirtualMachine::SHUTDOWN:
+                    if (hard)
+                    {
+                        // Override previous (probably freezed) shutdown action
+                        lcm->trigger_shutdown(vid, hard, ra);
+                        break;
+                    }
+                    // else fallthrough to default
+
                 default:
                     oss.str("");
                     oss << "Could not terminate VM " << vid
@@ -487,6 +496,12 @@ int DispatchManager::undeploy(int vid, bool hard, const RequestAttributes& ra,
             lcm->trigger_undeploy(vid, ra);
         }
     }
+    else if ( hard &&
+              vm->get_state() == VirtualMachine::ACTIVE &&
+              vm->get_lcm_state() == VirtualMachine::SHUTDOWN_UNDEPLOY)
+    {
+        lcm->trigger_undeploy_hard(vid, ra);
+    }
     else
     {
         goto error;
@@ -525,9 +540,11 @@ int DispatchManager::poweroff(int vid, bool hard, const RequestAttributes& ra,
     oss << "Powering off VM " << vid;
     NebulaLog::log("DiM",Log::DEBUG,oss);
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+    auto lcm_state = vm->get_lcm_state();
+
+    if (vm->get_state() == VirtualMachine::ACTIVE &&
+        (lcm_state == VirtualMachine::RUNNING ||
+         lcm_state == VirtualMachine::UNKNOWN))
     {
         if (hard)
         {
@@ -537,6 +554,12 @@ int DispatchManager::poweroff(int vid, bool hard, const RequestAttributes& ra,
         {
             lcm->trigger_poweroff(vid, ra);
         }
+    }
+    else if (hard &&
+             vm->get_state() == VirtualMachine::ACTIVE &&
+             lcm_state == VirtualMachine::SHUTDOWN_POWEROFF )
+    {
+        lcm->trigger_poweroff_hard(vid, ra);
     }
     else
     {
