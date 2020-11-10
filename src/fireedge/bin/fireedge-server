@@ -135,10 +135,10 @@ start_guacd()
 
 	case "$?" in
 		0)
-		echo "SUCCESS"
+		echo "success"
 		;;
 		*)
-		echo "FAIL"
+		echo "fail"
 		;;
 	esac
 }
@@ -152,15 +152,15 @@ stop_guacd()
 		0)
 		if kill -9 $PID > /dev/null 2>&1
 		then
-			echo "SUCCESS"
+			echo "success"
 			return 0
 		fi
 
-		echo "FAIL"
+		echo "fail"
 		return 0
 		;;
 		*)
-		echo "SUCCESS (not running)"
+		echo "success (not running)"
 		return 0
 		;;
 	esac
