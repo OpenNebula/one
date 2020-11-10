@@ -1,9 +1,10 @@
 module Oned =
   autoload xfm
 
-(* Version: 1.3 *)
+(* Version: 1.4 *)
 
 (* Change log: *)
+(*   1.4: Allow space after section       *)
 (*   1.3: Allow escaped quotes in values  *)
 (*   1.2: Include /etc/one/monitord.conf  *)
 
@@ -59,6 +60,7 @@ let section = opt_space
                 . opt_nl_indent
                 . section_entry_list
               . right_br ]
+              . opt_space
               . eol
 
 let empty_line = [ del /[ \t]*\n/ "\n" ]
