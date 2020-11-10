@@ -68,7 +68,7 @@ module OneProvision
         # @param id [String] Object ID
         def info(id)
             @one = OpenNebula::Image.new_with_id(id, @client)
-            @one.info(true)
+            @one.info
         end
 
         private

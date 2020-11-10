@@ -83,6 +83,16 @@ module OneProvision
                                'file: no name given')
                 end
 
+                if !config['cluster']
+                    Utils.fail('There is an error in your configuration ' \
+                               'file: no cluster given')
+                end
+
+                if !config['cluster']['name']
+                    Utils.fail('There is an error in your configuration ' \
+                               'file: no cluster name given')
+                end
+
                 if config['hosts']
                     config['hosts'].each_with_index do |h, i|
                         im = h['im_mad']
