@@ -70,14 +70,18 @@ define(function(require) {
       this.templatesTable.initialize();
 
       this.templatesTable.idInput().on("change", function(){
-          $(".nameContainer", context).show();
+        var template_id = $(this).val();
+        var showRestForm = template_id !== "";
 
-           var templatesContext = $(".list_of_vntemplates", context);
-          templatesContext.html("");
-          templatesContext.show();
+        $(".nameContainer", context).toggle(showRestForm);
 
-          var template_id = $(this).val();
+        var templatesContext = $(".list_of_vntemplates", context);
+        templatesContext.html("");
+        templatesContext.toggle(showRestForm);
+
+        if (showRestForm) {
           that.setTemplateIds(context, [template_id]);
+        }
       });
 
       Tips.setup(context);
@@ -86,5 +90,7 @@ define(function(require) {
     function _onShow(context) {
       this.templatesTable.resetResourceTableSelect();
       InstantiateTemplateFormPanel.prototype.onShow.call(this, context);
+
+      $(".nameContainer", context).hide();
     }
   });
