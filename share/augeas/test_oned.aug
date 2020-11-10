@@ -178,3 +178,7 @@ VM_MAD = [
   PASSWORD = \"open\\\"nebula\"
 ]
 " =?
+
+    test Oned.lns get
+" NIC      = [ model=\"virtio\" ]   
+" =?
