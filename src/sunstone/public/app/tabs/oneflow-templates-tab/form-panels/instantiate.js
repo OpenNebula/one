@@ -263,6 +263,13 @@ define(function(require) {
         var tmp_json = {};
 
         $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
+        $.each(tmp_json, function(key, value){
+          if (Array.isArray(value)){
+            delete tmp_json[key];
+            tmp_json[key] = value.join(",");
+          }
+        });
+
         temp_role.user_inputs_values = tmp_json;
         
         var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
