@@ -47,11 +47,11 @@ module OneProvision
             when :cluster
                 Cluster.new(provider)
             when :datastore
-                Datastore.new
+                Datastore.new(provider)
             when :host
                 Host.new(provider)
             when :image
-                Image.new(provider)
+                Image.new
             when :network
                 Network.new(provider)
             when :template

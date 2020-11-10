@@ -263,7 +263,7 @@ module OpenNebula
                 recursive = false
             end
 
-            if type != 'none'
+            if type && type != 'none'
                 rc = vm_template_ids
 
                 return rc if OpenNebula.is_error?(rc)

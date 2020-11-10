@@ -34,7 +34,7 @@ module OneProvision
         # @param id [String] Object ID
         def info(id)
             @one = OpenNebula::Template.new_with_id(id, @client)
-            @one.info(true)
+            @one.info(true, true)
         end
 
         private

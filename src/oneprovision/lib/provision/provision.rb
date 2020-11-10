@@ -114,6 +114,10 @@ module OneProvision
 
         # Returns provision provider
         def provider
+            if @body['provider'] == 'dummy'
+                return { 'NAME' => 'dummy' }
+            end
+
             Provider.by_name(@client, @body['provider'])
         end
 
@@ -282,12 +286,7 @@ module OneProvision
                 if skip == :none
                     configure
                 else
-                    hosts.each do |h|
-                        host = Host.new
-                        host.info(h['id'])
-
-                        host.one.enable
-                    end
+                    info_objects('hosts') {|h| h.enable }
                 end
 
                 create_virtual_resources(cfg)
@@ -399,6 +398,8 @@ module OneProvision
             return rc if OpenNebula.is_error?(rc)
 
             0
+        ensure
+            unlock
         end
 
         # Updates provision objects
@@ -618,22 +619,43 @@ module OneProvision
         def create_hosts(cfg, cid)
             return unless cfg['hosts']
 
+            hosts = []
+
             cfg['hosts'].each do |h|
-                Driver.retry_loop 'Failed to create some host' do
-                    erb   = Utils.evaluate_erb(self, h)
-                    dfile = Utils.create_deployment_file(erb)
+                h['count'].nil? ? count = 1 : count = Integer(h['count'])
 
-                    playbooks = cfg['playbook']
-                    playbooks = playbooks.join(',') if playbooks.is_a? Array
+                count.times.each do |idx|
+                    Driver.retry_loop 'Failed to create some host' do
+                        # Update hostname to avoid multiple same names
+                        hostname = h['provision']['hostname'] if h['provision']
 
-                    host      = Host.new
-                    host      = host.create(dfile.to_xml, cid, playbooks)
-                    h['id']   = Integer(host['ID'])
-                    h['name'] = host['NAME']
+                        if hostname && count > 1
+                            h['provision']['hostname'] = "#{hostname}_#{idx}"
+                        end
 
-                    host.offline
+                        erb   = Utils.evaluate_erb(self, h)
+                        dfile = Utils.create_deployment_file(erb)
+
+                        playbooks = cfg['playbook']
+                        playbooks = playbooks.join(',') if playbooks.is_a? Array
+
+                        host      = Host.new
+                        host      = host.create(dfile.to_xml, cid, playbooks)
+
+                        if count > 1 && idx > 0
+                            hosts << { 'id'   => Integer(host['ID']),
+                                       'name' => host['NAME'] }
+                        else
+                            h['id']   = Integer(host['ID'])
+                            h['name'] = host['NAME']
+                        end
+
+                        host.offline
+                    end
                 end
             end
+
+            cfg['hosts'] += hosts
         end
 
         # Updates provision hosts with new name
