@@ -434,7 +434,7 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
         vm->get_template_attribute("MEMORY", memory);
         vm->get_template_attribute("CPU", cpu);
 
-        if ( (vm->get_state() == VirtualMachine::SUSPENDED) ||
+        if ((vm->get_state() == VirtualMachine::SUSPENDED) ||
             (vm->get_state() == VirtualMachine::POWEROFF) ||
             (vm->get_state() == VirtualMachine::STOPPED) ||
             (vm->get_state() == VirtualMachine::UNDEPLOYED))
@@ -448,9 +448,20 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
             quota_tmpl.add("VMS", 0);
         }
 
-        if (vm->get_state()     == VirtualMachine::ACTIVE &&
-            (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-            vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+        auto lcm_state = vm->get_lcm_state();
+
+        if (hard && (vm->get_state() == VirtualMachine::ACTIVE &&
+                     lcm_state == VirtualMachine::SHUTDOWN))
+        {
+            // Cancel previous shutdown action
+            vmm->trigger_driver_cancel(vid);
+
+            lcm_state = VirtualMachine::RUNNING; // Force execute of hard shutdown
+        }
+
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
         {
             //----------------------------------------------------
             //                  SHUTDOWN STATE
@@ -545,9 +556,20 @@ void LifeCycleManager::trigger_undeploy(int vid, bool hard,
             return;
         }
 
-        if (vm->get_state()     == VirtualMachine::ACTIVE &&
-            (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-            vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+        auto lcm_state = vm->get_lcm_state();
+
+        if (hard && (vm->get_state() == VirtualMachine::ACTIVE &&
+                     lcm_state == VirtualMachine::SHUTDOWN_UNDEPLOY))
+        {
+            // Cancel previous undeploy action
+            vmm->trigger_driver_cancel(vid);
+
+            lcm_state = VirtualMachine::RUNNING; // Force execute of hard shutdown
+        }
+
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
         {
             //----------------------------------------------------
             //             SHUTDOWN_UNDEPLOY STATE
@@ -647,9 +669,20 @@ void LifeCycleManager::trigger_poweroff(int vid, bool hard,
             return;
         }
 
-        if (vm->get_state()     == VirtualMachine::ACTIVE &&
-            (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-            vm->get_lcm_state() == VirtualMachine::UNKNOWN))
+        auto lcm_state = vm->get_lcm_state();
+
+        if (hard && (vm->get_state() == VirtualMachine::ACTIVE &&
+                     lcm_state == VirtualMachine::SHUTDOWN_POWEROFF))
+        {
+            // Cancel previous shutdown action
+            vmm->trigger_driver_cancel(vid);
+
+            lcm_state = VirtualMachine::RUNNING; // Force execute of hard shutdown
+        }
+
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
         {
             //----------------------------------------------------
             //             SHUTDOWN_POWEROFF STATE
