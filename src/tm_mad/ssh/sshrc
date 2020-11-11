@@ -26,11 +26,7 @@ REPLICA_COPY_LOCK_TIMEOUT=600
 
 # Default directory to store the recovery snapshots. These snapshots are used to
 # recover VMs in case of host failure in a cluster
-if [ -z "$ONE_LOCATION" ]; then
-    REPLICA_RECOVERY_SNAPS_DIR="/var/lib/one/datastores/replica_snaps"
-else
-    REPLICA_RECOVERY_SNAPS_DIR="$ONE_LOCATION/var/datastores/replica_snaps"
-fi
+REPLICA_RECOVERY_SNAPS_DIR="/var/lib/one/datastores/replica_snaps"
 
 # ssh options when copying from the replica to the hypervisor, prefer speed.
 # Prefer weaker ciphers on secure networks (e.g. arcfour or blowfish)
