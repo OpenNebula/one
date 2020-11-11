@@ -8,13 +8,13 @@ import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 import { Tr } from 'client/components/HOC/Translate'
 
 const SelectController = memo(
-  ({ control, cy, name, label, values, error, fieldProps }) => (
+  ({ control, cy, name, label, multiple, values, error, fieldProps }) => (
     <Controller
       as={
         <TextField
           select
           fullWidth
-          SelectProps={{ displayEmpty: true }}
+          SelectProps={{ displayEmpty: true, multiple }}
           label={Tr(label)}
           inputProps={{ 'data-cy': cy }}
           error={Boolean(error)}
@@ -22,17 +22,16 @@ const SelectController = memo(
           FormHelperTextProps={{ 'data-cy': `${cy}-error` }}
           {...fieldProps}
         >
-          {Array.isArray(values) &&
-            values?.map(({ text, value }) => (
-              <MenuItem key={`${name}-${value}`} value={value ?? ''}>
-                {text}
-              </MenuItem>
-            ))}
+          {values?.map(({ text, value }) => (
+            <MenuItem key={`${name}-${value}`} value={value ?? ''}>
+              {text}
+            </MenuItem>
+          ))}
         </TextField>
       }
       name={name}
       control={control}
-      defaultValue={values[0]?.value}
+      defaultValue={multiple ? [values[0]?.value] : values[0]?.value}
     />
   ),
   (prevProps, nextProps) => prevProps.error === nextProps.error
@@ -43,6 +42,7 @@ SelectController.propTypes = {
   cy: PropTypes.string,
   name: PropTypes.string.isRequired,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  multiple: PropTypes.bool,
   values: PropTypes.arrayOf(PropTypes.object).isRequired,
   error: PropTypes.oneOfType([
     PropTypes.bool,
@@ -56,6 +56,7 @@ SelectController.defaultProps = {
   cy: 'cy',
   name: '',
   label: '',
+  multiple: false,
   values: [],
   error: false,
   fieldProps: undefined

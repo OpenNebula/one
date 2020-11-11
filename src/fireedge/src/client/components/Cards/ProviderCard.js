@@ -9,13 +9,11 @@ import {
   Card,
   CardHeader,
   CardContent,
-  CardActions,
-  Chip
+  CardActions
 } from '@material-ui/core'
 import FileIcon from '@material-ui/icons/Description'
 
 import { Tr } from 'client/components/HOC'
-import { APPLICATION_STATES } from 'client/constants/states'
 
 const useStyles = makeStyles(theme => ({
   root: {

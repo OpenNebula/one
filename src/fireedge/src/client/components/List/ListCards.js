@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -6,12 +6,11 @@ import {
   CardActionArea,
   CardContent,
   Card,
-  Grid
+  Grid,
+  LinearProgress
 } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
 import { EmptyCard } from 'client/components/Cards'
-
-const gridValues = [false, 'auto', true, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 const useStyles = makeStyles(() => ({
   cardPlus: {
@@ -19,7 +18,8 @@ const useStyles = makeStyles(() => ({
     minHeight: 140,
     display: 'flex',
     textAlign: 'center'
-  }
+  },
+  loading: { width: '100%' }
 }))
 
 const ListCards = memo(({
@@ -30,48 +30,50 @@ const ListCards = memo(({
   CardComponent,
   cardsProps,
   EmptyComponent,
-  displayEmpty
+  displayEmpty,
+  isLoading
 }) => {
   const classes = useStyles()
 
+  if (isLoading) {
+    return <LinearProgress className={classes.loading} />
+  }
+
   return (
     <Grid container spacing={3}>
-      {handleCreate &&
-        useMemo(
-          () => (
-            <Grid item {...breakpoints}>
-              {ButtonCreateComponent ? (
-                <ButtonCreateComponent onClick={handleCreate} />
-              ) : (
-                <Card className={classes.cardPlus} raised>
-                  <CardActionArea onClick={handleCreate}>
-                    <CardContent>
-                      <AddIcon />
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              )}
-            </Grid>
-          ),
-          [handleCreate, classes]
-        )}
-      {Array.isArray(list) &&
-        list.length > 0 ? (
-          list?.map((value, index) => (
-            <Grid key={`card-${index}`} item {...breakpoints}>
-              <CardComponent value={value} {...cardsProps({ index, value })} />
-            </Grid>
-          ))
-        ) : (
-          (displayEmpty || EmptyComponent) && (
-            <Grid item {...breakpoints}>
-              {EmptyComponent ?? <EmptyCard />}
-            </Grid>
-          )
-        )}
+      {handleCreate && (
+        <Grid item {...breakpoints}>
+          {ButtonCreateComponent ? (
+            <ButtonCreateComponent onClick={handleCreate} />
+          ) : (
+            <Card className={classes.cardPlus} raised>
+              <CardActionArea onClick={handleCreate}>
+                <CardContent>
+                  <AddIcon />
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          )}
+        </Grid>
+      )}
+      {list.length > 0 ? (
+        list?.map((value, index) => (
+          <Grid key={`card-${index}`} item {...breakpoints}>
+            <CardComponent value={value} {...cardsProps({ index, value })} />
+          </Grid>
+        ))
+      ) : (
+        (displayEmpty || EmptyComponent) && (
+          <Grid item {...breakpoints}>
+            {EmptyComponent ?? <EmptyCard />}
+          </Grid>
+        )
+      )}
     </Grid>
   )
 })
+
+const gridValues = [false, 'auto', true, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 ListCards.propTypes = {
   list: PropTypes.arrayOf(PropTypes.any).isRequired,
@@ -99,7 +101,8 @@ ListCards.propTypes = {
   EmptyComponent: PropTypes.oneOfType([
     PropTypes.element
   ]),
-  displayEmpty: PropTypes.bool
+  displayEmpty: PropTypes.bool,
+  isLoading: PropTypes.bool
 }
 
 ListCards.defaultProps = {
@@ -110,7 +113,8 @@ ListCards.defaultProps = {
   CardComponent: null,
   cardsProps: () => undefined,
   EmptyComponent: undefined,
-  displayEmpty: false
+  displayEmpty: false,
+  isLoading: false
 }
 
 ListCards.displayName = 'ListCards'

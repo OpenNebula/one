@@ -10,6 +10,7 @@ const BasicConfiguration = () => ({
   id: STEP_ID,
   label: 'Configuration',
   resolver: STEP_FORM_SCHEMA,
+  optionsValidate: { abortEarly: false },
   content: useCallback(
     () => <FormWithSchema cy="form-tier" fields={FORM_FIELDS} id={STEP_ID} />,
     []

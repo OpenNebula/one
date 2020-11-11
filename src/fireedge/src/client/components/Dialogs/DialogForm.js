@@ -29,11 +29,11 @@ const DialogForm = memo(
   }) => {
     const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-    const { handleSubmit, formState, ...methods } = useForm({
+    const methods = useForm({
       mode: 'onBlur',
       reValidateMode: 'onSubmit',
       defaultValues: values,
-      resolver: yupResolver(resolver)
+      resolver: yupResolver(resolver())
     })
 
     return (
@@ -63,8 +63,8 @@ const DialogForm = memo(
             {onSubmit && (
               <ButtonSubmit
                 data-cy="dg-form-submit-button"
-                isSubmitting={formState.isSubmitting}
-                onClick={handleSubmit(onSubmit)}
+                isSubmitting={methods.formState.isSubmitting}
+                onClick={methods.handleSubmit(onSubmit)}
                 label={Tr(Save)}
                 {...submitButtonProps}
               />
@@ -83,7 +83,7 @@ DialogForm.propTypes = {
     PropTypes.arrayOf(PropTypes.any),
     PropTypes.objectOf(PropTypes.any)
   ]),
-  resolver: PropTypes.oneOfType([PropTypes.func, PropTypes.object]).isRequired,
+  resolver: PropTypes.func.isRequired,
   onSubmit: PropTypes.func,
   onCancel: PropTypes.func,
   submitButtonProps: PropTypes.objectOf(PropTypes.any),

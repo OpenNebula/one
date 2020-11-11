@@ -15,7 +15,7 @@ const NAME = {
   validation: yup
     .string()
     .trim()
-    .matches(/^[\w+\s*]+$/g, { message: 'Invalid characters' })
+    .matches(/^[\w+\s*]*$/g, { message: 'Invalid characters' })
     .required('Name field is required')
     .default('')
 }

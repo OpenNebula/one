@@ -30,10 +30,6 @@ export const getApplications = ({ filter }) =>
     return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
   })
 
-export const createApplication = () => {
-  // request
-}
-
 export const getTemplate = ({ id }) =>
   requestData(`/api/${SERVICE_TEMPLATE}/list/${id}`, {
     method: GET,
@@ -96,7 +92,6 @@ export const instantiateTemplate = ({ id, data = {} }) =>
 export default {
   getApplication,
   getApplications,
-  createApplication,
 
   getTemplate,
   getTemplates,

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { LinearProgress, Container, Box } from '@material-ui/core'
+import { Container, Box } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 
 import { PATH } from 'client/router/provision'
@@ -31,15 +31,12 @@ const Provisions = () => {
     )
   }
 
-  if (loading) {
-    return <LinearProgress />
-  }
-
   return (
     <Container disableGutters>
       <Box p={3}>
         <ListCards
           list={provisions}
+          isLoading={provisions.length === 0 && loading}
           handleCreate={() => history.push(PATH.PROVISIONS.CREATE)}
           CardComponent={ProviderCard}
           cardsProps={({ value: { ID } }) => ({

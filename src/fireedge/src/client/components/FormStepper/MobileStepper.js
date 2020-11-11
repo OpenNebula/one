@@ -42,12 +42,14 @@ const CustomMobileStepper = ({
 
   return (
     <Box className={classes.root}>
-      <Typography className={classes.title}>{label}</Typography>
-      {Boolean(errors[id]) && (
-        <Typography className={classes.error} variant="caption" color="error">
-          {errors[id]?.message}
-        </Typography>
-      )}
+      <Box minHeight={60}>
+        <Typography className={classes.title}>{label}</Typography>
+        {Boolean(errors[id]) && (
+          <Typography className={classes.error} variant="caption" color="error">
+            {errors[id]?.message}
+          </Typography>
+        )}
+      </Box>
       <MobileStepper
         className={classes.stepper}
         variant="progress"
@@ -71,7 +73,6 @@ const CustomMobileStepper = ({
           </Button>
         }
       />
-
     </Box>
   )
 }

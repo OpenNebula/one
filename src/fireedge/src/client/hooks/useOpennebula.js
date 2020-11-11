@@ -100,7 +100,10 @@ export default function useOpennebula () {
     dispatch(startOneRequest())
     return servicePool
       .getClusters({ filter })
-      .then(data => dispatch(actions.setCluster(data)))
+      .then(data => {
+        dispatch(actions.setCluster(data))
+        return data
+      })
       .catch(err => dispatch(failureOneRequest({ error: err })))
   }, [dispatch, filter])
 

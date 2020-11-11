@@ -1,8 +1,9 @@
 import React, { useEffect, useCallback } from 'react'
 
 import useOpennebula from 'client/hooks/useOpennebula'
-
 import useListForm from 'client/hooks/useListForm'
+import useFetch from 'client/hooks/useFetch'
+
 import ListCards from 'client/components/List/ListCards'
 import { ClusterCard, EmptyCard } from 'client/components/Cards'
 
@@ -16,18 +17,20 @@ const Clusters = () => ({
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { clusters, getClusters } = useOpennebula()
+    const { fetchRequest, loading } = useFetch(getClusters)
     const { handleSelect, handleUnselect } = useListForm({
       key: STEP_ID,
       setList: setFormData
     })
 
     useEffect(() => {
-      getClusters()
+      fetchRequest()
     }, [])
 
     return (
       <ListCards
         list={clusters}
+        isLoading={clusters.length === 0 && loading}
         EmptyComponent={<EmptyCard name={'clusters'} />}
         CardComponent={ClusterCard}
         cardsProps={({ value: { ID } }) => {

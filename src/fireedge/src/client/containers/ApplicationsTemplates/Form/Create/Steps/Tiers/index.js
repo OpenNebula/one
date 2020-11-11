@@ -31,7 +31,7 @@ const Tiers = () => {
     id: STEP_ID,
     label: 'Tier Definition',
     resolver: yup
-      .array(resolvers)
+      .array(resolvers())
       .min(1, 'Should be at least one tier')
       .required('Tiers field is required')
       .default([]),
@@ -49,7 +49,7 @@ const Tiers = () => {
         key: STEP_ID,
         list: data,
         setList: setFormData,
-        defaultValue: defaultValues()
+        defaultValue: defaultValues
       })
 
       const handleEditTier = id => {
@@ -74,7 +74,7 @@ const Tiers = () => {
           <ReactFlowProvider>
             <Box height={1} flexGrow={1}>
               <Flow
-                dataFields={Object.keys(resolvers.fields)}
+                dataFields={Object.keys(resolvers().fields)}
                 handleCreate={() => handleEditTier()}
                 handleEdit={handleEditTier}
                 handleSetData={handleSetList}

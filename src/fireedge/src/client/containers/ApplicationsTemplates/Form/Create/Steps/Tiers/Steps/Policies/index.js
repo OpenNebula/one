@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import React, { useCallback, useState, useMemo } from 'react'
 
 import { useFormContext } from 'react-hook-form'
 import { Box, Tab, Tabs, Fab, AppBar } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
+import WarningIcon from '@material-ui/icons/Warning'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { PolicyCard } from 'client/components/Cards'
@@ -43,32 +44,31 @@ const Policies = () => ({
   id: STEP_ID,
   label: 'Policies',
   resolver: POLICIES_SCHEMA,
+  optionsValidate: { abortEarly: false },
   content: useCallback(
-    ({ setFormData }) => {
-      const [tab, setTab] = useState(TABS.elasticity.name)
+    ({ data, setFormData }) => {
+      const [tabSelected, setTab] = useState(TABS.elasticity.name)
+      const { watch, errors } = useFormContext()
       const { handleSetList } = useListForm({
         key: STEP_ID,
         setList: setFormData
       })
 
-      const { watch } = useFormContext()
-      const policies = watch(STEP_ID)
-
-      useEffect(() => () => {
-        handleSetList(policies)
-      }, [])
-
       const handleRemove = id => {
-        const newDataTab = policies?.[tab]?.filter(item => item.id !== id)
-        const newPolicies = set(policies, tab, newDataTab)
+        const policies = watch(STEP_ID)
+
+        const newDataTab = policies?.[tabSelected]?.filter(item => item.id !== id)
+        const newPolicies = set(policies, tabSelected, newDataTab)
 
         handleSetList(newPolicies)
       }
 
       const handleCreate = () => {
-        const defaultValues = TABS[tab]?.schema.default()
-        const newDataTab = [...policies?.[tab] ?? []].concat(defaultValues)
-        const newPolicies = set(policies, tab, newDataTab)
+        const policies = watch(STEP_ID)
+
+        const defaultValues = TABS[tabSelected]?.schema.default()
+        const newDataTab = [...policies?.[tabSelected] ?? []].concat(defaultValues)
+        const newPolicies = set(policies, tabSelected, newDataTab)
 
         handleSetList(newPolicies)
       }
@@ -84,18 +84,25 @@ const Policies = () => ({
           </Box>
           {useMemo(() => (
             <AppBar position="static">
-              <Tabs value={tab} onChange={(_, tab) => setTab(tab)}>
+              <Tabs value={tabSelected} onChange={(_, tab) => setTab(tab)}>
                 {Object.keys(TABS).map(key =>
                   <Tab
                     key={`tab-${key}`}
                     id={`tab-${key}`}
                     value={key}
                     label={String(key).toUpperCase()}
+                    icon={ errors[STEP_ID]?.[key] && (
+                      <WarningIcon color="error" />
+                    )}
                   />
                 )}
               </Tabs>
             </AppBar>
-          ), [tab])}
+          ), [
+            tabSelected,
+            errors[STEP_ID]?.[TABS.elasticity.name],
+            errors[STEP_ID]?.[TABS.scheduled.name]
+          ])}
           <Box overflow="hidden" height={1} position="relative">
             <Fab
               color="primary"
@@ -106,9 +113,9 @@ const Policies = () => ({
             </Fab>
             {useMemo(() => (
               Object.keys(TABS).map(key => (
-                <Box key={`tab-${key}`} hidden={tab !== key} overflow="auto" height={1} p={2}>
+                <Box key={`tab-${key}`} hidden={tabSelected !== key} overflow="auto" height={1} p={2}>
                   <ListCards
-                    list={policies[key]}
+                    list={data[key]}
                     breakpoints={{ xs: 12, sm: 6 }}
                     CardComponent={PolicyCard}
                     cardsProps={({ index, value: { id } }) => ({
@@ -120,7 +127,7 @@ const Policies = () => ({
                   />
                 </Box>
               ))
-            ), [handleRemove])}
+            ), [handleRemove, tabSelected, data])}
           </Box>
         </>
       )

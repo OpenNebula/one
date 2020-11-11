@@ -30,7 +30,7 @@ function ApplicationsTemplatesCreateForm () {
   const methods = useForm({
     mode: 'onSubmit',
     defaultValues,
-    resolver: yupResolver(resolvers)
+    resolver: yupResolver(resolvers())
   })
 
   const onSubmit = formData => {
@@ -53,7 +53,7 @@ function ApplicationsTemplatesCreateForm () {
 
   useEffect(() => {
     const formData = data ? mapApplicationToForm(data) : {}
-    methods.reset(resolvers.cast(formData), { errors: false })
+    methods.reset(resolvers().cast(formData), { errors: false })
   }, [data])
 
   if (error) {

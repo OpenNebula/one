@@ -109,9 +109,7 @@ export const GROUP = {
     .nullable()
     .default(FILTER_POOL.ALL_RESOURCES),
   grid: { md: 12 },
-  fieldProps: {
-    variant: 'outlined'
-  }
+  fieldProps: { variant: 'outlined' }
 }
 
 export const FORM_USER_FIELDS = [USERNAME, PASSWORD, REMEMBER]
