@@ -1,25 +1,30 @@
 module.exports = {
-  /* FORM */
+  /* pagination / stepper */
   Back: 'Back',
   Next: 'Next',
 
-  /* VERBS */
+  /* actions */
+  Finish: 'Finish',
   SignIn: 'Sign In',
   SignOut: 'Sign Out',
   Cancel: 'Cancel',
   Save: 'Save',
   Deploy: 'Deploy',
   Submit: 'Submit',
+  Show: 'Show',
+  ShowAll: 'Show all',
+  SelectGroup: 'Select a group',
 
-  /* LOGIN */
+  /* login */
   Username: 'Username',
   Password: 'Password',
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
 
-  SelectGroup: 'Select a group',
-  ShowAll: 'Show all',
+  /* errors */
+  CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   NotFound: 'Not found',
+
   Language: 'Language',
   Response: 'Response',
   Settings: 'Settings'

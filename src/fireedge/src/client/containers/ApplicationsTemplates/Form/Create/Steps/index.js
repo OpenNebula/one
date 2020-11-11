@@ -13,14 +13,14 @@ const Steps = () => {
 
   const steps = [basic, clusters, networking, tiers]
 
-  const resolvers = yup.object({
+  const resolvers = () => yup.object({
     [basic.id]: basic.resolver,
     [clusters.id]: clusters.resolver,
     [networking.id]: networking.resolver,
     [tiers.id]: tiers.resolver
   })
 
-  const defaultValues = resolvers.default()
+  const defaultValues = resolvers().default()
 
   return { steps, defaultValues, resolvers }
 }

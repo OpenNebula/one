@@ -1,5 +1,4 @@
 import * as yup from 'yup'
-import { v4 as uuidv4 } from 'uuid'
 import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils/helpers'
 import useOpennebula from 'client/hooks/useOpennebula'
@@ -15,59 +14,9 @@ const TYPES_NETWORKS = [
   { text: 'Existing', value: 'id', select: SELECT.network, extra: false }
 ]
 
-const needExtraValue = type => TYPES_NETWORKS.some(
+const hasExtraValue = type => TYPES_NETWORKS.some(
   ({ value, extra }) => value === type && extra === false
 )
-
-const isNetworkSelector = type => TYPES_NETWORKS.some(
-  ({ value, select }) => value === type && select === SELECT.network
-)
-
-const ID = {
-  name: 'id',
-  label: 'ID',
-  type: INPUT_TYPES.TEXT,
-  htmlType: INPUT_TYPES.HIDDEN,
-  validation: yup
-    .string()
-    .uuid()
-    .required()
-    .default(uuidv4)
-}
-
-const MANDATORY = {
-  name: 'mandatory',
-  label: 'Mandatory',
-  type: INPUT_TYPES.CHECKBOX,
-  validation: yup
-    .boolean()
-    .required('Mandatory field is required')
-    .default(false),
-  grid: { md: 12 }
-}
-
-const NAME = {
-  name: 'name',
-  label: 'Name',
-  type: INPUT_TYPES.TEXT,
-  validation: yup
-    .string()
-    .trim()
-    .matches(/^[\w+\s*]*$/g, { message: 'Invalid characters' })
-    .required('Name field is required')
-    .default('')
-}
-
-const DESCRIPTION = {
-  name: 'description',
-  label: 'Description',
-  type: INPUT_TYPES.TEXT,
-  multiline: true,
-  validation: yup
-    .string()
-    .trim()
-    .default('')
-}
 
 const TYPE = {
   name: 'type',
@@ -88,8 +37,10 @@ const ID_VNET = {
   dependOf: TYPE.name,
   values: dependValue => {
     const { vNetworks, vNetworksTemplates } = useOpennebula()
+    const type = TYPES_NETWORKS.find(({ value }) => value === dependValue)
 
-    const values = isNetworkSelector(dependValue) ? vNetworks : vNetworksTemplates
+    const values =
+      type?.select === SELECT.network ? vNetworks : vNetworksTemplates
 
     return values
       .map(({ ID: value, NAME: text }) => ({ text, value }))
@@ -99,7 +50,9 @@ const ID_VNET = {
     .string()
     .trim()
     .when(TYPE.name, (type, schema) =>
-      isNetworkSelector(type)
+      TYPES_NETWORKS.some(
+        ({ value, select }) => type === value && select === SELECT.network
+      )
         ? schema.required('Network field is required')
         : schema.required('Network template field is required')
     )
@@ -112,29 +65,20 @@ const EXTRA = {
   multiline: true,
   type: INPUT_TYPES.TEXT,
   dependOf: TYPE.name,
-  htmlType: dependValue => needExtraValue(dependValue) ? INPUT_TYPES.HIDDEN : INPUT_TYPES.TEXT,
+  htmlType: dependValue => hasExtraValue(dependValue) ? INPUT_TYPES.HIDDEN : INPUT_TYPES.TEXT,
   validation: yup
     .string()
     .trim()
-    .when(TYPE.name, (type, schema) => needExtraValue(type) ? schema.strip() : schema)
+    .when(TYPE.name, (type, schema) => hasExtraValue(type) ? schema.strip() : schema)
     .default('')
 }
 
-export const FORM_FIELDS = [
-  ID,
-  MANDATORY,
-  NAME,
-  DESCRIPTION,
-  TYPE,
-  ID_VNET,
-  EXTRA
-]
+export const FORM_FIELDS = [TYPE, ID_VNET, EXTRA]
 
 export const NETWORK_FORM_SCHEMA = yup.object(
   getValidationFromFields(FORM_FIELDS)
 )
 
 export const STEP_FORM_SCHEMA = yup
-  .array()
-  .of(NETWORK_FORM_SCHEMA)
+  .array(NETWORK_FORM_SCHEMA)
   .default([])

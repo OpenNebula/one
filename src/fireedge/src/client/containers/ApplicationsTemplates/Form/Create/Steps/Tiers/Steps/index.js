@@ -14,7 +14,7 @@ const Steps = () => {
 
   const steps = [basic, networks, template, policies]
 
-  const resolvers = yup.object({
+  const resolvers = () => yup.object({
     id: yup
       .string()
       .uuid()
@@ -25,12 +25,12 @@ const Steps = () => {
     [policies.id]: policies.resolver,
     parents: yup.array().default([]),
     position: yup.object({
-      x: yup.number().default(0),
-      y: yup.number().default(0)
+      x: yup.number().round().default(0),
+      y: yup.number().round().default(0)
     })
   })
 
-  const defaultValues = () => resolvers.default()
+  const defaultValues = resolvers().default()
 
   return { steps, defaultValues, resolvers }
 }

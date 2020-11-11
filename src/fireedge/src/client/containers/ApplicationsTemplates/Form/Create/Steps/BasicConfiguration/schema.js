@@ -29,7 +29,6 @@ export const FORM_FIELDS = [
     validation: yup
       .string()
       .min(1, 'Name field is required')
-      .matches(/^[\w+\s*]+$/g, { message: 'Invalid characters' })
       .trim()
       .required('Name field is required')
       .default('')

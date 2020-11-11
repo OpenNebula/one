@@ -67,7 +67,7 @@ const Networks = () => ({
         {showDialog && (
           <DialogForm
             title={'Network form'}
-            resolver={NETWORK_FORM_SCHEMA}
+            resolver={() => NETWORK_FORM_SCHEMA}
             open={showDialog}
             values={editingData}
             onSubmit={values => {

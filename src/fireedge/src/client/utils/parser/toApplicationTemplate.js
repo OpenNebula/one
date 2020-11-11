@@ -14,7 +14,7 @@ const mapNetworkToUserInput = network => {
   return `${mandatoryValue}|network|${descriptionValue}| |${type}:${idVnetValue}${extraValue}`
 }
 
-const mapTiersToRoles = (tiers, networking, cluster) =>
+export const mapTiersToRoles = (tiers, networking, cluster) =>
   tiers?.map(data => {
     const { template, networks, parents, policies, position, tier } = data
     const { shutdown_action: action, ...information } = tier

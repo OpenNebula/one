@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
-import { LinearProgress, Container, Box } from '@material-ui/core'
+import { Container, Box } from '@material-ui/core'
 import { Alert } from '@material-ui/lab'
 
 import useApplication from 'client/hooks/useApplication'
@@ -9,9 +9,18 @@ import useFetch from 'client/hooks/useFetch'
 import ListCards from 'client/components/List/ListCards'
 import DialogInfo from 'client/containers/ApplicationsInstances/DialogInfo'
 import { ApplicationCard, EmptyCard } from 'client/components/Cards'
-import { Tr } from 'client/components/HOC'
 
 import { DONE, APPLICATION_STATES } from 'client/constants/states'
+import { CannotConnectOneFlow } from 'client/constants/translates'
+import { Tr } from 'client/components/HOC'
+
+const Error = () => (
+  <Box pt={3} display="flex" justifyContent="center">
+    <Alert severity="error" icon={false} variant="filled">
+      {Tr(CannotConnectOneFlow)}
+    </Alert>
+  </Box>
+)
 
 function ApplicationsInstances () {
   const { applications, getApplications } = useApplication()
@@ -31,17 +40,7 @@ function ApplicationsInstances () {
   ), [applications])
 
   if (error) {
-    return (
-      <Box pt={3} display="flex" justifyContent="center">
-        <Alert severity="error" icon={false} variant="filled">
-          {Tr('Cannot connect to OneFlow server')}
-        </Alert>
-      </Box>
-    )
-  }
-
-  if (loading) {
-    return <LinearProgress />
+    return <Error />
   }
 
   return (
@@ -49,6 +48,7 @@ function ApplicationsInstances () {
       <Box p={3}>
         <ListCards
           list={list}
+          isLoading={list.length === 0 && loading}
           EmptyComponent={<EmptyCard name={'applications instances'} />}
           CardComponent={ApplicationCard}
           cardsProps={({ value }) => ({

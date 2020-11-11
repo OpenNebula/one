@@ -6,6 +6,7 @@ import { useMediaQuery } from '@material-ui/core'
 
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
+import { groupBy } from 'client/utils/helpers'
 
 const FIRST_STEP = 0
 
@@ -26,8 +27,7 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
 
   const handleNext = () => {
     const { id, resolver, optionsValidate } = steps[activeStep]
-    const currentData = watch()[id]
-
+    const currentData = watch(id)
     const stepSchema = typeof resolver === 'function' ? resolver() : resolver
 
     stepSchema
@@ -41,7 +41,16 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
         }
       })
       .catch(({ inner, ...err }) => {
-        setError(id, err)
+        const errorsByPath = groupBy(inner, 'path') ?? {}
+        const totalErrors = Object.keys(errorsByPath).length
+
+        totalErrors > 0
+          ? setError(id, {
+            type: 'manual',
+            message: `${totalErrors} error(s) occurred`
+          })
+          : setError(id, err)
+
         inner?.forEach(({ path, type, message }) =>
           setError(`${id}.${path}`, { type, message })
         )
@@ -51,6 +60,10 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
   const handleBack = useCallback(() => {
     if (activeStep <= FIRST_STEP) return
 
+    const { id } = steps[activeStep]
+    const currentData = watch(id)
+
+    setFormData(prev => ({ ...prev, [id]: currentData }))
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }, [activeStep])
 

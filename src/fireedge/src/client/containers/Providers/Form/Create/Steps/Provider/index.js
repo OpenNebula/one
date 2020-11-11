@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import { LinearProgress } from '@material-ui/core'
 import FileIcon from '@material-ui/icons/Description'
 
 import useFetch from 'client/hooks/useFetch'
@@ -42,11 +41,10 @@ const Provider = () => ({
       return <Redirect to={PATH.DASHBOARD} />
     }
 
-    return (!templates || loading) ? (
-      <LinearProgress />
-    ) : (
+    return (
       <ListCards
         list={templates}
+        isLoading={!templates || loading}
         EmptyComponent={<EmptyCard name={'providers templates'} />}
         CardComponent={SelectCard}
         cardsProps={({ value: { name } }) => {

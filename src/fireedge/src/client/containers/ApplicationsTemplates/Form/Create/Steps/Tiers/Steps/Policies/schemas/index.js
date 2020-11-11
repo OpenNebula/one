@@ -15,6 +15,7 @@ const MIN_VMS = {
   tooltip: 'Minimum number of VMs for elasticity adjustments',
   validation: yup
     .number()
+    .typeError('Min. value must be a number')
     .when(ELASTICITY_ID, (value, schema) => value?.length > 0
       ? schema.required('Minimum field is required')
       : schema.notRequired().nullable()
@@ -32,6 +33,7 @@ const MAX_VMS = {
   tooltip: 'Maximum number of VMs for elasticity adjustments',
   validation: yup
     .number()
+    .typeError('Min. value must be a number')
     .moreThan(yup.ref(MIN_VMS.name), 'Max. vms field must be greater than min vms')
     .when(ELASTICITY_ID, (value, schema) => value?.length > 0
       ? schema.required('Maximum field is required')

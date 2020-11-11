@@ -7,6 +7,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { INPUT_TYPES } from 'client/constants'
 import TextController from 'client/components/FormControl/TextController'
 import SelectController from 'client/components/FormControl/SelectController'
+import SliderController from 'client/components/FormControl/SliderController'
 import CheckboxController from 'client/components/FormControl/CheckboxController'
 import AutocompleteController from 'client/components/FormControl/AutocompleteController'
 import { get } from 'client/utils/helpers'
@@ -14,6 +15,7 @@ import { get } from 'client/utils/helpers'
 const InputController = {
   [INPUT_TYPES.TEXT]: TextController,
   [INPUT_TYPES.SELECT]: SelectController,
+  [INPUT_TYPES.SLIDER]: SliderController,
   [INPUT_TYPES.CHECKBOX]: CheckboxController,
   [INPUT_TYPES.AUTOCOMPLETE]: AutocompleteController
 }
@@ -26,7 +28,18 @@ const FormWithSchema = ({ id, cy, fields }) => {
   return (
     <Grid container spacing={1}>
       {fields?.map(
-        ({ name, type, htmlType, label, values, dependOf, tooltip, grid, fieldProps }) => {
+        ({
+          name,
+          type,
+          htmlType,
+          label,
+          values,
+          multiple,
+          dependOf,
+          tooltip,
+          grid,
+          fieldProps
+        }) => {
           const dataCy = `${cy}-${name}`
           const inputName = id ? `${id}.${name}` : name
 
@@ -53,6 +66,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
                     name: inputName,
                     label,
                     tooltip,
+                    multiple,
                     values: typeof values === 'function'
                       ? values(dependValue)
                       : values,
