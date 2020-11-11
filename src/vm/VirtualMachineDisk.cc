@@ -1006,7 +1006,9 @@ void VirtualMachineDisks::get_cloning_image_ids(std::set<int>& ids)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualMachineDisks::clear_cloning_image_id(int iid, const string& source)
+void VirtualMachineDisks::clear_cloning_image_id(int iid,
+                                                 const string& source,
+                                                 const string& format)
 {
     int image_id;
 
@@ -1016,6 +1018,12 @@ void VirtualMachineDisks::clear_cloning_image_id(int iid, const string& source)
         {
             (*disk)->clear_cloning();
             (*disk)->replace("SOURCE", source);
+		
+            if ( !format.empty() )
+	    {
+		(*disk)->replace("DRIVER", format);
+		(*disk)->replace("FORMAT", format);
+	    }
 
             break;
         }

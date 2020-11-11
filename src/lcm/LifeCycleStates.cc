@@ -2081,7 +2081,7 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
             return;
         }
 
-        vector< pair<int,string> > ready;
+        vector<tuple<int, string, string>> ready;
         set<int> error;
 
         for (auto id : ids)
@@ -2091,7 +2091,7 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
                 switch (image->get_state()) {
                     case Image::USED:
                     case Image::USED_PERS:
-                        ready.push_back(make_pair(id, image->get_source()));
+                        ready.push_back(make_tuple(id, image->get_source(), image->get_format()));
                         break;
 
                     case Image::ERROR:
@@ -2118,9 +2118,9 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
             return;
         }
 
-        for (auto rit : ready)
+        for (const auto& rit : ready)
         {
-            vm->clear_cloning_image_id(rit.first, rit.second);
+            vm->clear_cloning_image_id(get<0>(rit), get<1>(rit), get<2>(rit));
         }
 
         if (ids.size() == ready.size())
