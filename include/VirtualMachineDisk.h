@@ -559,7 +559,9 @@ public:
     /**
      * Clears the flag for the disks waiting for the given image
      */
-    void clear_cloning_image_id(int image_id, const std::string& source);
+    void clear_cloning_image_id(int image_id,
+                                const std::string& source,
+                                const std::string& format);
 
     /* ---------------------------------------------------------------------- */
     /* Attach disk Interface                                                  */
