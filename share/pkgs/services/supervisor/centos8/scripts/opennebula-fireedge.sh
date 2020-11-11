@@ -9,7 +9,7 @@ TIMEOUT=120
 # functions
 #
 
-. /usr/share/one/supervisord/service/lib/functions.sh
+. /usr/share/one/supervisor/scripts/lib/functions.sh
 
 #
 # run service
