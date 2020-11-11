@@ -176,7 +176,6 @@ function clean_cache() {
 # Checks if recovery snapshot exists for given VM/DISK,
 # ------------------------------------------------------------------------------
 function recovery_snap_exists() {
-    REPLICA_RECOVERY_SNAPS_DIR="/var/lib/one/datastores/replica_snaps"
     local REPLICA_HOST=$1
     local DISK=$2
 
