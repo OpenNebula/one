@@ -126,7 +126,7 @@ class OpenNebulaVMRC
         ticket
     end
 
-    def proxy(vm_resource, client=nil)
+    def proxy(vm_resource, client = nil)
         # Check configurations and VM attributes
         unless VMRC_STATES.include?(vm_resource['LCM_STATE'])
             error_message = "Wrong state (#{vm_resource['LCM_STATE']}) to

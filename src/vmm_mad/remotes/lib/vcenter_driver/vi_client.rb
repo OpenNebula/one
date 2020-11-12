@@ -139,7 +139,7 @@ module VCenterDriver
             entities
         end
 
-        def self.new_from_host(host_id, client=nil)
+        def self.new_from_host(host_id, client = nil)
             begin
                 client = OpenNebula::Client.new if client.nil?
                 host = OpenNebula::Host.new_with_id(host_id, client)
