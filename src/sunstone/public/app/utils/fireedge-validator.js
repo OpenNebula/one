@@ -25,6 +25,22 @@ define(function (require) {
 
     // Recursive function to validate if Fireedge Server is running 
     var _is_fireedge_running = function(tries, success_function, error_function) {
+
+        if (!success_function){
+            success_function = function() {
+                sessionStorage.setItem(session_var, "true");
+            };
+        }
+
+        if (!error_function){
+            error_function = function() {
+                sessionStorage.removeItem(session_var);
+                setTimeout(function(){
+                    _is_fireedge_running(tries+1, success_function);
+                }, 1000);
+            };
+        }
+
         var fireedge_running = sessionStorage.getItem(session_var);
         if (!fireedge_running && (tries < max_tries)){
             _request(success_function,error_function);
@@ -41,25 +57,16 @@ define(function (require) {
     }
 
     var _validate_fireedge = function() {
-        var success_function = function() {
-            sessionStorage.setItem(session_var, "true");
-        };
-        var error_function = function() {
-            sessionStorage.removeItem(session_var);
-            setTimeout(function(){
-                _is_fireedge_running(tries+1);
-            }, 1000);
-        } 
-        _is_fireedge_running(0, success_function, error_function);
+        _is_fireedge_running(0);
     }
 
-    var _validate_fireedge_with_functions = function(success,error) {
-        _is_fireedge_running(0,success,error);
+    var _validate_fireedge_with_different_success = function(success) {
+        _is_fireedge_running(0,success);
     }
   
     var fireedge_validator = {
       "validateFireedge": _validate_fireedge,
-      "validateFireedgeWithFunctions": _validate_fireedge_with_functions,
+      "validateFireedgeWithDifferentSuccess": _validate_fireedge_with_different_success,
       "request": _request,
       "sessionVar": session_var
     };

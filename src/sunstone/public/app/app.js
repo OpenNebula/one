@@ -79,13 +79,7 @@ define(function(require) {
         sessionStorage.setItem(FireedgeValidator.sessionVar, "true");
         Websocket.start();
     };
-    var error_function = function() {
-        sessionStorage.removeItem(FireedgeValidator.sessionVar);
-        setTimeout(function(){
-            _is_fireedge_running(tries+1);
-        }, 1000);
-    } 
-    FireedgeValidator.validateFireedgeWithFunctions(success_function,error_function);
+    FireedgeValidator.validateFireedgeWithDifferentSuccess(success_function);
     
 
     $('#loading').hide();
