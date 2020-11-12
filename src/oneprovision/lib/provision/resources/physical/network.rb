@@ -23,8 +23,9 @@ module OneProvision
 
         # Class constructor
         #
-        # @param provider [provider] Network provider
-        def initialize(provider = nil)
+        # @param provider   [Provider] Network provider
+        # @param p_template [Hash]     Resource information in hash form
+        def initialize(provider, p_template = nil)
             super
 
             @pool = OpenNebula::VirtualNetworkPool.new(@client)

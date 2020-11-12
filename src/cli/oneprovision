@@ -144,9 +144,12 @@ CommandParser::CmdParser.new(ARGV) do
             validate_desc,
             [:config_file],
             :options => OneProvisionHelper::DUMP do
-        dump = options.key? :dump
+        config = OneProvision::ProvisionConfig.new(args[0])
+        config = config.validate
 
-        OneProvision::Utils.validate_configuration(args[0], dump)
+        puts config.to_yaml if (options.key? :dump)
+
+        0
     end
 
     ###

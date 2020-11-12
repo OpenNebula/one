@@ -1,3 +1,4 @@
+<% if provision['CIDR'] && provision['CIDR'] != "" %>
 resource "aws_vpc" "device_<%= obj['ID'] %>" {
     cidr_block = "<%= provision['CIDR'] %>"
 
@@ -19,4 +20,5 @@ resource "aws_route" "device_<%= obj['ID'] %>" {
     destination_cidr_block = "<%= provision['DEST_CIDR'] %>"
     gateway_id             = aws_internet_gateway.device_<%= obj['ID'] %>.id
 }
+<% end %>
 

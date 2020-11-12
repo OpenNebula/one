@@ -19,6 +19,9 @@ module OneProvision
     # Provision class as wrapper of DocumentJSON
     class Provision < ProvisionElement
 
+        # @idx [Integer] Index used when creating multiple objects
+        attr_reader :idx
+
         DOCUMENT_TYPE = 103
 
         STATE = {
@@ -97,6 +100,11 @@ module OneProvision
             @body['provision']['infrastructure']
         end
 
+        # Get cluster information
+        def cluster
+            infrastructure_objects['clusters'][0]
+        end
+
         # Returns provision hosts
         def hosts
             infrastructure_objects['hosts']
@@ -114,9 +122,7 @@ module OneProvision
 
         # Returns provision provider
         def provider
-            if @body['provider'] == 'dummy'
-                return { 'NAME' => 'dummy' }
-            end
+            return { 'NAME' => 'dummy' } if @body['provider'] == 'dummy'
 
             Provider.by_name(@client, @body['provider'])
         end
@@ -191,8 +197,15 @@ module OneProvision
         def deploy(config, cleanup, timeout, skip, provider)
             Ansible.check_ansible_version if skip == :none
 
+            cfg = ProvisionConfig.new(config)
+            cfg.validate
+
             begin
-                cfg = Utils.read_config(config)
+                @idx = nil
+
+                # Create configuration object
+                cfg = ProvisionConfig.new(config)
+                cfg.load
 
                 # read provider information
                 unless provider
@@ -205,6 +218,12 @@ module OneProvision
                 unless provider
                     return OpenNebula::Error.new('No provider found')
                 end
+
+                @provider = provider
+
+                allocate(cfg, provider)
+
+                info(true)
 
                 # Respect user information, only add provider info if
                 # the user hasn't specified any
@@ -219,21 +238,21 @@ module OneProvision
                 conn = provider.connection
 
                 if uid == provider['UID']
-                    cfg['defaults']['provision'] = conn.merge(
-                        cfg['defaults']['provision']
+                    cfg['defaults/provision'] = conn.merge(
+                        cfg['defaults/provision']
                     )
 
                     OneProvisionLogger.debug('Merging provider connection')
                 else
-                    cfg['defaults']['provision'] = conn
+                    cfg['defaults/provision'] = conn if conn
 
                     OneProvisionLogger.debug('Using provider connection')
                 end
 
                 # read provision file
-                cfg = Utils.create_config(cfg)
+                cfg.parse
 
-                # @name is used for ERB evaluation
+                # @name is used for template evaluation
                 @name = cfg['name']
 
                 OneProvisionLogger.info('Creating provision objects')
@@ -245,16 +264,12 @@ module OneProvision
                 # If cluster fails to create and user select skip, exit
                 exit if rc == :skip
 
-                create_infra_resources(cfg, cfg['cluster']['id'])
-                create_hosts(cfg, cfg['cluster']['id'])
-
-                allocate(cfg, provider)
+                create_infra_resources(cfg)
+                create_hosts(cfg)
 
                 Mode.new_cleanup(true)
 
-                self.info(true)
-
-                # @id is used for ERB evaluation
+                # @id is used for template evaluation
                 @id = self['ID']
 
                 if skip != :all && hosts && !hosts.empty?
@@ -281,6 +296,8 @@ module OneProvision
                     @body['tf']          = {}
                     @body['tf']['state'] = state
                     @body['tf']['conf']  = conf
+
+                    update
                 end
 
                 if skip == :none
@@ -368,17 +385,19 @@ module OneProvision
 
             OneProvisionLogger.info("Deleting provision #{self['ID']}")
 
-            if !hosts.empty? && tf_state && tf_conf
+            if hosts && !hosts.empty? && tf_state && tf_conf
                 Driver.tf_action(self, 'destroy', tf)
             end
 
-            Driver.retry_loop 'Failed to delete hosts' do
-                hosts.each do |host|
-                    id   = host['id']
-                    host = Host.new(provider['NAME'])
+            if hosts
+                Driver.retry_loop 'Failed to delete hosts' do
+                    hosts.each do |host|
+                        id   = host['id']
+                        host = Host.new(provider)
 
-                    host.info(id)
-                    host.delete
+                        host.info(id)
+                        host.delete
+                    end
                 end
             end
 
@@ -445,11 +464,6 @@ module OneProvision
             update
         end
 
-        # Returns the binding of the class
-        def _binding
-            binding
-        end
-
         # Reads provider name from template
         #
         # @param template [Hash] Provision information
@@ -460,8 +474,8 @@ module OneProvision
 
             # Provider can be set in provision defaults or in hosts
             # it's the same for all hosts, taking the first one is enough
-            if template['defaults'] && template['defaults']['provision']
-                provider = template['defaults']['provision']['provider']
+            if template['defaults'] && template['defaults/provision']
+                provider = template['defaults/provision/provider']
             end
 
             if !provider && template['hosts'][0]['provision']
@@ -497,20 +511,6 @@ module OneProvision
             document['provision'] = {}
             document['provision']['infrastructure'] = {}
 
-            FULL_CLUSTER.each do |r|
-                next unless template[r]
-
-                document['provision']['infrastructure'][r] = []
-
-                template[r].each do |o|
-                    obj         = {}
-                    obj['name'] = o['name']
-                    obj['id']   = o['id']
-
-                    document['provision']['infrastructure'][r] << obj
-                end
-            end
-
             # Resources are allocated later
             document['provision']['resource'] = {}
 
@@ -523,44 +523,46 @@ module OneProvision
         #
         # @return [OpenNebula::Cluster]
         def create_cluster(cfg)
-            msg = "Creating OpenNebula cluster: #{cfg['cluster']['name']}"
+            msg = "Creating OpenNebula cluster: #{cfg['cluster/name']}"
 
             OneProvisionLogger.debug(msg)
 
-            cluster = Cluster.new
-            id      = cluster.create(cfg['cluster'])
+            obj = Cluster.new(nil, cfg['cluster'])
 
-            # Update cluster information in template
-            cfg['cluster']['id'] = id
+            obj.evaluate_rules(self)
 
-            cfg['clusters'] = []
-            cfg['clusters'] << { 'name' => cfg['cluster']['name'], 'id' => id }
+            id = obj.create
+
+            infrastructure_objects['clusters'] = []
+            infrastructure_objects['clusters'] << { 'id'   => id,
+                                                    'name' => obj.one['NAME'] }
 
             OneProvisionLogger.debug("Cluster created with ID: #{id}")
+
+            update
         end
 
         # Creates provision infrastructure resources
         #
         # @param cfg       [Hash]    Provision information
         # @param resources [Array]   Resource names
-        # @param cid       [Integer] Cluster ID
-        def create_resources(cfg, resources, cid = nil)
+        def create_resources(cfg, resources)
+            cid = Integer(cluster['id'])
+
             resources.each do |r|
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
                     Driver.retry_loop 'Failed to create some resources' do
-                        obj = Resource.object(r)
+                        obj = Resource.object(r, nil, x)
 
                         next if obj.nil?
-
-                        x = Utils.evaluate_erb(self, x)
 
                         OneProvisionLogger.debug(
                             "Creating #{r[0..-2]} #{x['name']}"
                         )
 
-                        yield(r, obj, x, cid)
+                        yield(r, obj, cid)
 
                         obj.template_chown(x)
                         obj.template_chmod(x)
@@ -573,15 +575,17 @@ module OneProvision
 
         # Creates provision infrastructure resources
         #
-        # @param cfg [Hash]    Provision information
-        # @param cid [Integer] Cluster ID
-        def create_infra_resources(cfg, cid)
-            create_resources(cfg, INFRASTRUCTURE_RESOURCES, cid) do |_,
-                                                                     obj,
-                                                                     x,
-                                                                     c|
-                x['id']   = obj.create(x, c)
-                x['name'] = obj.one['NAME']
+        # @param cfg [Hash] Provision information
+        def create_infra_resources(cfg)
+            create_resources(cfg, INFRASTRUCTURE_RESOURCES) do |r, obj, c|
+                obj.evaluate_rules(self)
+
+                infrastructure_objects[r] = [] unless infrastructure_objects[r]
+
+                id = obj.create(c)
+
+                infrastructure_objects[r] << { 'id'   => id,
+                                               'name' => obj.one['NAME'] }
             end
         end
 
@@ -589,8 +593,10 @@ module OneProvision
         #
         # @param cfg [Hash] Provision information
         def create_virtual_resources(cfg)
-            create_resources(cfg, RESOURCES) do |r, obj, x, _|
-                ret                 = obj.create(x)
+            create_resources(cfg, RESOURCES) do |r, obj, _|
+                obj.evaluate_rules(self)
+
+                ret                 = obj.create
                 resource_objects[r] = [] unless resource_objects[r]
 
                 if ret.is_a? Array
@@ -614,48 +620,45 @@ module OneProvision
 
         # Creates provision hosts
         #
-        # @param cfg [Hash]    Provision information
-        # @param cid [Integer] Cluster ID
-        def create_hosts(cfg, cid)
+        # @param cfg [Hash] Provision information
+        def create_hosts(cfg)
             return unless cfg['hosts']
 
-            hosts = []
+            infrastructure_objects['hosts'] = []
+            cid = Integer(cluster['id'])
 
             cfg['hosts'].each do |h|
                 h['count'].nil? ? count = 1 : count = Integer(h['count'])
 
+                # Store original host template
+                h_bck = Marshal.load(Marshal.dump(h))
+
                 count.times.each do |idx|
+                    @idx = idx
+
                     Driver.retry_loop 'Failed to create some host' do
-                        # Update hostname to avoid multiple same names
-                        hostname = h['provision']['hostname'] if h['provision']
-
-                        if hostname && count > 1
-                            h['provision']['hostname'] = "#{hostname}_#{idx}"
-                        end
-
-                        erb   = Utils.evaluate_erb(self, h)
-                        dfile = Utils.create_deployment_file(erb)
-
                         playbooks = cfg['playbook']
                         playbooks = playbooks.join(',') if playbooks.is_a? Array
 
-                        host      = Host.new
-                        host      = host.create(dfile.to_xml, cid, playbooks)
+                        h    = Marshal.load(Marshal.dump(h_bck))
+                        host = Resource.object('hosts', @provider, h)
 
-                        if count > 1 && idx > 0
-                            hosts << { 'id'   => Integer(host['ID']),
-                                       'name' => host['NAME'] }
-                        else
-                            h['id']   = Integer(host['ID'])
-                            h['name'] = host['NAME']
-                        end
+                        host.evaluate_rules(self)
+
+                        dfile = host.create_deployment_file
+                        host  = host.create(dfile.to_xml, cid, playbooks)
+
+                        obj = { 'id'   => Integer(host['ID']),
+                                'name' => host['NAME'] }
+
+                        infrastructure_objects['hosts'] << obj
 
                         host.offline
+
+                        update
                     end
                 end
             end
-
-            cfg['hosts'] += hosts
         end
 
         # Updates provision hosts with new name
@@ -664,7 +667,7 @@ module OneProvision
         # @param ids [Array] IDs for each host
         def update_hosts(ips, ids)
             hosts.each do |h|
-                host = Host.new(provider)
+                host = Resource.object('hosts', provider)
                 host.info(h['id'])
 
                 name = ips.shift
@@ -688,7 +691,7 @@ module OneProvision
             return unless hosts
 
             hosts.each do |h|
-                host = Host.new
+                host = Resource.object('hosts')
 
                 Utils.exception(host.info(h['id']))
 
@@ -705,7 +708,7 @@ module OneProvision
             return unless datastores
 
             datastores.each do |d|
-                datastore = Datastore.new
+                datastore = Resource.object('datastores')
 
                 Utils.exception(datastore.info(d['id']))
 
@@ -735,7 +738,7 @@ module OneProvision
                 d_hosts = []
 
                 hosts.each do |h|
-                    host = Host.new
+                    host = Resource.object('hosts')
 
                     Utils.exception(host.info(h['id']))
 
@@ -766,7 +769,7 @@ module OneProvision
                 d_datastores = []
 
                 datastores.each do |d|
-                    datastore = Datastore.new
+                    datastore = Resource.object('datastores')
 
                     Utils.exception(datastore.info(d['id']))
 

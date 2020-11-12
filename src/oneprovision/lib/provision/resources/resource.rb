@@ -22,13 +22,46 @@ module OneProvision
         # Keys to remove from template
         REJECT_KEYS = %w[meta]
 
+        # Valid keys in template evaluation
+        EVAL_KEYS = %w[cluster
+                       datastore
+                       host
+                       image
+                       network
+                       template
+                       vntemplate
+                       marketplaceapp]
+
+        S_EVAL_KEYS = %w[index
+                         provision
+                         provision_id]
+
         # @one  ONE object
         # @pool ONE pool
         attr_reader :one, :pool
 
         # Class constructor
-        def initialize
-            @client = OpenNebula::Client.new
+        #
+        # @param p_template [Hash] Resource information in hash form
+        def initialize(p_template)
+            @client     = OpenNebula::Client.new
+            @p_template = p_template
+        end
+
+        # Evaluate provision template rules that reference other objects
+        # in the provision.
+        #
+        # Rules with format ${object.name.attr} will be transformed by the
+        # real value.
+        #
+        # All the references to provision or provision_id will be changed by
+        # the provision name and the provision ID.
+        #
+        # @param provision [Provision] Provision information
+        def evaluate_rules(provision)
+            config = ProvisionConfig.new(@p_template)
+
+            config.eval_rules(provision)
         end
 
         # Create operation is implemented in childs
@@ -38,30 +71,31 @@ module OneProvision
 
         # Factory to return new object
         #
-        # @param type     [String]   Object type
-        # @param provider [Provider] Provider to execute remote operations
-        def self.object(type, provider = nil)
+        # @param type       [String]   Object type
+        # @param provider   [Provider] Provider to execute remote operations
+        # @param p_template [Hash]     Resource information in hash form
+        def self.object(type, provider = nil, p_template = nil)
             type = type.downcase[0..-2].to_sym
 
             case type
             when :cluster
-                Cluster.new(provider)
+                Cluster.new(provider, p_template)
             when :datastore
-                Datastore.new(provider)
+                Datastore.new(provider, p_template)
             when :host
-                Host.new(provider)
+                Host.new(provider, p_template)
             when :image
-                Image.new
+                Image.new(p_template)
             when :network
-                Network.new(provider)
+                Network.new(provider, p_template)
             when :template
-                Template.new
+                Template.new(p_template)
             when :vntemplate
-                VnTemplate.new
+                VnTemplate.new(p_template)
             when :flowtemplate
-                FlowTemplate.new
+                FlowTemplate.new(p_template)
             when :marketplaceapp
-                MarketPlaceApp.new
+                MarketPlaceApp.new(p_template)
             else
                 nil
             end
@@ -186,7 +220,7 @@ module OneProvision
                     "Chown #{@type} #{@one.id} #{user}:#{group}"
                 )
 
-                rc = @one.chown(user, group)
+                rc = @one.chown(Integer(user), Integer(group))
 
                 return unless OpenNebula.is_error?(rc)
 

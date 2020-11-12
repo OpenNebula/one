@@ -17,6 +17,7 @@
 require 'provision/ansible'
 require 'provision/driver'
 require 'provision/provision'
+require 'provision/provision_config'
 require 'provision/provision_pool'
 require 'provision/resources'
 require 'provision/utils'

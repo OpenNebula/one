@@ -23,8 +23,9 @@ module OneProvision
 
         # Class constructor
         #
-        # @param provider [Provider] Datastore provider
-        def initialize(provider = nil)
+        # @param provider   [Provider] Datastore provider
+        # @param p_template [Hash]     Resource information in hash form
+        def initialize(provider, p_template = nil)
             super
 
             @pool = OpenNebula::DatastorePool.new(@client)

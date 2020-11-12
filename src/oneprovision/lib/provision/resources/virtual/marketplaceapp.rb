@@ -22,7 +22,9 @@ module OneProvision
     class MarketPlaceApp < VirtualSyncResource
 
         # Class constructor
-        def initialize
+        #
+        # @param p_template [Hash] Resource information in hash form
+        def initialize(p_template)
             super
 
             @type = 'marketplaceapp'
@@ -30,13 +32,11 @@ module OneProvision
 
         # Creates a new object in OpenNebula
         #
-        # @param template [String] Object template
-        #
         # @return [Integer] Resource ID
-        def create(template)
-            meta = template['meta']
+        def create
+            meta = @p_template['meta']
 
-            app_id        = template['appid'] || name_to_id(template['appname'])
+            app_id = @p_template['appid'] || name_to_id(@p_template['appname'])
             wait, timeout = OneProvision::ObjectOptions.get_wait(meta)
 
             check_wait(wait)
@@ -56,15 +56,15 @@ module OneProvision
             Utils.exception(rc)
             app.extend(MarketPlaceAppExt)
 
-            url_args = "tag=#{template['tag']}" if template['tag']
+            url_args = "tag=#{@p_template['tag']}" if @p_template['tag']
             rc       = app.info
 
             Utils.exception(rc)
 
             rc = app.export(
-                :dsid => Integer(template['dsid']),
-                :name => template['name'],
-                :vmtemplate_name => template['vmname'],
+                :dsid => Integer(@p_template['dsid']),
+                :name => @p_template['name'],
+                :vmtemplate_name => @p_template['vmname'],
                 :url_args => url_args
             )
             Utils.exception(rc[:image].first) if rc[:image]
@@ -94,17 +94,19 @@ module OneProvision
                                            'wait_timeout' => timeout })
 
             # Change permissions and ownership
-            @image.template_chown(template)
-            @image.template_chmod(template)
-            @template.template_chown(template)
-            @template.template_chmod(template)
+            @image.template_chown(@p_template)
+            @image.template_chmod(@p_template)
+            @template.template_chown(@p_template)
+            @template.template_chmod(@p_template)
 
-            return [image_id, template_id] unless wait
+            ret = [{ 'id' => image_id, 'name' => @image.one['NAME'] },
+                   { 'id' => template_id, 'name' => @template.one['NAME'] }]
+
+            return ret unless wait
 
             @image.wait_state('READY', timeout)
 
-            [{ 'id' => image_id, 'name' => @image.one['NAME'] },
-             { 'id' => template_id, 'name' => @template.one['NAME'] }]
+            ret
         end
 
         ########################################################################
