@@ -62,7 +62,7 @@ helpers do
 
         if vpass.size > MAX_VCENTER_PASSWORD_LENGTH
             begin
-                client = OpenNebula::Client.new
+                client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
                 system = OpenNebula::System.new(client)
                 config = system.get_configuration
                 token = config["ONE_KEY"]
@@ -96,16 +96,16 @@ helpers do
         error code, error.to_json
     end
 
-    def viclient_from_host
+    def viclient_from_host(client)
         host_id = params["host"]
 
-        VCenterDriver::VIClient.new_from_host(host_id) if host_id
+        VCenterDriver::VIClient.new_from_host(host_id, client) if host_id
     end
 
-    def new_vcenter_importer(type)
+    def new_vcenter_importer(type, one_client=nil)
         host_id = params["host"]
-        vi_client = VCenterDriver::VIClient.new_from_host(host_id) if host_id
-        one_client = OpenNebula::Client.new
+        one_client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc]) if one_client.nil?
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id, one_client) if host_id
         $importer = VCenterDriver::VcImporter.new_child(one_client, vi_client, type)
     end
 
@@ -115,6 +115,9 @@ get '/vcenter/hosts' do
     begin
         dc_folder = VCenterDriver::DatacenterFolder.new(vcenter_client)
 
+        client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
+
+        VCenterDriver::VIHelper.set_client(nil, client)
         hpool = VCenterDriver::VIHelper.one_pool(OpenNebula::HostPool, false)
 
         if hpool.respond_to?(:message)
@@ -137,7 +140,8 @@ end
 
 get '/vcenter/datastores' do
     begin
-        new_vcenter_importer("datastores")
+        client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
+        new_vcenter_importer("datastores", client)
 
         [200, $importer.retrieve_resources.to_json]
     rescue Exception => e
@@ -161,7 +165,8 @@ end
 
 get '/vcenter/templates' do
     begin
-        new_vcenter_importer("templates")
+        client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
+        new_vcenter_importer("templates", client)
 
         [200, $importer.retrieve_resources.to_json]
     rescue Exception => e
@@ -185,7 +190,8 @@ end
 
 get '/vcenter/networks' do
     begin
-        new_vcenter_importer("networks")
+        client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
+        new_vcenter_importer("networks", client)
         opts = {:host => params["host"], :filter => true}
         [200, $importer.retrieve_resources(opts).to_json]
     rescue Exception => e
@@ -209,8 +215,10 @@ end
 
 get '/vcenter/images' do
     begin
-        new_vcenter_importer("images")
+        client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
+        new_vcenter_importer("images", client)
 
+        VCenterDriver::VIHelper.set_client(nil, client)
         ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, params["ds"])
 
         opts = {
@@ -240,8 +248,8 @@ end
 
 post '/vcenter/wild' do
     begin
-        client = OpenNebula::Client.new
-        vi_client = viclient_from_host
+        client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
+        vi_client = viclient_from_host(client)
         importer  = VCenterDriver::VmmImporter.new(client, vi_client).tap do |im|
             im.list(params["host"], params["opts"])
         end

@@ -51,13 +51,13 @@ class VIClient
         !!@rp
     end
 
-    def get_host_credentials()
+    def get_host_credentials(one_client)
         raise "no host id defined!" if @host_id == -1
 
-        host = OpenNebula::Host.new_with_id(@host_id, OpenNebula::Client.new)
+        host = OpenNebula::Host.new_with_id(@host_id, one_client)
         rc = host.info
         if OpenNebula.is_error?(rc)
-            raise "Could not get host info for ID: #{host_id} - #{rc.message}"
+            raise "Could not get host info for ID: #{@host_id} - #{rc.message}"
         end
 
         {pass: host["TEMPLATE/VCENTER_PASSWORD"],
@@ -121,9 +121,9 @@ class VIClient
         return entities
     end
 
-    def self.new_from_host(host_id)
+    def self.new_from_host(host_id, client=nil)
         begin
-            client = OpenNebula::Client.new
+            client = OpenNebula::Client.new if client.nil?
             host = OpenNebula::Host.new_with_id(host_id, client)
             rc = host.info(true)
             if OpenNebula.is_error?(rc)

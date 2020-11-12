@@ -795,7 +795,12 @@ class DsImporter < VCenterDriver::VcImporter
 
                 add_clusters(id, clusters)
 
-                inner.call(one_object, @vi_client.get_host_credentials)
+                inner.call(
+                    one_object,
+                    @vi_client.get_host_credentials(
+                        @one_client
+                    )
+                )
             end
         end
 
