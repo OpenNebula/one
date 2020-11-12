@@ -22,7 +22,9 @@ module OneProvision
     class Image < VirtualSyncResource
 
         # Class constructor
-        def initialize
+        #
+        # @param p_template [Hash] Resource information in hash form
+        def initialize(p_template = nil)
             super
 
             @pool = OpenNebula::ImagePool.new(@client)
@@ -31,11 +33,9 @@ module OneProvision
 
         # Creates a new object in OpenNebula
         #
-        # @param template [Hash]   Object attributes
-        #
         # @return [Integer] Resource ID
-        def create(template)
-            meta = template['meta']
+        def create
+            meta = @p_template['meta']
 
             wait, timeout = OneProvision::ObjectOptions.get_wait(meta)
             info          = { 'wait'         => wait,
@@ -43,13 +43,13 @@ module OneProvision
 
             check_wait(wait)
 
-            add_provision_info(template, info)
+            add_provision_info(@p_template, info)
 
             # create ONE object
             new_object
 
-            rc = @one.allocate(format_template(template),
-                               Integer(template['ds_id']))
+            rc = @one.allocate(format_template(@p_template),
+                               Integer(@p_template['ds_id']))
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)
@@ -60,7 +60,7 @@ module OneProvision
 
             return Integer(@one.id) unless wait
 
-            ready?(template)
+            ready?
         end
 
         # Info an specific object
@@ -80,12 +80,10 @@ module OneProvision
 
         # Wait until the image is ready, retry if fail
         #
-        # @param template [Hash] Object attributes
-        #
         # @return [Integer] Resource ID
-        def ready?(template)
+        def ready?
             Driver.retry_loop 'Fail to create image' do
-                wait_state('READY', template['timeout'])
+                wait_state('READY', @p_template['timeout'])
 
                 # check state after existing wait loop
                 @one.info
@@ -93,7 +91,7 @@ module OneProvision
                 case @one.state_str
                 when 'LOCKED'
                     # if locked, keep waiting
-                    ready?(template)
+                    ready?
                 when 'ERROR'
                     # if error, delete the image and try to create it again
                     raise OneProvisionLoopException

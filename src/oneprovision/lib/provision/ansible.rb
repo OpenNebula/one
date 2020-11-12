@@ -104,7 +104,7 @@ module OneProvision
                             )
 
                             hosts.each do |h|
-                                host = Host.new
+                                host = Resource.object('hosts')
 
                                 host.info(h['id'])
                                 host.one.enable
@@ -252,7 +252,7 @@ module OneProvision
                 c = "[nodes]\n"
 
                 hosts.each do |h|
-                    host = Host.new
+                    host = Resource.object('hosts')
                     host.info(h['id'])
 
                     c << "#{host.one['NAME']}\n"
@@ -263,7 +263,7 @@ module OneProvision
                 c << "[targets]\n"
 
                 hosts.each do |h|
-                    host = Host.new
+                    host = Resource.object('hosts')
                     host.info(h['id'])
 
                     conn = get_host_template_conn(host.one)
@@ -281,7 +281,7 @@ module OneProvision
                 Dir.mkdir("#{ansible_dir}/host_vars")
 
                 hosts.each do |h|
-                    host = Host.new
+                    host = Resource.object('hosts')
                     host.info(h['id'])
 
                     var = host.one['TEMPLATE/PROVISION_CONFIGURATION_BASE64']
@@ -292,7 +292,7 @@ module OneProvision
                     Driver.write_file_log(fname, c)
                 end
 
-                host = Host.new
+                host = Resource.object('hosts')
                 host.info(hosts[0]['id'])
 
                 if host.one['TEMPLATE/ANSIBLE_PLAYBOOK']

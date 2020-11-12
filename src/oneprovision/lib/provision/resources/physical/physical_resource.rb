@@ -23,24 +23,24 @@ module OneProvision
 
         # Class constructor
         #
-        # @param provider [Provider] Resource provider
-        def initialize(provider)
-            super()
+        # @param provider   [Provider] Resource provider
+        # @param p_template [Hash]     Resource information in hash form
+        def initialize(provider, p_template)
+            super(p_template)
 
             @provider = provider
         end
 
         # Creates the object in OpenNebula
         #
-        # @param template   [Hash]    Object attributes
         # @param cluster_id [Integer] Cluster ID
         #
         # @return [Integer] Resource ID
-        def create(template, cluster_id)
+        def create(cluster_id)
             # create ONE object
             new_object
 
-            rc = @one.allocate(format_template(template), cluster_id)
+            rc = @one.allocate(format_template(@p_template), cluster_id)
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)

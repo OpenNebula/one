@@ -23,14 +23,12 @@ module OneProvision
 
         # Creates a new object in OpenNebula
         #
-        # @param template [Hash] Object attributes
-        #
         # @return [Integer] Resource ID
-        def create(template)
+        def create
             # create ONE object
             new_object
 
-            rc = @one.allocate(format_template(template))
+            rc = @one.allocate(format_template(@p_template))
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)

@@ -167,8 +167,9 @@ class OneProvisionTemplateHelper < OpenNebulaHelper::OneHelper
     # @return [YAML] Template in YAML format
     def validate(template)
         begin
-            template = OneProvision::Utils.read_config(template)
-            provider = OneProvision::Provision.read_provider(template)
+            config   = OneProvision::ProvisionConfig.new(template)
+            template = config.validate
+            provider = OneProvision::Provision.read_provider(config)
 
             raise 'Name not found' unless template['name']
             raise 'Provider not found in template' unless provider

@@ -23,9 +23,10 @@ module OneProvision
 
         # Class constructor
         #
-        # @param provider [provider] Cluster provider
-        def initialize(provider = nil)
-            super()
+        # @param provider   [Provider] Cluster provider
+        # @param p_template [Hash]     Resource information in hash form
+        def initialize(provider, p_template = nil)
+            super(p_template)
 
             @pool     = OpenNebula::ClusterPool.new(@client)
             @type     = 'cluster'
@@ -34,15 +35,13 @@ module OneProvision
 
         # Creates a new cluster in OpenNebula
         #
-        # @param template [Hash] Cluster template information
-        #
         # @return [Integer] Resource ID
-        def create(template)
+        def create
             new_object
 
-            rc = @one.allocate(template['name'])
+            rc = @one.allocate(@p_template['name'])
             Utils.exception(rc)
-            rc = @one.update(Utils.template_like_str(template), true)
+            rc = @one.update(Utils.template_like_str(@p_template), true)
             Utils.exception(rc)
             rc = @one.info
             Utils.exception(rc)

@@ -1,3 +1,4 @@
+<% if provision['SUB_CIDR'] && provision['SUB_CIDR'] != "" %>
 resource "aws_subnet" "device_<%= obj['ID'] %>" {
     vpc_id                  = aws_vpc.device_<%= c['ID'] %>.id
     cidr_block              = "<%= provision['SUB_CIDR'] %>"
@@ -7,4 +8,5 @@ resource "aws_subnet" "device_<%= obj['ID'] %>" {
         Name = "<%= obj['NAME'] %>_subnet"
     }
 }
+<% end %>
 

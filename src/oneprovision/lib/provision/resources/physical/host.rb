@@ -28,13 +28,73 @@ module OneProvision
 
         # Class constructor
         #
-        # @param provider [Provider] Host provider
-        def initialize(provider = nil)
-            super()
+        # @param provider   [Provider] Host provider
+        # @param p_template [Hash]     Resource information in hash form
+        def initialize(provider, p_template = nil)
+            super(p_template)
 
             @pool     = OpenNebula::HostPool.new(@client)
             @type     = 'host'
             @provider = provider
+        end
+
+        # Creates host deployment file
+        #
+        # @return [Nokogiri::XML] XML with the host information
+        def create_deployment_file
+            ssh_key = Utils.try_read_file(
+                @p_template['connection']['public_key']
+            )
+            config = Base64.strict_encode64(
+                @p_template['configuration'].to_yaml
+            )
+
+            reject = %w[im_mad vm_mad provision connection configuration]
+
+            Nokogiri::XML::Builder.new do |xml|
+                xml.HOST do
+                    xml.NAME "provision-#{SecureRandom.hex(24)}"
+                    xml.TEMPLATE do
+                        xml.IM_MAD @p_template['im_mad']
+                        xml.VM_MAD @p_template['vm_mad']
+                        xml.PROVISION do
+                            @p_template['provision'].each do |key, value|
+                                next if key == 'provider'
+
+                                xml.send(key.upcase, value)
+                            end
+
+                            xml.send('PROVIDER', @provider['NAME'])
+                        end
+
+                        if @p_template['configuration']
+                            xml.PROVISION_CONFIGURATION_BASE64 config
+                        end
+
+                        if @p_template['connection']
+                            xml.PROVISION_CONNECTION do
+                                @p_template['connection'].each do |key, value|
+                                    xml.send(key.upcase, value)
+                                end
+                            end
+                        end
+
+                        if @p_template['connection']
+                            xml.CONTEXT do
+                                if @p_template['connection']['public_key']
+                                    xml.SSH_PUBLIC_KEY ssh_key
+                                end
+                            end
+                        end
+
+                        @p_template.each do |key, value|
+                            next if reject.include?(key)
+
+                            xml.send(key.upcase, value)
+                        end
+                    end
+                end
+            end.doc.root
         end
 
         # Checks if there are Running VMs on the HOST

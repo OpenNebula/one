@@ -22,7 +22,9 @@ module OneProvision
     class VnTemplate < VirtualResource
 
         # Class constructor
-        def initialize
+        #
+        # @param p_template [Hash] Resource information in hash form
+        def initialize(p_template)
             super
 
             @pool = OpenNebula::VNTemplatePool.new(@client)
