@@ -45,8 +45,6 @@ RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
-SCP=${SCP:-scp}
-SCP_FWD=${SCP_FWD:-scp -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
 SED=${SED:-sed}
 SSH=${SSH:-ssh}
 SSH_FWD=${SSH_FWD:-ssh -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
@@ -78,7 +76,7 @@ SCRIPT_NAME=`basename $0`
 # /some//path///somewhere/ -> /some/path/somewhere
 function fix_dir_slashes
 {
-    dirname "$1/file" | $SED 's/\/+/\//g'
+    dirname "$1/file" | $SED 's/\/\+/\//g'
 }
 
 # ------------------------------------------------------------------------------
@@ -197,20 +195,22 @@ function retry_if
 # Executes a command, if it fails returns error message and exits
 # If a second parameter is present it is used as the error message when
 # the command fails
+# args: <command> [<error message>]
 function exec_and_log
 {
-    message=$2
+    _cmd="$1"
+    _msg="$2"
 
-    EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
+    EXEC_LOG_ERR=$(${_cmd} 2>&1 1>/dev/null)
     EXEC_LOG_RC=$?
 
     if [ $EXEC_LOG_RC -ne 0 ]; then
-        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+        log_error "Command \"${_cmd}\" failed: $EXEC_LOG_ERR"
 
-        if [ -n "$2" ]; then
-            error_message "$2"
+        if [ -n "${_msg}" ]; then
+            error_message "${_msg}"
         else
-            error_message "Error executing $1: $EXEC_LOG_ERR"
+            error_message "Error executing \"${_cmd}\": $EXEC_LOG_ERR"
         fi
         exit $EXEC_LOG_RC
     fi
@@ -278,6 +278,32 @@ function exec_and_set_error
     message=$2
 
     EXEC_LOG_ERR=$(bash -c "$1" 2>&1 1>/dev/null)
+    EXEC_LOG_RC=$?
+
+    export ERROR=""
+
+    if [ $EXEC_LOG_RC -ne 0 ]; then
+        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+
+        if [ -n "$2" ]; then
+            export ERROR="$2"
+        else
+            export ERROR="Error executing $1: $EXEC_LOG_ERR"
+        fi
+    fi
+}
+
+# Like exec_and_log but does not exit on failure. Just sets the variable
+# ERROR to the error message.
+function multiline_exec_and_set_error
+{
+    message=$2
+
+    EXEC_LOG_ERR=`bash -s 2>&1 1>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
+$1
+EOF`
     EXEC_LOG_RC=$?
 
     export ERROR=""
@@ -437,21 +463,16 @@ function mkfs_command {
 }
 
 # This function will accept command as an argument for which it will override
-# the env. variables SSH and SCP with their agent forwarding alternative
+# the env. variables SSH with their agent forwarding alternative
 ssh_forward()
 {
     _ssh_cmd_saved="$SSH"
-    _scp_cmd_saved="$SCP"
-
     SSH="$SSH_FWD"
-    SCP="$SCP_FWD"
 
     "$@"
 
     _ssh_forward_result=$?
-
     SSH="$_ssh_cmd_saved"
-    SCP="$_scp_cmd_saved"
 
     return $_ssh_forward_result
 }

@@ -81,6 +81,8 @@ if [ -n "$BRIDGE_LIST" ]; then
     multiline_exec_and_log "set -e -o pipefail; $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=${DD_BLOCK_SIZE:-64k}" \
                  "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"
 
+    ssh_exec_and_log "$DST_HOST" "fallocate -d $DST_PATH" "Error running: fallocate -d $DST_PATH"
+
     #if [ "${DISPOSE}" = "YES" ]; then
     #TODO This should call a ds operation
     #fi
