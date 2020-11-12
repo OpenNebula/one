@@ -418,6 +418,8 @@ if [ "$TO" != "-" ]; then
         convert_image
     fi
 
+    fallocate -d "$TO"
+
 elif [ -n "$CONVERT" ]; then
     convert_image
 fi

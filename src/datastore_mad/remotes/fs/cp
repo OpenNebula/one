@@ -145,7 +145,7 @@ if [ -n "$BRIDGE_LIST" ]; then
     multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=${DD_BLOCK_SIZE:-64k}" \
                  "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
-    ssh_exec_and_log    "$DST_HOST" "set -e -o pipefail; mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \
+    ssh_exec_and_log    "$DST_HOST" "set -e -o pipefail; mkdir -p $BASE_PATH; mv -f $TMP_DST $DST; fallocate -d $DST" \
                         "Error moving $TMP_DST to $DST in $DST_HOST"
 
     if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
@@ -161,6 +161,8 @@ else
     if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
         multiline_exec_and_log "$CONVERT_CMD" "Error converting $DST"
     fi
+
+    fallocate -d "$DST"
 
     FORMAT=$($QEMU_IMG info $DST | grep "^file format:" | awk '{print $3}' || :)
 fi
