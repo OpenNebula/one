@@ -32,7 +32,7 @@ module VCenterDriver
             @@client ||= OpenNebula::Client.new(nil, $conf[:one_xmlrpc]) # rubocop:disable Style/ClassVars
         end
 
-        def self.set_client(options, client=nil)
+        def self.set_client(options, client = nil)
             if client.nil?
                 @@client=OpenNebulaHelper::OneHelper.get_client(options, true)
             else
