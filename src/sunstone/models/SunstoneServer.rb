@@ -361,7 +361,7 @@ class SunstoneServer < CloudServer
 			 exit -1
 		end
 
-        return vmrc.proxy(resource)
+        return vmrc.proxy(resource, client)
     end
 
     ########################################################################
