@@ -540,8 +540,12 @@ EOT
             @translation_hash = nil
         end
 
-        def set_client(options)
-            @client=OpenNebulaHelper::OneHelper.get_client(options, true)
+        def set_client(options, client=nil)
+            if client.nil?
+                @client=OpenNebulaHelper::OneHelper.get_client(options, true)
+            else
+                @client = client
+            end
         end
 
         def create_resource(options, &block)

@@ -21,7 +21,7 @@ require 'webauthn'
 module SunstoneWebAuthn
 
     def self.configure(conf)
-        @client = OpenNebula::Client.new
+        @client = OpenNebula::Client.new(nil, conf[:one_xmlrpc])
         @challenges = Hash.new
         WebAuthn.configure do |config|
             if !conf.include?(:webauthn_origin) || conf[:webauthn_origin] == ''

@@ -126,7 +126,7 @@ class OpenNebulaVMRC
         ticket
     end
 
-    def proxy(vm_resource)
+    def proxy(vm_resource, client=nil)
         # Check configurations and VM attributes
         unless VMRC_STATES.include?(vm_resource['LCM_STATE'])
             error_message = "Wrong state (#{vm_resource['LCM_STATE']}) to
@@ -154,7 +154,7 @@ class OpenNebulaVMRC
 
         host_id = one_vm['HISTORY_RECORDS/HISTORY[last()]/HID'].to_i
 
-        vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+        vi_client = VCenterDriver::VIClient.new_from_host(host_id, client)
 
         vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
