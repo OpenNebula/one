@@ -31,9 +31,10 @@ module OneProvision
 
         # Class constructor
         #
-        # @param state [String] Terraform state in base64
-        # @param conf  [String] Terraform config state in base64
-        def initialize(state, conf)
+        # @param provider [Provider]
+        # @param state    [String] Terraform state in base64
+        # @param conf     [String] Terraform config state in base64
+        def initialize(provider, state, conf)
             @dir = "#{PROVIDERS_LOCATION}/templates/packet"
 
             # User data is in plain text

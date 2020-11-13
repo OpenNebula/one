@@ -173,6 +173,13 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
             raise 'Name not found' unless template['name']
             raise 'Connection info not found' unless template['connection']
 
+            unless OneProvision::Terraform::PROVIDERS.include?(
+                template['provider']
+            )
+                raise 'Invalid provider, available providers: ' \
+                      "#{OneProvision::Terraform::PROVIDERS.join(', ')}"
+            end
+
             template
         rescue StandardError => e
             OpenNebula::Error.new("ERROR: #{e}")

@@ -64,7 +64,13 @@ module OneProvision
                                 xml.send(key.upcase, value)
                             end
 
-                            xml.send('PROVIDER', @provider['NAME'])
+                            # TODO: remove this and uncomment line below
+                            @provider.connection.each do |k, v|
+                                xml.send(k, v)
+                            end
+
+                            # xml.send('PROVIDER', @provider.body['provider'])
+                            xml.send('PROVIDER_NAME', @provider['NAME'])
                         end
 
                         if @p_template['configuration']

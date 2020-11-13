@@ -55,7 +55,9 @@ module OneProvision
         end
 
         # Parses configuration hash to add defaults into each section
-        def parse
+        #
+        # @param eval_ui [Boolean] True to get values, false otherwise
+        def parse(eval_ui = false)
             begin
                 defaults = @config['defaults']
 
@@ -121,6 +123,13 @@ module OneProvision
                         x
                     end
                 end
+
+                ################################################################
+                # User inputs
+                ################################################################
+                return unless eval_ui
+
+                eval_user_inputs
             rescue StandardError => e
                 Utils.fail("Failed to read configuration: #{e}")
             end
@@ -384,15 +393,41 @@ module OneProvision
             matches.each do |match|
                 match = match.split('.')
 
+                ################################################################
                 # Special evaluation for keys provision, provison_id and idx
+                ################################################################
+
                 if match.size == 1 && !Resource::S_EVAL_KEYS.include?(match[0])
                     return [false, "key #{match[0]} invalid"]
                 end
 
                 next if match.size == 1
 
+                ################################################################
+                # User inputs
+                ################################################################
+
+                if match.size == 2 && match[0] != 'input'
+                    return [false, "key #{match[0]} invalid for user inputs"]
+                end
+
+                if match.size == 2
+                    unless @config['inputs']
+                        return [false, 'user inputs not found']
+                    end
+
+                    unless @config['inputs'].find {|v| v['name'] == match[1] }
+                        return [false, "user input #{match[1]} not found"]
+                    end
+
+                    next
+                end
+
+                ################################################################
                 # Rules can only access to first level they must be
                 #   resource.name.attr
+                ################################################################
+
                 return [false, 'there are no 3 elements'] if match.size != 3
 
                 # Only a group of key words is available
@@ -449,6 +484,181 @@ module OneProvision
             end
 
             hash
+        end
+
+        # Evaluates user inputs
+        def eval_user_inputs
+            return unless @config['inputs']
+
+            iterate(@config, true) do |value|
+                matches = value.to_s.scan(/\$\{(.*?)\}/).flatten
+
+                unless matches.empty?
+                    matches.each do |match|
+                        # match[0]: input
+                        # match[1]: name
+                        match = match.split('.')
+
+                        next unless match[0] == 'input'
+
+                        input = @config['inputs'].find do |v|
+                            v['name'] == match[1]
+                        end
+
+                        if input['value']
+                            i_value = input['value']
+                        else
+                            if $stdout.isatty
+                                i_value = ProvisionConfig.ask_user_inputs(input)
+                            elsif input['default']
+                                i_value = input['default']
+                            else
+                                Utils.fail(
+                                    "Cannot parse user input #{input['name']}"
+                                )
+                            end
+
+                            input['value'] = i_value
+                        end
+
+                        value.gsub!("${#{match.join('.')}}", i_value.to_s)
+                    end
+                end
+
+                value
+            end
+        end
+
+        # Asks for user input value
+        #
+        # @param input [Hash] User input information
+        # rubocop:disable Lint/IneffectiveAccessModifier
+        def self.ask_user_inputs(input)
+            # rubocop:enable Lint/IneffectiveAccessModifier
+
+            puts
+
+            case input['type']
+            when 'text', 'text64'
+                print "Text `#{input['name']}` (default=#{input['default']}): "
+
+                answer = STDIN.readline.chop
+                answer = input['default'] if answer.empty?
+
+                if input['type'] == 'text64'
+                    answer = Base64.encode64(answer).strip.delete("\n")
+                end
+            when 'boolean'
+                while %w[YES NO].include?(answer)
+                    print "Bool `#{input['name']}` " \
+                          "(default=#{input['default']}): "
+
+                    answer = STDIN.readline.chop
+                    answer = input['default'] if answer.empty?
+
+                    unless %w[YES NO].include?(answer)
+                        puts "Invalid boolean #{answer} " \
+                             'boolean has to be YES or NO'
+                    end
+                end
+            when 'password'
+                print "Pass `#{input['name']}` (default=#{input['default']}): "
+
+                STDIN.noecho {|io| answer = io.gets }
+
+                answer = answer.chop! if answer
+                answer = input['default'] if answer.empty?
+            when 'number', 'number-float'
+                valid = false
+
+                until valid
+                    print "Num `#{input['name']}` " \
+                          "(default=#{input['default']}): "
+
+                    answer = STDIN.readline.chop
+                    answer = input['default'] if answer.empty?
+
+                    begin
+                        if input['type'] == 'number'
+                            answer = Integer(answer)
+                        else
+                            answer = Float(answer)
+                        end
+                    rescue ArgumentError
+                        puts 'Wrong format'
+                        next
+                    end
+
+                    valid = true
+                end
+            when 'range', 'range-float'
+                min   = input['min_value']
+                max   = input['max_value']
+                valid = false
+
+                until valid
+                    print "Range `#{input['name']}` [#{min}..#{max}] " \
+                        "(default=#{input['default']}): "
+
+                    answer = STDIN.readline.chop
+                    answer = input['default'] if answer.empty?
+
+                    begin
+                        if input['type'] == 'range'
+                            answer = Integer(answer)
+                        else
+                            answer = Float(answer)
+                        end
+
+                        if answer < min || answer > max
+                            puts 'Not in range'
+                            next
+                        end
+                    rescue ArgumentError
+                        puts 'Wrong format'
+                        next
+                    end
+
+                    valid = true
+                end
+            when 'list'
+                puts
+                input['options'].each_with_index do |opt, i|
+                    puts "    #{i}  #{opt}"
+                end
+
+                puts
+
+                valid = false
+
+                until valid
+                    print 'Please type the selection number ' \
+                        "(default=#{input['default']}): "
+
+                    answer = STDIN.readline.chop
+                    answer = input['default'] if answer.empty?
+
+                    begin
+                        answer = Integer(answer)
+
+                        if answer < 0 || answer >= input['options'].size
+                            puts 'Index out of range'
+                            next
+                        end
+
+                        answer = input['options'][Integer(answer)]
+                    rescue ArgumentError
+                        puts 'Wrong format'
+                        next
+                    end
+
+                    valid = true
+                end
+            when 'fixed'
+                answer = input['default']
+            end
+
+            answer
         end
 
     end
