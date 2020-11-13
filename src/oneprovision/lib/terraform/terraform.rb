@@ -38,15 +38,18 @@ module OneProvision
     # Terraform operations
     class Terraform
 
-        attr_accessor :conn
+        # Providers that are currently available
+        PROVIDERS = %w[aws packet]
 
         # Class constructor
         #
-        # @param state [String] Terraform state in base64
-        # @param conf  [String] Terraform config state in base64
-        def initialize(state = nil, conf = nil)
-            @state = state
-            @conf  = conf
+        # @param provider [Provider]
+        # @param state    [String] Terraform state in base64
+        # @param conf     [String] Terraform config state in base64
+        def initialize(provider = nil, state = nil, conf = nil)
+            @state    = state
+            @conf     = conf
+            @provider = provider
         end
 
         # Get a provider instance
@@ -58,17 +61,17 @@ module OneProvision
         def self.singleton(provider, tf)
             return Dummy.new if Integer(provider['ID']) == -1
 
-            case provider['NAME']
+            case provider.body['provider']
             when 'packet'
                 tf_class = Packet
             when 'aws'
                 tf_class = AWS
             else
                 raise OneProvisionLoopException,
-                      "Unknown provider: #{provider['NAME']}"
+                      "Unknown provider: #{provider.body['provider']}"
             end
 
-            tf_class.new(tf[:state], tf[:conf])
+            tf_class.new(provider, tf[:state], tf[:conf])
         end
 
         # Generate Terraform deployment file
@@ -80,7 +83,7 @@ module OneProvision
             @conf = ''
 
             c = File.read("#{@dir}/provider.erb")
-            c = ERBVal.render_from_hash(c, :conn => @conn)
+            c = ERBVal.render_from_hash(c, :conn => @provider.connection)
 
             @conf << c
 
@@ -287,6 +290,8 @@ module OneProvision
                 p   = obj['TEMPLATE']['PROVISION']
 
                 next if !p || p.empty?
+
+                p = p.merge(@provider.connection)
 
                 yield(obj) if block_given?
 

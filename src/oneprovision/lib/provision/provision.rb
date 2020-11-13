@@ -225,32 +225,10 @@ module OneProvision
 
                 info(true)
 
-                # Respect user information, only add provider info if
-                # the user hasn't specified any
-                cfg['defaults'] = {} unless cfg['defaults']
-
-                # Get user UID to see if merge is possible or not
-                # only merge attributes if the provider is owned by user
-                info = Nokogiri::XML(@client.call('user.info', -1))
-                uid  = info.xpath('/USER/ID').text
-
-                # Get provider connection information
-                conn = provider.connection
-
-                if uid == provider['UID']
-                    cfg['defaults/provision'] = conn.merge(
-                        cfg['defaults/provision']
-                    )
-
-                    OneProvisionLogger.debug('Merging provider connection')
-                else
-                    cfg['defaults/provision'] = conn if conn
-
-                    OneProvisionLogger.debug('Using provider connection')
-                end
-
                 # read provision file
-                cfg.parse
+                cfg.parse(true)
+
+                puts
 
                 # @name is used for template evaluation
                 @name = cfg['name']

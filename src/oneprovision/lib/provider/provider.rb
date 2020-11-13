@@ -93,8 +93,12 @@ module OneProvision
             # Dummy case
             return unless @body
 
-            conn             = @body['connection']
-            conn['provider'] = self['NAME']
+            conn             = {}
+            conn['provider'] = @body['provider']
+
+            @body['connection'].each do |k, v|
+                conn[k.upcase] = v
+            end
 
             conn
         end
@@ -136,7 +140,7 @@ module OneProvision
             document = {}
 
             # Create document JSON
-            document['provider']          = template['name']
+            document['provider']          = template['provider']
             document['connection']        = template['connection']
             document['registration_time'] = Time.now.to_i
 
