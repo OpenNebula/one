@@ -41,6 +41,7 @@ const ListCards = memo(({
 
   return (
     <Grid container spacing={3}>
+      {/* CREATE CARD COMPONENT */}
       {handleCreate && (
         <Grid item {...breakpoints}>
           {ButtonCreateComponent ? (
@@ -56,6 +57,8 @@ const ListCards = memo(({
           )}
         </Grid>
       )}
+
+      {/* LIST */}
       {list.length > 0 ? (
         list?.map((value, index) => (
           <Grid key={`card-${index}`} item {...breakpoints}>

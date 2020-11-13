@@ -1,41 +1,56 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, CircularProgress, Button } from '@material-ui/core'
+import { makeStyles, CircularProgress, Button, Fab } from '@material-ui/core'
 
 import { Submit } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(() => ({
-  button: {
-    transition: 'disabled 0.5s ease'
+  root: {
+    transition: 'disabled 0.5s ease',
+    boxShadow: 'none'
   }
 }))
 
-const SubmitButton = ({ isSubmitting, label, ...rest }) => {
+const ButtonComponent = ({ fab, children, ...props }) => fab ? (
+  <Fab color="primary" size="small" {...props}>{children}</Fab>
+) : (
+  <Button color="primary" type="submit" variant="contained" {...props}>
+    {children}
+  </Button>
+)
+
+ButtonComponent.propTypes = {
+  fab: PropTypes.bool,
+  children: PropTypes.any
+}
+
+const SubmitButton = ({ isSubmitting, label, fab, ...props }) => {
   const classes = useStyles()
 
   return (
-    <Button
+    <ButtonComponent
       color="primary"
+      className={classes.root}
       disabled={isSubmitting}
-      type="submit"
-      variant="contained"
-      className={classes.button}
-      {...rest}
+      fab={fab}
+      {...props}
     >
       {isSubmitting && <CircularProgress size={24} />}
       {!isSubmitting && (label ?? Tr(Submit))}
-    </Button>
+    </ButtonComponent>
   )
 }
 
 SubmitButton.propTypes = {
+  fab: PropTypes.bool,
   isSubmitting: PropTypes.bool,
   label: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
 }
 
 SubmitButton.defaultProps = {
+  fab: false,
   isSubmitting: false,
   label: undefined
 }

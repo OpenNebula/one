@@ -25,7 +25,12 @@ module.exports = {
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   NotFound: 'Not found',
 
+  /* sections */
+  Dashboard: 'Dashboard',
+  Settings: 'Settings',
+  Providers: 'Providers',
+  Provisions: 'Provisions',
+
   Language: 'Language',
-  Response: 'Response',
-  Settings: 'Settings'
+  Response: 'Response'
 }

@@ -18,6 +18,8 @@ import React from 'react'
 import { Box, Typography } from '@material-ui/core'
 
 import dashboardStyles from 'client/containers/Dashboard/styles'
+import { Tr } from 'client/components/HOC/Translate'
+import { Dashboard as Title } from 'client/constants/translates'
 
 function Dashboard () {
   const classes = dashboardStyles()
@@ -29,7 +31,7 @@ function Dashboard () {
         className={classes.title}
         data-cy="dashboard-title"
       >
-        Dashboard
+        {Tr(Title)}
       </Typography>
     </Box>
   )

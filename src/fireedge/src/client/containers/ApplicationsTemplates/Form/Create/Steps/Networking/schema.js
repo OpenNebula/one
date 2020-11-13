@@ -135,6 +135,5 @@ export const NETWORK_FORM_SCHEMA = yup.object(
 )
 
 export const STEP_FORM_SCHEMA = yup
-  .array()
-  .of(NETWORK_FORM_SCHEMA)
+  .array(NETWORK_FORM_SCHEMA)
   .default([])
