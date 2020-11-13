@@ -37,7 +37,6 @@ export default makeStyles(theme =>
     },
     wrapperForm: {
       padding: theme.spacing(),
-      flexGrow: 1,
       display: 'flex',
       overflow: 'hidden'
     },

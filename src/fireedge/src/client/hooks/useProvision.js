@@ -48,7 +48,10 @@ export default function useOpennebula () {
     ({ end, start } = { end: -1, start: -1 }) =>
       serviceProvision
         .getProviders({ filter, end, start })
-        .then(doc => dispatch(setProviders(doc)))
+        .then(doc => {
+          dispatch(setProviders(doc))
+          return doc
+        })
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET providers'))
         }),
@@ -59,20 +62,12 @@ export default function useOpennebula () {
     ({ data }) =>
       serviceProvision
         .createProvider({ data })
-        .then(doc => {
-          /* dispatch(
-            setApplicationsTemplates(
-              filterBy([doc].concat(applicationsTemplates), 'ID')
-            )
-          ) */
-
-          return dispatch(enqueueSuccess(`Template created - ID: ${doc?.ID}`))
-        })
-        .catch(err => {
-          dispatch(
-            enqueueError(err?.message ?? 'Error CREATE provider')
-          )
-        }),
+        .then(doc => dispatch(
+          enqueueSuccess(`Template created - ID: ${doc?.ID}`))
+        )
+        .catch(err => dispatch(
+          enqueueError(err?.message ?? 'Error CREATE provider')
+        )),
     [dispatch, providers]
   )
 
@@ -88,7 +83,10 @@ export default function useOpennebula () {
     ({ end, start } = { end: -1, start: -1 }) =>
       serviceProvision
         .getProvisions({ filter, end, start })
-        .then(doc => dispatch(setProvisions(doc)))
+        .then(doc => {
+          dispatch(setProvisions(doc))
+          return doc
+        })
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET providers'))
         }),

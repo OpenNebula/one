@@ -3,33 +3,31 @@ import { useState, useCallback } from 'react'
 const useRequest = request => {
   const [data, setData] = useState(undefined)
   const [loading, setLoading] = useState(false)
+  const [reloading, setReloading] = useState(false)
   const [error, setError] = useState(false)
 
-  const fetchRequest = useCallback(
-    payload => {
-      let ignore = false
-      setLoading(true)
-      setError(false)
-
+  const callRequest = useCallback(
+    payload =>
       request(payload)
         .then(response => {
-          if (response !== undefined && !ignore) {
+          if (response !== undefined) {
             setData(response)
-          } else {
-            setError(true)
-          }
-        })
+            setError(false)
+          } else setError(true)
+        }
+        )
         .finally(() => {
           setLoading(false)
-        })
-
-      return () => {
-        ignore = true
-      }
-    },
+          setReloading(false)
+        }),
     [request]
   )
 
-  return { data, fetchRequest, loading, error }
+  const fetchRequest = useCallback((payload, reload = false) => {
+    reload ? setReloading(true) : setLoading(true)
+    callRequest(payload)
+  }, [])
+
+  return { data, fetchRequest, loading, reloading, error }
 }
 export default useRequest

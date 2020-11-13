@@ -11,6 +11,8 @@ import ListCards from 'client/components/List/ListCards'
 import { EmptyCard, SelectCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
 
+import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
+import { STEP_ID as LOCATION_ID } from 'client/containers/Providers/Form/Create/Steps/Locations'
 import { STEP_FORM_SCHEMA } from './schema'
 
 export const STEP_ID = 'provider'
@@ -33,7 +35,7 @@ const Provider = () => ({
     useEffect(() => { fetchRequest() }, [])
 
     const handleClick = (nameTemplate, isSelected) => {
-      setFormData({ location: undefined, connection: undefined })
+      setFormData({ [LOCATION_ID]: undefined, [CONNECTION_ID]: undefined })
       isSelected ? handleUnselect(nameTemplate) : handleSelect(nameTemplate)
     }
 

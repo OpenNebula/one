@@ -12,7 +12,7 @@ import { PATH } from 'client/router/provision'
 
 function ProviderCreateForm () {
   const history = useHistory()
-  const { createProvider } = useProvision()
+  const { createProvider, providersTemplates } = useProvision()
   const { steps, defaultValues, resolvers } = Steps()
 
   const methods = useForm({
@@ -22,8 +22,24 @@ function ProviderCreateForm () {
   })
 
   const onSubmit = formData => {
-    console.log('formData', formData)
-    createProvider({ data: formData })
+    const { provider, location, connection } = formData
+    const providerSelected = provider[0]
+    const locationSelected = location[0]
+
+    const providerTemplate = providersTemplates
+      .find(({ name }) => name === providerSelected) ?? {}
+
+    const formatData = {
+      name: `${providerSelected}_${locationSelected}`,
+      connection: {
+        ...connection,
+        [providerTemplate.location_key]: locationSelected,
+        [`${providerTemplate.location_key}_extra`]:
+          providerTemplate.locations[locationSelected]
+      }
+    }
+
+    createProvider({ data: formatData })
       .then(() => history.push(PATH.PROVIDERS.LIST))
   }
 
@@ -35,9 +51,5 @@ function ProviderCreateForm () {
     </Container>
   )
 }
-
-ProviderCreateForm.propTypes = {}
-
-ProviderCreateForm.defaultProps = {}
 
 export default ProviderCreateForm

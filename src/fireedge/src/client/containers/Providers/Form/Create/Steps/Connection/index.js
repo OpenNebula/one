@@ -9,38 +9,31 @@ import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
 
 export const STEP_ID = 'connection'
 
-let ff = {}
+let connection = {}
 
-const Connection = () => {
-  return {
-    id: STEP_ID,
-    label: 'Connection configuration',
-    resolver: () => STEP_FORM_SCHEMA(ff),
-    optionsValidate: { abortEarly: false },
-    content: useCallback(({ data, setFormData }) => {
-      const [fields, setFields] = useState([])
-      const { providersTemplates } = useProvision()
-      const { watch } = useFormContext()
+const Connection = () => ({
+  id: STEP_ID,
+  label: 'Connection configuration',
+  resolver: () => STEP_FORM_SCHEMA(connection),
+  optionsValidate: { abortEarly: false },
+  content: useCallback(() => {
+    const [fields, setFields] = useState([])
+    const { providersTemplates } = useProvision()
+    const { watch } = useFormContext()
 
-      useEffect(() => {
-        const { [PROVIDER_ID]: provider } = watch()
-        const providerTemplate = providersTemplates
-          .find(({ name }) => name === provider?.[0])
+    useEffect(() => {
+      const { [PROVIDER_ID]: provider } = watch()
+      const providerTemplate = providersTemplates
+        .find(({ name }) => name === provider?.[0])
 
-        setFields(FORM_FIELDS(providerTemplate?.connection ?? {}))
-        ff = providerTemplate?.connection ?? {}
-
-        return () => {
-          const connection = watch(STEP_ID)
-          setFormData(prev => ({ ...prev, [STEP_ID]: connection }))
-        }
-      }, [])
-
-      return (
-        <FormWithSchema cy="form-provider" fields={fields} id={STEP_ID} />
-      )
+      connection = providerTemplate?.connection ?? {}
+      setFields(FORM_FIELDS(connection))
     }, [])
-  }
-}
+
+    return (
+      <FormWithSchema cy="form-provider" fields={fields} id={STEP_ID} />
+    )
+  }, [])
+})
 
 export default Connection
