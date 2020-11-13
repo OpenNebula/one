@@ -128,15 +128,16 @@ EOT
     INT_EXP = /^-?\d+$/
     FLOAT_EXP = /^-?\d+(\.\d+)?$/
 
-    def self.get_user_inputs(template, get_defaults = false)
+    def self.get_user_inputs(template, keys = [])
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
         return '' unless user_inputs
 
-        answers = OpenNebulaHelper.parse_user_inputs(user_inputs, get_defaults)
-
+        answers = OpenNebulaHelper.parse_user_inputs(user_inputs, keys)
         answers_s = ''
         answers.each do |key, val|
+            next unless val
+
             # Do not replace values that are equal to the ones already in the
             # template. Useful for cpu, mem, vcpu
             if key != template['VMTEMPLATE']['TEMPLATE'][key]

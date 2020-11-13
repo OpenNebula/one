@@ -383,9 +383,15 @@ EOT
             :format => Array,
             :description => 'Specify the user inputs values when instantiating',
             :proc => lambda do |o, options|
+                # Store user inputs that has been already processed
+                options[:user_inputs_keys] = []
+
                 # escape values
                 options[:user_inputs].map! do |user_input|
                     user_input_split = user_input.split('=')
+
+                    options[:user_inputs_keys] << user_input_split[0]
+
                     "#{user_input_split[0]}=\"#{user_input_split[1]}\""
                 end
 
@@ -1709,8 +1715,8 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.parse_user_inputs(inputs, get_defaults = false)
-        unless get_defaults
+    def OpenNebulaHelper.parse_user_inputs(inputs, keys = [])
+        unless inputs.keys == keys
             puts 'There are some parameters that require user input. ' \
                  'Use the string <<EDITOR>> to launch an editor ' \
                  '(e.g. for multi-line inputs)'
@@ -1719,6 +1725,8 @@ EOT
         answers = {}
 
         inputs.each do |key, val|
+            next if keys.include? key
+
             input_cfg = val.split('|', -1)
 
             if input_cfg.length < 3
@@ -1743,11 +1751,6 @@ EOT
 
                 params.strip!
                 initial.strip!
-            end
-
-            if get_defaults
-                answers[key]= initial unless mandatory == 'M'
-                next
             end
 
             puts "  * (#{key}) #{description}"
