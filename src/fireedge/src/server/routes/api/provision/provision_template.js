@@ -38,7 +38,7 @@ const routes = {
     create: {
       action: createProvisionTemplate,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
+        resource: { from: fromData.postBody, front: true }
       }
     },
     instantiate: {
@@ -52,6 +52,7 @@ const routes = {
     update: {
       action: updateProvisionTemplate,
       params: {
+        resource: { from: fromData.postBody, front: true },
         id: { from: fromData.resource, name: 'id', front: true }
       }
     }

@@ -54,8 +54,6 @@ const oneFlowConection = (requestData = {}, success = () => undefined, error = (
   if (post) {
     options.data = post
   }
-  console.log('axios options: ', options, requestData)
-
   axios(options)
     .then(response => {
       if (response && response.statusText) {

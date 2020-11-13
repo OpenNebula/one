@@ -80,10 +80,10 @@ const routes = {
     }
   },
   [POST]: {
-    create: { // create <config> --debug // este puede tardar Websocket //FALTA
-      action: createProvision, // el comando tiene que ser asincrono
+    create: {
+      action: createProvision,
       params: {
-        resource: { from: fromData.resource, name: 'method' }
+        resource: { from: fromData.postBody, front: true }
       },
       websocket: true
     },

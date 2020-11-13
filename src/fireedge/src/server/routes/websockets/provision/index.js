@@ -13,31 +13,37 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState, useEffect } from 'react'
-import io from 'socket.io-client'
-import { findStorageData } from 'client/utils'
-import { JWT_NAME } from 'client/constants'
-import { defaultPort } from 'server/utils/constants/defaults'
-
-const ENDPOINT = `http://127.0.0.1:${defaultPort}`
-
-const Webconsole = ({ zone }) => {
-  const [response, setResponse] = useState({})
-
-  useEffect(() => {
-    const socket = io(ENDPOINT, {
-      path: '/websocket',
-      query: {
-        token: findStorageData(JWT_NAME),
-        zone
-      }
-    })
-    socket.on('hooks', data => {
-      setResponse(data)
-    })
-    return () => { socket.disconnect() }
-  }, [zone])
-  console.log('-->', response)
-  return <p />
+const { authWebsocket } = require('server/utils/server')
+const { messageTerminal } = require('server/utils/general')
+const { subscriber } = require('server/routes/api/provision/functions')
+const type = 'provision'
+const main = (app = {}) => {
+  try {
+    app
+      .use(authWebsocket)
+      .on('connection', (server = {}) => {
+        server.on('disconnect', () => { console.log('disconnect') })
+        subscriber(
+          'oneprovision',
+          data => {
+            console.log('fill file')
+            app.emit(type, {
+              id: data.id,
+              data: data.message
+            })
+          }
+        )
+      })
+  } catch (error) {
+    const configErrorProvision = {
+      color: 'red',
+      type: error,
+      message: '%s'
+    }
+    messageTerminal(configErrorProvision)
+  }
 }
-export default Webconsole
+
+module.exports = {
+  main
+}
