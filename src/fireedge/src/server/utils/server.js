@@ -18,6 +18,7 @@ const { existsSync, readFileSync, createWriteStream } = require('fs-extra')
 
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
+const { validateAuth } = require('server/utils/jwt')
 const {
   defaultLogFilename,
   defaultLogPath,
@@ -58,17 +59,41 @@ const httpResponse = (response, data, message) => {
   return rtn
 }
 
-const existsFile = (path = '', callback = () => undefined, error = () => undefined) => {
+const authWebsocket = (server = {}, next = () => undefined) => {
+  if (
+    server &&
+    server.handshake &&
+    server.handshake.query &&
+    server.handshake.query.token &&
+    validateAuth({
+      headers: { authorization: server.handshake.query.token }
+    })
+  ) {
+    next()
+  } else {
+    server.disconnect(true)
+  }
+}
+
+const existsFile = (path = '', success = () => undefined, error = () => undefined) => {
   let rtn = false
+  let file
+  let errorData
   try {
-    const file = readFileSync(path, 'utf8')
-    if (path && file) {
-      callback(file)
+    const fileData = readFileSync(path, 'utf8')
+    if (path && fileData) {
+      file = fileData
       rtn = true
     }
   } catch (err) {
-    error(err)
+    error = err && err.message
   }
+  if (rtn) {
+    success(file)
+  } else {
+    error(errorData)
+  }
+
   return rtn
 }
 
@@ -115,14 +140,14 @@ const genFireedgeKey = () => {
   }
 }
 
-const getDataZone = (zone = 0, configuredZones) => {
+const getDataZone = (zone = '0', configuredZones) => {
   let rtn
-  const Zones = (global && global.zones) || configuredZones || defaultOpennebulaZones
-  if (Zones && Array.isArray(Zones)) {
-    rtn = Zones[0]
+  const zones = (global && global.zones) || configuredZones || defaultOpennebulaZones
+  if (zones && Array.isArray(zones)) {
+    rtn = zones[0]
     if (zone !== null) {
-      rtn = Zones.find(
-        zone => zone && zone.ID !== undefined && String(zone.ID) === zone
+      rtn = zones.find(
+        zn => zn && zn.ID !== undefined && String(zn.ID) === zone
       )
     }
   }
@@ -147,7 +172,10 @@ const genPathResources = () => {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }
     if (!global.CPI) {
-      global.CPI = `${ETC_LOCATION}/fireedge`
+      global.CPI = `${VAR_LOCATION}/fireedge`
+    }
+    if (!global.ETC_CPI) {
+      global.ETC_CPI = `${ETC_LOCATION}/fireedge`
     }
   }
 }
@@ -192,5 +220,6 @@ module.exports = {
   getCert,
   getKey,
   parsePostData,
-  getParamsForObject
+  getParamsForObject,
+  authWebsocket
 }

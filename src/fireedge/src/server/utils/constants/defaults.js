@@ -23,6 +23,23 @@ const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = '127.0.0.1'
 const protocol = 'http'
 const defaults = {
+  defaultConfigErrorMessage: {
+    color: 'red',
+    message: 'file not found: %s'
+  },
+  defaultFilesWebsockets: [
+    'hooks',
+    'provision'
+  ],
+  defaultFilesRoutes: [
+    '2fa',
+    'auth',
+    'oneflow',
+    'support',
+    'vcenter',
+    'zendesk',
+    'provision'
+  ],
   defaultApps: apps,
   httpMethod: {
     GET: 'GET',
@@ -37,9 +54,10 @@ const defaults = {
   },
   defaultOpennebulaZones: [
     {
-      ID: 0,
+      ID: '0',
       NAME: 'OpenNebula',
-      RPC: `${protocol}://${defaultIp}:2633/RPC2`
+      RPC: `${protocol}://${defaultIp}:2633/RPC2`,
+      ZEROMQ: `tcp://${defaultIp}:2101`
     }
   ],
   defaultOneFlowServer: {
@@ -47,6 +65,7 @@ const defaults = {
     HOST: defaultIp,
     PORT: 2474
   },
+  defaultEndpointWebsocket: '/websocket',
   defaultConfigFile: 'fireedge-server.conf',
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
@@ -58,6 +77,7 @@ const defaults = {
   defaultKeyFilename: 'fireedge_key',
   defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
+  tmpPath: '/var/tmp',
   endpointVmrc: '/vmrc',
   defaultNamespace: 'one.',
   defaultMessageInvalidZone: 'Invalid Zone',

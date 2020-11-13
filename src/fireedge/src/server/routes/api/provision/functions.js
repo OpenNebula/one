@@ -13,14 +13,37 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 const { v4 } = require('uuid')
+const events = require('events')
 const { Document } = require('yaml')
-const { writeFileSync, removeSync, readdirSync, statSync } = require('fs-extra')
-const { spawnSync } = require('child_process')
+const { writeFileSync, removeSync, readdirSync, statSync, existsSync, mkdirsSync } = require('fs-extra')
+const { spawnSync, spawn } = require('child_process')
 const { messageTerminal } = require('server/utils/general')
 
-const pathFiles = []
+const eventsEmitter = new events.EventEmitter()
 
-const getFiles = (dir = '', ext = '') => {
+const publish = (eventName = '', message = {}) => {
+  if (eventName && message) {
+    eventsEmitter.emit(eventName, message)
+  }
+}
+
+const subscriber = (eventName = '', callback = () => undefined) => {
+  if (eventName &&
+    callback &&
+    typeof callback === 'function' &&
+    eventsEmitter.listenerCount(eventName) < 1
+  ) {
+    eventsEmitter.on(
+      eventName,
+      message => {
+        callback(message)
+      }
+    )
+  }
+}
+
+const getFiles = (dir = '', ext = '', errorCallback = () => undefined) => {
+  const pathFiles = []
   if (dir && ext) {
     const exp = new RegExp('\\w*\\.' + ext + '+$\\b', 'gi')
     try {
@@ -42,6 +65,7 @@ const getFiles = (dir = '', ext = '') => {
         type: (error && error.message) || ''
       }
       messageTerminal(config)
+      errorCallback(error)
     }
   }
   return pathFiles
@@ -49,10 +73,14 @@ const getFiles = (dir = '', ext = '') => {
 
 const createTemporalFile = (path = '', ext = '', content = '') => {
   let rtn
-  const filename = `${path + v4().replace(/-/g, '').toUpperCase() + ext}`
+  const name = v4().replace(/-/g, '').toUpperCase()
+  const file = `${path + name + ext}`
   try {
-    writeFileSync(filename, content)
-    rtn = filename
+    if (!existsSync(path)) {
+      mkdirsSync(path)
+    }
+    writeFileSync(file, content)
+    rtn = { name, path: file }
   } catch (error) {
     const config = {
       color: 'red',
@@ -99,6 +127,39 @@ const removeFile = (path = '') => {
   }
 }
 
+const executeCommandAsync = (
+  command = '',
+  resource = '',
+  stderr = () => undefined,
+  stdout = () => undefined,
+  close = () => undefined
+) => {
+  const rsc = Array.isArray(resource) ? resource : [resource]
+  const execute = spawn(command, [...rsc])
+  if (execute) {
+    execute.stdout.on('data', (data) => {
+      if (stdout && typeof stdout === 'function') {
+        stdout(data)
+      }
+    })
+
+    execute.stderr.on('data', (data) => {
+      if (stderr && typeof stderr === 'function') {
+        stderr(data)
+      }
+    })
+
+    execute.on('close', (code) => {
+      if (code !== 0) {
+        console.log(`ps process exited with code ${code}`)
+      }
+      if (close && typeof close === 'function') {
+        close(code)
+      }
+    })
+  }
+}
+
 const executeCommand = (command = '', resource = '') => {
   const rsc = Array.isArray(resource) ? resource : [resource]
   const rtn = { success: false, data: null }
@@ -126,7 +187,10 @@ const functionRoutes = {
   executeCommand,
   createTemporalFile,
   removeFile,
-  getFiles
+  getFiles,
+  executeCommandAsync,
+  publish,
+  subscriber
 }
 
 module.exports = functionRoutes

@@ -28,37 +28,38 @@ const { GET, POST, PUT, DELETE } = httpMethod
 const routes = {
   [GET]: {
     list: {
-      action: getListProviders, // oneprovider list || show // creados en opennebula
+      action: getListProviders,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       }
     },
     template: {
-      action: getProvidersTemplates, // leer los archivos yamls (todos) en caso de pasar el id se lee la info de uno
+      action: getProvidersTemplates,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
+        name: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },
   [POST]: {
     create: {
-      action: createProviders, // oneprovider create // yaml
+      action: createProviders,
       params: {
-        id: { from: fromData.resource, name: 'id', front: true }
+        resource: { from: fromData.postBody, front: true }
       }
     }
   },
   [PUT]: {
     update: {
-      action: updateProviders, // oneprovider update //yaml
+      action: updateProviders,
       params: {
+        resource: { from: fromData.postBody, front: true },
         id: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },
   [DELETE]: {
     delete: {
-      action: deleteProvider, // oneprivider update //yaml
+      action: deleteProvider,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       }

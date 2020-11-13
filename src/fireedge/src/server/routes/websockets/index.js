@@ -13,31 +13,42 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState, useEffect } from 'react'
-import io from 'socket.io-client'
-import { findStorageData } from 'client/utils'
-import { JWT_NAME } from 'client/constants'
-import { defaultPort } from 'server/utils/constants/defaults'
+const socketIO = require('socket.io')
+const { messageTerminal } = require('server/utils/general')
+const {
+  defaultFilesWebsockets,
+  defaultConfigErrorMessage,
+  defaultEndpointWebsocket
+} = require('server/utils/constants/defaults')
 
-const ENDPOINT = `http://127.0.0.1:${defaultPort}`
+// user config
 
-const Webconsole = ({ zone }) => {
-  const [response, setResponse] = useState({})
-
-  useEffect(() => {
-    const socket = io(ENDPOINT, {
-      path: '/websocket',
-      query: {
-        token: findStorageData(JWT_NAME),
-        zone
+const websockets = appServer => {
+  if (
+    appServer &&
+    appServer.constructor &&
+    appServer.constructor.name &&
+    appServer.constructor.name === 'Server'
+  ) {
+    const io = socketIO({ path: defaultEndpointWebsocket }).listen(appServer)
+    defaultFilesWebsockets.map(file => {
+      try {
+        // eslint-disable-next-line global-require
+        const fileInfo = require(`./${file}`)
+        if (fileInfo.main && typeof fileInfo.main === 'function') {
+          fileInfo.main(io)
+        }
+      } catch (error) {
+        if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
+          const config = defaultConfigErrorMessage
+          config.type = error.message
+          messageTerminal(config)
+        }
       }
     })
-    socket.on('hooks', data => {
-      setResponse(data)
-    })
-    return () => { socket.disconnect() }
-  }, [zone])
-  console.log('-->', response)
-  return <p />
+  }
 }
-export default Webconsole
+
+module.exports = {
+  websockets
+}

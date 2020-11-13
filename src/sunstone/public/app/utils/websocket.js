@@ -17,41 +17,41 @@
 define(function (require) {
 
   var Config = require("sunstone-config");
-  var Sunstone = require('sunstone');
-  var FireedgeValidator = require('utils/fireedge-validator');
-  var io = require('socket-io-client');  
+  var Sunstone = require("sunstone");
+  var FireedgeValidator = require("utils/fireedge-validator");
+  var io = require("socket-io-client");
   var OpenNebula = require("opennebula");
-  
-  var VM_header = require('tabs/vms-tab/hooks/header');
-  var VM_state = require('tabs/vms-tab/hooks/state');
+
+  var VM_header = require("tabs/vms-tab/hooks/header");
+  var VM_state = require("tabs/vms-tab/hooks/state");
 
   // var Host_header = require('tabs/vms-tab/hooks/header');
 
   var _start = function () {
-    if (sessionStorage.getItem(FireedgeValidator.sessionVar) == 'true'){
+    if (sessionStorage.getItem(FireedgeValidator.sessionVar) == "true"){
       const socket = io(Config.fireedgeEndpoint, {
-        path: '/zeromq',
+        path: "/websocket",
         query: {
           token: fireedge_token
         }
       });
 
       // Listen for messages
-      socket.on('zeroMQ', function (event) {
+      socket.on("hooks", function (event) {
         var event_data = event.data;
         if (event_data && event_data.HOOK_MESSAGE && event_data.HOOK_MESSAGE.HOOK_OBJECT){
-          
+
           var tab_id, callFunction;
           var object = event_data.HOOK_MESSAGE.HOOK_OBJECT;
 
           switch (object) {
             case "VM":
-              tab_id = "vms-tab"
+              tab_id = "vms-tab";
               callFunction = function(data_vm){
                 // Update Header and Buttons
                 VM_header.pre(data_vm);
                 VM_state.pre(data_vm);
-                
+
                 // Update VM Info
                 var vm_state = OpenNebula.VM.stateStr(data_vm.VM.STATE);
                 var vm_state_class = OpenNebula.VM.stateClass(data_vm.VM.STATE);
@@ -59,21 +59,21 @@ define(function (require) {
                 var vm_lcm_state_class = OpenNebula.VM.lcmStateClass(data_vm.VM.LCM_STATE);
 
                 if (vm_state_class == ""){
-                  $('#state_value').html(vm_state);
-                  $('#lcm_state_value').html("<span class='label " + vm_lcm_state_class + " round' style='border-radius: 1em; font-weight: bold;'>" + vm_lcm_state + "</span>");
+                  $("#state_value").html(vm_state);
+                  $("#lcm_state_value").html("<span class='label " + vm_lcm_state_class + " round' style='border-radius: 1em; font-weight: bold;'>" + vm_lcm_state + "</span>");
                 }
                 else{
-                  $('#state_value').html("<span class='label " + vm_state_class + " round' style='border-radius: 1em; font-weight: bold;'>" + vm_state + "</span>");
-                  $('#lcm_state_value').html(vm_lcm_state);
+                  $("#state_value").html("<span class='label " + vm_state_class + " round' style='border-radius: 1em; font-weight: bold;'>" + vm_state + "</span>");
+                  $("#lcm_state_value").html(vm_lcm_state);
                 }
-              }
+              };
               break;
             case "HOST":
-              tab_id = "hosts-tab"
+              tab_id = "hosts-tab";
               callFunction = function(data_host){
                 var host_state = OpenNebula.Host.stateStr(data_host.HOST.STATE);
-                $('#host_state_value').html(host_state);
-              }
+                $("#host_state_value").html(host_state);
+              };
               break;
             default:
               break;
@@ -87,13 +87,13 @@ define(function (require) {
               "method": "show",
               "resource": object
             }
-          }
+          };
 
           // update VM and HOST
-          var tab = $('#' + tab_id);
-          
+          var tab = $("#" + tab_id);
+
           Sunstone.getDataTable(tab_id).updateElement(request, response);
-          
+
           if (Sunstone.rightInfoVisible(tab) && event_data.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
             callFunction(response);
           }

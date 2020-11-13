@@ -28,7 +28,7 @@ import {
   entrypointApi,
   entrypointApp
 } from './routes/entrypoints'
-import { oneHooks } from './routes/websockets/zeromq'
+import { websockets } from './routes/websockets'
 import { vmrcUpgrade } from './routes/websockets/vmrc'
 import { guacamole } from './routes/websockets/guacamole'
 import { messageTerminal, getConfig } from './utils'
@@ -128,7 +128,7 @@ const appServer = validateServerIsSecure()
   )
   : unsecureServer(app)
 
-oneHooks(appServer)
+websockets(appServer)
 
 let config = {
   color: 'red',

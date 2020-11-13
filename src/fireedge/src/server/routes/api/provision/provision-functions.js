@@ -16,10 +16,19 @@
 const { Validator } = require('jsonschema')
 const {
   ok,
+  accepted,
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, parsePostData } = require('server/utils/server')
-const { executeCommand, createTemporalFile, createYMLContent, removeFile } = require('./functions')
+const { tmpPath } = require('server/utils/constants/defaults')
+const {
+  executeCommand,
+  executeCommandAsync,
+  createTemporalFile,
+  createYMLContent,
+  removeFile,
+  publish
+} = require('./functions')
 const { provision } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -88,7 +97,7 @@ const deleteResource = (res = {}, next = () => undefined, params = {}, userData 
   next()
 }
 
-const deleteProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const deleteProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => { // falta
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.id && user && password) {
@@ -148,15 +157,51 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
   next()
 }
 
-const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => { // falta
   const { user, password } = userData
-  const authCommand = ['--user', user, '--password', password]
-  const rtn = httpInternalError
-  res.locals.httpCode = rtn // debe de ser un websocket
+  let rtn = httpInternalError
+  if (params && params.resource && user && password) {
+    const authCommand = ['--user', user, '--password', password]
+    const schemaValidator = new Validator()
+    const resource = parsePostData(params.resource)
+    const valSchema = schemaValidator.validate(resource, provision)
+    if (valSchema.valid) {
+      const content = createYMLContent(resource)
+      if (content) {
+        const ext = '.yaml'
+        const file = createTemporalFile(`${global.CPI}/provision/`, ext, content)
+        if (file && file.name && file.path) {
+          const paramsCommand = ['create', file.path, '--debug', '--skip-provision', ...authCommand]
+
+          // esto tiene que estar vivo
+          executeCommandAsync(
+            command,
+            paramsCommand,
+            message => {
+              publish(command, { id: file.name, message: message.toString() })
+            }
+          )
+
+          res.locals.httpCode = httpResponse(accepted, file.name)
+          next()
+          return
+        }
+      }
+    } else {
+      const errors = []
+      if (valSchema && valSchema.errors) {
+        valSchema.errors.forEach(error => {
+          errors.push(error.stack.replace(/^instance./, ''))
+        })
+        rtn = httpResponse(internalServerError, '', errors.toString())
+      }
+    }
+  }
+  res.locals.httpCode = rtn
   next()
 }
 
-const configureProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const configureProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => { // falta
   const { user, password } = userData
   const authCommand = ['--user', user, '--password', password]
   const rtn = httpInternalError
@@ -195,11 +240,10 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const tmpPath = '/var/tmp/'
         const ext = '.yaml'
         const file = createTemporalFile(tmpPath, ext, content)
-        if (file) {
-          const paramsCommand = ['validate', file, ...authCommand]
+        if (file && file.name && file.path) {
+          const paramsCommand = ['validate', file.path, ...authCommand]
           const executedCommand = executeCommand(command, paramsCommand)
           let response = internalServerError
           if (executedCommand && executedCommand.success) {
@@ -215,7 +259,6 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
       const errors = []
       if (valSchema && valSchema.errors) {
         valSchema.errors.forEach(error => {
-          console.log('-->', error)
           errors.push(error.stack.replace(/^instance./, ''))
         })
         rtn = httpResponse(internalServerError, '', errors.toString())

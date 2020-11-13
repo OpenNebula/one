@@ -14,13 +14,15 @@
 /* -------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
+const { tmpPath } = require('server/utils/constants/defaults')
+
 const {
   ok,
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, parsePostData } = require('server/utils/server')
-const { executeCommand } = require('./functions')
-const { provision } = require('./schemas')
+const { executeCommand, createYMLContent, createTemporalFile, removeFile } = require('./functions')
+const { provider } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
@@ -51,8 +53,39 @@ const getListProvisionTemplates = (res = {}, next = () => undefined, params = {}
 
 const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
-  const authCommand = ['--user', user, '--password', password]
-  const rtn = httpInternalError
+  let rtn = httpInternalError
+  if (params && params.resource && user && password) {
+    const authCommand = ['--user', user, '--password', password]
+    const schemaValidator = new Validator()
+    const resource = parsePostData(params.resource)
+    const valSchema = schemaValidator.validate(resource, provider)
+    if (valSchema.valid) {
+      const content = createYMLContent(resource)
+      if (content) {
+        const ext = '.yaml'
+        const file = createTemporalFile(tmpPath, ext, content)
+        if (file && file.name && file.path) {
+          const paramsCommand = ['create', file.path, ...authCommand]
+          const executedCommand = executeCommand(command, paramsCommand)
+          res.locals.httpCode = httpResponse(internalServerError)
+          if (executedCommand && executedCommand.success && executedCommand.data) {
+            res.locals.httpCode = httpResponse(ok, executedCommand.data)
+            removeFile(file.path)
+          }
+          next()
+          return
+        }
+      }
+    } else {
+      const errors = []
+      if (valSchema && valSchema.errors) {
+        valSchema.errors.forEach(error => {
+          errors.push(error.stack.replace(/^instance./, ''))
+        })
+        rtn = httpResponse(internalServerError, '', errors.toString())
+      }
+    }
+  }
   res.locals.httpCode = rtn
   next()
 }
@@ -79,8 +112,39 @@ const instantiateProvisionTemplate = (res = {}, next = () => undefined, params =
 
 const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
-  const authCommand = ['--user', user, '--password', password]
-  const rtn = httpInternalError
+  let rtn = httpInternalError
+  if (params && params.resource && params.id && user && password) {
+    const authCommand = ['--user', user, '--password', password]
+    const schemaValidator = new Validator()
+    const resource = parsePostData(params.resource)
+    const valSchema = schemaValidator.validate(resource, provider)
+    if (valSchema.valid) {
+      const content = createYMLContent(resource)
+      if (content) {
+        const ext = '.yaml'
+        const file = createTemporalFile(tmpPath, ext, content)
+        if (file && file.name && file.path) {
+          const paramsCommand = ['update', params.id, file.path, ...authCommand]
+          const executedCommand = executeCommand(command, paramsCommand)
+          res.locals.httpCode = httpResponse(internalServerError)
+          if (executedCommand && executedCommand.success && executedCommand.data) {
+            res.locals.httpCode = httpResponse(ok, executedCommand.data)
+            removeFile(file.path)
+          }
+          next()
+          return
+        }
+      }
+    } else {
+      const errors = []
+      if (valSchema && valSchema.errors) {
+        valSchema.errors.forEach(error => {
+          errors.push(error.stack.replace(/^instance./, ''))
+        })
+        rtn = httpResponse(internalServerError, '', errors.toString())
+      }
+    }
+  }
   res.locals.httpCode = rtn
   next()
 }

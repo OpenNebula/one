@@ -13,6 +13,21 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const provider = {
+  id: '/Provider',
+  type: 'object',
+  properties: {
+    name: {
+      type: 'string',
+      required: true
+    },
+    connection: {
+      type: 'object',
+      required: true
+    }
+  }
+}
+
 const provision = {
   id: '/Provision',
   type: 'object',
@@ -94,6 +109,10 @@ const provision = {
         }
       }
     },
+    clusters:{
+      type: 'array',
+      required: true
+    },
     datastores: {
       type: 'array',
       required: true,
@@ -161,6 +180,7 @@ const provision = {
   }
 }
 const schemas = {
+  provider,
   provision
 }
 

@@ -16,42 +16,42 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const VM_ALLOCATE = 'vm.allocate';
-const VM_DEPLOY = 'vm.deploy';
-const VM_ACTION = 'vm.action';
-const VM_MIGRATE = 'vm.migrate';
-const VM_CHMOD = 'vm.chmod';
-const VM_CHOWN = 'vm.chown';
-const VM_RENAME = 'vm.rename';
-const VM_SNAP_CREATE = 'vm.snapshotcreate';
-const VM_SNAP_REVERT = 'vm.snapshotrevert';
-const VM_SNAP_DELETE = 'vm.snapshotdelete';
-const VM_RESIZE = 'vm.resize';
-const VM_UPDATE = 'vm.update';
-const VM_CONF_UPDATE = 'vm.updateconf';
-const VM_RECOVER = 'vm.recover';
-const VM_INFO = 'vm.info';
-const VM_MONITORING = 'vm.monitoring';
-const VM_LOCK = 'vm.lock';
-const VM_UNLOCK = 'vm.unlock';
-const VM_DISK_SAVEAS = 'vm.disksaveas';
-const VM_DISK_SNAP_CREATE = 'vm.disksnapshotcreate';
-const VM_DISK_SNAP_DELETE = 'vm.disksnapshotdelete';
-const VM_DISK_SNAP_REVERT = 'vm.disksnapshotrevert';
-const VM_DISK_SNAP_RENAME = 'vm.disksnapshotrename';
-const VM_DISK_ATTACH = 'vm.attach';
-const VM_DISK_DETACH = 'vm.detach';
-const VM_DISK_RESIZE = 'vm.diskresize';
-const VM_NIC_ATTACH = 'vm.attachnic';
-const VM_NIC_DETACH = 'vm.detachnic';
-const VM_POOL_INFO = 'vmpool.info';
-const VM_POOL_INFO_EXTENDED = 'vmpool.infoextended';
-const VM_POOL_MONITORING = 'vmpool.monitoring';
-const VM_POOL_ACCOUNTING = 'vmpool.accounting';
-const VM_POOL_SHOWBACK = 'vmpool.showback';
-const VM_POOL_CALCULATE_SHOWBACK = 'vmpool.calculateshowback';
+const VM_ALLOCATE = 'vm.allocate'
+const VM_DEPLOY = 'vm.deploy'
+const VM_ACTION = 'vm.action'
+const VM_MIGRATE = 'vm.migrate'
+const VM_CHMOD = 'vm.chmod'
+const VM_CHOWN = 'vm.chown'
+const VM_RENAME = 'vm.rename'
+const VM_SNAP_CREATE = 'vm.snapshotcreate'
+const VM_SNAP_REVERT = 'vm.snapshotrevert'
+const VM_SNAP_DELETE = 'vm.snapshotdelete'
+const VM_RESIZE = 'vm.resize'
+const VM_UPDATE = 'vm.update'
+const VM_CONF_UPDATE = 'vm.updateconf'
+const VM_RECOVER = 'vm.recover'
+const VM_INFO = 'vm.info'
+const VM_MONITORING = 'vm.monitoring'
+const VM_LOCK = 'vm.lock'
+const VM_UNLOCK = 'vm.unlock'
+const VM_DISK_SAVEAS = 'vm.disksaveas'
+const VM_DISK_SNAP_CREATE = 'vm.disksnapshotcreate'
+const VM_DISK_SNAP_DELETE = 'vm.disksnapshotdelete'
+const VM_DISK_SNAP_REVERT = 'vm.disksnapshotrevert'
+const VM_DISK_SNAP_RENAME = 'vm.disksnapshotrename'
+const VM_DISK_ATTACH = 'vm.attach'
+const VM_DISK_DETACH = 'vm.detach'
+const VM_DISK_RESIZE = 'vm.diskresize'
+const VM_NIC_ATTACH = 'vm.attachnic'
+const VM_NIC_DETACH = 'vm.detachnic'
+const VM_POOL_INFO = 'vmpool.info'
+const VM_POOL_INFO_EXTENDED = 'vmpool.infoextended'
+const VM_POOL_MONITORING = 'vmpool.monitoring'
+const VM_POOL_ACCOUNTING = 'vmpool.accounting'
+const VM_POOL_SHOWBACK = 'vmpool.showback'
+const VM_POOL_CALCULATE_SHOWBACK = 'vmpool.calculateshowback'
 
 const Actions = {
   VM_ALLOCATE,
@@ -88,7 +88,7 @@ const Actions = {
   VM_POOL_ACCOUNTING,
   VM_POOL_SHOWBACK,
   VM_POOL_CALCULATE_SHOWBACK
-};
+}
 
 module.exports = {
   Actions,
@@ -710,4 +710,4 @@ module.exports = {
       }
     }
   }
-};
+}
