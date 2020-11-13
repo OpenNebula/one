@@ -549,7 +549,7 @@ module OneProvision
                     answer = Base64.encode64(answer).strip.delete("\n")
                 end
             when 'boolean'
-                while %w[YES NO].include?(answer)
+                while !%w[YES NO].include?(answer)
                     print "Bool `#{input['name']}` " \
                           "(default=#{input['default']}): "
 
