@@ -705,7 +705,14 @@ module VCenterDriver
             networks = {}
 
             # Selected host in OpenNebula
-            one_client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
+            if $conf.nil?
+                one_client = OpenNebula::Client.new
+            else
+                one_client = OpenNebula::Client.new(
+                    nil,
+                    $conf[:one_xmlrpc]
+                )
+            end
 
             one_host = OpenNebula::Host.new_with_id(args[:host], one_client)
             rc = one_host.info

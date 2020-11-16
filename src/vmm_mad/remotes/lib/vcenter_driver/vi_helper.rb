@@ -29,7 +29,14 @@ module VCenterDriver
         VM_PREFIX_DEFAULT = 'one-$i-'
 
         def self.client
-            @@client ||= OpenNebula::Client.new # rubocop:disable Style/ClassVars
+            if $conf.nil?
+                @@client ||= OpenNebula::Client.new # rubocop:disable Style/ClassVars
+            else
+                @@client ||= OpenNebula::Client.new(
+                    nil,
+                    $conf[:one_xmlrpc]
+                )
+            end
         end
 
         def self.set_client(options, client = nil)
