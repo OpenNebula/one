@@ -68,7 +68,7 @@ const ListCards = memo(({
       ) : (
         (displayEmpty || EmptyComponent) && (
           <Grid item {...breakpoints}>
-            {EmptyComponent ?? <EmptyCard />}
+            {EmptyComponent ?? <EmptyCard title={'Your list is empty'} />}
           </Grid>
         )
       )}

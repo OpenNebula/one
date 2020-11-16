@@ -102,6 +102,10 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { providers }
   }),
+  setProvisionsTemplates: provisionsTemplates => ({
+    type: SUCCESS_ONE_REQUEST,
+    payload: { provisionsTemplates }
+  }),
   setProvisions: provisions => ({
     type: SUCCESS_ONE_REQUEST,
     payload: { provisions }

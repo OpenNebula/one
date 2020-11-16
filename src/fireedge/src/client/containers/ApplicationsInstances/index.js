@@ -49,7 +49,7 @@ function ApplicationsInstances () {
         <ListCards
           list={list}
           isLoading={list.length === 0 && loading}
-          EmptyComponent={<EmptyCard name={'applications instances'} />}
+          EmptyComponent={<EmptyCard title={'Your applications instances list is empty'} />}
           CardComponent={ApplicationCard}
           cardsProps={({ value }) => ({
             handleShow: () => setShowDialog(value)

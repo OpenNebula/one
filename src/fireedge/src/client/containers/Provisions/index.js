@@ -14,7 +14,7 @@ import AlertError from 'client/components/Alerts/Error'
 import { ProviderCard } from 'client/components/Cards'
 
 import { Tr } from 'client/components/HOC'
-import { Providers as ProvidersLabel } from 'client/constants/translates'
+import { Provisions as ProvisionsLabel } from 'client/constants/translates'
 
 function Provisions () {
   const history = useHistory()
@@ -22,12 +22,17 @@ function Provisions () {
   const {
     error,
     fetchRequest,
+    cancelRequest,
     loading,
     reloading
   } = useFetch(getProvisions)
 
   useEffect(() => {
     fetchRequest()
+
+    return () => {
+      cancelRequest()
+    }
   }, [])
 
   return (
@@ -40,7 +45,7 @@ function Provisions () {
           label={<RefreshIcon />}
         />
         <Typography variant="h5" style={{ marginLeft: 8 }}>
-          {Tr(ProvidersLabel)}
+          {Tr(ProvisionsLabel)}
         </Typography>
       </Box>
       <Divider />

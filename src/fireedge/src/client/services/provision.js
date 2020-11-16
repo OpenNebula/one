@@ -1,3 +1,4 @@
+import axios from 'axios'
 import httpCodes from 'server/utils/constants/http-codes'
 import { httpMethod } from 'server/utils/constants/defaults'
 import {
@@ -11,7 +12,7 @@ import { REQUEST_ACTIONS } from 'client/constants'
 const { GET, POST, PUT } = httpMethod
 
 // --------------------------------------------
-// PROVIDER REQUESTS
+// PROVIDERS REQUESTS
 // --------------------------------------------
 
 export const getProvidersTemplates = ({ filter }) =>
@@ -41,7 +42,7 @@ export const getProviders = ({ filter }) =>
     method: GET,
     error: err => err?.message
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    if (axios.isCancel(res) || !res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
   })
@@ -57,7 +58,35 @@ export const createProvider = ({ data = {} }) =>
   })
 
 // --------------------------------------------
-// PROVISION REQUESTS
+// PROVISIONS TEMPLATES REQUESTS
+// --------------------------------------------
+
+export const getProvisionTemplate = ({ id }) =>
+  requestData(`/api/${PROVISION_TEMPLATE}/list/${id}`, {
+    method: GET,
+    error: err => err?.message
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data?.DOCUMENT ?? {}
+  })
+
+export const getProvisionsTemplates = ({ filter }) =>
+  requestData(`/api/${PROVISION_TEMPLATE}/list`, {
+    data: { filter },
+    method: GET,
+    error: err => err?.message
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
+  })
+
+export const createProvisionTemplate = ({ data = {} }) =>
+  Promise.resolve().then(res => res?.data?.DOCUMENT ?? {})
+
+// --------------------------------------------
+// PROVISIONS REQUESTS
 // --------------------------------------------
 
 export const getProvision = ({ id }) =>
@@ -70,13 +99,13 @@ export const getProvision = ({ id }) =>
     return res?.data?.DOCUMENT ?? {}
   })
 
-export const getProvisions = ({ filter }) =>
+export const getProvisions = ({ filter, config }) =>
   requestData(`/api/${PROVISION}/list`, {
+    config,
     data: { filter },
-    method: GET,
-    error: err => err?.message
+    method: GET
   }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+    if (axios.isCancel(res) || !res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
   })
@@ -89,6 +118,9 @@ export default {
   getProvider,
   getProviders,
   createProvider,
+
+  getProvisionTemplate,
+  getProvisionsTemplates,
 
   getProvision,
   getProvisions,

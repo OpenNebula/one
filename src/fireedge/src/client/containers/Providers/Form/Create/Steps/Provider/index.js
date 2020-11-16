@@ -47,7 +47,7 @@ const Provider = () => ({
       <ListCards
         list={templates}
         isLoading={!templates || loading}
-        EmptyComponent={<EmptyCard name={'providers templates'} />}
+        EmptyComponent={<EmptyCard title={'Your providers templates list is empty'} />}
         CardComponent={SelectCard}
         cardsProps={({ value: { name } }) => {
           const isSelected = data?.some(selected => selected === name)

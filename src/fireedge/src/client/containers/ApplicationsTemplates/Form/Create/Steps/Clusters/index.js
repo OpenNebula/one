@@ -31,7 +31,7 @@ const Clusters = () => ({
       <ListCards
         list={clusters}
         isLoading={clusters.length === 0 && loading}
-        EmptyComponent={<EmptyCard name={'clusters'} />}
+        EmptyComponent={<EmptyCard title={'Your clusters list is empty'} />}
         CardComponent={ClusterCard}
         cardsProps={({ value: { ID } }) => {
           const isSelected = data?.some(selected => selected === ID)
