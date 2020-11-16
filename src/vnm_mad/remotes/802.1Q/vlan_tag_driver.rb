@@ -26,7 +26,7 @@ require 'vnmmad'
 class VLANTagDriver < VNMMAD::VLANDriver
 
     # DRIVER name and XPATH for relevant NICs
-    DRIVER       = "802.1Q"
+    DRIVER       = '802.1Q'
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='802.1Q']"
 
     ############################################################################
@@ -43,19 +43,25 @@ class VLANTagDriver < VNMMAD::VLANDriver
     # This function creates and activate a VLAN device
     ############################################################################
     def create_vlan_dev
-        mtu = @nic[:mtu] ? "mtu #{@nic[:mtu]}" : "mtu #{CONF[:vlan_mtu]}"
+        @nic[:mtu] ? mtu = "mtu #{@nic[:mtu]}" : mtu = "mtu #{CONF[:vlan_mtu]}"
 
-        ip_link_conf = ""
+        ip_link_conf = ''
 
         @nic[:ip_link_conf].each do |option, value|
             case value
             when true
-                value = "on"
+                value = 'on'
             when false
-                value = "off"
+                value = 'off'
             end
 
             ip_link_conf << "#{option} #{value} "
+        end
+
+        # Delete vlan if it stuck in another bridge.
+        if nic_exist?(@nic[:vlan_dev])[0]
+            cmd = "#{command(:ip)} link delete #{@nic[:vlan_dev]}"
+            OpenNebula.exec_and_log(cmd)
         end
 
         OpenNebula.exec_and_log("#{command(:ip)} link add link"\
@@ -66,13 +72,16 @@ class VLANTagDriver < VNMMAD::VLANDriver
     end
 
     def delete_vlan_dev
-		OpenNebula.exec_and_log("#{command(:ip)} link delete"\
-            " #{@nic[:vlan_dev]}") if @nic[:vlan_dev] != @nic[:phydev]
-	end
+        return unless @nic[:vlan_dev] != @nic[:phydev]
+
+        OpenNebula.exec_and_log("\
+            #{command(:ip)} link delete #{@nic[:vlan_dev]}")
+    end
 
     def list_interface_vlan(name)
-        text = %x(#{command(:ip_unpriv)} -d link show #{name})
-        return nil if $?.exitstatus != 0
+        text, status = nic_exist?(name)
+
+        return if status == false
 
         text.each_line do |line|
             m = line.match(/vlan protocol 802.1Q id (\d+)/)
@@ -82,4 +91,5 @@ class VLANTagDriver < VNMMAD::VLANDriver
 
         nil
     end
+
 end

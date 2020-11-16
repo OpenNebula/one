@@ -16,6 +16,7 @@
 
 require 'shellwords'
 require 'open3'
+require 'English'
 
 ################################################################################
 # The VNMMAD module provides the basic abstraction to implement custom
@@ -38,7 +39,7 @@ module VNMMAD
         #   @param xpath_filter [String] to get relevant NICs for the driver
         #   @param deploy_id [String]
         def initialize(vm_tpl, xpath_filter, deploy_id = nil)
-            @locking ||= false
+            @locking = false
 
             @vm = VNMNetwork::VM.new(REXML::Document.new(vm_tpl).root,
                                      xpath_filter, deploy_id)
@@ -47,8 +48,8 @@ module VNMMAD
         # Creates a new VNMDriver using:
         #   @param vm_64 [String] Base64 encoded XML String from oned
         #   @param deploy_id [String]
-        def self.from_base64(vm_64, xpath_filter = nil, deploy_id = nil)
-            vm_xml = Base64.decode64(vm_64)
+        def self.from_base64(vm64, xpath_filter = nil, deploy_id = nil)
+            vm_xml = Base64.decode64(vm64)
 
             new(vm_xml, xpath_filter, deploy_id)
         end
@@ -56,18 +57,16 @@ module VNMMAD
         # Locking function to serialized driver operations if needed. Similar
         # to flock. File is created as /tmp/onevnm-<driver>-lock
         def lock
-            if @locking
-                driver_name = self.class.name.downcase
-                @locking_file = File.open("/tmp/onevnm-#{driver_name}-lock", 'w')
-                @locking_file.flock(File::LOCK_EX)
-            end
+            return unless @locking
+
+            driver_name = self.class.name.downcase
+            @locking_file = File.open("/tmp/onevnm-#{driver_name}-lock", 'w')
+            @locking_file.flock(File::LOCK_EX)
         end
 
         # Unlock driver execution mutex
         def unlock
-            if @locking
-                @locking_file.close
-            end
+            @locking_file.close if @locking
         end
 
         # Executes the given block on each NIC
@@ -158,8 +157,8 @@ module VNMMAD
         # Returns a filter object based on the contents of the template
         #
         # @return SGDriver object
-        def self.filter_driver(vm_64, xpath_filter, deploy_id)
-            SGDriver.new(vm_64, xpath_filter, deploy_id)
+        def self.filter_driver(vm64, xpath_filter, deploy_id)
+            SGDriver.new(vm64, xpath_filter, deploy_id)
         end
 
         # Returns the associated command including sudo and other configuration
@@ -214,6 +213,16 @@ module VNMMAD
             end
 
             0
+        end
+
+        # Checks wether a NIC exist or not. Returns true/false and the NIC info
+        def nic_exist?(name)
+            text = `#{command(:ip)} link show #{name}`
+            status = $CHILD_STATUS.exitstatus
+
+            return true, text if status == 0
+
+            [false, text]
         end
 
         private
