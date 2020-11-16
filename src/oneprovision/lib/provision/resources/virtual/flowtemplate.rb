@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 require 'provision/resources/virtual/virtual_resource'
-require 'models'
 
 require 'json'
 
