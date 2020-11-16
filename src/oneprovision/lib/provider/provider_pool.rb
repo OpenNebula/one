@@ -19,7 +19,7 @@ require 'opennebula/document_pool_json'
 module OneProvision
 
     # ProviderPool class
-    class ProviderPool < DocumentPoolJSON
+    class ProviderPool < OpenNebula::DocumentPoolJSON
 
         DOCUMENT_TYPE = 102
 

@@ -434,6 +434,23 @@ module OneProvision
                         return [false, "user input #{match[1]} not found"]
                     end
 
+                    @config['inputs'].each do |input|
+                        case input['type']
+                        when 'list'
+                            next if input['options']
+
+                            return [false, 'input type list needs options']
+                        when 'range'
+                            next if input['min_value'] && input['max_value']
+
+                            return [false,
+                                    'input type range needs min_value ' \
+                                    'and max_value']
+                        else
+                            next
+                        end
+                    end
+
                     next
                 end
 

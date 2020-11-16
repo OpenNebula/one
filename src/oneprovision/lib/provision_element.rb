@@ -20,7 +20,7 @@ require 'opennebula/document_json'
 module OneProvision
 
     # Provision element
-    class ProvisionElement < DocumentJSON
+    class ProvisionElement < OpenNebula::DocumentJSON
 
         TEMPLATE_TAG = 'PROVISION_BODY'
 
