@@ -42,7 +42,7 @@ const Locations = () => ({
     return (
       <ListCards
         list={locationsList}
-        EmptyComponent={<EmptyCard name={'locations'} />}
+        EmptyComponent={<EmptyCard title={'Your locations list is empty'} />}
         CardComponent={LocationCard}
         cardsProps={({ value: { key } }) => {
           const isSelected = data?.some(selected => selected === key)

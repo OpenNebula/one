@@ -76,7 +76,8 @@ export const requestData = (url = '', data = {}) => {
     baseURL: params.baseURL,
     headers: {},
     validateStatus: status =>
-      Object.values(httpCodes).some(({ id }) => id === status)
+      Object.values(httpCodes).some(({ id }) => id === status),
+    ...params?.config
   }
 
   if (params.json) {

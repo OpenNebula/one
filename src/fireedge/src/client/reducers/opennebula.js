@@ -40,6 +40,7 @@ const initial = {
   acl: [],
   providersTemplates: [],
   providers: [],
+  provisionsTemplates: [],
   provisions: []
 }
 

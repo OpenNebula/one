@@ -22,12 +22,17 @@ function Providers () {
   const {
     error,
     fetchRequest,
+    cancelRequest,
     loading,
     reloading
   } = useFetch(getProviders)
 
   useEffect(() => {
     fetchRequest()
+
+    return () => {
+      cancelRequest()
+    }
   }, [])
 
   return (

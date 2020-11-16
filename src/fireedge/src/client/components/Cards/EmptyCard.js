@@ -2,6 +2,7 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Card, CardHeader, Fade, makeStyles } from '@material-ui/core'
+import { Tr } from 'client/components/HOC/Translate'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -15,14 +16,14 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const EmptyCard = memo(({ name }) => {
+const EmptyCard = memo(({ title }) => {
   const classes = useStyles()
 
   return (
     <Fade in unmountOnExit>
       <Card className={classes.root} variant="outlined">
         <CardHeader
-          subheader={`Your ${name ?? ''} list is empty`}
+          subheader={title ?? Tr('empty')}
           className={classes.content}
         />
       </Card>
@@ -31,11 +32,11 @@ const EmptyCard = memo(({ name }) => {
 })
 
 EmptyCard.propTypes = {
-  name: PropTypes.string
+  title: PropTypes.string
 }
 
 EmptyCard.defaultProps = {
-  name: undefined
+  title: undefined
 }
 
 EmptyCard.displayName = 'EmptyCard'

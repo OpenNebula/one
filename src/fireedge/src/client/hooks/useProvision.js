@@ -1,7 +1,12 @@
 import { useCallback } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import { setProvidersTemplates, setProviders, setProvisions } from 'client/actions/pool'
+import {
+  setProvidersTemplates,
+  setProviders,
+  setProvisionsTemplates,
+  setProvisions
+} from 'client/actions/pool'
 
 import { enqueueError, enqueueSuccess } from 'client/actions/general'
 
@@ -12,6 +17,7 @@ export default function useOpennebula () {
   const {
     providersTemplates,
     providers,
+    provisionsTemplates,
     provisions,
     filterPool: filter
   } = useSelector(
@@ -21,6 +27,10 @@ export default function useOpennebula () {
     }),
     shallowEqual
   )
+
+  // --------------------------------------------
+  // PROVIDERS REQUESTS
+  // --------------------------------------------
 
   const getProvidersTemplates = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
@@ -54,6 +64,7 @@ export default function useOpennebula () {
         })
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET providers'))
+          return err
         }),
     [dispatch, filter]
   )
@@ -71,6 +82,36 @@ export default function useOpennebula () {
     [dispatch, providers]
   )
 
+  // --------------------------------------------
+  // PROVISIONS TEMPLATES REQUESTS
+  // --------------------------------------------
+
+  const getProvisionTemplate = useCallback(
+    ({ id }) =>
+      serviceProvision.getProvisionTemplate({ id }).catch(err => {
+        dispatch(enqueueError(err ?? `Error GET (${id}) provision template`))
+      }),
+    [dispatch]
+  )
+
+  const getProvisionsTemplates = useCallback(
+    ({ end, start } = { end: -1, start: -1 }) =>
+      serviceProvision
+        .getProvisionsTemplates({ filter, end, start })
+        .then(doc => {
+          dispatch(setProvisionsTemplates(doc))
+          return doc
+        })
+        .catch(err => {
+          dispatch(enqueueError(err ?? 'Error GET provisions templates'))
+        }),
+    [dispatch, filter]
+  )
+
+  // --------------------------------------------
+  // PROVISIONS REQUESTS
+  // --------------------------------------------
+
   const getProvision = useCallback(
     ({ id }) =>
       serviceProvision.getProvision({ id }).catch(err => {
@@ -80,15 +121,16 @@ export default function useOpennebula () {
   )
 
   const getProvisions = useCallback(
-    ({ end, start } = { end: -1, start: -1 }) =>
+    ({ end, start, config } = { end: -1, start: -1, config: {} }) =>
       serviceProvision
-        .getProvisions({ filter, end, start })
+        .getProvisions({ filter, end, start, config })
         .then(doc => {
           dispatch(setProvisions(doc))
           return doc
         })
         .catch(err => {
-          dispatch(enqueueError(err ?? 'Error GET providers'))
+          dispatch(enqueueError(err?.message ?? 'Error GET provisions'))
+          return err
         }),
     [dispatch, filter]
   )
@@ -97,15 +139,9 @@ export default function useOpennebula () {
     ({ data }) =>
       serviceProvision
         .createProvision({ data })
-        .then(doc => {
-          /* dispatch(
-            setApplicationsTemplates(
-              filterBy([doc].concat(applicationsTemplates), 'ID')
-            )
-          ) */
-
-          return dispatch(enqueueSuccess(`Template created - ID: ${doc?.ID}`))
-        })
+        .then(doc => dispatch(
+          enqueueSuccess(`Provision created - ID: ${doc?.ID}`))
+        )
         .catch(err => {
           dispatch(
             enqueueError(err?.message ?? 'Error CREATE Provision')
@@ -122,6 +158,10 @@ export default function useOpennebula () {
     getProvider,
     getProviders,
     createProvider,
+
+    provisionsTemplates,
+    getProvisionTemplate,
+    getProvisionsTemplates,
 
     provisions,
     getProvision,
