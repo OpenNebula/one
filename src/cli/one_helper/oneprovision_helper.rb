@@ -158,6 +158,24 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         :format => String
     }
 
+    USER_INPUTS = {
+        :name   => 'user_inputs',
+        :large  => '--user-inputs ui1,ui2,ui3',
+        :format => Array,
+        :description => 'Specify the user inputs values when deploying',
+        :proc => lambda do |_, options|
+            options[:inputs] = []
+
+            # escape values
+            options[:user_inputs].each do |user_input|
+                split = user_input.split('=')
+                options[:inputs] << { 'name' => split[0], 'value' => split[1] }
+            end
+
+            0
+        end
+    }
+
     ########################################################################
 
     THREADS = {
@@ -233,7 +251,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                       SKIP_CONFIG,
                       WAIT_READY,
                       WAIT_TIMEOUT,
-                      PROVIDER]
+                      PROVIDER,
+                      USER_INPUTS]
 
     ONE_OPTIONS = CommandParser::OPTIONS +
                   CLIHelper::OPTIONS +

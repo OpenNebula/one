@@ -263,7 +263,7 @@ CommandParser::CmdParser.new(ARGV) do
                 else
                     optionals = OneTemplateHelper.get_user_inputs(
                         t.to_hash,
-                        options[:user_inputs_keys],
+                        options[:user_inputs_keys]
                     )
 
                     user_inputs = user_inputs + "\n" + optionals

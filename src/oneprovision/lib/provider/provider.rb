@@ -103,6 +103,14 @@ module OneProvision
             conn
         end
 
+        # Gets provider type
+        def type
+            # Dummy case
+            return 'dummy' unless @body
+
+            @body['provider']
+        end
+
         # Gets provider object by name or ID
         #
         # @param client   [Client] Client to make OpenNebula calls

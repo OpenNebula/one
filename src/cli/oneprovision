@@ -119,7 +119,7 @@ CommandParser::CmdParser.new(ARGV) do
             skip = :none
         end
 
-        rc = helper.create(args[0],
+        rc = helper.create({ :config => args[0], :inputs => options[:inputs] },
                            (options.key? :cleanup),
                            timeout,
                            skip,

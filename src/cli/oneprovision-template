@@ -193,7 +193,8 @@ CommandParser::CmdParser.new(ARGV) do
                 skip = :none
             end
 
-            rc = obj.instantiate((options.key? :cleanup),
+            rc = obj.instantiate(options[:inputs],
+                                 (options.key? :cleanup),
                                  timeout,
                                  skip,
                                  options[:provider],
