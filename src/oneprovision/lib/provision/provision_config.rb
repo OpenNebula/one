@@ -40,7 +40,10 @@ module OneProvision
         # @param template [String/Hash]
         #   String -> Path to configuration YAML file
         #   Hash -> configuration file already loaded
-        def initialize(template)
+        # @param inputs [Hash] User inputs values
+        def initialize(template, inputs = nil)
+            @inputs = inputs
+
             case template
             when Hash
                 @config = template
@@ -121,6 +124,17 @@ module OneProvision
                         end
 
                         x
+                    end
+                end
+
+                # Add provision ID into ARs to evaluate it later
+                if @config['networks']
+                    @config['networks'].each do |vnet|
+                        next unless vnet['ar']
+
+                        vnet['ar'].each do |ar|
+                            ar['provision_id'] = '${provision_id}'
+                        end
                     end
                 end
 
@@ -501,8 +515,19 @@ module OneProvision
 
                         next unless match[0] == 'input'
 
-                        input = @config['inputs'].find do |v|
-                            v['name'] == match[1]
+                        if @config['inputs']
+                            input = @config['inputs'].find do |v|
+                                v['name'] == match[1]
+                            end
+                        end
+
+                        if @inputs
+                            # Add CLI user inputs values
+                            i_value = @inputs.find do |v|
+                                v['name'] == match[1]
+                            end
+
+                            input['value'] = i_value['value']
                         end
 
                         if input['value']
@@ -549,7 +574,7 @@ module OneProvision
                     answer = Base64.encode64(answer).strip.delete("\n")
                 end
             when 'boolean'
-                while !%w[YES NO].include?(answer)
+                until %w[YES NO].include?(answer)
                     print "Bool `#{input['name']}` " \
                           "(default=#{input['default']}): "
 

@@ -59,6 +59,7 @@ module OneProvision
 
         # Instantiate the template
         #
+        # @param inputs   [Array]   User inputs values
         # @param cleanup  [Boolean] True to cleanup everything
         # @param timeout  [Integer] Timeout in seconds to connect to hosts
         # @param skip     [Symbol]  Skip provision, configuration or anything
@@ -66,7 +67,9 @@ module OneProvision
         # @param extra    [String]  Path to extra template information
         #
         # @param [Intenger] New provision ID
-        def instantiate(cleanup, timeout, skip, provider, extra)
+        # rubocop:disable Metrics/ParameterLists
+        def instantiate(inputs, cleanup, timeout, skip, provider, extra)
+            # rubocop:enable Metrics/ParameterLists
             rc = info(true)
 
             return rc if OpenNebula.is_error?(rc)
@@ -104,7 +107,11 @@ module OneProvision
             xml       = OneProvision::Provision.build_xml
             provision = OneProvision::Provision.new(xml, @client)
 
-            provision.deploy(tempfile.path, cleanup, timeout, skip, provider)
+            provision.deploy({ :config => tempfile.path, :inputs => inputs },
+                             cleanup,
+                             timeout,
+                             skip,
+                             provider)
         ensure
             tempfile.unlink if tempfile
         end
@@ -144,6 +151,10 @@ module OneProvision
             document['registration_time'] = Time.now.to_i
             document['playbooks']         = template['playbook']
             document['defaults']          = template['defaults']
+
+            if template['inputs']
+                document['inputs'] = template['inputs']
+            end
 
             (Provision::RESOURCES + Provision::FULL_CLUSTER).each do |resource|
                 next unless template[resource]

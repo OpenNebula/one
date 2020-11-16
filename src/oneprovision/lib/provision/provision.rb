@@ -197,14 +197,20 @@ module OneProvision
         def deploy(config, cleanup, timeout, skip, provider)
             Ansible.check_ansible_version if skip == :none
 
-            cfg = ProvisionConfig.new(config)
+            # Config contains
+            #   :inputs -> array with user inputs values
+            #   :config -> string with path to configuration file
+            inputs = config[:inputs]
+            config = config[:config]
+
+            cfg = ProvisionConfig.new(config, inputs)
             cfg.validate
 
             begin
                 @idx = nil
 
                 # Create configuration object
-                cfg = ProvisionConfig.new(config)
+                cfg = ProvisionConfig.new(config, inputs)
                 cfg.load
 
                 # read provider information
@@ -224,8 +230,6 @@ module OneProvision
                 allocate(cfg, provider)
 
                 info(true)
-
-                puts "ID: #{self['ID']}"
 
                 # read provision file
                 cfg.parse(true)
