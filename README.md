@@ -6,6 +6,7 @@
 
 [OpenNebula](http://opennebula.io) is an open source platform delivering a simple but feature-rich and flexible solution to build and manage enterprise clouds for virtualized services, containerized applications and serverless computing.
 
+[![OpenNebula Architecture](https://opennebula.io/wp-content/uploads/2020/08/KeyFeatures_small.png)](https://opennebula.io/discover/)
 
 ### To start using OpenNebula
 
@@ -15,6 +16,8 @@
 - Download our [technical white papers](https://opennebula.io/docs-whitepapers/).
 - See our [Documentation](https://docs.opennebula.io).
 - Join our [Community Forum](https://forum.opennebula.io).
+
+[![OpenNebula Intro](https://opennebula.io/wp-content/uploads/2020/08/Intro_Screencast_small.png)](https://opennebula.io/screencast-overview/)
 
 ### Contributing to OpenNebula
 
