@@ -1,187 +1,63 @@
-
-# OpenNebula
+# [![OpenNebula Logo](https://opennebula.io/wp-content/uploads/2019/04/img-logo-blue.svg)](https://opennebula.io/)
 
 [![Build Status](https://travis-ci.org/OpenNebula/one.svg?branch=master)](https://travis-ci.org/OpenNebula/one)
 
 ## Description
 
-OpenNebula is an open-source project delivering a simple but feature-rich and
-flexible solution to build and manage enterprise clouds and virtualized data centers.
+[OpenNebula](http://opennebula.io) is an open source platform delivering a simple but feature-rich and flexible solution to build and manage enterprise clouds for virtualized services, containerized applications and serverless computing.
 
-Complete documentation: https://docs.opennebula.io
 
-How to contribute: https://github.com/OpenNebula/one/wiki/How-to-Contribute-to-Development
+### To start using OpenNebula
+
+- Explore OpenNebula’s **key features** [on our website](https://opennebula.io/discover).
+- Have a look at our [introductory datasheet](https://support.opennebula.pro/hc/en-us/articles/360036935791-OpenNebula-Key-Features-Datasheet).
+- Browse our catalog of [screencasts and video-tutorials](https://opennebula.io/screencasts/).
+- Download our [technical white papers](https://opennebula.io/docs-whitepapers/).
+- See our [Documentation](https://docs.opennebula.io).
+- Join our [Community Forum](https://forum.opennebula.io).
+
+### Contributing to OpenNebula
+
+- Contribute to [Development](https://github.com/OpenNebula/one/wiki/How-to-Contribute-to-Development).
+- Learn about our [Add-on Catalog](https://github.com/OpenNebula/one/wiki/How-to-participate-in-Add_on-Development).
+- Help us [translate OpenNebula](https://www.transifex.com/opennebula/one/) to your language.
+- Report a [security vulnerability](https://github.com/OpenNebula/one/wiki/Vulnerability-Management-Process).
+
+## Taking OpenNebula for a Test Drive
+
+There are a couple of very easy ways to try out the OpenNebula functionality
+
+- [miniONE](https://github.com/OpenNebula/minione) for infrastructures based on open source hypervisors.
+- [vOneCloud](http://docs.opennebula.org/vonecloud) for VMware based infrastructures.
 
 ## Installation
 
-### Requirements
+You can find more information about OpenNebula’s architecture, installation, configuration and references to configuration files in this [documentation section](https://docs.opennebula.io/stable/deployment/index.html).
 
-This machine will act as the OpenNebula server and therefore needs to have
-installed the following software:
+It is very useful to learn where [log files of the main OpenNebula components are placed](http://docs.opennebula.io/5.12/deployment/references/log_debug.html). Also check the [reference about the main OpenNebula daemon configuration file](https://docs.opennebula.io/stable/deployment/references/oned_conf.html).
 
-* **ruby** >= 1.8.7
-* **sqlite3** >= 3.5.2
-* **xmlrpc-c** >= 1.06
-* **openssl** >= 0.9
-* **ssh**
-* **sqlite3-ruby** gem
+### Front-end Installation
 
-Additionally, to build OpenNebula from source you need:
+The Front-end is the central part of an OpenNebula installation. This is the machine where the server software is installed and where you connect to manage your cloud. It can be a physical node or a virtual instance.
 
-* Development versions of the **sqlite3**, **xmlrpc-c** and **openssl**
-  packages, if your distribution does not install them with the libraries.
-* **scons** >= 0.97
-* **g++** >= 4
-* **flex** >= 2.5 (optional, only needed to rebuild the parsers)
-* **bison** >= 2.3 (optional, only needed to rebuild the parsers)
-* **libxml2-dev**
-* **libvncserver-dev** (optional, only needed to build svncterm_server)
+Please, visit the [official documentation for more details and a step-by-step guide](http://docs.opennebula.io/5.12/deployment/opennebula_installation/overview.html). Using the packages provided on our site is the recommended method, to ensure the installation of the latest version, and to avoid possible package divergences with different distributions. There are two alternatives here: you can add **our package repositories** to your system, or visit the [software menu](http://opennebula.io/use) to **download the latest package** for your Linux distribution.
 
-### Ruby Libraries Requirements
+If there are no packages for your distribution, please check the [build dependencies](http://docs.opennebula.io/5.12/integration/references/build_deps.html#build-deps) for OpenNebula and head to the [Building from Source Code guide](http://docs.opennebula.io/5.12/integration/references/compile.html#compile).
 
-A set of gem requirements are needed to make several components work. We
-include a handy script to install them and the requirements. It is located at
-`share/install_gems/install_gems` and you should use it to install the
-required gems. You have more information at:
+### Node Installation
 
-  https://docs.opennebula.io/stable/integration/references/compile.html
-
-If you want to install them manually here are the list of required rubygems:
-
-* OpenNebula and clients (plus cloud interfaces)
-  * sqlite3
-  * json
-  * sequel
-  * mysql
-  * net-ldap
-  * amazon-ec2
-  * rack
-  * sinatra
-  * thin
-  * uuidtools
-  * curb
-  * nokogiri
-
-* Sunstone server
-  * json
-  * rack
-  * sinatra
-  * thin
-  * sequel
-  * nokogiri
-
-### Optional Packages
-
-These packages are not needed to run or build OpenNebula. They improve the
-performance of the user-land libraries and tools of OpenNebula, nor the core
-system. You will probably experiment a more responsive CLI.
-
-First install rubygems and ruby development libraries
-
-* **ruby-dev**
-* **rubygems**
-* **rake**
-* **make**
-
-Then install the following packages:
-
-* **ruby xmlparser**, some distributions include a binary package for this
-  (**libxml-parser-ruby1.8**). If it is not available in your distribution
-  install expat libraries with its development files and install xmlparser
-  using gem:
-
-        $ sudo gem install xmlparser --no-document
-
-  Note the extra parameters to gem install. Some versions of xmlparser have
-  problems building the documentation and we can use it without documentation
-  installed.
-
-* **ruby ox**, fast xml parsing library:
-
-        $ sudo gem install ox --no-document
-
-
-### Building
-
-Compilation is done using **scons** command:
-
-        $ scons [OPTION=VALUE]
-
-The argument expression *[OPTIONAL]* is used to set non-default values for:
-
-        OPTION      VALUE
-        sqlite_db   path-to-sqlite-install
-        sqlite      no if you don't want to build sqlite support
-        mysql       yes if you want to build mysql support
-        xmlrpc      path-to-xmlrpc-install
-        parsers     yes if you want to rebuild flex/bison files
-        new_xmlrpc  yes if you have an xmlrpc-c version >= 1.31
-        sunstone    yes if you want to build sunstone minified files
-        systemd     yes if you want to build systemd support
-        svncterm    no if you want to skip building vnc support for LXD drivers
-
-
-### Installation
-
-OpenNebula can be installed in two modes: system-wide, or in self-contained
-directory. In either case, you do not need to run OpenNebula as root. These
-options can be specified when running the install script:
-
-        $ ./install.sh install_options
-
-where **install_options** can be one or more of:
-
-    OPTION  VALUE
-    -u      user that will run OpenNebula, defaults to user executing
-            install.sh
-    -g      group of the user that will run OpenNebula, defaults to user
-            executing install.sh
-    -k      keep current configuration files, useful when upgrading
-    -d      target installation directory. If defined, it will specified
-            the path for the self-contained install. If not defined, the
-            installation will be performed system wide
-    -c      only install client utilities: OpenNebula cli, occi and ec2
-            client files
-    -r      remove Opennebula, only useful if -d was not specified,
-            otherwise rm -rf $ONE_LOCATION would do the job
-    -p      do not install OpenNebula Sunstone non-minified files
-    -G      install only OpenNebula Gate
-    -f      install only OpenNebula Flow
-    -h      prints installer help
-
-
-## Deployment
-
-You can find the documentation about OpenNebula architecture, installation,
-configuration and references to configuration files in this documentation
-chapter:
-
-https://docs.opennebula.io/stable/deployment/index.html
-
-The reference about the main configuration file is located here:
-
-https://docs.opennebula.io/stable/deployment/references/oned_conf.html
-
+After the OpenNebula Front-end is correctly set up, the next step is preparing the hosts where the VMs are going to run. Please, refer to the [documentation](http://docs.opennebula.io/5.12/deployment/node_installation/overview.html) site for more details.
 
 ## Contact
 
-OpenNebula web page: https://opennebula.io
-
-Development and issue tracking: https://github.com/OpenNebula/one/issues
-
-Support: https://opennebula.io/support
-
+- [OpenNebula web site](https://opennebula.io).
+- [Development and issue tracking](https://github.com/OpenNebula/one/issues).
+- [Enterprise Services](https://opennebula.io/enterprise).
 
 ## License
 
 Copyright 2002-2020, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may
-not use this file except in compliance with the License. You may obtain
-a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
