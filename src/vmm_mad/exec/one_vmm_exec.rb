@@ -50,6 +50,7 @@ require 'rexml/document'
 
 require 'pp'
 
+# VmmAction
 class VmmAction
 
     attr_reader :data
@@ -99,10 +100,13 @@ class VmmAction
         # Activate SSH Forward Agent
         @ssh_src.set_forward(forward)
 
-        @vnm_src = VirtualNetworkDriver.new(src_drvs,
-                                            :local_actions  => @vmm.options[:local_actions],
-                                            :message        => src_xml.to_s,
-                                            :ssh_stream     => @ssh_src)
+        @vnm_src = VirtualNetworkDriver.new(
+            src_drvs,
+            :local_actions          => @vmm.options[:local_actions],
+            :per_drvr_local_actions => VNMAD_LOCAL_ACTIONS,
+            :message                => src_xml.to_s,
+            :ssh_stream             => @ssh_src
+        )
 
         if @data[:dest_host] && !@data[:dest_host].empty?
             dst_drvs, dst_xml = get_vnm_drivers(vm_template)
@@ -112,10 +116,13 @@ class VmmAction
             # Activate SSH Forward Agent
             @ssh_dst.set_forward(forward)
 
-            @vnm_dst = VirtualNetworkDriver.new(dst_drvs,
-                                                :local_actions  => @vmm.options[:local_actions],
-                                                :message        => dst_xml.to_s,
-                                                :ssh_stream     => @ssh_dst)
+            @vnm_dst = VirtualNetworkDriver.new(
+                dst_drvs,
+                :local_actions          => @vmm.options[:local_actions],
+                :per_drvr_local_actions => VNMAD_LOCAL_ACTIONS,
+                :message                => dst_xml.to_s,
+                :ssh_stream             => @ssh_dst
+            )
         end
 
         @tm = TransferManagerDriver.new(nil)
@@ -161,6 +168,7 @@ class VmmAction
         ID DEPLOY_ID TEMPLATE/CONTEXT USER_TEMPLATE
         TEMPLATE/SECURITY_GROUP_RULE
         HISTORY_RECORDS/HISTORY/HOSTNAME
+        HISTORY_RECORDS/HISTORY/HID
         HISTORY_RECORDS/HISTORY/DS_ID
         HISTORY_RECORDS/HISTORY/VM_MAD
     ]
@@ -172,8 +180,8 @@ class VmmAction
     }
 
     # Prepares the list of drivers executed on the host and the xml that will
-    # be sent to the network drivers. Builds VM template with required attributes
-    # for the VirtualNetworkDriver.
+    # be sent to the network drivers. Builds VM template with required
+    # attributes for the VirtualNetworkDriver.
     #  @param[String] The template of the VM.
     #  @return[Array] Returns a list of network drivers and the associated xml
     #  template.
@@ -228,15 +236,18 @@ class VmmAction
                 stdin = step[:stdin] || @xml_data.to_s
                 no_extra_params = step[:no_extra_params] || false
 
-                result, info = @vmm.do_action(get_parameters(step[:parameters]),
-                                              @id,
-                                              host,
-                                              step[:action],
-                                              :ssh_stream => ssh,
-                                              :respond => false,
-                                              :stdin => stdin,
-                                              :no_extra_params => no_extra_params,
-                                              :is_local => step[:is_local])
+                result, info = @vmm.do_action(
+                    get_parameters(step[:parameters]),
+                    @id,
+                    host,
+                    step[:action],
+                    :ssh_stream => ssh,
+                    :respond => false,
+                    :stdin => stdin,
+                    :no_extra_params => no_extra_params,
+                    :is_local => step[:is_local]
+                )
+
             when :vnm
                 if step[:destination]
                     vnm = @vnm_dst
@@ -249,7 +260,9 @@ class VmmAction
                 result, info = vnm.do_action(@id, step[:action],
                                              :parameters => params)
             when :tm
-                result, info = @tm.do_transfer_action(@id, step[:parameters], stdin = step[:stdin])
+                result, info = @tm.do_transfer_action(
+                    @id, step[:parameters], step[:stdin]
+                )
 
             else
                 result = DriverExecHelper.const_get(:RESULT)[:failure]
@@ -268,15 +281,13 @@ class VmmAction
                          "Failed to execute #{DRIVER_NAMES[step[:driver]]} " \
                          "operation: #{step[:action]}.")
 
-                if step[:no_fail]
-                    result = DriverExecHelper::RESULT[:success]
-                else
-                    break
-                end
+                break unless step[:no_fail]
+
+                result = DriverExecHelper::RESULT[:success]
             else
                 @vmm.log(@id,
-                         "Successfully execute #{DRIVER_NAMES[step[:driver]]} " \
-                         "operation: #{step[:action]}.")
+                         "Successfully execute #{DRIVER_NAMES[step[:driver]]}"\
+                         " operation: #{step[:action]}.")
             end
         end
 
@@ -290,7 +301,7 @@ class VmmAction
         parameters = step_params || []
 
         parameters.map do |param|
-            if Symbol === param
+            if param.is_a?(Symbol)
                 "\'#{@data[param]}\'"
             else
                 "\'#{param}\'"
@@ -308,10 +319,11 @@ class VmmAction
         else
             path = name.to_s.upcase
         end
-
+        # rubocop:disable Style/GuardClause
         if (elem = @xml_data.elements[path])
             @data[name] = elem.text
         end
+        # rubocop:enable Style/GuardClause
     end
 
     # Adds a REXML node to a specific xpath
@@ -416,68 +428,70 @@ class ExecDriver < VirtualMachineDriver
         vm_dir=File.dirname(dfile)
 
         steps.concat([
-                        # Execute pre-boot networking setup
-                        {
-                            :driver   => :vnm,
-                            :action   => :pre
-                        },
+                         # Execute pre-boot networking setup
+                         {
+                             :driver   => :vnm,
+                             :action   => :pre
+                         },
 
-                        # Make vm_dir, store vm.xml and ds.xml
-                        {
-                            :driver          => :vmm,
-                            :action          => "/bin/mkdir -p",
-                            :is_local        => is_action_local,
-                            :stdin           => "",
-                            :no_extra_params => true,
-                            :parameters      => [vm_dir]
-                        },
-                        {
-                            :driver          => :vmm,
-                            :action          => "/bin/cat - >#{vm_dir}/vm.xml",
-                            :is_local        => is_action_local,
-                            :stdin           => xml_data.elements['VM'].to_s,
-                            :no_extra_params => true
-                        },
-                        {
-                            :driver       => :vmm,
-                            :action       => "/bin/cat - >#{vm_dir}/ds.xml",
-                            :is_local     => is_action_local,
-                            :stdin        => xml_data.elements['DATASTORE'].to_s,
-                            :no_extra_params => true
-                        },
+                         # Make vm_dir, store vm.xml and ds.xml
+                         {
+                             :driver          => :vmm,
+                             :action          => '/bin/mkdir -p',
+                             :is_local        => is_action_local,
+                             :stdin           => '',
+                             :no_extra_params => true,
+                             :parameters      => [vm_dir]
+                         },
+                         {
+                             :driver   => :vmm,
+                             :action   => "/bin/cat - >#{vm_dir}/vm.xml",
+                             :is_local => is_action_local,
+                             :stdin    => xml_data.elements['VM'].to_s,
+                             :no_extra_params => true
+                         },
+                         {
+                             :driver   => :vmm,
+                             :action   => "/bin/cat - >#{vm_dir}/ds.xml",
+                             :is_local => is_action_local,
+                             :stdin    => xml_data.elements['DATASTORE'].to_s,
+                             :no_extra_params => true
+                         },
 
-                        # Boot the Virtual Machine
-                        {
-                            :driver       => :vmm,
-                            :action       => :deploy,
-                            :parameters   => [dfile, :host],
-                            :stdin        => domain,
-                            :fail_actions => [
-                                {
-                                    :driver   => :vnm,
-                                    :action   => :clean
-                                }
-                            ]
-                        },
+                         # Boot the Virtual Machine
+                         {
+                             :driver       => :vmm,
+                             :action       => :deploy,
+                             :parameters   => [dfile, :host],
+                             :stdin        => domain,
+                             :fail_actions => [
+                                 {
+                                     :driver      => :vnm,
+                                     :action      => :clean,
+                                     :parameters  => [:host]
+                                 }
+                             ]
+                         },
 
-                        # Execute post-boot networking setup
-                        {
-                            :driver       => :vnm,
-                            :action       => :post,
-                            :parameters   => [:deploy_info],
-                            :fail_actions => [
-                                {
-                                    :driver     => :vmm,
-                                    :action     => :cancel,
-                                    :parameters => [:deploy_info, :host]
-                                },
-                                {
-                                    :driver   => :vnm,
-                                    :action   => :clean
-                                }
-                            ]
-                        }
-                    ])
+                         # Execute post-boot networking setup
+                         {
+                             :driver       => :vnm,
+                             :action       => :post,
+                             :parameters   => [:deploy_info, :host],
+                             :fail_actions => [
+                                 {
+                                     :driver     => :vmm,
+                                     :action     => :cancel,
+                                     :parameters => [:deploy_info, :host]
+                                 },
+                                 {
+                                     :driver     => :vnm,
+                                     :action     => :clean,
+                                     :parameters => [:host]
+                                 }
+                             ]
+                         }
+                     ])
 
         action.run(steps)
     end
@@ -511,8 +525,9 @@ class ExecDriver < VirtualMachineDriver
             },
             # Execute networking clean up operations
             {
-                :driver   => :vnm,
-                :action   => :clean
+                :driver      => :vnm,
+                :action      => :clean,
+                :parameters  => [:host]
             }
         ]
 
@@ -550,13 +565,14 @@ class ExecDriver < VirtualMachineDriver
                          {
                              :driver     => :vmm,
                              :action     => :restore,
-                             :parameters => [:checkpoint_file, :host, :deploy_id]
+                             :parameters => [:checkpoint_file, :host,
+                                             :deploy_id]
                          },
                          # Execute post-boot networking setup
                          {
                              :driver       => :vnm,
                              :action       => :post,
-                             :parameters   => [:deploy_id],
+                             :parameters   => [:deploy_id, :host],
                              :fail_actions => [
                                  {
                                      :driver     => :vmm,
@@ -619,13 +635,14 @@ class ExecDriver < VirtualMachineDriver
             {
                 :driver       => :vnm,
                 :action       => :clean,
+                :parameters   => [:host],
                 :no_fail      => true
             },
             # Execute post-boot networking setup on migrating host
             {
                 :driver       => :vnm,
                 :action       => :post,
-                :parameters   => [:deploy_id],
+                :parameters   => [:deploy_id, :host],
                 :destination  => true,
                 :no_fail      => true
             },
@@ -680,7 +697,7 @@ class ExecDriver < VirtualMachineDriver
         target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
         target = ensure_xpath(xml_data, id, action, target_xpath) || return
 
-        target_index = target.downcase[-1..-1].unpack('c').first - 97
+        target_index = target.downcase[-1..-1].unpack1('c') - 97
 
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
@@ -727,7 +744,7 @@ class ExecDriver < VirtualMachineDriver
         target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
         target = ensure_xpath(xml_data, id, action, target_xpath) || return
 
-        target_index = target.downcase[-1..-1].unpack('c').first - 97
+        target_index = target.downcase[-1..-1].unpack1('c') - 97
 
         action = VmmAction.new(self, id, :detach_disk, drv_message)
 
@@ -827,7 +844,8 @@ class ExecDriver < VirtualMachineDriver
         size       = ensure_xpath(xml_data, id, action, size_xpath) || return
 
         disk_id_xpath = "VM/TEMPLATE/DISK[RESIZE='YES']/DISK_ID"
-        disk_id       = ensure_xpath(xml_data, id, action, disk_id_xpath) || return
+        disk_id       = ensure_xpath(xml_data, id,
+                                     action, disk_id_xpath) || return
 
         action = VmmAction.new(self, id, :resize_disk, drv_message)
 
@@ -881,9 +899,10 @@ class ExecDriver < VirtualMachineDriver
 
         steps <<
             {
-                :driver  => :vnm,
-                :action  => :clean,
-                :no_fail => true
+                :driver     => :vnm,
+                :action     => :clean,
+                :parameters => [:host],
+                :no_fail    => true
             }
 
         # Cancel the VM at the previous host (in case of migration)
@@ -900,6 +919,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver  => :vnm,
                     :action  => :clean,
+                    :parameters => [:host],
                     :destination => true,
                     :no_fail => true
                 }
@@ -907,7 +927,7 @@ class ExecDriver < VirtualMachineDriver
 
         # Cleans VM disk images and directory
         if tm_command
-            tm_command.each_line {|tc|
+            tm_command.each_line do |tc|
                 tc.strip!
 
                 next if tc.empty?
@@ -919,7 +939,7 @@ class ExecDriver < VirtualMachineDriver
                         :parameters => tc.split,
                         :no_fail    => true
                     }
-            }
+            end
         end
 
         action.run(steps)
@@ -988,13 +1008,14 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver     => :vmm,
                     :action     => :attach_nic,
-                    :parameters => [:deploy_id, mac, source, model, vn_mad, target]
+                    :parameters => [:deploy_id, mac, source,
+                                    model, vn_mad, target]
                 },
                 # Execute post-boot networking setup
                 {
                     :driver       => :vnm,
                     :action       => :post,
-                    :parameters   => [:deploy_id],
+                    :parameters   => [:deploy_id, :host],
                     :fail_actions => [
                         {
                             :driver     => :vmm,
@@ -1015,7 +1036,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver       => :vnm,
                     :action       => :post,
-                    :parameters   => [:deploy_id]
+                    :parameters   => [:deploy_id, :host]
                 }
             ]
         else
@@ -1095,7 +1116,8 @@ class ExecDriver < VirtualMachineDriver
                 # Clean networking setup
                 {
                     :driver       => :vnm,
-                    :action       => :clean
+                    :action       => :clean,
+                    :parameters   => [:host]
                 }
             ]
         elsif nic_alias && external
@@ -1103,7 +1125,8 @@ class ExecDriver < VirtualMachineDriver
                 # Clean networking setup
                 {
                     :driver       => :vnm,
-                    :action       => :clean
+                    :action       => :clean,
+                    :parameters   => [:host]
                 }
             ]
         else
@@ -1144,8 +1167,10 @@ class ExecDriver < VirtualMachineDriver
         vmm_driver_path = 'VM/HISTORY_RECORDS/HISTORY/VM_MAD'
         tm_driver_path  = "VM/TEMPLATE/DISK[DISK_SNAPSHOT_ACTIVE='YES']/TM_MAD"
 
-        vmm_driver = ensure_xpath(xml_data, id, action, vmm_driver_path) || return
-        tm_driver  = ensure_xpath(xml_data, id, action, tm_driver_path) || return
+        vmm_driver = ensure_xpath(xml_data, id, action,
+                                  vmm_driver_path) || return
+        tm_driver  = ensure_xpath(xml_data, id, action,
+                                  tm_driver_path) || return
 
         if !LIVE_DISK_SNAPSHOTS.include?("#{vmm_driver}-#{tm_driver}")
             send_message(action, RESULT[:failure], id,
@@ -1157,7 +1182,8 @@ class ExecDriver < VirtualMachineDriver
         tm_command = ensure_xpath(xml_data, id, action, 'TM_COMMAND') || return
 
         tm_command_split = tm_command.split
-        tm_command_split[0].sub!('.', '_LIVE.') || (tm_command_split[0] += '_LIVE')
+        tm_command_split[0].sub!('.', '_LIVE.') \
+            || (tm_command_split[0] += '_LIVE')
 
         action = VmmAction.new(self, id, :disk_snapshot_create, drv_message)
 
@@ -1262,8 +1288,9 @@ class ExecDriver < VirtualMachineDriver
         if @hypervisor == 'lxd'
             steps += [
                 {
-                    :driver   => :vnm,
-                    :action   => :clean
+                    :driver     => :vnm,
+                    :action     => :clean,
+                    :parameters => [:host]
                 },
                 {
                     :driver   => :vnm,
@@ -1273,7 +1300,7 @@ class ExecDriver < VirtualMachineDriver
                 {
                     :driver       => :vnm,
                     :action       => :post,
-                    :parameters   => [:deploy_info],
+                    :parameters   => [:deploy_info, :host],
                     :fail_actions => [
                         {
                             :driver     => :vmm,
@@ -1300,8 +1327,9 @@ class ExecDriver < VirtualMachineDriver
             },
             # Execute networking clean up operations
             {
-                :driver   => :vnm,
-                :action   => :clean
+                :driver     => :vnm,
+                :action     => :clean,
+                :parameters => [:host]
             }
         ]
 
@@ -1316,11 +1344,8 @@ end
 #
 ################################################################################
 
-if ENV['LIVE_DISK_SNAPSHOTS']
-    LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS'].split
-else
-    LIVE_DISK_SNAPSHOTS = []
-end
+LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS']&.split || []
+VNMAD_LOCAL_ACTIONS = ENV['VNMAD_LOCAL_ACTIONS']&.split || []
 
 opts = GetoptLong.new(
     ['--retries',           '-r', GetoptLong::OPTIONAL_ARGUMENT],

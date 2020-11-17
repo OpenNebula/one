@@ -71,7 +71,7 @@ module VNMMAD
 
         # Executes the given block on each NIC
         def process
-            blk = lambda do |nic|
+            @vm.each_nic do |nic|
                 add_nic_conf(nic)
                 add_bridge_conf(nic)
                 add_ovs_bridge_conf(nic)
@@ -79,8 +79,6 @@ module VNMMAD
 
                 yield(nic)
             end
-
-            @vm.each_nic(blk)
         end
 
         # Parse network configuration and add it to the nic

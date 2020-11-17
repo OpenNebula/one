@@ -1,8 +1,0 @@
-ARGUMENTS       = "$TEMPLATE"
-ARGUMENTS_STDIN = "yes"
-COMMAND         = "alias_ip/alias_ip.rb"
-NAME            = "alias_ip_done"
-ON              = "DONE"
-REMOTE          = "NO"
-RESOURCE        = "VM"
-TYPE            = "state"

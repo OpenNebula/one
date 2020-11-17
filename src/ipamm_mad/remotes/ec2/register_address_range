@@ -17,7 +17,13 @@
 #--------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used to unregister a new IP network in the IPAM.
+# This script is used to register a new IP network in the IPAM. The network may
+# be selected by a pool of free networks or if an specific network is requested
+# its availability maybe checked by the IPAM driver.
+#
+# The IPAM driver must return an OpenNebula AddressRange definition, potentially
+# augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
+# MASK...)
 #
 # STDIN Input:
 #   - Base64 encoded XML with AR request
@@ -25,22 +31,46 @@
 # XML format
 #  <IPAM_DRIVER_ACTION_DATA>
 #    <AR>
-#      <DEPLOY_ID>Packet AR ID</DEPLOY_ID>
-#      <PACKET_TOKEN>Packet auth token</PACKET_TOKEN>
+#      <SIZE>Number of IPs to allocate</SIZE>
+#      <PROVISION_ID>ID</PROVISION_ID>
 #    </AR>
 #  </IPAM_DRIVER_ACTION_DATA>
 #
+# The response MUST include IPAM_MAD, TYPE, IP and SIZE attributes, example:
+#   - A basic network definition
+#       AR = [
+#         IPAM_MAD = "ec2",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.1",
+#         SIZE = "255",
+#         DEPLOY_ID = "..",
+#       ]
+#
+#   - A complete network definition. Custom attributes (free form, key-value)
+#     can be added, named cannot be repeated.
+#       AR = [
+#         IPAM_MAD = "ec2",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.2",
+#         SIZE = "200",
+#         DEPLOY_ID = "..",
+#         NETWORK_ADDRESS   = "10.0.0.0",
+#         NETWORK_MASK      = "255.255.255.0",
+#         GATEWAY           = "10.0.0.1",
+#         DNS               = "10.0.0.1",
+#         IPAM_ATTR         = "10.0.0.240",
+#         OTHER_IPAM_ATTR   = ".mydoamin.com"
+#       ]
 ################################################################################
+
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     LIB_LOCATION      ||= '/usr/lib/one'
-    PACKET_LOCATION   ||= '/usr/lib/one/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
-    PACKET_LOCATION   ||= ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
@@ -51,13 +81,12 @@ if File.directory?(GEMS_LOCATION)
     Gem.use_paths(File.realpath(GEMS_LOCATION))
 end
 
-$LOAD_PATH << PACKET_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'packet'
 require 'base64'
 require 'nokogiri'
+require 'aws-sdk-ec2'
 require 'opennebula'
 require 'oneprovision'
 
@@ -80,17 +109,37 @@ begin
     provider = provision.provider
     connect  = provider.body['connection']
 
-    pk_token    = connect['packet_token']
+    options = {
+        :access_key_id     => connect['aws_access'],
+        :secret_access_key => connect['aws_secret'],
+        :region            => connect['aws_region']
+    }
 
     # --------------------------------------------------------------------------
-    # Connect to Packet and delete the IP
+    # Connect to Packet and allocate a new IP
     # --------------------------------------------------------------------------
-    packet            = Packet::Client.new
-    packet.auth_token = pk_token
+    size = data.xpath('//AR/SIZE').text.to_i
 
-    packet_id = data.xpath('//AR/PACKET_IP_ID').text.to_s
+    if size.to_i != 1
+        STDERR.puts 'Only address ranges of size 1 are supported'
+        exit(-1)
+    end
 
-    packet.delete_ip(packet_id) unless packet_id.empty?
+    Aws.config.merge!(options)
+
+    ec2 = Aws::EC2::Resource.new.client
+    ip  = ec2.allocate_address({ :domain => 'vpc' })
+
+    puts <<-EOF
+        AR = [
+            TYPE      = "IP4",
+            IP        = "#{ip.public_ip}",
+            SIZE      = "1",
+            IPAM_MAD  = "ec2",
+            AWS_ALLOCATION_ID = "#{ip.allocation_id}",
+            PROVISION_ID = "#{provision_id}"
+        ]
+    EOF
 rescue StandardError => e
     error_str = "ERROR MESSAGE --8<------\n"
     error_str << e.to_s

@@ -33,9 +33,7 @@
 #    <AR>
 #      <TYPE>Type of the Ip (public/global)</TYPE>
 #      <SIZE>Number of IPs to allocate</SIZE>
-#      <FACILITY>Packet facility</FACILITY>
-#      <PACKET_PROJECT>Packet project id</PACKET_PROJECT>
-#      <PACKET_TOKEN>Packet auth token</PACKET_TOKEN>
+#      <PROVISION_ID>ID</PROVISION_ID>
 #    </AR>
 #  </IPAM_DRIVER_ACTION_DATA>
 #
@@ -47,7 +45,6 @@
 #         IP   = "10.0.0.1",
 #         SIZE = "255",
 #         DEPLOY_ID = "..",
-#         PACKET_TOKEN = ".." TODO REMOVE IT
 #       ]
 #
 #   - A complete network definition. Custom attributes (free form, key-value)
@@ -58,7 +55,6 @@
 #         IP   = "10.0.0.2",
 #         SIZE = "200",
 #         DEPLOY_ID = "..",
-#         PACKET_TOKEN = "..", TODO REMOVE IT
 #         NETWORK_ADDRESS   = "10.0.0.0",
 #         NETWORK_MASK      = "255.255.255.0",
 #         GATEWAY           = "10.0.0.1",
@@ -71,10 +67,12 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
+    LIB_LOCATION      = '/usr/lib/one'
     PACKET_LOCATION   = '/usr/lib/one/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
     GEMS_LOCATION     = '/usr/share/one/gems'
 else
+    LIB_LOCATION      = ONE_LOCATION + '/lib'
     PACKET_LOCATION   = ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
@@ -88,36 +86,73 @@ end
 
 $LOAD_PATH << PACKET_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
 require 'packet'
 require 'base64'
 require 'nokogiri'
 require 'opennebula'
+require 'oneprovision'
 
-data = Nokogiri::XML(Base64.decode64(STDIN.read))
-
-ar_token = data.xpath('//AR/PACKET_TOKEN').text
-
-packet            = Packet::Client.new
-packet.auth_token = ar_token
-
-ip = Packet::Ip.new
-ip.project_id = data.xpath('//AR/PACKET_PROJECT').text
-ip.type       = data.xpath('//AR/PACKET_IP_TYPE').text
-ip.facility   = data.xpath('//AR/FACILITY').text
-ip.quantity   = data.xpath('//AR/SIZE').text.to_i
+IP_TYPE = %w[public_ipv4 global_ipv4]
 
 begin
+    data = Nokogiri::XML(Base64.decode64(STDIN.read))
+
+    # --------------------------------------------------------------------------
+    # Get connection details for the provider
+    # --------------------------------------------------------------------------
+    provision_id = data.xpath('//AR/PROVISION_ID').text
+
+    if provision_id.empty?
+        STDERR.puts 'Missing provision id in address range'
+        exit(-1)
+    end
+
+    one      = OpenNebula::Client.new
+    provision = OneProvision::Provision.new_with_id(provision_id, one)
+    provision.info
+    provider = provision.provider
+    connect  = provider.body['connection']
+
+    pk_token    = connect['packet_token']
+    pk_project  = connect['packet_project']
+    pk_facility = connect['packet_facility']
+
+    # --------------------------------------------------------------------------
+    # Connect to Packet and allocate a new IP
+    # --------------------------------------------------------------------------
+    packet            = Packet::Client.new
+    packet.auth_token = pk_token
+
+    ip = Packet::Ip.new
+    ip.project_id = pk_project
+    ip.facility   = pk_facility
+    ip.type       = data.xpath('//AR/PACKET_IP_TYPE').text
+    ip.quantity   = data.xpath('//AR/SIZE').text.to_i
+
+    if ip.quantity != 1
+        STDERR.puts 'Only address ranges of size 1 are supported'
+        exit(-1)
+    end
+
+    if ip.type.empty?
+        ip.type = IP_TYPE[0]
+    elsif !IP_TYPE.include?(ip.type)
+        STDERR.puts "Type #{ip.type} not supported. Must be: #{IP_TYPE.join(', ')}"
+        exit(-1)
+    end
+
     packet.create_ip(ip)
 
     puts <<-EOF
         AR = [
-            TYPE         = "IP4",
-            IP           = "#{ip.network}",
-            SIZE         = "#{ip.quantity}",
-            IPAM_MAD     = "packet",
-            DEPLOY_ID    = "#{ip.id}",
-            PACKET_TOKEN = "#{ar_token}"
+            TYPE     = "IP4",
+            IP       = "#{ip.address}",
+            SIZE     = "#{ip.quantity}",
+            IPAM_MAD = "packet",
+            PACKET_IP_ID = "#{ip.id}",
+            PROVISION_ID = "#{provision_id}"
         ]
     EOF
 rescue StandardError => e

@@ -1,3 +1,4 @@
+# rubocop:disable Naming/FileName
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -18,14 +19,15 @@
 # OpenNebula Drivers. The module has been designed to be included as part
 # of a driver and not to be used standalone.
 module DriverExecHelper
+
     # Action result strings for messages
     RESULT = {
-        :success => "SUCCESS",
-        :failure => "FAILURE"
+        :success => 'SUCCESS',
+        :failure => 'FAILURE'
     }
 
     def self.failed?(rc_str)
-        return rc_str == RESULT[:failure]
+        rc_str == RESULT[:failure]
     end
 
     # Initialize module variables
@@ -34,6 +36,7 @@ module DriverExecHelper
         @remote_scripts_base_path = @config['SCRIPTS_REMOTE_DIR']
 
         @local_actions = options[:local_actions]
+        @per_drvr_local_actions = options[:per_drvr_local_actions] || []
 
         if ENV['ONE_LOCATION'].nil?
             @local_scripts_base_path = '/var/lib/one/remotes'
@@ -65,59 +68,64 @@ module DriverExecHelper
     # @param [String, nil] default_name alternative name for the script
     # @param [String, ''] directory to append to the scripts path for actions
     # @return [String] command line needed to execute the action
-    def action_command_line(action, parameters, default_name=nil, directory='')
+    def action_command_line(action, parameters,
+                            default_name = nil, directory = '')
+
         if action.is_a?(String) && action[0] == '/'
-            return action + " " + parameters if parameters
+            return action + ' ' + parameters if parameters
+
             return action
-        elsif action_is_local? action
+        elsif action_is_local?(action, directory)
             script_path=File.join(@local_scripts_path, directory)
         else
             script_path=File.join(@remote_scripts_path, directory)
         end
 
         File.join(script_path, action_script_name(action, default_name))+
-            " "+parameters
+            ' '+parameters
     end
 
     # True if the action is meant to be executed locally
     #
     # @param [String, Symbol] action name of the action
-    def action_is_local?(action)
-        @local_actions.include? action.to_s.upcase
+    # @param [String, Symbol] driver name
+    def action_is_local?(action, driver = '')
+        @local_actions.include? action.to_s.upcase if driver.empty?
+
+        @local_actions.include? action.to_s.upcase or
+            @per_drvr_local_actions.include? "#{driver}-#{action}"
     end
 
     # Name of the script file for the given action
     #
     # @param [String, Symbol] action name of the action
     # @param [String, nil] default_name alternative name for the script
-    def action_script_name(action, default_name=nil)
+    def action_script_name(action, default_name = nil)
         name=@local_actions[action.to_s.upcase]
 
-        if name
-            name
-        else
-            default_name || action.to_s.downcase
-        end
+        name || default_name || action.to_s.downcase
     end
 
     #
     #                METHODS FOR LOGS & COMMAND OUTPUT
     #
     # Sends a message to the OpenNebula core through stdout
-    def send_message(action="-", result=RESULT[:failure], id="-", info="-")
-        @send_mutex.synchronize {
+    def send_message(action = '-', result = RESULT[:failure],
+                     id = '-', info = '-')
+
+        @send_mutex.synchronize do
             STDOUT.puts "#{action} #{result} #{id} #{info}"
             STDOUT.flush
-        }
+        end
     end
 
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
-    def log(number, message, all=true)
+    def log(number, message, all = true)
         in_error_message=false
         msg=message.strip
-        msg.each_line {|line|
-            severity=all ? 'I' : nil
+        msg.each_line do |line|
+            all ? severity='I' : severity=nil
             l=line.strip
 
             if l=='ERROR MESSAGE --8<------'
@@ -130,8 +138,8 @@ module DriverExecHelper
                 if in_error_message
                     severity='E'
                 elsif line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
-                    line=$2
-                    case $1
+                    line=Regexp.last_match(2)
+                    case Regexp.last_match(1)
                     when 'ERROR'
                         severity='E'
                     when 'DEBUG'
@@ -142,19 +150,19 @@ module DriverExecHelper
                 end
             end
 
-            send_message("LOG", severity, number, line.strip) if severity
-        }
+            send_message('LOG', severity, number, line.strip) if severity
+        end
     end
 
     # Generates a proc with that calls log with a hardcoded number. It will
     # be used to add loging to command actions
     def log_method(num)
-        lambda {|message, all=true|
+        lambda {|message, all = true|
             log(num, message, all)
         }
     end
 
-    #This method returns the result in terms
+    # This method returns the result in terms
     def get_info_from_execution(command_exe)
         if command_exe.code == 0
             result = RESULT[:success]
@@ -164,7 +172,7 @@ module DriverExecHelper
             info   = command_exe.get_error_message
         end
 
-        info = "-" if info == nil || info.empty?
+        info = '-' if info.nil? || info.empty?
 
         [result, info]
     end
@@ -216,3 +224,4 @@ module DriverExecHelper
     end
 
 end
+# rubocop:enable Naming/FileName
