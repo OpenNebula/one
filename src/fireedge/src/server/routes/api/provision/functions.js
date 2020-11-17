@@ -13,13 +13,28 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 const { v4 } = require('uuid')
+const { dirname, basename } = require('path')
 const events = require('events')
 const { Document } = require('yaml')
-const { writeFileSync, removeSync, readdirSync, statSync, existsSync, mkdirsSync } = require('fs-extra')
+const {
+  writeFileSync,
+  removeSync,
+  readdirSync,
+  statSync,
+  existsSync,
+  mkdirsSync,
+  renameSync,
+  moveSync
+} = require('fs-extra')
 const { spawnSync, spawn } = require('child_process')
 const { messageTerminal } = require('server/utils/general')
 
 const eventsEmitter = new events.EventEmitter()
+const defaultError = (err = '', message = 'Error: %s') => ({
+  color: 'red',
+  message,
+  type: err
+})
 
 const publish = (eventName = '', message = {}) => {
   if (eventName && message) {
@@ -59,22 +74,41 @@ const getFiles = (dir = '', ext = '', errorCallback = () => undefined) => {
         }
       })
     } catch (error) {
-      const config = {
-        color: 'red',
-        message: 'Error: %s',
-        type: (error && error.message) || ''
-      }
-      messageTerminal(config)
+      messageTerminal(defaultError((error && error.message) || ''))
       errorCallback(error)
     }
   }
   return pathFiles
 }
 
+const createFolderWithFiles = (path = '', files = [], filename = '') => {
+  const rtn = { name: '', files: [] }
+  const name = filename || v4().replace(/-/g, '').toUpperCase()
+  const internalPath = `${path}/${name}`
+  try {
+    if (!existsSync(internalPath)) {
+      mkdirsSync(internalPath)
+    }
+    rtn.name = name
+    if (files && Array.isArray(files)) {
+      files.forEach(file => {
+        if (file && file.name && file.ext) {
+          const filePath = `${internalPath}/${file.name}.${file.ext}`
+          rtn.files.push({ name: file.name, ext: file.ext, path: filePath })
+          writeFileSync(filePath, (file && file.content) || '')
+        }
+      })
+    }
+  } catch (error) {
+    messageTerminal(defaultError((error && error.message) || ''))
+  }
+  return rtn
+}
+
 const createTemporalFile = (path = '', ext = '', content = '') => {
   let rtn
   const name = v4().replace(/-/g, '').toUpperCase()
-  const file = `${path + name + ext}`
+  const file = `${path + name}.${ext}`
   try {
     if (!existsSync(path)) {
       mkdirsSync(path)
@@ -82,12 +116,7 @@ const createTemporalFile = (path = '', ext = '', content = '') => {
     writeFileSync(file, content)
     rtn = { name, path: file }
   } catch (error) {
-    const config = {
-      color: 'red',
-      message: 'Error: %s',
-      type: (error && error.message) || ''
-    }
-    messageTerminal(config)
+    messageTerminal(defaultError((error && error.message) || ''))
   }
   return rtn
 }
@@ -101,12 +130,7 @@ const createYMLContent = (content = '') => {
       doc.contents = content
       rtn = doc
     } catch (error) {
-      const config = {
-        color: 'red',
-        message: 'Error: %s',
-        type: (error && error.message) || ''
-      }
-      messageTerminal(config)
+      messageTerminal(defaultError((error && error.message) || ''))
     }
   }
   return rtn
@@ -117,44 +141,91 @@ const removeFile = (path = '') => {
     try {
       removeSync(path, { force: true })
     } catch (error) {
-      const config = {
-        color: 'red',
-        message: 'Error: %s',
-        type: (error && error.message) || ''
-      }
-      messageTerminal(config)
+      messageTerminal(defaultError((error && error.message) || ''))
     }
   }
+}
+
+const renameFolder = (path = '', name = '', type = 'replace') => {
+  let rtn = false
+  if (path) {
+    let internalPath = path
+    try {
+      if (statSync(path).isFile()) {
+        internalPath = dirname(path)
+      }
+      if (name && type && ['replace', 'prepend', 'append'].includes(type)) {
+        const base = dirname(internalPath)
+        let newPath = `${base}/${name}`
+        switch (type) {
+          case 'prepend':
+            newPath = `${base}/${name + basename(internalPath)}`
+            break
+          case 'append':
+            newPath = `${base}/${basename(internalPath) + name}`
+            break
+          default:
+            break
+        }
+        renameSync(internalPath, newPath)
+        rtn = newPath
+      }
+    } catch (error) {
+      messageTerminal(defaultError((error && error.message) || ''))
+    }
+  }
+  return rtn
+}
+
+const moveToFolder = (path = '', relative = '/../') => {
+  let rtn = false
+  if (path && relative) {
+    try {
+      moveSync(path, `${dirname(path + relative)}/${basename(path)}`)
+      rtn = true
+    } catch (error) {
+      messageTerminal(defaultError((error && error.message) || ''))
+    }
+  }
+  return rtn
 }
 
 const executeCommandAsync = (
   command = '',
   resource = '',
-  stderr = () => undefined,
-  stdout = () => undefined,
-  close = () => undefined
+  callbacks = {
+    err: () => undefined,
+    out: () => undefined,
+    close: () => undefined
+  }
 ) => {
+  const err = callbacks && callbacks.err && typeof callbacks.err === 'function' ? callbacks.err : () => undefined
+  const out = callbacks && callbacks.out && typeof callbacks.out === 'function' ? callbacks.out : () => undefined
+  const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : () => undefined
+
   const rsc = Array.isArray(resource) ? resource : [resource]
   const execute = spawn(command, [...rsc])
   if (execute) {
     execute.stdout.on('data', (data) => {
-      if (stdout && typeof stdout === 'function') {
-        stdout(data)
+      if (out) {
+        out(data)
       }
     })
 
     execute.stderr.on('data', (data) => {
-      if (stderr && typeof stderr === 'function') {
-        stderr(data)
+      if (err) {
+        err(data)
       }
     })
 
+    execute.on('error', error => {
+      messageTerminal(defaultError((error && error.message) || '', 'Error command: %s'))
+    })
+
     execute.on('close', (code) => {
-      if (code !== 0) {
-        console.log(`ps process exited with code ${code}`)
-      }
-      if (close && typeof close === 'function') {
-        close(code)
+      if (close) {
+        // code === 0 is success command
+        close(code === 0)
       }
     })
   }
@@ -171,12 +242,7 @@ const executeCommand = (command = '', resource = '') => {
     }
     if (execute.stderr && execute.stderr.length > 0) {
       rtn.data = execute.stderr.toString()
-      const config = {
-        color: 'red',
-        message: 'Error command: %s',
-        type: execute.stderr.toString()
-      }
-      messageTerminal(config)
+      messageTerminal(defaultError(execute.stderr.toString(), 'Error command: %s'))
     }
   }
   return rtn
@@ -186,7 +252,10 @@ const functionRoutes = {
   createYMLContent,
   executeCommand,
   createTemporalFile,
+  createFolderWithFiles,
   removeFile,
+  renameFolder,
+  moveToFolder,
   getFiles,
   executeCommandAsync,
   publish,

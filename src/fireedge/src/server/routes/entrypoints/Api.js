@@ -90,13 +90,14 @@ router.all(
           httpMethod
         )
         if (valRouteFunction) {
+          const userIdOpennebula = getIdUserOpennebula()
           valRouteFunction(
             dataSources,
             res,
             next,
             connectOpennebula,
-            getIdUserOpennebula(),
-            { user: getUserOpennebula(), password: getPassOpennebula() }
+            userIdOpennebula,
+            { id: userIdOpennebula, user: getUserOpennebula(), password: getPassOpennebula() }
           )
         } else {
           next()

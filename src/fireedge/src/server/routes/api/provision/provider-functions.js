@@ -103,8 +103,7 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const ext = '.yaml'
-        const file = createTemporalFile(tmpPath, ext, content)
+        const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand]
           const executedCommand = executeCommand(command, paramsCommand)
@@ -142,8 +141,7 @@ const updateProviders = (res = {}, next = () => undefined, params = {}, userData
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const ext = '.yaml'
-        const file = createTemporalFile(tmpPath, ext, content)
+        const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['update', params.id, file.path, ...authCommand]
           const executedCommand = executeCommand(command, paramsCommand)

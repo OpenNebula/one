@@ -27,8 +27,7 @@ const main = (app = {}) => {
         if (
           server &&
           server.handshake &&
-          server.handshake.query &&
-          server.handshake.query.zone
+          server.handshake.query
         ) {
           const queryZone = server.handshake.query.zone
           const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'

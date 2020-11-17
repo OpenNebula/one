@@ -86,10 +86,11 @@ const existsFile = (path = '', success = () => undefined, error = () => undefine
       rtn = true
     }
   } catch (err) {
+    errorData = (err && err.message) || ''
     messageTerminal({
       color: 'red',
       message: 'Error: %s',
-      type: (err && err.message) || ''
+      type: errorData
     })
   }
   if (rtn) {
@@ -97,7 +98,6 @@ const existsFile = (path = '', success = () => undefined, error = () => undefine
   } else {
     error(errorData)
   }
-
   return rtn
 }
 
@@ -130,12 +130,11 @@ const genFireedgeKey = () => {
         () => {
           createFile(
             global.FIREEDGE_KEY_PATH, uuidv4.replace(/-/g, ''), () => undefined, err => {
-              const config = {
+              messageTerminal({
                 color: 'red',
                 message: 'Error: %s',
-                type: err.message || ''
-              }
-              messageTerminal(config)
+                type: (err && err.message) || ''
+              })
             })
         }
       )
