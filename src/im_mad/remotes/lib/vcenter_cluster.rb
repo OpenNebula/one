@@ -307,22 +307,34 @@ class Cluster
     end
 
     def cluster_monitoring
+        metrics = @cluster.item.collect(*(CLUSTER_PROPERTIES[1]))
+        num_cpu_cores = metrics[0].to_f
+
         resource_usage_summary = @cluster.item.GetResourceUsage()
 
-        total_cpu    = resource_usage_summary.cpuCapacityMHz.to_i
-        used_cpu     = resource_usage_summary.cpuUsedMHz.to_i
-        total_memory = resource_usage_summary.memCapacityMB.to_i
-        used_mem     = resource_usage_summary.memUsedMB.to_i
+        real_total_cpu     = resource_usage_summary.cpuCapacityMHz.to_f
+        real_used_cpu = resource_usage_summary.cpuUsedMHz.to_f
+        total_memory  = resource_usage_summary.memCapacityMB.to_i
+        used_mem      = resource_usage_summary.memUsedMB.to_i
 
-        free_cpu  = total_cpu - used_cpu
+        if num_cpu_cores > 0
+            total_cpu = num_cpu_cores * 100
+            used_cpu = (total_cpu * real_used_cpu) / real_total_cpu
+        else
+            total_cpu = 0
+            used_cpu = 0
+        end
+
+        free_cpu = total_cpu - used_cpu
+
         free_mem  = total_memory - used_mem
 
         unindent(<<-EOS)
             HYPERVISOR = vcenter
             USEDMEMORY = "#{(used_mem * 1024)}"
             FREEMEMORY = "#{free_mem}"
-            USEDCPU    = "#{used_cpu}"
-            FREECPU    = "#{free_cpu}"
+            USEDCPU    = "#{used_cpu.to_i}"
+            FREECPU    = "#{free_cpu.to_i}"
         EOS
     end
 
