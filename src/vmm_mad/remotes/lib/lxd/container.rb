@@ -497,7 +497,7 @@ class Container
 
         container_key = 'user.xml' # TODO: lxdrc ?
 
-        @lxc['config'].update(container_key => Base64.encode64(one_xml))
+        @lxc['config'].update(container_key => Base64.strict_encode64(one_xml))
     end
 
     private
