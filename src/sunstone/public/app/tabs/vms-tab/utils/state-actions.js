@@ -124,6 +124,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE            ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE_POWEROFF   ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE_UNDEPLOYED ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_RESIZE         ] = [];
 
   return {
     'disableAllStateActions': disableAllStateActions,

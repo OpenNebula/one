@@ -99,6 +99,14 @@ public:
         return cold_nic_attach;
     }
 
+    /**
+     *  @return true if hotplug vcpu and memory supported
+     */
+    bool is_live_resize() const
+    {
+        return live_resize;
+    }
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -262,6 +270,11 @@ private:
     * Set to true if cold nic attach/detach calls (pre, post, clean scripts)
     */
     bool cold_nic_attach;
+
+    /**
+    * Set to true if hypervisor supports hotplug vcpu and memory
+    */
+    bool live_resize;
 
     /**
      *  Sends a deploy request to the MAD: "DEPLOY ID XML_DRV_MSG"

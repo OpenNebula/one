@@ -135,7 +135,8 @@ public:
         DISK_RESIZE = 62,
         DISK_RESIZE_POWEROFF = 63,
         DISK_RESIZE_UNDEPLOYED = 64,
-        HOTPLUG_NIC_POWEROFF   = 65
+        HOTPLUG_NIC_POWEROFF   = 65,
+        HOTPLUG_RESIZE         = 66
     };
 
     /**
@@ -1018,7 +1019,20 @@ public:
      *    @param memory
      *    @param vcpu
      */
-     int resize(float cpu, long int memory, unsigned int vcpu, std::string& error);
+    int resize(float cpu, long int memory, unsigned int vcpu, std::string& error);
+
+    /**
+     *  Store old values of resize parameters, to be able to revert in case of failure
+     *    @param cpu - old cpu value
+     *    @param memory - old memory value
+     *    @param vcpu - old vcpu value
+     */
+    void store_resize(float cpu, long int memory, unsigned int vcpu);
+
+    /**
+     *  Clear resize parameters
+     */
+    void reset_resize();
 
     /**
      *  Parse TOPOLOGY and NUMA_NODE

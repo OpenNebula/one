@@ -1116,6 +1116,7 @@ VMM_EXEC_KVM_SCRIPTS="src/vmm_mad/remotes/kvm/cancel \
                     src/vmm_mad/remotes/kvm/shutdown \
                     src/vmm_mad/remotes/kvm/reconfigure \
                     src/vmm_mad/remotes/kvm/prereconfigure \
+                    src/vmm_mad/remotes/kvm/resize \
                     src/vmm_mad/remotes/kvm/resize_disk"
 
 #-------------------------------------------------------------------------------

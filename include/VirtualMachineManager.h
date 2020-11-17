@@ -112,6 +112,21 @@ public:
     }
 
     /**
+     * Get live_resize capability from driver
+     */
+    bool is_live_resize(const std::string& name)
+    {
+        const VirtualMachineManagerDriver * vmd = get(name);
+
+        if ( vmd == nullptr )
+        {
+            return false;
+        }
+
+        return vmd->is_live_resize();
+    }
+
+    /**
      *  Returns a pointer to a Virtual Machine Manager driver. The driver is
      *  searched by its name.
      *    @param name the name of the driver
@@ -268,6 +283,11 @@ private:
      *
      */
     void _driver_cancel(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _resize(std::unique_ptr<vm_msg_t> msg);
 
     /**
      *
@@ -495,6 +515,13 @@ public:
      * @param vid the id of the VM.
      */
     void trigger_update_conf(int vid);
+
+    /**
+     * Update VM context
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_resize(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

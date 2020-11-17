@@ -142,6 +142,9 @@ public:
     void trigger_update_conf_success(int vid);
     void trigger_update_conf_failure(int vid);
 
+    void trigger_resize_success(int vid);
+    void trigger_resize_failure(int vid);
+
     // -------------------------------------------------------------------------
     // External Actions, triggered by user requests
     // -------------------------------------------------------------------------

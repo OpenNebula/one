@@ -807,6 +807,37 @@ void VirtualMachineManager::_driver_cancel(unique_ptr<vm_msg_t> msg)
 
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachineManager::_resize(unique_ptr<vm_msg_t> msg)
+{
+    log_message(msg.get());
+
+    int id = msg->oid();
+    auto lcm = Nebula::instance().get_lcm();
+
+    if (!check_vm_state(id, msg.get()))
+    {
+        return;
+    }
+
+    if (msg->status() == "SUCCESS" )
+    {
+        if ( auto vm = vmpool->get_ro(id) )
+        {
+            vm->log("VMM", Log::INFO, "VM hotplug resize successful");
+
+            lcm->trigger_resize_success(id);
+        }
+    }
+    else
+    {
+        log_error(id, msg->payload(), "Error resizing VM");
+
+        lcm->trigger_resize_failure(id);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 void VirtualMachineManager::_log(unique_ptr<vm_msg_t> msg)
 {
     NebulaLog::log("VMM", log_type(msg->status()[0]), msg->payload());

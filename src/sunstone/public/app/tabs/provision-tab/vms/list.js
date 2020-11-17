@@ -908,6 +908,7 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.DISK_RESIZE:
           case OpenNebulaVM.LCM_STATES.DISK_RESIZE_POWEROFF:
           case OpenNebulaVM.LCM_STATES.DISK_RESIZE_UNDEPLOYED:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_RESIZE:
             state_color = "running";
             state_str = Locale.tr("RUNNING");
             break;

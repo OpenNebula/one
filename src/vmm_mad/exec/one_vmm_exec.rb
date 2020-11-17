@@ -1261,6 +1261,23 @@ class ExecDriver < VirtualMachineDriver
         action.run(steps, sg_id)
     end
 
+    #
+    # RESIZE action
+    #
+    def resize(id, drv_message)
+        xml_data = decode(drv_message)
+
+        host      = xml_data.elements['HOST'].text
+        deploy_id = xml_data.elements['DEPLOY_ID'].text
+
+        do_action("#{deploy_id}",
+                  id,
+                  host,
+                  ACTION[:resize],
+                  :script_name => 'resize',
+                  :stdin => xml_data.to_s)
+    end
+
     private
 
     def ensure_xpath(xml_data, id, action, xpath)
