@@ -60,7 +60,6 @@ end
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-
 require 'base64'
 require 'nokogiri'
 require 'aws-sdk-ec2'
@@ -80,9 +79,15 @@ begin
         exit(-1)
     end
 
-    one      = OpenNebula::Client.new
+    one       = OpenNebula::Client.new
     provision = OneProvision::Provision.new_with_id(provision_id, one)
-    provision.info
+    rc        = provision.info
+
+    if OpenNebula.is_error?(rc)
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
     provider = provision.provider
     connect  = provider.body['connection']
 
@@ -97,7 +102,7 @@ begin
     # --------------------------------------------------------------------------
     allocation_id = data.xpath('//AR/AWS_ALLOCATION_ID').text
 
-    if allocation_id
+    unless allocation_id
         STDERR.puts 'AWS_ALLOCATION_ID not found in AR'
         exit(-1)
     end

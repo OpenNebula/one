@@ -1270,7 +1270,7 @@ class ExecDriver < VirtualMachineDriver
         host      = xml_data.elements['HOST'].text
         deploy_id = xml_data.elements['DEPLOY_ID'].text
 
-        do_action("#{deploy_id}",
+        do_action(deploy_id.to_s,
                   id,
                   host,
                   ACTION[:resize],

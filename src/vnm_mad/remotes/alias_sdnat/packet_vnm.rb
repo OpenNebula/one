@@ -41,8 +41,9 @@ require 'packet'
 
 # Class covering Packet/Equinix functionality for AliasSDNAT
 class PacketProvider
+
     def initialize(provider, host)
-        connect  = provider.body['connection']
+        connect = provider.body['connection']
 
         @client = Packet::Client.new(connect['packet_token'])
         @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
@@ -59,15 +60,16 @@ class PacketProvider
     def unassign(public_ip)
         dev = @client.get_device(@deploy_id)
 
-        ip = dev.ip_addresses.select { |ip|
-            ip['address'] == public_ip &&
-            ip['cidr'] == 32 &&
-            ip['address_family'] == 4
-        }
+        ip = dev.ip_addresses.select do |i|
+            i['address'] == public_ip &&
+            i['cidr'] == 32 &&
+            i['address_family'] == 4
+        end
 
         @client.delete_ip(ip[0]['id'])
     rescue StandardError => e
         OpenNebula.log_error("Error assiging #{public_ip}:#{e.message}")
         {}
     end
+
 end
