@@ -199,6 +199,12 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:resize_disk], result, id)
     end
 
+    def resize(id, drv_message)
+        result = retrieve_result("resize")
+
+        send_message(ACTION[:resize], result, id)
+    end
+
     def poll(id, drv_message)
         result = retrieve_result("poll")
 

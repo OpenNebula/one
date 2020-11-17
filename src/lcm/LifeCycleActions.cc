@@ -1102,6 +1102,15 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             tm->trigger_epilog_delete(vm);
         break;
 
+        case VirtualMachine::HOTPLUG_RESIZE:
+            vm->reset_resize();
+
+            vm->set_running_etime(the_time);
+
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
+        break;
+
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
@@ -1446,6 +1455,17 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             }
         break;
 
+        case VirtualMachine::HOTPLUG_RESIZE:
+            if (success)
+            {
+                trigger_resize_success(vim);
+            }
+            else
+            {
+                trigger_resize_failure(vim);
+            }
+        break;
+
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
@@ -1681,6 +1701,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+        case VirtualMachine::HOTPLUG_RESIZE:
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
@@ -1817,6 +1838,7 @@ void LifeCycleManager::trigger_updatesg(int sgid)
                         case VirtualMachine::HOTPLUG:
                         case VirtualMachine::HOTPLUG_SNAPSHOT:
                         case VirtualMachine::HOTPLUG_SAVEAS:
+                        case VirtualMachine::HOTPLUG_RESIZE:
                         case VirtualMachine::DISK_SNAPSHOT:
                         case VirtualMachine::DISK_SNAPSHOT_DELETE:
                         case VirtualMachine::DISK_RESIZE:

@@ -290,6 +290,8 @@ int VirtualMachine::lcm_state_from_str(string& st, LcmState& state)
         state = DISK_RESIZE_UNDEPLOYED;
     } else if ( st == "HOTPLUG_NIC_POWEROFF" ) {
         state = HOTPLUG_NIC_POWEROFF;
+    } else if ( st == "HOTPLUG_RESIZE" ) {
+        state = HOTPLUG_RESIZE;
     } else {
         return -1;
     }
@@ -429,6 +431,8 @@ string& VirtualMachine::lcm_state_to_str(string& st, LcmState state)
             st = "DISK_RESIZE_UNDEPLOYED"; break;
         case HOTPLUG_NIC_POWEROFF:
             st = "HOTPLUG_NIC_POWEROFF"; break;
+        case HOTPLUG_RESIZE:
+            st = "HOTPLUG_RESIZE"; break;
     }
 
         return st;
@@ -740,6 +744,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
     string value;
     long int ivalue;
+    long int memory;
     float fvalue;
     set<int> cluster_ids;
     set<int> datastore_ids;
@@ -812,13 +817,26 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     // ------------------------------------------------------------------------
     // Check for CPU, VCPU, MEMORY and TOPOLOGY attributes
     // ------------------------------------------------------------------------
-    if ( user_obj_template->get("MEMORY", ivalue) == false || ivalue <= 0 )
+    if ( user_obj_template->get("MEMORY", memory) == false || memory <= 0 )
     {
         goto error_memory;
     }
 
     user_obj_template->erase("MEMORY");
-    obj_template->add("MEMORY", ivalue);
+    obj_template->add("MEMORY", memory);
+
+    // Check optional MEMORY_MAX and MEMORY_SLOTS attribute
+    if ( user_obj_template->get("MEMORY_MAX", ivalue) && ivalue > 0 )
+    {
+        user_obj_template->erase("MEMORY_MAX");
+        obj_template->add("MEMORY_MAX", ivalue);
+    }
+
+    if ( user_obj_template->get("MEMORY_SLOTS", ivalue) && ivalue > 0 )
+    {
+        user_obj_template->erase("MEMORY_SLOTS");
+        obj_template->add("MEMORY_SLOTS", ivalue);
+    }
 
     if ( user_obj_template->get("CPU", fvalue) == false || fvalue <= 0 )
     {
@@ -841,6 +859,13 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
 
         user_obj_template->erase("VCPU");
         obj_template->add("VCPU", ivalue);
+    }
+
+    // Check optional VCPU_MAX attribute
+    if ( user_obj_template->get("VCPU_MAX", ivalue) && ivalue > 0 )
+    {
+        user_obj_template->erase("VCPU_MAX");
+        obj_template->add("VCPU_MAX", ivalue);
     }
 
     // ------------------------------------------------------------------------
@@ -1984,6 +2009,28 @@ int VirtualMachine::resize(float cpu, long int memory, unsigned int vcpu,
     remove_template_attribute("NUMA_NODE");
 
     return parse_topology(obj_template.get(), error);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::store_resize(float cpu, long int memory, unsigned int vcpu)
+{
+    auto vattr = new VectorAttribute("RESIZE");
+    vattr->replace("CPU", cpu);
+    vattr->replace("VCPU", vcpu);
+    vattr->replace("MEMORY", memory);
+
+    obj_template->erase("RESIZE");
+    obj_template->set(vattr);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::reset_resize()
+{
+    obj_template->erase("RESIZE");
 }
 
 /* -------------------------------------------------------------------------- */

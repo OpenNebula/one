@@ -154,7 +154,8 @@ public class VirtualMachine extends PoolElement{
         "DISK_RESIZE",
         "DISK_RESIZE_POWEROFF",
         "DISK_RESIZE_UNDEPLOYED",
-        "HOTPLUG_NIC_POWEROFF"
+        "HOTPLUG_NIC_POWEROFF",
+        "HOTPLUG_RESIZE"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -224,7 +225,8 @@ public class VirtualMachine extends PoolElement{
         "drsz",     // DISK_RESIZE
         "drsz",     // DISK_RESIZE_POWEROFF
         "drsz",     // DISK_RESIZE_UNDEPLOYED
-        "hotp"      // HOTPLUG_NIC_POWEROFF
+        "hotp",     // HOTPLUG_NIC_POWEROFF
+        "hotp"      // HOTPLUG_RESIZE
     };
 
     /**

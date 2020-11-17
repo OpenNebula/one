@@ -345,6 +345,14 @@
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
+              <xs:element name="LIVE_RESIZE" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  <xs:pattern value="[yY][eE][sS]" />
+                  <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
             </xs:all>
           </xs:complexType>
         </xs:element>

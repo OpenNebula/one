@@ -42,7 +42,8 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         driver_conf(true),
         keep_snapshots(false),
         ds_live_migration(false),
-        cold_nic_attach(false)
+        cold_nic_attach(false),
+        live_resize(false)
 {
     char *          error_msg = nullptr;
     const char *    cfile;
@@ -110,6 +111,8 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     // Parse COLD_NIC_ATTACH
     // -------------------------------------------------------------------------
     driver_conf.get("COLD_NIC_ATTACH", cold_nic_attach);
+
+    driver_conf.get("LIVE_RESIZE", live_resize);
 
     // -------------------------------------------------------------------------
     // Parse IMPORTED_VMS_ACTIONS string and init the action set

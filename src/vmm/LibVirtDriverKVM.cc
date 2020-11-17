@@ -413,8 +413,10 @@ int LibVirtDriver::deployment_description_kvm(
     int       num;
 
     string  vcpu;
+    string  vcpu_max;
     float   cpu;
     int     memory;
+    int     memory_max;
 
     string  emulator_path = "";
 
@@ -617,8 +619,19 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
 
     get_attribute(vm, host, cluster, "VCPU", vcpu);
+    get_attribute(vm, host, cluster, "VCPU_MAX", vcpu_max);
 
-    if (!vcpu.empty())
+    if (vcpu.empty())
+    {
+        vcpu = vcpu_max;
+    }
+
+    if (!vcpu_max.empty())
+    {
+        file << "\t<vcpu current=" << one_util::escape_xml_attr(vcpu) << ">"
+             << one_util::escape_xml(vcpu_max) << "</vcpu>" << endl;
+            }
+    else if (!vcpu.empty())
     {
         file << "\t<vcpu>" << one_util::escape_xml(vcpu) << "</vcpu>" << endl;
     }
@@ -646,6 +659,18 @@ int LibVirtDriver::deployment_description_kvm(
     {
         vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
         return -1;
+    }
+
+    bool has_memory_max = vm->get_template_attribute("MEMORY_MAX", memory_max);
+    has_memory_max = has_memory_max && memory < memory_max;
+
+    if (!topology && has_memory_max)
+    {
+        int slots = 0;
+        get_attribute(vm, host, cluster, "MEMORY_SLOTS", slots);
+
+        file << "\t<maxMemory slots='" << slots
+             << "'>" << memory_max * 1024 << "</maxMemory>" << endl;
     }
 
     // ------------------------------------------------------------------------
@@ -722,7 +747,7 @@ int LibVirtDriver::deployment_description_kvm(
         cpu_mode = "custom";
     }
 
-    if ( !cpu_model.empty() || topology != 0 )
+    if ( !cpu_model.empty() || topology != 0 || has_memory_max )
     {
         file << "\t<cpu";
 
@@ -739,6 +764,19 @@ int LibVirtDriver::deployment_description_kvm(
         else
         {
             file << ">\n";
+        }
+
+        if (nodes.empty() && has_memory_max)
+        {
+            int cpus = to_i(vcpu) - 1;
+            if (cpus < 0)
+            {
+                cpus = 0;
+            }
+
+            file << "\t\t<numa>\n\t\t\t<cell id='0' cpus='0-" << cpus
+                << "' memory=" << one_util::escape_xml_attr(memory * 1024)
+                << " unit='KiB'/>\n\t\t</numa>" << endl;
         }
 
         vtopol(file, topology, nodes, numa_tune, mbacking);

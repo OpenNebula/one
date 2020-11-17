@@ -596,7 +596,8 @@ func (d *Driver) GetState() (state.State, error) {
 			"HOTPLUG_NIC",
 			"HOTPLUG_SAVEAS",
 			"DISK_SNAPSHOT",
-			"DISK_SNAPSHOT_DELETE":
+			"DISK_SNAPSHOT_DELETE",
+			"HOTPLUG_RESIZE":
 
 			return state.Running, nil
 

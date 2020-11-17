@@ -170,6 +170,7 @@ enum class VMManagerMessages : unsigned short int
     UPDATESG,
     DRIVER_CANCEL,
     LOG,
+    RESIZE,
     ENUM_MAX
 };
 

@@ -154,7 +154,8 @@ LCM_STATE = IntEnum('LCM_STATE', '''
             DISK_RESIZE
             DISK_RESIZE_POWEROFF
             DISK_RESIZE_UNDEPLOYED
-            HOTPLUG_NIC_POWEROFF''', start=0)
+            HOTPLUG_NIC_POWEROFF
+            HOTPLUG_RESIZE''', start=0)
 
 MARKETPLACEAPP_STATES = IntEnum('MARKETPLACEAPP_STATES', '''INIT READY LOCKED
         ERROR DISABLED''', start=0)

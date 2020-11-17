@@ -2387,3 +2387,118 @@ void LifeCycleManager::trigger_update_conf_failure(int vid)
 }
 
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_resize_success(int vid)
+{
+    trigger([this, vid] {
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState state = vm->get_lcm_state();
+
+            if (state == VirtualMachine::HOTPLUG_RESIZE)
+            {
+                vm->set_state(VirtualMachine::RUNNING);
+                vm->log("LCM", Log::INFO, "VM resize operation completed.");
+            }
+            else
+            {
+                vm->log("LCM", Log::ERROR, "hotplug_resize_success, VM in a wrong state");
+                return;
+            }
+
+            vm->reset_resize();
+
+            vmpool->update(vm.get());
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_resize_failure(int vid)
+{
+    trigger([this, vid] {
+        Template deltas;
+        HostShareCapacity sr, sr_orig;
+        int vm_uid, vm_gid, hid;
+
+        if ( auto vm = vmpool->get(vid) )
+        {
+            VirtualMachine::LcmState state = vm->get_lcm_state();
+
+            if (state == VirtualMachine::HOTPLUG_RESIZE)
+            {
+                vm->set_state(VirtualMachine::RUNNING);
+                vm->log("LCM", Log::INFO,
+                        "VM hotplug resize operation fails");
+            }
+            else
+            {
+                vm->log("LCM", Log::ERROR,
+                        "hotplug resize fails, VM in a wrong state");
+                return;
+            }
+
+            hid = vm->get_hid();
+
+            vm->get_capacity(sr);
+
+            auto vattr = vm->get_template_attribute("RESIZE");
+
+            if (vattr)
+            {
+                vm_uid = vm->get_uid();
+                vm_gid = vm->get_gid();
+
+                string error;
+                float ocpu, ncpu;
+                long omem, nmem;
+                unsigned int ovcpu, nvcpu;
+
+                vm->get_template_attribute("MEMORY", nmem);
+                vm->get_template_attribute("CPU", ncpu);
+                vm->get_template_attribute("VCPU", nvcpu);
+
+                vattr->vector_value("CPU", ocpu);
+                vattr->vector_value("VCPU", ovcpu);
+                vattr->vector_value("MEMORY", omem);
+
+                deltas.add("MEMORY", nmem - omem);
+                deltas.add("CPU", ncpu - ocpu);
+                deltas.add("VMS", 0);
+
+                vm->resize(ocpu, omem, ovcpu, error);
+            }
+            else
+            {
+                NebulaLog::error("LCM",
+                    "HOTPLUG_RESIZE failure, unable to revert VM and quotas");
+            }
+
+            vm->get_capacity(sr_orig);
+
+            vm->reset_resize();
+
+            vmpool->update(vm.get());
+        }
+        else
+        {
+            return;
+        }
+
+        // Revert host capacity
+        if (auto host = hpool->get(hid))
+        {
+            host->del_capacity(sr);
+
+            host->add_capacity(sr_orig);
+
+            hpool->update(host.get());
+        }
+
+        // Quota rollback
+        Quotas::quota_del(Quotas::VM, vm_uid, vm_gid, &deltas);
+    });
+}

@@ -139,6 +139,7 @@ const EString<VMManagerMessages> vm_msg_t::_type_str({
     {"UPDATESG", VMManagerMessages::UPDATESG},
     {"DRIVER_CANCEL", VMManagerMessages::DRIVER_CANCEL},
     {"LOG", VMManagerMessages::LOG},
+    {"RESIZE", VMManagerMessages::RESIZE},
 });
 
 template<>

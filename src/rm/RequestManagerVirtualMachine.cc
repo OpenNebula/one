@@ -1927,7 +1927,9 @@ static int test_set_capacity(VirtualMachine * vm, float cpu, long mem, int vcpu,
 
     int rc;
 
-    if ( vm->get_state() == VirtualMachine::POWEROFF )
+    if ( vm->get_state() == VirtualMachine::POWEROFF ||
+         (vm->get_state() == VirtualMachine::ACTIVE &&
+          vm->get_lcm_state() == VirtualMachine::RUNNING))
     {
         HostShareCapacity sr;
 
@@ -2130,10 +2132,59 @@ void VirtualMachineResize::request_execute(xmlrpc_c::paramList const& paramList,
             rc = test_set_capacity(vm.get(), ncpu, nmemory, nvcpu, att.resp_msg);
         break;
 
+        case VirtualMachine::ACTIVE:
+        {
+            if (vm->get_lcm_state() != VirtualMachine::RUNNING)
+            {
+                rc = -1;
+                att.resp_msg = "Cannot resize a VM in state " + vm->state_str();
+                break;
+            }
+
+            if (vm->is_pinned())
+            {
+                rc = -1;
+                att.resp_msg = "Cannot resize a pinned VM";
+                break;
+            }
+
+            auto vmm = Nebula::instance().get_vmm();
+
+            if (!vmm->is_live_resize(vm->get_vmm_mad()))
+            {
+                rc = -1;
+                att.resp_msg = "Hotplug resize not supported by driver "
+                    + vm->get_vmm_mad();
+                break;
+            }
+
+            if (ocpu == ncpu && omemory == nmemory && ovcpu == nvcpu)
+            {
+                rc = 0;
+                att.resp_msg = "Nothing to resize";
+                break;
+            }
+
+            rc = test_set_capacity(vm.get(), ncpu, nmemory, nvcpu, att.resp_msg);
+
+            if (rc == 0)
+            {
+                vm->set_state(VirtualMachine::HOTPLUG_RESIZE);
+
+                vm->store_resize(ocpu, omemory, ovcpu);
+
+                vm->set_resched(false);
+
+                auto vmm = Nebula::instance().get_vmm();
+
+                vmm->trigger_resize(id);
+            }
+            break;
+        }
+
         case VirtualMachine::STOPPED:
         case VirtualMachine::DONE:
         case VirtualMachine::SUSPENDED:
-        case VirtualMachine::ACTIVE:
             rc = -1;
             att.resp_msg = "Cannot resize a VM in state " + vm->state_str();
         break;
