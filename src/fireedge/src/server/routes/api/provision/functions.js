@@ -108,7 +108,7 @@ const createFolderWithFiles = (path = '', files = [], filename = '') => {
 const createTemporalFile = (path = '', ext = '', content = '') => {
   let rtn
   const name = v4().replace(/-/g, '').toUpperCase()
-  const file = `${path + name}.${ext}`
+  const file = `${path}/${name}.${ext}`
   try {
     if (!existsSync(path)) {
       mkdirsSync(path)
