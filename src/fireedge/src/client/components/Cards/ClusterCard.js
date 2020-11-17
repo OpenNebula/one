@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Badge, Box } from '@material-ui/core'
+import { makeStyles, Badge, Box, CardContent } from '@material-ui/core'
 import StorageIcon from '@material-ui/icons/Storage'
 import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
 import AccountTreeIcon from '@material-ui/icons/AccountTree'
@@ -35,38 +35,40 @@ const ClusterCard = memo(
         isSelected={isSelected}
         handleClick={handleClick}
       >
-        <Box className={classes.badgesWrapper}>
-          <Badge
-            showZero
-            title={Tr('Hosts')}
-            classes={{ badge: 'badge' }}
-            color="primary"
-            badgeContent={hosts.length}
-            anchorOrigin={badgePosition}
-          >
-            <VideogameAssetIcon />
-          </Badge>
-          <Badge
-            showZero
-            title={Tr('Virtual networks')}
-            classes={{ badge: 'badge' }}
-            color="primary"
-            badgeContent={vnets.length}
-            anchorOrigin={badgePosition}
-          >
-            <AccountTreeIcon />
-          </Badge>
-          <Badge
-            showZero
-            title={Tr('Datastores')}
-            classes={{ badge: 'badge' }}
-            color="primary"
-            badgeContent={datastores.length}
-            anchorOrigin={badgePosition}
-          >
-            <FolderOpenIcon />
-          </Badge>
-        </Box>
+        <CardContent>
+          <Box className={classes.badgesWrapper}>
+            <Badge
+              showZero
+              title={Tr('Hosts')}
+              classes={{ badge: 'badge' }}
+              color="primary"
+              badgeContent={hosts.length}
+              anchorOrigin={badgePosition}
+            >
+              <VideogameAssetIcon />
+            </Badge>
+            <Badge
+              showZero
+              title={Tr('Virtual networks')}
+              classes={{ badge: 'badge' }}
+              color="primary"
+              badgeContent={vnets.length}
+              anchorOrigin={badgePosition}
+            >
+              <AccountTreeIcon />
+            </Badge>
+            <Badge
+              showZero
+              title={Tr('Datastores')}
+              classes={{ badge: 'badge' }}
+              color="primary"
+              badgeContent={datastores.length}
+              anchorOrigin={badgePosition}
+            >
+              <FolderOpenIcon />
+            </Badge>
+          </Box>
+        </CardContent>
       </SelectCard>
     )
   },

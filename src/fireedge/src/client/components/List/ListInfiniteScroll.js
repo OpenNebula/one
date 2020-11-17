@@ -26,9 +26,7 @@ const ListInfiniteScroll = ({ list, renderResult }) => {
   }, [list])
 
   const debounceHandleNextPage = useCallback(
-    debounce(() => {
-      setLength(prevLength => prevLength + 20)
-    }, 200),
+    debounce(() => setLength(prevLength => prevLength + 20), 200),
     [setLength]
   )
 

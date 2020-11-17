@@ -121,9 +121,9 @@ export default function useOpennebula () {
   )
 
   const getProvisions = useCallback(
-    ({ end, start, config } = { end: -1, start: -1, config: {} }) =>
+    ({ end, start } = { end: -1, start: -1 }) =>
       serviceProvision
-        .getProvisions({ filter, end, start, config })
+        .getProvisions({ filter, end, start })
         .then(doc => {
           dispatch(setProvisions(doc))
           return doc

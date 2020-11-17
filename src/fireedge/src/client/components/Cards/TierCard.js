@@ -1,79 +1,38 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import {
-  makeStyles,
-  Card,
-  Button,
-  CardHeader,
-  CardActions,
-  Badge
-} from '@material-ui/core'
+import { Button, CardActions, Badge } from '@material-ui/core'
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows'
 
 import { Tr } from 'client/components/HOC'
-
-const useStyles = makeStyles(() => ({
-  root: {
-    height: '100%',
-    minHeight: 140,
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  header: {
-    overflowX: 'hidden',
-    flexGrow: 1
-  },
-  headerContent: {},
-  title: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'initial',
-    display: '-webkit-box',
-    lineClamp: 2,
-    boxOrient: 'vertical'
-  }
-}))
+import SelectCard from './SelectCard'
 
 const TierCard = memo(
-  ({ value, handleEdit, handleClone, handleRemove, cardProps }) => {
-    const classes = useStyles()
+  ({ value, handleEdit, handleRemove, cardProps }) => {
     const { name, cardinality } = value
 
     return (
-      <Card className={classes.root} {...cardProps}>
-        <CardHeader
-          avatar={
-            <Badge
-              badgeContent={cardinality}
-              color="primary"
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'left'
-              }}
-            >
-              <DesktopWindowsIcon />
-            </Badge>
-          }
-          className={classes.header}
-          classes={{ content: classes.headerContent }}
-          title={name}
-          titleTypographyProps={{
-            variant: 'body2',
-            noWrap: true,
-            className: classes.title,
-            title: name
-          }}
-        />
+      <SelectCard
+        observerOff
+        icon={
+          <Badge
+            badgeContent={cardinality}
+            color="primary"
+            anchorOrigin={{
+              vertical: 'top',
+              horizontal: 'left'
+            }}
+          >
+            <DesktopWindowsIcon />
+          </Badge>
+        }
+        title={name}
+        cardProps={cardProps}
+      >
         <CardActions>
           {handleEdit && (
             <Button variant="contained" size="small" onClick={handleEdit} disableElevation>
               {Tr('Edit')}
-            </Button>
-          )}
-          {handleClone && (
-            <Button variant="contained" size="small" onClick={handleClone} disableElevation>
-              {Tr('Clone')}
             </Button>
           )}
           {handleRemove && (
@@ -82,7 +41,7 @@ const TierCard = memo(
             </Button>
           )}
         </CardActions>
-      </Card>
+      </SelectCard>
     )
   }
 )
@@ -96,7 +55,6 @@ TierCard.propTypes = {
     ])
   }),
   handleEdit: PropTypes.func,
-  handleClone: PropTypes.func,
   handleRemove: PropTypes.func,
   cardProps: PropTypes.object
 }
@@ -104,7 +62,6 @@ TierCard.propTypes = {
 TierCard.defaultProps = {
   value: {},
   handleEdit: undefined,
-  handleClone: undefined,
   handleRemove: undefined,
   cardProps: undefined
 }

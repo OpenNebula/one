@@ -11,7 +11,6 @@ const useStyles = makeStyles(theme => ({
   root: {
     position: 'sticky',
     top: -15,
-    backdropFilter: 'blur(5px)',
     background: fade(theme.palette.primary.main, 0.65),
     zIndex: theme.zIndex.mobileStepper,
     margin: theme.spacing(2, 0)

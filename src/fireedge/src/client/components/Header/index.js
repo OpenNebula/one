@@ -18,6 +18,7 @@ import PropTypes from 'prop-types'
 
 import {
   AppBar,
+  Box,
   Toolbar,
   Typography,
   IconButton,
@@ -37,6 +38,7 @@ const Header = ({ title }) => {
   const { isFixMenu, fixMenu } = useGeneral()
   const classes = headerStyles()
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
+  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
   const handleFixMenu = () => fixMenu(true)
 
@@ -49,20 +51,24 @@ const Header = ({ title }) => {
               <MenuIcon />
             </IconButton>
           )}
-          <Typography
-            variant="h6"
-            className={classes.title}
-            data-cy="header-title"
-          >
-            {title}
-          </Typography>
-          <User />
-          {!isOneAdmin && <Group />}
-          <Zone />
+          {!isMobile && (
+            <Typography
+              variant="h6"
+              className={classes.title}
+              data-cy="header-title"
+            >
+              {title}
+            </Typography>
+          )}
+          <Box flexGrow={isMobile ? 1 : 0} textAlign="end">
+            <User />
+            {!isOneAdmin && <Group />}
+            <Zone />
+          </Box>
         </Toolbar>
       </AppBar>
     ),
-    [isFixMenu, fixMenu, isUpLg, isOneAdmin]
+    [isFixMenu, fixMenu, isUpLg, isMobile, isOneAdmin]
   )
 }
 
