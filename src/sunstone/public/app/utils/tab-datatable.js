@@ -214,6 +214,7 @@ define(function(require) {
 
     $('#' + this.dataTableId + 'Search').on('input', function() {
       that.dataTable.fnFilter($(this).val());
+      $("ul.ips-dropdown").foundation();
       return false;
     });
 
@@ -735,6 +736,8 @@ define(function(require) {
         return false;
       }
     });
+
+    $("ul.ips-dropdown").foundation();
   }
 
   function _getElementData(id, resource_tag) {
