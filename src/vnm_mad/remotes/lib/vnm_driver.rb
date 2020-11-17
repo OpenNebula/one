@@ -16,7 +16,6 @@
 
 require 'shellwords'
 require 'open3'
-require 'English'
 
 ################################################################################
 # The VNMMAD module provides the basic abstraction to implement custom
@@ -217,10 +216,11 @@ module VNMMAD
 
         # Checks wether a NIC exist or not. Returns true/false and the NIC info
         def nic_exist?(name)
-            text = `#{command(:ip)} link show #{name}`
-            status = $CHILD_STATUS.exitstatus
+            cmd = "#{command(:ip)} link show #{name}"
 
-            return true, text if status == 0
+            _o, _e, s = Open3.capture3(cmd)
+
+            return true, text if s.exitstatus.zero?
 
             [false, text]
         end
