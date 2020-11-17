@@ -78,7 +78,7 @@ const getProvidersTemplates = (res = {}, next = () => undefined, params = {}) =>
         }
       )
     } else {
-      getFiles(`${global.CPI}/providers`, 'yaml', () => { pass = false }).map(file =>
+      getFiles(path, 'yaml', () => { pass = false }).map(file =>
         existsFile(file, fillData)
       )
     }
