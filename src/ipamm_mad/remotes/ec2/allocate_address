@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -14,9 +16,4 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Space separated list of VMM-TM pairs that support live disk snapshots. VMM
-# and TM must be separated by '-'
-LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-ceph kvm-ssh"
-
-# Space separated list VNM_MAD-ACTION pairs that run locally
-VNMAD_LOCAL_ACTIONS="alias_sdnat-post alias_sdnat-clean"
+exit 0

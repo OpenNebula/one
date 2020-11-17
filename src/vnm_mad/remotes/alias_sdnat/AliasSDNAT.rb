@@ -16,31 +16,144 @@
 #--------------------------------------------------------------------------- #
 
 require 'vnmmad'
+require 'opennebula'
+require 'oneprovision'
+require 'ssh_stream'
 
 # Alias SDnat Driver
 class AliasSDNATDriver < VNMMAD::VNMDriver
 
+    # Driver name
     DRIVER = 'alias_sdnat'
+
+    # Filter to look for NICs managed by this diver
     XPATH_FILTER = "TEMPLATE/NIC_ALIAS[VN_MAD='alias_sdnat'] | " \
                    'TEMPLATE/NIC[ALIAS_IDS=*]'
 
-    def initialize(virtual_machine, xpath_filter = nil, deploy_id = nil)
-        @locking = true
+    def initialize(vm, hostname, deploy_id = nil)
+        super(vm, XPATH_FILTER, deploy_id)
 
-        xpath_filter ||= XPATH_FILTER
-        super(virtual_machine, xpath_filter, deploy_id)
+        @locking = true
+        @ssh     = SshStreamCommand.new(hostname, nil)
+        @mapping = {}
+
+        client = OpenNebula::Client.new
+        host_id = @vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HID']
+        @host   = OpenNebula::Host.new_with_id(host_id, client)
+
+        rc = @host.info(true)
+
+        raise rc if OpenNebula.is_error?(rc)
+
+        unless @host.has_elements?('TEMPLATE/PROVISION_ID')
+            OpenNebula.log_error("No PROVISION_ID for host #{host_id}")
+            exit 1
+        end
+
+        provision_id = @host['TEMPLATE/PROVISION_ID']
+        provision = OneProvision::Provision.new_with_id(provision_id, client)
+        provision.info
+
+        @provider = provision.provider
     end
 
-    def iptables(params, stdout = false)
-        if stdout
-            commands = VNMMAD::VNMNetwork::Commands.new
-            commands.add :iptables, params
-            commands.run!
-        else
-            OpenNebula.exec_and_log("#{command(:iptables)} #{params}")
+    def self.from_base64(vm64, hostname, deploy_id = nil)
+        vm_xml = Base64.decode64(vm64)
+
+        new(vm_xml, hostname, deploy_id)
+    end
+
+    #  Activate NAT rules on hypervisor
+    def activate
+        process_nat
+
+        0
+    end
+
+    #  Clean NAT rules on hypervisor
+    def deactivate
+        attach_nic_alias_id = @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+
+        process_nat(false, attach_nic_alias_id)
+
+        0
+    end
+
+    # @return [Bool] True if error, False otherwise
+    def assign
+        @mapping = {}
+
+        provider = AliasSDNATDriver.provider(@provider, @host)
+
+        return true if provider.nil?
+
+        mapped = []
+
+        rc = @vm.each_nic do |nic|
+            next if !nic[:alias_id] || !nic[:parent_id] || !nic[:ip]
+
+            map = provider.assign(nic[:ip])
+
+            break false if map.empty?
+
+            mapped << nic[:ip]
+
+            @mapping.merge!(map)
+        end
+
+        mapped.each {|ip| provider.unassign(ip) } unless rc # rollback
+
+        !rc
+    end
+
+    # Creates provider based on host template and unassign all nic IP aliases
+    def unassign
+
+        provider = AliasSDNATDriver.provider(@provider, @host)
+
+        return if provider.nil?
+
+        @vm.each_nic do |nic|
+            next if !nic[:alias_id] || !nic[:parent_id] || !nic[:ip]
+
+            provider.unassign(nic[:ip])
         end
     end
 
+    # Factory method to create a VNM provider for the host provision
+    #   @param host [OpenNebula::Host]
+    #   @return [AWSProvider, PacketProvider, nil] nil
+    def self.provider(provider, host)
+        case provider.body['provider']
+        when 'aws'
+            require 'ec2_vnm'
+            AWSProvider.new(provider, host)
+        when 'packet'
+            require 'packet_vnm'
+            PacketProvider.new(provider, host)
+        else
+            nil
+        end
+    rescue StandardError => e
+        OpenNebula.log_error(
+            "Error creating provider #{provider.body['provider']}:#{e.message}")
+        nil
+    end
+
+    private
+
+    # Run iptables command with given params on @ssh stream
+    #   @param params [String]
+    #   @return [String] command stdout
+    def iptables(params)
+        commands = VNMMAD::VNMNetwork::Commands.new
+        commands.add :iptables, params
+        commands.run_remote(@ssh)
+    end
+
+    # Defines iptables SNAT for IP pair
+    #   @param parent_ip [String]
+    #   @param alias_ip [String]
     def nat_add(parent_ip, alias_ip)
         iptables("-t nat -A POSTROUTING -s #{parent_ip} " \
                  "-j SNAT --to-source #{alias_ip}")
@@ -49,8 +162,12 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
                  "-j DNAT --to-destination #{parent_ip}")
     end
 
+    # Cleans iptables SNAT for ip pair
+    #   @param parent_ip [String]
+    #   @param alias_ip [String]
+    #   @param strict [Bool]
     def nat_drop(parent_ip, alias_ip, strict = false)
-        iptables_s = iptables('-t nat -S', true)
+        iptables_s = iptables('-t nat -S')
 
         # drop any line related to PRE/POSTROUTING of parent/alias IPs
         iptables_s.each_line do |line|
@@ -78,6 +195,15 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
         end
     end
 
+    # Replace IP using mapping created by provider
+    # For AWS: @mapping = { <elastic_ip> => <secondary_priv_ip>,  }
+    #   @param ip [String]
+    #   @return ip [String]
+    def replace_ip(ip)
+        @mapping[ip] || ip
+    end
+
+    # Creates iptables SNAT rules for all nic aliases
     def process_nat(activate = true, attach_nic_alias_id = nil)
         lock
 
@@ -90,7 +216,7 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
                 next if attach_nic_alias_id &&
                         attach_nic_alias_id != nic[:nic_id]
 
-                nic_aliases[nic[:ip]] = nic[:parent_id]
+                nic_aliases[replace_ip(nic[:ip])] = nic[:parent_id]
             elsif nic[:alias_ids] && nic[:ip]
                 nic_parents[nic[:nic_id]] = nic[:ip]
             else
@@ -127,20 +253,6 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
         end
 
         unlock
-    end
-
-    def activate
-        process_nat
-
-        0
-    end
-
-    def deactivate
-        attach_nic_alias_id = @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
-
-        process_nat(false, attach_nic_alias_id)
-
-        0
     end
 
 end

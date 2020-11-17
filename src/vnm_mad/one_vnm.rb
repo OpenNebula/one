@@ -14,19 +14,19 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require "DriverExecHelper"
+require 'DriverExecHelper'
 
 # This module provides an abstraction to generate an execution context for
 # OpenNebula Drivers
-
 class VirtualNetworkDriver
+
     include DriverExecHelper
 
     # Inits the VNET Driver
     # @param [Array] name of the vnet drivers to use, as listed in remotes/vnet
     # @option ops [String] :ssh_stream to be used for command execution
     # @option ops [String] :message from ONE
-    def initialize(vnm_drivers, options={})
+    def initialize(vnm_drivers, options = {})
         @vnm_drivers = vnm_drivers
 
         @options     = options
@@ -35,7 +35,7 @@ class VirtualNetworkDriver
 
         @vm_encoded  = Base64.encode64(@message).delete("\n")
 
-        initialize_helper("vnm", options)
+        initialize_helper('vnm', options)
     end
 
     # Calls remotes or local action checking the action name and
@@ -56,28 +56,32 @@ class VirtualNetworkDriver
         cmd_params << " #{options[:parameters]}" if options[:parameters]
 
         result = RESULT[:success]
-        infos  = ""
+        infos  = ''
 
         @vnm_drivers.each do |subdirectory|
             cmd = action_command_line(aname, cmd_params, nil, subdirectory)
 
-            if action_is_local?(aname)
-                execution = LocalCommand.run(cmd, log_method(id), "#{@vm_encoded}")
-            elsif @ssh_stream != nil
+            if action_is_local?(aname, subdirectory)
+                execution = LocalCommand.run(cmd,
+                                             log_method(id),
+                                             @vm_encoded.to_s)
+            elsif !@ssh_stream.nil?
                 cmdin = "cat << EOT | #{cmd}"
                 stdin = "#{@vm_encoded}\nEOT\n"
 
                 execution = @ssh_stream.run(cmdin, stdin, cmd)
             else
-                return RESULT[:failure], "Network action #{aname} needs a ssh stream."
+                return RESULT[:failure], \
+                    "Network action #{aname} needs a ssh stream."
             end
 
             result, info = get_info_from_execution(execution)
-            infos << " #{subdirectory}: " <<  info
+            infos << " #{subdirectory}: " << info
 
             return [result, infos] if DriverExecHelper.failed?(result)
         end
 
-        return [result, infos]
+        [result, infos]
     end
+
 end

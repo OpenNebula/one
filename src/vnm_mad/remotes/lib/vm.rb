@@ -57,7 +57,7 @@ module VNMMAD
             end
 
             # Iterator on each NIC of the VM
-            def each_nic(block)
+            def each_nic(&block)
                 return if @nics.nil?
 
                 @nics.each do |the_nic|

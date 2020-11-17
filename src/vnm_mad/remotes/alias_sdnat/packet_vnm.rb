@@ -1,5 +1,3 @@
-#!/usr/bin/env ruby
-
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -15,17 +13,19 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
+#
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     LIB_LOCATION      ||= '/usr/lib/one'
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
+    PACKET_LOCATION   ||= '/usr/lib/one/ruby/vendors/packethost/lib'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    PACKET_LOCATION   ||= ONE_LOCATION + '/ruby/vendors/packethost/lib'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -35,23 +35,39 @@ if File.directory?(GEMS_LOCATION)
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << File.dirname(__FILE__)
-$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
-$LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
+$LOAD_PATH << PACKET_LOCATION
 
-require 'AliasSDNAT'
+require 'packet'
 
-template64 = STDIN.read
-hostname   = ARGV[0]
+# Class covering Packet/Equinix functionality for AliasSDNAT
+class PacketProvider
+    def initialize(provider, host)
+        connect  = provider.body['connection']
 
-begin
-    drv = AliasSDNATDriver.from_base64(template64, hostname)
+        @client = Packet::Client.new(connect['packet_token'])
+        @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
+    end
 
-    drv.unassign
+    def assign(public_ip)
+        @client.assign_cidr_device("#{public_ip}/32", @deploy_id)
+        { public_ip => public_ip }
+    rescue StandardError => e
+        OpenNebula.log_error("Error assiging #{public_ip}:#{e.message}")
+        {}
+    end
 
-    drv.deactivate
-rescue StandardError => e
-    OpenNebula.log_error(e.message)
-    OpenNebula.log_error(e.backtrace)
-    exit 1
+    def unassign(public_ip)
+        dev = @client.get_device(@deploy_id)
+
+        ip = dev.ip_addresses.select { |ip|
+            ip['address'] == public_ip &&
+            ip['cidr'] == 32 &&
+            ip['address_family'] == 4
+        }
+
+        @client.delete_ip(ip[0]['id'])
+    rescue StandardError => e
+        OpenNebula.log_error("Error assiging #{public_ip}:#{e.message}")
+        {}
+    end
 end

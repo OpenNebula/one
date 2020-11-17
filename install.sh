@@ -461,7 +461,8 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/server_cipher \
           $VAR_LOCATION/remotes/auth/dummy \
           $VAR_LOCATION/remotes/ipam/dummy \
-          $VAR_LOCATION/remotes/ipam/packet"
+          $VAR_LOCATION/remotes/ipam/packet \
+          $VAR_LOCATION/remotes/ipam/ec2"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
@@ -655,6 +656,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_DH_SCRIPTS:$VAR_LOCATION/remotes/market/dockerhub
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
+    IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/ec2
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_HOOKS_PRE_FILES:$VAR_LOCATION/remotes/vnm/hooks/pre
     NETWORK_HOOKS_CLEAN_FILES:$VAR_LOCATION/remotes/vnm/hooks/clean
@@ -923,7 +925,9 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vmm_mad/remotes/az/az_driver.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
                 src/vmm_mad/remotes/one/opennebula_driver.rb \
-                src/vmm_mad/remotes/packet/packet_driver.rb"
+                src/vmm_mad/remotes/packet/packet_driver.rb \
+                src/vnm_mad/remotes/alias_sdnat/ec2_vnm.rb \
+                src/vnm_mad/remotes/alias_sdnat/packet_vnm.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -1583,6 +1587,14 @@ IPAM_DRIVER_PACKET_SCRIPTS="src/ipamm_mad/remotes/packet/register_address_range 
                src/ipamm_mad/remotes/packet/allocate_address \
                src/ipamm_mad/remotes/packet/get_address \
                src/ipamm_mad/remotes/packet/free_address"
+#-------------------------------------------------------------------------------
+# IPAM EC2 drivers to be installed under $REMOTES_LOCATION/ipam
+#-------------------------------------------------------------------------------
+IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/ec2/register_address_range \
+               src/ipamm_mad/remotes/ec2/unregister_address_range \
+               src/ipamm_mad/remotes/ec2/allocate_address \
+               src/ipamm_mad/remotes/ec2/get_address \
+               src/ipamm_mad/remotes/ec2/free_address"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands

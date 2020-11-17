@@ -179,7 +179,7 @@ AllCops:
     - src/market_mad/remotes/s3/import
     - src/flow/config.ru
     - src/flow/Gemfile
-    - src/cli/oneprovision
+    - src/cli/one
     - share/scons/po2json.rb
     - share/sudoers/sudo_commands.rb
     - share/hooks/vcenter/delete_vcenter_net.rb
@@ -286,7 +286,6 @@ AllCops:
     - src/im_mad/remotes/common.d/monitord-client.rb
     - src/im_mad/remotes/node-probes.d/pci.rb
     - src/hm_mad/one_hm.rb
-    - src/vnm_mad/one_vnm.rb
     - src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb
     - src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb
     - src/vnm_mad/remotes/ebtables/Ebtables.rb
@@ -301,7 +300,6 @@ AllCops:
     - src/vnm_mad/remotes/lib/vm.rb
     - src/vnm_mad/remotes/lib/vnm_driver.rb
     - src/vnm_mad/remotes/lib/sg_driver.rb
-    - src/vnm_mad/remotes/lib/command.rb
     - src/vnm_mad/remotes/lib/address.rb
     - src/cli/command_parser.rb
     - src/cli/one_helper.rb
@@ -400,13 +398,11 @@ AllCops:
     - src/vmm_mad/remotes/lib/poll_common.rb
     - src/vmm_mad/remotes/packet/packet_driver.rb
     - src/vmm_mad/remotes/ec2/ec2_driver.rb
-    - src/vmm_mad/exec/one_vmm_exec.rb
     - src/mad/ruby/ssh_stream.rb
     - src/mad/ruby/test/MonkeyPatcher.rb
     - src/mad/ruby/test/OpenNebulaDriver_spec.rb
     - src/mad/ruby/VirtualMachineDriver.rb
     - src/mad/ruby/ActionManager.rb
-    - src/mad/ruby/DriverExecHelper.rb
     - src/mad/ruby/CommandManager.rb
     - src/mad/ruby/test_mad.rb
     - src/mad/ruby/OpenNebulaDriver.rb
