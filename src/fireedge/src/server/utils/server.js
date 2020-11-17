@@ -86,7 +86,11 @@ const existsFile = (path = '', success = () => undefined, error = () => undefine
       rtn = true
     }
   } catch (err) {
-    error = err && err.message
+    messageTerminal({
+      color: 'red',
+      message: 'Error: %s',
+      type: (err && err.message) || ''
+    })
   }
   if (rtn) {
     success(file)

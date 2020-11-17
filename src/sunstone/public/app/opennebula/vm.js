@@ -915,7 +915,7 @@ define(function(require) {
   }
 
   // Return the IP or several IPs of a VM
-  function ipsStr(element, divider, groupStrFuntion = groupByIpsStr) {
+  function ipsStr(element, divider, groupStrFunction = groupByIpsStr) {
     var divider = divider || "<br>";
     var nics = getNICs(element);
     var ips = [];
@@ -934,13 +934,25 @@ define(function(require) {
         }
       });
     }
+    
     // infoextended: alias will be group by nic
     return Config.isExtendedVmInfo
-      ? groupStrFuntion(element, nics)
+      ? groupStrFunction(element, nics)
       : (ips.length == 0 && nics.length > 0)
         ? $.map(nics, function(nic) {
           if (nic["IP"]) {
             return nic["IP"];
+          }
+          else{
+            var ipv6 = "" 
+            if (nic["IP6_ULA"]){ 
+              ipv6 += nic["IP6_ULA"];
+            }
+            if (nic["IP6_GLOBAL"]){
+              ipv6 = (ipv6 == "") ? "" : ipv6 + "<br>";
+              ipv6 += nic["IP6_GLOBAL"];
+            }
+            return ipv6;
           }
         }).join(divider)
         : "--";
@@ -974,7 +986,7 @@ define(function(require) {
 
     // Format the other IPs inside a dropdown
     if (ips.length){
-      html += '<ul class="dropdown menu ips-dropdown" style=" text-align:left;" data-dropdown-menu><li><a style="padding-top:0em;padding-bottom:0em;padding-left:0em;color:gray">'+insideHtml+'</a><ul class="menu" style="max-height: 25em; overflow: scroll;">';
+      html += '<ul class="dropdown menu ips-dropdown" style=" text-align:left;" data-dropdown-menu><li><a style="padding-top:0em;padding-bottom:0em;padding-left:0em;color:gray">'+insideHtml+'</a><ul class="menu" style="max-height: 50em; overflow: scroll; width:250px;">';
       $.each(ips, function(index, value){
         html+='<li><a style="color:gray">' + value + '</a></li>';
       });
@@ -986,21 +998,29 @@ define(function(require) {
 
   function groupByIpsDropdown(element = {}, nics = []) {
 
-    return nics.reduce(function(column, nic) {
-      var nicSection = $("<li/>").append($("<a/>").css("color", "gray").text(nic.IP));
+    // Show the first IP two times for the dropdown.
+    var copy_nics = Object.assign([], nics)
+    var first_nic = Object.assign({}, nics[0]);
+    delete first_nic["ALIAS_IDS"];
+    copy_nics.unshift(first_nic);
+
+    return copy_nics.reduce(function(column, nic) {
+      identation = '&nbsp;&nbsp;&nbsp;&nbsp;';
+      var ip = (nic.IP) ? nic.IP : nic.IP6_ULA + '&#10;&#13;' + identation + nic.IP6_GLOBAL;
+      var nicSection = $("<li/>").append($("<a/>").css("color", "gray").html(nic.NIC_ID + ": " + ip));
 
       if (nic.ALIAS_IDS) {
-        nicSection.append("*");
-
         nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
           var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
             ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
           var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId });
+
           if (alias) {
+            var alias_ip = alias.IP ? alias.IP : alias.IP6_ULA + '&#10;&#13;' + identation + '> ' + alias.IP6_GLOBAL;
             nicSection.append($("<li/>").append($("<a/>").css({
               "color": "gray",
               "font-style": "italic",
-            }).text("> " + alias.IP))) }
+            }).html(identation + '> ' + alias_ip))) }
         });
       }
 
@@ -1009,11 +1029,12 @@ define(function(require) {
   };
 
   function groupByIpsStr(element = {}, nics = []) {
+    identation = '&nbsp;&nbsp;&nbsp;&nbsp;';
     return nics.reduce(function(column, nic) {
-      var nicSection = $("<p>").css("margin-bottom", 0).text(nic.IP)
+      var ip = (nic.IP) ? nic.IP : nic.IP6_ULA + '<br>' + identation + nic.IP6_GLOBAL;
+      var nicSection = $("<p>").css("margin-bottom", 0).html(nic.NIC_ID + ": " + ip);
 
       if (nic.ALIAS_IDS) {
-        nicSection.append("*");
 
         nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
           var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
@@ -1021,10 +1042,11 @@ define(function(require) {
           var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId });
 
           if (alias) {
+            var alias_ip = alias.IP ? alias.IP : alias.IP6_ULA + '<br>' + identation + '> ' + alias.IP6_GLOBAL;
             nicSection.append($("<p/>").css({
               "margin-bottom": 0,
               "font-style": "italic",
-            }).text("> " + alias.IP)) }
+            }).html(identation + '> ' + alias_ip)) }
         });
       }
 
