@@ -14,6 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
+const { createWriteStream } = require('fs-extra')
 const {
   ok,
   accepted,
@@ -25,8 +26,11 @@ const {
   executeCommand,
   executeCommandAsync,
   createTemporalFile,
+  createFolderWithFiles,
   createYMLContent,
   removeFile,
+  renameFolder,
+  moveToFolder,
   publish
 } = require('./functions')
 const { provision } = require('./schemas')
@@ -34,6 +38,14 @@ const { provision } = require('./schemas')
 const httpInternalError = httpResponse(internalServerError, '', '')
 
 const command = 'oneprovision'
+const logFile = {
+  name: 'stdouterr',
+  ext: 'log'
+}
+const configFile = {
+  name: 'provision',
+  ext: 'yaml'
+}
 
 const getList = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
@@ -157,8 +169,8 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
   next()
 }
 
-const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => { // falta
-  const { user, password } = userData
+const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+  const { user, password, id } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
@@ -168,23 +180,44 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const ext = '.yaml'
-        const file = createTemporalFile(`${global.CPI}/provision/`, ext, content)
-        if (file && file.name && file.path) {
-          const paramsCommand = ['create', file.path, '--debug', '--skip-provision', ...authCommand]
-
-          // esto tiene que estar vivo
-          executeCommandAsync(
-            command,
-            paramsCommand,
-            message => {
-              publish(command, { id: file.name, message: message.toString() })
+        const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: configFile.name, ext: configFile.ext, content }])
+        if (files && files.name && files.files) {
+          const find = (val = '', ext = '', arr = files.files) => arr.find(e => e && e.path && e.ext && e.name && e.name === val && e.ext === ext)
+          const config = find(configFile.name, configFile.ext)
+          const log = find(logFile.name, logFile.ext)
+          if (config && log) {
+            const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand]
+            let lastLine = ''
+            var stream = createWriteStream(log.path, { flags: 'a' })
+            const emit = message => {
+              lastLine = message.toString()
+              stream.write(lastLine)
+              publish(command, { id: files.name, message: lastLine })
             }
-          )
-
-          res.locals.httpCode = httpResponse(accepted, file.name)
-          next()
-          return
+            executeCommandAsync(
+              command,
+              paramsCommand,
+              {
+                err: emit,
+                out: emit,
+                close: success => {
+                  stream.end()
+                  if (success && /^ID: \d+/.test(lastLine)) {
+                    const newPath = renameFolder(config.path, lastLine.match('\\d+'))
+                    if (newPath) {
+                      moveToFolder(newPath, '/../../../')
+                    }
+                  }
+                  if (success === false) {
+                    renameFolder(config.path, '.ERROR', 'append')
+                  }
+                }
+              }
+            )
+            res.locals.httpCode = httpResponse(accepted, files.name)
+            next()
+            return
+          }
         }
       }
     } else {
@@ -240,8 +273,7 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const ext = '.yaml'
-        const file = createTemporalFile(tmpPath, ext, content)
+        const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['validate', file.path, ...authCommand]
           const executedCommand = executeCommand(command, paramsCommand)

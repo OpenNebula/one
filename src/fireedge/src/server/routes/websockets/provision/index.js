@@ -26,7 +26,6 @@ const main = (app = {}) => {
         subscriber(
           'oneprovision',
           data => {
-            console.log('fill file')
             app.emit(type, {
               id: data.id,
               data: data.message
