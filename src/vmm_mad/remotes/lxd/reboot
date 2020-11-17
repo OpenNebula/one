@@ -19,6 +19,7 @@
 $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'container'
+require 'base64'
 
 require_relative '../../scripts_common'
 
@@ -29,7 +30,9 @@ vm_name = ARGV[0]
 
 client    = LXDClient.new
 container = Container.get(vm_name, nil, client)
-container = Container.get(vm_name, container.config['user.xml'], client)
+
+xml = Base64.decode64(container.config['user.xml'])
+container = Container.get(vm_name, xml, client)
 
 force = false
 force = true if ARGV[-1] == '-f'
