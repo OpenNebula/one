@@ -227,7 +227,7 @@ class Container
 
         begin
             stop(:force => force)
-        rescue => e
+        rescue StandardError => e
             OpenNebula.log_error "LXD Error: #{e}"
 
             real_status = 'Unknown'
@@ -243,7 +243,7 @@ class Container
 
             begin
                 stop(:force => true) if real_status == 'Running'
-            rescue => e
+            rescue StandardError => e
                 error = "LXD Error: Cannot shut down container #{e}"
 
                 OpenNebula.log_error error
@@ -489,6 +489,15 @@ class Container
     # Helper method for querying transition phase
     def transient?
         @lxc['config']['user.one_status'] == '0'
+    end
+
+    # Intended to save the container xml
+    def save_xml(one_xml)
+        require 'base64'
+
+        container_key = 'user.xml' # TODO: lxdrc ?
+
+        @lxc['config'].update(container_key => Base64.encode64(one_xml))
     end
 
     private

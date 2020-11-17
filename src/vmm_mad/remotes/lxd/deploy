@@ -83,7 +83,7 @@ end
 #-------------------------------------------------------------------------------
 # Updates container configuration with the OpenNebulaVM description
 # ------------------------------------------------------------------------------
-container.config.update('user.xml' => xml)
+container.save_xml(xml)
 container.transition_end unless container.wild?
 container.update
 
