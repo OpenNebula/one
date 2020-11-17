@@ -40,7 +40,7 @@ require 'aws-sdk-ec2'
 class AWSProvider
 
     def initialize(provider, host)
-        connect  = provider.body['connection']
+        connect = provider.body['connection']
 
         options = {
             :access_key_id     => connect['aws_access'],
@@ -64,18 +64,18 @@ class AWSProvider
         inst   = instcs[0][0].instances[0]
         nic_id = inst.network_interfaces[0].network_interface_id
 
-        rc = @ec2.assign_private_ip_addresses({
-                :network_interface_id               => nic_id,
-                :secondary_private_ip_address_count => 1
-             })
+        rc = @ec2.assign_private_ip_addresses(
+            { :network_interface_id               => nic_id,
+              :secondary_private_ip_address_count => 1 }
+        )
 
         priv_ip = rc.assigned_private_ip_addresses[0].private_ip_address
 
         @ec2.associate_address({
-            :instance_id        => @deploy_id,
+                                   :instance_id        => @deploy_id,
             :public_ip          => public_ip,
             :private_ip_address => priv_ip
-        })
+                               })
 
         { public_ip => priv_ip }
     rescue StandardError => e
@@ -86,18 +86,20 @@ class AWSProvider
     #  Unassign a public_ip from an instance private_ip
     #    @param public_ip [String] the public ip
     def unassign(public_ip)
-        filter = [{:name => 'public-ip', :values => [public_ip] }]
-        ip     = @ec2.describe_addresses({:filters => filter}).addresses[0]
+        filter = [{ :name => 'public-ip', :values => [public_ip] }]
+        ip     = @ec2.describe_addresses({ :filters => filter }).addresses[0]
 
-        return if ip.nil? || ip.network_interface_id.nil? || ip.private_ip_address.nil?
+        if ip.nil? || ip.network_interface_id.nil? || ip.private_ip_address.nil?
+            return
+        end
 
         # free associated private ip, it frees associated public ip
-        @ec2.unassign_private_ip_addresses({
-            :network_interface_id => ip.network_interface_id,
-            :private_ip_addresses => [ip.private_ip_address]
-        })
-
+        @ec2.unassign_private_ip_addresses(
+            { :network_interface_id => ip.network_interface_id,
+              :private_ip_addresses => [ip.private_ip_address] }
+        )
     rescue StandardError
         OpenNebula.log_error("Error unassiging #{public_ip}:#{e.message}")
     end
+
 end

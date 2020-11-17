@@ -109,9 +109,15 @@ begin
         exit(-1)
     end
 
-    one      = OpenNebula::Client.new
+    one       = OpenNebula::Client.new
     provision = OneProvision::Provision.new_with_id(provision_id, one)
-    provision.info
+    rc        = provision.info
+
+    if OpenNebula.is_error?(rc)
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
     provider = provision.provider
     connect  = provider.body['connection']
 
@@ -139,7 +145,8 @@ begin
     if ip.type.empty?
         ip.type = IP_TYPE[0]
     elsif !IP_TYPE.include?(ip.type)
-        STDERR.puts "Type #{ip.type} not supported. Must be: #{IP_TYPE.join(', ')}"
+        STDERR.puts "Type #{ip.type} not supported. " \
+                    "Must be: #{IP_TYPE.join(', ')}"
         exit(-1)
     end
 

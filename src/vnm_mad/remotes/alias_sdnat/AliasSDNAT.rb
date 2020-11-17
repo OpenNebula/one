@@ -108,7 +108,6 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
 
     # Creates provider based on host template and unassign all nic IP aliases
     def unassign
-
         provider = AliasSDNATDriver.provider(@provider, @host)
 
         return if provider.nil?
@@ -136,7 +135,8 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
         end
     rescue StandardError => e
         OpenNebula.log_error(
-            "Error creating provider #{provider.body['provider']}:#{e.message}")
+            "Error creating provider #{provider.body['provider']}:#{e.message}"
+        )
         nil
     end
 

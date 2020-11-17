@@ -147,7 +147,7 @@ CommandParser::CmdParser.new(ARGV) do
         config = OneProvision::ProvisionConfig.new(args[0])
         config = config.validate
 
-        puts config.to_yaml if (options.key? :dump)
+        puts config.to_yaml if options.key? :dump
 
         0
     end

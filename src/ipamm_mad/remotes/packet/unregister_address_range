@@ -74,13 +74,18 @@ begin
         exit(-1)
     end
 
-    one      = OpenNebula::Client.new
+    one       = OpenNebula::Client.new
     provision = OneProvision::Provision.new_with_id(provision_id, one)
-    provision.info
+    rc        = provision.info
+
+    if OpenNebula.is_error?(rc)
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
     provider = provision.provider
     connect  = provider.body['connection']
-
-    pk_token    = connect['packet_token']
+    pk_token = connect['packet_token']
 
     # --------------------------------------------------------------------------
     # Connect to Packet and delete the IP
@@ -90,7 +95,12 @@ begin
 
     packet_id = data.xpath('//AR/PACKET_IP_ID').text.to_s
 
-    packet.delete_ip(packet_id) unless packet_id.empty?
+    if packet_id.empty?
+        STDERR.puts 'Missing packet range ID'
+        exit(-1)
+    end
+
+    packet.delete_ip(packet_id)
 rescue StandardError => e
     error_str = "ERROR MESSAGE --8<------\n"
     error_str << e.to_s
