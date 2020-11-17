@@ -73,8 +73,8 @@ export default function useOpennebula () {
               filterBy([doc].concat(applicationsTemplates), 'ID')
             )
           )
-
-          return dispatch(enqueueSuccess(`Template created - ID: ${doc.ID}`))
+          dispatch(enqueueSuccess(`Template created - ID: ${doc.ID}`))
+          return doc
         })
         .catch(err => {
           dispatch(
@@ -94,8 +94,9 @@ export default function useOpennebula () {
               filterBy([doc].concat(applicationsTemplates), 'ID')
             )
           )
+          dispatch(enqueueSuccess(`Template updated - ID: ${doc.ID}`))
 
-          return dispatch(enqueueSuccess(`Template updated - ID: ${doc.ID}`))
+          return doc
         })
         .catch(err => {
           dispatch(

@@ -75,7 +75,7 @@ const CustomNode = memo(({ data, selected, ...nodeProps }) => {
         handleEdit={handleEdit}
         cardProps={{
           elevation: selected ? 6 : 1,
-          style: { minWidth: 200 }
+          style: { width: 300 }
         }}
       />
       <Handle

@@ -10,7 +10,7 @@ const useNearScreen = ({ externalRef, distance, once = true }) => {
     const element = externalRef ? externalRef.current : fromRef.current
 
     const onChange = entries => {
-      entries.forEach(({ isIntersecting }) => {
+      element && entries.forEach(({ isIntersecting }) => {
         if (isIntersecting) {
           setShow(true)
           once && observer.disconnect()

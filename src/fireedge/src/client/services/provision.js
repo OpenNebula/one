@@ -42,7 +42,7 @@ export const getProviders = ({ filter }) =>
     method: GET,
     error: err => err?.message
   }).then(res => {
-    if (axios.isCancel(res) || !res?.id || res?.id !== httpCodes.ok.id) throw res
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
   })
@@ -99,13 +99,12 @@ export const getProvision = ({ id }) =>
     return res?.data?.DOCUMENT ?? {}
   })
 
-export const getProvisions = ({ filter, config }) =>
+export const getProvisions = ({ filter }) =>
   requestData(`/api/${PROVISION}/list`, {
-    config,
     data: { filter },
     method: GET
   }).then(res => {
-    if (axios.isCancel(res) || !res?.id || res?.id !== httpCodes.ok.id) throw res
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
   })

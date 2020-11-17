@@ -1,36 +1,50 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import axios from 'axios'
+import { debounce } from '@material-ui/core'
+import { fakeDelay } from 'client/utils'
 
 const useRequest = request => {
   const [data, setData] = useState(undefined)
   const [loading, setLoading] = useState(false)
   const [reloading, setReloading] = useState(false)
   const [error, setError] = useState(false)
-  const source = axios.CancelToken.source()
+  const isMounted = useRef(true)
 
-  const fetchRequest = useCallback((payload, reload = false) => {
-    reload ? setReloading(true) : setLoading(true)
+  useEffect(() => () => { isMounted.current = false }, [])
 
-    request({
-      ...payload,
-      config: { cancelToken: source.token }
-    }).then(response => {
-      if (!axios.isCancel(response)) {
-        if (response !== undefined) {
-          setData(response)
-          setError(false)
-        } else setError(true)
+  const doFetch = useCallback(
+    debounce(payload =>
+      request({ ...payload }).then(response => {
+        if (isMounted.current && !axios.isCancel(response)) {
+          if (response !== undefined) {
+            setData(response)
+            setError(false)
+          } else setError(true)
 
-        setLoading(false)
-        setReloading(false)
-      }
-    })
-  }, [source])
+          setLoading(false)
+          setReloading(false)
+        }
+      })
+    ), [isMounted])
+
+  const fetchRequest = useCallback((payload, options = {}) => {
+    const { reload = false, delay = 0 } = options
+    if (!(Number.isInteger(delay) && delay >= 0)) {
+      console.error(`
+          Delay must be a number >= 0!
+          If you're using it as a function, it must also return a number >= 0.`)
+    }
+
+    if (isMounted.current) {
+      reload ? setReloading(true) : setLoading(true)
+    }
+
+    fakeDelay(delay).then(() => doFetch(payload))
+  }, [isMounted])
 
   return {
     data,
     fetchRequest,
-    cancelRequest: source.cancel,
     loading,
     reloading,
     error

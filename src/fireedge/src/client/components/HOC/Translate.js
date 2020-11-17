@@ -126,6 +126,7 @@ const SelectTranslate = () => {
     <Select
       native
       type="select"
+      fullWidth
       onChange={e => handleChange(e, context.changeLang)}
       defaultValue={context.lang}
     >

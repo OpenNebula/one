@@ -22,25 +22,18 @@ function Providers () {
   const {
     error,
     fetchRequest,
-    cancelRequest,
     loading,
     reloading
   } = useFetch(getProviders)
 
-  useEffect(() => {
-    fetchRequest()
-
-    return () => {
-      cancelRequest()
-    }
-  }, [])
+  useEffect(() => { fetchRequest() }, [])
 
   return (
     <Container disableGutters>
       <Box p={3} display="flex" alignItems="center">
         <SubmitButton
           fab
-          onClick={() => fetchRequest(undefined, true)}
+          onClick={() => fetchRequest(undefined, { reload: true })}
           isSubmitting={loading || reloading}
           label={<RefreshIcon />}
         />

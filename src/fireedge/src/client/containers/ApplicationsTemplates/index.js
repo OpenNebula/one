@@ -1,57 +1,73 @@
 import React, { useEffect, useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box } from '@material-ui/core'
-import { Alert } from '@material-ui/lab'
+import { Container, Box, Typography, Divider } from '@material-ui/core'
+import RefreshIcon from '@material-ui/icons/Autorenew'
 
 import { PATH } from 'client/router/fireedge'
 import useApplication from 'client/hooks/useApplication'
 import useFetch from 'client/hooks/useFetch'
 
 import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import ListCards from 'client/components/List/ListCards'
+import AlertError from 'client/components/Alerts/Error'
 import { ApplicationTemplateCard } from 'client/components/Cards'
 
 import { Tr } from 'client/components/HOC'
-import { CannotConnectOneFlow } from 'client/constants/translates'
-
-const Error = () => (
-  <Box pt={3} display="flex" justifyContent="center">
-    <Alert severity="error" icon={false} variant="filled">
-      {Tr(CannotConnectOneFlow)}
-    </Alert>
-  </Box>
-)
+import {
+  ApplicationsTemplates as ApplicationsTemplatesLabel,
+  CannotConnectOneFlow
+} from 'client/constants/translates'
 
 function ApplicationsTemplates () {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
   const { applicationsTemplates, getApplicationsTemplates } = useApplication()
-  const { fetchRequest, loading, error } = useFetch(getApplicationsTemplates)
+  const {
+    error,
+    fetchRequest,
+    loading,
+    reloading
+  } = useFetch(getApplicationsTemplates)
 
-  useEffect(() => {
-    fetchRequest()
-  }, [])
-
-  if (error) {
-    return <Error />
-  }
+  useEffect(() => { fetchRequest() }, [])
 
   return (
     <Container disableGutters>
-      <Box p={3}>
-        <ListCards
-          list={applicationsTemplates}
-          isLoading={applicationsTemplates?.length === 0 && loading}
-          handleCreate={() => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)}
-          CardComponent={ApplicationTemplateCard}
-          cardsProps={({ value }) => ({
-            handleEdit: () =>
-              history.push(PATH.APPLICATIONS_TEMPLATES.EDIT.replace(':id', value?.ID)),
-            handleDeploy: () => setShowDialog(value),
-            handleRemove: undefined
-          })}
+      <Box p={3} display="flex" alignItems="center">
+        <SubmitButton
+          fab
+          onClick={() => fetchRequest(undefined, { reload: true, delay: 500 })}
+          isSubmitting={loading || reloading}
+          label={<RefreshIcon />}
         />
+        <Typography variant="h5" style={{ marginLeft: 8 }}>
+          {Tr(ApplicationsTemplatesLabel)}
+        </Typography>
+      </Box>
+      <Divider />
+      <Box p={3}>
+        {error ? (
+          <AlertError>
+            {Tr(CannotConnectOneFlow)}
+          </AlertError>
+        ) : (
+          <ListCards
+            list={applicationsTemplates}
+            isLoading={applicationsTemplates?.length === 0 && loading}
+            handleCreate={() => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)}
+            CardComponent={ApplicationTemplateCard}
+            cardsProps={({ value }) => ({
+              handleEdit: () => history.push(
+                PATH.APPLICATIONS_TEMPLATES.EDIT.replace(':id', value?.ID)
+              ),
+              handleDeploy: () => setShowDialog(value),
+              handleRemove: undefined
+            })}
+            breakpoints={{ xs: 12, sm: 6, md: 4 }}
+          />
+        )}
         {showDialog !== false && (
           <DeployForm
             applicationTemplate={showDialog}

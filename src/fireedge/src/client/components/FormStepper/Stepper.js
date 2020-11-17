@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import {
-  styled,
   Button,
   Stepper,
   Step,
@@ -10,19 +9,21 @@ import {
   Box,
   Typography
 } from '@material-ui/core'
+import { makeStyles, fade } from '@material-ui/core/styles'
 
 import ButtonSubmit from 'client/components/FormControl/SubmitButton'
 import { Finish, Back, Next } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
 
-const StickyStepper = styled(Stepper)({
-  position: 'sticky',
-  top: -15,
-  minHeight: 100,
-  backdropFilter: 'blur(5px)',
-  background: '#fafafa9c',
-  zIndex: 1
-})
+const useStyles = makeStyles(theme => ({
+  root: {
+    position: 'sticky',
+    top: -15,
+    minHeight: 100,
+    background: fade(theme.palette.background.default, 0.65),
+    zIndex: theme.zIndex.mobileStepper
+  }
+}))
 
 const CustomStepper = ({
   steps,
@@ -33,35 +34,39 @@ const CustomStepper = ({
   handleBack,
   errors,
   isSubmitting
-}) => (
-  <>
-    <StickyStepper activeStep={activeStep}>
-      {steps?.map(({ id, label }) => (
-        <Step key={id}>
-          <StepLabel
-            {...(Boolean(errors[id]) && { error: true })}
-            optional={
-              <Typography variant="caption" color="error">
-                {errors[id]?.message}
-              </Typography>
-            }
-          >{label}</StepLabel>
-        </Step>
-      ))}
-    </StickyStepper>
-    <Box marginY={2}>
-      <Button onClick={handleBack} disabled={disabledBack}>
-        {Tr(Back)}
-      </Button>
-      <ButtonSubmit
-        data-cy="stepper-next-button"
-        onClick={handleNext}
-        isSubmitting={isSubmitting}
-        label={activeStep === lastStep ? Tr(Finish) : Tr(Next)}
-      />
-    </Box>
-  </>
-)
+}) => {
+  const classes = useStyles()
+
+  return (
+    <>
+      <Stepper activeStep={activeStep} className={classes.root}>
+        {steps?.map(({ id, label }) => (
+          <Step key={id}>
+            <StepLabel
+              {...(Boolean(errors[id]) && { error: true })}
+              optional={
+                <Typography variant="caption" color="error">
+                  {errors[id]?.message}
+                </Typography>
+              }
+            >{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      <Box marginY={2}>
+        <Button onClick={handleBack} disabled={disabledBack}>
+          {Tr(Back)}
+        </Button>
+        <ButtonSubmit
+          data-cy="stepper-next-button"
+          onClick={handleNext}
+          isSubmitting={isSubmitting}
+          label={activeStep === lastStep ? Tr(Finish) : Tr(Next)}
+        />
+      </Box>
+    </>
+  )
+}
 
 CustomStepper.propTypes = {
   steps: PropTypes.arrayOf(

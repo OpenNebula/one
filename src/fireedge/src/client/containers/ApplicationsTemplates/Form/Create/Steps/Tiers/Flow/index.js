@@ -17,7 +17,12 @@ const NOT_KEY_CODE = -1
 const useStyles = makeStyles(() => ({
   root: {
     '& .react-flow__handle': {
+      width: 10,
+      height: 10,
       backgroundColor: 'rgba(0,0,0,0.2)',
+      '&-bottom': {
+        bottom: -6
+      },
       '&-connecting': {
         backgroundColor: '#ff6060'
       },

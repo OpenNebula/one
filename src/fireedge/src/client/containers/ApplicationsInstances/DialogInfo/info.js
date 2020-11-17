@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { List, ListItem, Typography, Chip, Grid, Paper, Divider } from '@material-ui/core'
@@ -9,7 +9,7 @@ import useStyles from 'client/containers/ApplicationsInstances/DialogInfo/styles
 import { APPLICATION_STATES } from 'client/constants/states'
 import { Tr } from 'client/components/HOC'
 
-const InfoTab = React.memo(({ info }) => {
+const InfoTab = memo(({ info }) => {
   const classes = useStyles()
   const { ID, TEMPLATE, UNAME, GNAME, PERMISSIONS } = info
   const {
@@ -26,7 +26,7 @@ const InfoTab = React.memo(({ info }) => {
     checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
         <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>

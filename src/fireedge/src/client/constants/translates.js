@@ -28,6 +28,8 @@ module.exports = {
   /* sections */
   Dashboard: 'Dashboard',
   Settings: 'Settings',
+  ApplicationsTemplates: 'Applications templates',
+  ApplicationsInstances: 'Applications instances',
   Providers: 'Providers',
   Provisions: 'Provisions',
 
