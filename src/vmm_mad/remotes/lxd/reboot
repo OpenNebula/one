@@ -23,6 +23,15 @@ require 'base64'
 
 require_relative '../../scripts_common'
 
+# Ref: https://rgxdb.com/r/1NUN74O6
+def base64?(str)
+    b64_rexp = %r{^(?:[a-zA-Z0-9+/]{4})*(?:|(?:[a-zA-Z0-9+/]{3}=)|(?:[a-zA-Z0-9+/]{2}==)|(?:[a-zA-Z0-9+/]{1}===))$}
+
+    b64_rexp.match?(str.strip)
+rescue StandardError
+    false
+end
+
 # ------------------------------------------------------------------------------
 # Action Arguments, STDIN doesn't include XML description of the OpenNebula VM
 # ------------------------------------------------------------------------------
@@ -31,7 +40,9 @@ vm_name = ARGV[0]
 client    = LXDClient.new
 container = Container.get(vm_name, nil, client)
 
-xml = Base64.decode64(container.config['user.xml'])
+xml = container.config['user.xml']
+xml = Base64.decode64(xml) if base64?(xml)
+
 container = Container.get(vm_name, xml, client)
 
 force = false
