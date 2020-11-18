@@ -52,7 +52,7 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
 
         provision_id = @host['TEMPLATE/PROVISION_ID']
         provision = OneProvision::Provision.new_with_id(provision_id, client)
-        provision.info
+        provision.info(true)
 
         @provider = provision.provider
     end
