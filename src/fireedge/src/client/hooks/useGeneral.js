@@ -27,6 +27,16 @@ export default function useGeneral () {
     [dispatch]
   )
 
+  const showSuccess = useCallback(
+    ({ message }) => dispatch(actions.enqueueSuccess(message)),
+    [dispatch]
+  )
+
+  const showError = useCallback(
+    ({ message }) => dispatch(actions.enqueueError(message)),
+    [dispatch]
+  )
+
   return {
     isLoading,
     isOpenMenu,
@@ -34,6 +44,8 @@ export default function useGeneral () {
     changeZone,
     openMenu,
     fixMenu,
-    changeLoading
+    changeLoading,
+    showSuccess,
+    showError
   }
 }

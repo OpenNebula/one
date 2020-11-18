@@ -26,7 +26,7 @@ const Inputs = () => ({
     const [fields, setFields] = useState(undefined)
     const { watch, reset } = useFormContext()
     const { getProvisionTemplate } = useProvision()
-    const { data, fetchRequest, cancelRequest, loading } = useFetch(getProvisionTemplate)
+    const { data, fetchRequest, loading } = useFetch(getProvisionTemplate)
 
     useEffect(() => {
       const {
@@ -37,10 +37,6 @@ const Inputs = () => ({
       !currentInputs
         ? fetchRequest({ id: provisionTemplate[0] })
         : setFields(FORM_FIELDS(inputs))
-
-      return () => {
-        cancelRequest()
-      }
     }, [])
 
     useEffect(() => {
