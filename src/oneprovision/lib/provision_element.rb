@@ -47,11 +47,11 @@ module OneProvision
             if template_json
                 template_json = JSON.parse(template_json)
 
-                if template_json.keys != @body.keys
+                if template_json.keys.sort != @body.keys.sort
                     return OpenNebula::Error.new('Keys can not be changed')
                 end
 
-                self.class::UNMUTABLE_ATTRS.each do |attr|
+                self.class::IMMUTABLE_ATTRS.each do |attr|
                     next if template_json[attr] == @body[attr]
 
                     return OpenNebula::Error.new("`#{attr}` can not be changed")
