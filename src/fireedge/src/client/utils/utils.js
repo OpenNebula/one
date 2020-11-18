@@ -27,7 +27,7 @@ const defaultData = {
   method: 'GET',
   authenticate: true,
   onUploadProgress: null,
-  error: e => e
+  error: err => err
 }
 
 export const storage = (name = '', data = '', keepData = false) => {
@@ -104,7 +104,7 @@ export const requestData = (url = '', data = {}) => {
           ? response.data.json()
           : response.data
       }
-      throw new Error(response.statusText)
+      throw new Error(response?.data?.message ?? response?.statusText)
     })
     .catch(err => {
       const configErrorParser = {

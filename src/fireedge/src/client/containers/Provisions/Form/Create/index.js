@@ -22,6 +22,7 @@ function ProvisionCreateForm () {
   })
 
   const onSubmit = data => {
+    console.log(data)
     createProvision({ data })
       .then(() => history.push(PATH.PROVISIONS.LIST))
   }

@@ -16,13 +16,13 @@ import useGeneral from 'client/hooks/useGeneral'
 function ProviderCreateForm () {
   const history = useHistory()
   const { id } = useParams()
-  const { showError } = useGeneral()
+  const isUpdate = id !== undefined
 
   const {
     steps,
     defaultValues,
     resolvers
-  } = Steps({ isUpdate: id !== undefined })
+  } = Steps({ isUpdate })
 
   const {
     getProvider,
@@ -31,6 +31,7 @@ function ProviderCreateForm () {
     updateProvider,
     providersTemplates
   } = useProvision()
+  const { showError } = useGeneral()
 
   const { data, fetchRequestAll, loading, error } = useFetchAll()
 
@@ -41,7 +42,7 @@ function ProviderCreateForm () {
   })
 
   const onSubmit = formData => {
-    const { provider, location, connection } = formData
+    const { provider, location, connection, registration_time: time } = formData
     const providerSelected = provider[0]
     const locationSelected = location[0]
 
@@ -49,14 +50,16 @@ function ProviderCreateForm () {
       .find(({ name }) => name === providerSelected) ?? {}
 
     const formatData = {
-      name: `${providerSelected}_${locationSelected}`,
+      ...(!isUpdate && { name: `${providerSelected}_${locationSelected}` }),
+      provider: providerSelected,
       connection: {
         ...connection,
         [providerTemplate.location_key]: locationSelected
-      }
+      },
+      registration_time: time
     }
 
-    if (id) {
+    if (isUpdate) {
       updateProvider({ id, data: formatData })
         .then(() => history.push(PATH.PROVIDERS.LIST))
     } else {
@@ -66,15 +69,15 @@ function ProviderCreateForm () {
   }
 
   useEffect(() => {
-    id && fetchRequestAll([getProvider({ id }), getProvidersTemplates()])
-  }, [id])
+    isUpdate && fetchRequestAll([getProvider({ id }), getProvidersTemplates()])
+  }, [isUpdate])
 
   useEffect(() => {
     if (data) {
       const [provider = {}, templates = []] = data
 
       const { TEMPLATE: { PROVISION_BODY = {} } } = provider
-      const { connection, provider: providerName } = PROVISION_BODY
+      const { connection, provider: providerName, registration_time: time } = PROVISION_BODY
 
       const {
         location_key: key
@@ -91,6 +94,7 @@ function ProviderCreateForm () {
 
       methods.reset({
         provider: [providerName],
+        registration_time: time,
         connection: connections,
         location: [location]
       }, { errors: false })
@@ -101,7 +105,7 @@ function ProviderCreateForm () {
     return <Redirect to={PATH.PROVIDERS.LIST} />
   }
 
-  return (id && !data) || loading ? (
+  return (isUpdate && !data) || loading ? (
     <LinearProgress />
   ) : (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
