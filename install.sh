@@ -246,7 +246,6 @@ else
 fi
 
 SHARE_DIRS="$SHARE_LOCATION/examples \
-            $SHARE_LOCATION/examples/alias_ip \
             $SHARE_LOCATION/examples/host_hooks \
             $SHARE_LOCATION/examples/network_hooks \
             $SHARE_LOCATION/websockify \
@@ -436,7 +435,6 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/hooks/vcenter \
           $VAR_LOCATION/remotes/hooks/vcenter/templates \
           $VAR_LOCATION/remotes/hooks/raft \
-          $VAR_LOCATION/remotes/hooks/alias_ip \
           $VAR_LOCATION/remotes/datastore \
           $VAR_LOCATION/remotes/datastore/dummy \
           $VAR_LOCATION/remotes/datastore/fs \
@@ -672,7 +670,6 @@ INSTALL_FILES=(
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     NETWORK_ALIAS_SDNAT_FILES:$VAR_LOCATION/remotes/vnm/alias_sdnat
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
-    EXAMPLE_DDC_SHARE_FILES:$SHARE_LOCATION/examples/alias_ip
     EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
     LXD_NETWORK_HOOKS:$SHARE_LOCATION/examples/network_hooks
     WEBSOCKIFY_SHARE_RUN_FILES:$SHARE_LOCATION/websockify
@@ -685,7 +682,6 @@ INSTALL_FILES=(
     HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
     HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
-    HOOK_ALIAS_IP_FILES:$VAR_LOCATION/remotes/hooks/alias_ip
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
     ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
@@ -1990,14 +1986,6 @@ EXAMPLE_SHARE_FILES="share/examples/vm.template \
                      share/examples/public.net"
 
 #-------------------------------------------------------------------------------
-# Sample files, to be installed under $SHARE_LOCATION/examples/alias_ip
-#-------------------------------------------------------------------------------
-
-EXAMPLE_DDC_SHARE_FILES="share/examples/alias_ip/running_hook \
-                         share/examples/alias_ip/hotplug_hook \
-                         share/examples/alias_ip/done_hook"
-
-#-------------------------------------------------------------------------------
 # Sample files, to be installed under $SHARE_LOCATION/examples/host_hooks
 #-------------------------------------------------------------------------------
 
@@ -2055,12 +2043,6 @@ HOOK_VCENTER_TMPLS="share/hooks/vcenter/templates/create_vcenter_net.tmpl \
 #-------------------------------------------------------------------------------
 
 HOOK_RAFT_FILES="share/hooks/raft/vip.sh"
-
-#-------------------------------------------------------------------------------
-# HOOK scripts, to be installed under $VAR_LOCATION/remotes/hooks/alias_ip
-#-------------------------------------------------------------------------------
-
-HOOK_ALIAS_IP_FILES="share/hooks/alias_ip/alias_ip.rb"
 
 #-------------------------------------------------------------------------------
 # Installation scripts, to be installed under $SHARE_LOCATION
