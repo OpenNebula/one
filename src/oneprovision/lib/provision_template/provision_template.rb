@@ -23,7 +23,7 @@ module OneProvision
         DOCUMENT_TYPE   = 104
 
         # These attributes can not be changed when updating the template
-        UNMUTABLE_ATTRS = %w[name provider]
+        IMMUTABLE_ATTRS = %w[name provider]
 
         # Allocates a new document
         #
