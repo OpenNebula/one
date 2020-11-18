@@ -109,21 +109,33 @@ const deleteResource = (res = {}, next = () => undefined, params = {}, userData 
   next()
 }
 
-const deleteProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => { // falta
+const deleteProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
-  let rtn = httpInternalError
+  const rtn = httpInternalError
   if (params && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand]
-    const executedCommand = executeCommand(command, paramsCommand)
-    try {
-      const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
-      next()
-      return
-    } catch (error) {
-      rtn = httpResponse(internalServerError, '', executedCommand.data)
+    const paramsCommand = ['delete', params.id, '--batch', '--debug', ...authCommand]
+    let lastLine = ''
+    const emit = message => {
+      lastLine = message.toString()
+      publish(command, { id: params.id, message: lastLine })
     }
+    executeCommandAsync(
+      command,
+      paramsCommand,
+      {
+        err: emit,
+        out: emit,
+        close: success => {
+          if (success) {
+            console.log('borrado con exito')
+          }
+        }
+      }
+    )
+    res.locals.httpCode = httpResponse(accepted, params.id)
+    next()
+    return
   }
   res.locals.httpCode = rtn
   next()
@@ -301,7 +313,17 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
   next()
 }
 
+const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
+  const rtn = httpInternalError
+  if (params && params.id) {
+    console.log('PASO')
+  }
+  res.locals.httpCode = rtn
+  next()
+}
+
 const provisionFunctionsApi = {
+  getLogProvisions,
   getList,
   getListProvisions,
   deleteResource,
