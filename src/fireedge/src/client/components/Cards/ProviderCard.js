@@ -1,33 +1,35 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, CardActions } from '@material-ui/core'
-import FileIcon from '@material-ui/icons/Description'
+import { CardActions, IconButton } from '@material-ui/core'
+import TemplateIcon from '@material-ui/icons/Description'
+import InfoIcon from '@material-ui/icons/Info'
+import EditIcon from '@material-ui/icons/Build'
+import DeleteIcon from '@material-ui/icons/Delete'
 
-import { Tr } from 'client/components/HOC'
 import SelectCard from './SelectCard'
 
 const ProviderCard = memo(
-  ({ value, handleShow, handleRemove }) => {
+  ({ value, handleShow, handleEdit, handleDelete }) => {
     const { ID, NAME } = value
 
     return (
-      <SelectCard title={`${ID} - ${NAME}`} icon={<FileIcon />}>
+      <SelectCard title={`${ID} - ${NAME}`} icon={<TemplateIcon />}>
         <CardActions>
           {handleShow && (
-            <Button
-              variant="contained"
-              size="small"
-              onClick={handleShow}
-              disableElevation
-            >
-              {Tr('Info')}
-            </Button>
+            <IconButton onClick={handleShow} size="small">
+              <InfoIcon color="primary" style={{ margin: 8 }} />
+            </IconButton>
           )}
-          {handleRemove && (
-            <Button size="small" onClick={handleRemove} disableElevation>
-              {Tr('Remove')}
-            </Button>
+          {handleEdit && (
+            <IconButton onClick={handleEdit} size="small">
+              <EditIcon style={{ margin: 8 }} />
+            </IconButton>
+          )}
+          {handleDelete && (
+            <IconButton onClick={handleDelete} size="small">
+              <DeleteIcon style={{ margin: 8 }} />
+            </IconButton>
           )}
         </CardActions>
       </SelectCard>
@@ -41,13 +43,15 @@ ProviderCard.propTypes = {
     NAME: PropTypes.string.isRequired
   }),
   handleShow: PropTypes.func,
-  handleRemove: PropTypes.func
+  handleEdit: PropTypes.func,
+  handleDelete: PropTypes.func
 }
 
 ProviderCard.defaultProps = {
   value: {},
   handleShow: undefined,
-  handleRemove: undefined
+  handleEdit: undefined,
+  handleDelete: undefined
 }
 
 ProviderCard.displayName = 'ProviderCard'

@@ -14,7 +14,7 @@ import AlertError from 'client/components/Alerts/Error'
 import { ProviderCard } from 'client/components/Cards'
 
 import { Tr } from 'client/components/HOC'
-import { Provisions as ProvisionsLabel } from 'client/constants/translates'
+import { ProvisionsLabel } from 'client/constants/translates'
 
 function Provisions () {
   const history = useHistory()
@@ -58,6 +58,7 @@ function Provisions () {
                 history.push(PATH.PROVISIONS.EDIT.replace(':id', ID)),
               handleRemove: undefined
             })}
+            breakpoints={{ xs: 12, sm: 6, md: 4 }}
           />
         )}
       </Box>

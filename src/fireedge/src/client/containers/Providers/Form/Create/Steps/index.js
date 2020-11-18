@@ -4,12 +4,13 @@ import Provider from './Provider'
 import Connection from './Connection'
 import Locations from './Locations'
 
-const Steps = () => {
+const Steps = ({ isUpdate }) => {
   const provider = Provider()
   const connection = Connection()
   const locations = Locations()
 
-  const steps = [provider, connection, locations]
+  const steps = [connection, locations]
+  !isUpdate && steps.unshift(provider)
 
   const resolvers = () => yup
     .object({

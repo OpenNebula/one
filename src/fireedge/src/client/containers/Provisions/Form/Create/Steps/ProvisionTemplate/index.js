@@ -22,7 +22,7 @@ const ProvisionTemplate = () => ({
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { provisionsTemplates, getProvisionsTemplates } = useProvision()
-    const { fetchRequest, cancelRequest, loading, error } = useFetch(getProvisionsTemplates)
+    const { fetchRequest, loading, error } = useFetch(getProvisionsTemplates)
 
     const { handleSelect, handleUnselect } = useListForm({
       key: STEP_ID,
@@ -31,10 +31,6 @@ const ProvisionTemplate = () => ({
 
     useEffect(() => {
       data?.length === 0 && fetchRequest()
-
-      return () => {
-        cancelRequest()
-      }
     }, [])
 
     const handleClick = (nameTemplate, isSelected) => {

@@ -1,4 +1,3 @@
-import axios from 'axios'
 import httpCodes from 'server/utils/constants/http-codes'
 import { httpMethod } from 'server/utils/constants/defaults'
 import {
@@ -8,11 +7,10 @@ import {
 } from 'server/routes/api/provision/string-routes'
 
 import { requestData } from 'client/utils'
-import { REQUEST_ACTIONS } from 'client/constants'
-const { GET, POST, PUT } = httpMethod
+const { GET, POST, PUT, DELETE } = httpMethod
 
 // --------------------------------------------
-// PROVIDERS REQUESTS
+// PROVIDERS TEMPLATES REQUESTS
 // --------------------------------------------
 
 export const getProvidersTemplates = ({ filter }) =>
@@ -25,6 +23,10 @@ export const getProvidersTemplates = ({ filter }) =>
 
     return res?.data ?? []
   })
+
+// --------------------------------------------
+// PROVIDERS REQUESTS
+// --------------------------------------------
 
 export const getProvider = ({ id }) =>
   requestData(`/api/${PROVIDER}/list/${id}`, {
@@ -51,6 +53,26 @@ export const createProvider = ({ data = {} }) =>
   requestData(`/api/${PROVIDER}/create`, {
     data,
     method: POST
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  })
+
+export const updateProvider = ({ id, data = {} }) =>
+  requestData(`/api/${PROVIDER}/update/${id}`, {
+    data,
+    method: PUT
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  })
+
+export const deleteProvider = ({ id }) =>
+  requestData(`/api/${PROVIDER}/delete/${id}`, {
+    method: DELETE,
+    error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
@@ -114,9 +136,12 @@ export const createProvision = ({ data = {} }) =>
 
 export default {
   getProvidersTemplates,
+
   getProvider,
   getProviders,
   createProvider,
+  updateProvider,
+  deleteProvider,
 
   getProvisionTemplate,
   getProvisionsTemplates,

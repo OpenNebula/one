@@ -29,7 +29,7 @@ export default function useOpennebula () {
   )
 
   // --------------------------------------------
-  // PROVIDERS REQUESTS
+  // PROVIDERS TEMPLATES REQUESTS
   // --------------------------------------------
 
   const getProvidersTemplates = useCallback(
@@ -45,6 +45,10 @@ export default function useOpennebula () {
         }),
     [dispatch, filter, providersTemplates]
   )
+
+  // --------------------------------------------
+  // PROVIDERS REQUESTS
+  // --------------------------------------------
 
   const getProvider = useCallback(
     ({ id }) =>
@@ -80,6 +84,32 @@ export default function useOpennebula () {
           enqueueError(err?.message ?? 'Error CREATE provider')
         )),
     [dispatch, providers]
+  )
+
+  const updateProvider = useCallback(
+    ({ id, data }) =>
+      serviceProvision
+        .updateProvider({ id, data })
+        .then(doc => dispatch(
+          enqueueSuccess(`Template updated - ID: ${doc?.ID}`))
+        )
+        .catch(err => dispatch(
+          enqueueError(err?.message ?? 'Error UPDATE provider')
+        )),
+    [dispatch, providers]
+  )
+
+  const deleteProvider = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteProvider({ id })
+        .then(doc => dispatch(
+          enqueueSuccess(`Template deleted - ID: ${doc?.ID}`))
+        )
+        .catch(err => dispatch(
+          enqueueError(err?.message ?? 'Error DELETE provider')
+        )),
+    [dispatch]
   )
 
   // --------------------------------------------
@@ -158,6 +188,8 @@ export default function useOpennebula () {
     getProvider,
     getProviders,
     createProvider,
+    updateProvider,
+    deleteProvider,
 
     provisionsTemplates,
     getProvisionTemplate,
