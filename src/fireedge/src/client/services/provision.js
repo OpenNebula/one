@@ -52,7 +52,8 @@ export const getProviders = ({ filter }) =>
 export const createProvider = ({ data = {} }) =>
   requestData(`/api/${PROVIDER}/create`, {
     data,
-    method: POST
+    method: POST,
+    error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
@@ -62,7 +63,8 @@ export const createProvider = ({ data = {} }) =>
 export const updateProvider = ({ id, data = {} }) =>
   requestData(`/api/${PROVIDER}/update/${id}`, {
     data,
-    method: PUT
+    method: PUT,
+    error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
@@ -124,7 +126,8 @@ export const getProvision = ({ id }) =>
 export const getProvisions = ({ filter }) =>
   requestData(`/api/${PROVISION}/list`, {
     data: { filter },
-    method: GET
+    method: GET,
+    error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 

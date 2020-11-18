@@ -77,39 +77,34 @@ export default function useOpennebula () {
     ({ data }) =>
       serviceProvision
         .createProvider({ data })
-        .then(doc => dispatch(
-          enqueueSuccess(`Template created - ID: ${doc?.ID}`))
+        .then(id => dispatch(
+          enqueueSuccess(`Template created - ID: ${id}`))
         )
-        .catch(err => dispatch(
-          enqueueError(err?.message ?? 'Error CREATE provider')
-        )),
-    [dispatch, providers]
+        .catch(err => dispatch(enqueueError(err ?? 'Error CREATE provider')))
+    , [dispatch, providers]
   )
 
   const updateProvider = useCallback(
     ({ id, data }) =>
       serviceProvision
         .updateProvider({ id, data })
-        .then(doc => dispatch(
-          enqueueSuccess(`Template updated - ID: ${doc?.ID}`))
+        .then(() => dispatch(
+          enqueueSuccess(`Template updated - ID: ${id}`))
         )
-        .catch(err => dispatch(
-          enqueueError(err?.message ?? 'Error UPDATE provider')
-        )),
-    [dispatch, providers]
+        .catch(err => dispatch(enqueueError(err ?? 'Error UPDATE provider')))
+    , [dispatch, providers]
   )
 
   const deleteProvider = useCallback(
     ({ id }) =>
       serviceProvision
         .deleteProvider({ id })
-        .then(doc => dispatch(
-          enqueueSuccess(`Template deleted - ID: ${doc?.ID}`))
-        )
-        .catch(err => dispatch(
-          enqueueError(err?.message ?? 'Error DELETE provider')
-        )),
-    [dispatch]
+        .then(() => {
+          dispatch(enqueueSuccess(`Template deleted - ID: ${id}`))
+          dispatch(setProviders(providers.filter(({ ID }) => ID !== id)))
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provider')))
+    , [dispatch, providers]
   )
 
   // --------------------------------------------
