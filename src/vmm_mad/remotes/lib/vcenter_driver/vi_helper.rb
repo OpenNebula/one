@@ -28,6 +28,8 @@ module VCenterDriver
         VCENTER_DRIVER_DEFAULT = "#{ETC_LOCATION}/vcenter_driver.default"
         VM_PREFIX_DEFAULT = 'one-$i-'
 
+        # rubocop:disable Style/GlobalVars
+        # rubocop:disable Style/ClassVars
         def self.client
             if $conf.nil?
                 @@client ||= OpenNebula::Client.new # rubocop:disable Style/ClassVars
@@ -38,6 +40,7 @@ module VCenterDriver
                 )
             end
         end
+        # rubocop:enable Style/GlobalVars
 
         def self.set_client(options, client = nil)
             if client.nil?
@@ -46,6 +49,7 @@ module VCenterDriver
                 @@client = client
             end
         end
+        # rubocop:enable Style/ClassVars
 
         def self.return_if_error(rc, item, exit_if_fail)
             if OpenNebula.is_error?(rc)

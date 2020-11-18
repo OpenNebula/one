@@ -700,6 +700,7 @@ module VCenterDriver
             network
         end
 
+        # rubocop:disable Style/GlobalVars
         def get_unimported_networks(npool, vcenter_instance_name, hpool, args)
             vcenter_uuid = vcenter_instance_uuid
             networks = {}
@@ -750,6 +751,7 @@ module VCenterDriver
             networks.map {|_k, v| v[:import_id] = imid += 1 }
             { vcenter_instance_name => networks }
         end
+        # rubocop:enable Style/GlobalVars
 
     end
     # class DatatacenterFolder
