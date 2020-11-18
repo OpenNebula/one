@@ -23,7 +23,7 @@ const {
 } = require('server/utils/constants/http-codes')
 const { httpResponse, existsFile, parsePostData } = require('server/utils/server')
 const { executeCommand, getFiles, createTemporalFile, createYMLContent, removeFile } = require('./functions')
-const { provider } = require('./schemas')
+const { provider, providerUpdate } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
@@ -108,9 +108,15 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
           const paramsCommand = ['create', file.path, ...authCommand]
           const executedCommand = executeCommand(command, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
-          if (executedCommand && executedCommand.success && executedCommand.data) {
-            res.locals.httpCode = httpResponse(ok, executedCommand.data)
-            removeFile(file.path)
+          if (executedCommand && executedCommand.data) {
+            if (executedCommand.success) {
+              const data = executedCommand.data
+              const dataInternal = data && Array.isArray(data.match('\\d+')) ? data.match('\\d+').join() : data
+              res.locals.httpCode = httpResponse(ok, dataInternal)
+              removeFile(file.path)
+            } else {
+              res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)
+            }
           }
           next()
           return
@@ -130,29 +136,26 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
   next()
 }
 
-const updateProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => { //
+const updateProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
-    const valSchema = schemaValidator.validate(resource, provider)
+    const valSchema = schemaValidator.validate(resource, providerUpdate)
     if (valSchema.valid) {
-      const content = createYMLContent(resource)
-      if (content) {
-        const file = createTemporalFile(tmpPath, 'yaml', content)
-        if (file && file.name && file.path) {
-          const paramsCommand = ['update', params.id, file.path, ...authCommand]
-          const executedCommand = executeCommand(command, paramsCommand)
-          res.locals.httpCode = httpResponse(internalServerError)
-          if (executedCommand && executedCommand.success && executedCommand.data) {
-            res.locals.httpCode = httpResponse(ok, executedCommand.data)
-            removeFile(file.path)
-          }
-          next()
-          return
+      const file = createTemporalFile(tmpPath, 'json', JSON.stringify(resource))
+      if (file && file.name && file.path) {
+        const paramsCommand = ['update', params.id, file.path, ...authCommand]
+        const executedCommand = executeCommand(command, paramsCommand)
+        res.locals.httpCode = httpResponse(internalServerError)
+        if (executedCommand && executedCommand.success) {
+          res.locals.httpCode = httpResponse(ok)
+          removeFile(file.path)
         }
+        next()
+        return
       }
     } else {
       const errors = []
@@ -175,13 +178,17 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand]
     const executedCommand = executeCommand(command, paramsCommand)
+    const data = executedCommand.data || ''
     try {
-      const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      if (executedCommand) {
+        res.locals.httpCode = httpResponse(ok)
+      } else {
+        res.locals.httpCode = httpResponse(internalServerError, data)
+      }
       next()
       return
     } catch (error) {
-      rtn = httpResponse(internalServerError, '', executedCommand.data)
+      rtn = httpResponse(internalServerError, '', data)
     }
   }
   res.locals.httpCode = rtn

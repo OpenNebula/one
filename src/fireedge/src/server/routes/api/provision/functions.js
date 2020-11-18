@@ -233,15 +233,14 @@ const executeCommandAsync = (
 
 const executeCommand = (command = '', resource = '') => {
   const rsc = Array.isArray(resource) ? resource : [resource]
-  const rtn = { success: false, data: null }
+  let rtn = { success: false, data: null }
   const execute = spawnSync(command, [...rsc])
   if (execute) {
     if (execute.stdout) {
-      rtn.success = true
-      rtn.data = execute.stdout.toString()
+      rtn = { success: true, data: execute.stdout.toString() }
     }
     if (execute.stderr && execute.stderr.length > 0) {
-      rtn.data = execute.stderr.toString()
+      rtn = { success: false, data: execute.stderr.toString() }
       messageTerminal(defaultError(execute.stderr.toString(), 'Error command: %s'))
     }
   }

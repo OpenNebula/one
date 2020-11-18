@@ -12,6 +12,7 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+const providers = ['aws', 'packet']
 
 const provider = {
   id: '/Provider',
@@ -23,6 +24,29 @@ const provider = {
     },
     connection: {
       type: 'object',
+      required: true
+    },
+    provider: {
+      type: 'string',
+      enum: providers
+    }
+  }
+}
+
+const providerUpdate = {
+  id: '/Provider',
+  type: 'object',
+  properties: {
+    provider: {
+      type: 'string',
+      enum: providers
+    },
+    connection: {
+      type: 'object',
+      required: true
+    },
+    registration_time: {
+      type: 'integer',
       required: true
     }
   }
@@ -47,20 +71,16 @@ const provision = {
               type: 'string'
             },
             packet_token: {
-              type: 'string',
-              required: true
+              type: 'string'
             },
             packet_project: {
-              type: 'string',
-              required: true
+              type: 'string'
             },
             facility: {
-              type: 'string',
-              required: true
+              type: 'string'
             },
             plan: {
-              type: 'string',
-              required: true
+              type: 'string'
             },
             os: {
               type: 'string'
@@ -109,7 +129,7 @@ const provision = {
         }
       }
     },
-    clusters:{
+    clusters: {
       type: 'array',
       required: true
     },
@@ -181,7 +201,8 @@ const provision = {
 }
 const schemas = {
   provider,
-  provision
+  provision,
+  providerUpdate
 }
 
 module.exports = schemas

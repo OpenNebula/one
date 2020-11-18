@@ -17,6 +17,7 @@ const { getParamsForObject } = require('server/utils/server')
 const {
   getList,
   getListProvisions,
+  getLogProvisions,
   deleteResource,
   deleteProvision,
   hostCommand,
@@ -77,6 +78,12 @@ const routes = {
       params: {
         resource: { from: fromData.resource, name: 'method' }
       }
+    },
+    log: {
+      action: getLogProvisions,
+      params: {
+        id: { from: fromData.resource, name: 'id', front: true }
+      }
     }
   },
   [POST]: {
@@ -126,8 +133,8 @@ const routes = {
     }
   },
   [DELETE]: {
-    delete: { // este puede tardar Websocket  //FALTA
-      action: deleteProvision, // el comando tiene que ser asincrono
+    delete: {
+      action: deleteProvision,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
       },
