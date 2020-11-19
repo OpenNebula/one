@@ -1361,8 +1361,9 @@ end
 #
 ################################################################################
 
-LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS']&.split || []
-VNMAD_LOCAL_ACTIONS = ENV['VNMAD_LOCAL_ACTIONS']&.split || []
+ENV_CONF = Hash.new("").merge!(ENV)
+LIVE_DISK_SNAPSHOTS = ENV_CONF['LIVE_DISK_SNAPSHOTS'].split
+VNMAD_LOCAL_ACTIONS = ENV_CONF['VNMAD_LOCAL_ACTIONS'].split
 
 opts = GetoptLong.new(
     ['--retries',           '-r', GetoptLong::OPTIONAL_ARGUMENT],
