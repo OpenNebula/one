@@ -259,8 +259,11 @@ select.mb_input_unit {
   tr{
     vertical-align: top;
   }
-  td{
-    word-break: break-word;
+  &.fixed {
+    table-layout: fixed;
+    td {
+      word-break: break-word;
+    }
   }
 }
 .jGrowl-message{
