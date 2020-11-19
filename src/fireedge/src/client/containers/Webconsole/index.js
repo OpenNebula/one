@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,31 +13,67 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useState, useEffect } from 'react'
-import io from 'socket.io-client'
-import { findStorageData } from 'client/utils'
-import { JWT_NAME } from 'client/constants'
-import { defaultPort } from 'server/utils/constants/defaults'
+import React, { useState, useEffect, memo } from 'react'
 
-const ENDPOINT = `http://127.0.0.1:${defaultPort}`
+import { Button, makeStyles } from '@material-ui/core'
+import useSocket from 'client/hooks/useSocket'
 
-const Webconsole = ({ zone }) => {
-  const [response, setResponse] = useState({})
+const useStyles = makeStyles(() => ({
+  sticky: { position: 'sticky', top: 0, backgroundColor: '#fafafa' },
+  loading: {
+    '&::after': {
+      overflow: 'hidden',
+      display: 'inline-block',
+      verticalAlign: 'bottom',
+      animation: '$ellipsis steps(4,end) 1000ms infinite',
+      content: '"\\2026"', /* ascii code for the ellipsis character */
+      width: 0
+    }
+  },
+  '@keyframes ellipsis': {
+    to: { width: 20 }
+  }
+}))
+
+const ResponseComponent = memo(response => (
+  <p style={{ wordBreak: 'break-all' }}>{JSON.stringify(response)}</p>
+))
+
+ResponseComponent.displayName = 'ResponseComponent'
+
+const Webconsole = () => {
+  const classes = useStyles()
+  const [listening, setListening] = useState(false)
+  const [response, setResponse] = useState([])
+  const { getHooks } = useSocket()
+
+  const toggleListening = () => setListening(list => !list)
 
   useEffect(() => {
-    const socket = io(ENDPOINT, {
-      path: '/websocket',
-      query: {
-        token: findStorageData(JWT_NAME),
-        zone
-      }
-    })
-    socket.on('hooks', data => {
-      setResponse(data)
-    })
-    return () => { socket.disconnect() }
-  }, [zone])
-  console.log('-->', response)
-  return <p />
+    listening
+      ? getHooks.on(data => setResponse(prev => [...prev, data]))
+      : getHooks.off()
+
+    return getHooks.off
+  }, [listening])
+
+  return (
+    <>
+      <div className={classes.sticky}>
+        <p className={listening ? classes.loading : ''}>
+          {`socket is ${listening ? '' : 'not'} listening`}
+        </p>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={toggleListening}>
+          {listening ? 'Disconnect' : 'Connect'}
+        </Button>
+      </div>
+      {response?.map((res, index) =>
+        <ResponseComponent key={index} {...res} />
+      )}
+    </>
+  )
 }
 export default Webconsole

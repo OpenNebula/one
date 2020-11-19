@@ -4,7 +4,7 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 import * as actions from 'client/actions/general'
 
 export default function useGeneral () {
-  const { isLoading, isOpenMenu, isFixMenu } = useSelector(
+  const { zone, isLoading, isOpenMenu, isFixMenu } = useSelector(
     state => state?.General,
     shallowEqual
   )
@@ -38,6 +38,7 @@ export default function useGeneral () {
   )
 
   return {
+    zone,
     isLoading,
     isOpenMenu,
     isFixMenu,
