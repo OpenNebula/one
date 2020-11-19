@@ -997,9 +997,17 @@ void VirtualNetwork::process_security_rule(
 
 int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
 {
+    string ipam_mad;
+    PoolObjectSQL::get_template_attribute("IPAM_MAD", ipam_mad);
+
     for (auto vattr : var)
     {
         VectorAttribute * ar = vattr->clone();
+
+        if (!ipam_mad.empty() && ar->vector_value("IPAM_MAD").empty())
+        {
+            ar->replace("IPAM_MAD", ipam_mad);
+        }
 
         if (ar_pool.from_vattr(ar, error_msg) != 0)
         {
@@ -1024,6 +1032,16 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
     }
 
     VectorAttribute * nar = ar->clone();
+
+    string ipam_mad_vnet;
+    string ipam_mad_ar = nar->vector_value("IPAM_MAD");
+
+    if (ipam_mad_ar.empty() &&
+        PoolObjectSQL::get_template_attribute("IPAM_MAD", ipam_mad_vnet) &&
+        !ipam_mad_vnet.empty())
+    {
+        nar->replace("IPAM_MAD", ipam_mad_vnet);
+    }
 
     if (ar_pool.from_vattr(nar, error_msg) != 0)
     {
