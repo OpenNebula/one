@@ -38,7 +38,7 @@ class AliasSDNATDriver < VNMMAD::VNMDriver
         @mapping = {}
 
         client = OpenNebula::Client.new
-        host_id = @vm['/VM/HISTORY_RECORDS/HISTORY[last()]/HID']
+        host_id = @vm['/VM/HISTORY_RECORDS/HISTORY/HID']
         @host   = OpenNebula::Host.new_with_id(host_id, client)
 
         rc = @host.info(true)
