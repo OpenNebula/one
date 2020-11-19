@@ -233,6 +233,8 @@ module OneProvision
 
                 info(true)
 
+                puts "ID: #{self['ID']}"
+
                 # read provision file
                 cfg.parse(true)
 
