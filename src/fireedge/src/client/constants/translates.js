@@ -33,6 +33,7 @@ module.exports = {
   /* sections */
   Dashboard: 'Dashboard',
   Settings: 'Settings',
+  ZoneLabel: 'Zone',
   ApplicationsTemplates: 'Applications templates',
   ApplicationsInstances: 'Applications instances',
   ProviderLabel: 'Provider',
