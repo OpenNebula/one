@@ -233,8 +233,6 @@ module OneProvision
 
                 info(true)
 
-                STDERR.puts "ID: #{self['ID']}"
-
                 # read provision file
                 cfg.parse(true)
 
