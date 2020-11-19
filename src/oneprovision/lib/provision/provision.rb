@@ -122,7 +122,9 @@ module OneProvision
 
         # Returns provision provider
         def provider
-            return { 'NAME' => 'dummy' } if @body['provider'] == 'dummy'
+            if @body['provider'] == 'dummy'
+                return { 'ID' => -1, 'NAME' => 'dummy' }
+            end
 
             Provider.by_name(@client, @body['provider'])
         end
@@ -277,9 +279,11 @@ module OneProvision
 
                     update_hosts(ips, ids)
 
-                    @body['tf']          = {}
-                    @body['tf']['state'] = state
-                    @body['tf']['conf']  = conf
+                    if state && conf
+                        @body['tf']          = {}
+                        @body['tf']['state'] = state
+                        @body['tf']['conf']  = conf
+                    end
 
                     update
                 end
@@ -655,7 +659,7 @@ module OneProvision
                 host.info(h['id'])
 
                 name = ips.shift
-                id   = ids.shift
+                id   = ids.shift if ids
 
                 # Rename using public IP address
                 host.one.rename(name)

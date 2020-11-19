@@ -24,9 +24,9 @@ module OneProvision
 
         # Generate Terraform deployment file
         #
-        # @param hosts [Array] Hosts to deploy in Packet
-        def generate_deployment_file(hosts)
-            @hosts = hosts
+        # @param provision [Provision] Provision information
+        def generate_deployment_file(provision)
+            @hosts = provision.info_objects('hosts')
         end
 
         def deploy
