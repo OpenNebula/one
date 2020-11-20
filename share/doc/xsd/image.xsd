@@ -40,7 +40,8 @@
         <xs:element name="REGTIME" type="xs:integer"/>
         <xs:element name="SOURCE" type="xs:string"/>
         <xs:element name="PATH" type="xs:string"/>
-        <xs:element name="FSTYPE" type="xs:string"/>
+        <xs:element name="FORMAT" type="xs:string"/>
+        <xs:element name="FS" type="xs:string"/>
         <xs:element name="SIZE" type="xs:integer"/>
 
         <!-- STATE values,
