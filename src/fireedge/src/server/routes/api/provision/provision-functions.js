@@ -31,6 +31,7 @@ const {
   removeFile,
   renameFolder,
   moveToFolder,
+  findRecursiveFolder,
   publish
 } = require('./functions')
 const { provision } = require('./schemas')
@@ -117,8 +118,12 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
     const paramsCommand = ['delete', params.id, '--batch', '--debug', ...authCommand]
     let lastLine = ''
     const emit = message => {
-      lastLine = message.toString()
-      publish(command, { id: params.id, message: lastLine })
+      message.toString().split(/\r|\n/).map(line=>{
+        if(line){
+          lastLine = line
+          publish(command, { id: params.id, message: lastLine })
+        }
+      })
     }
     executeCommandAsync(
       command,
@@ -202,9 +207,13 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
             let lastLine = ''
             var stream = createWriteStream(log.path, { flags: 'a' })
             const emit = message => {
-              lastLine = message.toString()
-              stream.write(lastLine)
-              publish(command, { id: files.name, message: lastLine })
+              message.toString().split(/\r|\n/).map(line=>{
+                if(line){
+                  lastLine = line
+                  stream.write(line)
+                  publish(command, { id: files.name, message: line })
+                }
+              })
             }
             executeCommandAsync(
               command,
@@ -246,11 +255,39 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
   next()
 }
 
-const configureProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => { // falta
+const configureProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
-  const authCommand = ['--user', user, '--password', password]
   const rtn = httpInternalError
-  res.locals.httpCode = rtn // debe de ser un websocket
+  if (params && params.id && user && password) {
+    const authCommand = ['--user', user, '--password', password]
+    const paramsCommand = ['configure', params.id, '--debug', '--fail_cleanup', '--batch', ...authCommand]
+    let lastLine = ''
+    const emit = message => {
+      message.toString().split(/\r|\n/).map(line=>{
+        if(line){
+          lastLine = line
+          publish(command, { id: params.id, message: lastLine })
+        }
+      })
+    }
+    executeCommandAsync(
+      command,
+      paramsCommand,
+      {
+        err: emit,
+        out: emit,
+        close: success => {
+          if (success) {
+            console.log('configurado con exito')
+          }
+        }
+      }
+    )
+    res.locals.httpCode = httpResponse(accepted, params.id)
+    next()
+    return
+  }
+  res.locals.httpCode = rtn
   next()
 }
 

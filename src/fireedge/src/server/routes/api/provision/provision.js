@@ -100,6 +100,13 @@ const routes = {
         resource: { from: fromData.postBody, front: true }
       }
     },
+    configure: {
+      action: configureProvision,
+      params: {
+        resource: { from: fromData.resource, name: 'method' }
+      },
+      websocket: true
+    },
     host: {
       poweroff: {
         action: hostCommand,
@@ -198,13 +205,6 @@ const routes = {
     }
   },
   [PUT]: {
-    configure: { // configure <provisionid>    //--debug, --fail_cleanup, --batch  // este puede tardar Websocket  //FALTA
-      action: configureProvision, // el comando tiene que ser asincrono
-      params: {
-        resource: { from: fromData.resource, name: 'method' }
-      },
-      websocket: true
-    },
     host: {
       action: configureHost,
       params: {

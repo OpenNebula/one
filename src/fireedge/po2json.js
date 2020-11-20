@@ -13,10 +13,10 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-pojson');
+const { createReadStream, generateFile } = require('fireedge-pojson')
 
-const testFolder = './src/public/assets/languages';
+const testFolder = './src/public/assets/languages'
 
-createReadStream(testFolder, { exportPath: testFolder });
+createReadStream(testFolder, { exportPath: testFolder })
 
-generateFile(true);
+generateFile(true)

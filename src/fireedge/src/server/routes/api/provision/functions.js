@@ -204,18 +204,15 @@ const executeCommandAsync = (
   const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : () => undefined
 
   const rsc = Array.isArray(resource) ? resource : [resource]
+
   const execute = spawn(command, [...rsc])
   if (execute) {
     execute.stdout.on('data', (data) => {
-      if (out) {
-        out(data)
-      }
+      out(data)
     })
 
     execute.stderr.on('data', (data) => {
-      if (err) {
-        err(data)
-      }
+      err(data)
     })
 
     execute.on('error', error => {
@@ -229,6 +226,7 @@ const executeCommandAsync = (
       }
     })
   }
+
 }
 
 const executeCommand = (command = '', resource = '') => {
@@ -247,6 +245,25 @@ const executeCommand = (command = '', resource = '') => {
   return rtn
 }
 
+const findRecursiveFolder = (path = '', finder = '') => {
+  let rtn = false
+  if (path && finder) {
+    const dirs = readdirSync(path)
+    dirs.forEach(dir => {
+      const name = `${path}/${dir}`
+      if (statSync(name).isDirectory()) {
+        console.log('-->', name, basename(name))
+        if (basename(name) === finder) {
+          rtn = name
+        } else {
+          findRecursiveFolder(name, finder)
+        }
+      }
+    })
+  }
+  return rtn
+}
+
 const functionRoutes = {
   createYMLContent,
   executeCommand,
@@ -257,6 +274,7 @@ const functionRoutes = {
   moveToFolder,
   getFiles,
   executeCommandAsync,
+  findRecursiveFolder,
   publish,
   subscriber
 }
