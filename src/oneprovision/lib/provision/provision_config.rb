@@ -132,6 +132,10 @@ module OneProvision
                     @config['networks'].each do |vnet|
                         next unless vnet['ar']
 
+                        unless vnet['ar'].is_a? Array
+                            raise 'ar should be an array'
+                        end
+
                         vnet['ar'].each do |ar|
                             ar['provision_id'] = '${provision_id}'
                         end
@@ -160,6 +164,10 @@ module OneProvision
             end
 
             if @config['hosts']
+                unless @config['hosts'].is_a? Array
+                    Utils.fail('hosts should be an array')
+                end
+
                 @config['hosts'].each_with_index do |h, i|
                     if h['im_mad'].nil?
                         Utils.fail("in configuration file: no im_mad #{i + 1}")
@@ -176,6 +184,10 @@ module OneProvision
             end
 
             if @config['datastores']
+                unless @config['datastores'].is_a? Array
+                    Utils.fail('datastores should be an array')
+                end
+
                 @config['datastores'].each_with_index do |d, i|
                     if d['tm_mad'].nil?
                         Utils.fail("in configuration file: no tm_mad #{i + 1}")
@@ -190,6 +202,10 @@ module OneProvision
             end
 
             return unless @config['networks']
+
+            unless @config['networks'].is_a? Array
+                Utils.fail('networks should be an array')
+            end
 
             @config['networks'].each_with_index do |n, i|
                 next unless n['vn_mad'].nil?
@@ -232,15 +248,20 @@ module OneProvision
                             end
                         else
                             objects = provision.info_objects("#{match[0]}s")
-                            object  = objects.find do |obj|
-                                obj['NAME'] == match[1]
+
+                            obj_int = Integer(match[1]) rescue false
+
+                            if obj_int
+                                object = objects[obj_int]
+                            else
+                                object = objects.find{|o| o['NAME'] == match[1]}
                             end
 
                             object  = object.to_hash
                             object  = object[object.keys[0]]
+                            replace = object[match[2].upcase]
 
-                            value.gsub!("${#{match.join('.')}}",
-                                        object[match[2].upcase])
+                            value.gsub!("${#{match.join('.')}}", replace)
                         end
                     end
                 end
@@ -484,9 +505,15 @@ module OneProvision
                     elements += @config['marketplaceapps']
                 end
 
-                unless elements.find {|v| v['name'] == match[1] }
-                    return [false, "#{match[0]} #{match[1]} not found"]
+                elem_int = Integer(match[1]) rescue false
+
+                if elem_int
+                    elem = elements[elem_int]
+                else
+                    elem = elements.find{|o| o['NAME'] == match[1]}
                 end
+
+                return [false, "#{match[0]} #{match[1]} not found"] if elem.nil?
             end
 
             [true, '']

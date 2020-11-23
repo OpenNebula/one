@@ -122,7 +122,9 @@ module OneProvision
 
         # Returns provision provider
         def provider
-            return { 'NAME' => 'dummy' } if @body['provider'] == 'dummy'
+            if @body['provider'] == 'dummy'
+                return { 'ID' => -1, 'NAME' => 'dummy' }
+            end
 
             Provider.by_name(@client, @body['provider'])
         end
@@ -241,7 +243,7 @@ module OneProvision
 
                 OneProvisionLogger.info('Creating provision objects')
 
-                rc = Driver.retry_loop 'Failed to create cluster' do
+                rc = Driver.retry_loop('Failed to create cluster', self) do
                     create_cluster(cfg)
                 end
 
@@ -268,7 +270,7 @@ module OneProvision
                     state = nil
                     conf  = nil
 
-                    Driver.retry_loop 'Failed to deploy hosts' do
+                    Driver.retry_loop('Failed to deploy hosts', self) do
                         ips, ids, state, conf = Driver.tf_action(self,
                                                                  'deploy')
                     end
@@ -277,9 +279,11 @@ module OneProvision
 
                     update_hosts(ips, ids)
 
-                    @body['tf']          = {}
-                    @body['tf']['state'] = state
-                    @body['tf']['conf']  = conf
+                    if state && conf
+                        @body['tf']          = {}
+                        @body['tf']['state'] = state
+                        @body['tf']['conf']  = conf
+                    end
 
                     update
                 end
@@ -374,7 +378,7 @@ module OneProvision
             end
 
             if hosts
-                Driver.retry_loop 'Failed to delete hosts' do
+                Driver.retry_loop('Failed to delete hosts', self) do
                     hosts.each do |host|
                         id   = host['id']
                         host = Host.new(provider)
@@ -537,7 +541,8 @@ module OneProvision
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
-                    Driver.retry_loop 'Failed to create some resources' do
+                    Driver.retry_loop('Failed to create some resources',
+                                      self) do
                         obj = Resource.object(r, nil, x)
 
                         next if obj.nil?
@@ -620,7 +625,7 @@ module OneProvision
                 count.times.each do |idx|
                     @idx = idx
 
-                    Driver.retry_loop 'Failed to create some host' do
+                    Driver.retry_loop('Failed to create some host', self) do
                         playbooks = cfg['playbook']
                         playbooks = playbooks.join(',') if playbooks.is_a? Array
 
@@ -655,7 +660,7 @@ module OneProvision
                 host.info(h['id'])
 
                 name = ips.shift
-                id   = ids.shift
+                id   = ids.shift if ids
 
                 # Rename using public IP address
                 host.one.rename(name)
@@ -677,7 +682,8 @@ module OneProvision
             hosts.each do |h|
                 host = Resource.object('hosts')
 
-                Utils.exception(host.info(h['id']))
+                rc = host.info(h['id'])
+                next if OpenNebula.is_error?(rc)
 
                 return true if Integer(host.one['HOST_SHARE/RUNNING_VMS']) > 0
             end
@@ -694,7 +700,8 @@ module OneProvision
             datastores.each do |d|
                 datastore = Resource.object('datastores')
 
-                Utils.exception(datastore.info(d['id']))
+                rc = datastore.info(d['id'])
+                next if OpenNebula.is_error?(rc)
 
                 images = datastore.one.retrieve_elements('IMAGES/ID')
 
@@ -719,6 +726,8 @@ module OneProvision
         # @param timeout [Integer] Timeout for deleting running VMs
         def delete_vms(timeout)
             Driver.retry_loop 'Failed to delete running_vms' do
+                next if hosts.nil?
+
                 d_hosts = []
 
                 hosts.each do |h|
@@ -751,6 +760,8 @@ module OneProvision
         def delete_images(timeout)
             Driver.retry_loop 'Failed to delete images' do
                 d_datastores = []
+
+                next if datastores.nil?
 
                 datastores.each do |d|
                     datastore = Resource.object('datastores')

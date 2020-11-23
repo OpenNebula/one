@@ -1296,7 +1296,10 @@ define(function(require) {
 
               if (body.custom_attrs || body.networks) {
                 UserInputs.serviceTemplateInsert(
-                  $(".provision_network_selector", context), data);
+                  $(".provision_network_selector", context),
+                  data,
+                  { select_networks: Config.isFeatureEnabled("show_vnet_instantiate_flow") }
+                );
               } else {
                 $(".provision_network_selector", context).html("");
                 $(".provision_custom_attributes_selector", context).html("");
@@ -1377,7 +1380,7 @@ define(function(require) {
               return false;
             }
 
-            var extra_info = ServiceUtils.getExtraInfo(context);
+            var extra_info = ServiceUtils.getExtraInfo(context, Config.isFeatureEnabled("show_vnet_instantiate_flow"));
 
             $(".provision_create_flow_role", context).each(function(){
               var user_inputs_values = WizardFields.retrieve($(".provision_custom_attributes_selector", $(this)));

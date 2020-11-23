@@ -96,6 +96,9 @@ features:
     deploy_enforce: false
 
     migrate_enforce: false
+    
+    # True to show the network configuration to instantiate Service template
+    show_vnet_instantiate_flow: true
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings

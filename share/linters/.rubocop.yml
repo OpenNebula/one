@@ -730,6 +730,9 @@ Style/LineEndConcatenation:
 Style/MultilineIfModifier:
   Enabled: False
 
+Style/UnpackFirst:
+  Enabled: False
+
 ######
 # LINT
 ######

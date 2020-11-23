@@ -266,7 +266,8 @@ define(function(require) {
       template_json.DOCUMENT &&
       template_json.DOCUMENT.TEMPLATE &&
       template_json.DOCUMENT.TEMPLATE.BODY &&
-      template_json.DOCUMENT.TEMPLATE.BODY.networks
+      template_json.DOCUMENT.TEMPLATE.BODY.networks &&
+      opts.select_networks
     ){
       opts.networks = template_json.DOCUMENT.TEMPLATE.BODY.networks;
     }

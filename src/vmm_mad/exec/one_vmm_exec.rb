@@ -697,7 +697,7 @@ class ExecDriver < VirtualMachineDriver
         target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
         target = ensure_xpath(xml_data, id, action, target_xpath) || return
 
-        target_index = target.downcase[-1..-1].unpack1('c') - 97
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
 
         action = VmmAction.new(self, id, :attach_disk, drv_message)
 
@@ -744,7 +744,7 @@ class ExecDriver < VirtualMachineDriver
         target_xpath = "VM/TEMPLATE/DISK[ATTACH='YES']/TARGET"
         target = ensure_xpath(xml_data, id, action, target_xpath) || return
 
-        target_index = target.downcase[-1..-1].unpack1('c') - 97
+        target_index = target.downcase[-1..-1].unpack('c').first - 97
 
         action = VmmAction.new(self, id, :detach_disk, drv_message)
 
@@ -1361,8 +1361,9 @@ end
 #
 ################################################################################
 
-LIVE_DISK_SNAPSHOTS = ENV['LIVE_DISK_SNAPSHOTS']&.split || []
-VNMAD_LOCAL_ACTIONS = ENV['VNMAD_LOCAL_ACTIONS']&.split || []
+ENV_CONF = Hash.new('').merge!(ENV)
+LIVE_DISK_SNAPSHOTS = ENV_CONF['LIVE_DISK_SNAPSHOTS'].split
+VNMAD_LOCAL_ACTIONS = ENV_CONF['VNMAD_LOCAL_ACTIONS'].split
 
 opts = GetoptLong.new(
     ['--retries',           '-r', GetoptLong::OPTIONAL_ARGUMENT],

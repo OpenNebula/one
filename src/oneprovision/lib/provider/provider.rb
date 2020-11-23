@@ -22,7 +22,7 @@ module OneProvision
         DOCUMENT_TYPE = 102
 
         # These attributes can not be changed when updating the provider
-        UNMUTABLE_ATTRS = %w[provider]
+        IMMUTABLE_ATTRS = %w[provider]
 
         # Allocates a new document
         #

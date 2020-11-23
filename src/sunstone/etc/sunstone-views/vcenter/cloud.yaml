@@ -38,6 +38,9 @@ features:
     show_attach_disk_advanced: true
 
     show_attach_nic_advanced: true
+    
+    # True to show the network configuration to instantiate Service template
+    show_vnet_instantiate_flow: true
 tabs:
     provision-tab:
         panel_tabs:
