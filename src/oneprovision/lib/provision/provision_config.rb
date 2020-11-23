@@ -232,15 +232,20 @@ module OneProvision
                             end
                         else
                             objects = provision.info_objects("#{match[0]}s")
-                            object  = objects.find do |obj|
-                                obj['NAME'] == match[1]
+
+                            obj_int = Integer(match[1]) rescue false
+
+                            if obj_int
+                                object = objects[obj_int]
+                            else
+                                object = objects.find{|o| o['NAME'] == match[1]}
                             end
 
                             object  = object.to_hash
                             object  = object[object.keys[0]]
+                            replace = object[match[2].upcase]
 
-                            value.gsub!("${#{match.join('.')}}",
-                                        object[match[2].upcase])
+                            value.gsub!("${#{match.join('.')}}", replace)
                         end
                     end
                 end
@@ -484,9 +489,15 @@ module OneProvision
                     elements += @config['marketplaceapps']
                 end
 
-                unless elements.find {|v| v['name'] == match[1] }
-                    return [false, "#{match[0]} #{match[1]} not found"]
+                elem_int = Integer(match[1]) rescue false
+
+                if elem_int
+                    elem = elements[elem_int]
+                else
+                    elem = elements.find{|o| o['NAME'] == match[1]}
                 end
+
+                return [false, "#{match[0]} #{match[1]} not found"] if elem.nil?
             end
 
             [true, '']
