@@ -20,6 +20,7 @@ define(function(require) {
    */
 
   var TabDataTable = require('utils/tab-datatable');
+  var Humanize = require('utils/humanize');
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var LabelsUtils = require('utils/labels/utils');
@@ -33,8 +34,8 @@ define(function(require) {
   var RESOURCE = "ServiceTemplate";
   var XML_ROOT = "DOCUMENT";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 5;
-  var SEARCH_COLUMN = 6;
+  var LABELS_COLUMN = 6;
+  var SEARCH_COLUMN = 7;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -67,6 +68,7 @@ define(function(require) {
       Locale.tr("Owner"),
       Locale.tr("Group"),
       Locale.tr("Name"),
+      Locale.tr("Registration time"),
       Locale.tr("Labels"),
       "search_data"
     ];
@@ -113,6 +115,7 @@ define(function(require) {
       element.UNAME,
       element.GNAME,
       element.NAME,
+      Humanize.prettyTime(element.TEMPLATE.BODY['registration_time']),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
