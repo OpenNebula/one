@@ -207,7 +207,7 @@ define(function(require) {
     //.off and .on prevent multiple clicks events
     $(context).off("click", "#update_reserved_hosts").on("click", "#update_reserved_hosts", function(){
       var CPU = that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.TOTAL_CPU;
-      var MEMORY = that && that.element && that.element.MONITORING && that.element.MONITORING.CAPACITY;
+      var MEMORY = that && that.element && that.element.HOST_SHARE && that.element.HOST_SHARE.TOTAL_MEM;
       if(CPU && MEMORY){
         $("#update_reserved_hosts", context).prop("disabled", true);
         var reservedCPU = parseInt($("#textInput_reserved_cpu_hosts", context).val());
