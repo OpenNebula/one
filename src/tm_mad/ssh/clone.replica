@@ -149,8 +149,8 @@ else
         fi
 
         cd $SRC_DIR
-        tar --transform="flags=r;s|$SRC_FILE|$DST_FILE|" -cSf - $SRC_FILE \$SRC_SNAP | \
-            ssh $REPLICA_SSH_OPTS ${REPLICA_STORAGE_IP:-$DST_HOST} "tar xSf - -C $DST_DIR"
+        $TAR --transform="flags=r;s|$SRC_FILE|$DST_FILE|" -cSf - $SRC_FILE \$SRC_SNAP | \
+            ssh $REPLICA_SSH_OPTS ${REPLICA_STORAGE_IP:-$DST_HOST} "$TAR xSf - -C $DST_DIR"
 EOF
 )
 fi
