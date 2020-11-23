@@ -25,7 +25,8 @@ const {
   createProvision,
   configureProvision,
   configureHost,
-  validate
+  validate,
+  getProvisionDefault
 } = require('./provision-functions')
 const { GET, POST, DELETE, PUT } = httpMethod
 
@@ -83,6 +84,12 @@ const routes = {
       action: getLogProvisions,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
+      }
+    },
+    default: {
+      action: getProvisionDefault,
+      params: {
+        name: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },
