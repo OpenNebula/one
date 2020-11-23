@@ -442,11 +442,12 @@ ostream& operator<<(ostream& os, const HostSharePCI& pci)
     {
         HostSharePCI::PCIDevice * dev = it->second;
 
-        os << right << setw(15)<< dev->address   << " "
-           << right << setw(8) << dev->class_id  << " "
-           << right << setw(8) << dev->vendor_id << " "
-           << right << setw(8) << dev->device_id << " "
-           << right << setw(8) << dev->vmid      << " " << endl;
+        os << right << setw(15) << dev->address << " "
+           << right << hex << showbase
+           << setw(8) << dev->class_id    << " "
+           << setw(8) << dev->vendor_id   << " "
+           << setw(8) << dev->device_id   << " "
+           << setw(8) << dec << dev->vmid << " " << endl;
     }
 
     return os;
