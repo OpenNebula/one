@@ -29,9 +29,10 @@ module OneProvision
             # Retry the operation in case of failure
             #
             # @param text    [String]    Operation
+            # @param provision [Provision] Provision information
             # @param cleanup [Boolean]   True if the operation can be cleaned up
             # @param block   [Ruby Code] Block of code to execute
-            def retry_loop(text, cleanup = Mode.cleanup)
+            def retry_loop(text, provision = nil, cleanup = Mode.cleanup)
                 retries = 0
 
                 begin
@@ -65,6 +66,11 @@ module OneProvision
                         rescue EOFError
                             STDERR.puts choice
                         rescue Interrupt => e
+                            if provision
+                                provision.state = Provision::STATE['ERROR']
+                                provision.update
+                            end
+
                             exit(-1)
                         end
                     end
@@ -75,6 +81,11 @@ module OneProvision
 
                         retry
                     when :quit
+                        if provision
+                            provision.state = Provision::STATE['ERROR']
+                            provision.update
+                        end
+
                         exit(-1)
                     when :skip
                         return :skip
@@ -82,6 +93,11 @@ module OneProvision
                         raise OneProvisionCleanupException if cleanup
 
                         Utils.fail('Cleanup unsupported for this operation')
+                    end
+
+                    if provision
+                        provision.state = Provision::STATE['ERROR']
+                        provision.update
                     end
 
                     exit(-1)
