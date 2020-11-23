@@ -243,7 +243,7 @@ module OneProvision
 
                 OneProvisionLogger.info('Creating provision objects')
 
-                rc = Driver.retry_loop 'Failed to create cluster' do
+                rc = Driver.retry_loop('Failed to create cluster', self) do
                     create_cluster(cfg)
                 end
 
@@ -270,7 +270,7 @@ module OneProvision
                     state = nil
                     conf  = nil
 
-                    Driver.retry_loop 'Failed to deploy hosts' do
+                    Driver.retry_loop('Failed to deploy hosts', self) do
                         ips, ids, state, conf = Driver.tf_action(self,
                                                                  'deploy')
                     end
@@ -378,7 +378,7 @@ module OneProvision
             end
 
             if hosts
-                Driver.retry_loop 'Failed to delete hosts' do
+                Driver.retry_loop('Failed to delete hosts', self) do
                     hosts.each do |host|
                         id   = host['id']
                         host = Host.new(provider)
@@ -541,7 +541,8 @@ module OneProvision
                 next if cfg[r].nil?
 
                 cfg[r].each do |x|
-                    Driver.retry_loop 'Failed to create some resources' do
+                    Driver.retry_loop('Failed to create some resources',
+                                      self) do
                         obj = Resource.object(r, nil, x)
 
                         next if obj.nil?
@@ -624,7 +625,7 @@ module OneProvision
                 count.times.each do |idx|
                     @idx = idx
 
-                    Driver.retry_loop 'Failed to create some host' do
+                    Driver.retry_loop('Failed to create some host', self) do
                         playbooks = cfg['playbook']
                         playbooks = playbooks.join(',') if playbooks.is_a? Array
 
