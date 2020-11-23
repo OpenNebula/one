@@ -682,7 +682,8 @@ module OneProvision
             hosts.each do |h|
                 host = Resource.object('hosts')
 
-                Utils.exception(host.info(h['id']))
+                rc = host.info(h['id'])
+                next if OpenNebula.is_error?(rc)
 
                 return true if Integer(host.one['HOST_SHARE/RUNNING_VMS']) > 0
             end
@@ -699,7 +700,8 @@ module OneProvision
             datastores.each do |d|
                 datastore = Resource.object('datastores')
 
-                Utils.exception(datastore.info(d['id']))
+                rc = datastore.info(d['id'])
+                next if OpenNebula.is_error?(rc)
 
                 images = datastore.one.retrieve_elements('IMAGES/ID')
 
@@ -724,6 +726,8 @@ module OneProvision
         # @param timeout [Integer] Timeout for deleting running VMs
         def delete_vms(timeout)
             Driver.retry_loop 'Failed to delete running_vms' do
+                next if hosts.nil?
+
                 d_hosts = []
 
                 hosts.each do |h|
@@ -756,6 +760,8 @@ module OneProvision
         def delete_images(timeout)
             Driver.retry_loop 'Failed to delete images' do
                 d_datastores = []
+
+                next if datastores.nil?
 
                 datastores.each do |d|
                     datastore = Resource.object('datastores')
