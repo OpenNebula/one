@@ -20,7 +20,7 @@ const {
   accepted,
   internalServerError
 } = require('server/utils/constants/http-codes')
-const { httpResponse, parsePostData } = require('server/utils/server')
+const { httpResponse, parsePostData, existsFile } = require('server/utils/server')
 const { tmpPath } = require('server/utils/constants/defaults')
 const {
   executeCommand,
@@ -46,6 +46,46 @@ const logFile = {
 const configFile = {
   name: 'provision',
   ext: 'yaml'
+}
+
+const getProvisionDefault = (res = {}, next = () => undefined, params = {}) => {
+  let rtn = httpInternalError
+  const files = []
+  const path = `${global.ETC_CPI}/provisions`
+  const fillData = (content = '') => {
+    let data
+    try {
+      data = parse(content)
+    } catch (error) {
+      data = undefined
+    }
+    if (data) {
+      files.push(data)
+    }
+  }
+  try {
+    let pass = true
+    if (params && params.name) {
+      existsFile(
+        `${path}/${`${params.name}`.toLowerCase()}.yaml`,
+        fillData,
+        () => {
+          pass = false
+        }
+      )
+    } else {
+      getFiles(path, 'yaml', () => { pass = false }).map(file =>
+        existsFile(file, fillData)
+      )
+    }
+    if (pass) {
+      rtn = httpResponse(ok, files)
+    }
+  } catch (error) {
+    rtn = httpResponse(internalServerError, '', error)
+  }
+  res.locals.httpCode = rtn
+  next()
 }
 
 const getList = (res = {}, next = () => undefined, params = {}, userData = {}) => {
@@ -360,6 +400,7 @@ const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
 }
 
 const provisionFunctionsApi = {
+  getProvisionDefault,
   getLogProvisions,
   getList,
   getListProvisions,
