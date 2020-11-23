@@ -170,9 +170,9 @@ define(function(require) {
         $("#instantiate_service_user_inputs", context).empty();
         UserInputs.serviceTemplateInsert(
           $("#instantiate_service_user_inputs", context),
-          template_json, {
-            select_networks: true
-          });
+          template_json,
+          { select_networks: Config.isFeatureEnabled("show_vnet_instantiate_flow") }
+        );
         n_roles = template_json.DOCUMENT.TEMPLATE.BODY.roles.length;
         n_roles_done = 0;
         var total_cost = 0;
@@ -288,7 +288,10 @@ define(function(require) {
       n_times_int=parseInt(n_times,10);
     }
 
-    var extra_info = ServiceUtils.getExtraInfo(context);
+    var extra_info = ServiceUtils.getExtraInfo(
+      context, 
+      Config.isFeatureEnabled("show_vnet_instantiate_flow")
+    );
 
     if(
       that && 
