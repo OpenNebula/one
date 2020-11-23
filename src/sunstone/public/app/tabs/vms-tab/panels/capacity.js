@@ -19,31 +19,31 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Config = require('sunstone-config');
-  var Sunstone = require('sunstone');
-  var OpenNebulaVM = require('opennebula/vm');
-  var Notifier = require('utils/notifier');
-  var Graphs = require('utils/graphs');
-  var StateActions = require('tabs/vms-tab/utils/state-actions');
-  var OpenNebulaAction = require('opennebula/action');
-  var Humanize = require('utils/humanize');
-  var ProgressBar = require('utils/progress-bar');
+  var Locale = require("utils/locale");
+  var Config = require("sunstone-config");
+  var Sunstone = require("sunstone");
+  var OpenNebulaVM = require("opennebula/vm");
+  var Notifier = require("utils/notifier");
+  var Graphs = require("utils/graphs");
+  var StateActions = require("tabs/vms-tab/utils/state-actions");
+  var OpenNebulaAction = require("opennebula/action");
+  var Humanize = require("utils/humanize");
+  var ProgressBar = require("utils/progress-bar");
   /*
     TEMPLATES
    */
 
-  var TemplateInfo = require('hbs!./capacity/html');
+  var TemplateInfo = require("hbs!./capacity/html");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./capacity/panelId');
-  var RESIZE_DIALOG_ID = require('../dialogs/resize/dialogId');
-  var RESOURCE = "VM"
-  var XML_ROOT = "VM"
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./capacity/panelId");
+  var RESIZE_DIALOG_ID = require("../dialogs/resize/dialogId");
+  var RESOURCE = "VM";
+  var XML_ROOT = "VM";
 
   /*
     CONSTRUCTOR
@@ -85,10 +85,10 @@ define(function(require) {
       memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
     }
     return TemplateInfo({
-      'element': this.element,
-      'resizeStateEnabled': resizeStateEnabled,
-      'cpuCost': cpuCost,
-      'memoryCost': memoryCost
+      "element": this.element,
+      "resizeStateEnabled": resizeStateEnabled,
+      "cpuCost": cpuCost,
+      "memoryCost": memoryCost
     });
   }
 
@@ -107,22 +107,22 @@ define(function(require) {
   }
 
   function _generateCores(context){
-    $("#CORES_PER_SOCKET", context).find('option').remove();
-    $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
+    $("#CORES_PER_SOCKET", context).find("option").remove();
+    $("#CORES_PER_SOCKET", context).append($("<option>").val("").text(""));
     var vcpuValue = $("div.vcpu_input input").val();
     for (var i = 1; i <= vcpuValue; i++){
       if (vcpuValue%i === 0){
-        $("#CORES_PER_SOCKET", context).append($('<option>').val(i).text((i).toString()));
+        $("#CORES_PER_SOCKET", context).append($("<option>").val(i).text((i).toString()));
       }
     }
-    $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
+    $("#CORES_PER_SOCKET option[value=\"\"]").prop("selected", true);
   }
 
   function _setup(context) {
     var that = this;
     if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
-      context.off('click', '#resize_capacity');
-      context.on('click', '#resize_capacity', function() {
+      context.off("click", "#resize_capacity");
+      context.on("click", "#resize_capacity", function() {
         var dialog = Sunstone.getDialog(RESIZE_DIALOG_ID);
         dialog.setElement(that.element);
         dialog.show();
@@ -130,22 +130,22 @@ define(function(require) {
         if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
           $("div.cores_per_socket_select_wrapper", dialogContext).attr("style", "");
           $("div.socket_info", dialogContext).show();
-          
+
           var vcpuValue = $("div.vcpu_input input").val();
-          if (vcpuValue !== "") {
+          if (vcpuValue !== "" && that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.TOPOLOGY && that.element.TEMPLATE.TOPOLOGY.CORES) {
             _generateCores(dialogContext);
-            $('#CORES_PER_SOCKET option[value="' + that.element.TEMPLATE.TOPOLOGY.CORES + '"]').prop('selected', true);
+            $("#CORES_PER_SOCKET option[value=\"" + that.element.TEMPLATE.TOPOLOGY.CORES + "\"]").prop("selected", true);
           }
-    
+
           $("div.vcpu_input input", dialogContext).on("change", function(){
             _generateCores(dialogContext);
             _calculateSockets(dialogContext);
           });
-    
+
           $("#CORES_PER_SOCKET", dialogContext).on("change", function(){
             _calculateSockets(dialogContext);
-          })
-    
+          });
+
           _calculateSockets(dialogContext);
         }
         else{
@@ -203,7 +203,7 @@ define(function(require) {
       var limit = 3; //start in 0 is index of array
       var count = 0;
       var subtitle = $("<h6/>");
-      var description = $("<small>").css({'margin-left':'1rem','font-size': '0.9rem'});
+      var description = $("<small>").css({"margin-left":"1rem","font-size": "0.9rem"});
       var descriptionText = [];
       var space = false;
       var tBody = $("<tbody/>");
@@ -211,9 +211,9 @@ define(function(require) {
       //description info
       if(element.TEMPLATE && element.TEMPLATE.TOPOLOGY ){
         for (var prop in  element.TEMPLATE.TOPOLOGY){
-          var styles = 'display: inline-block;font-weight: bold;color: #5f5d5d;';
+          var styles = "display: inline-block;font-weight: bold;color: #5f5d5d;";
           if(space){
-            styles += 'margin-left: 0.3rem;';
+            styles += "margin-left: 0.3rem;";
           }
           space = true;
           descriptionText.push("<div style='"+styles+"'>"+prop.toLocaleLowerCase()+":</div> "+element.TEMPLATE.TOPOLOGY[prop]);
@@ -225,7 +225,7 @@ define(function(require) {
           subtitle.text("Cores & CPUS");
           displaySubtitle = false;
         }
-        
+
         var placeBody = tBody.find("tr:last");
         if(count === 0){
           placeBody = tBody.append($("<tr/>")).find("tr:last");
@@ -246,15 +246,15 @@ define(function(require) {
                 var parser = Humanize.sizeFromKB;
                 if (total > 0) {
                   var ratio = Math.round((used / total) * 100);
-                  info_str = parser(used) + ' / ' + parser(total) + ' (' + ratio + '%)';
+                  info_str = parser(used) + " / " + parser(total) + " (" + ratio + "%)";
                 } else {
                   if (info.TYPE == 1) {
-                    info_str = '- / -';
+                    info_str = "- / -";
                   } else {
-                    info_str = Humanize.size(used) + ' / -';
+                    info_str = Humanize.size(used) + " / -";
                   }
                 }
-                progress = ProgressBar.html(used, total, info_str, 'memory-used');
+                progress = ProgressBar.html(used, total, info_str, "memory-used");
               }
 
               placeBody.find("td:last").append(
@@ -265,8 +265,8 @@ define(function(require) {
 
             });
           }
-          placeBody.find("td:last").append($("<div/>",{'class':'small-12 columns'}).css({"padding": "0px",
-            "margin-top": "2rem"}).append($("<h6/>",{'class':'text-left'}).text("Memory").css({'padding-bottom':'0px'}).add(progress)));
+          placeBody.find("td:last").append($("<div/>",{"class":"small-12 columns"}).css({"padding": "0px",
+            "margin-top": "2rem"}).append($("<h6/>",{"class":"text-left"}).text("Memory").css({"padding-bottom":"0px"}).add(progress)));
         }
         count = count >= limit ? 0 : count+1;
       });
