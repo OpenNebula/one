@@ -14,7 +14,7 @@ export default makeStyles(theme => ({
       width: '50%'
     },
     '&.w-25 p': {
-      width: '50%'
+      width: '25%'
     }
   },
   title: {

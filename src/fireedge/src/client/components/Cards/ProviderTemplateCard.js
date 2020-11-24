@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import FileIcon from '@material-ui/icons/Description'
-import SelectCard from './SelectCard'
+import SelectCard from 'client/components/Cards/SelectCard'
 
 const ProviderTemplateCard = memo(
   ({ value, handleClick }) => {

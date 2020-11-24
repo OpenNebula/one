@@ -12,7 +12,8 @@ import ListCards from 'client/components/List/ListCards'
 import AlertError from 'client/components/Alerts/Error'
 import { ApplicationCard, EmptyCard } from 'client/components/Cards'
 
-import { DONE, APPLICATION_STATES } from 'client/constants/states'
+import { DONE } from 'client/constants/states'
+import { APPLICATION_STATES } from 'client/constants/flow'
 import { Tr } from 'client/components/HOC'
 import {
   ApplicationsInstances as ApplicationsInstancesLabel,

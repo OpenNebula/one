@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect, createElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
 import { Container, Box, Typography, Divider } from '@material-ui/core'
@@ -11,20 +11,26 @@ import useFetch from 'client/hooks/useFetch'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import ListCards from 'client/components/List/ListCards'
 import AlertError from 'client/components/Alerts/Error'
-import { ProviderCard } from 'client/components/Cards'
+import { ProvisionCard } from 'client/components/Cards'
 
+import { DialogRequest } from 'client/components/Dialogs'
+import DialogInfo from 'client/containers/Provisions/DialogInfo'
+
+import { ProvisionsLabel, CannotConnectOneProvision } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
-import { ProvisionsLabel } from 'client/constants/translates'
 
 function Provisions () {
   const history = useHistory()
-  const { provisions, getProvisions } = useProvision()
+  const [showDialog, setShowDialog] = useState(false)
+
   const {
-    error,
-    fetchRequest,
-    loading,
-    reloading
-  } = useFetch(getProvisions)
+    provisions,
+    getProvisions,
+    getProvision,
+    deleteProvision
+  } = useProvision()
+
+  const { error, fetchRequest, loading, reloading } = useFetch(getProvisions)
 
   useEffect(() => { fetchRequest() }, [])
 
@@ -44,24 +50,52 @@ function Provisions () {
       <Divider />
       <Box p={3}>
         {error ? (
-          <AlertError>
-            {Tr('Cannot connect to OneProvision server')}
-          </AlertError>
+          <AlertError>{Tr(CannotConnectOneProvision)}</AlertError>
         ) : (
           <ListCards
             list={provisions}
             isLoading={provisions.length === 0 && loading}
             handleCreate={() => history.push(PATH.PROVISIONS.CREATE)}
-            CardComponent={ProviderCard}
-            cardsProps={({ value: { ID } }) => ({
-              handleEdit: () =>
-                history.push(PATH.PROVISIONS.EDIT.replace(':id', ID)),
-              handleRemove: undefined
+            CardComponent={ProvisionCard}
+            cardsProps={({ value }) => ({
+              handleShow: () => setShowDialog({
+                id: value.ID,
+                title: `(ID: ${value.ID}) ${value.NAME}`,
+                content: DialogInfo
+              }),
+              handleDelete: () => setShowDialog({
+                id: value.ID,
+                title: `DELETE provider - (ID: ${value.ID}) ${value.NAME}`,
+                handleAccept: () => {
+                  deleteProvision({ id: value.ID })
+                  setShowDialog(false)
+                },
+                content: DialogInfo
+              })
             })}
             breakpoints={{ xs: 12, sm: 6, md: 4 }}
           />
         )}
       </Box>
+      {showDialog !== false && (
+        <DialogRequest
+          request={() => getProvision({ id: showDialog.id })}
+          dialogProps={{
+            title: showDialog.title,
+            handleCancel: () => setShowDialog(false),
+            handleAccept: showDialog.handleAccept,
+            contentProps: {
+              style: {
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
+              }
+            }
+          }}
+        >
+          {({ data }) => createElement(showDialog.content, { data })}
+        </DialogRequest>
+      )}
     </Container>
   )
 }

@@ -5,7 +5,7 @@ import { Button, CardActions, Badge } from '@material-ui/core'
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows'
 
 import { Tr } from 'client/components/HOC'
-import SelectCard from './SelectCard'
+import SelectCard from 'client/components/Cards/SelectCard'
 
 const TierCard = memo(
   ({ value, handleEdit, handleRemove, cardProps }) => {

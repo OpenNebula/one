@@ -48,9 +48,7 @@ function Providers () {
       <Divider />
       <Box p={3}>
         {error ? (
-          <AlertError>
-            {Tr(CannotConnectOneProvision)}
-          </AlertError>
+          <AlertError>{Tr(CannotConnectOneProvision)}</AlertError>
         ) : (
           <ListCards
             list={providers}

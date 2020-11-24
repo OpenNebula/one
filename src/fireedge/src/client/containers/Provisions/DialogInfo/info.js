@@ -1,26 +1,42 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListItem, Typography, Chip, Grid, Paper, Divider } from '@material-ui/core'
+import { List, ListItem, Typography, Grid, Paper, Divider, Chip } from '@material-ui/core'
 import { CheckBox, CheckBoxOutlineBlank } from '@material-ui/icons'
 import clsx from 'clsx'
 
-import useStyles from 'client/containers/ApplicationsInstances/DialogInfo/styles'
-import { APPLICATION_STATES } from 'client/constants/flow'
+import useStyles from 'client/containers/Provisions/DialogInfo/styles'
+import { PROVISIONS_STATES } from 'client/constants/provision'
 import { Tr } from 'client/components/HOC'
+import {
+  Information,
+  Name,
+  Description,
+  ProviderLabel,
+  StartTime,
+  Permissions,
+  Use,
+  Manage,
+  Admin,
+  Ownership,
+  Owner,
+  Group,
+  Other,
+  State
+} from 'client/constants/translates'
 
-const InfoTab = memo(({ info }) => {
+const Info = memo(({ data }) => {
   const classes = useStyles()
-  const { ID, TEMPLATE, UNAME, GNAME, PERMISSIONS } = info
+  const { ID, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
   const {
-    name,
-    deployment,
     state,
-    ready_status_gate: gate,
-    shutdown_action: shutdown
-  } = TEMPLATE?.BODY
+    description,
+    name,
+    provider: providerName,
+    start_time: time
+  } = TEMPLATE?.PROVISION_BODY
 
-  const stateInfo = APPLICATION_STATES[state]
+  const stateInfo = PROVISIONS_STATES[state]
 
   const isChecked = checked =>
     checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
@@ -31,36 +47,38 @@ const InfoTab = memo(({ info }) => {
         <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr('Information')}</Typography>
+              <Typography>{Tr(Information)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
-              <Typography>{Tr('ID')}</Typography>
+              <Typography>{'ID'}</Typography>
               <Typography>{ID}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr('Name')}</Typography>
+              <Typography>{Tr(Name)}</Typography>
               <Typography>{name}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr('Strategy')}</Typography>
-              <Typography>{deployment}</Typography>
+              <Typography>{Tr(Description)}</Typography>
+              <Typography>{description}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr('Shutdown action')}</Typography>
-              <Typography>{shutdown ?? '-'}</Typography>
+              <Typography>{Tr(ProviderLabel)}</Typography>
+              <Typography>{providerName}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr('State')}</Typography>
+              <Typography>{Tr(StartTime)}</Typography>
+              <Typography>
+                {new Date(time * 1000).toLocaleString()}
+              </Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>{Tr(State)}</Typography>
               <Chip
                 size="small"
                 label={stateInfo?.name}
                 style={{ backgroundColor: stateInfo?.color }}
               />
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr('Ready status gate')}</Typography>
-              <Typography>{gate ? 'yes' : 'no'}</Typography>
             </ListItem>
           </List>
         </Paper>
@@ -69,26 +87,26 @@ const InfoTab = memo(({ info }) => {
         <Paper variant="outlined" className={classes.permissions}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr('Permissions')}</Typography>
-              <Typography>{Tr('Use')}</Typography>
-              <Typography>{Tr('Manage')}</Typography>
-              <Typography>{Tr('Admin')}</Typography>
+              <Typography>{Tr(Permissions)}</Typography>
+              <Typography>{Tr(Use)}</Typography>
+              <Typography>{Tr(Manage)}</Typography>
+              <Typography>{Tr(Admin)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
-              <Typography>{Tr('Owner')}</Typography>
+              <Typography>{Tr(Owner)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_A)}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr('Group')}</Typography>
+              <Typography>{Tr(Group)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_A)}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr('Other')}</Typography>
+              <Typography>{Tr(Other)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_A)}</Typography>
@@ -98,15 +116,15 @@ const InfoTab = memo(({ info }) => {
         <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr('Ownership')}</Typography>
+              <Typography>{Tr(Ownership)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
-              <Typography>{Tr('Owner')}</Typography>
+              <Typography>{Tr(Owner)}</Typography>
               <Typography>{UNAME}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr('Group')}</Typography>
+              <Typography>{Tr(Group)}</Typography>
               <Typography>{GNAME}</Typography>
             </ListItem>
           </List>
@@ -116,14 +134,14 @@ const InfoTab = memo(({ info }) => {
   )
 })
 
-InfoTab.propTypes = {
-  info: PropTypes.object.isRequired
+Info.propTypes = {
+  data: PropTypes.object.isRequired
 }
 
-InfoTab.defaultProps = {
-  info: {}
+Info.defaultProps = {
+  data: {}
 }
 
-InfoTab.displayName = 'InfoTab'
+Info.displayName = 'Info'
 
-export default InfoTab
+export default Info

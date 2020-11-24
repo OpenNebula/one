@@ -6,8 +6,8 @@ import { storage, findStorageData, removeStoreData } from 'client/utils'
 import { fakeDelay } from 'client/utils/helpers'
 
 import * as serviceAuth from 'client/services/auth'
-import * as serviceUsers from 'client/services/users'
-import * as servicePool from 'client/services/pool'
+import * as serviceOne from 'client/services/one'
+
 import {
   startAuth,
   selectFilterGroup,
@@ -54,8 +54,6 @@ export default function useAuth () {
                 jwt: token,
                 user: { ID: id },
                 isLoginInProcess: ONEADMIN_ID !== id // is not oneadmin
-                // isLoading: ONEADMIN_ID !== id, // is not oneadmin
-                // isLogging: ONEADMIN_ID !== id // is not oneadmin
               })
             )
           }
@@ -80,7 +78,7 @@ export default function useAuth () {
     return serviceAuth
       .getUser()
       .then(user => dispatch(successAuth({ user })))
-      .then(servicePool.getGroups)
+      .then(serviceOne.getGroups)
       .then(groups => dispatch(setGroups(groups)))
       .catch(err => dispatch(failureAuth({ error: err })))
   }, [dispatch, JWT_NAME, authUser])
@@ -92,7 +90,7 @@ export default function useAuth () {
       } else {
         dispatch(startAuth())
 
-        serviceUsers
+        serviceOne
           .changeGroup({ id: authUser.ID, group })
           .then(() =>
             dispatch(

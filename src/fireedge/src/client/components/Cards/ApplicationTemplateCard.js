@@ -14,7 +14,7 @@ import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
 import AccountTreeIcon from '@material-ui/icons/AccountTree'
 
 import { Tr } from 'client/components/HOC'
-import SelectCard from './SelectCard'
+import SelectCard from 'client/components/Cards/SelectCard'
 
 const useStyles = makeStyles(theme => ({
   badgesWrapper: {

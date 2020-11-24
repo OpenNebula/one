@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { Button, CardActions } from '@material-ui/core'
 
 import { Tr } from 'client/components/HOC'
-import SelectCard from './SelectCard'
+import SelectCard from 'client/components/Cards/SelectCard'
 
 const NetworkCard = memo(({
   value,
@@ -18,7 +18,7 @@ const NetworkCard = memo(({
 
   return (
     <SelectCard
-      icon={mandatory ? 'M' : ''}
+      icon={mandatory ? 'M' : undefined}
       title={name}
       subheader={description}
       isSelected={isSelected}

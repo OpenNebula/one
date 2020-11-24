@@ -18,6 +18,7 @@ const DialogConfirmation = memo(
   ({
     open,
     title,
+    contentProps,
     handleAccept,
     acceptButtonProps,
     handleCancel,
@@ -43,7 +44,7 @@ const DialogConfirmation = memo(
         }}
       >
         <DialogTitle>{title}</DialogTitle>
-        <DialogContent dividers>
+        <DialogContent dividers {...contentProps}>
           {children}
         </DialogContent>
         {(handleCancel || handleAccept) && (
@@ -76,6 +77,7 @@ const DialogConfirmation = memo(
 DialogConfirmation.propTypes = {
   open: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
+  contentProps: PropTypes.objectOf(PropTypes.any),
   handleAccept: PropTypes.func,
   acceptButtonProps: PropTypes.objectOf(PropTypes.any),
   handleCancel: PropTypes.func,
@@ -90,6 +92,7 @@ DialogConfirmation.propTypes = {
 DialogConfirmation.defaultProps = {
   open: true,
   title: 'Confirmation dialog',
+  contentProps: undefined,
   handleAccept: undefined,
   acceptButtonProps: undefined,
   handleCancel: undefined,

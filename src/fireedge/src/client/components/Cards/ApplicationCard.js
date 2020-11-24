@@ -12,8 +12,8 @@ import {
 import FileIcon from '@material-ui/icons/Description'
 
 import { Tr } from 'client/components/HOC'
-import { APPLICATION_STATES } from 'client/constants/states'
-import SelectCard from './SelectCard'
+import { APPLICATION_STATES } from 'client/constants/flow'
+import SelectCard from 'client/components/Cards/SelectCard'
 
 const useStyles = makeStyles(theme => ({
   content: {
