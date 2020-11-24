@@ -1,10 +1,12 @@
-import User from 'server/utils/constants/commands/user'
+import Cluster from 'server/utils/constants/commands/cluster'
+import Datastore from 'server/utils/constants/commands/datastore'
+import Host from 'server/utils/constants/commands/host'
 import Group from 'server/utils/constants/commands/group'
+import MarketApp from 'server/utils/constants/commands/marketapp'
+import Template from 'server/utils/constants/commands/template'
+import User from 'server/utils/constants/commands/user'
 import VNet from 'server/utils/constants/commands/vn'
 import VNetTemplate from 'server/utils/constants/commands/vntemplate'
-import Template from 'server/utils/constants/commands/template'
-import MarketApp from 'server/utils/constants/commands/marketapp'
-import Cluster from 'server/utils/constants/commands/cluster'
 
 import httpCodes from 'server/utils/constants/http-codes'
 import { requestData, requestParams } from 'client/utils'
@@ -79,20 +81,6 @@ export const getTemplates = ({ filter, end, start }) => {
   })
 }
 
-export const getTemplate = ({ filter, id }) => {
-  const name = Template.Actions.TEMPLATE_INFO
-  const { url, options } = requestParams(
-    { filter, id },
-    { name, ...Template.Commands[name] }
-  )
-
-  return requestData(url, options).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
-
-    return res?.data?.VMTEMPLATE ?? {}
-  })
-}
-
 export const getMarketApps = ({ filter, end, start }) => {
   const name = MarketApp.Actions.MARKETAPP_POOL_INFO
   const { url, options } = requestParams(
@@ -121,6 +109,34 @@ export const getClusters = ({ filter }) => {
   })
 }
 
+export const getDatastores = ({ filter }) => {
+  const name = Datastore.Actions.DATASTORE_POOL_INFO
+  const { url, options } = requestParams(
+    { filter },
+    { name, ...Datastore.Commands[name] }
+  )
+
+  return requestData(url, options).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.DATASTORE_POOL?.DATASTORE ?? []].flat()
+  })
+}
+
+export const getHosts = ({ filter }) => {
+  const name = Host.Actions.HOST_POOL_INFO
+  const { url, options } = requestParams(
+    { filter },
+    { name, ...Host.Commands[name] }
+  )
+
+  return requestData(url, options).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return [res?.data?.HOST_POOL?.HOST ?? []].flat()
+  })
+}
+
 export default {
   getUsers,
   getGroups,
@@ -128,5 +144,6 @@ export default {
   getVNetworksTemplates,
   getTemplates,
   getMarketApps,
-  getClusters
+  getClusters,
+  getDatastores
 }

@@ -66,7 +66,7 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { securityGroups }
   }),
-  setCluster: clusters => ({
+  setClusters: clusters => ({
     type: SUCCESS_ONE_REQUEST,
     payload: { clusters }
   }),

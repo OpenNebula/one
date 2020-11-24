@@ -25,12 +25,11 @@ const useStyles = makeStyles(theme => ({
   },
   actionArea: {
     height: '100%',
-    minHeight: 140,
+    minHeight: ({ minHeight = 140 }) => minHeight,
     padding: theme.spacing(1)
   },
-  headerContent: {
-    overflowX: 'hidden'
-  },
+  headerAvatar: { display: 'flex' },
+  headerContent: { overflowX: 'hidden' },
   subheader: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -42,16 +41,18 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const SelectCard = memo(({
+  stylesProps,
+  icon,
   title,
   subheader,
-  icon,
+  cardHeaderProps,
   isSelected,
   handleClick,
   cardProps,
   observerOff,
   children
 }) => {
-  const classes = useStyles()
+  const classes = useStyles(stylesProps)
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
@@ -61,45 +62,48 @@ const SelectCard = memo(({
       condition={!observerOff}
       wrap={children => <div ref={fromRef}>{children}</div>}>
       {observerOff || isNearScreen ? (
-        <Fade in={observerOff || isNearScreen}>
-          <Card
-            className={clsx(classes.root, {
-              [classes.actionArea]: !handleClick,
-              [classes.selected]: isSelected
-            })}
-            {...cardProps}
+        <Card
+          className={clsx(classes.root, {
+            [classes.actionArea]: !handleClick,
+            [classes.selected]: isSelected
+          })}
+          {...cardProps}
+        >
+          <ConditionalWrap
+            condition={handleClick}
+            wrap={children =>
+              <CardActionArea
+                className={classes.actionArea}
+                onClick={handleClick}
+              >
+                {children}
+              </CardActionArea>
+            }
           >
-            <ConditionalWrap
-              condition={handleClick}
-              wrap={children =>
-                <CardActionArea
-                  className={classes.actionArea}
-                  onClick={handleClick}>
-                  {children}
-                </CardActionArea>
-              }
-            >
-              <CardHeader
-                avatar={icon}
-                classes={{ content: classes.headerContent }}
-                title={title}
-                titleTypographyProps={{
-                  variant: 'body2',
-                  noWrap: true,
-                  title: title
-                }}
-                subheader={subheader}
-                subheaderTypographyProps={{
-                  variant: 'body2',
-                  noWrap: true,
-                  className: classes.subheader,
-                  title: subheader
-                }}
-              />
-              {children}
-            </ConditionalWrap>
-          </Card>
-        </Fade>
+            <CardHeader
+              avatar={icon}
+              classes={{
+                content: classes.headerContent,
+                avatar: classes.headerAvatar
+              }}
+              title={title}
+              titleTypographyProps={{
+                variant: 'body2',
+                noWrap: true,
+                title
+              }}
+              subheader={subheader}
+              subheaderTypographyProps={{
+                variant: 'body2',
+                noWrap: true,
+                className: classes.subheader,
+                title: subheader
+              }}
+              {...cardHeaderProps}
+            />
+            {children}
+          </ConditionalWrap>
+        </Card>
       ) : (
         <Skeleton variant="rect" width="100%" height={140} />
       )}
@@ -108,6 +112,7 @@ const SelectCard = memo(({
 })
 
 SelectCard.propTypes = {
+  stylesProps: PropTypes.object,
   title: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
@@ -120,6 +125,10 @@ SelectCard.propTypes = {
     PropTypes.string,
     PropTypes.object
   ]),
+  cardHeaderProps: PropTypes.shape({
+    titleTypographyProps: PropTypes.object,
+    subheaderTypographyProps: PropTypes.object
+  }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   cardProps: PropTypes.object,
@@ -132,9 +141,11 @@ SelectCard.propTypes = {
 }
 
 SelectCard.defaultProps = {
+  stylesProps: undefined,
   title: undefined,
   subheader: undefined,
   icon: undefined,
+  cardHeaderProps: undefined,
   isSelected: false,
   handleClick: undefined,
   cardProps: undefined,

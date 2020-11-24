@@ -46,7 +46,10 @@ module.exports = {
 
   /* general schema */
   Name: 'Name',
+  State: 'State',
+  Description: 'Description',
   RegistrationTime: 'Registration time',
+  StartTime: 'Start time',
 
   /* permissions */
   Permissions: 'Permissions',
