@@ -74,8 +74,9 @@ const getFiles = (dir = '', ext = '', errorCallback = () => undefined) => {
         }
       })
     } catch (error) {
-      messageTerminal(defaultError((error && error.message) || ''))
-      errorCallback(error)
+      const errorMsg = (error && error.message) || ''
+      messageTerminal(defaultError(errorMsg))
+      errorCallback(errorMsg)
     }
   }
   return pathFiles
@@ -245,18 +246,17 @@ const executeCommand = (command = '', resource = '') => {
   return rtn
 }
 
-const findRecursiveFolder = (path = '', finder = '') => {
-  let rtn = false
+const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
   if (path && finder) {
     const dirs = readdirSync(path)
     dirs.forEach(dir => {
       const name = `${path}/${dir}`
       if (statSync(name).isDirectory()) {
-        console.log('-->', name, basename(name))
         if (basename(name) === finder) {
           rtn = name
+          return
         } else {
-          findRecursiveFolder(name, finder)
+          rtn = findRecursiveFolder(name, finder, rtn)
         }
       }
     })
