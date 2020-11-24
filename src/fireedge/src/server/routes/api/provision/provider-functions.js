@@ -19,6 +19,7 @@ const { tmpPath } = require('server/utils/constants/defaults')
 
 const {
   ok,
+  notFound,
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, existsFile, parsePostData } = require('server/utils/server')
@@ -52,39 +53,38 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
   next()
 }
 
-const getProvidersTemplates = (res = {}, next = () => undefined, params = {}) => {
+const getProvidersDefaults = (res = {}, next = () => undefined, params = {}) => {
   let rtn = httpInternalError
+  let err = false
   const files = []
   const path = `${global.ETC_CPI}/providers`
+
   const fillData = (content = '') => {
-    let data
     try {
-      data = parse(content)
+      files.push(parse(content))
     } catch (error) {
-      data = undefined
-    }
-    if (data) {
-      files.push(data)
+      return
     }
   }
+
   try {
-    let pass = true
     if (params && params.name) {
       existsFile(
         `${path}/${`${params.name}`.toLowerCase()}.yaml`,
         fillData,
-        () => {
-          pass = false
+        ()=>{
+          err = true
         }
       )
     } else {
-      getFiles(path, 'yaml', () => { pass = false }).map(file =>
+      getFiles(
+        path, 
+        'yaml'
+      ).map(file =>
         existsFile(file, fillData)
       )
     }
-    if (pass) {
-      rtn = httpResponse(ok, files)
-    }
+    rtn = err? notFound : httpResponse(ok, files)
   } catch (error) {
     rtn = httpResponse(internalServerError, '', error)
   }
@@ -197,7 +197,7 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
 
 const providerFunctionsApi = {
   getListProviders,
-  getProvidersTemplates,
+  getProvidersDefaults,
   createProviders,
   updateProviders,
   deleteProvider

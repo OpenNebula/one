@@ -6,7 +6,7 @@ import { requestData } from 'client/utils'
 const { GET, POST, PUT, DELETE } = httpMethod
 
 export const getProvidersTemplates = ({ filter }) =>
-  requestData(`/api/${PROVIDER}/template`, {
+  requestData(`/api/${PROVIDER}/defaults`, {
     data: { filter },
     method: GET,
     error: err => err?.message

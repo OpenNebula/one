@@ -13,10 +13,12 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const { parse } = require('yaml')
 const { Validator } = require('jsonschema')
 const { createWriteStream } = require('fs-extra')
 const {
   ok,
+  notFound,
   accepted,
   internalServerError
 } = require('server/utils/constants/http-codes')
@@ -32,7 +34,8 @@ const {
   renameFolder,
   moveToFolder,
   findRecursiveFolder,
-  publish
+  publish,
+  getFiles
 } = require('./functions')
 const { provision } = require('./schemas')
 
@@ -48,41 +51,40 @@ const configFile = {
   ext: 'yaml'
 }
 
-const getProvisionDefault = (res = {}, next = () => undefined, params = {}) => {
+const getProvisionDefaults = (res = {}, next = () => undefined, params = {}) => {
   let rtn = httpInternalError
+  let err = false
   const files = []
   const path = `${global.ETC_CPI}/provisions`
+
   const fillData = (content = '') => {
-    let data
     try {
-      data = parse(content)
-    } catch (error) {
-      data = undefined
-    }
-    if (data) {
-      files.push(data)
+      files.push(parse(content))
+    } catch (err) {
+      return
     }
   }
+
   try {
-    let pass = true
     if (params && params.name) {
       existsFile(
         `${path}/${`${params.name}`.toLowerCase()}.yaml`,
         fillData,
-        () => {
-          pass = false
+        ()=>{
+          err = true
         }
       )
     } else {
-      getFiles(path, 'yaml', () => { pass = false }).map(file =>
+      getFiles(
+        path, 
+        'yaml'
+      ).map(file =>
         existsFile(file, fillData)
       )
     }
-    if (pass) {
-      rtn = httpResponse(ok, files)
-    }
-  } catch (error) {
-    rtn = httpResponse(internalServerError, '', error)
+    rtn = err? notFound : httpResponse(ok, files)
+  } catch (err) {
+    rtn = httpResponse(internalServerError, '', err)
   }
   res.locals.httpCode = rtn
   next()
@@ -173,7 +175,8 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
         out: emit,
         close: success => {
           if (success) {
-            console.log('borrado con exito')
+            const findFolder = findRecursiveFolder(`${global.CPI}/provision`, params.id)
+            findFolder && removeFile(findFolder)
           }
         }
       }
@@ -250,7 +253,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
               message.toString().split(/\r|\n/).map(line=>{
                 if(line){
                   lastLine = line
-                  stream.write(line)
+                  stream.write(`${line}\n`)
                   publish(command, { id: files.name, message: line })
                 }
               })
@@ -400,7 +403,7 @@ const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
 }
 
 const provisionFunctionsApi = {
-  getProvisionDefault,
+  getProvisionDefaults,
   getLogProvisions,
   getList,
   getListProvisions,

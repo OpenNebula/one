@@ -22,6 +22,10 @@ const httpCodes = {
     id: 401,
     message: 'Unauthorized'
   },
+  notFound: {
+    id: 404,
+    message: 'Not Found'
+  },
   methodNotAllowed: {
     id: 405,
     message: 'Method not Allowed'

@@ -26,7 +26,7 @@ const {
   configureProvision,
   configureHost,
   validate,
-  getProvisionDefault
+  getProvisionDefaults
 } = require('./provision-functions')
 const { GET, POST, DELETE, PUT } = httpMethod
 
@@ -86,8 +86,8 @@ const routes = {
         id: { from: fromData.resource, name: 'id', front: true }
       }
     },
-    default: {
-      action: getProvisionDefault,
+    defaults: {
+      action: getProvisionDefaults,
       params: {
         name: { from: fromData.resource, name: 'id', front: true }
       }
