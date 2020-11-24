@@ -422,6 +422,36 @@ module VCenterDriver
             vcenter_tags.size > 0
         end
 
+        # @return if has cpuHotAddEnabled
+        def cpu_hot_add_enabled?
+            one_item.info if one_item.instance_of?(
+                OpenNebula::VirtualMachine
+            )
+
+            if one_item['USER_TEMPLATE/HOT_RESIZE/CPU_HOT_ADD_ENABLED'].nil?
+                return false
+            end
+
+            one_item[
+                'USER_TEMPLATE/HOT_RESIZE/CPU_HOT_ADD_ENABLED'
+            ] == "YES"
+        end
+
+        # @return if has memoryHotAddEnabled
+        def memory_hot_add_enabled?
+            one_item.info if one_item.instance_of?(
+                OpenNebula::VirtualMachine
+            )
+
+            if one_item['USER_TEMPLATE/HOT_RESIZE/MEMORY_HOT_ADD_ENABLED'].nil?
+                return false
+            end
+
+            one_item[
+                'USER_TEMPLATE/HOT_RESIZE/MEMORY_HOT_ADD_ENABLED'
+            ] == "YES"
+        end
+
         ############################################################################
         # Create and reconfigure VM related methods
         ############################################################################

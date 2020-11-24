@@ -94,6 +94,17 @@ begin
     end
 
     if vm.powered_off?
+        spec_hash = {}
+        spec_hash[:cpuHotAddEnabled] = vm.cpu_hot_add_enabled?
+        spec_hash[:memoryHotAddEnabled] = vm.memory_hot_add_enabled?
+
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(
+            spec_hash
+        )
+        vm.item.ReconfigVM_Task(
+            :spec => spec
+        ).wait_for_completion
+
         vm.sync(deploy)
         # Only mark the VM as running if we are deploying it for the first time
         set_running = !deploy_id_valid?(deploy_id)
