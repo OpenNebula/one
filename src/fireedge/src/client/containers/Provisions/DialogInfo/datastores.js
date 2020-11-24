@@ -1,6 +1,8 @@
 import React, { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
+import DeleteIcon from '@material-ui/icons/Delete'
+
 import useFetchAll from 'client/hooks/useFetchAll'
 import useOpennebula from 'client/hooks/useOpennebula'
 import ListCards from 'client/components/List/ListCards'
@@ -26,6 +28,13 @@ const Datastores = memo(({ hidden, data }) => {
       list={list}
       isLoading={loading}
       CardComponent={DatastoreCard}
+      cardsProps={({ value: { ID } }) => ({
+        actions: [{
+          handleClick: () => undefined,
+          icon: DeleteIcon,
+          cy: `provision-datastore-delete-${ID}`
+        }]
+      })}
       displayEmpty
       breakpoints={{ xs: 12, md: 6 }}
     />

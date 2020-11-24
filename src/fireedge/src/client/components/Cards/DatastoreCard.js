@@ -13,7 +13,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 const DatastoreCard = memo(
-  ({ value, isSelected, handleClick }) => {
+  ({ value, isSelected, handleClick, actions }) => {
     const { ID, NAME, TYPE, STATE } = value
     const type = Datastore.TYPES[TYPE]
     const state = Datastore.STATES[STATE]
@@ -25,7 +25,7 @@ const DatastoreCard = memo(
 
     return (
       <SelectCard
-        stylesProps={{ minHeight: 75 }}
+        stylesProps={{ minHeight: 160 }}
         icon={<DatastoreIcon />}
         title={(
           <Box component="span" className={classes.title}>
@@ -37,6 +37,7 @@ const DatastoreCard = memo(
         cardHeaderProps={{ disableTypography: true }}
         isSelected={isSelected}
         handleClick={handleClick}
+        actions={actions}
       />
     )
   },
@@ -51,13 +52,24 @@ DatastoreCard.propTypes = {
     STATE: PropTypes.string
   }),
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  handleClick: PropTypes.func,
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      handleClick: PropTypes.func.isRequired,
+      icon: PropTypes.object.isRequired,
+      iconColor: PropTypes.oneOf([
+        'inherit', 'primary', 'secondary', 'action', 'error', 'disabled'
+      ]),
+      cy: PropTypes.string
+    })
+  )
 }
 
 DatastoreCard.defaultProps = {
   value: {},
   isSelected: false,
-  handleClick: undefined
+  handleClick: undefined,
+  actions: undefined
 }
 
 DatastoreCard.displayName = 'DatastoreCard'

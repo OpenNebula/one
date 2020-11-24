@@ -2,7 +2,7 @@ import React, { useCallback, useContext } from 'react'
 
 import useListForm from 'client/hooks/useListForm'
 import ListCards from 'client/components/List/ListCards'
-import { NetworkCard } from 'client/components/Cards'
+import { ApplicationNetworkCard } from 'client/components/Cards'
 
 import { STEP_ID as NETWORKING } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Networking'
 import { Context } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers'
@@ -25,7 +25,7 @@ const Networks = () => ({
     return (
       <ListCards
         list={list[NETWORKING]}
-        CardComponent={NetworkCard}
+        CardComponent={ApplicationNetworkCard}
         cardsProps={({ value: { id, name } }) => {
           const isSelected = data?.some(selected => selected === id)
 

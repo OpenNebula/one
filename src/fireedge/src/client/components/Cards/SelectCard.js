@@ -1,17 +1,17 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
-
 import clsx from 'clsx'
-import { Card, CardActionArea, CardHeader, Fade, makeStyles } from '@material-ui/core'
+
+import {
+  makeStyles, Card, CardActionArea, CardHeader, CardActions, IconButton
+} from '@material-ui/core'
 import { Skeleton } from '@material-ui/lab'
 
 import useNearScreen from 'client/hooks/useNearScreen'
 import ConditionalWrap from 'client/components/HOC/ConditionalWrap'
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    height: '100%'
-  },
+  root: { height: '100%' },
   selected: {
     color: theme.palette.primary.contrastText,
     backgroundColor: theme.palette.primary.main,
@@ -37,11 +37,14 @@ const useStyles = makeStyles(theme => ({
     display: '-webkit-box',
     lineClamp: 2,
     boxOrient: 'vertical'
-  }
+  },
+  actionsIcon: { margin: theme.spacing(1) }
 }))
 
 const SelectCard = memo(({
   stylesProps,
+  action,
+  actions,
   icon,
   title,
   subheader,
@@ -56,6 +59,12 @@ const SelectCard = memo(({
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
+
+  const renderAction = ({ handleClick, icon: Icon, iconColor, cy }) => (
+    <IconButton key={cy} data-cy={cy} onClick={handleClick} size="small">
+      <Icon color={iconColor} className={classes.actionsIcon} />
+    </IconButton>
+  )
 
   return (
     <ConditionalWrap
@@ -81,6 +90,7 @@ const SelectCard = memo(({
             }
           >
             <CardHeader
+              action={action}
               avatar={icon}
               classes={{
                 content: classes.headerContent,
@@ -102,6 +112,11 @@ const SelectCard = memo(({
               {...cardHeaderProps}
             />
             {children}
+            {actions?.length > 0 && (
+              <CardActions>
+                {actions?.map(action => renderAction(action))}
+              </CardActions>
+            )}
           </ConditionalWrap>
         </Card>
       ) : (
@@ -113,15 +128,26 @@ const SelectCard = memo(({
 
 SelectCard.propTypes = {
   stylesProps: PropTypes.object,
+  action: PropTypes.node,
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      handleClick: PropTypes.func.isRequired,
+      icon: PropTypes.object.isRequired,
+      iconColor: PropTypes.oneOf([
+        'inherit', 'primary', 'secondary', 'action', 'error', 'disabled'
+      ]),
+      cy: PropTypes.string
+    })
+  ),
+  icon: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object
+  ]),
   title: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
   ]),
   subheader: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object
-  ]),
-  icon: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
   ]),
@@ -142,9 +168,11 @@ SelectCard.propTypes = {
 
 SelectCard.defaultProps = {
   stylesProps: undefined,
+  action: undefined,
+  actions: undefined,
+  icon: undefined,
   title: undefined,
   subheader: undefined,
-  icon: undefined,
   cardHeaderProps: undefined,
   isSelected: false,
   handleClick: undefined,

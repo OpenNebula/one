@@ -7,6 +7,7 @@ import EmptyCard from 'client/components/Cards/EmptyCard'
 import SelectCard from 'client/components/Cards/SelectCard'
 import ApplicationTemplateCard from 'client/components/Cards/ApplicationTemplateCard'
 import ApplicationCard from 'client/components/Cards/ApplicationCard'
+import ApplicationNetworkCard from 'client/components/Cards/ApplicationNetworkCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
 import ProviderTemplateCard from 'client/components/Cards/ProviderTemplateCard'
 import ProviderCard from 'client/components/Cards/ProviderCard'
@@ -23,6 +24,7 @@ export {
   SelectCard,
   ApplicationTemplateCard,
   ApplicationCard,
+  ApplicationNetworkCard,
   PolicyCard,
   ProviderTemplateCard,
   ProviderCard,

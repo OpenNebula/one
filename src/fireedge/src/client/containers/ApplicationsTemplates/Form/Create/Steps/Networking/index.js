@@ -7,7 +7,7 @@ import useListForm from 'client/hooks/useListForm'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import ListCards from 'client/components/List/ListCards'
 import { DialogForm } from 'client/components/Dialogs'
-import { NetworkCard } from 'client/components/Cards'
+import { ApplicationNetworkCard } from 'client/components/Cards'
 
 import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers'
 import { FORM_FIELDS, NETWORK_FORM_SCHEMA, STEP_FORM_SCHEMA } from './schema'
@@ -44,7 +44,7 @@ const Networks = () => ({
       <>
         <ListCards
           list={data}
-          CardComponent={NetworkCard}
+          CardComponent={ApplicationNetworkCard}
           handleCreate={() => {
             handleEdit()
             setShowDialog(true)

@@ -1,84 +1,53 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, CardActions } from '@material-ui/core'
-
-import { Tr } from 'client/components/HOC'
+import { AccountTree as NetworkIcon } from '@material-ui/icons'
 import SelectCard from 'client/components/Cards/SelectCard'
 
-const NetworkCard = memo(({
-  value,
-  isSelected,
-  handleClick,
-  handleEdit,
-  handleClone,
-  handleRemove
-}) => {
-  const { mandatory, name, description } = value
+const NetworkCard = memo(
+  ({ value, isSelected, handleClick, actions }) => {
+    const { ID, NAME } = value
 
-  return (
-    <SelectCard
-      icon={mandatory ? 'M' : undefined}
-      title={name}
-      subheader={description}
-      isSelected={isSelected}
-      handleClick={handleClick}
-    >
-      <CardActions>
-        {handleEdit && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleEdit}
-            disableElevation
-          >
-            {Tr('Edit')}
-          </Button>
-        )}
-        {handleClone && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleClone}
-            disableElevation
-          >
-            {Tr('Clone')}
-          </Button>
-        )}
-        {handleRemove && (
-          <Button size="small" onClick={handleRemove} disableElevation>
-            {Tr('Remove')}
-          </Button>
-        )}
-      </CardActions>
-    </SelectCard>
-  )
-}
+    return (
+      <SelectCard
+        stylesProps={{ minHeight: 120 }}
+        icon={<NetworkIcon />}
+        title={`${ID} - ${NAME}`}
+        isSelected={isSelected}
+        handleClick={handleClick}
+        actions={actions}
+      />
+    )
+  },
+  (prev, next) => prev.isSelected === next.isSelected
 )
 
 NetworkCard.propTypes = {
   value: PropTypes.shape({
-    mandatory: PropTypes.bool,
-    name: PropTypes.string.isRequired,
-    description: PropTypes.string,
-    type: PropTypes.string,
-    id: PropTypes.string,
-    extra: PropTypes.string
+    ID: PropTypes.string.isRequired,
+    NAME: PropTypes.string.isRequired,
+    TYPE: PropTypes.string,
+    STATE: PropTypes.string
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
-  handleEdit: PropTypes.func,
-  handleClone: PropTypes.func,
-  handleRemove: PropTypes.func
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      handleClick: PropTypes.func.isRequired,
+      icon: PropTypes.object.isRequired,
+      iconColor: PropTypes.oneOf([
+        'inherit', 'primary', 'secondary', 'action', 'error', 'disabled'
+      ]),
+      cy: PropTypes.string
+    })
+  )
 }
 
 NetworkCard.defaultProps = {
   value: {},
   isSelected: false,
   handleClick: undefined,
-  handleEdit: undefined,
-  handleClone: undefined,
-  handleRemove: undefined
+  actions: undefined
 }
 
 NetworkCard.displayName = 'NetworkCard'
