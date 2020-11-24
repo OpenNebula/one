@@ -40,6 +40,7 @@ module.exports = {
   ProvidersLabel: 'Providers',
   ProvisionLabel: 'Provision',
   ProvisionsLabel: 'Provisions',
+  ClustersLabel: 'Clusters',
 
   /* tabs */
   Information: 'Information',

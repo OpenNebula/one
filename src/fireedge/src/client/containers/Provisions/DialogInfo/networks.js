@@ -1,10 +1,12 @@
 import React, { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
+import DeleteIcon from '@material-ui/icons/Delete'
+
 import useFetchAll from 'client/hooks/useFetchAll'
 import useOpennebula from 'client/hooks/useOpennebula'
 import ListCards from 'client/components/List/ListCards'
-import { SelectCard } from 'client/components/Cards'
+import { NetworkCard } from 'client/components/Cards'
 
 const Networks = memo(({ hidden, data }) => {
   const {
@@ -25,10 +27,13 @@ const Networks = memo(({ hidden, data }) => {
     <ListCards
       list={list}
       isLoading={loading}
-      CardComponent={SelectCard}
-      cardsProps={({ value: { ID, NAME } }) => ({
-        title: `${ID} - ${NAME}`,
-        stylesProps: { minHeight: 75 }
+      CardComponent={NetworkCard}
+      cardsProps={({ value: { ID } }) => ({
+        actions: [{
+          handleClick: () => undefined,
+          icon: DeleteIcon,
+          cy: `provision-vnet-delete-${ID}`
+        }]
       })}
       displayEmpty
       breakpoints={{ xs: 12, md: 6 }}

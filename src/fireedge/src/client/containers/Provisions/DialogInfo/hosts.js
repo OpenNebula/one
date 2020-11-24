@@ -1,6 +1,9 @@
 import React, { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
+import DeleteIcon from '@material-ui/icons/Delete'
+import ConfigureIcon from '@material-ui/icons/Build'
+
 import useFetchAll from 'client/hooks/useFetchAll'
 import useOpennebula from 'client/hooks/useOpennebula'
 import ListCards from 'client/components/List/ListCards'
@@ -26,6 +29,20 @@ const Hosts = memo(({ hidden, data }) => {
       list={list}
       isLoading={loading}
       CardComponent={HostCard}
+      cardsProps={({ value: { ID } }) => ({
+        actions: [
+          {
+            handleClick: () => undefined,
+            icon: ConfigureIcon,
+            cy: `provision-host-configure-${ID}`
+          },
+          {
+            handleClick: () => undefined,
+            icon: DeleteIcon,
+            cy: `provision-host-delete-${ID}`
+          }
+        ]
+      })}
       displayEmpty
       breakpoints={{ xs: 12, md: 6 }}
     />

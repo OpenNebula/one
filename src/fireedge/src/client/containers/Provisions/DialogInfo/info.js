@@ -6,24 +6,8 @@ import { CheckBox, CheckBoxOutlineBlank } from '@material-ui/icons'
 import clsx from 'clsx'
 
 import useStyles from 'client/containers/Provisions/DialogInfo/styles'
-import { PROVISIONS_STATES } from 'client/constants/provision'
 import { Tr } from 'client/components/HOC'
-import {
-  Information,
-  Name,
-  Description,
-  ProviderLabel,
-  StartTime,
-  Permissions,
-  Use,
-  Manage,
-  Admin,
-  Ownership,
-  Owner,
-  Group,
-  Other,
-  State
-} from 'client/constants/translates'
+import { T, PROVISIONS_STATES } from 'client/constants'
 
 const Info = memo(({ data }) => {
   const classes = useStyles()
@@ -33,9 +17,11 @@ const Info = memo(({ data }) => {
     description,
     name,
     provider: providerName,
-    start_time: time
+    start_time: time,
+    provision: { infrastructure = {} }
   } = TEMPLATE?.PROVISION_BODY
 
+  const { id: clusterId, name: clusterName } = infrastructure?.clusters?.[0]
   const stateInfo = PROVISIONS_STATES[state]
 
   const isChecked = checked =>
@@ -47,7 +33,7 @@ const Info = memo(({ data }) => {
         <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr(Information)}</Typography>
+              <Typography>{Tr(T.Information)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
@@ -55,25 +41,29 @@ const Info = memo(({ data }) => {
               <Typography>{ID}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Name)}</Typography>
+              <Typography>{Tr(T.Name)}</Typography>
               <Typography>{name}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Description)}</Typography>
+              <Typography>{Tr(T.Description)}</Typography>
               <Typography>{description}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(ProviderLabel)}</Typography>
+              <Typography>{Tr(T.ProviderLabel)}</Typography>
               <Typography>{providerName}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(StartTime)}</Typography>
+              <Typography>{Tr(T.ClustersLabel)}</Typography>
+              <Typography>{`${clusterId} - ${clusterName}`}</Typography>
+            </ListItem>
+            <ListItem>
+              <Typography>{Tr(T.StartTime)}</Typography>
               <Typography>
                 {new Date(time * 1000).toLocaleString()}
               </Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(State)}</Typography>
+              <Typography>{Tr(T.State)}</Typography>
               <Chip
                 size="small"
                 label={stateInfo?.name}
@@ -87,26 +77,26 @@ const Info = memo(({ data }) => {
         <Paper variant="outlined" className={classes.permissions}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr(Permissions)}</Typography>
-              <Typography>{Tr(Use)}</Typography>
-              <Typography>{Tr(Manage)}</Typography>
-              <Typography>{Tr(Admin)}</Typography>
+              <Typography>{Tr(T.Permissions)}</Typography>
+              <Typography>{Tr(T.Use)}</Typography>
+              <Typography>{Tr(T.Manage)}</Typography>
+              <Typography>{Tr(T.Admin)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
-              <Typography>{Tr(Owner)}</Typography>
+              <Typography>{Tr(T.Owner)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_A)}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Group)}</Typography>
+              <Typography>{Tr(T.Group)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_A)}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Other)}</Typography>
+              <Typography>{Tr(T.Other)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_A)}</Typography>
@@ -116,15 +106,15 @@ const Info = memo(({ data }) => {
         <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr(Ownership)}</Typography>
+              <Typography>{Tr(T.Ownership)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
-              <Typography>{Tr(Owner)}</Typography>
+              <Typography>{Tr(T.Owner)}</Typography>
               <Typography>{UNAME}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Group)}</Typography>
+              <Typography>{Tr(T.Group)}</Typography>
               <Typography>{GNAME}</Typography>
             </ListItem>
           </List>

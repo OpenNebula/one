@@ -3,6 +3,8 @@ import React, { useState, useEffect, createElement } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Container, Box, Typography, Divider } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/Autorenew'
+import InfoIcon from '@material-ui/icons/Info'
+import DeleteIcon from '@material-ui/icons/Delete'
 
 import { PATH } from 'client/router/provision'
 import useProvision from 'client/hooks/useProvision'
@@ -57,21 +59,32 @@ function Provisions () {
             isLoading={provisions.length === 0 && loading}
             handleCreate={() => history.push(PATH.PROVISIONS.CREATE)}
             CardComponent={ProvisionCard}
-            cardsProps={({ value }) => ({
-              handleShow: () => setShowDialog({
-                id: value.ID,
-                title: `(ID: ${value.ID}) ${value.NAME}`,
-                content: DialogInfo
-              }),
-              handleDelete: () => setShowDialog({
-                id: value.ID,
-                title: `DELETE provider - (ID: ${value.ID}) ${value.NAME}`,
-                handleAccept: () => {
-                  deleteProvision({ id: value.ID })
-                  setShowDialog(false)
+            cardsProps={({ value: { ID, NAME } }) => ({
+              actions: [
+                {
+                  handleClick: () => setShowDialog({
+                    id: ID,
+                    title: `(ID: ${ID}) ${NAME}`,
+                    content: DialogInfo
+                  }),
+                  icon: InfoIcon,
+                  iconColor: 'primary',
+                  cy: `provision-info-${ID}`
                 },
-                content: DialogInfo
-              })
+                {
+                  handleClick: () => setShowDialog({
+                    id: ID,
+                    title: `DELETE provision - (ID: ${ID}) ${NAME}`,
+                    handleAccept: () => {
+                      deleteProvision({ id: ID })
+                      setShowDialog(false)
+                    },
+                    content: DialogInfo
+                  }),
+                  icon: DeleteIcon,
+                  cy: `provision-delete-${ID}`
+                }
+              ]
             })}
             breakpoints={{ xs: 12, sm: 6, md: 4 }}
           />

@@ -3,20 +3,17 @@ import PropTypes from 'prop-types'
 
 import { AppBar, Tabs, Tab, Box } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
-import ClusterIcon from '@material-ui/icons/Storage'
 import DatastoreIcon from '@material-ui/icons/FolderOpen'
 import NetworkIcon from '@material-ui/icons/AccountTree'
 import HostIcon from '@material-ui/icons/VideogameAsset'
 
 import InfoTab from 'client/containers/Provisions/DialogInfo/info'
-import ClustersTab from 'client/containers/Provisions/DialogInfo/clusters'
 import DatastoresTab from 'client/containers/Provisions/DialogInfo/datastores'
 import NetworksTab from 'client/containers/Provisions/DialogInfo/networks'
 import HostsTab from 'client/containers/Provisions/DialogInfo/hosts'
 
 const TABS = [
   { name: 'info', icon: InfoIcon, content: InfoTab },
-  { name: 'clusters', icon: ClusterIcon, content: ClustersTab },
   { name: 'datastores', icon: DatastoreIcon, content: DatastoresTab },
   { name: 'networks', icon: NetworkIcon, content: NetworksTab },
   { name: 'hosts', icon: HostIcon, content: HostsTab }
