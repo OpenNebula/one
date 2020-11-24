@@ -93,7 +93,7 @@ PostgreSqlDB::PostgreSqlDB(
     }
 
     features = {
-        {SqlFeature::MULTIPLE_VALUE, PQlibVersion() < 80200},
+        {SqlFeature::MULTIPLE_VALUE, PQlibVersion() > 80200},
         {SqlFeature::LIMIT, false},
         {SqlFeature::FTS, false},
         {SqlFeature::COMPARE_BINARY, false}
