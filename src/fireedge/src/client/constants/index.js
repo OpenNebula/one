@@ -13,10 +13,10 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const JWT_NAME = 'SunstoneToken'
+const JWT_NAME = 'FireedgeToken'
 
 const APPS = {
-  fireedge: 'fireedge',
+  flow: 'flow',
   provision: 'provision'
 }
 

@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const apps = {
-  fireedge: {
+  flow: {
     assets: true
   },
   provision: undefined

@@ -1,6 +1,6 @@
 {
   "auth": {
-    "jwtName": "SunstoneToken",
+    "jwtName": "FireedgeToken",
     "username": "oneadmin",
     "password": "opennebula"
   },
