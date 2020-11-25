@@ -398,15 +398,14 @@ module OneProvision
             # Hosts are previously deleted
             delete_objects(FULL_CLUSTER - ['hosts'], infrastructure_objects)
 
-            self.state = STATE['DONE']
-
-            rc = update
+            rc = super()
 
             return rc if OpenNebula.is_error?(rc)
 
             0
         ensure
-            unlock
+            # If provision does not exist, skip unlock
+            unlock unless OpenNebula.is_error?(info(true))
         end
 
         # Updates provision objects
@@ -619,6 +618,9 @@ module OneProvision
             cfg['hosts'].each do |h|
                 h['count'].nil? ? count = 1 : count = Integer(h['count'])
 
+                # Get hostnames
+                host_names = h['provision']['hostname'] if count > 1
+
                 # Store original host template
                 h_bck = Marshal.load(Marshal.dump(h))
 
@@ -629,7 +631,17 @@ module OneProvision
                         playbooks = cfg['playbook']
                         playbooks = playbooks.join(',') if playbooks.is_a? Array
 
-                        h    = Marshal.load(Marshal.dump(h_bck))
+                        h = Marshal.load(Marshal.dump(h_bck))
+
+                        # Take hostname from array
+                        if host_names
+                            if host_names.is_a? Array
+                                h['provision']['hostname'] = host_names.shift
+                            else
+                                h['provision']['hostname'] = host_names
+                            end
+                        end
+
                         host = Resource.object('hosts', @provider, h)
 
                         host.evaluate_rules(self)

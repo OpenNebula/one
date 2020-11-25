@@ -453,28 +453,57 @@ module OneProvision
                         return [false, 'user inputs not found']
                     end
 
-                    unless @config['inputs'].find {|v| v['name'] == match[1] }
+                    input = @config['inputs'].find {|v| v['name'] == match[1] }
+
+                    unless input
                         return [false, "user input #{match[1]} not found"]
                     end
 
-                    @config['inputs'].each do |input|
-                        case input['type']
-                        when 'list'
-                            next if input['options']
+                    case input['type']
+                    when 'boolean'
+                        next unless input['default']
 
+                        next if %w[NO YES].include?(input['default'])
+
+                        return [false, "default #{input['default']} is invalid"]
+                    when 'list'
+                        unless input['options']
                             return [false, 'input type list needs options']
-                        when 'range'
-                            next if input['min_value'] && input['max_value']
+                        end
 
+                        next unless input['default']
+
+                        next if input['options'].include?(input['default'])
+
+                        return [false, "default #{input['default']} " \
+                                        'is not in list']
+                    when 'array'
+                        next unless input['default']
+
+                        next if input['default'].match(/(\w+)(,\s*\w+)*/)
+
+                        return [false, "default #{input['default']} " \
+                                       'invalid format']
+                    when 'range'
+                        unless input['min_value'] && input['max_value']
                             return [false,
                                     'input type range needs min_value ' \
                                     'and max_value']
-                        else
-                            next
                         end
-                    end
 
-                    next
+                        begin
+                            Integer(input['min_value'])
+                            Integer(input['max_value'])
+                        rescue StandardError
+                            return [false,
+                                    'min_value and max_value ' \
+                                    'must be integer']
+                        end
+
+                        next
+                    else
+                        next
+                    end
                 end
 
                 ################################################################
@@ -592,7 +621,14 @@ module OneProvision
                             input['value'] = i_value
                         end
 
-                        value.gsub!("${#{match.join('.')}}", i_value.to_s)
+                        case input['type']
+                        when 'array'
+                            value = []
+                            value << i_value.split(',')
+                            value.flatten!
+                        else
+                            value.gsub!("${#{match.join('.')}}", i_value.to_s)
+                        end
                     end
                 end
 
@@ -627,6 +663,9 @@ module OneProvision
                     answer = STDIN.readline.chop
                     answer = input['default'] if answer.empty?
 
+                    # Add default in case no default value is given
+                    answer = 'NO' if answer.empty?
+
                     unless %w[YES NO].include?(answer)
                         puts "Invalid boolean #{answer} " \
                              'boolean has to be YES or NO'
@@ -649,6 +688,9 @@ module OneProvision
                     answer = STDIN.readline.chop
                     answer = input['default'] if answer.empty?
 
+                    # Add default in case no default value is given
+                    answer ||= 0
+
                     begin
                         if input['type'] == 'number'
                             answer = Integer(answer)
@@ -669,10 +711,13 @@ module OneProvision
 
                 until valid
                     print "Range `#{input['name']}` [#{min}..#{max}] " \
-                        "(default=#{input['default']}): "
+                          "(default=#{input['default']}): "
 
                     answer = STDIN.readline.chop
                     answer = input['default'] if answer.empty?
+
+                    # Add default in case no default value is given
+                    answer ||= input['min_value']
 
                     begin
                         if input['type'] == 'range'
@@ -697,33 +742,27 @@ module OneProvision
                 input['options'].each_with_index do |opt, i|
                     puts "    #{i}  #{opt}"
                 end
-
                 puts
 
-                valid = false
-
-                until valid
-                    print 'Please type the selection number ' \
-                        "(default=#{input['default']}): "
+                until input['options'].include?(answer)
+                    print 'Please select the option ' \
+                          "(default=#{input['default']}): "
 
                     answer = STDIN.readline.chop
                     answer = input['default'] if answer.empty?
 
-                    begin
-                        answer = Integer(answer)
+                    # Add default in case no default value is given
+                    answer = input['options'][0] if answer.empty?
+                end
+            when 'array'
+                answer = ''
 
-                        if answer < 0 || answer >= input['options'].size
-                            puts 'Index out of range'
-                            next
-                        end
+                until answer.match(/(\w+)(,\s*\w+)*/)
+                    print "Array `#{input['name']}` " \
+                          "(default=#{input['default']}): "
 
-                        answer = input['options'][Integer(answer)]
-                    rescue ArgumentError
-                        puts 'Wrong format'
-                        next
-                    end
-
-                    valid = true
+                    answer = STDIN.readline.chop
+                    answer = input['default'] if answer.empty?
                 end
             when 'fixed'
                 answer = input['default']

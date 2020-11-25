@@ -157,6 +157,7 @@ module OpenNebula
         def build_template_xml(template_json, name = nil, plain = nil)
             template_json ||= ""
             plain         ||= @plain
+            plain           = plain.to_json unless plain.is_a? String
 
             text = "<TEMPLATE>"
 
