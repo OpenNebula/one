@@ -258,7 +258,10 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/ssh \
             $SHARE_LOCATION/start-scripts \
             $SHARE_LOCATION/conf \
-            $SHARE_LOCATION/context"
+            $SHARE_LOCATION/context \
+            $SHARE_LOCATION/onecfg
+            $SHARE_LOCATION/onecfg/augeas \
+            $SHARE_LOCATION/onecfg/etc"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
@@ -301,7 +304,15 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/oneprovision/lib/provider \
           $LIB_LOCATION/oneprovision/lib/provision/resources \
           $LIB_LOCATION/oneprovision/lib/provision/resources/virtual \
-          $LIB_LOCATION/oneprovision/lib/provision/resources/physical"
+          $LIB_LOCATION/oneprovision/lib/provision/resources/physical
+          $LIB_LOCATION/onecfg/lib \
+          $LIB_LOCATION/onecfg/lib/common \
+          $LIB_LOCATION/onecfg/lib/common/helpers \
+          $LIB_LOCATION/onecfg/lib/common/logger \
+          $LIB_LOCATION/onecfg/lib/config \
+          $LIB_LOCATION/onecfg/lib/config/type \
+          $LIB_LOCATION/onecfg/lib/config/type/augeas \
+          $LIB_LOCATION/onecfg/lib/config/type/yaml"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -734,6 +745,20 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_LIB_VIRTUAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/virtual
     ONEPROVISION_LIB_PROVIDER_FILES:$LIB_LOCATION/oneprovision/lib/provider
     ONEPROVISION_LIB_PROVISION_TEMPLATE_FILES:$LIB_LOCATION/oneprovision/lib/provision_template
+)
+
+INSTALL_ONECFG_FILES=(
+    ONECFG_BIN_FILES:$BIN_LOCATION
+    ONECFG_LIB_FILES:$LIB_LOCATION/onecfg/lib
+    ONECFG_LIB_COMMON_FILES:$LIB_LOCATION/onecfg/lib/common
+    ONECFG_LIB_COMMON_HELPERS_FILES:$LIB_LOCATION/onecfg/lib/common/helpers
+    ONECFG_LIB_COMMON_LOGGER_FILES:$LIB_LOCATION/onecfg/lib/common/logger
+    ONECFG_LIB_CONFIG_FILES:$LIB_LOCATION/onecfg/lib/config
+    ONECFG_LIB_CONFIG_TYPE_FILES:$LIB_LOCATION/onecfg/lib/config/type
+    ONECFG_LIB_CONFIG_TYPE_AUGEAS_FILES:$LIB_LOCATION/onecfg/lib/config/type/augeas
+    ONECFG_LIB_CONFIG_TYPE_YAML_FILES:$LIB_LOCATION/onecfg/lib/config/type/yaml
+    ONECFG_SHARE_AUGEAS_FILES:$SHARE_LOCATION/onecfg/augeas
+    ONECFG_SHARE_ETC_FILES:$SHARE_LOCATION/onecfg/etc
 )
 
 INSTALL_SUNSTONE_RUBY_FILES=(
@@ -2667,6 +2692,38 @@ ONEFLOW_LIB_MODELS_FILES="src/flow/lib/models/role.rb \
                           src/flow/lib/models/service.rb"
 
 #-----------------------------------------------------------------------------
+# Onecfg files
+#-----------------------------------------------------------------------------
+
+ONECFG_BIN_FILES="src/onecfg/bin/onecfg"
+
+ONECFG_LIB_FILES="src/onecfg/lib/onecfg.rb
+                    src/onecfg/lib/common.rb \
+                    src/onecfg/lib/config.rb \
+                    src/onecfg/lib/exception.rb \
+                    src/onecfg/lib/settings.rb \
+                    src/onecfg/lib/version.rb"
+ONECFG_LIB_COMMON_FILES="src/onecfg/lib/common/backup.rb"
+ONECFG_LIB_COMMON_HELPERS_FILES="src/onecfg/lib/common/helpers/onecfg_helper.rb"
+ONECFG_LIB_COMMON_LOGGER_FILES="src/onecfg/lib/common/logger/cli_logger.rb"
+ONECFG_LIB_CONFIG_FILES="src/onecfg/lib/config/exception.rb \
+                                    src/onecfg/lib/config/fsops.rb \
+                                    src/onecfg/lib/config/type.rb \
+                                    src/onecfg/lib/config/utils.rb"
+ONECFG_LIB_CONFIG_TYPE_FILES="src/onecfg/lib/config/type/augeas.rb \
+                                        src/onecfg/lib/config/type/base.rb \
+                                        src/onecfg/lib/config/type/simple.rb \
+                                        src/onecfg/lib/config/type/yaml.rb"
+ONECFG_LIB_CONFIG_TYPE_AUGEAS_FILES="src/onecfg/lib/config/type/augeas/one.rb \
+                                              src/onecfg/lib/config/type/augeas/shell.rb"
+ONECFG_LIB_CONFIG_TYPE_YAML_FILES="src/onecfg/lib/config/type/yaml/strict.rb"
+
+ONECFG_SHARE_AUGEAS_FILES="src/onecfg/share/augeas/oned.aug \
+                           src/onecfg/share/augeas/test_oned.aug"
+ONECFG_SHARE_ETC_FILES="src/onecfg/share/etc/files.yaml"
+
+
+#-----------------------------------------------------------------------------
 # OneHem files
 #-----------------------------------------------------------------------------
 ONEHEM_FILES="src/hem/onehem-server.rb"
@@ -2887,14 +2944,16 @@ elif [ "$SUNSTONE_DEV" = "no" ]; then
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
-                 ${INSTALL_ONEPROVISION_FILES[@]}"
+                 ${INSTALL_ONEPROVISION_FILES[@]} \
+                 ${INSTALL_ONECFG_FILES[@]}"
 elif [ "$FIREEDGE_DEV" = "no" ]; then
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_FIREEDGE_MINIFIED_DIRS[@]}\
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
-                 ${INSTALL_ONEPROVISION_FILES[@]}"
+                 ${INSTALL_ONEPROVISION_FILES[@]} \
+                 ${INSTALL_ONECFG_FILES[@]}"
 else
     INSTALL_SET="${INSTALL_FILES[@]} \
                  ${INSTALL_SUNSTONE_FILES[@]} ${INSTALL_SUNSTONE_PUBLIC_DEV_DIR[@]}\
@@ -2902,7 +2961,8 @@ else
                  ${INSTALL_ONEGATE_FILES[@]} \
                  ${INSTALL_ONEFLOW_FILES[@]} \
                  ${INSTALL_ONEHEM_FILES[@]} \
-                 ${INSTALL_ONEPROVISION_FILES[@]}"
+                 ${INSTALL_ONEPROVISION_FILES[@]} \
+                 ${INSTALL_ONECFG_FILES[@]}"
 fi
 
 for i in ${INSTALL_SET[@]}; do

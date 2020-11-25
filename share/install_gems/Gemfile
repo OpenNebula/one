@@ -138,3 +138,8 @@ group :vmware do
 
     gem 'rbvmomi', '~> 2.2.0'
 end
+
+group :onecfg do
+    gem 'git', '~> 1.5'
+    gem 'augeas', '~> 0.6'
+end

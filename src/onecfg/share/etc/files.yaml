@@ -1,0 +1,333 @@
+---
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# This file describes all known OpenNebula
+# configurations, their format (class) and ownership with
+# permissions of newly created files. At the end, there are
+# catch all entries to detect any new unclassified file.
+
+### Dir: /etc/one/ #########################################
+
+- name: /etc/one/vcenter_driver.default
+  class: Simple
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/ec2_driver.default
+  class: Simple
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/az_driver.default
+  class: Simple
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/packet_driver.default
+  class: Simple
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/auth/ldap_auth.conf
+  class: Yaml::Strict
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/auth/server_x509_auth.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/auth/x509_auth.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/az_driver.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/cli/*.yaml
+  class: Yaml::Strict
+  owner: root
+  group: root
+  mode: '0644'
+
+- name: /etc/one/defaultrc
+  class: Augeas::Shell
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/ec2_driver.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/ec2query_templates/*.erb
+  class: Simple
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/econe.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/fireedge-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/monitord.conf
+  class: Augeas::ONE
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/hm/hmrc
+  class: Augeas::Shell
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/oned.conf
+  class: Augeas::ONE
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/oneflow-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/onegate-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/sched.conf
+  class: Augeas::ONE
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/sunstone-logos.yaml
+  class: Yaml::Strict
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/sunstone-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/onehem-server.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/sunstone-views/**/*.yaml
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/sunstone-views.yaml
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/tmrc
+  class: Augeas::Shell
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/vcenter_driver.conf
+  class: Yaml
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/vmm_exec/vmm_exec_kvm.conf
+  class: Augeas::ONE
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/vmm_exec/vmm_execrc
+  class: Augeas::Shell
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+- name: /etc/one/vmm_exec/vmm_exec_vcenter.conf
+  class: Augeas::ONE
+  owner: root
+  group: oneadmin
+  mode: '0640'
+
+
+### Dir: /var/lib/one/remotes/etc/ #########################
+
+- name: /var/lib/one/remotes/etc/datastore/datastore.conf
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/datastore/ceph/ceph.conf
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/datastore/fs/fs.conf
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/im/kvm-probes.d/pci.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/im/kvm-probes.d/probe_db.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/im/lxd-probes.d/pci.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/im/lxd-probes.d/probe_db.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/im/firecracker-probes.d/probe_db.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/market/http/http.conf
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/tm/fs_lvm/fs_lvm.conf
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/tm/ssh/sshrc
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/vmm/kvm/kvmrc
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/vmm/lxd/lxdrc
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/vmm/firecracker/firecrackerrc
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/vmm/vcenter/vcenterrc
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/vnm/OpenNebulaNetwork.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+
+### Dir: /var/lib/one/remotes/ (ONE < 5.6) #################
+
+- name: /var/lib/one/remotes/datastore/ceph/ceph.conf
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+  old: true
+
+- name: /var/lib/one/remotes/vmm/kvm/kvmrc
+  class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+  old: true
+
+- name: /var/lib/one/remotes/vnm/OpenNebulaNetwork.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+  old: true
+
+
+### Catch all unclassified files above and fail ############
+
+- name: '/etc/one/**/**'
+- name: '/var/lib/one/remotes/etc/**/**'
