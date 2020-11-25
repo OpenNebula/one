@@ -1,6 +1,6 @@
 import httpCodes from 'server/utils/constants/http-codes'
 import { httpMethod } from 'server/utils/constants/defaults'
-import { PROVISION, PROVISION_TEMPLATE } from 'server/routes/api/provision/string-routes'
+import { PROVISION } from 'server/routes/api/provision/string-routes'
 import { requestData } from 'client/utils'
 
 const { GET, POST, PUT, DELETE } = httpMethod
@@ -9,25 +9,15 @@ const { GET, POST, PUT, DELETE } = httpMethod
 // PROVISIONS TEMPLATES REQUESTS
 // --------------------------------------------
 
-export const getProvisionTemplate = ({ id }) =>
-  requestData(`/api/${PROVISION_TEMPLATE}/list/${id}`, {
-    method: GET,
-    error: err => err?.message
-  }).then(res => {
-    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
-
-    return res?.data?.DOCUMENT ?? {}
-  })
-
 export const getProvisionsTemplates = ({ filter }) =>
-  requestData(`/api/${PROVISION_TEMPLATE}/list`, {
+  requestData(`/api/${PROVISION}/defaults`, {
     data: { filter },
     method: GET,
     error: err => err?.message
   }).then(res => {
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-    return [res?.data?.DOCUMENT_POOL?.DOCUMENT ?? []].flat()
+    return res?.data ?? []
   })
 
 export const createProvisionTemplate = ({ data = {} }) =>
@@ -59,10 +49,7 @@ export const getProvisions = ({ filter }) =>
   })
 
 export const createProvision = ({ data = {} }) =>
-  Promise.resolve().then(res => res?.data?.DOCUMENT ?? {})
-
-/* export const createProvision = ({ id, data = {} }) =>
-  requestData(`/api/${PROVISION}/create/${id}`, {
+  requestData(`/api/${PROVISION}/create`, {
     data,
     method: POST,
     error: err => err?.message
@@ -70,13 +57,22 @@ export const createProvision = ({ data = {} }) =>
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data ?? {}
-  }) */
+  })
+
+export const deleteProvision = ({ id }) =>
+  requestData(`/api/${PROVISION}/delete/${id}`, {
+    method: DELETE,
+    error: err => err?.message
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  })
 
 export default {
-  getProvisionTemplate,
   getProvisionsTemplates,
-
   getProvision,
   getProvisions,
-  createProvision
+  createProvision,
+  deleteProvision
 }

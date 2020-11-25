@@ -17,6 +17,7 @@ function ProviderCreateForm () {
   const history = useHistory()
   const { id } = useParams()
   const isUpdate = id !== undefined
+  const { showError } = useGeneral()
 
   const {
     steps,
@@ -31,7 +32,6 @@ function ProviderCreateForm () {
     updateProvider,
     providersTemplates
   } = useProvision()
-  const { showError } = useGeneral()
 
   const { data, fetchRequestAll, loading, error } = useFetchAll()
 
@@ -48,6 +48,13 @@ function ProviderCreateForm () {
 
     const providerTemplate = providersTemplates
       .find(({ name }) => name === providerSelected) ?? {}
+
+    if (!providerSelected) {
+      showError(`
+          Cannot found provider template (${providerSelected}),
+          ask your cloud administrator`)
+      history.push(PATH.PROVISIONS.LIST)
+    }
 
     const formatData = {
       ...(!isUpdate && { name: `${providerSelected}_${locationSelected}` }),

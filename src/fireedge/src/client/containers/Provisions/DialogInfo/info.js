@@ -21,7 +21,7 @@ const Info = memo(({ data }) => {
     provision: { infrastructure = {} }
   } = TEMPLATE?.PROVISION_BODY
 
-  const { id: clusterId, name: clusterName } = infrastructure?.clusters?.[0]
+  const { id: clusterId = '', name: clusterName = '' } = infrastructure?.clusters?.[0] ?? {}
   const stateInfo = PROVISIONS_STATES[state]
 
   const isChecked = checked =>

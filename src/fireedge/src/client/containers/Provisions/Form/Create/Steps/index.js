@@ -1,17 +1,17 @@
 import * as yup from 'yup'
 
-import ProvisionTemplate from './ProvisionTemplate'
+import Provision from './Provision'
 import Inputs from './Inputs'
 
 const Steps = () => {
-  const provisionTemplate = ProvisionTemplate()
+  const provision = Provision()
   const inputs = Inputs()
 
-  const steps = [provisionTemplate, inputs]
+  const steps = [provision, inputs]
 
   const resolvers = () => yup
     .object({
-      [provisionTemplate.id]: provisionTemplate.resolver(),
+      [provision.id]: provision.resolver(),
       [inputs.id]: inputs.resolver()
     })
 
