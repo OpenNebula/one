@@ -104,9 +104,12 @@ module OpenNebula::LockableExt
                 end
 
                 ret = yield if block_given?
-                rc  = unlock
 
-                return rc if OpenNebula.is_error?(rc)
+                unless OpenNebula.is_error?(info)
+                    rc = unlock
+
+                    return rc if OpenNebula.is_error?(rc)
+                end
 
                 ret
             end

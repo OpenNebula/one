@@ -222,12 +222,6 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         :description => 'Dump the configuration file result.'
     }
 
-    DONE = {
-        :name => 'done',
-        :large => '--done',
-        :description => 'List provisions in DONE state'
-    }
-
     ########################################################################
 
     MODES = CommandParser::OPTIONS - [CommandParser::VERBOSE] +

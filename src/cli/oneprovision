@@ -160,11 +160,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :list,
             provision_list_desc,
-            :options => CLIHelper::OPTIONS +
-                        [OpenNebulaHelper::FORMAT, OneProvisionHelper::DONE] do
-        if !(options.key? :filter) && !(options.key? :done)
-            options[:filter] = ['STAT!=DONE']
-        end
+            :options => CLIHelper::OPTIONS + [OpenNebulaHelper::FORMAT] do
         options[:decrypt] = true
         helper.list_pool(options)
     end

@@ -76,8 +76,6 @@ module OneProvision
                     end
                 end
 
-                @plain = @plain.to_json if @plain
-
                 super(template_json.to_json)
             else
                 super
