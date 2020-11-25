@@ -26,6 +26,6 @@ export const FORM_FIELDS = inputs =>
     }
   })
 
-export const STEP_FORM_SCHEMA = connection => yup.object(
-  getValidationFromFields(FORM_FIELDS(connection))
+export const STEP_FORM_SCHEMA = inputs => yup.object(
+  getValidationFromFields(FORM_FIELDS(inputs))
 )

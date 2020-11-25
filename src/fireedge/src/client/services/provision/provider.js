@@ -71,7 +71,6 @@ export const deleteProvider = ({ id }) =>
 
 export default {
   getProvidersTemplates,
-
   getProvider,
   getProviders,
   createProvider,

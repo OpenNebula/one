@@ -18,7 +18,7 @@ const HostCard = memo(
     const state = Host.STATES[STATE]
     const mad = imMad === vmMad ? imMad : `${imMad}/${vmMad}`
 
-    const classes = useStyles({ stateColor: state.color })
+    const classes = useStyles({ stateColor: state?.color })
 
     const renderChip = ({ label, ...props }) =>
       <Chip size="small" title={label} label={label} {...props} />
@@ -34,7 +34,7 @@ const HostCard = memo(
           </Box>
         )}
         subheader={
-          renderChip({ label: state.name, className: classes.state })
+          renderChip({ label: state?.name, className: classes.state })
         }
         isSelected={isSelected}
         handleClick={handleClick}
