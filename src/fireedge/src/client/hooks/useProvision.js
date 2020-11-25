@@ -166,7 +166,7 @@ export default function useOpennebula () {
   const deleteProvision = useCallback(
     ({ id }) =>
       serviceProvision
-        .deleteProvider({ id })
+        .deleteProvision({ id })
         .then(() => dispatch(enqueueSuccess(`Provision deleted - ID: ${id}`)))
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provision')))
     , [dispatch, provisions]
