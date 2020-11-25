@@ -57,6 +57,12 @@ CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
+    PLAIN = {
+        :name => 'plain',
+        :large => '--plain',
+        :description => 'Update plain information'
+    }
+
     ########################################################################
     # Global options
     ########################################################################
@@ -94,14 +100,16 @@ CommandParser::CmdParser.new(ARGV) do
         Allocate a new provider. Configuration file must be written in YAML.
 
         $ cat packet.yaml
-        name: packet
+        name: 'packet_custom'
+        provider: 'packet'
         connection:
             packet_token:   "Packet token"
             packet_project: "Packet project"
             facility:       "Packet facility"
 
         $ cat ec2.yaml
-        name: "ec2",
+        name: 'aws_custom',
+        provider: 'aws'
         connection:
             ec2_access:        "AWS access key"
             ec2_secret:        "AWS secret key"
@@ -164,9 +172,13 @@ CommandParser::CmdParser.new(ARGV) do
         Update provider information
     EOT
 
-    command :update, update_desc, :providerid, [:file, nil] do
+    command :update,
+            update_desc,
+            :providerid,
+            [:file, nil],
+            :options => PLAIN do
         helper.perform_action(args[0], options, 'updated') do |obj|
-            helper.update(obj, args[1])
+            helper.update(obj, args[1], (options.key? :plain))
         end
     end
 

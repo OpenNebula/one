@@ -28,7 +28,7 @@ module OneProvision
         attr_reader :tag
 
         # Body
-        attr_reader :body
+        attr_reader :body, :plain
 
         # Class constructor
         def initialize(xml, client)
@@ -37,25 +37,46 @@ module OneProvision
             @tag = TEMPLATE_TAG
         end
 
+        # Allocate provision element
+        #
+        # @param template_json [Hash]   Template information
+        # @param name          [String] Provision element name
+        def allocate(template, name, plain)
+            plain = plain.to_json if plain
+            text  = build_template_xml(template, name, plain)
+
+            allocate_xml(text)
+        end
+
         # Replaces the template contents
         #
-        # @param template_json [String] New template contents
+        # @param template_json [String]  New template contents
+        # @param plain         [Boolean] Update plain information
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(template_json = nil)
+        def update(template_json = nil, plain = false)
             if template_json
-                template_json = JSON.parse(template_json)
+                if plain
+                    @plain        = JSON.parse(template_json)
+                    template_json = @body
+                else
+                    template_json = JSON.parse(template_json)
 
-                if template_json.keys.sort != @body.keys.sort
-                    return OpenNebula::Error.new('Keys can not be changed')
+                    if template_json.keys.sort != @body.keys.sort
+                        return OpenNebula::Error.new('Keys can not be changed')
+                    end
+
+                    self.class::IMMUTABLE_ATTRS.each do |attr|
+                        next if template_json[attr] == @body[attr]
+
+                        return OpenNebula::Error.new(
+                            "`#{attr}` can not be changed"
+                        )
+                    end
                 end
 
-                self.class::IMMUTABLE_ATTRS.each do |attr|
-                    next if template_json[attr] == @body[attr]
-
-                    return OpenNebula::Error.new("`#{attr}` can not be changed")
-                end
+                @plain = @plain.to_json if @plain
 
                 super(template_json.to_json)
             else

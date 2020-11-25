@@ -1593,7 +1593,7 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.update_obj(obj, file)
+    def OpenNebulaHelper.update_obj(obj, file, plain = false)
         rc = obj.info(true)
 
         return rc if OpenNebula.is_error?(rc)
@@ -1623,7 +1623,11 @@ EOT
             tmp.close
         end
 
-        obj.update(File.read(path))
+        if plain
+            obj.update(File.read(path), plain)
+        else
+            obj.update(File.read(path))
+        end
     end
 
     def OpenNebulaHelper.editor_input(contents=nil)

@@ -136,12 +136,17 @@ class OneProvisionTemplateHelper < OpenNebulaHelper::OneHelper
     # Updates provision template information
     #
     # @param template [OneProvision::ProvisionTemplate] Template object
-    # @param file     [String] Path to file with update content
+    # @param file     [String]  Path to file with update content
+    # @param plain    [Boolean] True to update plain
     #
     # @return [0, OpenNebula::Error]
-    def update(template, file)
-        OpenNebulaHelper.update_obj(template, file) do |tmpl|
-            JSON.pretty_generate(tmpl.body)
+    def update(template, file, plain)
+        OpenNebulaHelper.update_obj(template, file, plain) do |tmpl|
+            if plain
+                JSON.pretty_generate(tmpl.plain)
+            else
+                JSON.pretty_generate(tmpl.body)
+            end
         end
     end
 

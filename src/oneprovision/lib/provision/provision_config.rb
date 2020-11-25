@@ -254,7 +254,9 @@ module OneProvision
                             if obj_int
                                 object = objects[obj_int]
                             else
-                                object = objects.find{|o| o['NAME'] == match[1]}
+                                object = objects.find do |o|
+                                    o['NAME'] == match[1]
+                                end
                             end
 
                             object  = object.to_hash
@@ -510,7 +512,7 @@ module OneProvision
                 if elem_int
                     elem = elements[elem_int]
                 else
-                    elem = elements.find{|o| o['NAME'] == match[1]}
+                    elem = elements.find {|o| o['NAME'] == match[1] }
                 end
 
                 return [false, "#{match[0]} #{match[1]} not found"] if elem.nil?

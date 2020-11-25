@@ -47,7 +47,7 @@ module OneProvision
                 return OpenNebula::Error.new(e)
             end
 
-            super(rc, template['name'], TEMPLATE_TAG)
+            super(rc, template['name'], template['plain'])
         end
 
         # Delete provider

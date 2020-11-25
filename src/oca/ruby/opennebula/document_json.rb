@@ -47,6 +47,13 @@ module OpenNebula
             super(text)
         end
 
+        # Allocate XML Document
+        #
+        # @param xml [String] XML document content
+        def allocate_xml(xml)
+            super(xml)
+        end
+
         # Retrieves the information of the Service and all its Nodes.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
@@ -127,23 +134,34 @@ module OpenNebula
                 end
             end
 
+            plain_str = self['TEMPLATE/PLAIN']
+
+            if plain_str
+                begin
+                    @plain = JSON.parse(plain_str)
+                rescue JSON::JSONError
+                    return OpenNebula::Error.new($!)
+                end
+            end
+
             return nil
         end
-
-        private
 
         # Build an xml string incluiding the provided json
         #
         # @param [String] template_json The template to be inserted
         # @param [String, nil] name The string to be inserted as name
+        # @param [String, nil] plain information to add to the document
         # @return [String] The xml containing the json
         #
-        def build_template_xml(template_json, name=nil)
+        def build_template_xml(template_json, name = nil, plain = nil)
             template_json ||= ""
+            plain         ||= @plain
 
             text = "<TEMPLATE>"
 
             text << "<NAME>#{name}</NAME>" if name
+            text << "<PLAIN><![CDATA[#{plain}]]></PLAIN>" if plain
 
             text << "<#{template_tag}>"
             text << "<![CDATA[#{template_json}]]>"

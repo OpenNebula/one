@@ -151,11 +151,16 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
     #
     # @param provider [OneProvision::Provider] Provider object
     # @param file     [String]                 Path to file with update content
+    # @param plain    [Boolean]                True to update plain
     #
     # @return [0, OpenNebula::Error]
-    def update(provider, file)
-        OpenNebulaHelper.update_obj(provider, file) do |prov|
-            JSON.pretty_generate(prov.body)
+    def update(provider, file, plain)
+        OpenNebulaHelper.update_obj(provider, file, plain) do |prov|
+            if plain
+                JSON.pretty_generate(prov.plain)
+            else
+                JSON.pretty_generate(prov.body)
+            end
         end
     end
 

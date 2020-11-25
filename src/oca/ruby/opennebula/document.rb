@@ -111,6 +111,8 @@ module OpenNebula
             super(DOCUMENT_METHODS[:allocate], description, document_type)
         end
 
+        alias_method :allocate_xml, :allocate
+
         # Deletes the Document
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
