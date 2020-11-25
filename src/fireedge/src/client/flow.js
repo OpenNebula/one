@@ -41,4 +41,4 @@ if (element) {
 const mainDiv = document.getElementById('root')
 const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render
 
-renderMethod(<App store={store} app='fireedge'/>, document.getElementById('root'))
+renderMethod(<App store={store} app='flow'/>, document.getElementById('root'))

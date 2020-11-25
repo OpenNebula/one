@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { Container, Box, Typography, Divider } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/Autorenew'
 
-import { PATH } from 'client/router/fireedge'
+import { PATH } from 'client/router/flow'
 import useApplication from 'client/hooks/useApplication'
 import useFetch from 'client/hooks/useFetch'
 
