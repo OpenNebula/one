@@ -66,6 +66,11 @@ src/fireedge/yarn.lock
 src/onedb/local/
 src/onedb/shared/
 
+# Enterprise part of onecfg
+src/onecfg/lib/ee.rb
+src/onecfg/lib/ee/
+src/onecfg/share/migrators/
+
 share/esx-fw-vnc/*.rpm
 share/esx-fw-vnc/.vagrant*
 
