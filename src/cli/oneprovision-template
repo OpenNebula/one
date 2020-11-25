@@ -62,6 +62,12 @@ CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
+    PLAIN = {
+        :name => 'plain',
+        :large => '--plain',
+        :description => 'Update plain information'
+    }
+
     ########################################################################
     # Global options
     ########################################################################
@@ -157,9 +163,13 @@ CommandParser::CmdParser.new(ARGV) do
         Update template information
     EOT
 
-    command :update, update_desc, :templateid, [:file, nil] do
+    command :update,
+            update_desc,
+            :templateid,
+            [:file, nil],
+            :options => PLAIN do
         helper.perform_action(args[0], options, 'updated') do |obj|
-            helper.update(obj, args[1])
+            helper.update(obj, args[1], (options.key? :plain))
         end
     end
 
