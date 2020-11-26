@@ -24,13 +24,13 @@ export LIBVIRT_MD_URI=http://opennebula.org/xmlns/libvirt/1.0
 export LIBVIRT_MD_KEY=one
 
 # Seconds to wait after shutdown until timeout
-export SHUTDOWN_TIMEOUT=300
+export SHUTDOWN_TIMEOUT=180
 
 # Instruct QEMU guest agent to synchronize the guest time from RTC
-export SYNC_TIME=no
+export SYNC_TIME=yes
 
 # Uncomment this line to force VM cancellation after shutdown timeout
-#export FORCE_DESTROY=yes
+export FORCE_DESTROY=yes
 
 # Default number of "virsh" command retries when required
 # currently used in detach-interface, restore
@@ -54,7 +54,7 @@ export VIRSH_RETRIES=3
 # To enable them, the "-drive" option now supports a "discard" suboption; the
 # default value is "ignore" (or its synonym "off"), and the other valid value
 # is "unmap" (or "on").
-#DEFAULT_ATTACH_DISCARD=unmap
+DEFAULT_ATTACH_DISCARD=unmap
 
 # The default DISK I/O policy for new attached disks.
 #DEFAULT_ATTACH_IO=
@@ -82,5 +82,5 @@ export VIRSH_RETRIES=3
 
 # This parameters will set the default NIC model and filter for
 # the hot-attached interfaces.
-#DEFAULT_ATTACH_NIC_MODEL=virtio
+DEFAULT_ATTACH_NIC_MODEL=virtio
 #DEFAULT_ATTACH_NIC_FILTER=clean-traffic
