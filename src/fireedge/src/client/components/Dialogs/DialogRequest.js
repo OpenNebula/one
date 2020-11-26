@@ -8,7 +8,7 @@ import { DialogConfirmation } from 'client/components/Dialogs'
 
 const useStyles = makeStyles(theme => ({
   backdrop: {
-    zIndex: theme.zIndex.appBar,
+    zIndex: theme.zIndex.drawer + 1,
     color: theme.palette.common.white
   }
 }))

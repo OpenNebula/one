@@ -25,6 +25,8 @@ const BY = {
   url: 'https://opennebula.io/'
 }
 
+const STATIC_FILES_URL = '/client/assets'
+
 const ONEADMIN_ID = '0'
 
 const REQUEST_ACTIONS = {
@@ -49,6 +51,7 @@ const INPUT_TYPES = {
 
 export {
   BY,
+  STATIC_FILES_URL,
   JWT_NAME,
   APPS,
   ONEADMIN_ID,

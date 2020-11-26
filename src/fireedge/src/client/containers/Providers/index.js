@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { Container, Box, Typography, Divider } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/Autorenew'
 import InfoIcon from '@material-ui/icons/Info'
-import EditIcon from '@material-ui/icons/Build'
+import EditIcon from '@material-ui/icons/Settings'
 import DeleteIcon from '@material-ui/icons/Delete'
 
 import { PATH } from 'client/router/provision'
@@ -14,7 +14,7 @@ import useFetch from 'client/hooks/useFetch'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import ListCards from 'client/components/List/ListCards'
 import AlertError from 'client/components/Alerts/Error'
-import { ProviderCard } from 'client/components/Cards'
+import { ProvisionCard } from 'client/components/Cards'
 
 import { DialogRequest } from 'client/components/Dialogs'
 import Information from 'client/containers/Providers/Sections/info'
@@ -57,18 +57,14 @@ function Providers () {
             list={providers}
             isLoading={providers.length === 0 && loading}
             handleCreate={() => history.push(PATH.PROVIDERS.CREATE)}
-            CardComponent={ProviderCard}
+            CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
+              isProvider: true,
+              handleClick: () => setShowDialog({
+                id: ID,
+                title: `(ID: ${ID}) ${NAME}`
+              }),
               actions: [
-                {
-                  handleClick: () => setShowDialog({
-                    id: ID,
-                    title: `(ID: ${ID}) ${NAME}`
-                  }),
-                  icon: InfoIcon,
-                  iconColor: 'primary',
-                  cy: `provider-info-${ID}`
-                },
                 {
                   handleClick: () =>
                     history.push(PATH.PROVIDERS.EDIT.replace(':id', ID)),
@@ -85,6 +81,7 @@ function Providers () {
                     }
                   }),
                   icon: DeleteIcon,
+                  iconProps: { color: 'error' },
                   cy: `provider-delete-${ID}`
                 }
               ]

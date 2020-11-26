@@ -6,7 +6,7 @@ import useProvision from 'client/hooks/useProvision'
 import useListForm from 'client/hooks/useListForm'
 
 import ListCards from 'client/components/List/ListCards'
-import { EmptyCard, ProviderCard } from 'client/components/Cards'
+import { EmptyCard, ProvisionCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
 
 import { STEP_FORM_SCHEMA } from './schema'
@@ -47,13 +47,17 @@ const Provider = () => ({
         list={providers}
         isLoading={!providers && loading}
         EmptyComponent={<EmptyCard title={'Your providers list is empty'} />}
-        CardComponent={ProviderCard}
+        CardComponent={ProvisionCard}
         cardsProps={({ value: { NAME } }) => {
           const isSelected = data?.some(selected => selected === NAME)
-          const handleClick = () =>
-            isSelected ? handleUnselect(NAME) : handleSelect(NAME)
 
-          return { isSelected, handleClick, imgAsAvatar: true }
+          return {
+            imgAsAvatar: true,
+            isProvider: true,
+            isSelected,
+            handleClick: () =>
+              isSelected ? handleUnselect(NAME) : handleSelect(NAME)
+          }
         }}
       />
     )
