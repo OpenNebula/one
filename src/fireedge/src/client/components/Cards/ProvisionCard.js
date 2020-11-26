@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import { Avatar, IconButton } from '@material-ui/core'
@@ -11,9 +11,19 @@ import { STATIC_FILES_URL } from 'client/constants'
 const ProvisionCard = memo(
   ({ value, isSelected, handleClick, isProvider, imgAsAvatar, actions }) => {
     const DEFAULT_IMAGE = isProvider ? 'provider.png' : 'provision.jpg'
+
+    const [image, setImage] = useState(undefined)
     const { ID, NAME, TEMPLATE: { PLAIN = '{}' } } = value
-    // TODO: show error when fail parse
-    const { image = DEFAULT_IMAGE } = JSON.parse(PLAIN) ?? {}
+
+    useEffect(() => {
+      try {
+        const plain = JSON.parse(PLAIN)
+        setImage(plain?.image ?? DEFAULT_IMAGE)
+      } catch {
+        setImage(DEFAULT_IMAGE)
+        console.warn('Image in plain property is not valid')
+      }
+    }, [])
 
     const isExternalURL = RegExp(/^(http|https):/g).test(image)
 
