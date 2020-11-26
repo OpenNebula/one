@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import {
-  makeStyles, Card, CardActionArea, CardHeader, CardActions, IconButton
+  makeStyles, Card, CardActionArea, CardHeader, CardActions, IconButton, CardMedia
 } from '@material-ui/core'
 import { Skeleton } from '@material-ui/lab'
 
@@ -11,7 +11,10 @@ import useNearScreen from 'client/hooks/useNearScreen'
 import ConditionalWrap from 'client/components/HOC/ConditionalWrap'
 
 const useStyles = makeStyles(theme => ({
-  root: { height: '100%' },
+  root: {
+    height: '100%',
+    display: ({ isMedia }) => isMedia ? 'flex' : 'block'
+  },
   selected: {
     color: theme.palette.primary.contrastText,
     backgroundColor: theme.palette.primary.main,
@@ -23,13 +26,20 @@ const useStyles = makeStyles(theme => ({
       color: 'inherit'
     }
   },
-  actionArea: {
+  actionArea: ({ minHeight = 140, isMedia }) => ({
     height: '100%',
-    minHeight: ({ minHeight = 140 }) => minHeight,
-    padding: theme.spacing(1)
-  },
+    minHeight,
+    padding: !isMedia && theme.spacing(1)
+  }),
+  mediaImage: { width: '40%' },
+  headerRoot: ({ isMedia }) => isMedia && ({
+    flex: '1'
+  }),
   headerAvatar: { display: 'flex' },
   headerContent: { overflowX: 'hidden' },
+  title: ({ isMedia }) => isMedia && ({
+    paddingLeft: theme.spacing(1)
+  }),
   subheader: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -38,7 +48,17 @@ const useStyles = makeStyles(theme => ({
     lineClamp: 2,
     boxOrient: 'vertical'
   },
-  actionsIcon: { margin: theme.spacing(1) }
+  actions: ({ isMedia }) => isMedia && ({
+    justifyContent: 'space-around',
+    padding: theme.spacing(1)
+  }),
+  actionsIcon: { margin: theme.spacing(1) },
+  details: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    width: ({ isMedia }) => isMedia && '60%'
+  }
 }))
 
 const SelectCard = memo(({
@@ -49,13 +69,14 @@ const SelectCard = memo(({
   title,
   subheader,
   cardHeaderProps,
+  mediaProps,
   isSelected,
   handleClick,
   cardProps,
   observerOff,
   children
 }) => {
-  const classes = useStyles(stylesProps)
+  const classes = useStyles({ ...stylesProps, isMedia: !!mediaProps })
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
@@ -89,38 +110,56 @@ const SelectCard = memo(({
               </CardActionArea>
             }
           >
-            <CardHeader
-              action={action}
-              avatar={icon}
-              classes={{
-                content: classes.headerContent,
-                avatar: classes.headerAvatar
-              }}
-              title={title}
-              titleTypographyProps={{
-                variant: 'body2',
-                noWrap: true,
-                title
-              }}
-              subheader={subheader}
-              subheaderTypographyProps={{
-                variant: 'body2',
-                noWrap: true,
-                className: classes.subheader,
-                title: subheader
-              }}
-              {...cardHeaderProps}
-            />
-            {children}
-            {actions?.length > 0 && (
-              <CardActions>
-                {actions?.map(action => renderAction(action))}
-              </CardActions>
+            {mediaProps && (
+              <CardMedia className={classes.mediaImage} {...mediaProps} />
             )}
+            <ConditionalWrap
+              condition={!!mediaProps}
+              wrap={children =>
+                <div className={classes.details}>
+                  {children}
+                </div>
+              }
+            >
+              <CardHeader
+                action={action}
+                avatar={icon}
+                classes={{
+                  root: classes.headerRoot,
+                  content: classes.headerContent,
+                  avatar: classes.headerAvatar
+                }}
+                title={title}
+                titleTypographyProps={{
+                  variant: 'body2',
+                  noWrap: true,
+                  className: classes.title,
+                  title
+                }}
+                subheader={subheader}
+                subheaderTypographyProps={{
+                  variant: 'body2',
+                  noWrap: true,
+                  className: classes.subheader,
+                  title: subheader
+                }}
+                {...cardHeaderProps}
+              />
+              {children}
+              {actions?.length > 0 && (
+                <CardActions className={classes.actions} disableSpacing={!!mediaProps}>
+                  {actions?.map(action => renderAction(action))}
+                </CardActions>
+              )}
+            </ConditionalWrap>
           </ConditionalWrap>
         </Card>
       ) : (
-        <Skeleton variant="rect" width="100%" height={140} />
+        <Skeleton
+          variant="rect"
+          width="100%"
+          height={stylesProps?.minHeight ?? 140}
+        />
       )}
     </ConditionalWrap>
   )
@@ -155,6 +194,14 @@ SelectCard.propTypes = {
     titleTypographyProps: PropTypes.object,
     subheaderTypographyProps: PropTypes.object
   }),
+  mediaProps: PropTypes.shape({
+    classes: PropTypes.object,
+    className: PropTypes.string,
+    component: PropTypes.elementType,
+    image: PropTypes.string,
+    src: PropTypes.string,
+    style: PropTypes.object
+  }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   cardProps: PropTypes.object,
@@ -174,6 +221,7 @@ SelectCard.defaultProps = {
   title: undefined,
   subheader: undefined,
   cardHeaderProps: undefined,
+  mediaProps: undefined,
   isSelected: false,
   handleClick: undefined,
   cardProps: undefined,

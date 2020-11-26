@@ -1,17 +1,25 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import TemplateIcon from '@material-ui/icons/Description'
 import SelectCard from 'client/components/Cards/SelectCard'
 
+const DEFAULT_IMAGE = '/client/assets/provider.png'
+
 const ProviderCard = memo(({ value, actions }) => {
-  const { ID, NAME } = value
+  const { ID, NAME, TEMPLATE: { PLAIN = '{}' } } = value
+  const { image = DEFAULT_IMAGE } = JSON.parse(PLAIN)
 
   return (
     <SelectCard
       title={`${ID} - ${NAME}`}
-      icon={<TemplateIcon />}
       actions={actions}
+      mediaProps={{
+        component: 'img',
+        image,
+        onError: evt => {
+          evt.target.src = DEFAULT_IMAGE
+        }
+      }}
     />
   )
 })
@@ -19,7 +27,14 @@ const ProviderCard = memo(({ value, actions }) => {
 ProviderCard.propTypes = {
   value: PropTypes.shape({
     ID: PropTypes.string.isRequired,
-    NAME: PropTypes.string.isRequired
+    NAME: PropTypes.string.isRequired,
+    TEMPLATE: PropTypes.shape({
+      PLAIN: PropTypes.string,
+      PROVISION_BODY: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.object
+      ])
+    })
   }),
   actions: PropTypes.arrayOf(
     PropTypes.shape({

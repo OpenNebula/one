@@ -58,6 +58,9 @@ function ProviderCreateForm () {
 
     const formatData = {
       ...(!isUpdate && { name: `${providerSelected}_${locationSelected}` }),
+      ...(providerTemplate?.image && {
+        plain: { image: providerTemplate.image }
+      }),
       provider: providerSelected,
       connection: {
         ...connection,
@@ -76,7 +79,13 @@ function ProviderCreateForm () {
   }
 
   useEffect(() => {
-    isUpdate && fetchRequestAll([getProvider({ id }), getProvidersTemplates()])
+    isUpdate && fetchRequestAll([
+      getProvider({ id }),
+      getProvidersTemplates({
+        onError: () =>
+          history.push(PATH.PROVIDERS.LIST)
+      })
+    ])
   }, [isUpdate])
 
   useEffect(() => {
@@ -84,16 +93,20 @@ function ProviderCreateForm () {
       const [provider = {}, templates = []] = data
 
       const { TEMPLATE: { PROVISION_BODY = {} } } = provider
-      const { connection, provider: providerName, registration_time: time } = PROVISION_BODY
+      const {
+        connection, provider: providerName, registration_time: time
+      } = PROVISION_BODY
 
       const {
         location_key: key
       } = templates?.find(({ name }) => name === providerName) ?? {}
 
       if (!key) {
-        showError(`
-          Cannot found provider template (${providerName}),
-          ask your cloud administrator`)
+        showError({
+          message: `
+            Cannot found provider template (${providerName}),
+            ask your cloud administrator`
+        })
         history.push(PATH.PROVIDERS.LIST)
       }
 
