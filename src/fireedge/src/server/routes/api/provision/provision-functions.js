@@ -234,63 +234,51 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
-    const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
-    const valSchema = schemaValidator.validate(resource, provision)
-    if (valSchema.valid) {
-      const content = createYMLContent(resource)
-      if (content) {
-        const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: configFile.name, ext: configFile.ext, content }])
-        if (files && files.name && files.files) {
-          const find = (val = '', ext = '', arr = files.files) => arr.find(e => e && e.path && e.ext && e.name && e.name === val && e.ext === ext)
-          const config = find(configFile.name, configFile.ext)
-          const log = find(logFile.name, logFile.ext)
-          if (config && log) {
-            const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand]
-            let lastLine = ''
-            var stream = createWriteStream(log.path, { flags: 'a' })
-            const emit = message => {
-              message.toString().split(/\r|\n/).map(line=>{
-                if(line){
-                  lastLine = line
-                  stream.write(`${line}\n`)
-                  publish(command, { id: files.name, message: line })
+    const content = createYMLContent(resource)
+    if (content) {
+      const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: configFile.name, ext: configFile.ext, content }])
+      if (files && files.name && files.files) {
+        const find = (val = '', ext = '', arr = files.files) => arr.find(e => e && e.path && e.ext && e.name && e.name === val && e.ext === ext)
+        const config = find(configFile.name, configFile.ext)
+        const log = find(logFile.name, logFile.ext)
+        if (config && log) {
+          const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand]
+          let lastLine = ''
+          var stream = createWriteStream(log.path, { flags: 'a' })
+          const emit = message => {
+            message.toString().split(/\r|\n/).map(line=>{
+              if(line){
+                lastLine = line
+                stream.write(`${line}\n`)
+                publish(command, { id: files.name, message: line })
+              }
+            })
+          }
+          executeCommandAsync(
+            command,
+            paramsCommand,
+            {
+              err: emit,
+              out: emit,
+              close: success => {
+                stream.end()
+                if (success && /^ID: \d+/.test(lastLine)) {
+                  const newPath = renameFolder(config.path, lastLine.match('\\d+'))
+                  if (newPath) {
+                    moveToFolder(newPath, '/../../../')
+                  }
                 }
-              })
-            }
-            executeCommandAsync(
-              command,
-              paramsCommand,
-              {
-                err: emit,
-                out: emit,
-                close: success => {
-                  stream.end()
-                  if (success && /^ID: \d+/.test(lastLine)) {
-                    const newPath = renameFolder(config.path, lastLine.match('\\d+'))
-                    if (newPath) {
-                      moveToFolder(newPath, '/../../../')
-                    }
-                  }
-                  if (success === false) {
-                    renameFolder(config.path, '.ERROR', 'append')
-                  }
+                if (success === false) {
+                  renameFolder(config.path, '.ERROR', 'append')
                 }
               }
-            )
-            res.locals.httpCode = httpResponse(accepted, files.name)
-            next()
-            return
-          }
+            }
+          )
+          res.locals.httpCode = httpResponse(accepted, files.name)
+          next()
+          return
         }
-      }
-    } else {
-      const errors = []
-      if (valSchema && valSchema.errors) {
-        valSchema.errors.forEach(error => {
-          errors.push(error.stack.replace(/^instance./, ''))
-        })
-        rtn = httpResponse(internalServerError, '', errors.toString())
       }
     }
   }
