@@ -1560,7 +1560,7 @@ void Scheduler::dispatch()
                       << "\"]";
             }
 
-            if ( num_matched_networks < nics_ids.size())
+            if (!vm->is_resched() && num_matched_networks < nics_ids.size())
             {
                 for (auto it = matched_networks.begin(); it != matched_networks.end(); it++)
                 {
