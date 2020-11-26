@@ -1,14 +1,12 @@
 import React, { useCallback, useEffect } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import FileIcon from '@material-ui/icons/Description'
-
 import useFetch from 'client/hooks/useFetch'
 import useProvision from 'client/hooks/useProvision'
 import useListForm from 'client/hooks/useListForm'
 
 import ListCards from 'client/components/List/ListCards'
-import { EmptyCard, SelectCard } from 'client/components/Cards'
+import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
 
 import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
@@ -50,13 +48,12 @@ const Provider = () => ({
         EmptyComponent={
           <EmptyCard title={'Your providers templates list is empty'} />
         }
-        CardComponent={SelectCard}
+        CardComponent={ProvisionTemplateCard}
         cardsProps={({ value: { name } }) => {
           const isSelected = data?.some(selected => selected === name)
 
           return {
-            icon: <FileIcon />,
-            title: name,
+            isProvider: true,
             isSelected,
             handleClick: () => handleClick(name, isSelected)
           }

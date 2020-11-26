@@ -1,19 +1,15 @@
 import React, { useCallback, useEffect } from 'react'
-
 import { Redirect } from 'react-router-dom'
-import ProvisionIcon from '@material-ui/icons/SettingsSystemDaydream'
 
 import useFetch from 'client/hooks/useFetch'
 import useProvision from 'client/hooks/useProvision'
 import useListForm from 'client/hooks/useListForm'
 
 import ListCards from 'client/components/List/ListCards'
-import { EmptyCard, SelectCard } from 'client/components/Cards'
+import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
 
-import {
-  STEP_ID as INPUTS_ID
-} from 'client/containers/Provisions/Form/Create/Steps/Inputs'
+import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/Create/Steps/Inputs'
 import { STEP_FORM_SCHEMA } from './schema'
 
 export const STEP_ID = 'provision'
@@ -51,13 +47,11 @@ const Provision = () => ({
         EmptyComponent={
           <EmptyCard title={'Your provisions templates list is empty'} />
         }
-        CardComponent={SelectCard}
+        CardComponent={ProvisionTemplateCard}
         cardsProps={({ value: { name } }) => {
           const isSelected = data?.some(selected => selected === name)
 
           return {
-            icon: <ProvisionIcon />,
-            title: name,
             isSelected,
             handleClick: () => handleClick(name, isSelected)
           }
