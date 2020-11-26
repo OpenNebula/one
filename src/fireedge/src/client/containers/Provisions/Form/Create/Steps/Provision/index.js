@@ -10,6 +10,7 @@ import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
 
 import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/Create/Steps/Inputs'
+import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/Create/Steps/Provider'
 import { STEP_FORM_SCHEMA } from './schema'
 
 export const STEP_ID = 'provision'
@@ -31,8 +32,8 @@ const Provision = () => ({
 
     useEffect(() => { fetchRequest() }, [])
 
-    const handleClick = (nameTemplate, isSelected) => {
-      setFormData(({ [INPUTS_ID]: undefined }))
+    const handleClick = (nameTemplate, nameProvider, isSelected) => {
+      setFormData(({ [INPUTS_ID]: undefined, [PROVIDER_ID]: [nameProvider] }))
       isSelected ? handleUnselect(nameTemplate) : handleSelect(nameTemplate)
     }
 
@@ -48,12 +49,13 @@ const Provision = () => ({
           <EmptyCard title={'Your provisions templates list is empty'} />
         }
         CardComponent={ProvisionTemplateCard}
-        cardsProps={({ value: { name } }) => {
+        cardsProps={({ value: { name, defaults = {} } }) => {
           const isSelected = data?.some(selected => selected === name)
+          const { provision: { provider } = {} } = defaults
 
           return {
             isSelected,
-            handleClick: () => handleClick(name, isSelected)
+            handleClick: () => handleClick(name, provider, isSelected)
           }
         }}
         breakpoints={{ xs: 12, sm: 6, md: 4 }}

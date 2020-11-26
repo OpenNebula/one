@@ -1,0 +1,63 @@
+import React, { useCallback, useEffect } from 'react'
+import { Redirect } from 'react-router-dom'
+
+import useFetch from 'client/hooks/useFetch'
+import useProvision from 'client/hooks/useProvision'
+import useListForm from 'client/hooks/useListForm'
+
+import ListCards from 'client/components/List/ListCards'
+import { EmptyCard, ProviderCard } from 'client/components/Cards'
+import { PATH } from 'client/router/provision'
+
+import { STEP_FORM_SCHEMA } from './schema'
+
+export const STEP_ID = 'provider'
+
+const Provider = () => ({
+  id: STEP_ID,
+  label: 'Provider',
+  resolver: () => STEP_FORM_SCHEMA,
+  content: useCallback(({ data, setFormData }) => {
+    const { getProviders } = useProvision()
+    const { data: providers, fetchRequest, loading, error } = useFetch(
+      getProviders
+    )
+
+    const { handleSelect, handleUnselect } = useListForm({
+      key: STEP_ID,
+      setList: setFormData
+    })
+
+    useEffect(() => { fetchRequest() }, [])
+
+    useEffect(() => {
+      if (providers) {
+        // delete provider selected in template if not exists
+        const provider = providers?.some(({ NAME }) => NAME === data?.[0])
+        !provider && handleUnselect(data?.[0])
+      }
+    }, [providers])
+
+    if (error) {
+      return <Redirect to={PATH.DASHBOARD} />
+    }
+
+    return (
+      <ListCards
+        list={providers}
+        isLoading={!providers && loading}
+        EmptyComponent={<EmptyCard title={'Your providers list is empty'} />}
+        CardComponent={ProviderCard}
+        cardsProps={({ value: { NAME } }) => {
+          const isSelected = data?.some(selected => selected === NAME)
+          const handleClick = () =>
+            isSelected ? handleUnselect(NAME) : handleSelect(NAME)
+
+          return { isSelected, handleClick, imgAsAvatar: true }
+        }}
+      />
+    )
+  }, [])
+})
+
+export default Provider

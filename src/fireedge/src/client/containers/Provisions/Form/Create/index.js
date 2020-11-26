@@ -11,6 +11,7 @@ import Steps from 'client/containers/Provisions/Form/Create/Steps'
 import { PATH } from 'client/router/provision'
 import useProvision from 'client/hooks/useProvision'
 import useGeneral from 'client/hooks/useGeneral'
+import { set } from 'client/utils'
 
 function ProvisionCreateForm () {
   const history = useHistory()
@@ -25,8 +26,9 @@ function ProvisionCreateForm () {
   })
 
   const onSubmit = formData => {
-    const { provision, inputs } = formData
+    const { provision, provider, inputs } = formData
     const provisionSelected = provision[0]
+    const providerSelected = provider[0]
 
     const provisionTemplate = provisionsTemplates
       .find(({ name }) => name === provisionSelected)
@@ -37,6 +39,8 @@ function ProvisionCreateForm () {
           ask your cloud administrator`)
       history.push(PATH.PROVISIONS.LIST)
     }
+
+    set(provisionTemplate, 'defaults.provision.provider', providerSelected)
 
     const formatData = {
       ...provisionTemplate,
