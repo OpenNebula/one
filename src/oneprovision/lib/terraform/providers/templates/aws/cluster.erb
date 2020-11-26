@@ -17,7 +17,7 @@ resource "aws_internet_gateway" "device_<%= obj['ID'] %>" {
 
 resource "aws_route" "device_<%= obj['ID'] %>" {
     route_table_id         = aws_vpc.device_<%= obj['ID'] %>.main_route_table_id
-    destination_cidr_block = "<%= provision['DEST_CIDR'] %>"
+    destination_cidr_block = "0.0.0.0/0"
     gateway_id             = aws_internet_gateway.device_<%= obj['ID'] %>.id
 }
 <% end %>
