@@ -69,6 +69,20 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
           .default(defaultValue ?? undefined)
       }
     }
+    case 'array': {
+      const defaultValues = getOptionsFromList(defaultValue)
+
+      return {
+        type: INPUT_TYPES.AUTOCOMPLETE,
+        multiple: true,
+        validation: yup.array(yup.string().trim())
+          .concat(requiredSchema(mandatory, name, yup.array()))
+          .default(defaultValues),
+        fieldProps: {
+          freeSolo: true
+        }
+      }
+    }
     case 'list-multiple': {
       const values = getOptionsFromList(options)
       const defaultValues = defaultValue?.split(',') ?? undefined

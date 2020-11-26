@@ -56,6 +56,7 @@ const Provision = () => ({
             handleClick: () => handleClick(name, isSelected)
           }
         }}
+        breakpoints={{ xs: 12, sm: 6, md: 4 }}
       />
     )
   }, [])
