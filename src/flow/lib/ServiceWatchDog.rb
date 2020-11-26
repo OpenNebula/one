@@ -205,8 +205,16 @@ class ServiceWD
                 @services << Integer(service.id)
             end
 
-            service.roles.each do |name, role|
-                role.nodes_ids.each do |node|
+            roles = service.roles
+
+            next unless roles
+
+            roles.each do |name, role|
+                nodes_ids = role.nodes_ids
+
+                next unless nodes_ids
+
+                nodes_ids.each do |node|
                     check_role_state(client, service.id, name, node)
                 end
             end

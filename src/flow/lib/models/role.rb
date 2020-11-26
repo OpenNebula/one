@@ -165,6 +165,8 @@ module OpenNebula
             end
 
             parents.each do |parent|
+                next unless @service.roles[parent]
+
                 return false if @service.roles[parent].state != STATE['RUNNING']
             end
 
