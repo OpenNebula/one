@@ -19,6 +19,7 @@ import { Select } from '@material-ui/core'
 import { sprintf } from 'sprintf-js'
 import root from 'window-or-global'
 import { defaultLang } from 'server/utils/constants/defaults'
+import { STATIC_FILES_URL } from 'client/constants'
 
 const defaultFunction = () => undefined
 const TranslateContext = createContext()
@@ -33,7 +34,7 @@ const GenerateScript = (
 ) => {
   try {
     const script = document.createElement('script')
-    script.src = `/client/assets/languages/${language}.js`
+    script.src = `${STATIC_FILES_URL}/languages/${language}.js`
     script.async = true
     script.onload = () => {
       setLang(language)

@@ -5,7 +5,6 @@ export default makeStyles(theme => ({
   root: {
     flex: '1 1 auto',
     display: 'flex',
-    zIndex: '3',
     overflow: 'hidden',
     position: 'relative',
     flexDirection: 'column',

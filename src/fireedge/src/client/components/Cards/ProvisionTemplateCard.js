@@ -3,14 +3,18 @@ import PropTypes from 'prop-types'
 
 import { Avatar } from '@material-ui/core'
 import SelectCard from 'client/components/Cards/SelectCard'
-
-const PROVIDER_IMAGE = '/client/assets/provider.png'
-const PROVISION_IMAGE = '/client/assets/provision.jpg'
+import { STATIC_FILES_URL } from 'client/constants'
 
 const ProvisionTemplateCard = memo(
   ({ value, isProvider, isSelected, handleClick }) => {
-    const { name, plain: { image } = {} } = value
-    const DEFAULT_IMG = isProvider ? PROVIDER_IMAGE : PROVISION_IMAGE
+    const DEFAULT_IMAGE = isProvider ? 'provider.png' : 'provision.jpg'
+    const { name, plain: { image = DEFAULT_IMAGE } = {} } = value
+
+    const isExternalURL = RegExp(/^(http|https):/g).test(image)
+
+    const onError = evt => {
+      evt.target.src = `${STATIC_FILES_URL}/${DEFAULT_IMAGE}`
+    }
 
     return (
       <SelectCard
@@ -20,19 +24,15 @@ const ProvisionTemplateCard = memo(
         handleClick={handleClick}
         icon={
           <Avatar
-            src={image ?? DEFAULT_IMG}
+            src={isExternalURL ? image : `${STATIC_FILES_URL}/${image}`}
             variant="rounded"
             style={{ width: 100, height: 80 }}
-            imgProps={{
-              onError: evt => {
-                evt.target.src = DEFAULT_IMG
-              }
-            }}
+            imgProps={{ onError }}
           />
         }
       />
     )
-  }
+  }, (prev, next) => prev.isSelected === next.isSelected
 )
 
 ProvisionTemplateCard.propTypes = {

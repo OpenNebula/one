@@ -60,31 +60,25 @@ function Provisions () {
             handleCreate={() => history.push(PATH.PROVISIONS.CREATE)}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
-              actions: [
-                {
-                  handleClick: () => setShowDialog({
-                    id: ID,
-                    title: `(ID: ${ID}) ${NAME}`,
-                    content: DialogInfo
-                  }),
-                  icon: InfoIcon,
-                  iconColor: 'primary',
-                  cy: `provision-info-${ID}`
-                },
-                {
-                  handleClick: () => setShowDialog({
-                    id: ID,
-                    title: `DELETE provision - (ID: ${ID}) ${NAME}`,
-                    handleAccept: () => {
-                      deleteProvision({ id: ID })
-                      setShowDialog(false)
-                    },
-                    content: DialogInfo
-                  }),
-                  icon: DeleteIcon,
-                  cy: `provision-delete-${ID}`
-                }
-              ]
+              handleClick: () => setShowDialog({
+                id: ID,
+                title: `(ID: ${ID}) ${NAME}`,
+                content: DialogInfo
+              }),
+              actions: [{
+                handleClick: () => setShowDialog({
+                  id: ID,
+                  title: `DELETE provision - (ID: ${ID}) ${NAME}`,
+                  handleAccept: () => {
+                    deleteProvision({ id: ID })
+                    setShowDialog(false)
+                  },
+                  content: DialogInfo
+                }),
+                icon: DeleteIcon,
+                iconProps: { color: 'error' },
+                cy: `provision-delete-${ID}`
+              }]
             })}
             breakpoints={{ xs: 12, sm: 6, md: 4 }}
           />

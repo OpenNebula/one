@@ -11,10 +11,7 @@ import useNearScreen from 'client/hooks/useNearScreen'
 import ConditionalWrap from 'client/components/HOC/ConditionalWrap'
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    height: '100%',
-    display: ({ isMedia }) => isMedia ? 'flex' : 'block'
-  },
+  root: { height: '100%' },
   selected: {
     color: theme.palette.primary.contrastText,
     backgroundColor: theme.palette.primary.main,
@@ -26,20 +23,15 @@ const useStyles = makeStyles(theme => ({
       color: 'inherit'
     }
   },
-  actionArea: ({ minHeight = 140, isMedia }) => ({
+  actionArea: {
     height: '100%',
-    minHeight,
-    padding: !isMedia && theme.spacing(1)
-  }),
-  mediaImage: { width: '40%' },
-  headerRoot: ({ isMedia }) => isMedia && ({
-    flex: '1'
-  }),
+    minHeight: ({ minHeight = 140 }) => minHeight
+  },
+  mediaImage: {
+    height: ({ mediaHeight = 140 }) => mediaHeight
+  },
   headerAvatar: { display: 'flex' },
   headerContent: { overflowX: 'hidden' },
-  title: ({ isMedia }) => isMedia && ({
-    paddingLeft: theme.spacing(1)
-  }),
   subheader: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -48,17 +40,7 @@ const useStyles = makeStyles(theme => ({
     lineClamp: 2,
     boxOrient: 'vertical'
   },
-  actions: ({ isMedia }) => isMedia && ({
-    justifyContent: 'space-around',
-    padding: theme.spacing(1)
-  }),
-  actionsIcon: { margin: theme.spacing(1) },
-  details: {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    width: ({ isMedia }) => isMedia && '60%'
-  }
+  actionsIcon: { margin: theme.spacing(1) }
 }))
 
 const SelectCard = memo(({
@@ -76,7 +58,7 @@ const SelectCard = memo(({
   observerOff,
   children
 }) => {
-  const classes = useStyles({ ...stylesProps, isMedia: !!mediaProps })
+  const classes = useStyles(stylesProps)
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
@@ -99,8 +81,10 @@ const SelectCard = memo(({
           })}
           {...cardProps}
         >
+
+          {/* CARD ACTION AREA */}
           <ConditionalWrap
-            condition={handleClick}
+            condition={handleClick && !action}
             wrap={children =>
               <CardActionArea
                 className={classes.actionArea}
@@ -110,48 +94,53 @@ const SelectCard = memo(({
               </CardActionArea>
             }
           >
+            {/* CARD HEADER */}
+            <CardHeader
+              action={action}
+              avatar={icon}
+              classes={{
+                content: classes.headerContent,
+                avatar: classes.headerAvatar
+              }}
+              title={title}
+              titleTypographyProps={{
+                variant: 'body2',
+                noWrap: true,
+                title
+              }}
+              subheader={subheader}
+              subheaderTypographyProps={{
+                variant: 'body2',
+                noWrap: true,
+                className: classes.subheader,
+                title: subheader
+              }}
+              {...cardHeaderProps}
+            />
+
+            {/* CARD CONTENT */}
+            {children}
+
+            {/* CARD MEDIA */}
             {mediaProps && (
-              <CardMedia className={classes.mediaImage} {...mediaProps} />
+              <ConditionalWrap
+                condition={handleClick && action}
+                wrap={children =>
+                  <CardActionArea onClick={handleClick}>
+                    {children}
+                  </CardActionArea>
+                }
+              >
+                <CardMedia className={classes.mediaImage} {...mediaProps} />
+              </ConditionalWrap>
             )}
-            <ConditionalWrap
-              condition={!!mediaProps}
-              wrap={children =>
-                <div className={classes.details}>
-                  {children}
-                </div>
-              }
-            >
-              <CardHeader
-                action={action}
-                avatar={icon}
-                classes={{
-                  root: classes.headerRoot,
-                  content: classes.headerContent,
-                  avatar: classes.headerAvatar
-                }}
-                title={title}
-                titleTypographyProps={{
-                  variant: 'body2',
-                  noWrap: true,
-                  className: classes.title,
-                  title
-                }}
-                subheader={subheader}
-                subheaderTypographyProps={{
-                  variant: 'body2',
-                  noWrap: true,
-                  className: classes.subheader,
-                  title: subheader
-                }}
-                {...cardHeaderProps}
-              />
-              {children}
-              {actions?.length > 0 && (
-                <CardActions className={classes.actions} disableSpacing={!!mediaProps}>
-                  {actions?.map(action => renderAction(action))}
-                </CardActions>
-              )}
-            </ConditionalWrap>
+
+            {/* CARD ACTIONS */}
+            {actions?.length > 0 && (
+              <CardActions>
+                {actions?.map(action => renderAction(action))}
+              </CardActions>
+            )}
           </ConditionalWrap>
         </Card>
       ) : (
