@@ -6,6 +6,7 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons'
 import { makeStyles, fade } from '@material-ui/core/styles'
 
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -62,12 +63,12 @@ const CustomMobileStepper = ({
             onClick={handleBack}
             disabled={disabledBack}
           >
-            <KeyboardArrowLeft /> {Tr('Back')}
+            <KeyboardArrowLeft /> {Tr(T.Back)}
           </Button>
         }
         nextButton={
           <Button className={classes.button} size="small" onClick={handleNext}>
-            {activeStep === lastStep ? Tr('Finish') : Tr('Next')}
+            {activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
             <KeyboardArrowRight />
           </Button>
         }

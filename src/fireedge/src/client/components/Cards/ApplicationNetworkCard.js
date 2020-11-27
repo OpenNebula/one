@@ -3,8 +3,9 @@ import PropTypes from 'prop-types'
 
 import { Button, CardActions } from '@material-ui/core'
 
-import { Tr } from 'client/components/HOC'
 import SelectCard from 'client/components/Cards/SelectCard'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const ApplicationNetworkCard = memo(({
   value,
@@ -32,7 +33,7 @@ const ApplicationNetworkCard = memo(({
             onClick={handleEdit}
             disableElevation
           >
-            {Tr('Edit')}
+            {Tr(T.Edit)}
           </Button>
         )}
         {handleClone && (
@@ -42,12 +43,12 @@ const ApplicationNetworkCard = memo(({
             onClick={handleClone}
             disableElevation
           >
-            {Tr('Clone')}
+            {Tr(T.Clone)}
           </Button>
         )}
         {handleRemove && (
           <Button size="small" onClick={handleRemove} disableElevation>
-            {Tr('Remove')}
+            {Tr(T.Remove)}
           </Button>
         )}
       </CardActions>

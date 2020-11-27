@@ -5,6 +5,7 @@ import { makeStyles, Card, CardContent, Button, CardActions } from '@material-ui
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -30,7 +31,7 @@ const PolicyCard = memo(
         <CardActions>
           {handleRemove && (
             <Button variant="contained" size="small" onClick={handleRemove} disableElevation>
-              {Tr('Remove')}
+              {Tr(T.Remove)}
             </Button>
           )}
         </CardActions>

@@ -1,24 +1,21 @@
 import React, { useState, useEffect, createElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box, Typography, Divider } from '@material-ui/core'
-import RefreshIcon from '@material-ui/icons/Autorenew'
+import { Container, Box } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 
 import { PATH } from 'client/router/provision'
 import useProvision from 'client/hooks/useProvision'
 import useFetch from 'client/hooks/useFetch'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
-import ListCards from 'client/components/List/ListCards'
+import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
 
 import { DialogRequest } from 'client/components/Dialogs'
 import DialogInfo from 'client/containers/Provisions/DialogInfo'
-
-import { ProvisionsLabel, CannotConnectOneProvision } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 function Provisions () {
   const history = useHistory()
@@ -37,21 +34,17 @@ function Provisions () {
 
   return (
     <Container disableGutters>
-      <Box p={3} display="flex" alignItems="center">
-        <SubmitButton
-          fab
-          onClick={() => fetchRequest(undefined, { reload: true })}
-          isSubmitting={loading || reloading}
-          label={<RefreshIcon />}
-        />
-        <Typography variant="h5" style={{ marginLeft: 8 }}>
-          {Tr(ProvisionsLabel)}
-        </Typography>
-      </Box>
-      <Divider />
+      <ListHeader
+        title={Tr(T.Provisions)}
+        hasReloadButton
+        reloadButtonProps={{
+          onClick: () => fetchRequest(undefined, { reload: true }),
+          isSubmitting: Boolean(loading || reloading)
+        }}
+      />
       <Box p={3}>
         {error ? (
-          <AlertError>{Tr(CannotConnectOneProvision)}</AlertError>
+          <AlertError>{Tr(T.CannotConnectOneProvision)}</AlertError>
         ) : (
           <ListCards
             list={provisions}

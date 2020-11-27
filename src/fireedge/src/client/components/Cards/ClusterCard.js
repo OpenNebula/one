@@ -9,8 +9,9 @@ import {
   FolderOpen as DatastoreIcon
 } from '@material-ui/icons'
 
-import { Tr } from 'client/components/HOC'
 import SelectCard from 'client/components/Cards/SelectCard'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   badgesWrapper: {
@@ -41,7 +42,7 @@ const ClusterCard = memo(
           <Box className={classes.badgesWrapper}>
             <Badge
               showZero
-              title={Tr('Hosts')}
+              title={Tr(T.Hosts)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={hosts.length}
@@ -51,7 +52,7 @@ const ClusterCard = memo(
             </Badge>
             <Badge
               showZero
-              title={Tr('Virtual networks')}
+              title={Tr(T.VirtualsNetworks)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={vnets.length}
@@ -61,7 +62,7 @@ const ClusterCard = memo(
             </Badge>
             <Badge
               showZero
-              title={Tr('Datastores')}
+              title={Tr(T.Datastores)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={datastores.length}

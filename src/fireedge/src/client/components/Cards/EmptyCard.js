@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 
 import { Card, CardHeader, Fade, makeStyles } from '@material-ui/core'
 import { Tr } from 'client/components/HOC/Translate'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -23,7 +24,7 @@ const EmptyCard = memo(({ title }) => {
     <Fade in unmountOnExit>
       <Card className={classes.root} variant="outlined">
         <CardHeader
-          subheader={title ?? Tr('empty')}
+          subheader={title ?? Tr(T.Empty)}
           className={classes.content}
         />
       </Card>

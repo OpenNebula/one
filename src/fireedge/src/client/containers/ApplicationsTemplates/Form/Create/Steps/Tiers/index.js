@@ -17,6 +17,8 @@ import FormStepper from 'client/components/FormStepper'
 import { DialogForm } from 'client/components/Dialogs'
 import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Networking'
 import { STEP_ID as NETWORKS_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers/Steps/Networks'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 import Steps from './Steps'
 import Flow from './Flow'
@@ -29,7 +31,7 @@ const Tiers = () => {
 
   return {
     id: STEP_ID,
-    label: 'Tier Definition',
+    label: Tr(T.TierDefinition),
     resolver: yup
       .array(resolvers())
       .min(1, 'Should be at least one tier')
@@ -85,7 +87,7 @@ const Tiers = () => {
             <Context.Provider value={{ nestedForm }}>
               <DialogForm
                 open={showDialog}
-                title={'Tier form'}
+                title={`${Tr(T.Tiers)} form`}
                 resolver={resolvers}
                 values={editingData}
                 onCancel={() => setShowDialog(false)}

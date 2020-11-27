@@ -4,8 +4,9 @@ import PropTypes from 'prop-types'
 import { Button, CardActions, Badge } from '@material-ui/core'
 import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows'
 
-import { Tr } from 'client/components/HOC'
 import SelectCard from 'client/components/Cards/SelectCard'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const TierCard = memo(
   ({ value, handleEdit, handleRemove, cardProps }) => {
@@ -32,12 +33,12 @@ const TierCard = memo(
         <CardActions>
           {handleEdit && (
             <Button variant="contained" size="small" onClick={handleEdit} disableElevation>
-              {Tr('Edit')}
+              {Tr(T.Edit)}
             </Button>
           )}
           {handleRemove && (
             <Button size="small" onClick={handleRemove} disableElevation>
-              {Tr('Remove')}
+              {Tr(T.Remove)}
             </Button>
           )}
         </CardActions>

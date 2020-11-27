@@ -5,6 +5,9 @@ import { AppBar, Tabs, Tab } from '@material-ui/core'
 import { Warning as WarningIcon } from '@material-ui/icons'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
+
 import { ID, FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
 
 export const STEP_ID = 'tiers'
@@ -18,7 +21,7 @@ const Tiers = ({ tiers, vmTemplates }) => {
 
   return {
     id: STEP_ID,
-    label: 'Configure Tiers',
+    label: Tr(T.ConfigureTiers),
     resolver: STEP_FORM_SCHEMA({ tiers, vmTemplates }),
     optionsValidate: { abortEarly: false },
     content: useCallback(() => {

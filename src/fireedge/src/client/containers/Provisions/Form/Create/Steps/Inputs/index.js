@@ -5,6 +5,8 @@ import { useFormContext } from 'react-hook-form'
 import useProvision from 'client/hooks/useProvision'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 import {
   STEP_ID as PROVISION_TEMPLATE_ID
@@ -17,7 +19,7 @@ let inputs = []
 
 const Inputs = () => ({
   id: STEP_ID,
-  label: 'Inputs configuration',
+  label: Tr(T.ConfigureInputs),
   resolver: () => STEP_FORM_SCHEMA(inputs),
   optionsValidate: { abortEarly: false },
   content: useCallback(() => {

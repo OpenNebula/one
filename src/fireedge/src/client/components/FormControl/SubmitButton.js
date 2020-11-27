@@ -2,9 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, CircularProgress, Button, Fab } from '@material-ui/core'
-
-import { Submit } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -38,7 +37,7 @@ const SubmitButton = ({ isSubmitting, label, fab, ...props }) => {
       {...props}
     >
       {isSubmitting && <CircularProgress size={24} />}
-      {!isSubmitting && (label ?? Tr(Submit))}
+      {!isSubmitting && (label ?? Tr(T.Submit))}
     </ButtonComponent>
   )
 }

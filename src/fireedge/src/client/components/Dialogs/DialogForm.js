@@ -13,8 +13,8 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import ButtonSubmit from 'client/components/FormControl/SubmitButton'
-import { Cancel, Save } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const DialogForm = memo(
   ({
@@ -49,7 +49,7 @@ const DialogForm = memo(
           }
         }}
       >
-        <DialogTitle>{Tr(title)}</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         <DialogContent dividers>
           <FormProvider {...methods}>{children}</FormProvider>
         </DialogContent>
@@ -57,7 +57,7 @@ const DialogForm = memo(
           <DialogActions>
             {onCancel && (
               <Button onClick={onCancel} color="primary">
-                {Tr(Cancel)}
+                {Tr(T.Cancel)}
               </Button>
             )}
             {onSubmit && (
@@ -65,7 +65,7 @@ const DialogForm = memo(
                 data-cy="dg-form-submit-button"
                 isSubmitting={methods.formState.isSubmitting}
                 onClick={methods.handleSubmit(onSubmit)}
-                label={Tr(Save)}
+                label={Tr(T.Save)}
                 {...submitButtonProps}
               />
             )}

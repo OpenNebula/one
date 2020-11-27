@@ -11,8 +11,8 @@ import {
 } from '@material-ui/core'
 
 import ButtonSubmit from 'client/components/FormControl/SubmitButton'
-import { Cancel, Accept } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const DialogConfirmation = memo(
   ({
@@ -56,14 +56,14 @@ const DialogConfirmation = memo(
                 color="primary"
                 {...cancelButtonProps}
               >
-                {Tr(Cancel)}
+                {Tr(T.Cancel)}
               </Button>
             )}
             {handleAccept && (
               <ButtonSubmit
                 data-cy="dg-accept-button"
                 onClick={handleAccept}
-                label={Tr(Accept)}
+                label={Tr(T.Accept)}
                 {...acceptButtonProps}
               />
             )}
