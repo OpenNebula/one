@@ -15,7 +15,6 @@
 const { env } = require('process')
 const { Map } = require('immutable')
 const { existsSync, readFileSync, createWriteStream } = require('fs-extra')
-
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
@@ -94,7 +93,7 @@ const existsFile = (path = '', success = () => undefined, error = () => undefine
     })
   }
   if (rtn) {
-    success(file)
+    success(file, path)
   } else {
     error(errorData)
   }

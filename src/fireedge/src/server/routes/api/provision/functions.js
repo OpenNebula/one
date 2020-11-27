@@ -15,7 +15,7 @@
 const { v4 } = require('uuid')
 const { dirname, basename } = require('path')
 const events = require('events')
-const { Document } = require('yaml')
+const { Document, scalarOptions } = require('yaml')
 const {
   writeFileSync,
   removeSync,
@@ -126,6 +126,7 @@ const createYMLContent = (content = '') => {
   let rtn
   if (content) {
     try {
+      scalarOptions.str.defaultType = 'QUOTE_SINGLE'
       const doc = new Document({})
       doc.directivesEndMarker = true
       doc.contents = content
@@ -227,7 +228,6 @@ const executeCommandAsync = (
       }
     })
   }
-
 }
 
 const executeCommand = (command = '', resource = '') => {
@@ -254,7 +254,6 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
       if (statSync(name).isDirectory()) {
         if (basename(name) === finder) {
           rtn = name
-          return
         } else {
           rtn = findRecursiveFolder(name, finder, rtn)
         }

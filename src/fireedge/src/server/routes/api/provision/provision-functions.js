@@ -51,40 +51,45 @@ const configFile = {
   ext: 'yaml'
 }
 
-const getProvisionDefaults = (res = {}, next = () => undefined, params = {}) => {
+const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+  const extFiles = 'yml'
+  const { user, password } = userData
   let rtn = httpInternalError
   let err = false
   const files = []
   const path = `${global.ETC_CPI}/provisions`
-
-  const fillData = (content = '') => {
-    try {
-      files.push(parse(content))
-    } catch (err) {
-      return
-    }
-  }
-
-  try {
-    if (params && params.name) {
-      existsFile(
-        `${path}/${`${params.name}`.toLowerCase()}.yaml`,
-        fillData,
-        ()=>{
-          err = true
+  if (user && password) {
+    const authCommand = ['--user', user, '--password', password]
+    const fillData = (content = '', path = '') => {
+      try {
+        const paramsCommand = ['validate', '--dump', path, ...authCommand]
+        const executedCommand = executeCommand(command, paramsCommand)
+        if (executedCommand && executedCommand.success) {
+          files.push(parse(content))
         }
-      )
-    } else {
-      getFiles(
-        path, 
-        'yaml'
-      ).map(file =>
-        existsFile(file, fillData)
-      )
+      } catch (err) {}
     }
-    rtn = err? notFound : httpResponse(ok, files)
-  } catch (err) {
-    rtn = httpResponse(internalServerError, '', err)
+    try {
+      if (params && params.name) {
+        existsFile(
+          `${path}/${`${params.name}`.toLowerCase()}.${extFiles}`,
+          fillData,
+          () => {
+            err = true
+          }
+        )
+      } else {
+        getFiles(
+          path,
+          extFiles
+        ).map(file =>
+          existsFile(file, fillData)
+        )
+      }
+      rtn = err ? notFound : httpResponse(ok, files)
+    } catch (err) {
+      rtn = httpResponse(internalServerError, '', err)
+    }
   }
   res.locals.httpCode = rtn
   next()
@@ -160,8 +165,8 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
     const paramsCommand = ['delete', params.id, '--batch', '--debug', ...authCommand]
     let lastLine = ''
     const emit = message => {
-      message.toString().split(/\r|\n/).map(line=>{
-        if(line){
+      message.toString().split(/\r|\n/).map(line => {
+        if (line) {
           lastLine = line
           publish(command, { id: params.id, message: lastLine })
         }
@@ -231,7 +236,7 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
 
 const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password, id } = userData
-  let rtn = httpInternalError
+  const rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
     const resource = parsePostData(params.resource)
@@ -243,12 +248,13 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
         const config = find(configFile.name, configFile.ext)
         const log = find(logFile.name, logFile.ext)
         if (config && log) {
+          // aca crear el archivo de relacion de ID:UUID
           const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand]
           let lastLine = ''
           var stream = createWriteStream(log.path, { flags: 'a' })
           const emit = message => {
-            message.toString().split(/\r|\n/).map(line=>{
-              if(line){
+            message.toString().split(/\r|\n/).map(line => {
+              if (line) {
                 lastLine = line
                 stream.write(`${line}\n`)
                 publish(command, { id: files.name, message: line })
@@ -294,8 +300,8 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
     const paramsCommand = ['configure', params.id, '--debug', '--fail_cleanup', '--batch', ...authCommand]
     let lastLine = ''
     const emit = message => {
-      message.toString().split(/\r|\n/).map(line=>{
-        if(line){
+      message.toString().split(/\r|\n/).map(line => {
+        if (line) {
           lastLine = line
           publish(command, { id: params.id, message: lastLine })
         }
