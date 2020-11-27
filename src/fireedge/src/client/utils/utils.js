@@ -16,17 +16,15 @@
 import axios from 'axios'
 import root from 'window-or-global'
 
-import { messageTerminal } from 'server/utils/general'
-import { httpCodes, defaults } from 'server/utils/constants'
 import { JWT_NAME } from 'client/constants'
-
-const { defaultAppName } = defaults
-const baseURL = root && root.location && root.location.origin? `${root.location.origin}/${defaultAppName}` : '' 
+import { messageTerminal } from 'server/utils/general'
+import { httpCodes } from 'server/utils/constants'
+import { defaultAppName } from 'server/utils/constants/defaults'
 
 const defaultData = {
   data: {},
   json: true,
-  baseURL,
+  baseURL: root?.location?.origin?.concat(`/${defaultAppName}`) ?? '',
   method: 'GET',
   authenticate: true,
   onUploadProgress: null,

@@ -33,7 +33,8 @@ const GenerateScript = (
 ) => {
   try {
     const script = document.createElement('script')
-    script.src = `${defaultAppName? `/${defaultAppName}`: ''}/client/assets/languages/${language}.js`
+    script.src =
+      `${defaultAppName ? `/${defaultAppName}` : ''}/client/assets/languages/${language}.js`
     script.async = true
     script.onload = () => {
       setLang(language)
@@ -41,8 +42,9 @@ const GenerateScript = (
     }
     document.body.appendChild(script)
     languageScript = script
-    // eslint-disable-next-line no-empty
-  } catch (error) {}
+  } catch (error) {
+    console.warn('Error while generating script language')
+  }
 }
 
 const RemoveScript = () => {

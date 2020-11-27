@@ -74,7 +74,7 @@ const defaults = {
     host: defaultIp,
     port: 2474
   },
-  defaultEndpointWebsocket: `${appName? '/'+appName : ''}/websocket`,
+  defaultEndpointWebsocket: `${appName ? '/' + appName : ''}/websocket`,
   defaultConfigFile: `${appName}-server.conf`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',

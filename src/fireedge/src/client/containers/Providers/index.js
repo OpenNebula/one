@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Container, Box, Typography, Divider } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/Autorenew'
-import InfoIcon from '@material-ui/icons/Info'
 import EditIcon from '@material-ui/icons/Settings'
 import DeleteIcon from '@material-ui/icons/Delete'
 

@@ -3,7 +3,7 @@ import { httpMethod } from 'server/utils/constants/defaults'
 import { PROVISION } from 'server/routes/api/provision/string-routes'
 import { requestData } from 'client/utils'
 
-const { GET, POST, PUT, DELETE } = httpMethod
+const { GET, POST, DELETE } = httpMethod
 
 // --------------------------------------------
 // PROVISIONS TEMPLATES REQUESTS
