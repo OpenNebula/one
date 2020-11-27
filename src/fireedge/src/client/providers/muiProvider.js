@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { CssBaseline, ThemeProvider, StylesProvider } from '@material-ui/core'
 import { createTheme, generateClassName, THEMES } from 'client/theme'
-import { APPS } from 'client/constants'
+import { defaultApps } from 'server/utils/constants/defaults'
 
 const MuiProvider = ({ app, children }) => {
   const [theme, setTheme] = useState(() => createTheme())
@@ -30,7 +30,7 @@ const MuiProvider = ({ app, children }) => {
 }
 
 MuiProvider.propTypes = {
-  app: PropTypes.oneOf([undefined, ...Object.keys(APPS)]),
+  app: PropTypes.oneOf([undefined, ...Object.keys(defaultApps)]),
   children: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.arrayOf(PropTypes.node)

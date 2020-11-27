@@ -23,7 +23,7 @@ const {
 
 // user config
 
-const websockets = appServer => {
+const websockets = (appServer = {}) => {
   if (
     appServer &&
     appServer.constructor &&

@@ -21,7 +21,7 @@ import { TransitionGroup } from 'react-transition-group'
 
 import * as endpoints from 'client/router/endpoints'
 import { InternalLayout, MainLayout } from 'client/components/HOC'
-import { APPS } from 'client/constants'
+import { defaultApps } from 'server/utils/constants/defaults'
 
 const Router = ({ app }) => {
   const { ENDPOINTS, PATH } = useMemo(() => ({
@@ -70,7 +70,7 @@ const Router = ({ app }) => {
 }
 
 Router.propTypes = {
-  app: PropTypes.oneOf([undefined, ...Object.keys(APPS)])
+  app: PropTypes.oneOf([undefined, ...Object.keys(defaultApps)])
 }
 
 Router.defaultProps = {

@@ -25,6 +25,8 @@ import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
 
+import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
+
 import Router from 'client/router'
 
 if (process?.env?.NODE_ENV === 'development') {
@@ -42,7 +44,14 @@ const App = ({ location, context, store, app }) => {
     process?.env?.NODE_ENV === 'development' &&
     typeof window !== 'undefined'
   ) {
-    appName = window.location.pathname.split('/')[1]
+    const apps = Object.keys(defaultApps)
+    const parseUrl = window.location.pathname.split(/\//gi).filter(sub => sub && sub.length > 0)
+    parseUrl.forEach(element => {
+      if(element && apps.includes(element)){
+        appName = element
+        return
+      }
+    });
   }
 
   return (
@@ -58,7 +67,7 @@ const App = ({ location, context, store, app }) => {
                 </StaticRouter>
               ) : (
               // browser build
-                <BrowserRouter basename={`/${appName}`}>
+                <BrowserRouter basename={`${defaultAppName}/${appName}`}>
                   <Router app={appName} />
                 </BrowserRouter>
               )}
@@ -81,7 +90,7 @@ App.defaultProps = {
   location: '',
   context: {},
   store: {},
-  app: undefined
+  app: ''
 }
 
 export default App

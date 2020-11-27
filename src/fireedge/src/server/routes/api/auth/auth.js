@@ -97,6 +97,7 @@ const auth = (req, res, next, connect) => {
           defaultMethodLogin,
           getOpennebulaMethod(dataSourceWithExpirateDate),
           (err, value) => {
+            console.log("ERROR: ", err, value)
             responseOpennebula(updaterResponse, err, value, authenticate, next)
           }
         )

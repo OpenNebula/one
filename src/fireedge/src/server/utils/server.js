@@ -150,7 +150,7 @@ const getDataZone = (zone = '0', configuredZones) => {
     rtn = zones[0]
     if (zone !== null) {
       rtn = zones.find(
-        zn => zn && zn.ID !== undefined && String(zn.ID) === zone
+        zn => zn && zn.id !== undefined && String(zn.id) === zone
       )
     }
   }

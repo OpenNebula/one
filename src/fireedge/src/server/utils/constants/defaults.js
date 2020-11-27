@@ -13,16 +13,25 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+const appName = 'fireedge'
 const apps = {
   flow: {
+    theme: 'flow',
     assets: true
   },
-  provision: undefined
+  provision: {
+    theme: 'provision'
+  }
 }
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = '127.0.0.1'
 const protocol = 'http'
 const defaults = {
+  defaultLimit: {
+    min: 14,
+    max: 30
+  },
+  defaultAppName: appName,
   defaultConfigErrorMessage: {
     color: 'red',
     message: 'file not found: %s'
@@ -54,34 +63,34 @@ const defaults = {
   },
   defaultOpennebulaZones: [
     {
-      ID: '0',
-      NAME: 'OpenNebula',
-      RPC: `${protocol}://${defaultIp}:2633/RPC2`,
-      ZEROMQ: `tcp://${defaultIp}:2101`
+      id: '0',
+      name: 'OpenNebula',
+      rpc: `${protocol}://${defaultIp}:2633/RPC2`,
+      zeromq: `tcp://${defaultIp}:2101`
     }
   ],
   defaultOneFlowServer: {
-    PROTOCOL: protocol,
-    HOST: defaultIp,
-    PORT: 2474
+    protocol: protocol,
+    host: defaultIp,
+    port: 2474
   },
-  defaultEndpointWebsocket: '/websocket',
-  defaultConfigFile: 'fireedge-server.conf',
+  defaultEndpointWebsocket: `${appName? '/'+appName : ''}/websocket`,
+  defaultConfigFile: `${appName}-server.conf`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultWebpackDevTool: 'inline-source-map',
   defaultLogPath: '/var/log/one',
   defaultVarPath: '/var/lib/one',
   defaultEtcPath: '/etc/one',
-  defaultLogFilename: 'fireedge.log',
-  defaultKeyFilename: 'fireedge_key',
+  defaultLogFilename: `${appName}.log`,
+  defaultKeyFilename: `${appName}_key`,
   defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
   tmpPath: '/var/tmp',
   endpointVmrc: '/vmrc',
   defaultNamespace: 'one.',
   defaultMessageInvalidZone: 'Invalid Zone',
-  default2FAIssuer: 'fireedge-UI',
+  default2FAIssuer: `${appName}-UI`,
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar: `TMP_${default2FAOpennebulaVar}`,
   defaultGetMethod: 'info',

@@ -15,7 +15,13 @@ import {
 } from 'fs-extra'
 import http from 'http'
 import https from 'https'
-import { defaultTypeLog, defaultPort, defaultWebpackMode, defaultApps } from './utils/constants/defaults'
+import { 
+  defaultAppName,
+  defaultTypeLog,
+  defaultPort,
+  defaultWebpackMode,
+  defaultApps
+} from './utils/constants/defaults'
 import {
   validateServerIsSecure,
   getCert,
@@ -44,13 +50,14 @@ const unsecureServer = http.createServer
 const secureServer = https.createServer
 
 const app = express()
+const basename = defaultAppName? `/${defaultAppName}`: ''
 
 let frontPath = 'client'
 
 // settings
 const appConfig = getConfig()
-const port = appConfig.PORT || defaultPort
-const userLog = appConfig.LOG || 'dev'
+const port = appConfig.port || defaultPort
+const userLog = appConfig.log || 'dev'
 
 if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
   // eslint-disable-next-line global-require
@@ -96,23 +103,23 @@ if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
 }
 app.use(helmet.hidePoweredBy())
 app.use(compression())
-app.use('/client', express.static(path.resolve(__dirname, frontPath)))
+app.use(`${basename}/client`, express.static(path.resolve(__dirname, frontPath)))
 
 // log request
 app.use(log)
 // cors
-if (appConfig.CORS) {
+if (appConfig.cors) {
   app.use(cors())
 }
 // post params parser body
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-app.use('/api', entrypointApi) // opennebula Api routes
+app.use(`${basename}/api`, entrypointApi) // opennebula Api routes
 const frontApps = Object.keys(defaultApps)
 frontApps.map(frontApp => {
-  app.get(`/${frontApp}`, entrypointApp)
-  app.get(`/${frontApp}/*`, entrypointApp)
+  app.get(`${basename}/${frontApp}`, entrypointApp)
+  app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
 app.get('/*', (req, res) => res.send('index'))
 // 404 - public

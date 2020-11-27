@@ -15,11 +15,6 @@
 
 const JWT_NAME = 'FireedgeToken'
 
-const APPS = {
-  flow: 'flow',
-  provision: 'provision'
-}
-
 const BY = {
   text: 'OpenNebula',
   url: 'https://opennebula.io/'
@@ -53,7 +48,6 @@ export {
   BY,
   STATIC_FILES_URL,
   JWT_NAME,
-  APPS,
   ONEADMIN_ID,
   FILTER_POOL,
   INPUT_TYPES,
