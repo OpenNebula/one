@@ -25,7 +25,7 @@ const { getConfig } = require('./yml')
 // user config
 const appConfig = getConfig()
 
-const mode = appConfig.LOG || defaultTypeLog
+const mode = appConfig.log || defaultTypeLog
 
 const {
   responseOpennebula,

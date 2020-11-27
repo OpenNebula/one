@@ -6,13 +6,13 @@ import {
 
 import defaultTheme from 'client/theme/defaults'
 
-import { APPS } from 'client/constants'
-import fireedgeTheme from 'client/theme/fireedge'
+import { defaultApps } from 'server/utils/constants/defaults'
+import flowTheme from 'client/theme/flow'
 import provisionTheme from 'client/theme/provision'
 
 export const THEMES = {
-  [APPS.fireedge]: fireedgeTheme,
-  [APPS.provision]: provisionTheme
+  [defaultApps.flow.theme]: flowTheme,
+  [defaultApps.provision.theme]: provisionTheme
 }
 
 export const generateClassName = createGenerateClassName({

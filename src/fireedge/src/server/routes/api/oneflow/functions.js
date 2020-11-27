@@ -24,7 +24,7 @@ const { GET, DELETE } = httpMethod
 
 const appConfig = getConfig()
 const oneFlowServiceDataConection =
-  appConfig.ONE_FLOW_SERVER || defaultOneFlowServer
+  appConfig.one_flow_server || defaultOneFlowServer
 
 const returnSchemaError = (error = []) =>
   error
@@ -43,7 +43,7 @@ const oneFlowConection = (requestData = {}, success = () => undefined, error = (
   const optionAuth = btoa(`${user || ''}:${password || ''}`)
   const options = {
     method: optionMethod,
-    baseURL: `${oneFlowServiceDataConection.PROTOCOL}://${oneFlowServiceDataConection.HOST}:${oneFlowServiceDataConection.PORT}`,
+    baseURL: `${oneFlowServiceDataConection.protocol}://${oneFlowServiceDataConection.host}:${oneFlowServiceDataConection.port}`,
     url: request ? addPrintf(optionPath, request || '') : optionPath,
     headers: {
       Authorization: `Basic ${optionAuth}`

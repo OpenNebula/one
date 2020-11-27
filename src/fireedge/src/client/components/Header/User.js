@@ -7,9 +7,11 @@ import useAuth from 'client/hooks/useAuth'
 import { Tr, SelectTranslate } from 'client/components/HOC'
 
 import { SignOut } from 'client/constants/translates'
-import { APPS } from 'client/constants'
 import HeaderPopover from 'client/components/Header/Popover'
 import { DevTypography } from 'client/components/Typography'
+import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
+
+const app = defaultAppName? `/${defaultAppName}` : ''
 
 const User = React.memo(() => {
   const { logout, authUser } = useAuth()
@@ -34,9 +36,9 @@ const User = React.memo(() => {
             {Tr(SignOut)}
           </MenuItem>
           {process?.env?.NODE_ENV === 'development' &&
-            Object.keys(APPS)?.map(appName => (
+            Object.keys(defaultApps)?.map(appName => (
               <MenuItem key={appName}>
-                <Link href={`/${appName}`} style={{ width: '100%' }}>
+                <Link href={`${app}/${appName}`} style={{ width: '100%' }}>
                   <DevTypography label={appName} />
                 </Link>
               </MenuItem>

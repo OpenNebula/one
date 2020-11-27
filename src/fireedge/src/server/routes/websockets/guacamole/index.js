@@ -53,9 +53,9 @@ const clientCallbacks = {
 }
 
 const appConfig = getConfig()
-const guacd = appConfig.GUACD || {}
-const guacdPort = guacd.PORT || 4822
-const guacdHost = guacd.HOST || '127.0.0.1'
+const guacd = appConfig.guacd || {}
+const guacdPort = guacd.port || 4822
+const guacdHost = guacd.host || '127.0.0.1'
 
 const endpoint = '/guacamole'
 const guacamole = appServer => {

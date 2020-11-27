@@ -49,7 +49,7 @@ const {
   from: fromData
 } = defaults
 
-const defaultZones = appConfig.DEFAULT_ZONE ? [appConfig.DEFAULT_ZONE] : null
+const defaultZones = appConfig.default_zone ? [appConfig.default_zone] : null
 
 const router = express.Router()
 
@@ -71,11 +71,11 @@ router.all(
     const { zone } = getQueriesState()
     const zoneData = getDataZone(zone, defaultZones)
     if (zoneData) {
-      const { RPC } = zoneData
+      const { rpc } = zoneData
       const connectOpennebula = (
         user = getUserOpennebula(),
         pass = getPassOpennebula()
-      ) => opennebulaConnect(user, pass, RPC)
+      ) => opennebulaConnect(user, pass, rpc)
       const { resource } = req.params
       const routeFunction = checkIfIsARouteFunction(resource, httpMethod)
       res.locals.httpCode = httpResponse(methodNotAllowed)
@@ -127,7 +127,7 @@ router.all(
           const connect = connectOpennebula(
             getUserOpennebula(),
             getPassOpennebula(),
-            RPC
+            rpc
           )
           connect(command, getOpennebulaMethod(dataSources), (err, value) =>
             responseOpennebula(updaterResponse, err, value, response, next)

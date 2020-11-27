@@ -1,13 +1,13 @@
 const path = require('path')
 const webpack = require('webpack')
-const { defaultWebpackMode } = require('./src/server/utils/constants/defaults')
+const { defaultWebpackMode, defaultAppName } = require('./src/server/utils/constants/defaults')
 
 const js = {
   test: /\.js$/,
   loader: 'babel-loader',
   include: path.resolve(__dirname, 'src', 'client')
 }
-
+const appName = defaultAppName? `/${defaultAppName}` : ''
 const bundle = () => {
   const devPathFile = path.resolve(__dirname, 'src', 'client', 'dev.js')
   const plugins = [
@@ -28,7 +28,7 @@ const bundle = () => {
     output: {
       path: devPathFile,
       filename: 'bundle.dev.js',
-      publicPath: '/client'
+      publicPath: `${appName}/client`
     },
     plugins,
     module: {

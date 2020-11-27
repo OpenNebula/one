@@ -8,11 +8,12 @@ const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@material-ui/core/styles')
 const rootReducer = require('client/reducers')
 const { getConfig } = require('server/utils/yml')
-const { availableLanguages, defaultWebpackMode } = require('server/utils/constants/defaults')
+const { availableLanguages, defaultWebpackMode, defaultAppName, defaultApps } = require('server/utils/constants/defaults')
+const { parse } = require('path')
 
 // settings
 const appConfig = getConfig()
-const langs = appConfig.LANGS || availableLanguages
+const langs = appConfig.langs || availableLanguages
 const scriptLanguages = []
 const languages = Object.keys(langs)
 languages.map(language =>
@@ -32,9 +33,17 @@ router.get('*', (req, res) => {
   let css = ''
   let storeRender = ''
   let chunks = ''
+  const appName = defaultAppName? `/${defaultAppName}` : ''
   if (env && (!env.NODE_ENV || (env.NODE_ENV && env.NODE_ENV !== defaultWebpackMode))) {
-    app = req.url.split(/\//gi).filter(sub => sub && sub.length > 0)[0]
-    chunks = `<script src='/client/1.bundle.${app}.js'></script>`
+    const apps = Object.keys(defaultApps)
+    const parseUrl = req.url.split(/\//gi).filter(sub => sub && sub.length > 0)
+    parseUrl.forEach(element => {
+      if(element && apps.includes(element)){
+        app = element
+        return
+      }
+    });
+    chunks = `<script src='${appName}/client/1.bundle.${app}.js'></script>`
 
     const composeEnhancer =
       // eslint-disable-next-line no-underscore-dangle
@@ -64,7 +73,7 @@ router.get('*', (req, res) => {
       <div id="root">${component}</div>
       ${storeRender}
       <script>${`langs = ${JSON.stringify(scriptLanguages)}`}</script>
-      <script src='/client/bundle.${app}.js'></script>
+      <script src='${appName}/client/bundle.${app}.js'></script>
       ${chunks}
     </body>
     </html>

@@ -306,12 +306,7 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
       paramsCommand,
       {
         err: emit,
-        out: emit,
-        close: success => {
-          if (success) {
-            console.log('configurado con exito')
-          }
-        }
+        out: emit
       }
     )
     res.locals.httpCode = httpResponse(accepted, params.id)
@@ -355,7 +350,7 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
       if (content) {
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
-          const paramsCommand = ['validate', file.path, ...authCommand]
+          const paramsCommand = ['validate', '--dump', file.path, ...authCommand]
           const executedCommand = executeCommand(command, paramsCommand)
           let response = internalServerError
           if (executedCommand && executedCommand.success) {
