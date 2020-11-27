@@ -18,7 +18,7 @@ const Networks = memo(({ hidden, data }) => {
 
   useEffect(() => {
     if (!list && !hidden) {
-      const reqs = networks?.map(({ id }) => getVNetwork({ id }))
+      const reqs = networks?.map(({ id }) => getVNetwork({ id })) ?? []
       fetchRequestAll(reqs)
     }
   }, [hidden])

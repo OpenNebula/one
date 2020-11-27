@@ -19,7 +19,7 @@ const Hosts = memo(({ hidden, data }) => {
 
   useEffect(() => {
     if (!list && !hidden) {
-      const reqs = hosts?.map(({ id }) => getHost({ id }))
+      const reqs = hosts?.map(({ id }) => getHost({ id })) ?? []
       fetchRequestAll(reqs)
     }
   }, [hidden])

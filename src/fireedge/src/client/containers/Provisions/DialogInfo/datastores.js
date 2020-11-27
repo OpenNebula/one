@@ -18,7 +18,7 @@ const Datastores = memo(({ hidden, data }) => {
 
   useEffect(() => {
     if (!list && !hidden) {
-      const reqs = datastores?.map(({ id }) => getDatastore({ id }))
+      const reqs = datastores?.map(({ id }) => getDatastore({ id })) ?? []
       fetchRequestAll(reqs)
     }
   }, [hidden])

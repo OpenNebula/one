@@ -3,22 +3,7 @@ import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplate
 import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Form/Deploy/Steps/Tiers'
 import { STEP_ID as CLUSTER_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Clusters'
 
-import { deepmerge } from 'client/utils/merge'
-
-export const parseUserInputValue = value => {
-  if (value === true) {
-    return 'YES'
-  } if (value === false) {
-    return 'NO'
-  } else if (Array.isArray(value)) {
-    return value.join(',')
-  } else return value
-}
-
-export const mapUserInputs = userInputs =>
-  Object.entries(userInputs)?.reduce((res, [key, value]) => ({
-    ...res, [key]: parseUserInputValue(value)
-  }), {})
+import { mapUserInputs, deepmerge } from 'client/utils'
 
 export const mapTiersToRoles = (tiers, networking, cluster) =>
   tiers?.map(data => {
