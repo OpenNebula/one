@@ -252,6 +252,8 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/websockify/websockify \
             $SHARE_LOCATION/esx-fw-vnc \
             $SHARE_LOCATION/oneprovision \
+            $SHARE_LOCATION/dockerhub \
+            $SHARE_LOCATION/dockerhub/dockerfiles \
             $SHARE_LOCATION/schemas \
             $SHARE_LOCATION/schemas/libvirt \
             $SHARE_LOCATION/schemas/xsd \
@@ -710,6 +712,8 @@ INSTALL_FILES=(
     SSH_SH_OVERRIDE_LIB_FILES:$LIB_LOCATION/sh/override
     SSH_SHARE_FILES:$SHARE_LOCATION/ssh
     CONTEXT_SHARE:$SHARE_LOCATION/context
+    DOCKERFILE_TEMPLATE:$SHARE_LOCATION/dockerhub
+    DOCKERFILES_TEMPLATES:$SHARE_LOCATION/dockerhub/dockerfiles
 )
 
 INSTALL_CLIENT_FILES=(
@@ -2731,6 +2735,16 @@ ONEHEM_FILES="src/hem/onehem-server.rb"
 ONEHEM_BIN_FILES="src/hem/bin/onehem-server"
 
 ONEHEM_ETC_FILES="src/hem/etc/onehem-server.conf"
+
+#-----------------------------------------------------------------------------
+# Dockerfiles templates
+#-----------------------------------------------------------------------------
+
+DOCKERFILES_TEMPLATES="src/datastore_mad/remotes/dockerhub/dockerfiles/alpine \
+                       src/datastore_mad/remotes/dockerhub/dockerfiles/centos \
+                       src/datastore_mad/remotes/dockerhub/dockerfiles/debian"
+
+DOCKERFILE_TEMPLATE="src/datastore_mad/remotes/dockerhub/dockerfile"
 
 #-----------------------------------------------------------------------------
 # Docker Machine files

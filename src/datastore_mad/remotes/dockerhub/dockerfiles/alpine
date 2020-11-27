@@ -1,0 +1,22 @@
+RUN apk add coreutils \
+            openrc \
+            udev \
+            openssh
+RUN apk -U add haveged
+
+RUN rc-update add sysfs boot && \
+    rc-update add devfs boot && \
+    rc-update add procfs boot && \
+    rc-update add hostname boot && \
+    rc-update add haveged boot
+
+RUN echo "ttyS0::respawn:/sbin/getty -L ttyS0 115200 vt100" >> /etc/inittab
+RUN apk add --allow-untrusted /root/context/*.apk
+RUN rc-update del one-context boot && \
+    rc-update add one-context default
+
+RUN rc-update add sshddefault && \
+    rc-update add udevdefault && \
+    rc-update add networking default
+
+RUN echo 'rc_sys=""' >> /etc/rc.conf
