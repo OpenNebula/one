@@ -153,13 +153,12 @@ export default function useOpennebula () {
     ({ data }) =>
       serviceProvision
         .createProvision({ data })
-        .then(doc => dispatch(
-          enqueueSuccess(`Provision created - ID: ${doc?.ID}`))
-        )
+        .then(doc => {
+          dispatch(enqueueSuccess('Provision created'))
+          return doc.data
+        })
         .catch(err => {
-          dispatch(
-            enqueueError(err?.message ?? 'Error CREATE Provision')
-          )
+          dispatch(enqueueError(err?.message ?? 'Error CREATE Provision'))
         }),
     [dispatch, provisions]
   )

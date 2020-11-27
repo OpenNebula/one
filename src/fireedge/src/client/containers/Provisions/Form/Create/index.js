@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
 import { Container } from '@material-ui/core'
@@ -8,15 +8,21 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
 
-import { PATH } from 'client/router/provision'
-import useProvision from 'client/hooks/useProvision'
+import useSocket from 'client/hooks/useSocket'
 import useGeneral from 'client/hooks/useGeneral'
-import { set } from 'client/utils'
+import useProvision from 'client/hooks/useProvision'
+
+import DebugLog from 'client/components/DebugLog'
+import { PATH } from 'client/router/provision'
+import { set, mapUserInputs } from 'client/utils'
 
 function ProvisionCreateForm () {
+  const [uuid, setUuid] = useState(undefined)
   const history = useHistory()
   const { showError } = useGeneral()
+  const { getProvision } = useSocket()
   const { createProvision, provisionsTemplates } = useProvision()
+
   const { steps, defaultValues, resolvers } = Steps()
 
   const methods = useForm({
@@ -42,14 +48,18 @@ function ProvisionCreateForm () {
 
     set(provisionTemplate, 'defaults.provision.provider', providerSelected)
 
+    const parseInputs = mapUserInputs(inputs)
     const formatData = {
       ...provisionTemplate,
       inputs: provisionTemplate?.inputs
-        ?.map(input => ({ ...input, value: `${inputs[input?.name]}` }))
+        ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
     }
 
-    createProvision({ data: formatData })
-      .then(() => history.push(PATH.PROVISIONS.LIST))
+    createProvision({ data: formatData }).then(res => res && setUuid(res))
+  }
+
+  if (uuid) {
+    return <DebugLog uuid={uuid} socket={getProvision} />
   }
 
   return (
