@@ -8,6 +8,8 @@ import useListForm from 'client/hooks/useListForm'
 import ListCards from 'client/components/List/ListCards'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
 import { STEP_ID as LOCATION_ID } from 'client/containers/Providers/Form/Create/Steps/Locations'
@@ -17,7 +19,7 @@ export const STEP_ID = 'provider'
 
 const Provider = () => ({
   id: STEP_ID,
-  label: 'Provider Template',
+  label: Tr(T.ProviderTemplate),
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { getProvidersTemplates } = useProvision()

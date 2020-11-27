@@ -7,20 +7,7 @@ import clsx from 'clsx'
 
 import useStyles from 'client/containers/Providers/Sections/styles'
 import { Tr } from 'client/components/HOC'
-import {
-  Information,
-  Name,
-  ProviderLabel,
-  RegistrationTime,
-  Permissions,
-  Use,
-  Manage,
-  Admin,
-  Ownership,
-  Owner,
-  Group,
-  Other
-} from 'client/constants/translates'
+import { T } from 'client/constants'
 
 const Info = memo(({ data }) => {
   const classes = useStyles()
@@ -40,7 +27,7 @@ const Info = memo(({ data }) => {
         <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr(Information)}</Typography>
+              <Typography>{Tr(T.Information)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
@@ -48,15 +35,15 @@ const Info = memo(({ data }) => {
               <Typography>{ID}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Name)}</Typography>
+              <Typography>{Tr(T.Name)}</Typography>
               <Typography>{NAME}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(ProviderLabel)}</Typography>
+              <Typography>{Tr(T.Provider)}</Typography>
               <Typography>{providerName}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(RegistrationTime)}</Typography>
+              <Typography>{Tr(T.RegistrationTime)}</Typography>
               <Typography>
                 {new Date(time * 1000).toLocaleString()}
               </Typography>
@@ -75,26 +62,26 @@ const Info = memo(({ data }) => {
         <Paper variant="outlined" className={classes.permissions}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr(Permissions)}</Typography>
-              <Typography>{Tr(Use)}</Typography>
-              <Typography>{Tr(Manage)}</Typography>
-              <Typography>{Tr(Admin)}</Typography>
+              <Typography>{Tr(T.Permissions)}</Typography>
+              <Typography>{Tr(T.Use)}</Typography>
+              <Typography>{Tr(T.Manage)}</Typography>
+              <Typography>{Tr(T.Admin)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
-              <Typography>{Tr(Owner)}</Typography>
+              <Typography>{Tr(T.Owner)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OWNER_A)}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Group)}</Typography>
+              <Typography>{Tr(T.Group)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.GROUP_A)}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Other)}</Typography>
+              <Typography>{Tr(T.Other)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_U)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_M)}</Typography>
               <Typography>{isChecked(PERMISSIONS.OTHER_A)}</Typography>
@@ -104,15 +91,15 @@ const Info = memo(({ data }) => {
         <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
-              <Typography>{Tr(Ownership)}</Typography>
+              <Typography>{Tr(T.Ownership)}</Typography>
             </ListItem>
             <Divider />
             <ListItem>
-              <Typography>{Tr(Owner)}</Typography>
+              <Typography>{Tr(T.Owner)}</Typography>
               <Typography>{UNAME}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(Group)}</Typography>
+              <Typography>{Tr(T.Group)}</Typography>
               <Typography>{GNAME}</Typography>
             </ListItem>
           </List>

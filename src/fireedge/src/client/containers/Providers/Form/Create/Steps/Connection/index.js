@@ -5,6 +5,8 @@ import { useFormContext } from 'react-hook-form'
 import useProvision from 'client/hooks/useProvision'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 import {
   STEP_ID as PROVIDER_ID
@@ -17,7 +19,7 @@ let connection = {}
 
 const Connection = () => ({
   id: STEP_ID,
-  label: 'Connection configuration',
+  label: Tr(T.ConfigureConnection),
   resolver: () => STEP_FORM_SCHEMA(connection),
   optionsValidate: { abortEarly: false },
   content: useCallback(() => {

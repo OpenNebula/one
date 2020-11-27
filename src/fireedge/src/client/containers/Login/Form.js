@@ -6,12 +6,12 @@ import { Box, Button, Slide } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
-import { SignIn, Back, Next } from 'client/constants/translates'
 import loginStyles from 'client/containers/Login/styles'
 
-import { Tr } from 'client/components/HOC'
 import ButtonSubmit from 'client/components/FormControl/SubmitButton'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transitionProps }) => {
   const defaultValues = resolver.default()
@@ -45,13 +45,13 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
         <Box>
           {onBack && (
             <Button onClick={onBack} color="primary" disabled={isLoading}>
-              {Tr(Back)}
+              {Tr(T.Back)}
             </Button>
           )}
           <ButtonSubmit
             data-cy="login-button"
             isSubmitting={isLoading}
-            label={onBack ? Tr(Next) : Tr(SignIn)}
+            label={onBack ? Tr(T.Next) : Tr(T.SignIn)}
             className={classes.submit}
           />
         </Box>

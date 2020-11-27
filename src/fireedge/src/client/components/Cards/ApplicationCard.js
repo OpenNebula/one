@@ -11,9 +11,9 @@ import {
 } from '@material-ui/core'
 import FileIcon from '@material-ui/icons/Description'
 
-import { Tr } from 'client/components/HOC'
-import { APPLICATION_STATES } from 'client/constants/flow'
 import SelectCard from 'client/components/Cards/SelectCard'
+import { Tr } from 'client/components/HOC'
+import { T, APPLICATION_STATES } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -48,12 +48,12 @@ const ApplicationCard = memo(
         <CardActions>
           {handleShow && (
             <Button variant="contained" size="small" onClick={handleShow} disableElevation>
-              {Tr('Info')}
+              {Tr(T.Info)}
             </Button>
           )}
           {handleRemove && (
             <Button size="small" onClick={handleRemove} disableElevation>
-              {Tr('Remove')}
+              {Tr(T.Remove)}
             </Button>
           )}
         </CardActions>

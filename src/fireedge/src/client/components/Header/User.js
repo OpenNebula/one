@@ -5,8 +5,8 @@ import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
 import useAuth from 'client/hooks/useAuth'
 import { Tr, SelectTranslate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
-import { SignOut } from 'client/constants/translates'
 import HeaderPopover from 'client/components/Header/Popover'
 import { DevTypography } from 'client/components/Typography'
 import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
@@ -33,7 +33,7 @@ const User = React.memo(() => {
           </MenuItem>
           <Divider />
           <MenuItem onClick={handleLogout} data-cy="header-logout-button">
-            {Tr(SignOut)}
+            {Tr(T.SignOut)}
           </MenuItem>
           {process?.env?.NODE_ENV === 'development' &&
             Object.keys(defaultApps)?.map(appName => (

@@ -12,8 +12,8 @@ import {
 import { makeStyles, fade } from '@material-ui/core/styles'
 
 import ButtonSubmit from 'client/components/FormControl/SubmitButton'
-import { Finish, Back, Next } from 'client/constants/translates'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -55,13 +55,13 @@ const CustomStepper = ({
       </Stepper>
       <Box marginY={2}>
         <Button onClick={handleBack} disabled={disabledBack}>
-          {Tr(Back)}
+          {Tr(T.Back)}
         </Button>
         <ButtonSubmit
           data-cy="stepper-next-button"
           onClick={handleNext}
           isSubmitting={isSubmitting}
-          label={activeStep === lastStep ? Tr(Finish) : Tr(Next)}
+          label={activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
         />
       </Box>
     </>

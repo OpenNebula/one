@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core'
 
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const CustomDialog = ({ title, handleClose, children }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
@@ -42,7 +43,7 @@ const CustomDialog = ({ title, handleClose, children }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
-          {Tr('Cancel')}
+          {Tr(T.Cancel)}
         </Button>
       </DialogActions>
     </Dialog>

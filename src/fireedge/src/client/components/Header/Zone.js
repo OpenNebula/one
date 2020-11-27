@@ -5,7 +5,7 @@ import LanguageIcon from '@material-ui/icons/Language'
 
 import HeaderPopover from 'client/components/Header/Popover'
 import { Tr } from 'client/components/HOC'
-import { ZoneLabel } from 'client/constants/translates'
+import { T } from 'client/constants'
 
 const Zone = memo(() => (
   <HeaderPopover
@@ -17,7 +17,7 @@ const Zone = memo(() => (
     {({ handleClose }) => (
       <MenuList>
         <MenuItem onClick={handleClose}>
-          {Tr(ZoneLabel)}
+          {Tr(T.Zone)}
         </MenuItem>
       </MenuList>
     )}

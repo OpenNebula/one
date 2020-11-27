@@ -14,13 +14,11 @@
 /* -------------------------------------------------------------------------- */
 
 import React from 'react'
-import { Translate } from 'client/components/HOC'
-import TRANSLATES from 'client/constants/translates'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const Settings = () => (
-  <div>
-    <Translate word={TRANSLATES.Settings} />
-  </div>
+  <div>{Tr(T.Settings)}</div>
 )
 
 export default Settings

@@ -8,12 +8,14 @@ import ListCards from 'client/components/List/ListCards'
 import { ClusterCard, EmptyCard } from 'client/components/Cards'
 
 import { STEP_FORM_SCHEMA } from './schema'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 export const STEP_ID = 'clusters'
 
 const Clusters = () => ({
   id: STEP_ID,
-  label: 'Where will it run?',
+  label: Tr(T.WhereWillItRun),
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { clusters, getClusters } = useOpennebula()

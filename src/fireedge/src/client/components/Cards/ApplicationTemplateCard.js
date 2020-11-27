@@ -13,8 +13,9 @@ import FileIcon from '@material-ui/icons/Description'
 import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
 import AccountTreeIcon from '@material-ui/icons/AccountTree'
 
-import { Tr } from 'client/components/HOC'
 import SelectCard from 'client/components/Cards/SelectCard'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   badgesWrapper: {
@@ -44,7 +45,7 @@ const ApplicationTemplateCard = memo(
           <Box className={classes.badgesWrapper}>
             <Badge
               showZero
-              title={Tr('Tiers')}
+              title={Tr(T.Tiers)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={numberOfTiers}
@@ -54,7 +55,7 @@ const ApplicationTemplateCard = memo(
             </Badge>
             <Badge
               showZero
-              title={Tr('Networks')}
+              title={Tr(T.Networks)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={numberOfNetworks}
@@ -72,7 +73,7 @@ const ApplicationTemplateCard = memo(
               onClick={handleEdit}
               disableElevation
             >
-              {Tr('Edit')}
+              {Tr(T.Edit)}
             </Button>
           )}
           {handleDeploy && (
@@ -82,7 +83,7 @@ const ApplicationTemplateCard = memo(
               onClick={handleDeploy}
               disableElevation
             >
-              {Tr('Deploy')}
+              {Tr(T.Deploy)}
             </Button>
           )}
           {handleShow && (
@@ -92,12 +93,12 @@ const ApplicationTemplateCard = memo(
               onClick={handleShow}
               disableElevation
             >
-              {Tr('Info')}
+              {Tr(T.Info)}
             </Button>
           )}
           {handleRemove && (
             <Button size="small" onClick={handleRemove} disableElevation>
-              {Tr('Remove')}
+              {Tr(T.Remove)}
             </Button>
           )}
         </CardActions>
