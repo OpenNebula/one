@@ -9,6 +9,8 @@ const requiredSchema = (mandatory, name, schema) =>
 const getRange = (options) =>
   options.split('..').map(option => parseFloat(option))
 
+const getValuesFromArray = (options, separator = ',') => options?.split(separator)
+
 const getOptionsFromList = (options, separator = ',') =>
   options?.split(separator).map(value => ({ text: value, value }))
 
@@ -70,7 +72,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
       }
     }
     case 'array': {
-      const defaultValues = getOptionsFromList(defaultValue)
+      const defaultValues = getValuesFromArray(defaultValue)
 
       return {
         type: INPUT_TYPES.AUTOCOMPLETE,
@@ -78,9 +80,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
         validation: yup.array(yup.string().trim())
           .concat(requiredSchema(mandatory, name, yup.array()))
           .default(defaultValues),
-        fieldProps: {
-          freeSolo: true
-        }
+        fieldProps: { freeSolo: true }
       }
     }
     case 'list-multiple': {
@@ -105,3 +105,20 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
     }
   }
 }
+
+// Parser USER INPUTS
+
+const parseUserInputValue = value => {
+  if (value === true) {
+    return 'YES'
+  } if (value === false) {
+    return 'NO'
+  } else if (Array.isArray(value)) {
+    return value.join(',')
+  } else return value
+}
+
+export const mapUserInputs = userInputs =>
+  Object.entries(userInputs)?.reduce((res, [key, value]) => ({
+    ...res, [key]: parseUserInputValue(value)
+  }), {})

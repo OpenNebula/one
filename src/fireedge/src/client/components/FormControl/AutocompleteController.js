@@ -23,7 +23,7 @@ const AutocompleteController = memo(
             onChange={(_, newValue) => {
               const newValueToChange = multiple
                 ? newValue?.map(value =>
-                  typeof value === 'string' ? ({ text: value, value }) : value
+                  typeof value === 'string' ? value : ({ text: value, value })
                 )
                 : newValue.value
 
@@ -33,12 +33,13 @@ const AutocompleteController = memo(
             value={selected}
             multiple={multiple}
             renderTags={(tags, getTagProps) =>
+              // render when freesolo prop
               tags.map((tag, index) => (
                 <Chip
-                  key={tag.value}
+                  key={tag}
                   size="small"
                   variant="outlined"
-                  label={tag.text}
+                  label={tag}
                   {...getTagProps({ index })}
                 />
               ))
