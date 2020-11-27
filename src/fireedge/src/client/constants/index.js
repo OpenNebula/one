@@ -13,6 +13,8 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+import { defaultAppName } from 'server/utils/constants/defaults'
+
 const JWT_NAME = 'FireedgeToken'
 
 const BY = {
@@ -20,7 +22,7 @@ const BY = {
   url: 'https://opennebula.io/'
 }
 
-const STATIC_FILES_URL = '/client/assets'
+const STATIC_FILES_URL = `${defaultAppName ? `/${defaultAppName}` : ''}/client/assets`
 
 const ONEADMIN_ID = '0'
 

@@ -11,7 +11,7 @@ import HeaderPopover from 'client/components/Header/Popover'
 import { DevTypography } from 'client/components/Typography'
 import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
 
-const app = defaultAppName? `/${defaultAppName}` : ''
+const app = defaultAppName ? `/${defaultAppName}` : ''
 
 const User = React.memo(() => {
   const { logout, authUser } = useAuth()

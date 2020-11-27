@@ -45,13 +45,15 @@ const App = ({ location, context, store, app }) => {
     typeof window !== 'undefined'
   ) {
     const apps = Object.keys(defaultApps)
-    const parseUrl = window.location.pathname.split(/\//gi).filter(sub => sub && sub.length > 0)
+    const parseUrl = window.location.pathname
+      .split(/\//gi)
+      .filter(sub => sub?.length > 0)
+
     parseUrl.forEach(element => {
-      if(element && apps.includes(element)){
+      if (element && apps.includes(element)) {
         appName = element
-        return
       }
-    });
+    })
   }
 
   return (
