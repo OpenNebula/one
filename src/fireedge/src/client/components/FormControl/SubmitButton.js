@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, CircularProgress, Button, Fab } from '@material-ui/core'
@@ -25,22 +25,25 @@ ButtonComponent.propTypes = {
   children: PropTypes.any
 }
 
-const SubmitButton = ({ isSubmitting, label, fab, ...props }) => {
-  const classes = useStyles()
+const SubmitButton = React.memo(
+  ({ isSubmitting, label, fab, ...props }) => {
+    const classes = useStyles()
 
-  return (
-    <ButtonComponent
-      color="primary"
-      className={classes.root}
-      disabled={isSubmitting}
-      fab={fab}
-      {...props}
-    >
-      {isSubmitting && <CircularProgress size={24} />}
-      {!isSubmitting && (label ?? Tr(T.Submit))}
-    </ButtonComponent>
-  )
-}
+    return (
+      <ButtonComponent
+        color="primary"
+        className={classes.root}
+        disabled={isSubmitting}
+        fab={fab}
+        {...props}
+      >
+        {isSubmitting && <CircularProgress size={24} />}
+        {!isSubmitting && (label ?? Tr(T.Submit))}
+      </ButtonComponent>
+    )
+  },
+  (prev, next) => prev.isSubmitting === next.isSubmitting
+)
 
 SubmitButton.propTypes = {
   fab: PropTypes.bool,

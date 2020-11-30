@@ -16,7 +16,7 @@ const Search = ({
   const [query, setQuery] = useState('')
   const [result, setResult] = useState(undefined)
   const listFuse = useMemo(
-    () => new Fuse(list, listOptions, Fuse.createIndex(listOptions.keys, list)),
+    () => new Fuse(list, listOptions, Fuse.createIndex(listOptions?.keys, list)),
     [list, listOptions]
   )
 
@@ -72,7 +72,7 @@ Search.propTypes = {
 
 Search.defaultProps = {
   list: [],
-  listOptions: {},
+  listOptions: { keys: [] },
   renderResult: item => item,
   startAdornment: undefined,
   searchBoxProps: undefined

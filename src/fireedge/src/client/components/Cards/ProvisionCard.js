@@ -46,12 +46,14 @@ const ProvisionCard = memo(
         icon={isProvider ? <ProviderIcon /> : <ProvisionIcon />}
         {...(imgAsAvatar
           ? {
-            icon: <Avatar
-              src={isExternalURL ? image : `${STATIC_FILES_URL}/${image}`}
-              variant="rounded"
-              style={{ width: 100, height: 80 }}
-              imgProps={{ onError }}
-            />
+            icon: image && (
+              <Avatar
+                src={isExternalURL ? image : `${STATIC_FILES_URL}/${image}`}
+                variant="rounded"
+                style={{ width: 100, height: 80 }}
+                imgProps={{ onError }}
+              />
+            )
           }
           : { mediaProps: { component: 'img', image, onError } }
         )}

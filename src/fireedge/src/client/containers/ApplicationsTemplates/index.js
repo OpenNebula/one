@@ -11,8 +11,6 @@ import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ApplicationTemplateCard } from 'client/components/Cards'
-
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 function ApplicationsTemplates () {
@@ -31,7 +29,7 @@ function ApplicationsTemplates () {
   return (
     <Container disableGutters>
       <ListHeader
-        title={Tr(T.ApplicationsTemplatesLabel)}
+        title={T.ApplicationsTemplates}
         hasReloadButton
         reloadButtonProps={{
           onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
@@ -40,9 +38,7 @@ function ApplicationsTemplates () {
       />
       <Box p={3}>
         {error ? (
-          <AlertError>
-            {Tr(T.CannotConnectOneFlow)}
-          </AlertError>
+          <AlertError>{T.CannotConnectOneFlow}</AlertError>
         ) : (
           <ListCards
             list={applicationsTemplates}

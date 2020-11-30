@@ -9,11 +9,7 @@ import DialogInfo from 'client/containers/ApplicationsInstances/DialogInfo'
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ApplicationCard, EmptyCard } from 'client/components/Cards'
-
-import { DONE } from 'client/constants/states'
-import { APPLICATION_STATES } from 'client/constants/flow'
-import { Tr } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { T, DONE, APPLICATION_STATES } from 'client/constants'
 
 function ApplicationsInstances () {
   const { applications, getApplications } = useApplication()
@@ -33,7 +29,7 @@ function ApplicationsInstances () {
   return (
     <Container disableGutters>
       <ListHeader
-        title={Tr(T.ApplicationsInstancesLabel)}
+        title={T.ApplicationsInstances}
         hasReloadButton
         reloadButtonProps={{
           onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
@@ -42,9 +38,7 @@ function ApplicationsInstances () {
       />
       <Box p={3}>
         {error ? (
-          <AlertError>
-            {Tr(T.CannotConnectOneFlow)}
-          </AlertError>
+          <AlertError>{T.CannotConnectOneFlow}</AlertError>
         ) : (
           <ListCards
             list={list}

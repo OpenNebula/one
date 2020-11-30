@@ -44,6 +44,7 @@ const Locations = () => ({
     return (
       <ListCards
         list={locationsList}
+        keyProp='key'
         EmptyComponent={<EmptyCard title={'Your locations list is empty'} />}
         CardComponent={LocationCard}
         cardsProps={({ value: { key } }) => {

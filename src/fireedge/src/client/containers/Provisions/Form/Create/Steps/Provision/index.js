@@ -56,6 +56,7 @@ const Provision = () => ({
           const { provision: { provider } = {} } = defaults
 
           return {
+            id: name.replace(/\s/g, ''),
             isSelected,
             handleClick: () => handleClick(name, provider, isSelected)
           }

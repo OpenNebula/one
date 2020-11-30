@@ -67,7 +67,7 @@ export default {
           },
           '&-enter-active': {
             opacity: 1,
-            transition: 'opacity 100ms'
+            transition: 'opacity 100ms ease-in'
           },
           '&-exit': {
             opacity: 1,
@@ -75,7 +75,7 @@ export default {
           },
           '&-exit-active': {
             opacity: 0,
-            transition: 'opacity 100ms'
+            transition: 'opacity 100ms ease-in'
           }
         }
       }
