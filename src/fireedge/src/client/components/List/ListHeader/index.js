@@ -24,15 +24,20 @@ const ListHeader = memo(({
 
   return (
     <Box className={classes.root}>
+      <Box className={classes.title}>
+        {!!(hasReloadButton || reloadButtonProps) && (
+          <SubmitButton icon label={<RefreshIcon />} {...reloadButtonProps} />
+        )}
+        {title && (
+          <Typography variant="h5" className={classes.titleText}>
+            {Tr(title)}
+          </Typography>
+        )}
+      </Box>
       <Box className={classes.actions}>
-        <Box className={classes.buttons}>
-          {!!(hasReloadButton || reloadButtonProps) && (
-            <SubmitButton icon label={<RefreshIcon />} {...reloadButtonProps} />
-          )}
-          {!!(hasAddButton || addButtonProps) && (
-            <SubmitButton icon label={<AddIcon />} {...addButtonProps} />
-          )}
-        </Box>
+        {!!(hasAddButton || addButtonProps) && (
+          <SubmitButton icon label={<AddIcon />} {...addButtonProps} />
+        )}
         {!!(hasSearch || searchProps) && (
           <Box className={classes.search}>
             <Box className={classes.searchIcon}>
@@ -51,14 +56,6 @@ const ListHeader = memo(({
           </Box>
         )}
       </Box>
-
-      {title && (
-        <Box className={classes.title}>
-          <Typography variant="h5" className={classes.titleText}>
-            {Tr(title)}
-          </Typography>
-        </Box>
-      )}
     </Box>
   )
 }, (prev, next) =>
