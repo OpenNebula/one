@@ -60,12 +60,12 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
   const path = `${global.ETC_CPI}/provisions`
   if (user && password) {
     const authCommand = ['--user', user, '--password', password]
-    const fillData = (content = '', path = '') => {
+    const fillData = (content = '', filePath = '') => {
       try {
-        const paramsCommand = ['validate', '--dump', path, ...authCommand]
-        const executedCommand = executeCommand(command, paramsCommand)
+        const paramsCommand = ['validate', '--dump', filePath, ...authCommand]
+        const executedCommand = executeCommand(command, paramsCommand, { cwd: path })
         if (executedCommand && executedCommand.success) {
-          files.push(parse(content))
+          files.push(parse(executedCommand.data))
         }
       } catch (err) {}
     }
@@ -79,10 +79,11 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
           }
         )
       } else {
-        getFiles(
+        const files = getFiles(
           path,
           extFiles
-        ).map(file =>
+        )
+        files.map(file =>
           existsFile(file, fillData)
         )
       }
