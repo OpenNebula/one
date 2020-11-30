@@ -79,7 +79,7 @@ export const GROUP = {
     const { authUser } = useAuth()
     const { groups } = useOpennebula()
 
-    return [{ text: ShowAll, value: FILTER_POOL.ALL_RESOURCES }]
+    return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }]
       .concat(groups
         .sort((a, b) => a.ID - b.ID)
         .map(({ ID, NAME }) => ({
