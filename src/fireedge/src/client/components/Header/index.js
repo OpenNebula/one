@@ -57,7 +57,7 @@ const Header = ({ title }) => {
               className={classes.title}
               data-cy="header-title"
             >
-              {'OneProvision'}
+              {title}
             </Typography>
           )}
           <Box flexGrow={isMobile ? 1 : 0} textAlign="end">

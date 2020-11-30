@@ -1,5 +1,8 @@
 export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+export const capitalize = ([firstLetter, ...restOfWord]) =>
+  firstLetter.toUpperCase() + restOfWord.join('')
+
 export const getValidationFromFields = fields =>
   fields.reduce(
     (schema, field) => ({
