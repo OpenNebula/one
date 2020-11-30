@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers'
 
 import loginStyles from 'client/containers/Login/styles'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -48,7 +48,7 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
               {Tr(T.Back)}
             </Button>
           )}
-          <ButtonSubmit
+          <SubmitButton
             data-cy="login-button"
             isSubmitting={isLoading}
             label={onBack ? Tr(T.Next) : Tr(T.SignIn)}

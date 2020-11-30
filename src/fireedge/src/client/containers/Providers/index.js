@@ -36,12 +36,11 @@ function Providers () {
     <Container disableGutters>
       <ListHeader
         title={T.Providers}
-        hasReloadButton
         reloadButtonProps={{
           onClick: () => fetchRequest(undefined, { reload: true }),
           isSubmitting: Boolean(loading || reloading)
         }}
-        hasSearch
+        addButtonProps={{ onClick: () => history.push(PATH.PROVIDERS.CREATE) }}
         searchProps={{ handleChange }}
       />
       <Box p={3}>
@@ -51,7 +50,6 @@ function Providers () {
           <ListCards
             list={result ?? providers}
             isLoading={providers.length === 0 && loading}
-            handleCreate={() => history.push(PATH.PROVIDERS.CREATE)}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
               isProvider: true,

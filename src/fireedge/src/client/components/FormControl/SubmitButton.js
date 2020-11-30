@@ -1,7 +1,9 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, CircularProgress, Button, Fab } from '@material-ui/core'
+import {
+  makeStyles, CircularProgress, Button, Fab, IconButton
+} from '@material-ui/core'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -12,29 +14,29 @@ const useStyles = makeStyles(() => ({
   }
 }))
 
-const ButtonComponent = ({ fab, children, ...props }) => fab ? (
-  <Fab color="primary" size="small" {...props}>{children}</Fab>
+const ButtonComponent = ({ icon, children, ...props }) => icon ? (
+  <IconButton {...props}>
+    {children}
+  </IconButton>
 ) : (
-  <Button color="primary" type="submit" variant="contained" {...props}>
+  <Button type="submit" variant="contained" {...props}>
     {children}
   </Button>
 )
 
 ButtonComponent.propTypes = {
-  fab: PropTypes.bool,
+  icon: PropTypes.bool,
   children: PropTypes.any
 }
 
 const SubmitButton = React.memo(
-  ({ isSubmitting, label, fab, ...props }) => {
+  ({ isSubmitting, label, ...props }) => {
     const classes = useStyles()
 
     return (
       <ButtonComponent
-        color="primary"
         className={classes.root}
         disabled={isSubmitting}
-        fab={fab}
         {...props}
       >
         {isSubmitting && <CircularProgress size={24} />}
@@ -46,15 +48,21 @@ const SubmitButton = React.memo(
 )
 
 SubmitButton.propTypes = {
-  fab: PropTypes.bool,
+  icon: PropTypes.bool,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
   isSubmitting: PropTypes.bool,
-  label: PropTypes.oneOfType([PropTypes.string, PropTypes.node])
+  className: PropTypes.string,
+  color: PropTypes.oneOf(['default', 'inherit', 'primary', 'secondary']),
+  size: PropTypes.oneOf(['large', 'medium', 'small'])
 }
 
 SubmitButton.defaultProps = {
-  fab: false,
+  icon: false,
+  label: undefined,
   isSubmitting: false,
-  label: undefined
+  className: undefined,
+  color: 'primary',
+  variant: 'contained'
 }
 
 export default SubmitButton
