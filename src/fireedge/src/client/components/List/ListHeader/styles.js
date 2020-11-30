@@ -2,25 +2,36 @@ import { makeStyles, fade } from '@material-ui/core'
 
 export default makeStyles(theme => ({
   root: {
-    padding: theme.spacing(2, 3)
+    top: 0,
+    position: 'sticky',
+    zIndex: theme.zIndex.appBar,
+    backgroundColor: '#fafafae0',
+    backdropFilter: `blur(${theme.spacing(1)}px)`,
+    padding: theme.spacing(2, 3),
+    display: 'flex',
+    flexWrap: 'wrap',
+    [theme.breakpoints.up('sm')]: {
+      borderBottom: '1px solid #e5e5e5'
+    }
   },
   title: {
-    padding: theme.spacing(2),
-    borderBottom: '1px solid #e5e5e5'
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.only('xs')]: {
+      borderBottom: '1px solid #e5e5e5'
+    }
   },
   titleText: {
+    flexGrow: 1,
     letterSpacing: 0.1,
     fontWeight: 500
   },
   actions: {
     display: 'flex',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    borderBottom: '1px solid #e5e5e5'
-  },
-  buttons: {
-    flexGrow: 1,
     [theme.breakpoints.only('xs')]: {
+      width: '100%',
       borderBottom: '1px solid #e5e5e5'
     }
   },

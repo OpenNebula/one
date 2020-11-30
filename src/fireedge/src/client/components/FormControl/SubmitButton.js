@@ -15,9 +15,7 @@ const useStyles = makeStyles(() => ({
 }))
 
 const ButtonComponent = ({ icon, children, ...props }) => icon ? (
-  <IconButton {...props}>
-    {children}
-  </IconButton>
+  <IconButton {...props}>{children}</IconButton>
 ) : (
   <Button type="submit" variant="contained" {...props}>
     {children}
@@ -30,13 +28,16 @@ ButtonComponent.propTypes = {
 }
 
 const SubmitButton = React.memo(
-  ({ isSubmitting, label, ...props }) => {
+  ({ isSubmitting, label, icon, color, size, ...props }) => {
     const classes = useStyles()
 
     return (
       <ButtonComponent
         className={classes.root}
+        color={color}
         disabled={isSubmitting}
+        icon={icon}
+        size={size}
         {...props}
       >
         {isSubmitting && <CircularProgress size={24} />}
@@ -61,8 +62,7 @@ SubmitButton.defaultProps = {
   label: undefined,
   isSubmitting: false,
   className: undefined,
-  color: 'primary',
-  variant: 'contained'
+  color: 'primary'
 }
 
 export default SubmitButton
