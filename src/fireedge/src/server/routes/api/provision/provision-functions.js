@@ -147,9 +147,7 @@ const deleteResource = (res = {}, next = () => undefined, params = {}, userData 
     const executedCommand = executeCommand(command, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
-      next()
-      return
+      rtn = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
     } catch (error) {
       rtn = httpResponse(internalServerError, '', executedCommand.data)
     }
