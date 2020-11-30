@@ -12,7 +12,7 @@ import {
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -61,7 +61,7 @@ const DialogForm = memo(
               </Button>
             )}
             {onSubmit && (
-              <ButtonSubmit
+              <SubmitButton
                 data-cy="dg-form-submit-button"
                 isSubmitting={methods.formState.isSubmitting}
                 onClick={methods.handleSubmit(onSubmit)}

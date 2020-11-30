@@ -35,12 +35,11 @@ function Provisions () {
     <Container disableGutters>
       <ListHeader
         title={T.Provisions}
-        hasReloadButton
         reloadButtonProps={{
           onClick: () => fetchRequest(undefined, { reload: true }),
           isSubmitting: Boolean(loading || reloading)
         }}
-        hasSearch
+        addButtonProps={{ onClick: () => history.push(PATH.PROVISIONS.CREATE) }}
         searchProps={{ handleChange }}
       />
       <Box p={3}>
@@ -50,7 +49,6 @@ function Provisions () {
           <ListCards
             list={result ?? provisions}
             isLoading={provisions.length > 0 && loading}
-            handleCreate={() => history.push(PATH.PROVISIONS.CREATE)}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
               handleClick: () => setShowDialog({

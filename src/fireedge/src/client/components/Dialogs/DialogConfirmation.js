@@ -10,7 +10,7 @@ import {
   DialogActions
 } from '@material-ui/core'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -60,7 +60,7 @@ const DialogConfirmation = memo(
               </Button>
             )}
             {handleAccept && (
-              <ButtonSubmit
+              <SubmitButton
                 data-cy="dg-accept-button"
                 onClick={handleAccept}
                 label={Tr(T.Accept)}

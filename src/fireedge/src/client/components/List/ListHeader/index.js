@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { Box, Typography, InputBase } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import RefreshIcon from '@material-ui/icons/Autorenew'
+import AddIcon from '@material-ui/icons/Add'
 
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import listHeaderStyles from 'client/components/List/ListHeader/styles'
@@ -13,6 +14,8 @@ const ListHeader = memo(({
   title,
   hasReloadButton,
   reloadButtonProps,
+  hasAddButton,
+  addButtonProps,
   hasSearch,
   searchProps
 }) => {
@@ -20,30 +23,40 @@ const ListHeader = memo(({
   const { handleChange } = searchProps
 
   return (
-    <Box p={3} className={classes.root}>
-      {hasReloadButton && (
-        <SubmitButton fab label={<RefreshIcon />} {...reloadButtonProps} />
-      )}
-      {title && (
-        <Typography variant="h5" className={classes.title}>
-          {Tr(title)}
-        </Typography>
-      )}
-      {hasSearch && (
-        <Box className={classes.search}>
-          <Box className={classes.searchIcon}>
-            <SearchIcon />
+    <Box className={classes.root}>
+      <Box className={classes.actions}>
+        <Box className={classes.buttons}>
+          {!!(hasReloadButton || reloadButtonProps) && (
+            <SubmitButton icon label={<RefreshIcon />} {...reloadButtonProps} />
+          )}
+          {!!(hasAddButton || addButtonProps) && (
+            <SubmitButton icon label={<AddIcon />} {...addButtonProps} />
+          )}
+        </Box>
+        {!!(hasSearch || searchProps) && (
+          <Box className={classes.search}>
+            <Box className={classes.searchIcon}>
+              <SearchIcon />
+            </Box>
+            <InputBase
+              type="search"
+              onChange={handleChange}
+              fullWidth
+              placeholder="Search..."
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput
+              }}
+            />
           </Box>
-          <InputBase
-            type="search"
-            onChange={handleChange}
-            fullWidth
-            placeholder="Search..."
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput
-            }}
-          />
+        )}
+      </Box>
+
+      {title && (
+        <Box className={classes.title}>
+          <Typography variant="h5" className={classes.titleText}>
+            {Tr(title)}
+          </Typography>
         </Box>
       )}
     </Box>
@@ -58,6 +71,11 @@ ListHeader.propTypes = {
     onClick: PropTypes.func,
     isSubmitting: PropTypes.bool
   }),
+  hasAddButton: PropTypes.bool,
+  addButtonProps: PropTypes.shape({
+    onClick: PropTypes.func,
+    isSubmitting: PropTypes.bool
+  }),
   hasSearch: PropTypes.bool,
   searchProps: PropTypes.shape({
     query: PropTypes.string,
@@ -68,14 +86,10 @@ ListHeader.propTypes = {
 ListHeader.defaultProps = {
   title: undefined,
   hasReloadButton: false,
-  reloadButtonProps: {
-    onClick: undefined,
-    isSubmitting: false
-  },
-  searchProps: {
-    query: undefined,
-    handleChange: undefined
-  }
+  reloadButtonProps: undefined,
+  hasAddButton: false,
+  addButtonProps: undefined,
+  searchProps: undefined
 }
 
 ListHeader.displayName = 'ListHeader'

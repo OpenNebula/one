@@ -10,7 +10,7 @@ import {
   Checkbox
 } from '@material-ui/core'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { requestData, requestParams } from 'client/utils'
 
 const ResponseForm = ({
@@ -77,7 +77,7 @@ const ResponseForm = ({
           </Grid>
         ))}
         <Grid item xs={12}>
-          <ButtonSubmit isSubmitting={formState.isSubmitting} />
+          <SubmitButton isSubmitting={formState.isSubmitting} />
         </Grid>
       </Grid>
     </>

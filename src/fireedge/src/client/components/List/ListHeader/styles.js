@@ -2,13 +2,27 @@ import { makeStyles, fade } from '@material-ui/core'
 
 export default makeStyles(theme => ({
   root: {
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap'
+    padding: theme.spacing(2, 3)
   },
   title: {
-    marginLeft: theme.spacing(1),
-    flexGrow: 1
+    padding: theme.spacing(2),
+    borderBottom: '1px solid #e5e5e5'
+  },
+  titleText: {
+    letterSpacing: 0.1,
+    fontWeight: 500
+  },
+  actions: {
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    borderBottom: '1px solid #e5e5e5'
+  },
+  buttons: {
+    flexGrow: 1,
+    [theme.breakpoints.only('xs')]: {
+      borderBottom: '1px solid #e5e5e5'
+    }
   },
   search: {
     position: 'relative',
@@ -17,7 +31,7 @@ export default makeStyles(theme => ({
     '&:hover': {
       backgroundColor: fade(theme.palette.primary.main, 0.25)
     },
-    margin: theme.spacing(3, 0),
+    margin: theme.spacing(1, 0),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(1),
