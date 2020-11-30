@@ -230,10 +230,10 @@ const executeCommandAsync = (
   }
 }
 
-const executeCommand = (command = '', resource = '') => {
+const executeCommand = (command = '', resource = '', options = {}) => {
   const rsc = Array.isArray(resource) ? resource : [resource]
   let rtn = { success: false, data: null }
-  const execute = spawnSync(command, [...rsc])
+  const execute = spawnSync(command, [...rsc], options)
   if (execute) {
     if (execute.stdout) {
       rtn = { success: true, data: execute.stdout.toString() }
