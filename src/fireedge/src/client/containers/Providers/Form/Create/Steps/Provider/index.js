@@ -55,6 +55,7 @@ const Provider = () => ({
           const isSelected = data?.some(selected => selected === name)
 
           return {
+            id: name.replace(/\s/g, ''),
             isProvider: true,
             isSelected,
             handleClick: () => handleClick(name, isSelected)

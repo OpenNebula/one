@@ -1,29 +1,19 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
 import {
-  makeStyles,
-  CardActionArea,
-  CardContent,
-  Card,
-  Grid,
-  LinearProgress
+  CardActionArea, Card, Grid, LinearProgress, useMediaQuery
 } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
-import { EmptyCard } from 'client/components/Cards'
 
-const useStyles = makeStyles(() => ({
-  cardPlus: {
-    height: '100%',
-    minHeight: 140,
-    display: 'flex',
-    textAlign: 'center'
-  },
-  loading: { width: '100%' }
-}))
+import { EmptyCard } from 'client/components/Cards'
+import FloatingActionButton from 'client/components/Fab'
+import listCardsStyles from 'client/components/List/ListCards/styles'
 
 const ListCards = memo(({
   list,
+  keyProp,
   breakpoints,
   handleCreate,
   ButtonCreateComponent,
@@ -33,7 +23,8 @@ const ListCards = memo(({
   displayEmpty,
   isLoading
 }) => {
-  const classes = useStyles()
+  const classes = listCardsStyles()
+  const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
   if (isLoading) {
     return <LinearProgress className={classes.loading} />
@@ -42,29 +33,38 @@ const ListCards = memo(({
   return (
     <Grid container spacing={3}>
       {/* CREATE CARD COMPONENT */}
-      {handleCreate && (
-        <Grid item {...breakpoints}>
-          {ButtonCreateComponent ? (
-            <ButtonCreateComponent onClick={handleCreate} />
-          ) : (
+      {handleCreate && (ButtonCreateComponent ? (
+        <ButtonCreateComponent onClick={handleCreate} />
+      ) : (
+        isMobile ? (
+          <FloatingActionButton icon={<AddIcon />} onClick={handleCreate} />
+        ) : (
+          <Grid item {...breakpoints}>
             <Card className={classes.cardPlus} raised>
               <CardActionArea onClick={handleCreate}>
-                <CardContent>
-                  <AddIcon />
-                </CardContent>
+                <AddIcon />
               </CardActionArea>
             </Card>
-          )}
-        </Grid>
-      )}
+          </Grid>
+        )
+      ))}
 
       {/* LIST */}
       {list.length > 0 ? (
-        list?.map((value, index) => (
-          <Grid key={`card-${index}`} item {...breakpoints}>
-            <CardComponent value={value} {...cardsProps({ index, value })} />
-          </Grid>
-        ))
+        <TransitionGroup component={null}>
+          {list?.map((value, index) => (
+            <CSSTransition
+              // use key to render transition (default: id or ID)
+              key={`card-${value[keyProp] ?? value[String(keyProp).toUpperCase()]}`}
+              classNames={classes.item}
+              timeout={400}
+            >
+              <Grid item {...breakpoints}>
+                <CardComponent value={value} {...cardsProps({ index, value })} />
+              </Grid>
+            </CSSTransition>
+          ))}
+        </TransitionGroup>
       ) : (
         (displayEmpty || EmptyComponent) && (
           <Grid item {...breakpoints}>
@@ -74,12 +74,14 @@ const ListCards = memo(({
       )}
     </Grid>
   )
-})
+}, (prev, next) =>
+  prev.isLoading === next.isLoading && prev.list === next.list)
 
 const gridValues = [false, 'auto', true, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 ListCards.propTypes = {
   list: PropTypes.arrayOf(PropTypes.any).isRequired,
+  keyProp: PropTypes.string,
   breakpoints: PropTypes.shape({
     xs: PropTypes.oneOf(gridValues),
     sm: PropTypes.oneOf(gridValues),
@@ -110,6 +112,7 @@ ListCards.propTypes = {
 
 ListCards.defaultProps = {
   list: [],
+  keyProp: 'id',
   breakpoints: { xs: 12, sm: 4, md: 3, lg: 2 },
   handleCreate: undefined,
   ButtonCreateComponent: undefined,

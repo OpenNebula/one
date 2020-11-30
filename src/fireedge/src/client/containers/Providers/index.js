@@ -8,6 +8,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import { PATH } from 'client/router/provision'
 import useProvision from 'client/hooks/useProvision'
 import useFetch from 'client/hooks/useFetch'
+import useSearch from 'client/hooks/useSearch'
 
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
@@ -15,39 +16,40 @@ import { ProvisionCard } from 'client/components/Cards'
 
 import { DialogRequest } from 'client/components/Dialogs'
 import Information from 'client/containers/Providers/Sections/info'
-
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 function Providers () {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
+
   const { providers, getProviders, getProvider, deleteProvider } = useProvision()
-  const {
-    error,
-    fetchRequest,
-    loading,
-    reloading
-  } = useFetch(getProviders)
+
+  const { error, fetchRequest, loading, reloading } = useFetch(getProviders)
+  const { result, handleChange } = useSearch({
+    list: providers,
+    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] }
+  })
 
   useEffect(() => { fetchRequest() }, [])
 
   return (
     <Container disableGutters>
       <ListHeader
-        title={Tr(T.Providers)}
+        title={T.Providers}
         hasReloadButton
         reloadButtonProps={{
           onClick: () => fetchRequest(undefined, { reload: true }),
           isSubmitting: Boolean(loading || reloading)
         }}
+        hasSearch
+        searchProps={{ handleChange }}
       />
       <Box p={3}>
         {error ? (
-          <AlertError>{Tr(T.CannotConnectOneProvision)}</AlertError>
+          <AlertError>{T.CannotConnectOneProvision}</AlertError>
         ) : (
           <ListCards
-            list={providers}
+            list={result ?? providers}
             isLoading={providers.length === 0 && loading}
             handleCreate={() => history.push(PATH.PROVIDERS.CREATE)}
             CardComponent={ProvisionCard}

@@ -7,6 +7,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import { PATH } from 'client/router/provision'
 import useProvision from 'client/hooks/useProvision'
 import useFetch from 'client/hooks/useFetch'
+import useSearch from 'client/hooks/useSearch'
 
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
@@ -14,41 +15,41 @@ import { ProvisionCard } from 'client/components/Cards'
 
 import { DialogRequest } from 'client/components/Dialogs'
 import DialogInfo from 'client/containers/Provisions/DialogInfo'
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 function Provisions () {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
 
-  const {
-    provisions,
-    getProvisions,
-    getProvision,
-    deleteProvision
-  } = useProvision()
+  const { provisions, getProvisions, getProvision, deleteProvision } = useProvision()
 
   const { error, fetchRequest, loading, reloading } = useFetch(getProvisions)
+  const { result, handleChange } = useSearch({
+    list: provisions,
+    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] }
+  })
 
   useEffect(() => { fetchRequest() }, [])
 
   return (
     <Container disableGutters>
       <ListHeader
-        title={Tr(T.Provisions)}
+        title={T.Provisions}
         hasReloadButton
         reloadButtonProps={{
           onClick: () => fetchRequest(undefined, { reload: true }),
           isSubmitting: Boolean(loading || reloading)
         }}
+        hasSearch
+        searchProps={{ handleChange }}
       />
       <Box p={3}>
         {error ? (
-          <AlertError>{Tr(T.CannotConnectOneProvision)}</AlertError>
+          <AlertError>{T.CannotConnectOneProvision}</AlertError>
         ) : (
           <ListCards
-            list={provisions}
-            isLoading={provisions.length === 0 && loading}
+            list={result ?? provisions}
+            isLoading={provisions.length > 0 && loading}
             handleCreate={() => history.push(PATH.PROVISIONS.CREATE)}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
