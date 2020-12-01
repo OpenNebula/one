@@ -125,6 +125,14 @@ define(function(require) {
     "tags" : function(params) {
       OpenNebulaAction.getAppTags(params, RESOURCE)
     },
+    "import_vm_template" : function(params){
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "vm-template.import", action_obj);
+    },
+    "import_service_template" : function(params){
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "service_template.import", action_obj);
+    },
   }
 
   return MarketPlaceApp;

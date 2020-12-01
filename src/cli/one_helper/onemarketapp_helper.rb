@@ -236,10 +236,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
             rc  = create_apps(markets, import_all)
             ids = rc[1]
 
-            unless rc[0].empty?
-                rollback(rc[1])
-                return [-1, rc[0]]
-            end
+            return [-1, rc[0]] unless rc[0].empty?
         end
 
         # Create service template app
@@ -248,7 +245,6 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         rc = s_template.mp_import(markets, main_market, options[:vmname])
 
         if rc[0] == -1
-            rollback(ids)
             rc
         else
             ids.each {|i| puts "ID: #{i}" }
@@ -326,7 +322,6 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         rc = create_apps(markets, import_all, options[:vmname])
 
         if rc[0] == -1
-            rollback(rc[1])
             rc
         else
             rc[1].each {|i| puts "ID: #{i}" }
@@ -491,15 +486,6 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
             !pool.select {|v| v['ID'].to_i == market }.empty?
         end
 
-        # Generate random name to avoid clashing names
-        #
-        # @param name [String] Base name
-        #
-        # @return [String] Base name + random string
-        def random_name(name)
-            "#{name}-#{SecureRandom.hex[0..9]}"
-        end
-
     end
 
     # Get private marketplace to import templates
@@ -631,31 +617,6 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         end
 
         ['', ids]
-    end
-
-    # Delete IDS apps
-    #
-    # @param ids [Array] Apps IDs to delete
-    def rollback(ids)
-        puts
-        STDERR.puts "ERROR: rolling back apps: #{ids.join(', ')}"
-        puts
-
-        ids.each do |id|
-            app = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
-
-            app.info
-
-            # Ready state
-            if app.state != 1
-                STDERR.puts "App `#{app['NAME']}` delete operation might fail" \
-                            ', check servers logs'
-            end
-
-            app.delete
-        end
-
-        puts
     end
 
 end

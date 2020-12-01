@@ -748,7 +748,7 @@ tabs:
             #- 5        # Version
             - 6         # Size
             - 7         # State
-            #- 8        # Type
+            - 8        # Type
             - 9         # Registration
             - 10        # Marketplace
             - 11        # Zone

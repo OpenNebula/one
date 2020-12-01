@@ -16,6 +16,8 @@
 
 require 'OpenNebulaJSON/JSONUtils'
 require 'opennebula/marketplaceapp_ext'
+require 'opennebula/template_ext'
+require 'opennebula/flow/service_template_ext'
 
 module OpenNebulaJSON
     class MarketPlaceAppJSON < OpenNebula::MarketPlaceApp
@@ -48,20 +50,115 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "update"        then self.update(action_hash['params'])
-                 when "export"        then self.export(action_hash['params'])
-                 when "chown"         then self.chown(action_hash['params'])
-                 when "chmod"         then self.chmod_octet(action_hash['params'])
-                 when "rename"        then self.rename(action_hash['params'])
-                 when "disable"       then self.disable
-                 when "enable"        then self.enable
-                 when "lock"         then self.lock(action_hash['params'])
-                 when "unlock"       then self.unlock(action_hash['params'])
+                 when "update"                  then self.update(action_hash['params'])
+                 when "export"                  then self.export(action_hash['params'])
+                 when "chown"                   then self.chown(action_hash['params'])
+                 when "chmod"                   then self.chmod_octet(action_hash['params'])
+                 when "rename"                  then self.rename(action_hash['params'])
+                 when "disable"                 then self.disable
+                 when "enable"                  then self.enable
+                 when "lock"                    then self.lock(action_hash['params'])
+                 when "unlock"                  then self.unlock(action_hash['params'])
+                 when "vm-template.import"      then self.app_vm_import(action_hash['params'])
+                 when "service_template.import" then self.app_service_import(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
                      OpenNebula::Error.new(error_msg)
                  end
+        end
+
+        def app_vm_import(params=Hash.new)
+            template = Template.new_with_id(params['ORIGIN_ID'], @client)
+            rc = template.info
+            
+            return rc if OpenNebula.is_error?(rc)
+
+            template.extend(TemplateExt)
+
+            market_id = params['MARKETPLACE_ID'].to_i
+            import_all = params['IMPORT_ALL']
+            template_name = params['NAME']
+            
+            rc = template.mp_import(market_id, import_all, template_name)
+
+            if OpenNebula.is_error?(rc)
+                return OpenNebula::Error.new(rc[0])
+            end
+
+            return rc
+        end
+
+        def app_service_import(params=Hash.new)
+            s_template = ServiceTemplate.new_with_id(
+                    params['ORIGIN_ID'],
+                    @client
+                )
+            rc = s_template.info
+
+            return rc if OpenNebula.is_error?(rc)
+
+            s_template.extend(ServiceTemplateExt)
+            
+            vm_templates_ids = s_template.vm_template_ids
+            templates = {}
+
+            ids_images = []
+
+            if (params['IMPORT_ALL'] == 'yes')
+                vm_templates_ids.each { |id|
+                    template = Template.new_with_id(id, @client)
+                    template.info
+
+                    aux_template = {
+                        :market => params['MARKETPLACE_SERVICE_ID'].to_i,
+                        :template => template,
+                        :name => rc
+                    }
+                    templates[id] = aux_template
+                }
+
+                templates.each do |_, market|
+                    template = market[:template]
+                    template.extend(TemplateExt)
+
+                    rc, ids = template.mp_import(market[:market].to_i,
+                                                params['IMPORT_ALL'],
+                                                nil)
+
+                    return [rc.message, ids] if OpenNebula.is_error?(rc)
+
+                    # Store name to use it after
+                    market[:name] = nil
+                    market[:name] = rc
+
+                    ids_images.append(ids)
+                end
+            end
+            
+            market_id = params['MARKETPLACE_ID'].to_i
+            template_name = params['NAME']
+
+            error_code, rc = s_template.mp_import(templates, market_id, template_name)
+
+            if error_code == -1
+                if (params['IMPORT_ALL'] == 'yes')
+                    ids_images.each do |id|
+
+                        puts id
+                        
+                        app = MarketPlaceApp.new_with_id(id, @client)
+    
+                        app.info
+
+                        app.delete
+                    end
+                end
+                return OpenNebula::Error.new(rc.message)
+            end
+
+            rc = ids_images.append(rc)
+            return [0, rc]
         end
 
         def update(params=Hash.new)

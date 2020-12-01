@@ -148,11 +148,14 @@ define(function(require) {
 
     this.type = OpenNebulaMarketPlaceApp.typeStr(element.TYPE);
 
+    var elementType = OpenNebulaMarketPlaceApp.typeStr(element.TYPE);
+
     var search = {
       NAME:           element.NAME,
       UNAME:          element.UNAME,
       GNAME:          element.GNAME,
       STATE:          state,
+      TYPE:           elementType,
       MARKETPLACE:    element.MARKETPLACE,
       ZONE:           zone,
       REGTIME_AFTER:  element.REGTIME,
@@ -160,6 +163,18 @@ define(function(require) {
     }
 
     var color_html = Status.state_lock_to_color("MARKETPLACEAPP",state, element_json[XML_ROOT]["LOCK"]);
+
+    var appType = elementType;
+    switch (elementType){
+      case 'VMTEMPLATE':
+        appType = 'VM';
+        break;
+      case 'SERVICE_TEMPLATE':
+        appType = 'SERVICE';
+        break;
+      default:
+        break;
+    }
 
     return [
       '<input class="check_item"' +
@@ -175,7 +190,7 @@ define(function(require) {
       element.VERSION,
       Humanize.sizeFromMB(element.SIZE),
       state,
-      OpenNebulaMarketPlaceApp.typeStr(element.TYPE),
+      appType,
       Humanize.prettyTimeDatatable(element.REGTIME),
       element.MARKETPLACE,
       zone,

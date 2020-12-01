@@ -22,6 +22,10 @@ define(function(require) {
   var CommonActions = require("utils/common-actions");
   var OpenNebulaAction = require("opennebula/action");
   var Navigation = require("utils/navigation");
+  var OpenNebula = require('opennebula');
+
+  var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
+  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
 
   var TAB_ID = require("./tabId");
   var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
@@ -135,6 +139,41 @@ define(function(require) {
       call: OpenNebulaResource.clone,
       error: Notifier.onError,
       notify: true
+    },
+
+    "ServiceTemplate.upload_marketplace_dialog" : {
+      type: "custom",
+      call: function(params) {
+        var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
+
+        if (selectedNodes.length !== 1) {
+          Notifier.notifyMessage(Locale.tr("Please select one (and just one) Service to export."));
+          return false;
+        }
+
+        var resourceId = '' + selectedNodes[0];
+
+        OpenNebulaResource.show({
+          data : {
+              id: resourceId
+          },
+          success: function(){
+            Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+            Sunstone.showFormPanel(
+              MARKETPLACEAPPS_TAB_ID,
+              CREATE_APP_DIALOG_ID,
+              "export_service",
+              function(formPanelInstance, context) {
+                formPanelInstance.setServiceId(resourceId);
+                $('#marketplaceapps-tab-wizardForms #TYPE').val('service_template').change();
+              }
+            );
+          },
+          error: function(error){
+            Notifier.onError(error);
+          }
+        });
+      }
     }
   };
 

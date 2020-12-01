@@ -690,7 +690,17 @@ define(function(require) {
     $(".only-sunstone-info", tab).hide();
     $(".only-sunstone-form", tab).hide();
     $(".only-sunstone-list", tab).fadeIn();
-    $(".action_blocks", tab).removeClass("large-12").addClass("large-9");
+    
+    if (tabName == "marketplaceapps-tab"){
+      $(".action_blocks", tab).removeClass("large-10").addClass("large-7");
+      $(".search_division", tab).removeClass("large-2").addClass("large-5");
+      $(".type-selector", tab).show();
+    }
+    else{
+      $(".action_blocks", tab).removeClass("large-12").removeClass("large-7").addClass("large-10");
+      $(".search_division", tab).removeClass("large-5").addClass("large-2");
+      $(".type-selector", tab).hide();
+    }
 
     hideToggleButton($(".only-sunstone-list", tab));
   };
@@ -706,7 +716,14 @@ define(function(require) {
     $(".only-sunstone-list", tab).hide();
     $(".only-sunstone-form", tab).hide();
     $(".only-sunstone-info", tab).fadeIn();
-    $(".action_blocks", tab).removeClass("large-9").addClass("large-12");
+    if (tabName == "marketplaceapps-tab"){
+      $(".action_blocks", tab).removeClass("large-10").addClass("large-7");
+      $(".search_division", tab).removeClass("large-2").addClass("large-5");
+    }
+    else{
+      $(".action_blocks", tab).removeClass("large-9").addClass("large-10");
+      $(".search_division", tab).removeClass("large-5").addClass("large-2");
+    }
 
     hideToggleButton($(".only-sunstone-list", tab));
   };
@@ -1210,7 +1227,7 @@ define(function(require) {
     $(".only-sunstone-list", context).hide();
     $(".only-sunstone-info", context).hide();
     $(".only-sunstone-form", context).show();
-    $(".action_blocks", context).removeClass("large-9").addClass("large-12");
+    $(".action_blocks", context).removeClass("large-9").addClass("large-10");
 
     $(".sunstone-form-title", context).text(Locale.tr("Loading..."));
     $(".submit_button", context).text(Locale.tr("Loading..."));

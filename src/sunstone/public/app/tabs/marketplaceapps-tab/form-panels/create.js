@@ -25,6 +25,8 @@ define(function(require) {
   var Notifier = require("utils/notifier");
   var Tips = require("utils/tips");
   var ImagesTable = require("tabs/images-tab/datatable");
+  var TemplatesTable = require("tabs/templates-tab/datatable");
+  var ServicesTable = require("tabs/oneflow-templates-tab/datatable");
   var MarketPlacesTable = require("tabs/marketplaces-tab/datatable");
   var Config = require("sunstone-config");
   var WizardFields = require("utils/wizard-fields");
@@ -61,6 +63,16 @@ define(function(require) {
         "title": Locale.tr("Create MarketPlace App from Image"),
         "buttonText": Locale.tr("Create"),
         "resetButton": true
+      },
+      "export_template": {
+        "title": Locale.tr("Create MarketPlace App from VM Template"),
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
+      },
+      "export_service": {
+        "title": Locale.tr("Create MarketPlace App from Service"),
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       }
     };
 
@@ -73,6 +85,14 @@ define(function(require) {
           }
         }
       });
+    
+    this.templatesTable = new TemplatesTable(
+      FORM_PANEL_ID + "templatesTable",
+      { "select": true });
+
+    this.servicesTable = new ServicesTable(
+      FORM_PANEL_ID + "servicesTable",
+      { "select": true });
 
     this.marketPlacesTable = new MarketPlacesTable(
       FORM_PANEL_ID + "marketPlacesTable",
@@ -88,6 +108,21 @@ define(function(require) {
           }
         }
       });
+
+      this.marketPlacesServiceTable = new MarketPlacesTable(
+        FORM_PANEL_ID + "marketPlacesServiceTable",
+        { "select": true,
+          "selectOptions": {
+            "filter_fn": function(market) {
+              var valid = market.ZONE_ID == config.zone_id;
+              valid = $(config.oned_conf.MARKET_MAD_CONF)
+                  .filter(function(_, marketMad){
+                    return marketMad.NAME == market.MARKET_MAD && marketMad.APP_ACTIONS.indexOf("create") !== -1;
+                  }).length > 0;
+              return valid;
+            }
+          }
+        });
 
     this.marketPlacesTableAdvanced = new MarketPlacesTable(
       FORM_PANEL_ID + "marketPlacesTableAdvanced",
@@ -110,6 +145,8 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.submitAdvanced = _submitAdvanced;
   FormPanel.prototype.setImageId = _setImageId;
+  FormPanel.prototype.setTemplateId = _setTemplateId;
+  FormPanel.prototype.setServiceId = _setServiceId;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
 
@@ -123,7 +160,10 @@ define(function(require) {
     return TemplateWizardHTML({
       "formPanelId": this.formPanelId,
       "imagesTableHTML": this.imagesTable.dataTableHTML,
-      "marketPlacesTableHTML": this.marketPlacesTable.dataTableHTML
+      "templatesTableHTML": this.templatesTable.dataTableHTML,
+      "servicesTableHTML": this.servicesTable.dataTableHTML,
+      "marketPlacesImagesTableHTML": this.marketPlacesTable.dataTableHTML,
+      "marketPlacesServicesTableHTML": this.marketPlacesServiceTable.dataTableHTML
     });
   }
 
@@ -136,10 +176,14 @@ define(function(require) {
 
   function _onShow(context) {
     this.imagesTable.resetResourceTableSelect();
+    this.servicesTable.resetResourceTableSelect();
+    this.templatesTable.resetResourceTableSelect();
     this.marketPlacesTable.resetResourceTableSelect();
+    this.marketPlacesServiceTable.resetResourceTableSelect();
     this.marketPlacesTableAdvanced.resetResourceTableSelect();
 
     $("#NAME", context).focus();
+    $('#TYPE',context).trigger("change");
 
     return false;
   }
@@ -152,33 +196,189 @@ define(function(require) {
     this.imagesTable.selectResourceTableSelect(selectedResources);
   }
 
-  // Set up the create datastore context
-  function _setup(context) {
-    Tips.setup(context);
+  function _setTemplateId(templateId) {
+    var selectedResources = {
+      ids : templateId
+    };
 
-    this.imagesTable.initialize();
-    this.marketPlacesTable.initialize();
-    this.marketPlacesTableAdvanced.initialize();
+    this.templatesTable.selectResourceTableSelect(selectedResources);
+  }
 
-    this.imagesTable.idInput().
-      attr("required", "").
-      attr("wizard_field", "ORIGIN_ID");
+  function _setServiceId(serviceId) {
+    var selectedResources = {
+      ids : serviceId
+    };
 
-    this.marketPlacesTable.idInput().attr("required", "");
-    this.marketPlacesTableAdvanced.idInput().attr("required", "");
+    this.servicesTable.selectResourceTableSelect(selectedResources);
   }
 
 
+  // Set up the create datastore context
+  function _setup(context) {
+    var that = this;
+    Tips.setup(context);
+
+    this.imagesTable.initialize();
+    this.templatesTable.initialize();
+    this.servicesTable.initialize();
+    this.marketPlacesServiceTable.initialize();
+    this.marketPlacesTable.initialize();
+    this.marketPlacesTableAdvanced.initialize();
+
+    this.marketPlacesTable.idInput().attr("required", "");
+    this.marketPlacesTableAdvanced.idInput().attr("required", "");
+    this.servicesTable.idInput().attr("required", "");
+    // this.templatesTable.idInput().attr("required", "");
+    
+    // this.marketPlacesServiceTable.idInput().attr("required", "");
+
+    $('#IMPORT_ALL', context).on('change', function(){
+      if (
+        $('#IMPORT_ALL', context).is(':checked') &&
+        $('#TYPE',context).val() == 'service_template'
+      ){
+        $('#serviceMarketPlaceHTML', context).show();
+        $('#selected_resource_id_createMarketPlaceAppFormmarketPlacesServiceTable', context).attr('required','');
+      }
+      else{
+        $('#serviceMarketPlaceHTML', context).hide();
+        $('#selected_resource_id_createMarketPlaceAppFormmarketPlacesServiceTable', context).removeAttr('required');
+      }
+    });
+    
+    $('#TYPE',context).on('change', function(){
+      switch (this.value) {
+        case 'image':
+          that.imagesTable.idInput().
+            attr("required", "").
+            attr("wizard_field", "ORIGIN_ID");
+          that.templatesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+          that.servicesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+          
+          $('#importAllCheckBox',context).hide();
+
+          $('#servicesTableHTML', context).hide();
+          $('#templatesTableHTML', context).hide();
+          $('#imagesTableHTML', context).show();
+
+          $('#serviceMarketPlaceHTML', context).hide();
+          $('#appMarketPlaceHTML', context).show();
+          $('#templatesForApp',context).show();
+          break;
+        case 'vmtemplate':
+          that.templatesTable.idInput().
+            attr("required", "").
+            attr("wizard_field", "ORIGIN_ID");
+          that.imagesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+          that.servicesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+
+          $('#importAllCheckBox',context).show();
+          
+          $('#servicesTableHTML', context).hide();
+          $('#templatesTableHTML', context).show();
+          $('#imagesTableHTML', context).hide();
+
+          $('#serviceMarketPlaceHTML', context).hide();
+          $('#appMarketPlaceHTML', context).show();
+          $('#templatesForApp',context).hide();
+          break;
+        case 'service_template':
+          that.servicesTable.idInput().
+            attr("required", "").
+            attr("wizard_field", "ORIGIN_ID");
+          that.templatesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+          that.imagesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+
+          $('#importAllCheckBox',context).show();
+
+          $('#servicesTableHTML', context).show();
+          $('#templatesTableHTML', context).hide();
+          $('#imagesTableHTML', context).hide();
+
+          $('#serviceMarketPlaceHTML', context).hide();
+          $('#appMarketPlaceHTML', context).show();
+          $('#templatesForApp',context).hide();
+          break;
+        default:
+          break;
+      }
+
+    });
+  }
+
   function _submitWizard(context) {
-    var marketPlaceJSON = {};
-    $.extend(marketPlaceJSON, WizardFields.retrieve(context));
 
-    var marketPlaceAppObj = {
-      "marketplaceapp" : marketPlaceJSON,
-      "mp_id" : this.marketPlacesTable.idInput().val()
-    };
+    var type = $('#TYPE', context)[0].value;
 
-    Sunstone.runAction("MarketPlaceApp.create", marketPlaceAppObj);
+    switch (type) {
+      case 'image':
+        var marketPlaceJSON = {};
+        $.extend(marketPlaceJSON, WizardFields.retrieve(context));
+    
+        var marketPlaceAppObj = {
+          "marketplaceapp" : marketPlaceJSON,
+          "mp_id" : this.marketPlacesTable.idInput().val()
+        };
+    
+        Sunstone.runAction("MarketPlaceApp.create", marketPlaceAppObj);
+        break;
+      case 'vmtemplate':
+        var marketPlaceJSON = {};
+        $.extend(marketPlaceJSON, WizardFields.retrieve(context));
+
+        if (marketPlaceJSON['IMPORT_ALL'] && marketPlaceJSON['IMPORT_ALL'] == "on" ){
+          marketPlaceJSON['IMPORT_ALL'] = 'yes';
+        }
+        else{
+          marketPlaceJSON['IMPORT_ALL'] = 'no';
+        }
+        marketPlaceJSON['MARKETPLACE_ID'] = this.marketPlacesTable.idInput().val();
+    
+        Sunstone.runAction(
+          "MarketPlaceApp.import_vm_template",
+          this.marketPlacesTable.idInput().val(),
+          marketPlaceJSON
+        );
+
+        break;
+      
+      case 'service_template':
+        var marketPlaceJSON = {};
+        $.extend(marketPlaceJSON, WizardFields.retrieve(context));
+
+        if (marketPlaceJSON['IMPORT_ALL'] && marketPlaceJSON['IMPORT_ALL'] == "on" ){
+          marketPlaceJSON['IMPORT_ALL'] = 'yes';
+        }
+        else{
+          marketPlaceJSON['IMPORT_ALL'] = 'no';
+        }
+
+        marketPlaceJSON['MARKETPLACE_ID'] = this.marketPlacesTable.idInput().val();
+        marketPlaceJSON['MARKETPLACE_SERVICE_ID'] = this.marketPlacesServiceTable.idInput().val();
+    
+        Sunstone.runAction(
+          "MarketPlaceApp.import_service_template",
+          this.marketPlacesTable.idInput().val(),
+          marketPlaceJSON
+        );
+        
+        break;
+    
+      default:
+        break;
+    }
     return false;
   }
 
@@ -196,4 +396,3 @@ define(function(require) {
     return false;
   }
 });
-

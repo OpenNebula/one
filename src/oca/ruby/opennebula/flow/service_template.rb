@@ -549,8 +549,6 @@ module OpenNebula
             end
         end
 
-        private
-
         # Retreives all associated VM templates IDs
         #
         # @return [Array] VM templates IDs
