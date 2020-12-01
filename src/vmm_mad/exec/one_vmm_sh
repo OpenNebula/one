@@ -27,6 +27,6 @@ LOCAL_ACTIONS="${LOCAL_ACTIONS},pre,post,clean,update_sg"
 LOCAL_ACTIONS="${LOCAL_ACTIONS},snapshotcreate,snapshotrevert,snapshotdelete"
 LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_nic,detach_nic,reset"
 LOCAL_ACTIONS="${LOCAL_ACTIONS},prereconfigure,reconfigure"
-LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_disk,detach_disk,resize_disk"
+LOCAL_ACTIONS="${LOCAL_ACTIONS},attach_disk,detach_disk,resize_disk,resize"
 
 exec $MAD_LOCATION/one_vmm_exec -l $LOCAL_ACTIONS $*
