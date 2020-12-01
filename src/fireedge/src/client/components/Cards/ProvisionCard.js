@@ -1,11 +1,12 @@
 import React, { memo, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { Avatar, IconButton } from '@material-ui/core'
+import { Avatar } from '@material-ui/core'
 import ProviderIcon from '@material-ui/icons/Public'
 import ProvisionIcon from '@material-ui/icons/Cloud'
 
 import SelectCard from 'client/components/Cards/SelectCard'
+import Action from 'client/components/Cards/SelectCard/Action'
 import { STATIC_FILES_URL } from 'client/constants'
 
 const ProvisionCard = memo(
@@ -31,18 +32,12 @@ const ProvisionCard = memo(
       evt.target.src = `${STATIC_FILES_URL}/${DEFAULT_IMAGE}`
     }
 
-    const renderAction = ({ handleClick, icon: Icon, iconProps, cy }) => (
-      <IconButton key={cy} data-cy={cy} onClick={handleClick}>
-        <Icon {...iconProps} />
-      </IconButton>
-    )
-
     return (
       <SelectCard
         title={`${ID} - ${NAME}`}
         isSelected={isSelected}
         handleClick={handleClick}
-        action={actions?.map(action => renderAction(action))}
+        action={actions?.map(action => <Action key={action?.cy} {...action} />)}
         icon={isProvider ? <ProviderIcon /> : <ProvisionIcon />}
         {...(imgAsAvatar
           ? {
@@ -82,11 +77,6 @@ ProvisionCard.propTypes = {
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
       icon: PropTypes.object.isRequired,
-      iconProps: PropTypes.shape({
-        color: PropTypes.oneOf([
-          'inherit', 'primary', 'secondary', 'action', 'error', 'disabled'
-        ])
-      }),
       cy: PropTypes.string
     })
   )

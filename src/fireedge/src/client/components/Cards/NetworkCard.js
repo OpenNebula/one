@@ -34,10 +34,7 @@ NetworkCard.propTypes = {
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
-      icon: PropTypes.object.isRequired,
-      iconColor: PropTypes.oneOf([
-        'inherit', 'primary', 'secondary', 'action', 'error', 'disabled'
-      ]),
+      icon: PropTypes.node.isRequired,
       cy: PropTypes.string
     })
   )

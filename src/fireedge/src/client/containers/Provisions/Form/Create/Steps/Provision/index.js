@@ -5,7 +5,7 @@ import useFetch from 'client/hooks/useFetch'
 import useProvision from 'client/hooks/useProvision'
 import useListForm from 'client/hooks/useListForm'
 
-import ListCards from 'client/components/List/ListCards'
+import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
 import { Tr } from 'client/components/HOC'
@@ -46,6 +46,7 @@ const Provision = () => ({
     return (
       <ListCards
         list={templates}
+        keyProp='name'
         isLoading={!templates && loading}
         EmptyComponent={
           <EmptyCard title={'Your provisions templates list is empty'} />
@@ -56,7 +57,6 @@ const Provision = () => ({
           const { provision: { provider } = {} } = defaults
 
           return {
-            id: name.replace(/\s/g, ''),
             isSelected,
             handleClick: () => handleClick(name, provider, isSelected)
           }

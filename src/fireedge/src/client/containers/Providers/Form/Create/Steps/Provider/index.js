@@ -46,6 +46,7 @@ const Provider = () => ({
     return (
       <ListCards
         list={templates}
+        keyProp='name'
         isLoading={!templates || loading}
         EmptyComponent={
           <EmptyCard title={'Your providers templates list is empty'} />
@@ -55,7 +56,6 @@ const Provider = () => ({
           const isSelected = data?.some(selected => selected === name)
 
           return {
-            id: name.replace(/\s/g, ''),
             isProvider: true,
             isSelected,
             handleClick: () => handleClick(name, isSelected)

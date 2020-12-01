@@ -15,7 +15,8 @@ const useStyles = makeStyles(theme => ({
 
 const DialogRequest = ({ request, dialogProps, children }) => {
   const classes = useStyles()
-  const { data, fetchRequest, loading, error } = useFetch(request)
+  const methods = useFetch(request)
+  const { data, fetchRequest, loading, error } = methods
 
   useEffect(() => { fetchRequest() }, [])
 
@@ -31,7 +32,7 @@ const DialogRequest = ({ request, dialogProps, children }) => {
 
   return (
     <DialogConfirmation {...dialogProps}>
-      {children({ data })}
+      {children(methods)}
     </DialogConfirmation>
   )
 }

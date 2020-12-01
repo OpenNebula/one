@@ -40,9 +40,11 @@ function ProvisionCreateForm () {
       .find(({ name }) => name === provisionSelected)
 
     if (!provisionTemplate) {
-      showError(`
+      showError({
+        message: `
           Cannot found provider template (${provisionSelected}),
-          ask your cloud administrator`)
+          ask your cloud administrator`
+      })
       history.push(PATH.PROVISIONS.LIST)
     }
 

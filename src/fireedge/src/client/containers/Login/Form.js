@@ -49,6 +49,7 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
             </Button>
           )}
           <SubmitButton
+            color='primary'
             data-cy="login-button"
             isSubmitting={isLoading}
             label={onBack ? Tr(T.Next) : Tr(T.SignIn)}

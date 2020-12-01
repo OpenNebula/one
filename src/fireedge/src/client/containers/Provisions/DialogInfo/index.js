@@ -19,7 +19,7 @@ const TABS = [
   { name: 'hosts', icon: HostIcon, content: HostsTab }
 ]
 
-const DialogInfo = ({ data }) => {
+const DialogInfo = ({ data, ...methods }) => {
   const [tabSelected, setTab] = useState(0)
 
   const renderTabs = useMemo(() => (
@@ -54,21 +54,25 @@ const DialogInfo = ({ data }) => {
             key={`tab-${name}`}
             overflow="auto"
           >
-            <Content hidden={tabSelected !== idx} data={data} />
+            <Content
+              data={data}
+              hidden={tabSelected !== idx}
+              {...methods}
+            />
           </Box>
-        )), [tabSelected])}
+        )), [tabSelected, data])}
     </>
   )
 }
 
 DialogInfo.propTypes = {
   data: PropTypes.object.isRequired,
-  handleClose: PropTypes.func
+  fetchRequest: PropTypes.func
 }
 
 DialogInfo.defaultProps = {
   data: {},
-  handleClose: undefined
+  fetchRequest: undefined
 }
 
 export default DialogInfo

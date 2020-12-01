@@ -3,35 +3,45 @@ import PropTypes from 'prop-types'
 
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import useFetchAll from 'client/hooks/useFetchAll'
+import useProvision from 'client/hooks/useProvision'
 import useOpennebula from 'client/hooks/useOpennebula'
+import useFetchAll from 'client/hooks/useFetchAll'
 import ListCards from 'client/components/List/ListCards'
 import { NetworkCard } from 'client/components/Cards'
 
-const Networks = memo(({ hidden, data }) => {
+const Networks = memo(({ hidden, data, fetchRequest }) => {
   const {
     networks
   } = data?.TEMPLATE?.PROVISION_BODY?.provision?.infrastructure
 
+  const { deleteVNetwork } = useProvision()
   const { getVNetwork } = useOpennebula()
   const { data: list, fetchRequestAll, loading } = useFetchAll()
 
   useEffect(() => {
+    if (!hidden) {
+      const requests = networks?.map(getVNetwork) ?? []
+      fetchRequestAll(requests)
+    }
+  }, [networks])
+
+  useEffect(() => {
     if (!list && !hidden) {
-      const reqs = networks?.map(({ id }) => getVNetwork({ id })) ?? []
-      fetchRequestAll(reqs)
+      const requests = networks?.map(getVNetwork) ?? []
+      fetchRequestAll(requests)
     }
   }, [hidden])
 
   return (
     <ListCards
       list={list}
-      isLoading={loading}
+      isLoading={!list && loading}
       CardComponent={NetworkCard}
       cardsProps={({ value: { ID } }) => ({
         actions: [{
-          handleClick: () => undefined,
-          icon: DeleteIcon,
+          handleClick: () => deleteVNetwork({ id: ID })
+            .then(() => fetchRequest(undefined, { reload: true })),
+          icon: <DeleteIcon />,
           cy: `provision-vnet-delete-${ID}`
         }]
       })}
@@ -39,16 +49,19 @@ const Networks = memo(({ hidden, data }) => {
       breakpoints={{ xs: 12, md: 6 }}
     />
   )
-}, (prev, next) => prev.hidden === next.hidden)
+}, (prev, next) =>
+  prev.hidden === next.hidden && prev.data === next.data)
 
 Networks.propTypes = {
   data: PropTypes.object.isRequired,
-  hidden: PropTypes.bool
+  hidden: PropTypes.bool,
+  fetchRequest: PropTypes.func
 }
 
 Networks.defaultProps = {
   data: {},
-  hidden: false
+  hidden: false,
+  fetchRequest: () => undefined
 }
 
 Networks.displayName = 'Networks'

@@ -172,6 +172,58 @@ export default function useOpennebula () {
     , [dispatch, provisions]
   )
 
+  // --------------------------------------------
+  // INFRASTRUCTURES REQUESTS
+  // --------------------------------------------
+
+  const deleteDatastore = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteDatastore({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`Datastore deleted - ID: ${doc}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE datastore')))
+    , [dispatch, provisions]
+  )
+
+  const deleteVNetwork = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteVNetwork({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`VNetwork deleted - ID: ${id}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE network')))
+    , [dispatch, provisions]
+  )
+
+  const deleteHost = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteHost({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`Host deleted - ID: ${id}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE host')))
+    , [dispatch, provisions]
+  )
+
+  const configureHost = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .configureHost({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`Host configuring - ID: ${id}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE host')))
+    , [dispatch, provisions]
+  )
+
   return {
     providersTemplates,
     getProvidersTemplates,
@@ -190,6 +242,11 @@ export default function useOpennebula () {
     getProvision,
     getProvisions,
     createProvision,
-    deleteProvision
+    deleteProvision,
+
+    deleteDatastore,
+    deleteVNetwork,
+    deleteHost,
+    configureHost
   }
 }

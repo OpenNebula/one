@@ -3,12 +3,13 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import {
-  makeStyles, Card, CardActionArea, CardHeader, CardActions, IconButton, CardMedia
+  makeStyles, Card, CardActionArea, CardHeader, CardActions, CardMedia
 } from '@material-ui/core'
 import { Skeleton } from '@material-ui/lab'
 
 import useNearScreen from 'client/hooks/useNearScreen'
 import ConditionalWrap from 'client/components/HOC/ConditionalWrap'
+import Action from 'client/components/Cards/SelectCard/Action'
 
 const useStyles = makeStyles(theme => ({
   root: { height: '100%' },
@@ -39,8 +40,7 @@ const useStyles = makeStyles(theme => ({
     display: '-webkit-box',
     lineClamp: 2,
     boxOrient: 'vertical'
-  },
-  actionsIcon: { margin: theme.spacing(1) }
+  }
 }))
 
 const SelectCard = memo(({
@@ -62,12 +62,6 @@ const SelectCard = memo(({
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
-
-  const renderAction = ({ handleClick, icon: Icon, iconColor, cy }) => (
-    <IconButton key={cy} data-cy={cy} onClick={handleClick} size="small">
-      <Icon color={iconColor} className={classes.actionsIcon} />
-    </IconButton>
-  )
 
   return (
     <ConditionalWrap
@@ -138,7 +132,7 @@ const SelectCard = memo(({
             {/* CARD ACTIONS */}
             {actions?.length > 0 && (
               <CardActions>
-                {actions?.map(action => renderAction(action))}
+                {actions?.map(action => <Action key={action?.cy} {...action} />)}
               </CardActions>
             )}
           </ConditionalWrap>
@@ -160,10 +154,7 @@ SelectCard.propTypes = {
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
-      icon: PropTypes.object.isRequired,
-      iconColor: PropTypes.oneOf([
-        'inherit', 'primary', 'secondary', 'action', 'error', 'disabled'
-      ]),
+      icon: PropTypes.node.isRequired,
       cy: PropTypes.string
     })
   ),
