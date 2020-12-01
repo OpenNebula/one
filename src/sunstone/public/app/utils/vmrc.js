@@ -98,9 +98,9 @@ define(function (require) {
     URL += "://" + fireedge_endpoint + "/";
     
     var re = new RegExp("^(ws|wss):\\/\\/[\\w\\D]*?\\/", "gi");
-    var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/vmrc?");
+    var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/fireedge/vmrc?");
 
-    URL += "vmrc/" + ticket;
+    URL += "/fireedge/vmrc/" + ticket;
     link += "host=" + fireedge_host;
     link += "&port=" + fireedge_port;
     link += "&ticket=" + ticket;

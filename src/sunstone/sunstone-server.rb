@@ -471,9 +471,6 @@ helpers do
             session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
         end
 
-        autorefresh_wss = $conf[:autorefresh_support_wss]
-        session[:autorefresh_wss] = autorefresh_wss == 'yes'? 'wss' : 'ws'
-
         # end user options
 
         # secure cookies
@@ -507,7 +504,7 @@ helpers do
 
         # Fireedge running
         begin
-            uri = URI($conf[:fireedge_endpoint]+'/api/auth')
+            uri = URI($conf[:fireedge_endpoint]+'/fireedge/api/auth')
             user_pass = Base64.decode64(request.env['HTTP_AUTHORIZATION'].split(' ')[1])
             username = user_pass.split(":")[0]
             password = user_pass.split(":")[1]
@@ -515,8 +512,8 @@ helpers do
 
             res = Net::HTTP.post_form(uri, params)
             session[:fireedge_token] = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
-        rescue
-            logger.info("Fireedge server is not running.")
+        rescue StandardError => error
+            logger.info("Fireedge server is not running. Error: #{error}")
         end
 
         [204, ""]
