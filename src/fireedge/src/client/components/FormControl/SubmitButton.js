@@ -6,6 +6,7 @@ import {
 } from '@material-ui/core'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
+import clsx from 'clsx'
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -28,12 +29,12 @@ ButtonComponent.propTypes = {
 }
 
 const SubmitButton = React.memo(
-  ({ isSubmitting, label, icon, color, size, ...props }) => {
+  ({ isSubmitting, label, icon, color, size, className, ...props }) => {
     const classes = useStyles()
 
     return (
       <ButtonComponent
-        className={classes.root}
+        className={clsx(classes.root, className)}
         color={color}
         disabled={isSubmitting}
         icon={icon}
@@ -45,7 +46,10 @@ const SubmitButton = React.memo(
       </ButtonComponent>
     )
   },
-  (prev, next) => prev.isSubmitting === next.isSubmitting
+  (prev, next) =>
+    prev.isSubmitting === next.isSubmitting &&
+    prev.label === next.label &&
+    prev.onClick === next.onClick
 )
 
 SubmitButton.propTypes = {
