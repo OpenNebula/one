@@ -16,13 +16,14 @@
 const { parse } = require('yaml')
 const { Validator } = require('jsonschema')
 const { createWriteStream } = require('fs-extra')
+const { lockSync, checkSync, unlockSync } = require('lockfile')
 const {
   ok,
   notFound,
   accepted,
   internalServerError
 } = require('server/utils/constants/http-codes')
-const { httpResponse, parsePostData, existsFile } = require('server/utils/server')
+const { httpResponse, parsePostData, existsFile, createFile } = require('server/utils/server')
 const { tmpPath } = require('server/utils/constants/defaults')
 const {
   executeCommand,
@@ -38,6 +39,7 @@ const {
   getFiles
 } = require('./functions')
 const { provision } = require('./schemas')
+const { console } = require('window-or-global')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
@@ -50,6 +52,7 @@ const configFile = {
   name: 'provision',
   ext: 'yaml'
 }
+const regexp = /^ID: \d+/
 
 const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const extFiles = 'yml'
@@ -234,6 +237,12 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
 }
 
 const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+  const ext = 'yml'
+  const basePath = `${global.CPI}/provision`
+  const relName = 'creation'
+  const relFile = `${basePath}/${relName}`
+  const relFileYML = `${relFile}.${ext}`
+  const relFileLOCK = `${relFile}.lock`
   const { user, password, id } = userData
   const rtn = httpInternalError
   if (params && params.resource && user && password) {
@@ -247,37 +256,64 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
         const config = find(configFile.name, configFile.ext)
         const log = find(logFile.name, logFile.ext)
         if (config && log) {
-          // aca crear el archivo de relacion de ID:UUID
-          const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand]
-          let lastLine = ''
-          var stream = createWriteStream(log.path, { flags: 'a' })
-          const emit = message => {
-            message.toString().split(/\r|\n/).map(line => {
-              if (line) {
-                lastLine = line
-                stream.write(`${line}\n`)
-                publish(command, { id: files.name, message: line })
-              }
-            })
-          }
-          executeCommandAsync(
-            command,
-            paramsCommand,
-            {
-              err: emit,
-              out: emit,
-              close: success => {
-                stream.end()
-                if (success && /^ID: \d+/.test(lastLine)) {
-                  const newPath = renameFolder(config.path, lastLine.match('\\d+'))
-                  if (newPath) {
-                    moveToFolder(newPath, '/../../../')
+          const create = (filedata = '') => {
+            const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand]
+            let lastLine = ''
+            var stream = createWriteStream(log.path, { flags: 'a' })
+            const emit = message => {
+              message.toString().split(/\r|\n/).map(line => {
+                if (line) {
+                  if (regexp.test(line) && !checkSync(relFileLOCK)) {
+                    const fileData = parse(filedata) || {}
+                    const parseID = line.match('\\d+')
+                    const id = parseID[0]
+                    if (id && !fileData[id]) {
+                      lockSync(relFileLOCK)
+                      fileData[id] = files.name
+                      createTemporalFile(basePath, ext, createYMLContent(fileData), relName)
+                      unlockSync(relFileLOCK)
+                    }
+                  }
+                  console.log('-->', line)
+                  lastLine = line
+                  stream.write(`${line}\n`)
+                  publish(command, { id: files.name, message: line })
+                }
+              })
+            }
+            executeCommandAsync(
+              command,
+              paramsCommand,
+              {
+                err: emit,
+                out: emit,
+                close: success => {
+                  stream.end()
+                  if (success && regexp.test(lastLine)) {
+                    const newPath = renameFolder(config.path, lastLine.match('\\d+'))
+                    if (newPath) {
+                      moveToFolder(newPath, '/../../../')
+                    }
+                  }
+                  if (success === false) {
+                    renameFolder(config.path, '.ERROR', 'append')
                   }
                 }
-                if (success === false) {
-                  renameFolder(config.path, '.ERROR', 'append')
-                }
               }
+            )
+          }
+
+          existsFile(
+            relFileYML,
+            filedata => {
+              create(filedata)
+            },
+            () => {
+              createFile(
+                relFileYML, '', filedata => {
+                  create(filedata)
+                }
+              )
             }
           )
           res.locals.httpCode = httpResponse(accepted, files.name)

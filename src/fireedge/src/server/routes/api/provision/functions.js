@@ -106,9 +106,9 @@ const createFolderWithFiles = (path = '', files = [], filename = '') => {
   return rtn
 }
 
-const createTemporalFile = (path = '', ext = '', content = '') => {
+const createTemporalFile = (path = '', ext = '', content = '', filename = '') => {
   let rtn
-  const name = v4().replace(/-/g, '').toUpperCase()
+  const name = filename || v4().replace(/-/g, '').toUpperCase()
   const file = `${path}/${name}.${ext}`
   try {
     if (!existsSync(path)) {
