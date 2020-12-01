@@ -22,6 +22,9 @@ define(function(require) {
   var CommonActions = require('utils/common-actions');
   var OpenNebulaAction = require('opennebula/action');
   var Navigation = require('utils/navigation');
+  var OpenNebula = require('opennebula');
+  var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
+  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
 
   var XML_ROOT = "VMTEMPLATE"
 
@@ -256,7 +259,41 @@ define(function(require) {
       _actions[resource+".lockA"] =  _commonActions.multipleAction("lock"),
       _actions[resource+".lockM"] =  _commonActions.multipleAction("lock"),
       _actions[resource+".lockU"] =  _commonActions.multipleAction("lock"),
-      _actions[resource+".unlock"] =  _commonActions.multipleAction("unlock")
+      _actions[resource+".unlock"] =  _commonActions.multipleAction("unlock"),
+      _actions[resource+".upload_marketplace_dialog"] =  {
+        type: "custom",
+        call: function() {
+          var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
+  
+          if (selectedNodes.length !== 1) {
+            Notifier.notifyMessage(Locale.tr("Please select one (and just one) Image to export."));
+            return false;
+          }
+  
+          var resourceId = '' + selectedNodes[0];
+  
+          OpenNebulaResource.show({
+            data : {
+                id: resourceId
+            },
+            success: function(){
+              Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+              Sunstone.showFormPanel(
+                MARKETPLACEAPPS_TAB_ID,
+                CREATE_APP_DIALOG_ID,
+                'export_template',
+                function(formPanelInstance, context) {
+                  formPanelInstance.setTemplateId(resourceId);
+                  $('#marketplaceapps-tab-wizardForms #TYPE').val('vmtemplate').change();
+                }
+              );
+            },
+            error: function(error){
+              Notifier.onError(error);
+            } 
+          });
+        }
+      }
 
 
     return _actions;

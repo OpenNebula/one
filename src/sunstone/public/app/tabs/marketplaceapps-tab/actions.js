@@ -209,7 +209,80 @@ define(function(require) {
     //"MarketPlaceApp.update" : _commonActions.updateTemplate(),
     "MarketPlaceApp.update_template" : _commonActions.updateTemplate(),
     "MarketPlaceApp.append_template" : _commonActions.appendTemplate(),
-    "MarketPlaceApp.rename": _commonActions.singleAction('rename')
+    "MarketPlaceApp.rename": _commonActions.singleAction('rename'),
+    
+    'MarketPlaceApp.import_vm_template': {
+      type: 'single',
+      call: OpenNebulaResource.import_vm_template,
+      callback : function(request, response) {
+        template_name = ''
+        if (request && 
+            request.request && 
+            request.request.data &&
+            request.request.data[1] &&
+            request.request.data[1].NAME){
+          template_name = request.request.data[1].NAME
+        }
+
+        if (Array.isArray(response) && response[0] == template_name){
+          Sunstone.resetFormPanel(_commonActions.tabId, CREATE_DIALOG_ID);
+          Sunstone.hideFormPanel(_commonActions.tabId);
+          Notifier.notifyCustom(_commonActions.createdStr + " ID: " + response[1], "", false);
+        }
+        else{
+          Sunstone.hideFormPanelLoading(_commonActions.tabId);
+          var error = {
+            error: {
+              message: response[0]
+            }
+          } 
+          Notifier.onError(request, error);
+        }
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(_commonActions.tabId);
+        var error = {
+          error: {
+            message: response[0]
+          }
+        } 
+        Notifier.onError(request, error);
+      }
+    },
+
+    'MarketPlaceApp.import_service_template': {
+      type: 'single',
+      call: OpenNebulaResource.import_service_template,
+      callback : function(request, response) {
+        template_name = ''
+        if (request && 
+            request.request && 
+            request.request.data &&
+            request.request.data[1] &&
+            request.request.data[1].NAME){
+          template_name = request.request.data[1].NAME
+        }
+
+        if (Array.isArray(response) && response[0] == 0){
+          Sunstone.resetFormPanel(_commonActions.tabId, CREATE_DIALOG_ID);
+          Sunstone.hideFormPanel(_commonActions.tabId);
+          Notifier.notifyCustom(_commonActions.createdStr + ' ID: ' + response[1], '', false);
+        }
+        else{
+          Sunstone.hideFormPanelLoading(_commonActions.tabId);
+          var error = {
+            error: {
+              message: response[1]
+            }
+          } 
+          Notifier.onError(request, error);
+        }
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(_commonActions.tabId);
+        Notifier.onError(request, response);
+      }
+    }
   }
 
   return _actions;

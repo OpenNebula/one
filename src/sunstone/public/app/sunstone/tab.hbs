@@ -41,8 +41,11 @@
     {{#if buttons}}
     <div class="actions_row">
       <div class="medium-12 large-10 columns action_blocks"></div>
-      <div class="medium-4 large-2 columns">
-        <div class="only-sunstone-list">
+      <div class="medium-4 large-2 columns search_division">
+        <div class="only-sunstone-list" style="display:flex">
+          {{#if dataTable.typeFilter }}
+            {{{dataTable.typeFilter}}}
+          {{/if}}
           {{#if dataTable.searchInputHTML}}
             {{{dataTable.searchInputHTML}}}
           {{/if}}

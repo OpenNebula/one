@@ -15,7 +15,14 @@
 {{! -------------------------------------------------------------------------- }}
 
 {{#if searchDropdownHTML}}
-<div id="{{dataTableSearchId}}-wrapper" class="input-group">
+<div id="{{dataTableSearchId}}-wrapper" class="input-group" style="display:flex;">
+  <select search-field="TYPE" id="{{dataTableSearchId}}-selectTYPE" class="type-selector">
+    <option value="">{{tr "All"}}</option>
+    <option value="VMTEMPLATE">{{tr "VM Templates"}}</option>
+    <option value="IMAGE">{{tr "Images"}}</option>
+    <option value="SERVICE_TEMPLATE">{{tr "Service Templates"}}</option>
+  </select>
+  &nbsp;
   <input class="input-group-field" id="{{dataTableSearchId}}" name="{{dataTableSearchId}}" autocomplete="off" type="search" placeholder="{{tr "Search"}}" />
   <div class="input-group-button">
     <i class="fas fa-filter search-button" data-toggle="{{dataTableSearchId}}-dropdown"></i>

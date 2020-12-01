@@ -39,7 +39,7 @@ module OpenNebula::ServiceTemplateExt
             # @param name      [String]  Service Template App name
             def mp_import(templates, market_id, name)
                 template = ''
-                name   ||= OneMarketPlaceAppHelper.random_name(@body['name'])
+                name   ||= "#{@body['name']}-#{SecureRandom.hex[0..9]}"
 
                 template = <<-EOT
                 NAME      = "#{name}"

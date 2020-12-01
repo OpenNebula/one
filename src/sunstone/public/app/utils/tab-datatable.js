@@ -244,7 +244,11 @@ define(function(require) {
       $("button.advanced-search", context).on('click', function(){
         $('#' + that.dataTableId + 'Search-dropdown', context).foundation('close');
         that.dataTable.fnDraw(true);
+        return false;
+      });
 
+      $("#"+ this.dataTableId +"Search-selectTYPE", context).on('change', function(){
+        that.dataTable.fnDraw(true);        
         return false;
       });
     }

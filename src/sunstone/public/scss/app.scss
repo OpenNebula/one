@@ -281,3 +281,9 @@ select.mb_input_unit {
       display: none !important;
   }
 }
+
+#dataTableMarketplaceApps{
+  td{
+    word-break: normal;
+  }
+}

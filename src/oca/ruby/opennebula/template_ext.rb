@@ -152,7 +152,7 @@ module OpenNebula::TemplateExt
                 if template_name
                     name = template_name
                 else
-                    name = OneMarketPlaceAppHelper.random_name(self['NAME'])
+                    name = "#{self['NAME']}-#{SecureRandom.hex[0..9]}"
                 end
 
                 main_template << <<-EOT
@@ -166,7 +166,10 @@ module OpenNebula::TemplateExt
 
                 rc = create_mp_app(main_template, market)
 
-                return [rc.message, ids] if OpenNebula.is_error?(rc)
+                if OpenNebula.is_error?(rc)
+                    rollback(ids)
+                    return [rc.message, ids]
+                end
 
                 ids << rc
 
@@ -212,7 +215,7 @@ module OpenNebula::TemplateExt
                 image.info
 
                 # Rename to avoid clashing names
-                app_name = OneMarketPlaceAppHelper.random_name(image['NAME'])
+                app_name = "#{image['NAME']}-#{SecureRandom.hex[0..9]}"
 
                 dev_prefix = image['TEMPLATE/DEV_PREFIX']
                 img_type   = image.type_str
@@ -255,6 +258,31 @@ module OpenNebula::TemplateExt
                 return rc if OpenNebula.is_error?(rc)
 
                 app.id
+            end
+
+            # Delete IDS apps
+            #
+            # @param ids [Array] Apps IDs to delete
+            def rollback(ids)
+                puts
+                STDERR.puts "ERROR: rolling back apps: #{ids.join(', ')}"
+                puts
+
+                ids.each do |id|
+                    app = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
+
+                    app.info
+
+                    # Ready state
+                    if app.state != 1
+                        STDERR.puts "App `#{app['NAME']}` delete operation " \
+                                    'might fail, check servers logs'
+                    end
+
+                    app.delete
+                end
+
+                puts
             end
 
         end

@@ -29,6 +29,11 @@ define(function(require) {
       layout: "create_flatten",
       custom_classes: "only-sunstone-list"
     },
+    "ServiceTemplate.upload_marketplace_dialog" : {
+      type: "action",
+      layout: "main",
+      text: '<i class="fas fa-share"/> '+ Locale.tr("MarketPlace")
+    },
     "ServiceTemplate.update_dialog" : {
       type: "action",
       layout: "main",
