@@ -239,7 +239,7 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
 const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const ext = 'yml'
   const basePath = `${global.CPI}/provision`
-  const relName = 'creation'
+  const relName = 'provision-mapping'
   const relFile = `${basePath}/${relName}`
   const relFileYML = `${relFile}.${ext}`
   const relFileLOCK = `${relFile}.lock`
@@ -274,7 +274,6 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                       unlockSync(relFileLOCK)
                     }
                   }
-                  console.log('-->', line)
                   lastLine = line
                   stream.write(`${line}\n`)
                   publish(command, { id: files.name, message: line })
@@ -292,6 +291,28 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                   if (success && regexp.test(lastLine)) {
                     const newPath = renameFolder(config.path, lastLine.match('\\d+'))
                     if (newPath) {
+                      existsFile(
+                        relFileYML,
+                        filedata => {
+                          if(!checkSync(relFileLOCK)){
+                            lockSync(relFileLOCK)
+                            const fileData = parse(filedata) || {}
+                            const findKey = Object.keys(fileData).find(key => fileData[key] === files.name);
+                            if(findKey){
+                              delete fileData[findKey]
+                            }
+                            createTemporalFile(
+                              basePath,
+                              ext,
+                              createYMLContent(
+                                Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
+                              ),
+                              relName
+                            )
+                            unlockSync(relFileLOCK)
+                          }
+                        }
+                      )
                       moveToFolder(newPath, '/../../../')
                     }
                   }

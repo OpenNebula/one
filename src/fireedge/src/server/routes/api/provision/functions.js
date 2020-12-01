@@ -124,16 +124,18 @@ const createTemporalFile = (path = '', ext = '', content = '', filename = '') =>
 
 const createYMLContent = (content = '') => {
   let rtn
-  if (content) {
-    try {
-      scalarOptions.str.defaultType = 'QUOTE_SINGLE'
-      const doc = new Document({})
-      doc.directivesEndMarker = true
-      doc.contents = content
-      rtn = doc
-    } catch (error) {
-      messageTerminal(defaultError((error && error.message) || ''))
+  try {
+    const doc = new Document()
+    doc.directivesEndMarker = true
+    scalarOptions.str.defaultType = 'QUOTE_SINGLE'
+    if (content) {
+      doc.contents = content || undefined
+    }else{
+      doc.contents = undefined
     }
+    rtn = doc
+  } catch (error) {
+    messageTerminal(defaultError((error && error.message) || ''))
   }
   return rtn
 }
