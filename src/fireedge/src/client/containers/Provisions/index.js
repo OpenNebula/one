@@ -31,6 +31,8 @@ function Provisions () {
 
   useEffect(() => { fetchRequest() }, [])
 
+  const handleCancel = () => setShowDialog(false)
+
   return (
     <Container disableGutters>
       <ListHeader
@@ -66,8 +68,7 @@ function Provisions () {
                   },
                   content: DialogInfo
                 }),
-                icon: DeleteIcon,
-                iconProps: { color: 'error' },
+                icon: <DeleteIcon color='error' />,
                 cy: `provision-delete-${ID}`
               }]
             })}
@@ -80,7 +81,7 @@ function Provisions () {
           request={() => getProvision({ id: showDialog.id })}
           dialogProps={{
             title: showDialog.title,
-            handleCancel: () => setShowDialog(false),
+            handleCancel,
             handleAccept: showDialog.handleAccept,
             contentProps: {
               style: {
@@ -91,7 +92,7 @@ function Provisions () {
             }
           }}
         >
-          {({ data }) => createElement(showDialog.content, { data })}
+          {props => createElement(showDialog.content, props)}
         </DialogRequest>
       )}
     </Container>

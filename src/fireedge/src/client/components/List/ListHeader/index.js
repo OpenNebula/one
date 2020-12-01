@@ -36,7 +36,12 @@ const ListHeader = memo(({
       </Box>
       <Box className={classes.actions}>
         {!!(hasAddButton || addButtonProps) && (
-          <SubmitButton icon label={<AddIcon />} {...addButtonProps} />
+          <SubmitButton
+            color='primary'
+            icon
+            label={<AddIcon />}
+            {...addButtonProps}
+          />
         )}
         {!!(hasSearch || searchProps) && (
           <Box className={classes.search}>

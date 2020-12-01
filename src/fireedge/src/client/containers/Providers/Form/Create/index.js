@@ -50,9 +50,11 @@ function ProviderCreateForm () {
       .find(({ name }) => name === providerSelected) ?? {}
 
     if (!providerSelected) {
-      showError(`
+      showError({
+        message: `
           Cannot found provider template (${providerSelected}),
-          ask your cloud administrator`)
+          ask your cloud administrator`
+      })
       history.push(PATH.PROVISIONS.LIST)
     }
 

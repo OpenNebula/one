@@ -58,6 +58,7 @@ const CustomStepper = ({
           {Tr(T.Back)}
         </Button>
         <SubmitButton
+          color='primary'
           data-cy="stepper-next-button"
           onClick={handleNext}
           isSubmitting={isSubmitting}

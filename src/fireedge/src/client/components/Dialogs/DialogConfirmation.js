@@ -61,6 +61,7 @@ const DialogConfirmation = memo(
             )}
             {handleAccept && (
               <SubmitButton
+                color='primary'
                 data-cy="dg-accept-button"
                 onClick={handleAccept}
                 label={Tr(T.Accept)}

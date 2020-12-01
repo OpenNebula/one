@@ -2,7 +2,7 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import {
-  makeStyles, CircularProgress, Button, Fab, IconButton
+  makeStyles, CircularProgress, Button, IconButton
 } from '@material-ui/core'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -62,7 +62,7 @@ SubmitButton.defaultProps = {
   label: undefined,
   isSubmitting: false,
   className: undefined,
-  color: 'primary'
+  color: 'default'
 }
 
 export default SubmitButton

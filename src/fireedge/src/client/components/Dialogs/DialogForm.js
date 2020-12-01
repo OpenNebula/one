@@ -62,6 +62,7 @@ const DialogForm = memo(
             )}
             {onSubmit && (
               <SubmitButton
+                color='primary'
                 data-cy="dg-form-submit-button"
                 isSubmitting={methods.formState.isSubmitting}
                 onClick={methods.handleSubmit(onSubmit)}

@@ -3,35 +3,45 @@ import PropTypes from 'prop-types'
 
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import useFetchAll from 'client/hooks/useFetchAll'
+import useProvision from 'client/hooks/useProvision'
 import useOpennebula from 'client/hooks/useOpennebula'
+import useFetchAll from 'client/hooks/useFetchAll'
 import ListCards from 'client/components/List/ListCards'
 import { DatastoreCard } from 'client/components/Cards'
 
-const Datastores = memo(({ hidden, data }) => {
+const Datastores = memo(({ hidden, data, fetchRequest }) => {
   const {
     datastores
   } = data?.TEMPLATE?.PROVISION_BODY?.provision?.infrastructure
 
+  const { deleteDatastore } = useProvision()
   const { getDatastore } = useOpennebula()
   const { data: list, fetchRequestAll, loading } = useFetchAll()
 
   useEffect(() => {
+    if (!hidden) {
+      const requests = datastores?.map(getDatastore) ?? []
+      fetchRequestAll(requests)
+    }
+  }, [datastores])
+
+  useEffect(() => {
     if (!list && !hidden) {
-      const reqs = datastores?.map(({ id }) => getDatastore({ id })) ?? []
-      fetchRequestAll(reqs)
+      const requests = datastores?.map(getDatastore) ?? []
+      fetchRequestAll(requests)
     }
   }, [hidden])
 
   return (
     <ListCards
       list={list}
-      isLoading={loading}
+      isLoading={!list && loading}
       CardComponent={DatastoreCard}
       cardsProps={({ value: { ID } }) => ({
         actions: [{
-          handleClick: () => undefined,
-          icon: DeleteIcon,
+          handleClick: () => deleteDatastore({ id: ID })
+            .then(() => fetchRequest(undefined, { reload: true })),
+          icon: <DeleteIcon />,
           cy: `provision-datastore-delete-${ID}`
         }]
       })}
@@ -39,16 +49,19 @@ const Datastores = memo(({ hidden, data }) => {
       breakpoints={{ xs: 12, md: 6 }}
     />
   )
-}, (prev, next) => prev.hidden === next.hidden)
+}, (prev, next) =>
+  prev.hidden === next.hidden && prev.data === next.data)
 
 Datastores.propTypes = {
   data: PropTypes.object.isRequired,
-  hidden: PropTypes.bool
+  hidden: PropTypes.bool,
+  fetchRequest: PropTypes.func
 }
 
 Datastores.defaultProps = {
   data: {},
-  hidden: false
+  hidden: false,
+  fetchRequest: () => undefined
 }
 
 Datastores.displayName = 'Datastores'

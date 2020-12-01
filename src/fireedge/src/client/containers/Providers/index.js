@@ -61,7 +61,7 @@ function Providers () {
                 {
                   handleClick: () =>
                     history.push(PATH.PROVIDERS.EDIT.replace(':id', ID)),
-                  icon: EditIcon,
+                  icon: <EditIcon />,
                   cy: `provider-edit-${ID}`
                 },
                 {
@@ -73,8 +73,7 @@ function Providers () {
                       setShowDialog(false)
                     }
                   }),
-                  icon: DeleteIcon,
-                  iconProps: { color: 'error' },
+                  icon: <DeleteIcon color='error' />,
                   cy: `provider-delete-${ID}`
                 }
               ]

@@ -52,18 +52,22 @@ const ListCards = memo(({
       {/* LIST */}
       {list.length > 0 ? (
         <TransitionGroup component={null}>
-          {list?.map((value, index) => (
-            <CSSTransition
+          {list?.map((value, index) => {
+            const key = value[keyProp] ?? value[keyProp.toUpperCase()]
+
+            return (
+              <CSSTransition
               // use key to render transition (default: id or ID)
-              key={`card-${value[keyProp] ?? value[String(keyProp).toUpperCase()]}`}
-              classNames={classes.item}
-              timeout={400}
-            >
-              <Grid item {...breakpoints}>
-                <CardComponent value={value} {...cardsProps({ index, value })} />
-              </Grid>
-            </CSSTransition>
-          ))}
+                key={`card-${key.replace(/\s/g, '')}`}
+                classNames={classes.item}
+                timeout={400}
+              >
+                <Grid item {...breakpoints}>
+                  <CardComponent value={value} {...cardsProps({ index, value })} />
+                </Grid>
+              </CSSTransition>
+            )
+          })}
         </TransitionGroup>
       ) : (
         (displayEmpty || EmptyComponent) && (
