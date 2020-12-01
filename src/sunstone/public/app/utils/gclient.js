@@ -71,7 +71,7 @@ define(function(require) {
     var host = fireedge_host || 'localhost';
     var wsprotocol = (fireedge_protocol == 'https:') ? 'wss:' : 'ws:';
 
-    var tunnel = new Guacamole.WebSocketTunnel(wsprotocol + '//' + host + ':' + port + '/guacamole')
+    var tunnel = new Guacamole.WebSocketTunnel(wsprotocol + '//' + host + ':' + port + '/fireedge/guacamole')
     var guac = this._client = new Guacamole.Client(tunnel);
 
     // Client display

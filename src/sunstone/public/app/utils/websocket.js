@@ -30,7 +30,7 @@ define(function (require) {
   var _start = function () {
     if (sessionStorage.getItem(FireedgeValidator.sessionVar) == "true"){
       const socket = io(Config.fireedgeEndpoint, {
-        path: "/websocket",
+        path: "/fireedge/websocket",
         query: {
           token: fireedge_token
         }
