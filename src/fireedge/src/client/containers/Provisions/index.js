@@ -50,7 +50,7 @@ function Provisions () {
         ) : (
           <ListCards
             list={result ?? provisions}
-            isLoading={provisions.length > 0 && loading}
+            isLoading={provisions.length === 0 && loading}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
               handleClick: () => setShowDialog({
