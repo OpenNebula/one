@@ -55,14 +55,14 @@ Message.displayName = 'Message'
 // DEBUG LOG COMPONENT
 // --------------------------------------------
 
-const DebugLog = memo(({ uuid, socket }) => {
-  const [log, setLog] = useState([])
+const DebugLog = memo(({ uuid, socket, logDefault }) => {
+  const [log, setLog] = useState(logDefault)
 
   useEffect(() => {
-    socket.on(socketData =>
+    uuid && socket.on(socketData =>
       socketData?.id === uuid && setLog(prev => [...prev, socketData?.data])
     )
-    return socket.off
+    return () => uuid && socket.off()
   }, [])
 
   return (
@@ -82,11 +82,12 @@ const DebugLog = memo(({ uuid, socket }) => {
 }, (prev, next) => prev.uuid === next.uuid)
 
 DebugLog.propTypes = {
-  uuid: PropTypes.string.isRequired,
+  uuid: PropTypes.string,
   socket: PropTypes.shape({
     on: PropTypes.func.isRequired,
     off: PropTypes.func.isRequired
-  }).isRequired
+  }).isRequired,
+  logDefault: PropTypes.array
 }
 
 DebugLog.defaultProps = {
@@ -94,7 +95,8 @@ DebugLog.defaultProps = {
   socket: {
     on: () => undefined,
     off: () => undefined
-  }
+  },
+  logDefault: []
 }
 
 DebugLog.displayName = 'DebugLog'
