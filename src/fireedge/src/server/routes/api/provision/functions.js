@@ -208,15 +208,18 @@ const executeCommandAsync = (
   const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : () => undefined
 
   const rsc = Array.isArray(resource) ? resource : [resource]
-
-  const execute = spawn(command, [...rsc])
+  
+  const execute = spawn(command, [...rsc], {stdio:[null, 'pipe', 'pipe']})
   if (execute) {
-    execute.stdout.on('data', (data) => {
-      out(data)
+
+    execute.stderr('pipe').on('data', (data) => {
+      console.log("2", data.toString())
+      err(data)
     })
 
-    execute.stderr.on('data', (data) => {
-      err(data)
+    execute.stdout('pipe').on('data', (data) => {
+      console.log("1", data.toString())
+      out(data)
     })
 
     execute.on('error', error => {
