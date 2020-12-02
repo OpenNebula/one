@@ -136,7 +136,7 @@ wait_for_file()
     TIMEOUT="${TIMEOUT:-120}"
 
     while [ "$TIMEOUT" -gt 0 ] ; do
-        if [ -f "$1" ] ; then
+        if [ -e "$1" ] ; then
             return 0
         fi
 
