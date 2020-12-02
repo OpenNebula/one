@@ -5,7 +5,7 @@ import {
 } from '@material-ui/icons'
 
 import Login from 'client/containers/Login'
-import Dashboard from 'client/containers/Dashboard'
+import Dashboard from 'client/containers/Dashboard/Provision'
 import Settings from 'client/containers/Settings'
 
 import Providers from 'client/containers/Providers'

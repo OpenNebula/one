@@ -47,6 +47,7 @@ const SelectCard = memo(({
   stylesProps,
   action,
   actions,
+  cardActionsProps,
   icon,
   title,
   subheader,
@@ -131,7 +132,7 @@ const SelectCard = memo(({
 
             {/* CARD ACTIONS */}
             {actions?.length > 0 && (
-              <CardActions>
+              <CardActions {...cardActionsProps}>
                 {actions?.map(action => <Action key={action?.cy} {...action} />)}
               </CardActions>
             )}
@@ -158,6 +159,10 @@ SelectCard.propTypes = {
       cy: PropTypes.string
     })
   ),
+  cardActionsProps: PropTypes.shape({
+    className: PropTypes.string,
+    style: PropTypes.object
+  }),
   icon: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.object
@@ -197,6 +202,7 @@ SelectCard.defaultProps = {
   stylesProps: undefined,
   action: undefined,
   actions: undefined,
+  cardActionsProps: undefined,
   icon: undefined,
   title: undefined,
   subheader: undefined,
