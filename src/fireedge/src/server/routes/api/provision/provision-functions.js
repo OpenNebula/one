@@ -53,6 +53,9 @@ const configFile = {
   ext: 'yaml'
 }
 const regexp = /^ID: \d+/
+const relName = 'provision-mapping'
+const ext = 'yml'
+const appendError = '.ERROR'
 
 const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const extFiles = 'yml'
@@ -160,6 +163,10 @@ const deleteResource = (res = {}, next = () => undefined, params = {}, userData 
 }
 
 const deleteProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+  const basePath = `${global.CPI}/provision`
+  const relFile = `${basePath}/${relName}`
+  const relFileYML = `${relFile}.${ext}`
+  const relFileLOCK = `${relFile}.lock`
   const { user, password } = userData
   const rtn = httpInternalError
   if (params && params.id && user && password) {
@@ -182,6 +189,37 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
         out: emit,
         close: success => {
           if (success) {
+            existsFile(
+              relFileYML,
+              filedata => {
+                let uuid = ''
+                if(!checkSync(relFileLOCK)){
+                  lockSync(relFileLOCK)
+                  const fileData = parse(filedata) || {}
+                  if(fileData[params.id]){
+                    uuid = fileData[params.id]
+                    delete fileData[params.id]
+                    createTemporalFile(
+                      basePath,
+                      ext,
+                      createYMLContent(
+                        Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
+                      ),
+                      relName
+                    )
+                  }
+                  unlockSync(relFileLOCK)
+                  if(uuid){
+                    //provisions in deploy
+                    const findFolder = findRecursiveFolder(`${global.CPI}/provision`, uuid)
+                    findFolder && removeFile(findFolder)
+                    //provisions in error
+                    const findFolderERROR = findRecursiveFolder(`${global.CPI}/provision`, uuid+appendError)
+                    findFolderERROR && removeFile(findFolderERROR)
+                  }
+                }
+              }
+            )
             const findFolder = findRecursiveFolder(`${global.CPI}/provision`, params.id)
             findFolder && removeFile(findFolder)
           }
@@ -237,9 +275,7 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
 }
 
 const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
-  const ext = 'yml'
   const basePath = `${global.CPI}/provision`
-  const relName = 'provision-mapping'
   const relFile = `${basePath}/${relName}`
   const relFileYML = `${relFile}.${ext}`
   const relFileLOCK = `${relFile}.lock`
@@ -300,15 +336,15 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                             const findKey = Object.keys(fileData).find(key => fileData[key] === files.name);
                             if(findKey){
                               delete fileData[findKey]
+                              createTemporalFile(
+                                basePath,
+                                ext,
+                                createYMLContent(
+                                  Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
+                                ),
+                                relName
+                              )
                             }
-                            createTemporalFile(
-                              basePath,
-                              ext,
-                              createYMLContent(
-                                Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
-                              ),
-                              relName
-                            )
                             unlockSync(relFileLOCK)
                           }
                         }
@@ -317,7 +353,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                     }
                   }
                   if (success === false) {
-                    renameFolder(config.path, '.ERROR', 'append')
+                    renameFolder(config.path, appendError, 'append')
                   }
                 }
               }
@@ -439,9 +475,53 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
 }
 
 const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
-  const rtn = httpInternalError
+  const basePath = `${global.CPI}/provision`
+  const path = `${global.CPI}/provision`
+  const relFile = `${basePath}/${relName}`
+  const relFileYML = `${relFile}.${ext}`
+  let rtn = httpInternalError
   if (params && params.id) {
-    console.log('PASO')
+    const find = findRecursiveFolder(path, params.id)
+    const rtnNotFound = ()=>{
+      rtn = notFound
+    }
+    const rtnFound = (path = '') => {
+      if(path){
+        existsFile(
+          `${path}/${logFile.name}.${logFile.ext}`,
+          filedata => {
+            rtn = httpResponse(ok, filedata.split(/\r|\n/))
+          },
+          rtnNotFound
+        )
+      }
+    }
+    if(find){
+      rtnFound(find)
+    }else{
+      existsFile(
+        relFileYML,
+        filedata => {
+          const fileData = parse(filedata) || {}
+          if(fileData[params.id]){
+            const findPending = findRecursiveFolder(path, fileData[params.id])
+            if(findPending){
+              rtnFound(findPending)
+            }else{
+              const findError = findRecursiveFolder(path, fileData[params.id]+appendError)
+              if(findError){
+                rtnFound(findError)
+              }else{
+                rtnNotFound()
+              }
+            }
+          }else{
+            rtnNotFound()
+          }
+        },
+        rtnNotFound
+      )
+    }
   }
   res.locals.httpCode = rtn
   next()
