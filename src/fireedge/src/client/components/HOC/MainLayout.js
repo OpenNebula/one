@@ -20,6 +20,8 @@ import { useLocation, Redirect, matchPath } from 'react-router-dom'
 import useAuth from 'client/hooks/useAuth'
 import useOpennebula from 'client/hooks/useOpennebula'
 
+import Sidebar from 'client/components/Sidebar'
+import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'
 
 const findRouteByPathname = (endpoints = [], pathname = '') => {
@@ -70,7 +72,17 @@ const MainLayout = ({ endpoints, children }) => {
     return <Redirect to={PATH.DASHBOARD} />
   }
 
-  return children
+  return (
+    <>
+      {authRoute && isLogged && (
+        <>
+          <Sidebar endpoints={ENDPOINTS} />
+          <Notifier />
+        </>
+      )}
+      {children}
+    </>
+  )
 }
 
 MainLayout.propTypes = {
