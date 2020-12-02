@@ -209,16 +209,14 @@ const executeCommandAsync = (
 
   const rsc = Array.isArray(resource) ? resource : [resource]
   
-  const execute = spawn(command, [...rsc], {stdio:[null, 'pipe', 'pipe']})
+  const execute = spawn(command, [...rsc])
   if (execute) {
 
-    execute.stderr('pipe').on('data', (data) => {
-      console.log("2", data.toString())
+    execute.stderr.on('data', (data) => {
       err(data)
     })
 
-    execute.stdout('pipe').on('data', (data) => {
-      console.log("1", data.toString())
+    execute.stdout.on('data', (data) => {
       out(data)
     })
 
