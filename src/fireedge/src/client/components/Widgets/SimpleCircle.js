@@ -15,7 +15,7 @@ const Circle = React.memo(({ color }) => {
   React.useEffect(() => {
     const timer = setInterval(() => {
       setProgress(prevProgress => {
-        const nextProgress = prevProgress + 5
+        const nextProgress = prevProgress + 2
         if (nextProgress === 100) clearInterval(timer)
         return nextProgress
       })

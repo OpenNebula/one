@@ -37,7 +37,7 @@ import Logo from 'client/icons/logo'
 const Sidebar = memo(({ endpoints }) => {
   const classes = sidebarStyles()
   const { isFixMenu, fixMenu } = useGeneral()
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
 
   const handleSwapMenu = () => fixMenu(!isFixMenu)
 
@@ -90,7 +90,7 @@ const Sidebar = memo(({ endpoints }) => {
       </Box>
     </Drawer>
   )
-})
+}, (prev, next) => prev.endpoints === next.endpoints)
 
 Sidebar.propTypes = {
   endpoints: PropTypes.array

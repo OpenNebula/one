@@ -19,7 +19,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   const history = useHistory()
   const { pathname } = useLocation()
   const { fixMenu } = useGeneral()
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
 
   const handleClick = () => {
     history.push(path)

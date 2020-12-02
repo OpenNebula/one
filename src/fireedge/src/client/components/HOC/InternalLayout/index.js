@@ -21,9 +21,7 @@ import { Box, Container } from '@material-ui/core'
 import { CSSTransition } from 'react-transition-group'
 
 import useGeneral from 'client/hooks/useGeneral'
-import Sidebar from 'client/components/Sidebar'
 import Header from 'client/components/Header'
-import Notifier from 'client/components/Notifier'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
 
@@ -32,35 +30,31 @@ const InternalLayout = ({ endpoints, authRoute, label, children }) => {
   const { isFixMenu } = useGeneral()
 
   return authRoute ? (
-    <>
-      <Sidebar endpoints={endpoints} />
-      <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
-        <Header title={label} />
-        <Box component="main" className={classes.main}>
-          <CSSTransition
-            in
-            classNames={{
-              appear: classes.appear,
-              appearActive: classes.appearActive,
-              enter: classes.enter,
-              enterActive: classes.enterActive,
-              enterDone: classes.enterDone,
-              exit: classes.exit,
-              exitActive: classes.exitActive,
-              exitDone: classes.exitDone
-            }}
-            timeout={300}
-            unmountOnExit
-          >
-            <Container maxWidth={false} className={classes.scrollable}>
-              {children}
-            </Container>
-          </CSSTransition>
-        </Box>
-        <Footer />
+    <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
+      <Header title={label} />
+      <Box component="main" className={classes.main}>
+        <CSSTransition
+          in
+          classNames={{
+            appear: classes.appear,
+            appearActive: classes.appearActive,
+            enter: classes.enter,
+            enterActive: classes.enterActive,
+            enterDone: classes.enterDone,
+            exit: classes.exit,
+            exitActive: classes.exitActive,
+            exitDone: classes.exitDone
+          }}
+          timeout={300}
+          unmountOnExit
+        >
+          <Container maxWidth={false} className={classes.scrollable}>
+            {children}
+          </Container>
+        </CSSTransition>
       </Box>
-      <Notifier />
-    </>
+      <Footer />
+    </Box>
   ) : (
     children
   )
