@@ -75,6 +75,19 @@ export const deleteProvision = ({ id }) =>
     return res?.data ?? {}
   })
 
+export const getProvisionLog = ({ id }) =>
+  requestData(`/api/${PROVISION}/log/${id}`, {
+    method: GET,
+    error: err => err?.message
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? []
+  })
+
 // --------------------------------------------
 // INFRASTRUCTURES REQUESTS
 // --------------------------------------------
@@ -128,6 +141,7 @@ export default {
   getProvisions,
   createProvision,
   deleteProvision,
+  getProvisionLog,
 
   deleteDatastore,
   deleteVNetwork,

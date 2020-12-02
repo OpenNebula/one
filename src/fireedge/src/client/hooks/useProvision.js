@@ -172,6 +172,14 @@ export default function useOpennebula () {
     , [dispatch, provisions]
   )
 
+  const getProvisionLog = useCallback(
+    ({ id }) =>
+      serviceProvision.getProvisionLog({ id }).catch(err => {
+        dispatch(enqueueError(err ?? `Error GET (${id}) provision log`))
+      }),
+    [dispatch]
+  )
+
   // --------------------------------------------
   // INFRASTRUCTURES REQUESTS
   // --------------------------------------------
@@ -243,6 +251,7 @@ export default function useOpennebula () {
     getProvisions,
     createProvision,
     deleteProvision,
+    getProvisionLog,
 
     deleteDatastore,
     deleteVNetwork,

@@ -6,17 +6,20 @@ import InfoIcon from '@material-ui/icons/Info'
 import DatastoreIcon from '@material-ui/icons/FolderOpen'
 import NetworkIcon from '@material-ui/icons/AccountTree'
 import HostIcon from '@material-ui/icons/VideogameAsset'
+import LogIcon from '@material-ui/icons/InsertDriveFile'
 
 import InfoTab from 'client/containers/Provisions/DialogInfo/info'
 import DatastoresTab from 'client/containers/Provisions/DialogInfo/datastores'
 import NetworksTab from 'client/containers/Provisions/DialogInfo/networks'
 import HostsTab from 'client/containers/Provisions/DialogInfo/hosts'
+import LogTab from 'client/containers/Provisions/DialogInfo/log'
 
 const TABS = [
   { name: 'info', icon: InfoIcon, content: InfoTab },
   { name: 'datastores', icon: DatastoreIcon, content: DatastoresTab },
   { name: 'networks', icon: NetworkIcon, content: NetworksTab },
-  { name: 'hosts', icon: HostIcon, content: HostsTab }
+  { name: 'hosts', icon: HostIcon, content: HostsTab },
+  { name: 'log', icon: LogIcon, content: LogTab }
 ]
 
 const DialogInfo = ({ data, ...methods }) => {
