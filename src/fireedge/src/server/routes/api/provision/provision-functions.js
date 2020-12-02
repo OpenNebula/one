@@ -485,12 +485,12 @@ const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
     const rtnNotFound = ()=>{
       rtn = notFound
     }
-    const rtnFound = (path = '') => {
+    const rtnFound = (path = '', uuid) => {
       if(path){
         existsFile(
           `${path}/${logFile.name}.${logFile.ext}`,
           filedata => {
-            rtn = httpResponse(ok, filedata.split(/\r|\n/))
+            rtn = httpResponse(ok, {uuid, log: filedata.split(/\r|\n/)})
           },
           rtnNotFound
         )
@@ -506,11 +506,11 @@ const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
           if(fileData[params.id]){
             const findPending = findRecursiveFolder(path, fileData[params.id])
             if(findPending){
-              rtnFound(findPending)
+              rtnFound(findPending, fileData[params.id])
             }else{
               const findError = findRecursiveFolder(path, fileData[params.id]+appendError)
               if(findError){
-                rtnFound(findError)
+                rtnFound(findError, fileData[params.id])
               }else{
                 rtnNotFound()
               }
