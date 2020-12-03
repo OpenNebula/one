@@ -23,8 +23,6 @@ const { addPrintf } = require('server/utils/general')
 const { GET, DELETE } = httpMethod
 
 const appConfig = getConfig()
-const oneFlowServiceDataConection =
-  appConfig.one_flow_server || defaultOneFlowServer
 
 const returnSchemaError = (error = []) =>
   error
@@ -43,7 +41,7 @@ const oneFlowConection = (requestData = {}, success = () => undefined, error = (
   const optionAuth = btoa(`${user || ''}:${password || ''}`)
   const options = {
     method: optionMethod,
-    baseURL: `${oneFlowServiceDataConection.protocol}://${oneFlowServiceDataConection.host}:${oneFlowServiceDataConection.port}`,
+    baseURL: appConfig.oneflow_server || defaultOneFlowServer,
     url: request ? addPrintf(optionPath, request || '') : optionPath,
     headers: {
       Authorization: `Basic ${optionAuth}`

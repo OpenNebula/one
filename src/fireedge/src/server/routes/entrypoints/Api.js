@@ -46,10 +46,20 @@ const {
   defaultMessageInvalidZone,
   defaultGetMethod,
   httpMethod: httpMethods,
-  from: fromData
+  from: fromData,
+  defaultOpennebulaZones
 } = defaults
 
-const defaultZones = appConfig.default_zone ? [appConfig.default_zone] : null
+const defaultZones = defaultOpennebulaZones
+if (
+  appConfig &&
+  appConfig.xmlrpc &&
+  Array.isArray(defaultOpennebulaZones) &&
+  defaultOpennebulaZones[0] &&
+  defaultOpennebulaZones[0].rpc
+) {
+  defaultOpennebulaZones[0].rpc = appConfig.xmlrpc
+}
 
 const router = express.Router()
 
