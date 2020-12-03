@@ -75,18 +75,12 @@ function Provisions () {
       </Box>
       {showDialog !== false && (
         <DialogRequest
+          withTabs
           request={() => getProvision({ id: showDialog.id })}
           dialogProps={{
             title: showDialog.title,
             handleCancel,
-            handleAccept: showDialog.handleAccept,
-            contentProps: {
-              style: {
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column'
-              }
-            }
+            handleAccept: showDialog.handleAccept
           }}
         >
           {props => createElement(showDialog.content, props)}
