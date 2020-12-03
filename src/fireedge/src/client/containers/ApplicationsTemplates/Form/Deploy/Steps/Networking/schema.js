@@ -1,7 +1,7 @@
 import * as yup from 'yup'
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils/helpers'
-import useOpennebula from 'client/hooks/useOpennebula'
+import { useOpennebula } from 'client/hooks'
+import { getValidationFromFields } from 'client/utils'
 
 const SELECT = {
   template: 'template',

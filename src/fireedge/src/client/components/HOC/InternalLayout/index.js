@@ -20,7 +20,7 @@ import clsx from 'clsx'
 import { Box, Container } from '@material-ui/core'
 import { CSSTransition } from 'react-transition-group'
 
-import useGeneral from 'client/hooks/useGeneral'
+import { useGeneral } from 'client/hooks'
 import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'

@@ -27,8 +27,7 @@ import {
 } from '@material-ui/core'
 import { Menu as MenuIcon, Close as CloseIcon } from '@material-ui/icons'
 
-import useGeneral from 'client/hooks/useGeneral'
-
+import { useGeneral } from 'client/hooks'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'

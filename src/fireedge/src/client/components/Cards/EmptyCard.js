@@ -24,7 +24,7 @@ const EmptyCard = memo(({ title }) => {
     <Fade in unmountOnExit>
       <Card className={classes.root} variant="outlined">
         <CardHeader
-          subheader={title ?? Tr(T.Empty)}
+          subheader={Tr(title ?? T.Empty)}
           className={classes.content}
         />
       </Card>
@@ -33,7 +33,7 @@ const EmptyCard = memo(({ title }) => {
 })
 
 EmptyCard.propTypes = {
-  title: PropTypes.string
+  title: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
 }
 
 EmptyCard.defaultProps = {

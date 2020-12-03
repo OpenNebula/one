@@ -1,8 +1,8 @@
 import * as yup from 'yup'
 import { v4 as uuidv4 } from 'uuid'
+import { useOpennebula } from 'client/hooks'
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils/helpers'
-import useOpennebula from 'client/hooks/useOpennebula'
+import { getValidationFromFields } from 'client/utils'
 
 const SELECT = {
   template: 'template',

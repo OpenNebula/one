@@ -2,9 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 
 import { Container, Box } from '@material-ui/core'
 
-import useApplication from 'client/hooks/useApplication'
-import useFetch from 'client/hooks/useFetch'
-
+import { useApplication, useFetch } from 'client/hooks'
 import DialogInfo from 'client/containers/ApplicationsInstances/DialogInfo'
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'

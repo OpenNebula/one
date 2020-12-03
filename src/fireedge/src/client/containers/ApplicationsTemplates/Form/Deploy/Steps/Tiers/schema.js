@@ -2,7 +2,7 @@ import * as yup from 'yup'
 import { v4 as uuidv4 } from 'uuid'
 
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils/helpers'
+import { getValidationFromFields } from 'client/utils'
 
 export const ID = {
   name: 'id',

@@ -3,16 +3,12 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, CircularProgress, Backdrop } from '@material-ui/core'
 
-import useFetchAll from 'client/hooks/useFetchAll'
-import useOpennebula from 'client/hooks/useOpennebula'
-import useApplication from 'client/hooks/useApplication'
-
+import { useFetchAll, useOpennebula, useApplication } from 'client/hooks'
 import { DialogForm } from 'client/components/Dialogs'
 import FormStepper from 'client/components/FormStepper'
-import mapApplicationToForm from 'client/utils/parser/toApplicationForm'
-import mapFormToDeployApplication from 'client/utils/parser/toDeployApplication'
 
-import Steps from './Steps'
+import { toApplicationForm, toApplicationTemplate } from 'client/utils'
+import Steps from 'client/containers/ApplicationsTemplates/Form/Deploy/Steps'
 
 const useStyles = makeStyles(theme => ({
   backdrop: {
@@ -29,7 +25,7 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
   const { data, fetchRequestAll, loading } = useFetchAll()
 
   const applicationParsed = useMemo(() =>
-    mapApplicationToForm(applicationTemplate)
+    toApplicationForm(applicationTemplate)
   , [])
 
   const { steps, resolvers } = Steps({
@@ -58,7 +54,7 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
     const {
       instances,
       ...application
-    } = mapFormToDeployApplication(values, applicationParsed)
+    } = toApplicationTemplate(values, applicationParsed)
 
     return instantiateApplicationTemplate({
       id: applicationTemplate.ID,

@@ -1,9 +1,6 @@
 import React, { useEffect, useCallback } from 'react'
 
-import useOpennebula from 'client/hooks/useOpennebula'
-import useListForm from 'client/hooks/useListForm'
-import useFetch from 'client/hooks/useFetch'
-
+import { useOpennebula, useListForm, useFetch } from 'client/hooks'
 import ListCards from 'client/components/List/ListCards'
 import { ClusterCard, EmptyCard } from 'client/components/Cards'
 

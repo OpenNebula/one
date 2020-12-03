@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-
-import { fakeDelay } from 'client/utils/helpers'
+import { fakeDelay } from 'client/utils'
 
 function useList ({ list, initLength }) {
   const [fullList, setFullList] = useState([])

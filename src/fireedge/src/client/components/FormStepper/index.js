@@ -6,7 +6,7 @@ import { useMediaQuery } from '@material-ui/core'
 
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
-import { groupBy } from 'client/utils/helpers'
+import { groupBy } from 'client/utils'
 
 const FIRST_STEP = 0
 

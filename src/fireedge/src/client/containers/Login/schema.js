@@ -3,10 +3,9 @@ import React from 'react'
 import SelectedIcon from '@material-ui/icons/FilterVintage'
 import * as yup from 'yup'
 
-import useAuth from 'client/hooks/useAuth'
-import useOpennebula from 'client/hooks/useOpennebula'
+import { useAuth, useOpennebula } from 'client/hooks'
 import { T, INPUT_TYPES, FILTER_POOL } from 'client/constants'
-import { getValidationFromFields } from 'client/utils/helpers'
+import { getValidationFromFields } from 'client/utils'
 
 export const USERNAME = {
   name: 'user',

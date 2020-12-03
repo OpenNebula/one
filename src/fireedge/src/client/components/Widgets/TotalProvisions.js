@@ -3,8 +3,7 @@ import { useHistory } from 'react-router'
 
 import { ViewList, Add } from '@material-ui/icons'
 
-import useFetch from 'client/hooks/useFetch'
-import useProvision from 'client/hooks/useProvision'
+import { useFetch, useProvision } from 'client/hooks'
 import Circle from 'client/components/Widgets/SimpleCircle'
 
 import { PATH } from 'client/router/provision'

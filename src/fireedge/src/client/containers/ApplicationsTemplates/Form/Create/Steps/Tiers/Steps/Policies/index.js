@@ -7,9 +7,9 @@ import WarningIcon from '@material-ui/icons/Warning'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { PolicyCard } from 'client/components/Cards'
-import ListCards from 'client/components/List/ListCards'
-import useListForm from 'client/hooks/useListForm'
-import { set } from 'client/utils/helpers'
+import { ListCards } from 'client/components/List'
+import { useListForm } from 'client/hooks'
+import { set } from 'client/utils'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 

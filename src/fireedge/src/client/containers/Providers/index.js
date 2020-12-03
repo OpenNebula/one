@@ -6,10 +6,7 @@ import EditIcon from '@material-ui/icons/Settings'
 import DeleteIcon from '@material-ui/icons/Delete'
 
 import { PATH } from 'client/router/provision'
-import useProvision from 'client/hooks/useProvision'
-import useFetch from 'client/hooks/useFetch'
-import useSearch from 'client/hooks/useSearch'
-
+import { useProvision, useFetch, useSearch } from 'client/hooks'
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'

@@ -9,10 +9,8 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
 import { PATH } from 'client/router/flow'
-import useFetch from 'client/hooks/useFetch'
-import useApplication from 'client/hooks/useApplication'
-import mapApplicationToForm from 'client/utils/parser/toApplicationForm'
-import mapFormToApplication from 'client/utils/parser/toApplicationTemplate'
+import { useApplication, useFetch } from 'client/hooks'
+import { toApplicationForm, toApplicationTemplate } from 'client/utils'
 
 function ApplicationsTemplatesCreateForm () {
   const history = useHistory()
@@ -34,7 +32,7 @@ function ApplicationsTemplatesCreateForm () {
   })
 
   const onSubmit = formData => {
-    const application = mapFormToApplication(formData)
+    const application = toApplicationForm(formData)
 
     if (id) {
       updateApplicationTemplate({ id, data: application }).then(
@@ -52,7 +50,7 @@ function ApplicationsTemplatesCreateForm () {
   }, [id])
 
   useEffect(() => {
-    const formData = data ? mapApplicationToForm(data) : {}
+    const formData = data ? toApplicationTemplate(data) : {}
     methods.reset(resolvers().cast(formData), { errors: false })
   }, [data])
 

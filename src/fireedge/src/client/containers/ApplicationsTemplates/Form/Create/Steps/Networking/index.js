@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { useWatch } from 'react-hook-form'
 
-import useOpennebula from 'client/hooks/useOpennebula'
-import useListForm from 'client/hooks/useListForm'
+import { useOpennebula, useListForm } from 'client/hooks'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import ListCards from 'client/components/List/ListCards'
 import { DialogForm } from 'client/components/Dialogs'

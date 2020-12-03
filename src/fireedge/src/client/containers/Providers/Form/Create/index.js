@@ -9,9 +9,7 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Providers/Form/Create/Steps'
 
 import { PATH } from 'client/router/provision'
-import useFetchAll from 'client/hooks/useFetchAll'
-import useProvision from 'client/hooks/useProvision'
-import useGeneral from 'client/hooks/useGeneral'
+import { useFetchAll, useProvision, useGeneral } from 'client/hooks'
 
 function ProviderCreateForm () {
   const history = useHistory()

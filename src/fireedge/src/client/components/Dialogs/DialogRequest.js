@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, Backdrop, CircularProgress } from '@material-ui/core'
 
-import useFetch from 'client/hooks/useFetch'
+import { useFetch } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
 
 const useStyles = makeStyles(theme => ({

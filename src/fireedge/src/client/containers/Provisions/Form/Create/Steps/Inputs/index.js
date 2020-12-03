@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import { useFormContext } from 'react-hook-form'
 
-import useProvision from 'client/hooks/useProvision'
+import { useProvision } from 'client/hooks'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
 import { Tr } from 'client/components/HOC'
@@ -11,7 +11,9 @@ import { T } from 'client/constants'
 import {
   STEP_ID as PROVISION_TEMPLATE_ID
 } from 'client/containers/Provisions/Form/Create/Steps/Provision'
-import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
+import {
+  FORM_FIELDS, STEP_FORM_SCHEMA
+} from 'client/containers/Provisions/Form/Create/Steps/Inputs/schema'
 
 export const STEP_ID = 'inputs'
 

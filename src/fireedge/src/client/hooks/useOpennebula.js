@@ -6,7 +6,7 @@ import actions, {
   failureOneRequest
 } from 'client/actions/pool'
 
-import { filterBy } from 'client/utils/helpers'
+import { filterBy } from 'client/utils'
 import * as serviceOne from 'client/services/one'
 
 export default function useOpennebula () {

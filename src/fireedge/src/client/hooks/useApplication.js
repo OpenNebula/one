@@ -5,7 +5,7 @@ import { setApplications, setApplicationsTemplates } from 'client/actions/pool'
 import { enqueueError, enqueueSuccess } from 'client/actions/general'
 
 import * as serviceFlow from 'client/services/flow'
-import { filterBy } from 'client/utils/helpers'
+import { filterBy } from 'client/utils'
 
 export default function useOpennebula () {
   const dispatch = useDispatch()
