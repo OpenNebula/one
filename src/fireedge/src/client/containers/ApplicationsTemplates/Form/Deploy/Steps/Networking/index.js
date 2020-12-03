@@ -4,7 +4,6 @@ import { Divider, Paper, Typography } from '@material-ui/core'
 
 import { useOpennebula } from 'client/hooks'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
@@ -13,7 +12,7 @@ export const STEP_ID = 'networking'
 
 const Networks = () => ({
   id: STEP_ID,
-  label: Tr(T.ConfigureNetworking),
+  label: T.ConfigureNetworking,
   resolver: STEP_FORM_SCHEMA,
   optionsValidate: { abortEarly: false },
   content: useCallback(({ data }) => {

@@ -49,7 +49,7 @@ const CustomStepper = ({
                   {errors[id]?.message}
                 </Typography>
               }
-            >{label}</StepLabel>
+            >{Tr(label)}</StepLabel>
           </Step>
         ))}
       </Stepper>

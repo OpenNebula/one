@@ -16,7 +16,7 @@ export const STEP_ID = 'provision'
 
 const Provision = () => ({
   id: STEP_ID,
-  label: Tr(T.ProvisionTemplate),
+  label: T.ProvisionTemplate,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { getProvisionsTemplates } = useProvision()

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import Fuse from 'fuse.js'
 import { TextField, Box, debounce } from '@material-ui/core'
 
-import ListInfiniteScroll from 'client/components/List/ListInfiniteScroll'
+import { ListInfiniteScroll } from 'client/components/List'
 
 const Search = ({
   list,

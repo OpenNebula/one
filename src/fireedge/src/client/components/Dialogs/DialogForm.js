@@ -49,7 +49,7 @@ const DialogForm = memo(
           }
         }}
       >
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle>{Tr(title)}</DialogTitle>
         <DialogContent dividers>
           <FormProvider {...methods}>{children}</FormProvider>
         </DialogContent>
