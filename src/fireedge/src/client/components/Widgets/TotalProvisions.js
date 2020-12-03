@@ -13,7 +13,7 @@ import { T } from 'client/constants'
 const cy = 'dashboard-widget-total-provisions'
 const title = T.Provisions
 
-const WidgetTotalProvisions = () => {
+const TotalProvisions = () => {
   const history = useHistory()
   const { provisions, getProvisions } = useProvision()
   const { fetchRequest } = useFetch(getProvisions)
@@ -40,6 +40,6 @@ const WidgetTotalProvisions = () => {
   return { cy, title, actions, widget }
 }
 
-WidgetTotalProvisions.displayName = 'WidgetTotalProvisions'
+TotalProvisions.displayName = 'TotalProvisions'
 
-export default WidgetTotalProvisions
+export default TotalProvisions
