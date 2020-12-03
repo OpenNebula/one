@@ -13,47 +13,44 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import { defaultAppName } from 'server/utils/constants/defaults'
+import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
 
-const JWT_NAME = 'FireedgeToken'
+export const JWT_NAME = 'FireedgeToken'
+export const DEFAULT_LANGUAGE = 'en_US'
 
-const BY = {
+export const BY = {
   text: 'OpenNebula',
   url: 'https://opennebula.io/'
 }
 
-const STATIC_FILES_URL = `${defaultAppName ? `/${defaultAppName}` : ''}/client/assets`
+export const APPS = Object.keys(defaultApps)
+export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
+export const WEBSOCKET_URL = `${APP_URL}/websocket`
+export const STATIC_FILES_URL = `${APP_URL}/client/assets`
+export const IMAGES_URL = `${STATIC_FILES_URL}/images`
+export const FONTS_URL = `${STATIC_FILES_URL}/fonts`
+export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 
-const ONEADMIN_ID = '0'
+export const ONEADMIN_ID = '0'
 
-const REQUEST_ACTIONS = {
+export const REQUEST_ACTIONS = {
   INSTANTIATE: 'instantiate'
 }
 
-const FILTER_POOL = {
+export const FILTER_POOL = {
   PRIMARY_GROUP_RESOURCES: '-4',
   USER_RESOURCES: '-3',
   ALL_RESOURCES: '-2',
   USER_GROUPS_RESOURCES: '-1'
 }
 
-const INPUT_TYPES = {
+export const INPUT_TYPES = {
   TEXT: 'text',
   HIDDEN: 'hidden',
   SELECT: 'select',
   CHECKBOX: 'checkbox',
   SLIDER: 'slider',
   AUTOCOMPLETE: 'autocomplete'
-}
-
-export {
-  BY,
-  STATIC_FILES_URL,
-  JWT_NAME,
-  ONEADMIN_ID,
-  FILTER_POOL,
-  INPUT_TYPES,
-  REQUEST_ACTIONS
 }
 
 export * as T from 'client/constants/translates'

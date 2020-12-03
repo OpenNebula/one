@@ -1,10 +1,8 @@
 import io from 'socket.io-client'
-import { defaultAppName } from 'server/utils/constants/defaults'
-
-const appName = defaultAppName ? `/${defaultAppName}` : ''
+import { WEBSOCKET_URL } from 'client/constants'
 
 export const websocket = query => io({
-  path: `${appName}/websocket`,
+  path: WEBSOCKET_URL,
   query
 })
 
