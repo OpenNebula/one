@@ -69,11 +69,7 @@ const defaults = {
       zeromq: `tcp://${defaultIp}:2101`
     }
   ],
-  defaultOneFlowServer: {
-    protocol: protocol,
-    host: defaultIp,
-    port: 2474
-  },
+  defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultEndpointWebsocket: `${appName ? '/' + appName : ''}/websocket`,
   defaultConfigFile: `${appName}-server.conf`,
   defaultTypeLog: 'prod',
