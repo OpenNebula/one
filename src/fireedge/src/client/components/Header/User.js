@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 import { MenuItem, MenuList, Divider, Link } from '@material-ui/core'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'

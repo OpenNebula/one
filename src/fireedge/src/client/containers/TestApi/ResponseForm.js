@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { string, func, shape, object } from 'prop-types'
 
 import { useForm, Controller } from 'react-hook-form'

@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 import SelectedIcon from '@material-ui/icons/FilterVintage'
 import * as yup from 'yup'
