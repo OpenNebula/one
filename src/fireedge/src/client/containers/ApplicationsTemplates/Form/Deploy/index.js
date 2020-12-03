@@ -7,7 +7,7 @@ import { useFetchAll, useOpennebula, useApplication } from 'client/hooks'
 import { DialogForm } from 'client/components/Dialogs'
 import FormStepper from 'client/components/FormStepper'
 
-import { toApplicationForm, toApplicationTemplate } from 'client/utils'
+import { parseApplicationToForm, parseFormToApplication } from 'client/utils'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Deploy/Steps'
 
 const useStyles = makeStyles(theme => ({
@@ -25,7 +25,7 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
   const { data, fetchRequestAll, loading } = useFetchAll()
 
   const applicationParsed = useMemo(() =>
-    toApplicationForm(applicationTemplate)
+    parseApplicationToForm(applicationTemplate)
   , [])
 
   const { steps, resolvers } = Steps({
@@ -54,7 +54,7 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
     const {
       instances,
       ...application
-    } = toApplicationTemplate(values, applicationParsed)
+    } = parseFormToApplication(values, applicationParsed)
 
     return instantiateApplicationTemplate({
       id: applicationTemplate.ID,
