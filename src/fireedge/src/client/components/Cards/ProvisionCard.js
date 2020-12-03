@@ -7,11 +7,11 @@ import ProvisionIcon from '@material-ui/icons/Cloud'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import Action from 'client/components/Cards/SelectCard/Action'
-import { STATIC_FILES_URL } from 'client/constants'
+import { IMAGES_URL } from 'client/constants'
 
 const ProvisionCard = memo(
   ({ value, isSelected, handleClick, isProvider, imgAsAvatar, actions }) => {
-    const DEFAULT_IMAGE = isProvider ? 'provider.png' : 'provision.jpg'
+    const DEFAULT_IMAGE = isProvider ? 'provider.webp' : 'provision.webp'
 
     const [image, setImage] = useState(undefined)
     const { ID, NAME, TEMPLATE: { PLAIN = '{}' } } = value
@@ -29,7 +29,7 @@ const ProvisionCard = memo(
     const isExternalURL = RegExp(/^(http|https):/g).test(image)
 
     const onError = evt => {
-      evt.target.src = `${STATIC_FILES_URL}/${DEFAULT_IMAGE}`
+      evt.target.src = `${IMAGES_URL}/${DEFAULT_IMAGE}`
     }
 
     return (
@@ -43,7 +43,7 @@ const ProvisionCard = memo(
           ? {
             icon: image && (
               <Avatar
-                src={isExternalURL ? image : `${STATIC_FILES_URL}/${image}`}
+                src={isExternalURL ? image : `${IMAGES_URL}/${image}`}
                 variant="rounded"
                 style={{ width: 100, height: 80 }}
                 imgProps={{ onError }}

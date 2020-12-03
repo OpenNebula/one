@@ -5,7 +5,6 @@ import { useFetch, useProvision, useListForm } from 'client/hooks'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/Create/Steps/Inputs'

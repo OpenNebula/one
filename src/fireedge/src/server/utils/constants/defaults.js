@@ -96,7 +96,6 @@ const defaults = {
   defaultMethodConfig: 'system.config',
   defaultMethodUserUpdate: 'user.update',
   defaultMethodUserInfo: 'user.info',
-  defaultLang: 'en_US',
   defaultIP: defaultIp,
   defaultProtocolHotReload: 'http',
   defaultPort: 2616,

@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,30 +17,25 @@ import React, { useContext, useState, useEffect, createContext } from 'react'
 import PropTypes from 'prop-types'
 import { Select } from '@material-ui/core'
 import { sprintf } from 'sprintf-js'
-import root from 'window-or-global'
-import { defaultLang, defaultAppName } from 'server/utils/constants/defaults'
+import { DEFAULT_LANGUAGE, LANGUAGES_URL } from 'client/constants'
 
-const defaultFunction = () => undefined
 const TranslateContext = createContext()
-const document = root.document
-let languageScript =
-  document && document.createElement && document.createElement('script')
+let languageScript = document?.createElement('script')
 
 const GenerateScript = (
-  language = defaultLang,
-  setLang = defaultFunction,
-  setHash = defaultFunction
+  language = DEFAULT_LANGUAGE,
+  setLang = () => undefined,
+  setHash = () => undefined
 ) => {
   try {
-    const script = document.createElement('script')
-    script.src =
-      `${defaultAppName ? `/${defaultAppName}` : ''}/client/assets/languages/${language}.js`
+    const script = window.document.createElement('script')
+    script.src = `${LANGUAGES_URL}/${language}.js`
     script.async = true
     script.onload = () => {
       setLang(language)
-      setHash(root.locale)
+      setHash(window.locale)
     }
-    document.body.appendChild(script)
+    window.document.body.appendChild(script)
     languageScript = script
   } catch (error) {
     console.warn('Error while generating script language')
@@ -48,20 +43,19 @@ const GenerateScript = (
 }
 
 const RemoveScript = () => {
-  document.body.removeChild(languageScript)
+  window.document.body.removeChild(languageScript)
 }
 
 const TranslateProvider = ({ children }) => {
-  const [lang, setLang] = useState(defaultLang)
+  const [lang, setLang] = useState(DEFAULT_LANGUAGE)
   const [hash, setHash] = useState({})
+
   useEffect(() => {
     GenerateScript(lang, setLang, setHash)
-    return () => {
-      RemoveScript()
-    }
+    return () => { RemoveScript() }
   }, [])
 
-  const changeLang = (language = defaultLang) => {
+  const changeLang = (language = DEFAULT_LANGUAGE) => {
     RemoveScript()
     GenerateScript(language, setLang, setHash)
   }
@@ -87,7 +81,7 @@ const translate = (str = '', values) => {
     key = context.hash[key]
   }
 
-  if (!!values && Array.isArray(values)) {
+  if (Array.isArray(values)) {
     key = sprintf(key, ...values)
   }
 
@@ -103,23 +97,17 @@ const Tr = (str = '') => {
     values = str[1]
   }
 
-  const valuesTr = !!values && !Array.isArray(values) ? [values] : values
+  const valuesTr = !Array.isArray(values) ? [values] : values
 
   return translate(key, valuesTr)
 }
 
 const SelectTranslate = () => {
   const context = useContext(TranslateContext)
-  const languages =
-    root && root.langs && Array.isArray(root.langs) ? root.langs : []
+  const languages = Array.isArray(window?.langs) ? window?.langs : []
+
   const handleChange = (e, changeLang) => {
-    if (
-      e &&
-      e.target &&
-      e.target.value &&
-      changeLang &&
-      typeof changeLang === 'function'
-    ) {
+    if (e?.target?.value && typeof changeLang === 'function') {
       changeLang(e.target.value)
     }
   }
@@ -142,7 +130,7 @@ const SelectTranslate = () => {
 }
 
 const Translate = ({ word = '', values }) => {
-  const valuesTr = !!values && !Array.isArray(values) ? [values] : values
+  const valuesTr = !Array.isArray(values) ? [values] : values
   return translate(word, valuesTr)
 }
 

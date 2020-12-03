@@ -4,14 +4,10 @@ import { MenuItem, MenuList, Divider, Link } from '@material-ui/core'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
 import { useAuth } from 'client/hooks'
-import { Tr, SelectTranslate } from 'client/components/HOC'
-import { T } from 'client/constants'
-
 import HeaderPopover from 'client/components/Header/Popover'
 import { DevTypography } from 'client/components/Typography'
-import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
-
-const app = defaultAppName ? `/${defaultAppName}` : ''
+import { Tr, SelectTranslate } from 'client/components/HOC'
+import { T, APPS, APP_URL } from 'client/constants'
 
 const User = React.memo(() => {
   const { logout, authUser } = useAuth()
@@ -36,9 +32,9 @@ const User = React.memo(() => {
             {Tr(T.SignOut)}
           </MenuItem>
           {process?.env?.NODE_ENV === 'development' &&
-            Object.keys(defaultApps)?.map(appName => (
+            APPS?.map(appName => (
               <MenuItem key={appName}>
-                <Link href={`${app}/${appName}`} style={{ width: '100%' }}>
+                <Link href={`${APP_URL}/${appName}`} style={{ width: '100%' }}>
                   <DevTypography label={appName} />
                 </Link>
               </MenuItem>
