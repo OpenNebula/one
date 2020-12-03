@@ -4,8 +4,7 @@ import { Box, Container, Typography } from '@material-ui/core'
 
 import { ListCards } from 'client/components/List'
 import { WidgetCard } from 'client/components/Cards'
-import WidgetTotalProviders from 'client/components/Widgets/WidgetTotalProviders'
-import WidgetTotalProvisions from 'client/components/Widgets/WidgetTotalProvisions'
+import * as Widgets from 'client/components/Widgets'
 
 import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
 import { Tr } from 'client/components/HOC/Translate'
@@ -14,8 +13,8 @@ import { T } from 'client/constants'
 function Dashboard () {
   const classes = dashboardStyles()
   const widgets = [
-    WidgetTotalProviders(),
-    WidgetTotalProvisions()
+    Widgets.TotalProviders(),
+    Widgets.TotalProvisions()
   ]
 
   return (
