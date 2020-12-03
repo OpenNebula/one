@@ -448,9 +448,28 @@ module VCenterDriver
             [ipv4, ipv6]
         end
 
-        def nic_from_network_created(one_vn, nic)
+        def nic_alias_from_nic(id, nic, nic_index)
+            nic_tmp = ""
+
+            nic_alias_index = 1
+            if nic[:ipv4_additionals]
+                nic[:ipv4_additionals].split(",").each do |ipv4_additional|
+                    nic_tmp << "NIC_ALIAS=[\n"
+                    nic_tmp << "NETWORK_ID=\"#{id}\",\n"
+                    nic_tmp << "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
+                    nic_tmp << "PARENT=\"NIC#{nic_index}\"\n"
+                    nic_tmp << "]\n"
+                    nic_alias_index += 1
+                end
+            end
+
+            nic_tmp
+        end
+
+        def nic_from_network_created(one_vn, nic, nic_index)
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
+            nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
 
             if vm?
                 last_id = save_ar_ids(one_vn, nic, ar_ids)
@@ -483,12 +502,15 @@ module VCenterDriver
             nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
             nic_tmp << "]\n"
 
+            nic_tmp << nic_alias_from_nic(one_vn.id, nic, nic_index)
+
             nic_tmp
         end
 
-        def nic_from_network_found(network_found, vm_object, nic, ar_ids)
+        def nic_from_network_found(network_found, vm_object, nic, ar_ids, nic_index)
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{network_found['ID']}\",\n"
+            nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
 
             if vm?
                 ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic)
@@ -528,6 +550,8 @@ module VCenterDriver
 
             nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
             nic_tmp << "]\n"
+
+            nic_tmp << nic_alias_from_nic(network_found['ID'], nic, nic_index)
 
             nic_tmp
         end
@@ -765,6 +789,8 @@ module VCenterDriver
                 # Track allocated networks for rollback
                 allocated_networks = []
 
+                nic_index = 1
+
                 vc_nics.each do |nic|
                     # Check if the network already exists
                     network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
@@ -777,7 +803,8 @@ module VCenterDriver
                         nic_info << nic_from_network_found(network_found,
                                                            vm_object,
                                                            nic,
-                                                           ar_ids)
+                                                           ar_ids,
+                                                           nic_index.to_s)
                     # Network not found
                     else
                         one_vn = create_network_for_import(nic,
@@ -794,11 +821,12 @@ module VCenterDriver
 
                         allocated_networks << one_vn
 
-                        nic_info << nic_from_network_created(one_vn, nic)
+                        nic_info << nic_from_network_created(one_vn, nic, nic_index.to_s)
 
                         # Refresh npool
                         npool.info_all
                     end
+                    nic_index += 1
                 end
             rescue StandardError => e
                 error = "\n    There was an error trying to create \
