@@ -84,6 +84,7 @@ const (
 	LocalTime        Feature = "LOCAL_TIME"
 	GuestAgent       Feature = "GUEST_AGENT"
 	VirtIOScsiQueues Feature = "VIRTIO_SCSI_QUEUES"
+	CrashAction      FEATURE = "CRASH_ACTION"
 )
 
 // IOGraphics define keys for the VM IO graphics

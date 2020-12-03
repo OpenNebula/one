@@ -560,6 +560,8 @@ int LibVirtDriver::deployment_description_kvm(
     int  virtio_scsi_queues = 0;
     int  scsi_targets_num   = 0;
 
+    string crash_action = "";
+
     string hyperv_options = "";
 
     vector<const VectorAttribute *> raw;
@@ -1648,6 +1650,7 @@ int LibVirtDriver::deployment_description_kvm(
     get_attribute(vm, host, cluster, "FEATURES", "LOCALTIME", localtime);
     get_attribute(vm, host, cluster, "FEATURES", "GUEST_AGENT", guest_agent);
     get_attribute(vm, host, cluster, "FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
+    get_attribute(vm, host, cluster, "FEATURES", "CRASH_ACTION", crash_action);
 
     if ( acpi || pae || apic || hyperv )
     {
@@ -1693,6 +1696,14 @@ int LibVirtDriver::deployment_description_kvm(
              << "<target type='virtio' name='org.qemu.guest_agent.0'/>" << endl
              << "\t\t</channel>" << endl
              << "\t</devices>" << endl;
+    }
+
+    if ( !crash_action.empty() )
+    {
+         file << "\t<on_crash>" << crash_action << "</on_crash>" << endl
+              << "\t<devices>" << endl
+              << "\t\t<panic model='isa'/>" << endl
+              << "\t</devices>" << endl;
     }
 
     if ( virtio_scsi_queues > 0 || scsi_targets_num > 1)

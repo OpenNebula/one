@@ -258,6 +258,20 @@
               </select>
             </label>
           </div>
+          <div class="medium-6 columns">
+            <label>
+              {{tr "QEMU Crash Detection"}}
+              {{{tip (tr "Action on VM crash. Leave blank to skip installation of crash device.")}}}
+              <select wizard_field="CRASH_ACTION">
+                <option value=""></option>
+                <option value="destroy">{{tr "Destroy"}}</option>
+                <option value="restart">{{tr "Restart"}}</option>
+                <option value="preserve">{{tr "Preserve"}}</option>
+                <option value="coredump-destroy">{{tr "Coredump and Destroy"}}</option>
+                <option value="coredump-restart">{{tr "Coredump and Restart"}}</option>
+              </select>
+            </label>
+          </div>
         </div>
       </div>
       <div class="wizard_internal_tab tabs-panel cpuTab" id="cpuTab{{uniqueId}}">
