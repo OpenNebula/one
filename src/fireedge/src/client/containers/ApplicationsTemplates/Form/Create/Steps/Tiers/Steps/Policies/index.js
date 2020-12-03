@@ -10,7 +10,6 @@ import { PolicyCard } from 'client/components/Cards'
 import { ListCards } from 'client/components/List'
 import { useListForm } from 'client/hooks'
 import { set } from 'client/utils'
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import {
@@ -44,7 +43,7 @@ const TABS = {
 
 const Policies = () => ({
   id: STEP_ID,
-  label: Tr(T.ConfigurePolicies),
+  label: T.ConfigurePolicies,
   resolver: POLICIES_SCHEMA,
   optionsValidate: { abortEarly: false },
   content: useCallback(

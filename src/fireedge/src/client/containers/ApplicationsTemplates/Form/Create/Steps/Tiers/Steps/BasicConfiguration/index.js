@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
@@ -10,7 +9,7 @@ export const STEP_ID = 'tier'
 
 const BasicConfiguration = () => ({
   id: STEP_ID,
-  label: Tr(T.Configuration),
+  label: T.Configuration,
   resolver: STEP_FORM_SCHEMA,
   optionsValidate: { abortEarly: false },
   content: useCallback(

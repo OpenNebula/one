@@ -2,10 +2,9 @@ import React, { useCallback, useEffect } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import { useFetch, useProvision, useListForm } from 'client/hooks'
-import ListCards from 'client/components/List/ListCards'
+import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
@@ -16,7 +15,7 @@ export const STEP_ID = 'provider'
 
 const Provider = () => ({
   id: STEP_ID,
-  label: Tr(T.ProviderTemplate),
+  label: T.ProviderTemplate,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { getProvidersTemplates } = useProvision()

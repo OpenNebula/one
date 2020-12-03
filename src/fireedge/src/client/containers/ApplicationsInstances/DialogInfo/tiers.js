@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import ListCards from 'client/components/List/ListCards'
+import { ListCards } from 'client/components/List'
 import { TierCard } from 'client/components/Cards'
 
 const TiersTab = ({ info }) => {

@@ -3,14 +3,13 @@ import React, { useCallback } from 'react'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 
 import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
-import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'application'
 
 const BasicConfiguration = () => ({
   id: STEP_ID,
-  label: Tr(T.ApplicationOverview),
+  label: T.ApplicationOverview,
   resolver: STEP_FORM_SCHEMA,
   optionsValidate: { abortEarly: false },
   content: useCallback(
