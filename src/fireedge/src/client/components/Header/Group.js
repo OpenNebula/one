@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 import { Button } from '@material-ui/core'
 import FilterIcon from '@material-ui/icons/FilterDrama'

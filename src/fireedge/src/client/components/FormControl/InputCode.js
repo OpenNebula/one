@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { Box } from '@material-ui/core'
 import AceEditor from 'react-ace'
 import PropTypes from 'prop-types'
