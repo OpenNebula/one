@@ -3,7 +3,7 @@ import React from 'react'
 import { MenuItem, MenuList, Divider, Link } from '@material-ui/core'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
-import useAuth from 'client/hooks/useAuth'
+import { useAuth } from 'client/hooks'
 import { Tr, SelectTranslate } from 'client/components/HOC'
 import { T } from 'client/constants'
 

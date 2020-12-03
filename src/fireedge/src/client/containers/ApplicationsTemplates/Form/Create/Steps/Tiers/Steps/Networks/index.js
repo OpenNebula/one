@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from 'react'
 
-import useListForm from 'client/hooks/useListForm'
-import ListCards from 'client/components/List/ListCards'
+import { useListForm } from 'client/hooks'
+import { ListCards } from 'client/components/List'
 import { ApplicationNetworkCard } from 'client/components/Cards'
 
 import { STEP_ID as NETWORKING } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Networking'

@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 
 import { Paper, Box, Container, LinearProgress, useMediaQuery } from '@material-ui/core'
 
-import useAuth from 'client/hooks/useAuth'
+import { useAuth } from 'client/hooks'
 import Logo from 'client/icons/logo'
 import { ONEADMIN_ID } from 'client/constants'
 

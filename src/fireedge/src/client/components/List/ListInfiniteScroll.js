@@ -2,9 +2,7 @@ import React, { useRef, useEffect, useCallback, createRef } from 'react'
 import PropTypes from 'prop-types'
 
 import { debounce, LinearProgress } from '@material-ui/core'
-
-import useNearScreen from 'client/hooks/useNearScreen'
-import useList from 'client/hooks/useList'
+import { useList, useNearScreen } from 'client/hooks'
 
 const ListInfiniteScroll = ({ list, renderResult }) => {
   const gridRef = createRef()

@@ -2,8 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import { JWT_NAME, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
-import { storage, findStorageData, removeStoreData } from 'client/utils'
-import { fakeDelay } from 'client/utils/helpers'
+import { storage, findStorageData, removeStoreData, fakeDelay } from 'client/utils'
 
 import * as serviceAuth from 'client/services/auth'
 import * as serviceOne from 'client/services/one'

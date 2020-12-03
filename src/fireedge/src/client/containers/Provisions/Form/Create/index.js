@@ -5,13 +5,10 @@ import { Container } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
+import { useGeneral, useProvision, useSocket } from 'client/hooks'
+
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
-
-import useSocket from 'client/hooks/useSocket'
-import useGeneral from 'client/hooks/useGeneral'
-import useProvision from 'client/hooks/useProvision'
-
 import DebugLog from 'client/components/DebugLog'
 import { PATH } from 'client/router/provision'
 import { set, mapUserInputs } from 'client/utils'

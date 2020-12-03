@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import useFetch from 'client/hooks/useFetch'
-import useProvision from 'client/hooks/useProvision'
-import useListForm from 'client/hooks/useListForm'
-
+import { useFetch, useProvision, useListForm } from 'client/hooks'
 import ListCards from 'client/components/List/ListCards'
 import { EmptyCard, ProvisionCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'

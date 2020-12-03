@@ -26,8 +26,7 @@ import {
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 
-import useAuth from 'client/hooks/useAuth'
-import useGeneral from 'client/hooks/useGeneral'
+import { useAuth, useGeneral } from 'client/hooks'
 import User from 'client/components/Header/User'
 import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'

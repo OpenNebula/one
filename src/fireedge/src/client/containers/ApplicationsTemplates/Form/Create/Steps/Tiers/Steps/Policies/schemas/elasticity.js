@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 
-import { getValidationFromFields } from 'client/utils/helpers'
+import { getValidationFromFields } from 'client/utils'
 
 import {
   ID,

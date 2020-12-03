@@ -4,8 +4,7 @@ import { useHistory } from 'react-router-dom'
 import { Container, Box } from '@material-ui/core'
 
 import { PATH } from 'client/router/flow'
-import useApplication from 'client/hooks/useApplication'
-import useFetch from 'client/hooks/useFetch'
+import { useApplication, useFetch } from 'client/hooks'
 
 import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
 import { ListHeader, ListCards } from 'client/components/List'

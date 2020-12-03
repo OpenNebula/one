@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import useOpennebula from 'client/hooks/useOpennebula'
+import { useOpennebula } from 'client/hooks'
 import Search from 'client/components/Search'
 import { SelectCard } from 'client/components/Cards'
 

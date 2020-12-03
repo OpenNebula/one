@@ -4,8 +4,7 @@ import { Button } from '@material-ui/core'
 import FilterIcon from '@material-ui/icons/FilterDrama'
 import SelectedIcon from '@material-ui/icons/FilterVintage'
 
-import useAuth from 'client/hooks/useAuth'
-import useOpennebula from 'client/hooks/useOpennebula'
+import { useAuth, useOpennebula } from 'client/hooks'
 import Search from 'client/components/Search'
 
 import { FILTER_POOL } from 'client/constants'

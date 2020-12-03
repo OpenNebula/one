@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from 'react'
 
 import { Divider, Paper, Typography } from '@material-ui/core'
 
-import useOpennebula from 'client/hooks/useOpennebula'
+import { useOpennebula } from 'client/hooks'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'

@@ -10,7 +10,7 @@ import SelectController from 'client/components/FormControl/SelectController'
 import SliderController from 'client/components/FormControl/SliderController'
 import CheckboxController from 'client/components/FormControl/CheckboxController'
 import AutocompleteController from 'client/components/FormControl/AutocompleteController'
-import { get } from 'client/utils/helpers'
+import { get } from 'client/utils'
 
 const InputController = {
   [INPUT_TYPES.TEXT]: TextController,

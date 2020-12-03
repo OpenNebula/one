@@ -3,10 +3,8 @@ import PropTypes from 'prop-types'
 
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import useProvision from 'client/hooks/useProvision'
-import useOpennebula from 'client/hooks/useOpennebula'
-import useFetchAll from 'client/hooks/useFetchAll'
-import ListCards from 'client/components/List/ListCards'
+import { useProvision, useOpennebula, useFetchAll } from 'client/hooks'
+import { ListCards } from 'client/components/List'
 import { NetworkCard } from 'client/components/Cards'
 
 const Networks = memo(({ hidden, data, fetchRequest }) => {

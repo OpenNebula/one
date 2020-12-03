@@ -5,7 +5,7 @@ import { STEP_ID as CLUSTER_ID } from 'client/containers/ApplicationsTemplates/F
 import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Networking'
 import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers'
 
-import parseTemplateToObject from './templateToObject'
+import { templateToObject } from 'client/utils'
 
 const parseNetwork = input => {
   const [name, values] = input
@@ -35,7 +35,7 @@ const parseCluster = tiers => {
   const NUM_REG = /(\d+)/g
 
   const clusters = tiers?.map(({ vm_template_contents: content = '' }) => {
-    const { sched_requirements: schedRequirements } = parseTemplateToObject(
+    const { sched_requirements: schedRequirements } = templateToObject(
       content
     )
 
@@ -63,7 +63,7 @@ const parseTiers = (roles, networking) =>
         position = { x: 0, y: 0 }
       } = data
 
-      const hash = parseTemplateToObject(content)
+      const hash = templateToObject(content)
       const nics = hash.nic
 
       const networks =

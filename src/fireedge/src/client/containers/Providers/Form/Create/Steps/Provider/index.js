@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { Redirect } from 'react-router-dom'
 
-import useFetch from 'client/hooks/useFetch'
-import useProvision from 'client/hooks/useProvision'
-import useListForm from 'client/hooks/useListForm'
-
+import { useFetch, useProvision, useListForm } from 'client/hooks'
 import ListCards from 'client/components/List/ListCards'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { PATH } from 'client/router/provision'
@@ -13,7 +10,7 @@ import { T } from 'client/constants'
 
 import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
 import { STEP_ID as LOCATION_ID } from 'client/containers/Providers/Form/Create/Steps/Locations'
-import { STEP_FORM_SCHEMA } from './schema'
+import { STEP_FORM_SCHEMA } from 'client/containers/Providers/Form/Create/Steps/Provider/schema'
 
 export const STEP_ID = 'provider'
 

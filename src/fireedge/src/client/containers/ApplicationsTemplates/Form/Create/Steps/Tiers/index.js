@@ -12,7 +12,7 @@ import { useWatch } from 'react-hook-form'
 import { ReactFlowProvider } from 'react-flow-renderer'
 import { Box } from '@material-ui/core'
 
-import useListForm from 'client/hooks/useListForm'
+import { useListForm } from 'client/hooks'
 import FormStepper from 'client/components/FormStepper'
 import { DialogForm } from 'client/components/Dialogs'
 import { STEP_ID as NETWORKING_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Networking'

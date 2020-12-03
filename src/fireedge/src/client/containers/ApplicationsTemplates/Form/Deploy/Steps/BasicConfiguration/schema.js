@@ -1,7 +1,7 @@
 import * as yup from 'yup'
 
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils/helpers'
+import { getValidationFromFields } from 'client/utils'
 
 const NAME = {
   name: 'name',

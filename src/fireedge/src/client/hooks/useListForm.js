@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { set } from 'client/utils/helpers'
+import { set } from 'client/utils'
 
 const NEXT_INDEX = index => index + 1
 const EXISTS_INDEX = index => index !== -1

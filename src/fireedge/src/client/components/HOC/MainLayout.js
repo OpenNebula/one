@@ -17,9 +17,7 @@ import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useLocation, Redirect, matchPath } from 'react-router-dom'
 
-import useAuth from 'client/hooks/useAuth'
-import useOpennebula from 'client/hooks/useOpennebula'
-
+import { useAuth, useOpennebula } from 'client/hooks'
 import Sidebar from 'client/components/Sidebar'
 import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'

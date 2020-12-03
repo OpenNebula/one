@@ -1,11 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+
 import { LinearProgress } from '@material-ui/core'
 
-import useProvision from 'client/hooks/useProvision'
-import useFetch from 'client/hooks/useFetch'
-import useSocket from 'client/hooks/useSocket'
-
+import { useProvision, useFetch, useSocket } from 'client/hooks'
 import DebugLog from 'client/components/DebugLog'
 
 const Log = React.memo(({ hidden, data: { ID } }) => {

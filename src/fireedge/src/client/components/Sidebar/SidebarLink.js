@@ -10,7 +10,7 @@ import {
   useMediaQuery
 } from '@material-ui/core'
 
-import useGeneral from 'client/hooks/useGeneral'
+import { useGeneral } from 'client/hooks'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import { DevTypography } from 'client/components/Typography'
 
