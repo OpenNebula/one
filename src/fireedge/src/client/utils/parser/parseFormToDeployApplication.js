@@ -33,7 +33,7 @@ export const mapTiersToRoles = (tiers, networking, cluster) =>
     }
   })
 
-const mapFormToDeployApplication = (formData, template) => {
+const mapFormparseFormToDeployApplication = (formData, template) => {
   const {
     [BASIC_ID]: application,
     [NETWORKING_ID]: networking,
@@ -51,4 +51,4 @@ const mapFormToDeployApplication = (formData, template) => {
   }
 }
 
-export default mapFormToDeployApplication
+export default mapFormparseFormToDeployApplication

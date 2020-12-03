@@ -10,7 +10,7 @@ import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
 import { PATH } from 'client/router/flow'
 import { useApplication, useFetch } from 'client/hooks'
-import { toApplicationForm, toApplicationTemplate } from 'client/utils'
+import { parseApplicationToForm, parseFormToApplication } from 'client/utils'
 
 function ApplicationsTemplatesCreateForm () {
   const history = useHistory()
@@ -32,7 +32,7 @@ function ApplicationsTemplatesCreateForm () {
   })
 
   const onSubmit = formData => {
-    const application = toApplicationForm(formData)
+    const application = parseApplicationToForm(formData)
 
     if (id) {
       updateApplicationTemplate({ id, data: application }).then(
@@ -50,7 +50,7 @@ function ApplicationsTemplatesCreateForm () {
   }, [id])
 
   useEffect(() => {
-    const formData = data ? toApplicationTemplate(data) : {}
+    const formData = data ? parseFormToApplication(data) : {}
     methods.reset(resolvers().cast(formData), { errors: false })
   }, [data])
 
