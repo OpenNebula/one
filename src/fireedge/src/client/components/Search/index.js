@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import Fuse from 'fuse.js'
-import { TextField, Box, debounce } from '@material-ui/core'
-
+import { TextField, Box } from '@material-ui/core'
+import { useSearch } from 'client/hooks'
 import { ListInfiniteScroll } from 'client/components/List'
 
 const Search = ({
@@ -13,28 +12,7 @@ const Search = ({
   startAdornment,
   searchBoxProps
 }) => {
-  const [query, setQuery] = useState('')
-  const [result, setResult] = useState(undefined)
-  const listFuse = useMemo(
-    () => new Fuse(list, listOptions, Fuse.createIndex(listOptions?.keys, list)),
-    [list, listOptions]
-  )
-
-  const debounceResult = React.useCallback(
-    debounce(value => {
-      const search = listFuse.search(value)?.map(({ item }) => item)
-
-      setResult(value ? search : undefined)
-    }, 1000),
-    [list]
-  )
-
-  const handleChange = event => {
-    const { value: nextValue } = event?.target
-
-    setQuery(nextValue)
-    debounceResult(nextValue)
-  }
+  const { result, query, handleChange } = useSearch({ list, listOptions })
 
   return (
     <>

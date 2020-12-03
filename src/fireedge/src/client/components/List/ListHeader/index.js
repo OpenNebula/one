@@ -20,7 +20,6 @@ const ListHeader = memo(({
   searchProps
 }) => {
   const classes = listHeaderStyles()
-  const { handleChange } = searchProps
 
   return (
     <Box className={classes.root}>
@@ -50,7 +49,7 @@ const ListHeader = memo(({
             </Box>
             <InputBase
               type="search"
-              onChange={handleChange}
+              onChange={searchProps.handleChange}
               fullWidth
               placeholder="Search..."
               classes={{
