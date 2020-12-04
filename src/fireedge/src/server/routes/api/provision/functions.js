@@ -14,6 +14,8 @@
 /* -------------------------------------------------------------------------- */
 const { v4 } = require('uuid')
 const { dirname, basename } = require('path')
+// eslint-disable-next-line node/no-deprecated-api
+const { parse } = require('url')
 const events = require('events')
 const { Document, scalarOptions } = require('yaml')
 const {
@@ -26,6 +28,7 @@ const {
   renameSync,
   moveSync
 } = require('fs-extra')
+const { getConfig } = require('server/utils/yml')
 const { spawnSync, spawn } = require('child_process')
 const { messageTerminal } = require('server/utils/general')
 
@@ -130,7 +133,7 @@ const createYMLContent = (content = '') => {
     scalarOptions.str.defaultType = 'QUOTE_SINGLE'
     if (content) {
       doc.contents = content || undefined
-    }else{
+    } else {
       doc.contents = undefined
     }
     rtn = doc
@@ -208,10 +211,9 @@ const executeCommandAsync = (
   const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : () => undefined
 
   const rsc = Array.isArray(resource) ? resource : [resource]
-  
+
   const execute = spawn(command, [...rsc])
   if (execute) {
-
     execute.stderr.on('data', (data) => {
       err(data)
     })
@@ -266,7 +268,20 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
   return rtn
 }
 
+const getEndpoint = () => {
+  const appConfig = getConfig()
+  let rtn = []
+  if (appConfig && appConfig.xmlrpc) {
+    const parseUrl = parse(appConfig.xmlrpc)
+    const protocol = parseUrl.protocol || ''
+    const host = parseUrl.host || ''
+    rtn = ['--endpoint', `${protocol}//${host}`]
+  }
+  return rtn
+}
+
 const functionRoutes = {
+  getEndpoint,
   createYMLContent,
   executeCommand,
   createTemporalFile,
