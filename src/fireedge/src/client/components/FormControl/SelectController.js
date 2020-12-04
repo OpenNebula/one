@@ -12,6 +12,7 @@ const SelectController = memo(
     <Controller
       as={
         <TextField
+          color='secondary'
           select
           fullWidth
           SelectProps={{ displayEmpty: true, multiple }}

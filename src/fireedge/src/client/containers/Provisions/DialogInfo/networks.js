@@ -39,7 +39,7 @@ const Networks = memo(({ hidden, data, fetchRequest }) => {
         actions: [{
           handleClick: () => deleteVNetwork({ id: ID })
             .then(() => fetchRequest(undefined, { reload: true })),
-          icon: <DeleteIcon />,
+          icon: <DeleteIcon color='error' />,
           cy: `provision-vnet-delete-${ID}`
         }]
       })}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -16,16 +16,11 @@ import { Tr } from 'client/components/HOC'
 import headerStyles from 'client/components/Header/styles'
 import clsx from 'clsx'
 
-const typeButton = {
-  button: Button,
-  iconButton: IconButton
-}
-
 const HeaderPopover = ({
   id,
   icon,
   buttonLabel,
-  IconProps,
+  buttonProps,
   headerTitle,
   disablePadding,
   children
@@ -33,7 +28,7 @@ const HeaderPopover = ({
   const classes = headerStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = React.useState(null)
 
   const handleOpen = event => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)
@@ -41,26 +36,22 @@ const HeaderPopover = ({
   const open = Boolean(anchorEl)
   const anchorId = open ? id : undefined
 
-  const ButtonComponent = useMemo(
-    () => (buttonLabel ? typeButton.button : typeButton.iconButton),
-    [buttonLabel]
-  )
-
   return (
     <>
-      <ButtonComponent
+      <Button
         color="inherit"
         aria-controls={anchorId}
         aria-describedby={anchorId}
         aria-haspopup="true"
         onClick={handleOpen}
-        {...IconProps}
+        {...buttonProps}
+        style={{ margin: '0 2px' }}
       >
         {icon}
         {buttonLabel && (
           <span className={classes.buttonLabel}>{buttonLabel}</span>
         )}
-      </ButtonComponent>
+      </Button>
       <Popover
         BackdropProps={{ invisible: !isMobile }}
         PaperProps={{
@@ -105,7 +96,7 @@ HeaderPopover.propTypes = {
   id: PropTypes.string,
   icon: PropTypes.node,
   buttonLabel: PropTypes.string,
-  IconProps: PropTypes.objectOf(PropTypes.any),
+  buttonProps: PropTypes.objectOf(PropTypes.any),
   headerTitle: PropTypes.string,
   disablePadding: PropTypes.bool,
   children: PropTypes.func
@@ -115,7 +106,7 @@ HeaderPopover.defaultProps = {
   id: 'id-popover',
   icon: null,
   buttonLabel: undefined,
-  IconProps: {},
+  buttonProps: {},
   headerTitle: null,
   disablePadding: false,
   children: () => undefined

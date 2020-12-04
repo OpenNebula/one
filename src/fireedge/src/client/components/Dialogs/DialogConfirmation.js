@@ -53,7 +53,6 @@ const DialogConfirmation = memo(
               <Button
                 onClick={handleCancel}
                 data-cy="dg-cancel-button"
-                color="primary"
                 {...cancelButtonProps}
               >
                 {Tr(T.Cancel)}
@@ -61,7 +60,7 @@ const DialogConfirmation = memo(
             )}
             {handleAccept && (
               <SubmitButton
-                color='primary'
+                color='secondary'
                 data-cy="dg-accept-button"
                 onClick={handleAccept}
                 label={Tr(T.Accept)}

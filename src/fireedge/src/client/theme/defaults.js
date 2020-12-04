@@ -60,24 +60,7 @@ export default {
     },
     MuiCssBaseline: {
       '@global': {
-        '@font-face': [UbuntuFont],
-        '.fade': {
-          '&-enter': {
-            opacity: 0
-          },
-          '&-enter-active': {
-            opacity: 1,
-            transition: 'opacity 100ms ease-in'
-          },
-          '&-exit': {
-            opacity: 1,
-            transform: 'scale(1)'
-          },
-          '&-exit-active': {
-            opacity: 0,
-            transition: 'opacity 100ms ease-in'
-          }
-        }
+        '@font-face': [UbuntuFont]
       }
     }
   }

@@ -33,7 +33,7 @@ export default function useOpennebula () {
   // --------------------------------------------
 
   const getProvidersTemplates = useCallback(
-    ({ onError }) =>
+    () =>
       serviceProvision
         .getProvidersTemplates({ filter })
         .then(doc => {
@@ -42,9 +42,9 @@ export default function useOpennebula () {
         })
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET providers templates'))
-          onError && onError(err)
+          throw err
         }),
-    [dispatch, filter, providersTemplates]
+    [dispatch, filter]
   )
 
   // --------------------------------------------
@@ -55,6 +55,7 @@ export default function useOpennebula () {
     ({ id }) =>
       serviceProvision.getProvider({ id }).catch(err => {
         dispatch(enqueueError(err ?? `Error GET (${id}) provider`))
+        throw err
       }),
     [dispatch]
   )

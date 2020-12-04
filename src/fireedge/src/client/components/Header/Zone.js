@@ -11,7 +11,7 @@ const Zone = memo(() => (
   <HeaderPopover
     id="zone-menu"
     icon={<LanguageIcon />}
-    IconProps={{ 'data-cy': 'header-zone-button' }}
+    buttonProps={{ 'data-cy': 'header-zone-button', variant: 'outlined' }}
     disablePadding
   >
     {({ handleClose }) => (

@@ -32,7 +32,7 @@ DevTypography.propTypes = {
 DevTypography.defaultProps = {
   label: '',
   labelProps: undefined,
-  color: 'primary',
+  color: 'secondary',
   badgeProps: undefined
 }
 

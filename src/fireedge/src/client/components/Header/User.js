@@ -19,7 +19,7 @@ const User = React.memo(() => {
       id="user-menu"
       buttonLabel={authUser?.NAME}
       icon={<AccountCircleIcon />}
-      IconProps={{ 'data-cy': 'header-user-button' }}
+      buttonProps={{ 'data-cy': 'header-user-button', variant: 'outlined' }}
       disablePadding
     >
       {() => (
@@ -34,7 +34,7 @@ const User = React.memo(() => {
           {process?.env?.NODE_ENV === 'development' &&
             APPS?.map(appName => (
               <MenuItem key={appName}>
-                <Link href={`${APP_URL}/${appName}`} style={{ width: '100%' }}>
+                <Link color='secondary' href={`${APP_URL}/${appName}`} style={{ width: '100%' }}>
                   <DevTypography label={appName} />
                 </Link>
               </MenuItem>

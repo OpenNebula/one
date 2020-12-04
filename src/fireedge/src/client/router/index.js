@@ -21,7 +21,6 @@ import { TransitionGroup } from 'react-transition-group'
 
 import * as endpoints from 'client/router/endpoints'
 import { InternalLayout, MainLayout } from 'client/components/HOC'
-import { capitalize } from 'client/utils'
 import { APPS } from 'client/constants'
 
 const Router = ({ app }) => {
@@ -45,7 +44,7 @@ const Router = ({ app }) => {
       path={path}
       component={() => (
         <InternalLayout
-          label={`One${capitalize(app)}`}
+          label={app}
           endpoints={ENDPOINTS}
           authRoute={authenticated}
         >

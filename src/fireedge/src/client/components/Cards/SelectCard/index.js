@@ -14,11 +14,11 @@ import Action from 'client/components/Cards/SelectCard/Action'
 const useStyles = makeStyles(theme => ({
   root: { height: '100%' },
   selected: {
-    color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.secondary.contrastText,
+    backgroundColor: theme.palette.secondary.main,
     '& .badge': {
-      color: theme.palette.primary.main,
-      backgroundColor: theme.palette.common.white
+      color: theme.palette.secondary.main,
+      backgroundColor: theme.palette.secondary.contrastText
     },
     '& $subheader': {
       color: 'inherit'
@@ -31,8 +31,14 @@ const useStyles = makeStyles(theme => ({
   mediaImage: {
     height: ({ mediaHeight = 140 }) => mediaHeight
   },
-  headerAvatar: { display: 'flex' },
+  headerAvatar: {
+    display: 'flex',
+    color: theme.palette.primary.contrastText
+  },
   headerContent: { overflowX: 'hidden' },
+  header: {
+    color: theme.palette.primary.contrastText
+  },
   subheader: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -70,7 +76,7 @@ const SelectCard = memo(({
       wrap={children => <div ref={fromRef}>{children}</div>}>
       {observerOff || isNearScreen ? (
         <Card
-          className={clsx(classes.root, {
+          className={clsx(classes.root, cardProps?.className, {
             [classes.actionArea]: !handleClick,
             [classes.selected]: isSelected
           })}
@@ -101,6 +107,7 @@ const SelectCard = memo(({
               titleTypographyProps={{
                 variant: 'body2',
                 noWrap: true,
+                className: classes.header,
                 title
               }}
               subheader={subheader}
@@ -133,7 +140,9 @@ const SelectCard = memo(({
             {/* CARD ACTIONS */}
             {actions?.length > 0 && (
               <CardActions {...cardActionsProps}>
-                {actions?.map(action => <Action key={action?.cy} {...action} />)}
+                {actions?.map(action => (
+                  <Action key={action?.cy} {...action} />
+                ))}
               </CardActions>
             )}
           </ConditionalWrap>
@@ -210,7 +219,7 @@ SelectCard.defaultProps = {
   mediaProps: undefined,
   isSelected: false,
   handleClick: undefined,
-  cardProps: undefined,
+  cardProps: {},
   observerOff: false,
   children: undefined
 }

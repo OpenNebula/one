@@ -75,7 +75,7 @@ const Sidebar = memo(({ endpoints }) => {
           className={classes.svg}
         />
         <IconButton
-          color={isFixMenu ? 'primary' : 'default'}
+          className={classes.itemIcon}
           onClick={handleSwapMenu}
         >
           {isUpLg ? <MenuIcon /> : <CloseIcon />}

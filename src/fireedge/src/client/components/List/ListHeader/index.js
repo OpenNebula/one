@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { Box, Typography, InputBase } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
 import RefreshIcon from '@material-ui/icons/Autorenew'
-import AddIcon from '@material-ui/icons/Add'
+import AddIcon from '@material-ui/icons/AddCircle'
 
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import listHeaderStyles from 'client/components/List/ListHeader/styles'
@@ -35,12 +35,7 @@ const ListHeader = memo(({
       </Box>
       <Box className={classes.actions}>
         {!!(hasAddButton || addButtonProps) && (
-          <SubmitButton
-            color='primary'
-            icon
-            label={<AddIcon />}
-            {...addButtonProps}
-          />
+          <SubmitButton color="secondary" icon label={<AddIcon />} {...addButtonProps} />
         )}
         {!!(hasSearch || searchProps) && (
           <Box className={classes.search}>

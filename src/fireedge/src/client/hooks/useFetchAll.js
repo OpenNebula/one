@@ -12,7 +12,7 @@ const useRequestAll = () => {
   useEffect(() => () => { isMounted.current = false }, [])
 
   const doFetchs = useCallback(
-    debounce(requests =>
+    debounce((requests, onError) =>
       Promise
         .all(requests)
         .then(response => {
@@ -22,14 +22,18 @@ const useRequestAll = () => {
               setError(false)
             } else setError(true)
 
-            setLoading(false)
-            setReloading(false)
+            isMounted.current && setLoading(false)
+            isMounted.current && setReloading(false)
           }
+          // }).catch(onError)
+        }).catch(err => {
+          setError(true)
+          onError?.(err)
         })
     ), [isMounted])
 
   const fetchRequestAll = useCallback((requests, options = {}) => {
-    const { reload = false, delay = 0 } = options
+    const { reload = false, delay = 0, onError } = options
     if (!(Number.isInteger(delay) && delay >= 0)) {
       console.error(`
           Delay must be a number >= 0!
@@ -40,7 +44,7 @@ const useRequestAll = () => {
       reload ? setReloading(true) : setLoading(true)
     }
 
-    fakeDelay(delay).then(() => doFetchs(requests))
+    fakeDelay(delay).then(() => doFetchs(requests, onError))
   }, [isMounted])
 
   return {

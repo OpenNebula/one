@@ -59,7 +59,7 @@ function ApplicationsTemplatesCreateForm () {
   }
 
   return (id && !data) || loading ? (
-    <LinearProgress />
+    <LinearProgress color='secondary' />
   ) : (
     <Container
       disableGutters

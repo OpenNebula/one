@@ -13,6 +13,7 @@ const TextController = memo(
       render={({ value, ...props }) =>
         <TextField
           fullWidth
+          color='secondary'
           value={value ?? ''}
           type={type}
           {...(label && { label: Tr(label) })}
