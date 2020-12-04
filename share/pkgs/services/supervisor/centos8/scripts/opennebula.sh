@@ -52,5 +52,15 @@ export SSH_AUTH_SOCK
 PATH=/usr/lib/one/sh/override:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
 
+# TODO: remove this once oned fix this:
+# https://github.com/OpenNebula/one/issues/5189
+#
+# or at least improve this when oned start to store PID inside the lock file so
+# you can verify that no oned process is running...
+if [ -e /var/lock/one/one ] ; then
+    msg "Remove stale lock: /var/lock/one/one"
+    rm -f /var/lock/one/one
+fi
+
 msg "Service started!"
 exec /usr/bin/oned -f
