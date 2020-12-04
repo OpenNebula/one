@@ -75,7 +75,7 @@ router.all(
   paramsToRoutes(),
   [validateResourceAndSession, optionalParameters, optionalQueries],
   (req, res, next) => {
-    const { internalServerError, ok, methodNotAllowed } = httpCodes
+    const { internalServerError, ok, methodNotAllowed, notFound } = httpCodes
     const { method: httpMethod } = req
     res.locals.httpCode = httpResponse(internalServerError)
     const { zone } = getQueriesState()
@@ -122,9 +122,18 @@ router.all(
         const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod)
         if (getOpennebulaMethod) {
           const response = (val = {}) => {
-            res.locals.httpCode = httpResponse(ok, val || val === 0 ? val : {})
-            if (typeof val === 'string') {
-              res.locals.httpCode = httpResponse(ok, undefined, val)
+            switch (typeof val) {
+              case 'string':
+                res.locals.httpCode = httpResponse(notFound, val)
+                break
+              case 'object':
+                res.locals.httpCode = httpResponse(ok, val)
+                break
+              case 'number':
+                res.locals.httpCode = httpResponse(ok, val)
+                break
+              default:
+                break
             }
             next()
           }
