@@ -36,10 +36,10 @@ const {
   moveToFolder,
   findRecursiveFolder,
   publish,
-  getFiles
+  getFiles,
+  getEndpoint
 } = require('./functions')
 const { provision } = require('./schemas')
-const { console } = require('window-or-global')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
@@ -64,11 +64,12 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
   let err = false
   const files = []
   const path = `${global.ETC_CPI}/provisions`
+  const endpoint = getEndpoint()
   if (user && password) {
     const authCommand = ['--user', user, '--password', password]
     const fillData = (content = '', filePath = '') => {
       try {
-        const paramsCommand = ['validate', '--dump', filePath, ...authCommand]
+        const paramsCommand = ['validate', '--dump', filePath, ...authCommand, ...endpoint]
         const executedCommand = executeCommand(command, paramsCommand, { cwd: path })
         if (executedCommand && executedCommand.success) {
           files.push(parse(executedCommand.data))
@@ -106,8 +107,9 @@ const getList = (res = {}, next = () => undefined, params = {}, userData = {}) =
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const executedCommand = executeCommand(command, [`${params.resource}`.toLowerCase(), 'list', ...authCommand, '--json'])
+    const executedCommand = executeCommand(command, [`${params.resource}`.toLowerCase(), 'list', ...authCommand, ...endpoint, '--json'])
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
@@ -125,10 +127,11 @@ const getListProvisions = (res = {}, next = () => undefined, params = {}, userDa
   const { user, password } = userData
   let rtn = httpInternalError
   if (user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    let paramsCommand = ['list', ...authCommand, '--json']
+    let paramsCommand = ['list', ...authCommand, ...endpoint, '--json']
     if (params && params.id) {
-      paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, '--json']
+      paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
     }
     const executedCommand = executeCommand(command, paramsCommand)
     try {
@@ -148,8 +151,9 @@ const deleteResource = (res = {}, next = () => undefined, params = {}, userData 
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = [`${params.resource}`.toLowerCase(), 'delete', `${params.id}`.toLowerCase(), ...authCommand]
+    const paramsCommand = [`${params.resource}`.toLowerCase(), 'delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
     const executedCommand = executeCommand(command, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
@@ -170,8 +174,9 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
   const { user, password } = userData
   const rtn = httpInternalError
   if (params && params.id && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['delete', params.id, '--batch', '--debug', ...authCommand]
+    const paramsCommand = ['delete', params.id, '--batch', '--debug', ...authCommand, ...endpoint]
     let lastLine = ''
     const emit = message => {
       message.toString().split(/\r|\n/).map(line => {
@@ -193,10 +198,10 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
               relFileYML,
               filedata => {
                 let uuid = ''
-                if(!checkSync(relFileLOCK)){
+                if (!checkSync(relFileLOCK)) {
                   lockSync(relFileLOCK)
                   const fileData = parse(filedata) || {}
-                  if(fileData[params.id]){
+                  if (fileData[params.id]) {
                     uuid = fileData[params.id]
                     delete fileData[params.id]
                     createTemporalFile(
@@ -209,12 +214,12 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
                     )
                   }
                   unlockSync(relFileLOCK)
-                  if(uuid){
-                    //provisions in deploy
+                  if (uuid) {
+                    // provisions in deploy
                     const findFolder = findRecursiveFolder(`${global.CPI}/provision`, uuid)
                     findFolder && removeFile(findFolder)
-                    //provisions in error
-                    const findFolderERROR = findRecursiveFolder(`${global.CPI}/provision`, uuid+appendError)
+                    // provisions in error
+                    const findFolderERROR = findRecursiveFolder(`${global.CPI}/provision`, uuid + appendError)
                     findFolderERROR && removeFile(findFolderERROR)
                   }
                 }
@@ -238,12 +243,13 @@ const hostCommand = (res = {}, next = () => undefined, params = {}, userData = {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.action && params.id && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), ...authCommand]
+    const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
     const executedCommand = executeCommand(command, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      res.locals.httpCode = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
       next()
       return
     } catch (error) {
@@ -258,12 +264,13 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.action && params.id && params.command && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), `${params.command}`.toLowerCase(), ...authCommand]
+    const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), `${params.command}`.toLowerCase(), ...authCommand, ...endpoint]
     const executedCommand = executeCommand(command, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      res.locals.httpCode = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
       next()
       return
     } catch (error) {
@@ -283,6 +290,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
   const rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
+    const endpoint = getEndpoint()
     const resource = parsePostData(params.resource)
     const content = createYMLContent(resource)
     if (content) {
@@ -293,7 +301,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
         const log = find(logFile.name, logFile.ext)
         if (config && log) {
           const create = (filedata = '') => {
-            const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand]
+            const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand, ...endpoint]
             let lastLine = ''
             var stream = createWriteStream(log.path, { flags: 'a' })
             const emit = message => {
@@ -330,11 +338,11 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                       existsFile(
                         relFileYML,
                         filedata => {
-                          if(!checkSync(relFileLOCK)){
+                          if (!checkSync(relFileLOCK)) {
                             lockSync(relFileLOCK)
                             const fileData = parse(filedata) || {}
-                            const findKey = Object.keys(fileData).find(key => fileData[key] === files.name);
-                            if(findKey){
+                            const findKey = Object.keys(fileData).find(key => fileData[key] === files.name)
+                            if (findKey) {
                               delete fileData[findKey]
                               createTemporalFile(
                                 basePath,
@@ -388,8 +396,9 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
   const { user, password } = userData
   const rtn = httpInternalError
   if (params && params.id && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['configure', params.id, '--debug', '--fail_cleanup', '--batch', ...authCommand]
+    const paramsCommand = ['configure', params.id, '--debug', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
     let lastLine = ''
     const emit = message => {
       message.toString().split(/\r|\n/).map(line => {
@@ -419,8 +428,9 @@ const configureHost = (res = {}, next = () => undefined, params = {}, userData =
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.id && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['host', 'configure', `${params.id}`.toLowerCase(), '--debug', '--fail_cleanup', '--batch', ...authCommand]
+    const paramsCommand = ['host', 'configure', `${params.id}`.toLowerCase(), '--debug', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
     const executedCommand = executeCommand(command, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
@@ -439,6 +449,7 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
@@ -448,7 +459,7 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
       if (content) {
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
-          const paramsCommand = ['validate', '--dump', file.path, ...authCommand]
+          const paramsCommand = ['validate', '--dump', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(command, paramsCommand)
           let response = internalServerError
           if (executedCommand && executedCommand.success) {
@@ -482,40 +493,40 @@ const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
   let rtn = httpInternalError
   if (params && params.id) {
     const find = findRecursiveFolder(path, params.id)
-    const rtnNotFound = ()=>{
+    const rtnNotFound = () => {
       rtn = notFound
     }
     const rtnFound = (path = '', uuid) => {
-      if(path){
+      if (path) {
         existsFile(
           `${path}/${logFile.name}.${logFile.ext}`,
           filedata => {
-            rtn = httpResponse(ok, {uuid, log: filedata.split(/\r|\n/)})
+            rtn = httpResponse(ok, { uuid, log: filedata.split(/\r|\n/) })
           },
           rtnNotFound
         )
       }
     }
-    if(find){
+    if (find) {
       rtnFound(find)
-    }else{
+    } else {
       existsFile(
         relFileYML,
         filedata => {
           const fileData = parse(filedata) || {}
-          if(fileData[params.id]){
+          if (fileData[params.id]) {
             const findPending = findRecursiveFolder(path, fileData[params.id])
-            if(findPending){
+            if (findPending) {
               rtnFound(findPending, fileData[params.id])
-            }else{
-              const findError = findRecursiveFolder(path, fileData[params.id]+appendError)
-              if(findError){
+            } else {
+              const findError = findRecursiveFolder(path, fileData[params.id] + appendError)
+              if (findError) {
                 rtnFound(findError, fileData[params.id])
-              }else{
+              } else {
                 rtnNotFound()
               }
             }
-          }else{
+          } else {
             rtnNotFound()
           }
         },

@@ -21,8 +21,7 @@ const {
   defaultMethodZones,
   defaultMethodUserInfo,
   default2FAOpennebulaVar,
-  defaultNamespace,
-  from: fromData
+  defaultNamespace
 } = require('server/utils/constants/defaults')
 const { getConfig } = require('server/utils/yml')
 const {
