@@ -90,7 +90,7 @@ const defaults = {
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar: `TMP_${default2FAOpennebulaVar}`,
   defaultGetMethod: 'info',
-  defaultMessageProblemOpennebula: 'Problem with conection or xml parser',
+  defaultMessageProblemOpennebula: 'Problem with connection or xml parser',
   defaultMethodLogin: 'user.login',
   defaultMethodZones: 'zonepool.info',
   defaultMethodConfig: 'system.config',

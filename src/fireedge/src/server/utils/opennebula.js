@@ -133,7 +133,7 @@ const responseOpennebula = (res, err, value, response, next) => {
   if (err && res && typeof res === 'function') {
     const { internalServerError } = httpCodes
     const codeError = Map(internalServerError).toObject()
-    codeError.message += `: ${defaultMessageProblemOpennebula}`
+    codeError.data = `${defaultMessageProblemOpennebula}`
     res(codeError)
     next()
   } else if (typeof response === 'function') {
