@@ -1,15 +1,16 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Chip, Box, Typography } from '@material-ui/core'
-import { FolderOpen as DatastoreIcon } from '@material-ui/icons'
+import { makeStyles, Chip, Box, Typography, Avatar } from '@material-ui/core'
 
+import StatusBadge from 'client/components/StatusBadge'
 import SelectCard from 'client/components/Cards/SelectCard'
 import Datastore from 'client/constants/datastore'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   title: { display: 'flex', gap: '8px' },
-  state: { backgroundColor: ({ stateColor }) => stateColor }
+  avatar: { color: theme.palette.primary.contrastText },
+  card: { backgroundColor: theme.palette.primary.main }
 }))
 
 const DatastoreCard = memo(
@@ -17,8 +18,7 @@ const DatastoreCard = memo(
     const { ID, NAME, TYPE, STATE } = value
     const type = Datastore.TYPES[TYPE]
     const state = Datastore.STATES[STATE]
-
-    const classes = useStyles({ stateColor: state.color })
+    const classes = useStyles()
 
     const renderChip = ({ label, ...props }) =>
       <Chip size="small" title={label} label={label} {...props} />
@@ -26,14 +26,18 @@ const DatastoreCard = memo(
     return (
       <SelectCard
         stylesProps={{ minHeight: 160 }}
-        icon={<DatastoreIcon />}
+        cardProps={{ className: classes.card, elevation: 2 }}
+        icon={
+          <StatusBadge stateColor={state.color} >
+            <Avatar className={classes.avatar} title={state.name}>{ID}</Avatar>
+          </StatusBadge>
+        }
         title={(
           <Box component="span" className={classes.title}>
-            <Typography noWrap>{`${ID} - ${NAME}`}</Typography>
+            <Typography noWrap>{NAME}</Typography>
             {renderChip({ label: type.name })}
           </Box>
         )}
-        subheader={renderChip({ label: state.name, className: classes.state })}
         cardHeaderProps={{ disableTypography: true }}
         isSelected={isSelected}
         handleClick={handleClick}
