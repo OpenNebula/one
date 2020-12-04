@@ -65,7 +65,7 @@ function Login () {
       maxWidth={isMobile ? 'lg' : 'xs'}
       className={classes.root}
     >
-      {isLoading && <LinearProgress className={classes.loading} />}
+      {isLoading && <LinearProgress color='secondary' className={classes.loading} />}
       <Paper variant="outlined" className={classes.paper}>
         {useMemo(() => (
           <Logo width="100%" height={100} withText viewBox="140 140 380 360" />

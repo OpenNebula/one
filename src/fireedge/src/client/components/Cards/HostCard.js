@@ -1,15 +1,16 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Chip, Box, Typography } from '@material-ui/core'
-import { VideogameAsset as HostIcon } from '@material-ui/icons'
+import { makeStyles, Avatar, Chip, Box, Typography } from '@material-ui/core'
 
 import SelectCard from 'client/components/Cards/SelectCard'
+import StatusBadge from 'client/components/StatusBadge'
 import Host from 'client/constants/host'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   title: { display: 'flex', gap: '8px' },
-  state: { backgroundColor: ({ stateColor }) => stateColor }
+  avatar: { color: theme.palette.primary.contrastText },
+  card: { backgroundColor: theme.palette.primary.main }
 }))
 
 const HostCard = memo(
@@ -18,7 +19,7 @@ const HostCard = memo(
     const state = Host.STATES[STATE]
     const mad = imMad === vmMad ? imMad : `${imMad}/${vmMad}`
 
-    const classes = useStyles({ stateColor: state?.color })
+    const classes = useStyles()
 
     const renderChip = ({ label, ...props }) =>
       <Chip size="small" title={label} label={label} {...props} />
@@ -26,16 +27,18 @@ const HostCard = memo(
     return (
       <SelectCard
         stylesProps={{ minHeight: 160 }}
-        icon={<HostIcon />}
+        cardProps={{ className: classes.card, elevation: 2 }}
+        icon={
+          <StatusBadge stateColor={state.color}>
+            <Avatar className={classes.avatar} title={state.name}>{ID}</Avatar>
+          </StatusBadge>
+        }
         title={(
           <Box component="span" className={classes.title}>
-            <Typography noWrap>{`${ID} - ${NAME}`}</Typography>
+            <Typography noWrap>{NAME}</Typography>
             {renderChip({ label: mad })}
           </Box>
         )}
-        subheader={
-          renderChip({ label: state?.name, className: classes.state })
-        }
         isSelected={isSelected}
         handleClick={handleClick}
         actions={actions}

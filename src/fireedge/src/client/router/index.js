@@ -43,17 +43,13 @@ const Router = ({ app }) => {
       exact
       path={path}
       component={() => (
-        <InternalLayout
-          label={app}
-          endpoints={ENDPOINTS}
-          authRoute={authenticated}
-        >
+        <InternalLayout label={app} authRoute={authenticated}>
           <Component />
         </InternalLayout>
       )}
       {...route}
     />
-  ), [ENDPOINTS])
+  ), [app])
 
   return (
     <MainLayout endpoints={{ ENDPOINTS, PATH }}>
