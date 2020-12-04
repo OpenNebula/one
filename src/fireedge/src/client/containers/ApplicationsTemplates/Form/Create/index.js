@@ -32,7 +32,7 @@ function ApplicationsTemplatesCreateForm () {
   })
 
   const onSubmit = formData => {
-    const application = parseApplicationToForm(formData)
+    const application = parseFormToApplication(formData)
 
     if (id) {
       updateApplicationTemplate({ id, data: application }).then(
@@ -50,7 +50,7 @@ function ApplicationsTemplatesCreateForm () {
   }, [id])
 
   useEffect(() => {
-    const formData = data ? parseFormToApplication(data) : {}
+    const formData = data ? parseApplicationToForm(data) : {}
     methods.reset(resolvers().cast(formData), { errors: false })
   }, [data])
 
