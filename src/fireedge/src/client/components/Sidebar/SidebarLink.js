@@ -35,7 +35,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
       classes={{ selected: classes.itemSelected }}
     >
       {Icon && (
-        <ListItemIcon>
+        <ListItemIcon className={classes.itemIcon}>
           <Icon />
         </ListItemIcon>
       )}

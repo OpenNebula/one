@@ -20,7 +20,7 @@ const Log = React.memo(({ hidden, data: { ID } }) => {
   }, [hidden])
 
   return loading ? (
-    <LinearProgress style={{ width: '100%' }} />
+    <LinearProgress color='secondary' style={{ width: '100%' }} />
   ) : (
     <DebugLog
       uuid={provision?.uuid ?? ID}

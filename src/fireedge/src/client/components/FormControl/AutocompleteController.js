@@ -19,6 +19,7 @@ const AutocompleteController = memo(
         return (
           <Autocomplete
             fullWidth
+            color='secondary'
             onBlur={onBlur}
             onChange={(_, newValue) => {
               const newValueToChange = multiple
@@ -48,6 +49,7 @@ const AutocompleteController = memo(
             getOptionSelected={option => option.value === renderValue}
             renderInput={({ inputProps, ...inputParams }) => (
               <TextField
+                color='secondary'
                 label={Tr(label)}
                 inputProps={{ ...inputProps, 'data-cy': cy }}
                 error={Boolean(error)}

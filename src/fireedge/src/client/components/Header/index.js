@@ -43,7 +43,7 @@ const Header = ({ title }) => {
 
   return useMemo(
     () => (
-      <AppBar position="absolute" data-cy="header">
+      <AppBar position="absolute" data-cy="header" elevation={0}>
         <Toolbar>
           {!isUpLg && (
             <IconButton onClick={handleFixMenu} edge="start" color="inherit">
@@ -56,7 +56,10 @@ const Header = ({ title }) => {
               className={classes.title}
               data-cy="header-title"
             >
-              {title}
+              {'One'}
+              <span className={classes.app}>
+                {title}
+              </span>
             </Typography>
           )}
           <Box flexGrow={isMobile ? 1 : 0} textAlign="end">

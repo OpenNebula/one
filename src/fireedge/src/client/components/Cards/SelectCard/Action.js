@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import useFetch from 'client/hooks/useFetch'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 
-const Action = memo(({ handleClick, icon, cy }) => {
+const Action = memo(({ handleClick, icon, cy, ...props }) => {
   const { fetchRequest, loading } = useFetch(
     () => Promise.resolve(handleClick())
   )
@@ -16,6 +16,7 @@ const Action = memo(({ handleClick, icon, cy }) => {
       isSubmitting={loading}
       label={icon}
       onClick={() => fetchRequest()}
+      {...props}
     />
   )
 })

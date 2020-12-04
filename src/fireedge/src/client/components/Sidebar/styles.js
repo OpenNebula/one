@@ -6,6 +6,7 @@ export default makeStyles(theme => ({
   // CONTAINER MENU
   // -------------------------------
   drawerPaper: {
+    backgroundColor: theme.palette.primary.light,
     width: 0,
     visibility: 'hidden',
     whiteSpace: 'nowrap',
@@ -114,7 +115,7 @@ export default makeStyles(theme => ({
     }
   },
   list: {
-    color: theme.palette.common.black
+    color: theme.palette.primary.contrastText
   },
   expandIcon: {},
   subItemWrapper: {},
@@ -122,9 +123,12 @@ export default makeStyles(theme => ({
     paddingLeft: theme.spacing(4)
   },
   itemSelected: {
+    color: theme.palette.secondary.main,
     backgroundColor: theme.palette.primary.light,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.light
-    }
+    '&:hover': { backgroundColor: theme.palette.primary.light },
+    '& $itemIcon': { color: theme.palette.secondary.main }
+  },
+  itemIcon: {
+    color: theme.palette.primary.contrastText
   }
 }))

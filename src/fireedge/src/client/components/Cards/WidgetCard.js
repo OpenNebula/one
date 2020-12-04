@@ -1,14 +1,25 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { CardContent } from '@material-ui/core'
+import { makeStyles, CardContent } from '@material-ui/core'
 import SelectCard from 'client/components/Cards/SelectCard'
+
+const useStyles = makeStyles(theme => ({
+  card: {
+    backgroundColor: theme.palette.primary.light
+  }
+}))
 
 const WidgetCard = React.memo(({ value }) => {
   const { title, widget, actions } = value
+  const classes = useStyles()
 
   return (
     <SelectCard
+      cardProps={{
+        variant: 'outlined',
+        className: classes.card
+      }}
       actions={actions}
       cardActionsProps={{ style: { justifyContent: 'center' } }}
       title={title}

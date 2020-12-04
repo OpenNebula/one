@@ -41,7 +41,7 @@ const SubmitButton = React.memo(
         size={size}
         {...props}
       >
-        {isSubmitting && <CircularProgress size={24} />}
+        {isSubmitting && <CircularProgress color="secondary" size={24} />}
         {!isSubmitting && (label ?? Tr(T.Submit))}
       </ButtonComponent>
     )

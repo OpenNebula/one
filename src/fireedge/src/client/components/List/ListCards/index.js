@@ -27,7 +27,7 @@ const ListCards = memo(({
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
   if (isLoading) {
-    return <LinearProgress className={classes.loading} />
+    return <LinearProgress color='secondary' className={classes.loading} />
   }
 
   return (

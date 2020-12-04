@@ -46,7 +46,7 @@ const Hosts = memo(({ hidden, data, fetchRequest }) => {
           {
             handleClick: () => deleteHost({ id: ID })
               .then(() => fetchRequest(undefined, { reload: true })),
-            icon: <DeleteIcon />,
+            icon: <DeleteIcon color='error' />,
             cy: `provision-host-delete-${ID}`
           }
         ]

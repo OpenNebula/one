@@ -5,13 +5,14 @@ export default makeStyles(theme => ({
     top: 0,
     position: 'sticky',
     zIndex: theme.zIndex.appBar,
-    backgroundColor: '#fafafae0',
-    backdropFilter: `blur(${theme.spacing(1)}px)`,
+    borderRadius: theme.spacing(0.5),
+    backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[10],
     padding: theme.spacing(2, 3),
     display: 'flex',
     flexWrap: 'wrap',
     [theme.breakpoints.up('sm')]: {
-      borderBottom: '1px solid #e5e5e5'
+      borderBottom: `1px solid ${theme.palette.divider}`
     }
   },
   title: {
@@ -19,7 +20,7 @@ export default makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
     [theme.breakpoints.only('xs')]: {
-      borderBottom: '1px solid #e5e5e5'
+      borderBottom: `1px solid ${theme.palette.divider}`
     }
   },
   titleText: {
@@ -32,15 +33,15 @@ export default makeStyles(theme => ({
     alignItems: 'center',
     [theme.breakpoints.only('xs')]: {
       width: '100%',
-      borderBottom: '1px solid #e5e5e5'
+      borderBottom: `1px solid ${theme.palette.divider}`
     }
   },
   search: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.primary.main, 0.15),
+    backgroundColor: fade(theme.palette.primary.dark, 0.15),
     '&:hover': {
-      backgroundColor: fade(theme.palette.primary.main, 0.25)
+      backgroundColor: fade(theme.palette.primary.dark, 0.25)
     },
     margin: theme.spacing(1, 0),
     width: '100%',

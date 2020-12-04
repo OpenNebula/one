@@ -18,6 +18,8 @@ const SliderController = memo(
           <Grid container spacing={2} alignItems="center">
             <Grid item xs>
               <Slider
+
+                color='secondary'
                 value={typeof value === 'number' ? value : 0}
                 aria-labelledby={`slider-${name}`}
                 valueLabelDisplay="auto"
@@ -28,6 +30,7 @@ const SliderController = memo(
             </Grid>
             <Grid item>
               <TextField
+                color='secondary'
                 fullWidth
                 value={value ?? ''}
                 error={Boolean(error)}

@@ -81,10 +81,7 @@ function ProviderCreateForm () {
   useEffect(() => {
     isUpdate && fetchRequestAll([
       getProvider({ id }),
-      getProvidersTemplates({
-        onError: () =>
-          history.push(PATH.PROVIDERS.LIST)
-      })
+      getProvidersTemplates()
     ])
   }, [isUpdate])
 
@@ -92,10 +89,9 @@ function ProviderCreateForm () {
     if (data) {
       const [provider = {}, templates = []] = data
 
-      const { TEMPLATE: { PROVISION_BODY = {} } } = provider
       const {
         connection, provider: providerName, registration_time: time
-      } = PROVISION_BODY
+      } = provider?.TEMPLATE?.PROVISION_BODY ?? {}
 
       const {
         location_key: key
@@ -126,7 +122,7 @@ function ProviderCreateForm () {
   }
 
   return (isUpdate && !data) || loading ? (
-    <LinearProgress />
+    <LinearProgress color='secondary' />
   ) : (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
       <FormProvider {...methods}>

@@ -34,6 +34,7 @@ export default makeStyles(theme => ({
     }
   },
   scrollable: {
+    backgroundColor: theme.palette.primary.main,
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     height: '100%',

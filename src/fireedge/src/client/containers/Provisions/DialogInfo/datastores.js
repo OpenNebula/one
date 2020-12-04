@@ -39,7 +39,7 @@ const Datastores = memo(({ hidden, data, fetchRequest }) => {
         actions: [{
           handleClick: () => deleteDatastore({ id: ID })
             .then(() => fetchRequest(undefined, { reload: true })),
-          icon: <DeleteIcon />,
+          icon: <DeleteIcon color='error' />,
           cy: `provision-datastore-delete-${ID}`
         }]
       })}

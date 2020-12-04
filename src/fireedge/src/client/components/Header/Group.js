@@ -60,7 +60,7 @@ const Group = () => {
     <HeaderPopover
       id="group-list"
       icon={<FilterIcon />}
-      IconProps={{ 'data-cy': 'header-group-button' }}
+      buttonProps={{ 'data-cy': 'header-group-button', variant: 'outlined' }}
       headerTitle="Switch group"
     >
       {({ handleClose }) => (

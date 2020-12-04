@@ -20,9 +20,25 @@ const useStyles = makeStyles(theme => ({
     position: 'sticky',
     top: -15,
     minHeight: 100,
-    background: fade(theme.palette.background.default, 0.65),
+    background: fade(theme.palette.background.paper, 0.65),
     zIndex: theme.zIndex.mobileStepper
-  }
+  },
+  icon: {
+    color: theme.palette.text.hint,
+    display: 'block',
+    '&$completed': {
+      color: theme.palette.secondary.main
+    },
+    '&$active': {
+      color: theme.palette.secondary.main
+    },
+    '&$error': {
+      color: theme.palette.error.main
+    }
+  },
+  completed: {},
+  active: {},
+  error: {}
 }))
 
 const CustomStepper = ({
@@ -43,6 +59,14 @@ const CustomStepper = ({
         {steps?.map(({ id, label }) => (
           <Step key={id}>
             <StepLabel
+              StepIconProps={{
+                classes: {
+                  root: classes.icon,
+                  completed: classes.completed,
+                  active: classes.active,
+                  error: classes.error
+                }
+              }}
               {...(Boolean(errors[id]) && { error: true })}
               optional={
                 <Typography variant="caption" color="error">
@@ -53,12 +77,12 @@ const CustomStepper = ({
           </Step>
         ))}
       </Stepper>
-      <Box marginY={2}>
+      <Box marginY={2} textAlign='end'>
         <Button onClick={handleBack} disabled={disabledBack}>
           {Tr(T.Back)}
         </Button>
         <SubmitButton
-          color='primary'
+          color='secondary'
           data-cy="stepper-next-button"
           onClick={handleNext}
           isSubmitting={isSubmitting}

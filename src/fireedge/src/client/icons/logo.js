@@ -1,7 +1,9 @@
 import React, { memo } from 'react'
 import { number, string, bool, oneOfType } from 'prop-types'
+import { useTheme } from '@material-ui/core'
 
 const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
+  const theme = useTheme()
   const cloudColor = {
     child1: { from: '#0098c3', to: '#ffffff' },
     child2: { from: '#0098c3', to: '#ffffff' },
@@ -10,7 +12,7 @@ const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
     child5: { from: '#bfe6f2', to: '#ffffff' }
   }
   const textColor = {
-    top: '#000000',
+    top: theme.palette.primary.contrastText,
     bottom: '#0098c3'
   }
   return (

@@ -56,13 +56,13 @@ const DialogForm = memo(
         {(onCancel || onSubmit) && (
           <DialogActions>
             {onCancel && (
-              <Button onClick={onCancel} color="primary">
+              <Button onClick={onCancel}>
                 {Tr(T.Cancel)}
               </Button>
             )}
             {onSubmit && (
               <SubmitButton
-                color='primary'
+                color='secondary'
                 data-cy="dg-form-submit-button"
                 isSubmitting={methods.formState.isSubmitting}
                 onClick={methods.handleSubmit(onSubmit)}

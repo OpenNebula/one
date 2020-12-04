@@ -12,18 +12,18 @@ const useStyles = makeStyles(theme => ({
   root: {
     position: 'sticky',
     top: -15,
-    background: fade(theme.palette.primary.main, 0.65),
+    background: fade(theme.palette.primary.light, 0.65),
     zIndex: theme.zIndex.mobileStepper,
     margin: theme.spacing(2, 0)
   },
   title: {
     padding: theme.spacing(1, 2),
-    color: theme.palette.common.black
+    color: theme.palette.primary.contrastText
   },
   error: {
     padding: theme.spacing(1, 2)
   },
-  button: { color: theme.palette.common.black },
+  button: { color: theme.palette.action.active },
   stepper: { background: 'transparent' }
 }))
 
@@ -56,6 +56,7 @@ const CustomMobileStepper = ({
         position="static"
         steps={totalSteps}
         activeStep={activeStep}
+        LinearProgressProps={{ color: 'secondary' }}
         backButton={
           <Button
             className={classes.button}

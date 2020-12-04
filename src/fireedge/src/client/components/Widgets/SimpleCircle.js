@@ -1,15 +1,10 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Box, CircularProgress } from '@material-ui/core'
+import { Box, CircularProgress } from '@material-ui/core'
 import Count from 'client/components/Count'
 
-const useStyles = makeStyles(() => ({
-  circle: { stroke: ({ color }) => `${color} !important` }
-}))
-
-const Circle = React.memo(({ color }) => {
-  const classes = useStyles({ color })
+const Circle = React.memo(() => {
   const [progress, setProgress] = React.useState(0)
 
   React.useEffect(() => {
@@ -26,7 +21,7 @@ const Circle = React.memo(({ color }) => {
 
   return (
     <CircularProgress
-      classes={{ circle: classes.circle }}
+      color='secondary'
       size={150}
       thickness={5}
       value={progress}
@@ -43,10 +38,10 @@ Circle.displayName = 'Circle'
 // WIDGET
 // -------------------------------------
 
-const SimpleCircle = React.memo(({ label, color }) => (
+const SimpleCircle = React.memo(({ label, onClick }) => (
   <Box position='relative' display='inline-flex' width={1}>
     <Box display='flex' flexDirection='column' alignItems='center' width={1}>
-      <Circle color={color} />
+      <Circle />
     </Box>
     <Box top={0} left={0} bottom={0} right={0}
       position='absolute'
@@ -54,19 +49,25 @@ const SimpleCircle = React.memo(({ label, color }) => (
       alignItems='center'
       justifyContent='center'
     >
-      <Count number={label} variant='h4' component='div' color='textSecondary' />
+      <Count
+        number={label}
+        variant='h4'
+        component='div'
+        style={{ cursor: 'pointer' }}
+        onClick={onClick}
+      />
     </Box>
   </Box>
 ), (prev, next) => prev.label === next.label)
 
 SimpleCircle.propTypes = {
   label: PropTypes.string,
-  color: PropTypes.string
+  onClick: PropTypes.func
 }
 
 SimpleCircle.defaultProps = {
   label: undefined,
-  color: 'primary'
+  onClick: () => undefined
 }
 
 SimpleCircle.displayName = 'SimpleCircle'
