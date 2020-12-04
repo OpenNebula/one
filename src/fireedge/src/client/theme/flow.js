@@ -1,20 +1,21 @@
 export default {
   palette: {
-    common: { black: '#000', white: '#fff' },
+    type: 'dark',
+    common: { black: '#000', white: '#ffffff' },
     background: {
-      paper: '#fff',
-      default: '#fafafa'
+      paper: '#2a2d3d',
+      default: '#222431'
     },
     primary: {
-      light: 'rgba(191, 230, 242, 1)',
-      main: 'rgba(64, 179, 217, 1)',
-      dark: 'rgba(0, 152, 195, 1)',
+      light: '#2a2d3d',
+      main: '#222431',
+      dark: '#191924',
       contrastText: '#fff'
     },
     secondary: {
-      light: 'rgba(199, 201, 200, 1)',
-      main: 'rgba(87, 92, 91, 1)',
-      dark: 'rgba(53, 55, 53, 1)',
+      light: 'rgba(191, 230, 242, 1)',
+      main: 'rgba(64, 179, 217, 1)',
+      dark: 'rgba(0, 152, 195, 1)',
       contrastText: '#fff'
     },
     error: {
@@ -22,12 +23,6 @@ export default {
       main: '#f44336',
       dark: '#d32f2f',
       contrastText: '#fff'
-    },
-    text: {
-      primary: 'rgba(0, 0, 0, 0.87)',
-      secondary: 'rgba(0, 0, 0, 0.54)',
-      disabled: 'rgba(0, 0, 0, 0.38)',
-      hint: 'rgba(0, 0, 0, 0.38)'
     }
   }
 }
