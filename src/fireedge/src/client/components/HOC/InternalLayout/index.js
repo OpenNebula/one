@@ -25,13 +25,14 @@ import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
 
-const InternalLayout = ({ endpoints, authRoute, label, children }) => {
+const InternalLayout = ({ authRoute, label, children }) => {
   const classes = internalStyles()
+  const scroll = React.useRef()
   const { isFixMenu } = useGeneral()
 
   return authRoute ? (
     <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
-      <Header title={label} />
+      <Header title={label} scrollableContainer={scroll?.current} />
       <Box component="main" className={classes.main}>
         <CSSTransition
           in
@@ -48,7 +49,7 @@ const InternalLayout = ({ endpoints, authRoute, label, children }) => {
           timeout={300}
           unmountOnExit
         >
-          <Container maxWidth={false} className={classes.scrollable}>
+          <Container ref={scroll} maxWidth={false} className={classes.scrollable}>
             {children}
           </Container>
         </CSSTransition>
