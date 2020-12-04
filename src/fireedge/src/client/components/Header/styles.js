@@ -1,13 +1,24 @@
 import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
+  appbar: {
+    position: 'absolute',
+    transition: theme.transitions.create('background-color'),
+    backgroundColor: ({ isScroll }) => isScroll
+      ? theme.palette.secondary.main
+      : theme.palette.primary.main
+  },
   title: {
     flexGrow: 1,
     display: 'inline-flex',
     color: theme.palette.primary.contrastText,
     '& span': { textTransform: 'capitalize' }
   },
-  app: { color: theme.palette.secondary.main },
+  app: {
+    color: ({ isScroll }) => isScroll
+      ? theme.palette.primary.main
+      : theme.palette.secondary.main
+  },
   /* POPOVER */
   backdrop: {
     [theme.breakpoints.only('xs')]: {
@@ -41,4 +52,5 @@ export default makeStyles(theme => ({
     fontSize: '1rem',
     margin: theme.spacing(0, 2)
   }
-}))
+}
+))
