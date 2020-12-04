@@ -2,7 +2,7 @@ import React, { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
 import DeleteIcon from '@material-ui/icons/Delete'
-import ConfigureIcon from '@material-ui/icons/Build'
+import ConfigureIcon from '@material-ui/icons/Settings'
 
 import { useProvision, useOpennebula, useFetchAll } from 'client/hooks'
 import { ListCards } from 'client/components/List'
