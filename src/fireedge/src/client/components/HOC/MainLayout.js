@@ -23,11 +23,7 @@ import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'
 
 const findRouteByPathname = (endpoints = [], pathname = '') => {
-  const routes = endpoints.flatMap(
-    ({ endpoint, ...item }) => endpoint ?? item
-  )
-
-  const route = routes?.find(({ path }) =>
+  const route = endpoints?.find(({ path }) =>
     matchPath(pathname, { path, exact: true })
   )
 
