@@ -911,6 +911,7 @@ BIN_FILES="src/nebula/oned \
            src/cli/onevntemplate \
            src/cli/onehook \
            src/onedb/onedb \
+           share/scripts/qemu-kvm-one-gen \
            share/scripts/one"
 
 #-------------------------------------------------------------------------------

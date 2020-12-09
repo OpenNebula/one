@@ -1,0 +1,120 @@
+#!/bin/sh
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+set -e
+
+CMD=$(basename ${0})
+
+# file path to the new qemu-kvm symlink
+QEMU_ONE="/usr/bin/qemu-kvm-one"
+
+#
+# functions
+#
+
+print_usage()
+{
+    cat <<EOF
+NAME:
+    ${CMD} - System agnostic QEMU/KVM symlink generator
+
+    It will try to find a qemu-kvm binary in the system from a list of known
+    paths and if successful - it will create a proper symlink:
+        '${QEMU_ONE}'
+
+USAGE:
+    ${CMD} [-f|--force]
+        Find the system QEMU binary and create the symlink
+
+        -f|--force: This option will overwrite existing symlink or file
+
+    ${CMD} -h|--help
+        Print this help
+EOF
+}
+
+#
+# main
+#
+
+FORCE_CREATE=
+case "$1" in
+    '')
+        :
+        ;;
+    -h|--help)
+        print_usage
+        exit 0
+        ;;
+    -f|--force)
+        FORCE_CREATE=yes
+        ;;
+    *)
+        echo "ERROR: ${CMD}: Unknown option '${1}' !" >&2
+        print_usage >&2
+        exit 1
+        ;;
+esac
+
+# find cpu arch or default to x86_64
+if command -v arch >/dev/null 2>&1 ; then
+    ARCH=$(arch)
+else
+    ARCH="x86_64"
+fi
+
+# verify that symlink is not already created
+if [ -L "${QEMU_ONE}" ] ; then
+    # symlink already exists
+
+    qemu_target=$(readlink "${QEMU_ONE}")
+
+    if [ -e "${qemu_target}" ] && [ -z "${FORCE_CREATE}" ] ; then
+        # symlink is valid
+        exit 0
+    fi
+elif [ -e "${QEMU_ONE}" ] ; then
+    # there is a file of the same name and it is not a symlink
+
+    if [ -z "${FORCE_CREATE}" ] ; then
+        echo "ERROR: ${CMD}: File '${QEMU_ONE}' already exists but it is not a symlink !" >&2
+        exit 1
+    else
+        # --force is used
+        rm -f "${QEMU_ONE}"
+    fi
+fi
+
+# search the known paths for qemu binary
+#
+# NOTE: you can add new supported paths here in the future
+for QEMU_BIN in \
+    /usr/libexec/qemu-kvm \
+    /usr/bin/qemu-kvm \
+    /usr/bin/qemu-system-${ARCH} \
+    ;
+do
+    if [ -e "${QEMU_BIN}" ] ; then
+        ln -s ${FORCE_CREATE:+-f} "${QEMU_BIN}" "${QEMU_ONE}"
+        exit 0
+    fi
+done
+
+# no qemu binary found -> we signal error and exit
+echo "ERROR: ${CMD}: No qemu kvm binary found !" >&2
+exit 1
