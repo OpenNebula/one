@@ -15,12 +15,13 @@
 
 import React, { useContext, useState, useEffect, createContext } from 'react'
 import PropTypes from 'prop-types'
+import root from 'window-or-global'
 import { Select } from '@material-ui/core'
 import { sprintf } from 'sprintf-js'
 import { DEFAULT_LANGUAGE, LANGUAGES_URL } from 'client/constants'
 
 const TranslateContext = createContext()
-let languageScript = document?.createElement('script')
+let languageScript = root.document?.createElement('script')
 
 const GenerateScript = (
   language = DEFAULT_LANGUAGE,
@@ -28,14 +29,14 @@ const GenerateScript = (
   setHash = () => undefined
 ) => {
   try {
-    const script = window.document.createElement('script')
+    const script = root.document.createElement('script')
     script.src = `${LANGUAGES_URL}/${language}.js`
     script.async = true
     script.onload = () => {
       setLang(language)
-      setHash(window.locale)
+      setHash(root.locale)
     }
-    window.document.body.appendChild(script)
+    root.document.body.appendChild(script)
     languageScript = script
   } catch (error) {
     console.warn('Error while generating script language')
@@ -43,7 +44,7 @@ const GenerateScript = (
 }
 
 const RemoveScript = () => {
-  window.document.body.removeChild(languageScript)
+  root.document.body.removeChild(languageScript)
 }
 
 const TranslateProvider = ({ children }) => {
@@ -104,7 +105,7 @@ const Tr = (str = '') => {
 
 const SelectTranslate = () => {
   const context = useContext(TranslateContext)
-  const languages = Array.isArray(window?.langs) ? window?.langs : []
+  const languages = Array.isArray(root?.langs) ? root?.langs : []
 
   const handleChange = (e, changeLang) => {
     if (e?.target?.value && typeof changeLang === 'function') {
