@@ -76,7 +76,7 @@ begin
 
     one       = OpenNebula::Client.new
     provision = OneProvision::Provision.new_with_id(provision_id, one)
-    rc        = provision.info(true)
+    rc        = provision.info
 
     if OpenNebula.is_error?(rc)
         STDERR.puts rc.message
