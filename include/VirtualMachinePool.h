@@ -282,6 +282,8 @@ public:
      *  added to the query as well as a time frame.
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param time_start start date to include history record
+     *  @param time_end end date to include history record
      *
      *  @return 0 on success
      */
@@ -290,6 +292,22 @@ public:
                   int                time_start,
                   int                time_end);
 
+    /**
+     *  Dumps the VM accounting information in XML format. Faster version,
+     *  which doesn't allow filters, except time. Allows paging.
+     *  @param oss the output stream to dump the pool contents
+     *  @param time_start start date to include history record
+     *  @param time_end end date to include history record
+     *  @param sid first element used for pagination
+     *  @param rows number of records to retrieve, -1 to disable
+     *
+     *  @return 0 on success
+     */
+    int dump_acct(std::string&       oss,
+                  int                time_start,
+                  int                time_end,
+                  int                sid = 0,
+                  int                rows = -1);
     /**
      *  Dumps the VM showback information in XML format. A filter can be also
      *  added to the query as well as a time frame.

@@ -377,6 +377,17 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         object->set_group(ngid, ngname);
     }
 
+    if (auth_object == PoolObjectSQL::VM)
+    {
+        VirtualMachine* vm = static_cast<VirtualMachine*>(object.get());
+
+        if (vm->hasHistory())
+        {
+            vm->set_vm_info();
+            static_cast<VirtualMachinePool*>(pool)->update_history(vm);
+        }
+    }
+
     pool->update(object.get());
 
     object.reset();
