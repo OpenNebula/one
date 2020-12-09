@@ -1,20 +1,18 @@
-import React, { memo, useState, useEffect } from 'react'
+import React, { memo, useState, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Avatar } from '@material-ui/core'
 import ProviderIcon from '@material-ui/icons/Public'
 import ProvisionIcon from '@material-ui/icons/Cloud'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import Action from 'client/components/Cards/SelectCard/Action'
-import { IMAGES_URL } from 'client/constants'
+import { isExternalURL } from 'client/utils'
+import { IMAGES_URL, DEFAULT_IMAGE } from 'client/constants'
 
 const ProvisionCard = memo(
-  ({ value, isSelected, handleClick, isProvider, imgAsAvatar, actions }) => {
-    const DEFAULT_IMAGE = isProvider ? 'provider.webp' : 'provision.webp'
-
+  ({ value, isSelected, handleClick, isProvider, actions }) => {
     const [image, setImage] = useState(undefined)
-    const { ID, NAME, TEMPLATE: { PLAIN = '{}' } } = value
+    const { NAME, TEMPLATE: { PLAIN = '{}' } } = value
 
     useEffect(() => {
       try {
@@ -26,32 +24,24 @@ const ProvisionCard = memo(
       }
     }, [])
 
-    const isExternalURL = RegExp(/^(http|https):/g).test(image)
+    const onError = evt => { evt.target.src = DEFAULT_IMAGE }
 
-    const onError = evt => {
-      evt.target.src = `${IMAGES_URL}/${DEFAULT_IMAGE}`
-    }
+    const imgSource = useMemo(() =>
+      isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
+    , [image])
 
     return (
       <SelectCard
-        title={`${ID} - ${NAME}`}
+        title={NAME}
         isSelected={isSelected}
         handleClick={handleClick}
         action={actions?.map(action => <Action key={action?.cy} {...action} />)}
         icon={isProvider ? <ProviderIcon /> : <ProvisionIcon />}
-        {...(imgAsAvatar
-          ? {
-            icon: image && (
-              <Avatar
-                src={isExternalURL ? image : `${IMAGES_URL}/${image}`}
-                variant="rounded"
-                style={{ width: 100, height: 80 }}
-                imgProps={{ onError }}
-              />
-            )
-          }
-          : { mediaProps: { component: 'img', image, onError } }
-        )}
+        mediaProps={{
+          component: 'img',
+          image: imgSource,
+          onError
+        }}
       />
     )
   }, (prev, next) => prev.isSelected === next.isSelected
@@ -72,7 +62,6 @@ ProvisionCard.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   isProvider: PropTypes.bool,
-  imgAsAvatar: PropTypes.bool,
   actions: PropTypes.arrayOf(
     PropTypes.shape({
       handleClick: PropTypes.func.isRequired,
@@ -87,7 +76,6 @@ ProvisionCard.defaultProps = {
   isSelected: undefined,
   handleClick: undefined,
   isProvider: false,
-  imgAsAvatar: false,
   actions: undefined
 }
 

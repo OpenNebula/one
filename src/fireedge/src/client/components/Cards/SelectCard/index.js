@@ -3,51 +3,14 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import {
-  makeStyles, Card, CardActionArea, CardHeader, CardActions, CardMedia
+  Card, CardActionArea, CardHeader, CardActions, CardMedia
 } from '@material-ui/core'
 import { Skeleton } from '@material-ui/lab'
 
 import useNearScreen from 'client/hooks/useNearScreen'
 import ConditionalWrap from 'client/components/HOC/ConditionalWrap'
 import Action from 'client/components/Cards/SelectCard/Action'
-
-const useStyles = makeStyles(theme => ({
-  root: { height: '100%' },
-  selected: {
-    color: theme.palette.secondary.contrastText,
-    backgroundColor: theme.palette.secondary.main,
-    '& .badge': {
-      color: theme.palette.secondary.main,
-      backgroundColor: theme.palette.secondary.contrastText
-    },
-    '& $subheader': {
-      color: 'inherit'
-    }
-  },
-  actionArea: {
-    height: '100%',
-    minHeight: ({ minHeight = 140 }) => minHeight
-  },
-  mediaImage: {
-    height: ({ mediaHeight = 140 }) => mediaHeight
-  },
-  headerAvatar: {
-    display: 'flex',
-    color: theme.palette.primary.contrastText
-  },
-  headerContent: { overflowX: 'hidden' },
-  header: {
-    color: theme.palette.primary.contrastText
-  },
-  subheader: {
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'initial',
-    display: '-webkit-box',
-    lineClamp: 2,
-    boxOrient: 'vertical'
-  }
-}))
+import selectCardStyles from 'client/components/Cards/SelectCard/styles'
 
 const SelectCard = memo(({
   stylesProps,
@@ -65,7 +28,7 @@ const SelectCard = memo(({
   observerOff,
   children
 }) => {
-  const classes = useStyles(stylesProps)
+  const classes = selectCardStyles(stylesProps)
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
@@ -96,7 +59,7 @@ const SelectCard = memo(({
             }
           >
             {/* CARD HEADER */}
-            <CardHeader
+            {(title || subheader || icon || action) && <CardHeader
               action={action}
               avatar={icon}
               classes={{
@@ -118,7 +81,7 @@ const SelectCard = memo(({
                 title: subheader
               }}
               {...cardHeaderProps}
-            />
+            />}
 
             {/* CARD CONTENT */}
             {children}
@@ -128,12 +91,15 @@ const SelectCard = memo(({
               <ConditionalWrap
                 condition={handleClick && action}
                 wrap={children =>
-                  <CardActionArea onClick={handleClick}>
+                  <CardActionArea
+                    className={classes.mediaActionArea}
+                    onClick={handleClick}
+                  >
                     {children}
                   </CardActionArea>
                 }
               >
-                <CardMedia className={classes.mediaImage} {...mediaProps} />
+                <CardMedia className={classes.media} {...mediaProps} />
               </ConditionalWrap>
             )}
 

@@ -47,7 +47,7 @@ function ProviderCreateForm () {
     const providerTemplate = providersTemplates
       .find(({ name }) => name === providerSelected) ?? {}
 
-    if (!providerSelected) {
+    if (!providerTemplate) {
       showError({
         message: `
           Cannot found provider template (${providerSelected}),
@@ -56,15 +56,15 @@ function ProviderCreateForm () {
       history.push(PATH.PROVISIONS.LIST)
     }
 
+    const { plain, location_key: locationKey } = providerTemplate
+
     const formatData = {
       ...(!isUpdate && { name: `${providerSelected}_${locationSelected}` }),
-      ...(providerTemplate?.image && {
-        plain: { image: providerTemplate.image }
-      }),
+      ...(plain && { plain }),
       provider: providerSelected,
       connection: {
         ...connection,
-        [providerTemplate.location_key]: locationSelected
+        [locationKey]: locationSelected
       },
       registration_time: time
     }

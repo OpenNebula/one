@@ -4,12 +4,16 @@ import PropTypes from 'prop-types'
 import { makeStyles, Avatar, Chip, Box, Typography } from '@material-ui/core'
 
 import SelectCard from 'client/components/Cards/SelectCard'
-import StatusBadge from 'client/components/StatusBadge'
+import { StatusBadge } from 'client/components/Status'
 import Host from 'client/constants/host'
 
 const useStyles = makeStyles(theme => ({
   title: { display: 'flex', gap: '8px' },
-  avatar: { color: theme.palette.primary.contrastText },
+  avatar: {
+    width: '5ch',
+    height: '5ch',
+    color: theme.palette.primary.contrastText
+  },
   card: { backgroundColor: theme.palette.primary.main }
 }))
 

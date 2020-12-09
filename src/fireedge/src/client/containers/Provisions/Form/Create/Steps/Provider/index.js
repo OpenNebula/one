@@ -50,7 +50,6 @@ const Provider = () => ({
           const isSelected = data?.some(selected => selected === NAME)
 
           return {
-            imgAsAvatar: true,
             isProvider: true,
             isSelected,
             handleClick: () =>

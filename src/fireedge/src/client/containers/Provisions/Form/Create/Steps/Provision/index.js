@@ -54,6 +54,7 @@ const Provision = () => ({
 
           return {
             isSelected,
+            title: name,
             handleClick: () => handleClick(name, provider, isSelected)
           }
         }}
