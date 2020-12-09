@@ -28,6 +28,7 @@ export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
 export const WEBSOCKET_URL = `${APP_URL}/websocket`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`
 export const IMAGES_URL = `${STATIC_FILES_URL}/images`
+export const DEFAULT_IMAGE = `${STATIC_FILES_URL}/images/default.webp`
 export const FONTS_URL = `${STATIC_FILES_URL}/fonts`
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 

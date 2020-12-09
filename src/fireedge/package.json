@@ -13,7 +13,8 @@
     "cypress:run": "cypress run --headless --browser chrome --spec \"cypress/integration/**/*.spec.js\"",
     "pot": "node potfile.js",
     "po2json": "node po2json.js",
-    "lint": "eslint ./src/client/"
+    "lint": "eslint ./src/client/",
+    "lint-fix": "eslint ./src/client/ --fix"
   },
   "author": "opennebula.io",
   "license": "ISC",

@@ -1,11 +1,12 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListItem, Typography, Chip, Grid, Paper, Divider } from '@material-ui/core'
+import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
 import { CheckBox, CheckBoxOutlineBlank } from '@material-ui/icons'
 import clsx from 'clsx'
 
 import useStyles from 'client/containers/ApplicationsInstances/DialogInfo/styles'
+import { StatusChip } from 'client/components/Status'
 import { APPLICATION_STATES } from 'client/constants/flow'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -53,11 +54,9 @@ const InfoTab = memo(({ info }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.State)}</Typography>
-              <Chip
-                size="small"
-                label={stateInfo?.name}
-                style={{ backgroundColor: stateInfo?.color }}
-              />
+              <StatusChip stateColor={stateInfo?.color}>
+                {stateInfo?.name}
+              </StatusChip>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.ReadyStatusGate)}</Typography>

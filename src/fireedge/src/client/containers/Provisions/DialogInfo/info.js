@@ -1,11 +1,12 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListItem, Typography, Grid, Paper, Divider, Chip } from '@material-ui/core'
+import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
 import { CheckBox, CheckBoxOutlineBlank } from '@material-ui/icons'
 import clsx from 'clsx'
 
 import useStyles from 'client/containers/Provisions/DialogInfo/styles'
+import { StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
 import { T, PROVISIONS_STATES } from 'client/constants'
 
@@ -64,11 +65,9 @@ const Info = memo(({ data }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.State)}</Typography>
-              <Chip
-                size="small"
-                label={stateInfo?.name}
-                style={{ backgroundColor: stateInfo?.color }}
-              />
+              <StatusChip stateColor={stateInfo?.color}>
+                {stateInfo?.name}
+              </StatusChip>
             </ListItem>
           </List>
         </Paper>

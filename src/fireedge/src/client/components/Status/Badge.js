@@ -46,7 +46,7 @@ const StatusBadge = memo(({ stateColor, children }) => {
     </Badge>
   )
 },
-(prev, next) => prev.isSelected === next.isSelected
+(prev, next) => prev.stateColor === next.stateColor
 )
 
 StatusBadge.propTypes = {

@@ -1,7 +1,7 @@
 export default {
   palette: {
     type: 'dark',
-    common: { black: '#000', white: '#ffffff' },
+    common: { black: '#000', white: '#fff' },
     background: {
       paper: '#2a2d3d',
       default: '#222431'

@@ -6,7 +6,11 @@ import SelectCard from 'client/components/Cards/SelectCard'
 
 const useStyles = makeStyles(theme => ({
   title: { display: 'flex', gap: '8px' },
-  avatar: { color: theme.palette.primary.contrastText },
+  avatar: {
+    width: '5ch',
+    height: '5ch',
+    color: theme.palette.primary.contrastText
+  },
   card: { backgroundColor: theme.palette.primary.main }
 }))
 
