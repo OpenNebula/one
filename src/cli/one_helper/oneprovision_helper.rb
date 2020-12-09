@@ -21,7 +21,7 @@ require 'oneprovision'
 # OneProvision Helper
 class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
-    TAG = OneProvision::ProvisionElement::TEMPLATE_TAG
+    TAG = OneProvision::Provision::TEMPLATE_TAG
 
     ########################################################################
     # Global Options
@@ -419,7 +419,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     def configure(id, force)
         provision = OneProvision::Provision.new_with_id(id, @client)
 
-        rc = provision.info(true)
+        rc = provision.info
 
         return rc if OpenNebula.is_error?(rc)
 
@@ -434,7 +434,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     def delete(id, cleanup, timeout)
         provision = OneProvision::Provision.new_with_id(id, @client)
 
-        rc = provision.info(true)
+        rc = provision.info
 
         return rc if OpenNebula.is_error?(rc)
 
@@ -460,7 +460,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
         provision = OneProvision::Provision.new_with_id(p_id, @client)
 
-        rc = provision.info(true)
+        rc = provision.info
 
         return rc if OpenNebula.is_error?(rc)
 
@@ -522,7 +522,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
                 provision = OneProvision::Provision.new_with_id(p_id, @client)
 
-                rc = provision.info(true)
+                rc = provision.info
 
                 return rc if OpenNebula.is_error?(rc)
 

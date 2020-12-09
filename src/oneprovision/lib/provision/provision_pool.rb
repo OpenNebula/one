@@ -29,7 +29,7 @@ module OneProvision
 
         def factory(element_xml)
             provision = OneProvision::Provision.new(element_xml, @client)
-            provision.info(true)
+            provision.info
             provision.load_body
             provision
         end

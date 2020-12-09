@@ -17,10 +17,10 @@ require 'opennebula/document_json'
 module OneProvision
 
     # Provision class as wrapper of DocumentJSON
-    class Provision < ProvisionElement
+    class Provision < OpenNebula::DocumentJSON
 
         # @idx [Integer] Index used when creating multiple objects
-        attr_reader :idx
+        attr_reader :idx, :body
 
         DOCUMENT_TYPE = 103
 
@@ -71,7 +71,7 @@ module OneProvision
                 return OpenNebula::Error.new(e)
             end
 
-            super(rc, template['name'], template['plain'])
+            super(rc, template['name'])
         end
 
         # Returns provision state
@@ -157,7 +157,7 @@ module OneProvision
         #
         # @return [Array] OpenNebula objects
         def info_objects(object)
-            rc = info(true)
+            rc = info
 
             if OpenNebula.is_error?(rc)
                 raise OneProvisionLoopException, rc.message
@@ -231,7 +231,7 @@ module OneProvision
 
                 allocate(cfg, provider)
 
-                info(true)
+                info
 
                 # read provision file
                 cfg.parse(true)
@@ -355,7 +355,7 @@ module OneProvision
                 )
             end
 
-            rc = info(true)
+            rc = info
 
             return rc if OpenNebula.is_error?(rc)
 
@@ -405,7 +405,7 @@ module OneProvision
             0
         ensure
             # If provision does not exist, skip unlock
-            unlock unless OpenNebula.is_error?(info(true))
+            unlock unless OpenNebula.is_error?(info)
         end
 
         # Updates provision objects
@@ -415,7 +415,7 @@ module OneProvision
         # @param id        [String] Object ID
         # @param name      [String] Object name
         def update_objects(object, operation, id, name = nil)
-            rc = info(true)
+            rc = info
 
             return rc if OpenNebula.is_error?(rc)
 
