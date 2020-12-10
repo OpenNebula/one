@@ -40,6 +40,7 @@ msg "Database is running - continue"
 
 for envfile in \
     /var/run/one/ssh-agent.env \
+    /etc/sysconfig/oned \
     ;
 do
     if [ -f "$envfile" ] ; then
