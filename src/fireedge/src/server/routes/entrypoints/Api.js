@@ -53,7 +53,7 @@ const {
 const defaultZones = defaultOpennebulaZones
 if (
   appConfig &&
-  appConfig.xmlrpc &&
+  appConfig.one_xmlrpc &&
   Array.isArray(defaultOpennebulaZones) &&
   defaultOpennebulaZones[0] &&
   defaultOpennebulaZones[0].rpc
