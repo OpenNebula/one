@@ -55,6 +55,7 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
 }
 
 const getProvidersDefaults = (res = {}, next = () => undefined, params = {}) => {
+  const extFiles = 'yml'
   let rtn = httpInternalError
   let err = false
   const files = []
@@ -70,7 +71,7 @@ const getProvidersDefaults = (res = {}, next = () => undefined, params = {}) => 
   try {
     if (params && params.name) {
       existsFile(
-        `${path}/${`${params.name}`.toLowerCase()}.yaml`,
+        `${path}/${`${params.name}`.toLowerCase()}.${extFiles}`,
         fillData,
         () => {
           err = true
@@ -79,7 +80,7 @@ const getProvidersDefaults = (res = {}, next = () => undefined, params = {}) => 
     } else {
       getFiles(
         path,
-        'yaml'
+        extFiles
       ).map(file =>
         existsFile(file, fillData)
       )
