@@ -22,29 +22,36 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  useMediaQuery
+  useMediaQuery,
+  useScrollTrigger
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 
-import useAuth from 'client/hooks/useAuth'
-import useGeneral from 'client/hooks/useGeneral'
+import { useAuth, useGeneral } from 'client/hooks'
 import User from 'client/components/Header/User'
 import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import headerStyles from 'client/components/Header/styles'
 
-const Header = ({ title }) => {
+const Header = ({ title, scrollableContainer }) => {
   const { isOneAdmin } = useAuth()
   const { isFixMenu, fixMenu } = useGeneral()
-  const classes = headerStyles()
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
+
+  const isScroll = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 100,
+    target: scrollableContainer ?? undefined
+  })
+
+  const classes = headerStyles({ isScroll })
 
   const handleFixMenu = () => fixMenu(true)
 
   return useMemo(
     () => (
-      <AppBar position="absolute" data-cy="header">
+      <AppBar className={classes.appbar} data-cy="header" elevation={1}>
         <Toolbar>
           {!isUpLg && (
             <IconButton onClick={handleFixMenu} edge="start" color="inherit">
@@ -57,7 +64,10 @@ const Header = ({ title }) => {
               className={classes.title}
               data-cy="header-title"
             >
-              {title}
+              {'One'}
+              <span className={classes.app}>
+                {title}
+              </span>
             </Typography>
           )}
           <Box flexGrow={isMobile ? 1 : 0} textAlign="end">

@@ -19,10 +19,11 @@ const { tmpPath } = require('server/utils/constants/defaults')
 
 const {
   ok,
+  notFound,
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, existsFile, parsePostData } = require('server/utils/server')
-const { executeCommand, getFiles, createTemporalFile, createYMLContent, removeFile } = require('./functions')
+const { executeCommand, getFiles, createTemporalFile, createYMLContent, removeFile, getEndpoint } = require('./functions')
 const { provider, providerUpdate } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -33,8 +34,9 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
   const { user, password } = userData
   let rtn = httpInternalError
   if (user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    let paramsCommand = ['list', ...authCommand, '--json']
+    let paramsCommand = ['list', ...authCommand, ...endpoint, '--json']
     if (params && params.id) {
       paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, '--json']
     }
@@ -52,39 +54,37 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
   next()
 }
 
-const getProvidersTemplates = (res = {}, next = () => undefined, params = {}) => {
+const getProvidersDefaults = (res = {}, next = () => undefined, params = {}) => {
   let rtn = httpInternalError
+  let err = false
   const files = []
   const path = `${global.ETC_CPI}/providers`
+
   const fillData = (content = '') => {
-    let data
     try {
-      data = parse(content)
+      files.push(parse(content))
     } catch (error) {
-      data = undefined
-    }
-    if (data) {
-      files.push(data)
     }
   }
+
   try {
-    let pass = true
     if (params && params.name) {
       existsFile(
         `${path}/${`${params.name}`.toLowerCase()}.yaml`,
         fillData,
         () => {
-          pass = false
+          err = true
         }
       )
     } else {
-      getFiles(path, 'yaml', () => { pass = false }).map(file =>
+      getFiles(
+        path,
+        'yaml'
+      ).map(file =>
         existsFile(file, fillData)
       )
     }
-    if (pass) {
-      rtn = httpResponse(ok, files)
-    }
+    rtn = err ? notFound : httpResponse(ok, files)
   } catch (error) {
     rtn = httpResponse(internalServerError, '', error)
   }
@@ -97,6 +97,7 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
+    const endpoint = getEndpoint()
     const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
     const valSchema = schemaValidator.validate(resource, provider)
@@ -105,7 +106,7 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
       if (content) {
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
-          const paramsCommand = ['create', file.path, ...authCommand]
+          const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(command, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.data) {
@@ -141,13 +142,14 @@ const updateProviders = (res = {}, next = () => undefined, params = {}, userData
   let rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
+    const endpoint = getEndpoint()
     const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
     const valSchema = schemaValidator.validate(resource, providerUpdate)
     if (valSchema.valid) {
       const file = createTemporalFile(tmpPath, 'json', JSON.stringify(resource))
       if (file && file.name && file.path) {
-        const paramsCommand = ['update', params.id, file.path, ...authCommand]
+        const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
         const executedCommand = executeCommand(command, paramsCommand)
         res.locals.httpCode = httpResponse(internalServerError)
         if (executedCommand && executedCommand.success) {
@@ -175,8 +177,9 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.id && user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand]
+    const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
     const executedCommand = executeCommand(command, paramsCommand)
     const data = executedCommand.data || ''
     try {
@@ -197,7 +200,7 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
 
 const providerFunctionsApi = {
   getListProviders,
-  getProvidersTemplates,
+  getProvidersDefaults,
   createProviders,
   updateProviders,
   deleteProvider

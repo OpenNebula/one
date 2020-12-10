@@ -3,19 +3,26 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, Backdrop, CircularProgress } from '@material-ui/core'
 
-import useFetch from 'client/hooks/useFetch'
+import { useFetch } from 'client/hooks'
 import { DialogConfirmation } from 'client/components/Dialogs'
+import clsx from 'clsx'
 
 const useStyles = makeStyles(theme => ({
   backdrop: {
-    zIndex: theme.zIndex.appBar,
+    zIndex: theme.zIndex.drawer + 1,
     color: theme.palette.common.white
+  },
+  withTabs: {
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column'
   }
 }))
 
-const DialogRequest = ({ request, dialogProps, children }) => {
+const DialogRequest = ({ withTabs, request, dialogProps, children }) => {
   const classes = useStyles()
-  const { data, fetchRequest, loading, error } = useFetch(request)
+  const methods = useFetch(request)
+  const { data, fetchRequest, loading, error } = methods
 
   useEffect(() => { fetchRequest() }, [])
 
@@ -29,17 +36,28 @@ const DialogRequest = ({ request, dialogProps, children }) => {
     )
   }
 
+  if (withTabs) {
+    const { className, ...contentProps } = dialogProps.contentProps ?? {}
+
+    dialogProps.contentProps = {
+      className: clsx(classes.withTabs, className),
+      ...contentProps
+    }
+  }
+
   return (
     <DialogConfirmation {...dialogProps}>
-      {children({ data })}
+      {children(methods)}
     </DialogConfirmation>
   )
 }
 
 DialogRequest.propTypes = {
+  withTabs: PropTypes.bool,
   request: PropTypes.func.isRequired,
   dialogProps: PropTypes.shape({
     title: PropTypes.string.isRequired,
+    contentProps: PropTypes.objectOf(PropTypes.any),
     handleAccept: PropTypes.func,
     acceptButtonProps: PropTypes.objectOf(PropTypes.any),
     handleCancel: PropTypes.func,
@@ -50,9 +68,11 @@ DialogRequest.propTypes = {
 }
 
 DialogRequest.defaultProps = {
+  withTabs: false,
   request: () => undefined,
   dialogProps: {
     title: undefined,
+    contentProps: {},
     handleAccept: undefined,
     acceptButtonProps: undefined,
     handleCancel: undefined,

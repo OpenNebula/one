@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { string, func, shape, object } from 'prop-types'
 
 import { useForm, Controller } from 'react-hook-form'
@@ -10,7 +10,7 @@ import {
   Checkbox
 } from '@material-ui/core'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { requestData, requestParams } from 'client/utils'
 
 const ResponseForm = ({
@@ -77,7 +77,7 @@ const ResponseForm = ({
           </Grid>
         ))}
         <Grid item xs={12}>
-          <ButtonSubmit isSubmitting={formState.isSubmitting} />
+          <SubmitButton isSubmitting={formState.isSubmitting} />
         </Grid>
       </Grid>
     </>

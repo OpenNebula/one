@@ -33,17 +33,18 @@ export default function useOpennebula () {
   // --------------------------------------------
 
   const getProvidersTemplates = useCallback(
-    ({ end, start } = { end: -1, start: -1 }) =>
+    () =>
       serviceProvision
-        .getProvidersTemplates({ filter, end, start })
+        .getProvidersTemplates({ filter })
         .then(doc => {
           dispatch(setProvidersTemplates(doc))
           return doc
         })
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET providers templates'))
+          throw err
         }),
-    [dispatch, filter, providersTemplates]
+    [dispatch, filter]
   )
 
   // --------------------------------------------
@@ -54,6 +55,7 @@ export default function useOpennebula () {
     ({ id }) =>
       serviceProvision.getProvider({ id }).catch(err => {
         dispatch(enqueueError(err ?? `Error GET (${id}) provider`))
+        throw err
       }),
     [dispatch]
   )
@@ -77,9 +79,7 @@ export default function useOpennebula () {
     ({ data }) =>
       serviceProvision
         .createProvider({ data })
-        .then(id => dispatch(
-          enqueueSuccess(`Template created - ID: ${id}`))
-        )
+        .then(id => dispatch(enqueueSuccess(`Provider created - ID: ${id}`)))
         .catch(err => dispatch(enqueueError(err ?? 'Error CREATE provider')))
     , [dispatch, providers]
   )
@@ -88,9 +88,7 @@ export default function useOpennebula () {
     ({ id, data }) =>
       serviceProvision
         .updateProvider({ id, data })
-        .then(() => dispatch(
-          enqueueSuccess(`Template updated - ID: ${id}`))
-        )
+        .then(() => dispatch(enqueueSuccess(`Provider updated - ID: ${id}`)))
         .catch(err => dispatch(enqueueError(err ?? 'Error UPDATE provider')))
     , [dispatch, providers]
   )
@@ -100,7 +98,7 @@ export default function useOpennebula () {
       serviceProvision
         .deleteProvider({ id })
         .then(() => {
-          dispatch(enqueueSuccess(`Template deleted - ID: ${id}`))
+          dispatch(enqueueSuccess(`Provider deleted - ID: ${id}`))
           dispatch(setProviders(providers.filter(({ ID }) => ID !== id)))
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provider')))
@@ -110,14 +108,6 @@ export default function useOpennebula () {
   // --------------------------------------------
   // PROVISIONS TEMPLATES REQUESTS
   // --------------------------------------------
-
-  const getProvisionTemplate = useCallback(
-    ({ id }) =>
-      serviceProvision.getProvisionTemplate({ id }).catch(err => {
-        dispatch(enqueueError(err ?? `Error GET (${id}) provision template`))
-      }),
-    [dispatch]
-  )
 
   const getProvisionsTemplates = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
@@ -164,15 +154,83 @@ export default function useOpennebula () {
     ({ data }) =>
       serviceProvision
         .createProvision({ data })
-        .then(doc => dispatch(
-          enqueueSuccess(`Provision created - ID: ${doc?.ID}`))
-        )
+        .then(doc => {
+          dispatch(enqueueSuccess('Provision created'))
+          return doc.data
+        })
         .catch(err => {
-          dispatch(
-            enqueueError(err?.message ?? 'Error CREATE Provision')
-          )
+          dispatch(enqueueError(err?.message ?? 'Error CREATE Provision'))
         }),
     [dispatch, provisions]
+  )
+
+  const deleteProvision = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteProvision({ id })
+        .then(() => dispatch(enqueueSuccess(`Provision deleted - ID: ${id}`)))
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provision')))
+    , [dispatch, provisions]
+  )
+
+  const getProvisionLog = useCallback(
+    ({ id }) =>
+      serviceProvision.getProvisionLog({ id }).catch(err => {
+        dispatch(enqueueError(err ?? `Error GET (${id}) provision log`))
+      }),
+    [dispatch]
+  )
+
+  // --------------------------------------------
+  // INFRASTRUCTURES REQUESTS
+  // --------------------------------------------
+
+  const deleteDatastore = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteDatastore({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`Datastore deleted - ID: ${doc}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE datastore')))
+    , [dispatch, provisions]
+  )
+
+  const deleteVNetwork = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteVNetwork({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`VNetwork deleted - ID: ${id}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE network')))
+    , [dispatch, provisions]
+  )
+
+  const deleteHost = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .deleteHost({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`Host deleted - ID: ${id}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE host')))
+    , [dispatch, provisions]
+  )
+
+  const configureHost = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .configureHost({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`Host configuring - ID: ${id}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE host')))
+    , [dispatch, provisions]
   )
 
   return {
@@ -187,12 +245,18 @@ export default function useOpennebula () {
     deleteProvider,
 
     provisionsTemplates,
-    getProvisionTemplate,
     getProvisionsTemplates,
 
     provisions,
     getProvision,
     getProvisions,
-    createProvision
+    createProvision,
+    deleteProvision,
+    getProvisionLog,
+
+    deleteDatastore,
+    deleteVNetwork,
+    deleteHost,
+    configureHost
   }
 }

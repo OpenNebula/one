@@ -32,9 +32,9 @@ const main = (app = {}) => {
           const queryZone = server.handshake.query.zone
           const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'
           const dataZone = getDataZone(zone)
-          if (dataZone && dataZone.ZEROMQ) {
+          if (dataZone && dataZone.zeromq) {
             const zeromqSock = socketZeroMQ('sub')
-            zeromqSock.connect(dataZone.ZEROMQ)
+            zeromqSock.connect(dataZone.zeromq)
             zeromqSock.subscribe('')
             server.on('disconnect', function () {
               zeromqSock.close()

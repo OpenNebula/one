@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 
 import { Paper, Box, Container, LinearProgress, useMediaQuery } from '@material-ui/core'
 
-import useAuth from 'client/hooks/useAuth'
+import { useAuth } from 'client/hooks'
 import Logo from 'client/icons/logo'
 import { ONEADMIN_ID } from 'client/constants'
 
@@ -65,7 +65,7 @@ function Login () {
       maxWidth={isMobile ? 'lg' : 'xs'}
       className={classes.root}
     >
-      {isLoading && <LinearProgress className={classes.loading} />}
+      {isLoading && <LinearProgress color='secondary' className={classes.loading} />}
       <Paper variant="outlined" className={classes.paper}>
         {useMemo(() => (
           <Logo width="100%" height={100} withText viewBox="140 140 380 360" />

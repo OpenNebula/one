@@ -8,11 +8,9 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
-import { PATH } from 'client/router/fireedge'
-import useFetch from 'client/hooks/useFetch'
-import useApplication from 'client/hooks/useApplication'
-import mapApplicationToForm from 'client/utils/parser/toApplicationForm'
-import mapFormToApplication from 'client/utils/parser/toApplicationTemplate'
+import { PATH } from 'client/router/flow'
+import { useApplication, useFetch } from 'client/hooks'
+import { parseApplicationToForm, parseFormToApplication } from 'client/utils'
 
 function ApplicationsTemplatesCreateForm () {
   const history = useHistory()
@@ -34,7 +32,7 @@ function ApplicationsTemplatesCreateForm () {
   })
 
   const onSubmit = formData => {
-    const application = mapFormToApplication(formData)
+    const application = parseFormToApplication(formData)
 
     if (id) {
       updateApplicationTemplate({ id, data: application }).then(
@@ -52,7 +50,7 @@ function ApplicationsTemplatesCreateForm () {
   }, [id])
 
   useEffect(() => {
-    const formData = data ? mapApplicationToForm(data) : {}
+    const formData = data ? parseApplicationToForm(data) : {}
     methods.reset(resolvers().cast(formData), { errors: false })
   }, [data])
 
@@ -61,7 +59,7 @@ function ApplicationsTemplatesCreateForm () {
   }
 
   return (id && !data) || loading ? (
-    <LinearProgress />
+    <LinearProgress color='secondary' />
   ) : (
     <Container
       disableGutters

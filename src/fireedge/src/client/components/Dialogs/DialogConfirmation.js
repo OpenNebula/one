@@ -10,14 +10,15 @@ import {
   DialogActions
 } from '@material-ui/core'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton'
-import { Cancel, Accept } from 'client/constants/translates'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const DialogConfirmation = memo(
   ({
     open,
     title,
+    contentProps,
     handleAccept,
     acceptButtonProps,
     handleCancel,
@@ -43,7 +44,7 @@ const DialogConfirmation = memo(
         }}
       >
         <DialogTitle>{title}</DialogTitle>
-        <DialogContent dividers>
+        <DialogContent dividers {...contentProps}>
           {children}
         </DialogContent>
         {(handleCancel || handleAccept) && (
@@ -52,17 +53,17 @@ const DialogConfirmation = memo(
               <Button
                 onClick={handleCancel}
                 data-cy="dg-cancel-button"
-                color="primary"
                 {...cancelButtonProps}
               >
-                {Tr(Cancel)}
+                {Tr(T.Cancel)}
               </Button>
             )}
             {handleAccept && (
-              <ButtonSubmit
+              <SubmitButton
+                color='secondary'
                 data-cy="dg-accept-button"
                 onClick={handleAccept}
-                label={Tr(Accept)}
+                label={Tr(T.Accept)}
                 {...acceptButtonProps}
               />
             )}
@@ -76,6 +77,7 @@ const DialogConfirmation = memo(
 DialogConfirmation.propTypes = {
   open: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
+  contentProps: PropTypes.objectOf(PropTypes.any),
   handleAccept: PropTypes.func,
   acceptButtonProps: PropTypes.objectOf(PropTypes.any),
   handleCancel: PropTypes.func,
@@ -90,6 +92,7 @@ DialogConfirmation.propTypes = {
 DialogConfirmation.defaultProps = {
   open: true,
   title: 'Confirmation dialog',
+  contentProps: undefined,
   handleAccept: undefined,
   acceptButtonProps: undefined,
   handleCancel: undefined,

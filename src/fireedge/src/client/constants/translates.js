@@ -14,10 +14,15 @@ module.exports = {
   Submit: 'Submit',
   Show: 'Show',
   ShowAll: 'Show all',
-  SelectGroup: 'Select a group',
   Remove: 'Remove',
   Delete: 'Delete',
+  Edit: 'Edit',
   Info: 'Info',
+  Clone: 'Clone',
+  Configuration: 'Configuration',
+  Select: 'Select',
+  SelectGroup: 'Select a group',
+  SelectRequest: 'Select request',
 
   /* login */
   Username: 'Username',
@@ -29,24 +34,94 @@ module.exports = {
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneProvision: 'Cannot connect to OneProvision server',
   NotFound: 'Not found',
+  None: 'None',
+  Empty: 'Empty',
+
+  /* steps form */
+  /* steps form - flow */
+  ApplicationOverview: 'Application Overview',
+  WhereWillItRun: 'Where will it run?',
+  ConfigureNetworking: 'Configure Networking',
+  TierDefinition: 'Tier Definition',
+  ConfigureTiers: 'Configure Tiers',
+  ConfigurePolicies: 'Configure policies',
+  ConfigureTemplate: 'Configure template',
+  /* steps form - provision */
+  ConfigureConnection: 'Configure connection',
+  Location: 'Location',
+  ProviderTemplate: 'Provider template',
+  ProvisionTemplate: 'Provision template',
+  ConfigureInputs: 'Configure inputs',
 
   /* sections */
   Dashboard: 'Dashboard',
   Settings: 'Settings',
-  ZoneLabel: 'Zone',
+  /* sections - system */
+  User: 'User',
+  Users: 'Users',
+  Group: 'Group',
+  Groups: 'Groups',
+  VDC: 'VDC',
+  VDCs: 'VDCs',
+  ACL: 'ACL',
+  ACLs: 'ACLs',
+  /* sections - infrastructure */
+  Zone: 'Zone',
+  Zones: 'Zones',
+  Cluster: 'Cluster',
+  Clusters: 'Clusters',
+  Host: 'Host',
+  Hosts: 'Hosts',
+  /* sections - network */
+  Network: 'Network',
+  Networks: 'Networks',
+  VirtualNetwork: 'Virtual network',
+  VirtualsNetworks: 'Virtuals networks',
+  NetworkTopology: 'Network topology',
+  NetworksTopologies: 'Networks topologies',
+  /* sections - storage */
+  Datastore: 'Datastore',
+  Datastores: 'Datastores',
+  Image: 'Image',
+  Images: 'Images',
+  File: 'File',
+  Files: 'Files',
+  Marketplace: 'Marketplace',
+  Marketplaces: 'Marketplaces',
+  App: 'App',
+  Apps: 'Apps',
+  /* sections - templates & instances */
+  VM: 'VM',
+  VMs: 'VMs',
+  VirtualRouter: 'VirtualRouter',
+  VirtualRouters: 'VirtualRouters',
+  VMGroup: 'VMGroup',
+  VMGroups: 'VMGroups',
+  /* sections - flow */
   ApplicationsTemplates: 'Applications templates',
   ApplicationsInstances: 'Applications instances',
-  ProviderLabel: 'Provider',
-  ProvidersLabel: 'Providers',
-  ProvisionLabel: 'Provision',
-  ProvisionsLabel: 'Provisions',
+  Tier: 'Tier',
+  Tiers: 'Tiers',
+  /* sections - provision */
+  Provider: 'Provider',
+  Providers: 'Providers',
+  Provision: 'Provision',
+  Provisions: 'Provisions',
 
   /* tabs */
   Information: 'Information',
 
   /* general schema */
   Name: 'Name',
+  State: 'State',
+  Description: 'Description',
   RegistrationTime: 'Registration time',
+  StartTime: 'Start time',
+
+  /* flow schema */
+  Strategy: 'Strategy',
+  ShutdownAction: 'Shutdown action',
+  ReadyStatusGate: 'Ready status gate',
 
   /* permissions */
   Permissions: 'Permissions',
@@ -57,7 +132,6 @@ module.exports = {
   /* ownership */
   Ownership: 'Ownership',
   Owner: 'Owner',
-  Group: 'Group',
   Other: 'Other',
 
   Language: 'Language',

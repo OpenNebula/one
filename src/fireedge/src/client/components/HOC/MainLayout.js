@@ -17,17 +17,13 @@ import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { useLocation, Redirect, matchPath } from 'react-router-dom'
 
-import useAuth from 'client/hooks/useAuth'
-import useOpennebula from 'client/hooks/useOpennebula'
-
+import { useAuth, useOpennebula } from 'client/hooks'
+import Sidebar from 'client/components/Sidebar'
+import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'
 
 const findRouteByPathname = (endpoints = [], pathname = '') => {
-  const routes = endpoints.flatMap(
-    ({ endpoint, ...item }) => endpoint ?? item
-  )
-
-  const route = routes?.find(({ path }) =>
+  const route = endpoints?.find(({ path }) =>
     matchPath(pathname, { path, exact: true })
   )
 
@@ -70,7 +66,17 @@ const MainLayout = ({ endpoints, children }) => {
     return <Redirect to={PATH.DASHBOARD} />
   }
 
-  return children
+  return (
+    <>
+      {authRoute && isLogged && (
+        <>
+          <Sidebar endpoints={ENDPOINTS} />
+          <Notifier />
+        </>
+      )}
+      {children}
+    </>
+  )
 }
 
 MainLayout.propTypes = {

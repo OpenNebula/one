@@ -2,20 +2,19 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import { useFormContext } from 'react-hook-form'
 
-import useProvision from 'client/hooks/useProvision'
-import useListForm from 'client/hooks/useListForm'
-
-import ListCards from 'client/components/List/ListCards'
+import { useProvision, useListForm } from 'client/hooks'
+import { ListCards } from 'client/components/List'
 import { EmptyCard, LocationCard } from 'client/components/Cards'
+import { T } from 'client/constants'
 
 import { STEP_ID as PROVIDER_ID } from 'client/containers/Providers/Form/Create/Steps/Provider'
-import { STEP_FORM_SCHEMA } from './schema'
+import { STEP_FORM_SCHEMA } from 'client/containers/Providers/Form/Create/Steps/Locations/schema'
 
 export const STEP_ID = 'location'
 
 const Locations = () => ({
   id: STEP_ID,
-  label: 'Location',
+  label: T.Location,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const [locationsList, setLocationsList] = useState([])
@@ -42,6 +41,7 @@ const Locations = () => ({
     return (
       <ListCards
         list={locationsList}
+        keyProp='key'
         EmptyComponent={<EmptyCard title={'Your locations list is empty'} />}
         CardComponent={LocationCard}
         cardsProps={({ value: { key } }) => {

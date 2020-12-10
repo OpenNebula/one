@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { CardContent, Typography } from '@material-ui/core'
 import ProvidersIcon from '@material-ui/icons/Public'
 
-import SelectCard from './SelectCard'
+import SelectCard from 'client/components/Cards/SelectCard'
 
 const LocationCard = memo(
   ({ value, isSelected, handleClick }) => {

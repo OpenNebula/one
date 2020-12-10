@@ -8,6 +8,7 @@ import {
 import { makeStyles, IconButton, Button, Fade } from '@material-ui/core'
 import DockerLogo from 'client/icons/docker'
 
+import { T } from 'client/constants'
 import ListTemplates from './List/Templates'
 import ListMarketApps from './List/MarketApps'
 import DockerFile from './List/Docker'
@@ -49,7 +50,7 @@ const useStyles = makeStyles(() => ({
 
 const Template = () => ({
   id: STEP_ID,
-  label: 'Template',
+  label: T.ConfigureTemplate,
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data = {}, setFormData }) => {
     const classes = useStyles()

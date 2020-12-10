@@ -24,7 +24,7 @@ const CheckboxController = memo(
                   onChange={e => onChange(e.target.checked)}
                   name={name}
                   checked={value}
-                  color="primary"
+                  color="secondary"
                   inputProps={{ 'data-cy': cy }}
                   {...fieldProps}
                 />

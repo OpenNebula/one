@@ -24,7 +24,7 @@ export default makeStyles(theme =>
     paper: {
       overflow: 'hidden',
       padding: theme.spacing(2),
-      height: 440,
+      minHeight: 440,
       [theme.breakpoints.up('xs')]: {
         display: 'flex',
         flexDirection: 'column'

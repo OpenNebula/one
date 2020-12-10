@@ -2,8 +2,9 @@ import React, { useEffect, useCallback } from 'react'
 
 import { Divider, Paper, Typography } from '@material-ui/core'
 
-import useOpennebula from 'client/hooks/useOpennebula'
+import { useOpennebula } from 'client/hooks'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { T } from 'client/constants'
 
 import { FORM_FIELDS, STEP_FORM_SCHEMA } from './schema'
 
@@ -11,7 +12,7 @@ export const STEP_ID = 'networking'
 
 const Networks = () => ({
   id: STEP_ID,
-  label: 'Configure Networking',
+  label: T.ConfigureNetworking,
   resolver: STEP_FORM_SCHEMA,
   optionsValidate: { abortEarly: false },
   content: useCallback(({ data }) => {

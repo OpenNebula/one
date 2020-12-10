@@ -13,7 +13,7 @@ import {
 import ExpandLessIcon from '@material-ui/icons/ExpandLess'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
-import useGeneral from 'client/hooks/useGeneral'
+import { useGeneral } from 'client/hooks'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import sidebarStyles from 'client/components/Sidebar/styles'
 

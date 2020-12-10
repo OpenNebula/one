@@ -16,7 +16,7 @@
 import React, { useState, useEffect, memo } from 'react'
 
 import { Button, makeStyles } from '@material-ui/core'
-import useSocket from 'client/hooks/useSocket'
+import { useSocket } from 'client/hooks'
 
 const useStyles = makeStyles(() => ({
   sticky: { position: 'sticky', top: 0, backgroundColor: '#fafafa' },

@@ -16,17 +16,17 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const HOST_ALLOCATE = 'host.allocate';
-const HOST_DELETE = 'host.delete';
-const HOST_STATUS = 'host.status';
-const HOST_UPDATE = 'host.update';
-const HOST_RENAME = 'host.rename';
-const HOST_INFO = 'host.info';
-const HOST_MONITORING = 'host.monitoring';
-const HOST_POOL_INFO = 'hostpool.info';
-const HOST_POOL_MONITORING = 'hostpool.monitoring';
+const HOST_ALLOCATE = 'host.allocate'
+const HOST_DELETE = 'host.delete'
+const HOST_STATUS = 'host.status'
+const HOST_UPDATE = 'host.update'
+const HOST_RENAME = 'host.rename'
+const HOST_INFO = 'host.info'
+const HOST_MONITORING = 'host.monitoring'
+const HOST_POOL_INFO = 'hostpool.info'
+const HOST_POOL_MONITORING = 'hostpool.monitoring'
 
 const Actions = {
   HOST_ALLOCATE,
@@ -38,7 +38,7 @@ const Actions = {
   HOST_MONITORING,
   HOST_POOL_INFO,
   HOST_POOL_MONITORING
-};
+}
 
 module.exports = {
   Actions,
@@ -156,4 +156,4 @@ module.exports = {
       params: {}
     }
   }
-};
+}

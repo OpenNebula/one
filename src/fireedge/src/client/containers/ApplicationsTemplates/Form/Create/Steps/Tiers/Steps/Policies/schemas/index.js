@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils/helpers'
+import { getValidationFromFields } from 'client/utils'
 
 import { TAB_ID as ELASTICITY_ID, ELASTICITY_TAB_SCHEMA } from './elasticity'
 import { TAB_ID as SCHEDULED_ID, SCHEDULED_TAB_SCHEMA } from './scheduled'

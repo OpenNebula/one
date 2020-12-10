@@ -1,24 +1,16 @@
 import React, { useEffect, useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box, Typography, Divider } from '@material-ui/core'
-import RefreshIcon from '@material-ui/icons/Autorenew'
+import { Container, Box } from '@material-ui/core'
 
-import { PATH } from 'client/router/fireedge'
-import useApplication from 'client/hooks/useApplication'
-import useFetch from 'client/hooks/useFetch'
+import { PATH } from 'client/router/flow'
+import { useApplication, useFetch } from 'client/hooks'
 
 import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
-import SubmitButton from 'client/components/FormControl/SubmitButton'
-import ListCards from 'client/components/List/ListCards'
+import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ApplicationTemplateCard } from 'client/components/Cards'
-
-import { Tr } from 'client/components/HOC'
-import {
-  ApplicationsTemplates as ApplicationsTemplatesLabel,
-  CannotConnectOneFlow
-} from 'client/constants/translates'
+import { T } from 'client/constants'
 
 function ApplicationsTemplates () {
   const history = useHistory()
@@ -35,23 +27,17 @@ function ApplicationsTemplates () {
 
   return (
     <Container disableGutters>
-      <Box p={3} display="flex" alignItems="center">
-        <SubmitButton
-          fab
-          onClick={() => fetchRequest(undefined, { reload: true, delay: 500 })}
-          isSubmitting={loading || reloading}
-          label={<RefreshIcon />}
-        />
-        <Typography variant="h5" style={{ marginLeft: 8 }}>
-          {Tr(ApplicationsTemplatesLabel)}
-        </Typography>
-      </Box>
-      <Divider />
+      <ListHeader
+        title={T.ApplicationsTemplates}
+        hasReloadButton
+        reloadButtonProps={{
+          onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
+          isSubmitting: Boolean(loading || reloading)
+        }}
+      />
       <Box p={3}>
         {error ? (
-          <AlertError>
-            {Tr(CannotConnectOneFlow)}
-          </AlertError>
+          <AlertError>{T.CannotConnectOneFlow}</AlertError>
         ) : (
           <ListCards
             list={applicationsTemplates}

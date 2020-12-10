@@ -21,7 +21,7 @@ const {
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, parsePostData } = require('server/utils/server')
-const { executeCommand, createYMLContent, createTemporalFile, removeFile } = require('./functions')
+const { executeCommand, createYMLContent, createTemporalFile, removeFile, getEndpoint } = require('./functions')
 const { provider } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -32,10 +32,11 @@ const getListProvisionTemplates = (res = {}, next = () => undefined, params = {}
   const { user, password } = userData
   let rtn = httpInternalError
   if (user && password) {
+    const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     let paramsCommand = ['list', ...authCommand, '--json']
     if (params && params.id) {
-      paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, '--json']
+      paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
     }
     const executedCommand = executeCommand(command, paramsCommand)
     try {
@@ -56,6 +57,7 @@ const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
+    const endpoint = getEndpoint()
     const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
     const valSchema = schemaValidator.validate(resource, provider)
@@ -64,7 +66,7 @@ const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
       if (content) {
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
-          const paramsCommand = ['create', file.path, ...authCommand]
+          const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(command, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.success && executedCommand.data) {
@@ -94,7 +96,8 @@ const instantiateProvisionTemplate = (res = {}, next = () => undefined, params =
   let rtn = httpInternalError
   if (params && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['instantiate', `${params.id}`.toLowerCase(), ...authCommand]
+    const endpoint = getEndpoint()
+    const paramsCommand = ['instantiate', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
     const executedCommand = executeCommand(command, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
@@ -114,6 +117,7 @@ const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
   let rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
+    const endpoint = getEndpoint()
     const schemaValidator = new Validator()
     const resource = parsePostData(params.resource)
     const valSchema = schemaValidator.validate(resource, provider)
@@ -122,7 +126,7 @@ const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
       if (content) {
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
-          const paramsCommand = ['update', params.id, file.path, ...authCommand]
+          const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(command, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.success && executedCommand.data) {
@@ -152,7 +156,8 @@ const deleteProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
   let rtn = httpInternalError
   if (params && params.id && user && password) {
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand]
+    const endpoint = getEndpoint()
+    const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
     const executedCommand = executeCommand(command, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError

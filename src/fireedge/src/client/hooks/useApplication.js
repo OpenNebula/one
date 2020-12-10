@@ -2,11 +2,10 @@ import { useCallback } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import { setApplications, setApplicationsTemplates } from 'client/actions/pool'
-
 import { enqueueError, enqueueSuccess } from 'client/actions/general'
 
-import * as serviceApplication from 'client/services/application'
-import { filterBy } from 'client/utils/helpers'
+import * as serviceFlow from 'client/services/flow'
+import { filterBy } from 'client/utils'
 
 export default function useOpennebula () {
   const dispatch = useDispatch()
@@ -24,7 +23,7 @@ export default function useOpennebula () {
 
   const getApplication = useCallback(
     ({ id }) =>
-      serviceApplication.getApplication({ id }).catch(err => {
+      serviceFlow.getApplication({ id }).catch(err => {
         dispatch(enqueueError(err ?? `Error GET (${id}) application`))
       }),
     [dispatch]
@@ -32,7 +31,7 @@ export default function useOpennebula () {
 
   const getApplications = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
-      serviceApplication
+      serviceFlow
         .getApplications({ filter, end, start })
         .then(doc => dispatch(setApplications(doc)))
         .catch(err => {
@@ -43,7 +42,7 @@ export default function useOpennebula () {
 
   const getApplicationTemplate = useCallback(
     ({ id }) =>
-      serviceApplication.getTemplate({ id }).catch(err => {
+      serviceFlow.getTemplate({ id }).catch(err => {
         dispatch(enqueueError(err ?? `Error GET (${id}) application template`))
       }),
     [dispatch]
@@ -51,7 +50,7 @@ export default function useOpennebula () {
 
   const getApplicationsTemplates = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
-      serviceApplication
+      serviceFlow
         .getTemplates({ filter, end, start })
         .then(doc => {
           dispatch(setApplicationsTemplates(doc))
@@ -65,7 +64,7 @@ export default function useOpennebula () {
 
   const createApplicationTemplate = useCallback(
     ({ data }) =>
-      serviceApplication
+      serviceFlow
         .createTemplate({ data })
         .then(doc => {
           dispatch(
@@ -86,7 +85,7 @@ export default function useOpennebula () {
 
   const updateApplicationTemplate = useCallback(
     ({ id, data }) =>
-      serviceApplication
+      serviceFlow
         .updateTemplate({ id, data })
         .then(doc => {
           dispatch(
@@ -109,7 +108,7 @@ export default function useOpennebula () {
   const instantiateApplicationTemplate = useCallback(
     ({ id, data, instances }) => {
       const promises = [...new Array(instances)]
-        .map(() => serviceApplication.instantiateTemplate({ id, data }))
+        .map(() => serviceFlow.instantiateTemplate({ id, data }))
 
       return Promise.all(promises)
         .then(docs => {

@@ -14,8 +14,10 @@
 /* -------------------------------------------------------------------------- */
 const { v4 } = require('uuid')
 const { dirname, basename } = require('path')
+// eslint-disable-next-line node/no-deprecated-api
+const { parse } = require('url')
 const events = require('events')
-const { Document } = require('yaml')
+const { Document, scalarOptions } = require('yaml')
 const {
   writeFileSync,
   removeSync,
@@ -26,6 +28,7 @@ const {
   renameSync,
   moveSync
 } = require('fs-extra')
+const { getConfig } = require('server/utils/yml')
 const { spawnSync, spawn } = require('child_process')
 const { messageTerminal } = require('server/utils/general')
 
@@ -74,8 +77,9 @@ const getFiles = (dir = '', ext = '', errorCallback = () => undefined) => {
         }
       })
     } catch (error) {
-      messageTerminal(defaultError((error && error.message) || ''))
-      errorCallback(error)
+      const errorMsg = (error && error.message) || ''
+      messageTerminal(defaultError(errorMsg))
+      errorCallback(errorMsg)
     }
   }
   return pathFiles
@@ -105,9 +109,9 @@ const createFolderWithFiles = (path = '', files = [], filename = '') => {
   return rtn
 }
 
-const createTemporalFile = (path = '', ext = '', content = '') => {
+const createTemporalFile = (path = '', ext = '', content = '', filename = '') => {
   let rtn
-  const name = v4().replace(/-/g, '').toUpperCase()
+  const name = filename || v4().replace(/-/g, '').toUpperCase()
   const file = `${path}/${name}.${ext}`
   try {
     if (!existsSync(path)) {
@@ -123,15 +127,18 @@ const createTemporalFile = (path = '', ext = '', content = '') => {
 
 const createYMLContent = (content = '') => {
   let rtn
-  if (content) {
-    try {
-      const doc = new Document({})
-      doc.directivesEndMarker = true
-      doc.contents = content
-      rtn = doc
-    } catch (error) {
-      messageTerminal(defaultError((error && error.message) || ''))
+  try {
+    const doc = new Document()
+    doc.directivesEndMarker = true
+    scalarOptions.str.defaultType = 'QUOTE_SINGLE'
+    if (content) {
+      doc.contents = content || undefined
+    } else {
+      doc.contents = undefined
     }
+    rtn = doc
+  } catch (error) {
+    messageTerminal(defaultError((error && error.message) || ''))
   }
   return rtn
 }
@@ -207,12 +214,12 @@ const executeCommandAsync = (
 
   const execute = spawn(command, [...rsc])
   if (execute) {
-    execute.stdout.on('data', (data) => {
-      out(data)
-    })
-
     execute.stderr.on('data', (data) => {
       err(data)
+    })
+
+    execute.stdout.on('data', (data) => {
+      out(data)
     })
 
     execute.on('error', error => {
@@ -226,13 +233,12 @@ const executeCommandAsync = (
       }
     })
   }
-
 }
 
-const executeCommand = (command = '', resource = '') => {
+const executeCommand = (command = '', resource = '', options = {}) => {
   const rsc = Array.isArray(resource) ? resource : [resource]
   let rtn = { success: false, data: null }
-  const execute = spawnSync(command, [...rsc])
+  const execute = spawnSync(command, [...rsc], options)
   if (execute) {
     if (execute.stdout) {
       rtn = { success: true, data: execute.stdout.toString() }
@@ -245,18 +251,16 @@ const executeCommand = (command = '', resource = '') => {
   return rtn
 }
 
-const findRecursiveFolder = (path = '', finder = '') => {
-  let rtn = false
+const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
   if (path && finder) {
     const dirs = readdirSync(path)
     dirs.forEach(dir => {
       const name = `${path}/${dir}`
       if (statSync(name).isDirectory()) {
-        console.log('-->', name, basename(name))
         if (basename(name) === finder) {
           rtn = name
         } else {
-          findRecursiveFolder(name, finder)
+          rtn = findRecursiveFolder(name, finder, rtn)
         }
       }
     })
@@ -264,7 +268,20 @@ const findRecursiveFolder = (path = '', finder = '') => {
   return rtn
 }
 
+const getEndpoint = () => {
+  const appConfig = getConfig()
+  let rtn = []
+  if (appConfig && appConfig.xmlrpc) {
+    const parseUrl = parse(appConfig.xmlrpc)
+    const protocol = parseUrl.protocol || ''
+    const host = parseUrl.host || ''
+    rtn = ['--endpoint', `${protocol}//${host}`]
+  }
+  return rtn
+}
+
 const functionRoutes = {
+  getEndpoint,
   createYMLContent,
   executeCommand,
   createTemporalFile,

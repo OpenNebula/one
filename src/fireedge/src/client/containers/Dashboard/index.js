@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,13 +13,13 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react'
+import * as React from 'react'
 
 import { Box, Typography } from '@material-ui/core'
 
 import dashboardStyles from 'client/containers/Dashboard/styles'
 import { Tr } from 'client/components/HOC/Translate'
-import { Dashboard as Title } from 'client/constants/translates'
+import { T } from 'client/constants'
 
 function Dashboard () {
   const classes = dashboardStyles()
@@ -31,7 +31,7 @@ function Dashboard () {
         className={classes.title}
         data-cy="dashboard-title"
       >
-        {Tr(Title)}
+        {Tr(T.Dashboard)}
       </Typography>
     </Box>
   )

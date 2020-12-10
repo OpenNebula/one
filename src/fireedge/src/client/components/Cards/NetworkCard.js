@@ -1,84 +1,62 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Button, CardActions } from '@material-ui/core'
+import { makeStyles, Avatar } from '@material-ui/core'
+import SelectCard from 'client/components/Cards/SelectCard'
 
-import { Tr } from 'client/components/HOC'
-import SelectCard from './SelectCard'
+const useStyles = makeStyles(theme => ({
+  title: { display: 'flex', gap: '8px' },
+  avatar: {
+    width: '5ch',
+    height: '5ch',
+    color: theme.palette.primary.contrastText
+  },
+  card: { backgroundColor: theme.palette.primary.main }
+}))
 
-const NetworkCard = memo(({
-  value,
-  isSelected,
-  handleClick,
-  handleEdit,
-  handleClone,
-  handleRemove
-}) => {
-  const { mandatory, name, description } = value
+const NetworkCard = memo(
+  ({ value, isSelected, handleClick, actions }) => {
+    const { ID, NAME } = value
+    const classes = useStyles()
 
-  return (
-    <SelectCard
-      icon={mandatory ? 'M' : ''}
-      title={name}
-      subheader={description}
-      isSelected={isSelected}
-      handleClick={handleClick}
-    >
-      <CardActions>
-        {handleEdit && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleEdit}
-            disableElevation
-          >
-            {Tr('Edit')}
-          </Button>
-        )}
-        {handleClone && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={handleClone}
-            disableElevation
-          >
-            {Tr('Clone')}
-          </Button>
-        )}
-        {handleRemove && (
-          <Button size="small" onClick={handleRemove} disableElevation>
-            {Tr('Remove')}
-          </Button>
-        )}
-      </CardActions>
-    </SelectCard>
-  )
-}
+    return (
+      <SelectCard
+        stylesProps={{ minHeight: 120 }}
+        cardProps={{ className: classes.card, elevation: 2 }}
+        icon={<Avatar className={classes.avatar} title={ID}>{ID}</Avatar>}
+        title={NAME}
+        isSelected={isSelected}
+        handleClick={handleClick}
+        actions={actions}
+      />
+    )
+  },
+  (prev, next) => prev.isSelected === next.isSelected
 )
 
 NetworkCard.propTypes = {
   value: PropTypes.shape({
-    mandatory: PropTypes.bool,
-    name: PropTypes.string.isRequired,
-    description: PropTypes.string,
-    type: PropTypes.string,
-    id: PropTypes.string,
-    extra: PropTypes.string
+    ID: PropTypes.string.isRequired,
+    NAME: PropTypes.string.isRequired,
+    TYPE: PropTypes.string,
+    STATE: PropTypes.string
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
-  handleEdit: PropTypes.func,
-  handleClone: PropTypes.func,
-  handleRemove: PropTypes.func
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      handleClick: PropTypes.func.isRequired,
+      icon: PropTypes.node.isRequired,
+      cy: PropTypes.string
+    })
+  )
 }
 
 NetworkCard.defaultProps = {
   value: {},
   isSelected: false,
   handleClick: undefined,
-  handleEdit: undefined,
-  handleClone: undefined,
-  handleRemove: undefined
+  actions: undefined
 }
 
 NetworkCard.displayName = 'NetworkCard'

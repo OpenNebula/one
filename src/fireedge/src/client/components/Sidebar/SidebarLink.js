@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 import { useHistory, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
@@ -10,7 +10,7 @@ import {
   useMediaQuery
 } from '@material-ui/core'
 
-import useGeneral from 'client/hooks/useGeneral'
+import { useGeneral } from 'client/hooks'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import { DevTypography } from 'client/components/Typography'
 
@@ -19,7 +19,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   const history = useHistory()
   const { pathname } = useLocation()
   const { fixMenu } = useGeneral()
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
 
   const handleClick = () => {
     history.push(path)
@@ -35,7 +35,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
       classes={{ selected: classes.itemSelected }}
     >
       {Icon && (
-        <ListItemIcon>
+        <ListItemIcon className={classes.itemIcon}>
           <Icon />
         </ListItemIcon>
       )}

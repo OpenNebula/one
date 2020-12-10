@@ -27,8 +27,7 @@ import {
 } from '@material-ui/core'
 import { Menu as MenuIcon, Close as CloseIcon } from '@material-ui/icons'
 
-import useGeneral from 'client/hooks/useGeneral'
-
+import { useGeneral } from 'client/hooks'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
@@ -37,7 +36,7 @@ import Logo from 'client/icons/logo'
 const Sidebar = memo(({ endpoints }) => {
   const classes = sidebarStyles()
   const { isFixMenu, fixMenu } = useGeneral()
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
 
   const handleSwapMenu = () => fixMenu(!isFixMenu)
 
@@ -76,7 +75,7 @@ const Sidebar = memo(({ endpoints }) => {
           className={classes.svg}
         />
         <IconButton
-          color={isFixMenu ? 'primary' : 'default'}
+          className={classes.itemIcon}
           onClick={handleSwapMenu}
         >
           {isUpLg ? <MenuIcon /> : <CloseIcon />}
@@ -90,7 +89,7 @@ const Sidebar = memo(({ endpoints }) => {
       </Box>
     </Drawer>
   )
-})
+}, (prev, next) => prev.endpoints === next.endpoints)
 
 Sidebar.propTypes = {
   endpoints: PropTypes.array

@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { number, string, oneOfType } from 'prop-types'
 
 function DockerLogo ({ viewBox, width, height, color, ...props }) {

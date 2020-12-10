@@ -1,24 +1,15 @@
-import React from 'react'
+import * as React from 'react'
 
 import SelectedIcon from '@material-ui/icons/FilterVintage'
 import * as yup from 'yup'
 
-import useAuth from 'client/hooks/useAuth'
-import useOpennebula from 'client/hooks/useOpennebula'
-import { INPUT_TYPES, FILTER_POOL } from 'client/constants'
-import { getValidationFromFields } from 'client/utils/helpers'
-import {
-  Username,
-  Password,
-  KeepLoggedIn,
-  Token2FA,
-  SelectGroup,
-  ShowAll
-} from 'client/constants/translates'
+import { useAuth, useOpennebula } from 'client/hooks'
+import { T, INPUT_TYPES, FILTER_POOL } from 'client/constants'
+import { getValidationFromFields } from 'client/utils'
 
 export const USERNAME = {
   name: 'user',
-  label: Username,
+  label: T.Username,
   type: INPUT_TYPES.TEXT,
   validation: yup
     .string()
@@ -36,7 +27,7 @@ export const USERNAME = {
 
 export const PASSWORD = {
   name: 'token',
-  label: Password,
+  label: T.Password,
   type: INPUT_TYPES.TEXT,
   htmlType: 'password',
   validation: yup
@@ -54,7 +45,7 @@ export const PASSWORD = {
 
 export const REMEMBER = {
   name: 'remember',
-  label: KeepLoggedIn,
+  label: T.KeepLoggedIn,
   type: INPUT_TYPES.CHECKBOX,
   validation: yup
     .boolean()
@@ -64,7 +55,7 @@ export const REMEMBER = {
 
 export const TOKEN = {
   name: 'token2fa',
-  label: Token2FA,
+  label: T.Token2FA,
   type: INPUT_TYPES.TEXT,
   validation: yup
     .string()
@@ -81,13 +72,13 @@ export const TOKEN = {
 
 export const GROUP = {
   name: 'group',
-  label: SelectGroup,
+  label: T.SelectGroup,
   type: INPUT_TYPES.SELECT,
   values: () => {
     const { authUser } = useAuth()
     const { groups } = useOpennebula()
 
-    return [{ text: ShowAll, value: FILTER_POOL.ALL_RESOURCES }]
+    return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }]
       .concat(groups
         .sort((a, b) => a.ID - b.ID)
         .map(({ ID, NAME }) => ({

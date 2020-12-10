@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
@@ -24,6 +24,8 @@ import SocketProvider from 'client/providers/socketProvider'
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
+
+import { APPS, APP_URL } from 'client/constants'
 
 import Router from 'client/router'
 
@@ -42,7 +44,15 @@ const App = ({ location, context, store, app }) => {
     process?.env?.NODE_ENV === 'development' &&
     typeof window !== 'undefined'
   ) {
-    appName = window.location.pathname.split('/')[1]
+    const parseUrl = window.location.pathname
+      .split(/\//gi)
+      .filter(sub => sub?.length > 0)
+
+    parseUrl.forEach(resource => {
+      if (resource && APPS.includes(resource)) {
+        appName = resource
+      }
+    })
   }
 
   return (
@@ -58,7 +68,7 @@ const App = ({ location, context, store, app }) => {
                 </StaticRouter>
               ) : (
               // browser build
-                <BrowserRouter basename={`/${appName}`}>
+                <BrowserRouter basename={`${APP_URL}/${appName}`}>
                   <Router app={appName} />
                 </BrowserRouter>
               )}
@@ -81,7 +91,7 @@ App.defaultProps = {
   location: '',
   context: {},
   store: {},
-  app: undefined
+  app: ''
 }
 
 export default App

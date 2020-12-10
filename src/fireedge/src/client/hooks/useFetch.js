@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import axios from 'axios'
 import { debounce } from '@material-ui/core'
 import { fakeDelay } from 'client/utils'
 
@@ -15,7 +14,7 @@ const useRequest = request => {
   const doFetch = useCallback(
     debounce(payload =>
       request({ ...payload }).then(response => {
-        if (isMounted.current && !axios.isCancel(response)) {
+        if (isMounted.current) {
           if (response !== undefined) {
             setData(response)
             setError(false)

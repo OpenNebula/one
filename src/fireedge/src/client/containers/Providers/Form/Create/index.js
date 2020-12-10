@@ -9,14 +9,13 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Providers/Form/Create/Steps'
 
 import { PATH } from 'client/router/provision'
-import useFetchAll from 'client/hooks/useFetchAll'
-import useProvision from 'client/hooks/useProvision'
-import useGeneral from 'client/hooks/useGeneral'
+import { useFetchAll, useProvision, useGeneral } from 'client/hooks'
 
 function ProviderCreateForm () {
   const history = useHistory()
   const { id } = useParams()
   const isUpdate = id !== undefined
+  const { showError } = useGeneral()
 
   const {
     steps,
@@ -31,7 +30,6 @@ function ProviderCreateForm () {
     updateProvider,
     providersTemplates
   } = useProvision()
-  const { showError } = useGeneral()
 
   const { data, fetchRequestAll, loading, error } = useFetchAll()
 
@@ -49,12 +47,24 @@ function ProviderCreateForm () {
     const providerTemplate = providersTemplates
       .find(({ name }) => name === providerSelected) ?? {}
 
+    if (!providerTemplate) {
+      showError({
+        message: `
+          Cannot found provider template (${providerSelected}),
+          ask your cloud administrator`
+      })
+      history.push(PATH.PROVISIONS.LIST)
+    }
+
+    const { plain, location_key: locationKey } = providerTemplate
+
     const formatData = {
       ...(!isUpdate && { name: `${providerSelected}_${locationSelected}` }),
+      ...(plain && { plain }),
       provider: providerSelected,
       connection: {
         ...connection,
-        [providerTemplate.location_key]: locationSelected
+        [locationKey]: locationSelected
       },
       registration_time: time
     }
@@ -69,24 +79,30 @@ function ProviderCreateForm () {
   }
 
   useEffect(() => {
-    isUpdate && fetchRequestAll([getProvider({ id }), getProvidersTemplates()])
+    isUpdate && fetchRequestAll([
+      getProvider({ id }),
+      getProvidersTemplates()
+    ])
   }, [isUpdate])
 
   useEffect(() => {
     if (data) {
       const [provider = {}, templates = []] = data
 
-      const { TEMPLATE: { PROVISION_BODY = {} } } = provider
-      const { connection, provider: providerName, registration_time: time } = PROVISION_BODY
+      const {
+        connection, provider: providerName, registration_time: time
+      } = provider?.TEMPLATE?.PROVISION_BODY ?? {}
 
       const {
         location_key: key
       } = templates?.find(({ name }) => name === providerName) ?? {}
 
       if (!key) {
-        showError(`
-          Cannot found provider template (${providerName}),
-          ask your cloud administrator`)
+        showError({
+          message: `
+            Cannot found provider template (${providerName}),
+            ask your cloud administrator`
+        })
         history.push(PATH.PROVIDERS.LIST)
       }
 
@@ -106,7 +122,7 @@ function ProviderCreateForm () {
   }
 
   return (isUpdate && !data) || loading ? (
-    <LinearProgress />
+    <LinearProgress color='secondary' />
   ) : (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
       <FormProvider {...methods}>

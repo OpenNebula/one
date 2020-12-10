@@ -16,7 +16,7 @@ const { from: fromData } = require('server/utils/constants/defaults')
 const { getParamsForObject } = require('server/utils/server')
 const {
   getListProviders,
-  getProvidersTemplates,
+  getProvidersDefaults,
   createProviders,
   updateProviders,
   deleteProvider
@@ -33,8 +33,8 @@ const routes = {
         id: { from: fromData.resource, name: 'id', front: true }
       }
     },
-    template: {
-      action: getProvidersTemplates,
+    defaults: {
+      action: getProvidersDefaults,
       params: {
         name: { from: fromData.resource, name: 'id', front: true }
       }

@@ -1,19 +1,17 @@
 import React, { useEffect, useCallback } from 'react'
 
-import useOpennebula from 'client/hooks/useOpennebula'
-import useListForm from 'client/hooks/useListForm'
-import useFetch from 'client/hooks/useFetch'
-
-import ListCards from 'client/components/List/ListCards'
+import { useOpennebula, useListForm, useFetch } from 'client/hooks'
+import { ListCards } from 'client/components/List'
 import { ClusterCard, EmptyCard } from 'client/components/Cards'
 
 import { STEP_FORM_SCHEMA } from './schema'
+import { T } from 'client/constants'
 
 export const STEP_ID = 'clusters'
 
 const Clusters = () => ({
   id: STEP_ID,
-  label: 'Where will it run?',
+  label: T.WhereWillItRun,
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { clusters, getClusters } = useOpennebula()

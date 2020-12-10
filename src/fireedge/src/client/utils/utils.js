@@ -16,14 +16,15 @@
 import axios from 'axios'
 import root from 'window-or-global'
 
+import { JWT_NAME } from 'client/constants'
 import { messageTerminal } from 'server/utils/general'
 import { httpCodes } from 'server/utils/constants'
-import { JWT_NAME } from 'client/constants'
+import { defaultAppName } from 'server/utils/constants/defaults'
 
 const defaultData = {
   data: {},
   json: true,
-  baseURL: '',
+  baseURL: root?.location?.origin?.concat(`/${defaultAppName}`) ?? '',
   method: 'GET',
   authenticate: true,
   onUploadProgress: null,
@@ -31,41 +32,28 @@ const defaultData = {
 }
 
 export const storage = (name = '', data = '', keepData = false) => {
-  if (name && data && root && root.localStorage && root.sessionStorage) {
-    if (keepData && root.localStorage.setItem) {
-      root.localStorage.setItem(name, data)
-    } else if (root.sessionStorage.setItem) {
-      root.sessionStorage.setItem(name, data)
-    }
+  if (name && data) {
+    keepData
+      ? root?.localStorage?.setItem(name, data)
+      : root?.sessionStorage?.setItem(name, data)
   }
 }
 
 export const removeStoreData = (items = []) => {
-  let itemsToRemove = items
-  if (!Array.isArray(items)) {
-    itemsToRemove = [items]
-  }
+  const itemsToRemove = !Array.isArray(items) ? [items] : items
+
   itemsToRemove.forEach(item => {
-    if (root && root.localStorage && root.sessionStorage) {
-      root.localStorage.removeItem(item)
-      root.sessionStorage.removeItem(item)
-    }
+    root?.localStorage?.removeItem(item)
+    root?.sessionStorage?.removeItem(item)
   })
 }
 
 export const findStorageData = (name = '') => {
-  let rtn = false
-  if (root && root.localStorage && root.sessionStorage && name) {
-    if (root.localStorage.getItem && root.localStorage.getItem(name)) {
-      rtn = root.localStorage.getItem(name)
-    } else if (
-      root.sessionStorage.getItem &&
-      root.sessionStorage.getItem(name)
-    ) {
-      rtn = root.sessionStorage.getItem(name)
-    }
-  }
-  return rtn
+  if (name && root?.localStorage.getItem(name)) {
+    return root.localStorage.getItem(name)
+  } else if (name && root?.sessionStorage.getItem(name)) {
+    return root.sessionStorage.getItem(name)
+  } else return false
 }
 
 export const requestData = (url = '', data = {}) => {

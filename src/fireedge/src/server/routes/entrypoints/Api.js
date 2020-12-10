@@ -46,10 +46,20 @@ const {
   defaultMessageInvalidZone,
   defaultGetMethod,
   httpMethod: httpMethods,
-  from: fromData
+  from: fromData,
+  defaultOpennebulaZones
 } = defaults
 
-const defaultZones = appConfig.DEFAULT_ZONE ? [appConfig.DEFAULT_ZONE] : null
+const defaultZones = defaultOpennebulaZones
+if (
+  appConfig &&
+  appConfig.xmlrpc &&
+  Array.isArray(defaultOpennebulaZones) &&
+  defaultOpennebulaZones[0] &&
+  defaultOpennebulaZones[0].rpc
+) {
+  defaultOpennebulaZones[0].rpc = appConfig.xmlrpc
+}
 
 const router = express.Router()
 
@@ -65,17 +75,17 @@ router.all(
   paramsToRoutes(),
   [validateResourceAndSession, optionalParameters, optionalQueries],
   (req, res, next) => {
-    const { internalServerError, ok, methodNotAllowed } = httpCodes
+    const { internalServerError, ok, methodNotAllowed, notFound } = httpCodes
     const { method: httpMethod } = req
     res.locals.httpCode = httpResponse(internalServerError)
     const { zone } = getQueriesState()
     const zoneData = getDataZone(zone, defaultZones)
     if (zoneData) {
-      const { RPC } = zoneData
+      const { rpc } = zoneData
       const connectOpennebula = (
         user = getUserOpennebula(),
         pass = getPassOpennebula()
-      ) => opennebulaConnect(user, pass, RPC)
+      ) => opennebulaConnect(user, pass, rpc)
       const { resource } = req.params
       const routeFunction = checkIfIsARouteFunction(resource, httpMethod)
       res.locals.httpCode = httpResponse(methodNotAllowed)
@@ -112,9 +122,18 @@ router.all(
         const getOpennebulaMethod = checkOpennebulaCommand(command, httpMethod)
         if (getOpennebulaMethod) {
           const response = (val = {}) => {
-            res.locals.httpCode = httpResponse(ok, val || val === 0 ? val : {})
-            if (typeof val === 'string') {
-              res.locals.httpCode = httpResponse(ok, undefined, val)
+            switch (typeof val) {
+              case 'string':
+                res.locals.httpCode = httpResponse(notFound, val)
+                break
+              case 'object':
+                res.locals.httpCode = httpResponse(ok, val)
+                break
+              case 'number':
+                res.locals.httpCode = httpResponse(ok, val)
+                break
+              default:
+                break
             }
             next()
           }
@@ -127,7 +146,7 @@ router.all(
           const connect = connectOpennebula(
             getUserOpennebula(),
             getPassOpennebula(),
-            RPC
+            rpc
           )
           connect(command, getOpennebulaMethod(dataSources), (err, value) =>
             responseOpennebula(updaterResponse, err, value, response, next)

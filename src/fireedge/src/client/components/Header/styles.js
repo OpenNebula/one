@@ -1,9 +1,23 @@
 import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
+  appbar: {
+    position: 'absolute',
+    transition: theme.transitions.create('background-color'),
+    backgroundColor: ({ isScroll }) => isScroll
+      ? theme.palette.secondary.main
+      : theme.palette.primary.main
+  },
   title: {
     flexGrow: 1,
-    textTransform: 'capitalize'
+    display: 'inline-flex',
+    color: theme.palette.primary.contrastText,
+    '& span': { textTransform: 'capitalize' }
+  },
+  app: {
+    color: ({ isScroll }) => isScroll
+      ? theme.palette.primary.main
+      : theme.palette.secondary.main
   },
   /* POPOVER */
   backdrop: {
@@ -17,9 +31,7 @@ export default makeStyles(theme => ({
       height: '100%'
     }
   },
-  padding: {
-    padding: theme.spacing(2)
-  },
+  padding: { padding: theme.spacing(2) },
   header: {
     display: 'flex',
     alignItems: 'center',
@@ -40,4 +52,5 @@ export default makeStyles(theme => ({
     fontSize: '1rem',
     margin: theme.spacing(0, 2)
   }
-}))
+}
+))

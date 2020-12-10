@@ -1,11 +1,10 @@
-import React from 'react'
+import * as React from 'react'
 
 import { Button } from '@material-ui/core'
 import FilterIcon from '@material-ui/icons/FilterDrama'
 import SelectedIcon from '@material-ui/icons/FilterVintage'
 
-import useAuth from 'client/hooks/useAuth'
-import useOpennebula from 'client/hooks/useOpennebula'
+import { useAuth, useOpennebula } from 'client/hooks'
 import Search from 'client/components/Search'
 
 import { FILTER_POOL } from 'client/constants'
@@ -61,7 +60,7 @@ const Group = () => {
     <HeaderPopover
       id="group-list"
       icon={<FilterIcon />}
-      IconProps={{ 'data-cy': 'header-group-button' }}
+      buttonProps={{ 'data-cy': 'header-group-button', variant: 'outlined' }}
       headerTitle="Switch group"
     >
       {({ handleClose }) => (

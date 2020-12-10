@@ -2,13 +2,16 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, Badge, Box, CardContent } from '@material-ui/core'
-import StorageIcon from '@material-ui/icons/Storage'
-import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
-import AccountTreeIcon from '@material-ui/icons/AccountTree'
-import FolderOpenIcon from '@material-ui/icons/FolderOpen'
+import {
+  Storage as ClusterIcon,
+  VideogameAsset as HostIcon,
+  AccountTree as NetworkIcon,
+  FolderOpen as DatastoreIcon
+} from '@material-ui/icons'
 
+import SelectCard from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
-import SelectCard from './SelectCard'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   badgesWrapper: {
@@ -20,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 const ClusterCard = memo(
   ({ value, isSelected, handleClick }) => {
     const classes = useStyles()
-    const { NAME, HOSTS, VNETS, DATASTORES } = value
+    const { ID, NAME, HOSTS, VNETS, DATASTORES } = value
 
     const hosts = [HOSTS?.ID ?? []].flat()
     const vnets = [VNETS?.ID ?? []].flat()
@@ -30,8 +33,8 @@ const ClusterCard = memo(
 
     return (
       <SelectCard
-        title={NAME}
-        icon={<StorageIcon />}
+        title={`${ID} - ${NAME}`}
+        icon={<ClusterIcon />}
         isSelected={isSelected}
         handleClick={handleClick}
       >
@@ -39,33 +42,33 @@ const ClusterCard = memo(
           <Box className={classes.badgesWrapper}>
             <Badge
               showZero
-              title={Tr('Hosts')}
+              title={Tr(T.Hosts)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={hosts.length}
               anchorOrigin={badgePosition}
             >
-              <VideogameAssetIcon />
+              <HostIcon />
             </Badge>
             <Badge
               showZero
-              title={Tr('Virtual networks')}
+              title={Tr(T.VirtualsNetworks)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={vnets.length}
               anchorOrigin={badgePosition}
             >
-              <AccountTreeIcon />
+              <NetworkIcon />
             </Badge>
             <Badge
               showZero
-              title={Tr('Datastores')}
+              title={Tr(T.Datastores)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={datastores.length}
               anchorOrigin={badgePosition}
             >
-              <FolderOpenIcon />
+              <DatastoreIcon />
             </Badge>
           </Box>
         </CardContent>
@@ -80,15 +83,15 @@ ClusterCard.propTypes = {
     ID: PropTypes.string,
     NAME: PropTypes.string.isRequired,
     HOSTS: PropTypes.oneOfType([
-      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.object),
       PropTypes.object
     ]),
     VNETS: PropTypes.oneOfType([
-      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.object),
       PropTypes.object
     ]),
     DATASTORES: PropTypes.oneOfType([
-      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.object),
       PropTypes.object
     ])
   }),

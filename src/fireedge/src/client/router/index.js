@@ -43,17 +43,13 @@ const Router = ({ app }) => {
       exact
       path={path}
       component={() => (
-        <InternalLayout
-          label={label}
-          endpoints={ENDPOINTS}
-          authRoute={authenticated}
-        >
+        <InternalLayout label={app} authRoute={authenticated}>
           <Component />
         </InternalLayout>
       )}
       {...route}
     />
-  ), [ENDPOINTS])
+  ), [app])
 
   return (
     <MainLayout endpoints={{ ENDPOINTS, PATH }}>
@@ -70,7 +66,7 @@ const Router = ({ app }) => {
 }
 
 Router.propTypes = {
-  app: PropTypes.oneOf([undefined, ...Object.keys(APPS)])
+  app: PropTypes.oneOf([undefined, ...APPS])
 }
 
 Router.defaultProps = {

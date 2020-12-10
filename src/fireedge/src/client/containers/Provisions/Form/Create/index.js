@@ -1,18 +1,25 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
 import { Container } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
-import useProvision from 'client/hooks/useProvision'
+import { useGeneral, useProvision, useSocket } from 'client/hooks'
+
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
+import DebugLog from 'client/components/DebugLog'
 import { PATH } from 'client/router/provision'
+import { set, mapUserInputs } from 'client/utils'
 
 function ProvisionCreateForm () {
+  const [uuid, setUuid] = useState(undefined)
   const history = useHistory()
-  const { createProvision } = useProvision()
+  const { showError } = useGeneral()
+  const { getProvision } = useSocket()
+  const { createProvision, provisionsTemplates } = useProvision()
+
   const { steps, defaultValues, resolvers } = Steps()
 
   const methods = useForm({
@@ -21,10 +28,37 @@ function ProvisionCreateForm () {
     resolver: yupResolver(resolvers())
   })
 
-  const onSubmit = data => {
-    console.log(data)
-    createProvision({ data })
-      .then(() => history.push(PATH.PROVISIONS.LIST))
+  const onSubmit = formData => {
+    const { provision, provider, inputs } = formData
+    const provisionSelected = provision[0]
+    const providerSelected = provider[0]
+
+    const provisionTemplate = provisionsTemplates
+      .find(({ name }) => name === provisionSelected)
+
+    if (!provisionTemplate) {
+      showError({
+        message: `
+          Cannot found provider template (${provisionSelected}),
+          ask your cloud administrator`
+      })
+      history.push(PATH.PROVISIONS.LIST)
+    }
+
+    set(provisionTemplate, 'defaults.provision.provider', providerSelected)
+
+    const parseInputs = mapUserInputs(inputs)
+    const formatData = {
+      ...provisionTemplate,
+      inputs: provisionTemplate?.inputs
+        ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
+    }
+
+    createProvision({ data: formatData }).then(res => res && setUuid(res))
+  }
+
+  if (uuid) {
+    return <DebugLog uuid={uuid} socket={getProvision} />
   }
 
   return (

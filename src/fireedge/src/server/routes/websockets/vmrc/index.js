@@ -22,8 +22,7 @@ const { endpointVmrc } = require('server/utils/constants/defaults')
 genPathResources()
 
 const appConfig = getConfig()
-const vmrcData = appConfig.VMRC || {}
-const url = vmrcData.TARGET || ''
+const url = appConfig.vmrc || ''
 const config = {
   color: 'red'
 }

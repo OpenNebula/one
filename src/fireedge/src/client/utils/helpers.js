@@ -1,5 +1,15 @@
 export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+export const isExternalURL = url => RegExp(/^(http|https):/g).test(url)
+
+export const addOpacityToColor = (color, opacity) => {
+  const opacityHex = Math.round(opacity * 255).toString(16)
+  return `${color}${opacityHex}`
+}
+
+export const capitalize = ([firstLetter, ...restOfWord]) =>
+  firstLetter.toUpperCase() + restOfWord.join('')
+
 export const getValidationFromFields = fields =>
   fields.reduce(
     (schema, field) => ({

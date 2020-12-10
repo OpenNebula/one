@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react'
-import PropTypes from 'prop-types'
 
 const useNearScreen = ({ externalRef, distance, once = true }) => {
   const [isNearScreen, setShow] = useState(false)
@@ -10,7 +9,7 @@ const useNearScreen = ({ externalRef, distance, once = true }) => {
     const element = externalRef ? externalRef.current : fromRef.current
 
     const onChange = entries => {
-      element && entries.forEach(({ isIntersecting }) => {
+      observer && element && entries.forEach(({ isIntersecting }) => {
         if (isIntersecting) {
           setShow(true)
           once && observer.disconnect()
@@ -36,18 +35,6 @@ const useNearScreen = ({ externalRef, distance, once = true }) => {
   })
 
   return { isNearScreen, fromRef }
-}
-
-useNearScreen.propTypes = {
-  externalRef: PropTypes.element,
-  distance: PropTypes.string,
-  once: PropTypes.bool
-}
-
-useNearScreen.defaultProps = {
-  externalRef: undefined,
-  distance: undefined,
-  once: true
 }
 
 export default useNearScreen

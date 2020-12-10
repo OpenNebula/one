@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -11,18 +11,34 @@ import {
 } from '@material-ui/core'
 import { makeStyles, fade } from '@material-ui/core/styles'
 
-import ButtonSubmit from 'client/components/FormControl/SubmitButton'
-import { Finish, Back, Next } from 'client/constants/translates'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const useStyles = makeStyles(theme => ({
   root: {
     position: 'sticky',
     top: -15,
     minHeight: 100,
-    background: fade(theme.palette.background.default, 0.65),
+    background: fade(theme.palette.background.paper, 0.65),
     zIndex: theme.zIndex.mobileStepper
-  }
+  },
+  icon: {
+    color: theme.palette.text.hint,
+    display: 'block',
+    '&$completed': {
+      color: theme.palette.secondary.main
+    },
+    '&$active': {
+      color: theme.palette.secondary.main
+    },
+    '&$error': {
+      color: theme.palette.error.main
+    }
+  },
+  completed: {},
+  active: {},
+  error: {}
 }))
 
 const CustomStepper = ({
@@ -43,25 +59,34 @@ const CustomStepper = ({
         {steps?.map(({ id, label }) => (
           <Step key={id}>
             <StepLabel
+              StepIconProps={{
+                classes: {
+                  root: classes.icon,
+                  completed: classes.completed,
+                  active: classes.active,
+                  error: classes.error
+                }
+              }}
               {...(Boolean(errors[id]) && { error: true })}
               optional={
                 <Typography variant="caption" color="error">
                   {errors[id]?.message}
                 </Typography>
               }
-            >{label}</StepLabel>
+            >{Tr(label)}</StepLabel>
           </Step>
         ))}
       </Stepper>
-      <Box marginY={2}>
+      <Box marginY={2} textAlign='end'>
         <Button onClick={handleBack} disabled={disabledBack}>
-          {Tr(Back)}
+          {Tr(T.Back)}
         </Button>
-        <ButtonSubmit
+        <SubmitButton
+          color='secondary'
           data-cy="stepper-next-button"
           onClick={handleNext}
           isSubmitting={isSubmitting}
-          label={activeStep === lastStep ? Tr(Finish) : Tr(Next)}
+          label={activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
         />
       </Box>
     </>

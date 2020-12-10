@@ -16,12 +16,12 @@ const { DateTime } = require('luxon')
 const { Map } = require('immutable')
 const {
   httpMethod,
+  defaultLimit,
   defaultMethodLogin,
   defaultMethodZones,
   defaultMethodUserInfo,
   default2FAOpennebulaVar,
-  defaultNamespace,
-  from: fromData
+  defaultNamespace
 } = require('server/utils/constants/defaults')
 const { getConfig } = require('server/utils/yml')
 const {
@@ -43,7 +43,7 @@ const { global } = require('window-or-global')
 
 const appConfig = getConfig()
 
-const namespace = appConfig.NAMESPACE || defaultNamespace
+const namespace = appConfig.namespace || defaultNamespace
 const { GET, POST } = httpMethod
 
 const getOpennebulaMethod = checkOpennebulaCommand(defaultMethodLogin, POST)
@@ -112,11 +112,11 @@ const setRes = newRes => {
 }
 
 const setDates = () => {
-  const limitToken = appConfig.LIMIT_TOKEN
-  const { MIN, MAX } = limitToken
+  const limitToken = appConfig.limit_token || defaultLimit
+  const { min, max } = limitToken
   now = DateTime.local()
   nowUnix = now.toSeconds()
-  nowWithDays = now.plus({ days: extended ? MAX : MIN })
+  nowWithDays = now.plus({ days: extended ? max : min })
   const diff = nowWithDays.diff(now, 'seconds')
   relativeTime = diff.seconds
 }
@@ -201,10 +201,10 @@ const setZones = () => {
                 const parsedURL = rpc && parse(rpc)
                 const parsedHost = parsedURL.hostname || ''
                 return {
-                  ID: oneZone.ID || '',
-                  NAME: oneZone.NAME || '',
-                  RPC: rpc,
-                  ZEROMQ: `tcp://${parsedHost}:2101`
+                  id: oneZone.ID || '',
+                  name: oneZone.NAME || '',
+                  rpc: rpc,
+                  zeromq: `tcp://${parsedHost}:2101`
                 }
               })
             }

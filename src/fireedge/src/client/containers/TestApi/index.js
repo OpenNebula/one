@@ -17,10 +17,12 @@ import React, { useState, useMemo } from 'react'
 import { Container, TextField, Grid, MenuItem } from '@material-ui/core'
 
 import Commands from 'server/utils/constants/commands'
-import { Translate, Tr } from 'client/components/HOC'
 import InputCode from 'client/components/FormControl/InputCode'
 import ResponseForm from 'client/containers/TestApi/ResponseForm'
+
 import testapiStyles from 'client/containers/TestApi/styles'
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const TestApi = () => {
   const classes = testapiStyles()
@@ -40,13 +42,11 @@ const TestApi = () => {
             fullWidth
             select
             variant="outlined"
-            label={Tr('Select request')}
+            label={Tr(T.SelectRequest)}
             value={name}
             onChange={handleChangeCommand}
           >
-            <MenuItem value="">
-              <Translate word="none" />
-            </MenuItem>
+            <MenuItem value="">{Tr(T.None)}</MenuItem>
             {useMemo(() =>
               Object.keys(Commands)?.map(
                 commandName => (

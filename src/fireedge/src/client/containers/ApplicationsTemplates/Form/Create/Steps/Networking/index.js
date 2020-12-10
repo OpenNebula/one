@@ -2,13 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { useWatch } from 'react-hook-form'
 
-import useOpennebula from 'client/hooks/useOpennebula'
-import useListForm from 'client/hooks/useListForm'
+import { useOpennebula, useListForm } from 'client/hooks'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import ListCards from 'client/components/List/ListCards'
+import { ListCards } from 'client/components/List'
 import { DialogForm } from 'client/components/Dialogs'
-import { NetworkCard } from 'client/components/Cards'
+import { ApplicationNetworkCard } from 'client/components/Cards'
 
+import { T } from 'client/constants'
 import { STEP_ID as TIERS_ID } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Tiers'
 import { FORM_FIELDS, NETWORK_FORM_SCHEMA, STEP_FORM_SCHEMA } from './schema'
 
@@ -16,7 +16,7 @@ export const STEP_ID = 'networking'
 
 const Networks = () => ({
   id: STEP_ID,
-  label: 'Configure Networking',
+  label: T.ConfigureNetworking,
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const form = useWatch({})
@@ -44,7 +44,7 @@ const Networks = () => ({
       <>
         <ListCards
           list={data}
-          CardComponent={NetworkCard}
+          CardComponent={ApplicationNetworkCard}
           handleCreate={() => {
             handleEdit()
             setShowDialog(true)
@@ -66,7 +66,7 @@ const Networks = () => ({
         />
         {showDialog && (
           <DialogForm
-            title={'Network form'}
+            title={`${T.Networks} form`}
             resolver={() => NETWORK_FORM_SCHEMA}
             open={showDialog}
             values={editingData}
