@@ -29,6 +29,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   return (
     <ListItem
       button
+      component='li'
       onClick={handleClick}
       selected={pathname === path}
       className={clsx({ [classes.subItem]: isSubItem })}

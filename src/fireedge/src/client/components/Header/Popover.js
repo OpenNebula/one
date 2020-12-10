@@ -49,7 +49,7 @@ const HeaderPopover = ({
       >
         {icon}
         {buttonLabel && (
-          <span className={classes.buttonLabel}>{buttonLabel}</span>
+          <span className={classes.buttonLabel} data-cy="header-username">{buttonLabel}</span>
         )}
       </Button>
       <Popover
