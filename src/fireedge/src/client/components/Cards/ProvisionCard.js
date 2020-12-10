@@ -6,29 +6,38 @@ import ProvisionIcon from '@material-ui/icons/Cloud'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import Action from 'client/components/Cards/SelectCard/Action'
+import { StatusBadge } from 'client/components/Status'
 import { isExternalURL } from 'client/utils'
-import { IMAGES_URL, DEFAULT_IMAGE } from 'client/constants'
+import {
+  PROVISIONS_STATES,
+  PROVIDER_IMAGES_URL,
+  PROVISION_IMAGES_URL,
+  DEFAULT_IMAGE
+} from 'client/constants'
 
 const ProvisionCard = memo(
   ({ value, isSelected, handleClick, isProvider, actions }) => {
-    const [image, setImage] = useState(undefined)
-    const { NAME, TEMPLATE: { PLAIN = '{}' } } = value
+    const [{ image, ...body }, setBody] = useState({})
+
+    const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
+    const { NAME, TEMPLATE: { PLAIN = '{}', BODY = '{}' } } = value
+    const stateInfo = PROVISIONS_STATES[body?.state]
 
     useEffect(() => {
       try {
-        const plain = JSON.parse(PLAIN)
-        setImage(plain?.image ?? DEFAULT_IMAGE)
+        const json = JSON.parse(isProvider ? PLAIN : BODY)
+        setBody({ ...json, image: json.image ?? DEFAULT_IMAGE })
       } catch {
-        setImage(DEFAULT_IMAGE)
+        setBody({ image: DEFAULT_IMAGE })
         console.warn('Image in plain property is not valid')
       }
     }, [])
 
     const onError = evt => { evt.target.src = DEFAULT_IMAGE }
 
-    const imgSource = useMemo(() =>
+    const imgSource = useMemo(() => (
       isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
-    , [image])
+    ), [image])
 
     return (
       <SelectCard
@@ -36,10 +45,19 @@ const ProvisionCard = memo(
         isSelected={isSelected}
         handleClick={handleClick}
         action={actions?.map(action => <Action key={action?.cy} {...action} />)}
-        icon={isProvider ? <ProviderIcon /> : <ProvisionIcon />}
+        icon={
+          isProvider ? (
+            <ProviderIcon />
+          ) : (
+            <StatusBadge stateColor={stateInfo?.color}>
+              <ProvisionIcon />
+            </StatusBadge>
+          )
+        }
         mediaProps={{
           component: 'img',
           image: imgSource,
+          draggable: false,
           onError
         }}
       />
@@ -53,7 +71,7 @@ ProvisionCard.propTypes = {
     NAME: PropTypes.string.isRequired,
     TEMPLATE: PropTypes.shape({
       PLAIN: PropTypes.string,
-      PROVISION_BODY: PropTypes.oneOfType([
+      BODY: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.object
       ])

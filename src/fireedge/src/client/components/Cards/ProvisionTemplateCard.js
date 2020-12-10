@@ -3,11 +3,12 @@ import PropTypes from 'prop-types'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import { isExternalURL } from 'client/utils'
-import { IMAGES_URL } from 'client/constants'
+import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
 
 const ProvisionTemplateCard = memo(
-  ({ value, title, isSelected, handleClick }) => {
-    const { plain: { image } = {} } = value
+  ({ value, title, isSelected, isProvider, handleClick }) => {
+    const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
+    const { image } = (isProvider ? value?.plain : value) ?? {}
 
     const imgSource = useMemo(() =>
       isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
@@ -21,7 +22,8 @@ const ProvisionTemplateCard = memo(
         title={title}
         mediaProps={image && {
           component: 'img',
-          image: imgSource
+          image: imgSource,
+          draggable: false
         }}
       />
     )

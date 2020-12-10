@@ -10,7 +10,7 @@ import { DatastoreCard } from 'client/components/Cards'
 const Datastores = memo(({ hidden, data, fetchRequest }) => {
   const {
     datastores
-  } = data?.TEMPLATE?.PROVISION_BODY?.provision?.infrastructure
+  } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
   const { deleteDatastore } = useProvision()
   const { getDatastore } = useOpennebula()

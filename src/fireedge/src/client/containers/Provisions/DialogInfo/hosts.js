@@ -11,7 +11,7 @@ import { HostCard } from 'client/components/Cards'
 const Hosts = memo(({ hidden, data, fetchRequest }) => {
   const {
     hosts
-  } = data?.TEMPLATE?.PROVISION_BODY?.provision?.infrastructure
+  } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
   const { configureHost, deleteHost } = useProvision()
   const { getHost } = useOpennebula()
