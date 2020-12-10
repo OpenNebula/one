@@ -271,8 +271,8 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
 const getEndpoint = () => {
   const appConfig = getConfig()
   let rtn = []
-  if (appConfig && appConfig.xmlrpc) {
-    const parseUrl = parse(appConfig.xmlrpc)
+  if (appConfig && appConfig.one_xmlrpc) {
+    const parseUrl = parse(appConfig.one_xmlrpc)
     const protocol = parseUrl.protocol || ''
     const host = parseUrl.host || ''
     rtn = ['--endpoint', `${protocol}//${host}`]
