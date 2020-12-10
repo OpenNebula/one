@@ -316,6 +316,36 @@ module OneProvision
             dsearch(path.split('/'))
         end
 
+        # Gets extra information from the template
+        #
+        # @return [Hash] Extra information
+        def extra
+            ret = {}
+
+            reject = %w[cluster
+                        datastores
+                        defaults
+                        extends
+                        flowtemplates
+                        hosts
+                        images
+                        inputs
+                        marketplaceapps
+                        name
+                        networks
+                        playbook
+                        templates
+                        vntemplates]
+
+            @config.each do |key, value|
+                next if reject.include?(key)
+
+                ret[key] = value
+            end
+
+            ret
+        end
+
         private
 
         # Reads configuration content

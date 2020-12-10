@@ -501,6 +501,9 @@ module OneProvision
             # Resources are allocated later
             document['provision']['resource'] = {}
 
+            # Add extra information to the document
+            document.merge!(template.extra)
+
             document.to_json
         end
 
