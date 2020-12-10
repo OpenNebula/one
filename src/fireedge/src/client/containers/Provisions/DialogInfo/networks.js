@@ -10,7 +10,7 @@ import { NetworkCard } from 'client/components/Cards'
 const Networks = memo(({ hidden, data, fetchRequest }) => {
   const {
     networks
-  } = data?.TEMPLATE?.PROVISION_BODY?.provision?.infrastructure
+  } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
   const { deleteVNetwork } = useProvision()
   const { getVNetwork } = useOpennebula()

@@ -20,7 +20,7 @@ const Info = memo(({ data }) => {
     provider: providerName,
     start_time: time,
     provision: { infrastructure = {} }
-  } = TEMPLATE?.PROVISION_BODY
+  } = TEMPLATE?.BODY
 
   const { id: clusterId = '', name: clusterName = '' } = infrastructure?.clusters?.[0] ?? {}
   const stateInfo = PROVISIONS_STATES[state]

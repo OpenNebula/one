@@ -27,8 +27,12 @@ export const APPS = Object.keys(defaultApps)
 export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
 export const WEBSOCKET_URL = `${APP_URL}/websocket`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`
+
 export const IMAGES_URL = `${STATIC_FILES_URL}/images`
-export const DEFAULT_IMAGE = `${STATIC_FILES_URL}/images/default.webp`
+export const PROVIDER_IMAGES_URL = `${IMAGES_URL}/providers`
+export const PROVISION_IMAGES_URL = `${IMAGES_URL}/provisions`
+export const DEFAULT_IMAGE = `${IMAGES_URL}/default.webp`
+
 export const FONTS_URL = `${STATIC_FILES_URL}/fonts`
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 
