@@ -15,8 +15,8 @@ RUN apk add --allow-untrusted /root/context/*.apk
 RUN rc-update del one-context boot && \
     rc-update add one-context default
 
-RUN rc-update add sshddefault && \
-    rc-update add udevdefault && \
+RUN rc-update add sshd default && \
+    rc-update add udev default && \
     rc-update add networking default
 
 RUN echo 'rc_sys=""' >> /etc/rc.conf
