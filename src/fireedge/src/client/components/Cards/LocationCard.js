@@ -13,7 +13,7 @@ const LocationCard = memo(
     return (
       <SelectCard
         title={key}
-        avatar={<ProvidersIcon />}
+        icon={<ProvidersIcon />}
         isSelected={isSelected}
         handleClick={handleClick}
       >
