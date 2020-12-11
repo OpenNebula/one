@@ -1279,6 +1279,7 @@ IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/probe_db.rb \
     src/im_mad/remotes/lib/vcenter_monitor.rb \
     src/im_mad/remotes/lib/vcenter_cluster.rb \
+    src/im_mad/remotes/lib/vcenter_monitor_vms.rb \
     src/im_mad/remotes/lib/monitord_client.rb \
     src/im_mad/remotes/lib/domain.rb \
     src/im_mad/remotes/lib/process_list.rb"
