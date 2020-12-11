@@ -55,7 +55,7 @@
           'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>,
           'mapped_ips' : '<%= $conf[:mapped_ips] ? $conf[:mapped_ips] : false %>',
           'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>',
-          'fireedge_endpoint': '<%= $conf[:fireedge_endpoint] ? $conf[:fireedge_endpoint] : "http://localhost:2616" %>',
+          'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint] ? $conf[:public_fireedge_endpoint] : "http://localhost:2616" %>',
           'max_waiting_tries': '<%= $conf[:max_waiting_tries] ? $conf[:max_waiting_tries] : 5 %>',
         },
         'view' : view,

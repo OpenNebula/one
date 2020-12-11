@@ -502,19 +502,8 @@ helpers do
         session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
         session[:mode] = $conf[:mode]
 
-        # Fireedge running
-        begin
-            uri = URI($conf[:fireedge_endpoint]+'/fireedge/api/auth')
-            user_pass = Base64.decode64(request.env['HTTP_AUTHORIZATION'].split(' ')[1])
-            username = user_pass.split(":")[0]
-            password = user_pass.split(":")[1]
-            params = { :user => username, :token => password }
-
-            res = Net::HTTP.post_form(uri, params)
-            session[:fireedge_token] = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
-        rescue StandardError => error
-            logger.info("Fireedge server is not running. Error: #{error}")
-        end
+        auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>\w+)/)
+        session[:auth] = auth[:pass]
 
         [204, ""]
     end
@@ -919,6 +908,31 @@ end
 
 get '/vm/showback' do
     @SunstoneServer.get_vm_showback(params)
+end
+
+##############################################################################
+# GET Fireedge token
+##############################################################################
+get '/fireedge' do
+    begin
+        uri = URI($conf[:private_fireedge_endpoint]+'/fireedge/api/auth')
+        user_pass = Base64.decode64(session[:auth])
+        username = user_pass.split(":")[0]
+        password = user_pass.split(":")[1]
+        params = { :user => username, :token => password }
+
+        fireedge_token = ""
+        res = Net::HTTP.post_form(uri, params)
+        fireedge_token = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
+        session[:fireedge_token] = fireedge_token
+        
+        response = {:token => fireedge_token}
+    rescue StandardError => error
+        logger.info("Fireedge server is not running. Error: #{error}")
+        response = {:token => ""}
+    end
+
+    [200,  response.to_json]
 end
 
 ##############################################################################

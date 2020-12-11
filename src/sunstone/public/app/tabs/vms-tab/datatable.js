@@ -34,6 +34,7 @@ define(function(require) {
   var SearchDropdown = require('hbs!./datatable/search');
   var TemplateUtils = require('utils/template-utils');
   var FireedgeValidator = require('utils/fireedge-validator');
+  var Websocket = require("utils/websocket");
 
   /*
     CONSTANTS
@@ -170,6 +171,19 @@ define(function(require) {
     VMsTableUtils.tooltipCharters()
 
     $("#rdp-buttons").foundation();
+
+    var create_socket = function(token){
+      if (Websocket.disconnected()){
+        Websocket.start(token);
+      }
+    }
+
+    if (FireedgeValidator.fireedgeToken == ""){
+      FireedgeValidator.validateFireedgeToken(create_socket);
+    }
+    else{
+      create_socket();
+    }
   }
 
   function _initialize(opts) {
@@ -272,36 +286,27 @@ define(function(require) {
           : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
       }
 
-      var success_function = function() {
-        sessionStorage.setItem(FireedgeValidator.sessionVar, "true");
-        var data = $(that).data();
-        // Get VM info
-        if (data.hasOwnProperty('id')){
-          promiseVmInfo(data['id'], function(data){
-            if (data && data.VM && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.HYPERVISOR == 'vcenter'){
-              callVMRC();
-            }
-            else{
-              callGuac();
-            }
-          });
+      var remote_connections = function(){
+        if (FireedgeValidator.fireedgeToken != ""){
+          var data = $(that).data();
+          // Get VM info
+          if (data.hasOwnProperty('id')){
+            promiseVmInfo(data['id'], function(data){
+              if (data && data.VM && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.HYPERVISOR == 'vcenter'){
+                callVMRC();
+              }
+              else{
+                callGuac();
+              }
+            });
+          }
         }
-      };
-  
-      var error_function = function() {
-        sessionStorage.removeItem(FireedgeValidator.sessionVar);
-        callVNC();
-      }  
+        else{
+          callVNC();
+        }
+      }
 
-      if (!sessionStorage.getItem(FireedgeValidator.sessionVar)){
-        FireedgeValidator.request(success_function,error_function);
-      }
-      else if (sessionStorage.getItem(FireedgeValidator.sessionVar) == 'true'){
-        success_function();
-      }
-      else{
-        error_function();
-      }
+      FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
 
       return false;
     });

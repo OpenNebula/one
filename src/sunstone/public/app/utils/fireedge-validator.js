@@ -19,56 +19,52 @@ define(function (require) {
     var Config = require("sunstone-config");  
   
     // user config
-    const fireedge_endpoint = Config.fireedgeEndpoint;
-    const max_tries = Config.maxWaitingTries;
-    const session_var = 'fireedge_running';
+    const fireedge_endpoint = Config.publicFireedgeEndpoint;
 
-    // Recursive function to validate if Fireedge Server is running 
-    var _is_fireedge_running = function(tries, success_function, error_function) {
+    /**
+     * Aux function to change the fireedge_token value.
+     * 
+     * @param token [String] new key to be stored.
+     * 
+     */
+    var set_fireedge_token = function(token){
+        fireedge_token = token;
+    };
 
-        if (!success_function){
-            success_function = function() {
-                sessionStorage.setItem(session_var, "true");
-            };
-        }
+    /**
+     * Sets the fireedge_token variable to "".
+     */
+    var clear_fireedge_token = function(){
+        fireedge_token = "";
+    };
 
-        if (!error_function){
-            error_function = function() {
-                sessionStorage.removeItem(session_var);
-                setTimeout(function(){
-                    _is_fireedge_running(tries+1, success_function);
-                }, 1000);
-            };
-        }
-
-        var fireedge_running = sessionStorage.getItem(session_var);
-        if (!fireedge_running && (tries < max_tries)){
-            _request(success_function,error_function);
-        }
-    }
-    
-    var _request = function(success_function, error_function){
+    /**
+     * This function sets the fireedge_token variable if fireedge is running.
+     * If the Fireedge Server is not running the value of fireedge_token will
+     * be "".
+     */
+    var _validate_fireedge_token = function(success, error) {
         $.ajax({
-            url: fireedge_endpoint,
+            url: "/fireedge",
             type: "GET",
-            success: typeof success_function == "function" ? success_function : function() {},
-            error: typeof success_function == "function" ? error_function : function() {}
+            success: function(data) {
+                set_fireedge_token(data.token);
+                if (typeof success == "function"){
+                    success(fireedge_token);
+                }
+            },
+            error: function(request, response, data) {
+                clear_fireedge_token();
+                if (typeof error == "function"){
+                    error();
+                }
+            }
         });
-    }
-
-    var _validate_fireedge = function() {
-        _is_fireedge_running(0);
-    }
-
-    var _validate_fireedge_with_different_success = function(success) {
-        _is_fireedge_running(0,success);
     }
   
     var fireedge_validator = {
-      "validateFireedge": _validate_fireedge,
-      "validateFireedgeWithDifferentSuccess": _validate_fireedge_with_different_success,
-      "request": _request,
-      "sessionVar": session_var
+      "validateFireedgeToken": _validate_fireedge_token,
+      "fireedgeToken": fireedge_token
     };
   
     return fireedge_validator;
