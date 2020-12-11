@@ -175,7 +175,7 @@ define(function(require) {
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
 
-    var show_noVNC_buttons = function(){
+   var show_noVNC_buttons = function(){
       $(".vnc-button").show();
       $(".guac-button").hide();
       $(".vmrc-button").hide();
@@ -188,7 +188,7 @@ define(function(require) {
           $(".vmrc-button").show();
           $(".guac-button").hide();
         }
-        if (that.element.USER_TEMPLATE.HYPERVISOR == "kvm"){
+        else{
           $(".guac-button").show();
           $(".vmrc-button").hide();
         }

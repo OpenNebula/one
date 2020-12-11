@@ -178,7 +178,7 @@ define(function(require) {
       }
     }
 
-    FireedgeValidator.validateFireedgeToken(create_socket);
+   FireedgeValidator.validateFireedgeToken(create_socket);
 
   }
 
@@ -186,8 +186,8 @@ define(function(require) {
     var that = this;
 
     TabDataTable.prototype.initialize.call(this, opts);
-    
-    //download virt-viewer file 
+
+    //download virt-viewer file
     $('#' + this.dataTableId).on("click", '.w-file', function(){
       var data = $(this).data();
 
@@ -301,7 +301,7 @@ define(function(require) {
           callVNC();
         }
       }
-        
+
       FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
 
       return false;

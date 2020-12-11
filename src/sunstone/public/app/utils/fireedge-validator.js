@@ -18,7 +18,7 @@ define(function (require) {
 
     var Config = require("sunstone-config");
     var Notifier = require('utils/notifier');
-  
+
     // user config
     const fireedge_endpoint = Config.publicFireedgeEndpoint;
 
@@ -44,9 +44,9 @@ define(function (require) {
 
     /**
      * Aux function to change the fireedge_token value.
-     * 
+     *
      * @param token [String] new key to be stored.
-     * 
+     *
      */
     var set_fireedge_token = function(token){
         fireedge_token = token;
@@ -66,7 +66,6 @@ define(function (require) {
      */
     var _validate_fireedge_token = function(success, error) {
         if (is_fireedge_configured && fireedge_token == "" && fireedge_endpoint){
-            console.log("HELLO");
             $.ajax({
                 url: "/fireedge",
                 type: "GET",
@@ -130,6 +129,6 @@ define(function (require) {
       "validateFireedgeToken": _validate_fireedge_token,
       "checkFireedgePublicURL": _check_fireedge_public_url
     };
-  
+
     return fireedge_validator;
   });

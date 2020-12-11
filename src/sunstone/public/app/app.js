@@ -15,73 +15,73 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('jquery');
-  require('jquery-ui');
-  require('wickedpicker');
-  require('foundation');
+require('jquery');
+require('jquery-ui');
+require('wickedpicker');
+require('foundation');
 
-  Foundation.Dropdown.defaults.positionClass = 'left';
-  Foundation.Dropdown.defaults.closeOnClick = true;
-  Foundation.DropdownMenu.defaults.closeOnClick = true;
-  Foundation.DropdownMenu.defaults.disableHover = true;
-  Foundation.DropdownMenu.defaults.clickOpen = true;
-  Foundation.Reveal.defaults.closeOnClick = false;
+Foundation.Dropdown.defaults.positionClass = 'left';
+Foundation.Dropdown.defaults.closeOnClick = true;
+Foundation.DropdownMenu.defaults.closeOnClick = true;
+Foundation.DropdownMenu.defaults.disableHover = true;
+Foundation.DropdownMenu.defaults.clickOpen = true;
+Foundation.Reveal.defaults.closeOnClick = false;
 
-  _setupDataTableSearch();
-  _setDataTableErrMode();
+_setupDataTableSearch();
+_setDataTableErrMode();
 
-  var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
-  var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
-  var Sunstone = require('sunstone');
-  var Config = require('sunstone-config');
-  var OpenNebula = require('opennebula');
-  var Notifier = require('utils/notifier');
-  var Menu = require('utils/menu');
-  var Locale = require('utils/locale');
-  var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
-  var Websocket = require("utils/websocket");
-  var FireedgeValidator = require("utils/fireedge-validator")
+var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
+var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
+var Sunstone = require('sunstone');
+var Config = require('sunstone-config');
+var OpenNebula = require('opennebula');
+var Notifier = require('utils/notifier');
+var Menu = require('utils/menu');
+var Locale = require('utils/locale');
+var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
+var Websocket = require("utils/websocket");
+var FireedgeValidator = require("utils/fireedge-validator")
 
-  var _commonDialogs = [
-    require('utils/dialogs/confirm'),
-    require('utils/dialogs/confirm-with-select'),
-    require('utils/dialogs/generic-confirm'),
-    require('utils/dialogs/clusters'),
-    require('utils/dialogs/overcommit')
-  ]
+var _commonDialogs = [
+require('utils/dialogs/confirm'),
+require('utils/dialogs/confirm-with-select'),
+require('utils/dialogs/generic-confirm'),
+require('utils/dialogs/clusters'),
+require('utils/dialogs/overcommit')
+]
 
 
-  //$(window).load(function() {
-  //   $('#loading').hide();
-  //});
-  
-  $(document).ready(function() {
-    Sunstone.addDialogs(_commonDialogs);
-    Sunstone.addMainTabs();
-    Sunstone.insertTabs();
+//$(window).load(function() {
+//   $('#loading').hide();
+//});
 
-    if (Config.isTabEnabled(PROVISION_TAB_ID)){
-      Menu.insertProvision();
-    }else{
-      Menu.insert();
-      Sunstone.setupNavigoRoutes();
-    }
+$(document).ready(function() {
+Sunstone.addDialogs(_commonDialogs);
+Sunstone.addMainTabs();
+Sunstone.insertTabs();
 
-    _setupAccordion();
-    _setupCloseDropdownsOnClick();
-    _insertUserAndZoneSelector();
+if (Config.isTabEnabled(PROVISION_TAB_ID)){
+  Menu.insertProvision();
+}else{
+  Menu.insert();
+  Sunstone.setupNavigoRoutes();
+}
 
-    if (Config.isTabEnabled(PROVISION_TAB_ID)) {
-      Sunstone.showTab(PROVISION_TAB_ID);
-    }
+_setupAccordion();
+_setupCloseDropdownsOnClick();
+_insertUserAndZoneSelector();
 
-    var create_socket = function(token){
-      if (Websocket.disconnected()){
-        Websocket.start(token);
-      }
-    }
+if (Config.isTabEnabled(PROVISION_TAB_ID)) {
+  Sunstone.showTab(PROVISION_TAB_ID);
+}
 
-    FireedgeValidator.checkFireedgePublicURL(FireedgeValidator.validateFireedgeToken, create_socket);    
+var create_socket = function(token){
+  if (Websocket.disconnected()){
+    Websocket.start(token);
+  }
+}
+
+   FireedgeValidator.checkFireedgePublicURL(FireedgeValidator.validateFireedgeToken, create_socket);
 
     $('#loading').hide();
   });
