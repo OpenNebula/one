@@ -330,9 +330,31 @@ module VCenterDriver
             [error, disk_info, allocated_images]
         end
 
-        def create_ar(nic, with_id = false)
+        def create_ar(nic, with_id = false, ipv4 = nil, ipv6 = nil)
             ar_tmp = ''
-            if nic[:mac] && nic[:ipv4] && nic[:ipv6]
+            if ipv4 && ipv6
+                ar_tmp << "AR=[\n"
+                ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
+                ar_tmp << "IP=\"#{ipv4}\",\n"
+                ar_tmp << "IP6=\"#{ipv6}\",\n"
+                ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+                ar_tmp << "SIZE=\"1\"\n"
+                ar_tmp << "]\n"
+            elsif ipv4
+                ar_tmp << "AR=[\n"
+                ar_tmp << "TYPE=\"IP4\",\n"
+                ar_tmp << "IP=\"#{ipv4}\",\n"
+                ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+                ar_tmp << "SIZE=\"1\"\n"
+                ar_tmp << "]\n"
+            elsif ipv6
+                ar_tmp << "AR=[\n"
+                ar_tmp << "TYPE=\"IP6\",\n"
+                ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+                ar_tmp << "PREFIX_LENGTH=\"64\",\n"
+                ar_tmp << "SIZE=\"1\"\n"
+                ar_tmp << "]\n"
+            elsif nic[:mac] && nic[:ipv4] && nic[:ipv6]
                 ar_tmp << "AR=[\n"
                 ar_tmp << "AR_ID=0,\n" if with_id
                 ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
@@ -370,41 +392,54 @@ module VCenterDriver
             ar_tmp
         end
 
-        def save_ar_ids(network_found, nic, ar_ids, start_ids = false)
-            if start_ids
-                value = []
-                arsNew = network_found.to_hash['VNET']['AR_POOL']['AR']
-                arsNew = [arsNew] if arsNew.class.to_s.eql? 'Hash'
-                last_id = 0
-                if ar_ids.has_key?(nic[:net_ref])
-                    ref = nic[:net_ref]
-                    value = ar_ids[ref.to_s]
-                    value.insert(value.length, last_id.to_s)
-                    ar_ids.store(nic[:net_ref], value)
-                else
-                    value.insert(value.length, last_id.to_s)
-                    ar_ids.store(nic[:net_ref], value)
-                end
+        def save_ar_ids(network_found, nic, ar_ids)
+            value = []
+            ars_new = network_found.to_hash['VNET']['AR_POOL']['AR']
+            ars_new = [ars_new] if ars_new.class.to_s.eql? 'Hash'
+            last_id = ars_new.last['AR_ID']
+            if ar_ids.has_key?(nic[:net_ref])
+                ref = nic[:net_ref]
+                value = ar_ids[ref.to_s]
+                value.insert(value.length, last_id)
+                ar_ids.store(nic[:net_ref], value)
             else
-                value = []
-                arsNew = network_found.to_hash['VNET']['AR_POOL']['AR']
-                arsNew = [arsNew] if arsNew.class.to_s.eql? 'Hash'
-                last_id = arsNew.last['AR_ID']
-                if ar_ids.has_key?(nic[:net_ref])
-                    ref = nic[:net_ref]
-                    value = ar_ids[ref.to_s]
-                    value.insert(value.length, last_id)
-                    ar_ids.store(nic[:net_ref], value)
-                else
-                    value.insert(value.length, last_id)
-                    ar_ids.store(nic[:net_ref], value)
-                end
+                value.insert(value.length, last_id)
+                ar_ids.store(nic[:net_ref], value)
             end
+
             last_id
         end
 
-        def find_ips_in_network(network, vm_object, nic)
+        def find_alias_ips_in_network(network, vm_object, alias_ipv4 = nil, alias_ipv6 = nil)
             ipv4 = ipv6 = ''
+            return unless vm_object.is_a?(VCenterDriver::VirtualMachine)
+
+            ip = nil
+
+            network.info
+
+            unless alias_ipv4.nil?
+                ip = IPAddr.new(alias_ipv4)
+            end
+
+            unless alias_ipv6.nil?
+                ip = IPAddr.new(alias_ipv6)
+            end
+
+            if ip.nil?
+                return [ipv4, ipv6]
+            end
+
+            ar_array = network.to_hash['VNET']['AR_POOL']['AR']
+            ar_array = [ar_array] if ar_array.is_a?(Hash)
+            ipv4, ipv6 = find_ip_in_ar(ip, ar_array) if ar_array
+
+            [ipv4, ipv6]
+        end
+
+        def find_ips_in_network(network, vm_object, nic, force = false)
+            ipv4 = ipv6 = ''
+            ar_id = -1
             return unless vm_object.is_a?(VCenterDriver::VirtualMachine)
 
             network.info
@@ -419,19 +454,27 @@ module VCenterDriver
 
                     net.ipConfig.ipAddress.each do |ip_config|
                         ip = IPAddr.new(ip_config.ipAddress)
+
+                        if force
+                            ipv4 = ip.to_s if ip.ipv4?
+                            ipv6 = ip.to_s if ip.ipv6?
+                            return [ipv4, ipv6]
+                        end
+
                         ar_array = network.to_hash['VNET']['AR_POOL']['AR']
                         ar_array = [ar_array] if ar_array.is_a?(Hash)
-                        ipv4, ipv6 = find_ip_in_ar(ip, ar_array) if ar_array
+                        ipv4, ipv6, ar_id = find_ip_in_ar(ip, ar_array) if ar_array
                         break if (ipv4 !='') || (ipv6 != '')
                     end
                     break
                 end
             end
-            [ipv4, ipv6]
+            [ipv4, ipv6, ar_id]
         end
 
         def find_ip_in_ar(ip, ar_array)
             ipv4 = ipv6 = ''
+            ar_id = -1
             ar_array.each do |ar|
                 next unless ar.key?('IP') && ar.key?('IP_END')
 
@@ -440,22 +483,31 @@ module VCenterDriver
                 next unless ip.family == start_ip.family &&
                             ip.family == end_ip.family
 
-                if ip > start_ip && ip < end_ip
+                if ip >= start_ip && ip <= end_ip
                     ipv4 = ip.to_s if ip.ipv4?
                     ipv6 = ip.to_s if ip.ipv6?
+                    ar_id = ar['ID']
                 end
             end
-            [ipv4, ipv6]
+            [ipv4, ipv6, ar_id]
         end
 
-        def nic_alias_from_nic(id, nic, nic_index)
+        def nic_alias_from_nic(id, nic, nic_index, network_found, vm_object)
             nic_tmp = ""
 
             nic_alias_index = 1
             if nic[:ipv4_additionals]
                 nic[:ipv4_additionals].split(",").each do |ipv4_additional|
+                    ipv4, ipv6 = find_alias_ips_in_network(network_found, vm_object, alias_ipv4 = ipv4_additional)
+                    if ipv4.empty? && ipv6.empty?
+                        ar_tmp = create_ar(nic, with_id = false, ipv4 = ipv4_additional)
+                        network_found.add_ar(ar_tmp)
+                    end
+                    network_found.info
+
                     nic_tmp << "NIC_ALIAS=[\n"
                     nic_tmp << "NETWORK_ID=\"#{id}\",\n"
+                    nic_tmp << "IP=\"#{ipv4_additional}\",\n"
                     nic_tmp << "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
                     nic_tmp << "PARENT=\"NIC#{nic_index}\"\n"
                     nic_tmp << "]\n"
@@ -466,7 +518,7 @@ module VCenterDriver
             nic_tmp
         end
 
-        def nic_from_network_created(one_vn, nic, nic_index)
+        def nic_from_network_created(one_vn, nic, nic_index, vm_object, ar_ids)
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
             nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
@@ -502,7 +554,7 @@ module VCenterDriver
             nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
             nic_tmp << "]\n"
 
-            nic_tmp << nic_alias_from_nic(one_vn.id, nic, nic_index)
+            nic_tmp << nic_alias_from_nic(one_vn.id, nic, nic_index, one_vn, vm_object)
 
             nic_tmp
         end
@@ -514,8 +566,11 @@ module VCenterDriver
 
             if vm?
                 ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic)
-                ar_tmp = create_ar(nic)
-                network_found.add_ar(ar_tmp)
+                if ipv4.empty? && ipv6.empty?
+                    ar_tmp = create_ar(nic)
+                    network_found.add_ar(ar_tmp)
+                end
+                ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic, true)
                 network_found.info
                 last_id = save_ar_ids(network_found, nic, ar_ids)
 
@@ -551,7 +606,7 @@ module VCenterDriver
             nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
             nic_tmp << "]\n"
 
-            nic_tmp << nic_alias_from_nic(network_found['ID'], nic, nic_index)
+            nic_tmp << nic_alias_from_nic(network_found['ID'], nic, nic_index, network_found, vm_object)
 
             nic_tmp
         end
@@ -821,7 +876,13 @@ module VCenterDriver
 
                         allocated_networks << one_vn
 
-                        nic_info << nic_from_network_created(one_vn, nic, nic_index.to_s)
+                        nic_info << nic_from_network_created(
+                            one_vn,
+                            nic,
+                            nic_index.to_s,
+                            vm_object,
+                            ar_ids
+                        )
 
                         # Refresh npool
                         npool.info_all
