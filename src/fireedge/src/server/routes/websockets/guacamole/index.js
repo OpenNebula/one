@@ -17,6 +17,7 @@ const GuacamoleLite = require('guacamole-lite')
 const { getConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { genFireedgeKey } = require('server/utils/server')
+const { endpointGuacamole } = require('server/utils/constants/defaults')
 
 // set fireedge_key
 genFireedgeKey()
@@ -57,7 +58,6 @@ const guacd = appConfig.guacd || {}
 const guacdPort = guacd.port || 4822
 const guacdHost = guacd.host || '127.0.0.1'
 
-const endpoint = '/guacamole'
 const guacamole = appServer => {
   if (
     appServer &&
@@ -66,7 +66,7 @@ const guacamole = appServer => {
     appServer.constructor.name === 'Server'
   ) {
     const guacamole = new GuacamoleLite(
-      { server: appServer, path: endpoint },
+      { server: appServer, path: endpointGuacamole },
       { host: guacdHost, port: guacdPort },
       clientOptions,
       clientCallbacks
@@ -78,6 +78,6 @@ const guacamole = appServer => {
 }
 
 module.exports = {
-  endpoint,
+  endpointGuacamole,
   guacamole
 }
