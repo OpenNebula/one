@@ -87,6 +87,7 @@ AllCops:
     - src/im_mad/remotes/one.d/poll
     - src/im_mad/remotes/az.d/poll
     - src/im_mad/remotes/lib/vcenter_cluster.rb
+    - src/im_mad/remotes/lib/vcenter_monitor_vms.rb
     - src/vnm_mad/remotes/ovswitch/post
     - src/vnm_mad/remotes/ovswitch/clean
     - src/vnm_mad/remotes/ovswitch/pre

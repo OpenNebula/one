@@ -17,6 +17,7 @@
 require 'opennebula'
 require 'vcenter_driver'
 require 'logger'
+require 'open3'
 
 def unindent(s)
     m = s.match(/^(\s*)/)
@@ -636,7 +637,8 @@ class Cluster
     #   'ones' : VMs in OpenNebula
     #---------------------------------------------------------------------------
     def vms_info(vm_type)
-        str_info , _ltime = @cluster.monitor_vms(@host.id, vm_type)
+        cmd = "#{File.dirname(__FILE__)}/vcenter_monitor_vms.rb #{@host.id} #{vm_type}"
+        str_info, _stderr, _status = Open3.capture3(cmd)
         return str_info
     end
 
