@@ -285,7 +285,42 @@ int VirtualMachinePool::dump_acct(string& oss, const string&  where,
     cmd << " ORDER BY vid,seq";
 
     return PoolSQL::dump(oss, "HISTORY_RECORDS", cmd);
-};
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachinePool::dump_acct(string& oss,
+    int time_start, int time_end, int sid, int rows)
+{
+    ostringstream cmd;
+
+    cmd << "SELECT " << "body FROM " << History::table;
+
+    if ( time_start != -1 || time_end != -1 )
+    {
+        string next = " WHERE ";
+        if ( time_start != -1 )
+        {
+            cmd << " WHERE (etime > " << time_start << " OR  etime = 0)";
+            next = " AND ";
+        }
+
+        if ( time_end != -1 )
+        {
+            cmd << next << "stime < " << time_end;
+        }
+    }
+
+    cmd << " ORDER BY vid,seq";
+
+    if (rows != -1)
+    {
+        cmd << " " << db->limit_string(sid, rows);
+    }
+
+    return PoolSQL::dump(oss, "HISTORY_RECORDS", cmd);
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -465,6 +500,8 @@ int VirtualMachinePool::get_vmid(const string& deploy_id)
 /* -------------------------------------------------------------------------- */
 
 #ifdef SBDEBUG
+#include <chrono>
+
 static string put_time(tm tmp_tm)
 {
     ostringstream oss;
@@ -489,12 +526,6 @@ static string put_time(time_t t)
  *  includes a method to write the showback record to an xml stream
  */
 struct SBRecord {
-
-    SBRecord(float c, float m, float d, float h): cpu_cost(c), mem_cost(m),
-        disk_cost(d), hours(h){};
-
-    SBRecord(): cpu_cost(0), mem_cost(0), disk_cost(0), hours(0){};
-
     ostringstream& to_xml(ostringstream &oss)
     {
         string cpuc_s = one_util::float_to_str(cpu_cost);
@@ -512,18 +543,22 @@ struct SBRecord {
         return oss;
     };
 
-    void clear()
-    {
-        cpu_cost = 0;
-        mem_cost = 0;
-        disk_cost= 0;
-        hours    = 0;
-    };
+    float cpu_cost = 0;
+    float mem_cost = 0;
+    float disk_cost = 0;
+    float hours = 0;
+};
 
-    float cpu_cost;
-    float mem_cost;
-    float disk_cost;
-    float hours;
+struct VMCost {
+    int uid = -1;
+    int gid = -1;
+
+    string uname;
+    string gname;
+
+    string vmname;
+
+    map<time_t, SBRecord> totals;
 };
 
 int VirtualMachinePool::calculate_showback(
@@ -533,19 +568,9 @@ int VirtualMachinePool::calculate_showback(
         int end_year,
         string &error_str)
 {
-    vector<xmlNodePtr>              nodes;
-    vector<xmlNodePtr>::iterator    node_it;
-
-    vector<time_t>                  showback_slots;
-    vector<time_t>::iterator        slot_it;
-
-
-    map<int, map<time_t, SBRecord> >           vm_cost;
-    map<int, map<time_t, SBRecord> >::iterator vm_it;
-
-    map<time_t, SBRecord>::iterator vm_month_it;
-
-    VirtualMachine* vm;
+    vector<xmlNodePtr> nodes;
+    vector<time_t>     showback_slots;
+    map<int, VMCost>   vm_costs;
 
     int             rc;
     ostringstream   oss;
@@ -568,7 +593,7 @@ int VirtualMachinePool::calculate_showback(
 
 #ifdef SBDEBUG
     ostringstream debug;
-    time_t debug_t_0 = time(0);
+    auto debug_t_0 = std::chrono::high_resolution_clock::now();
 #endif
 
     //--------------------------------------------------------------------------
@@ -627,20 +652,6 @@ int VirtualMachinePool::calculate_showback(
     }
 
     //--------------------------------------------------------------------------
-    // Get accounting history records
-    //--------------------------------------------------------------------------
-
-    std::string acct_str;
-
-    rc = dump_acct(acct_str, "", start_time, end_time);
-
-    ObjectXML xml(acct_str);
-
-#ifdef SBDEBUG
-    time_t debug_t_1 = time(0);
-#endif
-
-    //--------------------------------------------------------------------------
     // Create the monthly time slots
     //--------------------------------------------------------------------------
 
@@ -682,88 +693,113 @@ int VirtualMachinePool::calculate_showback(
     }
 #endif
 
-    //--------------------------------------------------------------------------
-    // Process the history records
-    //--------------------------------------------------------------------------
-
-    rc = xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
-
-    for ( node_it = nodes.begin(); node_it != nodes.end(); node_it++ )
-    {
-        ObjectXML history(*node_it);
-
-        history.xpath(vid,      "/HISTORY/OID", -1);
-
-        history.xpath(h_stime,  "/HISTORY/STIME", 0);
-        history.xpath(h_etime,  "/HISTORY/ETIME", 0);
-
-        history.xpath<float>(cpu,  "/HISTORY/VM/TEMPLATE/CPU", 0.0);
-        history.xpath(mem,  "/HISTORY/VM/TEMPLATE/MEMORY", 0);
-        history.xpath<float>(disk, "sum(/HISTORY/VM/TEMPLATE/DISK/SIZE | "
-            "/HISTORY/VM/TEMPLATE/DISK/DISK_SNAPSHOT_TOTAL_SIZE)", 0.0);
-
-        history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", _default_cpu_cost);
-        history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", _default_mem_cost);
-        history.xpath(disk_cost,"/HISTORY/VM/TEMPLATE/DISK_COST", _default_disk_cost);
-
-#ifdef SBDDEBUG
-        int seq;
-        history.xpath(seq, "/HISTORY/SEQ", -1);
-
-        debug.str("");
-        debug << "VM " << vid << " SEQ " << seq << endl
-            << "h_stime   " << h_stime << endl
-            << "h_etime   " << h_etime << endl
-            << "cpu_cost  " << cpu_cost << endl
-            << "mem_cost  " << mem_cost << endl
-            << "disk_cost " << disk_cost << endl
-            << "cpu       " << cpu << endl
-            << "mem       " << mem << endl
-            << "disk      " << disk;
-
-        NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
+#ifdef SBDEBUG
+    auto debug_t_1 = std::chrono::high_resolution_clock::now();
 #endif
 
-        for ( slot_it = showback_slots.begin(); slot_it != showback_slots.end()-1; slot_it++ )
+    int start_index = 0;
+    const int chunk_size = 10000;
+
+    do
+    {
+        //--------------------------------------------------------------------------
+        // Get accounting history records
+        //--------------------------------------------------------------------------
+
+        std::string acct_str;
+
+        rc = dump_acct(acct_str, start_time, end_time, start_index, chunk_size);
+        start_index += chunk_size;
+
+        ObjectXML xml(acct_str);
+
+        //--------------------------------------------------------------------------
+        // Process the history records
+        //--------------------------------------------------------------------------
+
+        nodes.clear();
+        rc = xml.get_nodes("/HISTORY_RECORDS/HISTORY", nodes);
+
+        for ( auto node : nodes )
         {
-            time_t t      = *slot_it;
-            time_t t_next = *(slot_it+1);
+            ObjectXML history(node);
 
-            if( (h_etime > t || h_etime == 0) &&
-                (h_stime != 0 && h_stime <= t_next) ) {
+            history.xpath(vid,      "/HISTORY/OID", -1);
 
-                time_t stime = t;
-                if(h_stime != 0){
-                    stime = (t < h_stime) ? h_stime : t; //max(t, h_stime);
+            history.xpath(h_stime,  "/HISTORY/STIME", 0);
+            history.xpath(h_etime,  "/HISTORY/ETIME", 0);
+
+            history.xpath<float>(cpu,  "/HISTORY/VM/TEMPLATE/CPU", 0.0);
+            history.xpath(mem,  "/HISTORY/VM/TEMPLATE/MEMORY", 0);
+            history.xpath<float>(disk, "sum(/HISTORY/VM/TEMPLATE/DISK/SIZE | "
+                "/HISTORY/VM/TEMPLATE/DISK/DISK_SNAPSHOT_TOTAL_SIZE)", 0.0);
+
+            history.xpath(cpu_cost, "/HISTORY/VM/TEMPLATE/CPU_COST", _default_cpu_cost);
+            history.xpath(mem_cost, "/HISTORY/VM/TEMPLATE/MEMORY_COST", _default_mem_cost);
+            history.xpath(disk_cost,"/HISTORY/VM/TEMPLATE/DISK_COST", _default_disk_cost);
+
+            auto& vm_cost = vm_costs[vid];
+            history.xpath(vm_cost.vmname, "/HISTORY/VM/NAME", "");
+            history.xpath(vm_cost.uid, "/HISTORY/VM/UID", -1);
+            history.xpath(vm_cost.uname, "/HISTORY/VM/UNAME", "");
+            history.xpath(vm_cost.gid, "/HISTORY/VM/GID", -1);
+            history.xpath(vm_cost.gname, "/HISTORY/VM/GNAME", "");
+
+    #ifdef SBDDEBUG
+            int seq;
+            history.xpath(seq, "/HISTORY/SEQ", -1);
+
+            debug.str("");
+            debug << "VM " << vid << " SEQ " << seq << endl
+                << "h_stime   " << h_stime << endl
+                << "h_etime   " << h_etime << endl
+                << "cpu_cost  " << cpu_cost << endl
+                << "mem_cost  " << mem_cost << endl
+                << "disk_cost " << disk_cost << endl
+                << "cpu       " << cpu << endl
+                << "mem       " << mem << endl
+                << "disk      " << disk;
+
+            NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
+    #endif
+
+            for ( auto slot_it = showback_slots.begin(); slot_it != showback_slots.end()-1; slot_it++ )
+            {
+                time_t t      = *slot_it;
+                time_t t_next = *(slot_it+1);
+
+                if( (h_etime > t || h_etime == 0) &&
+                    (h_stime != 0 && h_stime <= t_next) ) {
+
+                    time_t stime = t;
+                    if(h_stime != 0){
+                        stime = (t < h_stime) ? h_stime : t; //max(t, h_stime);
+                    }
+
+                    time_t etime = t_next;
+                    if(h_etime != 0){
+                        etime = (t_next < h_etime) ? t_next : h_etime; //min(t_next, h_etime);
+                    }
+
+                    float n_hours = difftime(etime, stime) / 60 / 60;
+
+                    // Add to vm time slot.
+                    SBRecord& totals = vm_cost.totals[t];
+
+                    totals.cpu_cost += cpu_cost * cpu * n_hours;
+                    totals.mem_cost += mem_cost * mem * n_hours;
+                    totals.disk_cost+= disk_cost* disk* n_hours;
+                    totals.hours    += n_hours;
                 }
-
-                time_t etime = t_next;
-                if(h_etime != 0){
-                    etime = (t_next < h_etime) ? t_next : h_etime; //min(t_next, h_etime);
-                }
-
-                float n_hours = difftime(etime, stime) / 60 / 60;
-
-                // Add to vm time slot.
-                map<time_t, SBRecord>& totals = vm_cost[vid];
-
-                if(totals.count(t) == 0)
-                {
-                    totals[t].clear();
-                }
-
-                totals[t].cpu_cost += cpu_cost * cpu * n_hours;
-                totals[t].mem_cost += mem_cost * mem * n_hours;
-                totals[t].disk_cost+= disk_cost* disk* n_hours;
-                totals[t].hours    += n_hours;
             }
         }
-    }
 
-    xml.free_nodes(nodes);
+        xml.free_nodes(nodes);
+    }
+    while (!nodes.empty());
 
 #ifdef SBDEBUG
-    time_t debug_t_2 = time(0);
+    auto debug_t_2 = std::chrono::high_resolution_clock::now();
 #endif
 
     // Write to DB
@@ -803,46 +839,25 @@ int VirtualMachinePool::calculate_showback(
 
     int n_entries = 0;
 
-    for ( vm_it = vm_cost.begin(); vm_it != vm_cost.end(); vm_it++ )
+    for ( auto vm_it = vm_costs.begin(); vm_it != vm_costs.end(); vm_it++ )
     {
-        map<time_t, SBRecord>& totals = vm_it->second;
+        int vmid = vm_it->first;
+        auto& vm_cost = vm_it->second;
+        map<time_t, SBRecord>& totals = vm_cost.totals;
 
-        for ( vm_month_it = totals.begin(); vm_month_it != totals.end(); vm_month_it++ )
+        for ( auto vm_month_it = totals.begin(); vm_month_it != totals.end(); vm_month_it++ )
         {
-            int vmid = vm_it->first;
-
-            vm = get_ro(vmid);
-
-            int uid = 0;
-            int gid = 0;
-            string uname = "";
-            string gname = "";
-            string vmname = "";
-
-            if (vm != 0)
-            {
-                uid = vm->get_uid();
-                gid = vm->get_gid();
-
-                uname = vm->get_uname();
-                gname = vm->get_gname();
-
-                vmname = vm->get_name();
-
-                vm->unlock();
-            }
-
             localtime_r(&vm_month_it->first, &tmp_tm);
 
             body.str("");
 
             body << "<SHOWBACK>"
                     << "<VMID>"     << vmid                     << "</VMID>"
-                    << "<VMNAME>"   << vmname                   << "</VMNAME>"
-                    << "<UID>"      << uid                      << "</UID>"
-                    << "<GID>"      << gid                      << "</GID>"
-                    << "<UNAME>"    << uname                    << "</UNAME>"
-                    << "<GNAME>"    << gname                    << "</GNAME>"
+                    << "<VMNAME>"   << vm_cost.vmname           << "</VMNAME>"
+                    << "<UID>"      << vm_cost.uid              << "</UID>"
+                    << "<GID>"      << vm_cost.gid              << "</GID>"
+                    << "<UNAME>"    << vm_cost.uname            << "</UNAME>"
+                    << "<GNAME>"    << vm_cost.gname            << "</GNAME>"
                     << "<YEAR>"     << tmp_tm.tm_year + 1900    << "</YEAR>"
                     << "<MONTH>"    << tmp_tm.tm_mon + 1        << "</MONTH>";
 
@@ -866,7 +881,7 @@ int VirtualMachinePool::calculate_showback(
                 oss << sql_cmd_separator;
             }
 
-            oss << " (" <<  vm_it->first            << ","
+            oss << " (" <<  vmid                    << ","
                 <<          tmp_tm.tm_year + 1900   << ","
                 <<          tmp_tm.tm_mon + 1       << ","
                 << "'"  <<  sql_body                << "')";
@@ -921,18 +936,18 @@ int VirtualMachinePool::calculate_showback(
     }
 
 #ifdef SBDEBUG
-    time_t debug_t_3 = time(0);
+    auto debug_t_3 = std::chrono::high_resolution_clock::now();
 
     debug.str("");
-    debug << "Time to dump acct to mem: " << debug_t_1 - debug_t_0;
+    debug << "Preparation time:        " << std::chrono::duration_cast<std::chrono::duration<double>>(debug_t_1 - debug_t_0).count();
     NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
 
     debug.str("");
-    debug << "Time to process numbers:  " << debug_t_2 - debug_t_1;
+    debug << "Time to process numbers: " << std::chrono::duration_cast<std::chrono::duration<double>>(debug_t_2 - debug_t_1).count();
     NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
 
     debug.str("");
-    debug << "Time to write to db:      " << debug_t_3 - debug_t_2;
+    debug << "Time to write to db:     " << std::chrono::duration_cast<std::chrono::duration<double>>(debug_t_3 - debug_t_2).count();
     NebulaLog::log("SHOWBACK", Log::DEBUG, debug);
 #endif
 

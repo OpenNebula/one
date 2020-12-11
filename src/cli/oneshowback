@@ -172,8 +172,13 @@ CommandParser::CmdParser.new(ARGV) do
                                                                end_year)
 
         if OpenNebula.is_error?(rc)
-            warn rc.message
-            exit(-1)
+            if rc.message.include? "ReadTimeout"
+                warn "Showback calculation takes too long, continuing in background"
+                exit_code 0
+            else
+                warn rc.message
+                exit(-1)
+            end
         else
             puts rc
             exit_code 0
