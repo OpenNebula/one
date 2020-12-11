@@ -286,6 +286,10 @@ define(function(require) {
 
     WizardFields.fill(context, element);
 
+    if(element.TOPOLOGY && element.TOPOLOGY.CORES) {
+      $('#CORES_PER_SOCKET').val(element.TOPOLOGY.CORES).change()
+    }
+
     // Update memory_gb with the value set in memory
     $("div.memory_input input", context).trigger("input");
 
