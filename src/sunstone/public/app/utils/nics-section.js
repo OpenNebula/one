@@ -209,7 +209,10 @@ define(function(require) {
           }
           preserveNetwork = true;
         }else{
-          if(nic && nic.FROM && nic.FROM==='TEMPLATE'){
+          if (
+            nic && nic.FROM && nic.FROM === 'TEMPLATE' &&
+            nic["NETWORK_ID"] === val
+          ) {
             delete nic['FROM'];
             nics.push(nic);
             return; //continue
