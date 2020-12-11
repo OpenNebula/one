@@ -207,7 +207,9 @@ define(function(require) {
       var vcpuValue = $("div.vcpu_input input", context).val();
       if (vcpuValue !== "") {
         _generateCores(context);
-        $('#CORES_PER_SOCKET option[value="' + element.TEMPLATE.CORES_PER_SOCKET + '"]').prop('selected', true);
+        if(element.TEMPLATE.TOPOLOGY) {
+          $('#CORES_PER_SOCKET').val(element.TEMPLATE.TOPOLOGY.CORES).change()
+        }
       }
 
       vcpuInput.on("change keyup", function(e){
