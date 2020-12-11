@@ -63,9 +63,11 @@ define(function(require) {
     }
     else setLoading(true);
 
-    var fireedge_protocol = Config.fireedgeEndpoint.split("//")[0];
-    var fireedge_host = Config.fireedgeEndpoint.split("//")[1].split(":")[0];
-    var fireedge_port = Config.fireedgeEndpoint.split("//")[1].split(":")[1];
+
+    var endpoint = Config.publicFireedgeEndpoint.split("//");
+    var fireedge_protocol = endpoint[0];
+    var fireedge_host = endpoint[1].split(":")[0];
+    var fireedge_port = endpoint[1].split(":")[1];
 
     var port = fireedge_port || '2616';
     var host = fireedge_host || 'localhost';

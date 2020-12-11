@@ -24,15 +24,35 @@ define(function (require) {
 
   var VM_header = require("tabs/vms-tab/hooks/header");
   var VM_state = require("tabs/vms-tab/hooks/state");
+  
+  const STATUS = {
+    DISCONNECTED: 0,
+    CONNECTED: 1,
+    PROCESSING: 2
+  };
 
-  // var Host_header = require('tabs/vms-tab/hooks/header');
+  var connection = STATUS.DISCONNECTED;
 
-  var _start = function () {
-    if (sessionStorage.getItem(FireedgeValidator.sessionVar) == "true"){
-      const socket = io(Config.fireedgeEndpoint, {
+  var _connected = function(){
+    return connection == STATUS.CONNECTED;
+  }
+
+  var _disconnected = function(){
+    return connection == STATUS.DISCONNECTED;
+  }
+
+  var _processing = function(){
+    return connection == STATUS.PROCESSING;
+  }
+
+  var _start = function (fireedgeToken="") {
+    connection = STATUS.PROCESSING;
+
+    if (fireedgeToken != "" ){
+      const socket = io(Config.publicFireedgeEndpoint, {
         path: "/fireedge/websocket",
         query: {
-          token: fireedge_token
+          token: fireedgeToken
         }
       });
 
@@ -108,12 +128,21 @@ define(function (require) {
       // Close Socket when close browser or tab.
       window.onbeforeunload = function () {
         socket.close();
+        connection = STATUS.DISCONNECTED;
       };
+
+      connection = STATUS.CONNECTED;
+    }
+    else{
+      connection = STATUS.DISCONNECTED;
     }
   };
 
   var websocket = {
-    "start": _start
+    "start": _start,
+    "connected": _connected,
+    "disconnected": _disconnected,
+    "processing": _processing,
   };
 
   return websocket;
