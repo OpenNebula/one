@@ -801,4 +801,25 @@ CommandParser::CmdParser.new(ARGV) do
             user.login(username, '', 0)
         end
     end
+
+    enable_desc = <<-EOT.unindent
+        Enables the given User
+    EOT
+
+    command :enable, enable_desc, [:range, :userid_list] do
+        helper.perform_actions(args[0], options, 'enabled') do |user|
+            user.enable
+        end
+    end
+
+    disable_desc = <<-EOT.unindent
+        Disables the given User
+    EOT
+
+    command :disable, disable_desc, [:range, :userid_list] do
+        helper.perform_actions(args[0], options, 'disabled') do |user|
+            user.disable
+        end
+    end
+
 end

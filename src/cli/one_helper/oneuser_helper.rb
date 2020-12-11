@@ -284,6 +284,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
+            column :ENABLED, "User is enabled", :left, :size=>4 do |d|
+                if d["ENABLED"] == "1"
+                    "yes"
+                else
+                    "no"
+                end
+            end
+
             column :GROUP, "Group of the User", :left, :size=>10 do |d|
                 helper.group_name(d, options)
             end
@@ -434,7 +442,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d['PASSWORD']
             end
 
-            default :ID, :NAME, :GROUP, :AUTH, :VMS, :MEMORY, :CPU
+            default :ID, :NAME, :ENABLED, :GROUP, :AUTH, :VMS, :MEMORY, :CPU
         end
 
         table
@@ -556,7 +564,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, "", :size=>7 do |d|
                     d["TOKEN"]
-               end
+                end
 
                 column :EGID, "", :left, :size=>5 do |d|
                     d["EGID"].to_i == -1 ? "*" + gid : d["EGID"]

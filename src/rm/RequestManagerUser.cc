@@ -179,6 +179,50 @@ int UserSetQuota::user_action(int     user_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int UserEnable::user_action(int     user_id,
+                            xmlrpc_c::paramList const& paramList,
+                            RequestAttributes&         att,
+                            string& error_str)
+{
+    bool enable = paramList.getBoolean(2);
+
+    if ( user_id == UserPool::ONEADMIN_ID )
+    {
+        error_str = "Cannot enable/disable oneadmin user";
+        return -1;
+    }
+
+    auto upool = static_cast<UserPool *>(pool);
+    auto user = upool->get(user_id);
+
+    if ( user == nullptr )
+    {
+        error_str = "User not found";
+        return -1;
+    }
+
+    if (user->isEnabled() == enable)
+    {
+        return 0;
+    }
+
+    if (enable)
+    {
+        user->enable();
+    }
+    else
+    {
+        user->disable();
+    }
+
+    upool->update(user.get());
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void UserEditGroup::
     request_execute(xmlrpc_c::paramList const& paramList,
                     RequestAttributes& att)
