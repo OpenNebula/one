@@ -84,6 +84,7 @@ const defaults = {
   defaultBaseURL: '',
   tmpPath: '/var/tmp',
   endpointVmrc: `${appName ? '/' + appName : ''}/vmrc`,
+  endpointGuacamole: `${appName ? '/' + appName : ''}/guacamole`,
   defaultNamespace: 'one.',
   defaultMessageInvalidZone: 'Invalid Zone',
   default2FAIssuer: `${appName}-UI`,
