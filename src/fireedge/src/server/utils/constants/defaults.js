@@ -83,7 +83,7 @@ const defaults = {
   defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
   tmpPath: '/var/tmp',
-  endpointVmrc: '/vmrc',
+  endpointVmrc: `${appName ? '/' + appName : ''}/vmrc`,
   defaultNamespace: 'one.',
   defaultMessageInvalidZone: 'Invalid Zone',
   default2FAIssuer: `${appName}-UI`,

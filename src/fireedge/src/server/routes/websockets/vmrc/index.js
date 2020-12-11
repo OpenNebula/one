@@ -41,7 +41,7 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   // eslint-disable-next-line consistent-return
   router: req => {
     if (req && req.url) {
-      const ticket = req.url.split('/')[2] || ''
+      const ticket = req.url.split('/')[3] || ''
       try {
         const esxi = readFileSync(
           `${global.VMRC_TOKENS || ''}/${ticket}`
