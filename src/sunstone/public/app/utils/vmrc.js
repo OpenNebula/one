@@ -75,7 +75,7 @@ define(function (require) {
     var hostname = window.location.hostname;
     var port = window.location.port;
     var protocol = window.location.protocol;
-    var fireedge_endpoint = Config.fireedgeEndpoint.split("//")[1];
+    var fireedge_endpoint = Config.publicFireedgeEndpoint.split("//")[1];
     var fireedge_host = fireedge_endpoint.split(":")[0];
     var fireedge_port = fireedge_endpoint.split(":")[1];
 
@@ -98,9 +98,9 @@ define(function (require) {
     URL += "://" + fireedge_endpoint + "/";
     
     var re = new RegExp("^(ws|wss):\\/\\/[\\w\\D]*?\\/", "gi");
-    var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/fireedge/vmrc?");
+    var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "fireedge/vmrc?");
 
-    URL += "/fireedge/vmrc/" + ticket;
+    URL += "fireedge/vmrc/" + ticket;
     link += "host=" + fireedge_host;
     link += "&port=" + fireedge_port;
     link += "&ticket=" + ticket;

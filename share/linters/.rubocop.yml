@@ -516,7 +516,6 @@ AllCops:
     - src/tm_mad/one_tm.rb
     - src/oca/ruby/opennebula/flow/grammar.rb
     - src/oca/ruby/opennebula/flow/validator.rb
-    - src/sunstone/models/OpenNebulaValidateFireedge.rb
     - src/sunstone/OpenNebulaVMRC.rb
   NewCops: enable
 

@@ -175,34 +175,33 @@ define(function(require) {
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
 
-    var success_function = function() {
-      sessionStorage.setItem(FireedgeValidator.sessionVar, "true");
-    };
-
-    var error_function = function() {
-      sessionStorage.removeItem(FireedgeValidator.sessionVar);
-    }  
-    
-    FireedgeValidator.request(success_function,error_function);
-    
-    if (sessionStorage.getItem(FireedgeValidator.sessionVar)){
-      $(".vnc-button").hide();
-      if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
-        if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
-          $(".vmrc-button").show();
-          $(".guac-button").hide();
-        }
-        if (that.element.USER_TEMPLATE.HYPERVISOR == "kvm"){
-          $(".guac-button").show();
-          $(".vmrc-button").hide();
+    var show_buttons = function(){
+      if (FireedgeValidator.fireedgeToken != ""){
+        $(".vnc-button").hide();
+        if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
+          if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
+            $(".vmrc-button").show();
+            $(".guac-button").hide();
+          }
+          if (that.element.USER_TEMPLATE.HYPERVISOR == "kvm"){
+            $(".guac-button").show();
+            $(".vmrc-button").hide();
+          }
         }
       }
+      else{
+        $(".vnc-button").show();
+        // Verify hipervisor
+        $(".guac-button").hide();
+        $(".vmrc-button").hide();
+      }
+    }
+
+    if (FireedgeValidator.fireedgeToken == ""){
+      FireedgeValidator.validateFireedgeToken(show_buttons);
     }
     else{
-      $(".vnc-button").show();
-      // Verify hipervisor
-      $(".guac-button").hide();
-      $(".vmrc-button").hide();
+      show_buttons();
     }
 
   }
