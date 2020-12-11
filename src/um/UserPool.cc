@@ -1325,6 +1325,12 @@ bool UserPool::authenticate(const string& session,
 
     if ( auto user = get(username) ) //User known to OpenNebula
     {
+        if (!user->isEnabled())
+        {
+            NebulaLog::error("AuM", "User " + user->get_name() + " is disabled");
+            return false;
+        }
+
         const string& driver = user->get_auth_driver();
 
         if ( fnmatch(UserPool::SERVER_AUTH, driver.c_str(), 0) == 0 )
