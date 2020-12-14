@@ -181,9 +181,7 @@ define(function(require) {
     if (FireedgeValidator.fireedgeToken == ""){
       FireedgeValidator.validateFireedgeToken(create_socket);
     }
-    else{
-      create_socket();
-    }
+
   }
 
   function _initialize(opts) {
@@ -306,7 +304,12 @@ define(function(require) {
         }
       }
 
-      FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
+      if (fireedgeToken == "") {
+        FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
+      }
+      else{
+        remote_connections();
+      }
 
       return false;
     });
