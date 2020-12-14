@@ -18,7 +18,6 @@ define(function (require) {
 
   var Config = require("sunstone-config");
   var Sunstone = require("sunstone");
-  var FireedgeValidator = require("utils/fireedge-validator");
   var io = require("socket-io-client");
   var OpenNebula = require("opennebula");
 
