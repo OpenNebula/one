@@ -20,12 +20,12 @@ const ProvisionCard = memo(
     const [{ image, ...body }, setBody] = useState({})
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-    const { NAME, TEMPLATE: { PLAIN = '{}', BODY = '{}' } } = value
+    const { NAME, TEMPLATE: { PLAIN = '{}', BODY = {} } } = value
     const stateInfo = PROVISIONS_STATES[body?.state]
 
     useEffect(() => {
       try {
-        const json = JSON.parse(isProvider ? PLAIN : BODY)
+        const json = isProvider ? JSON.parse(PLAIN) : BODY
         setBody({ ...json, image: json.image ?? DEFAULT_IMAGE })
       } catch {
         setBody({ image: DEFAULT_IMAGE })
