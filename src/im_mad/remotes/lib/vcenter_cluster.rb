@@ -637,7 +637,7 @@ class Cluster
     #   'ones' : VMs in OpenNebula
     #---------------------------------------------------------------------------
     def vms_info(vm_type)
-        cmd = "#{File.dirname(__FILE__)}/vcenter_monitor_vms.rb #{@host.id} #{vm_type}"
+        cmd = "#{File.dirname(__FILE__)}/vcenter_monitor_vms.rb #{@host.id} #{vm_type} \"#{connection[:ccr]}\""
         str_info, _stderr, _status = Open3.capture3(cmd)
         str_info
     end
