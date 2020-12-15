@@ -517,9 +517,22 @@ class ServiceLCM
     # Callbacks
     ############################################################################
 
-    def deploy_cb(client, service_id, role_name)
+    def deploy_cb(client, service_id, role_name, nodes)
+        undeploy = false
+
         rc = @srv_pool.get(service_id, client) do |service|
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
+
+            service.roles[role_name].nodes.delete_if do |node|
+                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                    service.roles[role_name].cardinality -= 1
+                end
+
+                nodes[node]
+            end
+
+            # If the role has 0 nodes, delete role
+            undeploy = service.check_role(service.roles[role_name])
 
             if service.all_roles_running?
                 service.set_state(Service::STATE['RUNNING'])
@@ -542,6 +555,12 @@ class ServiceLCM
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        return unless undeploy
+
+        Log.info LOG_COMP, "Automatically deleting service #{service_id}"
+
+        undeploy_action(client, service_id)
     end
 
     def deploy_failure_cb(client, service_id, role_name)
@@ -612,8 +631,16 @@ class ServiceLCM
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
-    def scaleup_cb(client, service_id, role_name)
+    def scaleup_cb(client, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, client) do |service|
+            service.roles[role_name].nodes.delete_if do |node|
+                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                    service.roles[role_name].cardinality -= 1
+                end
+
+                nodes[node]
+            end
+
             service.set_state(Service::STATE['COOLDOWN'])
             service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
 
@@ -693,16 +720,27 @@ class ServiceLCM
     end
 
     def cooldown_cb(client, service_id, role_name)
+        undeploy = false
+
         rc = @srv_pool.get(service_id, client) do |service|
             service.set_state(Service::STATE['RUNNING'])
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
 
             service.update
 
+            # If the role has 0 nodes, delete role
+            undeploy = service.check_role(service.roles[role_name])
+
             @wd.add_service(service)
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
+
+        return unless undeploy
+
+        Log.info LOG_COMP, "Automatically deleting service #{service_id}"
+
+        undeploy_action(client, service_id)
     end
 
     ############################################################################
@@ -754,7 +792,7 @@ class ServiceLCM
 
         return unless undeploy
 
-        Log.info LOG_COMP, "Deleting automatically service #{service_id}"
+        Log.info LOG_COMP, "Automatically deleting service #{service_id}"
 
         undeploy_action(client, service_id)
     end
