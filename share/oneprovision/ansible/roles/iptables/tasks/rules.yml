@@ -59,15 +59,6 @@
       reject_with: icmp-host-prohibited
       in_interface: "{{ iptables_base_rules_interface }}"
       jump: REJECT
-  - name: Live iptables rule - reject all the rest in FORWARD chain
-    iptables:
-      state: "{% if iptables_base_rules_strict %}present{% else %}absent{% endif %}"
-      action: append
-      table: filter
-      chain: FORWARD
-      reject_with: icmp-host-prohibited
-      in_interface: "{{ iptables_base_rules_interface }}"
-      jump: REJECT
 
   # default IPv6 rules
   - name: Live ip6tables rule - accept related/established
@@ -134,16 +125,6 @@
       ip_version: ipv6
       table: filter
       chain: INPUT
-      reject_with: icmp6-adm-prohibited
-      in_interface: "{{ iptables_base_rules_interface }}"
-      jump: REJECT
-  - name: Live ip6tables rule - reject all the rest in FORWARD chain
-    iptables:
-      state: "{% if iptables_base_rules_strict %}present{% else %}absent{% endif %}"
-      action: append
-      ip_version: ipv6
-      table: filter
-      chain: FORWARD
       reject_with: icmp6-adm-prohibited
       in_interface: "{{ iptables_base_rules_interface }}"
       jump: REJECT

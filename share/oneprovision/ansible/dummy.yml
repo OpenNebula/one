@@ -1,7 +1,0 @@
----
-
-- hosts: all
-  gather_facts: false
-  tasks:
-    - name: Create a file in TMP dir
-      raw: touch /tmp/ddc_dummy

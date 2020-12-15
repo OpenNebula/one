@@ -1,7 +1,0 @@
----
-
-- name: Reload service
-  service:
-    name: opennebula-p2p-vxlan
-    state: reloaded
-  listen: 'reload opennebula-p2p-vxlan'

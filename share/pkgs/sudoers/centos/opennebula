@@ -6,7 +6,7 @@ Cmnd_Alias ONE_FIRECRACKER = /usr/bin/jailer, /usr/bin/mount, /usr/sbin/one-clea
 Cmnd_Alias ONE_HA = /usr/bin/systemctl start opennebula-flow, /usr/bin/systemctl stop opennebula-flow, /usr/bin/systemctl start opennebula-gate, /usr/bin/systemctl stop opennebula-gate, /usr/bin/systemctl start opennebula-hem, /usr/bin/systemctl stop opennebula-hem, /usr/bin/systemctl start opennebula-showback.timer, /usr/bin/systemctl stop opennebula-showback.timer, /usr/sbin/service opennebula-flow start, /usr/sbin/service opennebula-flow stop, /usr/sbin/service opennebula-gate start, /usr/sbin/service opennebula-gate stop, /usr/sbin/service opennebula-hem start, /usr/sbin/service opennebula-hem stop, /usr/sbin/arping, /usr/sbin/ip address *
 Cmnd_Alias ONE_LVM = /usr/sbin/lvcreate, /usr/sbin/lvremove, /usr/sbin/lvs, /usr/sbin/vgdisplay, /usr/sbin/lvchange, /usr/sbin/lvscan, /usr/sbin/lvextend
 Cmnd_Alias ONE_MARKET = /usr/lib/one/sh/create_container_image.sh, /usr/lib/one/sh/create_docker_image.sh
-Cmnd_Alias ONE_NET = /usr/sbin/ebtables, /usr/sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /usr/sbin/ip link *, /usr/sbin/ip tuntap *
+Cmnd_Alias ONE_NET = /usr/sbin/ebtables, /usr/sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /usr/sbin/ip link *, /usr/sbin/ip tuntap *, /usr/sbin/ip route *, /usr/sbin/ip neighbour *
 Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl
 
 ## Command aliases are enabled individually in dedicated

@@ -44,7 +44,7 @@ module VNMMAD
                 gen_vlan_dev_name
 
                 # Create the bridge.
-                create_bridge
+                create_bridge(@nic)
 
                 # Check that no other vlans are connected to this bridge
                 validate_vlan_id if @nic[:conf][:validate_vlan_id]
@@ -141,95 +141,6 @@ module VNMMAD
             @nic[:vlan_dev] = "#{@nic[:phydev]}.#{@nic[:vlan_id]}"
         end
 
-        # Creates a bridge if it does not exists, and brings it up.
-        # This function IS FINAL, exits if action cannot be completed
-        def create_bridge
-            return if @bridges.key?(@nic[:bridge])
-
-            OpenNebula.exec_and_log("#{command(:ip)} link add name " \
-                "#{@nic[:bridge]} type bridge #{list_bridge_options}", nil, 2)
-
-            @bridges[@nic[:bridge]] = []
-
-            OpenNebula.exec_and_log("#{command(:ip)} " \
-                                    "link set #{@nic[:bridge]} up")
-        end
-
-        # Reads config and return str with switches
-        # It reads both
-        #   * brctl options from :bridge_conf section
-        #   * ip-route2 bridge options from ip_bridge_conf section
-        #
-        # It tries to translate the options from brctl to ip-route2 format
-        # for the backward compatibility
-        def list_bridge_options
-            bridge_options = @nic[:conf][:bridge_conf] || {}
-            ip_bridge_options = {}
-
-            # options transform table from brctl to ip-route2
-            brctl_to_ipbridge = {
-                :setageing     => :ageing_time,
-                :sethello      => :hello_time,
-                :setmaxage     => :max_age,
-                :stp           => :stp_state,
-                :setbridgeprio => :priority,
-                :setfd         => :forward_delay
-            }
-
-            # translate bridge_options to ip_bridge_options
-            bridge_options.each do |brctl_opt, brctl_val|
-                next unless brctl_to_ipbridge.include? brctl_opt
-
-                ip_bridge_options[brctl_to_ipbridge[brctl_opt]] = brctl_val
-            end
-
-            # merge, conf section `:ip_bridge_conf` has higher priority
-            ip_bridge_options.merge!(@nic[:conf][:ip_bridge_conf]) \
-                if @nic[:conf][:ip_bridge_conf]
-
-            bridge_options_str = ''
-            ip_bridge_options.each do |option, value|
-                case value
-                when true
-                    value = '1'
-                when false
-                    value = '0'
-                end
-
-                bridge_options_str << "#{option} #{value} "
-            end
-
-            bridge_options_str.strip
-        end
-
-        # Get hypervisor bridges
-        #   @return [Hash<String>] with the bridge names
-        def list_bridges
-            bridges = {}
-
-            ip_show_bridge =
-                `#{VNMNetwork::COMMANDS[:ip_unpriv]} link show type bridge`
-
-            ip_show_bridge.split("\n").each do |line|
-                next if line !~ /^[0-9]*:/
-
-                br_name = line.split(': ')[1]
-                bridges[br_name] = []
-
-                # rubocop:disable Layout/LineLength
-                ip_show_master =
-                    `#{VNMNetwork::COMMANDS[:ip_unpriv]} link show master #{br_name}`
-                # rubocop:enable Layout/LineLength
-
-                ip_show_master.split("\n").each do |l|
-                    next if l !~ /^[0-9]*:/
-
-                    bridges[br_name] << l.scan(/^\d+:\s([^:@]+)/)[0][0]
-                end
-            end
-
-            bridges
-        end
 
         def list_interface_vlan(_name)
             nil
