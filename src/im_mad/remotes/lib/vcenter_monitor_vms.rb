@@ -41,17 +41,18 @@ CONFIG = VCenterConf.new
 
 host_id = ARGV[0]
 vm_type = ARGV[1]
+ccr     = ARGV[2]
 
 begin
   vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-  cluster = Cluster.new(host_id, vi_client)
+  cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr, vi_client)
 
-  str_info , _ltime = cluster.monitor_vms(@host.id, vm_type)
+  str_info , _ltime = cluster.monitor_vms(host_id, vm_type)
 
   puts str_info
 rescue StandardError => e
-  message =  "Monitoring of VM #{vm_id} on vCenter cluster #{cluster_name} " \
+  message =  "Monitoring of VMs on vCenter cluster #{host_id} " \
                " failed due to \"#{e.message}\"."
   OpenNebula.log_error(message)
   if VCenterDriver::CONFIG[:debug_information]
