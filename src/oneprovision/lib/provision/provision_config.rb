@@ -240,12 +240,12 @@ module OneProvision
                         match = match.split('.')
 
                         if match.size == 1
+                            index = @config['provision']['index'] if @config['provision']
+
                             value.gsub!('${provision}', provision.name.to_s)
                             value.gsub!('${provision_id}', provision.id.to_s)
 
-                            if provision.idx
-                                value.gsub!('${index}', provision.idx.to_s)
-                            end
+                            value.gsub!('${index}', index.to_s) if index
                         else
                             objects = provision.info_objects("#{match[0]}s")
 
@@ -259,9 +259,13 @@ module OneProvision
                                 end
                             end
 
+                            key     = match[2].upcase
                             object  = object.to_hash
                             object  = object[object.keys[0]]
-                            replace = object[match[2].upcase]
+                            replace = object[key]
+
+                            replace = object['TEMPLATE'][key] unless replace
+                            replace = object['TEMPLATE']['PROVISION'][key] unless replace
 
                             value.gsub!("${#{match.join('.')}}", replace)
                         end
@@ -355,7 +359,7 @@ module OneProvision
         # @return [Hash] Configuration content
         def partial_load(name)
             begin
-                yaml = YAML.load_file(name)
+                yaml = YAML.load_file(name) || {}
             rescue StandardError => e
                 Utils.fail("Failed to read template: #{e}")
             end

@@ -74,6 +74,31 @@ module OneProvision
             tf_class.new(provider, tf[:state], tf[:conf])
         end
 
+        # Check connection attributes of a provider template
+        #
+        # @param provider [Provider] Provider information
+        # @return true or raise exception
+        def self.check_connection(provider)
+            case provider['provider']
+            when 'packet'
+                keys = Packet::KEYS
+            when 'aws'
+                keys = AWS::KEYS
+            else
+                raise OneProvisionLoopException,
+                      "Unknown provider: #{provider['provider']}"
+            end
+
+            keys.each do |k|
+                if !provider['connection'].has_key? k
+                    raise  OneProvisionLoopException,
+                           "Missing provider connection attribute: '#{k}'"
+                end
+            end
+
+            true
+        end
+
         # Generate Terraform deployment file
         #
         # @param provision [Provision] Provision information

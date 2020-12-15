@@ -47,7 +47,10 @@ void IPAMManager::_notify_request(unique_ptr<ipam_msg_t> msg)
     }
     else
     {
-        notify_request(msg->oid(), false, msg->payload());
+        string buffer;
+
+        ssl_util::base64_decode(msg->payload(), buffer);
+        notify_request(msg->oid(), false, buffer);
     }
 
     return;

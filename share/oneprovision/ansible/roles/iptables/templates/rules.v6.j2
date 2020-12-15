@@ -13,7 +13,6 @@
 -A INPUT {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -d fe80::/64 -p udp -m udp --dport 546 -m state --state NEW -j ACCEPT
 {% if iptables_base_rules_strict %}
 -A INPUT {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -j REJECT --reject-with icmp6-adm-prohibited
--A FORWARD {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -j REJECT --reject-with icmp6-adm-prohibited
 {% endif %}
 {% endif %}
 COMMIT

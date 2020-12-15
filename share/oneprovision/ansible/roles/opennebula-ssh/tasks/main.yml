@@ -13,3 +13,6 @@
 
 - include: deploy_local.yml
   when: opennebula_ssh_deploy_local == True
+
+- include: root_authkeys.yml
+  when: opennebula_ssh_keys_import_root_keys == True

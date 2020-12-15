@@ -28,8 +28,8 @@ CONFIG_DEFAULTS = {
     'connection' => {
         'remote_user' => 'root',
         'remote_port' => 22,
-        'public_key' => '/var/lib/one/.ssh/ddc/id_rsa.pub',
-        'private_key' => '/var/lib/one/.ssh/ddc/id_rsa'
+        'public_key' => '/var/lib/one/.ssh-oneprovision/id_rsa.pub',
+        'private_key' => '/var/lib/one/.ssh-oneprovision/id_rsa'
     }
 }
 
@@ -74,14 +74,15 @@ module OneProvision
             # Configures host via ansible
             #
             # @param hosts [OpenNebula::Host Array] Hosts to configure
+            # @param hosts [OpenNebula::Datastore array] Datastores for vars
             # @param ping  [Boolean]                True to check ping to hosts
-            def configure(hosts, ping = true)
+            def configure(hosts, datastores, ping = true)
                 return if hosts.nil? || hosts.empty?
 
                 Driver.retry_loop 'Failed to configure hosts' do
                     check_ansible_version
 
-                    ansible_dir = generate_ansible_configs(hosts)
+                    ansible_dir = generate_ansible_configs(hosts, datastores)
 
                     try_ssh(ansible_dir) if ping
 
@@ -93,6 +94,7 @@ module OneProvision
                         cmd << "ansible-playbook #{ANSIBLE_ARGS}"
                         cmd << " -i #{ansible_dir}/inventory"
                         cmd << " -i #{ANSIBLE_LOCATION}/inventories/#{i}"
+                        cmd << " -e @#{ansible_dir}/group_vars.yml"
                         cmd << " #{ANSIBLE_LOCATION}/#{i}.yml"
 
                         o, _e, s = Driver.run(cmd)
@@ -240,9 +242,10 @@ module OneProvision
             # Generates ansible configurations
             #
             # @param hosts [OpenNebula::Host array] Hosts to configure
+            # @param hosts [OpenNebula::Datastore array] Datastores for vars
             #
             # @return [Dir] Directory with Ansible information
-            def generate_ansible_configs(hosts)
+            def generate_ansible_configs(hosts, datastores)
                 ansible_dir = Dir.mktmpdir
                 msg = "Generating Ansible configurations into #{ansible_dir}"
 
@@ -276,6 +279,21 @@ module OneProvision
                 end
 
                 Driver.write_file_log("#{ansible_dir}/inventory", c)
+
+                # Generate "group_vars" file
+                group_vars = { 'sys_ds_ids' => [], 'first_host' => ""}
+                group_vars['first_host'] = hosts.first['name'] \
+                    unless hosts.empty?
+
+                datastores.each do |d|
+                    ds = Resource.object('datastores')
+                    ds.info(d['id'])
+                    next unless ds.one['TYPE'] == '1' # only system ds
+                    group_vars['sys_ds_ids'] << d['id']
+                end
+                c = YAML.dump(group_vars)
+                fname = "#{ansible_dir}/group_vars.yml"
+                Driver.write_file_log(fname, c)
 
                 # Generate "host_vars" directory
                 Dir.mkdir("#{ansible_dir}/host_vars")

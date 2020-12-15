@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -14,9 +16,43 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# Space separated list of VMM-TM pairs that support live disk snapshots. VMM
-# and TM must be separated by '-'
-LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-ceph kvm-ssh"
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
-# Space separated list VNM_MAD-ACTION pairs that run locally
-VNMAD_LOCAL_ACTIONS="elastic-post elastic-clean"
+if !ONE_LOCATION
+    LIB_LOCATION      ||= '/usr/lib/one'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+
+require 'vnmmad'
+
+template64 = STDIN.read
+
+deploy_id = ARGV[0]
+
+begin
+    drv = VNMMAD::VLANDriver.from_base64(template64,
+                                         "TEMPLATE/NIC[VN_MAD='elastic']",
+                                         deploy_id)
+
+    drv.create_bridges
+
+rescue StandardError => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
+end

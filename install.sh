@@ -429,7 +429,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/vcenter/pre.d \
           $VAR_LOCATION/remotes/vnm/vcenter/post.d \
           $VAR_LOCATION/remotes/vnm/vcenter/clean.d \
-          $VAR_LOCATION/remotes/vnm/alias_sdnat \
+          $VAR_LOCATION/remotes/vnm/elastic \
           $VAR_LOCATION/remotes/vnm/hooks/pre \
           $VAR_LOCATION/remotes/vnm/hooks/post \
           $VAR_LOCATION/remotes/vnm/hooks/clean \
@@ -473,7 +473,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/dummy \
           $VAR_LOCATION/remotes/ipam/dummy \
           $VAR_LOCATION/remotes/ipam/packet \
-          $VAR_LOCATION/remotes/ipam/ec2"
+          $VAR_LOCATION/remotes/ipam/aws"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
                $SUNSTONE_LOCATION/models \
@@ -667,7 +667,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_DH_SCRIPTS:$VAR_LOCATION/remotes/market/dockerhub
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
-    IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/ec2
+    IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/aws
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_HOOKS_PRE_FILES:$VAR_LOCATION/remotes/vnm/hooks/pre
     NETWORK_HOOKS_CLEAN_FILES:$VAR_LOCATION/remotes/vnm/hooks/clean
@@ -681,7 +681,7 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_FILES:$VAR_LOCATION/remotes/vnm/ovswitch
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
-    NETWORK_ALIAS_SDNAT_FILES:$VAR_LOCATION/remotes/vnm/alias_sdnat
+    NETWORK_ELASTIC_FILES:$VAR_LOCATION/remotes/vnm/elastic
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
     LXD_NETWORK_HOOKS:$SHARE_LOCATION/examples/network_hooks
@@ -737,7 +737,6 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
-    ONEPROVISION_EXAMPLES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
     ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
     ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
@@ -952,8 +951,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vmm_mad/remotes/ec2/ec2_driver.rb \
                 src/vmm_mad/remotes/one/opennebula_driver.rb \
                 src/vmm_mad/remotes/packet/packet_driver.rb \
-                src/vnm_mad/remotes/alias_sdnat/ec2_vnm.rb \
-                src/vnm_mad/remotes/alias_sdnat/packet_vnm.rb"
+                src/vnm_mad/remotes/elastic/aws_vnm.rb \
+                src/vnm_mad/remotes/elastic/packet_vnm.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -1587,11 +1586,11 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/clean \
                        src/vnm_mad/remotes/vcenter/update_sg"
 
-NETWORK_ALIAS_SDNAT_FILES="src/vnm_mad/remotes/alias_sdnat/AliasSDNAT.rb \
-                           src/vnm_mad/remotes/alias_sdnat/clean \
-                           src/vnm_mad/remotes/alias_sdnat/post \
-                           src/vnm_mad/remotes/alias_sdnat/pre \
-                           src/vnm_mad/remotes/alias_sdnat/update_sg "
+NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/Elastic.rb \
+                       src/vnm_mad/remotes/elastic/clean \
+                       src/vnm_mad/remotes/elastic/post \
+                       src/vnm_mad/remotes/elastic/pre \
+                       src/vnm_mad/remotes/elastic/update_sg "
 
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
@@ -1619,11 +1618,11 @@ IPAM_DRIVER_PACKET_SCRIPTS="src/ipamm_mad/remotes/packet/register_address_range 
 #-------------------------------------------------------------------------------
 # IPAM EC2 drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
-IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/ec2/register_address_range \
-               src/ipamm_mad/remotes/ec2/unregister_address_range \
-               src/ipamm_mad/remotes/ec2/allocate_address \
-               src/ipamm_mad/remotes/ec2/get_address \
-               src/ipamm_mad/remotes/ec2/free_address"
+IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/aws/register_address_range \
+               src/ipamm_mad/remotes/aws/unregister_address_range \
+               src/ipamm_mad/remotes/aws/allocate_address \
+               src/ipamm_mad/remotes/aws/get_address \
+               src/ipamm_mad/remotes/aws/free_address"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -2378,9 +2377,7 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/templates"
-
-ONEPROVISION_EXAMPLES_FILES="share/oneprovision/examples"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/hybrid+"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"

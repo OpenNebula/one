@@ -14,3 +14,6 @@ opennebula_ssh_deploy_local: True
 
 # Deploy local oneadmin's SSH private key to remote host
 opennebula_ssh_deploy_private_key: False
+
+# Adds /root/.ssh/authorized_keys to /var/lib/one/.ssh/authorized_keys
+opennebula_ssh_keys_import_root_keys: False

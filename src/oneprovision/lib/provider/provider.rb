@@ -40,6 +40,8 @@ module OneProvision
             rc = nil
 
             begin
+                Terraform.check_connection(template)
+
                 rc = to_json(template)
 
                 return rc if OpenNebula.is_error?(rc)

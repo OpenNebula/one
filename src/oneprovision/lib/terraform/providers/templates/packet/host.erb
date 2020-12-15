@@ -3,7 +3,7 @@ resource "packet_device" "device_<%= obj['ID'] %>" {
     plan             = "<%= provision['PLAN'] %>"
     facilities       = ["<%= provision['FACILITY'] %>"]
     operating_system = "<%= provision['OS'] %>"
-    project_id       = "<%= provision['PACKET_PROJECT']%>"
+    project_id       = "<%= provision['PROJECT']%>"
     billing_cycle    = "hourly"
     user_data        = "<%= obj['user_data'] %>"
     tags             = ["OpenNebula", "ONE_ID=<%= obj['ID'] %>"]

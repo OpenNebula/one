@@ -17,7 +17,13 @@
 #--------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used to unregister a new IP network in the IPAM.
+# This script is used to register a new IP network in the IPAM. The network may
+# be selected by a pool of free networks or if an specific network is requested
+# its availability maybe checked by the IPAM driver.
+#
+# The IPAM driver must return an OpenNebula AddressRange definition, potentially
+# augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
+# MASK...)
 #
 # STDIN Input:
 #   - Base64 encoded XML with AR request
@@ -25,22 +31,22 @@
 # XML format
 #  <IPAM_DRIVER_ACTION_DATA>
 #    <AR>
-#      <DEPLOY_ID>Packet AR ID</DEPLOY_ID>
-#      <PACKET_TOKEN>Packet auth token</PACKET_TOKEN>
+#      <AWS_ALLOCATION_ID>aws allocation id</AWS_ALLOCATION_ID>
+#      <AWS_ACCESS_KEY>access key</AWS_ACCESSKEY>
+#      <AWS_SECRET_KEY>secret key</AWS_SECRET_KEY>
+#      <AWS_REGION>region</AWS_REGION>
 #    </AR>
 #  </IPAM_DRIVER_ACTION_DATA>
-#
 ################################################################################
+
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     LIB_LOCATION      ||= '/usr/lib/one'
-    PACKET_LOCATION   ||= '/usr/lib/one/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
-    PACKET_LOCATION   ||= ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
@@ -51,13 +57,12 @@ if File.directory?(GEMS_LOCATION)
     Gem.use_paths(File.realpath(GEMS_LOCATION))
 end
 
-$LOAD_PATH << PACKET_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'packet'
 require 'base64'
 require 'nokogiri'
+require 'aws-sdk-ec2'
 require 'opennebula'
 require 'oneprovision'
 
@@ -85,22 +90,28 @@ begin
 
     provider = provision.provider
     connect  = provider.body['connection']
-    pk_token = connect['token']
+
+    options = {
+        :access_key_id     => connect['access_key'],
+        :secret_access_key => connect['secret_key'],
+        :region            => connect['region']
+    }
 
     # --------------------------------------------------------------------------
-    # Connect to Packet and delete the IP
+    # Connect to AWS delete the IP allocation
     # --------------------------------------------------------------------------
-    packet            = Packet::Client.new
-    packet.auth_token = pk_token
+    allocation_id = data.xpath('//AR/AWS_ALLOCATION_ID').text
 
-    packet_id = data.xpath('//AR/PACKET_IP_ID').text.to_s
-
-    if packet_id.empty?
-        STDERR.puts 'Missing packet range ID'
+    unless allocation_id
+        STDERR.puts 'AWS_ALLOCATION_ID not found in AR'
         exit(-1)
     end
 
-    packet.delete_ip(packet_id)
+    Aws.config.merge!(options)
+
+    ec2 = Aws::EC2::Resource.new.client
+
+    ec2.release_address({ :allocation_id => allocation_id })
 rescue StandardError => e
     error_str = "ERROR MESSAGE --8<------\n"
     error_str << e.to_s
