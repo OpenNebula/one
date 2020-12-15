@@ -284,8 +284,8 @@ define(function(require) {
           : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
       }
 
-      var remote_connections = function(){
-        if (FireedgeValidator.fireedgeToken != ""){
+      var remote_connections = function(fireedgeToken){
+        if (fireedgeToken != ""){
           var data = $(that).data();
           // Get VM info
           if (data.hasOwnProperty('id')){
@@ -304,11 +304,11 @@ define(function(require) {
         }
       }
 
-      if (fireedgeToken == "") {
+      if (FireedgeValidator.fireedgeToken == "") {
         FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
       }
       else{
-        remote_connections();
+        remote_connections(FireedgeValidator.fireedgeToken);
       }
 
       return false;

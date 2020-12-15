@@ -176,7 +176,7 @@ define(function(require) {
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
 
     var show_buttons = function(){
-      if (FireedgeValidator.fireedgeToken != ""){
+      if (fireedge_token != ""){
         $(".vnc-button").hide();
         if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
           if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
@@ -188,10 +188,13 @@ define(function(require) {
             $(".vmrc-button").hide();
           }
         }
+        else{
+          $(".guac-button").show();
+          $(".vmrc-button").hide();
+        }
       }
       else{
         $(".vnc-button").show();
-        // Verify hipervisor
         $(".guac-button").hide();
         $(".vmrc-button").hide();
       }
