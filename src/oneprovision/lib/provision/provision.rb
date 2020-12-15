@@ -624,8 +624,8 @@ module OneProvision
                 if h['provision']['hostname'].is_a? Array
                     count     = h['provision']['hostname'].size
                     hostnames = h['provision']['hostname']
-                elsif h['count']
-                    count = Integer(h['count'])
+                elsif h['provision']['count']
+                    count = Integer(h['provision']['count'])
                 else
                     count = 1
                 end
