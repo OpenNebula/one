@@ -1,0 +1,12 @@
+<!-- This schema is followd by the EVENT API message sent by the Hook Manager   -->
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="HOOK_MESSAGE">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ARGUMENTS" type="xs:string"/>
+        <xs:element name="HOOK_ID" type="xs:integer"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

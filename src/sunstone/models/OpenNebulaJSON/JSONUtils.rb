@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -58,6 +58,15 @@ module OpenNebulaJSON
 
             rescue => e
                 Error.new(e.message)
+            end
+        end
+
+        def template_to_str_sunstone_with_explicite_empty_value(attributes)
+            result = template_to_str(attributes, indent=true)
+            if result == ""
+                "SUNSTONE=[]\n"
+            else
+                result
             end
         end
 

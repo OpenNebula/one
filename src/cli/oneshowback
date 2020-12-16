@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,41 +16,48 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/oneacct_helper'
 
 require 'json'
 
-cmd = CommandParser::CmdParser.new(ARGV) do
+CommandParser::CmdParser.new(ARGV) do
+    @formats = {}
 
-    @formats = Hash.new
-
-    usage "`oneshowback` <command> [<options>]"
-    description ""
+    usage '`oneshowback` <command> [<options>]'
+    description ''
     version OpenNebulaHelper::ONE_VERSION
 
-    helper=OpenNebulaHelper::OneHelper.new
+    helper = OpenNebulaHelper::OneHelper.new
 
     before_proc do
+        options[:timeout] = 60 # 60 sec
         helper.set_client(options)
     end
 
-    command :list, "Returns the showback records", :options =>
+    command :list, 'Returns the showback records', :options =>
         AcctHelper::SHOWBACK_OPTIONS + CommandParser::OPTIONS +
         [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
         OpenNebulaHelper::CLIENT_OPTIONS do
-
         if options[:describe]
             AcctHelper::SHOWBACK_TABLE.describe_columns
             exit(0)
@@ -61,7 +68,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         start_month = -1
         start_year  = -1
 
-        if (options[:start_time])
+        if options[:start_time]
             start_month = options[:start_time].month
             start_year  = options[:start_time].year
         end
@@ -69,56 +76,55 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         end_month = -1
         end_year  = -1
 
-        if (options[:end_time])
+        if options[:end_time]
             end_month = options[:end_time].month
             end_year  = options[:end_time].year
         end
 
         common_opts = {
             :start_month => start_month,
-            :start_year  => start_year,
-            :end_month   => end_month,
-            :end_year    => end_year,
-            :group      => options[:group],
-            :xpath      => options[:xpath]
+            :start_year => start_year,
+            :end_month => end_month,
+            :end_year => end_year,
+            :group => options[:group],
+            :xpath => options[:xpath]
         }
 
         pool = OpenNebula::VirtualMachinePool.new(helper.client)
 
-        if options[:json] || options[:xml]
+        if options[:json] || options[:xml] || options[:yaml]
             xml_str = pool.showback_xml(filter_flag, common_opts)
             if OpenNebula.is_error?(xml_str)
                 puts xml_str.message
-                exit -1
+                exit(-1)
             end
 
-            if options[:json]
-                xmldoc = XMLElement.new
-                xmldoc.initialize_xml(xml_str, 'SHOWBACK_RECORDS')
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(xml_str, 'SHOWBACK_RECORDS')
 
+            if options[:json]
                 puts JSON.pretty_generate(xmldoc.to_hash)
+            elsif options[:yaml]
+                puts xmldoc.to_hash.to_yaml(:indent => 4)
             elsif options[:xml]
                 puts xml_str
             end
-
-            exit_code 0
         else
-
-            order_by = Hash.new
+            order_by = {}
             if !options[:csv]
                 order_by[:order_by_1] = 'YEAR'
                 order_by[:order_by_2] = 'MONTH'
             end
 
             data_hash = pool.showback(filter_flag,
-                                        common_opts.merge(order_by))
+                                      common_opts.merge(order_by))
             if OpenNebula.is_error?(data_hash)
                 puts data_hash.message
-                exit -1
+                exit(-1)
             end
 
             if options[:csv]
-                a = Array.new
+                a = []
 
                 if data_hash['SHOWBACK_RECORDS']
                     a = data_hash['SHOWBACK_RECORDS']['SHOWBACK']
@@ -128,29 +134,27 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                 exit(0)
             end
 
-            data_hash.each { |year, value|
-                value.each { |month, showback_array|
+            data_hash.each do |year, value|
+                value.each do |month, showback_array|
                     AcctHelper.print_month_header(year, month)
 
                     array = showback_array['SHOWBACK_RECORDS']['SHOWBACK']
                     AcctHelper::SHOWBACK_TABLE.show(array, options)
                     puts
-                }
+                end
+            end
 
-            }
-
-            exit_code 0
         end
+
+        exit_code 0
     end
 
-    command :"calculate", "Calculates the showback records", :options =>
+    command :calculate, 'Calculates the showback records', :options =>
             [AcctHelper::START_TIME_SHOWBACK, AcctHelper::END_TIME_SHOWBACK] do
-
-
         start_month = -1
         start_year  = -1
 
-        if (options[:start_time])
+        if options[:start_time]
             start_month = options[:start_time].month
             start_year  = options[:start_time].year
         end
@@ -158,21 +162,28 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         end_month = -1
         end_year  = -1
 
-        if (options[:end_time])
+        if options[:end_time]
             end_month = options[:end_time].month
             end_year  = options[:end_time].year
         end
 
-        rc = OpenNebula::VirtualMachinePool.new(helper.client).
-                calculate_showback(start_month, start_year, end_month, end_year)
+        rc = OpenNebula::VirtualMachinePool.new(helper.client)
+                                           .calculate_showback(start_month,
+                                                               start_year,
+                                                               end_month,
+                                                               end_year)
 
         if OpenNebula.is_error?(rc)
-            warn rc.message
-            exit -1
+            if rc.message.include? "ReadTimeout"
+                warn "Showback calculation takes too long, continuing in background"
+                exit_code 0
+            else
+                warn rc.message
+                exit(-1)
+            end
         else
             puts rc
             exit_code 0
         end
-
     end
 end

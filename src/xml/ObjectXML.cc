@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,12 @@
 #include <cstring>
 #include <iostream>
 #include <sstream>
+#include <libxml/parser.h>
+#include <libxml/relaxng.h>
+
+#include "expr_arith.h"
+#include "expr_bool.h"
+#include "expr_parser.h"
 
 using namespace std;
 
@@ -112,6 +118,11 @@ void ObjectXML::xpaths(std::vector<std::string>& content, const char * expr)
             break;
 
         case XPATH_NODESET:
+            if (obj->nodesetval == 0)
+            {
+                return;
+            }
+
             for(int i = 0; i < obj->nodesetval->nodeNr ; ++i)
             {
                 cur = obj->nodesetval->nodeTab[i];
@@ -452,58 +463,77 @@ int ObjectXML::rename_nodes(const char * xpath_expr, const char * new_name)
     return renamed;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ObjectXML::remove_nodes(const char * xpath_expr)
+{
+    xmlXPathObjectPtr obj = xmlXPathEvalExpression(
+        reinterpret_cast<const xmlChar *>(xpath_expr), ctx);
+
+    if (obj == 0 || obj->nodesetval == 0)
+    {
+        return 0;
+    }
+
+    xmlNodeSetPtr ns = obj->nodesetval;
+
+    int size    = ns->nodeNr;
+    int removed = size;
+
+    for(int i = 0; i < size; ++i)
+    {
+        xmlNodePtr cur = ns->nodeTab[i];
+
+        if ( cur == 0 || cur->type != XML_ELEMENT_NODE )
+        {
+            removed--;
+            continue;
+        }
+
+        xmlUnlinkNode(cur);
+
+        xmlFreeNode(cur);
+    }
+
+    xmlXPathFreeObject(obj);
+
+    return removed;
+}
+
 /* ************************************************************************ */
 /* Host :: Parse functions to compute rank and evaluate requirements        */
 /* ************************************************************************ */
 
-extern "C"
-{
-    typedef struct yy_buffer_state * YY_BUFFER_STATE;
-
-    int expr_bool_parse(ObjectXML * oxml, bool& result, char ** errmsg);
-
-    int expr_arith_parse(ObjectXML * oxml, int& result, char ** errmsg);
-
-    int expr_lex_destroy();
-
-    YY_BUFFER_STATE expr__scan_string(const char * str);
-
-    void expr__delete_buffer(YY_BUFFER_STATE);
-}
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 int ObjectXML::eval_bool(const string& expr, bool& result, char **errmsg)
 {
-    YY_BUFFER_STATE     str_buffer = 0;
-    const char *        str;
-    int                 rc;
+    const char * str;
+    int          rc;
+
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t scanner = 0;
 
     *errmsg = 0;
 
+    expr_lex_init(&scanner);
+
     str = expr.c_str();
 
-    str_buffer = expr__scan_string(str);
+    str_buffer = expr__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
-        goto error_yy;
+        *errmsg=strdup("Error setting scan buffer");
+        return -1;
     }
 
-    rc = expr_bool_parse(this,result,errmsg);
+    rc = expr_bool_parse(this, result, errmsg, scanner);
 
-    expr__delete_buffer(str_buffer);
+    expr__delete_buffer(str_buffer, scanner);
 
-    expr_lex_destroy();
+    expr_lex_destroy(scanner);
 
     return rc;
-
-error_yy:
-
-    *errmsg=strdup("Error setting scan buffer");
-
-    return -1;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -511,26 +541,30 @@ error_yy:
 
 int ObjectXML::eval_arith(const string& expr, int& result, char **errmsg)
 {
-    YY_BUFFER_STATE     str_buffer = 0;
-    const char *        str;
-    int                 rc;
+    const char * str;
+    int rc;
+
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t scanner = 0;
 
     *errmsg = 0;
 
+    expr_lex_init(&scanner);
+
     str = expr.c_str();
 
-    str_buffer = expr__scan_string(str);
+    str_buffer = expr__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
         goto error_yy;
     }
 
-    rc = expr_arith_parse(this,result,errmsg);
+    rc = expr_arith_parse(this, result, errmsg, scanner);
 
-    expr__delete_buffer(str_buffer);
+    expr__delete_buffer(str_buffer, scanner);
 
-    expr_lex_destroy();
+    expr_lex_destroy(scanner);
 
     return rc;
 
@@ -544,3 +578,34 @@ error_yy:
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int ObjectXML::validate_rng(const std::string &xml_doc, const string& schema_path)
+{
+    int rc;
+    xmlDocPtr doc = 0;
+    xmlRelaxNGPtr schema;
+    xmlRelaxNGValidCtxtPtr validctxt;
+    xmlRelaxNGParserCtxtPtr rngparser;
+
+    doc = xmlParseMemory (xml_doc.c_str(),xml_doc.length());
+
+    if (doc == 0)
+    {
+        return -1;
+    }
+
+    rngparser = xmlRelaxNGNewParserCtxt(schema_path.c_str());
+    schema = xmlRelaxNGParse(rngparser);
+    validctxt = xmlRelaxNGNewValidCtxt(schema);
+
+    rc = xmlRelaxNGValidateDoc(validctxt, doc);
+
+    xmlRelaxNGFree(schema);
+    xmlRelaxNGFreeValidCtxt(validctxt);
+    xmlRelaxNGFreeParserCtxt(rngparser);
+    xmlFreeDoc(doc);
+
+    return rc;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */

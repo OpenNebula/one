@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -77,6 +77,7 @@ define(function(require) {
   UserCreation.prototype.enable = _enable;
   UserCreation.prototype.disable = _disable;
   UserCreation.prototype.setName = _setName;
+  UserCreation.prototype.onShow = _onShow;
 
   return UserCreation;
 
@@ -142,7 +143,7 @@ define(function(require) {
         emptyValue: false
       });
 
-    that.groupsTable.initialize();
+    this.groupsTable.initialize();
     this.groupsTable.refreshResourceTableSelect();
   }
 
@@ -221,5 +222,16 @@ define(function(require) {
 
   function _setName(context, name){
     $('#'+this.idPrefix+'_username',context).val(name);
+  }
+
+  function _onShow(context) {
+    ResourceSelect.insert({
+      context: $('.main_group_div', context),
+      resourceName: 'Group',
+      extraOptions: '<option value="-1">'+Locale.tr("Default")+'</option>',
+      emptyValue: false
+    });
+
+    this.groupsTable.refreshResourceTableSelect();
   }
 });

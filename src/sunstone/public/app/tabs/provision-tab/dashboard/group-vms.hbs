@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -13,100 +13,102 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-<div class="row" id="provision_group_vms_dashboard">
-  <div class="large-12 columns">
-    <h4>{{tr "Group Virtual Machines"}}</h4>
-    <div class="row">
-      <div class="large-3 medium-4 columns text-center">
-        <div class="row">
-          <div class="large-12 columns">
-            <h2>
-              <span  id="provision_dashboard_group_total"> <i class="fa fa-spinner fa-spin"></i>
-              </span>
-              <br>
-              <small class="subheader">{{tr "TOTAL"}}</small>
-            </h2>
-          </div>
-        </div>
-        <div class="row">
-          <div class="large-12 columns">
-            <a href"#" class="medium button success provision_create_vm_button"> <i class="fa fa-lg fa-plus-square"/></a>
-            <a href"#" class="medium button provision_vms_list_button">
-              <i class="fa fa-lg fa-th"/></a>
-          </div>
-        </div>
-      </div>
-      <div class="large-9 medium-8 columns text-center">
-        <div class="large-10 medium-12 large-centered columns">
-        <div class="large-3 medium-3 small-6 columns">
-          <h4>
-            <span id="provision_dashboard_group_running">
-              <i class="fa fa-spinner fa-spin"></i>
-            </span><br>
-            <small class="subheader">{{tr "RUNNING"}}</small>
-          </h4>
-        </div>
-        <div class="large-3 medium-3 small-6 columns ">
-          <h4>
-            <span id="provision_dashboard_group_deploying" >
-              <i class="fa fa-spinner fa-spin"></i>
-            </span><br>
-            <small class="subheader">{{tr "DEPLOYING"}}</small>
-          </h4>
-        </div>
-        <div class="large-3 medium-3 small-6 columns">
-          <h4>
-            <span  id="provision_dashboard_group_off">
-              <i class="fa fa-spinner fa-spin"></i>
-            </span><br>
-            <small class="subheader">{{tr "OFF"}}</small>
-          </h4>
-        </div>
-        <div class="large-3 medium-3 small-6 columns ">
-          <h4>
-            <span  id="provision_dashboard_group_error">
-              <i class="fa fa-spinner fa-spin"></i>
-            </span><br>
-            <small class="subheader">{{tr "ERROR"}}</small>
-          </h4>
-        </div>
-        <br>
-        </div>
-        <div class="large-12 columns" id="dashboard_group_vm_accounting">
-          <div class="large-4 medium-12 columns text-center">
-            <input style="display:none;" value="vm" id="acct_group_by"/>
-            <div class="row">
-              <div class="large-12 columns graph_legend">
-                <span class="subheader">
-                  <span>{{tr "CPU hours"}}</span>
+<fieldset class="large-12 columns dashboard-fieldset" id="provision_group_vms_dashboard">
+  <div class="row">
+    <div class="large-12 columns">
+      <h4>{{tr "Group Virtual Machines"}}</h4>
+      <div class="row">
+        <div class="large-3 medium-4 columns text-center">
+          <div class="row">
+            <div class="large-12 columns">
+              <h2>
+                <span  id="provision_dashboard_group_total"> <i class="fas fa-spinner fa-spin"></i>
                 </span>
-              </div>
-              <div class="large-12 columns">
-                <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
-              </div>
+                <br>
+                <small class="subheader">{{tr "TOTAL"}}</small>
+              </h2>
             </div>
           </div>
-          <div class="large-4 medium-12 columns text-center">
-            <div class="row">
-              <div class="large-12 columns graph_legend">
-                <span class="subheader">
-                  <span>{{tr "Memory GB hours"}}</span>
-                </span>
-              </div>
-              <div class="large-12 columns">
-                <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
-              </div>
+          <div class="row">
+            <div class="large-12 columns">
+              <a href"#" class="medium button success provision_create_vm_button"> <i class="fas fa-lg fa-plus-square"/></a>
+              <a href"#" class="medium button provision_vms_list_button">
+                <i class="fas fa-lg fa-th"/></a>
             </div>
           </div>
-          <div class="large-4 medium-12 columns text-center">
-            <div class="row">
-              <div class="large-12 columns graph_legend">
-                <span class="subheader">
-                  <span>{{tr "Disk MB hours"}}</span>
-                </span>
+        </div>
+        <div class="large-9 medium-8 columns text-center">
+          <div class="large-10 medium-12 large-centered columns">
+          <div class="large-3 medium-3 small-6 columns">
+            <h4>
+              <span id="provision_dashboard_group_running">
+                <i class="fas fa-spinner fa-spin"></i>
+              </span><br>
+              <small class="subheader">{{tr "RUNNING"}}</small>
+            </h4>
+          </div>
+          <div class="large-3 medium-3 small-6 columns ">
+            <h4>
+              <span id="provision_dashboard_group_deploying" >
+                <i class="fas fa-spinner fa-spin"></i>
+              </span><br>
+              <small class="subheader">{{tr "DEPLOYING"}}</small>
+            </h4>
+          </div>
+          <div class="large-3 medium-3 small-6 columns">
+            <h4>
+              <span  id="provision_dashboard_group_off">
+                <i class="fas fa-spinner fa-spin"></i>
+              </span><br>
+              <small class="subheader">{{tr "OFF"}}</small>
+            </h4>
+          </div>
+          <div class="large-3 medium-3 small-6 columns ">
+            <h4>
+              <span  id="provision_dashboard_group_error">
+                <i class="fas fa-spinner fa-spin"></i>
+              </span><br>
+              <small class="subheader">{{tr "ERROR"}}</small>
+            </h4>
+          </div>
+          <br>
+          </div>
+          <div class="large-12 columns" id="dashboard_group_vm_accounting">
+            <div class="large-4 medium-12 columns text-center">
+              <input style="display:none;" value="vm" id="acct_group_by"/>
+              <div class="row">
+                <div class="large-12 columns graph_legend">
+                  <span class="subheader">
+                    <span>{{tr "CPU"}}</span>
+                  </span>
+                </div>
+                <div class="large-12 columns">
+                  <div class="large-12 columns centered graph" id="acct_cpu_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
+                </div>
               </div>
-              <div class="large-12 columns">
-                <div class="large-12 columns centered graph" id="acct_disk_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
+            </div>
+            <div class="large-4 medium-12 columns text-center">
+              <div class="row">
+                <div class="large-12 columns graph_legend">
+                  <span class="subheader">
+                    <span>{{tr "Memory GB"}}</span>
+                  </span>
+                </div>
+                <div class="large-12 columns">
+                  <div class="large-12 columns centered graph" id="acct_mem_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
+                </div>
+              </div>
+            </div>
+            <div class="large-4 medium-12 columns text-center">
+              <div class="row">
+                <div class="large-12 columns graph_legend">
+                  <span class="subheader">
+                    <span>{{tr "Disk MB"}}</span>
+                  </span>
+                </div>
+                <div class="large-12 columns">
+                  <div class="large-12 columns centered graph" id="acct_disk_graph" style="height: 100px;">{{> ./empty-graphs}}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -114,3 +116,4 @@
       </div>
     </div>
   </div>
+</fieldset>

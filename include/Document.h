@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,7 @@
 #define DOCUMENT_H_
 
 #include "PoolObjectSQL.h"
-#include "Template.h"
+#include "DocumentTemplate.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -30,12 +30,14 @@ class Document : public PoolObjectSQL
 {
 public:
 
+    virtual ~Document() = default;
+
     /**
      * Function to print the Document object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
     // ------------------------------------------------------------------------
     // Template Contents
@@ -44,19 +46,18 @@ public:
     /**
      *  Factory method for document templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<DocumentTemplate>();
     }
 
     /**
      *  Returns a copy of the Template
      *    @return A copy of the VirtualMachineTemplate
      */
-    Template * clone_template() const
+    std::unique_ptr<Template> clone_template() const
     {
-        return new Template(
-                *(static_cast<Template *>(obj_template)));
+        return std::make_unique<DocumentTemplate>(*obj_template);
     };
 
     /**
@@ -64,7 +65,7 @@ public:
      *
      * @return the document type
      */
-    int get_document_type()
+    int get_document_type() const
     {
         return type;
     };
@@ -97,18 +98,13 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Document
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(Document::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -116,7 +112,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
 protected:
 
@@ -126,23 +122,15 @@ protected:
     Document(   int id,
                 int uid,
                 int gid,
-                const string& uname,
-                const string& gname,
+                const std::string& uname,
+                const std::string& gname,
                 int umask,
                 int type,
-                Template * _template_contents);
-
-    ~Document();
+                std::unique_ptr<Template> _template_contents);
 
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Writes the Document in the database.
@@ -150,16 +138,16 @@ protected:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Document data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string err;
+        std::string err;
         return insert_replace(db, true, err);
     };
 };

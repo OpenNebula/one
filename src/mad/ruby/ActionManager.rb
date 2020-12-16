@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- */
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 # not use this file except in compliance with the License. You may obtain    */
 # a copy of the License at                                                   */
@@ -196,14 +196,16 @@ class ActionManager
 
             if action[:threaded]
                 thread = Thread.new {
-                    action[:method].call(*action[:args])
+                    begin
+                        action[:method].call(*action[:args])
+                    ensure
+                        @threads_mutex.synchronize {
+                            @num_running -= 1
+                            delete_running_action(action[:id])
 
-                    @threads_mutex.synchronize {
-                        @num_running -= 1
-                        delete_running_action(action[:id])
-
-                        @threads_cond.signal
-                    }
+                            @threads_cond.signal
+                        }
+                    end
                 }
 
                 action[:thread] = thread

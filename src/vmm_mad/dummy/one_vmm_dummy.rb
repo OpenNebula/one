@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,17 +16,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    ETC_LOCATION      = "/etc/one/"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    ETC_LOCATION      = '/etc/one/'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    ETC_LOCATION      = ONE_LOCATION + "/etc/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    ETC_LOCATION      = ONE_LOCATION + '/etc/'
 end
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 DUMMY_ACTIONS_DIR = "/tmp/opennebula_dummy_actions"
 
@@ -164,6 +172,12 @@ class DummyDriver < VirtualMachineDriver
         send_message(ACTION[:disk_snapshot_create], result, id, "dummy-snap")
     end
 
+    def update_conf(id, drv_message)
+        result = retrieve_result("update_conf")
+
+        send_message(ACTION[:update_conf], result, id)
+    end
+
     def cleanup(id, drv_message)
         result = retrieve_result("cleanup")
 
@@ -183,6 +197,12 @@ class DummyDriver < VirtualMachineDriver
         result = retrieve_result("resize_disk")
 
         send_message(ACTION[:resize_disk], result, id)
+    end
+
+    def resize(id, drv_message)
+        result = retrieve_result("resize")
+
+        send_message(ACTION[:resize], result, id)
     end
 
     def poll(id, drv_message)

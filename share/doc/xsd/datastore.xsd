@@ -29,6 +29,7 @@
         <xs:element name="BASE_PATH" type="xs:string"/>
         <xs:element name="TYPE" type="xs:integer"/>
         <xs:element name="DISK_TYPE" type="xs:integer"/>
+        <!-- Possible STATE values are 0 (READY) and 1 (DISABLE)-->
         <xs:element name="STATE" type="xs:integer"/>
         <xs:element name="CLUSTERS">
           <xs:complexType>
@@ -47,7 +48,19 @@
                 </xs:sequence>
               </xs:complexType>
         </xs:element>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="VCENTER_DC_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_DC_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_DS_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

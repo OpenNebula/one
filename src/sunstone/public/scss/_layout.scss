@@ -15,7 +15,7 @@
 }
 
 .sunstone-menu-header {
-  padding: 0 1rem;
+  padding: 0;
 }
 
 
@@ -94,15 +94,22 @@
   a {
     color: $dark-gray;
   }
+
+  #latest_version{
+    a{
+      color: map-get($foundation-palette, primary);
+      font-weight: bold;
+    }
+  }
 }
 
 .action_blocks {
   & > span {
-    padding-right: 2rem;
+    padding-right: 1.5rem;
   }
 }
 
-.vm-action-disabled {
+.action-disabled {
   //color: #cfcfcf !important;
   cursor: default !important;
   opacity: 0.25;
@@ -127,4 +134,42 @@
 
   overflow-y: auto;
   max-height: 6em;
+}
+
+#numa-topology-display{
+  margin-bottom: 2rem;
+}
+
+progress{
+  &.memory-used{
+    height: 1rem;
+    color: $busy;
+    margin-bottom: 2rem;
+    background-color: $free;
+    &::-webkit-progress-value{
+      background-color: $busy;
+    }
+    &::-webkit-progress-bar{
+      background-color: $free;
+    }
+    &::-moz-progress-bar{
+      background-color: $busy;
+    }
+    &::-ms-fill{
+      background-color: $busy;
+    }
+  }
+}
+
+.guacamole-display {
+  cursor: none;
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  place-content: center;
+  background-color: #282828;
+  & > div {
+    z-index: 1;
+  }
 }

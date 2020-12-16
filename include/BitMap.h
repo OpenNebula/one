@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,7 @@
 
 #include "Attribute.h"
 #include "Callbackable.h"
+#include "SSLUtil.h"
 
 class SqlDB;
 
@@ -92,18 +93,16 @@ public:
      */
     int select(int _id, SqlDB * db)
     {
-        std::string * uzbs;
+        std::string uzbs;
 
         id = _id;
 
-        if ( select(db, &uzbs) != 0 )
+        if ( select(db, uzbs) != 0 )
         {
             return -1;
         }
 
-        bs = new std::bitset<N>(*uzbs);
-
-        delete uzbs;
+        bs = new std::bitset<N>(uzbs);
 
         return 0;
     }
@@ -134,7 +133,7 @@ public:
      *    @param bit the bit number reserved
      *    @return -1 in case of error
      */
-    int get(unsigned int hint, unsigned int& bit)
+    int get(unsigned int hint, unsigned int& bit) const
     {
         if ( hint != 0 )
         {
@@ -205,7 +204,7 @@ public:
     /**
      *  Return the start_bit of the bitmap
      */
-    unsigned int get_start_bit()
+    unsigned int get_start_bit() const
     {
         return start_bit;
     }
@@ -248,15 +247,13 @@ private:
      *    be freed by caller.
      *    @return 0 on success
      */
-    int select(SqlDB * db, std::string ** uzbs)
+    int select(SqlDB * db, std::string &uzbs)
     {
         int rc;
 
         std::ostringstream oss;
 
         std::string zbs;
-
-        *uzbs = 0;
 
         set_callback(static_cast<Callbackable::Callback>(&BitMap::select_cb),
                      static_cast<void *>(&zbs));
@@ -276,16 +273,8 @@ private:
             return -1;
         }
 
-        *uzbs = one_util::zlib_decompress(zbs, true);
-
-        if ( *uzbs == 0 )
-        {
-            rc = -1;
-        }
-
-        return rc;
+        return ssl_util::zlib_decompress64(zbs, uzbs);
     }
-
 
     /**
      *  Insert a Bitmap in the DB, the bitmap is stored in a compressed (zlib)
@@ -297,30 +286,28 @@ private:
     {
         std::ostringstream oss;
 
-        if (replace)
-        {
-            oss << "REPLACE ";
-        }
-        else
-        {
-            oss << "INSERT ";
-        }
+        std::string zipped;
 
-        std::string * zipped = one_util::zlib_compress(bs->to_string(), true);
-
-        if (zipped == 0)
+        if (ssl_util::zlib_compress64(bs->to_string(), zipped) != 0)
         {
             return -1;
         }
 
-        char * ezipped64 = db->escape_str(zipped->c_str());
+        char * ezipped64 = db->escape_str(zipped);
 
-        oss << "INTO " << db_table << " (id, map) VALUES ("
+        if (replace)
+        {
+            oss << "UPDATE "  << db_table << " SET "
+                << "map = '" << ezipped64 << "' "
+                << "WHERE id = " << id;
+        }
+        else
+        {
+            oss << "INSERT INTO " << db_table << " (id, map) VALUES ("
             << id << ",'" << ezipped64 << "')";
+        }
 
         int rc = db->exec_wr(oss);
-
-        delete zipped;
 
         db->free_str(ezipped64);
 
@@ -337,7 +324,6 @@ private:
     {
         std::vector<std::string> strings;
         std::vector<std::string> range;
-        std::vector<std::string>::const_iterator it;
 
         std::istringstream iss;
 
@@ -345,10 +331,10 @@ private:
 
         strings = one_util::split(reserved, ',', true);
 
-        for (it = strings.begin(); it != strings.end(); it++)
+        for (const auto& str : strings)
         {
             // Try to split it by ':'
-            range = one_util::split(*it, ':', true);
+            range = one_util::split(str, ':', true);
 
             iss.clear();
             iss.str(range[0]);

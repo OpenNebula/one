@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,35 +17,40 @@
 define(function(require) {
   /*
     DEPENDENCIES
-   */
+  */
 
-  var Config = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var WizardFields = require('utils/wizard-fields');
-  var UniqueId = require('utils/unique-id');
-  var Humanize = require('utils/humanize');
-  var TemplateUtils = require('utils/template-utils');
-  var Actions = require('utils/actions');
+  var Config = require("sunstone-config");
+  var ScheduleActions = require("utils/schedule_action");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var WizardFields = require("utils/wizard-fields");
+  var UniqueId = require("utils/unique-id");
+  var Humanize = require("utils/humanize");
+  var TemplateUtils = require("utils/template-utils");
+  var Actions = require("utils/actions");
+  var Leases = require("utils/leases");
+  var TemplateHTML = require("hbs!./actions/html");
 
-  var TemplateHTML = require('hbs!./actions/html');
   /*
     CONSTANTS
-   */
+  */
 
-  var WIZARD_TAB_ID = require('./actions/wizardTabId');
+  var WIZARD_TAB_ID = require("./actions/wizardTabId");
+  var RESOURCE = "temp";
+  var CREATE = true;
+  var contextRow;
 
   /*
     CONSTRUCTOR
    */
 
   function WizardTab(opts) {
-    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'actions')) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, "actions")) {
       throw "Wizard Tab not enabled";
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = "fa-calendar";
+    this.icon = "fa-calendar-alt";
     this.title = Locale.tr("Actions");
   }
 
@@ -59,120 +64,119 @@ define(function(require) {
   return WizardTab;
 
   function _html() {
-    return TemplateHTML();
+    return TemplateHTML({
+      "table_sched_actions": ScheduleActions.htmlTable(RESOURCE, Leases.html()),
+    });
   }
 
   function _onShow(context, panelForm) {
+    Leases.actions(panelForm);
   }
 
   function _setup(context) {
+    if(!CREATE){
+      CREATE = true;
+    }
     var that = this;
-		
-    context.off('click', '#add_scheduling_temp_action');
-    context.on('click', '#add_scheduling_temp_action', function() {
-      $("#add_scheduling_temp_action", context).attr("disabled", "disabled");
-      $("#scheduling_temp_actions_table").append('<tr>\
-          <td>\
-            <select id="select_new_action" class="select_new_action" name="select_action">\
-              <option value="terminate">' + Locale.tr("terminate") + '</option>\
-              <option value="terminate-hard">' + Locale.tr("terminate-hard") + '</option>\
-              <option value="hold">' + Locale.tr("hold") + '</option>\
-              <option value="release">' + Locale.tr("release") + '</option>\
-              <option value="stop">' + Locale.tr("stop") + '</option>\
-              <option value="suspend">' + Locale.tr("suspend") + '</option>\
-              <option value="resume">' + Locale.tr("resume") + '</option>\
-              <option value="reboot">' + Locale.tr("reboot") + '</option>\
-              <option value="reboot-hard">' + Locale.tr("reboot-hard") + '</option>\
-              <option value="poweroff">' + Locale.tr("poweroff") + '</option>\
-              <option value="poweroff-hard">' + Locale.tr("poweroff-hard") + '</option>\
-              <option value="undeploy">' + Locale.tr("undeploy") + '</option>\
-              <option value="undeploy-hard">' + Locale.tr("undeploy-hard") + '</option>\
-              <option value="snapshot-create">' + Locale.tr("snapshot-create") + '</option>\
-            </select>\
-          </td>\
-         <td>\
-            <input id="date_input" type="date" placeholder="2013/12/30"/>\
-            <input id="time_input" type="time" placeholder="12:30"/>\
-         </td>\
-         <td>\
-            <button id="add_temp_action_json" class="secondary small button radius" >' + Locale.tr("Add") + '</button>\
-         </td>\
-         <td colspan=2></td>\
-       </tr>');
-
+    var actions = [
+      "terminate", 
+      "terminate-hard", 
+      "hold", 
+      "release", 
+      "stop", 
+      "suspend", 
+      "resume", 
+      "reboot", 
+      "reboot-hard", 
+      "poweroff", 
+      "poweroff-hard", 
+      "undeploy", 
+      "undeploy-hard", 
+      "snapshot-create",
+      "snapshot-delete", 
+      "snapshot-revert", 
+      "disk-snapshot-create", 
+      "disk-snapshot-delete", 
+      "disk-snapshot-revert"
+    ];
+    function renderCreateForm() {
+      if(CREATE){
+        ScheduleActions.htmlNewAction(actions, context, "temp");
+        ScheduleActions.setup(context);
+        CREATE = false;
+      }
       return false;
+    }
+    context.off("click", "#add_scheduling_temp_action");
+    context.on("click", "#add_scheduling_temp_action", function(e){
+      renderCreateForm();
+      e.preventDefault();
+      ScheduleActions.reset();
+      $("#edit_"+RESOURCE+"_action_json").hide();
+      $("#add_"+RESOURCE+"_action_json").show();
     });
 
     context.off("click", "#add_temp_action_json");
     context.on("click" , "#add_temp_action_json", function(){
-      var date_input_value = $("#date_input", context).val();
-      var time_input_value = $("#time_input", context).val();
-
-      if (date_input_value == "" || time_input_value == ""){
-        return false;
+      $(".wickedpicker").hide();
+      var sched_action = ScheduleActions.retrieveNewAction(context);
+      if (sched_action != false) {
+        $("#sched_temp_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
       }
-
-      var time_value = date_input_value + ' ' + time_input_value;
-      var epoch_str = new Date(time_value);
-      var time = parseInt(epoch_str.getTime()) / 1000;
-
-      var new_action = $("#select_new_action", context).val();
-      var sched_action = {};
-      sched_action.ACTION = new_action;
-      sched_action.TIME = time;
-
-      $(this).parents('tr').remove();
-      $("#add_scheduling_temp_action", context).removeAttr("disabled");
-
-      $("#sched_temp_actions_body").append(Actions.fromJSONtoActionsTable(sched_action));
-			
+      $("#input_sched_action_form").remove();
+      clear();
       return false;
     });
 
-    context.on("focusout" , "#time_input", function(){
-      $("#time_input").removeAttr("data-invalid");
-      $("#time_input").removeAttr("class");
+    context.off("click" , "#edit_temp_action_json").on("click" , "#edit_temp_action_json", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length && contextRow){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
+          contextRow = undefined;
+          $("#input_sched_action_form").remove();
+        }
+        clear();
+      }
+      return false;
     });
 
     context.off("click", ".remove_action_x");
-    context.on("click", ".remove_action_x", function(){
-      $(this).parents('tr').remove();
+    context.on("click", ".remove_action_x", function () {
+        $(this).parents("tr").remove();
+    });
+
+    context.off("click", ".edit_action_x");
+    context.on("click", ".edit_action_x", function (e) {
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        contextRow = $(this).closest("tr.tr_action");
+        renderCreateForm();
+        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE+"_action_json").hide();
+        ScheduleActions.fill($(this),context);
+      }
     });
   }
 
   function _retrieve(context) {
     var templateJSON = {};
-    var actionsJSON = [];
-
-    $("#scheduling_temp_actions_table tbody tr").each(function(index){
-      var first = $(this).children("td")[0];
-      if(!$('select', first).html()){
-        var actionJSON = {};
-        actionJSON.ID = index;
-        $(this).children("td").each(function(index2){
-          if(index2 == 0)
-            actionJSON.ACTION = $(this).text();
-          else if (index2 == 1){
-            var pretty_time = $(this).text();
-            pretty_time = pretty_time.split(' ');
-            var date = Actions.convertDate(pretty_time[1]);
-            var time_value = date + ' ' + pretty_time[0];
-            var epoch_str = new Date(time_value);
-            var time = parseInt(epoch_str.getTime()) / 1000;
-            actionJSON.TIME = time;
-          }
-        });
-      }
-      if (!$.isEmptyObject(actionJSON)) {actionsJSON.push(actionJSON)};
-    });
-
-    templateJSON['SCHED_ACTION'] = actionsJSON;
+    templateJSON["SCHED_ACTION"] = ScheduleActions.retrieve(context);
     return templateJSON;
   }
 
+  function clear(){
+    CREATE = true;
+  }
+
   function _fill(context, templateJSON) {
-    var actions = Actions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
-    $("#sched_temp_actions_body").append(actions);
-    delete templateJSON['SCHED_ACTION'];
+    var actions = ScheduleActions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
+    $("#sched_temp_actions_body").prepend(actions);
+    delete templateJSON["SCHED_ACTION"];
   }
 });

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,6 @@
 
 #include "Template.h"
 
-using namespace std;
-
 /**
  *  Image Template class, it represents the attributes of an Image
  */
@@ -29,7 +27,7 @@ class ImageTemplate : public Template
 public:
     ImageTemplate() : Template(true,'=',"TEMPLATE"){};
 
-    ImageTemplate(const ImageTemplate& tmpl):Template(tmpl){};
+    ImageTemplate(const Template& tmpl):Template(tmpl){};
 
     ~ImageTemplate(){};
 
@@ -50,17 +48,17 @@ public:
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
-    virtual bool check_restricted(string& rs_attr, const Template* base)
+    virtual bool check_restricted(std::string& rs_attr, const Template* base)
     {
         return Template::check_restricted(rs_attr, base, restricted);
     }
 
-    virtual bool check_restricted(string& rs_attr)
+    virtual bool check_restricted(std::string& rs_attr)
     {
         return Template::check_restricted(rs_attr, restricted);
     }
 
-    static void parse_restricted(vector<const SingleAttribute *>& ra)
+    static void parse_restricted(std::vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);
     }

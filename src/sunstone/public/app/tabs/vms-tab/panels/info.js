@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,31 +19,30 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
-  var RenameTr = require('utils/panel/rename-tr');
-  var PermissionsTable = require('utils/panel/permissions-table');
-  var TemplateTable = require('utils/panel/template-table');
-  var TemplateTableVcenter = require('utils/panel/template-table');
-  var OpenNebula = require('opennebula');
-  var Sunstone = require('sunstone');
-  var Config = require('sunstone-config');
-  var Navigation = require('utils/navigation');
+  var Locale = require("utils/locale");
+  var Humanize = require("utils/humanize");
+  var RenameTr = require("utils/panel/rename-tr");
+  var PermissionsTable = require("utils/panel/permissions-table");
+  var TemplateTable = require("utils/panel/template-table");
+  var TemplateTableVcenter = require("utils/panel/template-table");
+  var OpenNebula = require("opennebula");
+  var Navigation = require("utils/navigation");
+  var FireedgeValidator = require("utils/fireedge-validator");
 
   /*
     TEMPLATES
    */
 
-  var TemplateInfo = require('hbs!./info/html');
+  var TemplateInfo = require("hbs!./info/html");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
-  var RESOURCE = "VM"
-  var XML_ROOT = "VM"
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./info/panelId");
+  var RESOURCE = "VM";
+  var XML_ROOT = "VM";
 
   /*
     CONSTRUCTOR
@@ -52,11 +51,9 @@ define(function(require) {
   function Panel(info) {
     this.title = Locale.tr("Info");
     this.icon = "fa-info-circle";
-
     this.element = info[XML_ROOT];
-
     return this;
-  };
+  }
 
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
@@ -74,11 +71,19 @@ define(function(require) {
     var prettyStartTime = Humanize.prettyTime(this.element.STIME);
 
     var stateStr = OpenNebula.VM.stateStr(this.element.STATE);
+    var stateClass = OpenNebula.VM.stateClass(this.element.STATE);
     var lcmStateStr = OpenNebula.VM.lcmStateStr(this.element.LCM_STATE);
+    var lcmStateClass = OpenNebula.VM.lcmStateClass(this.element.LCM_STATE);
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
-    var vrouterHTML = '--';
+    var vrouterHTML = "--";
 
     var IP = OpenNebula.VM.ipsStr(this.element);
+
+    var alias = (
+      config.system_config &&
+      config.system_config.get_extended_vm_info &&
+      config.system_config.get_extended_vm_info === "true"
+    ) ? null : OpenNebula.VM.aliasStr(this.element);
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
@@ -87,7 +92,7 @@ define(function(require) {
     }
 
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
-    var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"))
+    var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"));
 
     // Get rid of the unwanted (for show) SCHED_* keys
     var that = this;
@@ -125,20 +130,23 @@ define(function(require) {
     }
 
     return TemplateInfo({
-      'element': this.element,
-      'renameTrHTML': renameTrHTML,
-      'stateStr': stateStr,
-      'lcmStateStr': lcmStateStr,
-      'hostnameHTML': hostnameHTML,
-      'prettyStartTime': prettyStartTime,
-      'deployId': deployId,
-      'IP': IP,
-      'resched': resched,
-      'permissionsTableHTML': permissionsTableHTML,
-      'templateTableVcenterHTML': templateTableVcenterHTML,
-      'templateTableHTML': templateTableHTML,
-      'monitoringTableContentHTML': monitoringTableContentHTML,
-      'vrouterHTML': vrouterHTML
+      "element": this.element,
+      "renameTrHTML": renameTrHTML,
+      "stateStr": stateStr,
+      "stateClass": stateClass,
+      "lcmStateStr": lcmStateStr,
+      "lcmStateClass": lcmStateClass,
+      "hostnameHTML": hostnameHTML,
+      "prettyStartTime": prettyStartTime,
+      "deployId": deployId,
+      "IP": IP,
+      "alias": alias,
+      "resched": resched,
+      "permissionsTableHTML": permissionsTableHTML,
+      "templateTableVcenterHTML": templateTableVcenterHTML,
+      "templateTableHTML": templateTableHTML,
+      "monitoringTableContentHTML": monitoringTableContentHTML,
+      "vrouterHTML": vrouterHTML,
     });
   }
 
@@ -162,10 +170,39 @@ define(function(require) {
       }
     });
     if($.isEmptyObject(strippedTemplateVcenter)){
-      $('.vcenter', context).hide();
+      $(".vcenter", context).hide();
     }
-
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
+
+    var show_buttons = function(){
+      if (FireedgeValidator.fireedgeToken != ""){
+        $(".vnc-button").hide();
+        if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
+          if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
+            $(".vmrc-button").show();
+            $(".guac-button").hide();
+          }
+          if (that.element.USER_TEMPLATE.HYPERVISOR == "kvm"){
+            $(".guac-button").show();
+            $(".vmrc-button").hide();
+          }
+        }
+      }
+      else{
+        $(".vnc-button").show();
+        // Verify hipervisor
+        $(".guac-button").hide();
+        $(".vmrc-button").hide();
+      }
+    }
+
+    if (FireedgeValidator.fireedgeToken == ""){
+      FireedgeValidator.validateFireedgeToken(show_buttons);
+    }
+    else{
+      show_buttons();
+    }
+
   }
 });

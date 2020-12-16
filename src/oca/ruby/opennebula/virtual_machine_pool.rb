@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -23,13 +23,14 @@ module OpenNebula
         # Constants and Class attribute accessors
         #######################################################################
 
-
         VM_POOL_METHODS = {
-            :info               => "vmpool.info",
-            :monitoring         => "vmpool.monitoring",
-            :accounting         => "vmpool.accounting",
-            :showback           => "vmpool.showback",
-            :calculate_showback => "vmpool.calculateshowback"
+            :info               => 'vmpool.info',
+            :info_extended      => 'vmpool.infoextended',
+            :info_set           => 'vmpool.infoset',
+            :monitoring         => 'vmpool.monitoring',
+            :accounting         => 'vmpool.accounting',
+            :showback           => 'vmpool.showback',
+            :calculate_showback => 'vmpool.calculateshowback'
         }
 
         # Constants for info queries (include/RequestManagerPoolInfoFilter.h)
@@ -40,13 +41,19 @@ module OpenNebula
         # Class constructor & Pool Methods
         #######################################################################
 
-
         # +client+ a Client object that represents a XML-RPC connection
         # +user_id+ is to refer to a Pool with VirtualMachines from that user
         def initialize(client, user_id=0)
             super('VM_POOL','VM',client)
 
             @user_id  = user_id
+        end
+
+        # Get info extended VM
+        def get_hash_extended
+            rc = info_search(:extended => true)
+            return rc if OpenNebula.is_error?(rc)
+            to_hash
         end
 
         # Default Factory Method for the Pools
@@ -62,63 +69,104 @@ module OpenNebula
         # No arguments, returns the not-in-done VMs for the user
         # [user_id, start_id, end_id]
         # [user_id, start_id, end_id, state]
+        alias_method :info!, :info
+
         def info(*args)
             case args.size
-                when 0
-                    info_filter(VM_POOL_METHODS[:info],
-                                @user_id,
-                                -1,
-                                -1,
-                                INFO_NOT_DONE)
-                when 1
-                    info_filter(VM_POOL_METHODS[:info],
-                                args[0],
-                                -1,
-                                -1,
-                                INFO_NOT_DONE)
-                when 3
-                    info_filter(VM_POOL_METHODS[:info],
-                                args[0],
-                                args[1],
-                                args[2],
-                                INFO_NOT_DONE)
-                when 4
-                    info_filter(VM_POOL_METHODS[:info],
-                                args[0],
-                                args[1],
-                                args[2],
-                                args[3])
+            when 0
+                info_filter(VM_POOL_METHODS[:info],
+                            @user_id,
+                            -1,
+                            -1,
+                            INFO_NOT_DONE)
+            when 1
+                info_filter(VM_POOL_METHODS[:info],
+                            args[0],
+                            -1,
+                            -1,
+                            INFO_NOT_DONE)
+            when 3
+                info_filter(VM_POOL_METHODS[:info],
+                            args[0],
+                            args[1],
+                            args[2],
+                            INFO_NOT_DONE)
+            when 4
+                info_filter(VM_POOL_METHODS[:info],
+                            args[0],
+                            args[1],
+                            args[2],
+                            args[3])
             end
         end
 
-        def info_all()
-            return info_filter(VM_POOL_METHODS[:info],
-                               INFO_ALL,
-                               -1,
-                               -1,
-                               INFO_NOT_DONE)
+        # Define info methods shortcuts for different filters
+        # info_all()
+        # info_all!()
+        # info_all_extended
+        # info_all_extended!()
+        # info_mine()
+        # info_mine!()
+        # info_mine_extended
+        # info_mine_extended!()
+        # info_group()
+        # info_group!()
+        # info_group_extended
+        # info_group_extended!()
+        # info_primary_group()
+        # info_primary_group!()
+        # info_primary_group_extended
+        # info_primary_group_extended!()
+        %w[mine all group primary_group].each do |ifilter|
+            const_name = "OpenNebula::Pool::INFO_#{ifilter.upcase}"
+
+            define_method("info_#{ifilter}") do
+                info_filter(VM_POOL_METHODS[:info],
+                            Object.const_get(const_name), -1, -1,INFO_NOT_DONE)
+            end
+
+            define_method("info_#{ifilter}_extended") do
+                info_filter(VM_POOL_METHODS[:info_extended],
+                            Object.const_get(const_name), -1, -1,
+                            INFO_NOT_DONE)
+            end
+
+            alias_method "info_#{ifilter}!".to_sym, "info_#{ifilter}".to_sym
+            alias_method "info_#{ifilter}_extended!".to_sym, "info_#{ifilter}_extended".to_sym
         end
 
-        def info_mine()
-            return info_filter(VM_POOL_METHODS[:info],
-                               INFO_MINE,
-                               -1,
-                               -1,
-                               INFO_NOT_DONE)
+        def info_search(args = {})
+            default_args = {
+                :who      => INFO_ALL,
+                :start_id => -1,
+                :end_id   => -1,
+                :state    => INFO_NOT_DONE,
+                :query    => "",
+                :extended => false
+            }.merge!(args)
+
+            if args[:extended]
+                method = VM_POOL_METHODS[:info_extended]
+            else
+                method = VM_POOL_METHODS[:info]
+            end
+
+            info_filter(method,
+                        default_args[:who],
+                        default_args[:start_id],
+                        default_args[:end_id],
+                        default_args[:state],
+                        default_args[:query])
         end
 
-        def info_group()
-            return info_filter(VM_POOL_METHODS[:info],
-                               INFO_GROUP,
-                               -1,
-                               -1,
-                               INFO_NOT_DONE)
+        # Retrieves the set of VMs especified in vm_ids
+        #
+        # @param [String] comma separated list of vm ids.
+        # @param [Boolean] if true extended body is retrieved.
+        #
+        def info_set(vm_ids, extended)
+            xmlrpc_info(VM_POOL_METHODS[:info_set], vm_ids, extended)
         end
-
-        alias_method :info!, :info
-        alias_method :info_all!, :info_all
-        alias_method :info_mine!, :info_mine
-        alias_method :info_group!, :info_group
 
         # Retrieves the monitoring data for all the VMs in the pool
         #
@@ -150,19 +198,21 @@ module OpenNebula
         #     }
         #   }
         #
-        def monitoring(xpath_expressions, filter_flag=INFO_ALL)
-            return super(VM_POOL_METHODS[:monitoring],
-                'VM', 'LAST_POLL', xpath_expressions, filter_flag)
+        def monitoring(xpaths, filter_flag=INFO_ALL)
+            return super(VM_POOL_METHODS[:monitoring], xpaths, filter_flag)
         end
 
         # Retrieves the monitoring data for all the VMs in the pool, in XML
         #
         # @param [Integer] filter_flag Optional filter flag to retrieve all or
         #   part of the Pool. Possible values: INFO_ALL, INFO_GROUP, INFO_MINE.
-        #
+        # @param [Integer] num Optional Retrieve monitor records in the last num
+        #   seconds. 0 just the last record, -1 or nil all records
         # @return [String] VM monitoring data, in XML
-        def monitoring_xml(filter_flag=INFO_ALL)
-            return @client.call(VM_POOL_METHODS[:monitoring], filter_flag)
+        def monitoring_xml(filter_flag=INFO_ALL, num=nil)
+            return @client.call(VM_POOL_METHODS[:monitoring], filter_flag) if num.nil?
+
+            @client.call(VM_POOL_METHODS[:monitoring], filter_flag, num.to_i)
         end
 
         # Processes all the history records, and stores the monthly cost for
@@ -458,8 +508,8 @@ module OpenNebula
             data_hash
         end
 
-        def info_filter(xml_method, who, start_id, end_id, state)
-            return xmlrpc_info(xml_method, who, start_id, end_id, state)
+        def info_filter(xml_method, who, start_id, end_id, state, query="")
+            return xmlrpc_info(xml_method, who, start_id, end_id, state, query)
         end
     end
 end

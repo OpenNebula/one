@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -13,52 +13,97 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-<div id="provision_quotas_dashboard" hidden>
-<div class="row">
-  <div class="large-12 columns">
-    <h4>{{tr "Quotas"}}</h2>
-  </div>
-</div>
-<div class="row">
-  <div class="large-11 medium-12 large-centered columns">
-    <div class="row">
-      <div class="large-4 medium-4 columns text-center">
-        <h3>
-          <span id="provision_dashboard_rvms_percentage">0</span>
-          <small>%</small>
-        </h3>
-        <meter id="provision_dashboard_rvms_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
-        <h6>
-          <span id="provision_dashboard_rvms_str"></span>
-          <br>
-          <span class="subheader">{{tr "RUNNING VMS"}}</span>
-        </h6>
-      </div>
-      <div class="large-4 medium-4 columns text-center">
-        <h3>
-          <span id="provision_dashboard_cpu_percentage">0</span>
-          <small>%</small>
-        </h3>
-        <meter id="provision_dashboard_cpu_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
-        <h6>
-          <span id="provision_dashboard_cpu_str"></span>
-          <br>
-          <span class="subheader">{{tr "CPU"}}</span>
-        </h6>
-      </div>
-      <div class="large-4 medium-4 columns text-center">
-        <h3>
-          <span id="provision_dashboard_memory_percentage">0</span>
-          <small>%</small>
-        </h3>
-        <meter id="provision_dashboard_memory_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
-        <h6>
-          <span id="provision_dashboard_memory_str"></span>
-          <br>
-          <span class="subheader">{{tr "MEMORY"}}</span>
-        </h6>
+<fieldset class="large-12 columns dashboard-fieldset" id="provision_quotas_dashboard" hidden>
+  <div class="row">
+    <div class="large-12 columns dashboard-div-titles">
+      <div class="small-6 medium-8 columns">
+        <h5>{{tr "Quotas"}}</h5>
       </div>
     </div>
   </div>
-</div>
-</div>
+  <div class="row">
+    <div class="large-11 medium-12 large-centered columns">
+      <div class="row">
+        <div class="large-4 medium-4 columns text-center">
+          <h3>
+            <span id="provision_dashboard_rvms_percentage">0</span>
+            <small>%</small>
+          </h3>
+          <meter id="provision_dashboard_rvms_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+          <h6>
+            <span id="provision_dashboard_rvms_str"></span>
+            <br>
+            <span class="subheader">{{tr "RUNNING VMS"}}</span>
+          </h6>
+        </div>
+        <div class="large-4 medium-4 columns text-center">
+          <h3>
+            <span id="provision_dashboard_cpu_percentage">0</span>
+            <small>%</small>
+          </h3>
+          <meter id="provision_dashboard_cpu_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+          <h6>
+            <span id="provision_dashboard_cpu_str"></span>
+            <br>
+            <span class="subheader">{{tr "CPU"}}</span>
+          </h6>
+        </div>
+        <div class="large-4 medium-4 columns text-center">
+          <h3>
+            <span id="provision_dashboard_memory_percentage">0</span>
+            <small>%</small>
+          </h3>
+          <meter id="provision_dashboard_memory_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+          <h6>
+            <span id="provision_dashboard_memory_str"></span>
+            <br>
+            <span class="subheader">{{tr "MEMORY"}}</span>
+          </h6>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <div class="row">
+    <div class="large-11 medium-12 large-centered columns">
+      <div class="row">
+        <div class="large-4 medium-4 columns text-center">
+          <h3>
+            <span id="provision_dashboard_ips_percentage">0</span>
+            <small>%</small>
+          </h3>
+          <meter id="provision_dashboard_ips_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+          <h6>
+            <span id="provision_dashboard_ips_str"></span>
+            <br>
+            <span class="subheader">{{tr "IP LEASES"}}</span>
+          </h6>
+        </div>
+        <div class="large-4 medium-4 columns text-center">
+          <h3>
+            <span id="provision_dashboard_system_disk_percentage">0</span>
+            <small>%</small>
+          </h3>
+          <meter id="provision_dashboard_system_disk_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+          <h6>
+            <span id="provision_dashboard_system_disk_str"></span>
+            <br>
+            <span class="subheader">{{tr "SYSTEM DISK"}}</span>
+          </h6>
+        </div>
+        <div class="large-4 medium-4 columns text-center">
+          <h3>
+            <span id="provision_dashboard_datastore_percentage">0</span>
+            <small>%</small>
+          </h3>
+          <meter id="provision_dashboard_datastore_meter" min="0" low="33" high="66" optimum="0" max="100"></meter>
+          <h6>
+            <span id="provision_dashboard_datastore_str"></span>
+            <br>
+            <span class="subheader">{{tr "DATASTORE"}}</span>
+          </h6>
+        </div>
+      </div>
+    </div>
+  </div>
+</fieldset>

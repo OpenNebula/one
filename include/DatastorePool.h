@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,15 +18,16 @@
 #define DATASTORE_POOL_H_
 
 #include "Datastore.h"
-#include "SqlDB.h"
-
-using namespace std;
+#include "PoolSQL.h"
+#include "OneDB.h"
 
 
 class DatastorePool : public PoolSQL
 {
 public:
-    DatastorePool(SqlDB * db, const vector<const SingleAttribute *>& _inherit_attrs);
+    DatastorePool(SqlDB * db,
+                  const std::vector<const SingleAttribute *>& _inherit_attrs,
+                  std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~DatastorePool(){};
 
@@ -37,7 +38,7 @@ public:
     /**
      *  Name for the system datastore
      */
-    static const string SYSTEM_DS_NAME;
+    static const std::string SYSTEM_DS_NAME;
 
     /**
      *  Identifier for the system datastore
@@ -47,7 +48,7 @@ public:
     /**
      *  Name for the default datastore
      */
-    static const string DEFAULT_DS_NAME;
+    static const std::string DEFAULT_DS_NAME;
 
     /**
      *  Identifier for the default datastore
@@ -57,7 +58,7 @@ public:
     /**
      *  Name for the file datastore
      */
-    static const string FILE_DS_NAME;
+    static const std::string FILE_DS_NAME;
 
     /**
      *  Identifier for the file datastore
@@ -84,54 +85,38 @@ public:
      *    @return the oid assigned to the object, -1 in case of failure
      */
     int allocate(
-            int                 uid,
-            int                 gid,
-            const string&       uname,
-            const string&       gname,
-            int                 umask,
-            DatastoreTemplate * ds_template,
-            int *               oid,
-            const set<int>      &cluster_ids,
-            string&             error_str);
-
-    /**
-     *  Function to get a Datastore from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Datastore unique id
-     *    @param lock locks the Datastore mutex
-     *    @return a pointer to the Datastore, 0 if the Datastore could not be loaded
-     */
-    Datastore * get(int oid, bool lock)
-    {
-        return static_cast<Datastore *>(PoolSQL::get(oid,lock));
-    };
+            int                  uid,
+            int                  gid,
+            const std::string&   uname,
+            const std::string&   gname,
+            int                  umask,
+            std::unique_ptr<DatastoreTemplate> ds_template,
+            int *                oid,
+            const std::set<int>& cluster_ids,
+            std::string&         error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Datastore unique identifier
+     *   @return a pointer to the Datastore, nullptr in case of failure
      */
-    Datastore * get(const string& name, bool lock)
+    std::unique_ptr<Datastore> get(int oid)
     {
-        // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Datastore *>(PoolSQL::get(name,-1,lock));
-    };
+        return PoolSQL::get<Datastore>(oid);
+    }
 
     /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Datastore unique identifier
+     *   @return a pointer to the Datastore, nullptr in case of failure
      */
-    string key(const string& name, int uid)
+    std::unique_ptr<Datastore> get_ro(int oid)
     {
-        // Name is enough key because Datastores can't repeat names.
-        return name;
-    };
+        return PoolSQL::get_ro<Datastore>(oid);
+    }
 
     /**
      *  Drops the Datastore data in the data base. The object mutex SHOULD be
@@ -141,7 +126,7 @@ public:
      *    @return 0 on success, -1 DB error
      *            -3 Datastore's Image IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Datastore pool
@@ -157,14 +142,17 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "DATASTORE_POOL", Datastore::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "DATASTORE_POOL", "body", one_db::ds_table,
+                where, sid, eid, desc);
     };
 
     /**
@@ -173,9 +161,9 @@ public:
      *
      *  @return 0 on success
      */
-     int list(vector<int>& oids)
+     int list(std::vector<int>& oids)
      {
-        return PoolSQL::list(oids, Datastore::table);
+        return PoolSQL::list(oids, one_db::ds_table);
      }
 
      /**
@@ -187,11 +175,31 @@ public:
       */
     int disk_attribute(int ds_id, VirtualMachineDisk * disk);
 
+    /**
+     *  Returns the default DRIVER to use with images and disks in this DS. The
+     *  precedence is:
+     *    1. TM_MAD_CONF/DRIVER in oned.conf
+     *    2. DRIVER in the DS template
+     *
+     *    @param dsid of the datastore
+     *
+     *    @return driver name or "" if not set or missing DS
+     */
+    std::string get_ds_driver(int ds_id)
+    {
+        if ( auto ds = get_ro(ds_id) )
+        {
+            return ds->get_ds_driver();
+        }
+
+        return "";
+    }
+
 private:
     /**
      * Datastore attributes to be inherited into the VM disk
      */
-    vector<string> inherit_attrs;
+    std::vector<std::string> inherit_attrs;
 
     /**
      *  Factory method to produce objects
@@ -199,7 +207,7 @@ private:
      */
     PoolObjectSQL * create()
     {
-        set<int> empty;
+        std::set<int> empty;
 
         return new Datastore(-1,-1,"","", 0, 0, empty);
     };

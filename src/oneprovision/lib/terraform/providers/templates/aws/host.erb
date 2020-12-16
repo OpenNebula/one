@@ -1,0 +1,29 @@
+resource "aws_instance" "device_<%= obj['ID'] %>" {
+    ami                    = "<%= provision['AMI'] %>"
+    instance_type          = "<%= provision['INSTANCETYPE'] %>"
+
+    vpc_security_group_ids = [aws_security_group.device_<%= c['ID'] %>_ssh.id]
+
+    subnet_id              = aws_subnet.device_<%= c['ID'] %>.id
+
+    <% ecidr = c['TEMPLATE']['PROVISION']['CIDR'] || "10.0.0.0/16"
+       pref = ecidr.split('/').first.rpartition(".")[0]
+       ip = pref << '.' << ( provision['INDEX'].to_i + 4 ).to_s
+    %>
+
+    private_ip = "<%= ip %>"
+
+    user_data              = "<%= obj['user_data'] %>"
+    tags                   = {
+        Name = "<%= provision['HOSTNAME'] %>"
+    }
+}
+
+output "ip_<%= obj['ID'] %>" {
+  value = aws_instance.device_<%= obj['ID'] %>.public_ip
+}
+
+output "device_id_<%= obj['ID'] %>" {
+  value = aws_instance.device_<%= obj['ID'] %>.id
+}
+

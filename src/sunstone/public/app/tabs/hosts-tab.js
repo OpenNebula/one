@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -35,9 +35,11 @@ define(function(require) {
     require('./hosts-tab/panels/wilds'),
     require('./hosts-tab/panels/zombies'),
     require('./hosts-tab/panels/esx'),
-    require('./hosts-tab/panels/pci')
+    require('./hosts-tab/panels/pci'),
+    require('./hosts-tab/panels/numa'),
+    require('./hosts-tab/panels/pool'),
+    require('./hosts-tab/panels/nsx')
   ];
-
   var _panelsHooks = [
     require('../utils/hooks/header')
   ];
@@ -49,11 +51,12 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Hosts"),
-    icon: 'fa-hdd-o',
+    icon: 'fa-hdd',
     tabClass: "subTab",
     parentTab: "infrastructure-top-tab",
     listHeader: Locale.tr("Hosts"),
     infoHeader: Locale.tr("Host"),
+    lockable: false,
     subheader: '<span class="total_hosts"/> <small>' + Locale.tr("TOTAL") + '</small>&emsp;\
         <span class="on_hosts"/> <small>' + Locale.tr("ON") + '</small>&emsp;\
         <span class="off_hosts"/> <small>' + Locale.tr("OFF") + '</small>&emsp;\

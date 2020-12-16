@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,919 +18,971 @@
 #include "TransferManager.h"
 #include "DispatchManager.h"
 #include "VirtualMachineManager.h"
+#include "ClusterPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "SecurityGroupPool.h"
+#include "VirtualMachinePool.h"
 #include "Request.h"
 
-void  LifeCycleManager::deploy_action(const LCMAction& la)
+using namespace std;
+
+void LifeCycleManager::trigger_deploy(int vid)
 {
-    VirtualMachine *    vm;
-    ostringstream       os;
+    trigger([this, vid] {
+        ostringstream       os;
 
-    int vid = la.vm_id();
+        auto vm = vmpool->get(vid);
 
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if ( vm->get_state() == VirtualMachine::ACTIVE )
-    {
-        time_t thetime = time(0);
-        int    cpu, mem, disk, rc;
-        vector<VectorAttribute *> pci;
-
-        VirtualMachine::LcmState vm_state;
-        TMAction::Actions tm_action;
-
-        //----------------------------------------------------
-        //                 PROLOG STATE
-        //----------------------------------------------------
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        vm_state  = VirtualMachine::PROLOG;
-        tm_action = TMAction::PROLOG;
-
-        if (vm->hasPreviousHistory())
+        if ( vm == nullptr )
         {
-            if (vm->get_previous_action() == History::STOP_ACTION)
-            {
-                vm_state  = VirtualMachine::PROLOG_RESUME;
-                tm_action = TMAction::PROLOG_RESUME;
-            }
-            else if (vm->get_previous_action() == History::UNDEPLOY_ACTION ||
-                     vm->get_previous_action() == History::UNDEPLOY_HARD_ACTION)
-            {
-                vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
-                tm_action = TMAction::PROLOG_RESUME;
-            }
+            return;
         }
 
-        vm->set_state(vm_state);
-
-        rc = hpool->add_capacity(vm->get_hid(),vm->get_oid(),cpu,mem,disk,pci);
-
-        vm->set_stime(thetime);
-
-        vm->set_prolog_stime(thetime);
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        if ( rc == -1)
+        if ( vm->get_state() == VirtualMachine::ACTIVE )
         {
-            //The host has been deleted, move VM to FAILURE
-            this->trigger(LCMAction::PROLOG_FAILURE, vid);
+            HostShareCapacity sr;
+
+            time_t thetime = time(0);
+            int rc;
+
+            VirtualMachine::LcmState vm_state;
+
+            //----------------------------------------------------
+            //                 PROLOG STATE
+            //----------------------------------------------------
+
+            vm->get_capacity(sr);
+
+            vm_state  = VirtualMachine::PROLOG;
+
+            void (TransferManager::*tm_action)(VirtualMachine *) =
+                    &TransferManager::trigger_prolog;
+
+            if (vm->hasPreviousHistory())
+            {
+                if (vm->get_previous_action() == VMActions::STOP_ACTION)
+                {
+                    vm_state  = VirtualMachine::PROLOG_RESUME;
+                    tm_action = &TransferManager::trigger_prolog_resume;
+                }
+                else if (vm->get_previous_action() == VMActions::UNDEPLOY_ACTION ||
+                        vm->get_previous_action() == VMActions::UNDEPLOY_HARD_ACTION)
+                {
+                    vm_state  = VirtualMachine::PROLOG_UNDEPLOY;
+                    tm_action = &TransferManager::trigger_prolog_resume;
+                }
+            }
+
+            vm->set_state(vm_state);
+
+            rc = hpool->add_capacity(vm->get_hid(), sr);
+
+            vm->set_stime(thetime);
+
+            vm->set_prolog_stime(thetime);
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            if ( rc == -1)
+            {
+                //The host has been deleted, move VM to FAILURE
+                trigger_prolog_failure(vid);
+            }
+            else
+            {
+                (tm->*tm_action)(vm.get());
+            }
         }
         else
         {
-            tm->trigger(tm_action, vid);
+            vm->log("LCM", Log::ERROR, "deploy_action, VM in a wrong state.");
         }
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "deploy_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
+    });
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::suspend_action(const LCMAction& la)
+void LifeCycleManager::trigger_suspend(int vid, const RequestAttributes& ra)
 {
-    int vid = la.vm_id();
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
 
-    VirtualMachine * vm = vmpool->get(vid,true);
+    trigger([this, vid, uid, gid, req_id] {
+        auto vm = vmpool->get(vid);
 
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING)
-    {
-        //----------------------------------------------------
-        //                SAVE_SUSPEND STATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::SAVE_SUSPEND);
-
-        vm->set_resched(false);
-
-        vm->set_action(History::SUSPEND_ACTION, la.uid(), la.gid(), la.req_id());
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::SAVE,vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "suspend_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::stop_action(const LCMAction& la)
-{
-    int vid = la.vm_id();
-
-    VirtualMachine * vm = vmpool->get(vid, true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING)
-    {
-        //----------------------------------------------------
-        //                SAVE_STOP STATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::SAVE_STOP);
-
-        vm->set_resched(false);
-
-        vm->set_action(History::STOP_ACTION, la.uid(), la.gid(), la.req_id());
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::SAVE,vid);
-    }
-    else if (vm->get_state() == VirtualMachine::SUSPENDED)
-    {
-        //----------------------------------------------------
-        //   Bypass SAVE_STOP
-        //----------------------------------------------------
-        vm->set_state(VirtualMachine::ACTIVE);
-        vm->set_state(VirtualMachine::EPILOG_STOP);
-
-        vm->set_action(History::STOP_ACTION, la.uid(), la.gid(), la.req_id());
-
-        vm->set_epilog_stime(time(0));
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        tm->trigger(TMAction::EPILOG_STOP,vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "stop_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::migrate_action(const LCMAction& la)
-{
-    int    cpu, mem, disk;
-    vector<VectorAttribute *> pci;
-
-    time_t the_time = time(0);
-
-    int vid = la.vm_id();
-
-    VirtualMachine * vm = vmpool->get(vid, true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING)
-    {
-        //----------------------------------------------------
-        //                SAVE_MIGRATE STATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::SAVE_MIGRATE);
-
-        vm->set_resched(false);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
-
-        vm->set_stime(the_time);
-
-        vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(), la.req_id());
-
-        vmpool->update_history(vm);
-
-        vm->set_previous_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
-                la.req_id());
-
-        vmpool->update_previous_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::SAVE,vid);
-    }
-    else if (vm->get_state() == VirtualMachine::POWEROFF ||
-             vm->get_state() == VirtualMachine::SUSPENDED ||
-             (vm->get_state() == VirtualMachine::ACTIVE &&
-              vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
-    {
-        //----------------------------------------------------------------------
-        // Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF/SUSPENDED/UNKNOWN
-        //----------------------------------------------------------------------
-        if (vm->get_state() == VirtualMachine::POWEROFF)
+        if ( vm == nullptr )
         {
-            vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
-            vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
+            return;
+        }
 
+        if (vm->get_state()     == VirtualMachine::ACTIVE &&
+            vm->get_lcm_state() == VirtualMachine::RUNNING)
+        {
+            //----------------------------------------------------
+            //                SAVE_SUSPEND STATE
+            //----------------------------------------------------
+
+            vm->set_state(VirtualMachine::SAVE_SUSPEND);
+
+            vm->set_resched(false);
+
+            vm->set_action(VMActions::SUSPEND_ACTION, uid, gid, req_id);
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            vmm->trigger_save(vid);
+        }
+        else
+        {
+            vm->log("LCM", Log::ERROR, "suspend_action, VM in a wrong state.");
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_stop(int vid, const RequestAttributes& ra)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
+
+    trigger([this, vid, uid, gid, req_id] {
+        auto vm = vmpool->get(vid);
+
+        if ( vm == nullptr )
+        {
+            return;
+        }
+
+        if (vm->get_state()     == VirtualMachine::ACTIVE &&
+            vm->get_lcm_state() == VirtualMachine::RUNNING)
+        {
+            //----------------------------------------------------
+            //                SAVE_STOP STATE
+            //----------------------------------------------------
+
+            vm->set_state(VirtualMachine::SAVE_STOP);
+
+            vm->set_resched(false);
+
+            vm->set_action(VMActions::STOP_ACTION, uid, gid, req_id);
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            vmm->trigger_save(vid);
         }
         else if (vm->get_state() == VirtualMachine::SUSPENDED)
         {
-            vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
-            vm->set_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
+            //----------------------------------------------------
+            //   Bypass SAVE_STOP
+            //----------------------------------------------------
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::EPILOG_STOP);
+
+            vm->set_action(VMActions::STOP_ACTION, uid, gid, req_id);
+
+            vm->set_epilog_stime(time(0));
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            tm->trigger_epilog_stop(vm.get());
         }
-        else //VirtualMachine::UNKNOWN
+        else
         {
-            vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
+            vm->log("LCM", Log::ERROR, "stop_action, VM in a wrong state.");
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_migrate(int vid, const RequestAttributes& ra,
+                                       VMActions::Action vm_action)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
+
+    trigger([this, vid, uid, gid, req_id, vm_action] {
+        HostShareCapacity sr;
+
+        time_t the_time = time(0);
+
+        auto vm = vmpool->get(vid);
+
+        if ( vm == nullptr )
+        {
+            return;
+        }
+
+        if (vm->get_state()     == VirtualMachine::ACTIVE &&
+            vm->get_lcm_state() == VirtualMachine::RUNNING)
+        {
+            //----------------------------------------------------
+            //                SAVE_MIGRATE STATE
+            //----------------------------------------------------
+
+            vm->set_state(VirtualMachine::SAVE_MIGRATE);
+
+            vm->set_resched(false);
+
+            vm->get_capacity(sr);
+
+            hpool->add_capacity(vm->get_hid(), sr);
+
+            vm->set_stime(the_time);
+
+            vm->set_action(vm_action, uid, gid, req_id);
+
+            vmpool->update_history(vm.get());
+
+            vm->set_previous_action(vm_action, uid, gid, req_id);
+
+            vmpool->update_previous_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            switch (vm_action)
+            {
+                case VMActions::POFF_MIGRATE_ACTION:
+                    vmm->trigger_shutdown(vid);
+                    break;
+                case VMActions::POFF_HARD_MIGRATE_ACTION:
+                    vmm->trigger_cancel(vid);
+                    break;
+                default:
+                    vmm->trigger_save(vid);
+                    break;
+            }
+        }
+        else if (vm->get_state() == VirtualMachine::POWEROFF ||
+                vm->get_state() == VirtualMachine::SUSPENDED ||
+                (vm->get_state() == VirtualMachine::ACTIVE &&
+                vm->get_lcm_state() == VirtualMachine::UNKNOWN ))
+        {
+            //----------------------------------------------------------------------
+            // Bypass SAVE_MIGRATE & go to PROLOG_MIGRATE_POWEROFF/SUSPENDED/UNKNOWN
+            //----------------------------------------------------------------------
+            if (vm->get_state() == VirtualMachine::POWEROFF)
+            {
+                vm->set_state(VirtualMachine::PROLOG_MIGRATE_POWEROFF);
+            }
+            else if (vm->get_state() == VirtualMachine::SUSPENDED)
+            {
+                vm->set_state(VirtualMachine::PROLOG_MIGRATE_SUSPEND);
+            }
+            else //VirtualMachine::UNKNOWN
+            {
+                vm->set_state(VirtualMachine::PROLOG_MIGRATE_UNKNOWN);
+
+                vm->set_previous_action(VMActions::MIGRATE_ACTION, uid,
+                        gid, req_id);
+            }
 
             vm->set_previous_running_etime(the_time);
 
             vm->set_previous_etime(the_time);
 
-            vm->set_previous_action(History::MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
+            vmpool->update_previous_history(vm.get());
 
-            vm->set_previous_vm_info();
+            vm->set_state(VirtualMachine::ACTIVE);
 
-            vmpool->update_previous_history(vm);
-        }
+            vm->set_resched(false);
 
-        vm->set_state(VirtualMachine::ACTIVE);
+            if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
+            {
+                vm->delete_snapshots();
+            }
 
-        vm->set_resched(false);
+            vm->set_action(VMActions::MIGRATE_ACTION, uid, gid, req_id);
 
-        if ( !vmm->is_keep_snapshots(vm->get_vmm_mad()) )
-        {
-            vm->delete_snapshots();
-        }
+            vm->get_capacity(sr);
 
-        vm->reset_info();
+            hpool->add_capacity(vm->get_hid(), sr);
 
-        vm->get_requirements(cpu, mem, disk, pci);
+            if ( vm->get_hid() != vm->get_previous_hid() )
+            {
+                hpool->del_capacity(vm->get_previous_hid(), sr);
 
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+                vm->release_previous_vnc_port();
+            }
 
-        hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu, mem,
-            disk, pci);
+            vm->set_stime(the_time);
 
-        vm->set_stime(the_time);
+            vm->set_prolog_stime(the_time);
 
-        vm->set_prolog_stime(the_time);
+            vmpool->update_history(vm.get());
 
-        vmpool->update_history(vm);
+            vmpool->update(vm.get());
 
-        vmpool->update(vm);
+            //----------------------------------------------------
 
-        //----------------------------------------------------
-
-        tm->trigger(TMAction::PROLOG_MIGR,vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "migrate_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::live_migrate_action(const LCMAction& la)
-{
-    ostringstream os;
-
-    int vid = la.vm_id();
-
-    VirtualMachine * vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::RUNNING)
-    {
-        int cpu, mem, disk;
-        vector<VectorAttribute *> pci;
-
-        //----------------------------------------------------
-        //                   MIGRATE STATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::MIGRATE);
-
-        vm->set_resched(false);
-
-        vm->get_requirements(cpu, mem, disk, pci);
-
-        hpool->add_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
-
-        vm->set_stime(time(0));
-
-        vm->set_action(History::LIVE_MIGRATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-        vmpool->update_history(vm);
-
-        vm->set_previous_action(History::LIVE_MIGRATE_ACTION, la.uid(),la.gid(),
-                    la.req_id());
-
-        vmpool->update_previous_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::MIGRATE,vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "live_migrate_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::shutdown_action(const LCMAction& la, bool hard)
-{
-    int vid = la.vm_id();
-    VirtualMachine * vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
-    {
-        //----------------------------------------------------
-        //                  SHUTDOWN STATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::SHUTDOWN);
-
-        if (hard)
-        {
-            vm->set_action(History::TERMINATE_HARD_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-            vmm->trigger(VMMAction::CANCEL,vid);
+            tm->trigger_prolog_migr(vm.get());
         }
         else
         {
-            vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-            vmm->trigger(VMMAction::SHUTDOWN,vid);
+            vm->log("LCM", Log::ERROR, "migrate_action, VM in a wrong state.");
         }
-
-        vm->set_resched(false);
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-    }
-    else if (vm->get_state() == VirtualMachine::SUSPENDED ||
-             vm->get_state() == VirtualMachine::POWEROFF)
-    {
-        vm->set_state(VirtualMachine::ACTIVE);
-        vm->set_state(VirtualMachine::EPILOG);
-
-        vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-        vm->set_epilog_stime(time(0));
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        tm->trigger(TMAction::EPILOG, vid);
-    }
-    else if (vm->get_state() == VirtualMachine::STOPPED ||
-             vm->get_state() == VirtualMachine::UNDEPLOYED)
-    {
-        vm->set_state(VirtualMachine::ACTIVE);
-        vm->set_state(VirtualMachine::EPILOG);
-
-        vm->set_action(History::TERMINATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-        vm->set_epilog_stime(time(0));
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        tm->trigger(TMAction::EPILOG_LOCAL, vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "shutdown_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
+    });
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::undeploy_action(const LCMAction& la, bool hard)
+void LifeCycleManager::trigger_live_migrate(int vid, const RequestAttributes& ra)
 {
-    int vid = la.vm_id();
-    unsigned int port;
-    VirtualMachine * vm = vmpool->get(vid,true);
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
 
-    if ( vm == 0 )
-    {
-        return;
-    }
+    trigger([this, vid, uid, gid, req_id] {
+        ostringstream os;
 
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
-    {
-        //----------------------------------------------------
-        //             SHUTDOWN_UNDEPLOY STATE
-        //----------------------------------------------------
+        auto vm = vmpool->get(vid);
 
-        vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
-
-        vm->set_resched(false);
-
-        if (hard)
+        if ( vm == nullptr )
         {
-            vm->set_action(History::UNDEPLOY_HARD_ACTION, la.uid(), la.gid(),
-                    la.req_id());
+            return;
+        }
 
-            vmm->trigger(VMMAction::CANCEL,vid);
+        if (vm->get_state()     == VirtualMachine::ACTIVE &&
+            vm->get_lcm_state() == VirtualMachine::RUNNING)
+        {
+            HostShareCapacity sr;
+
+            //----------------------------------------------------
+            //                   MIGRATE STATE
+            //----------------------------------------------------
+
+            vm->set_state(VirtualMachine::MIGRATE);
+
+            vm->set_resched(false);
+
+            vm->get_capacity(sr);
+
+            hpool->add_capacity(vm->get_hid(), sr);
+
+            vm->set_stime(time(0));
+
+            vmpool->update_history(vm.get());
+
+            vm->set_previous_action(VMActions::LIVE_MIGRATE_ACTION, uid, gid,
+                        req_id);
+
+            vmpool->update_previous_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            vmm->trigger_migrate(vid);
         }
         else
         {
-            vm->set_action(History::UNDEPLOY_ACTION, la.uid(), la.gid(),
-                    la.req_id());
+            vm->log("LCM", Log::ERROR, "live_migrate_action, VM in a wrong state.");
+        }
+    });
+}
 
-            vmm->trigger(VMMAction::SHUTDOWN,vid);
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_shutdown(int vid, bool hard,
+                                        const RequestAttributes& ra)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
+
+    trigger([this, hard, vid, uid, gid, req_id] {
+        auto vm = vmpool->get(vid);
+        VirtualMachineTemplate quota_tmpl;
+        string error;
+
+        if ( vm == nullptr )
+        {
+            return;
         }
 
-        VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+        int uid = vm->get_uid();
+        int gid = vm->get_gid();
 
-        if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+        std::string memory, cpu;
+
+        vm->get_template_attribute("MEMORY", memory);
+        vm->get_template_attribute("CPU", cpu);
+
+        if ((vm->get_state() == VirtualMachine::SUSPENDED) ||
+            (vm->get_state() == VirtualMachine::POWEROFF) ||
+            (vm->get_state() == VirtualMachine::STOPPED) ||
+            (vm->get_state() == VirtualMachine::UNDEPLOYED))
         {
-            graphics->remove("PORT");
-            clpool->release_vnc_port(vm->get_cid(), port);
+            quota_tmpl.add("RUNNING_MEMORY", memory);
+            quota_tmpl.add("RUNNING_CPU", cpu);
+            quota_tmpl.add("RUNNING_VMS", 1);
+
+            quota_tmpl.add("MEMORY", 0);
+            quota_tmpl.add("CPU", 0);
+            quota_tmpl.add("VMS", 0);
         }
 
-        vmpool->update_history(vm);
+        auto lcm_state = vm->get_lcm_state();
 
-        vmpool->update(vm);
-    }
-    else if (vm->get_state() == VirtualMachine::POWEROFF)
-    {
-        //----------------------------------------------------
-        //   Bypass SHUTDOWN_UNDEPLOY
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::ACTIVE);
-        vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
-
-        vm->set_action(History::UNDEPLOY_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-        vm->set_epilog_stime(time(0));
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        tm->trigger(TMAction::EPILOG_STOP,vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "undeploy_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::poweroff_action(const LCMAction& la)
-{
-    int vid = la.vm_id();
-
-    poweroff_action(vid, false, la);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::poweroff_hard_action(const LCMAction& la)
-{
-    int vid = la.vm_id();
-
-    poweroff_action(vid, true, la);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::poweroff_action(int vid, bool hard, const LCMAction& la)
-{
-    VirtualMachine * vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state()     == VirtualMachine::ACTIVE &&
-        (vm->get_lcm_state() == VirtualMachine::RUNNING ||
-         vm->get_lcm_state() == VirtualMachine::UNKNOWN))
-    {
-        //----------------------------------------------------
-        //             SHUTDOWN_POWEROFF STATE
-        //----------------------------------------------------
-
-        vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
-
-        vm->set_resched(false);
-
-        if (hard)
+        if (hard && (vm->get_state() == VirtualMachine::ACTIVE &&
+                     lcm_state == VirtualMachine::SHUTDOWN))
         {
-            vm->set_action(History::POWEROFF_HARD_ACTION, la.uid(), la.gid(),
-                    la.req_id());
+            // Cancel previous shutdown action
+            vmm->trigger_driver_cancel(vid);
 
-            vmm->trigger(VMMAction::CANCEL,vid);
+            lcm_state = VirtualMachine::RUNNING; // Force execute of hard shutdown
+        }
+
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
+        {
+            //----------------------------------------------------
+            //                  SHUTDOWN STATE
+            //----------------------------------------------------
+
+            vm->set_state(VirtualMachine::SHUTDOWN);
+
+            if (hard)
+            {
+                vm->set_action(VMActions::TERMINATE_HARD_ACTION, uid, gid,
+                        req_id);
+
+                vmm->trigger_cancel(vid);
+            }
+            else
+            {
+                vm->set_action(VMActions::TERMINATE_ACTION, uid, gid,
+                        req_id);
+
+                vmm->trigger_shutdown(vid);
+            }
+
+            vm->set_resched(false);
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+        }
+        else if (vm->get_state() == VirtualMachine::SUSPENDED ||
+                vm->get_state() == VirtualMachine::POWEROFF)
+        {
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::EPILOG);
+
+            Quotas::vm_check(uid, gid, &quota_tmpl, error);
+
+            vm->set_action(VMActions::TERMINATE_ACTION, uid, gid, req_id);
+
+            vm->set_epilog_stime(time(0));
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            tm->trigger_epilog(false, vm.get());
+        }
+        else if (vm->get_state() == VirtualMachine::STOPPED ||
+                vm->get_state() == VirtualMachine::UNDEPLOYED)
+        {
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::EPILOG);
+
+            Quotas::vm_check(uid, gid, &quota_tmpl, error);
+
+            vm->set_action(VMActions::TERMINATE_ACTION, uid, gid, req_id);
+
+            vm->set_epilog_stime(time(0));
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            tm->trigger_epilog(true, vm.get());
         }
         else
         {
-            vm->set_action(History::POWEROFF_ACTION, la.uid(), la.gid(),
-                    la.req_id());
-
-            vmm->trigger(VMMAction::SHUTDOWN,vid);
+            vm->log("LCM", Log::ERROR, "shutdown_action, VM in a wrong state.");
         }
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "poweroff_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
+    });
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::restore_action(const LCMAction& la)
+void LifeCycleManager::trigger_undeploy(int vid, bool hard,
+                                        const RequestAttributes& ra)
 {
-    ostringstream os;
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
 
-    int vid = la.vm_id();
+    trigger([this, hard, vid, uid, gid, req_id] {
+        unsigned int port;
+        auto vm = vmpool->get(vid);
 
-    VirtualMachine * vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state() == VirtualMachine::SUSPENDED)
-    {
-        time_t the_time = time(0);
-
-        vm->log("LCM", Log::INFO, "Restoring VM");
-
-        //----------------------------------------------------
-        //            BOOT STATE (FROM SUSPEND)
-        //----------------------------------------------------
-        vm->set_state(VirtualMachine::ACTIVE);
-
-        vm->set_state(VirtualMachine::BOOT_SUSPENDED);
-
-        vm->cp_history();
-
-        vm->set_stime(the_time);
-
-        vm->set_last_poll(0);
-
-        vm->set_running_stime(the_time);
-
-        vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        //----------------------------------------------------
-
-        vmm->trigger(VMMAction::RESTORE,vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "restore_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void  LifeCycleManager::restart_action(const LCMAction& la)
-{
-    int vid = la.vm_id();
-
-    VirtualMachine * vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if (vm->get_state() == VirtualMachine::ACTIVE &&
-        vm->get_lcm_state() == VirtualMachine::UNKNOWN)
-    {
-        vm->set_state(VirtualMachine::BOOT_UNKNOWN);
-
-        vmpool->update(vm);
-
-        vmm->trigger(VMMAction::DEPLOY, vid);
-    }
-    else if ( vm->get_state() == VirtualMachine::POWEROFF )
-    {
-        time_t the_time = time(0);
-
-        vm->set_state(VirtualMachine::ACTIVE);
-
-        vm->set_state(VirtualMachine::BOOT_POWEROFF);
-
-        vm->cp_history();
-
-        vm->set_stime(the_time);
-
-        vm->set_last_poll(0);
-
-        vm->set_running_stime(the_time);
-
-        vm->set_action(History::RESUME_ACTION, la.uid(), la.gid(), la.req_id());
-
-        vmpool->update_history(vm);
-
-        vmpool->update(vm);
-
-        vmm->trigger(VMMAction::DEPLOY, vid);
-    }
-    else
-    {
-        vm->log("LCM", Log::ERROR, "restart_action, VM in a wrong state.");
-    }
-
-    vm->unlock();
-
-    return;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void LifeCycleManager::delete_action(const LCMAction& la)
-{
-    int image_id = -1;
-    int vid      = la.vm_id();
-
-    VirtualMachine * vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if ( vm->get_state() != VirtualMachine::ACTIVE )
-    {
-        vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
-        vm->unlock();
-
-        return;
-    }
-
-    switch(vm->get_lcm_state())
-    {
-        case VirtualMachine::CLEANUP_RESUBMIT:
-            vm->set_state(VirtualMachine::CLEANUP_DELETE);
-            vmpool->update(vm);
-
-        case VirtualMachine::CLEANUP_DELETE:
-            dm->trigger(DMAction::DONE, vid);
-        break;
-
-        default:
-            clean_up_vm(vm, true, image_id, la);
-            dm->trigger(DMAction::DONE, vid);
-        break;
-    }
-
-    vm->unlock();
-
-    if ( image_id != -1 )
-    {
-        Image * image = ipool->get(image_id, true);
-
-        if ( image != 0 )
+        if ( vm == nullptr )
         {
-            image->set_state(Image::ERROR);
-
-            ipool->update(image);
-
-            image->unlock();
+            return;
         }
-    }
+
+        auto lcm_state = vm->get_lcm_state();
+
+        if (hard && (vm->get_state() == VirtualMachine::ACTIVE &&
+                     lcm_state == VirtualMachine::SHUTDOWN_UNDEPLOY))
+        {
+            // Cancel previous undeploy action
+            vmm->trigger_driver_cancel(vid);
+
+            lcm_state = VirtualMachine::RUNNING; // Force execute of hard shutdown
+        }
+
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
+        {
+            //----------------------------------------------------
+            //             SHUTDOWN_UNDEPLOY STATE
+            //----------------------------------------------------
+
+            vm->set_state(VirtualMachine::SHUTDOWN_UNDEPLOY);
+
+            vm->set_resched(false);
+
+            if (hard)
+            {
+                vm->set_action(VMActions::UNDEPLOY_HARD_ACTION, uid, gid,
+                        req_id);
+
+                vmm->trigger_cancel(vid);
+            }
+            else
+            {
+                vm->set_action(VMActions::UNDEPLOY_ACTION, uid, gid,
+                        req_id);
+
+                vmm->trigger_shutdown(vid);
+            }
+
+            VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
+
+            if ( graphics != 0 && (graphics->vector_value("PORT", port) == 0))
+            {
+                graphics->remove("PORT");
+                clpool->release_vnc_port(vm->get_cid(), port);
+            }
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+        }
+        else if (vm->get_state() == VirtualMachine::POWEROFF)
+        {
+            //----------------------------------------------------
+            //   Bypass SHUTDOWN_UNDEPLOY
+            //----------------------------------------------------
+
+            vm->set_state(VirtualMachine::ACTIVE);
+            vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+
+            vm->set_action(VMActions::UNDEPLOY_ACTION, uid, gid, req_id);
+
+            vm->set_epilog_stime(time(0));
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            tm->trigger_epilog_stop(vm.get());
+        }
+        else
+        {
+            vm->log("LCM", Log::ERROR, "undeploy_action, VM in a wrong state.");
+        }
+    });
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_poweroff(int vid, const RequestAttributes& ra)
+{
+    trigger_poweroff(vid, false, ra);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void LifeCycleManager::delete_recreate_action(const LCMAction& la)
+void LifeCycleManager::trigger_poweroff_hard(int vid, const RequestAttributes& ra)
 {
-    Template * vm_quotas_snp = 0;
-    Template * vm_quotas_rsz = 0;
+    trigger_poweroff(vid, true, ra);
+}
 
-    vector<Template *> ds_quotas_snp;
-    vector<Template *> ds_quotas_rsz;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-    int vm_uid, vm_gid;
+void LifeCycleManager::trigger_poweroff(int vid, bool hard,
+                                        const RequestAttributes& ra)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
 
-    VirtualMachine * vm;
+    trigger([this, hard, vid, uid, gid, req_id] {
+        auto vm = vmpool->get(vid);
 
-    int image_id = -1;
-
-    int vid = la.vm_id();
-
-    vm = vmpool->get(vid,true);
-
-    if ( vm == 0 )
-    {
-        return;
-    }
-
-    if ( vm->get_state() != VirtualMachine::ACTIVE )
-    {
-        vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
-        vm->unlock();
-
-        return;
-    }
-
-    switch(vm->get_lcm_state())
-    {
-        case VirtualMachine::CLEANUP_DELETE:
-            vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
-        break;
-
-        case VirtualMachine::CLEANUP_RESUBMIT:
-            dm->trigger(DMAction::RESUBMIT, vid);
-        break;
-
-        default:
-            vm_uid = vm->get_uid();
-            vm_gid = vm->get_gid();
-
-            clean_up_vm(vm, false, image_id, la);
-
-            vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
-                    ds_quotas_snp);
-
-            vm->delete_non_persistent_disk_resizes(&vm_quotas_rsz,
-                    ds_quotas_rsz);
-
-            vmpool->update(vm);
-        break;
-    }
-
-    vm->unlock();
-
-    if ( image_id != -1 )
-    {
-        Image* image = ipool->get(image_id, true);
-
-        if ( image != 0 )
+        if ( vm == nullptr )
         {
-            image->set_state(Image::ERROR);
-
-            ipool->update(image);
-
-            image->unlock();
+            return;
         }
-    }
 
-    if ( !ds_quotas_snp.empty() )
-    {
-        Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
-    }
+        auto lcm_state = vm->get_lcm_state();
 
-    if ( !ds_quotas_rsz.empty() )
-    {
-        Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_rsz);
-    }
+        if (hard && (vm->get_state() == VirtualMachine::ACTIVE &&
+                     lcm_state == VirtualMachine::SHUTDOWN_POWEROFF))
+        {
+            // Cancel previous shutdown action
+            vmm->trigger_driver_cancel(vid);
 
-    if ( vm_quotas_snp != 0 )
-    {
-        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
+            lcm_state = VirtualMachine::RUNNING; // Force execute of hard shutdown
+        }
 
-        delete vm_quotas_snp;
-    }
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
+        {
+            //----------------------------------------------------
+            //             SHUTDOWN_POWEROFF STATE
+            //----------------------------------------------------
 
-    if ( vm_quotas_rsz != 0 )
-    {
-        Quotas::vm_del(vm_uid, vm_gid, vm_quotas_rsz);
+            vm->set_state(VirtualMachine::SHUTDOWN_POWEROFF);
 
-        delete vm_quotas_rsz;
-    }
+            vm->set_resched(false);
+
+            if (hard)
+            {
+                vm->set_action(VMActions::POWEROFF_HARD_ACTION, uid, gid,
+                        req_id);
+
+                vmm->trigger_cancel(vid);
+            }
+            else
+            {
+                vm->set_action(VMActions::POWEROFF_ACTION, uid, gid, req_id);
+
+                vmm->trigger_shutdown(vid);
+            }
+
+            vmpool->update_history(vm.get());
+
+            vmpool->update(vm.get());
+        }
+        else
+        {
+            vm->log("LCM", Log::ERROR, "poweroff_action, VM in a wrong state.");
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_restore(int vid, const RequestAttributes& ra)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
+
+    trigger([this, vid, uid, gid, req_id] {
+        ostringstream os;
+
+        auto vm = vmpool->get(vid);
+
+        if ( vm == nullptr )
+        {
+            return;
+        }
+
+        if (vm->get_state() == VirtualMachine::SUSPENDED)
+        {
+            time_t the_time = time(0);
+
+            vm->log("LCM", Log::INFO, "Restoring VM");
+
+            //----------------------------------------------------
+            //            BOOT STATE (FROM SUSPEND)
+            //----------------------------------------------------
+            vm->set_state(VirtualMachine::ACTIVE);
+
+            vm->set_state(VirtualMachine::BOOT_SUSPENDED);
+
+            vm->set_etime(the_time);
+
+            vm->set_running_etime(the_time);
+
+            vmpool->update_history(vm.get());
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vm->set_action(VMActions::RESUME_ACTION, uid, gid, req_id);
+
+            vmpool->insert_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            //----------------------------------------------------
+
+            vmm->trigger_restore(vid);
+        }
+        else
+        {
+            vm->log("LCM", Log::ERROR, "restore_action, VM in a wrong state.");
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_restart(int vid, const RequestAttributes& ra)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
+
+    trigger([this, vid, uid, gid, req_id] {
+        auto vm = vmpool->get(vid);
+
+        if ( vm == nullptr )
+        {
+            return;
+        }
+
+        if (vm->get_state() == VirtualMachine::ACTIVE &&
+            vm->get_lcm_state() == VirtualMachine::UNKNOWN)
+        {
+            vm->set_state(VirtualMachine::BOOT_UNKNOWN);
+
+            vmpool->update(vm.get());
+
+            vmm->trigger_deploy(vid);
+        }
+        else if ( vm->get_state() == VirtualMachine::POWEROFF )
+        {
+            time_t the_time = time(0);
+
+            vm->set_state(VirtualMachine::ACTIVE);
+
+            vm->set_state(VirtualMachine::BOOT_POWEROFF);
+
+            vm->set_etime(the_time);
+
+            vm->set_running_etime(the_time);
+
+            vmpool->update_history(vm.get());
+
+            vm->cp_history();
+
+            vm->set_stime(the_time);
+
+            vm->set_running_stime(the_time);
+
+            vm->set_action(VMActions::RESUME_ACTION, uid, gid, req_id);
+
+            vmpool->insert_history(vm.get());
+
+            vmpool->update(vm.get());
+
+            vmm->trigger_deploy(vid);
+        }
+        else
+        {
+            vm->log("LCM", Log::ERROR, "restart_action, VM in a wrong state.");
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_delete(int vid, const RequestAttributes& ra)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
+
+    trigger([this, vid, uid, gid, req_id] {
+        int image_id = -1;
+
+        if ( auto vm = vmpool->get(vid) )
+        {
+            if ( vm->get_state() != VirtualMachine::ACTIVE )
+            {
+                vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+
+                return;
+            }
+
+            switch (vm->get_lcm_state())
+            {
+                case VirtualMachine::CLEANUP_RESUBMIT:
+                    vm->set_state(VirtualMachine::CLEANUP_DELETE);
+                    vmpool->update(vm.get());
+
+                case VirtualMachine::CLEANUP_DELETE:
+                    dm->trigger_done(vid);
+                break;
+
+                default:
+                    clean_up_vm(vm.get(), true, image_id, uid, gid, req_id);
+                    dm->trigger_done(vid);
+                break;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        if ( image_id != -1 )
+        {
+            if ( auto image = ipool->get(image_id) )
+            {
+                image->set_state(Image::ERROR);
+
+                ipool->update(image.get());
+            }
+        }
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void LifeCycleManager::trigger_delete_recreate(int vid,
+                                               const RequestAttributes& ra)
+{
+    int uid = ra.uid;
+    int gid = ra.gid;
+    int req_id = ra.req_id;
+
+    trigger([this, vid, uid, gid, req_id] {
+        Template * vm_quotas_snp = nullptr;
+
+        vector<Template *> ds_quotas_snp;
+
+        int vm_uid, vm_gid;
+
+        int image_id = -1;
+
+        if ( auto vm = vmpool->get(vid) )
+        {
+            if ( vm->get_state() != VirtualMachine::ACTIVE )
+            {
+                vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+
+                return;
+            }
+
+            switch (vm->get_lcm_state())
+            {
+                case VirtualMachine::CLEANUP_DELETE:
+                    vm->log("LCM", Log::ERROR, "clean_action, VM in a wrong state.");
+                break;
+
+                case VirtualMachine::CLEANUP_RESUBMIT:
+                    dm->trigger_resubmit(vid);
+                break;
+
+                default:
+                    vm_uid = vm->get_uid();
+                    vm_gid = vm->get_gid();
+
+                    clean_up_vm(vm.get(), false, image_id, uid, gid, req_id);
+
+                    vm->delete_non_persistent_disk_snapshots(&vm_quotas_snp,
+                            ds_quotas_snp);
+
+                    vmpool->update(vm.get());
+                break;
+            }
+        }
+        else
+        {
+            return;
+        }
+
+        if ( image_id != -1 )
+        {
+            if ( auto image = ipool->get(image_id) )
+            {
+                image->set_state(Image::ERROR);
+
+                ipool->update(image.get());
+            }
+        }
+
+        if ( !ds_quotas_snp.empty() )
+        {
+            Quotas::ds_del_recreate(vm_uid, vm_gid, ds_quotas_snp);
+        }
+
+        if ( vm_quotas_snp != nullptr )
+        {
+            Quotas::vm_del(vm_uid, vm_gid, vm_quotas_snp);
+
+            delete vm_quotas_snp;
+        }
+    });
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
-        int& image_id, const LCMAction& la)
+        int& image_id, int uid, int gid, int req_id)
 {
-    int cpu, mem, disk;
+    HostShareCapacity sr;
+
     unsigned int port;
 
-    vector<VectorAttribute *> pci;
     time_t the_time = time(0);
 
     VirtualMachine::LcmState state = vm->get_lcm_state();
@@ -939,13 +991,12 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
     if (dispose)
     {
         vm->set_state(VirtualMachine::CLEANUP_DELETE);
-        vm->set_action(History::DELETE_ACTION, la.uid(), la.gid(), la.req_id());
+        vm->set_action(VMActions::DELETE_ACTION, uid, gid, req_id);
     }
     else
     {
         vm->set_state(VirtualMachine::CLEANUP_RESUBMIT);
-        vm->set_action(History::DELETE_RECREATE_ACTION, la.uid(), la.gid(),
-                    la.req_id());
+        vm->set_action(VMActions::DELETE_RECREATE_ACTION, uid, gid, req_id);
     }
 
     vm->set_resched(false);
@@ -955,14 +1006,11 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         vm->delete_snapshots();
     }
 
-    vm->reset_info();
-
     vm->set_etime(the_time);
-    vm->set_vm_info();
 
-    vm->get_requirements(cpu, mem, disk, pci);
+    vm->get_capacity(sr);
 
-    hpool->del_capacity(vm->get_hid(), vm->get_oid(), cpu, mem, disk, pci);
+    hpool->del_capacity(vm->get_hid(), sr);
 
     const VectorAttribute * graphics = vm->get_template_attribute("GRAPHICS");
 
@@ -981,8 +1029,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::PROLOG_FAILURE:
             vm->set_prolog_etime(the_time);
 
-            tm->trigger(TMAction::DRIVER_CANCEL,vid);
-            tm->trigger(TMAction::EPILOG_DELETE,vid);
+            tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete(vm);
         break;
 
         case VirtualMachine::BOOT:
@@ -1004,8 +1052,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::HOTPLUG_SNAPSHOT:
             vm->set_running_etime(the_time);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::HOTPLUG:
@@ -1013,17 +1061,18 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vm->set_running_etime(the_time);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
             vm->clear_attach_nic();
 
             vm->set_running_etime(the_time);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::HOTPLUG_SAVEAS:
@@ -1031,8 +1080,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vm->set_running_etime(the_time);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
@@ -1041,16 +1090,25 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vm->set_running_etime(the_time);
 
-            tm->trigger(TMAction::DRIVER_CANCEL, vid);
-            tm->trigger(TMAction::EPILOG_DELETE, vid);
+            tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete(vm);
         break;
 
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
             vm->clear_attach_disk();
 
-            tm->trigger(TMAction::DRIVER_CANCEL,vid);
-            tm->trigger(TMAction::EPILOG_DELETE,vid);
+            tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete(vm);
+        break;
+
+        case VirtualMachine::HOTPLUG_RESIZE:
+            vm->reset_resize();
+
+            vm->set_running_etime(the_time);
+
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
@@ -1062,8 +1120,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
             vm->clear_snapshot_disk();
 
-            tm->trigger(TMAction::DRIVER_CANCEL, vid);
-            tm->trigger(TMAction::EPILOG_DELETE,vid);
+            tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete(vm);
         break;
 
         case VirtualMachine::DISK_SNAPSHOT:
@@ -1071,8 +1129,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vm->set_running_etime(the_time);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::DISK_RESIZE:
@@ -1080,16 +1138,16 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
 
             vm->set_running_etime(the_time);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::DISK_RESIZE_POWEROFF:
         case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
             vm->clear_resize_disk(true);
 
-            tm->trigger(TMAction::DRIVER_CANCEL, vid);
-            tm->trigger(TMAction::EPILOG_DELETE,vid);
+            tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete(vm);
         break;
 
         case VirtualMachine::MIGRATE:
@@ -1099,21 +1157,20 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
 
-            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
-                    mem, disk, pci);
+            hpool->del_capacity(vm->get_previous_hid(), sr);
 
             vmpool->update_previous_history(vm);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP_BOTH,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, true);
         break;
 
         case VirtualMachine::SAVE_STOP:
         case VirtualMachine::SAVE_SUSPEND:
             vm->set_running_etime(the_time);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup(vid, false);
         break;
 
         case VirtualMachine::SAVE_MIGRATE:
@@ -1123,13 +1180,12 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             vm->set_previous_vm_info();
             vm->set_previous_running_etime(the_time);
 
-            hpool->del_capacity(vm->get_previous_hid(), vm->get_oid(), cpu,
-                    mem, disk, pci);
+            hpool->del_capacity(vm->get_previous_hid(), sr);
 
             vmpool->update_previous_history(vm);
 
-            vmm->trigger(VMMAction::DRIVER_CANCEL,vid);
-            vmm->trigger(VMMAction::CLEANUP_PREVIOUS,vid);
+            vmm->trigger_driver_cancel(vid);
+            vmm->trigger_cleanup_previous(vid);
         break;
 
         case VirtualMachine::PROLOG_MIGRATE:
@@ -1142,8 +1198,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
             vm->set_prolog_etime(the_time);
 
-            tm->trigger(TMAction::DRIVER_CANCEL,vid);
-            tm->trigger(TMAction::EPILOG_DELETE_BOTH,vid);
+            tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete_both(vm);
         break;
 
         case VirtualMachine::EPILOG_STOP:
@@ -1154,8 +1210,8 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
             vm->set_epilog_etime(the_time);
 
-            tm->trigger(TMAction::DRIVER_CANCEL,vid);
-            tm->trigger(TMAction::EPILOG_DELETE,vid);
+            tm->trigger_driver_cancel(vid);
+            tm->trigger_epilog_delete(vm);
         break;
 
         case VirtualMachine::LCM_INIT:
@@ -1176,7 +1232,7 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         const RequestAttributes& ra)
 {
     string action;
-    LCMAction::Actions lcm_action = LCMAction::NONE;
+    int vim = vm->get_oid();
 
     switch (vm->get_lcm_state())
     {
@@ -1188,11 +1244,11 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
             return;
 
         case VirtualMachine::CLEANUP_DELETE:
-            dm->trigger(DMAction::DONE, vm->get_oid());
+            dm->trigger_done(vm->get_oid());
             return;
 
         case VirtualMachine::CLEANUP_RESUBMIT:
-            dm->trigger(DMAction::RESUBMIT, vm->get_oid());
+            dm->trigger_resubmit(vm->get_oid());
             return;
 
         case VirtualMachine::UNKNOWN:
@@ -1219,11 +1275,11 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
             if (success)
             {
-                lcm_action = LCMAction::PROLOG_SUCCESS;
+                trigger_prolog_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::PROLOG_FAILURE;
+                trigger_prolog_failure(vim);
             }
         break;
 
@@ -1235,11 +1291,11 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
             if (success)
             {
-                lcm_action = LCMAction::EPILOG_SUCCESS;
+                trigger_epilog_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::EPILOG_FAILURE;
+                trigger_epilog_failure(vim);
             }
         break;
 
@@ -1248,33 +1304,33 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
             if (success)
             {
-                lcm_action = LCMAction::SAVEAS_SUCCESS;
+                trigger_saveas_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::SAVEAS_FAILURE;
+                trigger_saveas_failure(vim);
             }
         break;
 
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
             if (success)
             {
-                lcm_action = LCMAction::ATTACH_SUCCESS;
+                trigger_attach_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::ATTACH_FAILURE;
+                trigger_attach_failure(vim);
             }
         break;
 
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
             if (success)
             {
-                lcm_action = LCMAction::DETACH_SUCCESS;
+                trigger_detach_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::DETACH_FAILURE;
+                trigger_detach_failure(vim);
             }
         break;
 
@@ -1302,11 +1358,11 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
                     vm->set_deploy_id(oss.str());
                 }
 
-                lcm_action = LCMAction::DEPLOY_SUCCESS;
+                trigger_deploy_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::DEPLOY_FAILURE;
+                trigger_deploy_failure(vim);
             }
         break;
 
@@ -1315,11 +1371,11 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
             if (success)
             {
-                lcm_action = LCMAction::SHUTDOWN_SUCCESS;
+                trigger_shutdown_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::SHUTDOWN_FAILURE;
+                trigger_shutdown_failure(vim);
             }
         break;
 
@@ -1328,33 +1384,34 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::SAVE_MIGRATE:
             if (success)
             {
-                lcm_action = LCMAction::SAVE_SUCCESS;
+                trigger_save_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::SAVE_FAILURE;
+                trigger_save_failure(vim);
             }
         break;
 
         case VirtualMachine::HOTPLUG:
             if (success)
             {
-                lcm_action = LCMAction::ATTACH_SUCCESS;
+                trigger_attach_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::ATTACH_FAILURE;
+                trigger_attach_failure(vim);
             }
         break;
 
         case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
             if (success)
             {
-                lcm_action = LCMAction::ATTACH_NIC_SUCCESS;
+                trigger_attach_nic_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::ATTACH_NIC_FAILURE;
+                trigger_attach_nic_failure(vim);
             }
         break;
 
@@ -1370,31 +1427,42 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
 
                     vmpool->update(vm);
 
-                    lcm_action = LCMAction::SNAPSHOT_CREATE_SUCCESS;
+                    trigger_snapshot_create_success(vim);
                 }
                 else if ( action == "REVERT" )
                 {
-                    lcm_action = LCMAction::SNAPSHOT_REVERT_SUCCESS;
+                    trigger_snapshot_revert_success(vim);
                 }
                 else if  ( action == "DELETE" )
                 {
-                    lcm_action = LCMAction::SNAPSHOT_DELETE_SUCCESS;
+                    trigger_snapshot_delete_success(vim);
                 }
             }
             else
             {
                 if ( action == "CREATE" )
                 {
-                    lcm_action = LCMAction::SNAPSHOT_CREATE_FAILURE;
+                    trigger_snapshot_create_failure(vim);
                 }
                 else if ( action == "REVERT" )
                 {
-                    lcm_action = LCMAction::SNAPSHOT_REVERT_FAILURE;
+                    trigger_snapshot_revert_failure(vim);
                 }
                 else if  ( action == "DELETE" )
                 {
-                    lcm_action = LCMAction::SNAPSHOT_DELETE_FAILURE;
+                    trigger_snapshot_delete_failure(vim);
                 }
+            }
+        break;
+
+        case VirtualMachine::HOTPLUG_RESIZE:
+            if (success)
+            {
+                trigger_resize_success(vim);
+            }
+            else
+            {
+                trigger_resize_failure(vim);
             }
         break;
 
@@ -1408,11 +1476,11 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::DISK_SNAPSHOT_DELETE:
             if (success)
             {
-                lcm_action = LCMAction::DISK_SNAPSHOT_SUCCESS;
+                trigger_disk_snapshot_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::DISK_SNAPSHOT_FAILURE;
+                trigger_disk_snapshot_failure(vim);
             }
         break;
 
@@ -1421,18 +1489,13 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::DISK_RESIZE:
             if (success)
             {
-                lcm_action = LCMAction::DISK_RESIZE_SUCCESS;
+                trigger_disk_resize_success(vim);
             }
             else
             {
-                lcm_action = LCMAction::DISK_RESIZE_FAILURE;
+                trigger_disk_resize_failure(vim);
             }
         break;
-    }
-
-    if (lcm_action != LCMAction::NONE)
-    {
-        trigger(lcm_action, vm->get_oid(), ra);
     }
 }
 
@@ -1457,7 +1520,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vmm->trigger(VMMAction::DEPLOY, vid);
+            vmm->trigger_deploy(vid);
             break;
 
         case VirtualMachine::BOOT_MIGRATE_FAILURE:
@@ -1465,7 +1528,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vmm->trigger(VMMAction::RESTORE, vid);
+            vmm->trigger_restore(vid);
             break;
 
         case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
@@ -1473,7 +1536,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vmm->trigger(VMMAction::DEPLOY, vid);
+            vmm->trigger_deploy(vid);
             break;
 
         case VirtualMachine::BOOT_STOPPED_FAILURE:
@@ -1481,7 +1544,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            vmm->trigger(VMMAction::RESTORE, vid);
+            vmm->trigger_restore(vid);
             break;
 
         case VirtualMachine::PROLOG_MIGRATE_FAILURE:
@@ -1489,7 +1552,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::PROLOG_MIGR, vid);
+            tm->trigger_prolog_migr(vm);
             break;
 
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
@@ -1497,7 +1560,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::PROLOG_MIGR, vid);
+            tm->trigger_prolog_migr(vm);
             break;
 
 
@@ -1506,7 +1569,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::PROLOG_MIGR, vid);
+            tm->trigger_prolog_migr(vm);
             break;
 
         case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
@@ -1514,7 +1577,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::PROLOG_MIGR, vid);
+            tm->trigger_prolog_migr(vm);
             break;
 
         case VirtualMachine::PROLOG_RESUME_FAILURE:
@@ -1522,7 +1585,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::PROLOG_RESUME,vid);
+            tm->trigger_prolog_resume(vm);
             break;
 
         case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
@@ -1530,7 +1593,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::PROLOG_RESUME,vid);
+            tm->trigger_prolog_resume(vm);
             break;
 
         case VirtualMachine::PROLOG_FAILURE:
@@ -1538,7 +1601,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::PROLOG,vid);
+            tm->trigger_prolog(vm);
             break;
 
         case VirtualMachine::EPILOG_FAILURE:
@@ -1546,7 +1609,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::EPILOG,vid);
+            tm->trigger_epilog(false, vm);
             break;
 
         case VirtualMachine::EPILOG_STOP_FAILURE:
@@ -1554,7 +1617,7 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::EPILOG_STOP,vid);
+            tm->trigger_epilog_stop(vm);
             break;
 
        case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
@@ -1562,68 +1625,68 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 
             vmpool->update(vm);
 
-            tm->trigger(TMAction::EPILOG_STOP,vid);
+            tm->trigger_epilog_stop(vm);
             break;
 
         case VirtualMachine::BOOT_MIGRATE:
         case VirtualMachine::BOOT_SUSPENDED:
         case VirtualMachine::BOOT_STOPPED:
         case VirtualMachine::BOOT_UNDEPLOY:
-            vmm->trigger(VMMAction::RESTORE, vid);
+            vmm->trigger_restore(vid);
             break;
 
         case VirtualMachine::BOOT:
         case VirtualMachine::BOOT_POWEROFF:
         case VirtualMachine::BOOT_UNKNOWN:
-            vmm->trigger(VMMAction::DEPLOY, vid);
+            vmm->trigger_deploy(vid);
             break;
 
         case VirtualMachine::SHUTDOWN:
         case VirtualMachine::SHUTDOWN_POWEROFF:
         case VirtualMachine::SHUTDOWN_UNDEPLOY:
-            if (vm->get_action() == History::TERMINATE_ACTION)
+            if (vm->get_action() == VMActions::TERMINATE_ACTION)
             {
-                vmm->trigger(VMMAction::SHUTDOWN,vid);
+                vmm->trigger_shutdown(vid);
             }
             else
             {
-                vmm->trigger(VMMAction::CANCEL,vid);
+                vmm->trigger_cancel(vid);
             }
             break;
 
         case VirtualMachine::SAVE_STOP:
         case VirtualMachine::SAVE_SUSPEND:
         case VirtualMachine::SAVE_MIGRATE:
-            vmm->trigger(VMMAction::SAVE,vid);
+            vmm->trigger_save(vid);
             break;
 
         case VirtualMachine::MIGRATE:
-            vmm->trigger(VMMAction::MIGRATE,vid);
+            vmm->trigger_migrate(vid);
             break;
 
         case VirtualMachine::PROLOG:
-            tm->trigger(TMAction::PROLOG,vid);
+            tm->trigger_prolog(vm);
             break;
 
         case VirtualMachine::PROLOG_MIGRATE:
         case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
         case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
         case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-            tm->trigger(TMAction::PROLOG_MIGR,vid);
+            tm->trigger_prolog_migr(vm);
             break;
 
         case VirtualMachine::PROLOG_RESUME:
         case VirtualMachine::PROLOG_UNDEPLOY:
-            tm->trigger(TMAction::PROLOG_RESUME,vid);
+            tm->trigger_prolog_resume(vm);
             break;
 
         case VirtualMachine::EPILOG:
-            tm->trigger(TMAction::EPILOG,vid);
+            tm->trigger_epilog(false, vm);
             break;
 
         case VirtualMachine::EPILOG_STOP:
         case VirtualMachine::EPILOG_UNDEPLOY:
-            tm->trigger(TMAction::EPILOG_STOP,vid);
+            tm->trigger_epilog_stop(vm);
             break;
 
         case VirtualMachine::LCM_INIT:
@@ -1631,12 +1694,14 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::CLEANUP_DELETE:
         case VirtualMachine::HOTPLUG:
         case VirtualMachine::HOTPLUG_NIC:
+        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
         case VirtualMachine::HOTPLUG_SNAPSHOT:
         case VirtualMachine::HOTPLUG_SAVEAS:
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+        case VirtualMachine::HOTPLUG_RESIZE:
         case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
         case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
@@ -1659,186 +1724,185 @@ void LifeCycleManager::retry(VirtualMachine * vm)
 /*  -------------------------------------------------------------------------- */
 /*  -------------------------------------------------------------------------- */
 
-void  LifeCycleManager::updatesg_action(const LCMAction& la)
+void LifeCycleManager::trigger_updatesg(int sgid)
 {
-    int  vmid, rc;
-    VirtualMachine * vm;
+    trigger([this, sgid] {
+        int  vmid, rc;
 
-    int sgid = la.vm_id();
-    SecurityGroup  * sg = sgpool->get(sgid, true);
+        auto sg = sgpool->get(sgid);
 
-    if ( sg == 0 )
-    {
-        return;
-    }
-
-    // -------------------------------------------------------------------------
-    // Iterate over SG VMs, rules at hypervisor are updated one by one
-    // -------------------------------------------------------------------------
-    do
-    {
-        bool is_error = false;
-        bool is_tmpl  = false;
-        bool is_update= false;
-
-        rc = sg->get_outdated(vmid);
-
-        sgpool->update(sg);
-
-        sg->unlock();
-
-        if ( rc != 0 )
+        if ( sg == nullptr )
         {
             return;
         }
 
-        vm = vmpool->get(vmid, true);
-
-        if ( vm == 0 )
+        // -------------------------------------------------------------------------
+        // Iterate over SG VMs, rules at hypervisor are updated one by one
+        // -------------------------------------------------------------------------
+        do
         {
-            continue;
-        }
+            bool is_error  = false;
+            bool is_tmpl   = false;
+            bool is_update = false;
 
-        VirtualMachine::LcmState lstate = vm->get_lcm_state();
-        VirtualMachine::VmState  state  = vm->get_state();
+            rc = sg->get_outdated(vmid);
 
-        if ( state != VirtualMachine::ACTIVE ) //Update just VM information
-        {
-            is_tmpl = true;
-        }
-        else
-        {
-            switch (lstate)
+            sgpool->update(sg.get());
+
+            sg.reset();
+
+            if ( rc != 0 )
             {
-                //Cannnot update these VMs, SG rules being updated/created
-                case VirtualMachine::BOOT:
-                case VirtualMachine::BOOT_MIGRATE:
-                case VirtualMachine::BOOT_SUSPENDED:
-                case VirtualMachine::BOOT_STOPPED:
-                case VirtualMachine::BOOT_UNDEPLOY:
-                case VirtualMachine::BOOT_POWEROFF:
-                case VirtualMachine::BOOT_UNKNOWN:
-                case VirtualMachine::BOOT_FAILURE:
-                case VirtualMachine::BOOT_MIGRATE_FAILURE:
-                case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
-                case VirtualMachine::BOOT_STOPPED_FAILURE:
-                case VirtualMachine::MIGRATE:
-                case VirtualMachine::HOTPLUG_NIC:
-                case VirtualMachine::UNKNOWN:
-                    is_error = true;
-                    break;
-
-                //Update just VM information
-                case VirtualMachine::LCM_INIT:
-                case VirtualMachine::PROLOG:
-                case VirtualMachine::PROLOG_MIGRATE_FAILURE:
-                case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
-                case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
-                case VirtualMachine::PROLOG_RESUME_FAILURE:
-                case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
-                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
-                case VirtualMachine::PROLOG_FAILURE:
-                case VirtualMachine::PROLOG_MIGRATE:
-                case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
-                case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
-                case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
-                case VirtualMachine::PROLOG_RESUME:
-                case VirtualMachine::PROLOG_UNDEPLOY:
-                case VirtualMachine::EPILOG:
-                case VirtualMachine::EPILOG_STOP:
-                case VirtualMachine::EPILOG_UNDEPLOY:
-                case VirtualMachine::EPILOG_FAILURE:
-                case VirtualMachine::EPILOG_STOP_FAILURE:
-                case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
-                case VirtualMachine::SHUTDOWN:
-                case VirtualMachine::SHUTDOWN_POWEROFF:
-                case VirtualMachine::SHUTDOWN_UNDEPLOY:
-                case VirtualMachine::SAVE_STOP:
-                case VirtualMachine::SAVE_SUSPEND:
-                case VirtualMachine::SAVE_MIGRATE:
-                case VirtualMachine::CLEANUP_RESUBMIT:
-                case VirtualMachine::CLEANUP_DELETE:
-                case VirtualMachine::DISK_RESIZE_POWEROFF:
-                case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
-                case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
-                case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
-                case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
-                case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
-                case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
-                case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
-                case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
-                case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
-                case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
-                case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
-                    is_tmpl = true;
-                    break;
-
-                //Update VM information + SG rules at host
-                case VirtualMachine::RUNNING:
-                case VirtualMachine::HOTPLUG:
-                case VirtualMachine::HOTPLUG_SNAPSHOT:
-                case VirtualMachine::HOTPLUG_SAVEAS:
-                case VirtualMachine::DISK_SNAPSHOT:
-                case VirtualMachine::DISK_SNAPSHOT_DELETE:
-                case VirtualMachine::DISK_RESIZE:
-                    is_update = true;
-                    break;
+                return;
             }
-        }
 
-        // ---------------------------------------------------------------------
-        // Update VM template with the new security group rules & trigger update
-        // ---------------------------------------------------------------------
-        if ( is_tmpl || is_update )
-        {
-            vector<VectorAttribute *> sg_rules;
+            if ( auto vm = vmpool->get(vmid) )
+            {
+                VirtualMachine::LcmState lstate = vm->get_lcm_state();
+                VirtualMachine::VmState  state  = vm->get_state();
 
-            sgpool->get_security_group_rules(-1, sgid, sg_rules);
+                if ( state != VirtualMachine::ACTIVE ) //Update just VM info
+                {
+                    is_tmpl = true;
+                }
+                else
+                {
+                    switch (lstate)
+                    {
+                        //Cannnot update VM, SG rules being updated/created
+                        case VirtualMachine::BOOT:
+                        case VirtualMachine::BOOT_MIGRATE:
+                        case VirtualMachine::BOOT_SUSPENDED:
+                        case VirtualMachine::BOOT_STOPPED:
+                        case VirtualMachine::BOOT_UNDEPLOY:
+                        case VirtualMachine::BOOT_POWEROFF:
+                        case VirtualMachine::BOOT_UNKNOWN:
+                        case VirtualMachine::BOOT_FAILURE:
+                        case VirtualMachine::BOOT_MIGRATE_FAILURE:
+                        case VirtualMachine::BOOT_UNDEPLOY_FAILURE:
+                        case VirtualMachine::BOOT_STOPPED_FAILURE:
+                        case VirtualMachine::MIGRATE:
+                        case VirtualMachine::HOTPLUG_NIC:
+                        case VirtualMachine::HOTPLUG_NIC_POWEROFF:
+                        case VirtualMachine::UNKNOWN:
+                            is_error = true;
+                            break;
 
-            vm->remove_security_group(sgid);
+                        //Update just VM information
+                        case VirtualMachine::LCM_INIT:
+                        case VirtualMachine::PROLOG:
+                        case VirtualMachine::PROLOG_MIGRATE_FAILURE:
+                        case VirtualMachine::PROLOG_MIGRATE_POWEROFF_FAILURE:
+                        case VirtualMachine::PROLOG_MIGRATE_SUSPEND_FAILURE:
+                        case VirtualMachine::PROLOG_RESUME_FAILURE:
+                        case VirtualMachine::PROLOG_UNDEPLOY_FAILURE:
+                        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN_FAILURE:
+                        case VirtualMachine::PROLOG_FAILURE:
+                        case VirtualMachine::PROLOG_MIGRATE:
+                        case VirtualMachine::PROLOG_MIGRATE_POWEROFF:
+                        case VirtualMachine::PROLOG_MIGRATE_SUSPEND:
+                        case VirtualMachine::PROLOG_MIGRATE_UNKNOWN:
+                        case VirtualMachine::PROLOG_RESUME:
+                        case VirtualMachine::PROLOG_UNDEPLOY:
+                        case VirtualMachine::EPILOG:
+                        case VirtualMachine::EPILOG_STOP:
+                        case VirtualMachine::EPILOG_UNDEPLOY:
+                        case VirtualMachine::EPILOG_FAILURE:
+                        case VirtualMachine::EPILOG_STOP_FAILURE:
+                        case VirtualMachine::EPILOG_UNDEPLOY_FAILURE:
+                        case VirtualMachine::SHUTDOWN:
+                        case VirtualMachine::SHUTDOWN_POWEROFF:
+                        case VirtualMachine::SHUTDOWN_UNDEPLOY:
+                        case VirtualMachine::SAVE_STOP:
+                        case VirtualMachine::SAVE_SUSPEND:
+                        case VirtualMachine::SAVE_MIGRATE:
+                        case VirtualMachine::CLEANUP_RESUBMIT:
+                        case VirtualMachine::CLEANUP_DELETE:
+                        case VirtualMachine::DISK_RESIZE_POWEROFF:
+                        case VirtualMachine::DISK_RESIZE_UNDEPLOYED:
+                        case VirtualMachine::DISK_SNAPSHOT_POWEROFF:
+                        case VirtualMachine::DISK_SNAPSHOT_REVERT_POWEROFF:
+                        case VirtualMachine::DISK_SNAPSHOT_DELETE_POWEROFF:
+                        case VirtualMachine::DISK_SNAPSHOT_SUSPENDED:
+                        case VirtualMachine::DISK_SNAPSHOT_REVERT_SUSPENDED:
+                        case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
+                        case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
+                        case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+                        case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
+                        case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
+                            is_tmpl = true;
+                            break;
 
-            vm->add_template_attribute(sg_rules);
+                        //Update VM information + SG rules at host
+                        case VirtualMachine::RUNNING:
+                        case VirtualMachine::HOTPLUG:
+                        case VirtualMachine::HOTPLUG_SNAPSHOT:
+                        case VirtualMachine::HOTPLUG_SAVEAS:
+                        case VirtualMachine::HOTPLUG_RESIZE:
+                        case VirtualMachine::DISK_SNAPSHOT:
+                        case VirtualMachine::DISK_SNAPSHOT_DELETE:
+                        case VirtualMachine::DISK_RESIZE:
+                            is_update = true;
+                            break;
+                    }
+                }
 
-            vmpool->update(vm);
-        }
+                // -------------------------------------------------------------
+                // Update VM template with the new SG rules & trigger update
+                // -------------------------------------------------------------
+                if ( is_tmpl || is_update )
+                {
+                    vector<VectorAttribute *> sg_rules;
 
-        if ( is_update )
-        {
-            vmm->updatesg(vm, sgid);
-        }
+                    sgpool->get_security_group_rules(-1, sgid, sg_rules);
 
-        vm->unlock();
+                    vm->remove_security_group(sgid);
 
-        sg = sgpool->get(sgid, true);
+                    vm->add_template_attribute(sg_rules);
 
-        if ( sg == 0 )
-        {
-            return;
-        }
+                    vmpool->update(vm.get());
+                }
 
-        // ---------------------------------------------------------------------
-        // Update VM status in the security group and exit
-        // ---------------------------------------------------------------------
-        if ( is_error )
-        {
-            sg->add_error(vmid);
-        }
-        else if ( is_tmpl )
-        {
-            sg->add_vm(vmid);
-        }
-        else if ( is_update )
-        {
-            sg->add_updating(vmid);
-        }
+                if ( is_update )
+                {
+                    vmm->updatesg(vm.get(), sgid);
+                }
+            }
+            else
+            {
+                continue;
+            }
 
-        sgpool->update(sg);
+            sg = sgpool->get(sgid);
 
-        if (is_update)
-        {
-            sg->unlock();
-            return;
-        }
-    } while (true);
+            if ( sg == nullptr )
+            {
+                return;
+            }
+
+            // ---------------------------------------------------------------------
+            // Update VM status in the security group and exit
+            // ---------------------------------------------------------------------
+            if ( is_error )
+            {
+                sg->add_error(vmid);
+            }
+            else if ( is_tmpl )
+            {
+                sg->add_vm(vmid);
+            }
+            else if ( is_update )
+            {
+                sg->add_updating(vmid);
+            }
+
+            sgpool->update(sg.get());
+
+            if (is_update)
+            {
+                return;
+            }
+        } while (true);
+    });
 }
 

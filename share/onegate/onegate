@@ -1,5 +1,21 @@
 #!/usr/bin/env ruby
 
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
 require 'rubygems'
 require 'uri'
 require 'net/https'
@@ -13,7 +29,7 @@ require 'pp'
 module CloudClient
 
     # OpenNebula version
-    VERSION = '5.5.80'
+    VERSION = '5.13.80'
 
     # #########################################################################
     # Default location for the authentication file
@@ -204,6 +220,8 @@ module OneGate
             DISK_RESIZE
             DISK_RESIZE_POWEROFF
             DISK_RESIZE_UNDEPLOYED
+            HOTPLUG_NIC_POWEROFF
+            HOTPLUG_RESIZE
         }
 
         SHORT_VM_STATES={
@@ -284,7 +302,9 @@ module OneGate
             "PROLOG_MIGRATE_UNKNOWN_FAILURE" => "fail",
             "DISK_RESIZE"            => "drsz",
             "DISK_RESIZE_POWEROFF"   => "drsz",
-            "DISK_RESIZE_UNDEPLOYED" => "drsz"
+            "DISK_RESIZE_UNDEPLOYED" => "drsz",
+            "HOTPLUG_NIC_POWEROFF"   => "hotp",
+            "HOTPLUG_RESIZE"         => "hotp"
         }
 
         def self.state_to_str(id, lcm_id)
@@ -299,9 +319,12 @@ module OneGate
             return state_str
         end
 
-        def self.print(json_hash)
+        def self.print(json_hash, extended = false)
             OneGate.print_header("VM " + json_hash["VM"]["ID"])
             OneGate.print_key_value("NAME", json_hash["VM"]["NAME"])
+
+            return unless extended
+
             OneGate.print_key_value(
                 "STATE",
                 self.state_to_str(
@@ -352,7 +375,7 @@ module OneGate
             return STATE_STR[state_number.to_i]
         end
 
-        def self.print(json_hash)
+        def self.print(json_hash, extended = false)
             OneGate.print_header("SERVICE " + json_hash["SERVICE"]["id"])
             OneGate.print_key_value("NAME", json_hash["SERVICE"]["name"])
             OneGate.print_key_value("STATE", Service.state_str(json_hash["SERVICE"]['state']))
@@ -364,13 +387,42 @@ module OneGate
 
                 if role["nodes"]
                     role["nodes"].each{ |node|
-                        OneGate::VirtualMachine.print(node["vm_info"])
+                        OneGate::VirtualMachine.print(node["vm_info"], extended)
                     }
                 end
 
                 puts
             }
         end
+    end
+
+    # Virtual Router module
+    module VirtualRouter
+
+        def self.print(json_hash, _extended = false)
+            OneGate.print_header('VROUTER ' + json_hash['VROUTER']['ID'])
+            OneGate.print_key_value('NAME', json_hash['VROUTER']['NAME'])
+
+            vms_ids = Array(json_hash['VROUTER']['VMS']['ID'])
+
+            vms = vms_ids.join(',')
+
+            OneGate.print_key_value('VMS', vms)
+            puts
+        end
+
+    end
+
+    # Virtual Network module
+    module VirtualNetwork
+
+        def self.print(json_hash, _extended = false)
+            OneGate.print_header('VNET')
+            OneGate.print_key_value('ID', json_hash['VNET']['ID'])
+
+            puts
+        end
+
     end
 
     class Client
@@ -394,8 +446,9 @@ module OneGate
             end
         end
 
-        def get(path)
+        def get(path, extra = nil)
             req = Net::HTTP::Proxy(@host, @port)::Get.new(path)
+            req.body = extra if extra
 
             do_request(req)
         end
@@ -451,8 +504,8 @@ module OneGate
 
     def self.parse_json(response)
         if CloudClient::is_error?(response)
-            puts "ERROR: "
-            puts response.message
+            STDERR.puts 'ERROR: '
+            STDERR.puts response.message
             exit -1
         else
             return JSON.parse(response.body)
@@ -496,7 +549,9 @@ module OneGate
 Available commands
     $ onegate vm show [VMID] [--json]
 
-    $ onegate vm update [VMID] --data KEY=VALUE[\\nKEY2=VALUE2]
+    $ onegate vm update [VMID] --data KEY=VALUE\\nKEY2=VALUE2
+
+    $ onegate vm update [VMID] --erase KEY
 
     $ onegate vm ACTION VMID
         $ onegate resume [VMID]
@@ -510,9 +565,13 @@ Available commands
         $ onegate hold [VMID]
         $ onegate release [VMID]
 
-    $ onegate service show [--json]
+    $ onegate service show [--json][--extended]
 
     $ onegate service scale --role ROLE --cardinality CARDINALITY
+
+    $ onegate vrouter show [--json]
+
+    $ onegate vnet show VNETID [--json][--extended]
 EOT
     end
 end
@@ -524,6 +583,11 @@ options = {}
 OptionParser.new do |opts|
   opts.on("-d", "--data DATA", "Data to be included in the VM") do |data|
     options[:data] = data
+  end
+
+  opts.on("-e", "--erase DATA", "Data to be removed from the VM") do |data|
+    options[:data] = data
+    options[:type] = 2
   end
 
   opts.on("-r", "--role ROLE", "Service role") do |role|
@@ -538,12 +602,16 @@ OptionParser.new do |opts|
     options[:json] = json
   end
 
+  opts.on("", "--extended", "Print resource extended information") do |ext|
+    options[:extended] = ext
+  end
+
   opts.on("-f", "--hard", "Hard option for power off operations") do |hard|
     options[:hard] = hard
   end
 
   opts.on("-h", "--help", "Show this message") do
-    puts OneGate.help_str
+    STDERR.puts OneGate.help_str
     exit
   end
 end.parse!
@@ -567,20 +635,26 @@ when "vm"
             OneGate::VirtualMachine.print(json_hash)
         end
     when "update"
-        if !options[:data]
-            puts "You have to provide the data as a param (--data)"
+        if !options[:data] && !options[:erase]
+            STDERR.puts 'You have to provide the data as a param (--data, --erase)'
             exit -1
         end
 
-        if ARGV[2]
-            response = client.put("/vms/"+ARGV[2], options[:data])
+        if options[:type]
+            data = URI.encode_www_form(options)
         else
-            response = client.put("/vm", options[:data])
+            data = options[:data]
+        end
+
+        if ARGV[2]
+            response = client.put("/vms/" + ARGV[2], data)
+        else
+            response = client.put("/vm", data)
         end
 
         if CloudClient::is_error?(response)
-            puts "ERROR: "
-            puts response.message
+            STDERR.puts 'ERROR: '
+            STDERR.puts response.message
             exit -1
         end
     when "resume",
@@ -610,30 +684,41 @@ when "vm"
             response = client.post("/vms/"+ARGV[2]+"/action", action_hash.to_json)
 
             if CloudClient::is_error?(response)
-                puts "ERROR: "
-                puts response.message
+                STDERR.puts 'ERROR: '
+                STDERR.puts response.message
                 exit -1
             end
         else
-            puts "You have to provide a VM ID"
+            STDERR.puts 'You have to provide a VM ID'
             exit -1
         end
     else
-        puts OneGate.help_str
-        puts
-        puts "Action #{ARGV[1]} not supported"
+        STDERR.puts OneGate.help_str
+        STDERR.puts
+        STDERR.puts "Action #{ARGV[1]} not supported"
         exit -1
     end
 when "service"
     case ARGV[1]
     when "show"
-        response = client.get("/service")
+        if options[:extended]
+            extra             = {}
+            extra['extended'] = true
+
+            extra = URI.encode_www_form(extra)
+        end
+
+        response  = client.get("/service", extra)
         json_hash = OneGate.parse_json(response)
         #pp json_hash
         if options[:json]
             puts JSON.pretty_generate(json_hash)
         else
-            OneGate::Service.print(json_hash)
+            if options[:extended]
+                OneGate::Service.print(json_hash, true)
+            else
+                OneGate::Service.print(json_hash)
+            end
         end
     when "scale"
         response = client.put(
@@ -643,18 +728,79 @@ when "service"
             }.to_json)
 
         if CloudClient::is_error?(response)
-            puts "ERROR: "
-            puts response.message
+            STDERR.puts 'ERROR: '
+            STDERR.puts response.message
             exit -1
         end
     else
-        puts OneGate.help_str
-        puts
-        puts "Action #{ARGV[1]} not supported"
+        STDERR.puts OneGate.help_str
+        STDERR.puts
+        STDERR.puts "Action #{ARGV[1]} not supported"
         exit -1
     end
+when 'vrouter'
+    case ARGV[1]
+    when 'show'
+        if options[:extended]
+            extra             = {}
+            extra['extended'] = true
+
+            extra = URI.encode_www_form(extra)
+        end
+
+        response  = client.get('/vrouter', extra)
+        json_hash = OneGate.parse_json(response)
+
+        if options[:json]
+            puts JSON.pretty_generate(json_hash)
+        else
+            if options[:extended]
+                OneGate::VirtualRouter.print(json_hash, true)
+            else
+                OneGate::VirtualRouter.print(json_hash)
+            end
+        end
+    else
+        STDERR.puts OneGate.help_str
+        STDERR.puts
+        STDERR.puts "Action #{ARGV[1]} not supported"
+        exit(-1)
+    end
+when 'vnet'
+    case ARGV[1]
+    when 'show'
+        if ARGV[2]
+            if options[:extended]
+                extra             = {}
+                extra['extended'] = true
+
+                extra = URI.encode_www_form(extra)
+            end
+
+            response  = client.get('/vnet/'+ARGV[2], extra)
+            json_hash = OneGate.parse_json(response)
+
+            if options[:json]
+                puts JSON.pretty_generate(json_hash)
+            else
+                if options[:extended]
+                    OneGate::VirtualNetwork.print(json_hash, true)
+                else
+                    OneGate::VirtualNetwork.print(json_hash)
+                end
+            end
+        else
+            STDERR.puts 'You have to provide a VNET ID'
+            exit -1
+        end
+    else
+        STDERR.puts OneGate.help_str
+        STDERR.puts
+        STDERR.puts "Action #{ARGV[1]} not supported"
+        exit(-1)
+    end
 else
-    puts OneGate.help_str
+    STDERR.puts OneGate.help_str
     exit -1
 end
 

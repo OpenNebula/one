@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,11 @@ import org.w3c.dom.Node;
  */
 public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>{
 
-    private static final String ELEMENT_NAME = "VM";
-    private static final String INFO_METHOD  = "vmpool.info";
-    private static final String MONITORING   = "vmpool.monitoring";
+    private static final String ELEMENT_NAME          = "VM";
+    private static final String INFO_METHOD           = "vmpool.info";
+    private static final String INFO_EXTENDED_METHOD  = "vmpool.infoextended";
+    private static final String INFO_SET_METHOD       = "vmpool.infoset";
+    private static final String MONITORING            = "vmpool.monitoring";
 
     /**
      * Flag for Virtual Machines in any state.
@@ -112,6 +114,41 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     }
 
     /**
+     * Retrieves all of the Virtual Machines in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
+     * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info_extended(Client client, int filter)
+    {
+        return client.call(INFO_EXTENDED_METHOD, filter, -1, -1, NOT_DONE);
+    }
+
+    /**
+     * Retrieves all of the Virtual Machines in the vm_ids list.
+     *
+     * @param client XML-RPC Client.
+     * @param vm_ids Comma separated list of VM IDs.
+     * @param extended If true the extended body is retrieved.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info_extended(Client client, int vm_ids, boolean extended)
+    {
+        return client.call(INFO_SET_METHOD, vm_ids, extended);
+    }
+
+    /**
      * Retrieves all the Virtual Machines in the pool.
      *
      * @param client XML-RPC Client.
@@ -178,6 +215,36 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     }
 
     /**
+     * Retrieves all or part of the Virtual Machines in the pool. The
+     * Virtual Machines to retrieve can be also filtered by Id, specifying the
+     * first and last Id to include; and by state.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and the ones in
+     * his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param startId Lowest Id to retrieve
+     * @param endId Biggest Id to retrieve
+     * @param state Numeric state of the Virtual Machines wanted, or one
+     * of {@link VirtualMachinePool#ALL_VM} or
+     * {@link VirtualMachinePool#NOT_DONE}
+     * @param query query for FTS
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info_search(Client client, int filter,
+            int startId, int endId, int state, String query)
+    {
+        return client.call(INFO_METHOD, filter, startId, endId, state, query);
+    }
+
+    /**
      * Retrieves the monitoring data for all or part of the Virtual
      * Machines in the pool.
      *
@@ -200,6 +267,30 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     }
 
     /**
+     * Retrieves the monitoring data for all or part of the Virtual
+     * Machines in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param num: Retrieve monitor records in the last num seconds.
+     * 0 just the last record, -1 all records.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse monitoring(Client client, int filter, int num)
+    {
+        return client.call(MONITORING, filter, num);
+    }
+
+    /**
      * Loads the xml representation of all or part of the
      * Virtual Machines in the pool. The filter used is the one set in
      * the constructor.
@@ -212,6 +303,23 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     public OneResponse info()
     {
         OneResponse response = info(client, filter);
+        processInfo(response);
+        return response;
+    }
+
+    /**
+     * Loads the xml representation of all the
+     * Virtual Machines in the pool. The filter used is the one set in
+     * the constructor.
+     *
+     * @see VirtualMachinePool#info(Client, int)
+     *
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse info_extended()
+    {
+        OneResponse response = info_extended(client, filter);
         processInfo(response);
         return response;
     }

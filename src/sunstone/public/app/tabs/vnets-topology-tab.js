@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,7 +43,7 @@ define(function(require) {
     "NetworkTopology.fit" : {
       type: "action",
       layout: "main",
-      text: '<i class="fa fa-arrows-alt"/>',
+      text: '<i class="fas fa-arrows-alt"/>',
       alwaysActive: true
     },
     "NetworkTopology.collapseVMs" : {
@@ -219,7 +219,7 @@ define(function(require) {
         nodes.push({
           id: vnetNodeId,
           level: level,
-          label: "      VNet "+vnet.NAME + "      ", // Spaces for padding, no other reason
+          label: "  VNet "+vnet.NAME + "  ", // Spaces for padding, no other reason
           group: "vnet"});
       }
 
@@ -273,88 +273,115 @@ define(function(require) {
           leases = [leases];
         }
 
-        for (var j=0; j<leases.length; j++){
-          var lease = leases[j];
+        if (leases.length < 10){
+          for (var j=0; j<leases.length; j++){
+            var lease = leases[j];
 
-          if (lease.VM != undefined) { //used by a VM
+            if (lease.VM != undefined) { //used by a VM
 
-            // Skip leases on hold
-            if (lease.VM == "-1"){
-              continue;
-            }
+              // Skip leases on hold
+              if (lease.VM == "-1"){
+                continue;
+              }
+              var nodeId = "vm"+lease.VM;
 
-            var nodeId = "vm"+lease.VM;
+              var edgeLabel = undefined;
 
-            var edgeLabel = undefined;
-
-            if (lease.IP != undefined){
-              edgeLabel = lease.IP;
-            } else if (lease.IP6_GLOBAL != undefined){
-              edgeLabel = lease.IP6_GLOBAL;
-            } else if (lease.IP6_ULA != undefined){
-              edgeLabel = lease.IP6_ULA;
-            } else if (lease.IP6_LINK != undefined){
-              edgeLabel = lease.IP6_LINK;
-            }
-
-            // Skip VRouter VMs
-            var vrouterVMobj = _vrouterVMs[lease.VM];
-            if (vrouterVMobj != undefined){
-              if (vrouterVMobj.leases[vnetId] == undefined){
-                vrouterVMobj.leases[vnetId] = [];
+              if (lease.IP != undefined){
+                edgeLabel = lease.IP;
+              } else if (lease.IP6_GLOBAL != undefined){
+                edgeLabel = lease.IP6_GLOBAL;
+              } else if (lease.IP6_ULA != undefined){
+                edgeLabel = lease.IP6_ULA;
+              } else if (lease.IP6_LINK != undefined){
+                edgeLabel = lease.IP6_LINK;
               }
 
-              vrouterVMobj.leases[vnetId].push(edgeLabel);
+              // Skip VRouter VMs
+              var vrouterVMobj = _vrouterVMs[lease.VM];
+              if (vrouterVMobj != undefined){
+                if (vrouterVMobj.leases[vnetId] == undefined){
+                  vrouterVMobj.leases[vnetId] = [];
+                }
 
-              continue;
+                vrouterVMobj.leases[vnetId].push(edgeLabel);
+
+                continue;
+              }
+
+              if (!nodeIndex[nodeId]){
+                nodeIndex[nodeId] = true;
+                nodes.push({
+                  id: nodeId,
+                  level: level+1,
+                  label: "VM "+lease.VM,
+                  group: "vm",
+                  vnet: vnetId});
+
+                // vnetId is only set the first time a VM node is created,
+                // but we only use it to cluster VMs that belong to one VNet.
+                // So it doesn't matter if we don't store the rest of VNet IDs
+              }
+
+              edges.push({from: vnetNodeId, to: nodeId, label: edgeLabel});
+
+            } else if (lease.VROUTER != undefined){
+              var nodeId = "vr"+lease.VROUTER;
+
+              if (!nodeIndex[nodeId]){
+                nodeIndex[nodeId] = true;
+                nodes.push({
+                  id: nodeId,
+                  level: level+1,
+                  label: "VR "+vr,
+                  group: "vr"});
+              }
+
+              var label = undefined;
+
+              if (lease.IP != undefined){
+                label = lease.IP;
+              } else if (lease.IP6_GLOBAL != undefined){
+                label = lease.IP6_GLOBAL;
+              } else if (lease.IP6_ULA != undefined){
+                label = lease.IP6_ULA;
+              } else if (lease.IP6_LINK != undefined){
+                label = lease.IP6_LINK;
+              }
+
+              edges.push({from: vnetNodeId, to: nodeId, label: label});
             }
+            /*
+            else if (lease.VNET != undefined) { //used by a VNET Reservation
+            */
+          }
+        } else {
+          var lease = leases[0];
+          var nodeId = "vm"+lease.VM;
 
-            if (!nodeIndex[nodeId]){
-              nodeIndex[nodeId] = true;
-              nodes.push({
-                id: nodeId,
-                level: level+1,
-                label: "VM "+lease.VM,
-                group: "vm",
-                vnet: vnetId});
+          var edgeLabel = undefined;
 
-              // vnetId is only set the first time a VM node is created,
-              // but we only use it to cluster VMs that belong to one VNet.
-              // So it doesn't matter if we don't store the rest of VNet IDs
-            }
-
-            edges.push({from: vnetNodeId, to: nodeId, label: edgeLabel});
-
-          } else if (lease.VROUTER != undefined){
-            var nodeId = "vr"+lease.VROUTER;
-
-            if (!nodeIndex[nodeId]){
-              nodeIndex[nodeId] = true;
-              nodes.push({
-                id: nodeId,
-                level: level+1,
-                label: "VR "+vr,
-                group: "vr"});
-            }
-
-            var label = undefined;
-
-            if (lease.IP != undefined){
-              label = lease.IP;
-            } else if (lease.IP6_GLOBAL != undefined){
-              label = lease.IP6_GLOBAL;
-            } else if (lease.IP6_ULA != undefined){
-              label = lease.IP6_ULA;
-            } else if (lease.IP6_LINK != undefined){
-              label = lease.IP6_LINK;
-            }
-
-            edges.push({from: vnetNodeId, to: nodeId, label: label});
+          if (lease.IP != undefined){
+            edgeLabel = lease.IP;
+          } else if (lease.IP6_GLOBAL != undefined){
+            edgeLabel = lease.IP6_GLOBAL;
+          } else if (lease.IP6_ULA != undefined){
+            edgeLabel = lease.IP6_ULA;
+          } else if (lease.IP6_LINK != undefined){
+            edgeLabel = lease.IP6_LINK;
           }
 
-          /*
-          else if (lease.VNET != undefined) { //used by a VNET Reservation
-          */
+          if (!nodeIndex[nodeId]){
+            nodeIndex[nodeId] = true;
+            nodes.push({
+              id: nodeId,
+              level: level+1,
+              label: "VMset "+lease.VM,
+              group: "vm",
+              vnet: vnetId});
+          }
+
+          edges.push({from: vnetNodeId, to: nodeId, label: edgeLabel + " / ..."});
         }
       }
     });

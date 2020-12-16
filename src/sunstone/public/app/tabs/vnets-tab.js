@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,7 +26,9 @@ define(function(require) {
   var _dialogs = [
     require('./vnets-tab/dialogs/add-ar'),
     require('./vnets-tab/dialogs/update-ar'),
-    require('./vnets-tab/dialogs/reserve')
+    require('./vnets-tab/dialogs/reserve'),
+    require('./vnets-templates-tab/dialogs/instantiate-add-ar'),
+    require('./vnets-tab/dialogs/add-secgroups')
   ];
 
   var _panels = [
@@ -44,17 +46,19 @@ define(function(require) {
 
   var _formPanels = [
     require('./vnets-tab/form-panels/create'),
-    require('./vnets-tab/form-panels/import')
+    require('./vnets-tab/form-panels/import'),
+    require('./vnets-tab/form-panels/instantiate')
   ];
 
   var VNetsTab = {
     tabId: TAB_ID,
     title: Locale.tr("Virtual Networks"),
-    icon: 'fa-code-fork',
+    icon: 'fa-code-branch',
     tabClass: "subTab",
     parentTab: "network-top-tab",
     listHeader: Locale.tr("Virtual Networks"),
     infoHeader: Locale.tr("Virtual Network"),
+    lockable: true,
     subheader: '<span class="total_vnets"/> <small>'+Locale.tr("TOTAL")+'</small>&emsp;\
         <span class="addresses_vnets"/> <small>'+Locale.tr("USED IPs")+'</small>',
     resource: 'Network',

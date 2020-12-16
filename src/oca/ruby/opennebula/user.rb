@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,7 +34,9 @@ module OpenNebula
             :update   => "user.update",
             :chauth   => "user.chauth",
             :quota    => "user.quota",
-            :login    => "user.login"
+            :login    => "user.login",
+            :enable   => "user.enable",
+            :disable  => "user.disable"
         }
 
         SELF      = -1
@@ -126,6 +128,16 @@ module OpenNebula
         # Deletes the User
         def delete()
             super(USER_METHODS[:delete])
+        end
+
+        # Enable the User
+        def enable()
+            set_enabled(true)
+        end
+
+        # Disable the User
+        def disable()
+            set_enabled(false)
         end
 
         # Changes the password of the given User
@@ -230,5 +242,17 @@ module OpenNebula
             all_groups = self.retrieve_elements("GROUPS/ID")
             all_groups.collect! {|x| x.to_i}
         end
+
+    private
+
+        def set_enabled(enabled)
+            return Error.new('ID not defined') if !@pe_id
+
+            rc = @client.call(USER_METHODS[:enable], @pe_id, enabled)
+            rc = nil if !OpenNebula.is_error?(rc)
+
+            return rc
+        end
+
     end
 end

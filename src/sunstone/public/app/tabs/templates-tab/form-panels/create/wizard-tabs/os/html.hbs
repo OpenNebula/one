@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -19,14 +19,17 @@
       <li class="tabs-title is-active">
         <a href="#bootTab{{uniqueId}}">{{tr "Boot"}}</a>
       </li>
-      <li class="tabs-title vm_updateconf_hide">
+      <li class="tabs-title vm_updateconf_hide only_kvm not_lxd">
         <a href="#kernelTab{{uniqueId}}">{{tr "Kernel"}}</a>
       </li>
-      <li class="tabs-title vm_updateconf_hide">
+      <li class="tabs-title vm_updateconf_hide only_kvm not_lxd not_firecracker">
         <a href="#ramdiskTab{{uniqueId}}">{{tr "Ramdisk"}}</a>
       </li>
-      <li class="tabs-title">
+      <li class="tabs-title only_kvm not_lxd not_firecracker">
         <a href="#featuresTab{{uniqueId}}">{{tr "Features"}}</a>
+      </li>
+      <li class="tabs-title only_kvm not_lxd not_firecracker">
+        <a href="#cpuTab{{uniqueId}}">{{tr "CPU Model"}}</a>
       </li>
     </ul>
   </div>
@@ -34,7 +37,7 @@
     <div class="tabs-content vertical" data-tabs-content="osTabs">
       <div class="wizard_internal_tab is-active tabs-panel bootTab" id="bootTab{{uniqueId}}">
         <div class="row">
-          <div class="medium-4 columns">
+          <div class="medium-4 columns only_kvm not_lxd not_firecracker">
             <label>
               {{tr "CPU Architecture"}}
               <select wizard_field="ARCH">
@@ -44,15 +47,20 @@
               </select>
             </label>
           </div>
-          <div class="medium-8 columns hypervisor only_kvm">
-            <label>
-              {{tr "libvirt machine type"}}
-              <input type="text" wizard_field="MACHINE"/>
+          <div class="medium-4 columns hypervisor only_kvm not_lxd not_firecracker">
+            <label id="sd-disk-bus-info">
+              {{tr "Bus for SD disks"}}
+            </label>
+          </div>
+          <div class="medium-4 columns hypervisor only_kvm not_lxd not_firecracker">
+            <label id="kvm-info">
+              {{tr "Machine type"}}
             </label>
           </div>
         </div>
+        <hr class="not_firecracker">
         <div class="row">
-          <div class="medium-4 columns">
+          <div class="medium-4 columns only_kvm not_lxd">
             <label>
               {{tr "Root device"}}
               <input type="text" wizard_field="ROOT" placeholder="sda1"/>
@@ -73,15 +81,15 @@
         </div>
         <br/>
         <div class="row">
-          <div class="large-12 columns">
+          <div class="large-12 columns only_kvm not_lxd">
             <label>
               {{tr "Kernel boot parameters"}}
               <input type="text" wizard_field="KERNEL_CMD" placeholder="ro console=tty1"/>
             </label>
           </div>
         </div>
-        <div class="row">
-          <div class="large-12 columns">
+        <div class="row not_firecracker">
+          <div class="large-12 columns only_kvm not_lxd">
             <label>
               {{tr "Path to the bootloader executable"}}
               <input type="text" wizard_field="BOOTLOADER"/>
@@ -251,6 +259,15 @@
             </label>
           </div>
         </div>
+      </div>
+      <div class="wizard_internal_tab tabs-panel cpuTab" id="cpuTab{{uniqueId}}">
+         <div class="row">
+          <div class="medium-4 columns">
+            <label id="cpu-model">
+              {{tr "CPU Model"}}
+            </label>
+          </div>
+         </div>
       </div>
     </div>
   </div>

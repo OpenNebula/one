@@ -1,27 +1,24 @@
-<div id="wrapper">
-      <div id="logo_sunstone" style="
-    background: url(<%=$views_config.logo%>) no-repeat center;
-    background-size: 355px;">
+<div class="border columns small-6 small-centered small-offset-3 text-center" id="login">
+  <div class="content">
+    <label class="text-left">
+      Username
+      <input type="text" size="15" name="username" id="username" class="box"/>
+    </label>
+    <label class="text-left">
+      Password
+      <input type="password" size="15" name="password" id="password" class="box"/>
+    </label>
+    <div class="row buttons small-collapse">
+      <div class="columns small-6 text-left">
+        <% if $conf[:keep_me_logged] %>
+          <input type="checkbox" id="check_remember" />
+          <label id="label_remember" for="check_remember">Keep me logged in</label>
+        <% end %>
       </div>
-
-
-
-      <form id="login_form" method="post">
-        <div class="border" id="login">
-            <div class="content">
-                Username
-                <input type="text" size="15" name="username" id="username" class="box"/>
-                Password
-                <input type="password" size="15" name="password" id="password" class="box"/>
-                <br />
-                <input type="checkbox" id="check_remember" />
-                <label id="label_remember" for="check_remember">Keep me logged in</label>
-                <input type="submit" id="login_btn" value="" />
-                <img src="images/ajax-loader.gif" alt="retrieving" id="login_spinner" />
-            </div>
-        <div id="error_box" class="hidden alert-box alert" style="display: none">
-          <span id="error_message"></span>
-        </div>
-        </div>
-      </form>
+      <div class="columns small-6 text-right">
+        <img src="images/ajax-loader.gif" alt="retrieving" id="login_spinner" />
+        <button type="submit" id="login_btn"></button>
+      </div>
+    </div>
+  </div>
 </div>

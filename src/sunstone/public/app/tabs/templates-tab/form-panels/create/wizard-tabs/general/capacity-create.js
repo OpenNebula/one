@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,29 +20,29 @@ define(function(require) {
    */
 
 //  require('foundation.slider');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var WizardFields = require('utils/wizard-fields');
-  var UserInputs = require('utils/user-inputs');
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var WizardFields = require("utils/wizard-fields");
+  var UserInputs = require("utils/user-inputs");
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./capacity-create/html');
+  var TemplateHTML = require("hbs!./capacity-create/html");
 
   /*
     CONSTRUCTOR
    */
 
   return {
-    'html': _html,
-    'setup': _setup,
-    'fill': _fill,
-    'retrieve': _retrieve,
-    'calculatedRealMemory': _calculatedRealMemory,
-    'calculatedRealCpu': _calculatedRealCpu,
-    'totalCost': _totalCost
+    "html": _html,
+    "setup": _setup,
+    "fill": _fill,
+    "retrieve": _retrieve,
+    "calculatedRealMemory": _calculatedRealMemory,
+    "calculatedRealCpu": _calculatedRealCpu,
+    "totalCost": _totalCost
   };
 
   /*
@@ -65,83 +65,137 @@ define(function(require) {
     if(isNaN(val) || val == ""){
       return "";
     }
-
     return Math.floor(val * 1024);
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number/1000000).toFixed(2)
-      return number.toString()+"M";
+      number = (number / 1000000).toFixed(2);
+      return number.toString() + "M";
     }
-    else if(number >= 1000){
-      number = (number/1000).toFixed(2)
-      return number.toString()+"K";
+    else if (number >= 1000){
+      number = (number / 1000).toFixed(2);
+      return number.toString() + "K";
     }
-    else if (number >= 0 && number < 1000)
+    else if (number >= 0 && number < 1000){
+      number = (typeof number === "string"? parseFloat(number) : number);
       return number.toFixed(2);
-    else
+    }
+    else {
       return number;
+    }
   }
 
-  function _totalCost(totalCostDisk=0){
-    var memory = document.getElementById('real_memory_cost').value;
-    var cpu = document.getElementById('real_cpu_cost').value;
-    if (totalCostDisk != 0){
-      this.totalCostDisk = totalCostDisk;
-    }
-
-    if(memory === undefined && cpu === undefined){
-      document.getElementById('total_cost').textContent = "Total: " + this.totalCostDisk;
-    } else if(memory === undefined){
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(cpu + this.totalCostDisk);
-    } else if(cpu === undefined){
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + this.totalCostDisk);
+  function _totalCost(){
+    var memory = $("#real_memory_cost").val();
+    var cpu = $("#real_cpu_cost").val();
+    var disk_cost = $("#total_value_disk").text();
+    var elementTotalCost = document.getElementById("total_cost");
+    if (disk_cost === "") {
+      disk_cost = 0;
     } else {
-      document.getElementById('total_cost').textContent = "Total: " + convertCostNumber(memory + cpu + this.totalCostDisk);
+      disk_cost = parseFloat(disk_cost);
+    }
+    if(elementTotalCost){
+      if ((memory === undefined || memory === "") && (cpu === undefined || cpu === "")){
+        elementTotalCost.textContent = "Total: " + disk_cost;
+      } else if(memory === undefined || memory === ""){
+        elementTotalCost.textContent = "Total: " + convertCostNumber(cpu + disk_cost);
+      } else if(cpu === undefined || cpu === ""){
+        elementTotalCost.textContent = "Total: " + convertCostNumber(memory + disk_cost);
+      } else {
+        elementTotalCost.textContent = "Total: " + convertCostNumber(memory + cpu + disk_cost);
+      }
     }
   }
 
-  function _calculatedRealMemory(){
-    var memory_cost = document.getElementById('MEMORY_COST').value;
-    var type_cost = document.getElementById('MEMORY_UNIT_COST').value;
-    var memory = document.getElementById('MEMORY').value;
-    var type = document.getElementById('memory_unit').value;
-    if(type_cost == "GB")
-      memory = (memory/1024)*memory_cost*24*30;
-    else
-      memory = memory*memory_cost*24*30;
-    document.getElementById('real_memory_cost').textContent = "Cost: "+ convertCostNumber(memory);
-    document.getElementById('real_memory_cost').value = memory;
+  function _calculatedRealMemory(context){
+    var memory_cost = $("#MEMORY_COST").val() || 0;
+    var type_cost   = $("#MEMORY_UNIT_COST").val() || 0;
+    var memory = $("#MEMORY").val();
+    var type   = $("#memory_unit").val();
+    if (type_cost == "GB"){
+      memory = (memory / 1024) * memory_cost * 24 * 30;
+    } else {
+      memory = memory * memory_cost * 24 * 30;
+    }
+    var realMemory = document.getElementById("real_memory_cost");
+    var totalMemory = document.getElementById("total_value_memory");
+    if(realMemory && totalMemory){
+      realMemory.value = memory;
+      totalMemory.textContent = convertCostNumber(memory);
+    }
+
+    if (memory_cost != "")
+      $(".total_memory_cost", context).show();
+
     _totalCost();
   }
 
-  function _calculatedRealCpu(){
-    var cpu_cost = document.getElementById('CPU_COST').value;
-    var cpu = document.getElementById('CPU').value;
-    cpu = cpu*cpu_cost*24*30;
-    document.getElementById('real_cpu_cost').textContent = "Cost: "+ convertCostNumber(cpu);
-    document.getElementById('real_cpu_cost').value = cpu;
+  function _calculatedRealCpu(context){
+    var cpu_cost = $("#CPU_COST").val() || 0;
+    var cpu      = $("#CPU").val() || 0;
+    var totalValueCpu = document.getElementById("real_cpu_cost");
+    cpu = cpu * cpu_cost * 24 * 30;
+    document.getElementById("real_cpu_cost").value = cpu;
+    if(totalValueCpu){
+      totalValueCpu.textContent = convertCostNumber(cpu);
+    }
+    if (cpu_cost != "")
+      $(".total_cpu_cost", context).show();
     _totalCost();
+  }
+
+  function _generateCores(context){
+    $('#CORES_PER_SOCKET').find('option').remove();
+    $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
+    var vcpu_count =  parseInt($("#VCPU").val()) || 0;
+    for (var i = 1; i <= vcpu_count; i++){
+      if (vcpu_count%i === 0){
+        $('#CORES_PER_SOCKET').append($('<option>').val(i).text((i).toString()));
+      }
+    }
+    $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
+  }
+
+  function _calculateSockets(context){
+    var vcpu = $("#VCPU").val();
+    var cores_per_socket = $("#CORES_PER_SOCKET").val();
+
+    if ((vcpu != "") && (cores_per_socket != "")){
+      $("div.socket_info").show();
+      $("#number_sockets").text(vcpu/cores_per_socket);
+    }
+    else{
+      $("div.socket_info").hide();
+    }
+
   }
 
   function _setup(context) {
-    this.totalCostDisk = 0;
     context.on("change", "#MEMORY", function() {
-      _calculatedRealMemory();
+      _calculatedRealMemory(context);
     });
 
     context.on("change", "#MEMORY_GB", function() {
-      _calculatedRealMemory();
+      _calculatedRealMemory(context);
     });
 
     context.on("change", "#memory_unit", function() {
-      _calculatedRealMemory();
+      _calculatedRealMemory(context);
     });
 
     context.on("change", "#CPU", function() {
-      _calculatedRealCpu();
+      _calculatedRealCpu(context);
     });
 
+    context.on("change", "#VCPU", function(){
+      _generateCores(context);
+      _calculateSockets(context);
+    });
+
+    context.on("change", "#CORES_PER_SOCKET", function(){
+      _calculateSockets(context);
+    });
     // MB to GB
     context.on("input", "div.memory_input input", function(){
       $("div.memory_gb_input input", context).val(_m2g(this.value));
@@ -185,10 +239,10 @@ define(function(require) {
     });
 
     // Unit select
-    $("#memory_unit", context).on('change', function() {
-      var memory_unit_val = $('#memory_unit :selected', context).val();
+    $("#memory_unit", context).on("change", function() {
+      var memory_unit_val = $("#memory_unit :selected", context).val();
 
-      if (memory_unit_val == 'GB') {
+      if (memory_unit_val == "GB") {
         $(".mb_unit", context).hide();
         $(".gb_unit", context).show();
       } else {
@@ -223,14 +277,18 @@ define(function(require) {
    */
   function _fill(context, element) {
 
-    var fields = $('[wizard_field]', context);
+    var fields = $("[wizard_field]", context);
 
     fields.each(function() {
-      var field_name = $(this).attr('wizard_field');
+      var field_name = $(this).attr("wizard_field");
       $(this).data("original_value", element[field_name]);
     });
 
     WizardFields.fill(context, element);
+
+    if(element.TOPOLOGY && element.TOPOLOGY.CORES) {
+      $('#CORES_PER_SOCKET').val(element.TOPOLOGY.CORES).change()
+    }
 
     // Update memory_gb with the value set in memory
     $("div.memory_input input", context).trigger("input");
@@ -241,7 +299,7 @@ define(function(require) {
       $("#memory_unit", context).val("GB").change();
     }
 
-    var userInputsJSON = element['USER_INPUTS'];
+    var userInputsJSON = element["USER_INPUTS"];
 
     if (userInputsJSON) {
       $.each(["memory","cpu","vcpu"], function(i,classname){
@@ -263,7 +321,7 @@ define(function(require) {
               $("input.user_input_params_min", param_context).val(values[0]).trigger("input");
               $("input.user_input_params_max", param_context).val(values[1]).trigger("input");
             } else {
-              console.error('Wrong user input parameters for "'+name+'". Expected "MIN..MAX", received "'+attr.params+'"');
+              console.error("Wrong user input parameters for \""+name+"\". Expected \"MIN..MAX\", received \""+attr.params+"\"");
             }
           } else if (attr.type == "list"){
             $("input."+classname+"_modify_opt."+attr.type, context).val(attr.params).trigger("input");
@@ -307,7 +365,7 @@ define(function(require) {
         attr.mandatory = false;
       }
 
-      attr.initial = $('input[wizard_field="'+attr.name+'"]', context).val();
+      attr.initial = $("input[wizard_field=\""+attr.name+"\"]", context).val();
 
       if (attr.type == "range" ||
           attr.type == "range-float"){
@@ -326,7 +384,7 @@ define(function(require) {
     });
 
     if (!$.isEmptyObject(userInputsJSON)) {
-      templateJSON['USER_INPUTS'] = userInputsJSON;
+      templateJSON["USER_INPUTS"] = userInputsJSON;
     }
 
     return templateJSON;

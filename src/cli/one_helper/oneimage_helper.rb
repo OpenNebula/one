@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,139 +17,144 @@
 require 'one_helper'
 require 'one_helper/onevm_helper'
 
+# CLI helper for oneimage command
 class OneImageHelper < OpenNebulaHelper::OneHelper
+
+    # This list contains prefixes that should skip adding user home to the path
+    # This must have the same content as the case $FROM in downloader.sh
+    PREFIXES = %w[http https ssh s3 rbd vcenter lxd docker]
+
     TEMPLATE_OPTIONS=[
         {
-            :name => "name",
-            :large => "--name name",
+            :name => 'name',
+            :large => '--name name',
             :format => String,
-            :description => "Name of the new image"
+            :description => 'Name of the new image'
         },
         {
-            :name => "description",
-            :large => "--description description",
+            :name => 'description',
+            :large => '--description description',
             :format => String,
-            :description => "Description for the new Image"
+            :description => 'Description for the new Image'
         },
         {
-            :name => "type",
-            :large => "--type type",
+            :name => 'type',
+            :large => '--type type',
             :format => String,
-            :description => "Type of the new Image: #{Image::IMAGE_TYPES.join(", ")}",
-            :proc => lambda do |o, options|
+            :description => "Type of the new Image: \
+            #{Image::IMAGE_TYPES.join(', ')}",
+
+            :proc => lambda do |o, _options|
                 type=o.strip.upcase
 
                 if Image::IMAGE_TYPES.include? type
                     [0, type]
                 else
-                    [-1, "Type should be: #{Image::IMAGE_TYPES.join(", ")}"]
+                    [-1, "Type should be: #{Image::IMAGE_TYPES.join(', ')}"]
                 end
             end
         },
         {
-            :name => "persistent",
-            :large => "--persistent",
-            :description => "Tells if the image will be persistent"
+            :name => 'persistent',
+            :large => '--persistent',
+            :description => 'Tells if the image will be persistent'
         },
         {
-            :name => "prefix",
-            :large => "--prefix prefix",
+            :name => 'prefix',
+            :large => '--prefix prefix',
             :description => "Device prefix for the disk (eg. hd, sd, xvd\n"<<
-                            " "*31<<"or vd)",
+                ' '*31<<'or vd)',
             :format => String,
-            :proc => lambda do |o, options|
+            :proc => lambda do |o, _options|
                 prefix=o.strip.downcase
-                if %w{hd sd xvd vd}.include? prefix
+                if %w[hd sd xvd vd].include? prefix
                     [0, prefix]
                 else
-                    [-1, "The prefix must be hd, sd, xvd or vd"]
+                    [-1, 'The prefix must be hd, sd, xvd or vd']
                 end
             end
         },
         {
-            :name => "target",
-            :large => "--target target",
-            :description => "Device the disk will be attached to",
+            :name => 'target',
+            :large => '--target target',
+            :description => 'Device the disk will be attached to',
             :format => String
         },
         {
-            :name => "path",
-            :large => "--path path",
-            :description => "Path of the image file",
+            :name => 'path',
+            :large => '--path path',
+            :description => 'Path of the image file',
             :format => String,
-            :proc => lambda do |o, options|
-                if o.match(/^https?:\/\//)
-                    next [0, o]
-                elsif o[0,1]=='/'
+            :proc => lambda do |o, _options|
+                next [0, o] if o.match(%r{^(#{PREFIXES.join('|')})://})
+
+                if o[0, 1]=='/'
                     path=o
                 else
-                    path=Dir.pwd+"/"+o
+                    path=Dir.pwd+'/'+o
                 end
 
-                if File.readable?(path)
-                    [0, path]
-                else
-                    [-1, "File '#{path}' does not exist or is not readable."]
-                end
+                [0, path]
             end
         },
         {
-            :name => "driver",
-            :large => "--driver driver",
-            :description => "Driver to use image (raw, qcow2, tap:aio:...)",
+            :name => 'driver',
+            :large => '--driver driver',
+            :description => 'Driver to use image (raw, qcow2, tap:aio:...)',
             :format => String
         },
         {
-            :name => "disk_type",
-            :large => "--disk_type disk_type",
+            :name => 'disk_type',
+            :large => '--disk_type disk_type',
             :description => "Type of the image \n"<<
-                            " " * 31 << "BLOCK, CDROM, RBD or FILE \n" <<
-                                     "(for others, check the documentation) ",
+                ' ' * 31 << "BLOCK, CDROM, RBD or FILE \n" \
+                '(for others, check the documentation) ',
             :format => String
         },
         {
-            :name => "vcenter_disk_type",
-            :large => "--vcenter_disk_type vcenter_disk_type",
+            :name => 'vcenter_disk_type',
+            :large => '--vcenter_disk_type vcenter_disk_type',
             :description => "The vCenter Disk Type of the image \n"<<
-                            " " * 31 <<
-                            "for vCenter: THIN, THICK, ZEROEDTHICK " <<
-                            "(for others, check the documentation) ",
+                ' ' * 31 <<
+                'for vCenter: THIN, THICK, ZEROEDTHICK ' \
+                '(for others, check the documentation) ',
             :format => String
         },
         {
-            :name => "vcenter_adapter_type",
-            :large => "--vcenter_adapter_type vcenter_adapter_type",
-            :description => "Controller that will handle this image in " <<
-                            "vCenter (lsiLogic, ide, busLogic). For other "<<
-                            "values check the documentation",
+            :name => 'vcenter_adapter_type',
+            :large => '--vcenter_adapter_type vcenter_adapter_type',
+            :description => 'Controller that will handle this image in ' \
+                'vCenter (lsiLogic, ide, busLogic). For other '\
+                'values check the documentation',
             :format => String
         },
         {
-            :name => "source",
-            :large => "--source source",
+            :name => 'source',
+            :large => '--source source',
             :description =>
                 "Source to be used. Useful for not file-based\n"<<
-                " "*31<<"images",
+                    ' '*31<<'images',
             :format => String
         },
         {
-            :name => "size",
-            :large => "--size size",
-            :description => "Size in MB. Used for DATABLOCK type or SOURCE based images.",
-            :format => String,
-            :proc => lambda do |o, options|
+            :name => 'size',
+            :large => '--size size',
+            :description => "Size in MB. \
+            Used for DATABLOCK type or SOURCE based images.",
 
+            :format => String,
+            :proc => lambda do |o, _options|
                 m=o.strip.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
 
                 if !m
                     [-1, 'Size value malformed']
                 else
                     multiplier=case m[2]
-                    when /(g|gb)/i
-                        1024
-                    else
-                        1
-                    end
+                               when /(g|gb)/i
+                                   1024
+                               else
+                                   1
+                               end
 
                     value=m[1].to_f*multiplier
 
@@ -160,90 +165,119 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         OpenNebulaHelper::DRY
     ]
 
+    IMAGE = {
+        :name => 'no_check_capacity',
+        :large => '--no_check_capacity',
+        :description =>
+            'Check Datastore capacity. By Default YES',
+        :format => String
+    }
+
     def self.rname
-        "IMAGE"
+        'IMAGE'
     end
 
     def self.conf_file
-        "oneimage.yaml"
+        'oneimage.yaml'
     end
 
     def self.state_to_str(id)
         id = id.to_i
         state_str = Image::IMAGE_STATES[id]
-        return Image::SHORT_IMAGE_STATES[state_str]
+        Image::SHORT_IMAGE_STATES[state_str]
     end
 
     def self.type_to_str(id)
         id = id.to_i
         type_str = Image::IMAGE_TYPES[id]
-        return Image::SHORT_IMAGE_TYPES[type_str]
+        Image::SHORT_IMAGE_TYPES[type_str]
     end
 
     def format_pool(options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for the Image", :size=>4 do |d|
-                d["ID"]
+        CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, 'ONE identifier for the Image', :size=>4 do |d|
+                d['ID']
             end
 
-            column :USER, "Username of the Image owner", :left,
-                    :size=>10 do |d|
+            column :USER, 'Username of the Image owner', :left,
+                   :size=>10 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Image", :left,
-                    :size=>10 do |d|
+            column :GROUP, 'Group of the Image', :left,
+                   :size=>10 do |d|
                 helper.group_name(d, options)
             end
 
-            column :NAME, "Name of the Image", :left, :size=>15 do |d|
-                d["NAME"]
+            column :NAME, 'Name of the Image', :left, :size=>15 do |d|
+                d['NAME']
             end
 
-            column :DATASTORE, "Name of the Datastore", :left, :size=>10 do |d|
-                d["DATASTORE"]
+            column :DATASTORE, 'Name of the Datastore', :left, :size=>10 do |d|
+                d['DATASTORE']
             end
 
-            column :TYPE, "Type of the Image", :left, :size=>4 do |d,e|
-                OneImageHelper.type_to_str(d["TYPE"])
+            column :TYPE, 'Type of the Image', :left, :size=>4 do |d, _e|
+                OneImageHelper.type_to_str(d['TYPE'])
             end
 
-            column :REGTIME, "Registration time of the Image",
-                    :size=>15 do |d|
-                OpenNebulaHelper.time_to_str(d["REGTIME"])
+            column :REGTIME, 'Registration time of the Image',
+                   :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['REGTIME'])
             end
 
-            column :PERSISTENT, "Whether the Image is persistent or not",
-                    :size=>3 do |d|
-                OpenNebulaHelper.boolean_to_str(d["PERSISTENT"])
+            column :PERSISTENT, 'Whether the Image is persistent or not',
+                   :size=>3 do |d|
+                OpenNebulaHelper.boolean_to_str(d['PERSISTENT'])
             end
 
-            column :STAT, "State of the Image", :left, :size=>4 do |d|
-                OneImageHelper.state_to_str(d["STATE"])
+            column :STAT, 'State of the Image', :left, :size=>4 do |d|
+                OneImageHelper.state_to_str(d['STATE'])
             end
 
-            column :RVMS, "Number of VMs currently running from this Image",
-                    :size=>4 do |d|
+            column :RVMS, 'Number of VMs currently running from this Image',
+                   :size=>4 do |d|
                 d['RUNNING_VMS']
             end
 
-            column :SIZE, "Size of the image",
-                    :size=>7 do |d|
-                OpenNebulaHelper.unit_to_str(d['SIZE'].to_i,options,"M")
+            column :SIZE, 'Size of the image',
+                   :size=>7 do |d|
+                OpenNebulaHelper.unit_to_str(d['SIZE'].to_i, options, 'M')
             end
 
             default :ID, :USER, :GROUP, :NAME, :DATASTORE, :SIZE, :TYPE,
-                :PERSISTENT , :STAT, :RVMS
+                    :PERSISTENT, :STAT, :RVMS
+        end
+    end
+
+    def check_orphans
+        orphans = []
+        xpath = '/VMTEMPLATE_POOL/VMTEMPLATE/TEMPLATE/DISK'
+
+        pool = factory_pool
+        tmpl_pool = OpenNebula::TemplatePool.new(@client, -2)
+
+        pool.info
+        tmpl_pool.info
+
+        pool.each do |img|
+            attrs = { :id    => img['ID'],
+                      :name  => img['NAME'],
+                      :uname => img['UNAME'] }
+
+            orphans << img['ID'] if check_orphan(tmpl_pool,
+                                                 xpath,
+                                                 'IMAGE', attrs)
         end
 
-        table
+        orphans
     end
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::Image.new_with_id(id, @client)
         else
@@ -252,108 +286,115 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def factory_pool(user_flag=-2)
+    def factory_pool(user_flag = -2)
         OpenNebula::ImagePool.new(@client, user_flag)
     end
 
-    def format_resource(image, options = {})
-        str="%-15s: %-20s"
-        str_h1="%-80s"
+    def format_resource(image, _options = {})
+        str='%-15s: %-20s'
+        str_h1='%-80s'
+
+        path = image['PATH']
+        iformat = image['FORMAT']
+
+        size = OpenNebulaHelper.unit_to_str(image['SIZE'].to_i, {}, 'M')
+        lock = OpenNebulaHelper.level_lock_to_str(image['LOCK/LOCKED'])
+        regtime = OpenNebulaHelper.time_to_str(image['REGTIME'])
+        pers = OpenNebulaHelper.boolean_to_str(image['PERSISTENT'])
 
         CLIHelper.print_header(str_h1 % "IMAGE #{image['ID']} INFORMATION")
-        puts str % ["ID",   image.id.to_s]
-        puts str % ["NAME", image.name]
-        puts str % ["USER", image['UNAME']]
-        puts str % ["GROUP",image['GNAME']]
-        puts str % ["DATASTORE",image['DATASTORE']]
-        puts str % ["TYPE", image.type_str]
-        puts str % ["REGISTER TIME",
-            OpenNebulaHelper.time_to_str(image['REGTIME'])]
-        puts str % ["PERSISTENT",
-            OpenNebulaHelper.boolean_to_str(image["PERSISTENT"])]
-        puts str % ["SOURCE",image['SOURCE']]
-        puts str % ["PATH",image['PATH']] if image['PATH'] && !image['PATH'].empty?
-        puts str % ["FSTYPE",image['FSTYPE']] if image['FSTYPE'] && !image['FSTYPE'].empty?
-        puts str % ["SIZE",  OpenNebulaHelper.unit_to_str(image['SIZE'].to_i,{},"M")]
-        puts str % ["STATE", image.short_state_str]
-        puts str % ["RUNNING_VMS", image['RUNNING_VMS']]
+        puts format(str, 'ID', image.id.to_s)
+        puts format(str, 'NAME', image.name)
+        puts format(str, 'USER', image['UNAME'])
+        puts format(str, 'GROUP', image['GNAME'])
+        puts format(str, 'LOCK', lock)
+        puts format(str, 'DATASTORE', image['DATASTORE'])
+        puts format(str, 'TYPE', image.type_str)
+        puts format(str, 'REGISTER TIME', regtime)
+        puts format(str, 'PERSISTENT', pers)
+        puts format(str, 'SOURCE', image['SOURCE'])
+        puts format(str, 'PATH', path) if path && !path.empty?
+        puts format(str, 'FORMAT', iformat) if iformat && !iformat.empty?
+        puts format(str, 'SIZE', size)
+        puts format(str, 'STATE', image.short_state_str)
+        puts format(str, 'RUNNING_VMS', image['RUNNING_VMS'])
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        ["OWNER", "GROUP", "OTHER"].each { |e|
-            mask = "---"
-            mask[0] = "u" if image["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "m" if image["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "a" if image["PERMISSIONS/#{e}_A"] == "1"
+        %w[OWNER GROUP OTHER].each do |e|
+            mask = '---'
+            mask[0] = 'u' if image["PERMISSIONS/#{e}_U"] == '1'
+            mask[1] = 'm' if image["PERMISSIONS/#{e}_M"] == '1'
+            mask[2] = 'a' if image["PERMISSIONS/#{e}_A"] == '1'
 
-            puts str % [e,  mask]
-        }
+            puts format(str, e, mask)
+        end
 
-        if image.has_elements?("/IMAGE/SNAPSHOTS/SNAPSHOT")
+        if image.has_elements?('/IMAGE/SNAPSHOTS/SNAPSHOT')
             puts
-            CLIHelper.print_header(str_h1 % "IMAGE SNAPSHOTS",false)
+            CLIHelper.print_header(str_h1 % 'IMAGE SNAPSHOTS', false)
             format_snapshots(image)
         end
 
         puts
 
-        CLIHelper.print_header(str_h1 % "IMAGE TEMPLATE",false)
+        CLIHelper.print_header(str_h1 % 'IMAGE TEMPLATE', false)
         puts image.template_str
 
         puts
-        CLIHelper.print_header("VIRTUAL MACHINES", false)
+        CLIHelper.print_header('VIRTUAL MACHINES', false)
         puts
 
-        vms=image.retrieve_elements("VMS/ID")
+        vms=image.retrieve_elements('VMS/ID')
 
-        if vms
-            vms.map!{|e| e.to_i }
-            onevm_helper=OneVMHelper.new
-            onevm_helper.client=@client
-            onevm_helper.list_pool({:ids=>vms}, false)
-        end
+        return unless vms
+
+        vms.map! {|e| e.to_i }
+        onevm_helper=OneVMHelper.new
+        onevm_helper.client=@client
+        onevm_helper.list_pool({ :ids=>vms, :no_pager => true }, false)
     end
 
     def format_snapshots(image)
         table=CLIHelper::ShowTable.new(nil, self) do
-            column :AC , "Is active", :left, :size => 2 do |d|
-                if d["ACTIVE"] == "YES"
-                    "=>"
+            column :AC, 'Is active', :left, :size => 2 do |d|
+                if d['ACTIVE'] == 'YES'
+                    '=>'
                 else
-                    ""
+                    ''
                 end
             end
-            column :ID, "Snapshot ID", :size=>3 do |d|
-                d["ID"]
+            column :ID, 'Snapshot ID', :size=>3 do |d|
+                d['ID']
             end
 
-            column :PARENT, "Snapshot Parent ID", :size=>6 do |d|
-                d["PARENT"]
+            column :PARENT, 'Snapshot Parent ID', :size=>6 do |d|
+                d['PARENT']
             end
 
-            column :CHILDREN, "Snapshot Children IDs", :size=>10 do |d|
-                d["CHILDREN"]
+            column :CHILDREN, 'Snapshot Children IDs', :size=>10 do |d|
+                d['CHILDREN']
             end
 
-            column :SIZE, "", :left, :size=>8 do |d|
-                if d["SIZE"]
+            column :SIZE, '', :left, :size=>8 do |d|
+                if d['SIZE']
                     OpenNebulaHelper.unit_to_str(
-                                d['SIZE'].to_i,
-                                {},
-                                "M"
-                            )
+                        d['SIZE'].to_i,
+                        {},
+                        'M'
+                    )
                 else
-                    "-"
+                    '-'
                 end
             end
 
-            column :NAME, "Snapshot Name", :left, :size=>37 do |d|
-                d["NAME"]
+            column :NAME, 'Snapshot Name', :left, :size=>37 do |d|
+                d['NAME']
             end
 
-            column :DATE, "Snapshot creation date", :size=>15 do |d|
-                OpenNebulaHelper.time_to_str(d["DATE"])
+            column :DATE, 'Snapshot creation date', :size=>15 do |d|
+                OpenNebulaHelper.time_to_str(d['DATE'])
             end
 
             default :AC, :ID, :PARENT, :DATE, :SIZE, :NAME
@@ -365,41 +406,46 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
         table.show(image_snapshots)
     end
 
-    def self.create_image_variables(options, name)
-        if Array === name
-            names = name
-        else
-            names = [name]
-        end
+    class << self
 
-        t = ''
-        names.each do |n|
-            if options[n]
-                t << "#{n.to_s.upcase}=\"#{options[n]}\"\n"
+        def create_image_variables(options, name)
+            if name.is_a?(Array)
+                names = name
+            else
+                names = [name]
             end
+
+            t = ''
+            names.each do |n|
+                if options[n]
+                    t << "#{n.to_s.upcase}=\"#{options[n]}\"\n"
+                end
+            end
+
+            t
         end
 
-        t
+        def create_image_template(options)
+            template_options = TEMPLATE_OPTIONS.map do |o|
+                o[:name].to_sym
+            end
+
+            template = create_image_variables(
+                options,
+                template_options - [:persistent, :dry, :prefix]
+            )
+
+            if options[:persistent]
+                template << "PERSISTENT=YES\n"
+            end
+
+            if options[:prefix]
+                template << "DEV_PREFIX=\"#{options[:prefix]}\"\n"
+            end
+
+            [0, template]
+        end
+
     end
 
-    def self.create_image_template(options)
-        template_options = TEMPLATE_OPTIONS.map do |o|
-            o[:name].to_sym
-        end
-
-        template =  create_image_variables(
-                        options,
-                        template_options -  [:persistent, :dry, :prefix ]
-                    )
-
-        if options[:persistent]
-            template << "PERSISTENT=YES\n"
-        end
-
-        if options[:prefix]
-            template << "DEV_PREFIX=\"#{options[:prefix]}\"\n"
-        end
-
-        [0, template]
-    end
 end

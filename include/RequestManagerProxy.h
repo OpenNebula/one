@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,9 +18,6 @@
 #define REQUEST_MANAGER_PROXY_H_
 
 #include "Request.h"
-#include "Client.h"
-
-using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -28,8 +25,10 @@ using namespace std;
 class RequestManagerProxy: public Request
 {
 public:
-    RequestManagerProxy(string _method): Request("RequestManagerProxy", "?",
-        "Forwards the request to another OpenNebula"), method(_method)
+    RequestManagerProxy(std::string _method)
+        : Request("RequestManagerProxy", "?",
+                  "Forwards the request to another OpenNebula")
+        , method(_method)
     {
         method_name = method;
     };
@@ -37,7 +36,7 @@ public:
     ~RequestManagerProxy(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
     void hide_argument(int arg)
     {
@@ -45,7 +44,7 @@ public:
     };
 
 private:
-    string    method;
+    std::string    method;
 };
 
 #endif

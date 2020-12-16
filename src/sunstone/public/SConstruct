@@ -1,7 +1,7 @@
 # SConstruct for share/man
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,14 +20,16 @@ import os
 
 Import('env')
 
-if env['sunstone']=='yes':
-    print "Generating Sunstone minified files\n"
-    exit_code=os.system("grunt --gruntfile ./Gruntfile.js sass")
-    if exit_code != 0:
-        print "Error generating Sunstone css files\n"
-        exit(-1)
 
-    exit_code=os.system("grunt --gruntfile ./Gruntfile.js requirejs")
+if env['sunstone']=='yes':
+    print ("Generating Sunstone minified files\n")
+
+    if env['enterprise']=='yes':
+        print("OpenNebula Enterprise Suntone\n")
+        exit_code=os.system("./build.sh -e")
+    else:
+        exit_code=os.system("./build.sh")
+
     if exit_code != 0:
-        print "Error generating minifying Sunstone files\n"
+        print ("Error generating minifying Sunstone files\n")
         exit(-1)

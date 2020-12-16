@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,8 +24,7 @@
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
 #include "Quotas.h"
-
-using namespace std;
+#include "UserPool.h"
 
 /**
  * This class represents the dynamic attributes: specific for a request of the
@@ -37,29 +36,39 @@ public:
     int uid;                  /**< id of the user */
     int gid;                  /**< id of the user's group */
 
-    string uname;             /**< name of the user */
-    string gname;             /**< name of the user's group */
+    std::string uname;        /**< name of the user */
+    std::string gname;        /**< name of the user's group */
 
-    string password;          /**< password of the user */
+    std::string password;     /**< password of the user */
 
-    set<int> group_ids;       /**< set of user's group ids */
+    std::set<int> group_ids;  /**< set of user's group ids */
 
-    string session;           /**< Session from ONE XML-RPC API */
+    std::string session;      /**< Session from ONE XML-RPC API */
     int    req_id;            /**< Request ID for log messages */
 
     int umask;                /**< User umask for new objects */
 
     xmlrpc_c::value * retval; /**< Return value from libxmlrpc-c */
+    std::string retval_xml;   /**< Return value in XML format */
+    std::string extra_xml;    /**< Extra information returned for API Hooks */
 
     PoolObjectSQL::ObjectType resp_obj; /**< object type */
     int                       resp_id;  /**< Id of the object */
-    string                    resp_msg; /**< Additional response message */
+    std::string               resp_msg; /**< Additional response message */
 
-    RequestAttributes()
+    uint64_t replication_idx;
+
+    AuthRequest::Operation auth_op;   /**< Auth operation for the request */
+
+    bool success; /**< True if the call was successfull false otherwise */
+
+    RequestAttributes(AuthRequest::Operation api_auth_op)
     {
-        resp_obj = PoolObjectSQL::NONE;
-        resp_id  = -1;
-        resp_msg = "";
+        resp_obj        = PoolObjectSQL::NONE;
+        resp_id         = -1;
+        resp_msg        = "";
+        replication_idx = UINT64_MAX;
+        auth_op         = api_auth_op;
     };
 
     RequestAttributes(const RequestAttributes& ra)
@@ -79,11 +88,16 @@ public:
 
         umask    = ra.umask;
 
-        retval   = ra.retval;
+        retval     = ra.retval;
+        retval_xml = ra.retval_xml;
 
         resp_obj = ra.resp_obj;
         resp_id  = ra.resp_id;
         resp_msg = ra.resp_msg;
+
+        replication_idx = ra.replication_idx;
+
+        auth_op  = ra.auth_op;
     };
 
     RequestAttributes(int _uid, int _gid, const RequestAttributes& ra)
@@ -105,33 +119,137 @@ public:
 
         umask    = ra.umask;
 
-        retval   = ra.retval;
+        retval     = ra.retval;
+        retval_xml = ra.retval_xml;
 
         resp_obj = PoolObjectSQL::NONE;
         resp_id  = -1;
         resp_msg = "";
+
+        replication_idx = UINT64_MAX;
+        auth_op  = ra.auth_op;
     };
+
+    bool is_admin() const
+    {
+        return uid == UserPool::ONEADMIN_ID ||
+            group_ids.count(GroupPool::ONEADMIN_ID) == 1;
+    }
+
+    bool is_oneadmin() const
+    {
+        return uid == UserPool::ONEADMIN_ID;
+    }
+
+    bool is_oneadmin_group() const
+    {
+        return gid == GroupPool::ONEADMIN_ID;
+    }
+
+    /**
+     *  Set the operation level (admin, manage or use) associated to this
+     *  request. Precedence is: user > group > system.
+     *
+     *  @param action perfomed on the VM object
+     */
+    void set_auth_op(VMActions::Action action);
+};
+
+class ParamList
+{
+public:
+
+    ParamList(const xmlrpc_c::paramList * paramList,
+              const std::set<int>& hidden):
+        _paramList(paramList), _hidden(hidden){};
+
+    std::string& to_string(std::string& str) const
+    {
+        std::ostringstream oss;
+
+        oss << get_value_as_string(0);
+
+        for (unsigned int i = 1; i < _paramList->size(); i++)
+        {
+            oss << " " << get_value_as_string(i);
+        }
+
+        str = oss.str();
+
+        return str;
+    };
+
+    std::string get_value_as_string(int index) const
+    {
+        if ( index == 0 || _hidden.count(index) == 1 )
+        {
+            return "****";
+        }
+
+        std::ostringstream oss;
+        xmlrpc_c::value::type_t type((*_paramList)[index].type());
+
+        if( type == xmlrpc_c::value::TYPE_INT)
+        {
+            oss << _paramList->getInt(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_I8 )
+        {
+            oss << _paramList->getI8(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_BOOLEAN )
+        {
+            oss << _paramList->getBoolean(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_STRING )
+        {
+            oss << _paramList->getString(index);
+            return oss.str();
+        }
+        else if( type == xmlrpc_c::value::TYPE_DOUBLE )
+        {
+            oss << _paramList->getDouble(index);
+            return oss.str();
+        }
+
+        return oss.str();
+    };
+
+    int size() const
+    {
+        return _paramList->size();
+    };
+
+private:
+    const xmlrpc_c::paramList * _paramList;
+
+    const std::set<int>& _hidden;
 };
 
 /**
  *  The Request Class represents the basic abstraction for the OpenNebula
  *  XML-RPC API. This interface must be implemented by any XML-RPC API call
  */
-class Request: public xmlrpc_c::method
+class Request: public xmlrpc_c::method2
 {
 public:
     /**
      *  Error codes for the XML-RPC API
      */
     enum ErrorCode {
-        SUCCESS        = 0x0000,
-        AUTHENTICATION = 0x0100,
-        AUTHORIZATION  = 0x0200,
-        NO_EXISTS      = 0x0400,
-        ACTION         = 0x0800,
-        XML_RPC_API    = 0x1000,
-        INTERNAL       = 0x2000,
-        ALLOCATE       = 0x4000
+        SUCCESS        = 0x00000,
+        AUTHENTICATION = 0x00100,
+        AUTHORIZATION  = 0x00200,
+        NO_EXISTS      = 0x00400,
+        ACTION         = 0x00800,
+        XML_RPC_API    = 0x01000,
+        INTERNAL       = 0x02000,
+        ALLOCATE       = 0x04000,
+        LOCKED         = 0x08000,
+        REPLICATION    = 0x10000
     };
 
     /**
@@ -140,7 +258,7 @@ public:
      *    @param ob object for the auth operation
      *    @return string equivalent of the object
      */
-    static string object_name(PoolObjectSQL::ObjectType ob);
+    static std::string object_name(PoolObjectSQL::ObjectType ob);
 
     /**
      *  Sets the format string to log xml-rpc method calls. The format string
@@ -154,50 +272,64 @@ public:
      *    %g -- group id
      *    %G -- group name
      *    %a -- auth token
+     *    %A -- client IP address (only IPv4)
+     *    %a -- client port (only IPv4)
      *    %% -- %
      */
-    static void set_call_log_format(const string& log_format)
+    static void set_call_log_format(const std::string& log_format)
     {
         format_str = log_format;
     }
 
 protected:
     /* ---------------------------------------------------------------------- */
+    /* Global configuration attributes por API calls                          */
+    /* ---------------------------------------------------------------------- */
+    static std::string format_str;
+    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
+
+    /* ---------------------------------------------------------------------- */
     /* Static Request Attributes: shared among request of the same method     */
     /* ---------------------------------------------------------------------- */
-    PoolSQL * pool;           /**< Pool of objects */
-    string    method_name;    /**< The name of the XML-RPC method */
+    PoolSQL *     pool;
+    std::string   method_name;
 
-    PoolObjectSQL::ObjectType auth_object;/**< Auth object for the request */
-    AuthRequest::Operation    auth_op;    /**< Auth operation for the request */
+    // Configuration for authentication level of the API call
+    PoolObjectSQL::ObjectType auth_object = PoolObjectSQL::ObjectType::NONE;
+    AuthRequest::Operation    auth_op;
 
-    set<int> hidden_params;
+    VMActions::Action vm_action;
 
-    static string format_str;
+    // Logging configuration fot the API call
+    std::set<int> hidden_params;
+    bool          log_method_call;
 
-    bool log_method_call; //Write method call and result to the log
-
-    bool leader_only; //Method can be only execute by leaders or solo servers
-
-    static const long long xmlrpc_timeout; //Timeout (ms) for request forwarding
+    //Method can be only execute by leaders or solo servers
+    bool leader_only;
 
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
     /* ---------------------------------------------------------------------- */
-    Request(const string& mn, const string& signature, const string& help):
-        pool(0),method_name(mn)
+    Request(const std::string& mn,
+            const std::string& signature,
+            const std::string& help)
     {
+        pool = nullptr;
+
+        method_name = mn;
+
         _signature = signature;
         _help      = help;
 
         hidden_params.clear();
 
         log_method_call = true;
-
         leader_only     = true;
+
+        vm_action = VMActions::NONE_ACTION;
     };
 
-    virtual ~Request(){};
+    virtual ~Request() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Methods to execute the request when received at the server             */
@@ -208,8 +340,8 @@ protected:
      *    @param _paramlist list of XML parameters
      *    @param _retval value to be returned to the client
      */
-    virtual void execute(xmlrpc_c::paramList const& _paramList,
-        xmlrpc_c::value * const _retval);
+    void execute(xmlrpc_c::paramList const& _paramList,
+        const xmlrpc_c::callInfo * _callInfoP, xmlrpc_c::value * const _retval) override;
 
     /**
      *  Actual Execution method for the request. Must be implemented by the
@@ -238,7 +370,7 @@ protected:
                  PoolObjectSQL::ObjectType type,
                  RequestAttributes&        att,
                  PoolObjectAuth&           perms,
-                 string&                   name,
+                 std::string&              name,
                  bool                      throw_error);
 
     /* ---------------------------------------------------------------------- */
@@ -258,7 +390,7 @@ protected:
      *    @param val string to be returned to the client
      *    @param att the specific request attributes
      */
-    void success_response(const string& val, RequestAttributes& att);
+    void success_response(const std::string& val, RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
@@ -267,6 +399,14 @@ protected:
      *    @param att the specific request attributes
      */
     void success_response(bool val, RequestAttributes& att);
+
+    /**
+     *  Builds an XML-RPC response updating retval. After calling this function
+     *  the xml-rpc excute method should return
+     *    @param val to be returned to the client
+     *    @param att the specific request attributes
+     */
+    void success_response(uint64_t val, RequestAttributes& att);
 
     /**
      *  Builds an XML-RPC response updating retval. After calling this function
@@ -285,7 +425,7 @@ protected:
      *    @param ec error code for this call
      *    @param att the specific request attributes
      */
-    string failure_message(ErrorCode ec, RequestAttributes& att);
+    std::string failure_message(ErrorCode ec, RequestAttributes& att);
 
     /* ---------------------------------------------------------------------- */
     /* Authorization methods for requests                                     */
@@ -301,25 +441,7 @@ protected:
      *
      *    @return true if the user is authorized.
      */
-    bool basic_authorization(int oid, RequestAttributes& att)
-    {
-        return basic_authorization(oid, auth_op, att);
-    };
-
-    /**
-     *  Performs a basic authorization for this request using the uid/gid
-     *  from the request. The function gets the object from the pool to get
-     *  the public attribute and its owner. The authorization is based on
-     *  object and type of operation for the request.
-     *    @param oid of the object, can be -1 for objects to be created, or
-     *    pools.
-     *    @param op operation of the request.
-     *    @param att the specific request attributes
-     *
-     *    @return true if the user is authorized.
-     */
-    bool basic_authorization(int oid, AuthRequest::Operation op,
-        RequestAttributes& att);
+    bool basic_authorization(int oid, RequestAttributes& att);
 
     /**
      *  Performs a basic authorization for this request using the uid/gid
@@ -329,7 +451,6 @@ protected:
      *    @param pool object pool
      *    @param oid of the object, can be -1 for objects to be created, or
      *    pools.
-     *    @param op operation of the request.
      *    @param att the specific request attributes
      *
      *    @return SUCCESS if the user is authorized.
@@ -337,7 +458,6 @@ protected:
     static ErrorCode basic_authorization(
             PoolSQL*                pool,
             int                     oid,
-            AuthRequest::Operation  op,
             PoolObjectSQL::ObjectType auth_object,
             RequestAttributes&      att);
 
@@ -369,7 +489,7 @@ protected:
      *    @return true if the user is authorized.
      */
     static bool quota_authorization(Template * tmpl, Quotas::QuotaType qtype,
-        RequestAttributes& att, string& error_str);
+        RequestAttributes& att, std::string& error_str);
 
     /**
      *  Performs rollback on usage counters for a previous  quota check operation
@@ -380,15 +500,21 @@ protected:
     static void quota_rollback(Template * tmpl, Quotas::QuotaType qtype,
         RequestAttributes& att);
 
+    /**
+     *    @param tmpl describing the object
+     *    @param att the specific request attributes
+     */
+    ErrorCode as_uid_gid(Template * tmpl, RequestAttributes& att);
+
 private:
     /* ---------------------------------------------------------------------- */
     /* Functions to manage user and group quotas                              */
     /* ---------------------------------------------------------------------- */
     static bool user_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, string& error_str);
+        RequestAttributes& att, std::string& error_str);
 
     static bool group_quota_authorization(Template * tmpl, Quotas::QuotaType  qtype,
-        RequestAttributes& att, string& error_str);
+        RequestAttributes& att, std::string& error_str);
 
     static void user_quota_rollback(Template * tmpl, Quotas::QuotaType  qtype,
         RequestAttributes& att);
@@ -403,7 +529,7 @@ private:
      *    @param va string representation of the error
      *    @param ra the specific request attributes
      */
-    void failure_response(ErrorCode ec, const string& va, RequestAttributes& ra);
+    void failure_response(ErrorCode ec, const std::string& va, RequestAttributes& ra) const;
 
     /**
      * Logs the method invocation, including the arguments
@@ -411,10 +537,12 @@ private:
      * @param paramList list of XML parameters
      * @param format_str for the log
      * @param hidden_params params not to be shown
+     * @param callInfoP information of client
      */
     static void log_method_invoked(const RequestAttributes& att,
-        const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params);
+        const xmlrpc_c::paramList&  paramList, const std::string& format_str,
+        const std::string& method_name, const std::set<int>& hidden_params,
+        const xmlrpc_c::callInfo * callInfoP);
 
     /**
      * Logs the method result, including the output data or error message
@@ -430,8 +558,13 @@ private:
      *
      * @param v value to format
      * @param oss stream to write v
+     * @param limit of characters to wirte
      */
-    static void log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss);
+    static void log_xmlrpc_value(const xmlrpc_c::value& v,
+            std::ostringstream& oss, const int limit);
+
+    // Default number of character to show in the log. Option %l<number>
+    const static int DEFAULT_LOG_LIMIT = 20;
 };
 
 /* -------------------------------------------------------------------------- */

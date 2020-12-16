@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,9 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplatesTable = require('tabs/templates-tab/datatable');
+  var Leases = require("utils/leases");
+  var OpenNebulaAction = require("opennebula/action");
+
   /*
     CONSTANTS
    */
@@ -64,24 +67,43 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     InstantiateTemplateFormPanel.prototype.setup.call(this, context);
-
-    $(".selectTemplateTable", context).html(
-          '<br/>' + this.templatesTable.dataTableHTML + '<br/>');
-
+    $(".selectTemplateTable", context).html('<br/>' + this.templatesTable.dataTableHTML + '<br/>');
     this.templatesTable.initialize();
-
     this.templatesTable.idInput().on("change", function(){
-        $(".nameContainer", context).show();
-        $(".persistentContainer", context).show();
+      var template_id = $(this).val();
+      var showRestForm = template_id !== "";
 
-         var templatesContext = $(".list_of_templates", context);
-        templatesContext.html("");
-        templatesContext.show();
+      $(".nameContainer", context).toggle(showRestForm);
+      $(".persistentContainer", context).toggle(showRestForm);
 
-        var template_id = $(this).val();
+      var templatesContext = $(".list_of_templates", context);
+      templatesContext.html("");
+      templatesContext.toggle(showRestForm);
+
+      if(showRestForm) {
         that.setTemplateIds(context, [template_id]);
+        var leasesThat = {};
+        function FormPanel() {
+          this.name = this.name;
+        }
+        Object.assign(leasesThat, that);
+        leasesThat.resource = "vm";
+        leasesThat.resourceId = template_id;
+        if(
+          OpenNebulaAction && 
+          OpenNebulaAction.cache && 
+          OpenNebulaAction.cache("VMTEMPLATE") &&
+          OpenNebulaAction.cache("VMTEMPLATE").data && 
+          OpenNebulaAction.cache("VMTEMPLATE").data[template_id] &&
+          OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE && 
+          OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE.TEMPLATE
+        ){
+          leasesThat.jsonTemplate = OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE.TEMPLATE;
+        }
+        leasesThat.__proto__ = FormPanel.prototype;
+        Leases.actions(leasesThat);
+      }
     });
-
     Tips.setup(context);
   }
 

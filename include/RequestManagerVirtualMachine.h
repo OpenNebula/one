@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,12 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #ifndef REQUEST_MANAGER_VIRTUAL_MACHINE_H_
-#define REQUEST_MANAGER_VIRTUAL_MACHINE_H
+#define REQUEST_MANAGER_VIRTUAL_MACHINE_H_
 
 #include "Request.h"
 #include "Nebula.h"
-
-using namespace std;
+#include "VirtualMachinePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,19 +28,19 @@ using namespace std;
 class RequestManagerVirtualMachine: public Request
 {
 protected:
-    RequestManagerVirtualMachine(const string& method_name,
-                       const string& help,
-                       const string& params)
-        :Request(method_name,params,help)
+    RequestManagerVirtualMachine(const std::string& method_name,
+                                 const std::string& help,
+                                 const std::string& params)
+        :Request(method_name, params, help)
     {
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
 
         auth_object = PoolObjectSQL::VM;
         auth_op     = AuthRequest::MANAGE;
-    };
+    }
 
-    ~RequestManagerVirtualMachine(){};
+    ~RequestManagerVirtualMachine() = default;
 
     /* -------------------------------------------------------------------- */
 
@@ -54,8 +53,7 @@ protected:
                           RequestAttributes&      att,
                           PoolObjectAuth *        host_perms,
                           PoolObjectAuth *        ds_perm,
-                          PoolObjectAuth *        img_perm,
-                          AuthRequest::Operation  op);
+                          PoolObjectAuth *        img_perm);
 
     bool quota_resize_authorization(
             Template *          deltas,
@@ -68,42 +66,44 @@ protected:
             RequestAttributes&  att);
 
     int get_host_information(
-        int     hid,
-        string& name,
-        string& vmm,
-        int&    cluster_id,
-        bool&   is_public_cloud,
+        int                hid,
+        std::string&       name,
+        std::string&       vmm,
+        int&               cluster_id,
+        bool&              is_public_cloud,
         PoolObjectAuth&    host_perms,
         RequestAttributes& att);
 
     int get_ds_information(
         int ds_id,
-        set<int>& ds_cluster_ids,
-        string& tm_mad,
+        std::set<int>& ds_cluster_ids,
+        std::string& tm_mad,
         RequestAttributes& att,
         bool& ds_migr);
 
     int get_default_ds_information(
         int cluster_id,
         int& ds_id,
-        string& tm_mad,
+        std::string& tm_mad,
         RequestAttributes& att);
 
     bool check_host(int hid,
                     bool enforce,
                     VirtualMachine* vm,
-                    string& error);
+                    std::string& error);
 
-    int add_history(VirtualMachine * vm,
-                    int              hid,
-                    int              cid,
-                    const string&    hostname,
-                    const string&    vmm_mad,
-                    const string&    tm_mad,
-                    int              ds_id,
+    int add_history(VirtualMachine *   vm,
+                    int                hid,
+                    int                cid,
+                    const std::string& hostname,
+                    const std::string& vmm_mad,
+                    const std::string& tm_mad,
+                    int                ds_id,
                     RequestAttributes& att);
 
-    VirtualMachine * get_vm(int id, RequestAttributes& att);
+    std::unique_ptr<VirtualMachine> get_vm(int id, RequestAttributes& att);
+
+    std::unique_ptr<VirtualMachine> get_vm_ro(int id, RequestAttributes& att);
 };
 
 /* ------------------------------------------------------------------------- */
@@ -112,16 +112,15 @@ protected:
 class VirtualMachineAction : public RequestManagerVirtualMachine
 {
 public:
-    //auth_op is MANAGE for all actions but "resched" and "unresched"
-    //this is dynamically set for each request in the execute method
     VirtualMachineAction():
         RequestManagerVirtualMachine("one.vm.action",
                                      "Performs an action on a virtual machine",
-                                     "A:ssi"){};
-    ~VirtualMachineAction(){};
+                                     "A:ssi") {}
+    ~VirtualMachineAction() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -133,15 +132,16 @@ public:
     VirtualMachineDeploy():
         RequestManagerVirtualMachine("one.vm.deploy",
                                      "Deploys a virtual machine",
-                                     "A:siibi")
+                                     "A:siibis")
     {
-        auth_op = Nebula::instance().get_vm_auth_op(History::DEPLOY_ACTION);
-    };
+        vm_action = VMActions::DEPLOY_ACTION;
+    }
 
-    ~VirtualMachineDeploy(){};
+    ~VirtualMachineDeploy() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -153,14 +153,16 @@ public:
     VirtualMachineMigrate():
         RequestManagerVirtualMachine("one.vm.migrate",
                                      "Migrates a virtual machine",
-                                     "A:siibbi"){
-        auth_op = Nebula::instance().get_vm_auth_op(History::MIGRATE_ACTION);
-    };
+                                     "A:siibbii")
+    {
+        vm_action = VMActions::MIGRATE_ACTION;
+    }
 
-    ~VirtualMachineMigrate(){};
+    ~VirtualMachineMigrate() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -172,14 +174,16 @@ public:
     VirtualMachineDiskSaveas():
         RequestManagerVirtualMachine("one.vm.disksaveas",
                            "Save a disk from virtual machine as a new image",
-                           "A:siissi"){
-        auth_op= Nebula::instance().get_vm_auth_op(History::DISK_SAVEAS_ACTION);
-    };
+                           "A:siissi")
+    {
+        vm_action = VMActions::DISK_SAVEAS_ACTION;
+    }
 
-    ~VirtualMachineDiskSaveas(){};
+    ~VirtualMachineDiskSaveas() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -188,18 +192,20 @@ public:
 class VirtualMachineMonitoring : public RequestManagerVirtualMachine
 {
 public:
-
     VirtualMachineMonitoring():
         RequestManagerVirtualMachine("one.vm.monitoring",
                 "Returns the virtual machine monitoring records",
-                "A:si"){
-        auth_op = AuthRequest::USE;
-    };
+                "A:si")
+    {
+        auth_op   = AuthRequest::USE_NO_LCK;
+        vm_action = VMActions::MONITOR_ACTION;
+    }
 
-    ~VirtualMachineMonitoring(){};
+    ~VirtualMachineMonitoring() = default;
 
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+protected:
+    void request_execute(xmlrpc_c::paramList const& paramList,
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -211,14 +217,28 @@ public:
     VirtualMachineAttach():
         RequestManagerVirtualMachine("one.vm.attach",
                            "Attaches a new disk to the virtual machine",
-                           "A:sis"){
-        auth_op= Nebula::instance().get_vm_auth_op(History::DISK_ATTACH_ACTION);
-    };
+                           "A:sis")
+    {
+        auth_op   = AuthRequest::USE_NO_LCK;
+        vm_action = VMActions::DISK_ATTACH_ACTION;
+    }
 
-    ~VirtualMachineAttach(){};
+    ~VirtualMachineAttach() = default;
+
+    /**
+     * Process a DISK attahment request to a Virtual Machine
+     *   @param id of the VirtualMachine
+     *   @param tl with the new DISK description
+     *   @param att attributes of this request
+     *   @return ErroCode as defined in Request
+     */
+    ErrorCode request_execute(int id, VirtualMachineTemplate& tl,
+        RequestAttributes& att);
+
+protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -230,15 +250,17 @@ public:
     VirtualMachineDetach():
         RequestManagerVirtualMachine("one.vm.detach",
                            "Detaches a disk from a virtual machine",
-                           "A:sii"){
-        //Attach & detach are set to the same auth op in OpenNebulaTemplate
-        auth_op= Nebula::instance().get_vm_auth_op(History::DISK_DETACH_ACTION);
-    };
+                           "A:sii")
+    {
+        auth_op   = AuthRequest::USE_NO_LCK;
+        vm_action = VMActions::DISK_DETACH_ACTION;
+    }
 
-    ~VirtualMachineDetach(){};
+    ~VirtualMachineDetach() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -250,11 +272,12 @@ public:
     VirtualMachineAttachNic():
         RequestManagerVirtualMachine("one.vm.attachnic",
                            "Attaches a new NIC to the virtual machine",
-                           "A:sis"){
-        auth_op = Nebula::instance().get_vm_auth_op(History::NIC_ATTACH_ACTION);
-    };
+                           "A:sis")
+    {
+        vm_action = VMActions::NIC_ATTACH_ACTION;
+    }
 
-    ~VirtualMachineAttachNic(){};
+    ~VirtualMachineAttachNic() = default;
 
     /**
      * Process a NIC attahment request to a Virtual Machine
@@ -267,9 +290,8 @@ public:
         RequestAttributes& att);
 
 protected:
-
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& ra);
-
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -281,12 +303,12 @@ public:
     VirtualMachineDetachNic():
         RequestManagerVirtualMachine("one.vm.detachnic",
                            "Detaches a NIC from a virtual machine",
-                           "A:sii"){
-        //Attach & detach are set to the same auth op in OpenNebulaTemplate
-        auth_op = Nebula::instance().get_vm_auth_op(History::NIC_DETACH_ACTION);
-    };
+                           "A:sii")
+    {
+        vm_action = VMActions::NIC_DETACH_ACTION;
+    }
 
-    ~VirtualMachineDetachNic(){};
+    ~VirtualMachineDetachNic() = default;
 
     /**
      * Process a NIC detach request to a Virtual Machine
@@ -298,7 +320,8 @@ public:
     ErrorCode request_execute(int id, int nic_id, RequestAttributes& att);
 
 protected:
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& ra);
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& ra) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -310,14 +333,16 @@ public:
     VirtualMachineResize():
         RequestManagerVirtualMachine("one.vm.resize",
                            "Changes the capacity of the virtual machine",
-                           "A:sisb"){
-        auth_op = Nebula::instance().get_vm_auth_op(History::RESIZE_ACTION);
-    };
+                           "A:sisb")
+    {
+        vm_action = VMActions::RESIZE_ACTION;
+    }
 
-    ~VirtualMachineResize(){};
+    ~VirtualMachineResize() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -329,17 +354,16 @@ public:
     VirtualMachineSnapshotCreate():
         RequestManagerVirtualMachine("one.vm.snapshotcreate",
                            "Creates a new virtual machine snapshot",
-                           "A:sis"){
-        Nebula& nd = Nebula::instance();
+                           "A:sis")
+    {
+        vm_action = VMActions::SNAPSHOT_CREATE_ACTION;
+    }
 
-        //All VM snapshot operations are set to the same auth value
-        auth_op    = nd.get_vm_auth_op(History::SNAPSHOT_CREATE_ACTION);
-    };
+    ~VirtualMachineSnapshotCreate() = default;
 
-    ~VirtualMachineSnapshotCreate(){};
-
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -351,17 +375,16 @@ public:
     VirtualMachineSnapshotRevert():
         RequestManagerVirtualMachine("one.vm.snapshotrevert",
                            "Reverts a virtual machine to a snapshot",
-                           "A:sii"){
-        Nebula& nd = Nebula::instance();
+                           "A:sii")
+    {
+        vm_action = VMActions::SNAPSHOT_REVERT_ACTION;
+    }
 
-        //All VM snapshot operations are set to the same auth value
-        auth_op    = nd.get_vm_auth_op(History::SNAPSHOT_REVERT_ACTION);
-    };
+    ~VirtualMachineSnapshotRevert() = default;
 
-    ~VirtualMachineSnapshotRevert(){};
-
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -373,17 +396,16 @@ public:
     VirtualMachineSnapshotDelete():
         RequestManagerVirtualMachine("one.vm.snapshotdelete",
                            "Deletes a virtual machine snapshot",
-                           "A:sii"){
-        Nebula& nd = Nebula::instance();
+                           "A:sii")
+    {
+        vm_action = VMActions::SNAPSHOT_DELETE_ACTION;
+    }
 
-        //All VM snapshot operations are set to the same auth value
-        auth_op    = nd.get_vm_auth_op(History::SNAPSHOT_DELETE_ACTION);
-    };
+    ~VirtualMachineSnapshotDelete() = default;
 
-    ~VirtualMachineSnapshotDelete(){};
-
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -395,11 +417,16 @@ public:
     VirtualMachineRecover():
         RequestManagerVirtualMachine("one.vm.recover",
                                      "Recovers a virtual machine",
-                                     "A:sii"){};
-    ~VirtualMachineRecover(){};
+                                     "A:sii")
+    {
+        vm_action = VMActions::RECOVER_ACTION;
+    }
 
+    ~VirtualMachineRecover() = default;
+
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -408,24 +435,19 @@ public:
 class VirtualMachinePoolCalculateShowback : public RequestManagerVirtualMachine
 {
 public:
-
     VirtualMachinePoolCalculateShowback():
         RequestManagerVirtualMachine("one.vmpool.calculateshowback",
             "Processes all the history records, and stores the monthly cost"
             " for each VM", "A:sii")
     {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vmpool();
-
         auth_object = PoolObjectSQL::VM;
-    };
+    }
 
-    ~VirtualMachinePoolCalculateShowback(){};
+    ~VirtualMachinePoolCalculateShowback() = default;
 
-    /* -------------------------------------------------------------------- */
-
-    void request_execute(
-            xmlrpc_c::paramList const& paramList, RequestAttributes& att);
+protected:
+    void request_execute(xmlrpc_c::paramList const& paramList,
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -437,18 +459,19 @@ public:
     VirtualMachineDiskSnapshotCreate():
         RequestManagerVirtualMachine("one.vm.disksnapshotcreate",
                            "Creates a new virtual machine disk snapshot",
-                           "A:siis"){
+                           "A:siis")
+    {
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
 
-        //All VM disk snapshot operations are set to the same auth value
-        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_CREATE_ACTION);
-    };
+        vm_action   = VMActions::DISK_SNAPSHOT_CREATE_ACTION;
+    }
 
-    ~VirtualMachineDiskSnapshotCreate(){};
+    ~VirtualMachineDiskSnapshotCreate() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 
 private:
     ImagePool* ipool;
@@ -463,17 +486,16 @@ public:
     VirtualMachineDiskSnapshotRevert():
         RequestManagerVirtualMachine("one.vm.disksnapshotrevert",
                            "Reverts disk state to a snapshot",
-                           "A:siii"){
-        Nebula& nd = Nebula::instance();
+                           "A:siii")
+    {
+        vm_action = VMActions::DISK_SNAPSHOT_REVERT_ACTION;
+    }
 
-        //All VM disk snapshot operations are set to the same auth value
-        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_REVERT_ACTION);
-    };
+    ~VirtualMachineDiskSnapshotRevert() = default;
 
-    ~VirtualMachineDiskSnapshotRevert(){};
-
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -485,21 +507,43 @@ public:
     VirtualMachineDiskSnapshotDelete():
         RequestManagerVirtualMachine("one.vm.disksnapshotdelete",
                            "Deletes a disk snapshot",
-                           "A:siii"){
+                           "A:siii")
+    {
         Nebula& nd  = Nebula::instance();
         ipool       = nd.get_ipool();
 
-        //All VM disk snapshot operations are set to the same auth value
-        auth_op = nd.get_vm_auth_op(History::DISK_SNAPSHOT_DELETE_ACTION);
-    };
+        vm_action = VMActions::DISK_SNAPSHOT_DELETE_ACTION;
+    }
 
-    ~VirtualMachineDiskSnapshotDelete(){};
+    ~VirtualMachineDiskSnapshotDelete() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 
 private:
     ImagePool* ipool;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineDiskSnapshotRename: public RequestManagerVirtualMachine
+{
+public:
+    VirtualMachineDiskSnapshotRename():
+        RequestManagerVirtualMachine("one.vm.disksnapshotrename",
+                           "Rename a disk snapshot",
+                           "A:siiis")
+    {
+        vm_action = VMActions::DISK_SNAPSHOT_RENAME_ACTION;
+    }
+
+    ~VirtualMachineDiskSnapshotRename() = default;
+
+protected:
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -511,14 +555,16 @@ public:
     VirtualMachineUpdateConf():
         RequestManagerVirtualMachine("one.vm.updateconf",
                            "Updates several configuration attributes of a VM",
-                           "A:sis"){
-        auth_op = Nebula::instance().get_vm_auth_op(History::UPDATECONF_ACTION);
-    };
+                           "A:sis")
+    {
+        vm_action = VMActions::UPDATECONF_ACTION;
+    }
 
-    ~VirtualMachineUpdateConf(){};
+    ~VirtualMachineUpdateConf() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -530,17 +576,20 @@ public:
     VirtualMachineDiskResize():
         RequestManagerVirtualMachine("one.vm.diskresize",
                            "Resizes a disk from a virtual machine",
-                           "A:siis"){
+                           "A:siis")
+    {
         Nebula& nd = Nebula::instance();
         ipool      = nd.get_ipool();
 
-        auth_op = nd.get_vm_auth_op(History::DISK_RESIZE_ACTION);
-    };
+        vm_action  = VMActions::DISK_RESIZE_ACTION;
+    }
 
-    ~VirtualMachineDiskResize(){};
+    ~VirtualMachineDiskResize() = default;
 
+protected:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
+
 private:
     ImagePool* ipool;
 };

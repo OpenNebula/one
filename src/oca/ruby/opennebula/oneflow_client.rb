@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'uri'
+require 'ipaddress'
 require 'cloud/CloudClient'
 
 include CloudCLI
@@ -35,7 +36,12 @@ module Role
         'reboot-hard',
         'poweroff',
         'poweroff-hard',
-        'snapshot-create'
+        'snapshot-create',
+        'snapshot-revert',
+        'snapshot-delete',
+        'disk-snapshot-create',
+        'disk-snapshot-revert',
+        'disk-snapshot-delete'
     ]
 
     STATE = {
@@ -284,12 +290,28 @@ module Service
         exit_code = 0
 
         ids.each do |id|
-            response = block.call(id)
+            response = block.call(id) if block_given?
 
             if CloudClient::is_error?(response)
                 puts response.to_s
                 exit_code = response.code.to_i
             end
+        end
+
+        exit_code
+    end
+
+    # Perform an action on a resource
+    # @param [Integer] id resource id
+    # @param [Block] block action to be performed
+    # @return [Integer] exit_code
+    def self.perform_action(id, &block)
+        exit_code = 0
+        response  = block.call(id) if block_given?
+
+        if CloudClient::is_error?(response)
+            puts response.to_s
+            exit_code = response.code.to_i
         end
 
         exit_code
@@ -328,9 +350,34 @@ module Service
 
             if ENV['http_proxy']
                 uri_proxy  = URI.parse(ENV['http_proxy'])
-                @host = uri_proxy.host
-                @port = uri_proxy.port
+                flag = false
+
+                # Check if we need to bypass the proxy
+                if ENV['no_proxy']
+                    ENV['no_proxy'].split(',').each do |item|
+                        item = item.rstrip.lstrip
+
+                        unless (IPAddress @uri.host rescue nil).nil?
+                            unless (IPAddress item rescue nil).nil?
+                                flag |= IPAddress(item).include? IPAddress(@uri.host)
+                            end
+                        else
+                            if (IPAddress(item) rescue nil).nil?
+                                flag |= (item == @uri.host)
+                            end
+                        end
+                    end
+                end
+
+                unless flag
+                    @host = uri_proxy.host
+                    @port = uri_proxy.port
+                end
             end
+        end
+
+        def set_content_type(content_type)
+            @content_type = content_type
         end
 
         def get(path)
@@ -339,8 +386,9 @@ module Service
             do_request(req)
         end
 
-        def delete(path)
-            req =Net::HTTP::Proxy(@host, @port)::Delete.new(path)
+        def delete(path, body = nil)
+            req = Net::HTTP::Proxy(@host, @port)::Delete.new(path)
+            req.body = body if body
 
             do_request(req)
         end
@@ -349,6 +397,11 @@ module Service
             req = Net::HTTP::Proxy(@host, @port)::Post.new(path)
             req.body = body
 
+            if path.start_with?('/service_template')
+                unless @content_type.nil?
+                    req.content_type = @content_type
+                end
+            end
             do_request(req)
         end
 

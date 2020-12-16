@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,8 +20,6 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +27,9 @@ using namespace std;
 class RequestManagerAcl: public Request
 {
 protected:
-    RequestManagerAcl( const string& method_name,
-                       const string& help,
-                       const string& params)
+    RequestManagerAcl( const std::string& method_name,
+                       const std::string& help,
+                       const std::string& params)
         :Request(method_name,params,help)
     {
         auth_object = PoolObjectSQL::ACL;
@@ -68,7 +66,7 @@ public:
     ~AclAddRule(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -86,7 +84,7 @@ public:
     ~AclDelRule(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -104,7 +102,7 @@ public:
     ~AclInfo(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

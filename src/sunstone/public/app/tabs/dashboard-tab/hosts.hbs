@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,36 +15,34 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div>
-  <fieldset class="large-font">
-    <legend>
-      <ul class="menu simple">
-        <li>
-          {{tr "Hosts"}} <span class=" total_hosts"></span> 
-        </li>
-        <li></li>
-        <li><span>{{tr "ON"}}</span> <span class=" on_hosts success-color"></span></li>
-        <li><span>{{tr "OFF"}}</span> <span class=" off_hosts"></span></li>
-        <li><span>{{tr "ERROR"}}</span> <span class=" error_hosts alert-color"></span></li>
-        <li></li>
-        <li>
-          <button class="button radius tiny show_hosts_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
-          <button class="button success radius tiny show_create_host"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
-        </li>
-      </ul>
-    </legend>
-    <div class="row">
-      <input style="display:none;" value="vm" id="acct_group_by"/>
-      <div class="small-12 medium-3 columns">
-        <div id="dashboard_host_allocated_cpu"></div>
+  <fieldset class="large-font dashboard-fieldset">
+    <div class="row small-12 medium-12 columns">
+      <div class="small-6 medium-8 columns dashboard-div-titles">
+        <h5>{{tr "Hosts"}}</h5>
       </div>
-      <div class="small-12 medium-3 columns">
-        <div id="dashboard_host_allocated_mem"></div>
+      <div class="small-6 medium-4 columns dashboard-div-buttons">
+        <button class="button radius tiny show_hosts_tab"> <i class="fas fa-lg fa-list fa-fw"></i></button>
+        <button class="button success radius tiny show_create_host"> <i class="fas fa-lg fa-plus fa-fw"></i></button>
       </div>
-      <div class="small-12 medium-3 columns">
-        <div id="dashboard_host_real_cpu"></div>
+    </div>
+    <div class="row" style="display:flex;align-items:center;">
+      <div class="small-12 medium-6 columns">
+        <div class="hidden" id="dashboard_host_allocated_cpu"></div>
+        <div class="hidden" id="dashboard_host_allocated_mem"></div>
       </div>
-      <div class="small-12 medium-3 columns">
-        <div id="dashboard_host_real_mem"></div>
+      <div class="small-12 medium-6 columns">
+        <div class="card small-12 medium-4 columns">
+          <h3 class="on_hosts fadeinout success-color number-title">0</h3>
+          <span class="small-12 medium-12 columns label-card" style="padding:0;">{{tr "MONITORED"}}</span>
+        </div>
+        <div class="card small-12 medium-4 columns">
+            <h3 class="off_hosts fadeinout warning-color number-title">0</h3>
+            <span class="small-12 medium-12 columns label-card" style="padding:0;">{{tr "DISABLED"}}</span>
+        </div>
+        <div class="card small-12 medium-4 columns">
+            <h3 class="error_hosts fadeinout alert-color number-title">0</h3>
+            <span class="small-12 medium-12 columns label-card" style="padding:0;">{{tr "FAILED"}}</span>
+        </div>
       </div>
     </div>
   </fieldset>

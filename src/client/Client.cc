@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,20 +15,19 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Client.h"
+#include "NebulaLog.h"
 
 #include <fstream>
 #include <pwd.h>
 #include <stdlib.h>
 #include <stdexcept>
-
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-
+#include <set>
 #include <sstream>
 
 #include <unistd.h>
 #include <sys/types.h>
+
+using namespace std;
 
 Client * Client::_client = 0;
 
@@ -76,22 +75,35 @@ int Client::read_oneauth(string &secret, string& error_msg)
 {
     string   one_auth_file;
     ifstream file;
+    int rc;
 
     const char * one_auth_env = getenv("ONE_AUTH");
 
     if (!one_auth_env) //No $ONE_AUTH, read $HOME/.one/one_auth
     {
-        struct passwd * pw_ent;
+        struct passwd pw_ent;
+        struct passwd * result;
 
-        pw_ent = getpwuid(getuid());
+        char   pwdbuffer[16384];
+        size_t pwdlinelen = sizeof(pwdbuffer);
 
-        if ((pw_ent == NULL) || (pw_ent->pw_dir == NULL))
+        rc = getpwuid_r(getuid(), &pw_ent, pwdbuffer, pwdlinelen, &result);
+
+        if (result == 0)
         {
-            error_msg = "Could not get one_auth file location";
+            if (rc == 0)
+            {
+                error_msg = "No matching password record for user";
+            }
+            else
+            {
+                error_msg = "Error accessing password file";
+            }
+
             return -1;
         }
 
-        one_auth_file = pw_ent->pw_dir;
+        one_auth_file = pw_ent.pw_dir;
         one_auth_file += "/.one/one_auth";
 
         one_auth_env = one_auth_file.c_str();
@@ -129,14 +141,11 @@ void Client::call(const std::string &method, const std::string format,
     va_list args;
     va_start(args, result);
 
-    std::string::const_iterator i;
-
     std::string  sval;
     int          ival;
     bool         bval;
 
     std::set<int> * vval;
-    std::set<int>::iterator it;
 
     const char* pval;
     vector<xmlrpc_c::value> x_vval;
@@ -145,9 +154,9 @@ void Client::call(const std::string &method, const std::string format,
 
     plist.add(xmlrpc_c::value_string(one_auth));
 
-    for (i = format.begin(); i != format.end(); ++i)
+    for (auto ch : format)
     {
-        switch(*i)
+        switch(ch)
         {
             case 's':
                 pval = static_cast<const char*>(va_arg(args, char *));
@@ -172,7 +181,7 @@ void Client::call(const std::string &method, const std::string format,
                 vval = static_cast<std::set<int> *>(va_arg(args,
                     std::set<int> *));
 
-                for (it = vval->begin(); it != vval->end(); ++it)
+                for (auto it = vval->begin(); it != vval->end(); ++it)
                 {
                     x_vval.push_back(xmlrpc_c::value_int(*it));
                 }
@@ -227,32 +236,57 @@ int Client::call(const std::string& endpoint, const std::string& method,
         const xmlrpc_c::paramList& plist, unsigned int _timeout,
         xmlrpc_c::value * const result, std::string& error)
 {
-    xmlrpc_c::clientXmlTransport_curl transport(
-        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
+// Transport timeouts are not reliably implemented, interrupt flag and async
+// client performs better.
+//    xmlrpc_c::clientXmlTransport_curl transport(
+//        xmlrpc_c::clientXmlTransport_curl::constrOpt().timeout(_timeout));
+    xmlrpc_c::clientXmlTransport_curl transport;
 
     xmlrpc_c::carriageParm_curl0  carriage(endpoint);
 
     xmlrpc_c::client_xml client(&transport);
     xmlrpc_c::rpcPtr     rpc_client(method, plist);
 
-    int xml_rc = 0;
+    int xml_rc   = 0;
+    int int_flag = 0;
 
     try
     {
         rpc_client->start(&client, &carriage);
 
-        client.finishAsync(xmlrpc_c::timeout());
+        client.setInterrupt(&int_flag);
 
-        if ( rpc_client->isSuccessful() )
+        if ( _timeout == 0 )
         {
-            *result = rpc_client->getResult();
+            client.finishAsync(xmlrpc_c::timeout());
         }
-        else //RPC failed
+        else
         {
-            xmlrpc_c::fault failure = rpc_client->getFault();
+            client.finishAsync(_timeout);
+        }
 
-            error  = failure.getDescription();
+        if ( rpc_client->isFinished() )
+        {
+            if ( rpc_client->isSuccessful() )
+            {
+                *result = rpc_client->getResult();
+            }
+            else //RPC failed
+            {
+                xmlrpc_c::fault failure = rpc_client->getFault();
+
+                error  = failure.getDescription();
+                xml_rc = -1;
+            }
+        }
+        else //rpc not finished. Interrupt it
+        {
+            int_flag = 1;
+
+            error  = "RPC call timed out and aborted";
             xml_rc = -1;
+
+            client.finishAsync(xmlrpc_c::timeout());
         }
     }
     catch (exception const& e)

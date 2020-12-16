@@ -10,6 +10,16 @@
         <xs:element name="UNAME" type="xs:string"/>
         <xs:element name="GNAME" type="xs:string"/>
         <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="LOCKED" type="xs:integer"/>
+              <xs:element name="OWNER" type="xs:integer"/>
+              <xs:element name="TIME" type="xs:integer"/>
+              <xs:element name="REQ_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="PERMISSIONS" minOccurs="0" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>
@@ -33,11 +43,14 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="BRIDGE" type="xs:string"/>
+        <xs:element name="BRIDGE_TYPE" type="xs:string" minOccurs="0"/>
         <xs:element name="PARENT_NETWORK_ID" type="xs:string"/>
         <xs:element name="VN_MAD" type="xs:string"/>
         <xs:element name="PHYDEV" type="xs:string"/>
-        <xs:element name="VLAN_ID" type="xs:string"/>
+        <xs:element name="VLAN_ID" type="xs:string" minOccurs="0"/>
+        <xs:element name="OUTER_VLAN_ID" type="xs:string" minOccurs="0"/>
         <xs:element name="VLAN_ID_AUTOMATIC" type="xs:string"/>
+        <xs:element name="OUTER_VLAN_ID_AUTOMATIC" type="xs:string"/>
         <xs:element name="USED_LEASES" type="xs:integer"/>
         <xs:element name="VROUTERS">
           <xs:complexType>
@@ -46,7 +59,27 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="CONTEXT_FORCE_IPV4" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DNS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="GATEWAY" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="GATEWAY6" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="GUEST_MTU" type="xs:int" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NETWORK_ADDRESS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NETWORK_MASK" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SEARCH_DOMAIN" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_FROM_WILD" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_TEMPLATE_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="AR_POOL">
           <xs:complexType>
             <xs:sequence minOccurs="0">

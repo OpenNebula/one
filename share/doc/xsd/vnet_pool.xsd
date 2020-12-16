@@ -37,11 +37,14 @@
                 </xs:complexType>
               </xs:element>
               <xs:element name="BRIDGE" type="xs:string"/>
+              <xs:element name="BRIDGE_TYPE" type="xs:string" minOccurs="0"/>
               <xs:element name="PARENT_NETWORK_ID" type="xs:string"/>
               <xs:element name="VN_MAD" type="xs:string"/>
               <xs:element name="PHYDEV" type="xs:string"/>
-              <xs:element name="VLAN_ID" type="xs:string"/>
+              <xs:element name="VLAN_ID" type="xs:string" minOccurs="0"/>
+              <xs:element name="OUTER_VLAN_ID" type="xs:string" minOccurs="0"/>
               <xs:element name="VLAN_ID_AUTOMATIC" type="xs:string"/>
+              <xs:element name="OUTER_VLAN_ID_AUTOMATIC" type="xs:string"/>
               <xs:element name="USED_LEASES" type="xs:integer"/>
               <xs:element name="VROUTERS">
                 <xs:complexType>

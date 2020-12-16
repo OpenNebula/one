@@ -59,14 +59,20 @@
               <xs:element name="VM" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="CPU" type="xs:string"/>
-                    <xs:element name="CPU_USED" type="xs:string"/>
-                    <xs:element name="MEMORY" type="xs:string"/>
-                    <xs:element name="MEMORY_USED" type="xs:string"/>
-                    <xs:element name="SYSTEM_DISK_SIZE" type="xs:string"/>
-                    <xs:element name="SYSTEM_DISK_SIZE_USED" type="xs:string"/>
-                    <xs:element name="VMS" type="xs:string"/>
-                    <xs:element name="VMS_USED" type="xs:string"/>
+                    <xs:element name="CPU" type="xs:float"/>
+                    <xs:element name="CPU_USED" type="xs:float"/>
+                    <xs:element name="MEMORY" type="xs:integer"/>
+                    <xs:element name="MEMORY_USED" type="xs:integer"/>
+                    <xs:element name="RUNNING_CPU" type="xs:float"/>
+                    <xs:element name="RUNNING_CPU_USED" type="xs:float"/>
+                    <xs:element name="RUNNING_MEMORY" type="xs:integer"/>
+                    <xs:element name="RUNNING_MEMORY_USED" type="xs:integer"/>
+                    <xs:element name="RUNNING_VMS" type="xs:integer"/>
+                    <xs:element name="RUNNING_VMS_USED" type="xs:integer"/>
+                    <xs:element name="SYSTEM_DISK_SIZE" type="xs:long"/>
+                    <xs:element name="SYSTEM_DISK_SIZE_USED" type="xs:long"/>
+                    <xs:element name="VMS" type="xs:integer"/>
+                    <xs:element name="VMS_USED" type="xs:integer"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
@@ -129,14 +135,20 @@
                       <xs:element name="VM" minOccurs="0" maxOccurs="1">
                         <xs:complexType>
                           <xs:sequence>
-                            <xs:element name="CPU" type="xs:string"/>
-                            <xs:element name="CPU_USED" type="xs:string"/>
-                            <xs:element name="MEMORY" type="xs:string"/>
-                            <xs:element name="MEMORY_USED" type="xs:string"/>
-                            <xs:element name="SYSTEM_DISK_SIZE" type="xs:string"/>
-                            <xs:element name="SYSTEM_DISK_SIZE_USED" type="xs:string"/>
-                            <xs:element name="VMS" type="xs:string"/>
-                            <xs:element name="VMS_USED" type="xs:string"/>
+                            <xs:element name="CPU" type="xs:float"/>
+                            <xs:element name="CPU_USED" type="xs:float"/>
+                            <xs:element name="MEMORY" type="xs:integer"/>
+                            <xs:element name="MEMORY_USED" type="xs:integer"/>
+                            <xs:element name="RUNNING_CPU" type="xs:float"/>
+                            <xs:element name="RUNNING_CPU_USED" type="xs:float"/>
+                            <xs:element name="RUNNING_MEMORY" type="xs:integer"/>
+                            <xs:element name="RUNNING_MEMORY_USED" type="xs:integer"/>
+                            <xs:element name="RUNNING_VMS" type="xs:integer"/>
+                            <xs:element name="RUNNING_VMS_USED" type="xs:integer"/>
+                            <xs:element name="SYSTEM_DISK_SIZE" type="xs:long"/>
+                            <xs:element name="SYSTEM_DISK_SIZE_USED" type="xs:long"/>
+                            <xs:element name="VMS" type="xs:integer"/>
+                            <xs:element name="VMS_USED" type="xs:integer"/>
                           </xs:sequence>
                         </xs:complexType>
                       </xs:element>

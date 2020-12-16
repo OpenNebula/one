@@ -1,21 +1,14 @@
-<div id="wrapper">
-      <div id="logo_sunstone" style="
-    background: url(<%=$views_config.logo%>) no-repeat center;
-    background-size: 355px;">
-      </div>
-
-      <form id="login_form" method="post">
-        <div class="border" id="login" style='height:169px;background:url("../images/panel_short.png") no-repeat scroll center transparent'>
-            <div class="content">
-                <input style="float:left;" type="submit" id="login_btn" value="" />
-                <input type="checkbox" id="check_remember" />
-                <label id="label_remember" for="check_remember">Keep me logged in</label>
-
-            </div>
-        <div id="error_box" class="hidden alert-box alert" style="display: none">
-          <span id="auth_error"></span>
-          <span id="one_error"></span>
-        </div>
-        </div>
-      </form>
+<div class="border columns small-6 small-centered small-offset-3 text-center" id="login">
+  <div class="content">
+  <div class="row buttons small-collapse">
+    <div class="columns small-6 text-left">
+      <% if $conf[:keep_me_logged] %>
+        <input type="checkbox" id="check_remember" />
+        <label id="label_remember" for="check_remember">Keep me logged in</label>
+      <% end %>
+    </div>
+    <div class="columns small-6 text-right">
+      <button type="submit" id="login_btn"></button>
+    </div>
+  </div>
 </div>

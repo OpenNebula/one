@@ -1,7 +1,7 @@
 # SConstruct for src/pool
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -28,6 +28,23 @@ if env['sqlite']=='yes':
 
 if env['mysql']=='yes':
     source_files.append('MySqlDB.cc')
+
+if env['postgresql']=='yes':
+    source_files.append('PostgreSqlDB.cc')
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+
+lib_name = 'nebula_sql_const'
+
+source_files = ['OneDB.cc']
+
+# Build library
+env.StaticLibrary(lib_name, source_files)
+
+lib_name = 'nebula_sql_const'
+
+source_files = ['OneDB.cc']
 
 # Build library
 env.StaticLibrary(lib_name, source_files)

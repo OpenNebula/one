@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -64,6 +64,10 @@ define(function(require) {
     "Image.snapshot_flatten": _commonActions.singleAction("snapshot_flatten"),
     "Image.snapshot_revert": _commonActions.singleAction("snapshot_revert"),
     "Image.snapshot_delete": _commonActions.singleAction("snapshot_delete"),
+    "Image.lockM": _commonActions.multipleAction('lock', false),
+    "Image.lockU": _commonActions.multipleAction('lock', false),
+    "Image.lockA": _commonActions.multipleAction('lock', false),
+    "Image.unlock": _commonActions.multipleAction('unlock', false),
     "Image.upload_marketplace_dialog" : {
       type: "custom",
       call: function(params) {

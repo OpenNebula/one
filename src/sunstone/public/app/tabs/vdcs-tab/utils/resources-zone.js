@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var HostsTable = require('tabs/hosts-tab/datatable');
   var VNetsTable = require('tabs/vnets-tab/datatable');
   var DatastoresTable = require('tabs/datastores-tab/datatable');
+  var Sunstone = require('sunstone');
   var Tips = require('utils/tips');
   var Utils = require('./common');
 
@@ -57,19 +58,95 @@ define(function(require) {
     var opts = {};
 
     $.each(["clusters", "hosts", "vnets", "datastores"], function(i,res_name){
+      var existElement = function(position, internalPosition, id){
+        var rtn = false;
+        if(position && 
+          internalPosition && 
+          id && 
+          window && 
+          window.VDCInfo && 
+          window.VDCInfo[position] &&  
+          window.VDCInfo[position][internalPosition]
+        ){
+          var info = window.VDCInfo[position][internalPosition];
+          var retn = {};
+          if(Array.isArray(info) && 
+            info.find(function(element){
+              return element[internalPosition+"_ID"] === id;
+            }))
+          {
+            retn = info.filter(function(el) { return el[internalPosition+"_ID"] !== id});
+            rtn = true;
+          }else if(info && info[internalPosition] && info[internalPosition+"_ID"] === id){
+            rtn = true;
+          }
+          window.VDCInfo[position][internalPosition] = retn;
+        }
+        return rtn;
+      };
+      var clickAction = function(e){
+        var element = $(this);
+        var action = "Vdc.del_";
+        var dataAction = {zone_id: that.zone_id};
+        var id = element.attr("row_id");
+        var pass = false;
+        var actionName = "datastore";
+        switch (res_name) {
+          case "clusters":
+            actionName = "cluster";
+            action = action+actionName;
+            dataAction.cluster_id = id;
+            pass = existElement(res_name.toUpperCase(),actionName.toUpperCase(),id);
+          break;
+          case "hosts":
+            actionName = "host";
+            action = action+actionName;
+            dataAction.host_id = id;
+            pass = existElement(res_name.toUpperCase(),actionName.toUpperCase(),id);
+          break;
+          case "vnets":
+            actionName = "vnet";
+            action = action+actionName;
+            dataAction.vnet_id = id;
+            pass = existElement(res_name.toUpperCase(),actionName.toUpperCase(),id);
+          break;
+          default:
+            action = action+actionName;
+            dataAction.ds_id = id;
+            pass = existElement(res_name.toUpperCase(),actionName.toUpperCase(),id);
+          break;
+        }
+        if(window && window.VDCId && window.VDCInfo && pass){
+          Sunstone.runAction(
+            action,
+            window.window.VDCId,
+            dataAction
+          );
+        }
+        element.parent().parent().siblings().find("table").find("tr").each(
+          function(i,row){
+            var tds = $(row).find("td");
+            if(tds && $(tds[0]).text() === id){
+              tds.removeClass("markrowchecked");
+              $(tds[0]).parent().click();
+            }
+          }
+        );
+        element.remove();
+      }
+
       if(that.resources != undefined){
         opts[res_name] = {
           info: true,
           select: true,
           selectOptions: {
-            read_only: true,
-            zone_id: that.zone_id
+            read_only: false,
+            zone_id: that.zone_id,
+            click: clickAction
           }
         };
 
-        if (!(that.resources[res_name].length == 1 &&
-              that.resources[res_name][0] == VDC_ALL_RESOURCES) ){
-
+        if (!(that.resources[res_name].length == 1 && that.resources[res_name][0] == VDC_ALL_RESOURCES)){
           opts[res_name].selectOptions.fixed_ids = that.resources[res_name];
         }
       } else {
@@ -78,7 +155,8 @@ define(function(require) {
           select: true,
           selectOptions: {
             multiple_choice: true,
-            zone_id: that.zone_id
+            zone_id: that.zone_id,
+            click: clickAction
           }
         };
       }

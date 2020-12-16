@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,8 +31,6 @@ void VdcEditGroup::request_execute(
     string vdc_name;
     string group_name;
 
-    Vdc* vdc;
-
     int rc;
 
     // -------------------------------------------------------------------------
@@ -58,38 +56,33 @@ void VdcEditGroup::request_execute(
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
+    ar.add_auth(AuthRequest::ADMIN, group_perms);       // ADMIN GROUP
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
-        ar.add_auth(AuthRequest::ADMIN, group_perms);       // ADMIN GROUP
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
-    vdc = static_cast<VdcPool*>(pool)->get(vdc_id, true);
+    auto vdc = pool->get<Vdc>(vdc_id);
 
-    if ( vdc  == 0 )
+    if ( vdc == nullptr )
     {
         att.resp_id = vdc_id;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_group(vdc, group_id, att.resp_msg);
+    rc = edit_group(vdc.get(), group_id, att.resp_msg);
 
     if (rc == 0)
     {
-        pool->update(vdc);
+        pool->update(vdc.get());
     }
-
-    vdc->unlock();
 
     if (rc != 0)
     {
@@ -137,8 +130,6 @@ void VdcEditResource::request_execute(
     string zone_name;
     string res_name;
 
-    Vdc* vdc;
-
     int rc;
     bool zone_exists = false;
     bool res_exists = false;
@@ -183,47 +174,42 @@ void VdcEditResource::request_execute(
         }
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
+
+    if (zone_exists)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::ADMIN, vdc_perms);         // ADMIN VDC
-
-        if (zone_exists)
-        {
-            ar.add_auth(AuthRequest::ADMIN, zone_perms);    // ADMIN ZONE
-        }
-
-        if (res_exists)
-        {
-            ar.add_auth(AuthRequest::ADMIN, res_perms);     // ADMIN RESOURCE
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        ar.add_auth(AuthRequest::ADMIN, zone_perms);    // ADMIN ZONE
     }
 
-    vdc = static_cast<VdcPool*>(pool)->get(vdc_id, true);
+    if (res_exists)
+    {
+        ar.add_auth(AuthRequest::ADMIN, res_perms);     // ADMIN RESOURCE
+    }
 
-    if ( vdc  == 0 )
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    auto vdc = pool->get<Vdc>(vdc_id);
+
+    if ( vdc == nullptr )
     {
         att.resp_id = vdc_id;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_resource(vdc, zone_id, res_id, att.resp_msg);
+    rc = edit_resource(vdc.get(), zone_id, res_id, att.resp_msg);
 
     if (rc == 0)
     {
-        pool->update(vdc);
+        pool->update(vdc.get());
     }
-
-    vdc->unlock();
 
     if (rc != 0)
     {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -33,9 +33,9 @@ void HostStatus::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Host * host = hpool->get(id,true);
+    auto host = hpool->get(id);
 
-    if ( host  == 0 )
+    if ( host == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -58,13 +58,10 @@ void HostStatus::request_execute(xmlrpc_c::paramList const& paramList,
             att.resp_msg = "Wrong status code";
             failure_response(INTERNAL, att);
 
-            host->unlock();
             return;
     }
 
-    hpool->update(host);
-
-    host->unlock();
+    hpool->update(host.get());
 
     success_response(id, att);
 }
@@ -79,7 +76,7 @@ void HostMonitoring::request_execute(
     int id  = xmlrpc_c::value_int(paramList.getInt(1));
     int rc;
 
-    ostringstream oss;
+    std::string oss;
 
     if ( basic_authorization(id, att) == false )
     {
@@ -95,7 +92,7 @@ void HostMonitoring::request_execute(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(oss, att);
 
     return;
 }

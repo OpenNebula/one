@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,16 +21,8 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include "NebulaLog.h"
-
 #include "SqlDB.h"
 #include "ObjectSQL.h"
-
-using namespace std;
 
 #ifdef SQLITE_DB
 
@@ -45,7 +37,7 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(const string& db_name);
+    SqliteDB(const std::string& db_name, int timeout);
 
     ~SqliteDB();
 
@@ -55,21 +47,13 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str);
+    char * escape_str(const std::string& str) const override;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str);
-
-    /**
-     * Returns true if the syntax INSERT VALUES (data), (data), (data)
-     * is supported
-     *
-     * @return true if supported
-     */
-    bool multiple_values_support();
+    void free_str(char * str) const override;
 
 protected:
     /**
@@ -80,34 +64,19 @@ protected:
      *    @param arg to pass to the callback function
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet);
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override;
 
 private:
     /**
      *  Fine-grain mutex for DB access
      */
-    pthread_mutex_t     mutex;
+    std::mutex _mutex;
 
     /**
      *  Pointer to the database.
      */
-    sqlite3 *           db;
+    sqlite3 * db;
 
-    /**
-     *  Function to lock the DB
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the DB
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
 };
 #else
 //CLass stub
@@ -115,21 +84,22 @@ class SqliteDB : public SqlDB
 {
 public:
 
-    SqliteDB(const string& db_name)
+    SqliteDB(const std::string& db_name, int timeout)
     {
-        throw runtime_error("Aborting oned, Sqlite support not compiled!");
-    };
+        throw std::runtime_error("Aborting oned, Sqlite support not compiled!");
+    }
 
-    ~SqliteDB(){};
+    ~SqliteDB() = default;
 
-    char * escape_str(const string& str){return 0;};
+    char * escape_str(const std::string& str) const override { return 0; }
 
-    void free_str(char * str){};
-
-    bool multiple_values_support(){return true;};
+    void free_str(char * str) const override {};
 
 protected:
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) override
+    {
+        return -1;
+    }
 };
 #endif
 

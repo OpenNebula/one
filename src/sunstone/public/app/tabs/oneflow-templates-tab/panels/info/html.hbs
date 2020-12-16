@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -28,6 +28,11 @@
           <td class="value_td" colspan="2">{{element.ID}}</td>
         </tr>
         {{{renameTrHTML}}}
+        <tr>
+          <td class="key_td">{{tr "Register time"}}</td>
+          <td class="value_td">{{prettyRegTime}}</td>
+          <td></td>
+        </tr>
         <tr>
           <td class="key_td">{{tr "Description"}}</td>
           <td class="value_td" colspan="2">{{element.TEMPLATE.BODY.description}}</td>

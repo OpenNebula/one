@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,10 +16,13 @@
 
 #include "VirtualMachineTemplate.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 std::map<std::string, std::set<std::string> > VirtualMachineTemplate::restricted;
+std::map<std::string, std::set<std::string> > VirtualMachineTemplate::encrypted;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -79,3 +82,102 @@ int VirtualMachineTemplate::replace_disk_image(int target_id, const string&
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& VirtualMachineTemplate::to_xml_short(string& xml) const
+{
+    ostringstream oss;
+    string labels;
+
+    string schd_rank, schd_ds_rank;
+    string schd_req, schd_ds_req;
+
+    string user_prio;
+
+    vector<const VectorAttribute*> attrs;
+
+    if (attributes.empty())
+    {
+        oss << "<USER_TEMPLATE/>";
+    }
+    else
+    {
+         oss << "<USER_TEMPLATE>";
+
+        /* ------------------------------------------------------------------ */
+        /* Attributes required by Sunstone                                    */
+        /*  - LABELS                                                          */
+        /* ------------------------------------------------------------------ */
+        if (get("LABELS", labels))
+        {
+            oss << "<LABELS>" << one_util::escape_xml(labels) << "</LABELS>";
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* Attributes required by Scheduler                                   */
+        /*  - SCHED_RANK (RANK - deprecated)                                  */
+        /*  - SCHED_DS_RANK                                                   */
+        /*  - SCHED_REQUIREMENTS                                              */
+        /*  - SCHED_DS_REQUIREMENTS                                           */
+        /*                                                                    */
+        /*  - SCHED_ACTION                                                    */
+        /*  - PUBLIC_CLOUD                                                    */
+        /* ------------------------------------------------------------------ */
+        if (get("SCHED_RANK", schd_rank))
+        {
+            oss << "<SCHED_RANK>" << one_util::escape_xml(schd_rank)
+                << "</SCHED_RANK>";
+        }
+
+        if (get("SCHED_DS_RANK", schd_ds_rank))
+        {
+            oss << "<SCHED_DS_RANK>" << one_util::escape_xml(schd_ds_rank)
+                << "</SCHED_DS_RANK>";
+        }
+
+        if (get("SCHED_REQUIREMENTS", schd_req))
+        {
+            oss << "<SCHED_REQUIREMENTS>" << one_util::escape_xml(schd_req)
+                << "</SCHED_REQUIREMENTS>";
+        }
+
+        if (get("SCHED_DS_REQUIREMENTS", schd_ds_req))
+        {
+            oss << "<SCHED_DS_REQUIREMENTS>" << one_util::escape_xml(schd_ds_req)
+                << "</SCHED_DS_REQUIREMENTS>";
+        }
+
+        if (get("USER_PRIORITY", user_prio))
+        {
+            oss << "<USER_PRIORITY>" << one_util::escape_xml(user_prio)
+                << "</USER_PRIORITY>";
+        }
+
+        if ( get("PUBLIC_CLOUD", attrs) > 0 )
+        {
+            for (auto vattr : attrs)
+            {
+                vattr->to_xml(oss);
+            }
+        }
+
+        attrs.clear();
+
+        if ( get("SCHED_ACTION", attrs) > 0 )
+        {
+            for (auto vattr : attrs)
+            {
+                vattr->to_xml(oss);
+            }
+        }
+
+        oss << "</USER_TEMPLATE>";
+    }
+
+    xml = oss.str();
+
+    return xml;
+}
+

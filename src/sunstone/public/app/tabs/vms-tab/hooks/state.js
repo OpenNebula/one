@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,20 +41,55 @@ define(function(require) {
     StateActions.disableAllStateActions();
     StateActions.enableStateActions(element.STATE, element.LCM_STATE);
 
-    // Enable / disable vnc button
-    if (OpenNebulaVM.isVNCSupported(element)) {
+    var isVNCSupported = Boolean(OpenNebulaVM.isVNCSupported(element)),
+      isSPICESupported = Boolean(OpenNebulaVM.isSPICESupported(element)),
+      isWFileSupported = Boolean(OpenNebulaVM.isWFileSupported(element)),
+      isRDPSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'rdp')),
+      isSSHSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'ssh'));
+
+    // All remote buttons are disabled
+    var allDisabled = (
+      !isVNCSupported &&
+      !isSPICESupported &&
+      !isWFileSupported &&
+      !isRDPSupported &&
+      !isSSHSupported
+    );
+    
+    $("#vmsremote_buttons").toggle(!allDisabled);
+
+    if (isVNCSupported) {
       $(".vnc-sunstone-info").show();
-    } else {
+      $(".spice-sunstone-info").hide();
+
+    }
+    else if (isSPICESupported) {
+      $(".spice-sunstone-info").show();
+      $(".vnc-sunstone-info").hide();
+
+    }
+    else {
+      $(".spice-sunstone-info").hide();
       $(".vnc-sunstone-info").hide();
     }
+    
+    // Show / hide virt-viewer button
+    $(".vv-sunstone-info").toggle(!!isWFileSupported);
 
-    if (OpenNebulaVM.isSPICESupported(element)) {
-      $(".spice-sunstone-info").show();
-    } else {
-      $(".spice-sunstone-info").hide();
-    }
+    // Show / hide rdp button
+    $(".rdp-sunstone-info").toggle(!!isRDPSupported);
 
-    if (config["federation_mode"] == "SLAVE") {
+    // Show / hide ssh button
+    $(".ssh-sunstone-info").toggle(!!isSSHSupported);
+
+    if(config && 
+      config["system_config"] && 
+      config["system_config"]["allow_vnc_federation"] && 
+      config["system_config"]["allow_vnc_federation"] === 'no' &&
+      config["id_own_federation"] && 
+      config["zone_id"] && 
+      config["id_own_federation"] !== config["zone_id"])
+    {
       $(".vnc-sunstone-info").hide();
     }
   }

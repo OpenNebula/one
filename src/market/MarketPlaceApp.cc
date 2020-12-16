@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -18,20 +18,10 @@
 #include "MarketPlaceApp.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "SSLUtil.h"
+#include "OneDB.h"
 
-/* ************************************************************************ */
-/* MarketPlaceApp:: Database Definition                                     */
-/* ************************************************************************ */
-
-const char * MarketPlaceApp::table = "marketplaceapp_pool";
-
-const char * MarketPlaceApp::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * MarketPlaceApp::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS marketplaceapp_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER, UNIQUE(name,uid))";
+using namespace std;
 
 /* ************************************************************************ */
 /* MarketPlaceApp:: Constructor / Destructor                                */
@@ -43,8 +33,8 @@ MarketPlaceApp::MarketPlaceApp(
     const std::string&       uname,
     const std::string&       gname,
     int                      umask,
-    MarketPlaceAppTemplate * app_template):
-        PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, table),
+    unique_ptr<MarketPlaceAppTemplate> app_template):
+        PoolObjectSQL(-1, MARKETPLACEAPP, "", uid, gid, uname, gname, one_db::mp_app_table),
         source(""),
         md5(""),
         size_mb(0),
@@ -57,22 +47,17 @@ MarketPlaceApp::MarketPlaceApp(
         type(IMAGE),
         zone_id(-1)
 {
-    if (app_template != 0)
+    if (app_template)
     {
-        obj_template = app_template;
+        obj_template = move(app_template);
     }
     else
     {
-        obj_template = new MarketPlaceAppTemplate;
+        obj_template = make_unique<MarketPlaceAppTemplate>();
     }
 
     set_umask(umask);
-};
-
-MarketPlaceApp::~MarketPlaceApp()
-{
-    delete obj_template;
-};
+}
 
 /* ************************************************************************ */
 /* MartketPlaceApp:: Database Access Functions                              */
@@ -80,7 +65,7 @@ MarketPlaceApp::~MarketPlaceApp()
 
 int MarketPlaceApp::parse_template(string& error_str)
 {
-	//MarketPlaceAppPool::allocate checks NAME & ZONE_ID
+    //MarketPlaceAppPool::allocate checks NAME & ZONE_ID
     erase_template_attribute("NAME", name);
     remove_template_attribute("ZONE_ID");
 
@@ -93,7 +78,18 @@ int MarketPlaceApp::parse_template(string& error_str)
 
     regtime = time(NULL);
 
-    type = IMAGE;
+    std::string str_type;
+
+    get_template_attribute("TYPE", str_type);
+
+    if (!str_type.empty())
+    {
+        type = str_to_type(str_type);
+    }
+    else
+    {
+        type = IMAGE;
+    }
 
     //Known attributes
     //ORIGIN_ID
@@ -118,7 +114,14 @@ int MarketPlaceApp::parse_template(string& error_str)
         version = "0.0";
     }
 
-    state = LOCKED;
+    if ( type == Type::VMTEMPLATE || type == Type::SERVICE_TEMPLATE )
+    {
+        state = READY;
+    }
+    else
+    {
+        state = LOCKED;
+    }
 
     return 0;
 
@@ -147,14 +150,14 @@ int MarketPlaceApp::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -168,28 +171,34 @@ int MarketPlaceApp::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::mp_app_table << " SET "
+            << "name = '"   << sql_name << "', "
+            << "body = '"   << sql_xml  << "', "
+            << "uid = "     << uid      << ", "
+            << "gid = "     << gid      << ", "
+            << "owner_u = " << owner_u  << ", "
+            << "group_u = " << group_u  << ", "
+            << "other_u = " << other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::mp_app_table
+            << " (" <<  one_db::mp_app_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
-    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
+
+    rc = db->exec_wr(oss);
 
     return rc;
 
@@ -217,6 +226,16 @@ error_common:
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
 
+int MarketPlaceApp::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::mp_app_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
+
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
 /* *************************************************************************** */
 /* MartketPlaceApp :: Template Functions                                          */
 /* *************************************************************************** */
@@ -225,6 +244,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 	std::ostringstream oss;
 	std::string        template_xml;
 	std::string        perm_str;
+    string lock_str;
 
     oss << "<MARKETPLACEAPP>"
 			"<ID>"             << oid           << "</ID>"  <<
@@ -232,6 +252,7 @@ std::string& MarketPlaceApp::to_xml(std::string& xml) const
 			"<GID>"            << gid           << "</GID>" <<
 			"<UNAME>"          << uname         << "</UNAME>" <<
 			"<GNAME>"          << gname         << "</GNAME>" <<
+            lock_db_to_xml(lock_str) <<
 			"<REGTIME>"        << regtime       << "</REGTIME>" <<
 			"<NAME>"           << name          << "</NAME>" <<
             "<ZONE_ID>"   << one_util::escape_xml(zone_id)  << "</ZONE_ID>" <<
@@ -296,6 +317,9 @@ int MarketPlaceApp::from_xml(const std::string &xml_str)
 
 	// ----- Permissions -----
     rc += perms_from_xml();
+
+    // ------ Lock -------
+    rc += lock_db_from_xml();
 
 	// ----- TEMPLATE -----
     ObjectXML::get_nodes("/MARKETPLACEAPP/TEMPLATE", content);
@@ -374,7 +398,7 @@ MarketPlaceApp::Type MarketPlaceApp::str_to_type(string& str_type)
 
 int MarketPlaceApp::enable(bool enable, string& error_str)
 {
-    switch(state)
+    switch (state)
     {
         case INIT:
         case LOCKED:
@@ -405,7 +429,7 @@ void MarketPlaceApp::to_template(Template * tmpl) const
     tmpl->replace("FROM_APP_NAME", get_name());
     tmpl->replace("PATH", get_source());
     tmpl->replace("FORMAT", get_format());
-    tmpl->replace("MD5", get_md5());
+    tmpl->replace("FROM_APP_MD5", get_md5());
 }
 
 /* --------------------------------------------------------------------------- */
@@ -413,21 +437,15 @@ void MarketPlaceApp::to_template(Template * tmpl) const
 
 int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 {
-    std::string * info = one_util::base64_decode(info64);
+    std::string info;
 
-    if (info == 0)
-    {
-        err = "Error decoding driver message";
-        return -1;
-    }
+    ssl_util::base64_decode(info64, info);
 
     char * error_msg;
 
     obj_template->clear();
 
-    int rc = obj_template->parse(*info, &error_msg);
-
-    delete info;
+    int rc = obj_template->parse(info, &error_msg);
 
     if ( rc != 0 )
     {
@@ -439,7 +457,19 @@ int MarketPlaceApp::from_template64(const std::string &info64, std::string& err)
 
     state = READY;
 
-    type      = IMAGE;
+    std::string str_type;
+
+    get_template_attribute("TYPE", str_type);
+
+    if (!str_type.empty())
+    {
+        type = str_to_type(str_type);
+    }
+    else
+    {
+        type = IMAGE;
+    }
+
     origin_id = -1;
 
     remove_template_attribute("TYPE");

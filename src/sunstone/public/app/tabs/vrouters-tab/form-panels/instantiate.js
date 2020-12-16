@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -113,7 +113,7 @@ define(function(require) {
           UserInputs.vmTemplateInsert(
               inputs_div,
               template_json,
-              {text_header: '<i class="fa fa-gears"></i> '+Locale.tr("Custom Attributes")});
+              {text_header: '<i class="fas fa-gears"></i> '+Locale.tr("Custom Attributes")});
         },
         error: Notifier.onError
       });

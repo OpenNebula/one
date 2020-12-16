@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -36,25 +36,6 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
 
     def self.conf_file
         "onevrouter.yaml"
-    end
-
-    def show_resource(id, options)
-        resource = retrieve_resource(id)
-
-        if !options[:extended].nil?
-            rc = resource.info(options[:extended])
-        else
-            rc = resource.info
-        end
-
-        return -1, rc.message if OpenNebula.is_error?(rc)
-
-        if options[:xml]
-            return 0, resource.to_xml(true)
-        else
-            format_resource(resource, options)
-            return 0
-        end
     end
 
     def format_pool(options)
@@ -109,6 +90,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", obj.name]
         puts str % ["USER", obj['UNAME']]
         puts str % ["GROUP", obj['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(obj['LOCK/LOCKED'])]
         puts
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
@@ -202,7 +184,7 @@ class OneVirtualRouterHelper < OpenNebulaHelper::OneHelper
                 end
 
 
-                column :IP, "",:left, :donottruncate, :size=>15 do |d|
+                column :IP, "",:left, :adjust, :size=>15 do |d|
                     d["IP"]
                 end
             end.show(vm_nics,{})

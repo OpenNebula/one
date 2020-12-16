@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,8 @@
 
 #include "RequestManagerSystem.h"
 #include "Nebula.h"
+#include "LogDB.h"
+#include "SSLUtil.h"
 
 using namespace std;
 
@@ -63,7 +65,7 @@ void SystemSql::request_execute(xmlrpc_c::paramList const& paramList,
 
     SqlDB * db;
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = -1;
 
@@ -124,15 +126,13 @@ int SystemSqlQuery::select_cb::callback(void *nil, int num, char **values,
         if (values[i] != 0 && values[i][0] == '<')
         {
             std::string val(values[i]);
-            std::string * val64 = one_util::base64_encode(val);
+            std::string val64;
 
-            if ( val64 != 0 )
+            if (ssl_util::base64_encode(val, val64) == 0)
             {
                 oss << "<" << names[i] << "64>"
-                    << "<![CDATA[" << *val64 << "]]>"
+                    << "<![CDATA[" << val64 << "]]>"
                     << "</"<< names[i] << "64>";
-
-                delete val64;
             }
         }
         else
@@ -164,7 +164,7 @@ void SystemSqlQuery::request_execute(xmlrpc_c::paramList const& paramList,
 
     std::string result;
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = -1;
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,8 +20,6 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +27,9 @@ using namespace std;
 class RequestManagerGroup: public Request
 {
 protected:
-    RequestManagerGroup(const string& method_name,
-                        const string& help,
-                        const string& params)
+    RequestManagerGroup(const std::string& method_name,
+                        const std::string& help,
+                        const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -40,7 +38,7 @@ protected:
         auth_object = PoolObjectSQL::GROUP;
     };
 
-    virtual ~RequestManagerGroup(){};
+    ~RequestManagerGroup(){};
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) = 0;
@@ -63,7 +61,7 @@ public:
     ~GroupSetQuota(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -73,12 +71,12 @@ class GroupEditAdmin : public Request
 {
 public:
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
 protected:
-    GroupEditAdmin( const string& method_name,
-                    const string& help,
-                    const string& params)
+    GroupEditAdmin( const std::string& method_name,
+                    const std::string& help,
+                    const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -91,7 +89,7 @@ protected:
 
     UserPool*   upool;
 
-    virtual int edit_admin(Group* group, int user_id, string& error_msg) = 0;
+    virtual int edit_admin(Group* group, int user_id, std::string& error_msg) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -107,7 +105,7 @@ public:
 
     ~GroupAddAdmin(){};
 
-    int edit_admin(Group* group, int user_id, string& error_msg);
+    int edit_admin(Group* group, int user_id, std::string& error_msg) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -123,7 +121,7 @@ public:
 
     ~GroupDelAdmin(){};
 
-    int edit_admin(Group* group, int user_id, string& error_msg);
+    int edit_admin(Group* group, int user_id, std::string& error_msg) override;
 };
 
 /* -------------------------------------------------------------------------- */

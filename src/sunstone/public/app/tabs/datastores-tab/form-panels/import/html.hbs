@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,30 +15,14 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div id="import_datastores_form_wrapper">
-  <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
-  </form>
-  <form data-abide novalidate class="vcenter_credentials" action="">
-    <div class="row">
-      <div class="large-3 medium-6 columns">
-        <label for="vcenter_host">{{tr "Hostname"}}</label>
-        <input type="text" name="vcenter_host" id="vcenter_host" required />
-      </div>
-      <div class="large-3 medium-6 columns">
-        <label for="vcenter_user">{{tr "User"}}</label>
-        <input type="text" name="vcenter_user" id="vcenter_user" required />
-      </div>
-      <div class="large-3 medium-6 columns">
-        <label for="vcenter_password">{{tr "Password"}}</label>
-        <input type="password" name="vcenter_password" id="vcenter_password" required />
-      </div>
-      <div class="large-3 medium-6 columns">
-        <label>&nbsp;</label>
-        <button type="submit" class="button radius">
-          {{tr "Get Datastores"}}
-        </button>
-      </div>
-    </div>
-  </form>
+  <div class="row collapse">
+    {{{vCenterHostsHTML}}}
+  </div>
+  <div style="float:left">
+    <button class="button radius" id="get-vcenter-ds"> {{tr "Get Datastores"}} </button>
+    <button class="button right success" id="import_vcenter_datastores" disabled>{{tr "Import"}}</button>
+  </div>
+  <br><br><br>
   <div class="row collapse">
     {{{vCenterDatastoresHTML}}}
   </div>

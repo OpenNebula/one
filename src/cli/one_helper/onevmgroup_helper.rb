@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -60,15 +60,19 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
             end
 
             column :ROLES, "Roles in the VM Group", :left, :size=>36 do |d|
-                roles = [d["ROLES"]["ROLE"]].flatten
-                roles_names = ""
+                begin
+                    roles = [d["ROLES"]["ROLE"]].flatten
+                    roles_names = ""
 
-                if !roles.nil?
-                    rnames = roles.collect { |i| i["NAME"] }
-                    roles_names = rnames.join(", ") if !rnames.empty?
+                    if !roles.nil?
+                        rnames = roles.collect { |i| i["NAME"] }
+                        roles_names = rnames.join(", ") if !rnames.empty?
+                    end
+
+                    roles_names
+                rescue
+                    "-"
                 end
-
-                roles_names
             end
 
             default :ID, :USER, :GROUP, :NAME, :VMS, :ROLES
@@ -102,6 +106,7 @@ class OneVMGroupHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME", vmgroup.name]
         puts str % ["USER", vmgroup['UNAME']]
         puts str % ["GROUP", vmgroup['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vmgroup['LOCK/LOCKED'])]
 
         CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
 

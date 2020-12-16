@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -22,9 +22,12 @@
       </h5>
       <h5 class="header-title only-sunstone-info" hidden>
         <span class="header-resource">
-          {{{infoHeader}}} 
-          <small class="resource-id"></small> 
-          <small class="resource-info-header"></small> 
+          {{#if lockable }}
+          <small class="resource-lock-header-small"></small>
+          {{/if}}
+          {{{infoHeader}}}
+          <small class="resource-id"></small>
+          <small class="resource-info-header"></small>
           <small class="resource-info-header-small"></small>
         </span>
       </h5>
@@ -37,9 +40,12 @@
     </div>
     {{#if buttons}}
     <div class="actions_row">
-      <div class="medium-12 large-9 columns action_blocks"></div>
-      <div class="medium-4 large-3 columns">
-        <div class="only-sunstone-list">
+      <div class="medium-12 large-10 columns action_blocks"></div>
+      <div class="medium-4 large-2 columns search_division">
+        <div class="only-sunstone-list" style="display:flex">
+          {{#if dataTable.typeFilter }}
+            {{{dataTable.typeFilter}}}
+          {{/if}}
           {{#if dataTable.searchInputHTML}}
             {{{dataTable.searchInputHTML}}}
           {{/if}}
@@ -80,7 +86,7 @@
     <div class="loadingForm">
       <br>
       <br>
-      <span class="fa-stack fa-5x"> <i class="fa fa-cloud fa-stack-2x"/><i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"/>
+      <span class="fa-stack fa-5x"> <i class="fas fa-cloud fa-stack-2x"/><i class="fas fa-spinner fa-spin fa-stack-1x fa-inverse"/>
       </span>
       <br>
       <br></div>

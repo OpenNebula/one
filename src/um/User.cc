@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,18 +14,14 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-
 #include "User.h"
 #include "Nebula.h"
 #include "Group.h"
 #include "NebulaUtil.h"
+
+#include <sstream>
+
+using namespace std;
 
 const string User::INVALID_NAME_CHARS = " :\t\n\v\f\r";
 const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
@@ -33,19 +29,6 @@ const string User::INVALID_PASS_CHARS = " \t\n\v\f\r";
 /* ************************************************************************** */
 /* User :: Database Access Functions                                          */
 /* ************************************************************************** */
-
-const char * User::table = "user_pool";
-
-const char * User::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * User::db_bootstrap = "CREATE TABLE IF NOT EXISTS user_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 int User::select(SqlDB * db)
 {
@@ -58,7 +41,7 @@ int User::select(SqlDB * db)
         return rc;
     }
 
-    return quota.select(oid, db);
+    return quota.select(oid, db->get_local_db());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -74,7 +57,7 @@ int User::select(SqlDB * db, const string& name, int uid)
         return rc;
     }
 
-    return quota.select(oid, db);
+    return quota.select(oid, db->get_local_db());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -88,7 +71,7 @@ int User::drop(SqlDB * db)
 
     if ( rc == 0 )
     {
-        rc += quota.drop(db);
+        rc += quota.drop(db->get_local_db());
     }
 
     return rc;
@@ -105,7 +88,7 @@ int User::insert(SqlDB *db, string& error_str)
 
     if (rc == 0)
     {
-        rc = quota.insert(oid, db, error_str);
+        rc = quota.insert(oid, db->get_local_db(), error_str);
     }
 
     return rc;
@@ -129,14 +112,14 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the User
 
-    sql_username = db->escape_str(name.c_str());
+    sql_username = db->escape_str(name);
 
     if ( sql_username == 0 )
     {
         goto error_username;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -149,25 +132,31 @@ int User::insert_replace(SqlDB *db, bool replace, string& error_str)
     }
 
     // Construct the SQL statement to Insert or Replace
-    if(replace)
+    if (replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::user_table << " SET "
+            << "name = '"    <<   sql_username    << "', "
+            << "body = '"    <<   sql_xml         << "', "
+            << "uid = "      <<   uid             << ", "
+            << "gid = "      <<   gid             << ", "
+            << "owner_u = "  <<   owner_u         << ", "
+            << "group_u = "  <<   group_u         << ", "
+            << "other_u = "  <<   other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::user_table
+            << " (" << one_db::user_db_names << ") VALUES ("
+            <<          oid             << ","
+            << "'" <<   sql_username    << "',"
+            << "'" <<   sql_xml         << "',"
+            <<          uid             << ","
+            <<          gid             << ","
+            <<          owner_u         << ","
+            <<          group_u         << ","
+            <<          other_u         << ")";
     }
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        <<          oid             << ","
-        << "'" <<   sql_username    << "',"
-        << "'" <<   sql_xml         << "',"
-        <<          uid             << ","
-        <<          gid             << ","
-        <<          owner_u         << ","
-        <<          group_u         << ","
-        <<          other_u         << ")";
-
 
     rc = db->exec_wr(oss);
 
@@ -262,7 +251,11 @@ string& User::to_xml_extended(string& xml, bool extended) const
 int User::from_xml(const string& xml)
 {
     int rc = 0;
+
     int int_enabled;
+
+    string error;
+
     vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
@@ -304,6 +297,8 @@ int User::from_xml(const string& xml)
     ObjectXML::free_nodes(content);
     content.clear();
 
+    rc += vm_actions.set_auth_ops(*obj_template, error);
+
     rc += groups.from_xml(this, "/USER/");
 
     if (rc != 0)
@@ -322,7 +317,7 @@ int User::split_secret(const string secret, string& user, string& pass)
     size_t pos;
     int    rc = -1;
 
-    pos=secret.find(":");
+    pos = secret.find(":");
 
     if (pos != string::npos)
     {
@@ -346,14 +341,14 @@ int User::set_password(const string& passwd, string& error_str)
     {
         if (auth_driver == UserPool::CORE_AUTH)
         {
-            password = one_util::sha1_digest(passwd);
+            password = one_util::sha256_digest(passwd);
         }
         else
         {
             password = passwd;
         }
 
-        session.reset();
+        session->reset();
 
         login_tokens.reset();
     }
@@ -402,7 +397,7 @@ int User::get_umask() const
 
     get_template_attribute("UMASK", umask_st);
 
-    if(umask_st.empty())
+    if (umask_st.empty())
     {
         Nebula::instance().get_configuration_attribute("DEFAULT_UMASK",umask_st);
     }
@@ -413,6 +408,9 @@ int User::get_umask() const
 
     return (umask & 0777);
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int User::get_default_umask()
 {
@@ -432,3 +430,8 @@ int User::get_default_umask()
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+int User::post_update_template(string& error)
+{
+    return vm_actions.set_auth_ops(*obj_template, error);
+}

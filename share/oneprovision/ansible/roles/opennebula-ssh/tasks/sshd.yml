@@ -1,0 +1,15 @@
+---
+
+- name: Configure SSH server PasswordAuthentication
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PasswordAuthentication"
+    line: "PasswordAuthentication {{ opennebula_ssh_sshd_passwordauthentication }}"
+  notify: restart sshd
+
+- name: Configure SSH server PermitRootLogin
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^PermitRootLogin"
+    line: "PermitRootLogin {{ opennebula_ssh_sshd_permitrootlogin }}"
+  notify: restart sshd

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,10 +19,7 @@
 
 #include <map>
 #include <string>
-#include <sstream>
 #include "VirtualMachineManagerDriver.h"
-
-using namespace std;
 
 /**
  *  Xen Driver class implements a VM Manager Driver to interface with the Xen
@@ -32,15 +29,12 @@ class XenDriver : public VirtualMachineManagerDriver
 {
 public:
 
-    XenDriver(
-        int userid,
-        const map<string,string> &attrs,
-        bool sudo,
-        VirtualMachinePool *    pool):
-            VirtualMachineManagerDriver(userid, attrs,sudo,pool)
-    {};
+    XenDriver(const std::string& mad_location,
+              const std::map<std::string, std::string> &attrs):
+        VirtualMachineManagerDriver(mad_location, attrs)
+    {}
 
-    ~XenDriver(){};
+    ~XenDriver() = default;
 
 private:
     /**
@@ -51,7 +45,7 @@ private:
      */
     int deployment_description(
         const VirtualMachine *  vm,
-        const string&           file_name) const;
+        const std::string&      file_name) const override;
 };
 
 #endif /*XEN_DRIVER_H_*/

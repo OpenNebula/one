@@ -1,1 +1,107 @@
-../common/dummy.sh
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+# Define libraries location
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+else
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+end
+
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+
+require 'vnmmad'
+require 'nokogiri'
+require 'opennebula'
+require 'vcenter_driver'
+require 'nsx_driver'
+
+def modified?(template)
+    template_xml = Nokogiri::XML(template)
+    action = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
+    action.empty? ? false : true
+end
+
+template = Base64.decode64(STDIN.read)
+deploy_id = ARGV[0]
+template_xml = Nokogiri::XML(template)
+
+# OpenNebula host
+host_name = template_xml
+            .xpath('//HISTORY_RECORDS/HISTORY[last()]/HOSTNAME').text
+one_host = VCenterDriver::VIHelper
+           .find_by_name(OpenNebula::HostPool, host_name)
+rc = one_host.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
+# Exit if there is no NSX_PASSWORD
+nsx_password = one_host['TEMPLATE/NSX_PASSWORD']
+exit 0 if nsx_password.nil?
+
+# OpenNebula VM
+vmid = template_xml.xpath('//VM/ID')
+one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
+
+rc = one_vm.info
+if OpenNebula.is_error?(rc)
+    err_msg = rc.message
+    raise err_msg
+end
+
+# Get all modified or all NSX Nics
+is_modified = modified?(template)
+nsx_nics = NSXDriver::LogicalSwitch.nsx_nics(template_xml,
+                                             is_modified)
+vm_state = one_vm.state_str
+unless nsx_nics.empty? || (vm_state == 'POWEROFF')
+    begin
+        # NSX Objects
+        nsx_client = NSXDriver::NSXClient.new_from_id(one_host['ID'])
+        dfw = NSXDriver::DistributedFirewall.new_child(nsx_client)
+        dfw.create_rules(deploy_id, template, is_modified)
+    rescue StandardError => e
+        dfw.clear_rules(template, is_modified)
+        OpenNebula.log_error('Error creating Security Group rules ' \
+            "due to \"#{e.message}\"")
+        if VCenterDriver::CONFIG[:debug_information]
+            OpenNebula.error_message(e.backtrace)
+        end
+        exit 1
+    end
+end
+
+exit 0

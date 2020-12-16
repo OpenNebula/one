@@ -1,1 +1,91 @@
-../common/delete
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# DELETE <host:remote_system_ds/disk.i|host:remote_system_ds/> vmid dsid
+#   - host is the target host to deploy the VM
+#   - remote_system_ds is the path for the system datastore in the host
+#   - vmid is the id of the VM
+#   - dsid is the target datastore (0 is the system datastore)
+
+DST=$1
+
+VMID=$2
+DSID=$3
+
+if [ -z "${ONE_LOCATION}" ]; then
+    TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    SSH_RC=/var/lib/one/remotes/etc/tm/ssh/sshrc
+    SSH_UTILS=/var/lib/one/remotes/tm/ssh/ssh_utils.sh
+else
+    TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    SSH_RC=$ONE_LOCATION/var/remotes/etc/tm/ssh/sshrc
+    SSH_UTILS=$ONE_LOCATION/var/remotes/tm/ssh/ssh_utils.sh
+fi
+
+. $TMCOMMON
+. $SSH_RC
+. $SSH_UTILS
+
+#-------------------------------------------------------------------------------
+# Delete recovery snapshots from replica_host, skip it for ACTION=14 (RECREATE)
+#-------------------------------------------------------------------------------
+REPLICA_HOST=$(get_replica_host $DSID)
+if [ -n "$REPLICA_HOST" ]; then
+    XPATH="$(dirname $0)/../../datastore/xpath.rb"
+    HIST='/VM/HISTORY_RECORDS/HISTORY[last()]/ACTION'
+    ACTION="$(awk 'gsub(/[\0]/, x)' <(onevm show $VMID -x|$XPATH $HIST))"
+
+    if [ $ACTION != "14" ]; then
+        ssh_exec_and_log "$REPLICA_HOST" \
+            "rm -rf ${REPLICA_RECOVERY_SNAPS_DIR}/$VMID" \
+            "Error deleting ${REPLICA_RECOVERY_SNAPS_DIR}/$VMID"
+    fi
+fi
+
+#-------------------------------------------------------------------------------
+# Return if deleting a disk, we will delete them when removing the
+# remote_system_ds directory for the VM (remotely)
+#-------------------------------------------------------------------------------
+DST_PATH=`arg_path $DST`
+DST_HOST=`arg_host $DST`
+
+log "Deleting $DST_PATH"
+
+delete_file=$(cat <<EOF
+[ -e "$DST_PATH" ] || exit 0
+
+times=10
+function="rm -rf $DST_PATH"
+
+count=1
+
+ret=\$(\$function)
+error=\$?
+
+while [ \$count -lt \$times -a "\$error" != "0" ]; do
+    sleep 1
+    count=\$(( \$count + 1 ))
+    ret=\$(\$function)
+    error=\$?
+done
+
+[ "x\$error" = "x0" ]
+EOF
+)
+
+ssh_exec_and_log $DST_HOST "$delete_file" "Error deleting $DST_PATH"

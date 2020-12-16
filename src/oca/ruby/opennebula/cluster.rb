@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -64,8 +64,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given Cluster.
-        def info()
-            super(CLUSTER_METHODS[:info], 'CLUSTER')
+        def info(decrypt = false)
+            super(CLUSTER_METHODS[:info], 'CLUSTER', decrypt)
         end
 
         alias_method :info!, :info

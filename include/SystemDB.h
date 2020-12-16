@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,10 +17,10 @@
 #ifndef SYSTEM_DB_H_
 #define SYSTEM_DB_H_
 
-#include "SqlDB.h"
 #include "Callbackable.h"
 
 class Nebula;
+class SqlDB;
 
 /**
  *  This class represents the OpenNebula core system data tables:
@@ -37,7 +37,7 @@ public:
      *    @param attr_xml the attribute in a XML document
      *    @return 0 on success
      */
-    int select_sys_attribute(const string& attr_name, string& attr_zml);
+    int select_sys_attribute(const std::string& attr_name, std::string& attr_zml);
 
     /**
      *  Writes a system attribute in the database.
@@ -45,9 +45,9 @@ public:
      *    @return 0 on success
      */
     int insert_sys_attribute(
-        const string& attr_name,
-        const string& xml_attr,
-        string&       error_str)
+        const std::string& attr_name,
+        const std::string& xml_attr,
+        std::string&       error_str)
     {
         return insert_replace(attr_name, xml_attr, false, error_str);
     };
@@ -58,9 +58,9 @@ public:
      *    @return 0 on success
      */
     int update_sys_attribute(
-        const string& attr_name,
-        const string& xml_attr,
-        string&       error_str)
+        const std::string& attr_name,
+        const std::string& xml_attr,
+        std::string&       error_str)
     {
         return insert_replace(attr_name, xml_attr, true, error_str);
     };
@@ -110,10 +110,10 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(const string& attr_name,
-                       const string& xml_attr,
-                       bool          replace,
-                       string&       error_str);
+    int insert_replace(const std::string& attr_name,
+                       const std::string& xml_attr,
+                       bool               replace,
+                       std::string&       error_str);
     /**
      *  Bootstraps the database control tables for shared tables
      *
@@ -165,9 +165,9 @@ private:
      *  @param version target DB version
      *  @return 0 success, -1 upgrade needed, -2 bootstrap needed
      */
-    int check_db_version(const string& table,
-                         const string& version,
-                         string& error);
+    int check_db_version(const std::string& table,
+                         const std::string& version,
+                         std::string& error);
 };
 
 #endif //SYSTEM_DB_H

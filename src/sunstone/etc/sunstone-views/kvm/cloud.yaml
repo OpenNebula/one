@@ -1,0 +1,208 @@
+provision_logo: images/opennebula-5.0.png
+link_logo:
+text_link_logo:
+confirm_vms: false
+enabled_tabs:
+    - provision-tab
+    - settings-tab
+features:
+    # True to show showback monthly reports, and VM cost
+    showback: true
+
+    # Allows to change the security groups for each network interface
+    # on the VM creation dialog
+    secgroups: true
+
+    # True to hide the CPU setting in the VM creation dialog
+    instantiate_hide_cpu: false
+
+    # False to not scale the CPU. Number to scale from VCPU
+    instantiate_cpu_factor: false
+
+    # True to show the option to make an instance persistent
+    instantiate_persistent: true
+
+    # True to allow to create machines to cloud users
+    cloud_vm_create: true
+
+    # True to show the monitoring info (VM & VRouters)
+    show_monitoring_info: true
+
+    # True to show the attributes info (VM & VRouters)
+    show_attributes_info: true
+
+    # True to show the vCenter info (VM & VRouters)
+    show_vcenter_info: true
+
+    # True to show advanced options
+    show_attach_disk_advanced: true
+
+    show_attach_nic_advanced: true
+    
+    # True to show the network configuration to instantiate Service template
+    show_vnet_instantiate_flow: true
+tabs:
+    provision-tab:
+        panel_tabs:
+            vm_info_tab: false
+            vm_capacity_tab: true
+            vm_storage_tab: true
+            vm_network_tab: true
+            vm_snapshot_tab: true
+            vm_placement_tab: false
+            vm_actions_tab: true
+            vm_conf_tab: false
+            vm_template_tab: false
+            vm_log_tab: false
+        provision_tabs:
+            flows: true
+            templates: true
+        actions: &provisionactions
+            # In the cloud view, delete is the equivalent
+            # of 'onetemplate chmod --recursive'
+            Template.chmod: false
+
+            # In the cloud view, delete is the equivalent
+            # of 'onetemplate delete --recursive'
+            Template.delete: true
+            VM.rename: true
+            VM.resume: true
+            VM.reboot: true
+            VM.reboot_hard: true
+            VM.poweroff: true
+            VM.poweroff_hard: true
+            VM.undeploy: false
+            VM.undeploy_hard: false
+            VM.terminate: true
+            VM.terminate_hard: true
+            VM.resize: true
+            VM.disk_resize: true
+            VM.attachdisk: true
+            VM.detachdisk: true
+            VM.disk_saveas: true
+            VM.attachnic: true
+            VM.detachnic: true
+            VM.snapshot_create: true
+            VM.snapshot_revert: true
+            VM.snapshot_delete: true
+            VM.disk_snapshot_create: true
+            VM.disk_snapshot_revert: true
+            VM.disk_snapshot_rename: true
+            VM.disk_snapshot_delete: true
+            VM.save_as_template: true
+            VM.migrate_poff: false
+            VM.migrate_poff_hard: false
+            VM.lockU: true
+            VM.unlock: true
+            VM.startvnc: true
+            VM.startvmrc: true
+            VM.startspice: true
+            VM.vnc: true
+            VM.ssh: true
+            VM.rdp: true
+            VM.save_rdp: true
+            VM.save_virt_viewer: true
+        dashboard:
+            # Connected user's quotas
+            quotas: true
+            # Overview of connected user's VMs
+            vms: true
+            # Group's quotas
+            groupquotas: false
+            # Overview of group's VMs
+            groupvms: false
+        create_vm:
+            # True to allow capacity (CPU, MEMORY, VCPU) customization
+            capacity_select: true
+            # True to allow NIC customization
+            network_select: true
+            # True to allow vmgroup customization
+            vmgroup_select: true
+            # True to allow DISK size customization
+            disk_resize: true
+            # True to allow datastore customization
+            datastore_select: true
+    settings-tab:
+        panel_tabs:
+            settings_info_tab: false
+            settings_config_tab: true
+            settings_quotas_tab: true
+            settings_accounting_tab: true
+            settings_showback_tab: true
+        actions:
+            # Buttons for settings_info_tab
+            User.update_password: true
+            User.login_token: true
+            User.two_factor_auth: true
+            # Buttons for settings_config_tab
+            Settings.change_language: true
+            Settings.change_password: true
+            Settings.change_view: true
+            Settings.ssh_key: true
+            Settings.login_token: true
+            # Edit button in settings_quotas_tab
+            User.quotas_dialog: false
+            User.two_factor_auth: true
+    vms-tab:
+        actions: *provisionactions
+    images-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Onwer
+            - 4         # Group
+            - 5         # Datastore
+            #- 6        # Size
+            - 7         # Type
+            #- 8        # Registration time
+            #- 9        # Persistent
+            - 10        # Status
+            - 11        # #VMs
+            #- 12       # Target
+    vnets-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            #- 3        # Owner
+            - 4         # Group
+            #- 5        # Reservation
+            #- 6        # Cluster
+            #- 7        # Bridge
+            #- 8        # Leases
+            #- 9        # VLAN ID
+    secgroups-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            #- 3        # Owner
+            - 4         # Group
+            #- 5        # Labels
+    vmgroup-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Owner
+            - 4         # Group
+            - 5         # Vms
+            #- 6        # Labels
+            #- 7        # Search data
+    datastores-tab:
+        table_columns:
+            - 0         # Checkbox
+            - 1         # ID
+            - 2         # Name
+            - 3         # Owner
+            - 4         # Group
+            #- 5        # Capacity
+            #- 6        # Cluster
+            #- 7        # Basepath
+            #- 8        # TM
+            #- 9        # DS
+            #- 10       # Type
+            - 11        # Status
+            #- 12       # Labels
+            #- 13       # Search data

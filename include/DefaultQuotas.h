@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,8 +18,6 @@
 #define DEFAULT_QUOTAS_H_
 
 #include "Quotas.h"
-#include "SqlDB.h"
-#include "ObjectSQL.h"
 
 class DefaultQuotas : public Quotas
 {
@@ -41,7 +39,7 @@ public:
      *    @param xml the string to store the XML
      *    @return the same xml string to use it in << compounds
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
 
     /**
      *  Writes the quotas in the database.
@@ -75,7 +73,7 @@ private:
      *    @param xml The xml-formatted string
      *    @return 0 on success
      */
-    int from_xml(const string& xml);
+    int from_xml(const std::string& xml);
 };
 
 #endif /*DEFAULT_QUOTAS_H_*/

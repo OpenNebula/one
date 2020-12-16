@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,6 +24,8 @@ define(function(require) {
   var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
   var Utils = require('../utils/common');
+  var OpenNebulaVM = require('opennebula/vm');
+  var DomDataTable = require('utils/dom-datatable');
 
   /*
     CONSTANTS
@@ -58,78 +60,116 @@ define(function(require) {
    */
 
   function _html() {
+    var that = this;
     var arList = Utils.getARList(this.element);
     var processedLeases = [];
 
-    for (var i=0; i<arList.length; i++){
-      var ar = arList[i];
-      var id = ar.AR_ID;
+    OpenNebulaVM.list({
+      timeout: true,
+      success: function(request, vm_list){
 
-      var leases = ar.LEASES.LEASE;
+        var vms = {};
 
-      if (!leases) { //empty
-        continue;
-      } else if (leases.constructor != Array) { //>1 lease
-        leases = [leases];
-      }
-
-      for (var j=0; j<leases.length; j++){
-        var lease = leases[j];
-
-        var col0HTML = "";
-        var col1HTML = "";
-
-        if (lease.VM == "-1") { //hold
-          col0HTML = '<i class="alert-color fa fa-square"/>';
-
-          if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
-            col1HTML = '<a class="release_lease button small" href="#"><i class="fa fa-play"/></a>';
-          }
-        } else if (lease.VM != undefined) { //used by a VM
-          col0HTML = '<i class="primary-color fa fa-square"/>';
-          col1HTML = Navigation.link(Locale.tr("VM:") + lease.VM, "vms-tab", lease.VM);
-        } else if (lease.VNET != undefined) { //used by a VNET
-          col0HTML = '<i class="warning-color fa fa-square"/>';
-          col1HTML = Navigation.link(Locale.tr("NET:") + lease.VNET, "vnets-tab", lease.VNET);
-        } else if (lease.VROUTER != undefined) { //used by a VR
-          col0HTML = '<i class="success-color fa fa-square"/>';
-          col1HTML = Navigation.link(Locale.tr("VR:") + lease.VROUTER, "vrouters-tab", lease.VROUTER);
-        } else {
-          col0HTML = '<i class="primary-color fa fa-square"/>';
-          col1HTML = '--';
+        // Convert vm_list in JSON
+        var mapJSON = function (element){
+          var id = element.VM.ID;
+          var value = element.VM;
+          delete value.ID;
+          vms[id] = value;
         }
 
-        processedLeases.push({
-          "col0HTML"  : col0HTML,
-          "col1HTML"  : col1HTML,
-          "IP"        : lease.IP,
-          "IP6"       : lease.IP6,
-          "MAC"       : lease.MAC,
-          "IP6_LINK"  : lease.IP6_LINK,
-          "IP6_ULA"   : lease.IP6_ULA,
-          "IP6_GLOBAL": lease.IP6_GLOBAL,
-          "AR_ID"     : id
-        });
+        // TODO vm_list vacio, 1 valor, + de 1
+        Array.isArray(vm_list) ? vm_list.forEach(mapJSON) : mapJSON(vm_list);
+
+        // Get Leases
+        for (var i=0; i<arList.length; i++){
+          var ar = arList[i];
+          var id = ar.AR_ID;
+
+          var leases = ar.LEASES.LEASE;
+
+          if (!leases) { //empty
+            continue;
+          } else if (leases.constructor != Array) { //>1 lease
+            leases = [leases];
+          }
+
+          for (var j=0; j<leases.length; j++){
+            var lease = leases[j];
+
+            var col0HTML = "";
+            var col1HTML = "";
+
+            if (lease.VM == "-1") { //hold
+              col0HTML = '<i class="alert-color fas fa-square"/>';
+
+              if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
+                var ip = lease.IP ? lease.IP : "";
+                var mac = lease.MAC ? lease.MAC : "";
+                col1HTML = '<a class="release_lease button small" href="#" data-ip="'+ ip + '" data-mac="'+ mac + '" ><i class="fas fa-play"/></a>';
+              }
+            } else if (lease.VM != undefined) { //used by a VM
+              col0HTML = '<i class="primary-color fas fa-square"/>';
+              vm_name = vms[lease.VM] && vms[lease.VM]["NAME"] ? " - " + vms[lease.VM]["NAME"] : ""
+              col1HTML = Navigation.link(Locale.tr("VM:") + lease.VM + vm_name , "vms-tab", lease.VM) ;
+            } else if (lease.VNET != undefined) { //used by a VNET
+              col0HTML = '<i class="warning-color fas fa-square"/>';
+              col1HTML = Navigation.link(Locale.tr("NET:") + lease.VNET, "vnets-tab", lease.VNET);
+            } else if (lease.VROUTER != undefined) { //used by a VR
+              col0HTML = '<i class="success-color fas fa-square"/>';
+              col1HTML = Navigation.link(Locale.tr("VR:") + lease.VROUTER, "vrouters-tab", lease.VROUTER);
+            } else {
+              col0HTML = '<i class="primary-color fas fa-square"/>';
+              col1HTML = '--';
+            }
+
+            processedLeases.push([
+              col0HTML,
+              col1HTML,
+              lease.IP ? lease.IP : "--",
+              lease.IP6 ? lease.IP6 : "--",
+              lease.MAC ? lease.MAC : "--",
+              lease.IP6_LINK ? lease.IP6_LINK : "--",
+              lease.IP6_ULA ? lease.IP6_ULA : "--",
+              lease.IP6_GLOBAL ? lease.IP6_GLOBAL : "--",
+              id ? id : "--"
+            ]);
+          }
+
+          // Update Table View
+          if (that.leases_dataTable){
+            that.leases_dataTable.updateView(request, processedLeases, true);
+          }
+        }
       }
-    }
+    });
 
     return TemplateLeases({
-      'element': this.element,
+      'element': that.element,
       'leases' : processedLeases
     });
   }
 
   function _setup(context) {
     var that = this;
-
-    var leases_dataTable = $("#leases_datatable", context).dataTable({
-      "bSortClasses" : false,
-      "bDeferRender": true,
-      // "sScrollX": "100%",
-      "aoColumnDefs": [
-        { "bSortable": false, "aTargets": [0,1] },
-      ]
-    });
+    
+    this.leases_dataTable = new DomDataTable(
+      "leases_datatable",
+      {
+        actions: false,
+        info: false,
+        dataTableOptions: {
+          "bSortClasses" : false,
+          "bDeferRender": true,
+          // "sScrollX": "100%",
+          "aoColumnDefs": [
+            { "bSortable": false, "aTargets": [0,1] },
+          ]
+        }
+      }
+    );
+    
+    this.leases_dataTable.initialize();
 
     if (Config.isTabActionEnabled("vnets-tab", "Network.hold_lease")) {
       context.off("click", 'button#panel_hold_lease_button');
@@ -149,15 +189,15 @@ define(function(require) {
     if (Config.isTabActionEnabled("vnets-tab", "Network.release_lease")) {
       context.off("click", 'a.release_lease');
       context.on("click", 'a.release_lease', function(){
-        var lease = $(this).parents('tr').attr('ip');
+        var lease = $(this).data('ip');
         if (lease == ""){
-          lease = $(this).parents('tr').attr('mac');
+          lease = $(this).data('mac');
         }
 
         var obj = { ip: lease};
         Sunstone.runAction('Network.release',that.element.ID,obj);
         //Set spinner
-        $(this).parents('tr').html('<td class="key_td"><i class="fa fa-spinner fa-spin"></i></td><td class="value_td"></td>');
+        $(this).parents('tr').html('<td class="key_td"><i class="fas fa-spinner fa-spin"></i></td><td class="value_td"></td>');
         return false;
       });
     }

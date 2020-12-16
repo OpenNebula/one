@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,8 @@
 
 #include "PoolSQL.h"
 #include "Vdc.h"
+#include "OneDB.h"
 
-using namespace std;
 
 class VdcPool : public PoolSQL
 {
@@ -43,48 +43,21 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(Template * vdc_template,
-                 int *      oid,
-                 string&    error_str);
-
-    /**
-     *  Function to get a Vdc from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Vdc unique id
-     *    @param lock locks the Vdc mutex
-     *    @return a pointer to the Vdc, 0 if the Vdc could not be loaded
-     */
-    Vdc * get(int oid, bool lock)
-    {
-        return static_cast<Vdc *>(PoolSQL::get(oid,lock));
-    };
+    int allocate(std::unique_ptr<Template> vdc_template,
+                 int *        oid,
+                 std::string& error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Vdc unique identifier
+     *   @return a pointer to the Vdc, nullptr in case of failure
      */
-    Vdc * get(const string& name, bool lock)
+    std::unique_ptr<Vdc> get(int oid)
     {
-        // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Vdc *>(PoolSQL::get(name,-1,lock));
-    };
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    string key(const string& name, int uid)
-    {
-        // Name is enough key because Vdcs can't repeat names.
-        return name;
-    };
+        return PoolSQL::get<Vdc>(oid);
+    }
 
     /** Update a particular Vdc
      *    @param vdc pointer to Vdc
@@ -101,7 +74,7 @@ public:
      *          -1 DB error,
      *          -2 object is a default Vdc (ID < 100)
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Vdc pool
@@ -117,13 +90,17 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "VDC_POOL", Vdc::table, where, limit);
+        return PoolSQL::dump(oss, "VDC_POOL", "body", one_db::vdc_table,
+                             where, sid, eid, desc);
     };
 
     /**
@@ -134,13 +111,13 @@ public:
      */
      int list(std::vector<int>& oids)
      {
-        return PoolSQL::list(oids, Vdc::table);
+        return PoolSQL::list(oids, one_db::vdc_table);
      }
 
     /**
      *  Default name for the default VDC
      */
-    static const string DEFAULT_NAME;
+    static const std::string DEFAULT_NAME;
 
     /**
      *  Identifier for the default VDC

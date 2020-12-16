@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,9 @@
 
 #include "Request.h"
 #include "Nebula.h"
-
-using namespace std;
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "VirtualNetworkPool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +30,9 @@ using namespace std;
 class RequestManagerCluster: public Request
 {
 protected:
-    RequestManagerCluster(const string& method_name,
-                          const string& help,
-                          const string& params)
+    RequestManagerCluster(const std::string& method_name,
+                          const std::string& help,
+                          const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd = Nebula::instance();
@@ -95,11 +96,12 @@ protected:
     virtual int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg) = 0;
+            std::string& error_msg) = 0;
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg) = 0;
+    virtual int del_object(Cluster* cluster, int id, std::string& error_msg) = 0;
 
-    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj) = 0;
+    virtual void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
+                     Clusterable ** cluster_obj) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -109,9 +111,9 @@ class RequestManagerClusterHost: public Request
 {
 protected:
     RequestManagerClusterHost(
-            const string& method_name,
-            const string& help,
-            const string& params)
+            const std::string& method_name,
+            const std::string& help,
+            const std::string& params)
                 :Request(method_name,params,help)
             {
                 Nebula& nd = Nebula::instance();
@@ -151,7 +153,7 @@ public:
     ~ClusterAddHost(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -174,7 +176,7 @@ public:
     ~ClusterDelHost(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         // First param is ignored, as objects can be assigned to only
         // one cluster
@@ -192,33 +194,34 @@ class RequestManagerClusterDatastore : public RequestManagerCluster
 {
 public:
     RequestManagerClusterDatastore(
-        const string& method_name,
-        const string& help,
-        const string& params):
+        const std::string& method_name,
+        const std::string& help,
+        const std::string& params):
             RequestManagerCluster(method_name, help, params){};
 
     ~RequestManagerClusterDatastore(){};
 
-    virtual int add_object(
+    int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            std::string& error_msg) override
     {
-        return cluster->add_datastore(id, error_msg);
-    };
+        return clpool->add_to_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
+    }
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg)
+    int del_object(Cluster* cluster, int id, std::string& error_msg) override
     {
-        return cluster->del_datastore(id, error_msg);
-    };
+        return clpool->del_from_cluster(PoolObjectSQL::DATASTORE, cluster, id, error_msg);
+    }
 
-    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
+                     Clusterable ** cluster_obj) override
     {
-        Datastore * ds = dspool->get(oid, lock);
+        auto ds = dspool->get(oid);
 
-        *object      = static_cast<PoolObjectSQL *>(ds);
-        *cluster_obj = static_cast<Clusterable *>(ds);
-    };
+        *cluster_obj = static_cast<Clusterable *>(ds.get());
+        object      = std::move(ds);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -235,7 +238,7 @@ public:
     ~ClusterAddDatastore(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -259,7 +262,7 @@ public:
     ~ClusterDelDatastore(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -277,33 +280,34 @@ class RequestManagerClusterVNet : public RequestManagerCluster
 public:
 
     RequestManagerClusterVNet(
-            const string& method_name,
-            const string& help,
-            const string& params):
+            const std::string& method_name,
+            const std::string& help,
+            const std::string& params):
                 RequestManagerCluster(method_name, help, params){};
 
     ~RequestManagerClusterVNet(){};
 
-    virtual int add_object(
+    int add_object(
             Cluster* cluster,
             int id,
-            string& error_msg)
+            std::string& error_msg) override
     {
-        return cluster->add_vnet(id, error_msg);
-    };
+        return clpool->add_to_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
+    }
 
-    virtual int del_object(Cluster* cluster, int id, string& error_msg)
+    int del_object(Cluster* cluster, int id, std::string& error_msg) override
     {
-        return cluster->del_vnet(id, error_msg);
-    };
+        return clpool->del_from_cluster(PoolObjectSQL::NET, cluster, id, error_msg);
+    }
 
-    virtual void get(int oid, bool lock, PoolObjectSQL ** object, Clusterable ** cluster_obj)
+    void get(int oid, std::unique_ptr<PoolObjectSQL>& object,
+                     Clusterable ** cluster_obj) override
     {
-        VirtualNetwork * vnet = vnpool->get(oid, lock);
+        auto vnet = vnpool->get(oid);
 
-        *object      = static_cast<PoolObjectSQL *>(vnet);
-        *cluster_obj = static_cast<Clusterable *>(vnet);
-    };
+        *cluster_obj = static_cast<Clusterable *>(vnet.get());
+        object      = std::move(vnet);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -320,7 +324,7 @@ public:
     ~ClusterAddVNet(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));
@@ -344,7 +348,7 @@ public:
     ~ClusterDelVNet(){};
 
     void request_execute(xmlrpc_c::paramList const& paramList,
-                         RequestAttributes& att)
+                         RequestAttributes& att) override
     {
         int cluster_id  = xmlrpc_c::value_int(paramList.getInt(1));
         int object_id   = xmlrpc_c::value_int(paramList.getInt(2));

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,33 +15,22 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  INCLUDE_URI = "bower_components/no-vnc/include/";
-  require('vnc-util');
-  require('vnc-webutil');
-  require('vnc-base64');
-  require('vnc-websock');
-  require('vnc-des');
-  require('vnc-keysymdef');
-  require('vnc-keyboard');
-  require('vnc-input');
-  require('vnc-display');
-  require('vnc-jsunzip');
-  require('vnc-rfb');
-  require('vnc-keysym');
-
-  var Config = require('sunstone-config');
-
+  var RFB = require("vnc-rfb").default;
+  var Config = require("sunstone-config");
   var _lock = false;
   var _rfb;
+  var _message = "";
+  var _status = "Loading";
+  var _is_encrypted = "";
 
   return {
-    'lockStatus': lockStatus,
-    'lock': lock,
-    'unlock': unlock,
-    'vncCallback': vncCallback,
-    'disconnect': disconnect,
-    'sendCtrlAltDel': sendCtrlAltDel
-  }
+    "lockStatus": lockStatus,
+    "lock": lock,
+    "unlock": unlock,
+    "vncCallback": vncCallback,
+    "disconnect": disconnect,
+    "sendCtrlAltDel": sendCtrlAltDel
+  };
 
   function lockStatus() {
     return _lock;
@@ -55,34 +44,80 @@ define(function(require) {
     _lock = false;
   }
 
-  function vncCallback(response) {
-    _rfb = new RFB({'target':       $D('VNC_canvas'),
-                   'encrypt':      Config.vncWSS == "yes",
-                   'true_color':   true,
-                   'local_cursor': true,
-                   'shared':       true,
-                   'onUpdateState':  updateVNCState});
+  function setStatus(message="", status=""){
+    _message = message;
+    _status = status;
+    $(".NOVNC_message").text(_message);
+    $("#VNC_status").text(_status);
+  }
 
+  function connected(){
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+  }
+
+  function disconnectedFromServer(e){
+    if (e.detail.clean) {
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+    } else {
+      setStatus("Something went wrong, connection is closed", "Failed");
+    }
+  }
+
+  function desktopNameChange(e) {
+    if (e.detail.name) {
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + e.detail.name);
+    }
+  }
+
+  function credentialsRequired(e) {
+    setStatus("Something went wrong, more credentials must be given to continue", "Failed");
+  }
+
+  function vncCallback(response) {
+    var URL = "";
     var proxy_host = window.location.hostname;
     var proxy_port = Config.vncProxyPort;
     var pw = response["password"];
     var token = response["token"];
     var vm_name = response["vm_name"];
-    var path = '?token=' + token;
+    var protocol = window.location.protocol;
+    var hostname = window.location.hostname;
+    var port = window.location.port;
+    var rfbConfig = pw? { "credentials": { "password": pw } } : {};
 
-    var url = "vnc?";
-    url += "host=" + proxy_host;
-    url += "&port=" + proxy_port;
-    url += "&token=" + token;
-    url += "&encrypt=" + Config.vncWSS;
-    url += "&title=" + vm_name;
+    if (protocol === "https:") {
+      URL = "wss";
+      _is_encrypted ="encrypted";
+    } else {
+      URL = "ws";
+      _is_encrypted ="unencrypted";
+    }
+    URL += "://" + hostname;
+    URL += ":" + proxy_port;
+    URL += "?host=" + proxy_host;
+    URL += "&port=" + proxy_port;
+    URL += "&token=" + token;
+    URL += "&encrypt=" + Config.vncWSS;
+    URL += "&title=" + vm_name;
 
     if (!Config.requestVNCPassword) {
-      url += "&password=" + pw;
+      URL += "&password=" + pw;
+    }
+    var re = new RegExp("^(ws|wss):\\/\\/[\\w\\D]*?\\?", "gi");
+    var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "/vnc?");
+
+    try{
+      _rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
+      _rfb.addEventListener("connect",  connected);
+      _rfb.addEventListener("disconnect", disconnectedFromServer);
+      _rfb.addEventListener("desktopname", desktopNameChange);
+      _rfb.addEventListener("credentialsrequired", credentialsRequired);
+    }catch(err){
+      setStatus("Something went wrong, connection is closed", "Failed");
+      console.log("error start NOVNC ", err);
     }
 
-    $("#open_in_a_new_window").attr('href', url);
-    _rfb.connect(proxy_host, proxy_port, pw, path);
+    $("#open_in_a_new_window").attr("href", link);
   }
 
   function disconnect() {
@@ -91,32 +126,5 @@ define(function(require) {
 
   function sendCtrlAltDel() {
     if (_rfb) { _rfb.sendCtrlAltDel(); }
-  }
-
-  //This is taken from noVNC examples
-  function updateVNCState(rfb, state, oldstate, msg) {
-    var s, sb, cad, klass;
-    s = $D('VNC_status');
-    sb = $D('VNC_status_bar');
-    cad = $D('sendCtrlAltDelButton');
-    switch (state) {
-      case 'failed':       level = "error";  break;
-      case 'fatal':        level = "error";  break;
-      case 'normal':       level = "normal"; break;
-      case 'disconnected': level = "normal"; break;
-      case 'loaded':       level = "normal"; break;
-      default:             level = "warn";   break;
-    }
-
-    if (state === "normal") {
-      cad.disabled = false;
-    } else {
-      cad.disabled = true;
-    }
-
-    if (typeof(msg) !== 'undefined') {
-      sb.setAttribute("class", "noVNC_status_" + level);
-      s.innerHTML = msg;
-    }
   }
 });

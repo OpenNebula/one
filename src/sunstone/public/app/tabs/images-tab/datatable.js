@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
 
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
+  var DashboardUtils = require('utils/dashboard');
   var OpenNebulaImage = require('opennebula/image');
 
   /*
@@ -83,9 +84,12 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    var size = Humanize.sizeFromMB(this.sizeImages);
+    var size = Humanize.sizeFromMBArray(this.sizeImages);
 
-    $(".total_images").text(this.totalImages);
-    $(".size_images").text(size);
+    $(".total_images").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_images", this.totalImages);
+
+    $(".size_images").removeClass("fadeinout");
+    DashboardUtils.counterAnimationDecimal(".size_images", size[0], size[1]);
   }
 });

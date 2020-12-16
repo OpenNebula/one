@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,7 +22,6 @@
 #include <cmath>
 #include <algorithm>
 
-using namespace std;
 
 /**
  *  Abstract class that represents a Scheduling policy
@@ -41,10 +40,10 @@ public:
      *    @param obj, pointer to the object to schedule
      *
      */
-    const void schedule(ObjectXML * obj)
+    void schedule(ObjectXML * obj)
     {
-        vector<float> priority;
-        const vector<Resource *> resources = get_match_resources(obj);
+        std::vector<float> priority;
+        const std::vector<Resource *>& resources = get_match_resources(obj);
 
         if (resources.empty())
         {
@@ -73,13 +72,13 @@ protected:
      *    @param obj pointer to the object
      *    @return a reference to the vector
      */
-     virtual const vector<Resource *> get_match_resources(ObjectXML *obj) = 0;
+     virtual const std::vector<Resource *>& get_match_resources(ObjectXML *obj) const = 0;
 
     /**
      *  Implements the actual schedule by computing the priority of each
      *  matching resource.
      */
-    virtual void policy(ObjectXML * obj, vector<float>& priority) = 0;
+    virtual void policy(ObjectXML * obj, std::vector<float>& priority) = 0;
 
 private:
     /**

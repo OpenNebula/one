@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,8 @@
 #include <sstream>
 #include <fstream>
 #include <math.h>
+
+using namespace std;
 
 
 string on_off_string(bool value)
@@ -248,10 +250,8 @@ int XenDriver::deployment_description(
 
             boots = one_util::split(boot, ',');
 
-            for (vector<string>::const_iterator it=boots.begin(); it!=boots.end(); it++)
+            for (auto& boot_option : boots)
             {
-                string boot_option = *it;
-
                 one_util::tolower(boot_option);
 
                 if ( boot_option == "hd" )

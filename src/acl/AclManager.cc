@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,18 +17,12 @@
 #include <climits>
 
 #include "AclManager.h"
+#include "AclRule.h"
 #include "PoolObjectAuth.h"
+#include "SqlDB.h"
+#include "OneDB.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const char * AclManager::table = "acl";
-
-const char * AclManager::db_names = "oid, user, resource, rights, zone";
-
-const char * AclManager::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "acl (oid INT PRIMARY KEY, user BIGINT, resource BIGINT, "
-    "rights BIGINT, zone BIGINT, UNIQUE(user, resource, rights, zone))";
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -72,14 +66,12 @@ AclManager::AclManager(
     int     _zone_id,
     bool    _is_federation_slave,
     time_t  _timer_period)
-        :zone_id(_zone_id), db(_db), is_federation_slave(_is_federation_slave),
-        timer_period(_timer_period)
+        : zone_id(_zone_id)
+        , db(_db)
+        , is_federation_slave(_is_federation_slave)
+        , timer_period(_timer_period)
 {
     int lastOID;
-
-    pthread_mutex_init(&mutex, 0);
-
-    am.addListener(this);
 
     //Federation slaves do not need to init the pool
     if (is_federation_slave)
@@ -131,29 +123,6 @@ AclManager::AclManager(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * acl_action_loop(void *arg)
-{
-    AclManager * aclm;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    NebulaLog::log("ACL",Log::INFO,"ACL Manager started.");
-
-    aclm = static_cast<AclManager *>(arg);
-
-    aclm->am.loop(aclm->timer_period);
-
-    NebulaLog::log("ACL",Log::INFO,"ACL Manager stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int AclManager::start()
 {
     int rc;
@@ -164,17 +133,10 @@ int AclManager::start()
 
     if (is_federation_slave)
     {
-        pthread_attr_t    pattr;
-
-        pthread_attr_init (&pattr);
-        pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-        rc += pthread_create(&acl_thread,&pattr,acl_action_loop,(void *) this);
+        timer_thread = make_unique<Timer>(timer_period, [this](){timer_action();});
     }
-    else
-    {
-        NebulaLog::log("ACL",Log::INFO,"ACL Manager started.");
-    }
+
+    NebulaLog::log("ACL",Log::INFO,"ACL Manager started.");
 
     return rc;
 }
@@ -184,14 +146,25 @@ int AclManager::start()
 
 void AclManager::finalize()
 {
+    NebulaLog::info("ACL", "Stopping ACL Manager...");
+
     if (is_federation_slave)
     {
-        am.finalize();
+        timer_thread->stop();
     }
-    else
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AclManager::join_thread()
+{
+    if (is_federation_slave)
     {
-        NebulaLog::log("ACL",Log::INFO,"ACL Manager stopped.");
+        timer_thread->stop();
     }
+
+    NebulaLog::info("ACL", "ACL Manager stopped.");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -199,34 +172,37 @@ void AclManager::finalize()
 
 AclManager::~AclManager()
 {
-    multimap<long long, AclRule *>::iterator  it;
+    lock_guard<std::mutex> ul(acl_mutex);
 
-    lock();
-
-    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
+    for (auto& rule : acl_rules)
     {
-        delete it->second;
+        delete rule.second;
     }
-
-    unlock();
-
-    pthread_mutex_destroy(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const bool AclManager::authorize(
+bool AclManager::authorize(
         int                     uid,
         const set<int>&         user_groups,
         const PoolObjectAuth&   obj_perms,
-        AuthRequest::Operation  op)
+        AuthRequest::Operation  op) const
 {
     bool auth = false;
 
     // Build masks for request
     long long user_req;
     long long resource_oid_req;
+
+    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    {
+        op = static_cast<AuthRequest::Operation>(op & 0x0FLL);
+    }
+    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    {
+        return false;
+    }
 
     if ( obj_perms.oid >= 0 )
     {
@@ -256,18 +232,15 @@ const bool AclManager::authorize(
 
     if (!obj_perms.disable_cluster_acl)
     {
-        set<int>::iterator i;
-
-        for(i = obj_perms.cids.begin(); i != obj_perms.cids.end(); i++)
+        for (auto perm : obj_perms.cids)
         {
-            resource_cid_req.insert(    obj_perms.obj_type |
-                                        AclRule::CLUSTER_ID |
-                                        *i
-                                    );
+            resource_cid_req.insert(obj_perms.obj_type |
+                                    AclRule::CLUSTER_ID |
+                                    perm);
         }
     }
 
-    long long resource_all_req ;
+    long long resource_all_req;
 
     if (!obj_perms.disable_all_acl)
     {
@@ -381,11 +354,9 @@ const bool AclManager::authorize(
     // Look for rules that apply to each one of the user's groups
     // ----------------------------------------------------------
 
-    set<int>::iterator  g_it;
-
-    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+    for (auto group : user_groups)
     {
-        user_req = AclRule::GROUP_ID | *g_it;
+        user_req = AclRule::GROUP_ID | group;
         auth     = match_rules_wrapper(user_req,
                                        resource_oid_req,
                                        resource_gid_req,
@@ -410,6 +381,25 @@ const bool AclManager::authorize(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+bool AclManager::oneadmin_authorize(
+        const PoolObjectAuth&   obj_perms,
+        AuthRequest::Operation  op) const
+{
+    if (static_cast<long long int>(op) & 0x10LL) //No lockable object
+    {
+        return true;
+    }
+    else if (obj_perms.locked > 0 && obj_perms.locked <= static_cast<long long int>(op))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool AclManager::match_rules_wrapper(
         long long             user_req,
         long long             resource_oid_req,
@@ -420,7 +410,7 @@ bool AclManager::match_rules_wrapper(
         long long             individual_obj_type,
         long long             group_obj_type,
         long long             cluster_obj_type,
-        const multimap<long long, AclRule*> &tmp_rules)
+        const multimap<long long, AclRule*> &tmp_rules) const
 {
     bool auth = false;
 
@@ -443,7 +433,7 @@ bool AclManager::match_rules_wrapper(
     }
 
     // Match against the internal rules
-    lock();
+    lock_guard<std::mutex> ul(acl_mutex);
 
     auth = match_rules(
             user_req,
@@ -457,8 +447,6 @@ bool AclManager::match_rules_wrapper(
             cluster_obj_type,
             acl_rules);
 
-    unlock();
-
     return auth;
 }
 
@@ -470,12 +458,10 @@ static bool match_cluster_req(
         long long resource_cid_mask,
         long long rule_resource)
 {
-    set<long long>::iterator i;
-
-    for(i = resource_cid_req.begin(); i != resource_cid_req.end(); i++)
+    for (auto cid : resource_cid_req)
     {
         // rule's object type and cluster object ID match
-        if ( ( rule_resource & resource_cid_mask ) == *i )
+        if ( ( rule_resource & resource_cid_mask ) == cid )
         {
             return true;
         }
@@ -496,24 +482,19 @@ bool AclManager::match_rules(
         long long             resource_oid_mask,
         long long             resource_gid_mask,
         long long             resource_cid_mask,
-        const multimap<long long, AclRule*> &rules)
+        const multimap<long long, AclRule*> &rules) const
 
 {
     bool auth = false;
     ostringstream oss;
 
-    multimap<long long, AclRule *>::const_iterator        it;
-
-    pair<multimap<long long, AclRule *>::const_iterator,
-         multimap<long long, AclRule *>::const_iterator>  index;
-
     long long zone_oid_mask = AclRule::INDIVIDUAL_ID | 0x00000000FFFFFFFFLL;
     long long zone_req      = AclRule::INDIVIDUAL_ID | zone_id;
     long long zone_all_req  = AclRule::ALL_ID;
 
-    index = rules.equal_range( user_req );
+    auto index = rules.equal_range( user_req );
 
-    for ( it = index.first; it != index.second; it++)
+    for ( auto it = index.first; it != index.second; it++)
     {
         if (NebulaLog::log_level() >= Log::DDEBUG)
         {
@@ -575,7 +556,7 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
         return -1;
     }
 
-    lock();
+    lock_guard<std::mutex> ul(acl_mutex);
 
     int lastOID = get_lastOID(db);
 
@@ -589,15 +570,11 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
     ostringstream   oss;
     int             rc;
 
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
-
     bool found = false;
 
-    index = acl_rules.equal_range( user );
+    auto index = acl_rules.equal_range( user );
 
-    for ( it = index.first; (it != index.second && !found); it++)
+    for ( auto it = index.first; (it != index.second && !found); it++)
     {
         found = *(it->second) == *rule;
     }
@@ -623,8 +600,6 @@ int AclManager::add_rule(long long user, long long resource, long long rights,
     acl_rules_oids.insert( make_pair(rule->oid, rule) );
 
     set_lastOID(db, lastOID);
-
-    unlock();
 
     return lastOID;
 
@@ -652,8 +627,6 @@ error_common:
 
     delete rule;
 
-    unlock();
-
     return rc;
 }
 
@@ -663,11 +636,6 @@ error_common:
 
 int AclManager::del_rule(int oid, string& error_str)
 {
-
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
-
     AclRule *   rule;
     int         rc;
     bool        found = false;
@@ -681,7 +649,7 @@ int AclManager::del_rule(int oid, string& error_str)
         return -1;
     }
 
-    lock();
+    lock_guard<std::mutex> ul(acl_mutex);
 
     // Check the rule exists
     found = acl_rules_oids.count(oid) > 0;
@@ -692,7 +660,6 @@ int AclManager::del_rule(int oid, string& error_str)
         oss << "Rule " << oid << " does not exist";
         error_str = oss.str();
 
-        unlock();
         return -1;
     }
 
@@ -702,9 +669,9 @@ int AclManager::del_rule(int oid, string& error_str)
 
     found = false;
 
-    index = acl_rules.equal_range( rule->user );
+    auto index = acl_rules.equal_range( rule->user );
 
-    it = index.first;
+    auto it = index.first;
     while ( !found && it != index.second )
     {
         found = *rule == *(it->second);
@@ -723,7 +690,6 @@ int AclManager::del_rule(int oid, string& error_str)
 
         NebulaLog::log("ACL",Log::ERROR,oss);
 
-        unlock();
         return -1;
     }
 
@@ -734,7 +700,6 @@ int AclManager::del_rule(int oid, string& error_str)
     {
         error_str = "SQL DB error";
 
-        unlock();
         return -1;
     }
 
@@ -745,7 +710,6 @@ int AclManager::del_rule(int oid, string& error_str)
 
     delete rule;
 
-    unlock();
     return 0;
 }
 
@@ -759,30 +723,26 @@ int AclManager::del_rule(
         long long zone,
         string&   error_str)
 {
-    lock();
+    AclRule rule(-1, user, resource, rights, zone);
 
-    AclRule * rule = new AclRule(-1, user, resource, rights, zone);
-
-    int oid = -1;
+    int oid    = -1;
     bool found = false;
 
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
-
-    index = acl_rules.equal_range( user );
-
-    for ( it = index.first; (it != index.second && !found); it++)
     {
-        found = *(it->second) == *rule;
+        lock_guard<std::mutex> ul(acl_mutex);
 
-        if (found)
+        auto index = acl_rules.equal_range(user);
+
+        for (auto it = index.first; (it != index.second && !found); it++)
         {
-            oid = it->second->get_oid();
+            found = *(it->second) == rule;
+
+            if (found)
+            {
+                oid = it->second->get_oid();
+            }
         }
     }
-
-    unlock();
 
     if (oid != -1)
     {
@@ -872,28 +832,23 @@ void AclManager::del_resource_rules(int oid, PoolObjectSQL::ObjectType obj_type)
 
 void AclManager::del_user_matching_rules(long long user_req)
 {
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
-
     vector<int>             oids;
-    vector<int>::iterator   oid_it;
     string                  error_str;
 
-    lock();
-
-    index = acl_rules.equal_range( user_req );
-
-    for ( it = index.first; it != index.second; it++)
     {
-        oids.push_back(it->second->oid);
+        lock_guard<std::mutex> ul(acl_mutex);
+
+        auto index = acl_rules.equal_range( user_req );
+
+        for ( auto it = index.first; it != index.second; it++)
+        {
+            oids.push_back(it->second->oid);
+        }
     }
 
-    unlock();
-
-    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    for ( auto oid : oids )
     {
-        del_rule(*oid_it, error_str);
+        del_rule(oid, error_str);
     }
 }
 
@@ -903,25 +858,22 @@ void AclManager::del_user_matching_rules(long long user_req)
 void AclManager::del_resource_matching_rules(long long resource_req,
                                              long long resource_mask)
 {
-    multimap<long long, AclRule *>::iterator        it;
+    vector<int> oids;
+    string      error_str;
 
-    vector<int>             oids;
-    vector<int>::iterator   oid_it;
-    string                  error_str;
-
-    lock();
-
-    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
     {
-        if ( ( it->second->resource & resource_mask ) == resource_req )
+        lock_guard<std::mutex> ul(acl_mutex);
+
+        for ( auto it = acl_rules.begin(); it != acl_rules.end(); it++ )
         {
-            oids.push_back(it->second->oid);
+            if ( ( it->second->resource & resource_mask ) == resource_req )
+            {
+                oids.push_back(it->second->oid);
+            }
         }
     }
 
-    unlock();
-
-    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    for ( auto oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
     {
         del_rule(*oid_it, error_str);
     }
@@ -932,25 +884,22 @@ void AclManager::del_resource_matching_rules(long long resource_req,
 
 void AclManager::del_zone_matching_rules(long long zone_req)
 {
-    multimap<long long, AclRule *>::iterator        it;
+    vector<int> oids;
+    string      error_str;
 
-    vector<int>             oids;
-    vector<int>::iterator   oid_it;
-    string                  error_str;
-
-    lock();
-
-    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
     {
-        if ( it->second->zone == zone_req )
+        lock_guard<std::mutex> ul(acl_mutex);
+
+        for (auto it = acl_rules.begin(); it != acl_rules.end(); it++)
         {
-            oids.push_back(it->second->oid);
+            if ( it->second->zone == zone_req )
+            {
+                oids.push_back(it->second->oid);
+            }
         }
     }
 
-    unlock();
-
-    for ( oid_it = oids.begin() ; oid_it < oids.end(); oid_it++ )
+    for (auto oid_it = oids.begin() ; oid_it < oids.end(); oid_it++)
     {
         del_rule(*oid_it, error_str);
     }
@@ -972,10 +921,6 @@ void AclManager::reverse_search(int                       uid,
                                 vector<int>&              cids)
 {
     ostringstream oss;
-
-    multimap<long long, AclRule *>::iterator        it;
-    pair<multimap<long long, AclRule *>::iterator,
-         multimap<long long, AclRule *>::iterator>  index;
 
     // Build masks for request
     long long resource_oid_req = obj_type | AclRule::INDIVIDUAL_ID;
@@ -1019,10 +964,7 @@ void AclManager::reverse_search(int                       uid,
     // Look for the rules that match
     // ---------------------------------------------------
 
-    vector<long long>           user_reqs;
-    vector<long long>::iterator reqs_it;
-
-    set<int>::iterator  g_it;
+    vector<long long>  user_reqs;
 
     // rules that apply to everyone
     user_reqs.push_back(AclRule::ALL_ID);
@@ -1031,72 +973,72 @@ void AclManager::reverse_search(int                       uid,
     user_reqs.push_back(AclRule::INDIVIDUAL_ID | uid);
 
     // rules that apply to each one of the user's groups
-    for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+    for (auto g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
     {
         user_reqs.push_back(AclRule::GROUP_ID | *g_it);
     }
 
     all = false;
 
-    for (reqs_it = user_reqs.begin(); reqs_it != user_reqs.end(); reqs_it++)
     {
-        lock();
+        lock_guard<std::mutex> ul(acl_mutex);
 
-        index = acl_rules.equal_range( *reqs_it );
-
-        for ( it = index.first; it != index.second; it++)
+        for (auto r_it : user_reqs)
         {
-                // Rule grants the requested rights
-            if ( ( ( it->second->rights & rights_req ) == rights_req )
-                 &&
-                 // Rule applies in this zone or in all zones
-                 ( ( it->second->zone == zone_oid_req )
-                   ||
-                   ( it->second->zone == zone_all_req )
-                 )
-               )
-            {
-                if (NebulaLog::log_level() >= Log::DDEBUG)
-                {
-                    oss.str("");
-                    oss << "> Rule  " << it->second->to_str();
-                    NebulaLog::log("ACL",Log::DDEBUG,oss);
-                }
+            auto index = acl_rules.equal_range( r_it );
 
-                // Rule grants permission for all objects of this type
-                if ((!disable_all_acl) &&
-                    ((it->second->resource & resource_all_req) == resource_all_req))
+            for (auto it = index.first; it != index.second; it++)
+            {
+                    // Rule grants the requested rights
+                if ( ( ( it->second->rights & rights_req ) == rights_req )
+                     &&
+                     // Rule applies in this zone or in all zones
+                     ( ( it->second->zone == zone_oid_req )
+                       ||
+                       ( it->second->zone == zone_all_req )
+                     )
+                   )
                 {
-                    all = true;
-                    break;
-                }
-                // Rule grants permission for all objects of a group
-                else if ((!disable_group_acl) &&
-                         ((it->second->resource & resource_gid_mask) == resource_gid_req))
-                {
-                    gids.push_back(it->second->resource_id());
-                }
-                // Rule grants permission for all objects of a cluster
-                else if ((!disable_cluster_acl) &&
-                         ((it->second->resource & resource_cid_mask) == resource_cid_req))
-                {
-                    cids.push_back(it->second->resource_id());
-                }
-                // Rule grants permission for an individual object
-                else if ((it->second->resource & resource_oid_mask) == resource_oid_req)
-                {
-                    oids.push_back(it->second->resource_id());
+                    if (NebulaLog::log_level() >= Log::DDEBUG)
+                    {
+                        oss.str("");
+                        oss << "> Rule  " << it->second->to_str();
+                        NebulaLog::log("ACL",Log::DDEBUG,oss);
+                    }
+
+                    // Rule grants permission for all objects of this type
+                    if ((!disable_all_acl) &&
+                        ((it->second->resource & resource_all_req) == resource_all_req))
+                    {
+                        all = true;
+                        break;
+                    }
+                    // Rule grants permission for all objects of a group
+                    else if ((!disable_group_acl) &&
+                             ((it->second->resource & resource_gid_mask) == resource_gid_req))
+                    {
+                        gids.push_back(it->second->resource_id());
+                    }
+                    // Rule grants permission for all objects of a cluster
+                    else if ((!disable_cluster_acl) &&
+                             ((it->second->resource & resource_cid_mask) == resource_cid_req))
+                    {
+                        cids.push_back(it->second->resource_id());
+                    }
+                    // Rule grants permission for an individual object
+                    else if ((it->second->resource & resource_oid_mask) == resource_oid_req)
+                    {
+                        oids.push_back(it->second->resource_id());
+                    }
                 }
             }
-        }
 
-        unlock();
-
-        if ( all == true )
-        {
-            oids.clear();
-            gids.clear();
-            cids.clear();
+            if ( all == true )
+            {
+                oids.clear();
+                gids.clear();
+                cids.clear();
+            }
         }
     }
 }
@@ -1106,7 +1048,7 @@ void AclManager::reverse_search(int                       uid,
 
 int AclManager::bootstrap(SqlDB * _db)
 {
-    ostringstream oss(db_bootstrap);
+    ostringstream oss(one_db::acl_db_bootstrap);
 
     return _db->exec_local_wr(oss);
 }
@@ -1175,18 +1117,23 @@ int AclManager::select()
     ostringstream   oss;
     int             rc;
 
-    oss << "SELECT " << db_names << " FROM " << table;
+    oss << "SELECT " << one_db::acl_db_names << " FROM " << one_db::acl_table;
 
     set_callback(static_cast<Callbackable::Callback>(&AclManager::select_cb));
 
-    lock();
+    {
+        lock_guard<std::mutex> ul(acl_mutex);
 
-    acl_rules.clear();
-    acl_rules_oids.clear();
+        for (auto it = acl_rules.begin(); it != acl_rules.end(); it++)
+        {
+            delete it->second;
+        }
 
-    rc = db->exec_rd(oss,this);
+        acl_rules.clear();
+        acl_rules_oids.clear();
 
-    unlock();
+        rc = db->exec_rd(oss, this);
+    }
 
     unset_callback();
 
@@ -1203,7 +1150,8 @@ int AclManager::insert(AclRule * rule, SqlDB * db)
 
     // Construct the SQL statement to Insert
 
-    oss <<  "INSERT INTO "  << table <<" ("<< db_names <<") VALUES ("
+    oss <<  "INSERT INTO "  << one_db::acl_table
+        << " (" << one_db::acl_db_names << ") VALUES ("
         <<  rule->oid       << ","
         <<  rule->user      << ","
         <<  rule->resource  << ","
@@ -1224,7 +1172,7 @@ int AclManager::drop(int oid)
     ostringstream   oss;
     int             rc;
 
-    oss << "DELETE FROM " << table << " WHERE "
+    oss << "DELETE FROM " << one_db::acl_table << " WHERE "
         << "oid=" << oid;
 
     rc = db->exec_wr(oss);
@@ -1237,21 +1185,18 @@ int AclManager::drop(int oid)
 
 int AclManager::dump(ostringstream& oss)
 {
-    map<int, AclRule *>::iterator        it;
     string xml;
 
-    lock();
+    lock_guard<std::mutex> ul(acl_mutex);
 
     oss << "<ACL_POOL>";
 
-    for ( it = acl_rules_oids.begin() ; it != acl_rules_oids.end(); it++ )
+    for (auto& rule : acl_rules)
     {
-        oss << it->second->to_xml(xml);
+        oss << rule.second->to_xml(xml);
     }
 
     oss << "</ACL_POOL>";
-
-    unlock();
 
     return 0;
 }

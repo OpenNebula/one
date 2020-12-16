@@ -1,4 +1,4 @@
-@import "../bower_components/fontawesome/css/font-awesome.min.css";
+@import "../bower_components/fontawesome/web-fonts-with-css/css/fontawesome-all.min.css";
 @import "../bower_components/jgrowl/jquery.jgrowl.min.css";
 @import "../bower_components/datatables/media/css/dataTables.foundation.min.css";
 @import "../bower_components/vis/dist/vis.min.css";
@@ -38,6 +38,7 @@
 @import './tooltips';
 @import './visjs';
 @import './flot';
+@import './login';
 
 
 
@@ -198,13 +199,16 @@ textarea {
   max-width: 300px;
 }
 
+.hide {
+  display: none;
+}
+
 meter {
   margin-bottom: 0;
   -webkit-appearance: slider-horizontal;
 }
 
 .disk-resize-icon {
-  font-weight: $global-weight-normal;
   margin: 0.3em;
 }
 
@@ -230,7 +234,56 @@ meter {
   color: $alert-color;
 }
 
+.memory_input .mb_input_wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.mb_input {
+  width: 100%;
+}
+
 .mb_input_unit {
   width: 4em;
 }
 
+select.mb_input_unit {
+  margin-bottom: 0px;
+}
+
+.superHide{
+  display: none !important;
+}
+
+.dataTable{
+  tr{
+    vertical-align: top;
+  }
+  &.fixed {
+    table-layout: fixed;
+    td {
+      word-break: break-word;
+    }
+  }
+}
+.jGrowl-message{
+  display: -webkit-box;
+  max-height: 28rem;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4rem;
+}
+
+@media screen and (min-width: 64em){
+  .medium-hide {
+      display: none !important;
+  }
+}
+
+#dataTableMarketplaceApps{
+  td{
+    word-break: normal;
+  }
+}

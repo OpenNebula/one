@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,18 +15,22 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var OpenNebulaResource = require('opennebula/servicetemplate');
-  var CommonActions = require('utils/common-actions');
-  var OpenNebulaAction = require('opennebula/action');
-  var Navigation = require('utils/navigation');
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var Locale = require("utils/locale");
+  var OpenNebulaResource = require("opennebula/servicetemplate");
+  var CommonActions = require("utils/common-actions");
+  var OpenNebulaAction = require("opennebula/action");
+  var Navigation = require("utils/navigation");
+  var OpenNebula = require('opennebula');
 
-  var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var INSTANTIATE_DIALOG_ID = require('./form-panels/instantiate/formPanelId');
-  var CLONE_DIALOG_ID = require('./dialogs/clone/dialogId');
+  var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
+  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
+
+  var TAB_ID = require("./tabId");
+  var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
+  var INSTANTIATE_DIALOG_ID = require("./form-panels/instantiate/formPanelId");
+  var CLONE_DIALOG_ID = require("./dialogs/clone/dialogId");
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
 
@@ -35,17 +39,40 @@ define(function(require) {
 
   var _actions = {
     "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
-    "ServiceTemplate.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
     "ServiceTemplate.show" : _commonActions.show(),
     "ServiceTemplate.refresh" : _commonActions.refresh(),
     "ServiceTemplate.delete" : _commonActions.del(),
-    "ServiceTemplate.chown": _commonActions.multipleAction('chown'),
-    "ServiceTemplate.chgrp": _commonActions.multipleAction('chgrp'),
-    "ServiceTemplate.chmod": _commonActions.singleAction('chmod'),
-    "ServiceTemplate.rename": _commonActions.singleAction('rename'),
+    "ServiceTemplate.chown": _commonActions.multipleAction("chown"),
+    "ServiceTemplate.chgrp": _commonActions.multipleAction("chgrp"),
+    "ServiceTemplate.chmod": _commonActions.singleAction("chmod"),
+    "ServiceTemplate.rename": _commonActions.singleAction("rename"),
     "ServiceTemplate.update" : _commonActions.update(),
     "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
-    "ServiceTemplate.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
+    
+    "ServiceTemplate.create_dialog" :  {
+      type: "custom",
+      call: function() {
+        Sunstone.runAction("Network.list");
+        Sunstone.runAction("VNTemplate.list");
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
+      }
+    },
+    "ServiceTemplate.show_to_update" :  {
+      type: "single",
+      call: function(params) {
+        Sunstone.runAction("Network.list");
+        Sunstone.runAction("VNTemplate.list");
+        OpenNebulaResource.show(params);
+      },
+      callback: function(request, response) {
+        Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT]);
+          }
+        );
+      },
+      error: Notifier.onError
+    },
 
     "ServiceTemplate.list" : {
       type: "list",
@@ -85,7 +112,7 @@ define(function(require) {
       type: "custom",
       call: function() {
         var selected_nodes = Sunstone.getDataTable(TAB_ID).elements();
-        if (selected_nodes.length != 1) {
+        if (selected_nodes.length !== 1) {
           Notifier.notifyMessage("Please select one (and just one) template to instantiate.");
           return false;
         }
@@ -106,12 +133,47 @@ define(function(require) {
         Sunstone.getDialog(CLONE_DIALOG_ID).show();
       }
     },
-    
+
     "ServiceTemplate.clone" : {
       type: "single",
       call: OpenNebulaResource.clone,
       error: Notifier.onError,
       notify: true
+    },
+
+    "ServiceTemplate.upload_marketplace_dialog" : {
+      type: "custom",
+      call: function(params) {
+        var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
+
+        if (selectedNodes.length !== 1) {
+          Notifier.notifyMessage(Locale.tr("Please select one (and just one) Service to export."));
+          return false;
+        }
+
+        var resourceId = '' + selectedNodes[0];
+
+        OpenNebulaResource.show({
+          data : {
+              id: resourceId
+          },
+          success: function(){
+            Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+            Sunstone.showFormPanel(
+              MARKETPLACEAPPS_TAB_ID,
+              CREATE_APP_DIALOG_ID,
+              "export_service",
+              function(formPanelInstance, context) {
+                formPanelInstance.setServiceId(resourceId);
+                $('#marketplaceapps-tab-wizardForms #TYPE').val('service_template').change();
+              }
+            );
+          },
+          error: function(error){
+            Notifier.onError(error);
+          }
+        });
+      }
     }
   };
 

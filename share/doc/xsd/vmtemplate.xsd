@@ -9,6 +9,16 @@
         <xs:element name="UNAME" type="xs:string"/>
         <xs:element name="GNAME" type="xs:string"/>
         <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="LOCKED" type="xs:integer"/>
+              <xs:element name="OWNER" type="xs:integer"/>
+              <xs:element name="TIME" type="xs:integer"/>
+              <xs:element name="REQ_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="PERMISSIONS" minOccurs="1" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>
@@ -25,7 +35,17 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="REGTIME" type="xs:integer"/>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+             <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="VCENTER_CCR_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_TEMPLATE_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

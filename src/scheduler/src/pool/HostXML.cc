@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,66 +23,168 @@
 #include "NebulaUtil.h"
 #include "NebulaLog.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-int HostXML::host_num_paths =  4;
+int HostXML::host_num_paths = 7;
 
 const char *HostXML::host_paths[] = {
     "/HOST/TEMPLATE/",
     "/HOST/HOST_SHARE/",
+    "/HOST/HOST_SHARE/DATASTORES/",
+    "/HOST/MONITORING/CAPACITY/",
+    "/HOST/MONITORING/SYSTEM/",
     "/HOST/",
     "/HOST/CLUSTER_TEMPLATE/"};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-void HostXML::init_attributes()
+void HostShareXML::init_attributes(ObjectXML * host)
 {
-    xpath(oid,         "/HOST/ID",                     -1);
-    xpath(cluster_id,  "/HOST/CLUSTER_ID",             -1);
-    xpath<long long>(mem_usage, "/HOST/HOST_SHARE/MEM_USAGE",   0);
-    xpath<long long>(cpu_usage, "/HOST/HOST_SHARE/CPU_USAGE",   0);
-    xpath<long long>(max_mem,   "/HOST/HOST_SHARE/MAX_MEM",     0);
-    xpath<long long>(max_cpu,   "/HOST/HOST_SHARE/MAX_CPU",     0);
-    xpath<long long>(free_disk, "/HOST/HOST_SHARE/FREE_DISK",   0);
-    xpath<long long>(running_vms, "/HOST/HOST_SHARE/RUNNING_VMS", 0);
+    //------------------ HostShare Computing Capacity --------------------------
+    host->xpath<long long>(mem_usage, "/HOST/HOST_SHARE/MEM_USAGE", 0);
+    host->xpath<long long>(cpu_usage, "/HOST/HOST_SHARE/CPU_USAGE", 0);
 
-    string public_cloud_st;
+    host->xpath<long long>(max_mem, "/HOST/HOST_SHARE/MAX_MEM", 0);
+    host->xpath<long long>(max_cpu, "/HOST/HOST_SHARE/MAX_CPU", 0);
 
-    xpath(public_cloud_st, "/HOST/TEMPLATE/PUBLIC_CLOUD", "");
-    public_cloud = (one_util::toupper(public_cloud_st) == "YES");
+    host->xpath<long long>(free_disk, "/HOST/HOST_SHARE/DATASTORES/FREE_DISK", 0);
+    host->xpath<long long>(running_vms, "/HOST/HOST_SHARE/RUNNING_VMS", 0);
 
     //-------------------- HostShare Datastores ------------------------------
-    vector<string> ds_ids;
-    vector<string> ds_free;
+    std::vector<int> ds_ids;
+    std::vector<long long> ds_free;
 
-    xpaths(ds_ids, "/HOST/HOST_SHARE/DATASTORES/DS/ID");
-    xpaths(ds_free,"/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB");
-
-    int id;
-    long long disk;
+    host->xpaths<int>(ds_ids, "/HOST/HOST_SHARE/DATASTORES/DS/ID");
+    host->xpaths<long long>(ds_free, "/HOST/HOST_SHARE/DATASTORES/DS/FREE_MB");
 
     for (size_t i = 0; i < ds_ids.size() && i < ds_free.size(); i++)
     {
-        id   = atoi(ds_ids[i].c_str());
-        disk = atoll(ds_free[i].c_str());
-
-        ds_free_disk[id] = disk;
+        ds_free_disk[ds_ids[i]] = ds_free[i];
     }
 
     //-------------------- HostShare PCI Devices ------------------------------
     vector<xmlNodePtr> content;
 
-    get_nodes("/HOST/HOST_SHARE/PCI_DEVICES", content);
+    host->get_nodes("/HOST/HOST_SHARE/PCI_DEVICES", content);
 
     if( !content.empty())
     {
         pci.from_xml_node(content[0]);
 
-        free_nodes(content);
+        host->free_nodes(content);
 
         content.clear();
     }
+
+    //---------------------- HostShare NUMA Nodes ------------------------------
+    unsigned int vms_thread;
+
+    host->xpath<unsigned int>(vms_thread, "/HOST/HOST_SHARE/VMS_THREAD", 1);
+
+    host->get_nodes("/HOST/HOST_SHARE/NUMA_NODES/NODE", content);
+
+    if(!content.empty())
+    {
+        numa.from_xml_node(content, vms_thread);
+
+        host->free_nodes(content);
+
+        content.clear();
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool HostShareXML::test_capacity(HostShareCapacity &sr, string & error)
+{
+    bool pci_fit  = pci.test(sr.pci);
+    bool numa_fit = numa.test(sr);
+    bool cpu_fit  = (max_cpu  - cpu_usage ) >= sr.cpu;
+    bool mem_fit  = (max_mem  - mem_usage ) >= sr.mem;
+
+    bool fits = cpu_fit && mem_fit && numa_fit && pci_fit;
+
+    if ( fits )
+    {
+        return true;
+    }
+
+    ostringstream oss;
+
+    if (!cpu_fit)
+    {
+        oss << "Not enough CPU capacity: " << sr.cpu << "/" << max_cpu  - cpu_usage;
+    }
+    else if (!mem_fit)
+    {
+        oss << "Not enough memory: " << sr.mem << "/" << max_mem  - mem_usage;
+    }
+    else if (!numa_fit)
+    {
+        oss << "Cannot allocate NUMA topology";
+    }
+    else if (!pci_fit)
+    {
+        oss <<  "Unavailable PCI device.";
+    }
+
+    error = oss.str();
+
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ostream& operator<<(ostream& o, const HostShareXML& s)
+{
+    o << "MEM_USAGE   : " << s.mem_usage   << endl;
+    o << "CPU_USAGE   : " << s.cpu_usage   << endl;
+    o << "MAX_MEM     : " << s.max_mem     << endl;
+    o << "MAX_CPU     : " << s.max_cpu     << endl;
+    o << "FREE_DISK   : " << s.free_disk   << endl;
+    o << "RUNNING_VMS : " << s.running_vms << endl;
+    o << endl;
+
+    o << right << setw(5)  << "DSID" << " " << right << setw(15) << "FREE_MB"
+      << " " << endl << setw(30) << setfill('-') << "-" << setfill (' ') << endl;
+
+    for (auto it = s.ds_free_disk.begin() ; it != s.ds_free_disk.end() ; ++it)
+    {
+        o << right << setw(5) << it->first << " "
+          << right << setw(15)<< it->second<< " " <<  endl;
+    }
+
+    o << endl << s.pci;
+
+    o << endl << s.numa;
+
+    return o;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HostXML::init_attributes()
+{
+    std::string public_cloud_st;
+
+    //--------------------- Init host attributes -------------------------------
+    xpath(oid,         "/HOST/ID",                     -1);
+    xpath(cluster_id,  "/HOST/CLUSTER_ID",             -1);
+
+    xpath(public_cloud_st, "/HOST/TEMPLATE/PUBLIC_CLOUD", "");
+    public_cloud = (one_util::toupper(public_cloud_st) == "YES");
+
+    share.init_attributes(this);
 
     //-------------------- Init search xpath routes ---------------------------
     ObjectXML::paths     = host_paths;
@@ -92,107 +194,12 @@ void HostXML::init_attributes()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool HostXML::test_capacity(long long cpu, long long mem,
-    vector<VectorAttribute *>& p, string & error)
-{
-    bool pci_fits = pci.test(p);
-    bool fits     = ((max_cpu  - cpu_usage ) >= cpu) &&
-                    ((max_mem  - mem_usage ) >= mem) &&
-                    pci_fits;
-    if (!fits)
-    {
-        if (NebulaLog::log_level() >= Log::DDEBUG)
-        {
-            if ( pci_fits )
-            {
-                ostringstream oss;
-
-                oss << "Not enough capacity. "
-                    << "Requested: "
-                    << cpu << " CPU, "
-                    << mem << " KB MEM; "
-                    << "Available: "
-                    << (max_cpu  - cpu_usage ) << " CPU, "
-                    << (max_mem  - mem_usage ) << " KB MEM";
-
-                error = oss.str();
-            }
-            else
-            {
-                error = "Unavailable PCI device.";
-            }
-        }
-        else
-        {
-            if ( pci_fits )
-            {
-                error = "Not enough capacity.";
-            }
-            else
-            {
-                error = "Unavailable PCI device.";
-            }
-        }
-    }
-
-    return fits;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-bool HostXML::test_ds_capacity(int dsid, long long vm_disk_mb)
-{
-    if (ds_free_disk.count(dsid) == 0)
-    {
-        ds_free_disk[dsid] = free_disk;
-    }
-
-    return (vm_disk_mb < ds_free_disk[dsid]);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void HostXML::add_ds_capacity(int dsid, long long vm_disk_mb)
-{
-    if (ds_free_disk.count(dsid) == 0)
-    {
-        ds_free_disk[dsid] = free_disk;
-    }
-
-    ds_free_disk[dsid] -= vm_disk_mb;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 ostream& operator<<(ostream& o, const HostXML& p)
 {
-    map<int, long long>::const_iterator it;
-
-    o << "ID          : " << p.oid          << endl;
-    o << "CLUSTER_ID  : " << p.cluster_id   << endl;
-    o << "MEM_USAGE   : " << p.mem_usage    << endl;
-    o << "CPU_USAGE   : " << p.cpu_usage    << endl;
-    o << "MAX_MEM     : " << p.max_mem      << endl;
-    o << "MAX_CPU     : " << p.max_cpu      << endl;
-    o << "FREE_DISK   : " << p.free_disk    << endl;
-    o << "RUNNING_VMS : " << p.running_vms  << endl;
+    o << "ID          : " << p.oid        << endl;
+    o << "CLUSTER_ID  : " << p.cluster_id << endl;
     o << "PUBLIC      : " << p.public_cloud << endl;
-
-    o << endl
-      << right << setw(5)  << "DSID" << " "
-      << right << setw(15) << "FREE_MB" << " "
-      << endl << setw(30) << setfill('-') << "-" << setfill (' ') << endl;
-
-        for (it = p.ds_free_disk.begin() ; it != p.ds_free_disk.end() ; it++)
-        {
-            o << right << setw(5) << it->first << " "
-              << right << setw(15)<< it->second<< " " <<  endl;
-        }
-
-    o << endl << p.pci;
+    o << p.share;
 
     return o;
 }
@@ -210,3 +217,4 @@ void HostXML::get_permissions(PoolObjectAuth& auth)
     auth.cids     = cids;
     auth.obj_type = PoolObjectSQL::HOST;
 }
+

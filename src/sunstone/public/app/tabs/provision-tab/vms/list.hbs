@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,31 +16,31 @@
 <dl class="accordion accordion_list provision_list_vms" data-accordion>
   <dd class="{{#if opts.active}}is-active{{/if}} accordion-item" data-accordion-item>
     <a href="#provision_list_vm_accordion{{accordionId}}" class="provision_back only-not-active accordion-title right">
-      <span class="button"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
+      <span class="button"> <i class="fas fa-fw fa-lg fa-th"/><i class="fas fa-fw fa-lg fa-chevron-left"/>
       </span>
     </a>
     <h4>
       <a href"#" class="only-active provision_vms_list_refresh_button" 
                 {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
-        <i class="fa fa-fw fa-refresh"/>
+        <i class="fas fa-fw fa-sync-alt"/>
       </a>
       <a href"#" class="only-not-active provision_refresh_info" 
                 {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
-        <i class="fa fa-fw fa-refresh"/>
+        <i class="fas fa-fw fa-sync-alt"/>
       </a>
       <span class="only-active">{{opts.title}}</span>
       <span class="provision_info_vm_name only-not-active"></span>
       {{#isTabActionEnabled "provision-tab" "VM.rename"}}
       <small class="provision_info_vm_rename only-not-active">
         <a href="#">
-          <i class="fa fa-pencil"/></a>
+          <i class="fas fa-pencil-alt"/></a>
       </small>
       {{/isTabActionEnabled}}
       <span class="right only-active provision_list_vms_filter"></span>
       <input type="search" class="right only-active provision_list_vms_search provision-search-input " placeholder="Search VMs"/>
       {{#if opts.create}}
       <span href"#" class="right only-active button success provision_create_vm_button">
-        <i class="fa fa-fw fa-lg fa-plus-square"/>
+        <i class="fas fa-fw fa-lg fa-plus-square"/>
       </span>
       {{/if}}
     </h4>

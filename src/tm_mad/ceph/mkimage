@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -25,7 +25,7 @@
 #   - dsid is the target datastore (0 is the system datastore)
 
 SIZE=$1
-FSTYPE=$2
+FORMAT=$2
 DST=$3
 
 VMID=$4
@@ -45,7 +45,8 @@ DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
 
-source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
@@ -61,7 +62,7 @@ DST_DIR=`dirname $DST_PATH`
 DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 
 #-------------------------------------------------------------------------------
-# Make the new image (file-based)
+#  Get Image information
 #-------------------------------------------------------------------------------
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
@@ -70,52 +71,110 @@ unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
-        done < <(onevm show -x $VMID | $XPATH  \
+done < <(onevm show -x $VMID | $XPATH  \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
                             /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/POOL_NAME \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT)
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RBD_FORMAT \
+                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/FS)
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 RBD_FORMAT="${XPATH_ELEMENTS[j++]:-$RBD_FORMAT}"
+FS="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DSID | $XPATH \
+                            /DATASTORE/TEMPLATE/EC_POOL_NAME)
+
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
+
+QEMU_OPTS=''
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
+    QEMU_OPTS="${QEMU_OPTS}:id=${CEPH_USER}"
 fi
 
 if [ -n "$CEPH_KEY" ]; then
     RBD="$RBD --keyfile ${CEPH_KEY}"
+    QEMU_OPTS="${QEMU_OPTS}:keyfile=${CEPH_KEY}"
 fi
 
 if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
+    QEMU_OPTS="${QEMU_OPTS}:conf=${CEPH_CONF}"
 fi
 
 if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
 fi
 
+if [ -n "$EC_POOL_NAME" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL_NAME}"
+fi
+
 RBD_SOURCE="${POOL_NAME}/one-sys-${VMID}-${DISK_ID}"
 
-MKIMAGE_CMD=$(cat <<EOF
-    export PATH=/usr/sbin:/sbin:\$PATH
-    $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
+ssh_make_path $DST_HOST $DST_DIR
 
-    if [ "$FSTYPE" = "swap" ]; then
-        $SUDO $RBD map $RBD_SOURCE || exit \$?
-        $SUDO $MKSWAP -L swap /dev/rbd/$RBD_SOURCE
-        $SUDO $RBD unmap /dev/rbd/$RBD_SOURCE
+set -e -o pipefail
+
+# if user requested a swap or specifies a FS, we need to create a local
+# formatted image and upload into existing Ceph image
+FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
+MKFS_CMD=`mkfs_command $DST_PATH raw $SIZE "$SUPPORTED_FS" "$FS" "$FS_OPTS"`
+
+MKIMAGE_CMD=$(cat <<EOF
+    set -e -o pipefail
+
+    export PATH=/usr/sbin:/sbin:\$PATH
+EOF
+)
+
+if [ ! -z "${FS}" ]; then
+MKIMAGE_CMD=$(cat <<EOF
+    $MKIMAGE_CMD
+
+    ${MKFS_CMD}
+
+    $RBD import $FORMAT_OPT $DST_PATH $RBD_SOURCE
+    $RM -f $TMP_DST
+EOF
+)
+else
+MKIMAGE_CMD=$(cat <<EOF
+    $MKIMAGE_CMD
+
+    $RBD create $FORMAT_OPT ${EC_POOL_OPT} $RBD_SOURCE --size ${SIZE}
+
+    if [ "$FORMAT" = "swap" ]; then
+        ${MKFS_CMD}
+
+        ${QEMU_IMG} convert -n \
+            -f raw "${DST_PATH}" \
+            -O rbd "rbd:${RBD_SOURCE}${QEMU_OPTS}"
+
+        ${RM} -f "${DST_PATH}"
     fi
 EOF
 )
+fi
 
 DELIMAGE_CMD=$(cat <<EOF
     export PATH=/usr/sbin:/sbin:\$PATH
     $RBD rm $RBD_SOURCE
+    ${RM} -f "${DST_PATH}"
 EOF
 )
 

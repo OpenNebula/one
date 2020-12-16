@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,22 +22,39 @@ require 'json'
 require 'base64'
 require 'rexml/document'
 
+# OpenNebula MarketPlace
 class OneMarket
-    ONE_MARKET_URL = 'http://marketplace.opennebula.systems/'
+
+    ONE_MARKET_URL = 'https://marketplace.opennebula.io/'
     AGENT          = 'Market Driver'
     VERSION        = File.dirname(__FILE__) + '/../../VERSION'
+    EDITION        = File.dirname(__FILE__) + '/../../EDITION'
 
     def initialize(url)
-        @url   = url || ONE_MARKET_URL
-        @agent = "OpenNebula #{File.read(VERSION)} (#{AGENT})"
+        if File.exist?(EDITION)
+            edition = File.read(EDITION).strip
+        else
+            edition = nil
+        end
+
+        @url    = url || ONE_MARKET_URL
+        version = File.read(VERSION).strip
+
+        if edition && !edition.empty?
+            @agent = "OpenNebula #{version} #{edition} (#{AGENT})"
+        else
+            @agent = "OpenNebula #{version} (#{AGENT})"
+        end
     end
 
     def get(path)
-
         # Get proxy params (needed for ruby 1.9.3)
         http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
 
         if http_proxy
+            # prepend 'http' if missing to parse with URI()
+            http_proxy = 'http://' + http_proxy if http_proxy !~ /^http/
+
             p_uri   = URI(http_proxy)
             p_host  = p_uri.host
             p_port  = p_uri.port
@@ -51,73 +68,149 @@ class OneMarket
 
         req['User-Agent'] = @agent
 
-        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port) {|http|
+        response = Net::HTTP.start(uri.hostname, uri.port, p_host, p_port,
+                                   :use_ssl => uri.scheme == 'https') do |http|
             http.request(req)
-        }
+        end
 
-        if response.is_a? Net::HTTPSuccess
-            return 0, response.body
-        else
-            return response.code.to_i, response.msg
+        return 0, response.body if response.is_a? Net::HTTPSuccess
+
+        [response.code.to_i, response.msg]
+    end
+
+    def render_image(tmpl, app)
+        return if app['files'].nil? || app['files'][0].nil?
+
+        file = app['files'][0]
+        size = 0
+
+        size = file['size'].to_i / (2**20) if file['size'].to_i != 0
+
+        print_var(tmpl, 'SIZE', size)
+        print_var(tmpl, 'MD5', file['md5'])
+
+        tmpl64 = ''
+        print_var(tmpl64, 'DEV_PREFIX', file['dev_prefix'])
+        print_var(tmpl64, 'TYPE', file['type'])
+
+        if !tmpl64.empty?
+            print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(tmpl64))
+        end
+
+        ot = app['opennebula_template']
+
+        return if ot.nil? || ot.empty?
+
+        begin
+            print_var(tmpl, 'VMTEMPLATE64',
+                      Base64.strict_encode64(template_to_str(JSON.parse(ot))))
+        rescue StandardError
+            nil
         end
     end
 
-    def get_appliances()
-        rc, body = get('/appliance')
+    def render_vmtemplate(tmpl, app)
+        print_var(tmpl, 'SIZE', 0)
+        print_var(tmpl, 'MD5',  app['md5'])
 
+        if app['disks']
+            app['disks'].each do |disk|
+                dname = disk.keys.first
+
+                tmpl << <<-EOT.strip
+                  DISK = [ NAME = "#{dname}", APP="#{disk[dname]}]
+                EOT
+            end
+        end
+
+        ot = app['opennebula_template']
+
+        return if ot.nil? || ot.empty?
+
+        begin
+            print_var(tmpl, 'APPTEMPLATE64',
+                      Base64.strict_encode64(template_to_str(JSON.parse(ot))))
+        rescue StandardError
+            nil
+        end
+    end
+
+    def render_service_template(tmpl, app)
+        print_var(tmpl, 'SIZE', 0)
+        print_var(tmpl, 'MD5',  app['md5'])
+
+        if app['roles']
+            app['roles'].each do |disk|
+                rname = disk.keys.first
+
+                tmpl << <<-EOT.strip
+                  ROLE = [ NAME = "#{rname}", APP="#{role[rname]}]
+                EOT
+            end
+        end
+
+        ot = app['opennebula_template']
+
+        return if ot.nil? || ot.empty?
+
+        begin
+            print_var(tmpl, 'APPTEMPLATE64', Base64.strict_encode64(ot))
+        rescue StandardError
+            nil
+        end
+    end
+
+    def fetch_appliances
+        rc, body = get('/appliance')
         if rc != 0
             return rc, body
         end
 
         applist = JSON.parse(body)
-        appstr  = ""
+        appstr  = ''
 
-        applist['appliances'].each { |app|
-            id     = app["_id"]["$oid"]
-            source = "#{@url}/appliance/#{id}/download/0"
+        applist['appliances'].each do |app|
+            id     = app['_id']['$oid']
+            link   = "#{@url}appliance/#{id}"
+            source = "#{link}/download/0"
+            tmpl = ''
 
-            tmpl = ""
+            #-------------------------------------------------------------------
+            # Common App attributes
+            #-------------------------------------------------------------------
+            app['type'] = 'IMAGE' unless app['type']
 
-            print_var(tmpl, "NAME",        app["name"])
-            print_var(tmpl, "SOURCE",      source)
-            print_var(tmpl, "IMPORT_ID",   id)
-            print_var(tmpl, "ORIGIN_ID",   "-1")
-            print_var(tmpl, "TYPE",        "IMAGE")
-            print_var(tmpl, "PUBLISHER",   app["publisher"])
-            print_var(tmpl, "FORMAT",      app["format"])
-            print_var(tmpl, "DESCRIPTION", app["short_description"])
-            print_var(tmpl, "VERSION",     app["version"])
-            print_var(tmpl, "TAGS",        app["tags"].join(', '))
-            print_var(tmpl, "REGTIME",     app["creation_time"])
+            print_var(tmpl, 'NAME',        app['name'])
+            print_var(tmpl, 'SOURCE',      source)
+            print_var(tmpl, 'IMPORT_ID',   id)
+            print_var(tmpl, 'ORIGIN_ID',   '-1')
+            print_var(tmpl, 'TYPE',        app['type'])
+            print_var(tmpl, 'PUBLISHER',   app['publisher'])
+            print_var(tmpl, 'FORMAT',      app['format'])
+            print_var(tmpl, 'DESCRIPTION', app['short_description'])
+            print_var(tmpl, 'VERSION',     app['version'])
+            print_var(tmpl, 'TAGS', app['tags'].join(', ')) if app['tags']
 
-            if !app["files"].nil? && !app["files"][0].nil?
-                file = app["files"][0]
-                size = 0
+            print_var(tmpl, 'REGTIME', app['creation_time'])
+            print_var(tmpl, 'LINK',    link)
 
-                if (file["size"].to_i != 0)
-                    size = file["size"].to_i / (2**20)
-                end
+            #-------------------------------------------------------------------
+            # Specific App attributes & APPTEMPLATE64
+            #-------------------------------------------------------------------
 
-                print_var(tmpl, "SIZE", size)
-                print_var(tmpl, "MD5",  file["md5"])
-
-                tmpl64 = ""
-                print_var(tmpl64, "DEV_PREFIX", file["dev_prefix"])
-                print_var(tmpl64, "DRIVER",     file["driver"])
-                print_var(tmpl64, "TYPE",       file["type"])
-
-                if !tmpl64.empty?
-                    print_var(tmpl, "APPTEMPLATE64", Base64::strict_encode64(tmpl64))
-                end
+            case app['type']
+            when 'IMAGE'
+                render_image(tmpl, app)
+            when 'VMTEMPLATE'
+                render_vmtemplate(tmpl, app)
+            when 'SERVICE_TEMPLATE'
+                render_service_template(tmpl, app)
+            else
+                next
             end
 
-            if !app["opennebula_template"].nil?
-                vmtmpl64 = template_to_str(JSON.parse(app["opennebula_template"]))
-                print_var(tmpl, "VMTEMPLATE64", Base64::strict_encode64(vmtmpl64))
-            end
-
-            appstr << "APP=\"#{Base64::strict_encode64(tmpl)}\"\n"
-        }
+            appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
+        end
 
         appstr
     end
@@ -128,7 +221,7 @@ class OneMarket
         return if val.nil?
         return if val.class == String && val.empty?
 
-        val.gsub!('"','\"') if val.class == String
+        val.gsub!('"', '\"') if val.class == String
 
         str << "#{name}=\"#{val}\"\n"
     end
@@ -137,21 +230,23 @@ class OneMarket
         thash.collect do |key, value|
             next if value.nil? || value.empty?
 
-            str = case value.class.name
-            when "Hash"
+            case value.class.name
+            when 'Hash'
                 attr = "#{key.to_s.upcase} = [ "
 
                 attr << value.collect do |k, v|
-                     next if v.nil? || v.empty?
-                     "#{k.to_s.upcase}  =\"#{v.to_s}\""
-                end.compact.join(",")
+                    next if v.nil? || v.empty?
+
+                    "#{k.to_s.upcase}  =\"#{v}\""
+                end.compact.join(',')
 
                 attr << "]\n"
-            when "String"
-                "#{key.to_s.upcase} = \"#{value.to_s}\""
+            when 'String'
+                "#{key.to_s.upcase} = \"#{value}\""
             end
         end.compact.join("\n")
     end
+
 end
 
 ################################################################################
@@ -159,12 +254,13 @@ end
 ################################################################################
 
 begin
-    drv_message = Base64::decode64(ARGV[0])
+    drv_message = Base64.decode64(ARGV[0])
     doc = REXML::Document.new(drv_message).root
     url = doc.elements['MARKETPLACE/TEMPLATE/ENDPOINT'].text rescue nil
-rescue Exception
+rescue StandardError
+    nil
 end
 
-#TODO get marketplace URL from MARKETPLACE Templace for other markets
+# TODO: get marketplace URL from MARKETPLACE Templace for other markets
 one_market = OneMarket.new(url)
-puts one_market.get_appliances
+puts one_market.fetch_appliances

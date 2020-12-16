@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,23 +25,23 @@
 class RequestManagerAllocateDB: public Request
 {
 protected:
-    RequestManagerAllocateDB(const string& name): Request(name, "A:ss",
+    RequestManagerAllocateDB(const std::string& name): Request(name, "A:ss",
             "Allocates a new object from its template representation")
     {
         auth_op = AuthRequest::MANAGE;
     };
 
-    virtual ~RequestManagerAllocateDB(){};
+    ~RequestManagerAllocateDB(){};
 
     virtual PoolObjectSQL * create(const std::string& xml) = 0;
 
     /* -------------------------------------------------------------------- */
 
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att)
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override
     {
         std::string xml = xmlrpc_c::value_string(pl.getString(1));
 
-        if ( att.uid != UserPool::ONEADMIN_ID )
+        if (!att.is_oneadmin())
         {
             failure_response(AUTHORIZATION, att);
             return;
@@ -75,11 +75,11 @@ public:
         pool        =  Nebula::instance().get_apppool();
     };
 
-    virtual ~MarketPlaceAppAllocateDB(){};
+    ~MarketPlaceAppAllocateDB(){};
 
     /* -------------------------------------------------------------------- */
 
-    PoolObjectSQL * create(const std::string& xml)
+    PoolObjectSQL * create(const std::string& xml) override
     {
         PoolObjectSQL * app = static_cast<MarketPlaceAppPool *>(pool)->create();
 
@@ -101,11 +101,11 @@ public:
         pool        =  Nebula::instance().get_marketpool();
     };
 
-    virtual ~MarketPlaceAllocateDB(){};
+    ~MarketPlaceAllocateDB(){};
 
     /* -------------------------------------------------------------------- */
 
-    PoolObjectSQL * create(const std::string& xml)
+    PoolObjectSQL * create(const std::string& xml) override
     {
         PoolObjectSQL * mp = static_cast<MarketPlacePool *>(pool)->create();
 

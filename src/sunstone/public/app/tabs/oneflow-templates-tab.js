@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,11 +46,12 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Services"),
-    icon: 'fa-files-o',
+    icon: 'fa-copy',
     tabClass: "subTab",
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("Service Templates"),
     infoHeader: Locale.tr("Service Template"),
+    lockable: false,
     subheader: '',
     content: '<div class="row oneflow_templates_error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\

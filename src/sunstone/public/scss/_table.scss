@@ -32,6 +32,51 @@ table {
     border-bottom: 1px solid smart-scale($table-background, $table-hover-scale);
     border-left: 0;
     border-right: 0;
+    td {
+      &.overflow {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        &::before {
+          content: attr(title);
+          display: none;
+        }
+      }
+
+      .cpu{
+        margin: 0px;
+        padding: 0px;
+        a,.no-vm{
+          color: $white;
+          font-weight: bold;
+          padding: 5px;
+          display: inline-block;
+          width: 100%;
+          box-sizing: border-box;
+        }
+      }
+
+      .busy{
+        background-color: $busy;
+        color: $white;
+        font-weight: bold;
+        border: 1px solid $white;
+      }
+
+      .free{
+        background-color: $free;
+        font-weight: bold;
+        color: $white;
+        border: 1px solid $white;
+      }
+
+      .isolated{
+        background-color: $isolated;
+        font-weight: bold;
+        color: $white;
+        border: 1px solid $white;
+      }
+    }
   }
 
   tfoot {
@@ -89,4 +134,50 @@ span .fa-times:hover {
 button.search-dropdown {
   box-shadow: none !important;
   border-style: none !important;
+}
+
+button.remote-vm {
+  margin: 0 5px;
+  font-size: 1.4em;
+
+  &.spice i {
+    -webkit-text-stroke: 0.7px;
+  }
+
+  &.ssh {
+    border: .15em solid $anchor-color;
+    padding: .16em .2em;
+    font-size: .8em;
+
+    &:hover {
+      border-color: $anchor-color-hover;
+    }
+  }
+
+  i {
+    color: $anchor-color;
+  }
+
+  &:hover i {
+    color: $anchor-color-hover;
+  }
+
+  &:focus,
+  &:active,
+  &:focus i,
+  &:active i {
+    outline: 0;
+  }
+}
+
+a.rdp,
+a.save-rdp {
+  display: flex !important;
+  align-items: baseline;
+
+  &:hover {
+    background-color: rgba($color: $anchor-color-hover, $alpha: .6);
+    color: #ffffff;
+    font-weight: 600;
+  }
 }

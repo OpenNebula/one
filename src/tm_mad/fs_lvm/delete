@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,7 +30,12 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
+DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb"
+
 source $TMCOMMON
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 #-------------------------------------------------------------------------------
 # Return if deleting a disk, we will delete them when removing the
@@ -39,34 +44,91 @@ source $TMCOMMON
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 
-DS_SYS_ID=$(echo $DST_PATH | grep -E '\/disk\.[[:digit:]]+$' | $AWK -F '/' '{print $(NF-2)}')
+if [ `is_disk $DST_PATH` -eq 1 ]; then
+    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-2)}')
+else
+    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-1)}')
+fi
 
-# Delete the device if it's a clone (LVM snapshot)
-DELETE_CMD=$(cat <<EOF
-    set -x
-    DEV=\$(readlink $DST_PATH)
+unset i j XPATH_ELEMENTS
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VM_ID | $XPATH \
+    '/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME')
 
-    if [ -d "$DST_PATH" ]; then
-        rm -rf "$DST_PATH"
-    else
-        rm -f $DST_PATH
+LAST_HOST="${XPATH_ELEMENTS[j++]}"
 
-        if [ -z "\$DEV" ]; then
-            exit 0
-        fi
 
+# Change DST_HOST to one of the BRIDGE_LIST to prevent
+# running on frontend for undeployed VMs
+if [ "$LAST_HOST" != "$DST_HOST" ]; then
+    unset i j XPATH_ELEMENTS
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onedatastore show -x $DS_SYS_ID | $XPATH \
+        /DATASTORE/TEMPLATE/BRIDGE_LIST)
+
+    BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
+
+    if [ -n "$BRIDGE_LIST" ]; then
+        DST_HOST=$(get_destination_host)
+    fi
+fi
+
+# Activate device
+ACTIVATE_CMD=$(cat <<EOF
+    set -ex -o pipefail
+    if [ -L "$DST_PATH" ]; then
+        DEV=\$(readlink $DST_PATH)
         if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
-            $SUDO $LVREMOVE -f \$DEV
+            ${SYNC}
+            ${SUDO} ${LVSCAN}
+            ${SUDO} ${LVCHANGE} -ay "\${DEV}"
         fi
     fi
 EOF
 )
 
-if [ -n "${DS_SYS_ID}" ]; then
+# Zero space
+ZERO_CMD=$(cat <<EOF
+    set -ex -o pipefail
+    if [ -L "$DST_PATH" ]; then
+        DEV=\$(readlink $DST_PATH)
+        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+            ${DD} if=/dev/zero of="\${DEV}" bs=${DD_BLOCK_SIZE:-64k} || :
+        fi
+    fi
+EOF
+)
+
+# Delete the device if it's a clone (LVM snapshot)
+DELETE_CMD=$(cat <<EOF
+    set -ex -o pipefail
+
+    if [ -d "$DST_PATH" ]; then
+        rm -rf "$DST_PATH"
+        exit 0
+    fi
+
+    if [ -L "$DST_PATH" ]; then
+        DEV=\$(readlink $DST_PATH)
+        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+            $SUDO $LVREMOVE -f "\$DEV"
+        fi
+    fi
+
+    rm -f "$DST_PATH"
+EOF
+)
+
+if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
     LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
-    exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
-        "Error deleting $DST_PATH"
-else
-    ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
-        "Error deleting $DST_PATH"
+    exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$ACTIVATE_CMD" \
+        "Error activating disk $SRC_PATH"
+
+    ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" "Error cleaning $DST_PATH"
 fi
+
+LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
+    "Error deleting $DST_PATH"

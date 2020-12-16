@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -17,13 +17,13 @@
 <dl class="accordion accordion_list provision_list_templates" data-accordion>
   <dd class="{{#if opts.active}}is-active{{/if}} accordion-item" data-accordion-item>
     <a class="only-not-active accordion-title" href="#provision_list_template_accordion{{accordionId}}">
-      <span class="button"> <i class="fa fa-fw fa-lg fa-th"/><i class="fa fa-fw fa-lg fa-chevron-left"/>
+      <span class="button"> <i class="fas fa-fw fa-lg fa-th"/><i class="fas fa-fw fa-lg fa-chevron-left"/>
       </span>
     </a>
     <h4>
       <a href"#" class="only-active provision_templates_list_refresh_button" 
           {{#unless opts.refresh}}hidden{{/unless}} title=" {{tr "Refresh"}}">
-        <i class="fa fa-fw fa-refresh"/></a>
+        <i class="fas fa-fw fa-sync-alt"/></a>
       </a>
       <span class="only-active">{{opts.title}}</span>
       <span class="right only-active provision_list_templates_filter"></span>

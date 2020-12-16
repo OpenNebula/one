@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -33,6 +33,21 @@
         <tr>
           <td class="key_td">{{tr "VLAN ID"}}</td>
           <td class="value_td">{{valOrDefault element.VLAN_ID "--"}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "AUTO VLAN ID"}}</td>
+          <td class="value_td">{{autoVlanID}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "OUTER VLAN ID"}}</td>
+          <td class="value_td">{{valOrDefault element.OUTER_VLAN_ID "--"}}</td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="key_td">{{tr "AUTO OUTER VLAN ID"}}</td>
+          <td class="value_td">{{autoOuterVlanID}}</td>
           <td></td>
         </tr>
       <tbody>

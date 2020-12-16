@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -58,6 +58,31 @@ function set_up_datastore {
 #-------------------------------------------------------------------------------
 function image_format {
     echo "$($QEMU_IMG info $1 2>/dev/null | grep -Po '(?<=file format: )\w+')"
+}
+
+#-------------------------------------------------------------------------------
+# Get image virtual size using qemu-img
+#   @return string representation of the format, empty if error
+#-------------------------------------------------------------------------------
+function image_vsize {
+    echo "$($QEMU_IMG info "${1}" 2>/dev/null | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')"
+}
+
+#-------------------------------------------------------------------------------
+# Get minimal image size required to download
+#   @return integer number of bytes
+#-------------------------------------------------------------------------------
+function image_size_required {
+    unset REQUIRED
+
+    OUT=$($QEMU_IMG info "${1}" 2>&1)
+    if [ $? -ne 0 ]; then
+        REQUIRED=$(echo "${OUT}" | \
+            grep 'expecting at least [0-9]* bytes' | \
+            sed -e 's/.*expecting at least \([0-9]*\) bytes.*/\1/')
+    fi
+
+    echo "${REQUIRED:-65536}"
 }
 
 #-------------------------------------------------------------------------------
@@ -118,7 +143,7 @@ function set_downloader_args {
         HASHES="$HASHES --sha1 $2"
     fi
 
-    if [ "$3" = "yes" -o "$3" = "Yes" -o "$3" = "YES" ]; then
+    if [ "x$(echo "$3" | tr A-Z a-z)" = "xyes" ]; then
         HASHES="$HASHES --nodecomp"
     fi
 
@@ -126,7 +151,9 @@ function set_downloader_args {
         HASHES="$HASHES --limit $4"
     fi
 
-    echo "$HASHES $5 $6"
+    [ -n "$HASHES" ] && echo -ne "$HASHES "
+    [ -n "$5" ]      && echo -ne "'$5' "
+    [ -n "$6" ]      && echo -ne "'$6'"
 }
 
 #------------------------------------------------------------------------------
@@ -149,6 +176,17 @@ function file_size {
     $STAT_CMD "$*"
 }
 
+
+#------------------------------------------------------------------------------
+# Gets the MIME type of a file
+#   @param $1 - Path to the image
+#   @return MIME type
+#------------------------------------------------------------------------------
+
+function file_type {
+    file -b --mime-type "${1}" | tr A-Z a-z
+}
+
 #------------------------------------------------------------------------------
 # Gets the size in bytes of a gzipped file
 #   @param $1 - Path to the image
@@ -159,68 +197,249 @@ function gzip_file_size {
     gzip -l "$1" | tail -n 1 | awk '{print $2}'
 }
 
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a xzipped file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function xz_file_size {
+    xz -l --robot "$1" | tail -n 1 | awk '{print $5}'
+}
+
+#------------------------------------------------------------------------------
+# Gets the size in bytes of a bzipped file
+#   @param $1 - Path to the image
+#   @return size of the image in bytes
+#------------------------------------------------------------------------------
+
+function bzip_file_size {
+    bunzip2 -c "${1}" | wc -c
+}
+
 #-------------------------------------------------------------------------------
 # Computes the size of an image
 #   @param $1 - Path to the image
-#   @return size of the image in Mb
+#   @param $2 - NO_DECOMPRESS
+#   @param $3 - BW LIMIT
+#   @return status code
+#     - on success: 0
+#     - on failure: != 0
+#   @return stdout with data
+#     - on success: size of image in MiB
+#     - on failure: error message
 #-------------------------------------------------------------------------------
 function fs_size {
+    SRC=$1
+    NO_DECOMPRESS=$(echo "$2" | tr A-Z a-z)
+    LIMIT_TRANSFER_BW=$3
 
-    case $1 in
-    http://*|https://*)
-        HEADERS=`curl -LIk --max-time 60 "${1}" 2>&1`
+    DOWNLOADER_ARGS=`set_downloader_args '' '' "${NO_DECOMPRESS}" "${LIMIT_TRANSFER_BW}"`
 
-        if echo "$HEADERS" | grep -i -q "OpenNebula-AppMarket-Size"; then
-            # An AppMarket/Marketplace URL
-            SIZE=$(echo "$HEADERS" | grep -i "^OpenNebula-AppMarket-Size:" | tail -n1 | cut -d: -f2)
-            error=$?
-        else
-            # Not an AppMarket/Marketplace URL
-            SIZE=$(echo "$HEADERS" | grep -i "^Content-Length:" | tail -n1 | cut -d: -f2 | tr -d "\r")
-            error=$?
+    if [ -z "${UTILS_PATH}" ] && [ -n "${DRIVER_PATH}" ]; then
+        UTILS_PATH="${DRIVER_PATH}/../../datastore"
+    fi
 
-            # Try to download the image head and inspect via qemu-img
-            IMAGE=$(mktemp)
-            curl -Lk --max-time 60 "${1}" 2>/dev/null | head -c 65536 >${IMAGE}
-            QSIZE=$($QEMU_IMG info "${IMAGE}" | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')
-            rm "${IMAGE}" 2>/dev/null
+    if ! [ -d "${UTILS_PATH}" ]; then
+        log_error "Failed to detect downloader.sh location"
+        exit 1
+    fi
 
-            if [ "${QSIZE}" -gt "${SIZE}" ]; then
-                SIZE="${QSIZE}"
+    error=1
+
+    # limit only on local or remote http(s)
+    if [ -d "${SRC}" ]; then
+        SIZE=`set -o pipefail; du -sb "${SRC}" | cut -f1`
+        error=$?
+    elif (echo "${SRC}" | grep -qe '^docker\?://'); then
+        url=`echo ${SRC} | grep -oP "^"docker://"\K.*"`
+        arguments=`echo $url | cut -d '?' -f 2`
+
+        for p in ${arguments//&/ }; do
+            kvp=( ${p/=/ } );
+
+            if [ ${kvp[0]} == 'size' ]; then
+                SIZE=$((${kvp[1]} * 1024 * 1024));
+                error=0
+                break
             fi
-        fi
-        ;;
-    *)
-        if [ -d "$1" ]; then
-            SIZE=`du -sb "$1" | cut -f1`
+        done
+    elif [ -f "${SRC}" ] || (echo "${SRC}" | grep -qe '^https\?://'); then
+        IMAGE=$(mktemp)
+
+        HEAD_SIZE=0
+        NEW_HEAD_SIZE=$(image_size_required "${IMAGE}")
+
+        while [ "${HEAD_SIZE}" != "${NEW_HEAD_SIZE}" ]; do
+            HEAD_SIZE=${NEW_HEAD_SIZE}
+
+            # try first download only a part of image
+            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} -c "${HEAD_SIZE}" "${SRC}" - >"${IMAGE}" 2>/dev/null
             error=$?
+            if [ $error -ne 0 ]; then
+                # better fail here ...
+                echo "Failed to get image head"
+                return 1
+            fi
+
+            TYPE=$(image_format "${IMAGE}")
+            if [ -z "${TYPE}" ]; then
+                # if unknown image type, maybe we haven't downloaded
+                # enough bytes; check if qemu-img info doesn't complain
+                # on least than expected bytes and redownload more bytes
+                NEW_HEAD_SIZE=$(image_size_required "${IMAGE}")
+                if [ -n "${NEW_HEAD_SIZE}" ] && [ "${NEW_HEAD_SIZE}" != "${HEAD_SIZE}" ]; then
+                    continue  # redownload more bytes
+                else
+                    echo "Failed to detect image format"
+                    return 1
+                fi
+            fi
+        done
+
+        # raw images requires special handling, as there is no image header
+        # with size available and we can't predict image virtual size just
+        # from a part of the file
+        if [ "${TYPE}" = 'raw' ]; then
+            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp -c "${HEAD_SIZE}" "${SRC}" - >"${IMAGE}" 2>/dev/null
+            error=$?
+            if [ $error -ne 0 ]; then
+                # better fail here ...
+                echo "Failed to get image head"
+                return 1
+            fi
+
+            ORIG_TYPE=$(file_type "${IMAGE}")
+
+            # if NO_DECOMPRESS=yes is configured on the datastore,
+            # treat the downloaded data as image as is
+            if [ "${NO_DECOMPRESS}" = 'yes' ]; then
+                ORIG_TYPE='application/octet-stream'
+            fi
+
+            if [ -f "${SRC}" ] ; then
+                # for local raw images:
+                # - compressed: use decompressor on local file
+                # - uncompressed: get file size
+                case ${ORIG_TYPE} in
+                "application/x-gzip"|"application/gzip")
+                    SIZE=$(gzip_file_size "${SRC}")
+                    error=$?
+                    ;;
+                "application/x-xz")
+                    SIZE=$(xz_file_size "${SRC}")
+                    error=$?
+                    ;;
+                "application/x-bzip2")
+                    SIZE=$(bzip_file_size "${SRC}")
+                    error=$?
+                    ;;
+                *)
+                    SIZE=$(image_vsize "${SRC}")
+                    error=$?
+                    ;;
+                esac
+            else
+                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # code which allows downloading is experimental for future use,
+                # longer downloads may result in image import failure, as
+                # the datastore stat operation is synchronous with import call
+                # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ALLOW_DOWNLOADS='no'
+
+                # for remote raw images
+                # - compressed: complete download and use decompressor
+                # - uncompressed: get size from HTTP headers or complete download
+                case ${ORIG_TYPE} in
+                "application/x-gzip"|"application/gzip")
+                    if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp "${SRC}" - >"${IMAGE}" 2>/dev/null
+                        error=$?
+                        if [ $error -eq 0 ]; then
+                            SIZE=$(gzip_file_size "${IMAGE}")
+                            error=$?
+                        fi
+                    else
+                        echo 'Unsupported remote image format'
+                        return 1
+                    fi
+                    ;;
+                "application/x-xz")
+                    if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp "${SRC}" - >"${IMAGE}" 2>/dev/null
+                        error=$?
+                        if [ $error -eq 0 ]; then
+                            SIZE=$(xz_file_size "${IMAGE}")
+                            error=$?
+                        fi
+                    else
+                        echo 'Unsupported remote image format'
+                        return 1
+                    fi
+                    ;;
+                "application/x-bzip2")
+                    if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                        $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} "${SRC}" - >"${IMAGE}" 2>/dev/null
+                        error=$?
+                        if [ $error -eq 0 ]; then
+                            SIZE=$(image_vsize "${IMAGE}")
+                            error=$?
+                        fi
+                    else
+                        echo 'Unsupported remote image format'
+                        return 1
+                    fi
+                    ;;
+                *)
+                    HEADERS=`curl -LIk --max-time 60 "${SRC}" 2>&1`
+                    error=$?
+                    SIZE=$(echo "$HEADERS" | grep -i "^Content-Length:" | tail -n1 | cut -d: -f2 | tr -d "\r")
+
+                    if [ -z "${SIZE}" ]; then
+                        if [ "${ALLOW_DOWNLOADS}" = 'yes' ]; then
+                            $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} "${SRC}" - >"${IMAGE}" 2>/dev/null
+                            error=$?
+                            if [ $error -eq 0 ]; then
+                                SIZE=$(image_vsize "${IMAGE}")
+                                error=$?
+                            fi
+                        else
+                            echo 'Unsupported remote image format'
+                            return 1
+                        fi
+                    fi
+                    ;;
+                esac
+            fi
         else
-            TYPE=$(cat "$1" | head -n 1024 | file -b - | tr A-Z a-z)
-            case "$TYPE" in
-            *gzip*)
-                SIZE=$(gzip_file_size "$1")
-                ;;
-            *qcow*)
-                SIZE=$($QEMU_IMG info "$1" | sed -n 's/.*(\([0-9]*\) bytes).*/\1/p')
-                ;;
-            *)
-                SIZE=$(file_size "$1")
-                ;;
-            esac
-            error=$?
+            SIZE=$(image_vsize "${IMAGE}")
         fi
-        ;;
-    esac
 
-    SIZE=$(echo $SIZE | tr -d "\r")
+        if [ -f "${IMAGE}" ]; then
+            unlink "${IMAGE}" 2>/dev/null
+        fi
+    else
+        echo 'File not found'
+        return 1
+    fi
 
-    if [ $error -ne 0 ]; then
-        SIZE=0
+    #####
+
+    SIZE=$(echo ${SIZE:-0} | tr -d "\r")
+
+    if [ $error -ne 0 ] || [ "${SIZE}" = '0' ]; then
+        SIZE='Runtime error during size estimation'
+
+        if [ $error -eq 0 ]; then
+            error=1
+        fi
     else
         SIZE=$((($SIZE+1048575)/1048576))
     fi
 
-    echo "$SIZE"
+    echo "${SIZE}"
+
+    return $error
 }
 
 #-------------------------------------------------------------------------------
@@ -247,6 +466,33 @@ function check_restricted {
 }
 
 #-------------------------------------------------------------------------------
+# Filter out hosts which are OFF, ERROR or DISABLED
+#   @param $1 - space separated list of hosts
+#   @return   - space separated list of hosts which are not in OFF, ERROR or
+#               DISABLED sate
+#-------------------------------------------------------------------------------
+function remove_off_hosts {
+    ALL_HOSTS_ARRAY=($1)
+    OFF_HOSTS_STR=$(onehost list --no-pager --csv \
+		--filter="STAT=off,STAT=err,STAT=dsbl" --list=NAME,STAT 2>/dev/null)
+
+    if [ $? -eq 0 ]; then
+        OFF_HOSTS_ARRAY=($( echo "$OFF_HOSTS_STR" | awk -F, '{ if (NR>1) print $1 }'))
+        for HOST in "${ALL_HOSTS_ARRAY[@]}"; do
+            OFF=false
+            for OFF_HOST in "${OFF_HOSTS_ARRAY[@]}"; do
+                [ $HOST = $OFF_HOST ] && { OFF=true; break; }
+            done
+            $OFF || echo -ne "$HOST "
+        done
+    else
+        # onehost cmd failed, can't filter anything, better return unchanged
+        echo $1
+        return 1
+    fi
+}
+
+#-------------------------------------------------------------------------------
 # Gets the host to be used as bridge to talk to the storage system
 # Implements a round robin for the bridges
 #   @param $1 - ID to be used to round-robin between host bridges. Random if
@@ -254,7 +500,14 @@ function check_restricted {
 #   @return host to be used as bridge
 #-------------------------------------------------------------------------------
 function get_destination_host {
-    HOSTS_ARRAY=($BRIDGE_LIST)
+    REDUCED_LIST=$(remove_off_hosts "$BRIDGE_LIST")
+
+    if [ -z "$REDUCED_LIST" -a -n "$BRIDGE_LIST" ]; then
+        error_message "All hosts from 'BRIDGE_LIST' are offline, error or disabled"
+        exit -1
+    fi
+
+    HOSTS_ARRAY=($REDUCED_LIST)
     N_HOSTS=${#HOSTS_ARRAY[@]}
 
     if [ -n "$1" ]; then
@@ -264,4 +517,23 @@ function get_destination_host {
     fi
 
     echo ${HOSTS_ARRAY[$ARRAY_INDEX]}
+}
+
+#--------------------------------------------------------------------------------
+# Rebase backing files of snapshots in current directory
+#  @param $1 name of the backing_file symlink used internally
+#--------------------------------------------------------------------------------
+rebase_backing_files() {
+    local DST_FILE=$1
+
+    for SNAP_ID in $(find * -maxdepth 0 -type f -print); do
+        INFO=$(qemu-img info --output=json $SNAP_ID)
+
+        if [[ $INFO =~ "backing-filename" ]]; then
+            BACKING_FILE=${INFO/*backing-filename\": \"/}
+            BACKING_FILE=${BACKING_FILE/\"*/}
+            BACKING_FILE=$(basename ${BACKING_FILE})
+            qemu-img rebase -f qcow2 -u -b "${DST_FILE}.snap/$BACKING_FILE" $SNAP_ID
+        fi
+    done
 }

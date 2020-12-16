@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,23 +19,23 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var GroupsTable = require('tabs/groups-tab/datatable');
-  var TemplateChgrpTr = require('hbs!./info/chgrp-tr');
-  var ResourceSelect = require('utils/resource-select');
-  var Sunstone = require('sunstone');
+  var Locale = require("utils/locale");
+  var GroupsTable = require("tabs/groups-tab/datatable");
+  var TemplateChgrpTr = require("hbs!./info/chgrp-tr");
+  var ResourceSelect = require("utils/resource-select");
+  var Sunstone = require("sunstone");
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./groups/html');
+  var TemplateHTML = require("hbs!./groups/html");
 
   /*
     CONSTANTS
    */
 
-  var PANEL_ID = require('./groups/panelId');
+  var PANEL_ID = require("./groups/panelId");
   var GROUPS_TABLE_ID = PANEL_ID + "GroupsTable";
   var RESOURCE = "User";
   var XML_ROOT = "USER";
@@ -65,7 +65,7 @@ define(function(require) {
 
   function _html() {
     var groups;
-    var groupTrHTML = TemplateChgrpTr({'element': this.element});
+    var groupTrHTML = TemplateChgrpTr({"element": this.element});
     if (this.element.GROUPS !== undefined && this.element.GROUPS.ID !== undefined) {
       if ($.isArray(this.element.GROUPS.ID)) {
         groups = this.element.GROUPS.ID;
@@ -82,21 +82,21 @@ define(function(require) {
       selectOptions: {
         read_only: true,
         fixed_ids: this.groups
-      } 
+      }
     };
     this.groupsTable = new GroupsTable(GROUPS_TABLE_ID, opts);
-    this.groupsTableEdit = new GroupsTable('user_groups_edit', {
+    this.groupsTableEdit = new GroupsTable("user_groups_edit", {
         info: false,
         select: true,
         selectOptions: {
-          'multiple_choice': true
+          "multiple_choice": true
         }
       });
 
     return TemplateHTML({
-      'groupsTableHTML': this.groupsTable.dataTableHTML,
-      'groupsTableEditHTML': this.groupsTableEdit.dataTableHTML,
-      'element': this.element
+      "groupsTableHTML": this.groupsTable.dataTableHTML,
+      "groupsTableEditHTML": this.groupsTableEdit.dataTableHTML,
+      "element": this.element
     });
   }
 
@@ -108,13 +108,13 @@ define(function(require) {
     this.groupsTableEdit.selectResourceTableSelect({ids: this.groups});
     var that = this;
 
-    $("#cancel_update_group").hide(); 
+    $("#cancel_update_group").hide();
     var that = this;
     context.off("click", "#update_group");
     context.on("click", "#update_group", function() {
       ResourceSelect.insert({
-        context: $('#choose_primary_grp', context),
-        resourceName: 'Group',
+        context: $("#choose_primary_grp", context),
+        resourceName: "Group",
         callback : function(response){
           $("#choose_primary_grp").html(response[0].outerHTML);
           $(".resource_list_select option[elem_id=" + that.element.GID + "]").prop("selected", true);
@@ -122,33 +122,33 @@ define(function(require) {
       });
       $(".show_labels").hide();
       $(".select_labels").show();
+      $("#submit-group").show();
     });
 
     context.off("click", "#cancel_update_group");
     context.on("click", "#cancel_update_group", function() {
       $(".select_labels").hide();
       $(".show_labels").show();
-
+      $("#submit-group").hide();
     });
-    
 
-    $('#Form_change_second_grp').submit(function() {
+    $("#Form_change_second_grp").submit(function() {
       var selectPrimaryGrp = $("#choose_primary_grp  .resource_list_select").val();
       var selectedGroupsList = that.groupsTableEdit.retrieveResourceTableSelect();
 
-      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) { 
+      if (selectPrimaryGrp != -1 && selectPrimaryGrp != that.element.GID) {
         Sunstone.runAction("User.chgrp", [that.element.ID], selectPrimaryGrp);
       }
 
       $.each(selectedGroupsList, function(index, groupId) {
         if ($.inArray(groupId, that.groups) === -1) {
-          Sunstone.runAction('User.addgroup', [that.element.ID], groupId);
+          Sunstone.runAction("User.addgroup", [that.element.ID], groupId);
         }
       });
 
       $.each(that.groups, function(index, groupId) {
         if ($.inArray(groupId, selectedGroupsList) === -1) {
-          Sunstone.runAction('User.delgroup', [that.element.ID], groupId);
+          Sunstone.runAction("User.delgroup", [that.element.ID], groupId);
         }
       });
 
@@ -156,8 +156,10 @@ define(function(require) {
       $(".show_labels").show();
       setTimeout(function() {
        Sunstone.runAction('User.refresh');
+       Sunstone.runAction("User.refresh");
       }, 1500);
 
+      return false;
     });
     return false;
   }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,7 +41,7 @@ define(function(require) {
 
   function Panel(info) {
     this.title = Locale.tr("Template");
-    this.icon = "fa-file-o";
+    this.icon = "fa-file";
 
     this.element = info[XML_ROOT];
 

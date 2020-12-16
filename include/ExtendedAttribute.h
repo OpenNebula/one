@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -48,7 +48,7 @@ public:
         return va->vector_value(name, value);
     }
 
-    string vector_value(const std::string& name) const
+    std::string vector_value(const std::string& name) const
     {
         return va->vector_value(name);
     }
@@ -87,14 +87,24 @@ protected:
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
-    string * marshall(const char * _sep = 0) const
+    std::string marshall(const char * _sep = 0) const
     {
         return va->marshall(_sep);
     };
 
-    string * to_xml() const
+    void to_xml(std::ostringstream& s) const
     {
-        return va->to_xml();
+        return va->to_xml(s);
+    };
+
+    void to_json(std::ostringstream& s) const
+    {
+        return va->to_json(s);
+    };
+
+    void to_token(std::ostringstream& s) const
+    {
+        return va->to_token(s);
     };
 
     void unmarshall(const std::string& sattr, const char * _sep = 0)
@@ -224,7 +234,7 @@ protected:
      */
     void add_attribute(ExtendedAttribute * a, int id)
     {
-        a_set.insert(make_pair(id, a));
+        a_set.insert(std::make_pair(id, a));
     }
 
     /**

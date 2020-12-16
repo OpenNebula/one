@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,46 +17,29 @@
 #ifndef INFORMATION_MANAGER_H_
 #define INFORMATION_MANAGER_H_
 
-#include "MadManager.h"
-#include "ActionManager.h"
-#include "InformationManagerDriver.h"
-#include "MonitorThread.h"
-#include "NebulaLog.h"
-
-using namespace std;
-
-extern "C" void * im_action_loop(void *arg);
+#include "DriverManager.h"
+#include "Listener.h"
+#include "ProtocolMessages.h"
+#include "RaftManager.h"
 
 class HostPool;
-class ClusterPool;
 class Host;
+class VirtualMachinePool;
 
-class InformationManager : public MadManager, public ActionListener
+class InformationManager : public DriverManager<Driver<im_msg_t>>
 {
 public:
-
     InformationManager(
-        HostPool *                  _hpool,
-        ClusterPool *               _clpool,
-        time_t                      _timer_period,
-        time_t                      _monitor_period,
-        int                         _host_limit,
-        int                         _monitor_threads,
-        const string&               _remotes_location,
-        vector<const VectorAttribute*>&   _mads)
-            :MadManager(_mads),
-            hpool(_hpool),
-            clpool(_clpool),
-            timer_period(_timer_period),
-            monitor_period(_monitor_period),
-            host_limit(_host_limit),
-            remotes_location(_remotes_location),
-            mtpool(_monitor_threads)
+        HostPool * _hpool,
+        VirtualMachinePool * _vmpool,
+        const std::string& mad_location)
+            : DriverManager(mad_location)
+            , hpool(_hpool)
+            , vmpool(_vmpool)
     {
-        am.addListener(this);
-    };
+    }
 
-    ~InformationManager(){};
+    ~InformationManager() = default;
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -66,28 +49,10 @@ public:
      */
     int start();
 
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return im_thread;
-    };
-
-    /**
-     *
-     */
     void finalize()
     {
-        am.finalize();
+        stop(drivers_timeout);
     };
-
-    /**
-     *   Load the information drivers
-     *     @return 0 on success
-     */
-    int load_mads(int uid=0);
 
     /**
      *  Sends a STOPMONITR command to the associated driver and host
@@ -95,15 +60,9 @@ public:
      *    @param name of the host
      *    @param im_mad the driver name
      */
-    void stop_monitor(int hid, const string& name, const string& im_mad)
-    {
-        const InformationManagerDriver * imd = get(im_mad);
-
-        if (imd != 0)
-        {
-            imd->stop_monitor(hid, name);
-        }
-    }
+    void stop_monitor(int hid,
+                      const std::string& name,
+                      const std::string& im_mad);
 
     /**
      *  Starts the monitor process on the host
@@ -113,93 +72,58 @@ public:
      */
     int start_monitor(Host * host, bool update_remotes);
 
-private:
     /**
-     *  Thread id for the Information Manager
+     *  Send host info to monitor
      */
-    pthread_t       im_thread;
+    void update_host(Host *host);
 
+    /**
+     *  Send host delete message to monitor
+     */
+    void delete_host(int hid);
+
+    /**
+     *  Set raft status, send info to monitor daemon
+     */
+    void raft_status(RaftManager::State raft);
+
+protected:
+    /**
+     *  Received undefined message -> print error
+     */
+    static void _undefined(std::unique_ptr<im_msg_t> msg);
+
+    /**
+     *  Message HOST_STATE update from monitor
+     */
+    void _host_state(std::unique_ptr<im_msg_t> msg);
+
+    /**
+     *  Message HOST_SYSTEM update from monitor
+     */
+    void _host_system(std::unique_ptr<im_msg_t> msg);
+
+    /**
+     *  Message VM_STATE from monitor
+     */
+    void _vm_state(std::unique_ptr<im_msg_t> msg);
+
+private:
     /**
      *  Pointer to the Host Pool
      */
     HostPool *      hpool;
 
     /**
-     *  Pointer to the Cluster Pool
+     *  Pointer to the Host Pool
      */
-    ClusterPool *   clpool;
+    VirtualMachinePool * vmpool;
 
     /**
-     *  Timer period for the Virtual Machine Manager.
+     *  Default timeout to wait for Information Driver (monitord)
      */
-    time_t          timer_period;
-
-    /**
-     *  Host monitoring interval
-     */
-    time_t          monitor_period;
-
-    /**
-     *  Host monitoring limit
-     */
-    int             host_limit;
-
-   /**
-    *  Path for the remote action programs
-    */
-    string          remotes_location;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager   am;
-
-    /**
-     *  Pool of threads to process each monitor message
-     */
-    MonitorThreadPool mtpool;
-
-    /**
-     *  Time in seconds to expire a monitoring action (5 minutes)
-     */
-    static const time_t monitor_expire;
-
-    /**
-     *  Returns a pointer to a Information Manager MAD. The driver is
-     *  searched by its name and owned by gwadmin with uid=0.
-     *    @param name of the driver
-     *    @return the VM driver owned by uid 0, with attribute "NAME" equal to
-     *    name or 0 in not found
-     */
-    const InformationManagerDriver * get(
-        const string&   name)
-    {
-        string _name("NAME");
-        return static_cast<const InformationManagerDriver *>
-               (MadManager::get(0,_name,name));
-    };
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
-     */
-    friend void * im_action_loop(void *arg);
-
-    // ------------------------------------------------------------------------
-    // ActioListener Interface
-    // ------------------------------------------------------------------------
-    /**
-     *  This function is executed periodically to monitor Nebula hosts.
-     */
-    void timer_action(const ActionRequest& ar);
-
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("InM",Log::INFO,"Stopping Information Manager...");
-
-        MadManager::stop();
-    };
+    static const int drivers_timeout = 10;
 };
 
-#endif /*VIRTUAL_MACHINE_MANAGER_H*/
+#endif /*INFORMATION_MANAGER_H_*/
 

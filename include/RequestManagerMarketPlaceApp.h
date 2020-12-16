@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,6 @@
 #define REQUEST_MANAGER_MARKETPLACEAPP_H
 
 #include "Request.h"
-#include "Nebula.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -27,22 +26,14 @@ class RequestManagerMarketPlaceApp: public Request
 {
 protected:
     RequestManagerMarketPlaceApp(const std::string& method_name,
-		const std::string& help, const std::string& params) :
-		Request(method_name, params, help)
-    {
-        Nebula& nd = Nebula::instance();
-        pool       = nd.get_apppool();
+        const std::string& help, const std::string& params);
 
-        auth_object = PoolObjectSQL::MARKETPLACEAPP;
-        auth_op     = AuthRequest::MANAGE;
-    };
-
-    ~RequestManagerMarketPlaceApp(){};
+    ~RequestManagerMarketPlaceApp() = default;
 
     /* --------------------------------------------------------------------- */
 
     virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-		RequestAttributes& att) = 0;
+        RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -51,13 +42,16 @@ protected:
 class MarketPlaceAppEnable : public RequestManagerMarketPlaceApp
 {
 public:
-    MarketPlaceAppEnable(): RequestManagerMarketPlaceApp("one.marketapp.enable",
-		"Enables or disables a marketplace app", "A:sib"){};
+    MarketPlaceAppEnable()
+        : RequestManagerMarketPlaceApp("one.marketapp.enable",
+            "Enables or disables a marketplace app", "A:sib")
+    {
+    }
 
-    ~MarketPlaceAppEnable(){};
+    ~MarketPlaceAppEnable() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-		RequestAttributes& att);
+        RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

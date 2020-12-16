@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,9 +13,8 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-
-
 #include "SqliteDB.h"
+#include "NebulaLog.h"
 
 using namespace std;
 
@@ -41,53 +40,59 @@ extern "C" int sqlite_callback (
 
 /* -------------------------------------------------------------------------- */
 
-SqliteDB::SqliteDB(const string& db_name)
+SqliteDB::SqliteDB(const string& db_name, int timeout)
 {
-    int rc;
-
-    pthread_mutex_init(&mutex,0);
-
-    rc = sqlite3_open(db_name.c_str(), &db);
+    int rc = sqlite3_open(db_name.c_str(), &db);
 
     if ( rc != SQLITE_OK )
     {
         throw runtime_error("Could not open database.");
     }
+
+    int enable_limit = sqlite3_compileoption_used("SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
+
+    if (enable_limit == 1)
+    {
+        NebulaLog::log("ONE",Log::INFO ,
+                "sqlite has enabled: SQLITE_ENABLE_UPDATE_DELETE_LIMIT");
+    }
+
+    sqlite3_extended_result_codes(db, 1);
+
+    sqlite3_busy_timeout(db, timeout);
+
+    features = {
+        {SqlFeature::MULTIPLE_VALUE, false},
+        {SqlFeature::LIMIT, enable_limit == 1},
+        {SqlFeature::FTS, false},
+        {SqlFeature::COMPARE_BINARY, false}
+    };
 }
 
 /* -------------------------------------------------------------------------- */
 
 SqliteDB::~SqliteDB()
 {
-    pthread_mutex_destroy(&mutex);
-
     sqlite3_close(db);
 }
 
 /* -------------------------------------------------------------------------- */
-
-bool SqliteDB::multiple_values_support()
-{
-    // Versions > 3.7.11 support multiple value inserts, but tests
-    // have ended in segfault. A transaction seems to perform better
-    //return SQLITE_VERSION_NUMBER >= 3007011;
-    return false;
-}
-
 /* -------------------------------------------------------------------------- */
 
-int SqliteDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
+int SqliteDB::exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
 {
-    int          rc;
+    int rc, ec;
 
     const char * c_str;
     string       str;
 
-    int          counter = 0;
-    char *       err_msg = 0;
+    char * err_msg = 0;
 
     int   (*callback)(void*,int,char**,char**);
     void * arg;
+
+    Log::MessageType error_level;
+    std::ostringstream oss;
 
     str   = cmd.str();
     c_str = str.c_str();
@@ -101,60 +106,66 @@ int SqliteDB::exec(ostringstream& cmd, Callbackable* obj, bool quiet)
         arg      = static_cast<void *>(obj);
     }
 
-    lock();
-
-    do
     {
-        counter++;
+        lock_guard<mutex> lock(_mutex);
 
         rc = sqlite3_exec(db, c_str, callback, arg, &err_msg);
 
-        if (rc == SQLITE_BUSY || rc == SQLITE_IOERR)
+        if (obj != 0 && obj->get_affected_rows() == 0)
         {
-            struct timeval timeout;
-            fd_set zero;
+            int num_rows = sqlite3_changes(db);
 
-            FD_ZERO(&zero);
-            timeout.tv_sec  = 0;
-            timeout.tv_usec = 250000;
-
-            select(0, &zero, &zero, &zero, &timeout);
+            if (num_rows > 0)
+            {
+                obj->set_affected_rows(num_rows);
+            }
         }
-    }while( (rc == SQLITE_BUSY || rc == SQLITE_IOERR) &&
-            (counter < 10));
-
-    unlock();
-
-    if (rc != SQLITE_OK)
-    {
-        if (err_msg != 0)
-        {
-            Log::MessageType error_level = quiet ? Log::DDEBUG : Log::ERROR;
-
-            ostringstream oss;
-
-            oss << "SQL command was: " << c_str << ", error: " << err_msg;
-            NebulaLog::log("ONE",error_level,oss);
-
-            sqlite3_free(err_msg);
-        }
-
-        return -1;
     }
 
-    return 0;
+    switch(rc)
+    {
+        case SQLITE_BUSY:
+        case SQLITE_IOERR:
+            ec = SqlDB::CONNECTION;
+            break;
+
+        case SQLITE_OK:
+            ec = SqlDB::SUCCESS;
+            break;
+
+        // Error codes that should be considered applied for the RAFT log.
+        case SQLITE_CONSTRAINT_UNIQUE:
+            ec = SqlDB::SQL_DUP_KEY;
+            break;
+
+        default:
+            ec = SqlDB::SQL;
+            break;
+    }
+
+    if ( ec != SqlDB::SUCCESS && err_msg != NULL )
+    {
+        error_level = quiet ? Log::DDEBUG : Log::ERROR;
+
+        oss << "SQL command was: " << c_str << ", error: " << err_msg;
+        NebulaLog::log("ONE",error_level,oss);
+
+        sqlite3_free(err_msg);
+    }
+
+    return ec;
 }
 
 /* -------------------------------------------------------------------------- */
 
-char * SqliteDB::escape_str(const string& str)
+char * SqliteDB::escape_str(const string& str) const
 {
     return sqlite3_mprintf("%q",str.c_str());
 }
 
 /* -------------------------------------------------------------------------- */
 
-void SqliteDB::free_str(char * str)
+void SqliteDB::free_str(char * str) const
 {
     sqlite3_free(str);
 }

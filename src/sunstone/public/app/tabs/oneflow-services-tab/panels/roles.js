@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,6 +31,8 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaVM = require("opennebula/vm");
 
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
 
@@ -78,6 +80,7 @@ define(function(require) {
   Panel.prototype.setState = _setState;
   Panel.prototype.roleHTML = _roleHTML;
   Panel.prototype.roleSetup = _roleSetup;
+  Panel.prototype.remoteButtonSetup = _remoteButtonSetup;
 
   return Panel;
 
@@ -172,8 +175,10 @@ define(function(require) {
 
             var role_index = tableObj.dataTable.fnGetPosition(tr);
 
-            $("#roles_extended_info", context).html(that.roleHTML(role_index));
-            that.roleSetup($("#roles_extended_info", context), role_index);
+            $("#roles_extended_info", context).fadeOut('slow', function() {
+              $(this).html(that.roleHTML(context, role_index))
+              that.roleSetup($(this), role_index)
+            }).fadeIn('slow');
 
             // The info listener is triggered instead of
             // the row selection. So we click the check input to select
@@ -192,92 +197,109 @@ define(function(require) {
   }
 
 
-  function _roleHTML(role_index) {
+  function _roleHTML(context, role_index) {
     var that = this;
-
     var role = this.element.TEMPLATE.BODY.roles[role_index];
-
-    var vms = [];
+    var ready_status_gate = that.element.TEMPLATE.BODY.ready_status_gate;
+    var promises = [];
+    var roleVms = [];
 
     if (role.nodes) {
-      $.each(role.nodes, function(){
-        var vm_info = this.vm_info;
+      $.each(role.nodes, function(index, node){
+        var vm_info = node.vm_info;
 
-        var info = [];
-        if (this.scale_up) {
-          info.push("<i class='fa fa-arrow-up'/>");
-        } else if (this.disposed) {
-          info.push("<i class='fa fa-arrow-down'/>");
-        } else {
-          info.push("");
-        }
+        var id = vm_info ? vm_info.VM.ID : node.deploy_id;
+        var name = vm_info ? vm_info.VM.NAME : "";
+        var uname = vm_info ? vm_info.VM.UNAME : "";
+        var gname = vm_info ? vm_info.VM.GNAME : "";
+        var ips = "", actions = "";
 
-        if (that.element.TEMPLATE.BODY.ready_status_gate) {
-          if (vm_info.VM.USER_TEMPLATE.READY == "YES") {
-            info.push('<span class="has-tip" title="'+Locale.tr("The VM is ready")+'"><i class="fa fa-check"/></span>');
+        function successCallback (data) {
+          if (data.VM && data.VM.ID === id) {
+            var ready = ""
+            if (ready_status_gate) {
+              ready = (data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.READY == "YES")
+                ? '<span class="has-tip" title="'+
+                  Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>'
+                : '<span class="has-tip" title="'+
+                  Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock"/></span>'
+            }
+            ips = OpenNebulaVM.ipsStr(data.VM);
 
-          } else {
-            info.push('<span class="has-tip" title="'+Locale.tr("Waiting for the VM to be ready")+'"><i class="fa fa-clock-o"/></span>');
+            if (OpenNebulaVM.isVNCSupported(data.VM)) {
+              actions += OpenNebulaVM.buttonVnc(id);
+            }
+            else if (OpenNebulaVM.isSPICESupported(data.VM)) {
+              actions += OpenNebulaVM.buttonSpice(id);
+            }
+
+            var wFile = OpenNebulaVM.isWFileSupported(data.VM);
+            actions += wFile ? OpenNebulaVM.buttonWFile(id, wFile) : "";
+
+            var rdp = OpenNebulaVM.isConnectionSupported(data.VM, 'rdp');
+            actions += rdp ? OpenNebulaVM.dropdownRDP(id, rdp.ID, data.VM) : "";
+
+            var ssh = OpenNebulaVM.isConnectionSupported(data.VM, 'ssh');
+            actions += ssh ? OpenNebulaVM.buttonSSH(id) : "";
           }
-        } else {
-          info.push("");
+
+          roleVms[index] = rowInfoRoleVm(ready, id, name, uname, gname, ips, actions);
         }
 
-        if (vm_info) {
-          vms.push(info.concat(VMsTableUtils.elementArray(vm_info)));
-        } else {
-          vms.push(info.concat(VMsTableUtils.emptyElementArray(this.deploy_id)));
-        }
-      });
+        promises.push(promiseVmInfo(id, successCallback))
+      })
     }
+
+    $.when.apply($, promises).then(function() {
+      if (that.serviceroleVMsDataTable) {
+        that.serviceroleVMsDataTable.updateView(null, roleVms, true);
+      }
+      that.remoteButtonSetup(context);
+    });
+
 
     return TemplateRoleInfo({
       'role': role,
       'servicePanel': this.servicePanel,
       'panelId': this.panelId,
-      'vmsTableColumns': VMsTableUtils.columns,
-      'vms': vms
+      'vmsTableColumns': [
+        Locale.tr("ID"),
+        Locale.tr("Name"),
+        Locale.tr("Owner"),
+        Locale.tr("Group"),
+        Locale.tr("IPs"),
+        "" // Remote actions
+      ],
+      'vms': roleVms
     });
+  }
+
+  function rowInfoRoleVm(ready, id, name = "", uname = "", gname = "", ips = "", actions = "") {
+    return [
+      ready,
+      '<input class="check_item" style="vertical-align: inherit;" type="checkbox" '+
+        'id="vm_' + id + '" name="selected_items" value="' + id + '"/>',
+      '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
+      name,
+      uname,
+      gname,
+      ips,
+      actions
+    ];
+  }
+
+  function promiseVmInfo(id, success) {
+    return $.ajax({
+      url: "vm/" + id,
+      type: "GET",
+      dataType: "json",
+      success: success
+    })
   }
 
   function _roleSetup(context, role_index) {
     if(this.servicePanel) {
       var role = this.element.TEMPLATE.BODY.roles[role_index];
-
-      $(".vnc", context).off("click");
-      $(".vnc", context).on("click", function() {
-        var vmId = $(this).attr('vm_id');
-
-        if (!Vnc.lockStatus()) {
-          Vnc.lock();
-          Sunstone.runAction("VM.startvnc_action", vmId);
-        } else {
-          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
-        }
-
-        return false;
-      });
-
-      $(".spice", context).off("click");
-      $(".spice", context).on("click", function() {
-        var vmId = $(this).attr('vm_id');
-
-        if (!Spice.lockStatus()) {
-          Spice.lock();
-          Sunstone.runAction("VM.startspice_action", vmId);
-        } else {
-          Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
-        }
-
-        return false;
-      });
-
-      // This table has 2 more columns to the left compared to the normal VM table
-      // The visibility index array needs to be adjusted
-      var visibleColumns = [0,1].concat(
-        SunstoneConfig.tabTableColumns(VMS_TAB_ID).map(function(n){
-          return n+2;
-        }));
 
       this.serviceroleVMsDataTable = new DomDataTable(
         'datatable_vms_'+this.panelId+'_'+role.name,
@@ -290,9 +312,7 @@ define(function(require) {
             "bSortClasses" : false,
             "bDeferRender": true,
             "aoColumnDefs": [
-              {"bSortable": false, "aTargets": [0,1,"check"]},
-              {"bVisible": true, "aTargets": visibleColumns},
-              {"bVisible": false, "aTargets": ['_all']}
+              {"bSortable": false, "aTargets": ["check", 5, 6]}
             ]
           }
         });
@@ -302,8 +322,65 @@ define(function(require) {
         TAB_ID,
         "service_roles_tab",
         roles_vm_buttons,
-        $('div#role_vms_actions', context));
+        $('div#role_vms_actions', context)
+      );
     }
+  }
+
+  function _remoteButtonSetup(context) {
+    $(".spice", context).off("click");
+    $(".spice", context).on("click", function() {
+      var data = $(this).data();
+
+      if (!Spice.lockStatus() && data.hasOwnProperty("id")) {
+        Spice.lock();
+        Sunstone.runAction("VM.startspice_action", String(data.id));
+      } else {
+        Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
+      }
+
+      return false;
+    });
+
+    $(".w_file", context).off("click");
+    $(".w_file", context).on("click", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id") && data.hasOwnProperty("hostname") && data.hasOwnProperty("type") && data.hasOwnProperty("port"))
+        ? Sunstone.runAction(
+          "VM.save_virt_viewer_action",
+          String(data.id),
+          { hostname: data.hostname, type: data.type, port: data.port }
+        )
+        : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+
+        return false;
+    });
+
+    $(".vnc", context).off("click");
+    $(".vnc", context).on("click", function() {
+      var data = $(this).data();
+
+      if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
+        Vnc.lock();
+        Sunstone.runAction("VM.startvnc_action", String(data.id));
+      } else {
+        Notifier.notifyError(Locale.tr("VNC Connection in progress"));
+      }
+
+      return false;
+    });
+
+    $(".rdp", context).off("click");
+    $(".rdp", context).on("click", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("ip") && data.hasOwnProperty("name"))
+        ? Sunstone.runAction("VM.save_rdp", data)
+        : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
+
+        return false;
+    });
 
     Tips.setup(context);
   }

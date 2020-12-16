@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,8 @@
 #include "PoolSQL.h"
 #include "User.h"
 #include "GroupPool.h"
+#include "CachePool.h"
+#include "LoginToken.h"
 
 #include <time.h>
 #include <sstream>
@@ -27,8 +29,6 @@
 #include <iostream>
 
 #include <vector>
-
-using namespace std;
 
 class AuthRequest; //Forward definition of AuthRequest
 
@@ -39,28 +39,26 @@ class UserPool : public PoolSQL
 {
 public:
 
-    UserPool(SqlDB * db,
-             time_t  __session_expiration_time,
-             vector<const VectorAttribute *> hook_mads,
-             const string&             remotes_location,
-             bool                      is_federation_slave);
+    UserPool(SqlDB * db, time_t  __session_expiration_time, bool is_slave,
+        std::vector<const SingleAttribute *>& restricted_attrs);
 
-    ~UserPool(){};
+    ~UserPool() = default;
 
     /**
      *  Function to allocate a new User object
      *    @param oid the id assigned to the User
      *    @return the oid assigned to the object or -1 in case of failure
      */
-    int allocate (
-        int *   oid,
-        const string& uname,
-        int     gid,
-        const string& password,
-        const string& auth,
-        bool    enabled,
-        const set<int>& gids,
-        string& error_str);
+    int allocate(
+        int * oid,
+        const std::string& uname,
+        int   gid,
+        const std::string& password,
+        const std::string& auth,
+        bool  enabled,
+        const std::set<int>& gids,
+        const std::set<int>& agids,
+        std::string& error_str);
 
     /**
      *  Drops the object's data in the data base. The object mutex SHOULD be
@@ -69,45 +67,83 @@ public:
      *    @param error_msg Error reason, if any
      *    @return 0 on success, -1 DB error
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
-     *  Function to get a User from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid User unique id
-     *    @param lock locks the User mutex
-     *    @return a pointer to the User, 0 if the User could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the User unique identifier
+     *   @return a pointer to the User, nullptr in case of failure
      */
-    User * get(int oid, bool lock)
+    std::unique_ptr<User> get(int oid)
     {
-        return static_cast<User *>(PoolSQL::get(oid,lock));
-    };
+        auto u = PoolSQL::get<User>(oid);
+
+        if (u)
+        {
+            u->session = get_session_token(oid);
+        }
+
+        return u;
+    }
 
     /**
-     *  Function to get a User from the pool, if the object is not in memory
-     *  it is loaded from the DB
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the User unique identifier
+     *   @return a pointer to the User, nullptr in case of failure
+     */
+    std::unique_ptr<User> get_ro(int oid)
+    {
+        auto u = PoolSQL::get_ro<User>(oid);
+
+        if (u)
+        {
+            u->session = get_session_token(oid);
+        }
+
+        return u;
+    }
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *    @param username
-     *    @param lock locks the User mutex
      *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    User * get(string name, bool lock)
+    std::unique_ptr<User> get(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        return static_cast<User *>(PoolSQL::get(name,-1,lock));
-    };
+        auto u = PoolSQL::get<User>(name,-1);
+
+        if (u)
+        {
+            u->session = get_session_token(u->oid);
+        }
+
+        return u;
+    }
 
     /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *    @param username
+     *    @return a pointer to the User, 0 if the User could not be loaded
      */
-    string key(const string& name, int uid)
+    std::unique_ptr<User> get_ro(std::string name)
     {
-        // Name is enough key because Users can't repeat names.
-        return name;
-    };
+        // The owner is set to -1, because it is not used in the key() method
+        auto u = PoolSQL::get_ro<User>(name, -1);
+
+        if (u)
+        {
+            u->session = get_session_token(u->oid);
+        }
+
+        return u;
+    }
 
     /**
      *  Function to get the token password of an user from the pool
@@ -116,7 +152,7 @@ public:
      *
      *    @return the user's token password
      */
-    string get_token_password(int oid, int bck_oid);
+    std::string get_token_password(int oid, int bck_oid);
 
     /**
      * Update a particular User. This method does not update the user's quotas
@@ -153,14 +189,14 @@ public:
      *
      *   @return false if authn failed, true otherwise
      */
-    bool authenticate(const string& session,
-                      string&       password,
-                      int&          uid,
-                      int&          gid,
-                      string&       uname,
-                      string&       gname,
-                      set<int>&     group_ids,
-                      int&          umask);
+    bool authenticate(const std::string& session,
+                      std::string&       password,
+                      int&               uid,
+                      int&               gid,
+                      std::string&       uname,
+                      std::string&       gname,
+                      std::set<int>&     group_ids,
+                      int&               umask);
     /**
      * Returns whether the operations described in a authorization request are
      * authorized ot not.
@@ -174,11 +210,14 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit);
+    int dump(std::string& oss, const std::string& where,
+             int sid, int eid, bool desc);
 
     /**
      *  Name for the OpenNebula core authentication process
@@ -204,7 +243,7 @@ public:
     /**
      *  Name of the oneadmin user
      */
-    static string oneadmin_name;
+    static std::string oneadmin_name;
 
     /**
      *  Identifier for the oneadmin user
@@ -221,45 +260,57 @@ private:
      **/
     static time_t _session_expiration_time;
 
+    CachePool<SessionToken> cache;
+
+    SessionToken * get_session_token(int oid)
+    {
+        return cache.get_resource(oid);
+    }
+
+    void delete_session_token(int oid)
+    {
+        cache.delete_resource(oid);
+    }
+
     /**
      *  Function to authenticate internal (known) users
      */
-    bool authenticate_internal(User *        user,
-                               const string& token,
-                               string&       password,
-                               int&          user_id,
-                               int&          group_id,
-                               string&       uname,
-                               string&       gname,
-                               set<int>&     group_ids,
-                               int&          umask);
+    bool authenticate_internal(std::unique_ptr<User> user,
+                               const std::string& token,
+                               std::string&       password,
+                               int&               user_id,
+                               int&               group_id,
+                               std::string&       uname,
+                               std::string&       gname,
+                               std::set<int>&     group_ids,
+                               int&               umask);
 
     /**
      *  Function to authenticate internal users using a server driver
      */
-    bool authenticate_server(User *        user,
-                             const string& token,
-                             string&       password,
-                             int&          user_id,
-                             int&          group_id,
-                             string&       uname,
-                             string&       gname,
-                             set<int>&     group_ids,
-                             int&          umask);
+    bool authenticate_server(std::unique_ptr<User> user,
+                             const std::string& token,
+                             std::string&       password,
+                             int&               user_id,
+                             int&               group_id,
+                             std::string&       uname,
+                             std::string&       gname,
+                             std::set<int>&     group_ids,
+                             int&               umask);
 
 
     /**
      *  Function to authenticate external (not known) users
      */
-    bool authenticate_external(const string&    username,
-                               const string&    token,
-                               string&          password,
-                               int&             user_id,
-                               int&             group_id,
-                               string&          uname,
-                               string&          gname,
-                               set<int>&        group_ids,
-                               int&             umask);
+    bool authenticate_external(const std::string& username,
+                               const std::string& token,
+                               std::string&       password,
+                               int&               user_id,
+                               int&               group_id,
+                               std::string&       uname,
+                               std::string&       gname,
+                               std::set<int>&     group_ids,
+                               int&               umask);
     /**
      *  Factory method to produce User objects
      *    @return a pointer to the new User
@@ -268,18 +319,6 @@ private:
     {
         return new User(-1,-1,"","","",UserPool::CORE_AUTH,true);
     };
-
-    //--------------------------------------------------------------------------
-    //--------------------------------------------------------------------------
-
-    /**
-     *  Callback function to get output in XML format
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*USER_POOL_H_*/

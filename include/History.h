@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,8 @@
 
 #include "ObjectSQL.h"
 #include "ObjectXML.h"
+#include "VMActions.h"
 
-using namespace std;
 
 /**
  *  The History class, it represents an execution record of a Virtual Machine.
@@ -29,79 +29,25 @@ using namespace std;
 class History:public ObjectSQL, public ObjectXML
 {
 public:
-
-    enum VMAction
-    {                                       //Associated XML-RPC API call
-        NONE_ACTION            = 0,         // "one.vm.migrate"
-        MIGRATE_ACTION         = 1,         // "one.vm.migrate"
-        LIVE_MIGRATE_ACTION    = 2,
-        //SHUTDOWN_ACTION        = 3,
-        //SHUTDOWN_HARD_ACTION   = 4,
-        UNDEPLOY_ACTION        = 5,         // "one.vm.action"
-        UNDEPLOY_HARD_ACTION   = 6,         // "one.vm.action"
-        HOLD_ACTION            = 7,         // "one.vm.action"
-        RELEASE_ACTION         = 8,         // "one.vm.action"
-        STOP_ACTION            = 9,         // "one.vm.action"
-        SUSPEND_ACTION         = 10,        // "one.vm.action"
-        RESUME_ACTION          = 11,        // "one.vm.action"
-        //BOOT_ACTION            = 12,
-        DELETE_ACTION          = 13,        // "one.vm.recover"
-        DELETE_RECREATE_ACTION = 14,        // "one.vm.recover"
-        REBOOT_ACTION          = 15,        // "one.vm.action"
-        REBOOT_HARD_ACTION     = 16,        // "one.vm.action"
-        RESCHED_ACTION         = 17,        // "one.vm.action"
-        UNRESCHED_ACTION       = 18,        // "one.vm.action"
-        POWEROFF_ACTION        = 19,        // "one.vm.action"
-        POWEROFF_HARD_ACTION   = 20,        // "one.vm.action"
-        DISK_ATTACH_ACTION     = 21,        // "one.vm.attach"
-        DISK_DETACH_ACTION     = 22,        // "one.vm.detach"
-        NIC_ATTACH_ACTION      = 23,        // "one.vm.attachnic"
-        NIC_DETACH_ACTION      = 24,        // "one.vm.detachnic"
-        DISK_SNAPSHOT_CREATE_ACTION = 25,   // "one.vm.disksnapshotcreate"
-        DISK_SNAPSHOT_DELETE_ACTION = 26,   // "one.vm.disksnapshotdelete"
-        TERMINATE_ACTION       = 27,        // "one.vm.action"
-        TERMINATE_HARD_ACTION  = 28,        // "one.vm.action"
-        DISK_RESIZE_ACTION     = 29,        // "one.vm.diskresize"
-        DEPLOY_ACTION          = 30,        // "one.vm.deploy"
-        CHOWN_ACTION           = 31,        // "one.vm.chown"
-        CHMOD_ACTION           = 32,        // "one.vm.chmod"
-        UPDATECONF_ACTION      = 33,        // "one.vm.updateconf"
-        RENAME_ACTION          = 34,        // "one.vm.rename"
-        RESIZE_ACTION          = 35,        // "one.vm.resize"
-        UPDATE_ACTION          = 36,        // "one.vm.update"
-        SNAPSHOT_CREATE_ACTION = 37,        // "one.vm.snapshotcreate"
-        SNAPSHOT_DELETE_ACTION = 38,        // "one.vm.snapshotdelete"
-        SNAPSHOT_REVERT_ACTION = 39,        // "one.vm.snapshotrevert"
-        DISK_SAVEAS_ACTION     = 40,        // "one.vm.disksaveas"
-        DISK_SNAPSHOT_REVERT_ACTION = 41,   // "one.vm.disksnapshotrevert"
-        RECOVER_ACTION         = 42,        // "one.vm.recover"
-        RETRY_ACTION           = 43,        // "one.vm.recover"
-        MONITOR_ACTION         = 44         // internal, monitoring process
-    };
-
-    static string action_to_str(VMAction action);
-
-    static int action_from_str(const string& st, VMAction& action);
-
     History(int oid, int _seq = -1);
 
     History(
         int oid,
         int seq,
         int hid,
-        const string& hostname,
+        const std::string& hostname,
         int cid,
-        const string& vmm,
-        const string& tmm,
+        const std::string& vmm,
+        const std::string& tmm,
         int           ds_id,
-        const string& vm_info);
+        const std::string& vm_info);
 
     ~History(){};
 
     /**
      *  Function to write the History Record in an output stream
      */
-    friend ostream& operator<<(ostream& os, const History& history);
+    friend std::ostream& operator<<(std::ostream& os, const History& history);
 
     /**
      * Function to print the History object into a string in
@@ -109,78 +55,77 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
+
+    /**
+     * Function to print the History object into a string in
+     * XML format with reduce information
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    std::string& to_xml_short(std::string& xml) const;
 
 private:
     friend class VirtualMachine;
     friend class VirtualMachinePool;
-
-    // ----------------------------------------
-    // DataBase implementation variables
-    // ----------------------------------------
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
 
     void non_persistent_data();
 
     // ----------------------------------------
     // History fields
     // ----------------------------------------
-    int     oid;
-    int     seq;
+    int          oid;
+    int          seq;
 
-    int     uid;
-    int     gid;
-    int     req_id;
+    int          uid;
+    int          gid;
+    int          req_id;
 
-    int     hid;
-    string  hostname;
-    int     cid;
+    int          hid;
+    std::string  hostname;
+    int          cid;
 
-    string  vmm_mad_name;
-    string  tm_mad_name;
+    std::string  vmm_mad_name;
+    std::string  tm_mad_name;
 
-    int     ds_id;
+    int          ds_id;
 
-    time_t  stime;
-    time_t  etime;
+    time_t       stime;
+    time_t       etime;
 
-    time_t  prolog_stime;
-    time_t  prolog_etime;
+    time_t       prolog_stime;
+    time_t       prolog_etime;
 
-    time_t  running_stime;
-    time_t  running_etime;
+    time_t       running_stime;
+    time_t       running_etime;
 
-    time_t  epilog_stime;
-    time_t  epilog_etime;
+    time_t       epilog_stime;
+    time_t       epilog_etime;
 
-    VMAction action;
+    VMActions::Action action;
 
-    string  vm_info;
+    std::string  vm_info;
 
     // -------------------------------------------------------------------------
     // Non-persistent history fields
     // -------------------------------------------------------------------------
     // Local paths
-    string  transfer_file;
-    string  deployment_file;
-    string  context_file;
-    string  token_file;
+    std::string  transfer_file;
+    std::string  deployment_file;
+    std::string  context_file;
+    std::string  token_file;
 
     // Remote paths
-    string  checkpoint_file;
-    string  rdeployment_file;
-    string  system_dir;
+    std::string  checkpoint_file;
+    std::string  rdeployment_file;
+    std::string  system_dir;
 
     /**
      *  Writes the history record in the DB
      *    @param db pointer to the database.
      *    @return 0 on success.
      */
-    int insert(SqlDB * db, string& error_str)
+    int insert(SqlDB * db, std::string& error_str)
     {
         error_str.clear();
 
@@ -234,7 +179,7 @@ private:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_db_xml(string& xml) const;
+    std::string& to_db_xml(std::string& xml) const;
 
     /**
      * Function to print the History object into a string in
@@ -243,7 +188,11 @@ private:
      *  @param database If it is true, the TEMPLATE element will be included
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml, bool database) const;
+    std::string& to_xml(std::string& xml, bool database) const;
+
+    std::string& to_json(std::string& json) const;
+
+    std::string& to_token(std::string& text) const;
 
     /**
      *  Rebuilds the object from an xml node
@@ -264,7 +213,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str)
+    int from_xml(const std::string &xml_str)
     {
         ObjectXML::update_from_str(xml_str);
 

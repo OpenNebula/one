@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,58 +24,74 @@
 #include "ClusterPoolXML.h"
 #include "DatastorePoolXML.h"
 #include "VirtualMachinePoolXML.h"
+#include "VirtualNetworkPoolXML.h"
 #include "SchedulerPolicy.h"
-#include "ActionManager.h"
+#include "Listener.h"
 #include "AclXML.h"
-
-using namespace std;
+#include "MonitorXML.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * scheduler_action_loop(void *arg);
 class  SchedulerTemplate;
+
 /**
  *  The Scheduler class. It represents the scheduler ...
  */
-
-class Scheduler: public ActionListener
+class Scheduler
 {
 public:
-
     void start();
 
-    virtual void register_policies(const SchedulerTemplate& conf) = 0;
+    void finalize()
+    {
+        if (timer_thread.get())
+        {
+            timer_thread->stop();
+        }
+    }
+
+    virtual void register_policies(const SchedulerTemplate& conf){};
+
+    static Scheduler& instance(Scheduler* the_sched=0)
+    {
+        static Scheduler * sched = 0;
+
+        if ( the_sched != 0)
+        {
+            sched = the_sched;
+        }
+
+        return *sched;
+    }
+
+    float get_mem_ds_scale()
+    {
+        return mem_ds_scale;
+    };
 
 protected:
 
     Scheduler():
-        acls(0),
-        upool(0),
-        hpool(0),
-        clpool(0),
-        dspool(0),
-        img_dspool(0),
-        vmpool(0),
-        vm_roles_pool(0),
-        vmgpool(0),
-        vmapool(0),
         timer(0),
         one_xmlrpc(""),
         machines_limit(0),
         dispatch_limit(0),
-        host_dispatch_limit(0)
+        host_dispatch_limit(0),
+        mem_ds_scale(0),
+        diff_vnets(false)
     {
-        am.addListener(this);
-    };
+    }
 
     virtual ~Scheduler()
     {
         delete hpool;
         delete clpool;
+        delete hmonpool;
 
         delete vmpool;
         delete vm_roles_pool;
+        delete vnetpool;
         delete vmapool;
 
         delete dspool;
@@ -85,26 +101,30 @@ protected:
         delete vmgpool;
 
         delete acls;
-    };
+    }
 
     // ---------------------------------------------------------------
     // Pools
     // ---------------------------------------------------------------
-    AclXML *      acls;
-    UserPoolXML * upool;
+    AclXML *      acls = nullptr;
+    UserPoolXML * upool = nullptr;
 
-    HostPoolXML *    hpool;
-    ClusterPoolXML * clpool;
+    HostPoolXML *    hpool = nullptr;
+    ClusterPoolXML * clpool = nullptr;
 
-    SystemDatastorePoolXML * dspool;
-    ImageDatastorePoolXML *  img_dspool;
+    SystemDatastorePoolXML * dspool = nullptr;
+    ImageDatastorePoolXML *  img_dspool = nullptr;
 
-    VirtualMachinePoolXML *     vmpool;
-    VirtualMachineRolePoolXML * vm_roles_pool;
+    VirtualMachinePoolXML *     vmpool = nullptr;
+    VirtualMachineRolePoolXML * vm_roles_pool = nullptr;
 
-    VMGroupPoolXML * vmgpool;
+    VirtualNetworkPoolXML *     vnetpool = nullptr;
 
-    VirtualMachineActionsPoolXML* vmapool;
+    VMGroupPoolXML * vmgpool = nullptr;
+
+    VirtualMachineActionsPoolXML* vmapool = nullptr;
+
+    MonitorPoolXML * hmonpool = nullptr;
 
     // ---------------------------------------------------------------
     // Scheduler Policies
@@ -123,6 +143,11 @@ protected:
     void add_vm_policy(SchedulerPolicy *policy)
     {
         vm_policies.push_back(policy);
+    }
+
+    void add_nic_policy(SchedulerPolicy *policy)
+    {
+        nic_policies.push_back(policy);
     }
 
     // ---------------------------------------------------------------
@@ -152,19 +177,18 @@ protected:
     virtual void do_vm_groups();
 
 private:
-    Scheduler(Scheduler const&){};
+    Scheduler(Scheduler const&) = delete;
 
-    Scheduler& operator=(Scheduler const&){return *this;};
-
-    friend void * scheduler_action_loop(void *arg);
+    Scheduler& operator=(Scheduler const&) = delete;
 
     // ---------------------------------------------------------------
     // Scheduling Policies
     // ---------------------------------------------------------------
 
-    vector<SchedulerPolicy *> host_policies;
-    vector<SchedulerPolicy *> ds_policies;
-    vector<SchedulerPolicy *> vm_policies;
+    std::vector<SchedulerPolicy *> host_policies;
+    std::vector<SchedulerPolicy *> ds_policies;
+    std::vector<SchedulerPolicy *> vm_policies;
+    std::vector<SchedulerPolicy *> nic_policies;
 
     // ---------------------------------------------------------------
     // Configuration attributes
@@ -172,7 +196,7 @@ private:
 
     time_t  timer;
 
-    string  one_xmlrpc;
+    std::string  one_xmlrpc;
 
     /**
      *  Limit of pending virtual machines to process from the pool.
@@ -195,26 +219,29 @@ private:
     int zone_id;
 
     /**
+     *  multiplication factor to calculate datastore usage. memory * factor
+     */
+    float mem_ds_scale;
+
+    /**
+     *  Boolean to dispatch the VM inside different vnets
+     */
+    bool diff_vnets;
+
+    /**
      * oned runtime configuration values
      */
-     Template oned_conf;
+    Template oned_conf;
 
     // ---------------------------------------------------------------
     // Timer to periodically schedule and dispatch VMs
     // ---------------------------------------------------------------
-
-    pthread_t       sched_thread;
-    ActionManager   am;
+    std::unique_ptr<Timer> timer_thread;
 
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    void timer_action(const ActionRequest& ar);
-
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("SCHED",Log::INFO,"Stopping the scheduler...");
-    };
+    void timer_action();
 };
 
 #endif /*SCHEDULER_H_*/

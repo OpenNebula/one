@@ -1,0 +1,243 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+# -------------------------------------------------------------------------- #
+
+require 'net/http'
+require 'uri'
+require 'json'
+require 'base64'
+require 'rexml/document'
+require 'time'
+require 'digest/md5'
+
+#-------------------------------------------------------------------------------
+#
+#-------------------------------------------------------------------------------
+class DockerHubMarket
+
+    #---------------------------------------------------------------------------
+    # Default Configuration parameters for the Driver
+    #---------------------------------------------------------------------------
+    DEFAULTS = {
+        :url => 'https://hub.docker.com/v2/repositories/library/',
+        :sizemb => 2048,
+        :fs => 'ext4',
+        :format => 'raw',
+        :agent => 'OpenNebula',
+        :page_size => 100
+    }
+
+    # TODO: Make configurable
+    TEMPLATE = "
+CPU = \"1\"
+MEMORY = \"768\"
+GRAPHICS = [
+    LISTEN  =\"0.0.0.0\",
+    TYPE  =\"vnc\"
+]
+CONTEXT = [
+    NETWORK  =\"YES\",
+    SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
+    SET_HOSTNAME  =\"$NAME\"
+]
+OS = [
+    KERNEL_CMD=\"console=ttyS0 reboot=k panic=1\"
+]"
+
+    #---------------------------------------------------------------------------
+    # Configuration varibales
+    #   :url of linuxcontainers market place
+    #   :sizemb default size for container images
+    #   :fs filesystem for the image file
+    #   :format for the image file, qcow2, raw
+    #   :agent for HTTP client
+    #---------------------------------------------------------------------------
+    def initialize(options = {})
+        @options = DEFAULTS
+        @options.merge!(options)
+
+        version_path = File.dirname(__FILE__) + '/../../VERSION'
+        @options[:agent] = "OpenNebula #{File.read(version_path)}" \
+            if File.exist? version_path
+    end
+
+    #---------------------------------------------------------------------------
+    # Fetch URL
+    #---------------------------------------------------------------------------
+    def get(path)
+        # Get proxy params (needed for ruby 1.9.3)
+        http_proxy = ENV['http_proxy'] || ENV['HTTP_PROXY']
+
+        p_host  = nil
+        p_port  = nil
+
+        if http_proxy
+            p_uri   = URI(http_proxy)
+            p_host  = p_uri.host
+            p_port  = p_uri.port
+        end
+
+        uri = URI(path)
+        req = Net::HTTP::Get.new(uri.request_uri)
+
+        req['User-Agent'] = @options[:agent] if @options[:agent]
+
+        opts = { :use_ssl => true }
+        rc = Net::HTTP.start(uri.hostname, uri.port,
+                             p_host, p_port, opts) do |http|
+            http.request(req)
+        end
+
+        return [rc.code.to_i, rc.msg] unless rc.is_a? Net::HTTPSuccess
+
+        [0, rc.body]
+    end
+
+    #---------------------------------------------------------------------------
+    # Get appliance list
+    #---------------------------------------------------------------------------
+    def appliances
+        try    = 0
+        appstr = ''
+        apps   = []
+        next_query = "#{@options[:url]}?page_size=#{@options[:page_size]}"
+
+        loop do
+            rc, body = get(next_query)
+
+            return [rc, body] if rc != 0
+
+            parsed = JSON.parse(body)
+
+            if parsed['results'].empty?
+                try += 1
+                return [0, ''] if try > 5
+            end
+
+            # reset try for new query
+            try = 0
+            apps.concat(parsed['results'])
+            next_query = parsed['next']
+
+            break if next_query.nil? || next_query.empty?
+        end
+
+        # App JSON example:
+        # {
+        #    "user": "library",
+        #    "name": "busybox",
+        #    "namespace": "library",
+        #    "repository_type": "image",
+        #    "status": 1,
+        #    "description": "Busybox base image.",
+        #    "is_private": false,
+        #    "is_automated": false,
+        #    "can_edit": false,
+        #    "star_count": 1878,
+        #    "pull_count": 2147483647,
+        #    "last_updated": "2020-04-16T08:59:03.768123Z",
+        #    "is_migrated": false
+        # }
+        apps[0..-1].each do |app|
+            regt = ''
+
+            if !app['last_updated'].nil?
+                time = app['last_updated'].split('T')[0].split('-')
+                regt = Time.new(time[0], time[1], time[2]).to_i
+            end
+
+            data = {
+                'NAME'        => app['name'],
+                'SOURCE'      => app_url(app),
+                'IMPORT_ID'   => -1,
+                'ORIGIN_ID'   => -1,
+                'TYPE'        => 'IMAGE',
+                'PUBLISHER'   => 'hub.docker.com',
+                'MD5'         => md5(regt),
+                'FORMAT'      => 'raw',
+                'VERSION'     => '1.0',
+                'TAGS'        => '',
+                'REGTIME'     => regt,
+                'SIZE'        => @options[:sizemb],
+                'DESCRIPTION' => app['description'].delete('\\"'),
+                'LINK'        => "https://hub.docker.com/_/#{app['name']}"
+            }
+
+            tmpl = ''
+            data.each {|key, val| print_var(tmpl, key, val) }
+
+            tmpl64 = ''
+            print_var(tmpl64, 'DRIVER', 'raw')
+            print_var(tmpl64, 'DEV_PREFIX', 'vd')
+
+            data = { 'APPTEMPLATE64' => tmpl64, 'VMTEMPLATE64' => TEMPLATE }
+            data.each do |key, val|
+                print_var(tmpl, key, Base64.strict_encode64(val))
+            end
+
+            appstr << "APP=\"#{Base64.strict_encode64(tmpl)}\"\n"
+        end
+
+        [0, appstr]
+    end
+
+    def app_url(app)
+        "docker://#{app['name']}?size=#{@options[:sizemb]}" \
+        "&filesystem=#{@options[:fs]}&format=#{@options[:format]}"
+    end
+
+    def print_var(str, name, val)
+        return if val.nil?
+        return if val.class == String && val.empty?
+
+        str << "#{name}=\"#{val}\"\n"
+    end
+
+    # Returns an md5 from a combination of the @option hash and an input string
+    def md5(string)
+        Digest::MD5.hexdigest("#{@options} #{string}")
+    end
+
+end
+
+################################################################################
+# Main Program. Outpust the list of marketplace appliances
+################################################################################
+def set_option(opt, doc, name, path)
+    opt[name] = doc.elements[path].text if doc.elements[path]
+end
+
+begin
+    options     = {}
+    drv_message = Base64.decode64(ARGV[0])
+
+    doc = REXML::Document.new(drv_message).root
+
+    set_option(options, doc, :url, 'MARKETPLACE/TEMPLATE/ENDPOINT')
+    set_option(options, doc, :sizemb, 'MARKETPLACE/TEMPLATE/IMAGE_SIZE_MB')
+    set_option(options, doc, :fs, 'MARKETPLACE/TEMPLATE/FILESYSTEM')
+    set_option(options, doc, :format, 'MARKETPLACE/TEMPLATE/FORMAT')
+
+    rc, str = DockerHubMarket.new(options).appliances
+
+    if rc != 0
+        STDERR.puts str
+        exit(-1)
+    end
+
+    puts str
+end

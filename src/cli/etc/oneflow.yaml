@@ -1,0 +1,38 @@
+---
+:ID:
+  :desc: ONE identifier for Service
+  :size: 4
+  :adjust: true
+
+:USER:
+  :desc: Username of the Service owner
+  :size: 8
+  :left: true
+
+:GROUP:
+  :desc: Group of the Service
+  :size: 8
+  :left: true
+
+:NAME:
+  :desc: Name of the Service
+  :size: 15
+  :left: true
+  :expand: true
+
+:STARTTIME:
+  :desc: Start time of the Service
+  :size: 15
+
+:STAT:
+  :desc: Actual status
+  :size: 8
+  :adjust: true
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :STARTTIME
+- :STAT

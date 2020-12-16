@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -199,7 +199,7 @@ public:
      *    stores the effective gid. If the token is invali, it is removed
      *    from the pool.
      */
-    bool is_valid(const std::string& utk, int& egid);
+    bool is_valid(const std::string& utk, int& egid, bool& exists_token);
 
     /**
      *  Load the tokens from its XML representation.

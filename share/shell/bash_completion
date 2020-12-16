@@ -1,0 +1,926 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# shellcheck disable=SC2148
+# shellcheck disable=SC2207
+
+COL_NAME="name"
+
+################################################################################
+# Helpers
+################################################################################
+
+# 1 -> cmd
+# 2 -> column
+# 3 -> filter
+_complete() {
+    mapfile -t patterns < <( _one_list "$1" "$2" "$3" )
+    mapfile -t COMPREPLY < <( compgen -W "$( printf '%q ' "${patterns[@]}" )" -- "$cur")
+    compopt -o filenames
+}
+
+_one_list() {
+    if [ -z "$2" ]; then
+        col="$COL_NAME"
+    else
+        col=$2
+    fi
+
+    if [ -n "$3" ]; then
+        $1 list --no-header --csv -f "$3" -l "$col"
+    else
+        $1 list --no-header --csv -l "$col"
+    fi
+}
+
+_one_simple() {
+    COMPREPLY=()
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${1}" -- "${cur}") )
+        return 0
+    fi
+}
+
+_one_owner_update() {
+    case "$1" in
+    chgrp)
+        _complete onegroup
+    ;;
+    chown)
+        _complete oneuser
+    ;;
+    update)
+        COMPREPLY=( $(compgen -A file -- "${cur}") )
+        return 0
+    ;;
+    esac
+}
+
+_one_template() {
+    local cur prev
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        clone|delete|instantiate|chgrp|chown|chmod|update|rename|show|lock|unlock)
+            _complete "$cmd"
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+################################################################################
+# Services
+################################################################################
+
+_one() {
+    _one_simple "start stop restart start-sched stop-sched restart-sched"
+}
+
+_oneflow_server() {
+    _one_simple "start stop"
+}
+
+_onehem_server() {
+    _one_simple "start stop"
+}
+
+_onegate_server() {
+    _one_simple "start stop restart"
+}
+
+_sunstone_server() {
+    _one_simple "start stop restart start-sunstone stop-sunstone restart-sunstone"
+}
+
+complete -F _one one
+complete -F _oneflow_server oneflow-server
+complete -F _onehem_server onehem-server
+complete -F _onegate_server onegate-server
+complete -F _sunstone_server sunstone-server
+
+################################################################################
+# Commands
+################################################################################
+
+_oneacl() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="create delete list"
+    cmd=oneacl
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete)
+            _complete $cmd
+        ;;
+        esac
+    fi
+}
+
+_onecluster() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete list show addhost delhost adddatastore deldatastore
+            addvnet delvnet update rename"
+    cmd=onecluster
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|show|addhost|delhost|adddatastore|deldatastore|addvnet| \
+        delvnet|update|rename)
+            _complete $cmd
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        addhost|delhost)
+            _complete onehost
+        ;;
+        adddatastore|deldatastore)
+            _complete onedatastore
+        ;;
+        addvnet|delvnet)
+            _complete onevnet
+        ;;
+        update)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_onedatastore() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete chgrp chown chmod list show update rename enable disable"
+    cmd=onedatastore
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|chgrp|chown|chmod|show|update|rename|enable|disable)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onedb() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="backup version history restore upgrade fsck vcenter-one54 patch
+            sqlite2mysql purge-history purge-done change-body change-history
+            update-body update-history show-body show-history create-index"
+    cmd=onedb
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        restore|patch)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_oneflow() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="list top show delete recover scale chgrp chown chmod rename action"
+    cmd=oneflow
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        show|delete|recover|scale|chgrp|chown|chmod|rename|action)
+            _complete $cmd
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_oneflow_template() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="list top show create delete instantiate chgrp chown chmod clone rename update"
+    cmd=oneflow-template
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        show|delete|instantiate|chgrp|chown|chmod|clone|rename|update)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onegroup() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create update delete list show addadmin deladmin quota batchquota defaultquota"
+    cmd=onegroup
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        update|delete|show|addadmin|deladmin|quota|batchquota)
+            _complete $cmd
+        ;;
+        defaultquota)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        addadmin|deladmin)
+            _complete oneuser
+        ;;
+        update|quota|batchquota)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_onehook() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete update rename list show top lock unlock retry log"
+    cmd=onehook
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|update|rename|show|lock|unlock|retry)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        update)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_onehost() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete enable disable offline update sync list show top flush
+            rename importvm forceupdate monitoring"
+    cmd=onehost
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|disable|offline|update|sync|show|flush|rename|importvm| \
+        forceupdate|monitoring)
+            _complete $cmd
+        ;;
+        enable)
+            mapfile -t patterns < <( onehost list -f "stat=off,stat=dsbl" --operator OR --no-header --csv -l $COL_NAME )
+            mapfile -t COMPREPLY < <( compgen -W "$( printf '%q ' "${patterns[@]}" )" -- "$cur")
+            compopt -o filenames
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        update)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_oneimage() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create clone delete persistent nonpersistent update enable chtype
+            disable chgrp chown chmod rename snapshot-delete snapshot-revert
+            snapshot-flatten list show top lock unlock orphans"
+    cmd=oneimage
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        clone|delete|persistent|nonpersistent|update|chtype|chgrp|chown|chmod| \
+        rename|snapshot-delete|snapshot-revert|snapshot-flatten|show|lock|unlock)
+            _complete $cmd
+        ;;
+        enable)
+            _complete $cmd $COL_NAME "stat=disa"
+        ;;
+        disable)
+            _complete $cmd $COL_NAME "stat=rdy"
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onemarket() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete chgrp chown chmod list show update rename"
+    cmd=onemarket
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|chgrp|chown|chmod|show|update|rename)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onemarketapp() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create export download delete update chgrp chown chmod rename list show
+            enable disable lock unlock"
+    cmd=onemarketapp
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        export|download|delete|update|chgrp|chown|chmod|rename|show|lock|unlock)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        enable)
+            _complete $cmd $COL_NAME "stat=dis"
+        ;;
+        disable)
+            _complete $cmd $COL_NAME "stat=rdy"
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_oneprovision() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="create validate list show configure delete"
+    cmd=oneprovision
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        show|configure|delete)
+            _complete $cmd ID
+        ;;
+        create|validate)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_oneprovision_template() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="create instantiate list show delete update"
+    cmd=oneprovision-template
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        show|delete|update|instantiate)
+            _complete $cmd ID
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_oneprovider() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="create list show delete update"
+    cmd=oneprovider
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        show|delete|update)
+            _complete $cmd ID
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_onesecgroup() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create clone delete chgrp chown chmod update rename commit list show"
+    cmd=onesecgroup
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        clone|delete|chgrp|chown|chmod|update|rename|commit|show)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_oneshowback() {
+    local opts
+    opts="list calculate"
+    _one_simple
+}
+
+_onetemplate() {
+    opts="create clone delete instantiate chgrp chown chmod update rename list show
+            top lock unlock"
+    cmd=onetemplate
+    _one_template
+}
+
+_oneuser() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create update quota batchquota defaultquota umask login key delete
+            passwd chgrp addgroup delgroup chauth list show encode passwdsearch
+            token-create token-set token-delete token-delete-all"
+    cmd=oneuser
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        update|quota|batchquota|umask|delete|passwd|chgrp|addgroup| \
+        delgroup|chauth|show)
+            _complete $cmd
+        ;;
+        defaultquota)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        chgrp|addgroup|delgroup)
+            _complete onegroup
+        ;;
+        update|quota|batchquota)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_onevcenter() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="list list_all import import_defaults hosts cleartags"
+    cmd=onevcenter
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        cleartags)
+            _complete onevm
+        ;;
+        esac
+    fi
+}
+
+_onevdc() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create rename update delete addgroup delgroup addcluster delcluster
+            addhost delhost adddatastore deldatastore addvnet delvnet list show"
+    cmd=onevdc
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        rename|update|delete|addgroup|delgroup|addcluster|delcluster|addhost| \
+        delhost|adddatastore|deldatastore|addvnet|delvnet)
+            _complete $cmd
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        addgroup|delgroup)
+            _complete onegroup
+        ;;
+        addcluster|delcluster)
+            _complete onecluster
+        ;;
+        addhost|delhost)
+            _complete onehost
+        ;;
+        adddatastore|deldatastore)
+            _complete onedatastore
+        ;;
+        addvnet|delvnet)
+            _complete onevnet
+        ;;
+        update)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+_onevm() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create update hold release disk-saveas terminate undeploy poweroff
+            reboot deploy migrate stop suspend resume recover disk-attach
+            disk-detach nic-attach nic-detach chgrp chown chmod resched unresched
+            rename snapshot-create snapshot-revert snapshot-delete disk-snapshot-create
+            disk-snapshot-revert disk-snapshot-delete disk-snapshot-rename disk-resize
+            list show top resize save updateconf lock unlock create-chart
+            delete-chart update-chart"
+    cmd=onevm
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        update|hold|release|disk-saveas|terminate|show|delete|resume|recover| \
+        disk-attach|disk-detach|nic-attach|nic-detach|chgrp|chown|chmod|resched| \
+        unresched|rename|snapshot-create|snapshot-revert|snapshot-delete| \
+        disk-snapshot-create|disk-snapshot-delete|disk-snapshot-revert| \
+        disk-snapshot-rename|disk-resize|save|updateconf|lock|unlock|create-chart| \
+        delete-chart|update-chart)
+            _complete $cmd
+        ;;
+        undeploy|poweroff|reboot|shutdown|suspend|stop|migrate)
+            _complete $cmd $COL_NAME "stat=runn"
+        ;;
+        deploy)
+            _complete $cmd $COL_NAME "stat=pend"
+        ;;
+        resize)
+            _complete $cmd $COL_NAME "stat=poff"
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        deploy|migrate)
+            _complete onehost $COL_NAME "stat=on"
+        ;;
+        esac
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onevmgroup() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete list show chgrp chown chmod update rename lock unlock"
+    cmd=onevmgroup
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|show|chgrp|chown|chmod|update|rename|lock|unlock)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onevnet() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create delete addar addleases rmar rmleases free hold release release
+            chgrp chown chmod list show update updatear rename lock unlock orphans"
+    cmd=onevnet
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        delete|addar|addleases|rmar|rmleases|free|hold|release|reserve|chgrp| \
+        chown|chmod|show|update|updatear|rename|lock|unlock)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        addar|update)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onevntemplate() {
+    local opts cmd
+    opts="create clone delete instantiate chgrp chown chmod update rename list show
+            top lock unlock"
+    cmd=onevntemplate
+    _one_template
+}
+
+_onevrouter() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create instantiate delete chgrp chown chmod update rename nic-attach
+            nic-detach list show top lock unlock"
+    cmd=onevrouter
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        instantiate|delete|chgrp|chown|chmod|update|rename|nic-attach| \
+        nic-detach|show|lock|unlock)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        _one_owner_update "$pprev"
+    fi
+}
+
+_onezone() {
+    local cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${#COMP_WORDS[@]}" -gt "2" ]; then
+        pprev="${COMP_WORDS[COMP_CWORD-2]}"
+    fi
+    opts="create rename server-add server-del server-reset update delete list show set serversync"
+    cmd=onezone
+    if [ "$COMP_CWORD" == 1 ]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        return 0
+    elif [ "$COMP_CWORD" == 2 ]; then
+        case "$prev" in
+        rename|server-add|server-del|server-reset|update|delete|show|set)
+            _complete $cmd
+        ;;
+        create)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    elif [ "$COMP_CWORD" == 3 ]; then
+        case "$pprev" in
+        update)
+            COMPREPLY=( $(compgen -A file -- "${cur}") )
+            return 0
+        ;;
+        esac
+    fi
+}
+
+complete -F _oneacl oneacl
+complete -F _onecluster onecluster
+complete -F _onedatastore onedatastore
+complete -F _onedb onedb
+complete -F _oneflow oneflow
+complete -F _oneflow_template oneflow-template
+complete -F _onegroup onegroup
+complete -F _onehook onehook
+complete -F _onehost onehost
+complete -F _oneimage oneimage
+complete -F _onemarket onemarket
+complete -F _onemarketapp onemarketapp
+complete -F _oneprovision oneprovision
+complete -F _oneprovision_template oneprovision-template
+complete -F _oneprovider oneprovider
+complete -F _onesecgroup onesecgroup
+complete -F _oneshowback oneshowback
+complete -F _onetemplate onetemplate
+complete -F _oneuser oneuser
+complete -F _onevcenter onevcenter
+complete -F _onevdc onevdc
+complete -F _onevm onevm
+complete -F _onevmgroup onevmgroup
+complete -F _onevnet onevnet
+complete -F _onevntemplate onevntemplate
+complete -F _onevrouter onevrouter
+complete -F _onezone onezone

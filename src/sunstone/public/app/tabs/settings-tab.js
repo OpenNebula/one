@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,12 +15,12 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
-  var OpenNebulaUser = require('opennebula/user');
-  var Sunstone = require('sunstone');
-  var _actions = require('./users-tab/actions');
+  var Locale = require("utils/locale");
+  var OpenNebulaUser = require("opennebula/user");
+  var Sunstone = require("sunstone");
+  var _actions = require("./users-tab/actions");
 
-  var TAB_ID = require('./settings-tab/tabId');
+  var TAB_ID = require("./settings-tab/tabId");
 
   _actions["Settings.refresh"] = {
     type: "custom",
@@ -28,34 +28,35 @@ define(function(require) {
   };
 
   var _dialogs = [
-    require('tabs/users-tab/dialogs/password'),
-    require('./users-tab/dialogs/login-token')
+    require("tabs/users-tab/dialogs/password"),
+    require("./users-tab/dialogs/login-token"),
+    require("./users-tab/dialogs/two-factor-auth")
   ];
 
   var _panels = [
-    require('tabs/settings-tab/panels/info'),
-    require('tabs/settings-tab/panels/user-config'),
-    require('tabs/settings-tab/panels/quotas'),
-    require('tabs/settings-tab/panels/group-quotas'),
-    require('tabs/settings-tab/panels/accounting'),
-    require('tabs/settings-tab/panels/showback'),
-    require('tabs/settings-tab/panels/auth')
+    require("tabs/settings-tab/panels/info"),
+    require("tabs/settings-tab/panels/user-config"),
+    require("tabs/settings-tab/panels/quotas"),
+    require("tabs/settings-tab/panels/group-quotas"),
+    require("tabs/settings-tab/panels/accounting"),
+    require("tabs/settings-tab/panels/showback"),
+    require("tabs/settings-tab/panels/auth")
   ];
 
   var _formPanels = [
-    require('./acls-tab/form-panels/create')
+    require("./acls-tab/form-panels/create")
   ];
 
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Settings"),
     listHeader: Locale.tr("Settings"),
-    resource: 'Settings',
+    resource: "Settings",
     actions: _actions,
-    content: '<span class="fa-stack fa-2x" style="color: #dfdfdf">' +
-      '<i class="fa fa-cloud fa-stack-2x"></i>' +
-      '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
-    '</span>',
+    content: "<span class=\"fa-stack fa-2x\" style=\"color: #dfdfdf\">" +
+      "<i class=\"fas fa-cloud fa-stack-2x\"></i>" +
+      "<i class=\"fa  fa-spinner fa-spin fa-stack-1x fa-inverse\"></i>" +
+    "</span>",
     dialogs: _dialogs,
     panels: _panels,
   };
@@ -68,7 +69,7 @@ define(function(require) {
         id: -1
       },
       success: function(request, user_json) {
-        Sunstone.insertPanels(TAB_ID, user_json, TAB_ID, $(".sunstone-list", $("#" + TAB_ID)))
+        Sunstone.insertPanels(TAB_ID, user_json, TAB_ID, $(".sunstone-list", $("#" + TAB_ID)));
       }
     });
   }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -56,7 +56,7 @@ define(function(require) {
     renderer: 'foundation',
     autoWidth: false,
     language: {
-      "sLengthMenu": "_MENU_",
+      "url": "../locale/languages/" + datatable_lang,
       "emptyTable": TemplateEmptyTable()
     }
   } );
@@ -132,7 +132,7 @@ define(function(require) {
         });
 
         if (that.selectOptions.starred_icon == undefined) {
-          that.selectOptions.starred_icon = '<i class="fa fa-star fa-fw"></i>';
+          that.selectOptions.starred_icon = '<i class="fas fa-star fa-fw"></i>';
         }
       }
 
@@ -177,7 +177,7 @@ define(function(require) {
     'updateFn': _updateFn,
     'list': _list,
     'clearLabelsFilter': _clearLabelsFilter,
-    'getLabelsFilter': _getLabelsFilter,
+    'getLabelsFilter': _getLabelsFilter
   }
 
   return TabDatatable;
@@ -214,6 +214,7 @@ define(function(require) {
 
     $('#' + this.dataTableId + 'Search').on('input', function() {
       that.dataTable.fnFilter($(this).val());
+      $("ul.ips-dropdown").foundation();
       return false;
     });
 
@@ -243,7 +244,11 @@ define(function(require) {
       $("button.advanced-search", context).on('click', function(){
         $('#' + that.dataTableId + 'Search-dropdown', context).foundation('close');
         that.dataTable.fnDraw(true);
+        return false;
+      });
 
+      $("#"+ this.dataTableId +"Search-selectTYPE", context).on('change', function(){
+        that.dataTable.fnDraw(true);        
         return false;
       });
     }
@@ -694,6 +699,7 @@ define(function(require) {
 
     if (that.postUpdateView) {
       that.postUpdateView();
+      $("ul.ips-dropdown").foundation();
     }
 
     if(that.conf.searchDropdownHTML != undefined){
@@ -734,6 +740,8 @@ define(function(require) {
         return false;
       }
     });
+
+    $("ul.ips-dropdown").foundation();
   }
 
   function _getElementData(id, resource_tag) {
@@ -895,7 +903,7 @@ define(function(require) {
 
           $('#selected_ids_row_' + that.dataTableId + ' span[row_id="' + row_id + '"]', section).remove();
 
-          that.selectOptions.unselect_callback();
+          that.selectOptions.unselect_callback(aData, that.selectOptions);
         } else {
           ids[row_id] = true;
 
@@ -904,8 +912,15 @@ define(function(require) {
             $("td", row).addClass('markrowchecked');
             $('input.check_item', row).prop('checked', true);
           }
-
-          $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fa fa-times blue"></span></span> ');
+          
+          var attr = {row_id:row_id, class:"radius label"};
+          var span = $("<span/>",attr).text(row_name);
+          $('#selected_ids_row_' + that.dataTableId, section).append(span);
+          if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
+            span.attr("title",Locale.tr("just click if you want to delete the resource"));
+            span.append($("<i/>",{class: "fas fa-times"}).css({"margin-left":"5px"}));
+            span.off("click").on("click", that.selectOptions.click);
+          }
 
           that.selectOptions.select_callback(aData, that.selectOptions);
         }
@@ -963,28 +978,28 @@ define(function(require) {
     } else {
       $('#' + that.dataTableId + ' tbody', section).delegate("tr", "click", function(e) {
         that.dataTable.unbind("draw");
+        var wasChecked = $("td.markrow", this).hasClass("markrow");
         var aData = that.dataTable.fnGetData(this);
+        var check = aData != undefined && !wasChecked;
 
-        $("td.markrow", that.dataTable).removeClass('markrow');
-        $('tbody input.check_item', that.dataTable).prop('checked', false);
+        $("td", that.dataTable).removeClass('markrow');
+        $("td", this).toggleClass('markrow', check);
+        $('tbody input.check_item', that.dataTable).prop('checked', check);
 
-        if (aData != undefined){
-          $("td", this).addClass('markrow');
-          $('input.check_item', this).prop('checked', true);
+        $('#selected_resource_' + that.dataTableId, section).toggle(check);
+        $('#select_resource_' + that.dataTableId, section).toggle(!check);
 
-          $('#selected_resource_' + that.dataTableId, section).show();
-          $('#select_resource_' + that.dataTableId, section).hide();
+        $('#selected_resource_id_' + that.dataTableId, section)
+          .val(function() { return check ? aData[that.selectOptions.id_index] : "" }).trigger("change");
+        $('#selected_resource_name_' + that.dataTableId, section)
+          .text(function() { return check ? aData[that.selectOptions.name_index] : "" }).trigger("change");
 
-          $('#selected_resource_id_' + that.dataTableId, section).val(aData[that.selectOptions.id_index]).trigger("change");
-
-          $('#selected_resource_name_' + that.dataTableId, section).text(aData[that.selectOptions.name_index]).trigger("change");
-          $('#selected_resource_name_' + that.dataTableId, section).show();
-
-          that.selectOptions.select_callback(aData, that.selectOptions);
-        }
+        $('#selected_resource_name_' + that.dataTableId, section).toggle(check);
 
         $('#selected_resource_id_' + that.dataTableId, section).removeData("pending_select");
 
+        var callback = check ? "select_callback" : "unselect_callback";
+        that.selectOptions[callback](aData, that.selectOptions);
         return true;
       });
     }
@@ -1004,12 +1019,13 @@ define(function(require) {
     $('tbody input.check_item', that.dataTable).prop('checked', false);
 
     $('#' + that.dataTableId + '_search', section).val("").trigger("input");
+    $('#selected_resource_id_' + that.dataTableId, section).val("").trigger("change");
+    $('#selected_resource_name_' + that.dataTableId, section).text("").trigger("change").hide();
     $('#refresh_button_' + that.dataTableId).click();
-
-    $('#selected_resource_name_' + that.dataTableId, section).text("").hide();
 
     $('#selected_resource_' + that.dataTableId, section).hide();
     $('#select_resource_' + that.dataTableId, section).show();
+
   }
 
   // Returns an ID, or an array of IDs for that.selectOptions.multiple_choice
@@ -1064,9 +1080,10 @@ define(function(require) {
    */
   function _selectResourceTableSelect(selectedResources) {
     var that = this;
+
     var section = $('#' + that.dataTableId + 'Container');
 
-    if (that.selectOptions.multiple_choice) {
+    if (that && that.selectOptions && that.selectOptions.multiple_choice) {
       that.refreshResourceTableSelect(section, that.dataTableId);
 
       var data_ids = {};
@@ -1089,8 +1106,16 @@ define(function(require) {
         var row_name = "" + row_id;
 
         row_name = OpenNebula[that.resource].getName(row_id);
+        var attr = {row_id:row_id, class:"radius label"};
+        var span = $("<span/>",attr).text(row_name);
 
-        $('#selected_ids_row_' + that.dataTableId, section).append('<span row_id="' + row_id + '" class="radius label">' + row_name + ' <span class="fa fa-times blue"></span></span> ');
+        if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
+          span.attr("title",Locale.tr("just click if you want to delete the resource"));
+          span.append($("<i/>",{class: "fas fa-times"}).css({"margin-left":"5px"}));
+          span.off("click").on("click", that.selectOptions.click);
+        }
+
+        $('#selected_ids_row_' + that.dataTableId, section).append(span);
       });
 
       $('#selected_ids_row_' + that.dataTableId, section).data("ids", data_ids);
@@ -1187,8 +1212,7 @@ define(function(require) {
                     elementArray[that.selectOptions.name_index]);
             } else {
               elementArray[that.selectOptions.name_index] =
-                  ('<i class="fa fa-fw"></i> ' +
-                    elementArray[that.selectOptions.name_index]);
+                  elementArray[that.selectOptions.name_index];
             }
           }
 
@@ -1197,21 +1221,7 @@ define(function(require) {
           delete fixed_ids_map[this[that.xmlRoot].ID];
         }
       });
-
-      var n_columns = that.columns.length + 1;
-
-      $.each(fixed_ids_map, function(id, v) {
-        var empty = [];
-
-        for (var i = 0; i <= n_columns; i++) {
-          empty.push("");
-        }
-
-        empty[that.selectOptions.id_index] = id;
-
-        list_array.push(empty);
-      });
-
+      
       that.updateView(null, list_array, true);
 
       var section = $('#' + that.dataTableId + 'Container');

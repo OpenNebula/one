@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,8 +20,6 @@
 #include "Request.h"
 #include "DefaultQuotas.h"
 
-using namespace std;
-
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,8 +27,13 @@ using namespace std;
 class RequestManagerSystem: public Request
 {
 protected:
-    RequestManagerSystem(const string& method_name, const string& help,
-            const string& params) :Request(method_name,params,help) {};
+    RequestManagerSystem(const std::string& method_name,
+                         const std::string& help,
+                         const std::string& params)
+        : Request(method_name, params, help)
+    {
+        auth_op = AuthRequest::ADMIN;
+    };
 
     ~RequestManagerSystem(){};
 
@@ -49,13 +52,12 @@ public:
     SystemVersion():
         RequestManagerSystem("one.system.version",
                           "Returns the OpenNebula version",
-                          "A:s")
-    {};
+                          "A:s") {}
 
     ~SystemVersion(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -67,13 +69,12 @@ public:
     SystemConfig():
         RequestManagerSystem("one.system.config",
                           "Returns the OpenNebula configuration",
-                          "A:s")
-    {};
+                          "A:s") {}
 
     ~SystemConfig(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -83,15 +84,12 @@ class SystemSql: public RequestManagerSystem
 {
 public:
     SystemSql():RequestManagerSystem("one.system.sql",
-            "Executes and replicates SQL commands on the DB backend","A:ssb")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+            "Executes and replicates SQL commands on the DB backend","A:ssb") {}
 
     ~SystemSql(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -101,15 +99,12 @@ class SystemSqlQuery: public RequestManagerSystem
 {
 public:
     SystemSqlQuery():RequestManagerSystem("one.system.sqlquery",
-            "Executes SQL queries on the DB backend","A:ss")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+            "Executes SQL queries on the DB backend","A:ss") { }
 
     ~SystemSqlQuery(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 private:
 
     class select_cb : public Callbackable
@@ -123,7 +118,7 @@ private:
                     static_cast<Callbackable::Callback>(&select_cb::callback));
         }
 
-        std::string get_result()
+        std::string get_result() const
         {
             return oss.str();
         }
@@ -144,15 +139,12 @@ public:
     UserQuotaInfo():
         RequestManagerSystem("one.userquota.info",
                            "Returns the default user quota limits",
-                           "A:s")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                           "A:s") { }
 
     ~UserQuotaInfo(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -164,15 +156,12 @@ public:
     GroupQuotaInfo():
         RequestManagerSystem("one.groupquota.info",
                            "Returns the default group quota limits",
-                           "A:s")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                           "A:s") { }
 
     ~GroupQuotaInfo(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -181,21 +170,18 @@ public:
 class QuotaUpdate : public RequestManagerSystem
 {
 protected:
-    QuotaUpdate(const string& method_name,
-            const string& help):
+    QuotaUpdate(const std::string& method_name,
+                const std::string& help):
         RequestManagerSystem(method_name,
                             help,
-                           "A:ss")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                           "A:ss") { }
 
     ~QuotaUpdate(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
-    virtual int set_default_quota(Template *tmpl, string& error) = 0;
+    virtual int set_default_quota(Template *tmpl, std::string& error) = 0;
 
     const virtual DefaultQuotas* get_default_quota() = 0;
 };
@@ -208,14 +194,11 @@ class UserQuotaUpdate : public QuotaUpdate
 public:
     UserQuotaUpdate():
         QuotaUpdate("one.userquota.update",
-                   "Updates the default user quota limits")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                   "Updates the default user quota limits") { }
 
-    int set_default_quota(Template *tmpl, string& error);
+    int set_default_quota(Template *tmpl, std::string& error) override;
 
-    const DefaultQuotas* get_default_quota();
+    const DefaultQuotas* get_default_quota() override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -226,14 +209,11 @@ class GroupQuotaUpdate : public QuotaUpdate
 public:
     GroupQuotaUpdate():
         QuotaUpdate("one.groupquota.update",
-                   "Updates the default group quota limits")
-    {
-        auth_op = AuthRequest::ADMIN;
-    };
+                   "Updates the default group quota limits") { }
 
-    int set_default_quota(Template *tmpl, string& error);
+    int set_default_quota(Template *tmpl, std::string& error) override;
 
-    const DefaultQuotas* get_default_quota();
+    const DefaultQuotas* get_default_quota() override;
 };
 
 /* -------------------------------------------------------------------------- */

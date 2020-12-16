@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,6 +51,21 @@ module OpenNebula
             super(GROUP_POOL_METHODS[:info])
         end
 
+        def info_all()
+            return super(GROUP_POOL_METHODS[:info])
+        end
+
+        def info_mine()
+            return super(GROUP_POOL_METHODS[:info])
+        end
+
+        def info_group()
+            return super(GROUP_POOL_METHODS[:info])
+        end
+
         alias_method :info!, :info
+        alias_method :info_all!, :info_all
+        alias_method :info_mine!, :info_mine
+        alias_method :info_group!, :info_group
     end
 end

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,43 +16,66 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
-    VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
-    VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+require 'open3'
+
+def file_location?(target_path, f)
+    target_path == File.basename(f)
+end
+
+def last_file_to_upload?(index, files_to_upload)
+    index == files_to_upload.size - 1
+end
+
+def there_is_not_system_error?(rc)
+    !rc
+end
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
 drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
+drv_action.initialize_xml(Base64.decode64(drv_action_enc),
+                          'DS_DRIVER_ACTION_DATA')
 
-img_path     = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
-ds_id        = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
-ds_ref       = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
-ds_image_dir = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] rescue "one"
-md5          = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
-sha1         = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1"]
-nodecomp     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/NO_DECOMPRESS"]
-limit_bw     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/LIMIT_TRANSFER_BW"]
+DRV_ACTION_DS = '/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/'
 
-check_valid img_path, "img_path"
+img_path     = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/PATH']
+ds_id        = drv_action['/DS_DRIVER_ACTION_DATA/DATASTORE/ID']
+ds_ref       = drv_action[DRV_ACTION_DS + 'VCENTER_DS_REF']
+ds_image_dir = drv_action[DRV_ACTION_DS + 'VCENTER_DS_IMAGE_DIR']
+               .match(%r{^/*(.*?)/*$})[1] rescue 'one'
+md5          = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5']
+sha1         = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/SHA1']
+nodecomp     = drv_action[DRV_ACTION_DS + 'NO_DECOMPRESS']
+limit_bw     = drv_action[DRV_ACTION_DS + 'LIMIT_TRANSFER_BW']
+
+check_valid img_path, 'img_path'
 
 # if image is already in a vCenter datastore return the path
-if img_path.start_with? "vcenter://"
-    img_path = img_path.sub("vcenter://", "")
+if img_path.start_with? 'vcenter://'
+    img_path = img_path.sub('vcenter://', '')
     img_path = VCenterDriver::FileHelper.escape_path(img_path)
-    puts img_path
+    puts "#{img_path.gsub("\n", '')} vmdk"
     exit(0)
 end
 
@@ -63,28 +86,34 @@ target_path = "#{ds_image_dir}/#{id}"
 # If image is in a remote http location it has to be downloaded
 # or if is a zipped file it has to be unzipped in a temp folder
 
-if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
+if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     temp_folder = File.join(VAR_LOCATION, "vcenter/#{target_path}")
     temp_file = File.join(temp_folder, File.basename(img_path))
+    # if the original file doesnt have the vmdk extension, add it
+    if !temp_file.match(/\.vmdk$/) && !temp_file.match(/\.iso$/)
+        temp_file += '.vmdk'
+    end
 
     # Create tmp directory
     FileUtils.mkdir_p(temp_folder)
 
     # Specify downloader args
-    downsh_args = " "
-    downsh_args << "--md5 #{md5} " if md5 && !md5.empty? && !md5.eql?("-")
+    downsh_args = ' '
+    downsh_args << "--md5 #{md5} " if md5 && !md5.empty? && !md5.eql?('-')
     downsh_args << "--sha1 #{sha1} " if sha1 && !sha1.empty?
-    downsh_args << "--nodecomp " if nodecomp && !nodecomp.empty?
+    downsh_args << '--nodecomp ' if nodecomp && !nodecomp.empty?
     downsh_args << "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
+    downsh_args << '--convert vmdk'
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
+    b64        = Base64.encode64(drv_action.to_xml).gsub!("\n", '')
 
-    rc = system("#{downloader} #{img_path} #{temp_file}")
+    rc = system("DRV_ACTION=#{b64} #{downloader} #{img_path} #{temp_file}")
 
-    if !rc
+    if there_is_not_system_error?(rc)
         STDERR.puts "Error downloading #{img_path}"
         FileUtils.rm_rf(temp_file)
-        exit -1
+        exit(-1)
     end
 
     img_path = temp_file
@@ -105,52 +134,55 @@ when :flat
 end
 
 files_to_upload.each_with_index do |f, index|
-
     path = "#{target_path}/#{File.basename(f)}"
 
     # Change path for gzipped standalone file
-    if(target_path == File.basename(f))
+    if file_location?(target_path, f)
         path = "#{target_path}/#{filename}"
 
         # remove gz or bz2 if part of filename
-        if path.end_with?("gz") && VCenterDriver::FileHelper.is_vmdk?(f)
-            path.gsub!(/gz$/,'')
+        if path.end_with?('gz') && VCenterDriver::FileHelper.vmdk?(f)
+            path.gsub!(/gz$/, '')
         end
 
-        if path.end_with?("bz2") && VCenterDriver::FileHelper.is_vmdk?(f)
-            path.gsub!(/bz2$/,'')
+        if path.end_with?('bz2') && VCenterDriver::FileHelper.vmdk?(f)
+            path.gsub!(/bz2$/, '')
         end
     end
 
     # Change path if vmdk is part of filename but it's not the extension
-    if !!/[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.is_vmdk?(f)
-        path.gsub!(/vmdk$/,'')
+    # rubocop:disable Style/DoubleNegation
+    if !!/[^.]+vmdk$/.match(path) && VCenterDriver::FileHelper.vmdk?(f)
+        path.gsub!(/vmdk$/, '')
         extension = '.vmdk'
     end
+    # rubocop:enable Style/DoubleNegation
 
     # Add iso extension if file is an ISO file
-    if VCenterDriver::FileHelper.is_iso?(f)
-        path = "#{File.dirname(path)}/#{File.basename(path,".*")}"
+    if VCenterDriver::FileHelper.iso?(f)
+        path = "#{File.dirname(path)}/#{File.basename(path, '.*')}"
         extension = '.iso'
     end
 
-    if index == files_to_upload.size - 1
-        uploader_args = ds_id + " " + ds_ref + " " +
-            "#{path}#{extension}" + " " + f
+    if last_file_to_upload?(index, files_to_upload)
+        uploader_args = "#{ds_id} #{ds_ref} #{path}#{extension} #{f}"
     else
-        uploader_args = ds_id + " " + ds_ref + " " +
-                        path + " " + f + " &> /dev/null"
+        uploader_args = "#{ds_id} #{ds_ref} #{path} #{f} &> /dev/null"
     end
 
     cmd = "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
-    rc = system(cmd)
 
-    if !rc
-        STDERR.puts "Cannot upload file #{f}"
+    target, stderr, status = Open3.capture3(cmd)
+
+    if !status.success?
+        STDERR.puts "Cannot upload file #{f}: #{stderr}"
         FileUtils.rm_rf(temp_file) if temp_file
         exit(-1)
+    end
+
+    if last_file_to_upload?(index, files_to_upload)
+        puts "#{target.gsub("\n", '')} vmdk"
     end
 end
 
 FileUtils.rm_rf(temp_file) if temp_file
-

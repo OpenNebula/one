@@ -27,15 +27,10 @@
         </xs:element>
         <xs:element name="LAST_POLL" type="xs:integer"/>
 
-        <!-- STATE values,
-        see http://docs.opennebula.org/stable/user/references/vm_states.html
+        <!-- STATE and LCM_STATE values,
+        see http://docs.opennebula.org/5.6/operation/references/vm_states.html#list-of-states
         -->
         <xs:element name="STATE" type="xs:integer"/>
-
-        <!-- LCM_STATE values, this sub-state is relevant only when STATE is
-             ACTIVE (4)
-        see http://docs.opennebula.org/stable/user/references/vm_states.html
-        -->
         <xs:element name="LCM_STATE" type="xs:integer"/>
         <xs:element name="PREV_STATE" type="xs:integer"/>
         <xs:element name="PREV_LCM_STATE" type="xs:integer"/>
@@ -43,27 +38,107 @@
         <xs:element name="STIME" type="xs:integer"/>
         <xs:element name="ETIME" type="xs:integer"/>
         <xs:element name="DEPLOY_ID" type="xs:string"/>
+        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="LOCKED" type="xs:integer"/>
+              <xs:element name="OWNER" type="xs:integer"/>
+              <xs:element name="TIME" type="xs:integer"/>
+              <xs:element name="REQ_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="MONITORING">
-        <!--
           <xs:complexType>
             <xs:all>
-              <- Percentage of 1 CPU consumed (two fully consumed cpu is 200) ->
+              <!-- Percentage of 1 CPU consumed (two fully consumed cpu is 2.0) -->
               <xs:element name="CPU" type="xs:decimal" minOccurs="0" maxOccurs="1"/>
-
-              <- MEMORY consumption in kilobytes ->
+              <!-- Amount of bytes read from disk-->
+              <xs:element name="DISKRDBYTES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Number of IO read operations -->
+              <xs:element name="DISKRDIOPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Amount of bytes written to disk -->
+              <xs:element name="DISKWRBYTES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Number of IO write operations -->
+              <xs:element name="DISKWRIOPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- ID of the VM -->
+              <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Consumption in kilobytes -->
               <xs:element name="MEMORY" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-
-              <- NETTX: Sent bytes to the network ->
+              <!-- Sent bytes to the network -->
               <xs:element name="NETTX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-
-              <- NETRX: Received bytes from the network ->
+              <!-- Received bytes from the network -->
               <xs:element name="NETRX" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Exact time when monitoring info were retieved -->
+              <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- vCetner information -->
+              <xs:element name="VCENTER_ESX_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_GUEST_STATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_RP_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_RUNNING_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VMWARETOOLS_VERSION_STATUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VM_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
             </xs:all>
           </xs:complexType>
-        -->
         </xs:element>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
-        <xs:element name="USER_TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="BRIDGE_TYPE" type="xs:string"/>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="NIC_ALIAS" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ALIAS_ID" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="PARENT" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                    <xs:element name="PARENT_ID" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="VCENTER_PORTGROUP_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="USER_TEMPLATE">
+          <xs:complexType>
+             <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="VCENTER_CCR_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="HISTORY_RECORDS">
           <xs:complexType>
             <xs:sequence>
@@ -133,6 +208,9 @@
                       RECOVER_ACTION          = 42
                       RETRY_ACTION            = 43
                       MONITOR_ACTION          = 44
+                      DISK_SNAPSHOT_RENAME_ACTION = 45
+                      ALIAS_ATTACH_ACTION         = 46
+                      ALIAS_DETACH_ACTION         = 47
                     -->
                     <xs:element name="ACTION" type="xs:integer"/>
                     <xs:element name="UID" type="xs:integer"/>
@@ -147,7 +225,10 @@
         <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:sequence>
+              <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
+              <xs:element name="CURRENT_BASE" type="xs:integer"/>
               <xs:element name="DISK_ID" type="xs:integer"/>
+              <xs:element name="NEXT_SNAPSHOT" type="xs:integer"/>
               <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>

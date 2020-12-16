@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,8 +17,11 @@
 #include "GroupPool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "OneDB.h"
 
 #include <stdexcept>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* There are two default groups boostrapped by the core:                      */
@@ -37,15 +40,15 @@ const int    GroupPool::USERS_ID      = 1;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-    const string& remotes_location, bool is_federation_slave) :
-        PoolSQL(db, Group::table)
+GroupPool::GroupPool(SqlDB * db, bool is_slave,
+        vector<const SingleAttribute *>& restricted_attrs)
+    : PoolSQL(db, one_db::group_table)
 {
     ostringstream oss;
     string        error_str;
 
     //Federation slaves do not need to init the pool
-    if (is_federation_slave)
+    if (is_slave)
     {
         return;
     }
@@ -61,7 +64,7 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
 
         rc = PoolSQL::allocate(group, error_str);
 
-        if( rc < 0 )
+        if (rc < 0)
         {
             goto error_groups;
         }
@@ -72,7 +75,7 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
 
         rc = PoolSQL::allocate(group, error_str);
 
-        if(rc < 0)
+        if (rc < 0)
         {
             goto error_groups;
         }
@@ -80,7 +83,8 @@ GroupPool::GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
         set_lastOID(99);
     }
 
-    register_hooks(hook_mads, remotes_location);
+    // Set restricted attributes
+    GroupTemplate::parse_restricted(restricted_attrs);
 
     return;
 
@@ -96,6 +100,8 @@ error_groups:
 
 int GroupPool::allocate(string name, int * oid, string& error_str)
 {
+    int db_oid;
+
     Group * group;
 
     ostringstream   oss;
@@ -116,9 +122,9 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
     }
 
     // Check for duplicates
-    group = get(name, false);
+    db_oid = exist(name);
 
-    if( group != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -132,7 +138,7 @@ int GroupPool::allocate(string name, int * oid, string& error_str)
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by GROUP " << group->get_oid() << ".";
+    oss << "NAME is already taken by GROUP " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -209,10 +215,6 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
         error_msg = "SQL DB error";
         rc = -1;
     }
-    else
-    {
-        do_hooks(objsql, Hook::REMOVE);
-    }
 
     return rc;
 }
@@ -220,17 +222,17 @@ int GroupPool::drop(PoolObjectSQL * objsql, string& error_msg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int GroupPool::dump(ostringstream& oss, const string& where, const string& limit)
+int GroupPool::dump(string& oss, const string& where, int sid, int eid, bool desc)
 {
     int     rc;
     string  def_quota_xml;
 
     ostringstream cmd;
 
-    cmd << "SELECT " << Group::table << ".body, "
-        << GroupQuotas::db_table << ".body" << " FROM " << Group::table
-        << " LEFT JOIN " << GroupQuotas::db_table << " ON "
-        << Group::table << ".oid=" << GroupQuotas::db_table << ".group_oid";
+    cmd << "SELECT " << one_db::group_table << ".body, "
+        << one_db::group_quotas_db_table << ".body" << " FROM " << one_db::group_table
+        << " LEFT JOIN " << one_db::group_quotas_db_table << " ON "
+        << one_db::group_table << ".oid=" << one_db::group_quotas_db_table << ".group_oid";
 
     if ( !where.empty() )
     {
@@ -239,50 +241,33 @@ int GroupPool::dump(ostringstream& oss, const string& where, const string& limit
 
     cmd << " ORDER BY oid";
 
-    if ( !limit.empty() )
+    if ( desc == true )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " DESC";
     }
 
-    oss << "<GROUP_POOL>";
+    if ( eid != -1 )
+    {
+        cmd << " " << db->limit_string(sid, eid);
+    }
 
-    set_callback(static_cast<Callbackable::Callback>(&GroupPool::dump_cb),
-                 static_cast<void *>(&oss));
+    oss.append("<GROUP_POOL>");
 
-    rc = db->exec_rd(cmd, this);
+    string_cb cb(2);
 
-    unset_callback();
+    cb.set_callback(&oss);
 
-    oss << Nebula::instance().get_default_group_quota().to_xml(def_quota_xml);
+    rc = db->exec_rd(cmd, &cb);
 
-    oss << "</GROUP_POOL>";
+    cb.unset_callback();
+
+    oss.append(Nebula::instance().get_default_group_quota().to_xml(def_quota_xml));
+
+    oss.append("</GROUP_POOL>");
 
     return rc;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int GroupPool::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    if ( (!values[0]) || (num != 2) )
-    {
-        return -1;
-    }
-
-    *oss << values[0];
-
-    if (values[1] != NULL)
-    {
-        *oss << values[1];
-    }
-
-    return 0;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

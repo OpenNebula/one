@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,6 +27,8 @@ define(function(require) {
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
   var OpenNebulaNetwork = require('opennebula/network');
+  var DashboardUtils = require('utils/dashboard');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -142,10 +144,13 @@ define(function(require) {
       PARENT_NETWORK: parent_net
     }
 
+    var color_html = Status.state_lock_to_color("VNET",false, element_json[XML_ROOT]["LOCK"]);
+
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
                            element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>',
+                           element.ID + '"/>'+color_html,
       element.ID,
       element.NAME,
       element.UNAME,
@@ -166,7 +171,9 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_vnets").text(this.totalVNets);
-    $(".addresses_vnets").text(this.usedLeases);
+    $(".total_vnets").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_vnets", this.totalVNets);
+    $(".addresses_vnets").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".addresses_vnets", this.usedLeases);
   }
 });

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -72,7 +72,7 @@ module OneDBPatch
                 ar_ar = ar.delete('AR')
 
                 @db[:network_pool].where(oid: ar_vn).each do |vn|
-                    doc = Nokogiri::XML(vn[:body],nil,NOKOGIRI_ENCODING)
+                    doc = nokogiri_doc(vn[:body], 'network_pool')
                     doc_ar = doc.root.at_xpath("AR_POOL/AR[AR_ID=#{ar_ar}]")
 
                     ar['TYPE'] = 'IP4_6_STATIC'

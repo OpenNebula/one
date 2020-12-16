@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="OPENNEBULA_CONFIGURATION">
+    <xs:complexType>
+      <xs:sequence>
+
+        <xs:element name="API_LIST_ORDER" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="AUTH_MAD" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="AUTHN" type="xs:string"/>
+              <xs:element name="EXECUTABLE" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="AUTH_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="DRIVER_MANAGED_GROUPS" type="xs:string"/>
+              <xs:element name="MAX_TOKEN_TIME" type="xs:integer"/>
+              <xs:element name="NAME" type="xs:string"/>
+              <xs:element name="PASSWORD_CHANGE" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="CLUSTER_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DATASTORE_CAPACITY_CHECK" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DATASTORE_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DATASTORE_LOCATION" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="DATASTORE_MAD" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string"/>
+              <xs:element name="EXECUTABLE" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="DB" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="BACKEND" minOccurs="0" maxOccurs="1" >
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="postgresql"/>
+                    <xs:enumeration value="mysql"/>
+                    <xs:enumeration value="sqlite"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="COMPARE_BINARY" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  <xs:pattern value="[yY][eE][sS]" />
+                  <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="CONNECTIONS" minOccurs="0" maxOccurs="1" type="xs:integer"/>
+              <xs:element name="DB_NAME" minOccurs="0" maxOccurs="1" type="xs:string"/>
+              <xs:element name="PASSWD" minOccurs="0" maxOccurs="1" type="xs:string"/>
+              <xs:element name="PORT" minOccurs="0" maxOccurs="1" type="xs:integer"/>
+              <xs:element name="SERVER" minOccurs="0" maxOccurs="1" type="xs:string"/>
+              <xs:element name="USER" minOccurs="0" maxOccurs="1" type="xs:string"/>
+              <xs:element name="TIMEOUT" minOccurs="0" maxOccurs="1" type="xs:integer"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="DEFAULT_AUTH" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_CDROM_DEVICE_PREFIX" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="DEFAULT_COST" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="CPU_COST" type="xs:integer"/>
+              <xs:element name="DISK_COST" type="xs:integer"/>
+              <xs:element name="MEMORY_COST" type="xs:integer"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="DEFAULT_DEVICE_PREFIX" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_IMAGE_PERSISTENT" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_IMAGE_PERSISTENT_NEW" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_IMAGE_TYPE" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_UMASK" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_VDC_CLUSTER_DATASTORE_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_VDC_CLUSTER_HOST_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_VDC_CLUSTER_NET_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_VDC_DATASTORE_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_VDC_HOST_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DEFAULT_VDC_VNET_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="DS_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="MARKETPLACE_ACTIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="PERSISTENT_ONLY" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:pattern value="[yY][eE][sS]" />
+                    <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="REQUIRED_ATTRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="DS_MONITOR_VM_DISK" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+
+        <xs:element name="ENABLE_OTHER_PERMISSIONS" minOccurs="0" maxOccurs="1">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[yY][eE][sS]" />
+              <xs:pattern value="[nN][oO]" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+
+        <xs:element name="FEDERATION" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="MASTER_ONED" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MODE" minOccurs="0" maxOccurs="1" >
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="STANDALONE"/>
+                    <xs:enumeration value="MASTER"/>
+                    <xs:enumeration value="SLAVE"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="SERVER_ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="ZONE_ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="GROUP_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="HM_MAD" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="EXECUTABLE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="HOOK_LOG_CONF" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="LOG_RETENTION" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="HOST_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="IMAGE_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="IM_MAD" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="EXECUTABLE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="THREADS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="INHERIT_DATASTORE_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="INHERIT_IMAGE_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="INHERIT_VNET_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="IPAM_MAD" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string"/>
+              <xs:element name="EXECUTABLE" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="KEEPALIVE_MAX_CONN" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="KEEPALIVE_TIMEOUT" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="LISTEN_ADDRESS" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="LOG" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="DEBUG_LEVEL" type="xs:integer"/>
+              <xs:element name="SYSTEM" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="LOG_CALL_FORMAT" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="MAC_PREFIX" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="MANAGER_TIMER" type="xs:integer" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="MARKET_MAD" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string"/>
+              <xs:element name="EXECUTABLE" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="MARKET_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="APP_ACTIONS" type="xs:string"/>
+              <xs:element name="NAME" type="xs:string"/>
+              <xs:element name="PUBLIC" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  <xs:pattern value="[yY][eE][sS]" />
+                  <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="REQUIRED_ATTRS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SUNSTONE_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="MAX_CONN" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MAX_CONN_BACKLOG" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MESSAGE_SIZE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MONITORING_INTERVAL_DATASTORE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MONITORING_INTERVAL_DB_UPDATE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MONITORING_INTERVAL_HOST" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MONITORING_INTERVAL_MARKET" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="MONITORING_INTERVAL_VM" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+
+        <xs:element name="NETWORK_SIZE" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="ONE_KEY" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="PCI_PASSTHROUGH_BUS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="PORT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+
+        <xs:element name="RAFT" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="BROADCAST_TIMEOUT_MS" type="xs:integer"/>
+              <xs:element name="ELECTION_TIMEOUT_MS" type="xs:integer"/>
+              <xs:element name="LIMIT_PURGE" type="xs:integer"/>
+              <xs:element name="LOG_PURGE_TIMEOUT" type="xs:integer"/>
+              <xs:element name="LOG_RETENTION" type="xs:integer"/>
+              <xs:element name="XMLRPC_TIMEOUT_MS" type="xs:integer"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="RPC_LOG" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="SCRIPTS_REMOTE_DIR" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="SESSION_EXPIRATION_TIME" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="TIMEOUT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+
+        <xs:element name="TM_MAD" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string"/>
+              <xs:element name="EXECUTABLE" type="xs:string"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="TM_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ALLOW_ORPHANS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CLONE_TARGET" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CLONE_TARGET_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CLONE_TARGET_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DISK_TYPE_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DISK_TYPE_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DRIVER" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DS_MIGRATE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="LN_TARGET" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="LN_TARGET_SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="LN_TARGET_SSH" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SHARED" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="TM_MAD_SYSTEM" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="USER_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="VLAN_IDS" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="RESERVED" type="xs:string"/>
+              <xs:element name="START" type="xs:integer"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="VM_ADMIN_OPERATIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="VM_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="VM_MAD" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="ARGUMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="DEFAULT" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="EXECUTABLE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="IMPORTED_VMS_ACTIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SUNSTONE_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="KEEP_SNAPSHOTS" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  <xs:pattern value="[yY][eE][sS]" />
+                  <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="COLD_NIC_ATTACH" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  <xs:pattern value="[yY][eE][sS]" />
+                  <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="DS_LIVE_MIGRATION" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  <xs:pattern value="[yY][eE][sS]" />
+                  <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+              <xs:element name="LIVE_RESIZE" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                  <xs:pattern value="[yY][eE][sS]" />
+                  <xs:pattern value="[nN][oO]" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="VM_MANAGE_OPERATIONS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="VM_MONITORING_EXPIRATION_TIME" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="VM_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="VM_SUBMIT_ON_HOLD" minOccurs="0" maxOccurs="1">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+            <xs:pattern value="[yY][eE][sS]" />
+            <xs:pattern value="[nN][oO]" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+
+        <xs:element name="VM_USE_OPERATIONS" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="VNC_PORTS" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="RESERVED" type="xs:string"/>
+              <xs:element name="START" type="xs:integer"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="VNET_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="VNET_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
+        <xs:element name="VN_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="BRIDGE_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="VXLAN_IDS" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:all>
+              <xs:element name="START" type="xs:integer"/>
+            </xs:all>
+          </xs:complexType>
+        </xs:element>
+
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

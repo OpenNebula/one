@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DEFAULT_TYPE="raw"
@@ -27,42 +27,130 @@ TARGET="$3"
 TARGET_INDEX="$4"
 DRV_ACTION="$5"
 
-ATTACH_FILE="$SOURCE.attach"
-
 get_disk_information "ATTACH='YES'"
 
-[ -z "$CACHE" ] && [ -n "$DEFAULT_ATTACH_CACHE" ] && \
-    CACHE="$DEFAULT_ATTACH_CACHE"
-[ -n "$CACHE" ] && CACHE="cache='$CACHE'"
+function insert_sec() {
+    name=$1
+    s=$2
+    sm=$3
+    sml=$4
 
-[ -z "$DISCARD" ] && [ -n "$DEFAULT_ATTACH_DISCARD" ] && \
-    DISCARD="$DEFAULT_ATTACH_DISCARD"
-[ -n "$DISCARD" ] && DISCARD="discard='$DISCARD'"
+    if [ -n "${s}" ]; then
+        XML+="<${name}_sec>$(xml_esc "${s}")</${name}_sec>"
+    else
+        s="0"
+    fi
 
-if [ "$READONLY" = "YES" ]; then
-    READONLY="<readonly/>"
-else
-    READONLY=""
+    if [ -n "${sm}" ]; then
+        if [ "${sm}" -gt "${s}" ]; then
+            XML+="<${name}_sec_max>$(xml_esc "${sm}")</${name}_sec_max>"
+
+            if [ -n "${sml}" ]; then
+                XML+="<${name}_sec_max_length>$(xml_esc "${sml}")"
+                XML+="</${name}_sec_max_length>"
+            fi
+        fi
+    fi
+}
+
+# defaults
+CACHE=${CACHE:-${DEFAULT_ATTACH_CACHE}}
+CACHE=${CACHE:-default}
+DISCARD=${DISCARD:-${DEFAULT_ATTACH_DISCARD}}
+DISK_IO=${DISK_IO:-${DEFAULT_ATTACH_IO}}
+TOTAL_BYTES_SEC=${TOTAL_BYTES_SEC:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC}}
+TOTAL_BYTES_SEC_MAX_LENGTH=${TOTAL_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC_MAX_LENGTH}}
+TOTAL_BYTES_SEC_MAX=${TOTAL_BYTES_SEC_MAX:-${DEFAULT_ATTACH_TOTAL_BYTES_SEC_MAX}}
+READ_BYTES_SEC=${READ_BYTES_SEC:-${DEFAULT_ATTACH_READ_BYTES_SEC}}
+READ_BYTES_SEC_MAX_LENGTH=${READ_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_READ_BYTES_SEC_MAX_LENGTH}}
+READ_BYTES_SEC_MAX=${READ_BYTES_SEC_MAX:-${DEFAULT_ATTACH_READ_BYTES_SEC_MAX}}
+WRITE_BYTES_SEC=${WRITE_BYTES_SEC:-${DEFAULT_ATTACH_WRITE_BYTES_SEC}}
+WRITE_BYTES_SEC_MAX_LENGTH=${WRITE_BYTES_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_BYTES_SEC_MAX_LENGTH}}
+WRITE_BYTES_SEC_MAX=${WRITE_BYTES_SEC_MAX:-${DEFAULT_ATTACH_WRITE_BYTES_SEC_MAX}}
+TOTAL_IOPS_SEC=${TOTAL_IOPS_SEC:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC}}
+TOTAL_IOPS_SEC_MAX_LENGTH=${TOTAL_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC_MAX_LENGTH}}
+TOTAL_IOPS_SEC_MAX=${TOTAL_IOPS_SEC_MAX:-${DEFAULT_ATTACH_TOTAL_IOPS_SEC_MAX}}
+READ_IOPS_SEC=${READ_IOPS_SEC:-${DEFAULT_ATTACH_READ_IOPS_SEC}}
+READ_IOPS_SEC_MAX_LENGTH=${READ_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_READ_IOPS_SEC_MAX_LENGTH}}
+READ_IOPS_SEC_MAX=${READ_IOPS_SEC_MAX:-${DEFAULT_ATTACH_READ_IOPS_SEC_MAX}}
+WRITE_IOPS_SEC=${WRITE_IOPS_SEC:-${DEFAULT_ATTACH_WRITE_IOPS_SEC}}
+WRITE_IOPS_SEC_MAX_LENGTH=${WRITE_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX_LENGTH}}
+WRITE_IOPS_SEC_MAX=${WRITE_IOPS_SEC_MAX:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX}}
+
+# disk XML
+XML=''
+
+XML+="<disk type='$(xml_esc "${TYPE_XML}")' device='$(xml_esc "${DEVICE}")'>"
+
+XML+="<driver name='qemu' type='$(xml_esc "${DRIVER}")'"
+[ -n "${CACHE}" ] && XML+=" cache='$(xml_esc "${CACHE}")'"
+[ -n "${DISK_IO}" ] && XML+=" io='$(xml_esc "${DISK_IO}")'"
+[ -n "${DISCARD}" ] && XML+=" discard='$(xml_esc "${DISCARD}")'"
+XML+="/>"
+
+XML+="<source ${TYPE_SOURCE}='$(xml_esc "${SOURCE}")' ${SOURCE_ARGS}>"
+XML+="${SOURCE_HOST}"
+XML+="</source>"
+
+[ -n "${AUTH}" ] && XML+=" ${AUTH}"
+
+XML+="<target dev='$(xml_esc "${TARGET}")'/>"
+[ -n "${ORDER}" ] && XML+=" <boot order='$(xml_esc "${ORDER}")'/>"
+[ "${READONLY}" = 'yes' ] && XML+="<readonly/>"
+[ -n "${LUKS}" ] && XML+="${LUKS}"
+
+
+if [ -n "${TOTAL_BYTES_SEC}${READ_BYTES_SEC}${WRITE_BYTES_SEC}" ] || \
+   [ -n "${TOTAL_BYTES_SEC_MAX}${READ_BYTES_SEC_MAX}${WRITE_BYTES_SEC_MAX}" ] || \
+   [ -n "${TOTAL_IOPS_SEC}${READ_IOPS_SEC}${WRITE_IOPS_SEC}" ] || \
+   [ -n "${TOTAL_IOPS_SEC_MAX}${READ_IOPS_SEC_MAX}${WRITE_IOPS_SEC_MAX}" ];
+then
+    XML+="<iotune>"
+
+    if [ -n "${TOTAL_BYTES_SEC}${TOTAL_BYTES_SEC_MAX}" ]; then
+        insert_sec "total_bytes" "${TOTAL_BYTES_SEC}" "${TOTAL_BYTES_SEC_MAX}" \
+            "${TOTAL_BYTES_SEC_MAX_LENGTH}"
+    else
+        insert_sec "read_bytes" "${READ_BYTES_SEC}" "${READ_BYTES_SEC_MAX}" \
+            "${READ_BYTES_SEC_MAX_LENGTH}"
+
+        insert_sec "write_bytes" "${WRITE_BYTES_SEC}" "${WRITE_BYTES_SEC_MAX}" \
+            "${WRITE_BYTES_SEC_MAX_LENGTH}"
+    fi
+
+    if [ -n "${TOTAL_BYTES_SEC}${TOTAL_BYTES_SEC_MAX}" ]; then
+        insert_sec "total_iops" "${TOTAL_IOPS_SEC}" "${TOTAL_IOPS_SEC_MAX}" \
+            "${TOTAL_IOPS_SEC_MAX_LENGTH}"
+    else
+        insert_sec "read_iops" "${READ_IOPS_SEC}" "${READ_IOPS_SEC_MAX}" \
+            "${READ_IOPS_SEC_MAX_LENGTH}"
+
+        insert_sec "write_iops" "${WRITE_IOPS_SEC}" "${WRITE_IOPS_SEC_MAX}" \
+            "${WRITE_IOPS_SEC_MAX_LENGTH}"
+    fi
+
+    XML+="</iotune>"
 fi
 
-if [ -z "$LUKS" ]; then
-  unset LUKS
+if [ -z "${DISK_TARGET##sd*}" ]; then
+    CTRL_TARGET=$(( $(LC_CTYPE=C printf '%d' "'${DISK_TARGET##sd}") - 97 ))
+    if [ ${CTRL_TARGET} -ge 0 ] && [ ${CTRL_TARGET} -lt 256 ]; then
+        XML+="<address type='drive' controller='0' bus='0' target='${CTRL_TARGET}' unit='0'/>"
+    fi
 fi
 
-cat <<EOF > $ATTACH_FILE
-<disk type='$TYPE_XML' device='$DEVICE'>
-  <driver name='qemu' type='$DRIVER' $CACHE $DISCARD/>
-  <source $TYPE_SOURCE='$SOURCE' $SOURCE_ARGS>
-  $SOURCE_HOST
-  </source>
-  $AUTH
-  <target dev='$TARGET'/>
-  $READONLY
-  $LUKS
-</disk>
+XML+="</disk>"
+
+# device attach
+ATTACH_CMD=$(cat <<EOF
+set -e -o pipefail
+virsh --connect $LIBVIRT_URI attach-device $DOMAIN <(
+cat <<EOT
+${XML}
+EOT
+)
 EOF
+)
 
-exec_and_log "virsh --connect $LIBVIRT_URI attach-device $DOMAIN $ATTACH_FILE" \
-    "Could not attach $SOURCE ($TARGET) to $DOMAIN"
-
-rm -f "$ATTACH_FILE"
+multiline_exec_and_log "${ATTACH_CMD}" \
+    "Could not attach ${SOURCE} (${TARGET}) to ${DOMAIN}"

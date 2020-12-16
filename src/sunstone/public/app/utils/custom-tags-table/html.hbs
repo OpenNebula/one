@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,11 +16,14 @@
 
 <div class="row">
   <div class="large-12 columns">
-    <table class="dataTable policies_table">
+    <table class="dataTable policies_table {{classTable}}">
       <thead>
         <tr>
-          <th>{{tr "Key"}}</th>
-          <th>{{tr "Value"}}</th>
+          <th>{{#if titleKey }}{{titleKey}}{{else}}{{tr "Key"}}{{/if}}</th>
+          {{#if titleMandatory }}<th>{{titleMandatory}}</th>{{/if}}
+          <th>{{#if titleValue }}{{titleValue}}{{else}}{{tr "Value"}}{{/if}}</th>
+          {{#if titleDesc }}<th>{{titleDesc}}</th>{{/if}}
+          {{#if titleDefault }}<th>{{titleDefault}}</th>{{/if}}
           <th></th>
         </tr>
       </thead>
@@ -28,9 +31,9 @@
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="3">
-            <a type="button" class="add_custom_tag button small small-12 secondary radius">
-              <i class="fa fa-lg fa-plus-circle"></i>
+          <td colspan="5">
+            <a type="button" class="add_custom_tag {{classButton}} button small small-12 secondary radius">
+              <i class="fas fa-lg fa-plus-circle"></i>
             </a>
           </td>
         </tr>

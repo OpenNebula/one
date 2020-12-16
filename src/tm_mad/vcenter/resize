@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -18,16 +18,24 @@
 
 # resize image size vmid
 
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
@@ -35,12 +43,12 @@ src          = ARGV[0]
 new_size     = ARGV[1]
 vmid         = ARGV[2]
 
-check_valid src,"src"
-check_valid new_size,"new_size"
-check_valid vmid,"vmid"
+check_valid src, 'src'
+check_valid new_size, 'new_size'
+check_valid vmid, 'vmid'
 
-disk_id = src.split(".")[-1]
-hostname,  = src.split ":"
+disk_id = src.split('.')[-1]
+hostname, = src.split ':'
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -51,45 +59,26 @@ one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 vm_ref = one_vm['DEPLOY_ID']
 
 begin
-    # This action is only possible when VM in ACTIVE / DISK_RESIZE_POWEROFF
-    if one_vm['LCM_STATE'].to_i != 63
-        raise "'disk-resize' operation is not supported for vCenter running VMs."
-    end
-
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+    vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
 
     # Cannot resize if VM has snapshots
-    if vm.has_snapshots?
-        raise "'disk-resize' operation is not supported for VMs with system snapshots."
+    if vm.snapshots?
+        raise "'disk-resize' operation not supported for VMs with snapshots."
     end
 
-    # Get disk element to be resized
-    disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]").first
+    disk = vm.disk(disk_id)
+    disk.change_size(new_size)
 
-    if disk["ORIGINAL_SIZE"] && disk["ORIGINAL_SIZE"].to_i >= new_size.to_i
-        raise "'disk-resize' cannot decrease the disk's size"
+    vm.resize_disk(disk)
+rescue StandardError => e
+    message = "Error resizing disk #{disk_id} for VM #{one_vm['NAME']} "\
+              "Reason: #{e.message}."
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
     end
-
-    # Resize operation
-    if !disk["OPENNEBULA_MANAGED"] || disk["OPENNEBULA_MANAGED"].downcase != "no"
-        vm.resize_managed_disk(disk, new_size)
-    else
-        if one_vm["USER_TEMPLATE/VCENTER_LINKED_CLONES"] &&
-           one_vm["USER_TEMPLATE/VCENTER_LINKED_CLONES"].upcase == "YES"
-
-            raise "Linked cloned disks cannot be resized."
-        else
-            vm.resize_unmanaged_disk(disk, new_size)
-        end
-    end
-
-rescue Exception => e
-    message = "Error resizing disk #{disk_id} for VM #{one_vm["NAME"]} "\
-              "Reason: #{e.message}\n#{e.backtrace}"
-    STDERR.puts error_message(message)
-    exit -1
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

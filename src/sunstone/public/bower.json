@@ -1,23 +1,28 @@
 {
   "name": "opennebula-sunstone",
   "dependencies": {
-    "flot": "0.8.3",
-    "jgrowl": "1.4.2",
-    "fontawesome": "4.3.0",
-    "flot.tooltip": "0.8.4",
-    "no-vnc": "0.5.1",
-    "resumablejs": "git://github.com/23/resumable.js.git#420cd351c5",
-    "spice-html5": "git://anongit.freedesktop.org/spice/spice-html5#spice-html5-0.1.6",
-    "require-handlebars-plugin": "0.11.2",
-    "almond": "0.3.1",
-    "vis": "4.12.0",
-    "requirejs": "2.1.22",
-    "foundation-sites": "6.2.1",
-    "jquery": "2.2.3",
-    "datatables": "1.10.12",
-    "navigo": "2.1.1",
-    "sprintf": "1.0.3",
-    "jquery-ui": "^1.12.1"
+    "flot": "~0.8.3",
+    "jgrowl": "~1.4.2",
+    "fontawesome": "~5.0.7",
+    "flot.tooltip": "~0.8.4",
+    "no-vnc": "https://github.com/novnc/noVNC.git#9fe2fd04d4",
+    "resumablejs": "https://github.com/23/resumable.js.git#420cd351c5",
+    "spice-html5": "https://github.com/freedesktop/spice-html5.git#spice-html5-0.1.7",
+    "require-handlebars-plugin": "~0.11.2",
+    "almond": "~0.3.1",
+    "vis": "~4.12.0",
+    "requirejs": "~2.1.22",
+    "foundation-sites": "~6.2.1",
+    "jquery": "~2.2.3",
+    "datatables": "~1.10.12",
+    "navigo": "~2.1.1",
+    "sprintf": "~1.0.3",
+    "jquery-ui": "~1.12.1",
+    "wickedpicker": "https://github.com/OpenNebula/sunstone-deps.git#9398b3f",
+    "guacamole-common-js": "https://github.com/OpenNebula/sunstone-deps.git#1633556e63",
+    "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz",
+    "wmks": "https://github.com/OpenNebula/sunstone-deps.git#cb0251c",
+    "socket.io-client": "~2.3.0"
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",
@@ -35,5 +40,6 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "main": ""
 }

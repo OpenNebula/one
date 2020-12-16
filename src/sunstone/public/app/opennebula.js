@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,40 +15,41 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('jquery');
+  require("jquery");
 
-  var Helper = require('./opennebula/helper'),
-      Action = require('./opennebula/action'),
-      Auth   = require('./opennebula/auth'),
-      Error  = require('./opennebula/error'),
+  var Helper = require("./opennebula/helper"),
+      Action = require("./opennebula/action"),
+      Auth   = require("./opennebula/auth"),
+      Error  = require("./opennebula/error"),
 
-      Acl             = require('./opennebula/acl'),
-      Cluster         = require('./opennebula/cluster'),
-      Datastore       = require('./opennebula/datastore'),
-      Group           = require('./opennebula/group'),
-      Host            = require('./opennebula/host'),
-      Image           = require('./opennebula/image'),
-      Network         = require('./opennebula/network'),
-      Role            = require('./opennebula/role'),
-      securitygroup   = require('./opennebula/securitygroup'),
-      Service         = require('./opennebula/service'),
-      ServiceTemplate = require('./opennebula/servicetemplate'),
-      Support         = require('./opennebula/support'),
-      Template        = require('./opennebula/template'),
-      User            = require('./opennebula/user'),
-      Vdc             = require('./opennebula/vdc'),
-      Vm              = require('./opennebula/vm'),
-      VMGroup         = require('./opennebula/vmgroup'),
-      Zone            = require('./opennebula/zone'),
-      VirtualRouter   = require('./opennebula/virtualrouter');
-      MarketPlace     = require('./opennebula/marketplace');
-      MarketPlaceApp  = require('./opennebula/marketplaceapp');
+      Acl             = require("./opennebula/acl"),
+      Cluster         = require("./opennebula/cluster"),
+      Datastore       = require("./opennebula/datastore"),
+      Group           = require("./opennebula/group"),
+      Host            = require("./opennebula/host"),
+      Image           = require("./opennebula/image"),
+      Network         = require("./opennebula/network"),
+      VNTemplate      = require("./opennebula/vntemplate"),
+      Role            = require("./opennebula/role"),
+      securitygroup   = require("./opennebula/securitygroup"),
+      Service         = require("./opennebula/service"),
+      ServiceTemplate = require("./opennebula/servicetemplate"),
+      Support         = require("./opennebula/support"),
+      Template        = require("./opennebula/template"),
+      User            = require("./opennebula/user"),
+      Vdc             = require("./opennebula/vdc"),
+      Vm              = require("./opennebula/vm"),
+      VMGroup         = require("./opennebula/vmgroup"),
+      Zone            = require("./opennebula/zone"),
+      VirtualRouter   = require("./opennebula/virtualrouter");
+      MarketPlace     = require("./opennebula/marketplace");
+      MarketPlaceApp  = require("./opennebula/marketplaceapp");
 
-  if (typeof(csrftoken) != "undefined") {
+  if (typeof(csrftoken) !== "undefined") {
     $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
       var params = originalOptions.data;
 
-      if (typeof(params) == "string") {
+      if (typeof(params) === "string") {
         params = JSON.parse(params);
         params["csrftoken"] = csrftoken;
         options.data = JSON.stringify(params);
@@ -61,33 +62,34 @@ define(function(require) {
   }
 
   var OpenNebula = {
-    'Helper': Helper,
-    'Action': Action,
-    'Auth': Auth,
-    'Error': Error,
-    'Acl': Acl,
-    'Cluster': Cluster,
-    'Datastore': Datastore,
-    'Group': Group,
-    'Host': Host,
-    'Image': Image,
-    'File': Image,
-    'Network': Network,
-    'Role': Role,
-    'SecurityGroup': securitygroup,
-    'Service': Service,
-    'ServiceTemplate': ServiceTemplate,
-    'Support': Support,
-    'Template': Template,
-    'VirtualRouterTemplate': Template,
-    'User': User,
-    'Vdc': Vdc,
-    'VM': Vm,
-    'VMGroup': VMGroup,
-    'Zone': Zone,
-    'VirtualRouter': VirtualRouter,
-    'MarketPlace': MarketPlace,
-    'MarketPlaceApp': MarketPlaceApp
+    "Helper": Helper,
+    "Action": Action,
+    "Auth": Auth,
+    "Error": Error,
+    "Acl": Acl,
+    "Cluster": Cluster,
+    "Datastore": Datastore,
+    "Group": Group,
+    "Host": Host,
+    "Image": Image,
+    "File": Image,
+    "Network": Network,
+    "VNTemplate": VNTemplate,
+    "Role": Role,
+    "SecurityGroup": securitygroup,
+    "Service": Service,
+    "ServiceTemplate": ServiceTemplate,
+    "Support": Support,
+    "Template": Template,
+    "VirtualRouterTemplate": Template,
+    "User": User,
+    "Vdc": Vdc,
+    "VM": Vm,
+    "VMGroup": VMGroup,
+    "Zone": Zone,
+    "VirtualRouter": VirtualRouter,
+    "MarketPlace": MarketPlace,
+    "MarketPlaceApp": MarketPlaceApp
   };
 
   return OpenNebula;

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 #include "ObjectCollection.h"
+#include "ObjectXML.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -26,7 +29,6 @@ int ObjectCollection::from_xml_node(const xmlNodePtr node)
    int           rc = 0;
    ostringstream oss;
 
-   vector<string>::iterator it;
    vector<string> ids;
 
    ObjectXML oxml(node);
@@ -35,10 +37,10 @@ int ObjectCollection::from_xml_node(const xmlNodePtr node)
 
    oxml.xpaths(ids, oss.str().c_str());
 
-   for (it = ids.begin(); it != ids.end(); it++)
+   for (auto id_str : ids)
    {
        iss.clear();
-       iss.str(*it);
+       iss.str(id_str);
        iss >> dec >> id;
 
        if ( iss.fail() )
@@ -84,13 +86,12 @@ int ObjectCollection::from_xml(const ObjectXML* xml, const string& xpath_prefix)
 string& ObjectCollection::to_xml(string& xml) const
 {
     ostringstream       oss;
-    set<int>::iterator  it;
 
     oss << "<" << collection_name << ">";
 
-    for ( it = collection_set.begin(); it != collection_set.end(); it++ )
+    for (auto id : collection_set)
     {
-        oss << "<ID>" << *it << "</ID>";
+        oss << "<ID>" << id << "</ID>";
     }
 
     oss << "</" << collection_name << ">";
@@ -105,9 +106,7 @@ string& ObjectCollection::to_xml(string& xml) const
 
 int ObjectCollection::add(int id)
 {
-    pair<set<int>::iterator,bool> ret;
-
-    ret = collection_set.insert(id);
+    auto ret = collection_set.insert(id);
 
     if( !ret.second )
     {
@@ -140,7 +139,7 @@ int ObjectCollection::pop(int& elem)
         return -1;
     }
 
-    set<int>::iterator it = collection_set.begin();
+    auto it = collection_set.begin();
 
     elem = *it;
 
@@ -155,11 +154,9 @@ int ObjectCollection::pop(int& elem)
 
 ObjectCollection& ObjectCollection::operator<<(const ObjectCollection& r)
 {
-    set<int>::const_iterator i;
-
-    for (i = r.collection_set.begin(); i != r.collection_set.end(); ++i)
+    for (auto id : r.collection_set)
     {
-        collection_set.insert(*i);
+        collection_set.insert(id);
     }
 
     return *this;

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,7 +17,7 @@
 define(function(require) {
   require('jquery');
   require('jquery-ui');
-
+  require('wickedpicker');
   require('foundation');
 
   Foundation.Dropdown.defaults.positionClass = 'left';
@@ -28,6 +28,7 @@ define(function(require) {
   Foundation.Reveal.defaults.closeOnClick = false;
 
   _setupDataTableSearch();
+  _setDataTableErrMode();
 
   var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
   var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
@@ -38,6 +39,8 @@ define(function(require) {
   var Menu = require('utils/menu');
   var Locale = require('utils/locale');
   var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
+  var Websocket = require("utils/websocket");
+  var FireedgeValidator = require("utils/fireedge-validator")
 
   var _commonDialogs = [
     require('utils/dialogs/confirm'),
@@ -51,7 +54,7 @@ define(function(require) {
   //$(window).load(function() {
   //   $('#loading').hide();
   //});
-
+  
   $(document).ready(function() {
     Sunstone.addDialogs(_commonDialogs);
     Sunstone.addMainTabs();
@@ -72,6 +75,16 @@ define(function(require) {
       Sunstone.showTab(PROVISION_TAB_ID);
     }
 
+    var create_socket = function(token){
+      if (Websocket.disconnected()){
+        Websocket.start(token);
+      }
+    }
+
+    if (FireedgeValidator.fireedgeToken == ""){
+      FireedgeValidator.validateFireedgeToken(create_socket);    
+    }
+
     $('#loading').hide();
   });
 
@@ -85,8 +98,14 @@ define(function(require) {
     $(document).on("click", ".accordion_advanced_toggle", function() {
       if ($(this).hasClass("active")) {
         $(this).removeClass("active");
+        if ($(this).hasClass("importation")) {
+          $(this).css("color", "").css("font-weight", "normal");
+        }
       } else {
         $(this).addClass("active");
+        if ($(this).hasClass("importation")) {
+          $(this).css("color", "#555").css("font-weight", "bold");
+        }
       }
 
       $(".content", $(this).closest(".accordion_advanced")).toggle();
@@ -99,11 +118,12 @@ define(function(require) {
 
     this.idGroup = -2; /*All*/
     Config.changeFilter(false);
-    
+
     $(".user-zone-info").html(UserAndZoneTemplate({
       filterView: Config['filterView'],
       displayName: config['display_name'],
       settingsTabEnabled: Config.isTabEnabled(SETTINGS_TAB_ID),
+      mode : config["mode"],
       availableViews: config['available_views'],
       zoneName: config['zone_name']
     })).foundation();
@@ -135,33 +155,32 @@ define(function(require) {
           var groups = obj_user.USER.GROUPS.ID;
           this.primaryGroup = obj_user.USER.GID;
           var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
-              <i class='fa fa-fw'></i>" + Locale.tr("All") + "</a></li>";
+              <i class='fas fa-fw'></i>" + Locale.tr("All") + "</a></li>";
           if(this.idGroup == -2){
             var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
-              <i class='fa fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
+              <i class='fas fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
           }
 
           if (!$.isArray(groups)){
             groups = groups.toString();
             groups = [groups];
           }
-
           that = this;
           OpenNebula.Group.list({
             timeout: true,
             success: function(request, group_list) {
-              var group_list_aux = group_list; 
+              var group_list_aux = group_list;
               $.each(groups, function(key, value){
                 var id = value;
                 $.each(group_list_aux, function(key, value){
                   if(id == value.GROUP.ID){
                     if(id == that.idGroup){
                       groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
-                        <a href='#'><i class='fa fa-fw fa-check'></i>" + value.GROUP.NAME + "\
+                        <a href='#'><i class='fas fa-fw fa-check'></i>" + value.GROUP.NAME + "\
                         </a></li>";
                     } else {
                       groupsHTML += "<li class='groups' value='" + id + "'id='" + id + "'> \
-                        <a href='#'><i class='fa fa-fw'></i>" + value.GROUP.NAME + "\
+                        <a href='#'><i class='fas fa-fw'></i>" + value.GROUP.NAME + "\
                         </a></li>";
                     }
                     return false;
@@ -175,7 +194,7 @@ define(function(require) {
           $('#userselector').on('click', function(){
             $('.groups-menu').empty();
             $('.groups-menu').append(groupsHTML);
-            var primaryGroupChar = '<span class="fa fa-asterisk fa-fw" id="primary-char" \
+            var primaryGroupChar = '<span class="fas fa-asterisk fa-fw" id="primary-char" \
                                     style="float: right"></span>';
             $('#'+ that.primaryGroup + ' a').append(primaryGroupChar);
             $('.groups').on('click', function(){
@@ -188,7 +207,7 @@ define(function(require) {
                 var filterName = $(this).text();
                 $('#filter-view').show();
                 $('.filter-name').html(filterName);
-              } else {                
+              } else {
                 $('#filter-view').hide();
                 Config.changeFilter(false);
               }
@@ -201,7 +220,7 @@ define(function(require) {
           });
         },
         error: Notifier.onError
-      }); 
+      });
     }
 
     function zoneRefresh() {
@@ -214,9 +233,9 @@ define(function(require) {
             var icon;
 
             if(this.ZONE.NAME == config['zone_name']){
-              icon = '<i class="fa fa-fw fa-check"></i>'
+              icon = '<i class="fas fa-fw fa-check"></i>'
             } else {
-              icon = '<i class="fa fa-fw"></i>'
+              icon = '<i class="fas fa-fw"></i>'
             }
 
             $('.zone-ul').append('<li>' +
@@ -236,7 +255,7 @@ define(function(require) {
          url: 'config',
          type: "GET",
          headers: {
-           "ZONE_NAME" : this.id
+           "ZONENAME" : this.id
          },
          dataType: "json",
          success: function() {
@@ -271,6 +290,12 @@ define(function(require) {
       return 'ip-address';
     }
     return null;
+  }
+
+  function _setDataTableErrMode(){
+    $.fn.dataTable.ext.errMode = function(settings, techNote, message) {
+      console.log('data table error: '+message);
+    };
   }
 
   function _setupDataTableSearch() {
@@ -348,12 +373,12 @@ define(function(require) {
         }
         var x = "",
             xa = "";
- 
+
         if (m.length == 4) {
             // IPV4
             for(i = 0; i < m.length; i++) {
                 item = m[i];
- 
+
                 if(item.length == 1) {
                     x += "00" + item;
                 }
@@ -370,11 +395,11 @@ define(function(require) {
             var count = 0;
             for(i = 0; i < n.length; i++) {
                 item = n[i];
- 
+
                 if (i > 0) {
                     xa += ":";
                 }
- 
+
                 if(item.length === 0) {
                     count += 0;
                 }
@@ -395,14 +420,14 @@ define(function(require) {
                     count += 4;
                 }
             }
- 
+
             // Padding the ::
             n = xa.split(":");
             var paddDone = 0;
- 
+
             for (i = 0; i < n.length; i++) {
                 item = n[i];
- 
+
                 if (item.length === 0 && paddDone === 0) {
                     for (var padding = 0 ; padding < (32-count) ; padding++) {
                         x += "0";
@@ -414,15 +439,15 @@ define(function(require) {
                 }
             }
         }
- 
+
         return x;
       }else return a;
     },
- 
+
     "ip-address-asc": function ( a, b ) {
         return ((a < b) ? -1 : ((a > b) ? 1 : 0));
     },
- 
+
     "ip-address-desc": function ( a, b ) {
         return ((a < b) ? 1 : ((a > b) ? -1 : 0));
     }

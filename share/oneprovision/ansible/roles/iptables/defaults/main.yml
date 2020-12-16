@@ -1,0 +1,30 @@
+---
+
+################################################################################
+# Mandatory
+################################################################################
+
+# Enable IP forwarding
+iptables_ip_forward_enabled: true
+
+# Manage persistent configuration
+iptables_manage_persistent: true
+
+# Create set of base rules
+iptables_base_rules_enabled: true
+
+# Particular network interface to limit the base rules
+iptables_base_rules_interface: NULL
+
+# Include the rules to drop any other traffic
+iptables_base_rules_strict: true
+
+# List of whitelisted services
+iptables_base_rules_services:
+  - { protocol: 'tcp', port: 22 }
+
+# Enable NAT
+iptables_masquerade_enabled: false
+
+# NAT output interface
+iptables_masquerade_interface: "{{ ansible_default_ipv4.interface }}"

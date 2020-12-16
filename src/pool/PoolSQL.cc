@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,16 +14,16 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-#include <climits>
-#include <sstream>
-#include <iostream>
-#include <stdexcept>
-#include <algorithm>
-
 #include "PoolSQL.h"
 #include "RequestManagerPoolInfoFilter.h"
+#include "AclManager.h"
+#include "Nebula.h"
+#include "ClusterPool.h"
 
-#include <errno.h>
+#include <sstream>
+#include <algorithm>
+
+using namespace std;
 
 /* ************************************************************************** */
 /* PoolSQL constructor/destructor                                             */
@@ -54,64 +54,46 @@ int PoolSQL::get_lastOID()
 {
     int _last_oid;
 
-    lock();
+    lock_guard<mutex> lock(_mutex);
 
     _last_oid = _get_lastOID(db, table);
-
-    unlock();
 
     return _last_oid;
 }
 
 /* -------------------------------------------------------------------------- */
 
-static void _set_lastOID(int _last_oid, SqlDB * db, const string& table)
+static int _set_lastOID(int _last_oid, SqlDB * db, const string& table)
 {
     ostringstream oss;
 
     oss << "REPLACE INTO pool_control (tablename, last_oid) VALUES ('" << table
         << "'," << _last_oid << ")";
 
-    db->exec_wr(oss);
+    return db->exec_wr(oss);
 }
 
 void PoolSQL::set_lastOID(int _last_oid)
 {
-    lock();
+    lock_guard<mutex> lock(_mutex);
 
     _set_lastOID(_last_oid, db, table);
-
-    unlock();
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolSQL::PoolSQL(SqlDB * _db, const char * _table):
-    db(_db), table(_table)
+PoolSQL::PoolSQL(SqlDB * _db, const char * _table)
+    : db(_db)
+    , table(_table)
 {
-    pthread_mutex_init(&mutex,0);
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 PoolSQL::~PoolSQL()
 {
-    vector<PoolObjectSQL *>::iterator it;
-
-    pthread_mutex_lock(&mutex);
-
-    for ( it = pool.begin(); it != pool.end(); ++it)
-    {
-        (*it)->lock();
-
-        delete *it;
-    }
-
-    pthread_mutex_unlock(&mutex);
-
-    pthread_mutex_destroy(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -124,7 +106,7 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
     int rc;
     int lastOID;
 
-    lock();
+    lock_guard<mutex> lock(_mutex);
 
     lastOID = _get_lastOID(db, table);
 
@@ -133,11 +115,12 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
         lastOID = -1;
     }
 
-    objsql->lock();
-
     objsql->oid = ++lastOID;
 
-    _set_lastOID(lastOID, db, table);
+    if ( _set_lastOID(lastOID, db, table) == -1 )
+    {
+        return -1;
+    }
 
     rc = objsql->insert(db, error_str);
 
@@ -148,17 +131,21 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
     else
     {
         rc = lastOID;
-        do_hooks(objsql, Hook::ALLOCATE);
     }
 
     delete objsql;
 
     if( rc == -1 )
     {
-        _set_lastOID(--lastOID, db, table);
-    }
+        lastOID = lastOID - 1;
 
-    unlock();
+        if ( lastOID < 0 )
+        {
+            lastOID = 0;
+        }
+
+        _set_lastOID(lastOID, db, table);
+    }
 
     return rc;
 }
@@ -166,193 +153,31 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolObjectSQL * PoolSQL::get(int oid, bool olock)
+void PoolSQL::exist(const string& id_str, std::set<int>& id_list)
 {
-    if ( oid < 0 )
+    std::vector<int> existing_items;
+
+    one_util::split_unique(id_str, ',', id_list);
+    search(existing_items, table.c_str(), "1 order by 1 ASC");
+
+    for (auto iterator = id_list.begin(); iterator != id_list.end(); ++iterator)
     {
-        return 0;
-    }
-
-    lock();
-
-    flush_cache(oid);
-
-    PoolObjectSQL * objectsql = create();
-
-    objectsql->oid = oid;
-
-    int rc = objectsql->select(db);
-
-    if ( rc != 0 )
-    {
-        objectsql->lock();
-
-        delete objectsql;
-
-        unlock();
-
-        return 0;
-    }
-
-    pool.push_back(objectsql);
-
-    if ( olock == true )
-    {
-        objectsql->lock();
-    }
-
-    unlock();
-
-    return objectsql;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-PoolObjectSQL * PoolSQL::get(const string& name, int ouid, bool olock)
-{
-    lock();
-
-    string name_key = key(name, ouid);
-
-    flush_cache(name_key);
-
-    PoolObjectSQL * objectsql = create();
-
-    int rc = objectsql->select(db, name, ouid);
-
-    if ( rc != 0 )
-    {
-        objectsql->lock();
-
-        delete objectsql;
-
-        unlock();
-
-        return 0;
-    }
-
-    pool.push_back(objectsql);
-
-    if ( olock == true )
-    {
-        objectsql->lock();
-    }
-
-    unlock();
-
-    return objectsql;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolSQL::flush_cache(int oid)
-{
-    for (vector<PoolObjectSQL *>::iterator it = pool.begin(); it != pool.end();)
-    {
-        // The object we are looking for in ::get(). Wait until it is unlocked()
-        if ((*it)->oid == oid)
+        if (!std::binary_search(existing_items.begin(), existing_items.end(), *iterator))
         {
-            (*it)->lock();
+            id_list.erase(iterator);
         }
-        else
-        {
-            // Any other locked object is just ignored
-            int rc = pthread_mutex_trylock(&((*it)->mutex));
-
-            if ( rc == EBUSY ) // In use by other thread
-            {
-                it++;
-                continue;
-            }
-        }
-
-        delete *it;
-
-        it = pool.erase(it);
     }
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolSQL::flush_cache(const string& name_key)
-{
-    for (vector<PoolObjectSQL *>::iterator it = pool.begin(); it != pool.end();)
-    {
-        string okey = key((*it)->name, (*it)->uid);
-
-        // The object we are looking for in ::get(). Wait until it is unlocked()
-        if ( name_key == okey)
-        {
-            (*it)->lock();
-        }
-        else
-        {
-            // Any other locked object is just ignored
-            int rc = pthread_mutex_trylock(&((*it)->mutex));
-
-            if ( rc == EBUSY ) // In use by other thread
-            {
-                it++;
-                continue;
-            }
-        }
-
-        delete *it;
-
-        it = pool.erase(it);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void PoolSQL::clean()
-{
-    vector<PoolObjectSQL *>::iterator it;
-
-    lock();
-
-    for (it = pool.begin(); it != pool.end(); ++it)
-    {
-        (*it)->lock();
-
-        delete *it;
-    }
-
-    pool.clear();
-
-    unlock();
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int PoolSQL::dump_cb(void * _oss, int num, char **values, char **names)
-{
-    ostringstream * oss;
-
-    oss = static_cast<ostringstream *>(_oss);
-
-    if ( (!values[0]) || (num != 1) )
-    {
-        return -1;
-    }
-
-    *oss << values[0];
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table,
-    const string& where, const string& limit)
+int PoolSQL::dump(string& oss, const string& elem_name, const string& column,
+        const char* table, const string& where, int sid, int eid, bool desc)
 {
     ostringstream   cmd;
 
-    cmd << "SELECT body FROM " << table;
+    cmd << "SELECT " << column << " FROM " << table;
 
     if ( !where.empty() )
     {
@@ -361,9 +186,14 @@ int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table
 
     cmd << " ORDER BY oid";
 
-    if ( !limit.empty() )
+    if ( desc == true )
     {
-        cmd << " LIMIT " << limit;
+        cmd << " DESC";
+    }
+
+    if ( eid != -1 )
+    {
+        cmd << " " << db->limit_string(sid, eid);
     }
 
     return dump(oss, elem_name, cmd);
@@ -372,46 +202,41 @@ int PoolSQL::dump(ostringstream& oss, const string& elem_name, const char* table
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolSQL::dump(ostringstream& oss, const string& root_elem_name,
+int PoolSQL::dump(string& oss, const string& root_elem_name,
     ostringstream& sql_query)
 {
     int rc;
 
-    oss << "<" << root_elem_name << ">";
+    string_cb cb(1);
 
-    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::dump_cb),
-                 static_cast<void *>(&oss));
+    ostringstream oelem;
 
-    rc = db->exec_rd(sql_query, this);
+    if (!root_elem_name.empty())
+    {
+        oelem << "<" << root_elem_name << ">";
 
-    add_extra_xml(oss);
+        oss.append(oelem.str());
+    }
 
-    oss << "</" << root_elem_name << ">";
+    cb.set_callback(&oss);
 
-    unset_callback();
+    rc = db->exec_rd(sql_query, &cb);
+
+    cb.unset_callback();
+
+    if (!root_elem_name.empty())
+    {
+        oelem.str("");
+
+        oelem << "</" << root_elem_name << ">";
+
+        oss.append(oelem.str());
+    }
 
     return rc;
 }
 
 /* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int PoolSQL:: search_cb(void * _oids, int num, char **values, char **names)
-{
-    vector<int> *  oids;
-
-    oids = static_cast<vector<int> *>(_oids);
-
-    if ( num == 0 || values == 0 || values[0] == 0 )
-    {
-        return -1;
-    }
-
-    oids->push_back(atoi(values[0]));
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 
 int PoolSQL::search(
@@ -422,8 +247,9 @@ int PoolSQL::search(
     ostringstream   sql;
     int             rc;
 
-    set_callback(static_cast<Callbackable::Callback>(&PoolSQL::search_cb),
-                 static_cast<void *>(&oids));
+    vector_cb<int> cb;
+
+    cb.set_callback(&oids);
 
     sql  << "SELECT oid FROM " <<  table;
 
@@ -432,9 +258,9 @@ int PoolSQL::search(
         sql << " WHERE " << where;
     }
 
-    rc = db->exec_rd(sql, this);
+    rc = db->exec_rd(sql, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     return rc;
 }
@@ -464,7 +290,6 @@ void PoolSQL::acl_filter(int                       uid,
     AclManager* aclm = nd.get_aclm();
 
     ostringstream         acl_filter;
-    vector<int>::iterator it;
 
     vector<int> oids;
     vector<int> gids;
@@ -482,14 +307,14 @@ void PoolSQL::acl_filter(int                       uid,
                          gids,
                          cids);
 
-    for ( it = oids.begin(); it < oids.end(); it++ )
+    for ( auto oid : oids )
     {
-        acl_filter << " OR oid = " << *it;
+        acl_filter << " OR oid = " << oid;
     }
 
-    for ( it = gids.begin(); it < gids.end(); it++ )
+    for ( auto gid : gids )
     {
-        acl_filter << " OR gid = " << *it;
+        acl_filter << " OR gid = " << gid;
     }
 
     ClusterPool::cluster_acl_filter(acl_filter, auth_object, cids);
@@ -509,8 +334,6 @@ void PoolSQL::usr_filter(int                uid,
 {
     ostringstream uid_filter;
 
-    set<int>::iterator g_it;
-
     if ( filter_flag == RequestManagerPoolInfoFilter::MINE )
     {
         uid_filter << "uid = " << uid;
@@ -525,9 +348,9 @@ void PoolSQL::usr_filter(int                uid,
 
         string sep = " ";
 
-        for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+        for (auto g_id : user_groups)
         {
-            uid_filter << sep << "( gid = " << *g_it << " )";
+            uid_filter << sep << "( gid = " << g_id << " )";
             sep = " OR ";
         }
 
@@ -537,9 +360,9 @@ void PoolSQL::usr_filter(int                uid,
         {
             uid_filter << " AND ( other_u = 1";
 
-            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            for (auto g_id : user_groups)
             {
-                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+                uid_filter << " OR ( gid = " << g_id << " AND group_u = 1 )";
             }
 
             uid_filter << acl_str << ")";
@@ -554,9 +377,9 @@ void PoolSQL::usr_filter(int                uid,
             uid_filter << " uid = " << uid
                     << " OR other_u = 1";
 
-            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            for (auto g_id : user_groups)
             {
-                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+                uid_filter << " OR ( gid = " << g_id << " AND group_u = 1 )";
             }
 
             uid_filter << acl_str;
@@ -570,9 +393,9 @@ void PoolSQL::usr_filter(int                uid,
         {
             uid_filter << " AND ( other_u = 1";
 
-            for (g_it = user_groups.begin(); g_it != user_groups.end(); g_it++)
+            for (auto g_id : user_groups)
             {
-                uid_filter << " OR ( gid = " << *g_it << " AND group_u = 1 )";
+                uid_filter << " OR ( gid = " << g_id << " AND group_u = 1 )";
             }
 
             uid_filter << acl_str << ")";
@@ -606,60 +429,3 @@ void PoolSQL::oid_filter(int     start_id,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolSQL::register_hooks(vector<const VectorAttribute *> hook_mads,
-                             const string&                   remotes_location)
-{
-    string name;
-    string on;
-    string cmd;
-    string arg;
-
-    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
-    {
-        name = hook_mads[i]->vector_value("NAME");
-        on   = hook_mads[i]->vector_value("ON");
-        cmd  = hook_mads[i]->vector_value("COMMAND");
-        arg  = hook_mads[i]->vector_value("ARGUMENTS");
-
-        one_util::toupper(on);
-
-        if ( on.empty() || cmd.empty() )
-        {
-            NebulaLog::log("VM", Log::WARNING, "Empty ON or COMMAND attribute"
-                " in Hook, not registered!");
-
-            continue;
-        }
-
-        if ( name.empty() )
-        {
-            name = cmd;
-        }
-
-        if (cmd[0] != '/')
-        {
-            ostringstream cmd_os;
-
-            cmd_os << remotes_location << "/hooks/" << cmd;
-
-            cmd = cmd_os.str();
-        }
-
-        if ( on == "CREATE" )
-        {
-            AllocateHook * hook;
-
-            hook = new AllocateHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-        else if ( on == "REMOVE" )
-        {
-            RemoveHook * hook;
-
-            hook = new RemoveHook(name, cmd, arg, false);
-
-            add_hook(hook);
-        }
-    }
-}

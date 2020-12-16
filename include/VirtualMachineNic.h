@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -58,7 +58,7 @@ public:
      *    @param nic NIC to get the security groups from
      *    @param sgs a set of security group IDs
      */
-    void get_security_groups(set<int>& sgs) const
+    void get_security_groups(std::set<int>& sgs) const
     {
         one_util::split_unique(vector_value("SECURITY_GROUPS"), ',', sgs);
     }
@@ -66,7 +66,7 @@ public:
     /**
      *  Get the effective uid to get the VirtualNetwork.
      */
-    int get_uid(int _uid, string& error);
+    int get_uid(int _uid, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Network Manager Interface                                                */
@@ -76,15 +76,16 @@ public:
      *  requirements
      *    @param uid of user making the request
      *    @param ar auth request
+     *    @param  check_lock for check if the resource is lock or not
      */
-    void authorize(int uid, AuthRequest* ar)
+    void authorize(int uid, AuthRequest* ar, bool check_lock)
     {
-        authorize(PoolObjectSQL::VM, uid, ar);
+        authorize(PoolObjectSQL::VM, uid, ar, check_lock);
     }
 
-    void authorize_vrouter(int uid, AuthRequest* ar)
+    void authorize_vrouter(int uid, AuthRequest* ar, bool check_lock)
     {
-        authorize(PoolObjectSQL::VROUTER, uid, ar);
+        authorize(PoolObjectSQL::VROUTER, uid, ar, check_lock);
     }
 
     /**
@@ -94,6 +95,64 @@ public:
      */
     int release_network_leases(int vmid);
 
+    /**
+     *  Marshall disk attributes in XML format with just essential information
+     *    @param stream to write the disk XML description
+     */
+    void to_xml_short(std::ostringstream& oss) const;
+
+    /**
+     * Check is a nic is alias or not
+     */
+    bool is_alias() const
+    {
+        return name() == "NIC_ALIAS";
+    }
+
+    /*
+     * Set nic NAME attribute if not empty, defaults to NAME = NIC${NIC_ID}
+     */
+    std::string set_nic_name()
+    {
+        std::string name = vector_value("NAME");
+
+        if (!name.empty())
+        {
+            return name;
+        }
+
+        std::ostringstream oss;
+
+        oss << "NIC" << get_id();
+
+        replace("NAME", oss.str());
+
+        return oss.str();
+    }
+
+    /*
+     * Set nic alias NAME attribute defaults to NAME = NIC${PARENT_ID}_ALIAS${ALIAS_ID}
+     *   @param parent_id for the alias
+     *   @return alias name
+     */
+    std::string set_nic_alias_name(int parent_id)
+    {
+        std::string name = vector_value("NAME");
+
+        if (!name.empty())
+        {
+            return name;
+        }
+
+        std::ostringstream oss;
+
+        oss << "NIC" << parent_id << "_" << "ALIAS" << get_id();
+
+        replace("NAME", oss.str());
+
+        return oss.str();
+    }
+
 private:
     /**
      *  Fills the authorization request for this NIC based on the VNET and SG
@@ -102,7 +161,8 @@ private:
      *    @param uid of user making the request
      *    @param ar auth request
      */
-    void authorize(PoolObjectSQL::ObjectType ot, int uid, AuthRequest* ar);
+    void authorize(PoolObjectSQL::ObjectType ot, int uid, AuthRequest* ar,
+                    bool check_lock);
 };
 
 
@@ -125,19 +185,26 @@ public:
         VirtualMachineAttributeSet(false)
     {
         std::vector<VectorAttribute *> vas;
+        std::vector<VectorAttribute *> alias;
         std::vector<VectorAttribute *> pcis;
-        std::vector<VectorAttribute *>::iterator it;
 
         tmpl->get(NIC_NAME, vas);
 
+        tmpl->get(NIC_ALIAS_NAME, alias);
+
         tmpl->get("PCI", pcis);
 
-        for ( it=pcis.begin(); it != pcis.end() ; ++it)
+        for (auto pci : pcis)
         {
-            if ( (*it)->vector_value("TYPE") == "NIC" )
+            if ( pci->vector_value("TYPE") == "NIC" )
             {
-                vas.push_back(*it);
+                vas.push_back(pci);
             }
+        }
+
+        for (auto al : alias)
+        {
+            vas.push_back(al);
         }
 
         init(vas, false);
@@ -150,7 +217,7 @@ public:
      *    @param dispose true to delete the VectorAttributes when the set is
      *    destroyed
      */
-    VirtualMachineNics(vector<VectorAttribute *>& va, bool has_id, bool dispose):
+    VirtualMachineNics(std::vector<VectorAttribute *>& va, bool has_id, bool dispose):
         VirtualMachineAttributeSet(dispose)
     {
         init(va, has_id);
@@ -216,7 +283,7 @@ public:
     /* NIC interface                                                          */
     /* ---------------------------------------------------------------------- */
     /**
-     * Returns the NIC attribute for a disk
+     * Returns the NIC attribute for a network interface
      *   @param nic_id of the NIC
      *   @return pointer to the attribute ir null if not found
      */
@@ -226,10 +293,20 @@ public:
     }
 
     /**
+     * Deletes the NIC attribute from the VM NICs
+     *   @param nic_id of the NIC
+     *   @return pointer to the attribute or null if not found
+     */
+    VirtualMachineNic * delete_nic(int nic_id)
+    {
+        return static_cast<VirtualMachineNic *>(get_attribute(nic_id));
+    }
+
+    /**
      * Returns a set of the security group IDs in use in this set.
      *     @param sgs a set of security group IDs
      */
-    void get_security_groups(set<int>& sgs);
+    void get_security_groups(std::set<int>& sgs);
 
     /* ---------------------------------------------------------------------- */
     /* Network Manager Interface                                              */
@@ -247,6 +324,9 @@ public:
     int get_network_leases(int vm_id, int uid, std::vector<Attribute *> nics,
             VectorAttribute * nic_default, std::vector<VectorAttribute *>& sgs,
             std::string& estr);
+
+    int get_auto_network_leases(int vm_id, int uid, VectorAttribute * nic_default,
+            std::vector<VectorAttribute*>& sgs, std::string& error_str);
 
     /**
      *  Release all the network leases and SG associated to the set
@@ -295,13 +375,12 @@ public:
      */
     int set_up_attach_nic(int vmid, int uid, int cluster_id,
         VectorAttribute * vnic, VectorAttribute * nic_default,
-        vector<VectorAttribute*>& sgs, std::string& error_str);
-
-
-
-
-
-
+        std::vector<VectorAttribute*>& sgs, std::string& error_str);
+    /**
+     *  Marshall NICs in XML format with just essential information
+     *    @param xml string to write the NIC XML description
+     */
+    std::string& to_xml_short(std::string& xml);
 
 protected:
 
@@ -313,6 +392,8 @@ protected:
 
 private:
     static const char * NIC_NAME; //"NIC"
+
+    static const char * NIC_ALIAS_NAME; //"NIC_ALIAS"
 
     static const char * NIC_ID_NAME; //"NIC_ID"
 };

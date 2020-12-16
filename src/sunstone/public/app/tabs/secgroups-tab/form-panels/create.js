@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -229,7 +229,7 @@ define(function(require) {
               <td>'+text.ICMP_TYPE+'</td>\
               <td>'+text.ICMPv6_TYPE+'</td>\
               <td>\
-                <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+                <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>\
               </td>\
             </tr>');
 
@@ -354,7 +354,7 @@ define(function(require) {
         <td>'+text.ICMP_TYPE+'</td>\
         <td>'+text.ICMPv6_TYPE+'</td>\
         <td>\
-        <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>\
+        <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>\
         </td>\
         </tr>');
 

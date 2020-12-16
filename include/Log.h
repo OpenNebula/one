@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,8 +24,6 @@
 
 #include "PoolObjectSQL.h"
 
-using namespace std;
-
 /**
  *  The Logger class is an interface used by OpenNebula components to log
  *  messages
@@ -48,7 +46,7 @@ public:
 
     virtual ~Log(){};
 
-    MessageType get_log_level()
+    MessageType get_log_level() const
     {
         return log_level;
     }
@@ -56,6 +54,28 @@ public:
     static void set_zone_id(int zid)
     {
         zone_id = zid;
+    }
+
+    // -------------------------------------------------------------------------
+    // Profiler Interface
+    // -------------------------------------------------------------------------
+    static void start_timer(struct timespec * estart)
+    {
+        clock_gettime(CLOCK_MONOTONIC, estart);
+    }
+
+    static double stop_timer(struct timespec * estart)
+    {
+        double sec;
+
+        struct timespec eend;
+
+        clock_gettime(CLOCK_MONOTONIC, &eend);
+
+        sec = (eend.tv_sec + (eend.tv_nsec * 1e-9)) - (estart->tv_sec +
+            (estart->tv_nsec * 1e-9));
+
+        return sec;
     }
 
     // -------------------------------------------------------------------------
@@ -89,9 +109,9 @@ protected:
 class FileLog : public Log
 {
 public:
-    FileLog(const string&       file_name,
-            const MessageType   level    = WARNING,
-            ios_base::openmode  mode     = ios_base::app);
+    FileLog(const std::string&      file_name,
+            const MessageType       level    = WARNING,
+            std::ios_base::openmode mode     = std::ios_base::app);
 
     virtual ~FileLog();
 
@@ -101,7 +121,7 @@ public:
         const char *            message);
 
 private:
-    string log_file_name;
+    std::string log_file_name;
 };
 
 /**
@@ -110,31 +130,26 @@ private:
 class FileLogTS : public FileLog
 {
 public:
-    FileLogTS(const string&       file_name,
-                    const MessageType   level    = WARNING,
-                    ios_base::openmode  mode     = ios_base::app)
+    FileLogTS(const std::string&       file_name,
+              const MessageType        level    = WARNING,
+              std::ios_base::openmode  mode     = std::ios_base::app)
                        :FileLog(file_name,level,mode)
     {
-        pthread_mutex_init(&log_mutex,0);
     }
 
-    ~FileLogTS()
-    {
-        pthread_mutex_destroy(&log_mutex);
-    }
+    ~FileLogTS() = default;
 
     void log(
         const char *            module,
         const MessageType       type,
         const char *            message)
     {
-        pthread_mutex_lock(&log_mutex);
+        std::lock_guard <std::mutex> lock(log_mutex);
         FileLog::log(module,type,message);
-        pthread_mutex_unlock(&log_mutex);
     }
 
 private:
-    pthread_mutex_t log_mutex;
+    std::mutex log_mutex;
 };
 
 
@@ -161,7 +176,7 @@ public:
         const char *            message);
 
 private:
-    string resource_label;
+    std::string resource_label;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -173,8 +188,8 @@ private:
 class SysLog : public Log
 {
 public:
-    SysLog(const MessageType level,
-           const string&     label);
+    SysLog(const MessageType  level,
+           const std::string& label);
 
     SysLog(const MessageType level,
            int oid,
@@ -210,7 +225,7 @@ public:
     }
 
 private:
-    string resource_label;
+    std::string resource_label;
 };
 
 #endif /* _LOG_H_ */

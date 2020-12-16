@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,11 +45,12 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("VMs"),
-    icon: 'fa-file-o',
+    icon: 'fa-file',
     tabClass: "subTab",
     parentTab: "templates-top-tab",
     listHeader: Locale.tr("VM Templates"),
     infoHeader: Locale.tr("VM Template"),
+    lockable: true,
     subheader: '<span>\
         <span class="total_templates"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

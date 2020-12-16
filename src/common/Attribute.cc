@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,16 +21,15 @@
 #include "Attribute.h"
 #include "NebulaUtil.h"
 
+using namespace std;
+
 const char * VectorAttribute::magic_sep      = "@^_^@";
 const int    VectorAttribute::magic_sep_size = 5;
 
-string * VectorAttribute::marshall(const char * _sep) const
+string VectorAttribute::marshall(const char * _sep) const
 {
     ostringstream os;
-    string *      rs;
     const char *  my_sep;
-
-    map<string,string>::const_iterator it;
 
     if ( _sep == 0 )
     {
@@ -46,7 +45,7 @@ string * VectorAttribute::marshall(const char * _sep) const
         return 0;
     }
 
-    it = attribute_value.begin();
+    auto it = attribute_value.begin();
 
     os << it->first << "=" << it->second;
 
@@ -55,27 +54,7 @@ string * VectorAttribute::marshall(const char * _sep) const
         os << my_sep << it->first << "=" << it->second;
     }
 
-    rs = new string;
-
-    *rs = os.str();
-
-    return rs;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string * VectorAttribute::to_xml() const
-{
-    ostringstream oss;
-
-    to_xml(oss);
-
-    string * xml = new string;
-
-    *xml = oss.str();
-
-    return xml;
+    return os.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -83,11 +62,9 @@ string * VectorAttribute::to_xml() const
 
 void VectorAttribute::to_xml(ostringstream &oss) const
 {
-    map<string,string>::const_iterator    it;
-
     oss << "<" << name() << ">";
 
-    for (it=attribute_value.begin();it!=attribute_value.end();it++)
+    for (auto it=attribute_value.begin(); it!=attribute_value.end(); it++)
     {
         if ( it->first.empty() )
         {
@@ -100,6 +77,58 @@ void VectorAttribute::to_xml(ostringstream &oss) const
     }
 
     oss << "</"<< name() << ">";
+}
+
+void VectorAttribute::to_json(std::ostringstream& s) const
+{
+    if ( attribute_value.empty() )
+    {
+        s << "{}";
+        return;
+    }
+
+    auto it = attribute_value.begin();
+    bool is_first = true;
+
+    s << "{";
+
+    for (++it; it!=attribute_value.end(); it++)
+    {
+        if ( it->first.empty() )
+        {
+            continue;
+        }
+
+        if ( !is_first )
+        {
+            s << ",";
+        }
+        else
+        {
+            is_first = false;
+        }
+
+        s << "\"" << it->first << "\": ";
+        one_util::escape_json(it->second, s);
+    }
+
+    s << "}";
+}
+
+void VectorAttribute::to_token(std::ostringstream& s) const
+{
+    for (auto it=attribute_value.begin(); it!=attribute_value.end(); it++)
+    {
+        if (it->first.empty() || it->second.empty())
+        {
+            continue;
+        }
+
+        one_util::escape_token(it->first, s);
+        s << "=";
+        one_util::escape_token(it->second, s);
+        s << std::endl;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -170,14 +199,11 @@ void VectorAttribute::replace(const map<string,string>& attr)
 
 void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
 {
-    map<string, string>::const_iterator it;
-    map<string, string>::iterator       jt;
-
     const map<string,string>& source_values = vattr->value();
 
-    for(it=source_values.begin(); it!=source_values.end(); it++)
+    for (auto it=source_values.begin(); it!=source_values.end(); it++)
     {
-        jt = attribute_value.find(it->first);
+        auto jt = attribute_value.find(it->first);
 
         if (jt != attribute_value.end())
         {
@@ -200,9 +226,7 @@ void VectorAttribute::merge(VectorAttribute* vattr, bool replace)
 
 void VectorAttribute::replace(const string& name, const string& value)
 {
-    map<string,string>::iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if ( it != attribute_value.end() )
     {
@@ -217,9 +241,7 @@ void VectorAttribute::replace(const string& name, const string& value)
 
 void VectorAttribute::remove(const string& name)
 {
-    map<string,string>::iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if ( it != attribute_value.end() )
     {
@@ -232,9 +254,7 @@ void VectorAttribute::remove(const string& name)
 
 string VectorAttribute::vector_value(const string& name) const
 {
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if ( it == attribute_value.end() )
     {
@@ -251,9 +271,7 @@ string VectorAttribute::vector_value(const string& name) const
 
 int VectorAttribute::vector_value(const string& name, string& value) const
 {
-    map<string,string>::const_iterator it;
-
-    it = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if (it == attribute_value.end())
     {
@@ -270,10 +288,8 @@ int VectorAttribute::vector_value(const string& name, string& value) const
 
 int VectorAttribute::vector_value(const string& name, bool& value) const
 {
-    map<string,string>::const_iterator it;
-
     value = false;
-    it    = attribute_value.find(name);
+    auto it = attribute_value.find(name);
 
     if (it == attribute_value.end())
     {
@@ -299,4 +315,115 @@ int VectorAttribute::vector_value(const string& name, bool& value) const
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+void SingleAttribute::encrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    std::string * plain = one_util::aes256cbc_decrypt(attribute_value, one_key);
+
+    if ( plain != nullptr )
+    {
+        delete plain;
+        return;
+    }
+
+    std::string * encrypted = one_util::aes256cbc_encrypt(attribute_value, one_key);
+
+    if ( encrypted == nullptr )
+    {
+        return;
+    }
+
+    attribute_value = *encrypted;
+
+    delete encrypted;
+}
+
+void SingleAttribute::decrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    std::string * plain = one_util::aes256cbc_decrypt(attribute_value, one_key);
+
+    if ( plain != nullptr )
+    {
+        attribute_value = *plain;
+
+        delete plain;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VectorAttribute::encrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    for ( const auto& ea : eas )
+    {
+        string att = vector_value(ea);
+
+        if (att.empty())
+        {
+            continue;
+        }
+
+        std::string * plain = one_util::aes256cbc_decrypt(att, one_key);
+
+        if ( plain != nullptr )
+        {
+            delete plain;
+            continue;
+        }
+
+        std::string * encrypted = one_util::aes256cbc_encrypt(att, one_key);
+
+        if ( encrypted == nullptr )
+        {
+            continue;
+        }
+
+        replace(ea, *encrypted);
+
+        delete encrypted;
+    }
+}
+
+void VectorAttribute::decrypt(const string& one_key, const set<string>& eas)
+{
+    if ( one_key.empty() )
+    {
+        return;
+    }
+
+    for ( const auto& ea : eas )
+    {
+        string att = vector_value(ea);
+
+        if (att.empty())
+        {
+            continue;
+        }
+
+        std::string * plain = one_util::aes256cbc_decrypt(att, one_key);
+
+        if ( plain != nullptr )
+        {
+            replace(ea, *plain);
+
+            delete plain;
+        }
+    }
+}
 

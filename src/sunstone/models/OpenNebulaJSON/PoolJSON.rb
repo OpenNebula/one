@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,6 +21,7 @@ module OpenNebulaJSON
     class VMGroupPoolJSON < OpenNebula::VMGroupPool; include JSONUtils; end
     class VirtualMachinePoolJSON < OpenNebula::VirtualMachinePool; include JSONUtils; end
     class VirtualNetworkPoolJSON < OpenNebula::VirtualNetworkPool; include JSONUtils; end
+    class VNTemplatePoolJSON < OpenNebula::VNTemplatePool; include JSONUtils; end
     class ImagePoolJSON < OpenNebula::ImagePool; include JSONUtils; end
     class TemplatePoolJSON < OpenNebula::TemplatePool; include JSONUtils; end
     class GroupPoolJSON < OpenNebula::GroupPool; include JSONUtils; end

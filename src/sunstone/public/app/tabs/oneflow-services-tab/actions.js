@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,9 +30,23 @@ define(function(require) {
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
   var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var UPDATE_DIALOG_ID = require('./form-panels/update/formPanelId');
 
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Service created"));
+
+  function roleElement() {
+    var selected = {};
+
+    var dataTable = $('table[id^=datatable_roles]', '#'+TAB_ID+' #'+ROLES_PANEL_ID);
+    var nodes = $('tbody input.check_item:checked', dataTable);
+    $.each(nodes, function() {
+      selected["serviceId"] = $(this).data("id");
+      selected["roleName"] = $(this).data("name");
+    });
+
+    return selected;
+  }
 
   function roleElements() {
     var selected_nodes = [];
@@ -73,7 +87,7 @@ define(function(require) {
   }
 
   var _actions = {
-    "Service.show" : _commonActions.show(),
+    "Service.show" :  _commonActions.show(),
     "Service.refresh" : _commonActions.refresh(),
     "Service.delete" : _commonActions.del(),
     "Service.chown": _commonActions.multipleAction('chown'),
@@ -82,6 +96,10 @@ define(function(require) {
     "Service.rename": _commonActions.singleAction('rename'),
     "Service.shutdown": _commonActions.multipleAction('shutdown'),
     "Service.recover":    _commonActions.multipleAction('recover'),
+    "Service.recover_delete":    _commonActions.multipleAction('recover_delete'),
+    "Service.update" : _commonActions.update(),
+    "Service.update_dialog" : _commonActions.checkAndShowUpdate(),
+
     "Service.create_dialog" : {
       type: "custom",
       call: function() {
@@ -93,11 +111,27 @@ define(function(require) {
       call: OpenNebulaResource.list,
       callback: function(request, response) {
         $(".oneflow_services_error_message").hide();
-        Sunstone.getDataTable(TAB_ID).updateView(request, response);
+        var undoneServices = OpenNebulaResource.filterDoneServices(response);
+        Sunstone.getDataTable(TAB_ID).updateView(request, undoneServices);
       },
       error: function(request, error_json) {
         Notifier.onError(request, error_json, $(".oneflow_services_error_message"));
       }
+    },
+
+    "Service.show_to_update" :  {
+      type: "single",
+      call: function(params) {
+        OpenNebulaResource.show(params);
+      },
+      callback: function(request, response) {
+        Sunstone.showFormPanel(TAB_ID, UPDATE_DIALOG_ID, "update",
+          function(formPanelInstance, context) {
+            formPanelInstance.fill(context, response[XML_ROOT]);
+          }
+        );
+      },
+      error: Notifier.onError
     },
 
     //--------------------------------------------------------------------------
@@ -105,18 +139,31 @@ define(function(require) {
     "Role.scale_dialog" : {
       type: "custom",
       call: function(){
-        selected = roleElements();
+        params = roleElement();
 
-        if(selected.length == 0){
+        if(!params.serviceId || !params.roleName) {
+          Notifier.onError("Select one role");
           return;
         }
 
-        Sunstone.getDialog(SCALE_DIALOG_ID).setParams({roleIds: selected});
+        Sunstone.getDialog(SCALE_DIALOG_ID).setParams(params);
         Sunstone.getDialog(SCALE_DIALOG_ID).reset();
         Sunstone.getDialog(SCALE_DIALOG_ID).show();
       }
     },
-
+    "Role.scale" : {
+      type: "single",
+      call: OpenNebulaRole.scale,
+      callback : function() {
+        Sunstone.getDialog(SCALE_DIALOG_ID).hide();
+        roleCallback();
+      },
+      error: function(request, response) {
+        Sunstone.getDialog(SCALE_DIALOG_ID).hide();
+        Notifier.onError(request, response);
+      },
+      notify: true
+    },
     "Role.update" : {
       type: "multiple",
       call: OpenNebulaRole.update,

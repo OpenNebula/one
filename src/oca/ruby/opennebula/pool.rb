@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -24,8 +24,11 @@ module OpenNebula
         include Enumerable
         alias_method :each_with_xpath, :each
 
+        attr_reader :pool_name
+        attr_reader :element_name
+
         PAGINATED_POOLS=%w{VM_POOL IMAGE_POOL TEMPLATE_POOL VN_POOL
-                           DOCUMENT_POOL SECGROUP_POOL}
+                           SECGROUP_POOL}
 
     protected
         #pool:: _String_ XML name of the root element
@@ -61,6 +64,10 @@ module OpenNebula
 
         alias_method :info!, :info
 
+        def info_extended(xml_method)
+            return xmlrpc_info(xml_info)
+        end
+
         def info_all(xml_method, *args)
             return xmlrpc_info(xml_method, INFO_ALL, -1, -1, *args)
         end
@@ -84,9 +91,6 @@ module OpenNebula
         # Retrieves the monitoring data for all the Objects in the pool
         #
         # @param [String] xml_method xml-rcp method
-        # @param [String] root_elem Root for each individual PoolElement
-        # @param [String] timestamp_elem Name of the XML element with the last
-        #   monitorization timestamp
         # @param [Array<String>] xpath_expressions Elements to retrieve.
         # @param args arguemnts for the xml_method call
         #
@@ -94,8 +98,7 @@ module OpenNebula
         #   OpenNebula::Error] The first level hash uses the Object ID as keys,
         #   and as value a Hash with the requested xpath expressions,
         #   and an Array of 'timestamp, value'.
-        def monitoring(xml_method, root_elem, timestamp_elem, xpath_expressions,
-            *args)
+        def monitoring(xml_method, xpaths, *args)
 
             rc = @client.call(xml_method, *args)
 
@@ -109,7 +112,7 @@ module OpenNebula
             hash = {}
 
             # Get all existing Object IDs
-            ids = xmldoc.retrieve_elements("#{root_elem}/ID")
+            ids = xmldoc.retrieve_elements('/MONITORING_DATA/MONITORING/ID')
 
             if ids.nil?
                 return hash
@@ -118,9 +121,7 @@ module OpenNebula
             end
 
             ids.each { |id|
-                hash[id] = OpenNebula.process_monitoring(
-                    xmldoc, root_elem, timestamp_elem, id, xpath_expressions)
-
+                hash[id] = OpenNebula.process_monitoring(xmldoc, id, xpaths)
             }
 
             return hash
@@ -132,12 +133,13 @@ module OpenNebula
         # xml_method:: _String_ the name of the XML-RPC method
         # args:: _Array_ with additional arguments for the info call
         # [return] nil in case of success or an Error object
-        def xmlrpc_info(xml_method,*args)
-            rc = @client.call(xml_method,*args)
+        def xmlrpc_info(xml_method, *args)
+            rc = @client.call(xml_method, *args)
 
             if !OpenNebula.is_error?(rc)
-                initialize_xml(rc,@pool_name)
-                rc   = nil
+                initialize_xml(rc, @pool_name)
+
+                rc = nil
             end
 
             return rc
@@ -179,14 +181,17 @@ module OpenNebula
 
             if OpenNebula.pool_page_size && allow_paginated &&
                     ( ( size && size >= 2 ) || !size )
+
                 size = OpenNebula.pool_page_size if !size
-                hash=info_paginated(size)
+                hash = info_paginated(size)
 
                 return hash if OpenNebula.is_error?(hash)
+
                 { @pool_name => { @element_name => hash } }
             else
-                rc=info
+                rc = info
                 return rc if OpenNebula.is_error?(rc)
+
                 to_hash
             end
         end
@@ -195,14 +200,15 @@ module OpenNebula
         #
         # size:: _Integer_ size of each page
         def info_paginated(size)
-            array=Array.new
-            current=0
+            array   = Array.new
+            current = 0
 
-            parser=ParsePoolSax.new(@pool_name, @element_name)
+            parser = ParsePoolSax.new(@pool_name, @element_name)
 
             while true
-                a=@client.call("#{@pool_name.delete('_').downcase}.info",
-                    @user_id, current, -size, -1)
+                a = @client.call("#{@pool_name.delete('_').downcase}.info",
+                        @user_id, current, -size, -1)
+
                 return a if OpenNebula.is_error?(a)
 
                 a_array=parser.parse(a)
@@ -214,9 +220,93 @@ module OpenNebula
             end
 
             array.compact!
-            array=nil if array.length == 0
+            array = nil if array.length == 0
 
             array
+        end
+
+        # Gets a hash from a info page from pool
+        # size:: nil => default page size
+        #        > 0 => page size
+        # current first element of the page
+        # extended true to get extended information
+        # state state of the objects
+        # hash:: return page as a hash
+        def get_page(size, current, extended = false, state = -1)
+            rc = nil
+
+            if PAGINATED_POOLS.include?(@pool_name)
+                pool_name = @pool_name.delete('_').downcase
+
+                if extended && pool_name == "vmpool"
+                    method = "#{pool_name}.infoextended"
+                else
+                    method = "#{pool_name}.info"
+                end
+
+                size = OpenNebula.pool_page_size if (!size || size == 0)
+                rc   = @client.call(method, @user_id, current, -size, state)
+
+                initialize_xml(rc, @pool_name)
+            else
+                rc = info
+            end
+
+            return rc
+        end
+
+        # Iterates over pool page
+        def loop_page(size, state, extended)
+            current = 0
+            element = @pool_name.split('_')[0]
+            page    = OpenNebula::XMLElement.new
+
+            loop do
+                page.initialize_xml(get_page(size,
+                                             current,
+                                             extended,
+                                             state),
+                                             @pool_name)
+
+                break if page["//#{element}"].nil?
+
+                current += yield(element, page)
+            end
+        end
+
+        # Iterates over pool pages
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        def each_page(size, state = -1, extended = false)
+            loop_page(size, state, extended) do |element, page|
+                page.each("//#{element}") do |obj|
+                    yield(obj)
+                end
+
+                size
+            end
+        end
+
+        # Iterates over pool pages to delete them
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        def each_page_delete(size, state = -1, extended = false)
+            loop_page(size, state, extended) do |element, page|
+                no_deleted = 0
+
+                page.each("//#{element}") do |obj|
+                    no_deleted += 1 if !yield(obj)
+                end
+
+                no_deleted
+            end
+        end
+
+        # Return true if pool is paginated
+        def is_paginated?
+            PAGINATED_POOLS.include?(@pool_name)
         end
     end
 end

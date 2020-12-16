@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,16 +28,14 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
     bool    enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     int     rc;
 
-    Datastore * ds;
-
     if ( basic_authorization(id, att) == false )
     {
         return;
     }
 
-    ds = static_cast<Datastore *>(pool->get(id,true));
+    auto ds = pool->get<Datastore>(id);
 
-    if ( ds == 0 )
+    if ( ds == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -50,13 +48,10 @@ void DatastoreEnable::request_execute(xmlrpc_c::paramList const& paramList,
     {
         failure_response(INTERNAL, att);
 
-        ds->unlock();
         return;
     }
 
-    pool->update(ds);
-
-    ds->unlock();
+    pool->update(ds.get());
 
     success_response(id, att);
 }

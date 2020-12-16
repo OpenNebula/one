@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -30,16 +30,14 @@ bool VMGroupRule::compatible(rule_set& affined, rule_set& anti,VMGroupRule& err)
 {
     VMGroupRule ta, taa;
 
-    rule_set::iterator it;
-
-    for (it=affined.begin() ; it != affined.end(); ++it)
+    for (const auto& rule : affined)
     {
-        ta |= *it;
+        ta |= rule;
     }
 
-    for (it=anti.begin() ; it != anti.end(); ++it)
+    for (const auto& rule : anti)
     {
-        taa |= *it;
+        taa |= rule;
     }
 
     err = ta & taa;

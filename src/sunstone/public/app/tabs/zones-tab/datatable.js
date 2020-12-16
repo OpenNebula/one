@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,7 @@ define(function(require) {
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var LabelsUtils = require('utils/labels/utils');
+  var Status = require('utils/status');
 
   /*
     CONSTANTS
@@ -96,10 +97,13 @@ define(function(require) {
     var element = element_json.ZONE;
     this.totalZones++;
 
+    var color_html = Status.state_lock_to_color("ZONE",false, element_json[XML_ROOT]["LOCK"]);
+
     return [
-        '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
-                             element.ID + '" name="selected_items" value="' +
-                             element.ID + '"/>',
+      '<input class="check_item" type="checkbox" '+
+                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
+                           element.ID + '" name="selected_items" value="' +
+                           element.ID + '"/>'+color_html,
         element.ID,
         element.NAME,
         element.TEMPLATE.ENDPOINT,

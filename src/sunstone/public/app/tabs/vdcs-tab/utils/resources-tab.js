@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -132,7 +132,8 @@ define(function(require) {
     $(html_tab_content).appendTo($(".vdc_zones_tabs_content", context));
 
     $("select.vdc_zones_select", context).append(
-                        '<option value="'+zone_id+'">'+zone_name+'</option>');
+      '<option value="'+zone_id+'">'+zone_name+'</option>'
+    );
 
     var zoneSection = $('#' +unique_id+'Tab', context);
 

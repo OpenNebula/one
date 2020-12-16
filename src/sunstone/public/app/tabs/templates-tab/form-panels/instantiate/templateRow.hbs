@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,24 +15,24 @@
 {{! -------------------------------------------------------------------------- }}
 
 <br>
+<h6 style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+  {{element.NAME}}<br>
+  <span class="total_cost_div" hidden>
+    <small class="cost_value">0.00</small>
+    <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
+  </span>
+</h6>
 <div class="template-row" element-id="{{element.ID}}">
   <div class="row">
-    <div class="medium-2 small-12 columns">
-      <h6>
-        {{element.NAME}}<br>
-        <span class="total_cost_div" hidden>
-          <small class="cost_value">0.00</small>
-          <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
-        </span>
-      </h6>
+    <div class="large-2 small-12 columns">
       <span>
         <img src="{{element.TEMPLATE.LOGO}}">
       </span>
     </div>
-    <div class="medium-5 small-12 columns capacityContext{{element.ID}}" style="padding-top: 15px; padding-left: 35px">
+    <div class="large-5 medium-6 small-12 columns capacityContext{{element.ID}}" style="padding-top: 15px; padding-left: 35px">
       <fieldset>
         <legend>
-          <i class="fa fa-laptop"></i> {{tr "Capacity"}}
+          <i class="fas fa-laptop"></i> {{tr "Capacity"}}
           <span class="capacity_cost_div" hidden>
             <span class="cost_value">0.00</span>
             <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
@@ -43,27 +43,48 @@
         </div>
       </fieldset>
     </div>
-    <div class="medium-5 small-12 columns disksContext{{element.ID}}" style="padding-top: 15px"></div>
+    <div class="large-5 medium-6 small-12 columns disksContext{{element.ID}}" style="padding-top: 15px"></div>
   </div>
   <div class="row">
     <div class="medium-5 small-12 columns template_user_inputs{{element.ID}}"></div>
   </div>
   {{#isFeatureEnabled "show_vnet_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-code-branch\"></i>" (tr "Network") }}
   <div class="row">
     <div class="small-12 columns nicsContext{{element.ID}}">
       <div class="provision_network_selector">
       </div>
     </div>
   </div>
+  {{/advancedImportationSection}}
   {{/isFeatureEnabled}}
-  {{#advancedSection (tr "Advanced options") }}
+  {{#isOneFeatureEnabled "show_as_uid_instantiate" "show_as_gid_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-user\"></i>" (tr "Instantiate as different User / Group")}}
+  {{#isFeatureEnabled "show_as_uid_instantiate"}}
+  <div class="row">
+    <div class="small-12 columns usersContext{{element.ID}}">
+      <fieldset>
+        <div class="provision_uid_selector{{element.ID}}" data-tab-content>{{{usersDatatable}}}</div>
+      </fieldset>
+    </div>
+  </div>
+  {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "show_as_gid_instantiate"}}
+  <div class="row">
+    <div class="small-12 columns groupContext{{element.ID}}">
+      <fieldset>
+        <div class="provision_gid_selector{{element.ID}}" data-tab-content>{{{groupDatatable}}}</div>
+      </fieldset>
+    </div>
+  </div>
+  {{/isFeatureEnabled}}
+  {{/advancedImportationSection}}
+  {{/isOneFeatureEnabled}}
   {{#isFeatureEnabled "show_host_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-hdd\"></i>" (tr "Deploy VM in a specific Host") }}
   <div class="row">
     <div class="small-12 columns hostContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fa fa-globe"></i> {{tr "Host"}}
-        </legend>
         <div class="provision_host_selector{{element.ID}}" data-tab-content>{{{hostsDatatable}}}</div>
         <div class="row">
             <div class="large-12 columns">
@@ -77,14 +98,13 @@
       </fieldset>
     </div>
   </div>
+  {{/advancedImportationSection}}
   {{/isFeatureEnabled}}
   {{#isFeatureEnabled "show_ds_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Deploy VM in a specific Datastore") }}
   <div class="row">
     <div class="small-12 columns dsContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fa fa-globe"></i> {{tr "Datastore"}}
-        </legend>
         <div class="provision_ds_selector{{element.ID}}" data-tab-content>{{{dsDatatable}}}</div>
         <div class="row">
             <div class="large-12 columns">
@@ -98,37 +118,25 @@
       </fieldset>
     </div>
   </div>
+  {{/advancedImportationSection}}
   {{/isFeatureEnabled}}
+  {{#advancedImportationSection "<i class=\"fas fa-calendar-alt\"></i>" (tr "Schedule Actions for VM") }}
   <div class="row">
     <div class="large-12 columns actionContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fa fa-globe"></i> {{tr "Actions"}}
-        </legend>
-        <table id="scheduling_inst_actions_table" class="info_table dataTable">
-          <thead>
-            <tr>
-              <th> {{tr "Action"}} </th>
-              <th> {{tr "Time"}} </th>
-              <th colspan=""> {{tr "Actions"}} </th>
-              <th><button id="add_scheduling_inst_action" class="button small success right radius"> {{tr "Add action"}} </button></th>
-            </tr>
-          </thead>
-          <tbody id="sched_inst_actions_body"></tbody>
-        </table>
+        {{{table_sched_actions}}}
       </fieldset>
     </div>
   </div>
+  {{/advancedImportationSection}}
   {{#isFeatureEnabled "show_vmgroup_instantiate"}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Associate VM to a VM Group") }}
   <div class="row">
     <div class="small-12 columns vmgroupContext{{element.ID}}">
       <fieldset>
-        <legend>
-          <i class="fa fa-globe"></i> {{tr "VM Group"}}
-        </legend>
         <div>
           <a class="button small provision_add_vmgroup">
-            <i class="fa fa-lg fa-plus-circle add_vmgroup"></i> {{tr "VM Group"}}
+            <i class="fas fa-lg fa-plus-circle add_vmgroup"></i> {{tr "VM Group"}}
           </a>
         </div>
         <div class="provision_vmgroup_selector">
@@ -136,13 +144,17 @@
       </fieldset>
     </div>
   </div>
+  {{/advancedImportationSection}}
   {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "vcenter_vm_folder"}}
+  {{#advancedImportationSection "<i class=\"fas fa-folder\"></i>" (tr "vCenter Deployment")}}
   <div class="row">
     <div class="medium-6 small-12 columns vcenterVMFolderContext{{element.ID}}">
       <div class="provision_vcenter_vm_folder_selector">
       </div>
     </div>
   </div>
-  {{/advancedSection}}
+  {{/advancedImportationSection}}
+  {{/isFeatureEnabled}}
 </div>
 <br>

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,9 +21,9 @@ $: << File.join(File.dirname(__FILE__), "..")
 
 require 'vlan_tag_driver'
 
-template64   = ARGV[0]
-deploy_id    = ARGV[1]
+template64   = STDIN.read
+deploy_id    = ARGV[0]
 xpath_filter = VLANTagDriver::XPATH_FILTER
 
 hm = VLANTagDriver.from_base64(template64, xpath_filter, deploy_id)
-exit hm.activate
+exit hm.run_hooks(ARGV, template64) if hm.activate == 0

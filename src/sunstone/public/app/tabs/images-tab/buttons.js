@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var Tips = require('utils/tips');
 
   var Buttons = {
     "Image.refresh" : {
@@ -25,17 +26,20 @@ define(function(require) {
     },
     "Image.create_dialog" : {
       type: "create_dialog",
-      layout: "create"
+      text:  Locale.tr("Create"),
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list"
     },
     "Image.upload_marketplace_dialog" : {
       type: "action",
-      text: '<i class="fa fa-share"/> '+ Locale.tr("MarketPlace")
+      text: '<i class="fas fa-share"/> '+ Locale.tr("MarketPlace")
     },
     "Image.import_dialog" : {
       type: "create_dialog",
-      layout: "create",
       text:  Locale.tr("Import"),
-      icon: '<i class="fa fa-download"/>'
+      layout: "create_flatten",
+      custom_classes: "only-sunstone-list",
+      alwaysActive: true
     },
     "Image.chown" : {
       type: "confirm_with_select",
@@ -83,6 +87,29 @@ define(function(require) {
     },
     "Image.edit_labels" : {
       layout: "labels",
+    },
+    // "Image.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "Image.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
+    "Image.lockU" : {
+      type: "action",
+      text: Locale.tr("Lock"),
+      layout: "lock_buttons",
+      data: 1
+    },
+    "Image.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock"),
+      layout: "lock_buttons"
     }
   }
 

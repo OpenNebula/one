@@ -2,15 +2,22 @@
 :ID:
   :desc: ONE identifier for the User
   :size: 4
+  :adjust: true
 
 :NAME:
   :desc: Name of the User
   :size: 15
   :left: true
+  :expand: true
+
+:ENABLED:
+  :desc: User is enabled
+  :size: 4
+  :left: true
 
 :GROUP:
   :desc: Group of the User
-  :size: 10
+  :size: 8
   :left: true
 
 :AUTH:
@@ -20,15 +27,15 @@
 
 :VMS:
   :desc: Number of VMS
-  :size: 9
+  :size: 10
 
 :MEMORY:
   :desc: Total memory allocated to user VMs
-  :size: 17
+  :size: 10
 
 :CPU:
   :desc: Total CPU allocated to user VMs
-  :size: 11
+  :size: 10
 
 :PASSWORD:
   :desc: Password of the User
@@ -37,9 +44,9 @@
 :default:
 - :ID
 - :NAME
+- :ENABLED
 - :GROUP
 - :AUTH
 - :VMS
 - :MEMORY
 - :CPU
-

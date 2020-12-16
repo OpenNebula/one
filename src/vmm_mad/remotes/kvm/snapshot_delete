@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,14 +16,54 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN="$1"
 NAME="$2"
 
+# -------- Get datastore location from libvirt metadata ------------
+
+DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+METADATA_XML=`virsh --connect $LIBVIRT_URI metadata $DOMAIN $LIBVIRT_MD_URI $LIBVIRT_MD_KEY`
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(echo "$METADATA_XML" | $XPATH /vm/system_datastore/)
+
+unset i
+
+DATASTORE_PATH="${XPATH_ELEMENTS[i++]}"
+if [ -z "$DATASTORE_PATH" ]; then
+    error_message "Cannot read 'system_datastore' from domain $DOMAIN"
+    exit 1
+fi
+
+# ------ Delete snapshot metadata and the snapshot itself ----------
+
+rm ${DATASTORE_PATH}/${NAME}.xml 2>/dev/null || true
+
 exec_and_log \
     "virsh --connect $LIBVIRT_URI snapshot-delete $DOMAIN $NAME" \
     "Could not delete snapshot $NAME for domain $DOMAIN."
 
-exit 0
+
+# ------ Re-write the remaining snapshots metadata        ----------
+SNAPSHOTS=$(virsh --connect $LIBVIRT_URI snapshot-list $DOMAIN \
+    | grep snap- | awk '{print $1}')
+
+for SNAP_NAME in $SNAPSHOTS; do
+    SNAP_XML_PATH="${DATASTORE_PATH}/${SNAP_NAME}.xml"
+
+    virsh --connect $LIBVIRT_URI snapshot-dumpxml $DOMAIN $SNAP_NAME \
+        > $SNAP_XML_PATH
+
+    if [ $? != 0 ]; then
+        error_message "Could not dump $NAME snapshot metadata for $DOMAIN"
+    fi
+
+done

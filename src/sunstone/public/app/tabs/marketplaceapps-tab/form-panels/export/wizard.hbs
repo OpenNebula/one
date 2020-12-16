@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -36,8 +36,12 @@
       <input id="VMNAME" type="text" wizard_field="VMNAME"/>
     </div>
   </div>
-  <fieldset>
+  <fieldset id="placeDatatableDatastore">
     <legend>{{tr "Select the Datastore to store the resource"}}</legend>
-    {{{datastoresTableHTML}}}
+    {{{ datastoresTableHTML }}}
+  </fieldset>
+  <fieldset id="placeDatatableDockerTags" style="display: none;">
+    <legend>{{tr "Select the Dockerhub tag"}}</legend>
+    {{{ dockertagsTableHTML }}}
   </fieldset>
 </form>

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,7 +55,6 @@ define(function(require) {
         });
     });
 
-    context.off("change", ".value_td_cluster .resource_list_select");
     context.on("change", ".value_td_cluster .resource_list_select", function() {
       var newClusterId = $(this).val();
       if (newClusterId != "") {

@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -13,16 +13,16 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-  <div class="row">
-   <button type="submit" class="button primary small radius right show_labels" id="update_group">
-      <span class= "fa fa-pencil-square-o"></span>
-      {{tr "Edit"}}
-    </button>
-    <button type="submit" class="button secondary small radius right select_labels" id="cancel_update_group" hidden="true">
-      <span class= "fa fa-times-circle"></span>
-    </button>
-  </div>
-  <form data-abide novalidate id="Form_change_second_grp">
+<div class="row">
+  <button type="submit" class="button primary small radius right show_labels" id="update_group">
+    <span class= "fas fa-edit"></span>
+    {{tr "Edit"}}
+  </button>
+  <button type="submit" class="button secondary small radius right select_labels" id="cancel_update_group" hidden="true">
+    <span class= "fas fa-times-circle"></span>
+  </button>
+</div>
+<form data-abide novalidate id="Form_change_second_grp">
   <div class="row">
     <fieldset style="margin-bottom: 0rem;">
       <legend>{{tr "Primary Group"}}</legend>
@@ -31,7 +31,7 @@
     </fieldset>
   </div>
   <div class="row">
-     <fieldset>
+      <fieldset>
       <legend>{{tr "Secondary Group"}}</legend>
           <div class="show_labels">
             <div class="large-12 columns show_labels">
@@ -46,9 +46,9 @@
     </fieldset>
   </div>
   <div class="confirm-resources-header"></div>
-    <div class="form_buttons row">
-      <button type="submit" class="button success radius right" >
-        {{tr "Apply changes"}}
-      </button>
-    </div>
-  </form>
+  <div class="form_buttons row" id="submit-group" hidden="true">
+    <button type="submit" class="button success radius right">
+      {{tr "Apply changes"}}
+    </button>
+  </div>
+</form>

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,10 +19,9 @@
 
 #include "PoolSQL.h"
 #include "VirtualMachine.h"
+#include "OneDB.h"
 
 #include <time.h>
-
-using namespace std;
 
 /**
  *  The Virtual Machine Pool class. ...
@@ -31,12 +30,9 @@ class VirtualMachinePool : public PoolSQL
 {
 public:
 
-    VirtualMachinePool(SqlDB *                      db,
-                       vector<const VectorAttribute *> hook_mads,
-                       const string&                hook_location,
-                       const string&                remotes_location,
-                       vector<const SingleAttribute *>& restricted_attrs,
-                       time_t                       expire_time,
+    VirtualMachinePool(SqlDB * db,
+                       std::vector<const SingleAttribute *>& restricted_attrs,
+                       std::vector<const SingleAttribute *>& encrypted_attrs,
                        bool                         on_hold,
                        float                        default_cpu_cost,
                        float                        default_mem_cost,
@@ -62,37 +58,44 @@ public:
     int allocate (
         int                      uid,
         int                      gid,
-        const string&            uname,
-        const string&            gname,
+        const std::string&       uname,
+        const std::string&       gname,
         int                      umask,
-        VirtualMachineTemplate * vm_template,
+        std::unique_ptr<VirtualMachineTemplate> vm_template,
         int *                    oid,
-        string&                  error_str,
+        std::string&             error_str,
         bool                     on_hold = false);
 
     /**
-     *  Function to get a VM from the pool, if the object is not in memory
-     *  it is loade from the DB
-     *    @param oid VM unique id
-     *    @param lock locks the VM mutex
-     *    @return a pointer to the VM, 0 if the VM could not be loaded
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the VM unique identifier
+     *   @return a pointer to the VM, nullptr in case of failure
      */
-    VirtualMachine * get(
-        int     oid,
-        bool    lock)
+    std::unique_ptr<VirtualMachine> get(int     oid)
     {
-        return static_cast<VirtualMachine *>(PoolSQL::get(oid,lock));
-    };
+        return PoolSQL::get<VirtualMachine>(oid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the VM unique identifier
+     *   @return a pointer to the VM, nullptr in case of failure
+     */
+    std::unique_ptr<VirtualMachine> get_ro(int     oid)
+    {
+        return PoolSQL::get_ro<VirtualMachine>(oid);
+    }
 
     /**
      *  Function to get a VM from the pool, string version for VM ID
      */
-    VirtualMachine * get(
-        const string& oid_s,
-        bool          lock)
+    std::unique_ptr<VirtualMachine> get(const std::string& oid_s)
     {
-        istringstream iss(oid_s);
-        int           oid;
+        std::istringstream iss(oid_s);
+        int                oid;
 
         iss >> oid;
 
@@ -101,8 +104,26 @@ public:
             return 0;
         }
 
-        return static_cast<VirtualMachine *>(PoolSQL::get(oid,lock));
-    };
+        return PoolSQL::get<VirtualMachine>(oid);
+    }
+
+    /**
+     *  Function to get a read only VM from the pool, string version for VM ID
+     */
+    std::unique_ptr<VirtualMachine> get_ro(const std::string& oid_s)
+    {
+        std::istringstream iss(oid_s);
+        int                oid;
+
+        iss >> oid;
+
+        if ( iss.fail() )
+        {
+            return 0;
+        }
+
+        return PoolSQL::get_ro<VirtualMachine>(oid);
+    }
 
     /**
      *  Updates a VM in the data base. The VM SHOULD be locked. It also updates
@@ -111,21 +132,7 @@ public:
      *
      *    @return 0 on success.
      */
-    virtual int update(PoolObjectSQL * objsql)
-    {
-        VirtualMachine * vm = dynamic_cast<VirtualMachine *>(objsql);
-
-        if ( vm == 0 )
-        {
-            return -1;
-        }
-
-        do_hooks(objsql, Hook::UPDATE);
-
-        vm->set_prev_state();
-
-        return vm->update(db);
-    };
+    virtual int update(PoolObjectSQL * objsql);
 
     /**
      *  Gets a VM ID by its deploy_id, the dedploy_id - VM id mapping is keep
@@ -134,7 +141,7 @@ public:
      *    @return -1 if not found or VMID
      *
      */
-    int get_vmid(const string& deploy_id);
+    int get_vmid(const std::string& deploy_id);
 
     /**
      *  Function to get the IDs of running VMs
@@ -145,7 +152,7 @@ public:
      *   @return 0 on success
      */
     int get_running(
-        vector<int>&    oids,
+        std::vector<int>&    oids,
         int             vm_limit,
         time_t          last_poll);
 
@@ -155,7 +162,7 @@ public:
      *   @return 0 on success
      */
     int get_pending(
-        vector<int>&    oids);
+        std::vector<int>&    oids);
 
     /**
      *  Gets the IDs of VMs matching the given SQL where string.
@@ -163,14 +170,25 @@ public:
      *    @param where SQL clause
      *    @return 0 on success
      */
-    int search(vector<int>& oids, const string& where)
+    int search(std::vector<int>& oids, const std::string& where)
     {
-        return PoolSQL::search(oids, VirtualMachine::table, where);
+        return PoolSQL::search(oids, one_db::vm_table, where);
     };
 
     //--------------------------------------------------------------------------
     // Virtual Machine DB access functions
     //--------------------------------------------------------------------------
+
+    /**
+     *  Insert a new history record of a VM, the vm's mutex SHOULD be locked
+     *    @param vm pointer to the virtual machine object
+     *    @return 0 on success
+     */
+    int insert_history(
+        VirtualMachine * vm)
+    {
+        return vm->insert_history(db);
+    }
 
     /**
      *  Updates the history record of a VM, the vm's mutex SHOULD be locked
@@ -195,36 +213,15 @@ public:
     }
 
     /**
-     * Inserts the last monitoring, and deletes old monitoring entries for this
-     * VM
-     *
-     * @param vm pointer to the virtual machine object
-     * @return 0 on success
+     *  Updates the VM's search information
+     *    @param vm pointer to the virtual machine object
+     *    @return 0 on success
      */
-    int update_monitoring(
+    int update_search(
         VirtualMachine * vm)
     {
-        if ( _monitor_expiration <= 0 )
-        {
-            return 0;
-        }
-
-        return vm->update_monitoring(db);
-    };
-
-    /**
-     * Deletes the expired monitoring entries for all VMs
-     *
-     * @return 0 on success
-     */
-    int clean_expired_monitoring();
-
-    /**
-     * Deletes all monitoring entries for all VMs
-     *
-     * @return 0 on success
-     */
-    int clean_all_monitoring();
+        return vm->update_search(db);
+    }
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualMachine pool
@@ -233,7 +230,7 @@ public:
     static int bootstrap(SqlDB * _db)
     {
         int rc;
-        ostringstream oss_import(import_db_bootstrap);
+        std::ostringstream oss_import(one_db::vm_import_db_bootstrap);
 
         rc  = VirtualMachine::bootstrap(_db);
         rc += _db->exec_local_wr(oss_import);
@@ -247,14 +244,37 @@ public:
      *  pool
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "VM_POOL", VirtualMachine::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "VM_POOL", "short_body", one_db::vm_table, where,
+                             sid, eid, desc);
+    };
+
+    /**
+     *  Dumps the VM pool in extended XML format
+     *  A filter can be also added to the query
+     *  Also the hostname where the VirtualMachine is running is added to the
+     *  pool
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param limit parameters used for pagination
+     *  @param desc descending order of pool elements
+     *
+     *  @return 0 on success
+     */
+    int dump_extended(std::string& oss, const std::string& where,
+                      int sid, int eid,
+                      bool desc)
+    {
+        return PoolSQL::dump(oss, "VM_POOL", "body", one_db::vm_table, where,
+                             sid, eid, desc);
     };
 
     /**
@@ -262,14 +282,32 @@ public:
      *  added to the query as well as a time frame.
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param time_start start date to include history record
+     *  @param time_end end date to include history record
      *
      *  @return 0 on success
      */
-    int dump_acct(ostringstream& oss,
-                  const string&  where,
-                  int            time_start,
-                  int            time_end);
+    int dump_acct(std::string&       oss,
+                  const std::string& where,
+                  int                time_start,
+                  int                time_end);
 
+    /**
+     *  Dumps the VM accounting information in XML format. Faster version,
+     *  which doesn't allow filters, except time. Allows paging.
+     *  @param oss the output stream to dump the pool contents
+     *  @param time_start start date to include history record
+     *  @param time_end end date to include history record
+     *  @param sid first element used for pagination
+     *  @param rows number of records to retrieve, -1 to disable
+     *
+     *  @return 0 on success
+     */
+    int dump_acct(std::string&       oss,
+                  int                time_start,
+                  int                time_end,
+                  int                sid = 0,
+                  int                rows = -1);
     /**
      *  Dumps the VM showback information in XML format. A filter can be also
      *  added to the query as well as a time frame.
@@ -286,12 +324,12 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_showback(ostringstream& oss,
-                      const string&  where,
-                      int            start_month,
-                      int            start_year,
-                      int            end_month,
-                      int            end_year);
+    int dump_showback(std::string&       oss,
+                      const std::string& where,
+                      int                start_month,
+                      int                start_year,
+                      int                end_month,
+                      int                end_year);
 
     /**
      *  Dumps the VM monitoring information entries in XML format. A filter
@@ -299,11 +337,11 @@ public:
      *
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param seconds Retrieve monitor records in the last seconds
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        const string&  where);
+    int dump_monitoring(std::string& oss, const std::string&  where, const int seconds);
 
     /**
      *  Dumps the VM monitoring information  for a single VM
@@ -313,15 +351,20 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        int            vmid)
+    int dump_monitoring(std::string& oss, int vmid)
     {
-        ostringstream filter;
+        std::ostringstream filter;
 
         filter << "oid = " << vmid;
 
-        return dump_monitoring(oss, filter.str());
+        return dump_monitoring(oss, filter.str(), -1);
     }
+
+    /**
+     * Returns last monitoring info for a VM
+     *  @param vmid Virtual Machine id
+     */
+    VirtualMachineMonitorInfo get_monitoring(int vmid);
 
     /**
      * Processes all the history records, and stores the monthly cost for each
@@ -343,41 +386,28 @@ public:
                 int start_year,
                 int end_month,
                 int end_year,
-                string &error_str);
+                std::string &error_str);
 
     /**
      * Deletes the DISK that was in the process of being attached. Releases
      * Images and updates usage quotas
      *
-     * @param vid VM id
+     * @param vm unique_ptr to VM, will be release in the method
      */
-    void delete_attach_disk(int vid);
+    void delete_attach_disk(std::unique_ptr<VirtualMachine> vm);
 
     /**
-     * Deletes the NIC that was in the process of being attached
+     * Deletes the NIC that was in the process of being attached/detached
      *
-     * @param vid VM id
+     * @param vm unique_ptr to VM, will be release in the method
      */
-    void attach_nic_failure(int vid)
-    {
-        delete_hotplug_nic(vid, true);
-    }
-
-    /**
-     * Deletes the NIC that was in the process of being detached
-     *
-     * @param vid VM id
-     */
-    void detach_nic_success(int vid)
-    {
-        delete_hotplug_nic(vid, false);
-    }
+    void delete_attach_nic(std::unique_ptr<VirtualMachine> vm);
 
     /**
      * Deletes an entry in the HV-2-vmid mapping table for imported VMs
      *   @param deploy_id of the VM
      */
-    void drop_index(const string& deploy_id);
+    void drop_index(const std::string& deploy_id);
 
 private:
     /**
@@ -388,11 +418,6 @@ private:
     {
         return new VirtualMachine(-1,-1,-1,"","",0,0);
     };
-
-    /**
-     * Size, in seconds, of the historical monitoring information
-     */
-    time_t _monitor_expiration;
 
     /**
      * True or false whether to submit new VM on HOLD or not
@@ -413,31 +438,12 @@ private:
      */
     int db_int_cb(void * _min_stime, int num, char **values, char **names);
 
-    // -------------------------------------------------------------------------
-    // Virtual Machine ID - Deploy ID index for imported VMs
-    // The index is managed by the VirtualMachinePool
-    // -------------------------------------------------------------------------
-    static const char * import_table;
-
-    static const char * import_db_names;
-
-    static const char * import_db_bootstrap;
-
     /**
      * Insert deploy_id - vmid index.
      *   @param replace will replace and not insert
      *   @return 0 on success
      */
-    int insert_index(const string& deploy_id, int vm_id, bool replace);
-
-    // -------------------------------------------------------------------------
-
-    /**
-     * Helper method for delete attach/detach
-     * @param vid VM id
-     * @param attach true for an attach action, false for detach
-     */
-    void delete_hotplug_nic(int vid, bool attach);
+    int insert_index(const std::string& deploy_id, int vm_id, bool replace);
 };
 
 #endif /*VIRTUAL_MACHINE_POOL_H_*/

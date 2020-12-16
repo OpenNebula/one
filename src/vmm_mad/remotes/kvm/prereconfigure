@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN=$1
@@ -24,6 +24,12 @@ TARGET_DEVICE=$2
 
 if [[ -n "$DOMAIN" ]] && [[ -n "$TARGET_DEVICE" ]]
 then
+    disk="$(virsh --connect $LIBVIRT_URI domblklist $DOMAIN | awk "/^$TARGET_DEVICE/ {print \$2; exit}")"
+    if [[ "$disk" = "-" ]]; then
+        log_debug "CDROM already ejected"
+        exit 0
+    fi
+
     CMD="virsh --connect $LIBVIRT_URI change-media $DOMAIN $TARGET_DEVICE \
         --eject --force"
 

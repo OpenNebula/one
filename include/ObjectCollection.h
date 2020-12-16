@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,10 +18,10 @@
 #define OBJECT_COLLECTION_H_
 
 #include <set>
+#include <string>
+#include <libxml/tree.h>
 
-#include "PoolObjectSQL.h"
-
-using namespace std;
+class ObjectXML;
 
 /**
  *  Class to store a set of PoolObjectSQL IDs.
@@ -30,10 +30,10 @@ class ObjectCollection
 {
 public:
 
-    ObjectCollection(const string& _collection_name)
+    ObjectCollection(const std::string& _collection_name)
         :collection_name(_collection_name){};
 
-    ObjectCollection(const string& cname, const set<int>& cset)
+    ObjectCollection(const std::string& cname, const std::set<int>& cset)
         :collection_name(cname), collection_set(cset){};
 
     ~ObjectCollection(){};
@@ -78,7 +78,7 @@ public:
      *
      * @return 0 on success, -1 otherwise
      */
-    int from_xml(const ObjectXML* xml, const string& xpath_prefix);
+    int from_xml(const ObjectXML* xml, const std::string& xpath_prefix);
 
     /**
      * Function to print the Collection object into a string in
@@ -86,20 +86,12 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
-
-    /**
-     *  Returns a copy of the IDs set
-     */
-    set<int> clone() const
-    {
-        return set<int>(collection_set);
-    };
+    std::string& to_xml(std::string& xml) const;
 
     /**
      *  Returns a reference to the IDs set
      */
-    const set<int>& get_collection() const
+    const std::set<int>& get_collection() const
     {
         return collection_set;
     };
@@ -132,12 +124,12 @@ private:
     /**
      *  The collection's name
      */
-    string  collection_name;
+    std::string  collection_name;
 
     /**
      *  Set containing the relations IDs
      */
-    set<int> collection_set;
+    std::set<int> collection_set;
 
     /**
      *  Rebuilds the object from an xml node

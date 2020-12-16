@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,8 @@ public class Acl extends PoolElement{
         tmpResources.put("VROUTER"  , 0x0004000000000000L);
         tmpResources.put("MARKETPLACE",    0x0008000000000000L);
         tmpResources.put("MARKETPLACEAPP", 0x0010000000000000L);
+        tmpResources.put("VMGROUP",        0x0020000000000000L);
+        tmpResources.put("VNTEMPLATE",     0x0040000000000000L);
 
         RESOURCES = Collections.unmodifiableMap(tmpResources);
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,8 +20,13 @@ require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
 require 'OpenNebulaVNC'
+require 'opennebula_guac'
+require 'opennebula_vmrc'
+require 'OpenNebulaAddons'
 require 'OpenNebulaJSON/JSONUtils'
 #include JSONUtils
+
+require 'net/http'
 
 class SunstoneServer < CloudServer
 
@@ -50,6 +55,7 @@ class SunstoneServer < CloudServer
             when "vm_group"         then VMGroupPoolJSON.new(client, user_flag)
             when "vm"               then VirtualMachinePoolJSON.new(client, user_flag)
             when "vnet"             then VirtualNetworkPoolJSON.new(client, user_flag)
+            when "vntemplate"       then VNTemplatePoolJSON.new(client, user_flag)
             when "user"             then UserPoolJSON.new(client)
             when "acl"              then AclPoolJSON.new(client)
             when "datastore"        then DatastorePoolJSON.new(client)
@@ -64,7 +70,11 @@ class SunstoneServer < CloudServer
                 return [404, error.to_json]
         end
 
-        rc = pool.get_hash
+        if kind == "vm" && $conf[:get_extended_vm_info]
+          rc = pool.get_hash_extended
+        else
+          rc = pool.get_hash
+        end
 
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
@@ -111,6 +121,7 @@ class SunstoneServer < CloudServer
             when "vm_group"         then VMGroupJSON.new(VMGroup.build_xml,@client)
             when "vm"               then VirtualMachineJSON.new(VirtualMachine.build_xml,@client)
             when "vnet"             then VirtualNetworkJSON.new(VirtualNetwork.build_xml, @client)
+            when "vntemplate"       then VNTemplateJSON.new(VNTemplate.build_xml, @client)
             when "user"             then UserJSON.new(User.build_xml, @client)
             when "acl"              then AclJSON.new(Acl.build_xml, @client)
             when "datastore"        then DatastoreJSON.new(Datastore.build_xml, @client)
@@ -129,8 +140,12 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
-            resource.info
-            return [201, resource.to_json]
+            rc = resource.info
+            if OpenNebula.is_error?(rc)
+                return [201, "{\"#{kind.upcase}\": {\"ID\": \"#{resource.id}\"}}"]
+            else
+                return [201, resource.to_json]
+            end
         end
     end
 
@@ -202,12 +217,13 @@ class SunstoneServer < CloudServer
     #
     ############################################################################
     def perform_action(kind, id, action_json)
+
         resource = retrieve_resource(kind, id)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         end
-
         rc = resource.perform_action(action_json)
+
         if OpenNebula.is_error?(rc)
             return [500, rc.to_json]
         else
@@ -290,6 +306,62 @@ class SunstoneServer < CloudServer
         end
 
         return vnc.proxy(resource)
+    end
+
+        ########################################################################
+    # Guacamole
+    ########################################################################
+    def startguac(id, type_connection, guac)
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, resource.to_json]
+        end
+		
+		client = @client
+		vm_pool = VirtualMachinePool.new(client, -1)
+		user_pool = UserPool.new(client)
+
+		rc = user_pool.info
+		if OpenNebula.is_error?(rc)
+			 puts rc.message
+			 exit -1
+		end
+
+		rc = vm_pool.info
+		if OpenNebula.is_error?(rc)
+			 puts rc.message
+			 exit -1
+		end
+		
+        return guac.proxy(resource, type_connection)
+    end	
+
+    ########################################################################
+    # VMRC
+    ########################################################################
+    def startvmrc(id, vmrc)
+        resource = retrieve_resource("vm", id)
+        if OpenNebula.is_error?(resource)
+            return [404, resource.to_json]
+        end
+
+		client = @client
+		vm_pool = VirtualMachinePool.new(client, -1)
+		user_pool = UserPool.new(client)
+
+		rc = user_pool.info
+		if OpenNebula.is_error?(rc)
+			 puts rc.message
+			 exit -1
+		end
+
+		rc = vm_pool.info
+		if OpenNebula.is_error?(rc)
+			 puts rc.message
+			 exit -1
+		end
+
+        return vmrc.proxy(resource, client)
     end
 
     ########################################################################
@@ -469,6 +541,53 @@ class SunstoneServer < CloudServer
         return [200, rc.to_json]
     end
 
+    def get_docker_tags(app_id)
+        # Get MarketPlaceApp
+        marketapp = retrieve_resource("marketplaceapp", app_id)
+        if OpenNebula.is_error?(marketapp)
+            return [404, marketapp.to_json]
+        end
+
+        # Get MarketPlace
+        market_id = marketapp["MARKETPLACE_ID"]
+        market = retrieve_resource("marketplace", market_id)
+        if OpenNebula.is_error?(market)
+            return [404, market.to_json]
+        end
+
+        # Check market_mad
+        # TODO Change message
+        return [400, "Invalid MARKET_MAD"] if market["MARKET_MAD"] != "dockerhub"
+
+        # Get dockerhub tags
+        url = "https://hub.docker.com/v2/repositories/library/#{marketapp["NAME"]}/tags/?page_size=100"
+        tags_names = []
+        loop  do
+            uri = URI(url)
+            req = Net::HTTP::Get.new(uri.request_uri)
+
+            req['User-Agent'] = "OpenNebula"
+
+            opts = { :use_ssl => true }
+
+            rc = Net::HTTP.start(uri.hostname, uri.port, nil, nil, opts) do |http|
+                http.request(req)
+            end
+
+            return [rc.code.to_i, rc.msg] unless rc.is_a? Net::HTTPSuccess
+
+            body = JSON.parse(rc.body)
+            (tags_names << body["results"].map { |values| {
+                name: values["name"],
+                last_updated: values["last_updated"]
+            } }).flatten!
+            break if body["next"].nil? || body["next"].empty?
+            url = body["next"]
+        end
+
+        return [200, tags_names.to_json]
+    end
+
 
     private
 
@@ -482,9 +601,10 @@ class SunstoneServer < CloudServer
             when "host"             then HostJSON.new_with_id(id, @client)
             when "image"            then ImageJSON.new_with_id(id, @client)
             when "vmtemplate"       then TemplateJSON.new_with_id(id, @client)
-            when "vm_group"          then VMGroupJSON.new_with_id(id, @client)
+            when "vm_group"         then VMGroupJSON.new_with_id(id, @client)
             when "vm"               then VirtualMachineJSON.new_with_id(id, @client)
             when "vnet"             then VirtualNetworkJSON.new_with_id(id, @client)
+            when "vntemplate"       then VNTemplateJSON.new_with_id(id, @client)
             when "user"             then UserJSON.new_with_id(id, @client)
             when "acl"              then AclJSON.new_with_id(id, @client)
             when "datastore"        then DatastoreJSON.new_with_id(id, @client)

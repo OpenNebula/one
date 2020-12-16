@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -143,6 +143,15 @@ module OpenNebula
                     end
                 end
             }
+        end
+
+        # Update the content of the current doc
+        def set_content(content)
+            if NOKOGIRI
+                @xml.content = content
+            else
+                @xml.text = content
+            end
         end
 
         # Gets an array of text from elements extracted
@@ -421,30 +430,5 @@ module OpenNebula
             return attr
         end
     end
-
-    # The XMLUtilsPool module provides an abstraction of the underlying
-    # XML parser engine. It provides XML-related methods for the Pools
-    class XMLPool < XMLElement
-
-        def initialize(xml=nil)
-            super(xml)
-        end
-
-        #Executes the given block for each element of the Pool
-        #block:: _Block_
-        def each_element(block)
-            if NOKOGIRI
-                @xml.xpath(
-                    "#{@element_name}").each {|pelem|
-                    block.call self.factory(pelem)
-                }
-            else
-                @xml.elements.each(
-                    "#{@element_name}") {|pelem|
-                    block.call self.factory(pelem)
-                }
-            end
-        end
-    end
-
 end
+

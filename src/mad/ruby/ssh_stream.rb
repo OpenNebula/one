@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,6 +22,8 @@ class SshStream
     attr_reader :stream_out, :stream_err, :stdin
     attr_reader :out, :err
 
+    attr_accessor :forward
+
     #
     #
     EOF_ERR = "EOF_ERR"
@@ -38,6 +40,7 @@ class SshStream
         @host       = host
         @shell      = shell
         @timeout    = timeout
+        @forward    = false
     end
 
     def opened?
@@ -50,7 +53,7 @@ class SshStream
 
     def open
         @stdin, @stdout, @stderr, @wait_thr = Open3::popen3(
-            "#{SSH_CMD} #{@host} #{@shell} -s ; echo #{SSH_RC_STR} $? 1>&2",
+            "#{ssh_cmd} #{@host} #{@shell} -s ; echo #{SSH_RC_STR} $? 1>&2",
             :pgroup => true
         )
 
@@ -181,6 +184,16 @@ class SshStream
         exec(command)
         wait_for_command
     end
+
+    private
+
+    def ssh_cmd
+        if @forward
+            SSH_CMD + ' -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none'
+        else
+            SSH_CMD
+        end
+    end
 end
 
 
@@ -226,6 +239,10 @@ class SshStreamCommand < RemotesCommand
 
     def close
         @stream.close
+    end
+
+    def set_forward(forward)
+        @stream.forward = forward
     end
 end
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,6 +43,11 @@ define(function(require) {
     DISABLED : 4
   };
 
+  var BUTTON_DEPENDENT_STATES = [
+    STATES.INIT,
+    STATES.READY,
+  ];
+
   var TYPES = {
     UNKNOWN : 0,
     IMAGE : 1,
@@ -56,6 +61,7 @@ define(function(require) {
       return STATES_STR[stateId];
     },
     "STATES": STATES,
+    "BUTTON_DEPENDENT_STATES": BUTTON_DEPENDENT_STATES,
     "typeStr": function(typeId) {
       return TYPES_STR[typeId];
     },
@@ -109,7 +115,24 @@ define(function(require) {
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
-    }
+    },
+    "lock" : function(params) {
+      OpenNebulaAction.lock(params, RESOURCE);
+    },
+    "unlock" : function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "unlock");
+    },
+    "tags" : function(params) {
+      OpenNebulaAction.getAppTags(params, RESOURCE)
+    },
+    "import_vm_template" : function(params){
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "vm-template.import", action_obj);
+    },
+    "import_service_template" : function(params){
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "service_template.import", action_obj);
+    },
   }
 
   return MarketPlaceApp;

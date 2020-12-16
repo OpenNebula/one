@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,14 +16,15 @@
 
 <div class="row">
   <div class="large-12 columns">
-    <fieldset class="hypervisor only_kvm">
+    <fieldset class="hypervisor only_kvm not_firecracker">
       <legend>{{tr "RAW data"}}</legend>
       <div >
         <div class="medium-4 columns">
           <label>
             {{tr "Type"}}
             <select class="raw_type" disabled>
-              <option value="kvm">{{tr "kvm"}}</option>
+              <option selected="select" value="kvm">{{tr "kvm"}}</option>
+              <option value="lxd">{{tr "lxd"}}</option>
             </select>
           </label>
         </div>
@@ -33,42 +34,6 @@
             {{{tip (tr "Raw data to be passed directly to the hypervisor")}}}
             <textarea rows="2" type="text" class="raw_data"/>
           </label>
-        </div>
-      </div>
-    </fieldset>
-    <fieldset class="hypervisor only_kvm vm_updateconf_hide">
-      <legend>{{tr "PCI Devices"}}</legend>
-      <div class="row">
-        <div class="large-12 columns text-center">
-          <span class="radius secondary label">
-            <i class="fa fa-warning"/> {{tr "PCI passthrough of network devices is configured per NIC, in the \"Network\" tab. Do not add network devices here"}}
-          </span>
-        </div>
-      </div>
-      <div class="row">
-        <div class="large-12 columns">
-          <table class="dataTable pci_devices">
-            <thead>
-              <tr>
-                <th style="width:50%">{{tr "Device name"}}</th>
-                <th>{{tr "Vendor"}}</th>
-                <th>{{tr "Device"}}</th>
-                <th>{{tr "Class"}}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colspan="5">
-                  <a type="button" class="add_pci button small small-12 secondary radius">
-                    <i class="fa fa-lg fa-plus-circle"></i>
-                  </a>
-                </td>
-              </tr>
-            </tfoot>
-          </table>
         </div>
       </div>
     </fieldset>

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,13 +21,7 @@
 #include <xmlrpc-c/client_simple.hpp>
 #include <xmlrpc-c/girerr.hpp>
 
-#include <iostream>
 #include <string>
-#include <sstream>
-
-#include "NebulaLog.h"
-
-using namespace std;
 
 // =============================================================================
 // Doc:
@@ -122,11 +116,11 @@ private:
      * @param message_size for XML elements in the client library (in bytes)
      * @throws Exception if the authorization options are invalid
      */
-    Client(const string& secret, const string& endpoint, size_t message_size,
+    Client(const std::string& secret, const std::string& endpoint, size_t message_size,
 		unsigned int tout);
 
-    string  one_auth;
-    string  one_endpoint;
+    std::string  one_auth;
+    std::string  one_endpoint;
 
 	unsigned int timeout;
 

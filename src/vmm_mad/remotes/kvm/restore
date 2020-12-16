@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -18,7 +18,7 @@
 
 DRIVER_PATH=$(dirname $0)
 
-source $DRIVER_PATH/kvmrc
+source $DRIVER_PATH/../../etc/vmm/kvm/kvmrc
 source $DRIVER_PATH/../../scripts_common.sh
 
 FILE=$1
@@ -40,7 +40,7 @@ if [ ! -t 0 ]; then
 
     # The data is the driver message. Extracting the System DS TM_MAD
     XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-    TM_MAD=$(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
+    IFS= read -r -d '' TM_MAD < <(echo "$DRV_MESSAGE" | $XPATH /VMM_DRIVER_ACTION_DATA/DATASTORE/TM_MAD)
 
     # If there is a specific hook for this TM_MAD call it:
     RESTORE_TM_FILE="${DRIVER_PATH}/restore.${TM_MAD}"
@@ -55,6 +55,7 @@ fi
 DS_ID=$(basename $(dirname $(dirname $FILE)))
 DS_LOCATION=$(dirname $(dirname $(dirname $FILE)))
 DS_LOCATION_NON_DOUBLE_SLASH=$(echo "$DS_LOCATION" | sed 's|//|/|g')
+VM_DIR=$(dirname $FILE)
 
 RECALCULATE_CMD=$(cat <<EOF
 set -e -o pipefail
@@ -68,15 +69,53 @@ virsh --connect $LIBVIRT_URI save-image-dumpxml $FILE > $FILE_XML
 # system DS migration
 
 sed -i "s%$DS_LOCATION/[0-9]\+/$VM_ID/%$DS_LOCATION/$DS_ID/$VM_ID/%g" $FILE_XML
-sed -i "s%$DS_LOCATION_NON_DOUBLE_SLASH/[0-9]\+/$VMID/%$DS_LOCATION/$DS_ID/$VMID/%g" $FILE_XML
+sed -i "s%$DS_LOCATION_NON_DOUBLE_SLASH/[0-9]\+/$VM_ID/%$DS_LOCATION/$DS_ID/$VM_ID/%g" $FILE_XML
 EOF
 )
 
 multiline_exec_and_log "$RECALCULATE_CMD" \
     "Could not recalculate paths in $FILE_XML"
 
-exec_and_log "virsh --connect $LIBVIRT_URI restore $FILE --xml $FILE_XML" \
-    "Could not restore from $FILE"
+### Restore with retry
+
+# On RHEL/CentOS 7 with qemu-kvm (1.5), it may happen the QEMU
+# segfaults on the very first try to restore from checkpoint.
+# We retry 3 times before failing completely.
+
+function restore_domain {
+    exec_and_log "virsh --connect $LIBVIRT_URI restore $FILE --xml $FILE_XML" \
+        "Could not restore from $FILE"
+}
+
+retry ${VIRSH_RETRIES:-3} restore_domain
+
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+if [ "$SYNC_TIME" = "yes" ]; then
+    (
+        for i in $(seq 3); do
+            virsh --connect $LIBVIRT_URI domtime --sync $DEPLOY_ID && break
+            [ "$i" -gt 1 ] && sleep 6
+        done
+    ) &> /dev/null &
+fi
 
 rm "$FILE"
 rm "$FILE_XML"
+
+# redefine potential snapshots
+for SNAPSHOT_MD_XML in $(ls ${VM_DIR}/snap-*.xml 2>/dev/null); do
+
+	# query UUID, but only once
+	UUID=${UUID:-$(virsh --connect $LIBVIRT_URI dominfo $DEPLOY_ID | grep UUID: | awk '{print $2}')}
+
+	# replace uuid in the snapshot metadata xml
+	sed -i "s%<uuid>[[:alnum:]-]*</uuid>%<uuid>$UUID</uuid>%" $SNAPSHOT_MD_XML
+
+	# redefine the snapshot using the xml metadata file
+	virsh --connect $LIBVIRT_URI snapshot-create $DEPLOY_ID $SNAPSHOT_MD_XML --redefine > /dev/null || true
+done
+
+exit 0

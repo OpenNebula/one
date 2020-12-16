@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -29,7 +29,7 @@ define(function(require) {
     ["VM.release", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.ACTIVE] =
-    ["VM.recover"];
+    ["VM.recover","VM.updateconf"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.STOPPED] =
     ["VM.resume", "VM.deploy", "VM.terminate_hard", "VM.recover"];
@@ -44,7 +44,7 @@ define(function(require) {
     [];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.POWEROFF] =
-    ["VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
+    ["VM.resched", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
     ["VM.resume", "VM.resize", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];
@@ -60,7 +60,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.PROLOG ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.RUNNING ] =
-    ["VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_delete", "VM.terminate", "VM.terminate_hard", "VM.disk_resize"];
+    ["VM.stop", "VM.suspend", "VM.reboot", "VM.reboot_hard", "VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.migrate_poff", "VM.migrate_poff_hard", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_delete", "VM.terminate", "VM.terminate_hard", "VM.disk_resize"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.MIGRATE ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SAVE_STOP ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SAVE_SUSPEND ] = [];
@@ -74,7 +74,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.FAILURE ] = ["VM.terminate"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.CLEANUP_RESUBMIT ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.UNKNOWN ] =
-    ["VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.resume", "VM.terminate", "VM.terminate_hard"];
+    ["VM.resched", "VM.unresched", "VM.poweroff", "VM.poweroff_hard", "VM.undeploy", "VM.undeploy_hard", "VM.migrate", "VM.migrate_live", "VM.migrate_poff", "VM.migrate_poff_hard", "VM.resume", "VM.terminate", "VM.terminate_hard"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.SHUTDOWN_POWEROFF ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.BOOT_UNKNOWN ] = [];
@@ -84,6 +84,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.CLEANUP_DELETE ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_SNAPSHOT ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_NIC ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_NIC_POWEROFF ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF ] = ["VM.updateconf"];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED ] = [];
@@ -123,6 +124,7 @@ define(function(require) {
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE            ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE_POWEROFF   ] = [];
   LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.DISK_RESIZE_UNDEPLOYED ] = [];
+  LCM_STATE_ACTIONS[ OpenNebulaVM.LCM_STATES.HOTPLUG_RESIZE         ] = [];
 
   return {
     'disableAllStateActions': disableAllStateActions,
@@ -134,22 +136,22 @@ define(function(require) {
 
   function disableAllStateActions() {
     $(".state-dependent").prop("disabled", true).
-        removeClass("vm-action-enabled").
-        addClass("vm-action-disabled").
+        removeClass("action-enabled").
+        addClass("action-disabled").
         on("click.stateaction", function(e) { return false; });
   }
 
   function resetStateButtons() {
     $(".state-dependent").
-        addClass("vm-action-enabled").
-        removeClass("vm-action-disabled").
+        addClass("action-enabled").
+        removeClass("action-disabled").
         off("click.stateaction");
   }
 
   function enableStateButton(button_action) {
     $(".state-dependent[href='" + button_action + "']").removeAttr("disabled").
-        addClass("vm-action-enabled").
-        removeClass("vm-action-disabled").
+        addClass("action-enabled").
+        removeClass("action-disabled").
         off("click.stateaction");
   }
 
@@ -174,7 +176,6 @@ define(function(require) {
   function enabledStateAction(action, state, lcm_state) {
     var state = parseInt(state);
     var lcm_state = parseInt(lcm_state);
-
     return (STATE_ACTIONS[state].indexOf(action) != -1 ||
              (state == OpenNebulaVM.STATES.ACTIVE &&
                 LCM_STATE_ACTIONS[lcm_state].indexOf(action) != -1));

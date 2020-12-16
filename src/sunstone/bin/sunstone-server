@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -59,12 +59,14 @@ setup()
   fi
 }
 
-
 start()
 {
-  if [ "$1" = "-n" ]; then
-    novnc=1
-  fi
+  while getopts "n" opt; do
+    case "${opt}" in
+      n) novnc=1 ;;
+      *) echo "Invalid option: $OPTARG" 1>&2 ;;
+    esac
+  done
 
   if [ ! -f "$SUNSTONE_SERVER" ]; then
     echo "Cannot find $SUNSTONE_SERVER."
@@ -120,16 +122,19 @@ start()
 #
 stop()
 {
-  if [ "$1" = "-n" ]; then
-    novnc=1
-  fi
+  while getopts "n" opt; do
+    case "${opt}" in
+      n) novnc=1 ;;
+      *) echo "Invalid option: $OPTARG" 1>&2 ;;
+    esac
+  done
 
   # Stop novnc server
   [ "$novnc" = "1" ] && $NOVNC_SERVER stop
 
   if [ ! -f $SUNSTONE_PID ]; then
-    echo "Couldn't find sunstone-server process pid."
-    exit 1
+    echo "Couldn't find sunstone-server process pid." >&2
+    return 1
   fi
 
   # Kill the sunstone daemon
@@ -140,6 +145,7 @@ stop()
   rm -f $SUNSTONE_PID &> /dev/null
 
   echo "sunstone-server stopped"
+  return 0
 }
 
 case "$1" in
@@ -149,9 +155,10 @@ case "$1" in
     ;;
   stop)
     stop -n
+    exit $?
     ;;
   restart)
-    stop -n
+    stop -n 2> /dev/null
     setup
     start -n
     ;;
@@ -163,7 +170,7 @@ case "$1" in
     stop
     ;;
   restart-sunstone)
-    stop
+    stop -n 2> /dev/null
     setup
     start
     ;;

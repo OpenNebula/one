@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -53,7 +53,22 @@ module OpenNebula
             super(HOST_POOL_METHODS[:info])
         end
 
+        def info_all()
+            return super(HOST_POOL_METHODS[:info])
+        end
+
+        def info_mine()
+            return super(HOST_POOL_METHODS[:info])
+        end
+
+        def info_group()
+            return super(HOST_POOL_METHODS[:info])
+        end
+
         alias_method :info!, :info
+        alias_method :info_all!, :info_all
+        alias_method :info_mine!, :info_mine
+        alias_method :info_group!, :info_group
 
         # Retrieves the monitoring data for all the Hosts in the pool
         #
@@ -79,15 +94,21 @@ module OpenNebula
         #      "HOST_SHARE/FREE_CPU"=>[["1337609673", "800"]],
         #      "HOST_SHARE/RUNNING_VMS"=>[["1337609673", "3"]]}}
         def monitoring(xpath_expressions)
-            return super(HOST_POOL_METHODS[:monitoring],
-                'HOST', 'LAST_MON_TIME', xpath_expressions)
+            return super(HOST_POOL_METHODS[:monitoring], xpath_expressions)
         end
 
         # Retrieves the monitoring data for all the Hosts in the pool, in XML
         #
+        # @param [Integer] num Optional Retrieve monitor records in the last num
+        #   seconds. 0 just the last record, -1 or nil all records
+        #
         # @return [String] VM monitoring data, in XML
-        def monitoring_xml()
-            return @client.call(HOST_POOL_METHODS[:monitoring])
+        def monitoring_xml(num = nil)
+            return @client.call(HOST_POOL_METHODS[:monitoring]) if num.nil?
+
+            @client.call(HOST_POOL_METHODS[:monitoring], num.to_i)
         end
+
     end
+
 end

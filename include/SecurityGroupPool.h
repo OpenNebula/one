@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,7 @@
 
 #include "PoolSQL.h"
 #include "SecurityGroup.h"
-
-using namespace std;
+#include "OneDB.h"
 
 
 class SecurityGroupPool : public PoolSQL
@@ -51,40 +50,37 @@ public:
      * @return
      */
     int allocate(
-            int             uid,
-            int             gid,
-            const string&   uname,
-            const string&   gname,
-            int             umask,
-            Template *      sgroup_template,
-            int *           oid,
-            string&         error_str);
-
-    /**
-     *  Function to get a SecurityGroup from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid SecurityGroup unique id
-     *    @param lock locks the SecurityGroup mutex
-     *    @return a pointer to the SecurityGroup, 0 if the SecurityGroup could not be loaded
-     */
-    SecurityGroup * get(int oid, bool lock)
-    {
-        return static_cast<SecurityGroup *>(PoolSQL::get(oid,lock));
-    };
+            int                uid,
+            int                gid,
+            const std::string& uname,
+            const std::string& gname,
+            int                umask,
+            std::unique_ptr<Template> sgroup_template,
+            int *              oid,
+            std::string&       error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param uid id of owner
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the SecurityGroup unique identifier
+     *   @return a pointer to the SecurityGroup, nullptr in case of failure
      */
-    SecurityGroup * get(const string& name, int uid, bool lock)
+    std::unique_ptr<SecurityGroup> get(int oid)
     {
-        return static_cast<SecurityGroup *>(PoolSQL::get(name,uid,lock));
-    };
+        return PoolSQL::get<SecurityGroup>(oid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the SecurityGroup unique identifier
+     *   @return a pointer to the SecurityGroup, nullptr in case of failure
+     */
+    std::unique_ptr<SecurityGroup> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<SecurityGroup>(oid);
+    }
 
     /** Update a particular SecurityGroup
      *    @param securitygroup pointer to SecurityGroup
@@ -109,14 +105,17 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "SECURITY_GROUP_POOL", SecurityGroup::table,
-                where, limit);
+        return PoolSQL::dump(oss, "SECURITY_GROUP_POOL", "body", one_db::sg_table,
+                where, sid, eid, desc);
     };
 
     /**
@@ -127,27 +126,26 @@ public:
      * @param sgs security group ID set
      * @param rules Security Group rules will be added at the end of this vector
      */
-    void get_security_group_rules(int vmid, set<int>& sgs,
-        vector<VectorAttribute*> &rules)
+    void get_security_group_rules(int vmid, std::set<int>& sgs,
+                                  std::vector<VectorAttribute*> &rules)
     {
-        set<int>::iterator sg_it;
-
-        for (sg_it = sgs.begin(); sg_it != sgs.end(); ++sg_it)
+        for (auto sg : sgs)
         {
-            get_security_group_rules(vmid, *sg_it, rules);
+            get_security_group_rules(vmid, sg, rules);
         }
 
     };
 
-    void get_security_group_rules(int vid, int sid, vector<VectorAttribute*> &rs);
+    void get_security_group_rules(int vid, int sid,
+                                  std::vector<VectorAttribute*> &rs);
 
     /**
      * Removes the VM from the security groups
      *
      * @param id of Virtual Machine
-     * @param sgs security group ID set
+     * @param sg security group ID
      */
-    void release_security_groups(int id, set<int>& sgs);
+    void release_security_group(int id, int sgid);
 
 private:
 

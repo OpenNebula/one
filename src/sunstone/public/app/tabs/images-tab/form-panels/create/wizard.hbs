@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -57,10 +57,20 @@
   {{#isTabActionEnabled "images-tab" "Image.persistent"}}
     <div class="row">
       <div class="large-4 columns">
-        <input type="checkbox" id="img_persistent" name="img_persistent" value="YES" />
-        <label for="img_persistent">
-          {{tr "This image is persistent"}}
-        </label>
+        <div class="row">
+          <div class="large-8 columns">
+            <label>
+              {{tr "This image is persistent"}}
+            </label>
+          </div>
+          <div class="large-4 columns">
+            <select id="img_persistent">
+              <option value=""></option>
+              <option value="YES"> {{tr "YES"}}</option>
+              <option value="NO"> {{tr "NO"}}</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
   {{/isTabActionEnabled}}
@@ -71,11 +81,11 @@
     <div class="row" id="src_path_select">
       <div class="large-12 columns text-center">
         <input type="radio" name="src_path" id="path_image" value="path">
-        <label for="path_image">{{tr "Path in OpenNebula server"}}</label>
+        <label for="path_image">{{tr "Path/URL"}}</label>
         <input type="radio" name="src_path" id="upload_image" value="upload">
         <label for="upload_image">{{tr "Upload"}}</label>
         {{#if images}}
-        <input type="radio" name="src_path" id="datablock_img" value="datablock" disabled>
+        <input type="radio" name="src_path" id="datablock_img" value="datablock">
         <label for="datablock_img">{{tr "Empty disk image"}}</label>
         {{/if}}
       </div>
@@ -84,7 +94,7 @@
     <div class="row">
       <div class="large-12 columns">
         <label for="img_path">
-          {{tr "Path"}}
+          {{tr "Path in OpenNebula server or URL"}}
         </label>
         <input type="text" name="img_path" id="img_path" />
       </div>
@@ -92,7 +102,7 @@
     <div class="row">
       <div id="file-uploader" class="large-12 columns text-center">
         <label id="file-uploader-label" for="file-uploader-input"></label>
-        <i id="close_image" class="fa fa-times-circle fa fa-lg close_image" hidden="true"></i>
+        <i id="close_image" class="fas fa-times-circle fas fa-lg close_image" hidden="true"></i>
         <input id="file-uploader-input" type="file"/>
       </div>
     </div>
@@ -159,7 +169,7 @@
             <select name="img_dev_prefix" id="img_dev_prefix">
               <option value="" selected="selected"></option>
               <option value="vd">Virtio</option>
-              <option value="sd">SCSI</option>
+              <option value="sd">SCSI/SATA</option>
               <option value="hd">Parallel ATA (IDE)</option>
               <option value="custom">custom</option>
             </select>
@@ -169,16 +179,14 @@
           </div>
         </div>
         <div class="row not_vcenter">
-          <div class="large-12 columns">
+          <div class="large-12 columns datablock-input">
             <label for="img_driver">
-              {{tr "Image mapping driver"}}
+              {{tr "Format"}}
             </label>
             <select name="img_driver" id="img_driver">
-              <option value=""></option>
+              <option value="" selected="selected">--</option>
               <option value="raw">raw</option>
-              <option value="bochs">bochs</option>
               <option value="qcow2">qcow2</option>
-              <option value="qed">qed</option>
               <option value="custom">custom</option>
             </select>
             <div>

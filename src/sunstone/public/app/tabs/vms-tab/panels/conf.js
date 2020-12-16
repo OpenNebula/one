@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -56,7 +56,7 @@ define(function(require) {
     var conf = {};
     var template = this.element.TEMPLATE;
 
-    $.each(["OS", "FEATURES", "INPUT", "GRAPHICS", "RAW", "CONTEXT"], function(){
+    $.each(["OS", "FEATURES", "INPUT", "GRAPHICS", "RAW", "CONTEXT", "CPU_MODEL"], function(){
       if(template[this] != undefined){
         conf[this] = template[this];
       }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
-
-using namespace std;
+#include "DatastorePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +28,9 @@ using namespace std;
 class RequestManagerDatastore: public Request
 {
 protected:
-    RequestManagerDatastore(const string& method_name,
-                        const string& help,
-                        const string& params)
+    RequestManagerDatastore(const std::string& method_name,
+                        const std::string& help,
+                        const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -40,8 +39,7 @@ protected:
         auth_object = PoolObjectSQL::DATASTORE;
         auth_op     = AuthRequest::MANAGE;
     };
-
-    ~RequestManagerDatastore(){};
+    ~RequestManagerDatastore() = default;
 
     /* --------------------------------------------------------------------- */
 
@@ -58,10 +56,10 @@ public:
     DatastoreEnable(): RequestManagerDatastore("one.datastore.enable",
         "Enables or disables an datastore", "A:sib"){};
 
-    ~DatastoreEnable(){};
+    ~DatastoreEnable() = default;
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

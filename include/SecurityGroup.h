@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -20,8 +20,6 @@
 #include "PoolObjectSQL.h"
 #include "ObjectCollection.h"
 
-using namespace std;
-
 /**
  *  The SecurityGroup class.
  */
@@ -29,12 +27,14 @@ class SecurityGroup : public PoolObjectSQL
 {
 public:
 
+    virtual ~SecurityGroup() = default;
+
     /**
      * Function to print the SecurityGroup object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -42,16 +42,16 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Returns a copy of the Template
      *    @return A copy of the Template
      */
-    Template * clone_template() const
+    std::unique_ptr<Template> clone_template() const
     {
-        return new Template(*obj_template);
-    };
+        return std::make_unique<Template>(*obj_template);
+    }
 
     /* ---------------------------------------------------------------------- */
     /*   Access VM Counter                                                    */
@@ -109,7 +109,7 @@ public:
      *
      * @return a group of vector attributes
      */
-     void get_rules(vector<VectorAttribute*>& result) const;
+     void get_rules(std::vector<VectorAttribute*>& result) const;
 
      /**
       * Commit SG changes to associated VMs
@@ -166,14 +166,12 @@ private:
     // Constructor
     // *************************************************************************
 
-    SecurityGroup(  int             _uid,
-                    int             _gid,
-                    const string&   _uname,
-                    const string&   _gname,
-                    int             _umask,
-                    Template*       sgroup_template);
-
-    ~SecurityGroup();
+    SecurityGroup(  int                _uid,
+                    int                _gid,
+                    const std::string& _uname,
+                    const std::string& _gname,
+                    int                _umask,
+                    std::unique_ptr<Template> sgroup_template);
 
     /**
      *  Check that a rule is valid
@@ -181,24 +179,18 @@ private:
      *    @param error describing the problem if any
      *    @return true if the rule is valid
      */
-    bool isValidRule(const VectorAttribute * rule, string& error) const;
+    bool isValidRule(const VectorAttribute * rule, std::string& error) const;
 
     /**
      * Checks the new rules
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error);
+    int post_update_template(std::string& error) override;
 
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -207,43 +199,38 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the SecurityGroup
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(SecurityGroup::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the SecurityGroup in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the SecurityGroup's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
     /**
      *  Factory method for SecurityGroup templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
     /**

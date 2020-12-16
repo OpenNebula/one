@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,8 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerImage.h"
+#include "ImageManager.h"
+#include "DatastorePool.h"
 
 using namespace std;
 
@@ -94,57 +96,40 @@ Request::ErrorCode ImagePersistent::request_execute(
     ImagePool *     ipool  = nd.get_ipool();
     DatastorePool * dspool = nd.get_dspool();
 
-    Datastore * ds;
-    Image * image;
-
     ErrorCode ec;
 
-    ec = basic_authorization(ipool, id,
-            AuthRequest::MANAGE, PoolObjectSQL::IMAGE, att);
+    ec = basic_authorization(ipool, id, PoolObjectSQL::IMAGE, att);
 
     if ( ec != SUCCESS)
     {
         return ec;
     }
 
-    image = ipool->get(id,true);
-
-    if ( image == 0 )
+    if ( auto image = ipool->get_ro(id) )
+    {
+        ds_id = image->get_ds_id();
+    }
+    else
     {
         att.resp_id = id;
 
         return NO_EXISTS;
     }
 
-    ds_id = image->get_ds_id();
-
-    if ( !image->is_managed() )
+    if (auto ds = dspool->get_ro(ds_id))
     {
-        att.resp_msg = "Cannot change persistent state for non-managed images";
-
-        image->unlock();
-
-        return ACTION;
+        ds_persistent_only = ds->is_persistent_only();
     }
-
-    image->unlock();
-
-    ds = dspool->get(ds_id, true);
-
-    if ( ds == 0 )
+    else
     {
         att.resp_msg = "Datastore no longer exists.";
 
         return INTERNAL;
     }
 
-    ds_persistent_only = ds->is_persistent_only();
+    auto image = ipool->get(id);
 
-    ds->unlock();
-
-    image = ipool->get(id,true);
-
-    if ( image == 0 )
+    if ( image == nullptr )
     {
         att.resp_id = id;
 
@@ -162,7 +147,6 @@ Request::ErrorCode ImagePersistent::request_execute(
         case Image::RAMDISK:
         case Image::CONTEXT:
             att.resp_msg = "KERNEL, RAMDISK and CONTEXT must be non-persistent";
-            image->unlock();
 
             return ACTION;
     }
@@ -171,8 +155,6 @@ Request::ErrorCode ImagePersistent::request_execute(
     if ( ds_persistent_only && persistent_flag == false )
     {
         att.resp_msg = "This Datastore only accepts persistent images.";
-
-        image->unlock();
 
         return INTERNAL;
     }
@@ -190,14 +172,10 @@ Request::ErrorCode ImagePersistent::request_execute(
             att.resp_msg = "Could not make image non-persistent: " + att.resp_msg;
         }
 
-        image->unlock();
-
         return INTERNAL;
     }
 
-    ipool->update(image);
-
-    image->unlock();
+    ipool->update(image.get());
 
     return SUCCESS;
 }
@@ -214,16 +192,14 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
 
     Image::ImageType itype;
 
-    Image * image;
-
     if ( basic_authorization(id, att) == false )
     {
         return;
     }
 
-    image = static_cast<Image *>(pool->get(id,true));
+    auto image = pool->get<Image>(id);
 
-    if ( image == 0 )
+    if ( image == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -244,7 +220,6 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
                     " for the current datastore.";
                 failure_response(ACTION, att);
 
-                image->unlock();
                 return;
             }
         break;
@@ -260,7 +235,6 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
                     " for the current datastore.";
                 failure_response(ACTION, att);
 
-                image->unlock();
                 return;
             }
         break;
@@ -272,13 +246,10 @@ void ImageChangeType::request_execute(xmlrpc_c::paramList const& paramList,
     {
         failure_response(INTERNAL, att);
 
-        image->unlock();
         return;
     }
 
-    pool->update(image);
-
-    image->unlock();
+    pool->update(image.get());
 
     success_response(id, att);
 }
@@ -302,7 +273,7 @@ void ImageClone::request_execute(
         ds_id = xmlrpc_c::value_int(paramList.getInt(3));
     }
 
-    ErrorCode ec = request_execute(clone_id, name, ds_id, new_id, att);
+    ErrorCode ec = request_execute(clone_id, name, ds_id, false, new_id, att);
 
     if ( ec == SUCCESS )
     {
@@ -321,6 +292,7 @@ Request::ErrorCode ImageClone::request_execute(
         int             clone_id,
         const string&   name,
         int             ds_id,
+        bool            persistent,
         int             &new_id,
         RequestAttributes& att)
 {
@@ -332,10 +304,8 @@ Request::ErrorCode ImageClone::request_execute(
     Image::DiskType disk_type;
     PoolObjectAuth  perms, ds_perms, ds_perms_orig;
 
-    ImageTemplate * tmpl;
+    unique_ptr<ImageTemplate> tmpl;
     Template        img_usage;
-    Image *         img;
-    Datastore *     ds;
 
     Nebula&  nd = Nebula::instance();
 
@@ -343,103 +313,100 @@ Request::ErrorCode ImageClone::request_execute(
     ImagePool *     ipool  = nd.get_ipool();
 
     // ------------------------- Get source Image info -------------------------
+    if ( auto img = ipool->get_ro(clone_id) )
+    {
+        switch (img->get_type())
+        {
+            case Image::OS:
+            case Image::DATABLOCK:
+            case Image::CDROM:
+            break;
 
-    img = ipool->get(clone_id, true);
+            case Image::KERNEL:
+            case Image::RAMDISK:
+            case Image::CONTEXT:
+                att.resp_msg = "KERNEL, RAMDISK and CONTEXT cannot be cloned.";
+            return ACTION;
+        }
 
-    if ( img == 0 )
+        const Snapshots& snaps = img->get_snapshots();
+
+        if (snaps.size () > 0)
+        {
+            att.resp_msg = "Cannot clone images with snapshots";
+            return ACTION;
+        }
+
+        tmpl = img->clone_template(name);
+
+        img->get_permissions(perms);
+
+        if (ds_id == -1) //Target Datastore not set, use the current one
+        {
+            ds_id = img->get_ds_id();
+        }
+
+        ds_id_orig = img->get_ds_id();
+
+        size = img->get_size();
+    }
+    else
     {
         att.resp_id = clone_id;
         return NO_EXISTS;
     }
 
-    switch (img->get_type())
+    //--------------------------------------------------------------------------
+    // Set image persistent attribute
+    //--------------------------------------------------------------------------
+    if ( persistent )
     {
-        case Image::OS:
-        case Image::DATABLOCK:
-        case Image::CDROM:
-        break;
-
-        case Image::KERNEL:
-        case Image::RAMDISK:
-        case Image::CONTEXT:
-            att.resp_msg = "KERNEL, RAMDISK and CONTEXT cannot be cloned.";
-            img->unlock();
-        return ACTION;
+        tmpl->replace("PERSISTENT", persistent);
     }
-
-    const Snapshots& snaps = img->get_snapshots();
-
-    if (snaps.size () > 0)
+    else //Update from base image
     {
-        att.resp_msg = "Cannot clone images with snapshots";
-        img->unlock();
-        return ACTION;
+        Image::test_set_persistent(tmpl.get(), att.uid, att.gid, false);
     }
-
-    tmpl = img->clone_template(name);
-
-    img->get_permissions(perms);
-
-    if (ds_id == -1) //Target Datastore not set, use the current one
-    {
-        ds_id = img->get_ds_id();
-    }
-
-    ds_id_orig = img->get_ds_id();
-
-    size = img->get_size();
-
-    img->unlock();
-
-    //Update persistent attribute from base image if needed
-    Image::test_set_persistent(tmpl, att.uid, att.gid, false);
 
     // ----------------------- Get target Datastore info -----------------------
 
-    ds = dspool->get(ds_id, true);
+    if ( auto ds = dspool->get_ro(ds_id) )
+    {
+        if ( ds->get_type() != Datastore::IMAGE_DS )
+        {
+            att.resp_msg = "Clone only supported for IMAGE_DS Datastores";
 
-    if ( ds == 0 )
+            return ACTION;
+        }
+
+        ds->get_permissions(ds_perms);
+
+        disk_type = ds->get_disk_type();
+
+        ds->to_xml(ds_data);
+
+        ds_check = ds->get_avail_mb(avail);
+        ds_name  = ds->get_name();
+        ds_mad   = ds->get_ds_mad();
+        tm_mad   = ds->get_tm_mad();
+    }
+    else
     {
         att.resp_obj = PoolObjectSQL::DATASTORE;
         att.resp_id  = ds_id;
 
-        delete tmpl;
         return NO_EXISTS;
     }
 
-    if ( ds->get_type() != Datastore::IMAGE_DS )
-    {
-        att.resp_msg = "Clone only supported for IMAGE_DS Datastores";
-
-        ds->unlock();
-
-        delete tmpl;
-        return ACTION;
-    }
-
-    ds->get_permissions(ds_perms);
-
-    disk_type = ds->get_disk_type();
-
-    ds->to_xml(ds_data);
-
-    ds_check = ds->get_avail_mb(avail);
-    ds_name  = ds->get_name();
-    ds_mad   = ds->get_ds_mad();
-    tm_mad   = ds->get_tm_mad();
-
-    ds->unlock();
-
     if (ds_id != ds_id_orig) //check same DS_MAD
     {
-        ds = dspool->get(ds_id_orig, true);
+        auto ds = dspool->get_ro(ds_id_orig);
 
-        if (ds == 0)
+        if (ds == nullptr)
         {
             att.resp_obj = PoolObjectSQL::DATASTORE;
             att.resp_id  = ds_id_orig;
 
-            delete tmpl;
             return NO_EXISTS;
         }
 
@@ -447,9 +414,6 @@ Request::ErrorCode ImageClone::request_execute(
         {
             att.resp_msg = "Clone only supported for IMAGE_DS Datastores";
 
-            ds->unlock();
-
-            delete tmpl;
             return ACTION;
         }
 
@@ -457,15 +421,10 @@ Request::ErrorCode ImageClone::request_execute(
         {
             att.resp_msg = "Clone only supported to same DS_MAD Datastores";
 
-            ds->unlock();
-
-            delete tmpl;
             return ACTION;
         }
 
         ds->get_permissions(ds_perms_orig);
-
-        ds->unlock();
     }
 
     // ------------- Set authorization request ---------------------------------
@@ -477,50 +436,44 @@ Request::ErrorCode ImageClone::request_execute(
     {
         att.resp_msg = "Not enough space in datastore";
 
-        delete tmpl;
         return ACTION;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+    string      tmpl_str;
+
+    // ------------------ Check permissions and ACLs  ----------------------
+    // Create image
+    // Use original image
+    // Use target datastore
+    // Use original datastore, if different
+    // ---------------------------------------------------------------------
+    tmpl->to_xml(tmpl_str);
+
+    ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str);
+
+    ar.add_auth(AuthRequest::USE, perms);
+
+    ar.add_auth(AuthRequest::USE, ds_perms);
+
+    if (ds_id != ds_id_orig)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-        string      tmpl_str;
+        ar.add_auth(AuthRequest::USE, ds_perms_orig);
+    }
 
-        // ------------------ Check permissions and ACLs  ----------------------
-        // Create image
-        // Use original image
-        // Use target datastore
-        // Use original datastore, if different
-        // ---------------------------------------------------------------------
-        tmpl->to_xml(tmpl_str);
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
 
-        ar.add_create_auth(att.uid, att.gid, PoolObjectSQL::IMAGE, tmpl_str);
+        return AUTHORIZATION;
+    }
 
-        ar.add_auth(AuthRequest::USE, perms);
+    // -------------------------- Check Quotas  ----------------------------
 
-        ar.add_auth(AuthRequest::USE, ds_perms);
-
-        if (ds_id != ds_id_orig)
-        {
-            ar.add_auth(AuthRequest::USE, ds_perms_orig);
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-
-            delete tmpl;
-            return AUTHORIZATION;
-        }
-
-        // -------------------------- Check Quotas  ----------------------------
-
-        if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
-                    att.resp_msg) == false )
-        {
-            delete tmpl;
-            return AUTHORIZATION;
-        }
+    if ( quota_authorization(&img_usage, Quotas::DATASTORE, att,
+                att.resp_msg) == false )
+    {
+        return AUTHORIZATION;
     }
 
     rc = ipool->allocate(att.uid,
@@ -528,7 +481,7 @@ Request::ErrorCode ImageClone::request_execute(
                          att.uname,
                          att.gname,
                          att.umask,
-                         tmpl,
+                         move(tmpl),
                          ds_id,
                          ds_name,
                          disk_type,
@@ -547,15 +500,11 @@ Request::ErrorCode ImageClone::request_execute(
         return ALLOCATE;
     }
 
-    ds = dspool->get(ds_id, true);
-
-    if ( ds != 0 )  // TODO: error otherwise or leave image in ERROR?
+    if ( auto ds = dspool->get(ds_id) )  // TODO: error otherwise or leave image in ERROR?
     {
         ds->add_image(new_id);
 
-        dspool->update(ds);
-
-        ds->unlock();
+        dspool->update(ds.get());
     }
 
     return SUCCESS;

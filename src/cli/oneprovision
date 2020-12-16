@@ -1,0 +1,366 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+ONE_LOCATION = ENV['ONE_LOCATION']
+
+if !ONE_LOCATION
+    LIB_LOCATION       = '/usr/lib/one'
+    RUBY_LIB_LOCATION  = '/usr/lib/one/ruby'
+    GEMS_LOCATION      = '/usr/share/one/gems'
+    REMOTES_LOCATION   = '/var/lib/one/remotes'
+    ANSIBLE_LOCATION   = '/usr/share/one/oneprovision/ansible'
+    PROVIDERS_LOCATION = '/usr/lib/one/oneprovision/lib/terraform/providers'
+else
+    LIB_LOCATION       = ONE_LOCATION + '/lib'
+    RUBY_LIB_LOCATION  = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION      = ONE_LOCATION + '/share/gems'
+    REMOTES_LOCATION   = ONE_LOCATION + '/var/remotes'
+    ANSIBLE_LOCATION   = ONE_LOCATION + '/share/oneprovision/ansible'
+    PROVIDERS_LOCATION = ONE_LOCATION +
+                         '/lib/oneprovision/lib/terraform/providers'
+end
+
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << LIB_LOCATION      + '/oneprovision/lib'
+$LOAD_PATH << LIB_LOCATION      + '/oneflow/lib'
+
+require 'command_parser'
+
+require 'one_helper'
+require 'one_helper/oneprovision_helper'
+require 'one_helper/onecluster_helper'
+require 'one_helper/onehost_helper'
+require 'one_helper/onedatastore_helper'
+require 'one_helper/onevnet_helper'
+require 'one_helper/oneimage_helper'
+require 'one_helper/onetemplate_helper'
+require 'one_helper/onevntemplate_helper'
+require 'one_helper/oneflowtemplate_helper'
+
+require 'oneprovision'
+
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneprovision` <command> [<file>] [<hostid>] [<args>] [<options>]'
+    version OpenNebulaHelper::ONE_VERSION
+
+    helper = OneProvisionHelper.new
+
+    before_proc do
+        helper.set_client(options)
+    end
+
+    ########################################################################
+    # Global options
+    ########################################################################
+
+    cmd_options = CommandParser::OPTIONS - [CommandParser::VERBOSE]
+    set :option, cmd_options + OpenNebulaHelper::CLIENT_OPTIONS
+
+    ########################################################################
+    # Formatters for arguments
+    ########################################################################
+
+    set :format, :provisionid, OneProvisionHelper.to_id_desc do |arg|
+        helper.to_id(arg)
+    end
+
+    set :format, :provisionid_list, OneProvisionHelper.list_to_id_desc do |arg|
+        helper.list_to_id(arg)
+    end
+
+    ########################################################################
+    # Provision Commands
+    ########################################################################
+
+    create_desc = <<-EOT.unindent
+        Provision a new cluster via bare metal provider
+    EOT
+
+    command :create,
+            create_desc,
+            :config,
+            :options => OneProvisionHelper::CREATE_OPTIONS do
+        helper.parse_options(options)
+
+        if options[:cleanup_timeout].nil?
+            timeout = 20
+        else
+            timeout = options[:cleanup_timeout]
+        end
+
+        # Get skip mode
+        if options.key? :skip_provision
+            skip = :all
+        elsif options.key? :skip_config
+            skip = :config
+        else
+            skip = :none
+        end
+
+        rc = helper.create({ :config => args[0], :inputs => options[:inputs] },
+                           (options.key? :cleanup),
+                           timeout,
+                           skip,
+                           options[:provider])
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit(-1)
+        else
+            puts "ID: #{rc}"
+            0
+        end
+    end
+
+    ###
+
+    validate_desc = <<-EOT.unindent
+        Validate configuration file
+    EOT
+
+    command :validate,
+            validate_desc,
+            [:config_file],
+            :options => OneProvisionHelper::DUMP do
+        config = OneProvision::ProvisionConfig.new(args[0])
+        config = config.validate
+
+        puts config.to_yaml if options.key? :dump
+
+        0
+    end
+
+    ###
+
+    provision_list_desc = <<-EOT.unindent
+        List all avaliable provisions
+    EOT
+
+    command :list,
+            provision_list_desc,
+            :options => CLIHelper::OPTIONS + [OpenNebulaHelper::FORMAT] do
+        helper.list_pool(options)
+    end
+
+    ###
+
+    provision_show_desc = <<-EOT.unindent
+        Show provision details
+    EOT
+
+    command :show,
+            provision_show_desc,
+            :provisionid,
+            :options => OpenNebulaHelper::FORMAT do
+        helper.show_resource(args[0], options)
+    end
+
+    ###
+
+    provision_configure_desc = <<-EOT.unindent
+        Run configuration in all provision hosts
+    EOT
+
+    command :configure,
+            provision_configure_desc,
+            :provisionid,
+            :options => [OneProvisionHelper::MODES,
+                         OneProvisionHelper::FORCE] do
+        helper.parse_options(options)
+
+        rc = helper.configure(args[0], options.key?(:force))
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit(-1)
+        else
+            0
+        end
+    end
+
+    ###
+
+    provision_delete_desc = <<-EOT
+        Deletes and unprovisions all the resources
+    EOT
+
+    command :delete,
+            provision_delete_desc,
+            :provisionid,
+            :options => [OneProvisionHelper::MODES,
+                         OneProvisionHelper::THREADS,
+                         OneProvisionHelper::CLEANUP,
+                         OneProvisionHelper::CLEANUP_TIMEOUT] do
+        helper.parse_options(options)
+
+        if options[:cleanup_timeout].nil?
+            timeout = 20
+        else
+            timeout = options[:cleanup_timeout]
+        end
+
+        rc = helper.delete(args[0], (options.key? :cleanup), timeout)
+
+        if OpenNebula.is_error?(rc)
+            STDERR.puts rc.message
+            exit(-1)
+        else
+            0
+        end
+    end
+
+    ########################################################################
+    # Host Commands
+    ########################################################################
+
+    host_delete_desc = <<-EOT.unindent
+        Unprovisions and deletes the given Host
+    EOT
+
+    command [:host, :delete],
+            host_delete_desc,
+            [:range, :hostid_list],
+            :options => [OneProvisionHelper::MODES] do
+        operation =  { :operation => 'delete', :message => 'deleted' }
+
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
+    ###
+
+    host_configure_desc = <<-EOT.unindent
+        Run configuration on the host
+    EOT
+
+    command [:host, :configure],
+            host_configure_desc,
+            [:range, :hostid_list],
+            :options => [OneProvisionHelper::MODES,
+                         OneProvisionHelper::FORCE] do
+        operation = { :operation => 'configure', :message => 'enabled' }
+
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
+    ###
+
+    host_ssh_desc = <<-EOT.unindent
+        Establish SSH conection to the host
+    EOT
+
+    command [:host, :ssh],
+            host_ssh_desc,
+            :hostid,
+            [:command, nil] do
+        operation = { :operation => 'ssh', :message => 'enabled' }
+
+        rc = helper.resources_operation(args, operation, options, 'HOSTS')
+
+        return 0 unless OpenNebula.is_error?(rc)
+
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
+    ###
+
+    host_list_desc = <<-EOT.unindent
+        Lists bare metal Hosts in the pool
+    EOT
+
+    command [:host, :list],
+            host_list_desc,
+            :options => OneProvisionHelper::ONE_OPTIONS +
+                        [OpenNebulaHelper::DESCRIBE] do
+        helper.list_objects('HOSTS', options)
+    end
+
+    ###
+
+    host_top_desc = <<-EOT.unindent
+        Lists bare metal Hosts continuously
+    EOT
+
+    command [:host, :top],
+            host_top_desc,
+            :options => OneProvisionHelper::ONE_OPTIONS do
+        helper.list_objects('HOSTS', options, true)
+    end
+
+    ########################################################################
+    # Resources Commands
+    ########################################################################
+
+    (OneProvision::Provision::RESOURCES +
+     OneProvision::Provision::FULL_CLUSTER -
+        %w[hosts marketplaceapps flowtemplates]).each do |resource|
+        list_desc = <<-EOT
+            List all available #{resource}
+        EOT
+
+        command [resource.chomp('s').to_sym, :list],
+                list_desc,
+                :options => OneProvisionHelper::ONE_OPTIONS +
+                            [OpenNebulaHelper::DESCRIBE] do
+            helper.list_objects(resource.upcase, options)
+        end
+    end
+
+    ###
+
+    (OneProvision::Provision::RESOURCES +
+     OneProvision::Provision::FULL_CLUSTER -
+     %w[hosts marketplaceapps]).each do |resource|
+        delete_desc = <<-EOT
+            Deletes and unprovisions the given #{resource}
+        EOT
+
+        command [resource.chomp('s').to_sym, :delete],
+                delete_desc,
+                [:range, :id_list],
+                :options => [OneProvisionHelper::MODES,
+                             OneProvisionHelper::FORCE] do
+            rc = helper.resources_operation(args,
+                                            {},
+                                            options,
+                                            resource.upcase)
+
+            return 0 if rc[0] == 0
+
+            STDERR.puts rc[1]
+            exit(-1)
+        end
+    end
+end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,13 +22,16 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 
 const int ZonePool::STANDALONE_ZONE_ID = 0;
 
 /* -------------------------------------------------------------------------- */
 
-ZonePool::ZonePool(SqlDB * db, bool is_federation_slave):PoolSQL(db,Zone::table)
+ZonePool::ZonePool(SqlDB * db, bool is_federation_slave)
+    : PoolSQL(db, one_db::zone_table)
 {
     string error_str;
 
@@ -60,10 +63,9 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave):PoolSQL(db,Zone::table)
     if (get_lastOID() == -1)
     {
         int         rc;
-        Template *  tmpl;
 
         // Build the local zone
-        tmpl = new Template;
+        auto tmpl = make_unique<Template>();
         rc = tmpl->parse_str_or_xml(
                 zone_tmpl.str(),
                 error_str);
@@ -73,7 +75,7 @@ ZonePool::ZonePool(SqlDB * db, bool is_federation_slave):PoolSQL(db,Zone::table)
             goto error_bootstrap;
         }
 
-        allocate(tmpl, &rc, error_str);
+        allocate(move(tmpl), &rc, error_str);
 
         if( rc < 0 )
         {
@@ -99,13 +101,13 @@ error_bootstrap:
 /* -------------------------------------------------------------------------- */
 
 int ZonePool::allocate(
-        Template *  zone_template,
+        unique_ptr<Template> zone_template,
         int *       oid,
         string&     error_str)
 {
     Zone * zone;
-    Zone * zone_aux = 0;
 
+    int    db_oid;
     string name;
 
     ostringstream oss;
@@ -119,7 +121,7 @@ int ZonePool::allocate(
         return -1;
     }
 
-    zone = new Zone(-1, zone_template);
+    zone = new Zone(-1, move(zone_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -132,9 +134,9 @@ int ZonePool::allocate(
         goto error_name;
     }
 
-    zone_aux = get(name,false);
+    db_oid = exist(name);
 
-    if( zone_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -144,7 +146,7 @@ int ZonePool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by Zone " << zone_aux->get_oid() << ".";
+    oss << "NAME is already taken by Zone " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -208,9 +210,9 @@ unsigned int ZonePool::get_zone_servers(int zone_id,
 
     ZoneServers::zone_iterator zit;
 
-    Zone * zone = get(zone_id, true);
+    auto zone = get_ro(zone_id);
 
-    if ( zone == 0 )
+    if ( zone == nullptr )
     {
         _serv.clear();
         return 0;
@@ -227,8 +229,6 @@ unsigned int ZonePool::get_zone_servers(int zone_id,
     }
 
     _num_servers = zone->servers_size();
-
-    zone->unlock();
 
     return _num_servers;
 }

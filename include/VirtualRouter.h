@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,8 +22,6 @@
 #include "ObjectCollection.h"
 #include "VirtualMachineTemplate.h"
 #include "AuthRequest.h"
-#include "History.h"
-#include "ActionSet.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -36,12 +34,14 @@ class VirtualRouter : public PoolObjectSQL
 {
 public:
 
+    virtual ~VirtualRouter() = default;
+
     /**
      * Function to print the VirtualRouter object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
     int add_vmid(int vmid)
     {
@@ -61,9 +61,9 @@ public:
     /**
      *  Returns a copy of the VM IDs set
      */
-    set<int> get_vms() const
+    const std::set<int>& get_vms() const
     {
-        return vms.clone();
+        return vms.get_collection();
     }
 
     // ------------------------------------------------------------------------
@@ -72,19 +72,19 @@ public:
     /**
      *  Factory method for VirtualRouter templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
     /**
      *  Returns a copy of the Template
      *    @return A copy of the VirtualMachineTemplate
      */
-    Template * clone_template() const
+    std::unique_ptr<Template> clone_template() const
     {
-        return new Template(obj_template);
-    };
+        return std::make_unique<Template>(obj_template.get());
+    }
 
     Template * get_vm_template() const;
 
@@ -97,7 +97,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int replace_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int replace_template(const std::string& tmpl_str, bool keep_restricted,
+                         std::string& error) override;
 
     /**
      *  Append new attributes to this object's template. Object should be updated
@@ -108,7 +109,8 @@ public:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int append_template(const string& tmpl_str, bool keep_restricted, string& error);
+    int append_template(const std::string& tmpl_str, bool keep_restricted,
+                        std::string& error) override;
 
     /**
      * Set the template ID to instantiate new VMs
@@ -122,7 +124,7 @@ public:
      *
      * @return VM Template ID, or -1 if it was not found
      */
-    int get_template_id();
+    int get_template_id() const;
 
     // ------------------------------------------------------------------------
     // Attach and detach NIC
@@ -135,7 +137,8 @@ public:
      *
      * @return 0 on failure, the NIC to attach to each VM on success
      */
-    VectorAttribute * attach_nic(VirtualMachineTemplate * tmpl, string& error);
+    VectorAttribute * attach_nic(VirtualMachineTemplate * tmpl,
+                                 std::string& error);
 
     /**
      * Deletes the NIC from the virtual router template.
@@ -155,18 +158,10 @@ public:
      *    @param  uid for template owner
      *    @param  ar the AuthRequest object
      *    @param  tmpl the virtual router template
+     *    @param  check_lock for check if the resource is lock or not
      */
-    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl);
-
-    /**
-     * Checks if the given action is supported for Virtual Router VMs
-     * @param action VM action to check
-     * @return true if the action is supported for Virtual Router VMs
-     */
-    static bool is_action_supported(History::VMAction action)
-    {
-        return SUPPORTED_ACTIONS.is_set(action);
-    }
+    static void set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
+                                bool check_lock);
 
 
     // -------------------------------------------------------------------------
@@ -180,15 +175,14 @@ public:
      *    @param nics IP leased to the VirtualRouter
      *    @return 0 on success, -1 otherwise
      */
-    static int shutdown_vms(const set<int>& vms, const RequestAttributes& ra);
+    static int shutdown_vms(const std::set<int>& vms,
+                            const RequestAttributes& ra);
 
 private:
     // -------------------------------------------------------------------------
     // Friends
     // -------------------------------------------------------------------------
     friend class VirtualRouterPool;
-
-    static const ActionSet<History::VMAction> SUPPORTED_ACTIONS;
 
     // *************************************************************************
     // Attributes
@@ -206,18 +200,13 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the VirtualRouter
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(VirtualRouter::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -225,7 +214,7 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str);
 
     // *************************************************************************
     // Constructor
@@ -233,22 +222,14 @@ private:
     VirtualRouter(int id,
                   int uid,
                   int gid,
-                  const string& uname,
-                  const string& gname,
+                  const std::string& uname,
+                  const std::string& gname,
                   int umask,
-                  Template * _template_contents);
-
-    ~VirtualRouter();
+                  std::unique_ptr<Template> _template_contents);
 
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Writes the VirtualRouter in the database.
@@ -256,23 +237,23 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Drops object from the database
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    virtual int drop(SqlDB *db);
+    int drop(SqlDB *db) override;
 
     /**
      *  Writes/updates the VirtualRouter data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string err;
+        std::string err;
         return insert_replace(db, true, err);
     };
 
@@ -284,7 +265,7 @@ private:
      *  Get all network leases for this Virtual Router
      *  @return 0 onsuccess
      */
-    int get_network_leases(string& estr);
+    int get_network_leases(std::string& estr) const;
 
     /**
      *  Releases all network leases taken by this Virtual Router

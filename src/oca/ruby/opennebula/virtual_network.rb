@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 require 'ipaddr'
 
@@ -38,7 +38,9 @@ module OpenNebula
             :release    => "vn.release",
             :rename     => "vn.rename",
             :reserve    => "vn.reserve",
-            :free_ar    => "vn.free_ar"
+            :free_ar    => "vn.free_ar",
+            :lock       => "vn.lock",
+            :unlock     => "vn.unlock"
         }
 
         # Creates a VirtualNetwork description with just its identifier
@@ -60,6 +62,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, VN_METHODS)
+
             super(xml,client)
         end
 
@@ -68,8 +72,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given VirtualNetwork.
-        def info()
-            super(VN_METHODS[:info], 'VNET')
+        def info(decrypt = false)
+            super(VN_METHODS[:info], 'VNET', decrypt)
         end
 
         alias_method :info!, :info
@@ -143,10 +147,10 @@ module OpenNebula
         end
 
         # Removes an Address Range from the VirtualNetwork
-        def rm_ar(ar_id)
+        def rm_ar(ar_id, force = false)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(VN_METHODS[:rm_ar], @pe_id, ar_id.to_i)
+            rc = @client.call(VN_METHODS[:rm_ar], @pe_id, ar_id.to_i, force)
             rc = nil if !OpenNebula.is_error?(rc)
 
             return rc
@@ -248,6 +252,12 @@ module OpenNebula
             end
 
             return @client.call(VN_METHODS[:reserve], @pe_id, rtmpl)
+        end
+
+        def reserve_with_extra(extra)
+            return Error.new('ID not defined') unless @pe_id
+
+            @client.call(VN_METHODS[:reserve], @pe_id, extra)
         end
 
         # Removes an Address Range from the VirtualNetwork

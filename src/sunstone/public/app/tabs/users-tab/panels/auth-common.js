@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,9 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  /*
-    DEPENDENCIES
-   */
+  /* DEPENDENCIES */
 
   var TemplateInfo = require('hbs!./auth/html');
   var ResourceSelect = require('utils/resource-select');
@@ -27,30 +25,24 @@ define(function(require) {
   var Sunstone = require('sunstone');
   var UserCreation = require('tabs/users-tab/utils/user-creation');
 
-  /*
-    TEMPLATES
-   */
- 
+  /* TEMPLATES */
+
   var TemplateTable = require('utils/panel/template-table');
 
-  /*
-    CONSTANTS
-   */
+  /* CONSTANTS */
 
   var RESOURCE = "User";
   var XML_ROOT = "USER";
   var PASSWORD_DIALOG_ID = require('tabs/users-tab/dialogs/password/dialogId');
   var LOGIN_TOKEN_DIALOG_ID = require('tabs/users-tab/dialogs/login-token/dialogId');
+  var TWO_FACTOR_AUTH_DIALOG_ID = require('tabs/users-tab/dialogs/two-factor-auth/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
 
-  /*
-    CONSTRUCTOR
-   */
+  /* CONSTRUCTOR */
 
   function Panel(info) {
     this.title = Locale.tr("Auth");
     this.icon = "fa-key";
-
     this.element = info[XML_ROOT];
     this.userCreation = new UserCreation(this.tabId, {name: false, password: false, group_select: false});
     return this;
@@ -61,9 +53,7 @@ define(function(require) {
 
   return Panel;
 
-  /*
-    FUNCTION DEFINITIONS
-   */
+  /* FUNCTION DEFINITIONS */
 
   function _html() {
 
@@ -105,6 +95,33 @@ define(function(require) {
 
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
     //===
+
+    // Change two factor auth
+    if (that.element.ID == config['user_id']) {
+      $("#manage_two_factor_auth", context).html(Locale.tr("Manage two factor authentication"));
+    } else {
+      if (that.element.TEMPLATE.SUNSTONE && (that.element.TEMPLATE.SUNSTONE.TWO_FACTOR_AUTH_SECRET || (that.element.TEMPLATE.SUNSTONE.WEBAUTHN_CREDENTIALS != undefined && that.element.TEMPLATE.SUNSTONE.WEBAUTHN_CREDENTIALS != "{'cs':[]}"))) {
+        $("#manage_two_factor_auth", context).html(Locale.tr("Disable all authenticators"));
+      } else {
+        $("#manage_two_factor_auth", context).prop("disabled", true);
+        $("#manage_two_factor_auth", context).html(Locale.tr("No"));
+      }
+    }
+    context.off("click", "#manage_two_factor_auth");
+    context.on("click", "#manage_two_factor_auth", function () {
+      var sunstone_setting = that.element.TEMPLATE.SUNSTONE || {};
+      if (that.element.ID != config['user_id'] && (sunstone_setting.TWO_FACTOR_AUTH_SECRET || (sunstone_setting.WEBAUTHN_CREDENTIALS != undefined && sunstone_setting.WEBAUTHN_CREDENTIALS != "{'cs':[]}"))) {
+        Sunstone.runAction(
+          "User.disable_sunstone_two_factor_auth",
+          that.element.ID,
+          { current_sunstone_setting: sunstone_setting, delete_all: true }
+        );
+      } else {
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).setParams({ element: that.element, sunstone_setting: sunstone_setting });
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).reset();
+        Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).show();
+      }
+    });
 
     // View password button
     context.off("click", "#view_password");

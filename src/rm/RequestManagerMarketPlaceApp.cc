@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,22 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerMarketPlaceApp.h"
+#include "Nebula.h"
+#include "MarketPlaceAppPool.h"
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+RequestManagerMarketPlaceApp::RequestManagerMarketPlaceApp(const std::string& method_name,
+    const std::string& help, const std::string& params) :
+    Request(method_name, params, help)
+{
+    Nebula& nd = Nebula::instance();
+    pool       = nd.get_apppool();
+
+    auth_object = PoolObjectSQL::MARKETPLACEAPP;
+    auth_op     = AuthRequest::MANAGE;
+};
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -26,16 +42,14 @@ void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
     bool enable_flag = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     int  rc;
 
-    MarketPlaceApp * app;
-
     if ( basic_authorization(id, att) == false )
     {
         return;
     }
 
-    app = static_cast<MarketPlaceApp *>(pool->get(id, true));
+    auto app = pool->get<MarketPlaceApp>(id);
 
-    if ( app == 0 )
+    if ( app == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -48,13 +62,10 @@ void MarketPlaceAppEnable::request_execute(xmlrpc_c::paramList const& paramList,
     {
         failure_response(INTERNAL, att);
 
-        app->unlock();
         return;
     }
 
-    pool->update(app);
-
-    app->unlock();
+    pool->update(app.get());
 
     success_response(id, att);
 }

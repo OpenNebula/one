@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,8 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -33,7 +35,6 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
     string old_name;
 
     PoolObjectAuth  operms;
-    PoolObjectSQL * object;
 
     if (test_and_set_rename(oid) == false)
     {
@@ -61,35 +62,29 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Set authorization request for non-oneadmin's --------------
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(att.auth_op, operms); // MANAGE OBJECT
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, operms); // MANAGE OBJECT
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            clear_rename(oid);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        clear_rename(oid);
+        return;
     }
 
     // ----------------------- Check name uniqueness ---------------------------
 
-    object = get(new_name, operms.uid, true);
+    int db_id = exist(new_name, operms.uid);
 
-    if ( object != 0 )
+    if ( db_id !=-1  )
     {
         ostringstream oss;
-        int id = object->get_oid();
-
-        object->unlock();
 
         oss << object_name(auth_object) << " cannot be renamed to " << new_name
             << " because it collides with " << object_name(auth_object) << " "
-            << id;
+            << db_id;
 
         att.resp_msg = oss.str();
 
@@ -100,10 +95,21 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     // -------------------------- Update the object ----------------------------
+    if ( auto object = pool->get<PoolObjectSQL>(oid) )
+    {
+        if ( object->set_name(new_name, att.resp_msg) != 0 )
+        {
+            failure_response(ACTION, att);
 
-    object = pool->get(oid, true);
+            clear_rename(oid);
+            return;
+        }
 
-    if ( object == 0 )
+        pool->update(object.get());
+
+        extra_updates(object.get());
+    }
+    else
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -111,20 +117,6 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
         clear_rename(oid);
         return;
     }
-
-    if ( object->set_name(new_name, att.resp_msg) != 0 )
-    {
-        object->unlock();
-
-        failure_response(ACTION, att);
-
-        clear_rename(oid);
-        return;
-    }
-
-    pool->update(object);
-
-    object->unlock();
 
     batch_rename(oid);
 
@@ -140,35 +132,31 @@ void RequestManagerRename::request_execute(xmlrpc_c::paramList const& paramList,
 
 void ClusterRename::batch_rename(int oid)
 {
-    Cluster * cluster = static_cast<ClusterPool *>(pool)->get(oid, true);
+    set<int> hosts;
+    string cluster_name;
 
-    if (cluster == 0)
+    if ( auto cluster = pool->get_ro<Cluster>(oid) )
+    {
+        hosts = cluster->get_host_ids();
+
+        cluster_name = cluster->get_name();
+    }
+    else
     {
         return;
     }
 
-    const set<int> & hosts = cluster->get_host_ids();
+    HostPool* hpool = Nebula::instance().get_hpool();
 
-    string cluster_name    = cluster->get_name();
-
-    cluster->unlock();
-
-    Host *              host;
-    HostPool*           hpool = Nebula::instance().get_hpool();
-
-    for (set<int>::iterator it = hosts.begin(); it != hosts.end(); it++)
+    for (auto hid : hosts)
     {
-        host = hpool->get(*it, true);
-
-        if (host != 0)
+        if (auto host = hpool->get(hid))
         {
             if (host->get_cluster_id() == oid)
             {
                 host->set_cluster(oid, cluster_name);
-                hpool->update(host);
+                hpool->update(host.get());
             }
-
-            host->unlock();
         }
     }
 }
@@ -178,37 +166,31 @@ void ClusterRename::batch_rename(int oid)
 
 void DatastoreRename::batch_rename(int oid)
 {
-    Datastore * datastore = static_cast<DatastorePool*>(pool)->get(oid, true);
+    set<int> images;
+    string image_name;
 
-    if (datastore == 0)
+    if ( auto datastore = pool->get_ro<Datastore>(oid) )
+    {
+        images = datastore->get_image_ids();
+
+        image_name = datastore->get_name();
+    }
+    else
     {
         return;
     }
 
-    const set<int> & images = datastore->get_image_ids();
-
-    set<int>::iterator it;
-
-    string image_name = datastore->get_name();
-
-    datastore->unlock();
-
-    Image *     image;
     ImagePool * ipool = Nebula::instance().get_ipool();
 
-    for (it = images.begin(); it != images.end(); it++)
+    for (auto iid : images)
     {
-        image = ipool->get(*it, true);
-
-        if (image != 0)
+        if (auto image = ipool->get(iid))
         {
             if (image->get_ds_id() == oid)
             {
                 image->set_ds_name(image_name);
-                ipool->update(image);
+                ipool->update(image.get());
             }
-
-            image->unlock();
         }
     }
 }
@@ -218,37 +200,33 @@ void DatastoreRename::batch_rename(int oid)
 
 void HostRename::batch_rename(int oid)
 {
-    Host * host = static_cast<HostPool*>(pool)->get(oid, true);
+    set<int> vms;
+    string host_name;
 
-    if (host == 0)
+    if ( auto host = pool->get_ro<Host>(oid) )
+    {
+        vms = host->get_vm_ids();
+
+        host_name = host->get_name();
+    }
+    else
     {
         return;
     }
 
-    const set<int> & vms = host->get_vm_ids();
-
-    set<int>::iterator it;
-
-    string host_name = host->get_name();
-
-    host->unlock();
-
-    VirtualMachine *     vm;
     VirtualMachinePool * vmpool = Nebula::instance().get_vmpool();
 
-    for (it = vms.begin(); it != vms.end(); it++)
+    for (auto vid : vms)
     {
-        vm = vmpool->get(*it, true);
-
-        if (vm != 0)
+        if (auto vm = vmpool->get(vid))
         {
             if (vm->hasHistory() && vm->get_hid() == oid)
             {
                 vm->set_hostname(host_name);
-                vmpool->update(vm);
-            }
 
-            vm->unlock();
+                vmpool->update_history(vm.get());
+                vmpool->update_search(vm.get());
+            }
         }
     }
 }
@@ -258,37 +236,31 @@ void HostRename::batch_rename(int oid)
 
 void MarketPlaceRename::batch_rename(int oid)
 {
-    MarketPlace * market = static_cast<MarketPlacePool*>(pool)->get(oid, true);
+    std::set<int>   apps;
+    std::string     market_name;
 
-    if (market == 0)
+    if ( auto market = pool->get_ro<MarketPlace>(oid) )
+    {
+        apps = market->get_marketapp_ids();
+
+        market_name = market->get_name();
+    }
+    else
     {
         return;
     }
 
-    const std::set<int> & apps = market->get_marketapp_ids();
-
-    std::set<int>::iterator it;
-
-    std::string market_name = market->get_name();
-
-    market->unlock();
-
-    MarketPlaceApp *     app;
     MarketPlaceAppPool * apppool = Nebula::instance().get_apppool();
 
-    for (it = apps.begin(); it != apps.end(); it++)
+    for (auto app_id : apps)
     {
-        app = apppool->get(*it, true);
-
-        if (app != 0)
+        if (auto app = apppool->get(app_id))
         {
             if (app->get_market_id() == oid)
             {
                 app->set_market_name(market_name);
-                apppool->update(app);
+                apppool->update(app.get());
             }
-
-            app->unlock();
         }
     }
 }

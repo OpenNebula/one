@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -39,6 +39,7 @@ class OpenNebula::LdapAuth
             :user               => nil,
             :password           => nil,
             :base               => nil,
+            :group_base         => nil,
             :auth_method        => :simple,
             :user_field         => 'cn',
             :user_group_field   => 'dn',
@@ -49,7 +50,8 @@ class OpenNebula::LdapAuth
             :mapping_key        => 'GROUP_DN',
             :mapping_default    => 1,
             :attributes         => [ "memberOf" ],
-            :rfc2307bis         => true
+            :rfc2307bis         => true,
+            :group_admin_group_dn => nil
         }.merge(options)
 
         ops={}
@@ -62,8 +64,12 @@ class OpenNebula::LdapAuth
             }
         end
 
-        if !@options[:rfc2307bis]
-            @options[:attributes] << @options[:user_field]
+        # always fetch user_filed to compare whitespace diff
+        @options[:attributes] << @options[:user_field]
+
+        # fetch the user group field only if we need that
+        if @options[:group] or !@options[:rfc2307bis]
+            @options[:attributes] << @options[:user_group_field]
         end
 
         ops[:host]=@options[:host] if @options[:host]
@@ -126,31 +132,31 @@ class OpenNebula::LdapAuth
     end
 
     def find_user(name)
-        begin
-            filter = Net::LDAP::Filter.eq(@options[:user_field], escape(name))
+        filter = Net::LDAP::Filter.equals(@options[:user_field], name)
 
-            result = @ldap.search(
-                :base       => @options[:base],
-                :attributes => @options[:attributes],
-                :filter     => filter
-            )
+        result = @ldap.search(
+            :base       => @options[:base],
+            :attributes => @options[:attributes],
+            :filter     => filter
+        )
+
+        if result && result.first
+            @user = result.first
+
+            [@user.dn,
+             @user[@options[:user_field]].first,
+             @user[@options[:user_group_field]]]
+        else
+            result=@ldap.search(:base => name)
 
             if result && result.first
                 @user = result.first
-                [@user.dn, @user[@options[:user_group_field]]]
+                [name,
+                 @user[@options[:user_field]].first,
+                 @user[@options[:user_group_field]]]
             else
-                result=@ldap.search(:base => name)
-
-                if result && result.first
-                    @user = result.first
-                    [name, @user[@options[:user_group_field]]]
-                else
-                    [nil, nil]
-                end
+                [nil, nil, nil]
             end
-        rescue Exception => e
-            STDERR.puts e.message
-            [nil, nil]
         end
     end
 
@@ -184,24 +190,30 @@ class OpenNebula::LdapAuth
         end
     end
 
-    def get_groups
-        groups = []
+    def in_hash_ignore_case?(hash, key)
+        return hash.keys.find {|k| key.downcase == k.downcase}
+    end
 
+    def get_groups
         if @options[:rfc2307bis]
-            [@user['memberOf']].flatten.each do |group|
-                if @mapping[group]
-                    groups << @mapping[group]
-                end
-            end
+            ldap_groups = [@user['memberOf']].flatten
         else
-            filter = "(#{@options[:group_field]}=#{@user[@options[:user_field]].first})"
-            @ldap.search(
-                :base       => @options[:base],
+            group_base = @options[:group_base] ? @options[:group_base] : @options[:base]
+            filter = Net::LDAP::Filter.equals(@options[:group_field], @user[@options[:user_group_field]].first)
+            ldap_groups = @ldap.search(
+                :base       => group_base,
                 :attributes => [ "dn" ],
                 :filter     => filter
-            ) do |entry|
-                if @mapping[entry.dn]
-                    groups << @mapping[entry.dn]
+            ).map! { |entry| entry.dn }
+        end
+
+        groups = []
+        ldap_groups.each do |group|
+            if (g = in_hash_ignore_case?(@mapping, group))
+                if ldap_groups.include? @options[:group_admin_group_dn]
+                    groups << "*#{@mapping[g]}"
+                else
+                    groups << @mapping[g]
                 end
             end
         end
@@ -209,23 +221,69 @@ class OpenNebula::LdapAuth
         groups.delete(false)
         groups.compact.uniq
     end
+end
 
-private
 
-    # The escapes code has been copied from <net-ldap>/lib/net/ldap/filter.rb
-    FILTER_ESCAPES = {
-      "\0" => '00',
-      '*'  => '2A',
-      '('  => '28',
-      ')'  => '29',
-      '\\' => '5C',
-      '?'  => '3F',
-      '='  => '3D'
-    }
-
-    FILTER_ESCAPE_RE = Regexp.new("[" + FILTER_ESCAPES.keys.map { |e| Regexp.escape(e) }.join + "]")
-
-    def escape(string)
-      string.gsub(FILTER_ESCAPE_RE) { |char| "\\" + FILTER_ESCAPES[char] }
+# ---------------------------------------------------------------------------- #
+# Helper functions to parse ldap_auth.conf server entries
+# ---------------------------------------------------------------------------- #
+def to_array(name)
+    if name.is_a? Array
+        name
+    elsif name.is_a? Hash
+        if name.keys.size == 1
+            [name.values].flatten
+        else
+            STDERR.puts "invalid group configuration: #{name}"
+            exit(-1)
+        end
+    else
+        [name]
     end
+end
+
+def get_server_order(opts, user)
+    order = []
+
+    if opts[:order] && opts[:match_user_regex]
+        STDERR.puts ":order and :match_user_regex are mutually exclusive"
+        exit(-1)
+    end
+
+    if opts[:order]
+        if opts[:order].class != Array
+            STDERR.puts ":order value malformed, must be an Array"
+            exit(-1)
+        end
+
+        opts[:order].each do |name|
+            order << to_array(name)
+        end
+
+    elsif opts[:match_user_regex]
+        if opts[:match_user_regex].class != Hash || opts[:match_user_regex].empty?
+            STDERR.puts ":match_user_regex value malformed, must be an Hash"
+            exit(-1)
+        end
+
+        opts[:match_user_regex].each do |regex, server|
+            if m = user.match(/#{regex}/i)
+
+                # update user with the capture
+                user = m[1] if m[1]
+
+                order << to_array(server)
+            end
+        end
+
+        if order.empty?
+            STDERR.puts "User #{user} does not mach any regex"
+        end
+
+    else
+        STDERR.puts "missing either :order or :match_user_regex in configuration"
+        exit(-1)
+    end
+
+    return [order, user]
 end

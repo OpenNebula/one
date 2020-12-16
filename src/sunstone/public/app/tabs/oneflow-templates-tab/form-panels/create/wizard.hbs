@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -41,17 +41,21 @@
         <table class="service_networks policies_table dataTable">
           <thead>
             <tr>
-              <th style="width:30%">{{tr "Name"}}</th>
-              <th style="width:70%">{{tr "Description"}}</th>
-              <th style="width:3%"></th>
+              <th width="5%">{{tr "Mandatory"}}</th>
+              <th width="22%">{{tr "Name"}}</th>
+              <th width="23%">{{tr "Description"}}</th>
+              <th width="10%">{{tr "Type"}}</th>
+              <th id="service_network_id_label" width="15%">{{tr "Network"}}</th>
+              <th width="20%">{{tr "Extra"}}</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
           </tbody>
           <tfoot>
             <tr>
-              <td colspan="3">
-                <a type="button" class="add_service_network button small small-12 secondary radius"><i class="fa fa-lg fa-plus-circle"></i> {{tr "Network"}}</a>
+              <td colspan="6">
+                <a type="button" class="add_service_network button small small-12 secondary radius"><i class="fas fa-lg fa-plus-circle"></i> {{tr "Network"}}</a>
               </td>
             </tr>
           </tfoot>
@@ -60,7 +64,11 @@
     </div>
     {{/advancedSection}}
   </div>
-  <br>
+  <div id="custom_attr_values">
+    {{#advancedSection (tr "Custom Attributes Values Configuration") }}
+      {{{userInputsHTML}}}
+    {{/advancedSection}}
+  </div>
   {{#advancedSection (tr "Advanced service parameters") }}
   <div class="row">
     <div class="service_template_param st_man medium-6 columns">
@@ -99,7 +107,7 @@
       <h5>
         {{tr "Roles"}}
         <a class="button small radius" id="tf_btn_roles" style="vertical-align: text-top; margin-left: 1em;">
-          <i class="fa fa-lg fa-plus-circle"></i>
+          <i class="fas fa-lg fa-plus-circle"></i>
         </a>
       </h5>
     </div>

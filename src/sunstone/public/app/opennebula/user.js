@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -99,6 +99,22 @@ define(function(require) {
     "append": function(params) {
       var action_obj = {"template_raw" : params.data.extra_param, append : true};
       OpenNebulaAction.simple_action(params, RESOURCE, "update", action_obj);
+    },
+    "enable_sunstone_two_factor_auth": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "enable_two_factor_auth", action_obj);
+    },
+    "disable_sunstone_two_factor_auth": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "disable_two_factor_auth", action_obj);
+    },
+    "enable_sunstone_security_key": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "enable_security_key", action_obj);
+    },
+    "disable_sunstone_security_key": function(params) {
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.simple_action(params, RESOURCE, "disable_security_key", action_obj);
     },
     "accounting" : function(params) {
       OpenNebulaAction.monitor(params, RESOURCE, false);

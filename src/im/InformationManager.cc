@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,106 +15,77 @@
 /* -------------------------------------------------------------------------- */
 
 #include "InformationManager.h"
-#include "Cluster.h"
+#include "HostPool.h"
+#include "VirtualMachinePool.h"
 #include "Nebula.h"
+#include "LifeCycleManager.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <utime.h>
-
-
-const time_t InformationManager::monitor_expire = 300;
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * im_action_loop(void *arg)
-{
-    InformationManager *  im;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    NebulaLog::log("InM",Log::INFO,"Information Manager started.");
-
-    im = static_cast<InformationManager *>(arg);
-
-    im->am.loop(im->timer_period);
-
-    NebulaLog::log("InM",Log::INFO,"Information Manager stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int InformationManager::load_mads(int uid)
-{
-    InformationManagerDriver *  im_mad;
-    unsigned int                i;
-    ostringstream               oss;
-    const VectorAttribute *     vattr;
-    int                         rc;
-
-    NebulaLog::log("InM",Log::INFO,"Loading Information Manager drivers.");
-
-    for(i=0;i<mad_conf.size();i++)
-    {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[i]);
-
-        oss.str("");
-        oss << "\tLoading driver: " << vattr->vector_value("NAME");
-
-        NebulaLog::log("InM",Log::INFO,oss);
-
-        im_mad = new InformationManagerDriver(0,vattr->value(),false,&mtpool);
-
-        rc = add(im_mad);
-
-        if ( rc == 0 )
-        {
-            oss.str("");
-            oss << "\tDriver " << vattr->vector_value("NAME") << " loaded";
-
-            NebulaLog::log("InM",Log::INFO,oss);
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-    return 0;
-}
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int InformationManager::start()
 {
-    int               rc;
-    pthread_attr_t    pattr;
+    std::string error;
 
-    rc = MadManager::start();
+    using namespace std::placeholders; // for _1
+
+    NebulaLog::info("InM", "Starting Information Manager...");
+
+    register_action(InformationManagerMessages::UNDEFINED,
+            &InformationManager::_undefined);
+
+    register_action(InformationManagerMessages::HOST_STATE,
+            bind(&InformationManager::_host_state, this, _1));
+
+    register_action(InformationManagerMessages::HOST_SYSTEM,
+            bind(&InformationManager::_host_system, this, _1));
+
+    register_action(InformationManagerMessages::VM_STATE,
+            bind(&InformationManager::_vm_state, this, _1));
+
+    int rc = DriverManager::start(error);
 
     if ( rc != 0 )
     {
+        NebulaLog::error("InM", "Error starting Information Manager: " + error);
         return -1;
     }
 
-    NebulaLog::log("InM",Log::INFO,"Starting Information Manager...");
+    auto rftm = Nebula::instance().get_raftm();
+    raft_status(rftm->get_state());
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    rc = pthread_create(&im_thread,&pattr,im_action_loop,(void *) this);
-
-    return rc;
+    return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::stop_monitor(int hid, const string& name, const string& im_mad)
+{
+    auto * imd = get_driver("monitord");
+
+    if (!imd)
+    {
+        NebulaLog::error("InM", "Could not find information driver 'monitord'");
+
+        return;
+    }
+
+    Template data;
+    data.add("NAME", name);
+    data.add("IM_MAD", im_mad);
+    string tmp;
+
+    im_msg_t msg;
+
+    msg.type(InformationManagerMessages::STOP_MONITOR);
+    msg.oid(hid);
+    msg.payload(data.to_xml(tmp));
+
+    imd->write(msg);
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -122,32 +93,25 @@ int InformationManager::start()
 int InformationManager::start_monitor(Host * host, bool update_remotes)
 {
     ostringstream oss;
-    string dsloc;
-
-    const InformationManagerDriver * imd;
 
     oss << "Monitoring host "<< host->get_name()<< " ("<< host->get_oid()<< ")";
     NebulaLog::log("InM",Log::DEBUG,oss);
 
-    imd = get(host->get_im_mad());
+    auto imd = get_driver("monitord");
 
-    if (imd == 0)
+    if (!imd)
     {
-        oss.str("");
-
-        oss << "Could not find information driver " << host->get_im_mad();
-        NebulaLog::log("InM",Log::ERROR,oss);
-
-        host->set_error();
-
+        host->error("Cannot find driver: 'monitord'");
         return -1;
     }
 
-    host->set_monitoring_state();
+    im_msg_t msg;
 
-    Nebula::instance().get_ds_location(dsloc);
+    msg.type(InformationManagerMessages::START_MONITOR);
+    msg.oid(host->get_oid());
+    msg.payload(to_string(update_remotes));
 
-    imd->monitor(host->get_oid(), host->get_name(), dsloc, update_remotes);
+    imd->write(msg);
 
     return 0;
 }
@@ -155,94 +119,439 @@ int InformationManager::start_monitor(Host * host, bool update_remotes)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void InformationManager::timer_action(const ActionRequest& ar)
+void InformationManager::update_host(Host *host)
 {
-    static int mark = 0;
+    auto imd = get_driver("monitord");
 
-    int    rc;
-    time_t now;
-
-    set<int>           discovered_hosts;
-    set<int>::iterator it;
-
-
-    Host * host;
-
-    time_t monitor_length;
-    time_t target_time;
-
-    mark = mark + timer_period;
-
-    if ( mark >= 600 )
-    {
-        NebulaLog::log("InM",Log::INFO,"--Mark--");
-        mark = 0;
-    }
-
-    Nebula& nd          = Nebula::instance();
-    RaftManager * raftm = nd.get_raftm();
-
-    if ( !raftm->is_leader() && !raftm->is_solo() )
+    if (!imd)
     {
         return;
     }
 
-    hpool->clean_expired_monitoring();
+    string tmp;
+    im_msg_t msg;
 
-    now = time(0);
+    msg.type(InformationManagerMessages::UPDATE_HOST);
+    msg.oid(host->get_oid());
+    msg.payload(host->to_xml(tmp));
 
-    target_time = now - monitor_period;
+    imd->write(msg);
+}
 
-    rc = hpool->discover(&discovered_hosts, host_limit, target_time);
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-    if ((rc != 0) || (discovered_hosts.empty() == true))
+void InformationManager::delete_host(int hid)
+{
+    auto imd = get_driver("monitord");
+
+    if (!imd)
     {
         return;
     }
 
-    for( it=discovered_hosts.begin() ; it!=discovered_hosts.end() ; ++it )
-    {
-        host = hpool->get(*it,true);
+    im_msg_t msg;
 
-        if (host == 0)
+    msg.type(InformationManagerMessages::DEL_HOST);
+    msg.oid(hid);
+
+    imd->write(msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::raft_status(RaftManager::State state)
+{
+    auto imd = get_driver("monitord");
+
+    if (!imd)
+    {
+        NebulaLog::error("InM", "Could not find information driver 'monitord'");
+
+        return;
+    }
+
+    if (state == RaftManager::SOLO || state == RaftManager::LEADER)
+    {
+        // Send host pool to Monitor Daemon
+        string xml_hosts;
+
+        hpool->dump(xml_hosts, "", 0, -1, false);
+
+        im_msg_t msg;
+
+        msg.type(InformationManagerMessages::HOST_LIST);
+        msg.payload(xml_hosts);
+
+        imd->write(msg);
+    }
+
+    im_msg_t msg;
+
+    msg.type(InformationManagerMessages::RAFT_STATUS);
+    msg.payload(RaftManager::state_to_str(state));
+
+    imd->write(msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::_undefined(unique_ptr<im_msg_t> msg)
+{
+    NebulaLog::warn("InM", "Received undefined message: " + msg->payload() +
+            "from host: " + to_string(msg->oid()));
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+/* HOST_STATE - <state_str> <optional_desciption>                             */
+
+void InformationManager::_host_state(unique_ptr<im_msg_t> msg)
+{
+    NebulaLog::ddebug("InM", "HOST_STATE update from host: " +
+        to_string(msg->oid()) + ". Host information: " + msg->payload());
+
+    string str_state;
+    string err_message;
+
+    istringstream is(msg->payload());
+
+    is >> str_state >> ws;
+
+    if (is.good())
+    {
+        getline(is, err_message);
+    }
+
+    Host::HostState new_state;
+
+    if (Host::str_to_state(str_state, new_state) != 0)
+    {
+        NebulaLog::warn("InM", "Unable to decode host state: " + str_state);
+        return;
+    }
+
+    auto host = hpool->get(msg->oid());
+
+    if (host == nullptr)
+    {
+        return;
+    }
+
+    if (host->get_state() == Host::OFFLINE) // Should not receive any info
+    {
+        return;
+    }
+
+    if (host->get_state() != new_state)
+    {
+        if ( new_state == Host::ERROR )
+        {
+            host->error(err_message);
+
+            LifeCycleManager* lcm = Nebula::instance().get_lcm();
+
+            for (const auto& vmid : host->get_vm_ids())
+            {
+                lcm->trigger_monitor_done(vmid);
+            }
+        }
+        else
+        {
+            host->set_state(new_state);
+        }
+
+        hpool->update(host.get());
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void InformationManager::_host_system(unique_ptr<im_msg_t> msg)
+{
+    NebulaLog::ddebug("InM", "HOST_SYSTEM update from host: " +
+        to_string(msg->oid()) + ". Host information: " + msg->payload());
+
+    char *   error_msg;
+    Template tmpl;
+
+    int rc = tmpl.parse(msg->payload(), &error_msg);
+
+    if (rc != 0)
+    {
+        ostringstream oss;
+        oss << "Error parsing monitoring template for host " << msg->oid()
+            << "\nMessage: " << msg->payload()
+            << "Error: " << error_msg;
+        NebulaLog::error("InM", oss.str());
+
+        free(error_msg);
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+
+    auto host = hpool->get(msg->oid());
+
+    if (host == nullptr)
+    {
+        return;
+    }
+
+    if ( host->get_state() == Host::OFFLINE ) //Should not receive any info
+    {
+        return;
+    }
+
+    // -------------------------------------------------------------------------
+
+    host->update_info(tmpl);
+
+    hpool->update(host.get());
+
+    NebulaLog::debug("InM", "Host " + host->get_name() + " (" +
+         to_string(host->get_oid()) + ") successfully monitored.");
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void test_and_trigger(const string& state_str, VirtualMachine * vm)
+{
+    auto state = vm->get_state();
+    auto lcm_state = vm->get_lcm_state();
+    auto lcm = Nebula::instance().get_lcm();
+
+    if (state_str == "RUNNING")
+    {
+        if (state == VirtualMachine::POWEROFF ||
+            state == VirtualMachine::SUSPENDED ||
+            (state == VirtualMachine::ACTIVE &&
+             (lcm_state == VirtualMachine::UNKNOWN ||
+              lcm_state == VirtualMachine::BOOT ||
+              lcm_state == VirtualMachine::BOOT_POWEROFF ||
+              lcm_state == VirtualMachine::BOOT_UNKNOWN  ||
+              lcm_state == VirtualMachine::BOOT_SUSPENDED ||
+              lcm_state == VirtualMachine::BOOT_STOPPED ||
+              lcm_state == VirtualMachine::BOOT_UNDEPLOY ||
+              lcm_state == VirtualMachine::BOOT_MIGRATE ||
+              lcm_state == VirtualMachine::BOOT_MIGRATE_FAILURE ||
+              lcm_state == VirtualMachine::BOOT_STOPPED_FAILURE ||
+              lcm_state == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
+              lcm_state == VirtualMachine::BOOT_FAILURE)))
+        {
+            lcm->trigger_monitor_poweron(vm->get_oid());
+            return;
+        }
+    }
+    else if (state_str == "FAILURE")
+    {
+        if (state == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
+        {
+            lcm->trigger_monitor_done(vm->get_oid());
+
+            vm->log("VMM", Log::INFO,
+                    "VM running but monitor state is ERROR.");
+
+            return;
+        }
+    }
+    else if (state_str == "SUSPENDED")
+    {
+        if (state == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN))
+        {
+            lcm->trigger_monitor_suspend(vm->get_oid());
+
+            vm->log("VMM", Log::INFO,
+                    "VM running but monitor state is PAUSED.");
+
+            return;
+        }
+    }
+    else if (state_str == "POWEROFF")
+    {
+        if (state == VirtualMachine::ACTIVE &&
+            (lcm_state == VirtualMachine::RUNNING ||
+             lcm_state == VirtualMachine::UNKNOWN ||
+             lcm_state == VirtualMachine::SHUTDOWN ||
+             lcm_state == VirtualMachine::SHUTDOWN_POWEROFF ||
+             lcm_state == VirtualMachine::SHUTDOWN_UNDEPLOY))
+        {
+            lcm->trigger_monitor_poweroff(vm->get_oid());
+            return;
+        }
+    }
+}
+
+
+void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
+{
+    LifeCycleManager* lcm = Nebula::instance().get_lcm();
+
+    char *   error_msg;
+    Template tmpl;
+
+    int rc = tmpl.parse(msg->payload(), &error_msg);
+
+    if (rc != 0)
+    {
+        NebulaLog::error("InM", string("Error parsing VM_STATE: ") + error_msg);
+        NebulaLog::error("InM", "Received message was: " + msg->payload());
+
+        free(error_msg);
+
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Proces the template & VM state from the monitoring info                */
+    /* ---------------------------------------------------------------------- */
+    int id;
+
+    string deploy_id;
+    string state_str;
+
+    vector<VectorAttribute*> vms;
+    tmpl.get("VM", vms);
+
+    set<int> hv_ids;
+
+    for (const auto& vm_tmpl : vms)
+    {
+        if (vm_tmpl->vector_value("ID", id) != 0)
+        {
+            id = -1;
+        }
+
+        vm_tmpl->vector_value("DEPLOY_ID", deploy_id);
+        vm_tmpl->vector_value("STATE", state_str);
+
+        if (id < 0)
+        {
+            // Check wild VMs
+            id = vmpool->get_vmid(deploy_id);
+
+            if (id < 0)
+            {
+                // Not imported wild, ignore VM state
+                continue;
+            }
+        }
+
+        hv_ids.insert(id);
+
+        NebulaLog::debug("InM", "VM_STATE update from host: " +
+            to_string(msg->oid()) + ". VM id: " + to_string(id) + ", state: " +
+            state_str);
+
+        auto vm = vmpool->get(id);
+
+        if (vm == nullptr)
+        {
+            NebulaLog::warn("InM", "Unable to find VM, id: " + to_string(id));
+            continue;
+        }
+
+        if (!vm->hasHistory() || vm->get_hid() != msg->oid())
+        {
+            //VM is not running in this host anymore, ignore
+            continue;
+        }
+
+        if (vm->get_deploy_id() != deploy_id)
+        {
+            vm->set_deploy_id(deploy_id);
+            vmpool->update(vm.get());
+        }
+
+        /* ------------------------------------------------------------------ */
+        /* Apply state changes                                                */
+        /* ------------------------------------------------------------------ */
+        test_and_trigger(state_str, vm.get());
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Process sync state messages for missing VMs and Zombies                */
+    /* ---------------------------------------------------------------------- */
+    bool   sync_state    = false;
+    string missing_state = "POWEROFF";
+
+    if (!(tmpl.get("SYNC_STATE", sync_state) && sync_state))
+    {
+        return;
+    }
+
+    if (!tmpl.get("MISSING_STATE", missing_state))
+    {
+        return;
+    }
+
+    auto host = hpool->get(msg->oid());
+
+    if (host == nullptr)
+    {
+        return;
+    }
+
+    const set<int>& host_ids = host->get_vm_ids();
+    set<int> missing;
+    set<int> zombies;
+
+    set_difference(host_ids.begin(), host_ids.end(), hv_ids.begin(),
+            hv_ids.end(), inserter(missing, missing.begin()));
+
+    set_difference(hv_ids.begin(), hv_ids.end(), host_ids.begin(),
+            host_ids.end(), inserter(zombies, zombies.begin()));
+
+    host->update_zombies(zombies);
+
+    host.reset();
+
+    for (auto& it : missing)
+    {
+        auto vm = vmpool->get(it);
+
+        if (vm == nullptr)
         {
             continue;
         }
 
-        monitor_length = now - host->get_last_monitored();
-
-        switch (host->get_state())
+        if (!vm->hasHistory() || (vm->get_hid() != msg->oid()))
         {
-            // Not received an update in the monitor period.
-            case Host::INIT:
-            case Host::MONITORED:
-            case Host::ERROR:
-            case Host::DISABLED:
-                start_monitor(host, (host->get_last_monitored() == 0));
-                break;
-
-            // Update last_mon_time to rotate HostPool::discover output. Update
-            // monitoring values with 0s.
-            case Host::OFFLINE:
-                host->touch(true);
-                hpool->update_monitoring(host);
-                break;
-
-            // Host is being monitored for more than monitor_expire secs.
-            case Host::MONITORING_DISABLED:
-            case Host::MONITORING_INIT:
-            case Host::MONITORING_ERROR:
-            case Host::MONITORING_MONITORED:
-                if (monitor_length >= monitor_expire )
-                {
-                    start_monitor(host, (host->get_last_monitored() == 0));
-                }
-                break;
+            continue;
         }
 
-        hpool->update(host);
+        if (vm->get_state() != VirtualMachine::ACTIVE || (
+             vm->get_lcm_state() != VirtualMachine::UNKNOWN &&
+             vm->get_lcm_state() != VirtualMachine::RUNNING &&
+             vm->get_lcm_state() != VirtualMachine::SHUTDOWN &&
+             vm->get_lcm_state() != VirtualMachine::SHUTDOWN_POWEROFF &&
+             vm->get_lcm_state() != VirtualMachine::SHUTDOWN_UNDEPLOY))
+        {
+            continue;
+        }
 
-        host->unlock();
+        NebulaLog::debug("InM", "VM_STATE update from host: " +
+            to_string(msg->oid()) + ". VM id: " + to_string(vm->get_oid()) +
+            ", state: " + missing_state);
+
+        if (missing_state == "UNKNOWN")
+        {
+            lcm->trigger_monitor_done(vm->get_oid());
+        }
+        else
+        {
+            lcm->trigger_monitor_poweroff(vm->get_oid());
+        }
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

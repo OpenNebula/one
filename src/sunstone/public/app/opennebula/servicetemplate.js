@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -100,8 +100,9 @@ define(function(require) {
       OpenNebulaAction.simple_action(params, RESOURCE, "rename", action_obj, PATH);
     },
     "clone" : function(params) {
-      var name = params.data.extra_param ? params.data.extra_param : "";
-      var action_obj = {"name" : name};
+      var name = params.data.extra_param ? params.data.extra_param.name : "";
+      var mode = params.data.extra_param ? params.data.extra_param.mode : "none";
+      var action_obj = {"name" : name, "recursive": mode};
       OpenNebulaAction.simple_action(params, RESOURCE, "clone", action_obj, PATH);
     },
     "getName": function(id){

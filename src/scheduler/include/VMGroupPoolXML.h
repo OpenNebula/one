@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2020, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    int get_suitable_nodes(std::vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         return get_nodes("/VM_GROUP_POOL/VM_GROUP", content);
     };

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,27 +17,36 @@
 #include "PoolObjectSQL.h"
 #include "PoolObjectAuth.h"
 #include "NebulaUtil.h"
+#include "SSLUtil.h"
 #include "Nebula.h"
 #include "Clusterable.h"
+#include "ClusterableSingle.h"
+
+using namespace std;
 
 const string PoolObjectSQL::INVALID_NAME_CHARS = "&|:\\\";/'#{}$<>";
 
 const int PoolObjectSQL::LOCK_DB_EXPIRATION = 120;
+
+const long int PoolObjectSQL::LockableObject = PoolObjectSQL::ObjectType::VM
+                                | PoolObjectSQL::ObjectType::TEMPLATE
+                                | PoolObjectSQL::ObjectType::IMAGE
+                                | PoolObjectSQL::ObjectType::MARKETPLACEAPP
+                                | PoolObjectSQL::ObjectType::NET
+                                | PoolObjectSQL::ObjectType::VROUTER
+                                | PoolObjectSQL::ObjectType::VMGROUP
+                                | PoolObjectSQL::ObjectType::VNTEMPLATE
+                                | PoolObjectSQL::ObjectType::DOCUMENT
+                                | PoolObjectSQL::ObjectType::HOOK;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& PoolObjectSQL::to_xml64(string &xml64)
 {
-    string *str64;
-
     to_xml(xml64);
 
-    str64 = one_util::base64_encode(xml64);
-
-    xml64 = *str64;
-
-    delete str64;
+    ssl_util::base64_encode(xml64, xml64);
 
     return xml64;
 }
@@ -74,6 +83,84 @@ int PoolObjectSQL::select(SqlDB *db)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int PoolObjectSQL::select_oid(SqlDB *db, const char * _table,
+        const string& _name, int _uid)
+{
+    char * sql_name = db->escape_str(_name);
+
+    if ( sql_name == 0 )
+    {
+        return -1;
+    }
+
+    ostringstream oss;
+
+    oss << "SELECT oid FROM " << _table << " WHERE ";
+
+    db->add_binary(oss);
+
+    oss << "name = '" << sql_name << "'";
+
+    if ( _uid != -1 )
+    {
+        oss << " AND uid = " << _uid;
+    }
+
+    int bd_oid = -1;
+
+    single_cb<int> oid_cb;
+
+    oid_cb.set_callback(&bd_oid);
+
+    int rc = db->exec_rd(oss, &oid_cb);
+
+    oid_cb.unset_callback();
+
+    db->free_str(sql_name);
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return bd_oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int PoolObjectSQL::exist(SqlDB *db, const char * _table, int _oid)
+{
+    if ( _oid < 0 )
+    {
+        return -1;
+    }
+
+    ostringstream oss;
+
+    oss << "SELECT oid FROM " << _table << " WHERE oid = '" << _oid  << "'";
+
+    int bd_oid = -1;
+
+    single_cb<int> oid_cb;
+
+    oid_cb.set_callback(&bd_oid);
+
+    int rc = db->exec_rd(oss, &oid_cb);
+
+    oid_cb.unset_callback();
+
+    if (rc != 0)
+    {
+        return -1;
+    }
+
+    return bd_oid;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
 {
     ostringstream oss;
@@ -81,7 +168,7 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     int rc;
     char * sql_name;
 
-    sql_name = db->escape_str(_name.c_str());
+    sql_name = db->escape_str(_name);
 
     if ( sql_name == 0 )
     {
@@ -91,7 +178,11 @@ int PoolObjectSQL::select(SqlDB *db, const string& _name, int _uid)
     set_callback(
             static_cast<Callbackable::Callback>(&PoolObjectSQL::select_cb));
 
-    oss << "SELECT body FROM " << table << " WHERE name = '" << sql_name << "'";
+    oss << "SELECT body FROM " << table << " WHERE ";
+
+    db->add_binary(oss);
+
+    oss << "name = '" << sql_name << "'";
 
     if ( _uid != -1 )
     {
@@ -126,11 +217,6 @@ int PoolObjectSQL::drop(SqlDB *db)
     oss << "DELETE FROM " << table << " WHERE oid=" << oid;
 
     rc = db->exec_wr(oss);
-
-    if ( rc == 0 )
-    {
-        set_valid(false);
-    }
 
     return rc;
 }
@@ -174,10 +260,10 @@ int PoolObjectSQL::replace_template(
 {
     string ra;
 
-    Template * old_tmpl = 0;
-    Template * new_tmpl = get_new_template();
+    unique_ptr<Template> old_tmpl = 0;
+    unique_ptr<Template> new_tmpl = get_new_template();
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -185,51 +271,45 @@ int PoolObjectSQL::replace_template(
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
-    if (obj_template != 0)
+    if (obj_template)
     {
-        if ( keep_restricted &&  new_tmpl->check_restricted(ra, obj_template) )
+        if ( keep_restricted &&
+             new_tmpl->check_restricted(ra, obj_template.get()) )
         {
             error = "Tried to change restricted attribute: " + ra;
 
-            delete new_tmpl;
             return -1;
         }
 
-        old_tmpl = new Template(*obj_template);
+        old_tmpl = std::make_unique<Template>(*obj_template);
     }
     else if ( keep_restricted && new_tmpl->check_restricted(ra) )
     {
         error = "Tried to set restricted attribute: " + ra;
 
-        delete new_tmpl;
         return -1;
     }
 
-    delete obj_template;
-
-    obj_template = new_tmpl;
+    obj_template = move(new_tmpl);
 
     if (post_update_template(error) == -1)
     {
-        delete obj_template;
-
-        if (old_tmpl != 0)
+        if (old_tmpl)
         {
-            obj_template = old_tmpl;
+            obj_template = move(old_tmpl);
         }
         else
         {
-            obj_template = 0;
+            obj_template = nullptr;
         }
 
         return -1;
     }
 
-    delete old_tmpl;
+    encrypt();
 
     return 0;
 }
@@ -240,11 +320,11 @@ int PoolObjectSQL::replace_template(
 int PoolObjectSQL::append_template(
         const string& tmpl_str, bool keep_restricted, string& error)
 {
-    Template * old_tmpl = 0;
-    Template * new_tmpl = get_new_template();
+    unique_ptr<Template> old_tmpl;
+    unique_ptr<Template> new_tmpl = get_new_template();
     string rname;
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -252,50 +332,44 @@ int PoolObjectSQL::append_template(
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
-    if ( obj_template != 0 )
+    if ( obj_template )
     {
-        if (keep_restricted && new_tmpl->check_restricted(rname, obj_template))
+        if (keep_restricted &&
+            new_tmpl->check_restricted(rname, obj_template.get()))
         {
             error ="User Template includes a restricted attribute " + rname;
-            delete new_tmpl;
             return -1;
         }
-        obj_template->merge(new_tmpl);
-
-        delete new_tmpl;
+        obj_template->merge(new_tmpl.get());
     }
     else
     {
         if (keep_restricted && new_tmpl->check_restricted(rname))
         {
             error ="User Template includes a restricted attribute " + rname;
-            delete new_tmpl;
             return -1;
         }
-        obj_template = new_tmpl;
+        obj_template = move(new_tmpl);
     }
 
     if (post_update_template(error) == -1)
     {
-        delete obj_template;
-
-        if (old_tmpl != 0)
+        if (old_tmpl)
         {
-            obj_template = old_tmpl;
+            obj_template = move(old_tmpl);
         }
         else
         {
-            obj_template = 0;
+            obj_template = nullptr;
         }
 
         return -1;
     }
 
-    delete old_tmpl;
+    encrypt();
 
     return 0;
 }
@@ -369,9 +443,11 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     auth.other_m = other_m;
     auth.other_a = other_a;
 
+    auth.locked = static_cast<int>(locked);
+
     Clusterable* cl = dynamic_cast<Clusterable*>(this);
 
-    if(cl != 0)
+    if (cl != 0)
     {
         auth.cids = cl->get_cluster_ids();
     }
@@ -379,7 +455,7 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
     {
         ClusterableSingle* cls = dynamic_cast<ClusterableSingle*>(this);
 
-        if(cls != 0)
+        if (cls != 0)
         {
             auth.cids.insert(cls->get_cluster_id());
         }
@@ -389,16 +465,16 @@ void PoolObjectSQL::get_permissions(PoolObjectAuth& auth)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::set_permissions( int _owner_u,
-                                    int _owner_m,
-                                    int _owner_a,
-                                    int _group_u,
-                                    int _group_m,
-                                    int _group_a,
-                                    int _other_u,
-                                    int _other_m,
-                                    int _other_a,
-                                    string& error_str)
+int PoolObjectSQL::set_permissions(int _owner_u,
+                                   int _owner_m,
+                                   int _owner_a,
+                                   int _group_u,
+                                   int _group_m,
+                                   int _group_a,
+                                   int _other_u,
+                                   int _other_m,
+                                   int _other_a,
+                                   string& error_str)
 {
     if ( _owner_u < -1 || _owner_u > 1 ) goto error_value;
     if ( _owner_m < -1 || _owner_m > 1 ) goto error_value;
@@ -511,16 +587,17 @@ bool PoolObjectSQL::name_is_valid(const string& obj_name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolObjectSQL::lock_db(const string& owner)
+int PoolObjectSQL::lock_db(const int owner, const int req_id, const int level)
 {
-    if (locked && time(0) < lock_expires)
+    if ( level < ST_NONE || level > ST_ADMIN )
     {
         return -1;
     }
 
-    locked       = true;
-    lock_expires = time(0) + LOCK_DB_EXPIRATION;
-    lock_owner   = owner;
+    locked      = static_cast<LockStates>(level);
+    lock_time   = time(0);
+    lock_owner  = owner;
+    lock_req_id = req_id;
 
     return 0;
 }
@@ -528,13 +605,21 @@ int PoolObjectSQL::lock_db(const string& owner)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void PoolObjectSQL::unlock_db(const string& owner)
+int PoolObjectSQL::unlock_db(const int owner, const int req_id)
 {
-    // Check if owner == lock_owner?
+    int rc = -1;
 
-    locked       = false;
-    lock_expires = 0;
-    lock_owner   = "";
+    if ( owner == -1 || owner == lock_owner )
+    {
+        locked      = LockStates::ST_NONE;
+        lock_time   = time(0);
+        lock_owner  = -1;
+        lock_req_id = -1;
+
+        rc = 0;
+    }
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -542,16 +627,23 @@ void PoolObjectSQL::unlock_db(const string& owner)
 
 string& PoolObjectSQL::lock_db_to_xml(string& xml) const
 {
-    ostringstream   oss;
-    int locked_int = locked ? 1 : 0;
+    if (locked == LockStates::ST_NONE)
+    {
+        xml.clear();
+        return xml;
+    }
+
+    ostringstream oss;
 
     oss << "<LOCK>"
-            << "<LOCKED>"  << locked_int   << "</LOCKED>"
-            << "<OWNER>"   << one_util::escape_xml(lock_owner) << "</OWNER>"
-            << "<EXPIRES>" << lock_expires << "</EXPIRES>"
+            << "<LOCKED>" << static_cast<int>(locked)   << "</LOCKED>"
+            << "<OWNER>"  << lock_owner << "</OWNER>"
+            << "<TIME>"   << lock_time << "</TIME>"
+            << "<REQ_ID>" << lock_req_id << "</REQ_ID>"
         << "</LOCK>";
 
     xml = oss.str();
+
     return xml;
 }
 
@@ -563,11 +655,43 @@ int PoolObjectSQL::lock_db_from_xml()
     int rc = 0;
     int locked_int;
 
-    rc += xpath(locked_int,   "/*/LOCK/LOCKED", 0);
-    rc += xpath(lock_owner,   "/*/LOCK/OWNER", "");
-    rc += xpath<time_t>(lock_expires, "/*/LOCK/EXPIRES", 0);
+    vector<xmlNodePtr> content;
 
-    locked = locked_int;
+    ObjectXML::get_nodes("/*/LOCK/LOCKED", content);
+
+    if ( content.empty() )
+    {
+        return 0;
+    }
+
+    rc += xpath(locked_int,  "/*/LOCK/LOCKED", 0);
+    rc += xpath(lock_req_id, "/*/LOCK/REQ_ID", -1);
+    rc += xpath(lock_owner,  "/*/LOCK/OWNER", -1);
+
+    xpath<time_t>(lock_time, "/*/LOCK/TIME", time(0));
+
+    locked = static_cast<LockStates>(locked_int);
+
+    ObjectXML::free_nodes(content);
 
     return rc;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void PoolObjectSQL::encrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->encrypt(one_key);
+};
+
+void PoolObjectSQL::decrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->decrypt(one_key);
+};

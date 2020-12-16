@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,31 +17,33 @@
 #include "RequestManagerChown.h"
 #include "PoolObjectSQL.h"
 
-#include "NebulaLog.h"
 #include "Nebula.h"
+#include "VirtualMachinePool.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-PoolObjectSQL * RequestManagerChown::get_and_quota(
+unique_ptr<PoolObjectSQL> RequestManagerChown::get_and_quota(
     int                       oid,
     int                       new_uid,
     int                       new_gid,
-    RequestAttributes&        att)
+    RequestAttributes&        att,
+    PoolSQL *                 pool,
+    PoolObjectSQL::ObjectType auth_object)
 {
-    std::map<Quotas::QuotaType, Template *> quota_map;
-    std::map<Quotas::QuotaType, Template *> quota_to_rback;
-
-    std::map<Quotas::QuotaType, Template *>::iterator it;
+    std::map<Quotas::QuotaType, std::unique_ptr<Template>> quota_map;
+    std::map<Quotas::QuotaType, std::unique_ptr<Template>> quota_to_rback;
 
     int old_uid;
     int old_gid;
 
-    PoolObjectSQL *   object;
+    std::string memory, cpu;
 
-    object = pool->get(oid,true);
+    auto object = pool->get<PoolObjectSQL>(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -50,44 +52,55 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     if (auth_object == PoolObjectSQL::VM)
     {
-        VirtualMachine * vm = static_cast<VirtualMachine*>(object);
+        VirtualMachine * vm = static_cast<VirtualMachine*>(object.get());
 
-        vector<Template *> ds_quotas;
-        vector<Template *>::iterator it;
+        vector<unique_ptr<Template>> ds_quotas;
 
         if ( vm->get_state() == VirtualMachine::DONE )
         {
-            vm->unlock();
-
             att.resp_msg = "Could not change VM ownership, wrong state";
             failure_response(ACTION, att);
             return 0;
         }
 
-        Template * tmpl = vm->clone_template();
+        auto tmpl = vm->clone_template();
 
-        quota_map.insert(make_pair(Quotas::VIRTUALMACHINE, tmpl));
-
-        VirtualMachineDisks::image_ds_quotas(tmpl, ds_quotas);
-
-        for ( it = ds_quotas.begin() ; it != ds_quotas.end() ; ++it )
+        if ( (vm->get_state() == VirtualMachine::ACTIVE) ||
+         (vm->get_state() == VirtualMachine::PENDING) ||
+         (vm->get_state() == VirtualMachine::CLONING) ||
+         (vm->get_state() == VirtualMachine::CLONING_FAILURE) ||
+         (vm->get_state() == VirtualMachine::HOLD) )
         {
-            quota_map.insert(make_pair(Quotas::DATASTORE, *it));
+            vm->get_template_attribute("MEMORY", memory);
+            vm->get_template_attribute("CPU", cpu);
+
+            tmpl->add("RUNNING_MEMORY", memory);
+            tmpl->add("RUNNING_CPU", cpu);
+            tmpl->add("RUNNING_VMS", 1);
+        }
+
+        VirtualMachineDisks::image_ds_quotas(tmpl.get(), ds_quotas);
+
+        quota_map.insert(make_pair(Quotas::VIRTUALMACHINE, move(tmpl)));
+
+        for (auto& quota : ds_quotas)
+        {
+            quota_map.insert(make_pair(Quotas::DATASTORE, move(quota)));
         }
     }
     else if (auth_object == PoolObjectSQL::IMAGE)
     {
-        Image * img     = static_cast<Image *>(object);
-        Template * tmpl = new Template;
+        Image * img     = static_cast<Image *>(object.get());
+        auto tmpl = make_unique<Template>();
 
         tmpl->add("DATASTORE", img->get_ds_id());
         tmpl->add("SIZE",img->get_size()+img->get_snapshots().get_total_size());
 
-        quota_map.insert(make_pair(Quotas::DATASTORE, tmpl));
+        quota_map.insert(make_pair(Quotas::DATASTORE, move(tmpl)));
     }
     else if (auth_object == PoolObjectSQL::NET)
     {
-        VirtualNetwork * vn = static_cast<VirtualNetwork *>(object);
+        VirtualNetwork * vn = static_cast<VirtualNetwork *>(object.get());
         unsigned int  total = vn->get_size();
 
         ostringstream oss;
@@ -99,7 +112,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
             return object;
         }
 
-        Template * tmpl = new Template;
+        auto tmpl = make_unique<Template>();
 
         for (unsigned int i= 0 ; i < total ; i++)
         {
@@ -108,13 +121,11 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
         tmpl->parse_str_or_xml(oss.str(), att.resp_msg);
 
-        quota_map.insert(make_pair(Quotas::NETWORK, tmpl));
+        quota_map.insert(make_pair(Quotas::NETWORK, move(tmpl)));
     }
     else
     {
-        object->unlock();
-
-        return 0;
+        return nullptr;
     }
 
     if ( new_uid == -1 )
@@ -135,7 +146,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
         old_gid = object->get_gid();
     }
 
-    object->unlock();
+    object.reset();
 
     RequestAttributes att_new(new_uid, new_gid, att);
     RequestAttributes att_old(old_uid, old_gid, att);
@@ -145,19 +156,19 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
     // -------------------------------------------------------------------------
     // Apply quotas to new owner free old owner
     // -------------------------------------------------------------------------
-    for ( it = quota_map.begin(); it != quota_map.end() ; )
+    for ( auto it = quota_map.begin(); it != quota_map.end() ; )
     {
         Quotas::QuotaType qtype = it->first;
-        Template *        tmpl  = it->second;
+        auto&             tmpl  = it->second;
 
-        if ( quota_authorization(tmpl, qtype, att_new, att.resp_msg) == false )
+        if ( quota_authorization(tmpl.get(), qtype, att_new, att.resp_msg) == false )
         {
             error = true;
             break;
         }
         else
         {
-            quota_to_rback.insert(make_pair(qtype, tmpl));
+            quota_to_rback.insert(make_pair(qtype, move(tmpl)));
 
             it = quota_map.erase(it);
         }
@@ -165,28 +176,28 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
     if (!error)
     {
-        for (it = quota_to_rback.begin(); it != quota_to_rback.end(); ++it)
+        for (auto& it : quota_to_rback)
         {
-            quota_rollback(it->second, it->first, att_old);
+            quota_rollback(it.second.get(), it.first, att_old);
         }
 
-        object = pool->get(oid,true);
+        object = pool->get<PoolObjectSQL>(oid);
     }
 
     // -------------------------------------------------------------------------
     // Error or object deleted. Rollback chown quota operation. Add again usage
     // to old owner, decrement to new owner.
     // -------------------------------------------------------------------------
-    if ( object == 0 || error )
+    if ( object == nullptr || error )
     {
-        for (it = quota_to_rback.begin(); it != quota_to_rback.end(); ++it)
+        for (auto& it : quota_to_rback)
         {
-            if ( object == 0 )
+            if ( object == nullptr )
             {
-                quota_authorization(it->second, it->first,att_old,att.resp_msg);
+                quota_authorization(it.second.get(), it.first, att_old, att.resp_msg);
             }
 
-            quota_rollback(it->second, it->first, att_new);
+            quota_rollback(it.second.get(), it.first, att_new);
         }
 
         if ( object == 0 )
@@ -199,20 +210,7 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
             failure_response(AUTHORIZATION, att);
         }
 
-        object = 0;
-    }
-
-    // -------------------------------------------------------------------------
-    // Clean up memory for templates
-    // -------------------------------------------------------------------------
-    for ( it = quota_map.begin(); it != quota_map.end() ; ++it)
-    {
-        delete it->second;
-    }
-
-    for (it = quota_to_rback.begin(); it != quota_to_rback.end(); ++it)
-    {
-        delete it->second;
+        object = nullptr;
     }
 
     return object;
@@ -223,31 +221,25 @@ PoolObjectSQL * RequestManagerChown::get_and_quota(
 
 int RequestManagerChown::check_name_unique(int oid, int noid, RequestAttributes& att)
 {
-    PoolObjectSQL *     object;
     string          name;
     int             obj_oid;
     ostringstream   oss;
 
-    object = pool->get(oid, true);
-
-    if ( object == 0 )
+    if ( auto object = pool->get_ro<PoolObjectSQL>(oid) )
+    {
+        name = object->get_name();
+    }
+    else
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
         return -1;
     }
 
-    name = object->get_name();
+    obj_oid = pool->exist(name, noid);
 
-    object->unlock();
-
-    object = get(name, noid, true);
-
-    if ( object != 0 )
+    if ( obj_oid != -1 )
     {
-        obj_oid = object->get_oid();
-        object->unlock();
-
         oss << object_name(PoolObjectSQL::USER) << " ["<<noid<<"] already owns "
             << object_name(auth_object) << " ["<<obj_oid<<"] with NAME " << name;
 
@@ -280,7 +272,9 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     PoolObjectAuth  nuperms;
     PoolObjectAuth  ngperms;
 
-    PoolObjectSQL * object;
+    unique_ptr<PoolObjectSQL> object;
+
+    set<int> vms;
 
     // ------------- Check new user and group id's ---------------------
 
@@ -306,36 +300,33 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     // ------------- Set authorization request for non-oneadmin's --------------
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    rc = get_info(pool, oid, auth_object, att, operms, oname, true);
+
+    if ( rc == -1 )
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        return;
+    }
 
-        rc = get_info(pool, oid, auth_object, att, operms, oname, true);
+    ar.add_auth(att.auth_op, operms); // MANAGE OBJECT
 
-        if ( rc == -1 )
-        {
-            return;
-        }
+    if ( noid > -1  )
+    {
+        ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
+    }
 
-        ar.add_auth(auth_op, operms); // MANAGE OBJECT
+    if ( ngid > -1  )
+    {
+        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+    }
 
-        if ( noid > -1  )
-        {
-            ar.add_auth(AuthRequest::MANAGE, nuperms); // MANAGE USER
-        }
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        if ( ngid > -1  )
-        {
-            ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
-        }
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
     // --------------- Check name uniqueness -----------------------------------
@@ -358,16 +349,20 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
     }
     else
     {
-        object = pool->get(oid,true);
+        object = pool->get<PoolObjectSQL>(oid);
 
-        if ( object == 0 )
+        if ( object == nullptr )
         {
             att.resp_id = oid;
             failure_response(NO_EXISTS, att);
         }
+        else if ( auth_object == PoolObjectSQL::VROUTER )
+        {
+            vms = static_cast<VirtualRouter *>(object.get())->get_vms();
+        }
     }
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         return;
     }
@@ -382,11 +377,63 @@ void RequestManagerChown::request_execute(xmlrpc_c::paramList const& paramList,
         object->set_group(ngid, ngname);
     }
 
-    pool->update(object);
+    if (auth_object == PoolObjectSQL::VM)
+    {
+        VirtualMachine* vm = static_cast<VirtualMachine*>(object.get());
 
-    object->unlock();
+        if (vm->hasHistory())
+        {
+            vm->set_vm_info();
+            static_cast<VirtualMachinePool*>(pool)->update_history(vm);
+        }
+    }
 
-    success_response(oid, att);
+    pool->update(object.get());
+
+    object.reset();
+
+    if ( auth_object != PoolObjectSQL::VROUTER )
+    {
+        success_response(oid, att);
+        return;
+    }
+
+    // --------------- Recursive change associated VM objects ------------------
+    // IMPORTANT!: pool/auth_object members are redirected to the VM pool to
+    // chown VMs
+    // -------------------------------------------------------------------------
+    bool error_vm_quotas = false;
+
+    PoolSQL * vm_pool = Nebula::instance().get_vmpool();
+
+    for (auto vm_id : vms)
+    {
+        auto vm = get_and_quota(vm_id, noid, ngid, att, vm_pool, PoolObjectSQL::VM);
+
+        if ( vm == nullptr )
+        {
+            error_vm_quotas = true;
+
+            continue;
+        }
+
+        if ( noid != -1 )
+        {
+            vm->set_user(noid, nuname);
+        }
+
+        if ( ngid != -1 )
+        {
+            vm->set_group(ngid, ngname);
+        }
+
+        vm_pool->update(vm.get());
+    }
+
+    if (!error_vm_quotas)
+    {
+        success_response(oid, att);
+    }
 
     return;
 }
@@ -409,9 +456,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
     string uname;
     string auth_driver;
 
-    User *  user;
-    Group * group;
-
     PoolObjectAuth uperms;
     PoolObjectAuth ngperms;
 
@@ -425,7 +469,16 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ((user = upool->get(oid,true)) == 0 )
+    if ( auto user = upool->get_ro(oid) )
+    {
+        user->get_permissions(uperms);
+
+        uname = user->get_name();
+
+        auth_driver = user->get_auth_driver();
+        new_group   = user->get_groups().count(ngid) != 1;
+    }
+    else
     {
         att.resp_obj = PoolObjectSQL::USER;
         att.resp_id  = oid;
@@ -433,15 +486,6 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
         return;
     }
-
-    user->get_permissions(uperms);
-
-    uname = user->get_name();
-
-    auth_driver = user->get_auth_driver();
-    new_group   = user->get_groups().count(ngid) != 1;
-
-    user->unlock();
 
     if ( Nebula::instance().get_auth_conf_attribute(auth_driver,
             "DRIVER_MANAGED_GROUPS", driver_managed_groups) != 0 )
@@ -481,27 +525,46 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(att.auth_op, uperms);       // MANAGE USER
+    ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        ar.add_auth(auth_op, uperms);           // MANAGE USER
-        ar.add_auth(AuthRequest::USE, ngperms); // USE GROUP
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
     // ------------- Change users primary group ---------------------
 
-    user = upool->get(oid,true);
+    if ( auto user = upool->get(oid) )
+    {
+        if ((old_gid = user->get_gid()) == ngid)
+        {
+            success_response(oid, att);
+            return;
+        }
 
-    if ( user == 0 )
+        user->set_group(ngid,ngname);
+
+        // The user is removed from the old group only if the new group is not a
+        // secondary one
+
+        rc = user->add_group(ngid);
+
+        remove_old_group = (rc == 0);
+
+        if (remove_old_group)
+        {
+            user->del_group(old_gid);
+        }
+
+        upool->update(user.get());
+    }
+    else
     {
         att.resp_obj = PoolObjectSQL::USER;
         att.resp_id  = oid;
@@ -510,36 +573,15 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    if ((old_gid = user->get_gid()) == ngid)
-    {
-        user->unlock();
-        success_response(oid, att);
-        return;
-    }
-
-    user->set_group(ngid,ngname);
-
-    // The user is removed from the old group only if the new group is not a
-    // secondary one
-
-    rc = user->add_group(ngid);
-
-    remove_old_group = (rc == 0);
-
-    if (remove_old_group)
-    {
-        user->del_group(old_gid);
-    }
-
-    upool->update(user);
-
-    user->unlock();
-
     // ------------- Updates new group with this new user ---------------------
 
-    group = gpool->get(ngid, true);
+    if ( auto group = gpool->get(ngid) )
+    {
+        group->add_user(oid);
 
-    if( group == 0 )
+        gpool->update(group.get());
+    }
+    else
     {
         //TODO Rollback
         att.resp_obj = PoolObjectSQL::GROUP;
@@ -549,25 +591,15 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    group->add_user(oid);
-
-    gpool->update(group);
-
-    group->unlock();
-
     // ------------- Updates old group removing the user ---------------------
 
     if (remove_old_group)
     {
-        group = gpool->get(old_gid, true);
-
-        if( group != 0 )
+        if ( auto group = gpool->get(old_gid) )
         {
             group->del_user(oid);
 
-            gpool->update(group);
-
-            group->unlock();
+            gpool->update(group.get());
         }
     }
 
@@ -575,3 +607,7 @@ void UserChown::request_execute(xmlrpc_c::paramList const& paramList,
 
     return;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -24,26 +24,36 @@
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-path = ARGV[0]
-vmid = ARGV[2]
+path    = ARGV[0]
+im_path = ARGV[1]
+vmid    = ARGV[2]
+dsid    = ARGV[3]
 
-check_valid path, "path"
-check_valid vmid, "vmid"
+check_valid path, 'path'
+check_valid vmid, 'vmid'
 
-hostname, img_path = path.split(":")
+hostname, img_path = path.split(':')
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -54,25 +64,38 @@ one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 vm_ref = one_vm['DEPLOY_ID']
 
 # Get image path
-disk_id = img_path.split(".")[-1]
-
-disk = one_vm.retrieve_xmlelements("TEMPLATE/DISK[DISK_ID=#{disk_id}]").first
+disk_id = img_path.split('.')[-1]
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+    vm        = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vmid)
+    vmperst   = vm.instantiated_as_persistent?
 
-    vm.one_item = one_vm
+    vm.remove_all_snapshots if vm.snapshots?
+    disk = vm.disk(disk_id)
 
-    # Don't detach persistent disks if the VM has snapshots,
-    # or the instantiate to persistent is used
-    vm.detach_disk(disk) if !vm.has_snapshots? && !vm.instantiated_as_persistent?
+    # Don't detach persistent disks if the VM has snapshots
+    if disk && disk.exists?
+        vm.one_item = one_vm
 
-rescue Exception => e
+        # Do not detach persistent unmanaged disk
+        # if we need them to create a VM Template
+        # (instantiate to persistent feature)
+        vm.detach_disk(disk) if disk.managed? || !vmperst
+
+        if disk.cloned?
+            ds = VCenterDriver::Datastore.new(disk.ds)
+            ds.move_virtual_disk(disk, im_path, dsid, vi_client)
+        end
+    end
+rescue StandardError => e
     message = "Error detaching virtual disk #{disk_id} from vm #{vmid}."\
-              " Reason: #{e.message}\n#{e.backtrace}"
-    STDERR.puts error_message(message)
-    exit -1
+              " Reason: #{e.message}."
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

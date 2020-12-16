@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,7 +23,6 @@ void RequestManagerUser::
                     RequestAttributes& att)
 {
     int    id  = xmlrpc_c::value_int(paramList.getInt(1));
-    User * user;
     string error_str;
 
     if ( basic_authorization(id, att) == false )
@@ -31,9 +30,7 @@ void RequestManagerUser::
         return;
     }
 
-    user = static_cast<User *>(pool->get(id,false));
-
-    if ( user == 0 )
+    if ( pool->exist(id) == -1 )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -60,9 +57,9 @@ int UserChangePassword::user_action(int     user_id,
 
     string new_pass = xmlrpc_c::value_string(paramList.getString(2));
 
-    User * user = static_cast<User *>(pool->get(user_id,true));
+    auto user = static_cast<UserPool *>(pool)->get(user_id);
 
-    if ( user == 0 )
+    if ( user == nullptr )
     {
         return -1;
     }
@@ -76,12 +73,10 @@ int UserChangePassword::user_action(int     user_id,
         allowed = false;
     }
 
-    if (!allowed && att.uid != UserPool::ONEADMIN_ID &&
-        att.gid != GroupPool::ONEADMIN_ID)
+    if (!allowed && !att.is_admin())
     {
         error_str = "Password for driver " + user->get_auth_driver() +
                     " cannot be changed.";
-        user->unlock();
         return -1;
     }
 
@@ -89,10 +84,8 @@ int UserChangePassword::user_action(int     user_id,
 
     if ( rc == 0 )
     {
-        pool->update(user);
+        pool->update(user.get());
     }
-
-    user->unlock();
 
     return rc;
 }
@@ -110,11 +103,9 @@ int UserChangeAuth::user_action(int     user_id,
 
     int    rc = 0;
 
-    User * user;
+    auto user = static_cast<UserPool *>(pool)->get(user_id);;
 
-    user = static_cast<User *>(pool->get(user_id,true));
-
-    if ( user == 0 )
+    if ( user == nullptr )
     {
         return -1;
     }
@@ -137,10 +128,8 @@ int UserChangeAuth::user_action(int     user_id,
 
     if ( rc == 0 )
     {
-        pool->update(user);
+        pool->update(user.get());
     }
-
-    user->unlock();
 
     return rc;
 }
@@ -158,7 +147,6 @@ int UserSetQuota::user_action(int     user_id,
     Template quota_tmpl;
 
     int    rc;
-    User * user;
 
     if ( user_id == UserPool::ONEADMIN_ID )
     {
@@ -173,20 +161,63 @@ int UserSetQuota::user_action(int     user_id,
         return -1;
     }
 
-    user = static_cast<User *>(pool->get(user_id,true));
+    auto upool = static_cast<UserPool *>(pool);
+    auto user = upool->get(user_id);
 
-    if ( user == 0 )
+    if ( user == nullptr )
     {
         return -1;
     }
 
     rc = user->quota.set(&quota_tmpl, error_str);
 
-    static_cast<UserPool *>(pool)->update_quotas(user);
-
-    user->unlock();
+    upool->update_quotas(user.get());
 
     return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int UserEnable::user_action(int     user_id,
+                            xmlrpc_c::paramList const& paramList,
+                            RequestAttributes&         att,
+                            string& error_str)
+{
+    bool enable = paramList.getBoolean(2);
+
+    if ( user_id == UserPool::ONEADMIN_ID )
+    {
+        error_str = "Cannot enable/disable oneadmin user";
+        return -1;
+    }
+
+    auto upool = static_cast<UserPool *>(pool);
+    auto user = upool->get(user_id);
+
+    if ( user == nullptr )
+    {
+        error_str = "User not found";
+        return -1;
+    }
+
+    if (user->isEnabled() == enable)
+    {
+        return 0;
+    }
+
+    if (enable)
+    {
+        user->enable();
+    }
+    else
+    {
+        user->disable();
+    }
+
+    upool->update(user.get());
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -210,9 +241,15 @@ void UserEditGroup::
     PoolObjectAuth uperms;
     PoolObjectAuth gperms;
 
-    User* user = upool->get(user_id,true);
+    if ( auto user = upool->get_ro(user_id) )
+    {
+        user->get_permissions(uperms);
 
-    if ( user == 0 )
+        uname = user->get_name();
+
+        auth_driver = user->get_auth_driver();
+    }
+    else
     {
         att.resp_obj = PoolObjectSQL::USER;
         att.resp_id  = user_id;
@@ -220,14 +257,6 @@ void UserEditGroup::
 
         return;
     }
-
-    user->get_permissions(uperms);
-
-    uname = user->get_name();
-
-    auth_driver = user->get_auth_driver();
-
-    user->unlock();
 
     bool driver_managed_groups;
 
@@ -252,19 +281,16 @@ void UserEditGroup::
         return;
     }
 
-    if ( att.uid != UserPool::ONEADMIN_ID )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::MANAGE, uperms);   // MANAGE USER
+    ar.add_auth(AuthRequest::MANAGE, gperms);   // MANAGE GROUP
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(AuthRequest::MANAGE, uperms);   // MANAGE USER
-        ar.add_auth(AuthRequest::MANAGE, gperms);   // MANAGE GROUP
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
     }
 
     if ( secondary_group_action(user_id, group_id, paramList, att.resp_msg) < 0 )
@@ -285,45 +311,35 @@ int UserAddGroup::secondary_group_action(
             xmlrpc_c::paramList const& _paramList,
             string&                    error_str)
 {
-    User *  user;
-    Group * group;
-
     int rc;
 
-    user = upool->get(user_id,true);
+    if ( auto user = upool->get(user_id) )
+    {
+        rc = user->add_group(group_id);
 
-    if ( user == 0 )
+        if ( rc != 0 )
+        {
+            error_str = "User is already in this group";
+            return -1;
+        }
+
+        upool->update(user.get());
+    }
+    else
     {
         return -1;
     }
 
-    rc = user->add_group(group_id);
 
-    if ( rc != 0 )
+    auto group = gpool->get(group_id);
+
+    if ( group == nullptr )
     {
-        user->unlock();
-
-        error_str = "User is already in this group";
-        return -1;
-    }
-
-    upool->update(user);
-
-    user->unlock();
-
-    group = gpool->get(group_id, true);
-
-    if( group == 0 )
-    {
-        user = upool->get(user_id,true);
-
-        if ( user != 0 )
+        if ( auto user = upool->get(user_id) )
         {
             user->del_group(group_id);
 
-            upool->update(user);
-
-            user->unlock();
+            upool->update(user.get());
         }
 
         error_str = "Group does not exist";
@@ -332,9 +348,7 @@ int UserAddGroup::secondary_group_action(
 
     group->add_user(user_id);
 
-    gpool->update(group);
-
-    group->unlock();
+    gpool->update(group.get());
 
     return 0;
 }
@@ -348,42 +362,36 @@ int UserDelGroup::secondary_group_action(
             xmlrpc_c::paramList const& _paramList,
             string&                    error_str)
 {
-    User *  user;
-    Group * group;
-
     int rc;
 
-    user = upool->get(user_id,true);
-
-    rc = user->del_group(group_id);
-
-    if ( rc != 0 )
+    if ( auto user = upool->get(user_id) )
     {
-        user->unlock();
+        rc = user->del_group(group_id);
 
-        if ( rc == -1 )
+        if ( rc != 0 )
         {
-            error_str = "User is not part of this group";
-        }
-        else if ( rc == -2 )
-        {
-            error_str = "Cannot remove user from the primary group";
-        }
-        else
-        {
-            error_str = "Cannot remove user from group";
+            if ( rc == -1 )
+            {
+                error_str = "User is not part of this group";
+            }
+            else if ( rc == -2 )
+            {
+                error_str = "Cannot remove user from the primary group";
+            }
+            else
+            {
+                error_str = "Cannot remove user from group";
+            }
+
+            return rc;
         }
 
-        return rc;
+        upool->update(user.get());
     }
 
-    upool->update(user);
+    auto group = gpool->get(group_id);
 
-    user->unlock();
-
-    group = gpool->get(group_id, true);
-
-    if( group == 0 )
+    if ( group == nullptr )
     {
         //Group does not exist, should never occur
         error_str = "Cannot remove user from group";
@@ -392,9 +400,7 @@ int UserDelGroup::secondary_group_action(
 
     group->del_user(user_id);
 
-    gpool->update(group);
-
-    group->unlock();
+    gpool->update(group.get());
 
     return 0;
 }
@@ -405,7 +411,6 @@ int UserDelGroup::secondary_group_action(
 void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
                     RequestAttributes& att)
 {
-    User * user;
     string error_str;
 
     /* ---------------------------------------------------------------------- */
@@ -421,37 +426,34 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         egid = xmlrpc_c::value_int(paramList.getInt(4));
     }
 
-    if (att.uid != 0)
+    PoolObjectAuth perms;
+
+    auto upool = static_cast<UserPool *>(pool);
+
+    if (auto user = upool->get_ro(uname))
     {
-        PoolObjectAuth perms;
-
-        user = static_cast<UserPool *>(pool)->get(uname, true);
-
-        if ( user == 0 )
-        {
-            failure_response(NO_EXISTS, att);
-            return;
-        }
-
         user->get_permissions(perms);
-
-        user->unlock();
-
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, perms);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-            return;
-        }
+    }
+    else
+    {
+        failure_response(NO_EXISTS, att);
+        return;
     }
 
-    user = static_cast<UserPool *>(pool)->get(uname, true);
+    AuthRequest ar(att.uid, att.group_ids);
 
-    if ( user == 0 )
+    ar.add_auth(att.auth_op, perms);
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    auto user = upool->get(uname);
+
+    if ( user == nullptr )
     {
         failure_response(NO_EXISTS, att);
         return;
@@ -476,8 +478,7 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
 
         // Reset any active token
         user->login_tokens.reset();
-        pool->update(user);
-        user->unlock();
+        pool->update(user.get());
 
         return;
     }
@@ -497,18 +498,31 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
             att.resp_msg = "Could not find token: " + token;
             failure_response(XML_RPC_API,  att);
 
-            user->unlock();
             return;
         }
     }
     else if (valid > 0 || valid == -1)
     {
-        if ( egid != -1 && !user->is_in_group(egid) )
+        /**
+         * Scoped token checks
+         * 1. user is in the target group
+         * 2. Authenticated groups for the user include the target group
+         * 3. user is not oneadmin or admin group
+         */
+        if ( egid != -1 && !att.is_admin() && ( !user->is_in_group(egid) ||
+                    att.group_ids.count(egid) == 0) )
         {
             att.resp_msg = "EGID is not in user group list";
             failure_response(XML_RPC_API,  att);
 
-            user->unlock();
+            return;
+        }
+
+        if ( egid == -1 && user->get_groups() != att.group_ids )
+        {
+            att.resp_msg = "Cannot create a full token with a specific group token";
+            failure_response(XML_RPC_API,  att);
+
             return;
         }
 
@@ -517,7 +531,6 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
             att.resp_msg = "Max number of tokens limit reached.";
             failure_response(XML_RPC_API,  att);
 
-            user->unlock();
             return;
 
         };
@@ -527,13 +540,10 @@ void UserLogin::request_execute(xmlrpc_c::paramList const& paramList,
         att.resp_msg = "Wrong valid period for token";
         failure_response(XML_RPC_API,  att);
 
-        user->unlock();
         return;
     }
 
-    pool->update(user);
-
-    user->unlock();
+    pool->update(user.get());
 
     success_response(token, att);
 }

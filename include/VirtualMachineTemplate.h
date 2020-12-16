@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,9 +19,7 @@
 
 #include "Template.h"
 
-#include <string.h>
-
-using namespace std;
+#include <string>
 
 /**
  *  Virtual Machine Template class, it represents a VM configuration file.
@@ -39,7 +37,17 @@ public:
 
     ~VirtualMachineTemplate(){};
 
-    VirtualMachineTemplate(VirtualMachineTemplate& vmt):Template(vmt){};
+    VirtualMachineTemplate(const Template& vmt):Template(vmt){};
+
+    VirtualMachineTemplate& operator=(const VirtualMachineTemplate& t)
+    {
+        if (this != &t)
+        {
+            Template::operator=(t);
+        }
+
+        return *this;
+    }
 
     void set_xml_root(const char * _xml_root)
     {
@@ -54,26 +62,62 @@ public:
      *   @param new_name of the new image
      *   @param new_uname of the owner of the new image
      */
-    int replace_disk_image(int target_id, const string&
-        target_name, const string& target_uname, const string& new_name,
-        const string& new_uname);
+    int replace_disk_image(int target_id, const std::string&
+        target_name, const std::string& target_uname,
+        const std::string& new_name, const std::string& new_uname);
 
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
     // -------------------------------------------------------------------------
-    virtual bool check_restricted(string& rs_attr, const Template* base)
+    virtual bool check_restricted(std::string& rs_attr, const Template* base)
     {
         return Template::check_restricted(rs_attr, base, restricted);
     }
 
-    virtual bool check_restricted(string& rs_attr)
+    virtual bool check_restricted(std::string& rs_attr)
     {
         return Template::check_restricted(rs_attr, restricted);
     }
 
-    static void parse_restricted(vector<const SingleAttribute *>& ra)
+    static void parse_restricted(std::vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);
+    }
+
+    // -------------------------------------------------------------------------
+    // Encrypted attributes interface implementation
+    // -------------------------------------------------------------------------
+    virtual void encrypt(const std::string& one_key)
+    {
+        Template::encrypt(one_key, encrypted);
+    }
+
+    virtual void decrypt(const std::string& one_key)
+    {
+        Template::decrypt(one_key, encrypted);
+    }
+
+    static void parse_encrypted(std::vector<const SingleAttribute *>& ea)
+    {
+        Template::parse_encrypted(ea, encrypted);
+    }
+
+    std::string& to_xml_short(std::string& xml) const;
+
+    /**
+     *  Get restricted attributes for NIC
+     */
+    static void restricted_nic(std::set<std::string>& rs)
+    {
+        get_restricted("NIC", rs);
+    }
+
+    /**
+     *  Get restricted attributes for DISK
+     */
+    static void restricted_disk(std::set<std::string>& rs)
+    {
+        get_restricted("DISK", rs);
     }
 
 private:
@@ -81,6 +125,25 @@ private:
      *  Restricted attribute list for VirtualMachineTemplates
      */
     static std::map<std::string, std::set<std::string> > restricted;
+
+    /**
+     *  Encrypted attribute list for VirtualMachineTemplates
+     */
+    static std::map<std::string, std::set<std::string> > encrypted;
+
+    /**
+     *  @param rs set of restricted attributes for a key
+     *  @param name key in the restricted map
+     */
+    static void get_restricted(const std::string& name, std::set<std::string>& rs)
+    {
+        auto it = restricted.find(name);
+
+        if ( it != restricted.end())
+        {
+            rs = it->second;
+        }
+    }
 };
 
 /* -------------------------------------------------------------------------- */

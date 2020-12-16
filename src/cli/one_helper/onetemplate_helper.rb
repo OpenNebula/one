@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -87,6 +87,17 @@ EOT
 
         if options[:xml]
             return 0, resource.to_xml(true)
+        elsif options[:json]
+            # If body is set, the resource contains a JSON inside
+            if options[:body]
+                return 0, check_resource_xsd(resource)
+            else
+                return 0, ::JSON.pretty_generate(
+                    check_resource_xsd(resource)
+                )
+            end
+        elsif options[:yaml]
+            return 0, check_resource_xsd(resource).to_yaml(:indent => 4)
         else
             format_resource(resource, options)
             return 0
@@ -128,172 +139,25 @@ EOT
     INT_EXP = /^-?\d+$/
     FLOAT_EXP = /^-?\d+(\.\d+)?$/
 
-    def self.get_user_inputs(template)
+    def self.get_user_inputs(template, keys = [])
         user_inputs = template['VMTEMPLATE']['TEMPLATE']['USER_INPUTS']
 
-        return "" if !user_inputs
+        return '' unless user_inputs
 
-        answers = ""
-
-        puts "There are some parameters that require user input. Use the string <<EDITOR>> to launch an editor (e.g. for multi-line inputs)"
-
-        user_inputs.each do |key, val|
-            input_cfg = val.split('|', -1)
-
-            if input_cfg.length < 3
-                STDERR.puts "Malformed user input. It should have at least 3 parts separated by '|':"
-                STDERR.puts "  #{key}: #{val}"
-                exit(-1)
-            end
-
-            mandatory, type, description, params, initial = input_cfg
-            optional = mandatory.strip == "O"
-            type.strip!
-            description.strip!
-
-            if input_cfg.length > 3
-                if input_cfg.length != 5
-                    STDERR.puts "Malformed user input. It should have 5 parts separated by '|':"
-                    STDERR.puts "  #{key}: #{val}"
-                    exit(-1)
-                end
-
-                params.strip!
-                initial.strip!
-            end
-
-            puts "  * (#{key}) #{description}"
-
-            header = "    "
-            if initial != nil && initial != ""
-                header += "Press enter for default (#{initial}). "
-            end
-
-            case type
-            when 'text', 'text64'
-                print header
-
-                answer = STDIN.readline.chop
-
-                if answer == "<<EDITOR>>"
-                    answer = OpenNebulaHelper.editor_input()
-                end
-
-                if type == 'text64'
-                    answer = Base64::encode64(answer).strip.delete("\n")
-                end
-
-            when 'password'
-                print header
-
-                answer = OpenNebulaHelper::OneHelper.get_password
-
-            when 'number', 'number-float'
-                if type == "number"
-                    header += "Integer: "
-                    exp = INT_EXP
-                else
-                    header += "Float: "
-                    exp = FLOAT_EXP
-                end
-
-                begin
-                    print header
-                    answer = STDIN.readline.chop
-
-                    answer = initial if (answer == "")
-
-                    noanswer = ((answer == "") && optional)
-                end while !noanswer && (answer =~ exp) == nil
-
-                if noanswer
-                    next
-                end
-
-            when 'range', 'range-float'
-                min,max = params.split('..')
-
-                if min.nil? || max.nil?
-                    STDERR.puts "Malformed user input. Parameters should be 'min..max':"
-                    STDERR.puts "  #{key}: #{val}"
-                    exit(-1)
-                end
-
-                if type == "range"
-                    exp = INT_EXP
-                    min = min.to_i
-                    max = max.to_i
-
-                    header += "Integer in the range [#{min}..#{max}]: "
-                else
-                    exp = FLOAT_EXP
-                    min = min.to_f
-                    max = max.to_f
-
-                    header += "Float in the range [#{min}..#{max}]: "
-                end
-
-                begin
-                    print header
-                    answer = STDIN.readline.chop
-
-                    answer = initial if (answer == "")
-
-                    noanswer = ((answer == "") && optional)
-                end while !noanswer && ((answer =~ exp) == nil || answer.to_f < min || answer.to_f > max)
-
-                if noanswer
-                    next
-                end
-
-            when 'list'
-                options = params.split(",")
-
-                options.each_with_index {|opt,i|
-                    puts "    #{i}  #{opt}"
-                }
-
-                puts
-
-                header += "Please type the selection number: "
-
-                begin
-                    print header
-                    answer = STDIN.readline.chop
-
-                    if (answer == "")
-                        answer = initial
-                    else
-                        answer = options[answer.to_i]
-                    end
-
-                    noanswer = ((answer == "") && optional)
-
-                end while !noanswer && (!options.include?(answer))
-
-                if noanswer
-                    next
-                end
-
-            when 'fixed'
-                puts "    Fixed value of (#{initial}). Cannot be changed"
-                answer = initial
-
-            else
-                STDERR.puts "Wrong type for user input:"
-                STDERR.puts "  #{key}: #{val}"
-                exit(-1)
-            end
+        answers = OpenNebulaHelper.parse_user_inputs(user_inputs, keys)
+        answers_s = ''
+        answers.each do |key, val|
+            next unless val
 
             # Do not replace values that are equal to the ones already in the
             # template. Useful for cpu, mem, vcpu
-            if answer != template['VMTEMPLATE']['TEMPLATE'][key]
-                answers << "#{key} = \""
-                answers << answer.gsub('"', "\\\"") << "\"\n"
+            if key != template['VMTEMPLATE']['TEMPLATE'][key]
+                answers_s << "#{key} = \""
+                answers_s << val.gsub('"', "\\\"") << "\"\n"
             end
         end
 
-        answers
+        answers_s
     end
 
     private
@@ -321,6 +185,7 @@ EOT
         puts str % ["NAME", template.name]
         puts str % ["USER", template['UNAME']]
         puts str % ["GROUP", template['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(template['LOCK/LOCKED'])]
         puts str % ["REGISTER TIME",
             OpenNebulaHelper.time_to_str(template['REGTIME'])]
         puts

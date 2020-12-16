@@ -7,6 +7,8 @@ module OneDBFsck
         @data_vm = {}
         cluster_vnc = @data_vm[:vnc] = {}
 
+        @vms_ports = {}
+
         # DATA: Aggregate information of the RUNNING vms
         @db.fetch("SELECT oid,body FROM vm_pool WHERE state<>6") do |row|
             vm_doc = nokogiri_doc(row[:body])
@@ -30,6 +32,14 @@ module OneDBFsck
                 cluster_vnc[cid] << port
             end
 
+            # Check if two or more VMs have the same VNC port within a cluster
+            if cid && port && ![0, 1, 2, 4, 9].include?(state)
+                @vms_ports[port]      = {} unless @vms_ports[port]
+                @vms_ports[port][cid] = [] unless @vms_ports[port][cid]
+
+                @vms_ports[port][cid] << vm_doc.root.at_xpath('ID').text.to_i
+            end
+
             # DATA: Images used by this VM
             vm_doc.root.xpath("TEMPLATE/DISK/IMAGE_ID").each do |e|
                 img_id = e.text.to_i
@@ -43,7 +53,12 @@ module OneDBFsck
             end
 
             # DATA: VNets used by this VM
-            vm_doc.root.xpath("TEMPLATE/NIC").each do |nic|
+            nics = vm_doc.root.xpath("TEMPLATE/NIC")
+            vm_doc.root.xpath("TEMPLATE/NIC_ALIAS").each do |nic|
+                nics << nic
+            end
+
+            nics.each do |nic|
                 net_id = nil
                 nic.xpath("NETWORK_ID").each do |nid|
                     net_id = nid.text.to_i
@@ -188,6 +203,20 @@ module OneDBFsck
                     index = [hrow[:vid], hrow[:seq]]
                     @fixes_vm_history[index] = hdoc.root.to_s
                 end
+            end
+        end
+    end
+
+    def check_vnc_ports
+        @vms_ports.each do |port, cid|
+            cid.each do |cid, vms|
+                next if vms.size == 1
+
+                log_error(
+                    "VMs #{vms.join(', ')} have the same VNC port #{port} " \
+                    "in cluster #{cid}",
+                    false
+                )
             end
         end
     end

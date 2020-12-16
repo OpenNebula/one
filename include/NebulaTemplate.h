@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,9 +18,6 @@
 #define NEBULA_TEMPLATE_H_
 
 #include "Template.h"
-#include "ActionSet.h"
-#include "AuthRequest.h"
-#include "History.h"
 
 #include <map>
 
@@ -30,12 +27,13 @@
 class NebulaTemplate : public Template
 {
 public:
-    NebulaTemplate(const string& etc_location, const char * _conf_name)
+    NebulaTemplate(const std::string& etc_location, const char * _conf_name,
+            const char * root_name) : Template(false, '=', root_name)
     {
         conf_file = etc_location + _conf_name;
     }
 
-    virtual ~NebulaTemplate(){};
+    virtual ~NebulaTemplate() = default;
 
     /**
      *  Parse and loads the configuration in the template
@@ -46,12 +44,12 @@ protected:
     /**
      *  Full path to the configuration file
      */
-    string                  conf_file;
+    std::string                  conf_file;
 
     /**
      *  Defaults for the configuration file
      */
-    multimap<string, Attribute*> conf_default;
+    std::multimap<std::string, Attribute*> conf_default;
 
     /**
      *  Sets the defaults value for the template
@@ -62,121 +60,11 @@ protected:
      *  Sets the defaults value for multiple attributes
      */
     virtual void set_multiple_conf_default() = 0;
-};
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-class OpenNebulaTemplate : public NebulaTemplate
-{
-public:
-
-    OpenNebulaTemplate(const string& etc_location, const string& _var_location):
-        NebulaTemplate(etc_location, conf_name), var_location(_var_location)
-        {};
-
-    ~OpenNebulaTemplate(){};
-
-    /**
-     *  Read or Generate the master key file to encrypt DB data when needed
-     *  this key is added to the configuration of OpenNebula and can be obtained
-     *  through one.system.config
-     */
-    int load_key();
-
-    /**
-     *  Parse and loads the configuration in the template
-     */
-    virtual int load_configuration();
-
-    /**
-     *  @param  action
-     *  @return authorization operation configured for the given VM action
-     */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action);
-
-private:
-    /**
-     *  Name for the configuration file, oned.conf
-     */
-    static const char * conf_name;
-
-    /**
-     *  Path for the var directory, for defaults
-     */
-    string var_location;
-
-    /**
-     *  Set of VM actions that require USE permission
-     */
-    ActionSet<History::VMAction> vm_use_actions;
-
-    /**
-     *  Set of VM actions that require MANAGE permission
-     */
-    ActionSet<History::VMAction> vm_manage_actions;
-
-    /**
-     *  Set of VM actions that require ADMIN permission
-     */
-    ActionSet<History::VMAction> vm_admin_actions;
-
-    /**
-     *  Sets the defaults value for the template
-     */
-    void set_conf_default();
-
-    /**
-     *  Sets the defaults value for multiple attributes
-     */
-    void set_multiple_conf_default();
-
-    /**
-     *  register the multiple configuration attributes and clean the
-     *  conf_default hash
-     */
-    void register_multiple_conf_default(const std::string& conf_section);
 
     /**
      *  Sets a default single attribute value
      */
     void set_conf_single(const std::string& attr, const std::string& value);
-
-    /**
-     *  Sets a the defaults for a DS
-     */
-    void set_conf_ds(const std::string& name,
-                     const std::string& required_attrs,
-                     const std::string& persistent_only);
-
-    /**
-     *  Sets a the defaults for a TM
-     */
-    void set_conf_tm(const std::string& name,
-                     const std::string& ln_target,
-                     const std::string& clone_target,
-                     const std::string& shared,
-                     const std::string& ds_migrate,
-                     const std::string& driver);
-
-    /**
-     *  Sets a the defaults for a Market
-     */
-    void set_conf_market(const std::string& name,
-                         const std::string& required_attrs);
-    /**
-     *  Sets a the defaults for a Auth drivers
-     */
-    void set_conf_auth(const std::string& name,
-                       const std::string& change_password,
-                       const std::string& driver_managed_groups,
-                       const std::string& max_token_time);
-
-    /**
-     *  Sets auth permissions for vm operations
-     */
-    int set_vm_auth_ops(std::string& error);
 };
-
 
 #endif /*NEBULA_TEMPLATE_H_*/

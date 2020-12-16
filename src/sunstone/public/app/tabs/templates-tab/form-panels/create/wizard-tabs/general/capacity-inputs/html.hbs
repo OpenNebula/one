@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,10 +16,12 @@
 
 
 <div class="row">
-  <div class="memory_input_wrapper small-12 columns">
-    <label class="" for="MEMORY">
+  <div class="memory_input_wrapper large-8 small-12 columns">
+    <label style="padding: 0; text-align: left" class="small-5 columns" for="MEMORY">
       {{tr "Memory"}}
       {{{tip (tr "Amount of RAM required for the VM, in Megabytes.")}}}
+    </label>
+    <label style="padding: 0; text-align: right; font-size: 95%" class="small-7 columns" id="quotas-mem" hidden>
     </label>
     <div class="memory_input">
     </div>
@@ -27,19 +29,41 @@
 </div>
 <div class="row">
   <div class="cpu_input_wrapper small-12 columns">
-    <label class="" for="CPU">
-      {{tr "CPU"}}
-      {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
-    </label>
+    <div class="row small-12 columns">
+      <label style="padding: 0; text-align: left" class="small-5 columns" for="CPU">
+        {{tr "Physical CPU"}}
+        {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
+      </label>
+      <label style="padding: 0; text-align: right" class="small-7 columns" id="quotas-cpu" hidden>
+      </label>
+    </div>
     <div class="cpu_input">
     </div>
   </div>
   <div class="vcpu_input_wrapper small-12 columns end">
     <label class="" for="VCPU">
-      {{tr "VCPU"}}
+      {{tr "Virtual CPU"}}
       {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
     </label>
     <div class="vcpu_input">
+    </div>
+  </div>
+  <div class="cores_per_socket_select_wrapper small-12 columns end">
+    <label class="" for="CORES_PER_SOCKET">
+      {{tr "Virtual Cores per Socket"}}
+      {{{tip (tr "Number of cores per socket. The number of sockets is automatically calculated dividing the VCPU value by the number of cores per socket value")}}}
+    </label>
+    <div class="cores_per_socket_select">
+      <select wizard_field="CORES" id="CORES_PER_SOCKET"/>
+    </div>
+  </div>
+  <div class="small-12 columns socket_info">
+    <div class="row">
+      <div class="small-12 columns">
+        <label>
+          {{tr "Sockets"}}: <span id="number_sockets"></span> 
+        </label>
+      </div>
     </div>
   </div>
 </div>

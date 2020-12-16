@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,8 @@
 #include "MarketPlaceAppPool.h"
 #include "Nebula.h"
 #include "Client.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -71,14 +73,15 @@ int MarketPlaceAppPool:: allocate(
             const std::string& uname,
             const std::string& gname,
             int                umask,
-            MarketPlaceAppTemplate * apptemplate,
+            std::unique_ptr<MarketPlaceAppTemplate> apptemplate,
             int                mp_id,
             const std::string& mp_name,
             int *              oid,
             std::string&       error_str)
 {
     MarketPlaceApp * mp;
-    MarketPlaceApp * mp_aux = 0;
+
+    int db_oid;
 
     std::string name;
 
@@ -87,7 +90,7 @@ int MarketPlaceAppPool:: allocate(
     // -------------------------------------------------------------------------
     // Build the marketplace app object
     // -------------------------------------------------------------------------
-    mp = new MarketPlaceApp(uid, gid, uname, gname, umask, apptemplate);
+    mp = new MarketPlaceApp(uid, gid, uname, gname, umask, move(apptemplate));
 
     mp->market_id   = mp_id;
     mp->market_name = mp_name;
@@ -102,9 +105,9 @@ int MarketPlaceAppPool:: allocate(
         goto error_name;
     }
 
-    mp_aux = get(name, uid, false);
+    db_oid = exist(name, uid);
 
-    if( mp_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -131,7 +134,7 @@ int MarketPlaceAppPool:: allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by MARKETPLACEAPP " << mp_aux->get_oid();
+    oss << "NAME is already taken by MARKETPLACEAPP " << db_oid;
     error_str = oss.str();
 
 error_name:
@@ -201,7 +204,6 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     if ( app->from_template64(t64, error_str) != 0 )
     {
-        app->lock();
         delete app;
 
         return -1;
@@ -209,7 +211,7 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
     app->market_id   = mp_id;
     app->market_name = mp_name;
-	app->zone_id     = Nebula::instance().get_zone_id();
+    app->zone_id     = Nebula::instance().get_zone_id();
 
     if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
     {
@@ -220,26 +222,25 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
 
         if ( !PoolObjectSQL::name_is_valid(app->name, error_str) )
         {
-            error_str = "Cannot generate a valida name for app";
+            error_str = "Cannot generate a valid name for app";
+
+            delete app;
+
             return -1;
         }
     }
 
-    MarketPlaceApp * mp_aux = get(app->name, 0, true);
-
-    if( mp_aux != 0 ) //Marketplace app already imported
+    if ( auto mp_aux = get(app->name, 0) ) //Marketplace app already imported
     {
         app_id = mp_aux->oid;
 
-        if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 )
+        if ( mp_aux->version != app->version || mp_aux->md5 != app->md5 ||
+                mp_aux->source != app->source )
         {
             mp_aux->from_template64(t64, error_str);
-            update(mp_aux);
+            update(mp_aux.get());
         }
 
-        mp_aux->unlock();
-
-        app->lock();
         delete app;
 
         return -2;
@@ -252,7 +253,6 @@ int MarketPlaceAppPool::import(const std::string& t64, int mp_id,
     {
         app_id = master_allocate(app, error_str);
 
-        app->lock();
         delete app;
 
         return app_id;
@@ -316,10 +316,12 @@ const int MarketPlaceAppPool::MAX_MISSING_MONITORS = 3;
 
 bool MarketPlaceAppPool::test_map_check(int app_id)
 {
-    map<int, int>::iterator it = map_check.find(app_id);
+    auto it = map_check.find(app_id);
 
     if ( it == map_check.end() )
     {
+        map_check.insert(make_pair(app_id, 1));
+
         return false;
     }
 
@@ -329,7 +331,7 @@ bool MarketPlaceAppPool::test_map_check(int app_id)
 
     if ( to_delete )
     {
-        map_check.erase(it); 
+        map_check.erase(it);
     }
 
     return to_delete;
@@ -337,7 +339,7 @@ bool MarketPlaceAppPool::test_map_check(int app_id)
 
 void MarketPlaceAppPool::reset_map_check(int app_id)
 {
-    map<int, int>::iterator it = map_check.find(app_id);
+    auto it = map_check.find(app_id);
 
     if ( it == map_check.end() )
     {

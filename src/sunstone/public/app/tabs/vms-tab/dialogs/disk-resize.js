@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,7 +23,8 @@ define(function(require) {
   var TemplateHTML = require('hbs!./disk-resize/html');
   var Sunstone = require('sunstone');
   var Tips = require('utils/tips');
-  var RangeSlider = require('utils/range-slider');
+  var UserInputs = require("utils/user-inputs");
+  //var RangeSlider = require('utils/range-slider');
   var Humanize = require('utils/humanize');
 
   /*
@@ -80,12 +81,19 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     Tips.setup(context);
-    $( ".diskSlider", context).html(RangeSlider.html({
-        min: that.diskSize,
-        max: Humanize.sizeToMB("500GB")*1024,
-        initial: that.diskSize,
-        name: "resize"
-    }));
+    var oneTera = Humanize.sizeToMB("1024GB")*1024;
+    var max = that.diskSize > oneTera? that.diskSize*1024 : oneTera;
+    var attrs = {
+      min: that.diskSize,
+      max: max,
+      initial: that.diskSize,
+      name: "resize",
+      max_value: "",
+      type: "range",
+      no_ticks: true
+  }
+    //$( ".diskSlider", context).html(RangeSlider.html(attrs));
+    UserInputs.insertAttributeInputMB(attrs, $(".diskSlider", context))
     $( ".uinput-slider-val",context).prop('type', 'text');
     $( ".uinput-slider-val",context).val(Humanize.size($( ".uinput-slider",context).val()));
 
@@ -98,7 +106,12 @@ define(function(require) {
       document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
     });
 
-    $( ".uinput-slider-val", context).on("change", function(){
+    $( ".uinput-slider-val", context).on("keypress", function(e){
+      if(e.which === 13){
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    }).on("change", function(e){
       $( ".uinput-slider",context).val(Humanize.sizeToMB(($( ".uinput-slider-val",context).val()).toString())*1024);
       var cost = Humanize.sizeToMB($( ".uinput-slider",context).val())*that.diskCost;
       if(isNaN(cost)){
@@ -113,10 +126,8 @@ define(function(require) {
     }
     document.getElementById("new_cost_resize").textContent =  Locale.tr("Cost")+": "+ convertCostNumber(cost);
 
-
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
-      var new_size = $( ".uinput-slider",context).val();
-      new_size = Math.round(parseInt(new_size) / 1024);
+      var new_size = parseInt(Humanize.sizeToMB($( ".uinput-slider-val", context).val()));
       new_size = new_size.toString();
       var obj = {
         "vm_id": that.element.ID,

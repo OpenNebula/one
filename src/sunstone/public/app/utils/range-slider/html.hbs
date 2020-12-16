@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -21,10 +21,10 @@
     <label for="input-{{sliderId}}">{{label}}</label>
   </div>
   {{/if}}
-  <div class="large-8 small-6 columns">
+  <div class="medium-6 small-7 columns">
     <input id="input-{{sliderId}}" type="range" class="uinput-slider"
-      min="{{min}}" max="{{max}}" step="{{step}}" 
-      value="{{initial}}" 
+      min="{{min}}" max="{{max}}" step="{{step}}"
+      value="{{initial}}"
       list="uinput-list-{{sliderId}}"
       {{#if disabled}}disabled="true"{{/if}}/>
     <datalist id="uinput-list-{{sliderId}}">
@@ -33,11 +33,14 @@
     {{/each}}
     </datalist>
   </div>
-  <div class="large-4 small-6 columns">
-    <input type="number" class="uinput-slider-val" 
-      min="{{min}}" max="{{max}}" step="{{step}}" 
-      value="{{initial}}" 
+  <div class="medium-6 small-5 columns">
+    <input type="number" class="uinput-slider-val hide"
+      min="{{min}}" max="{{max_value}}"
+      value="{{initial}}"
       {{#unless wizard_field_disabled}}wizard_field="{{name}}"{{/unless}}
-      {{#if disabled}}disabled="true"{{/if}} required/>
+      {{#if disabled}}disabled="true"{{/if}}/>
+    <input type="number" class="visor"
+      data-min="{{min}}" data-max="{{max_value}}"
+      value="{{initial}}" required/>
   </div>
 </div>

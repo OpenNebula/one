@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,6 +27,9 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var UniqueId = require('utils/unique-id');
   var OpenNebula = require('opennebula');
+  var UsersTable = require("tabs/users-tab/datatable");
+  var GroupTable = require("tabs/groups-tab/datatable");
+  var OpenNebulaHost = require("opennebula/host");
 
   /*
     TEMPLATES
@@ -53,9 +56,19 @@ define(function(require) {
     this.icon = 'fa-laptop';
     this.title = Locale.tr("General");
 
-    if(opts.listener != undefined){
+    if (opts.listener != undefined){
       this.listener = opts.listener;
     }
+
+    var opts = {
+      "select": true,
+      "selectOptions": {
+        "multiple_choice": false
+      }
+    };
+
+    this.usersTable = new UsersTable("UsersTable" + UniqueId.id(), opts);
+    this.groupTable = new GroupTable("GroupTable" + UniqueId.id(), opts);
   }
 
   WizardTab.prototype.constructor = WizardTab;
@@ -74,7 +87,9 @@ define(function(require) {
   function _html() {
     return TemplateHTML({
       'capacityCreateHTML': CapacityCreate.html(),
-      'logos': Config.vmLogos
+      'logos': Config.vmLogos,
+      'usersDatatable': this.usersTable.dataTableHTML,
+      'groupDatatable': this.groupTable.dataTableHTML,
     });
   }
 
@@ -99,45 +114,38 @@ define(function(require) {
   }
   function convertCostNumber(number){
     if(number >= 1000000){
-      number = (number/1000000).toFixed(6)
+      number = (number/1000000).toFixed(6);
       return number.toString()+"M";
     }
     else if(number >= 1000){
-      number = (number/1000).toFixed(6)
+      number = (number/1000).toFixed(6);
       return number.toString()+"K";
     }
     return number.toFixed(6);
   }
-  function caculatedTotalMemory(context){
-    var memory = document.getElementById('MEMORY_COST').value;
-    var type = document.getElementById('MEMORY_UNIT_COST').value;
-    memory = memory * 24 * 30; //24 hours and 30 days
-    document.getElementById('total_value_memory').textContent = convertCostNumber(memory);
-    $(".total_memory_cost", context).show();
-  }
 
   function _setup(context) {
     var that = this;
+
+    this.usersTable.initialize();
+    this.usersTable.refreshResourceTableSelect();
+    this.groupTable.initialize();
+    this.groupTable.refreshResourceTableSelect();
 
     $(document).on('click', "[href='#" + this.wizardTabId + "']", function(){
       //context.foundation('slider', 'reflow');
     });
 
     context.on("change", "#MEMORY_COST", function() {
-      caculatedTotalMemory(context);
       CapacityCreate.calculatedRealMemory(context);
     });
 
     context.on("change", "#MEMORY_UNIT_COST", function() {
-      caculatedTotalMemory(context);
-      CapacityCreate.calculatedRealMemory();
+      CapacityCreate.calculatedRealMemory(context);
     });
 
      context.on("change", "#CPU_COST", function() {
-      var cpu = document.getElementById('CPU_COST').value;
-      document.getElementById('total_value_cpu').textContent = convertCostNumber(cpu * 24 * 30);
-      $(".total_cpu_cost", context).show();
-      CapacityCreate.calculatedRealCpu();
+      CapacityCreate.calculatedRealCpu(context);
     });
 
     context.on("change", "#DISK_COST", function() {
@@ -150,9 +158,9 @@ define(function(require) {
             success: function(request, obj_files){
               var totalGB = 0;
               $.each(that.templateDISKS, function(ikey, ivalue){
-                if (ivalue.IMAGE_ID){
+                if (ivalue.IMAGE || ivalue.IMAGE_ID){
                   $.each(obj_files, function(jkey, jvalue){
-                    if (ivalue.IMAGE_ID == jvalue.IMAGE.ID){
+                    if ((ivalue.IMAGE && ivalue.IMAGE === jvalue.IMAGE.NAME && ivalue.IMAGE_UNAME === jvalue.IMAGE.UNAME) || (ivalue.IMAGE_ID && ivalue.IMAGE_ID === jvalue.IMAGE.ID)){
                       totalGB += jvalue.IMAGE.SIZE / 1024;
                     }
                   });
@@ -160,13 +168,20 @@ define(function(require) {
                   totalGB += ivalue.SIZE / 1024;
                 }
               });
-              totalCostDisk = totalGB * that.disk;
-              CapacityCreate.totalCost(totalCostDisk);
-              document.getElementById('total_value_disk').textContent = convertCostNumber(that.disk * 24 * 30);
+              var totalCostDisk = 0;
+              if (!isNaN(totalGB)){
+                totalCostDisk = totalGB * that.disk;
+                document.getElementById('total_value_disk').textContent = convertCostNumber(totalCostDisk * 24 * 30);
+                CapacityCreate.totalCost();
+              } else {
+                document.getElementById('total_value_disk').textContent = totalCostDisk;
+              }
               $(".total_disk_cost", context).show();
             }
           });
         }
+      } else {
+        document.getElementById('total_value_disk').textContent = 0;
       }
     });
 
@@ -178,20 +193,69 @@ define(function(require) {
     });
 
     context.on("change", "input[name='hypervisor']", function() {
-      // TODO define context (for example: this.closest('form'))
-      $(".hypervisor").hide();
-      $(".only_" + this.value).show();
-
       if (this.value == "vcenter"){
         $("#vcenter_template_ref", context).attr("required", "");
         $("#vcenter_instance_id", context).attr("required", "");
         $("#vcenter_ccr_ref", context).attr("required", "");
+        $("#MEMORY", context).attr("pattern", "^([048]|\\d*[13579][26]|\\d*[24680][048])$");
+        $('.only_kvm').hide();
+        $('.only_lxd').hide();
+        $('.only_vcenter').show();
       } else {
         $("#vcenter_template_ref", context).removeAttr("required");
         $("#vcenter_instance_id", context).removeAttr("required");
         $("#vcenter_ccr_ref", context).removeAttr("required");
+        $("#MEMORY", context).removeAttr("pattern");
+        $('.only_kvm').show();
+        $('.only_vcenter').hide();
+        if (this.value != "lxd")
+        {
+            $('.only_lxd').hide();
+            $('.not_lxd').show();
+            $('.raw_type').val('kvm');
+        }
       }
       // There is another listener in context.js setup
+
+      // Needs proper LXD view, this is just a workaround
+        // All KVM settings are available in LXD plus
+        // Privileged, Profile and Security Nesting
+
+      if (this.value == "lxd") {
+        $('.only_lxd').show();
+        $('.not_lxd').hide();
+        $('.raw_type').val('lxd');
+      }
+
+      var formContext = "#createVMTemplateFormWizard";
+      var NUMA_THREADS_MIN = 1;
+      var NUMA_THREADS_MAX = 2;
+      if (this.value == "firecracker") {
+        // [GENERAL]
+        $(".cpu_input > input", formContext).val("1");
+        // [NUMA]
+        $("#numa-pin-policy", formContext).val("SHARED");
+        $("#numa-sockets", formContext).val("1");
+        $("#numa-threads", formContext)
+          .prop("max", NUMA_THREADS_MAX)
+          .val(function(_, value) {
+            return (value > NUMA_THREADS_MAX) ? NUMA_THREADS_MAX : NUMA_THREADS_MIN;
+          })
+        
+        $('.disabled_firecracker', formContext).prop("disabled", true);
+        $('.not_firecracker', formContext).hide();
+      }
+      else {
+        // [GENERAL]
+        $(".cpu_input > input", formContext).val("");
+        // [NUMA]
+        $("#numa-pin-policy", formContext).val("NONE");
+        $("#numa-sockets", formContext).val("");
+        $("#numa-threads", formContext).removeAttr("max").val("");
+
+        $('.disabled_firecracker', formContext).removeAttr("disabled");
+        $('.not_firecracker', formContext).show();
+      }
     });
 
     CapacityCreate.setup($("div.capacityCreate", context));
@@ -201,6 +265,54 @@ define(function(require) {
         that.listener.notify();
       });
     }
+
+    function removeByMode(mode=""){
+      if(mode && mode.length){
+        var selectHypervisor = $("#template_hypervisor_form", context);
+        var id = mode+"Radio";
+        var option = selectHypervisor.find("#"+id).remove();
+        var label = selectHypervisor.find('label[for="'+id+'"]').remove();
+      }
+    }
+
+    if (config["mode"] === "kvm"){
+      $("#kvmRadio", context).click();
+      removeByMode("vcenter");
+      $('.only_kvm').show();
+      $('.only_vcenter').hide();
+    } else if (config["mode"] === "vcenter"){
+      $("#vcenterRadio", context).click();
+      removeByMode("kvm");
+      $('.only_kvm').hide();
+      $('.only_vcenter').show();
+    }
+
+    fillLXDProfiles(context)
+  }
+
+  function fillLXDProfiles(context){
+    OpenNebulaHost.lxdProfilesInfo({
+      data : {},
+      timeout: true,
+      success: function (request, lxdProfilesInfo){
+        if ($("#lxd_profile", context).html() === undefined){
+          lxdprofiles = lxdProfilesInfo;
+
+          var html = "<select id=\"lxd_profile\">";
+          html += "<option value=\"\">" + " " + "</option>";
+          $.each(lxdprofiles, function(i, lxdprofile){
+            html += "<option value='" + lxdprofile + "'>" + lxdprofile + "</option>";
+          });
+          html += "</select>";
+          $("#lxd_profile_label", context).append(html);
+        }
+
+      },
+      error: function(request, error_json){
+        console.error("There was an error requesting lxd info: " +
+                      error_json.error.message);
+      }
+    });
   }
 
   function _retrieve(context) {
@@ -213,6 +325,12 @@ define(function(require) {
       if (Config.isFeatureEnabled("vcenter_vm_folder")) {
         templateJSON["VCENTER_VM_FOLDER"] = WizardFields.retrieveInput($("#vcenter_vm_folder", context))
       }
+    }
+
+    if (templateJSON["HYPERVISOR"] == 'lxd') {
+      templateJSON["LXD_SECURITY_PRIVILEGED"] = WizardFields.retrieveInput($("#lxd_security_privileged", context));
+      templateJSON["LXD_PROFILE"] = WizardFields.retrieveInput($("#lxd_profile", context));
+      templateJSON["LXD_SECURITY_NESTING"] = WizardFields.retrieveInput($("#lxd_security_nesting", context));
     }
 
     var sunstone_template = {};
@@ -255,10 +373,34 @@ define(function(require) {
 
     $.extend(true, templateJSON, CapacityCreate.retrieve($("div.capacityCreate", context)));
 
+    if (templateJSON['MEMORY_COST'] && templateJSON['MEMORY_UNIT_COST'] && templateJSON['MEMORY_UNIT_COST'] == "GB") {
+      templateJSON['MEMORY_COST'] = templateJSON['MEMORY_COST'] / 1024;
+    }
+    if (templateJSON['DISK_COST']) {
+      templateJSON['DISK_COST'] = (templateJSON['DISK_COST'] / 1024).toString();
+    }
+
+    var as_uid = this.usersTable.retrieveResourceTableSelect();
+    if (as_uid){
+      templateJSON["AS_UID"] = as_uid;
+    }
+
+    var as_gid = this.groupTable.retrieveResourceTableSelect();
+    if (as_gid){
+      templateJSON["AS_GID"] = as_gid;
+    }
     return templateJSON;
   }
 
   function _fill(context, templateJSON) {
+
+    if (templateJSON['MEMORY_COST'] && templateJSON['MEMORY_UNIT_COST'] && templateJSON['MEMORY_UNIT_COST'] == "GB") {
+      templateJSON['MEMORY_COST'] = templateJSON['MEMORY_COST'] * 1024;
+    }
+    if (templateJSON['DISK_COST']) {
+      templateJSON['DISK_COST'] = templateJSON['DISK_COST'] * 1024;
+    }
+
     that.templateDISKS = $.extend(true, {}, templateJSON.DISK);
     localStorage.setItem("disksJSON", JSON.stringify(that.templateDISKS));
     var sunstone_template = templateJSON.SUNSTONE;
@@ -299,6 +441,11 @@ define(function(require) {
       }
     }
 
+    // LXD specific attributes
+    if (templateJSON["HYPERVISOR"] == 'lxd') {
+		fillLXD(context, templateJSON)
+    }
+
     if (templateJSON["HYPERVISOR"]) {
       $("input[name='hypervisor'][value='"+templateJSON["HYPERVISOR"]+"']", context).trigger("click")
       delete templateJSON["HYPERVISOR"];
@@ -316,7 +463,6 @@ define(function(require) {
       }
     }
 
-
     if (templateJSON["VCENTER_RESOURCE_POOL"]) {
       $('.modify_rp', context).val('fixed');
       WizardFields.fillInput($('.initial_rp', context), templateJSON["VCENTER_RESOURCE_POOL"]);
@@ -324,23 +470,59 @@ define(function(require) {
       delete templateJSON["VCENTER_RESOURCE_POOL"];
     }
 
-    if(templateJSON["VCENTER_TEMPLATE_REF"]){
+    if (templateJSON["VCENTER_TEMPLATE_REF"]){
       WizardFields.fillInput($("#vcenter_template_ref", context), templateJSON["VCENTER_TEMPLATE_REF"]);
       delete templateJSON["VCENTER_TEMPLATE_REF"];
     }
 
-    if(templateJSON["VCENTER_CCR_REF"]){
+    if (templateJSON["VCENTER_CCR_REF"]){
       WizardFields.fillInput($("#vcenter_ccr_ref", context), templateJSON["VCENTER_CCR_REF"]);
       delete templateJSON["VCENTER_CCR_REF"];
     }
 
-    if(templateJSON["VCENTER_INSTANCE_ID"]){
+    if (templateJSON["VCENTER_INSTANCE_ID"]){
       WizardFields.fillInput($("#vcenter_instance_id", context), templateJSON["VCENTER_INSTANCE_ID"]);
       delete templateJSON["VCENTER_INSTANCE_ID"];
     }
 
     CapacityCreate.fill($("div.capacityCreate", context), templateJSON);
 
+    if (templateJSON["AS_UID"]){
+      var asuidJSON = templateJSON["AS_UID"];
+      var selectedResources = {
+        ids : asuidJSON
+      };
+      this.usersTable.selectResourceTableSelect(selectedResources);
+      delete templateJSON["AS_UID"];
+    }
+
+    if (templateJSON["AS_GID"]){
+      var asgidJSON = templateJSON["AS_GID"];
+      var selectedResources = {
+        ids : asgidJSON
+      };
+      this.groupTable.selectResourceTableSelect(selectedResources);
+      delete templateJSON["AS_GID"];
+    }
+
     WizardFields.fill(context, templateJSON);
   }
+
+  function fillLXD(context, templateJSON) {
+    if (templateJSON["LXD_SECURITY_PRIVILEGED"]){
+      WizardFields.fillInput($("#lxd_security_privileged", context), templateJSON["LXD_SECURITY_PRIVILEGED"]);
+      delete templateJSON["LXD_SECURITY_PRIVILEGED"];
+    }
+
+    if (templateJSON["LXD_PROFILE"]){
+      WizardFields.fillInput($("#lxd_profile", context), templateJSON["LXD_PROFILE"]);
+      delete templateJSON["LXD_PROFILE"];
+    }
+
+    if (templateJSON["LXD_SECURITY_NESTING"]){
+      WizardFields.fillInput($("#lxd_security_nesting", context), templateJSON["LXD_SECURITY_NESTING"]);
+      delete templateJSON["LXD_SECURITY_NESTING"];
+    }
+  }
+
 });

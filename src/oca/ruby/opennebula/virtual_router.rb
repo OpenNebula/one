@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
@@ -34,6 +34,8 @@ module OpenNebula
             :rename      => "vrouter.rename",
             :attachnic   => "vrouter.attachnic",
             :detachnic   => "vrouter.detachnic",
+            :lock        => "vrouter.lock",
+            :unlock      => "vrouter.unlock"
         }
 
         # Creates a VirtualRouter description with just its identifier
@@ -55,6 +57,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, VIRTUAL_ROUTER_METHODS)
+
             super(xml,client)
 
             @client = client

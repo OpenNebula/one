@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,16 +16,44 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN="$1"
 SNAP_ID="$2"
 
-data=`virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN --name "snap-${SNAP_ID}"`
+# -------- Get datastore location from libvirt metadata ------------
+
+DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+METADATA_XML=`virsh --connect $LIBVIRT_URI metadata $DOMAIN $LIBVIRT_MD_URI $LIBVIRT_MD_KEY`
+
+unset i XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(echo "$METADATA_XML" | $XPATH /vm/system_datastore/)
+
+unset i
+
+DATASTORE_PATH="${XPATH_ELEMENTS[i++]}"
+
+
+# -------- Create the snapshot and dump its metadata to xml file ------------
+
+SNAP_NAME="snap-${SNAP_ID}"
+data=`retry_if "active block job" 3 5 virsh --connect $LIBVIRT_URI snapshot-create-as $DOMAIN --name "$SNAP_NAME"`
 
 if [ "$?" = "0" ]; then
     echo "$data" | awk '{print $3}'
+
+    if [ -n "$DATASTORE_PATH" ]; then
+        SNAP_XML_PATH="${DATASTORE_PATH}/${SNAP_NAME}.xml"
+
+        # dump snapshot metadata xml to the VM location
+        retry_if "active block job" 3 5 virsh --connect $LIBVIRT_URI snapshot-dumpxml $DOMAIN $SNAP_NAME > $SNAP_XML_PATH || true
+    fi
 else
     error_message "Could not create snapshot $NAME for domain $DOMAIN."
     exit -1

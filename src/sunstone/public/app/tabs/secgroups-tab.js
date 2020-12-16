@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,11 +43,12 @@ define(function(require) {
   var Tab = {
     tabId: TAB_ID,
     title: Locale.tr("Security Groups"),
-    icon: 'fa-shield',
+    icon: 'fa-shield-alt',
     tabClass: "subTab",
     parentTab: "network-top-tab",
     listHeader: Locale.tr("Security Groups"),
     infoHeader: Locale.tr("Security Group"),
+    lockable: false,
     subheader: '<span>\
         <span class="total_secgroups"/> <small>'+Locale.tr("TOTAL")+'</small>\
       </span>',

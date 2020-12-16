@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
+  require("jquery");
   var TemplateHTML = require('hbs!./range-slider/html');
 
   var sliderId = 0;
@@ -45,16 +46,23 @@ define(function(require) {
 
   function _html(opts) {
     opts['sliderId'] = sliderId;
-
     opts['ticks'] = [];
-    if (opts.tick_size !== undefined){
+    if (opts.tick_size !== undefined && !opts.no_ticks){
       var tick_val = opts.tick_size * Math.ceil(opts.min / opts.tick_size);
       while (tick_val <= opts.max){
         opts['ticks'].push(tick_val);
         tick_val += opts.tick_size;
       }
+      if(
+        opts && 
+        opts.min && 
+        opts.tick_size &&
+        parseInt(opts.min,10) && 
+        parseInt(opts.min, 10) < parseInt(opts.tick_size)
+      ){
+        opts['ticks'].unshift(opts.min)
+      }
     }
-    
     sliderId += 1;
     return TemplateHTML(opts);
   }
@@ -67,9 +75,10 @@ define(function(require) {
       if(parseInt(this.value) > parseInt(max))
         $("input[type=number]", $(this).closest('.uinput-slider-container')).val(max);
     });
-
     $(document).off("input", "input.uinput-slider");
     $(document).on("input", "input.uinput-slider", function(){
+      //change selector to MB
+      $(".mb_input_unit", $(this).closest('.mb_input_wrapper')).val("MB");
       $("input[type=number]", $(this).closest('.uinput-slider-container')).val( this.value );
     });
   }

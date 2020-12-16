@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,9 +19,22 @@
 require 'fileutils'
 require 'tmpdir'
 
+VERSION = "5.13.80"
+
+def version
+    v = VERSION
+
+    _, min, incr = v.split(".").collect{|e| e.to_i}
+
+    if min >= 80 || incr >= 80
+        v += ".pre"
+    end
+
+    v
+end
 
 DEFAULTS={
-    :version => "5.5.80",
+    :version => version,
     :date => Time.now.strftime("%Y-%m-%d"),
     :dependencies => []
 }
@@ -36,12 +49,12 @@ Gem::Specification.new do |s|
   s.summary     = "$(SUMMARY)"
   s.description = "$(DESCRIPTION)"
   s.authors     = ["OpenNebula"]
-  s.email       = 'contact@opennebula.org'
+  s.email       = 'contact@opennebula.io'
   s.license     = 'Apache-2.0'
   s.files       = [
 $(FILES)
   ]
-  s.homepage    = 'http://opennebula.org'
+  s.homepage    = 'http://opennebula.io'
 $(EXECUTABLES)
 $(DEPENDENCIES)
 end
@@ -82,7 +95,10 @@ GEM_DESCRIPTION={
     :cli => {
         :name => 'opennebula-cli',
         :files => [
-            ['src/cli/one[a-z]*', '/bin'],
+            # Needed for JSON and YAML outputs
+            ['share/doc/xsd/*.xsd', '/share/schemas/xsd'],
+
+            ['src/cli/one[a-z]*', '/bin', 'oneprovision'],
             ['src/cli/*.rb', '/lib'],
             ['src/cli/one_helper/*.rb', '/lib/one_helper'],
             ['NOTICE', ''],
@@ -91,7 +107,8 @@ GEM_DESCRIPTION={
         :summary => 'OpenNebula Command Line Interface',
         :description => 'Commands used to talk to OpenNebula',
         :dependencies => [
-            ['opennebula', "= #{DEFAULTS[:version]}"]
+            ['opennebula', "= #{DEFAULTS[:version]}"],
+            'activesupport'
         ]
     }
 }
@@ -110,11 +127,11 @@ end
 def file_list(description)
     files=Array.new
 
-    description[:files].each do |f, prefix|
-        source=Dir.glob(f)
+    description[:files].each do |f, prefix, exclude|
+        Dir.glob(f).each do |source|
+            next if (! exclude.nil?) and (source.match(exclude))
 
-        files+=source.map do |source|
-            [source, sane_prefix(prefix)+File.basename(source)]
+            files << [source, sane_prefix(prefix)+File.basename(source)]
         end
     end
 
@@ -211,7 +228,7 @@ def generate_gem(description)
             end
 
             Dir.glob("*.gem").each do |f|
-                FileUtils.cp(f, pwd) 
+                FileUtils.cp(f, pwd)
             end
         end
     end
@@ -224,4 +241,3 @@ Dir.chdir(root)
 
 
 GEM_DESCRIPTION.each {|name, gem| generate_gem(gem) }
-

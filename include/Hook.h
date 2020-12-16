@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,243 +17,190 @@
 #ifndef HOOK_H_
 #define HOOK_H_
 
-#include <vector>
 #include <string>
 
-using namespace std;
+#include "Template.h"
+#include "PoolObjectSQL.h"
+#include "NebulaUtil.h"
 
-//Forward definition of Hookable
-class Hookable;
+class HookImplementation;
 
-class PoolObjectSQL;
-
-/**
- *  This class is an abstract representation of a hook, provides a method to
- *  check if the hook has to be executed, and a method to invoke the hook. The
- *  hook is a program that can be executed locally or in a remote host when a
- *  condition is satisfied
- */
-class Hook
+class Hook : public PoolObjectSQL
 {
 public:
+
+    ~Hook();
 
     /**
      *  Defines the hook type, so a whole hook class can be masked
      */
     enum HookType
     {
-        ALLOCATE = 0x1,
-        UPDATE   = 0x2,
-        REMOVE   = 0x4
+        STATE     = 0x01,
+        API       = 0x02,
+        UNDEFINED = 0x04
     };
 
-    //--------------------------------------------------------------------------
-    // Constructor and Destructor
-    //--------------------------------------------------------------------------
-    Hook(const string &_name,
-         const string &_cmd,
-         const string &_args,
-         int           _ht,
-         bool         _remote):
-        name(_name), cmd(_cmd), args(_args), hook_type(_ht), remote(_remote){};
+    static std::string hook_type_to_str(HookType ht)
+    {
+        switch(ht)
+        {
+            case STATE:     return "state";
+            case API:       return "api";
+            case UNDEFINED: return "";
+        }
 
-    virtual ~Hook(){};
+        return "";
+    };
 
-    //--------------------------------------------------------------------------
-    // Hook methods
-    //--------------------------------------------------------------------------
-    /**
-     *  Returns the hook_type
-     */
-     int type() const
-     {
-        return hook_type;
-     }
+    static HookType str_to_hook_type(std::string& ht)
+    {
+        one_util::tolower(ht);
+
+        if (ht == "state")
+        {
+            return STATE;
+        }
+        else if (ht == "api")
+        {
+            return API;
+        }
+
+        return UNDEFINED;
+    }
 
     /**
-     *  Executes the hook it self (usually with the aid of the ExecutionManager)
-     *    @param arg additional arguments for the hook
+     * Function to print the Hook object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
      */
-    virtual void do_hook(void *arg) = 0;
+    std::string& to_xml(std::string& xml) const
+    {
+        return _to_xml(xml, false);
+    }
 
     /**
-     *  Parses the arguments of the hook using a generic $ID identifier, and
-     *  the target object.  $TEMPLATE will be the base64 encoding of the
-     *  template and $ID the oid of the object.
-     *    @param obj pointer to the object executing the hook for
-     *    @param the resulting parser arguments
+     *  Include exection records for the hook
      */
-    void parse_hook_arguments(PoolObjectSQL * obj,
-                              string&         parsed);
-protected:
+    std::string& to_xml_extended(std::string& xml) const
+    {
+        return _to_xml(xml, true);
+    }
+
+private:
+
+    friend class HookPool;
+
+    // *************************************************************************
+    // Constructor/Destructor
+    // *************************************************************************
+
+    Hook(std::unique_ptr<Template> tmpl);
+
     /**
-     *  Name of the Hook
+     * Set hook implementation attribute depending of the hook type.
      */
-    string   name;
+    int set_hook(HookType hook_type, std::string& error);
+
+    /**
+     *  Factory method for Hook templates
+     */
+    std::unique_ptr<Template> get_new_template() const
+    {
+        return std::make_unique<Template>();
+    }
+
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const std::string &xml_str);
+
+    /* Checks the mandatory templates attrbutes
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(std::string& error);
+
+    // -------------------------------------------------------------------------
+    // Hook Attributes
+    // -------------------------------------------------------------------------
+
+    /**
+     * The hook type
+     */
+    HookType type;
 
     /**
      *  The command to be executed
      */
-    string   cmd;
-
-    /**
-     *  The arguments for the command
-     */
-    string   args;
-
-    /**
-     *  The Hook Type
-     */
-    int      hook_type;
+    std::string   cmd;
 
     /**
      *  True if the command is to be executed remotely
      */
     bool     remote;
-};
 
-/**
- *  This class is general ObjectSQL Hook for allocation and removal.
- *  The object is looked when the hook is executed
- */
-class AllocateRemoveHook : public Hook
-{
-protected:
-    AllocateRemoveHook(const string& name,
-                       const string& cmd,
-                       const string& args,
-                       int           hook_type,
-                       bool          remote):
-        Hook(name, cmd, args, hook_type, remote){};
-
-    virtual ~AllocateRemoveHook(){};
-
-    // -------------------------------------------------------------------------
-    // Hook methods
-    // -------------------------------------------------------------------------
-
-    void do_hook(void *arg);
-
-    virtual string& remote_host(PoolObjectSQL *obj, string& hostname)
-    {
-        hostname.clear();
-
-        return hostname;
-    };
-};
-
-/**
- *  This class is general ObjectSQL Allocate Hook that executes a command
- *  when the ObjectSQL is inserted in the database. The object is looked when
- *  the hook is executed
- */
-class AllocateHook : public AllocateRemoveHook
-{
-public:
-    // -------------------------------------------------------------------------
-    // Init a hook of ALLOCATE type
-    // -------------------------------------------------------------------------
-    AllocateHook(const string& name,
-                 const string& cmd,
-                 const string& args,
-                 bool          remote):
-        AllocateRemoveHook(name, cmd, args, Hook::ALLOCATE, remote){};
-
-    virtual ~AllocateHook(){};
-};
-
-/**
- *  This class is general ObjectSQL Remove Hook that executes a command
- *  when the ObjectSQL is inserted in the database.
- */
-class RemoveHook : public AllocateRemoveHook
-{
-public:
-    // -------------------------------------------------------------------------
-    // Init a hook of ALLOCATE type
-    // -------------------------------------------------------------------------
-    RemoveHook(const string& name,
-               const string& cmd,
-               const string& args,
-               bool          remote):
-        AllocateRemoveHook(name, cmd, args, Hook::REMOVE, remote){};
-
-    virtual ~RemoveHook(){};
-};
-
-/**
- *  Objects that inherits from hookable will allow others to hook into it. The
- *  Hookable interface handles the list of hooks and provide a method to invoke
- *  the hooks.
- */
-class Hookable
-{
-public:
-    //--------------------------------------------------------------------------
-    // Constructor and Destructor Methods
-    //--------------------------------------------------------------------------
-    Hookable(){};
-
-    virtual ~Hookable()
-    {
-        int sz = static_cast<int>(hooks.size());
-
-        for (int i=0; i<sz ; i++)
-        {
-            delete hooks[i];
-        }
-    };
-
-    //--------------------------------------------------------------------------
-    // Hook Operations
-    //--------------------------------------------------------------------------
     /**
-     *  Hook in to the object
-     *    @param hk pointer to the hook, MUST be allocated in the HEAP
+     * Object which implement type dependent methods.
      */
-    void add_hook(Hook *hk)
+    HookImplementation * _hook;
+
+    // *************************************************************************
+    // Database implementation
+    // *************************************************************************
+
+    /**
+     *  Construct the XML representation of the hook
+     *  @param xml the resulting XML string
+     *  @param log to include the execution log
+     *
+     *  @return a reference to the generated string
+     */
+    std::string& _to_xml(std::string& xml, bool log) const;
+
+    /**
+     *  Bootstraps the database table(s) associated to the Host
+     *    @return 0 on success
+     */
+    static int bootstrap(SqlDB * db);
+
+    /**
+     *  Writes/updates the Hosts data fields in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update(SqlDB *db) override
     {
-        hooks.push_back(hk);
+        std::string error_str;
+        return insert_replace(db, true, error_str);
     };
 
     /**
-     *  Removes all hooks from the object
+     *  Writes the Hook in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
      */
-    void clear_hooks()
-    {
-        int sz = static_cast<int>(hooks.size());
-
-        for (int i=0; i<sz ; i++)
-        {
-            delete hooks[i];
-        }
-
-        hooks.clear();
-    };
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
-     *  Iterates through the hooks, checking if they have to be executed and
-     *  invokes them.
-     *    @param arg additional arguments for the hook
+     *  Execute an INSERT or REPLACE Sql query.
+     *    @param db The SQL DB
+     *    @param replace Execute an INSERT or a REPLACE
+     *    @param error_str Returns the error reason, if any
+     *    @return 0 one success
      */
-    void do_hooks(void *arg = 0, int hook_mask = 0xFF)
-    {
-        int sz = static_cast<int>(hooks.size());
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
-        for (int i=0; i<sz ; i++)
-        {
-            if ( hooks[i]->type() & hook_mask )
-            {
-                hooks[i]->do_hook(arg);
-            }
-        }
-    };
-
-private:
     /**
-     *  Those that hooked in the object
+     *  Drops object from the database
+     *    @param db pointer to the db
+     *    @return 0 on success
      */
-    vector<Hook *> hooks;
+    int drop(SqlDB *db) override;
 };
 
-#endif
+#endif /*HOOK_H_*/

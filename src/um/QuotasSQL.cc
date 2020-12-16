@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,8 @@
 #include "Nebula.h"
 
 #include "ObjectXML.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -108,7 +110,7 @@ int QuotasSQL::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Quota fields
 
-    sql_quota_xml = db->escape_str(to_xml_db(xml_quota).c_str());
+    sql_quota_xml = db->escape_str(to_xml_db(xml_quota));
 
     if ( sql_quota_xml == 0 )
     {
@@ -170,31 +172,3 @@ int QuotasSQL::drop(SqlDB *db)
 
     return rc;
 }
-
-/* ************************************************************************** */
-/* UserQuotas :: Database Access Functions                                    */
-/* ************************************************************************** */
-
-const char * UserQuotas::db_table = "user_quotas";
-
-const char * UserQuotas::db_names = "user_oid, body";
-
-const char * UserQuotas::db_oid_column = "user_oid";
-
-const char * UserQuotas::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS user_quotas ("
-    "user_oid INTEGER PRIMARY KEY, body MEDIUMTEXT)";
-
-/* ************************************************************************** */
-/* GroupQuotas :: Database Access Functions                                   */
-/* ************************************************************************** */
-
-const char * GroupQuotas::db_table = "group_quotas";
-
-const char * GroupQuotas::db_names = "group_oid, body";
-
-const char * GroupQuotas::db_oid_column = "group_oid";
-
-const char * GroupQuotas::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS group_quotas ("
-    "group_oid INTEGER PRIMARY KEY, body MEDIUMTEXT)";

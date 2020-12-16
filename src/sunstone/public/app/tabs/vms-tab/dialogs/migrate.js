@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,6 +28,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var Locale = require('utils/locale');
   var OpenNebulaVM = require('opennebula/vm');
+  var Config = require('sunstone-config');
 
   /*
     CONSTANTS
@@ -61,6 +62,7 @@ define(function(require) {
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
   Dialog.prototype.setLive = _setLive;
+  Dialog.prototype.setType = _setType;
 
   return Dialog;
 
@@ -84,6 +86,8 @@ define(function(require) {
 
     Tips.setup(context);
 
+    $("#enforce", context).attr("checked", Config.isFeatureEnabled("migrate_enforce"));
+
     $('#' + DIALOG_ID + 'Form', context).submit(function() {
       var extra_info = {};
 
@@ -100,8 +104,12 @@ define(function(require) {
       $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
         if (that.live) {
           Sunstone.runAction("VM.migrate_live_action", elem, extra_info);
-        } else {
+        } else if (that.type == 0) {
           Sunstone.runAction("VM.migrate_action", elem, extra_info);
+        } else if (that.type == 1){
+          Sunstone.runAction("VM.migrate_poff_action", elem, extra_info);
+        } else if (that.type == 2){
+          Sunstone.runAction("VM.migrate_poff_hard_action", elem, extra_info);
         }
       });
 
@@ -116,8 +124,28 @@ define(function(require) {
   function _onShow(context) {
     this.datastoresTable.resetResourceTableSelect();
     this.hostsTable.resetResourceTableSelect();
+    var vmTemplate = Sunstone.getElementRightInfo(TAB_ID);
 
-    if (this.live) {
+    if (
+      this.live &&
+      vmTemplate &&
+      vmTemplate.USER_TEMPLATE &&
+      vmTemplate.USER_TEMPLATE.HYPERVISOR &&
+      Config && Config.onedConf && Config.onedConf.VM_MAD && Array.isArray(Config.onedConf.VM_MAD)
+    ) {
+      var hypervisor = $.grep(Config.onedConf.VM_MAD, function(n,i) {
+        return n.NAME && n.NAME === vmTemplate.USER_TEMPLATE.HYPERVISOR;
+      })
+      
+      if (
+        !hypervisor[0] ||
+        !hypervisor[0].DS_LIVE_MIGRATION ||
+        hypervisor[0].DS_LIVE_MIGRATION !== "yes"
+      ) {
+        $(".migrate_vm_ds_selection", context).hide();
+      }
+    }
+    else {
       $(".migrate_vm_ds_selection", context).hide();
     }
 
@@ -148,5 +176,10 @@ define(function(require) {
   // @param [Boolean] live Set migrate live or migrate
   function _setLive(live) {
     this.live = live;
+  }
+
+  // @param [Int] type Set migration type
+  function _setType(type) {
+    this.type = type;
   }
 });

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,7 +27,7 @@ int RequestManagerUpdateTemplate::replace_template(
         const RequestAttributes &att,
         string &error_str)
 {
-    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    if (!att.is_admin())
     {
         return object->replace_template(tmpl, true, error_str);
     }
@@ -46,7 +46,7 @@ int RequestManagerUpdateTemplate::append_template(
         const RequestAttributes &att,
         string &error_str)
 {
-    if (att.uid!=UserPool::ONEADMIN_ID && att.gid!=GroupPool::ONEADMIN_ID)
+    if (!att.is_admin())
     {
         return object->append_template(tmpl, true, error_str);
     }
@@ -75,8 +75,6 @@ void RequestManagerUpdateTemplate::request_execute(
         update_type = xmlrpc_c::value_int(paramList.getInt(3));
     }
 
-    PoolObjectSQL * object;
-
     if ( basic_authorization(oid, att) == false )
     {
         return;
@@ -90,9 +88,9 @@ void RequestManagerUpdateTemplate::request_execute(
     }
 
 
-    object = pool->get(oid,true);
+    auto object = pool->get<PoolObjectSQL>(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -101,28 +99,63 @@ void RequestManagerUpdateTemplate::request_execute(
 
     if (update_type == 0)
     {
-        rc = replace_template(object, tmpl, att, att.resp_msg);
+        rc = replace_template(object.get(), tmpl, att, att.resp_msg);
     }
     else //if (update_type == 1)
     {
-        rc = append_template(object, tmpl, att, att.resp_msg);
+        rc = append_template(object.get(), tmpl, att, att.resp_msg);
     }
 
     if ( rc != 0 )
     {
         att.resp_msg = "Cannot update template. " + att.resp_msg;
         failure_response(INTERNAL, att);
-        object->unlock();
 
         return;
     }
 
-    pool->update(object);
+    pool->update(object.get());
 
-    object->unlock();
+    extra_updates(object.get());
 
     success_response(oid, att);
 
     return;
 }
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+int ClusterUpdateTemplate::extra_updates(PoolObjectSQL * obj)
+{
+    // -------------------------------------------------------------------------
+    // Update host capacity reservations
+    // -------------------------------------------------------------------------
+    auto hpool = Nebula::instance().get_hpool();
+
+    string ccpu;
+    string cmem;
+
+    auto cluster = static_cast<Cluster*>(obj);
+
+    const std::set<int>& hosts = cluster->get_host_ids();
+
+    cluster->get_reserved_capacity(ccpu, cmem);
+
+    for (auto hid : hosts)
+    {
+        auto host = hpool->get(hid);
+
+        if (host == nullptr)
+        {
+            continue;
+        }
+
+        if (host->update_reserved_capacity(ccpu, cmem))
+        {
+            hpool->update(host.get());
+        }
+    }
+
+    return 0;
+}

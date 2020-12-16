@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -18,6 +18,8 @@
 #include "VMGroupRule.h"
 
 #include <iomanip>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -63,9 +65,7 @@ VMGroupPolicy VMGroupRole::policy()
 
 void VMGroupRole::add_vm(int vm_id)
 {
-    std::pair<std::set<int>::iterator, bool> rc;
-
-    rc = vms.insert(vm_id);
+    auto rc = vms.insert(vm_id);
 
     if ( rc.second == false )
     {
@@ -125,13 +125,12 @@ static void affinity_requirements(int vm_id, std::string& requirements,
     }
 
     std::ostringstream oss;
-    std::set<int>::const_iterator it;
 
     bool first = true;
 
-    for ( it = vms.begin(); it != vms.end(); ++it )
+    for ( auto id : vms )
     {
-        if ( vm_id == -1 || vm_id != *it )
+        if ( vm_id == -1 || vm_id != id )
         {
             if ( !first )
             {
@@ -140,7 +139,7 @@ static void affinity_requirements(int vm_id, std::string& requirements,
 
             first = false;
 
-            oss << "(CURRENT_VMS " << op << " " << *it << ")";
+            oss << "(CURRENT_VMS " << op << " " << id << ")";
         }
     }
 
@@ -163,20 +162,19 @@ void VMGroupRole::role_requirements(VMGroupPolicy pol, std::string& reqs)
 void VMGroupRole::host_requirements(std::set<int>& hosts, const std::string& op1,
         const std::string& op2, std::ostringstream& oss)
 {
-    std::set<int>::const_iterator jt;
     bool empty = true;
 
-    for ( jt = hosts.begin() ; jt != hosts.end() ; ++jt )
+    for ( auto hid : hosts )
     {
         if ( empty == true )
         {
             empty = false;
 
-            oss << "(ID" << op1 << *jt << ")";
+            oss << "(ID" << op1 << hid << ")";
         }
         else
         {
-            oss << " " << op2 << " (ID" << op1 << *jt << ")";
+            oss << " " << op2 << " (ID" << op1 << hid << ")";
         }
     }
 }
@@ -228,7 +226,6 @@ void VMGroupRole::antiaffined_host_requirements(std::string& reqs)
 int VMGroupRoles::from_xml_node(const xmlNodePtr node)
 {
     std::vector<VectorAttribute *> roles;
-    std::vector<VectorAttribute *>::iterator it;
 
     if ( roles_template.from_xml_node(node) == -1 )
     {
@@ -237,12 +234,12 @@ int VMGroupRoles::from_xml_node(const xmlNodePtr node)
 
     roles_template.get("ROLE", roles);
 
-    for (it = roles.begin(); it != roles.end(); ++it)
+    for (auto vattr : roles)
     {
-        std::string rname = (*it)->vector_value("NAME");
+        std::string rname = vattr->vector_value("NAME");
 
         int rid;
-        int rc = (*it)->vector_value("ID", rid);
+        int rc = vattr->vector_value("ID", rid);
 
         if ( rname.empty() || rc == -1 )
         {
@@ -254,7 +251,7 @@ int VMGroupRoles::from_xml_node(const xmlNodePtr node)
             next_role = rid + 1;
         }
 
-        VMGroupRole * role = new VMGroupRole((*it));
+        VMGroupRole * role = new VMGroupRole(vattr);
 
         if ( by_id.insert(rid, role) == false )
         {
@@ -364,7 +361,7 @@ int VMGroupRoles::vm_size()
 {
     int total = 0;
 
-    for ( role_iterator it = begin(); it != end() ; ++it )
+    for ( auto it = begin(); it != end() ; ++it )
     {
         total += (*it)->get_vms().size();
     }
@@ -378,18 +375,17 @@ int VMGroupRoles::vm_size()
 int VMGroupRoles::names_to_ids(const std::string& rnames, std::set<int>&  keyi)
 {
     std::set<std::string> a_set, key_set;
-    std::set<std::string>::iterator it;
 
     one_util::split_unique(rnames, ',', a_set);
 
-    for ( it = a_set.begin(); it != a_set.end() ; ++it )
+    for ( const auto& name : a_set )
     {
-        key_set.insert(one_util::trim(*it));
+        key_set.insert(one_util::trim(name));
     }
 
-    for ( it = key_set.begin(); it != key_set.end(); ++it )
+    for ( const auto& name : key_set )
     {
-        VMGroupRole *r = by_name.get(*it);
+        VMGroupRole *r = by_name.get(name);
 
         if ( r == 0 )
         {

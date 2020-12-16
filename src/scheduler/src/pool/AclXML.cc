@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,8 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 #include "AclXML.h"
+#include "AclRule.h"
 #include "ObjectXML.h"
 #include <vector>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -71,14 +74,13 @@ int AclXML::load_rules(const string& xml_str)
     ObjectXML          acl_xml(xml_str);
 
     vector<xmlNodePtr>           rules;
-    vector<xmlNodePtr>::iterator it;
 
     acl_xml.get_nodes("/ACL_POOL/ACL",rules);
 
-    for (it = rules.begin(); it != rules.end() ; it++)
+    for (auto node : rules)
     {
         AclRule * rule = new AclRule(0,0,0,0,0);
-        int       rc   = rule->from_xml(*it);
+        int       rc   = rule->from_xml(node);
 
         if ( rc == 0 )
         {
@@ -97,9 +99,7 @@ int AclXML::load_rules(const string& xml_str)
 
 void AclXML::flush_rules()
 {
-    multimap<long long, AclRule *>::iterator  it;
-
-    for ( it = acl_rules.begin(); it != acl_rules.end(); it++ )
+    for ( auto it = acl_rules.begin(); it != acl_rules.end(); it++ )
     {
         delete it->second;
     }

@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,12 +16,14 @@
 
 <fieldset>
   <legend>
-    <i class="fa fa-tasks"></i> {{tr "Disks"}}
+    <i class="fas fa-server"></i> {{tr "Disks"}}
     <span class="provision_create_template_disk_cost_div" hidden>
       <span class="cost_value">0.00</span>
       <small>{{tr "COST"}} / {{tr "HOUR"}}</small>
     </span>
   </legend>
+  <label class="" id="quotas-disks" style="margin-top: -20px; text-align: right" hidden>
+    </label>
   <div class="disksContainer">
   </div>
 </fieldset>

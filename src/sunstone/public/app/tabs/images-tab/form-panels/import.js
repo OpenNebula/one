@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,6 +25,9 @@ define(function(require) {
   var Locale = require('utils/locale');
   var VCenterImages = require('utils/vcenter/images');
   var ResourceSelect = require('utils/resource-select');
+  var HostsTable = require('tabs/hosts-tab/datatable');
+  var UniqueId = require('utils/unique-id');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -56,6 +59,15 @@ define(function(require) {
 
     this.vCenterImages = new VCenterImages();
 
+    var options = {
+      'select': true,
+      'selectOptions': {
+        'multiple_choice': false,
+        "filter_fn": function(host) { return host.VM_MAD === "vcenter" && host.IM_MAD === "vcenter"; }
+      }
+    };
+    this.hostsTable = new HostsTable('HostsTable' + UniqueId.id(), options);
+
     BaseFormPanel.call(this);
   }
 
@@ -66,7 +78,6 @@ define(function(require) {
   FormPanel.prototype.submitWizard = _submitWizard;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
-  FormPanel.prototype.reInitForm = _reInitForm;
 
   return FormPanel;
 
@@ -77,45 +88,43 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateHTML({
       'formPanelId': this.formPanelId,
+      'vCenterHostsHTML': this.hostsTable.dataTableHTML,
       'vCenterImagesHTML': this.vCenterImages.html()
     });
   }
 
-  function _reInitForm(context) {
-    var that = this;
-
-    $("form.vcenter_credentials", context)
-      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
-
-    Foundation.reInit($("form.vcenter_credentials", context));
-
-    $("form.vcenter_credentials", context)
-      .on('forminvalid.zf.abide', function(ev, frm) {
-      })
-      .on('formvalid.zf.abide', function(ev, frm) {
-        Sunstone.enableFormPanelSubmit(TAB_ID);
-
-        var vcenter_user      = $("#vcenter_user", context).val();
-        var vcenter_password  = $("#vcenter_password", context).val();
-        var vcenter_host      = $("#vcenter_host", context).val();
-        var vcenter_datastore = $("#vcenter_datastore", context).val();
-
-        that.vCenterImages.insert({
-          container: context,
-          vcenter_user: vcenter_user,
-          vcenter_password: vcenter_password,
-          vcenter_host: vcenter_host,
-          vcenter_datastore: vcenter_datastore
-        });
-
-      })
-      .on("submit", function(ev) {
-        ev.preventDefault();
-      });
-  }
-
   function _setup(context) {
-    this.reInitForm(context);
+    var that = this;
+    this.hostsTable.initialize();
+    this.hostsTable.refreshResourceTableSelect();
+
+    $(context).off("click", "#get-vcenter-images");
+    $(context).on("click", "#get-vcenter-images", function(){
+      var selectedHost = that.hostsTable.retrieveResourceTableSelect();
+      if (selectedHost !== ""){
+        var selectedDs = $("#vcenter_datastore option:selected").attr("elem_id");
+        if (selectedDs !== undefined){
+          that.vCenterImages.insert({
+            container: context,
+            selectedHost: selectedHost,
+            selectedDs: selectedDs
+          });
+          $("#import_vcenter_images", this.parentElement).prop("disabled", false);
+        } else {
+          Notifier.notifyMessage("You need select a vCenter datastore first");
+        }
+      }
+      else {
+        Notifier.notifyMessage("You need select a vCenter host first");
+      }
+    });
+
+    $(context).off("click", "#import_vcenter_images");
+    $(context).on("click", "#import_vcenter_images", function(){
+      that.vCenterImages.import(context);
+      return false;
+    });
+
     return false;
   }
 
@@ -132,6 +141,7 @@ define(function(require) {
   function _onShow(context) {
     var that = this;
 
+    $("#images-tab .submit_button").hide();
     var vcenter_datastore = $("div#vcenter_datastore_wrapper .resource_list_select", context).val();
     if (!vcenter_datastore) vcenter_datastore = undefined;
 
@@ -144,10 +154,7 @@ define(function(require) {
         filterKey: 'DS_MAD',
         filterValue: 'vcenter',
         selectId: 'vcenter_datastore',
-        required: true,
-        callback: function(element){
-          that.reInitForm(context);
-        }
+        required: true
       });
   }
 });

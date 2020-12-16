@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,10 +18,14 @@
 #include "User.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "VirtualNetworkPool.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 
-SecurityGroupPool::SecurityGroupPool(SqlDB * db):PoolSQL(db,SecurityGroup::table)
+SecurityGroupPool::SecurityGroupPool(SqlDB * db)
+    : PoolSQL(db, one_db::sg_table)
 {
     //lastOID is set in PoolSQL::init_cb
     if (get_lastOID() == -1)
@@ -38,11 +42,11 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db):PoolSQL(db,SecurityGroup::table
 
         Nebula& nd         = Nebula::instance();
         UserPool * upool   = nd.get_upool();
-        User *    oneadmin = upool->get(0, false);
+        auto      oneadmin = upool->get_ro(0);
 
         string error;
 
-        Template * default_tmpl = new Template;
+        auto default_tmpl = make_unique<Template>();
         char * error_parse;
 
         default_tmpl->parse(default_sg, &error_parse);
@@ -53,7 +57,7 @@ SecurityGroupPool::SecurityGroupPool(SqlDB * db):PoolSQL(db,SecurityGroup::table
                 oneadmin->get_uname(),
                 oneadmin->get_gname(),
                 oneadmin->get_umask(),
-                default_tmpl);
+                move(default_tmpl));
 
         secgroup->set_permissions(1,1,1,1,0,0,1,0,0,error);
 
@@ -83,18 +87,17 @@ int SecurityGroupPool::allocate(
         const string&   uname,
         const string&   gname,
         int             umask,
-        Template *      sgroup_template,
+        unique_ptr<Template> sgroup_template,
         int *           oid,
         string&         error_str)
 {
-    SecurityGroup * secgroup;
-    SecurityGroup * secgroup_aux = 0;
-
+    int    db_oid;
     string name;
 
     ostringstream oss;
 
-    secgroup = new SecurityGroup(uid, gid, uname, gname, umask, sgroup_template);
+    auto secgroup = new SecurityGroup(uid, gid, uname, gname, umask,
+                                      move(sgroup_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -107,19 +110,19 @@ int SecurityGroupPool::allocate(
         goto error_name;
     }
 
-    secgroup_aux = get(name,uid,false);
+    db_oid = exist(name, uid);
 
-    if( secgroup_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
 
-    *oid = PoolSQL::allocate(secgroup, error_str);
+    *oid = PoolSQL::allocate(move(secgroup), error_str);
 
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by SecurityGroup " << secgroup_aux->get_oid() << ".";
+    oss << "NAME is already taken by SecurityGroup " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -135,57 +138,50 @@ error_name:
 void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
     vector<VectorAttribute*> &rules)
 {
-    vector<VectorAttribute*>::iterator rule_it;
     vector<VectorAttribute*> sg_rules;
 
     int vnet_id;
     VirtualNetworkPool* vnet_pool = Nebula::instance().get_vnpool();
 
-    SecurityGroup* sg = get(sgid, true);
+    if (auto sg = get(sgid))
+    {
+        if ( vmid != -1 )
+        {
+            sg->add_vm(vmid);
 
-    if (sg == 0)
+            update(sg.get());
+        }
+
+        sg->get_rules(sg_rules);
+    }
+    else
     {
         return;
     }
 
-    if ( vmid != -1 )
+    for (auto rule : sg_rules)
     {
-        sg->add_vm(vmid);
-
-        update(sg);
-    }
-
-    sg->get_rules(sg_rules);
-
-    sg->unlock();
-
-    for (rule_it = sg_rules.begin(); rule_it != sg_rules.end(); rule_it++)
-    {
-        if ( (*rule_it)->vector_value("NETWORK_ID", vnet_id) != -1 )
+        if ( rule->vector_value("NETWORK_ID", vnet_id) != -1 )
         {
             vector<VectorAttribute*> vnet_rules;
 
-            VectorAttribute* rule = *rule_it;
+            if ( auto vnet = vnet_pool->get_ro(vnet_id) )
+            {
+                vnet->process_security_rule(rule, vnet_rules);
 
-            VirtualNetwork* vnet  = vnet_pool->get(vnet_id, true);
+                delete rule;
 
-            if (vnet == 0)
+                rules.insert(rules.end(), vnet_rules.begin(), vnet_rules.end());
+            }
+            else
             {
                 delete rule;
                 continue;
             }
-
-            vnet->process_security_rule(rule, vnet_rules);
-
-            vnet->unlock();
-
-            delete rule;
-
-            rules.insert(rules.end(), vnet_rules.begin(), vnet_rules.end());
         }
         else
         {
-            rules.push_back(*rule_it);
+            rules.push_back(rule);
         }
     }
 }
@@ -193,28 +189,18 @@ void SecurityGroupPool::get_security_group_rules(int vmid, int sgid,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void SecurityGroupPool::release_security_groups(int id, set<int>& sgs)
+void SecurityGroupPool::release_security_group(int id, int sgid)
 {
-    set<int>::iterator it;
-    SecurityGroup *    sg;
-
-    for (it = sgs.begin(); it != sgs.end(); it++)
+    if (id == -1)
     {
-        sg = get(*it, true);
+        return;
+    }
 
-        if (sg == 0)
-        {
-            continue;
-        }
+    if ( auto sg = get(sgid) )
+    {
+        sg->del_vm(id);
 
-        if ( id != -1 )
-        {
-            sg->del_vm(id);
-
-            update(sg);
-        }
-
-        sg->unlock();
+        update(sg.get());
     }
 }
 

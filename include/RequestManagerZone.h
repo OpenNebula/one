@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
-
-using namespace std;
+#include "ZonePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +28,9 @@ using namespace std;
 class RequestManagerZone: public Request
 {
 protected:
-    RequestManagerZone(const string& method_name,
-                       const string& help,
-                       const string& params)
+    RequestManagerZone(const std::string& method_name,
+                       const std::string& help,
+                       const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd = Nebula::instance();
@@ -62,7 +61,7 @@ public:
     ~ZoneAddServer(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -78,7 +77,23 @@ public:
     ~ZoneDeleteServer(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ZoneResetServer : public RequestManagerZone
+{
+public:
+    ZoneResetServer():
+        RequestManagerZone("one.zone.resetserver", "Reset server log index",
+                "A:sis"){};
+
+    ~ZoneResetServer(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -98,7 +113,7 @@ public:
     ~ZoneReplicateLog(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -116,7 +131,7 @@ public:
     ~ZoneVoteRequest(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -134,7 +149,7 @@ public:
     ~ZoneRaftStatus(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -153,7 +168,7 @@ public:
     ~ZoneReplicateFedLog(){};
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 #endif

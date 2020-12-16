@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,10 +43,27 @@ define(function(require) {
   var ATTACH_DISK_DIALOG_ID = require('../dialogs/attach-disk/dialogId');
   var DISK_SNAPSHOT_DIALOG_ID = require('../dialogs/disk-snapshot/dialogId');
   var DISK_SAVEAS_DIALOG_ID = require('../dialogs/disk-saveas/dialogId');
+  var DISK_SNAPSHOT_RENAME_DIALOG_ID = require('../dialogs/disk-snapshot-rename/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var DISK_RESIZE_DIALOG_ID = require('../dialogs/disk-resize/dialogId');
   var RESOURCE = "VM"
   var XML_ROOT = "VM"
+
+  var isFirecracker = function(context){
+    return context && 
+    context.element && 
+    context.element.USER_TEMPLATE && 
+    context.element.USER_TEMPLATE.HYPERVISOR && 
+    context.element.USER_TEMPLATE.HYPERVISOR === "firecracker"
+  }
+
+  var validateState = function(context, state){
+    var rtn = false;
+    if(context && state && context.element && context.element.STATE && context.element.LCM_STATE){
+      rtn = StateActions.enabledStateAction(state, context.element.STATE, context.element.LCM_STATE)
+    }
+    return rtn;
+  }
 
   /*
     CONSTRUCTOR
@@ -55,7 +72,7 @@ define(function(require) {
   function Panel(info) {
     this.panelId = PANEL_ID;
     this.title = Locale.tr("Storage");
-    this.icon = "fa-tasks";
+    this.icon = "fa-server";
 
     this.element = info[XML_ROOT];
 
@@ -97,7 +114,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_drb_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -113,7 +130,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_dwb_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -129,7 +146,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_drio_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -145,7 +162,7 @@ define(function(require) {
                 <div class="row">\
                   <div class="large-12 columns centered graph" id="vm_st_dwio_graph" style="height: 100px;">\
                     <span  id="provision_dashboard_total" style="font-size:80px">\
-                      <i class="fa fa-spinner fa-spin"></i>\
+                      <i class="fas fa-spinner fa-spin"></i>\
                     </span>\
                   </div>\
                 </div>\
@@ -254,7 +271,6 @@ define(function(require) {
 
     var disk_dt_data = [];
     if (disks.length) {
-
       for (var i = 0; i < disks.length; i++) {
         var disk = disks[i];
 
@@ -284,21 +300,23 @@ define(function(require) {
         } else {
           actions = '';
 
-
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_saveas")) {
             // Check if it's volatile
-            if (disk.IMAGE_ID &&
-                 StateActions.enabledStateAction("VM.disk_saveas", that.element.STATE, that.element.LCM_STATE)) {
-              if(Array.isArray(that.element.HISTORY_RECORDS.HISTORY)){
-                var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
-                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
-                  actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';
-                }
-              } else {
-                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
-                  actions += '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
-              <i class="fa fa-save fa-fw" title="Saveas"></i></a> &emsp;';
+            if (disk.IMAGE_ID && validateState(that,"VM.disk_saveas")) {
+                  if(Array.isArray(that.element.HISTORY_RECORDS.HISTORY)){
+                    var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
+                    if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
+                      var render = '<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
+                        <i class="fas fa-save fa-fw" title="Saveas"></i>\
+                      </a> &emsp;';
+                      actions += !isFirecracker(that)? render : "";
+                  }
+                } else {
+                  if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
+                    var render ='<a href="VM.disk_saveas" class="disk_saveas nowrap" >\
+                      <i class="fas fa-save fa-fw" title="Saveas"></i>\
+                    </a> &emsp;';
+                    actions += !isFirecracker(that)? render : "";
                 }
               }
               //+ Locale.tr("Save as") + ';'
@@ -307,35 +325,31 @@ define(function(require) {
 
 
           if (Config.isTabActionEnabled("vms-tab", "VM.detachdisk")) {
-            if (StateActions.enabledStateAction("VM.detachdisk", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
-              actions += ('<a href="VM.detachdisk" class="detachdisk nowrap" >\
-              <i class="fa fa-times fa-fw" title="Detach"></i></a> &emsp;');// + Locale.tr("Detach") +
-              
+            var vmState = validateState(that,"VM.detachdisk");
+            var render = (
+              '<a href="VM.detachdisk" class="detachdisk nowrap" >\
+                  <i class="fas fa-times fa-fw" title="Detach"></i>\
+               </a> &emsp;'
+            );
+            if(isFirecracker(that) && !vmState){
+              actions += render;
+            }
+            if(!isFirecracker(that) && vmState && !disk.CONTEXT){
+              actions += render;
             }
           }
 
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_create")) {
-            if (StateActions.enabledStateAction("VM.disk_snapshot_create", that.element.STATE, that.element.LCM_STATE) && disk.IMAGE_ID) {
+            if (validateState(that,"VM.disk_snapshot_create") && disk.IMAGE_ID) {
               actions += ('<a href="VM.disk_snapshot_create" class="disk_snapshot_create nowrap" >\
-              <i class="fa fa-camera fa-fw" title="Snapshot"></i></a> &emsp;');//+ Locale.tr("Snapshot") +
-              
+              <i class="fas fa-camera fa-fw" title="Snapshot"></i></a> &emsp;');//+ Locale.tr("Snapshot") +
             }
           }
           
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
-            if (StateActions.enabledStateAction("VM.disk_resize", that.element.STATE, that.element.LCM_STATE) && !disk.CONTEXT) {
-              if(Array.isArray(that.element.HISTORY_RECORDS.HISTORY)){
-                var historyLenght = that.element.HISTORY_RECORDS.HISTORY.length - 1;
-                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY[historyLenght].VM_MAD != "vcenter"){
-                  actions += ('<a class="disk_resize nowrap" >\
-                  <i class="fa fa-expand fa-fw" title="Resize"></i></a>');
-                }
-              } else {
-                if(that.element.LCM_STATE != "3" || that.element.HISTORY_RECORDS.HISTORY.VM_MAD != "vcenter"){
-                  actions += ('<a class="disk_resize nowrap" >\
-                  <i class="fa fa-expand fa-fw" title="Resize"></i></a>');
-                }
-              }
+            if (validateState(that,"VM.disk_resize") && !disk.CONTEXT) {
+              actions += ('<a class="disk_resize nowrap" >\
+              <i class="fas fa-expand-arrows-alt fa-fw" title="Resize"></i></a>');
             }
           }
         }
@@ -386,7 +400,7 @@ define(function(require) {
           "class":          'open-control',
           "orderable":      false,
           "data":           null,
-          "defaultContent": '<span class="fa fa-fw fa-chevron-down"></span>'
+          "defaultContent": '<span class="fas fa-fw fa-chevron-down"></span>'
         },
         {"data": "DISK_ID",   "defaultContent": ""},
         {"data": "TARGET",    "defaultContent": ""},
@@ -449,7 +463,9 @@ define(function(require) {
     }
 
     if (Config.isTabActionEnabled("vms-tab", "VM.attachdisk")) {
-      if (!StateActions.enabledStateAction("VM.attachdisk", that.element.STATE, that.element.LCM_STATE)){
+      var vmState = validateState(that,"VM.attachdisk");
+
+      if((isFirecracker(that) && vmState) || (!isFirecracker(that) && !vmState)){
         $('#attach_disk', context).attr("disabled", "disabled");
       }
 
@@ -524,10 +540,12 @@ define(function(require) {
       // Enable/disable buttons
       if ($(this).is(":checked")) {
         $(".disk_snapshot_saveas", snapshotsSection).prop('disabled', false);
+        $(".disk_snapshot_rename", snapshotsSection).prop('disabled', false);
         $(".disk_snapshot_revert", snapshotsSection).prop('disabled', false);
         $(".disk_snapshot_delete", snapshotsSection).prop('disabled', false);
       } else {
         $(".disk_snapshot_saveas", snapshotsSection).prop('disabled', true);
+        $(".disk_snapshot_rename", snapshotsSection).prop('disabled', true);
         $(".disk_snapshot_revert", snapshotsSection).prop('disabled', true);
         $(".disk_snapshot_delete", snapshotsSection).prop('disabled', true);
       }
@@ -542,6 +560,27 @@ define(function(require) {
         var snapshot_id = $(".snapshot_check_item:checked", snapshotsSection).attr('snapshot_id');
 
         var dialog = Sunstone.getDialog(DISK_SAVEAS_DIALOG_ID);
+        dialog.setParams(
+          { element: that.element,
+            diskId: disk_id,
+            snapshotId: snapshot_id
+          });
+
+        dialog.reset();
+        dialog.show();
+        return false;
+      });
+    }
+
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_snapshot_rename")) {
+      context.off('click', '.disk_snapshot_rename');
+      context.on('click', '.disk_snapshot_rename', function() {
+        var snapshotsSection = $(this).closest('.snapshots');
+
+        var disk_id = snapshotsSection.attr('disk_id');
+        var snapshot_id = $(".snapshot_check_item:checked", snapshotsSection).attr('snapshot_id');
+
+        var dialog = Sunstone.getDialog(DISK_SNAPSHOT_RENAME_DIALOG_ID);
         dialog.setParams(
           { element: that.element,
             diskId: disk_id,
@@ -602,19 +641,29 @@ define(function(require) {
         return false;
       });
     }
-    if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
-    context.off('click', '.disk_resize');
+    if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
+      context.off('click', '.disk_resize');
       context.on('click', '.disk_resize', function() {
+        
+        // Error message when try to resize a disk on a 
+        // VM with VCenter hypervisor and snapshots.
+        if (that && that.element && 
+            that.element.TEMPLATE && that.element.TEMPLATE.SNAPSHOT &&
+            that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR=="vcenter"){
+          Notifier.notifyError("'disk-resize' operation not supported for VMs with snapshots");
+          return false;
+        }
+
         var disk_id = $(this).parents('tr').attr('disk_id');
         var disk_size = "";
         if(Array.isArray(that.element.TEMPLATE.DISK)){
           $.each(that.element.TEMPLATE.DISK, function(){
             if (this.DISK_ID == disk_id){
-              disk_size = this.SIZE * 1024;
+              disk_size = this.SIZE;
             }
           });
         } else {
-            disk_size = that.element.TEMPLATE.DISK.SIZE * 1024;
+            disk_size = that.element.TEMPLATE.DISK.SIZE;
         }
         var dialog = Sunstone.getDialog(DISK_RESIZE_DIALOG_ID);
         dialog.setParams(
@@ -629,7 +678,7 @@ define(function(require) {
         return false;
       });
     }
-   
+
     Tree.setup(context);
   }
 
@@ -686,7 +735,7 @@ define(function(require) {
     var active = (snapshot.ACTIVE == "YES");
 
     if(active){
-      html += '<i class="fa fa-play-circle-o fa-lg" title="'+
+      html += '<i class="fas fa-play-circle fa-lg" title="'+
                 Locale.tr("Active")+'"/>' + SPACE;
     }
 
@@ -717,19 +766,24 @@ define(function(require) {
 
   function _onShow(context) {
     var that = this;
+    var vmState = validateState(that,"VM.attachdisk");
+    if((isFirecracker(that) && vmState)){
+      $('#attach_disk', context).attr("disabled", "disabled");
+    }
+
     if (OpenNebulaVM.isDiskGraphsSupported(that.element)) {
       OpenNebulaVM.monitor({
         data: {
           id: that.element.ID,
           monitor: {
-            monitor_resources : "MONITORING/DISKRDBYTES,MONITORING/DISKWRBYTES,MONITORING/DISKRDIOPS,MONITORING/DISKWRIOPS"
+            monitor_resources : "DISKRDBYTES,DISKWRBYTES,DISKRDIOPS,DISKWRIOPS"
           }
         },
         success: function(req, response) {
           var vmGraphs = [
             {
               labels : Locale.tr("Disk read bytes"),
-              monitor_resources : "MONITORING/DISKRDBYTES",
+              monitor_resources : "DISKRDBYTES",
               humanize_figures : true,
               convert_from_bytes : true,
                derivative : true,
@@ -737,7 +791,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Disk write bytes"),
-              monitor_resources : "MONITORING/DISKWRBYTES",
+              monitor_resources : "DISKWRBYTES",
               humanize_figures : true,
               convert_from_bytes : true,
                derivative : true,
@@ -745,7 +799,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Disk read IOPS"),
-              monitor_resources : "MONITORING/DISKRDIOPS",
+              monitor_resources : "DISKRDIOPS",
               //humanize_figures : true,
               //convert_from_bytes : true,
               y_sufix : "IOPS/s",
@@ -754,7 +808,7 @@ define(function(require) {
             },
             {
               labels : Locale.tr("Disk write IOPS"),
-              monitor_resources : "MONITORING/DISKWRIOPS",
+              monitor_resources : "DISKWRIOPS",
               //humanize_figures : true,
               //convert_from_bytes : true,
               y_sufix : "IOPS/s",

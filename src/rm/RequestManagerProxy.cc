@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 #include "RequestManagerProxy.h"
 #include "Nebula.h"
+#include "Client.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -33,7 +34,7 @@ void RequestManagerProxy::request_execute(xmlrpc_c::paramList const& _paramList,
 
         *(att.retval) = return_value;
     }
-    catch(exception const& e)
+    catch(std::exception const& e)
     {
         att.resp_msg = "Could not connect to the federation master oned";
         failure_response(INTERNAL, att);

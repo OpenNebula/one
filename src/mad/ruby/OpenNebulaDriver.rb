@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,10 +14,10 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require "ActionManager"
-require "CommandManager"
+require 'ActionManager'
+require 'CommandManager'
 
-require "DriverExecHelper"
+require 'DriverExecHelper'
 require 'base64'
 
 # This class provides basic messaging and logging functionality
@@ -29,6 +29,7 @@ require 'base64'
 # for each action it wants to receive. The method must be associated
 # with the action name through the register_action function
 class OpenNebulaDriver < ActionManager
+
     include DriverExecHelper
 
     # @return [String] Base path for scripts
@@ -48,13 +49,13 @@ class OpenNebulaDriver < ActionManager
     # @option options [Hash] :local_actions ({}) hash with the actions
     #   executed locally and the name of the script if it differs from the
     #   default one. This hash can be constructed using {parse_actions_list}
-    def initialize(directory, options={})
+    def initialize(directory, options = {})
         @options={
             :concurrency => 10,
-            :threaded    => true,
-            :retries     => 0,
+            :threaded => true,
+            :retries => 0,
             :local_actions => {},
-            :timeout     => nil
+            :timeout => nil
         }.merge!(options)
 
         super(@options[:concurrency], @options[:threaded])
@@ -62,13 +63,11 @@ class OpenNebulaDriver < ActionManager
         @retries = @options[:retries]
         @timeout = @options[:timeout]
 
-        #Set default values
+        # Set default values
         initialize_helper(directory, @options)
 
-        register_action(:INIT, method("init"))
+        register_action(:INIT, method('init'))
     end
-
-
 
     # Calls remotes or local action checking the action name and
     # @local_actions. Optional arguments can be specified as a hash
@@ -83,20 +82,26 @@ class OpenNebulaDriver < ActionManager
     #   action name is used by defaults
     # @option ops [Bool] :respond if defined will send result to ONE core
     # @option ops [Bool] :base64 encode the information sent to ONE core
-    def do_action(parameters, id, host, aname, ops={})
-        options={
-            :stdin       => nil,
+    # @option ops [Bool] :zip compress the information sent to ONE core
+    def do_action(parameters, id, host, aname, ops = {})
+        options = {
+            :stdin => nil,
             :script_name => nil,
-            :respond     => true,
-            :ssh_stream  => nil,
-            :base64      => false
+            :respond => true,
+            :ssh_stream => nil,
+            :base64 => false,
+            :zip => false,
+            :no_extra_params => false
         }.merge(ops)
 
-        params  = parameters + " #{id} #{host}"
+        params = parameters
+        params = "#{params} #{id} #{host}" unless options[:no_extra_params]
         command = action_command_line(aname, params, options[:script_name])
 
-        if action_is_local?(aname)
-            stdin = Base64::encode64(options[:stdin].to_s.gsub("\n",""))
+        # if options[:is_local] is not specified (nil)
+        # we rely uniquely in actions_is_local?
+        if action_is_local?(aname) or options[:is_local]
+            stdin = Base64.strict_encode64(options[:stdin].to_s)
             execution = LocalCommand.run(command,
                                          log_method(id),
                                          stdin,
@@ -114,7 +119,6 @@ class OpenNebulaDriver < ActionManager
                                                  stdin,
                                                  command,
                                                  @timeout)
-
         else
             execution = RemotesCommand.run(command,
                                            host,
@@ -128,20 +132,20 @@ class OpenNebulaDriver < ActionManager
         result, info = get_info_from_execution(execution)
 
         if options[:respond]
-            info = Base64::encode64(info).strip.delete("\n") if options[:base64]
+            info = Zlib::Deflate.deflate(info, Zlib::BEST_COMPRESSION) if options[:zip]
+            info = Base64.strict_encode64(info) if options[:base64]
+
             send_message(aname, result, id, info)
         end
 
         [result, info]
     end
 
-
     # Start the driver. Reads from STDIN and executes methods associated with
     # the messages
     def start_driver
-        loop_thread = Thread.new { loop }
+        Thread.new { loop }
         start_listener
-        loop_thread.kill
     end
 
     # This function parses a string with this form:
@@ -156,12 +160,12 @@ class OpenNebulaDriver < ActionManager
     # @param [String] str imput string to parse
     # @return [Hash] parsed actions
     def self.parse_actions_list(str)
-        actions=Hash.new
-        str_splitted=str.split(/\s*,\s*/).map {|s| s.strip }
+        actions = {}
+        str_splitted = str.split(/\s*,\s*/).map {|s| s.strip }
 
         str_splitted.each do |a|
             m=a.match(/([^=]+)(=(.*))?/)
-            next if !m
+            next unless m
 
             action=m[1].upcase
 
@@ -178,21 +182,21 @@ class OpenNebulaDriver < ActionManager
         actions
     end
 
-private
+    private
 
     def init
-        send_message("INIT",RESULT[:success])
+        send_message('INIT', RESULT[:success])
     end
 
     def loop
-        while true
-            exit(-1) if STDIN.eof?
+        Kernel.loop do
+            exit!(-1) if STDIN.eof?
 
-            str=STDIN.gets
-            next if !str
+            str = STDIN.gets
+            next unless str
 
-            args   = str.split(/\s+/)
-            next if args.length == 0
+            args = str.split(/\s+/)
+            next if args.empty?
 
             if args.first.empty?
                 STDERR.puts "Malformed message: #{str.inspect}"
@@ -201,7 +205,7 @@ private
 
             action = args.shift.upcase.to_sym
 
-            if (args.length == 0) || (!args[0])
+            if args.empty? || !args[0]
                 action_id = 0
             else
                 action_id = args[0].to_i
@@ -209,35 +213,11 @@ private
 
             if action == :DRIVER_CANCEL
                 cancel_action(action_id)
-                log(action_id,"Driver command for #{action_id} cancelled")
+                log(action_id, "Driver command for #{action_id} cancelled")
             else
-                trigger_action(action,action_id,*args)
+                trigger_action(action, action_id, *args)
             end
         end
     end
-end
 
-################################################################
-################################################################
-
-if __FILE__ == $0
-
-    class SampleDriver < OpenNebulaDriver
-        def initialize
-            super(15,true)
-
-            register_action(:SLEEP,method("my_sleep"))
-        end
-
-        def my_sleep(num, timeout)
-            log(num,"Sleeping #{timeout} seconds")
-            sleep(timeout.to_i)
-            log(num,"Done with #{num}")
-
-            send_message("SLEEP",RESULT[:success],num.to_s)
-        end
-    end
-
-    sd = SampleDriver.new
-    sd.start_driver
 end

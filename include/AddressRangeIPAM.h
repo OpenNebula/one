@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,6 @@
 #include <string>
 
 #include "AddressRange.h"
-#include "AddressRangePool.h"
 
 class VectorAttribute;
 
@@ -50,7 +49,8 @@ public:
      *
      *    @return 0 if success
      */
-    int allocate_addr(unsigned int index, unsigned int rsize, string& error_msg);
+    int allocate_addr(unsigned int index, unsigned int rsize,
+                      std::string& error_msg);
 
     /**
      *  Gets a range of free addresses
@@ -60,7 +60,8 @@ public:
      *
      *    @return 0 if success
      */
-    int get_addr(unsigned int& index, unsigned int rsize, string& error_msg);
+    int get_addr(unsigned int& index, unsigned int rsize,
+                 std::string& error_msg);
 
     /**
      *  Sets the given address (by index) as free
@@ -69,7 +70,7 @@ public:
      *
      *    @return 0 if success
      */
-    int free_addr(unsigned int index, string& msg);
+    int free_addr(unsigned int index, std::string& msg);
 };
 
 #endif

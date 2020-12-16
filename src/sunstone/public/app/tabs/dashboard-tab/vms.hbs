@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,42 +15,30 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div>
-  <fieldset class="large-font">
-    <legend>
-      <ul class="menu simple">
-        <li>
-          {{tr "VMs"}} <span class=" total_vms"></span> 
-        </li>
-        <li></li>
-        <li><span>{{tr "ACTIVE"}}</span> <span class=" active_vms success-color"></span></li>
-        <li><span>{{tr "PENDING"}}</span> <span class=" pending_vms"></span></li>
-        <li><span>{{tr "FAILED"}}</span> <span class=" failed_vms alert-color"></span></li>
-        <li></li>
-        <li>
-          <button class="button radius tiny show_vms_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
-          <button class="button success radius tiny show_create_vm"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
-        </li>
-      </ul>
-    </legend>
-    <div class="row" id="dashboard_vm_accounting">
-      <input style="display:none;" value="vm" id="acct_group_by"/>
-      <div class="small-12 medium-4 columns">
-        <span>
-          {{tr "CPU hours"}}
-        </span>
-        <div class="large-12 columns centered graph text-center" id="acct_cpu_graph" style="height: 100px;">{{> ./empty-graph}}</div>
+  <fieldset class="large-font dashboard-fieldset">
+    <div class="row small-12 medium-12 columns">
+      <div class="small-6 medium-8 columns dashboard-div-titles">
+        <h5>{{tr "Virtual Machines"}}</h5>
       </div>
-      <div class="small-12 medium-4 columns">
-        <span>
-          {{tr "Memory GB hours"}}
-        </span>
-        <div class="large-12 columns centered graph text-center" id="acct_mem_graph" style="height: 100px;">{{> ./empty-graph}}</div>
+      <div class="small-6 medium-4 columns dashboard-div-buttons">
+        <button class="button radius tiny show_vms_tab"> <i class="fas fa-lg fa-list fa-fw"></i></button>
+          {{#isTabActionEnabled "vms-tab" "VM.create_dialog"}}
+            <button class="button success radius tiny show_create_vm"> <i class="fas fa-lg fa-plus fa-fw"></i></button>
+          {{/isTabActionEnabled}}
       </div>
-      <div class="small-12 medium-4 columns">
-        <span>
-          {{tr "Disk MB hours"}}
-        </span>
-        <div class="large-12 columns centered graph text-center" id="acct_disk_graph" style="height: 100px;">{{> ./empty-graph}}</div>
+    </div>
+    <div class="row">
+      <div class="card small-12 medium-4 columns">
+        <h3 class="total_vms fadeinout number-title">0</h3>
+        <span class="small-12 medium-12 columns label-card">{{tr "TOTAL"}}</span>
+      </div>
+      <div class="card small-12 medium-4 columns">
+          <h3 class="pending_vms fadeinout warning-color number-title">0</h3>
+          <span class="small-12 medium-12 columns label-card">{{tr "PENDING"}}</span>
+      </div>
+      <div class="card small-12 medium-4 columns">
+          <h3 class="failed_vms fadeinout alert-color number-title">0</h3>
+          <span class="small-12 medium-12 columns label-card">{{tr "FAILED"}}</span>
       </div>
     </div>
   </fieldset>

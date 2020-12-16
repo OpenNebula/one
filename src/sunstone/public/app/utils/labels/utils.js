@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,7 +14,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
+define(function (require) {
   /* DEPENDENCIES */
 
   var Tree = require('./tree');
@@ -77,11 +77,11 @@ define(function(require) {
 
       Tree.setup($('.labels-tree', context));
 
-      var currentLabel = $('span[one-label-full-name="'+_getLabelsFilter(dataTable)+'"]', context);
+      var currentLabel = $('span[one-label-full-name="' + _getLabelsFilter(dataTable) + '"]', context);
 
-      if (currentLabel.length == 0){
+      if (currentLabel.length == 0) {
         _clearLabelsFilter(dataTable, labelsColumn);
-      }else{
+      } else {
         currentLabel.parent(".labeltree-line").click();
         currentLabel.parentsUntil(".labels-tree", "li").children(".tree-toggle").click();
       }
@@ -91,10 +91,10 @@ define(function(require) {
       Filter datatable when a label in the left menu is clicked
      */
     context.off('click', '.labeltree-line');
-    context.on('click', '.labeltree-line', function() {
+    context.on('click', '.labeltree-line', function () {
       var span = $(".one-label", this);
 
-      if($(span).hasClass("active")){
+      if ($(span).hasClass("active")) {
         if (opts.tabName && !Sunstone.rightListVisible($('#' + opts.tabName))) {
           Sunstone.showTab(opts.tabName);
         }
@@ -119,65 +119,65 @@ define(function(require) {
     var labelsDropdown = $('#' + tabName + 'LabelsDropdown');
 
     OpenNebulaUser.show({
-        data : {
-          id: config['user_id']
-        },
-        success: function(request, user_json) {
-          var labels_persis = '';
-          if (user_json["USER"]["TEMPLATE"]) {
-            if (user_json["USER"]["TEMPLATE"]["LABELS"]) {
-              labels_persis = user_json["USER"]["TEMPLATE"]["LABELS"];
-            }
+      data: {
+        id: config['user_id']
+      },
+      success: function (request, user_json) {
+        var labels_persis = '';
+        if (user_json["USER"]["TEMPLATE"]) {
+          if (user_json["USER"]["TEMPLATE"]["LABELS"]) {
+            labels_persis = user_json["USER"]["TEMPLATE"]["LABELS"];
           }
-          var labels = _getLabels(dataTable, labelsColumn);
-          labels_persis = _deserializeLabels(labels_persis);
-          var array_labels_yaml = [];
-          var labels_yaml = {};
-          if(config['all_labels'][0] != ""){
-            $.each(config['all_labels'], function(index){
-              array_labels_yaml.push(config['all_labels'][index]+'_YAML');
-              if(labels[config['all_labels'][index]]){
-                delete labels[config['all_labels'][index]];
-              }
-            })
-            labels_yaml = _deserializeLabels(array_labels_yaml.join(','));
-          }
-          var keys = Object.keys(labels_persis).sort();
-          for (var i = 0; i < keys.length; i++){
-            if(labels[keys[i]]){
-              delete labels[keys[i]];
-            }
-            labels_persis[keys[i]+"_PERSIS"] = labels_persis[keys[i]];
-            delete labels_persis[keys[i]];
-          }
-          $.extend(labels, labels_persis);
-          var html_yaml = ""
-          if(!$.isEmptyObject(labels_yaml)){
-            html_yaml = '<h6>' + Locale.tr('System Labels') + '</h6>' +
-            '<div class="labeltree-container">' +
-              Tree.html(_makeTree(labels_yaml), false) +
-            '</div>'; 
-          }
-          labelsDropdown.html(
-            '<div>' +
-            '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
-            '<div class="labeltree-container">' +
-              Tree.html(_makeTree(labels), false) +
-            '</div>' +
-            html_yaml+
-            '<div class="input-container">' +
-              '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
-            '</div>' +
-            '</div>');
-
-          Tree.setup(labelsDropdown);
-          recountLabels();
-          $('[data-toggle="' + tabName + 'LabelsDropdown"]').off('click');
-          $('[data-toggle="' + tabName + 'LabelsDropdown"]').on('click', function(){
-            recountLabels();
-          });
         }
-      });
+        var labels = _getLabels(dataTable, labelsColumn);
+        labels_persis = _deserializeLabels(labels_persis);
+        var array_labels_yaml = [];
+        var labels_yaml = {};
+        if (config['all_labels'][0] != "") {
+          $.each(config['all_labels'], function (index) {
+            array_labels_yaml.push(config['all_labels'][index] + '_YAML');
+            if (labels[config['all_labels'][index]]) {
+              delete labels[config['all_labels'][index]];
+            }
+          })
+          labels_yaml = _deserializeLabels(array_labels_yaml.join(','));
+        }
+        var keys = Object.keys(labels_persis).sort();
+        for (var i = 0; i < keys.length; i++) {
+          if (labels[keys[i]]) {
+            delete labels[keys[i]];
+          }
+          labels_persis[keys[i] + "_PERSIS"] = labels_persis[keys[i]];
+          delete labels_persis[keys[i]];
+        }
+        $.extend(labels, labels_persis);
+        var html_yaml = ""
+        if (!$.isEmptyObject(labels_yaml)) {
+          html_yaml = '<h6>' + Locale.tr('System Labels') + '</h6>' +
+            '<div class="labeltree-container">' +
+            Tree.html(_makeTree(labels_yaml), false) +
+            '</div>';
+        }
+        labelsDropdown.html(
+          '<div>' +
+          '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
+          '<div class="labeltree-container">' +
+          Tree.html(_makeTree(labels), false) +
+          '</div>' +
+          html_yaml +
+          '<div class="input-container">' +
+          '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
+          '</div>' +
+          '</div>');
+
+        Tree.setup(labelsDropdown);
+        recountLabels();
+        $('[data-toggle="' + tabName + 'LabelsDropdown"]').off('click');
+        $('[data-toggle="' + tabName + 'LabelsDropdown"]').on('click', function () {
+          recountLabels();
+        });
+      }
+    });
     /*
       Update Dropdown with selected items
       [v] If all the selected items has a label
@@ -189,10 +189,10 @@ define(function(require) {
       var labelsStr, labelsIndexed = {};
 
       var selectedItems = tabTable.elements();
-      $.each(selectedItems, function(index, resourceId) {
+      $.each(selectedItems, function (index, resourceId) {
         labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
         if (labelsStr != '') {
-          $.each(labelsStr.split(','), function(){
+          $.each(labelsStr.split(','), function () {
             if (labelsIndexed[this]) {
               labelsIndexed[this] += 1
             } else {
@@ -206,23 +206,23 @@ define(function(require) {
 
       // Reset label checkboxes
       $('.labelsCheckbox', labelsDropdown)
-        .removeClass('fa-minus-square-o')
-        .removeClass('fa-check-square-o')
-        .addClass('fa-square-o');
+        .removeClass('fa-minus-square')
+        .removeClass('fa-check-square')
+        .addClass('fa-square');
 
       var labelsCheckbox;
-      $.each(labelsIndexed, function(labelName, numberOfItems) {
+      $.each(labelsIndexed, function (labelName, numberOfItems) {
         labelsCheckbox = $('.labelsCheckbox',
           $('[one-label-full-name="' + labelName + '"]', labelsDropdown).closest('li'));
         if (labelsCheckbox.length > 0) {
           if (numberOfItems == selectedItems.length) {
             $(labelsCheckbox[0])
-              .removeClass('fa-square-o')
-              .addClass('fa-check-square-o');
+              .removeClass('fa-square')
+              .addClass('fa-check-square');
           } else {
             $(labelsCheckbox[0])
-              .removeClass('fa-square-o')
-              .addClass('fa-minus-square-o');
+              .removeClass('fa-square')
+              .addClass('fa-minus-square');
           }
         }
       });
@@ -234,22 +234,22 @@ define(function(require) {
       Check/Uncheck label & Update Templates
      */
     labelsDropdown.off('click', '.labeltree-line');
-    labelsDropdown.on('click', '.labeltree-line', function() {
+    labelsDropdown.on('click', '.labeltree-line', function () {
       var action;
       var that = $(".labelsCheckbox", this);
 
-      if ($(that).hasClass('fa-square-o')) {
+      if ($(that).hasClass('fa-square')) {
         action = 'add';
-        $(that).removeClass('fa-square-o').addClass('fa-check-square-o');
+        $(that).removeClass('fa-square').addClass('fa-check-square');
       } else {
         action = 'remove';
-        $(that).removeClass('fa-check-square-o fa-minus-square-o').addClass('fa-square-o');
+        $(that).removeClass('fa-check-square fa-minus-square').addClass('fa-square');
       }
       OpenNebulaUser.show({
-        data : {
+        data: {
           id: config['user_id']
         },
-        success: function(request, user_json) {
+        success: function (request, user_json) {
           var labels_persis = '';
           if (user_json["USER"]["TEMPLATE"]) {
             if (user_json["USER"]["TEMPLATE"]["LABELS"]) {
@@ -257,14 +257,14 @@ define(function(require) {
             }
           }
           var labelName = $('.one-label', $(that).closest('li')).attr('one-label-full-name');
-          var labelsArray,labelsArray_persis, labelIndex;
+          var labelsArray, labelsArray_persis, labelIndex;
           var selectedItems = tabTable.elements();
           if (labels_persis != '') {
-              labelsArray_persis = labels_persis.split(',')
+            labelsArray_persis = labels_persis.split(',')
           } else {
-              labelsArray_persis = []
+            labelsArray_persis = []
           }
-          $.each(selectedItems, function(index, resourceId) {
+          $.each(selectedItems, function (index, resourceId) {
             labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
             if (labelsStr != '') {
               labelsArray = labelsStr.split(',')
@@ -277,7 +277,7 @@ define(function(require) {
               _updateResouceLabels(tabName, resourceId, labelsArray);
             } else if (action == 'remove' && labelIndex != -1) {
               if ((!labelsArray_persis || (labelsArray_persis && $.inArray(labelName, labelsArray_persis) == -1)) ||
-                    (!config['all_labels'] || (config['all_labels'] && $.inArray(labelName, config['all_labels']) == -1))) {
+                (!config['all_labels'] || (config['all_labels'] && $.inArray(labelName, config['all_labels']) == -1))) {
                 labelsArray.splice(labelIndex, 1);
                 _updateResouceLabels(tabName, resourceId, labelsArray);
               }
@@ -291,15 +291,15 @@ define(function(require) {
       Add a new label when ENTER is presed in the input
      */
     labelsDropdown.off('keypress', '.newLabelInput');
-    labelsDropdown.on('keypress', '.newLabelInput', function(e) {
+    labelsDropdown.on('keypress', '.newLabelInput', function (e) {
       var ev = e || window.event;
       var key = ev.keyCode;
-      var labelName = $(this).val();
+      var labelName = $(this).val().trim();
 
       if (key == 13 && !ev.altKey && labelName != '') {
         var labelsArray, labelIndex;
         var selectedItems = tabTable.elements();
-        $.each(selectedItems, function(index, resourceId) {
+        $.each(selectedItems, function (index, resourceId) {
           labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
           if (labelsStr != '') {
             labelsArray = labelsStr.split(',');
@@ -318,10 +318,10 @@ define(function(require) {
     });
   }
 
-  function existInArrInsensitive(val, arr){
-    if (arr.length){
-      for (var i = 0; arr.length > i; i++){
-        if (val.toLowerCase() == arr[i].toLowerCase()){
+  function existInArrInsensitive(val, arr) {
+    if (arr.length) {
+      for (var i = 0; arr.length > i; i++) {
+        if (val.toLowerCase() == arr[i].toLowerCase()) {
           return true;
         }
       }
@@ -341,24 +341,24 @@ define(function(require) {
 
     OpenNebula[resource].append({
       timeout: true,
-      data : {
-          id: resourceId,
-          extra_param: templateStr
+      data: {
+        id: resourceId,
+        extra_param: templateStr
       },
-      success: function(request) {
+      success: function (request) {
         OpenNebula[resource].show({
           timeout: true,
-          data : {
-              id: resourceId
+          data: {
+            id: resourceId
           },
-          success: function(request, response) {
+          success: function (request, response) {
             tabTable.updateElement(request, response);
             if (Sunstone.rightInfoVisible($('#' + tabName))) {
               Sunstone.insertPanels(tabName, response);
             }
 
 
-            _insertLabelsMenu({'tabName': tabName});
+            _insertLabelsMenu({ 'tabName': tabName });
             _insertLabelsDropdown(tabName);
           },
           error: Notifier.onError
@@ -369,10 +369,13 @@ define(function(require) {
   }
 
   function _labelsStr(elementTemplate) {
-    if (elementTemplate['BODY'] && elementTemplate["BODY"][LABELS_ATTR.toLowerCase()]) {
-      return TemplateUtils.htmlEncode(elementTemplate["BODY"][LABELS_ATTR.toLowerCase()]);
+    if (elementTemplate && 
+        elementTemplate.BODY && 
+        elementTemplate.BODY[LABELS_ATTR.toLowerCase()]
+      ) {
+      return TemplateUtils.htmlEncode(elementTemplate.BODY[LABELS_ATTR.toLowerCase()]);
     } else {
-      return TemplateUtils.htmlEncode( elementTemplate[LABELS_ATTR] );
+      return TemplateUtils.htmlEncode(elementTemplate && elementTemplate[LABELS_ATTR]? elementTemplate[LABELS_ATTR] : "");
     }
   }
 
@@ -381,9 +384,9 @@ define(function(require) {
 
     if (labelsStr) {
       var parent;
-      $.each(labelsStr.split(','), function() {
+      $.each(labelsStr.split(','), function () {
         parent = indexedLabels;
-        $.each(this.split('/'), function() {
+        $.each(this.split('/'), function () {
           if (parent[this] == undefined) {
             parent[this] = {};
           }
@@ -397,12 +400,12 @@ define(function(require) {
 
   function _makeTree(indexedLabels, currentLabel) {
     var treeRoot = {
-      htmlStr : '',
-      subTree : []
+      htmlStr: '',
+      subTree: []
     };
 
     var keys = Object.keys(indexedLabels).sort();
-    for (var i = 0; i < keys.length; i++){
+    for (var i = 0; i < keys.length; i++) {
       var folderName = keys[i];
       var childs = indexedLabels[folderName];
       treeRoot.subTree.push(_makeSubTree('', folderName, childs, currentLabel));
@@ -415,41 +418,41 @@ define(function(require) {
     var name_split = folderName.split("_");
     var persis = false;
     var yaml = false;
-    if(name_split.indexOf("PERSIS") > -1){
+    if (name_split.indexOf("PERSIS") > -1) {
       folderName = "";
-      $.each(name_split, function(value){
-        if(name_split[value] != "PERSIS"){
-          folderName += name_split[value]+"_";
+      $.each(name_split, function (value) {
+        if (name_split[value] != "PERSIS") {
+          folderName += name_split[value] + "_";
         }
       });
-      folderName = folderName.slice(0,-1);
+      folderName = folderName.slice(0, -1);
       persis = true;
     }
-    else if(name_split.indexOf("YAML") > -1){
+    else if (name_split.indexOf("YAML") > -1) {
       folderName = "";
-      $.each(name_split, function(value){
-        if(name_split[value] != "YAML"){
-          folderName += name_split[value]+"_";
+      $.each(name_split, function (value) {
+        if (name_split[value] != "YAML") {
+          folderName += name_split[value] + "_";
         }
       });
-      folderName = folderName.slice(0,-1);
+      folderName = folderName.slice(0, -1);
       yaml = true;
     }
     var fullName = parentName + folderName;
-    if(persis){
+    if (persis) {
       var htmlStr =
-      '<span class="secondary one-label" persis="true" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+        '<span class="secondary one-label" persis="true" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
         folderName +
-      '</span>';
+        '</span>';
     } else if (yaml) {
       var htmlStr =
         '<span class="secondary one-label" yaml="true" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
-          folderName +
+        folderName +
         '</span>';
     } else {
-       var htmlStr =
+      var htmlStr =
         '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
-          folderName +
+        folderName +
         '</span>';
     }
 
@@ -460,7 +463,7 @@ define(function(require) {
     };
 
     var keys = Object.keys(childs).sort();
-    for (var i = 0; i < keys.length; i++){
+    for (var i = 0; i < keys.length; i++) {
       var subFolderName = keys[i];
       var subChilds = childs[subFolderName];
       tree.subTree.push(_makeSubTree(fullName + '/', subFolderName, subChilds, currentLabel));
@@ -479,10 +482,10 @@ define(function(require) {
     // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions
     var escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    var regExp =  '^' + escapedLabel + '$|'+
-                  ',' + escapedLabel + '$|'+
-                  '^' + escapedLabel + ',|'+
-                  ',' + escapedLabel + ','
+    var regExp = '^' + escapedLabel + '$|' +
+      ',' + escapedLabel + '$|' +
+      '^' + escapedLabel + ',|' +
+      ',' + escapedLabel + ','
 
     dataTable.data("sunstone-label-filter", label);
     dataTable.fnFilter(regExp, labelsColumn, true, false);
@@ -500,10 +503,10 @@ define(function(require) {
   function _getLabels(dataTable, labelsColumn, labelsPath) {
     var labels = [];
     var tmp;
-    $.each(dataTable.fnGetData(), function() {
+    $.each(dataTable.fnGetData(), function () {
       if (labelsPath) {
         tmp = this;
-        $.each(labelsPath.split('.'), function() {
+        $.each(labelsPath.split('.'), function () {
           if (tmp) {
             tmp = tmp[this];
           }
@@ -530,13 +533,15 @@ define(function(require) {
         } else {
           template = element.TEMPLATE;
         }
-
-        if (template["BODY"] && template["BODY"][LABELS_ATTR.toLowerCase()]) {
-          return template["BODY"][LABELS_ATTR.toLowerCase()];
+        if (template) {
+          if (template["BODY"] && template["BODY"][LABELS_ATTR.toLowerCase()]) {
+            return template["BODY"][LABELS_ATTR.toLowerCase()];
+          } else {
+            return template[LABELS_ATTR] || '';
+          }
         } else {
-          return template[LABELS_ATTR]||'';
+          return '';
         }
-
       } else {
         return '';
       }

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,8 +14,9 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
+
 require 'fileutils'
 
 module OpenNebula
@@ -38,7 +39,9 @@ module OpenNebula
             :rename      => "image.rename",
             :snapshotdelete => "image.snapshotdelete",
             :snapshotrevert => "image.snapshotrevert",
-            :snapshotflatten=> "image.snapshotflatten"
+            :snapshotflatten=> "image.snapshotflatten",
+            :lock       => "image.lock",
+            :unlock     => "image.unlock"
         }
 
         IMAGE_STATES=%w{INIT READY USED DISABLED LOCKED ERROR CLONE DELETE
@@ -90,6 +93,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, IMAGE_METHODS)
+
             super(xml,client)
 
             @client = client
@@ -113,8 +118,8 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def allocate(description, ds_id)
-            super(IMAGE_METHODS[:allocate],description, ds_id)
+        def allocate(description, ds_id, check_capacity=true)
+            super(IMAGE_METHODS[:allocate],description, ds_id, check_capacity)
         end
 
         # Replaces the template contents

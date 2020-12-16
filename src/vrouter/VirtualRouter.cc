@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -19,26 +19,52 @@
 #include "Nebula.h"
 #include "VirtualMachine.h"
 #include "Request.h"
+#include "VirtualMachineTemplate.h"
+#include "DispatchManager.h"
 
-static const History::VMAction action[15] = {
-    History::MIGRATE_ACTION,
-    History::LIVE_MIGRATE_ACTION,
-    History::HOLD_ACTION,
-    History::RELEASE_ACTION,
-    History::RESUME_ACTION,
-    History::REBOOT_ACTION,
-    History::REBOOT_HARD_ACTION,
-    History::RESCHED_ACTION,
-    History::UNRESCHED_ACTION,
-    History::DISK_SNAPSHOT_CREATE_ACTION,
-    History::DISK_SNAPSHOT_DELETE_ACTION,
-    History::TERMINATE_ACTION,
-    History::TERMINATE_HARD_ACTION,
-    History::DELETE_ACTION,
-    History::DELETE_RECREATE_ACTION
-};
+using namespace std;
 
-const ActionSet<History::VMAction> VirtualRouter::SUPPORTED_ACTIONS(action, 15);
+/* -------------------------------------------------------------------------- */
+
+static void vrouter_prefix(VectorAttribute* nic, const string& attr)
+{
+    string val;
+
+    if (nic->vector_value(attr, val) == 0)
+    {
+        nic->remove(attr);
+        nic->replace("VROUTER_"+attr, val);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+static void prepare_nic_vm(VectorAttribute * nic)
+{
+    bool floating = false;
+    nic->vector_value("FLOATING_IP", floating);
+
+    if (floating)
+    {
+        vrouter_prefix(nic, "MAC");
+        vrouter_prefix(nic, "IP");
+        vrouter_prefix(nic, "IP6_LINK");
+        vrouter_prefix(nic, "IP6_ULA");
+        vrouter_prefix(nic, "IP6_GLOBAL");
+        vrouter_prefix(nic, "VLAN_ID");
+
+        std::set<std::string> restricted;
+
+        VirtualMachineTemplate::restricted_nic(restricted);
+
+        for (const auto& restr : restricted)
+        {
+            nic->remove(restr);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 
 /* ************************************************************************ */
 /* VirtualRouter :: Constructor/Destructor                                  */
@@ -50,46 +76,25 @@ VirtualRouter::VirtualRouter(   int             id,
                                 const string&   _uname,
                                 const string&   _gname,
                                 int             _umask,
-                                Template * _template_contents):
-        PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,table),
+                                unique_ptr<Template> _template_contents):
+        PoolObjectSQL(id,VROUTER,"",_uid,_gid,_uname,_gname,one_db::vr_table),
         vms("VMS")
 {
-    if (_template_contents != 0)
+    if (_template_contents)
     {
-        obj_template = _template_contents;
+        obj_template = move(_template_contents);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 
     set_umask(_umask);
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-VirtualRouter::~VirtualRouter()
-{
-    delete obj_template;
-}
-
 /* ************************************************************************ */
-/* VirtualRouter :: Database Access Functions                                    */
+/* VirtualRouter :: Database Access Functions                               */
 /* ************************************************************************ */
-
-const char * VirtualRouter::table = "vrouter_pool";
-
-const char * VirtualRouter::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * VirtualRouter::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS vrouter_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int VirtualRouter::insert(SqlDB *db, string& error_str)
 {
@@ -150,7 +155,7 @@ int VirtualRouter::drop(SqlDB * db)
     {
         release_network_leases();
 
-        Quotas::quota_del(Quotas::VIRTUALROUTER, uid, gid, obj_template);
+        Quotas::quota_del(Quotas::VIRTUALROUTER, uid, gid, obj_template.get());
     }
 
     return rc;
@@ -163,17 +168,13 @@ int VirtualRouter::shutdown_vms(const set<int>& _vms, const RequestAttributes& r
 {
     DispatchManager * dm = Nebula::instance().get_dm();
 
-    set<int>::const_iterator  it;
-
     string error;
 
     int rc;
     int result = 0;
 
-    for (it = _vms.begin(); it != _vms.end(); it++)
+    for (auto vm_id : _vms)
     {
-        int vm_id = *it;
-
         rc = dm->terminate(vm_id, true, ra, error);
 
         if (rc != 0)
@@ -190,10 +191,7 @@ int VirtualRouter::shutdown_vms(const set<int>& _vms, const RequestAttributes& r
     return result;
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-int VirtualRouter::get_network_leases(string& estr)
+int VirtualRouter::get_network_leases(string& estr) const
 {
     vector<VectorAttribute  *> nics;
     VirtualNetworkPool *  vnpool;
@@ -203,7 +201,7 @@ int VirtualRouter::get_network_leases(string& estr)
 
     int num_nics = obj_template->get("NIC",nics);
 
-    for(int i=0; i<num_nics; i++)
+    for (int i=0; i<num_nics; i++)
     {
         VirtualMachineNic nic(nics[i], i);
 
@@ -212,6 +210,9 @@ int VirtualRouter::get_network_leases(string& estr)
         {
             return -1;
         }
+
+        prepare_nic_vm(nics[i]);
+
     }
 
     return 0;
@@ -232,14 +233,14 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Object
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -251,26 +252,31 @@ int VirtualRouter::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::vr_table << " SET "
+            << "name = '"    << sql_name   << "', "
+            << "body = '"    << sql_xml    << "', "
+            << "uid = "      << uid        << ", "
+            << "gid = "      << gid        << ", "
+            << "owner_u = "  << owner_u    << ", "
+            << "group_u = "  << group_u    << ", "
+            << "other_u = "  << other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::vr_table
+            << " (" << one_db::vr_db_names << ") VALUES ("
+            <<            oid        << ","
+            << "'"     << sql_name   << "',"
+            << "'"     << sql_xml    << "',"
+            <<            uid        << ","
+            <<            gid        << ","
+            <<            owner_u    << ","
+            <<            group_u    << ","
+            <<            other_u    << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO " << table <<" ("<< db_names <<") VALUES ("
-        <<            oid        << ","
-        << "'"     << sql_name   << "',"
-        << "'"     << sql_xml    << "',"
-        <<            uid        << ","
-        <<            gid        << ","
-        <<            owner_u    << ","
-        <<            group_u    << ","
-        <<            other_u    << ")";
 
     rc = db->exec_wr(oss);
 
@@ -300,6 +306,16 @@ error_common:
     return -1;
 }
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualRouter::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vr_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
+
 /* ************************************************************************ */
 /* VirtualRouter :: Misc                                                         */
 /* ************************************************************************ */
@@ -310,6 +326,7 @@ string& VirtualRouter::to_xml(string& xml) const
     string          template_xml;
     string          vm_collection_xml;
     string          perm_str;
+    string          lock_str;
 
     oss << "<VROUTER>"
             << "<ID>"       << oid        << "</ID>"
@@ -319,6 +336,7 @@ string& VirtualRouter::to_xml(string& xml) const
             << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
             << perms_to_xml(perm_str)
+            << lock_db_to_xml(lock_str)
             << vms.to_xml(vm_collection_xml)
             << obj_template->to_xml(template_xml)
         << "</VROUTER>";
@@ -349,6 +367,9 @@ int VirtualRouter::from_xml(const string& xml)
 
     // Permissions
     rc += perms_from_xml();
+
+    // Lock
+    rc += lock_db_from_xml();
 
     // Get associated classes
     rc += vms.from_xml(this, "/VROUTER/");
@@ -383,7 +404,7 @@ void VirtualRouter::release_network_leases()
 
     int num_nics = get_template_attribute("NIC",nics);
 
-    for(int i=0; i<num_nics; i++)
+    for (int i=0; i<num_nics; i++)
     {
         release_network_leases(nics[i]);
     }
@@ -395,14 +416,13 @@ void VirtualRouter::release_network_leases()
 int VirtualRouter::release_network_leases(const VectorAttribute * nic)
 {
     VirtualNetworkPool* vnpool = Nebula::instance().get_vnpool();
-    VirtualNetwork*     vn;
 
     int     vnid;
     int     ar_id;
     string  mac;
     string  error_msg;
 
-    if ( nic == 0 )
+    if (nic == nullptr)
     {
         return -1;
     }
@@ -412,11 +432,11 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         return -1;
     }
 
-    mac = nic->vector_value("MAC");
+    mac = nic->vector_value("VROUTER_MAC");
 
-    vn = vnpool->get(vnid, true);
+    auto vn = vnpool->get(vnid);
 
-    if ( vn == 0 )
+    if (vn == nullptr)
     {
         return -1;
     }
@@ -430,45 +450,9 @@ int VirtualRouter::release_network_leases(const VectorAttribute * nic)
         vn->free_addr(PoolObjectSQL::VROUTER, oid, mac);
     }
 
-    vnpool->update(vn);
-
-    vn->unlock();
+    vnpool->update(vn.get());
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void vrouter_prefix(VectorAttribute* nic, const string& attr)
-{
-    string val;
-
-    if (nic->vector_value(attr.c_str(), val) == 0)
-    {
-        nic->remove(attr);
-        nic->replace("VROUTER_"+attr, val);
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-static void prepare_nic_vm(VectorAttribute * nic)
-{
-    bool floating = false;
-    nic->vector_value("FLOATING_IP", floating);
-
-    if (floating)
-    {
-        nic->remove("MAC");
-
-        vrouter_prefix(nic, "IP");
-        vrouter_prefix(nic, "IP6_LINK");
-        vrouter_prefix(nic, "IP6_ULA");
-        vrouter_prefix(nic, "IP6_GLOBAL");
-
-        // TODO: remove all other attrs, such as AR, BRIDGE, etc?
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -485,7 +469,7 @@ Template * VirtualRouter::get_vm_template() const
 
     int num_nics = obj_template->get("NIC",nics);
 
-    for(int i=0; i<num_nics; i++)
+    for (int i=0; i<num_nics; i++)
     {
         nic = nics[i]->clone();
 
@@ -498,7 +482,8 @@ Template * VirtualRouter::get_vm_template() const
 
     if (!obj_template->get("KEEPALIVED_ID", keepalived_id))
     {
-        keepalived_id = (oid & 0xFF);
+        // Keep Alive should be arbitrary unique number from 1 to 255
+        keepalived_id = (oid % 255) + 1;
     }
 
     tmpl->replace("VROUTER_KEEPALIVED_ID", keepalived_id);
@@ -519,10 +504,10 @@ Template * VirtualRouter::get_vm_template() const
 int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
 		string& error)
 {
-    Template * new_tmpl = get_new_template();
+    auto       new_tmpl = get_new_template();
     string     new_str;
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -530,24 +515,21 @@ int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
     new_tmpl->erase("NIC");
 
     vector<const VectorAttribute*> nics;
-	vector<const VectorAttribute*>::const_iterator it;
 
     get_template_attribute("NIC", nics);
 
-    for (it = nics.begin(); it != nics.end(); it++)
+    for (auto nic : nics)
     {
-        new_tmpl->set((*it)->clone());
+        new_tmpl->set(nic->clone());
     }
 
     new_tmpl->to_xml(new_str);
-    delete new_tmpl;
 
     return PoolObjectSQL::replace_template(new_str, keep_restricted, error);
 }
@@ -558,10 +540,10 @@ int VirtualRouter::replace_template(const string &tmpl_str,bool keep_restricted,
 int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
 	   	string& error)
 {
-    Template * new_tmpl = get_new_template();
+    auto       new_tmpl = get_new_template();
     string     new_str;
 
-    if ( new_tmpl == 0 )
+    if ( !new_tmpl )
     {
         error = "Cannot allocate a new template";
         return -1;
@@ -569,14 +551,12 @@ int VirtualRouter::append_template(const string& tmpl_str, bool keep_restricted,
 
     if ( new_tmpl->parse_str_or_xml(tmpl_str, error) != 0 )
     {
-        delete new_tmpl;
         return -1;
     }
 
     new_tmpl->erase("NIC");
 
     new_tmpl->to_xml(new_str);
-    delete new_tmpl;
 
     return PoolObjectSQL::append_template(new_str, keep_restricted, error);
 }
@@ -589,8 +569,6 @@ VectorAttribute * VirtualRouter::attach_nic(
 {
     VirtualNetworkPool *        vnpool;
     vector<VectorAttribute *>   nics;
-
-    vector<VectorAttribute *>::const_iterator it;
 
     int rc;
     int nic_id;
@@ -605,9 +583,9 @@ VectorAttribute * VirtualRouter::attach_nic(
 
     obj_template->get("NIC", nics);
 
-    for(it = nics.begin(); it != nics.end(); it++)
+    for (auto nic : nics)
     {
-        (*it)->vector_value("NIC_ID", nic_id);
+        nic->vector_value("NIC_ID", nic_id);
 
         if ( nic_id > max_nic_id )
         {
@@ -622,6 +600,12 @@ VectorAttribute * VirtualRouter::attach_nic(
     // -------------------------------------------------------------------------
 
     nics.clear();
+
+    if ( tmpl->get("NIC_ALIAS") != 0 )
+    {
+        error_str = "Alias can't be attached to virtual router.";
+        return 0;
+    }
 
     if ( tmpl->get("NIC", nics) != 1 )
     {
@@ -662,9 +646,9 @@ int VirtualRouter::detach_nic(int nic_id)
         return -1;
     }
 
-    obj_template->remove(nic);
-
     release_network_leases(nic);
+
+    obj_template->remove(nic);
 
     // Update quotas
     tmpl.set(nic);
@@ -682,17 +666,16 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
     int tnic_id;
 
     vector<VectorAttribute  *> nics;
-    vector<VectorAttribute *>::iterator nic_it;
 
     obj_template->get("NIC", nics);
 
-    for(nic_it = nics.begin(); nic_it != nics.end(); nic_it++)
+    for (auto nic : nics)
     {
-        (*nic_it)->vector_value("NIC_ID", tnic_id);
+        nic->vector_value("NIC_ID", tnic_id);
 
         if ( tnic_id == nic_id )
         {
-            return (*nic_it);
+            return nic;
         }
     }
 
@@ -702,14 +685,14 @@ VectorAttribute* VirtualRouter::get_nic(int nic_id) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl)
+void VirtualRouter::set_auth_request(int uid, AuthRequest& ar, Template *tmpl,
+                                    bool check_lock)
 {
-    VirtualMachineNics::nic_iterator nic;
     VirtualMachineNics tnics(tmpl);
 
-    for( nic = tnics.begin(); nic != tnics.end(); ++nic)
+    for (auto nic : tnics)
     {
-        (*nic)->authorize_vrouter(uid, &ar);
+        nic->authorize_vrouter(uid, &ar, check_lock);
     }
 }
 
@@ -724,7 +707,7 @@ void VirtualRouter::set_template_id(int tmpl_id)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualRouter::get_template_id()
+int VirtualRouter::get_template_id() const
 {
     int tmpl_id;
 

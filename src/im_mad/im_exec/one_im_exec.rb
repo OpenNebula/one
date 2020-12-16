@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,23 +16,33 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    ETC_LOCATION="/etc/one/"
-    REMOTES_LOCATION="/var/lib/one/remotes"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    ETC_LOCATION      = '/etc/one/'
+    REMOTES_LOCATION  = '/var/lib/one/remotes'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    ETC_LOCATION=ONE_LOCATION+"/etc/"
-    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    ETC_LOCATION      = ONE_LOCATION + '/etc/'
+    REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes/'
 end
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'OpenNebulaDriver'
 require 'getoptlong'
-
+require 'zlib'
+require 'base64'
+require 'rexml/document'
 
 # The SSH Information Manager Driver
 class InformationManagerDriver < OpenNebulaDriver
@@ -47,95 +57,210 @@ class InformationManagerDriver < OpenNebulaDriver
 
         @hypervisor = hypervisor
 
+        @stdout_mutex = Mutex.new
+
         # register actions
-        register_action(:MONITOR, method("action_monitor"))
-        register_action(:STOPMONITOR, method("stop_monitor"))
-
-        # collectd port
-        @collectd_port = 4124
-        begin
-            im_collectd = @config["IM_MAD"].select{|e| e.match(/collectd/)}[0]
-            @collectd_port = im_collectd.match(/-p (\d+)/)[1]
-        rescue
-        end
-
-        # monitor_push_interval
-        @monitor_push_interval = 20
-        begin
-            im_collectd = @config["IM_MAD"].select{|e| e.match(/collectd/)}[0]
-            @monitor_push_interval = im_collectd.match(/-i (\d+)/)[1].to_i
-        rescue
-        end
+        register_action(:START_MONITOR, method('start_monitor'))
+        register_action(:STOP_MONITOR, method('stop_monitor'))
     end
 
-    # Execute the run_probes in the remote host
-    def action_monitor(number, host, ds_location, do_update)
+    def start_monitor(_not_used, _hostid, _timestamp, zaction64)
+        rc, input = parse_input(:START_MONITOR, zaction64)
 
-        if !action_is_local?(:MONITOR)
-            if do_update == "1" || @options[:force_copy]
-                # Use SCP to sync:
-                sync_cmd = "scp -r #{@local_scripts_base_path}/. " \
-                    "#{host}:#{@remote_scripts_base_path}"
+        return if rc == -1
 
-                # Use rsync to sync:
-                # sync_cmd = "rsync -Laz #{REMOTES_LOCATION}
-                #   #{host}:#{@remote_dir}"
-                cmd=LocalCommand.run(sync_cmd, log_method(number))
+        if !action_is_local?(:START_MONITOR)
+            rc = update_remotes(:START_MONITOR, input[:host_id],
+                                input[:hostname])
 
-                if cmd.code!=0
-                    send_message('MONITOR', RESULT[:failure], number,
-                        'Could not update remotes')
-                    return
+            return if rc == -1
+        end
+
+        result, info = do_action(input[:im_mad],
+                  input[:host_id],
+                  input[:hostname],
+                  :START_MONITOR,
+                  :stdin       => input[:stdin],
+                  :script_name => 'run_monitord_client',
+                  :respond     => false)
+
+        write_respond(:START_MONITOR, result, input[:host_id], info)
+    end
+
+    def stop_monitor(_not_used, _hostid, _timestamp, zaction64)
+        rc, input = parse_input(:STOP_MONITOR, zaction64)
+
+        return if rc == -1
+
+        result, info = do_action(input[:im_mad],
+                  input[:host_id],
+                  input[:hostname],
+                  :STOP_MONITOR,
+                  :script_name => 'stop_monitord_client',
+                  :stdin       => input[:stdin],
+                  :respond     => false)
+
+        write_respond(:STOP_MONITOR, result, input[:host_id], info)
+    end
+
+    private
+
+    def parse_input(msg_type, zaction64)
+        zaction = Base64.decode64(zaction64)
+        action  = Zlib::Inflate.inflate(zaction)
+
+        action_xml = REXML::Document.new(action).root
+        host_xml   = action_xml.elements['HOST']
+        config_xml = action_xml.elements['MONITOR_CONFIGURATION']
+
+        hostname = host_xml.elements['NAME'].text.to_s
+        im_mad   = host_xml.elements['IM_MAD'].text.to_s
+        host_id  = host_xml.elements['ID'].text.to_s
+
+        hid_elem = REXML::Element.new 'HOST_ID'
+        hid_elem.add_text(host_id)
+
+        config_xml.add_element(hid_elem)
+
+        [0, {:im_mad   => im_mad,
+             :host_id  => host_id,
+             :hostname => hostname,
+             :stdin    => config_xml.to_s}]
+
+    rescue StandardError => e
+        msg = Zlib::Deflate.deflate(e.message, Zlib::BEST_COMPRESSION)
+        msg = Base64.strict_encode64(msg)
+
+        send_message(msg_type, RESULT[:failure], host_id, msg)
+
+        [-1, {}]
+    end
+
+    def update_remotes(action, hostid, hostname)
+        # Recreate dir for remote scripts
+        mkdir_cmd = "mkdir -p #{@remote_scripts_base_path}"
+
+        cmd = SSHCommand.run(mkdir_cmd, hostname, log_method(hostid))
+
+        if cmd.code != 0
+            msg = Zlib::Deflate.deflate('Could not update remotes',
+                                        Zlib::BEST_COMPRESSION)
+            msg = Base64.strict_encode64(msg)
+
+            send_message(action, RESULT[:failure], hostid, msg)
+            return -1
+        end
+
+        # Use SCP to sync:
+        #sync_cmd = "scp -r #{@local_scripts_base_path}/* " \
+        #    "#{hostname}:#{@remote_scripts_base_path}"
+
+        # Use rsync to sync:
+        sync_cmd = "rsync -Laz --delete #{@local_scripts_base_path}/" \
+                   " #{hostname}:#{@remote_scripts_base_path}/"
+
+        cmd = LocalCommand.run(sync_cmd, log_method(hostid))
+
+        if cmd.code != 0
+            msg = Zlib::Deflate.deflate('Could not update remotes',
+                                        Zlib::BEST_COMPRESSION)
+            msg = Base64.strict_encode64(msg)
+
+            send_message(action, RESULT[:failure], hostid, msg)
+            return -1
+        end
+
+        0
+    end
+
+    # Sends a log message to ONE. The +message+ can be multiline, it will
+    # be automatically splitted by lines.
+    def log(id, message, not_used=true)
+        in_error = false
+        msg      = message.strip
+        severity = 'I'
+
+        msg.each_line do |line|
+            l = line.strip
+
+            if l == 'ERROR MESSAGE --8<------'
+                in_error = true
+                next
+            elsif l == 'ERROR MESSAGE ------>8--'
+                in_error = false
+                next
+            else
+                m = line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
+
+                if in_error
+                    severity = 'E'
+                elsif m
+                    line = m[2]
+
+                    case m[1]
+                    when 'ERROR'
+                        severity = 'E'
+                    when 'DEBUG'
+                        severity = 'D'
+                    when 'INFO'
+                        severity = 'I'
+                    else
+                        severity = 'I'
+                    end
                 end
             end
-        end
 
-        args = "#{@hypervisor} #{ds_location} #{@collectd_port}"
-        args << " #{@monitor_push_interval}"
-        do_action(args, number, host,:MONITOR, :script_name => 'run_probes',
-                  :base64 => true)
+            zline   = Zlib::Deflate.deflate(line.strip, Zlib::BEST_COMPRESSION)
+            zline64 = Base64.strict_encode64(zline)
+
+            send_message('LOG', severity, id, "#{Time.now.to_i} #{zline64}")
+        end
     end
 
-    def stop_monitor(number, host)
-        do_action("#{@hypervisor}", number, host,
-                :STOPMONITOR, :script_name => 'stop_probes', :base64 => true)
+    def write_respond(action="-", result=RESULT[:failure], id="-", info="-")
+        info = Zlib::Deflate.deflate(info, Zlib::BEST_COMPRESSION)
+        info = Base64.strict_encode64(info)
+
+        @stdout_mutex.synchronize {
+            STDOUT.puts "#{action} #{result} #{id} #{Time.now.to_i} #{info}"
+            STDOUT.flush
+        }
     end
 end
-
 
 # Information Manager main program
 
 opts = GetoptLong.new(
-    [ '--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT ],
-    [ '--local',      '-l', GetoptLong::NO_ARGUMENT ],
-    [ '--force-copy', '-c', GetoptLong::NO_ARGUMENT ],
-    [ '--timeout',    '-w', GetoptLong::OPTIONAL_ARGUMENT ]
+    ['--retries',    '-r', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--threads',    '-t', GetoptLong::OPTIONAL_ARGUMENT],
+    ['--local',      '-l', GetoptLong::NO_ARGUMENT],
+    ['--force-copy', '-c', GetoptLong::NO_ARGUMENT],
+    ['--timeout',    '-w', GetoptLong::OPTIONAL_ARGUMENT]
 )
 
-hypervisor      = ''
-retries         = 0
-threads         = 15
-local_actions   = {}
-force_copy      = false
-timeout         = nil
+hypervisor    = ''
+retries       = 0
+threads       = 15
+local_actions = {}
+force_copy    = false
+timeout       = nil
 
 begin
     opts.each do |opt, arg|
         case opt
-            when '--retries'
-                retries = arg.to_i
-            when '--threads'
-                threads = arg.to_i
-            when '--local'
-                local_actions={ 'MONITOR' => nil }
-            when '--force-copy'
-                force_copy=true
-            when '--timeout'
-                timeout = arg.to_i
+        when '--retries'
+            retries = arg.to_i
+        when '--threads'
+            threads = arg.to_i
+        when '--local'
+            local_actions={ 'START_MONITOR' => nil, 'STOP_MONITOR' => nil }
+        when '--force-copy'
+            force_copy=true
+        when '--timeout'
+            timeout = arg.to_i
         end
     end
-rescue Exception => e
+rescue StandardError
     exit(-1)
 end
 
@@ -144,10 +269,9 @@ if ARGV.length >= 1
 end
 
 im = InformationManagerDriver.new(hypervisor,
-                                  :concurrency      => threads,
-                                  :retries          => retries,
-                                  :local_actions    => local_actions,
-                                  :force_copy       => force_copy,
-                                  :timeout          => timeout)
-
+                                  :concurrency => threads,
+                                  :retries => retries,
+                                  :local_actions => local_actions,
+                                  :force_copy => force_copy,
+                                  :timeout => timeout)
 im.start_driver

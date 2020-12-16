@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -110,6 +110,28 @@ define(function(require) {
 
   function _onShow(){
     this.securityGroupsTable.refreshResourceTableSelect();
+    
+    // Deletes required on IPV4 when IPAM selected
+    $("input[wizard_field=\"IPAM_MAD\"]").change(function(){
+      var prefix_id = this.id.split("_")[0];
+      
+      // Obtain the correct id for add_ar window
+      if (prefix_id == "add"){
+        prefix_id += "_ar";
+      }
+
+      var dynamic_id = "#" + prefix_id + "_ip_start";
+      
+      if($(this).val().length>0){
+        $(dynamic_id).removeAttr("wizard_field");
+        $(dynamic_id).removeAttr("required");
+      }else{
+        $(dynamic_id).attr("wizard_field","IP");
+        $(dynamic_id).attr("required","required");
+      }
+    });    
+
+    $("input.slaac", this.ar_section).change();
   }
 
   function _retrieve_ar_tab_data(){
@@ -144,7 +166,11 @@ define(function(require) {
       var field=$(this);
 
       if (field.val() != null && field.val().length){ //if has a length
-        data[field.attr('name')] = field.val();
+        if (field.attr('name') === "SLAAC" && field[0].checked) {
+          data[field.attr('name')] = "on";
+        } else {
+          data[field.attr('name')] = field.val();
+        }
       }
 
     });
@@ -171,7 +197,19 @@ define(function(require) {
   }
 
   function _fill_ar_tab_data(ar_json){
+
+    if (ar_json["TYPE"] && ar_json["TYPE"].indexOf("_STATIC") >= 0 ){
+      ar_json["TYPE"] = ar_json["TYPE"].replace("_STATIC", "");
+      ar_json["SLAAC"] = "off";
+    }
+
     WizardFields.fill(this.ar_section, ar_json);
+
+    if (ar_json["SLAAC"] && ar_json["SLAAC"] === "off"){
+      $("input.slaac", this.ar_section)[0].checked = false;
+    }
+
+    $("input.slaac", this.ar_section).prop("disabled", true);
 
     var fields = $('[wizard_field]',this.ar_section);
 
@@ -209,5 +247,10 @@ define(function(require) {
     $('input[wizard_field="IPAM_MAD"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="IP"]',this.ar_section).prop("disabled", true);
     $('input[wizard_field="MAC"]',this.ar_section).prop("disabled", true);
+
+    if (ar_json["PARENT_NETWORK_AR_ID"]){
+      $("#update_ar_size", this.ar_section).prop("disabled", true);
+      delete ar_json["PARENT_NETWORK_AR_ID"];
+    }
   }
 });

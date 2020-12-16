@@ -1,0 +1,35 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems }} {{! }} 
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may }} {{! not use this
+file except in compliance with the License. You may obtain }} {{! a copy of the License at }} {{! }} {{! http://www.apache.org/licenses/LICENSE-2.0
+}} {{! }} {{! Unless required by applicable law or agreed to in writing, software }} {{! distributed under the License is
+distributed on an "AS IS" BASIS, }} {{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. }} {{! See
+the License for the specific language governing permissions and }} {{! limitations under the License. }} {{! --------------------------------------------------------------------------
+}}
+<table>
+  <tr>
+    <td id="title" colspan="3">
+      <h6 class="title_label">{{tr "Perform an action"}}:</h6>
+    </td>
+  </tr>
+  <tr id="tr_schedule_base" style="vertical-align: top;">
+    <td style="width:50%;">
+      <select style="width: 100%" id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
+    </td>
+    <td colspan="2">
+      <div style="display:flex;">
+        <select id="role_name" class="select_role" name="select_action" style="width: 100%">{{{roles}}}</select>
+      </div>
+      <div style="display:flex;">
+        <input type="number" class="hide" id="diskid" placeholder="{{tr 'Disk Id'}}" style="width: 100%">
+        <input type="number" class="hide" id="snapid" placeholder="{{tr 'Snap Id'}}" style="width: 100%">
+        <input type="text" id="snapname" class="hide" placeholder="{{tr 'Snap Name'}}" style="width: 100%">
+    </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <button style="margin-top: 15px;" id="add_{{res}}_action_json" class="button small success secondary radius">{{tr "Add"}}</button>
+    </td>
+  </tr>
+</table>

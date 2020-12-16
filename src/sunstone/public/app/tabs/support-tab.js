@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,42 +15,42 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Buttons = require('./support-tab/buttons');
-  var Actions = require('./support-tab/actions');
-  var Table = require('./support-tab/datatable');
-  var Notifier = require('utils/notifier');
-  var SupportUtils = require('./support-tab/utils/common');
-  var Sunstone = require('sunstone');
+  var Buttons = require("./support-tab/buttons");
+  var Actions = require("./support-tab/actions");
+  var Table = require("./support-tab/datatable");
+  var Notifier = require("utils/notifier");
+  var SupportUtils = require("./support-tab/utils/common");
+  var Sunstone = require("sunstone");
+  var Locale = require("utils/locale");
+  var TemplateTitle = require("hbs!./support-tab/title");
+  var TemplateSubheader = require("hbs!./support-tab/subheader");
 
-  var TemplateTitle = require('hbs!./support-tab/title');
-  var TemplateSubheader = require('hbs!./support-tab/subheader');
-
-  var TAB_ID = require('./support-tab/tabId');
+  var TAB_ID = require("./support-tab/tabId");
   var DATATABLE_ID = "dataTableSupport";
 
   var _dialogs = [
-    require('./support-tab/dialogs/upload')
+    require("./support-tab/dialogs/upload")
   ];
 
   var _panels = [
-    require('./support-tab/panels/info')
+    require("./support-tab/panels/info")
   ];
 
   var _formPanels = [
-    require('./support-tab/form-panels/create')
+    require("./support-tab/form-panels/create")
   ];
 
   var Tab = {
     tabId: TAB_ID,
-    resource: 'Support',
+    resource: "Support",
     title: TemplateTitle(),
-    listHeader: 'Commercial Support Requests',
-    infoHeader: 'Commercial Support Request',
+    listHeader: "Commercial Support Requests",
+    infoHeader: "Commercial Support Request",
     subheader: TemplateSubheader({
-      'support_subscription': config['support']['support_subscription'],
-      'account': config['support']['account'],
-      'docs': config['support']['docs'],
-      'community': config['support']['community']
+      "support_subscription": config["support"]["support_subscription"],
+      "account": config["support"]["account"],
+      "docs": config["support"]["docs"],
+      "community": config["support"]["community"]
     }),
     buttons: Buttons,
     actions: Actions,
@@ -64,52 +64,57 @@ define(function(require) {
   return Tab;
 
   function _setup(context) {
-
-    SupportUtils.showSupportConnect();
-    SupportUtils.startIntervalRefresh();
-
-    $(".support_button").on("click", function(){
-      $("#li_support-tab > a").trigger("click");
-      $(".create_dialog_button", "#support-tab").trigger("click");
-      return false;
+    $("#li_support-tab > a").on("click", function(e){
+      e.preventDefault();
     });
+    if(config && config.user_config && config.user_config.default_view === "admin"){
+      $("#support_credentials_form", context).on("submit", function(){
+        $(".support_button").on("click", function(e){
+          e.stopPropagation();
+          $(".create_dialog_button", "#support-tab").trigger("click");
+          return false;
+        });
 
-    $("#support_credentials_form", context).on("submit", function(){
-      $(".submit_support_credentials_button", context).attr("disabled", "disabled");
-      $(".submit_support_credentials_button", context).html('<i class="fa fa-spinner fa-spin"></i>');
+        $(".support_connect_button").on("click", function(e){
+          window.location.assign("#support-tab");
+        });
 
-      var data = {
-        email : $("#support_email", this).val(),
-        password : $("#support_password", this).val()
-      };
-
-      $.ajax({
-        url: 'support/credentials',
-        type: "POST",
-        data: JSON.stringify(data),
-        success: function(){
-          $(".submit_support_credentials_button", context).removeAttr("disabled");
-          $(".submit_support_credentials_button", context).html('Sign in');
-
-          Sunstone.runAction("Support.refresh");
-
-          SupportUtils.showSupportList();
-          SupportUtils.startIntervalRefresh();
-        },
-        error: function(response){
-          if (response.status=="401") {
-            Notifier.notifyError("Support credentials are incorrect");
-          } else {
-            Notifier.notifyError(response.responseText);
+        $(".submit_support_credentials_button", context).attr("disabled", "disabled");
+        $(".submit_support_credentials_button", context).html("<i class=\"fas fa-spinner fa-spin\"></i>");
+        var data = {
+          email : $("#support_email", this).val(),
+          password : $("#support_password", this).val()
+        };
+        $.ajax({
+          url: "support/credentials",
+          type: "POST",
+          data: JSON.stringify(data),
+          success: function(){
+            $(".submit_support_credentials_button", context).removeAttr("disabled");
+            $(".submit_support_credentials_button", context).html(Locale.tr("Sign in"));
+            Sunstone.runAction("Support.refresh");
+            SupportUtils.showSupportList();
+            SupportUtils.startIntervalRefresh();
+          },
+          error: function(response){
+            if (response && response.status && response.status == "401") {
+              Notifier.notifyError("Support credentials are incorrect");
+            } else {
+              Notifier.notifyError(response.responseText);
+            }
+            $(".submit_support_credentials_button", context).removeAttr("disabled");
+            $(".submit_support_credentials_button", context).html(Locale.tr("Sign in"));
           }
-
-          $(".submit_support_credentials_button", context).removeAttr("disabled");
-          $(".submit_support_credentials_button", context).html('Sign in');
-        }
+        });
+        return false;
       });
-
-      return false;
-    });
+    }else{
+      $(".only_admin_view").remove();
+      $("#li_support-tab > a").on("click", function(e){
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    }
   }
 
 });

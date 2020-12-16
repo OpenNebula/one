@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,62 +16,80 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
+
+CONFIG = VCenterConf.new
 
 vm_ref          = ARGV[0]
 vc_cluster_name = ARGV[1]
 vm_id           = ARGV[2]
 
-host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
-host_id = host['ID']
-
-drv_action_enc = STDIN.read.gsub("\n","")
+drv_action_enc = STDIN.read.delete("\n")
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(drv_action_enc),
                           'VMM_DRIVER_ACTION_DATA')
 
-lcm_state = drv_action["/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE"]
-check_valid(lcm_state, "lcm_state")
+host_id = drv_action['VM/HISTORY_RECORDS/HISTORY/HID']
+
+lcm_state = drv_action['/VMM_DRIVER_ACTION_DATA/VM/LCM_STATE']
+check_valid(lcm_state, 'lcm_state')
 lcm_state_str = OpenNebula::VirtualMachine::LCM_STATE[lcm_state.to_i]
 
-if !["SHUTDOWN", "SHUTDOWN_POWEROFF", "SHUTDOWN_UNDEPLOY"].include?(lcm_state_str)
-    STDERR.puts "Wrong lcm state when shutting down VM"
-    exit -1
+if !%('SAVE_MIGRATE', 'SHUTDOWN', 'SHUTDOWN_POWEROFF', \
+       'SHUTDOWN_UNDEPLOY').include?(lcm_state_str)
+    STDERR.puts "Wrong lcm state #{lcm_state_str} when shutting down VM"
+    exit(-1)
 end
 
-## TODO copy_template
-
 begin
+    retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
     if vm_ref.empty?
-        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
-        vcenter_vm = VCenterDriver::VIHelper.find_vcenter_vm_by_name(one_vm, host, vi_client)
-        raise "Could not find the undeployed VM in vCenter's inventory using it's name" if !vcenter_vm
+        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine,
+                                                  vm_id)
+        host = OpenNebula::Host.new_with_id(host_id, OpenNebula::Client.new)
+        vcenter_vm = VCenterDriver::VIHelper.find_vcenter_vm_by_name(one_vm,
+                                                                     host,
+                                                                     vi_client)
+        raise "Couldn't find the VM in vCenter by it's name" unless vcenter_vm
+
         vm_ref = vcenter_vm._ref
     end
 
-    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+    vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
-    vm.shutdown #Undeploy, Poweroff or Terminate
+    vm.shutdown # Undeploy, Poweroff or Terminate
+rescue StandardError => e
+    message = "Shutdown of VM #{vm_ref} on vCenter cluster #{vc_cluster_name} "\
+              "failed due to \"#{e.message}\" on attempt \##{retries}"
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    sleep CONFIG[:retry_interval].to_i
+    retry if retries < CONFIG[:retries]
 
-rescue Exception => e
-    message = "Shutdown of VM #{vm_ref} on vCenter cluster "\
-              "#{vc_cluster_name} failed due to "\
-              "\"#{e.message}\"\n#{e.backtrace}"
-    STDERR.puts error_message(message)
-    exit -1
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

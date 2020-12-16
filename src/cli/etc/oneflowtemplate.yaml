@@ -1,0 +1,32 @@
+---
+:ID:
+  :desc: ONE identifier for Service Template
+  :size: 4
+  :adjust: true
+
+:NAME:
+  :desc: Name of the Service Template
+  :size: 15
+  :left: true
+  :expand: true
+
+:USER:
+  :desc: Username of the Service Template owner
+  :size: 8
+  :left: true
+
+:GROUP:
+  :desc: Group of the Service Template
+  :size: 8
+  :left: true
+
+:REGTIME:
+  :desc: Registration time of the Service Template
+  :size: 15
+
+:default:
+- :ID
+- :USER
+- :GROUP
+- :NAME
+- :REGTIME

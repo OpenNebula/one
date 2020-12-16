@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,6 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+STDIN=`cat -`
+
 script_name=$(basename $0)
 
 source $(dirname $0)/../../scripts_common.sh
@@ -23,4 +25,3 @@ source $(dirname $0)/../../scripts_common.sh
 error_message "$script_name: Operation not supported"
 
 exit 1
-

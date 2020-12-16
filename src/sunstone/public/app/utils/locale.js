@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,25 +18,25 @@ define(function(require) {
   var sprintf = require("sprintf").sprintf;
 
   var LANGUAGE_OPTIONS =
-    '<option value="en_US">English (en_US)</option>\
-    <option value="ca">Catalan (ca)</option>\
-    <option value="cs_CZ">Czech (cs_CZ)</option>\
-    <option value="nl_NL">Dutch (nl_NL)</option>\
-    <option value="da">Danish (da)</option>\
-    <option value="fr_FR">French (fr_FR)</option>\
-    <option value="de">German (de)</option>\
-    <option value="el_GR">Greek (el_GR)</option>\
-    <option value="it_IT">Italian (it_IT)</option>\
-    <option value="ja">Japanese (ja)</option>\
-    <option value="lt_LT">Lithuanian (lt_LT)</option>\
-    <option value="fa_IR">Persian (fa_IR)</option>\
-    <option value="pl">Polish (pl)</option>\
-    <option value="pt_BR">Portuguese (pt_BR)</option>\
-    <option value="pt_PT">Portuguese (pt_PT)</option>\
-    <option value="ru_RU">Russian (ru_RU)</option>\
-    <option value="zh_CN">Simplified Chinese (zh_CN)</option>\
-    <option value="sk_SK">Slovak (sk_SK)</option>\
-    <option value="es_ES">Spanish (es_ES)</option>';
+    "<option value=\"en_US\">English (en_US)</option>\
+    <option value=\"ca\">Catalan (ca)</option>\
+    <option value=\"cs_CZ\">Czech (cs_CZ)</option>\
+    <option value=\"nl_NL\">Dutch (nl_NL)</option>\
+    <option value=\"da\">Danish (da)</option>\
+    <option value=\"fr_FR\">French (fr_FR)</option>\
+    <option value=\"de\">German (de)</option>\
+    <option value=\"it_IT\">Italian (it_IT)</option>\
+    <option value=\"ja\">Japanese (ja)</option>\
+    <option value=\"lt_LT\">Lithuanian (lt_LT)</option>\
+    <option value=\"fa_IR\">Persian (fa_IR)</option>\
+    <option value=\"pl\">Polish (pl)</option>\
+    <option value=\"pt_BR\">Portuguese (pt_BR)</option>\
+    <option value=\"pt_PT\">Portuguese (pt_PT)</option>\
+    <option value=\"tr_TR\">Turkish (tr_TR)</option>\
+    <option value=\"ru_RU\">Russian (ru_RU)</option>\
+    <option value=\"zh_CN\">Simplified Chinese (zh_CN)</option>\
+    <option value=\"sk_SK\">Slovak (sk_SK)</option>\
+    <option value=\"es_ES\">Spanish (es_ES)</option>";
 
   var MONTHS = new Array(
         tr("January"), tr("February"), tr("March"), tr("April"), tr("May"),
@@ -57,8 +57,8 @@ define(function(require) {
   };
 
   return {
-    'tr': tr,
-    'months': MONTHS,
-    'language_options': LANGUAGE_OPTIONS
-  }
+    "tr": tr,
+    "months": MONTHS,
+    "language_options": LANGUAGE_OPTIONS
+  };
 });

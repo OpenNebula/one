@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,9 +18,8 @@
 #define SQL_DB_H_
 
 #include <sstream>
+#include <map>
 #include "Callbackable.h"
-
-using namespace std;
 
 /**
  * SqlDB class.Provides an abstract interface to implement a SQL backend
@@ -32,6 +31,23 @@ public:
     SqlDB(){};
 
     virtual ~SqlDB(){};
+
+    enum SqlError
+    {
+        SUCCESS     = 0,
+        INTERNAL    = -1,
+        CONNECTION  = -100,
+        SQL         = -200,
+        SQL_DUP_KEY = -201
+    };
+
+    enum class SqlFeature
+    {
+        MULTIPLE_VALUE, // syntax INSERT VALUES (data), (data), (data)
+        LIMIT,          // LIMIT in queries with DELETE and UPDATE
+        FTS,            // Full Text Search
+        COMPARE_BINARY  // Use BINARY for comparing name in DB
+    };
 
     /* ---------------------------------------------------------------------- */
     /* Database Operations                                                    */
@@ -46,42 +62,109 @@ public:
      *    @param callbak function to execute on each data returned
      *    @return 0 on success
      */
-    virtual int exec_local_wr(ostringstream& cmd)
+    virtual int exec_local_wr(std::ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
 
-    virtual int exec_rd(ostringstream& cmd, Callbackable* obj)
+    virtual int exec_rd(std::ostringstream& cmd, Callbackable* obj)
     {
         return exec(cmd, obj, false);
     }
 
-    virtual int exec_wr(ostringstream& cmd)
+    virtual int exec_wr(std::ostringstream& cmd)
     {
         return exec(cmd, 0, false);
     }
 
-    /**
+    virtual int exec_wr(std::ostringstream& cmd, Callbackable* obj)
+    {
+        return exec(cmd, obj, false);
+    }
+
+    /* ---------------------------------------------------------------------- */
+
+    int exec_ext(std::ostringstream& cmd)
+    {
+        return exec_ext(cmd, 0, false);
+    }
+
+    int exec_ext(std::ostringstream& cmd, Callbackable * obj)
+    {
+        return exec_ext(cmd, obj, false);
+    }
+
+   /**
      *  This function returns a legal SQL string that can be used in an SQL
      *  statement.
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    virtual char * escape_str(const string& str) = 0;
+    virtual char * escape_str(const std::string& str) const = 0;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    virtual void free_str(char * str) = 0;
+    virtual void free_str(char * str) const = 0;
+
+
+    virtual bool supports(SqlFeature ft) const
+    {
+        auto it = features.find(ft);
+
+        if ( it == features.end() )
+        {
+            return false;
+        }
+
+        return it->second;
+    }
 
     /**
-     * Returns true if the syntax INSERT VALUES (data), (data), (data)
-     * is supported
-     *
-     * @return true if supported
+     *  @return pointer to a non-federated version of this database
      */
-    virtual bool multiple_values_support() = 0;
+    virtual SqlDB * get_local_db()
+    {
+        return this;
+    }
+
+    /**
+     *  @return string with compatible LIMIT clause syntax
+     *  LIMIT [offset], row_count
+     *
+     *  +---+---+---+---+---+---+---+---+--
+     *  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |...
+     *  +---+---+---+---+---+---+---+---+--
+     *          |                   |
+     *          /-------------------/
+     *              LIMIT 3, 5
+     */
+    virtual std::string limit_string(int sid, int eid) const
+    {
+        std::ostringstream oss;
+
+        oss << "LIMIT " << sid << "," << eid;
+
+        return oss.str();
+    }
+
+    virtual std::string limit_string(int sid) const
+    {
+        std::ostringstream oss;
+
+        oss << "LIMIT " << sid;
+
+        return oss.str();
+    }
+
+    void add_binary(std::ostringstream& oss)
+    {
+        if (supports(SqlFeature::COMPARE_BINARY))
+        {
+            oss << "BINARY ";
+        }
+    }
 
 protected:
     /**
@@ -89,9 +172,35 @@ protected:
      *    @param sql_cmd the SQL command
      *    @param callbak function to execute on each data returned
      *    @param quiet True to log errors with DDEBUG level instead of ERROR
-     *    @return 0 on success
+     *    @return 0 on success -1 on failure
      */
-    virtual int exec(ostringstream& cmd, Callbackable* obj, bool quiet) = 0;
+    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    {
+        int rc = exec_ext(cmd, obj, quiet);
+
+        if (rc != 0)
+        {
+            rc = -1;
+        };
+
+        return rc;
+    }
+
+    /**
+     *  This function performs a DB transaction and returns and extended error code
+     *    @return SqlError enum
+     */
+    virtual int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet) = 0;
+
+    /**
+     *  Feature set
+     */
+    std::map<SqlFeature, bool> features = {
+        {SqlFeature::MULTIPLE_VALUE, false},
+        {SqlFeature::LIMIT, false},
+        {SqlFeature::FTS, false},
+        {SqlFeature::COMPARE_BINARY, false}
+    };
 };
 
 #endif /*SQL_DB_H_*/

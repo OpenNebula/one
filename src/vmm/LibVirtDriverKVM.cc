@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,10 +17,18 @@
 #include "LibVirtDriver.h"
 
 #include "Nebula.h"
+#include "HostPool.h"
+#include "ClusterPool.h"
+#include "VirtualNetwork.h"
+#include "ObjectXML.h"
+#include "Nebula.h"
+
 #include <sstream>
 #include <fstream>
 #include <libgen.h>
 #include <math.h>
+
+using namespace std;
 
 const float LibVirtDriver::CGROUP_BASE_CPU_SHARES = 1024;
 
@@ -29,6 +37,10 @@ const int LibVirtDriver::CEPH_DEFAULT_PORT = 6789;
 const int LibVirtDriver::GLUSTER_DEFAULT_PORT = 24007;
 
 const int LibVirtDriver::ISCSI_DEFAULT_PORT = 3260;
+
+const char * LibVirtDriver::XML_DOMAIN_RNG_PATH = "/schemas/libvirt/domain.rng";
+
+#define set_sec_default(v, dv) if (v.empty() && !dv.empty()){v = dv;}
 
 /**
  *  This function generates the <host> element for network disks
@@ -44,16 +56,15 @@ static void do_network_hosts(ofstream& file,
         return;
     }
 
-    vector<string>::const_iterator it;
     vector<string> hosts;
 
     hosts = one_util::split(cg_host, ' ');
 
     file << ">" << endl;
 
-    for (it = hosts.begin(); it != hosts.end(); it++)
+    for (const auto& host_str : hosts)
     {
-        vector<string> parts = one_util::split(*it, ':');
+        vector<string> parts = one_util::split(host_str, ':');
 
         if (parts.empty())
         {
@@ -85,6 +96,314 @@ static void do_network_hosts(ofstream& file,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static int to_i(const string& sval)
+{
+    int ival;
+
+    istringstream iss(sval);
+
+    iss >> ival;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    return ival;
+}
+
+static void insert_sec(ofstream& file, const string& base, const string& s,
+        const string& sm, const string& sml)
+{
+    int s_i = 0;
+
+    if (!s.empty())
+    {
+        s_i = to_i(s);
+
+        if (s_i < 0)
+        {
+            return;
+        }
+
+        file << "\t\t\t\t<" << base << "_sec>" << one_util::escape_xml(s)
+             << "</" << base << "_sec>\n";
+    }
+
+    if (!sm.empty())
+    {
+        int sm_i = to_i(sm);
+
+        if (sm_i < 0)
+        {
+            return;
+        }
+
+        if ( sm_i > s_i )
+        {
+            file << "\t\t\t\t<" << base << "_sec_max>"
+                 << one_util::escape_xml(sm)
+                 << "</" << base << "_sec_max>\n";
+
+            if (!sml.empty())
+            {
+                int sml_i = to_i(sml);
+
+                if (sml_i < 0)
+                {
+                    return;
+                }
+
+                file << "\t\t\t\t<" << base << "_sec_max_length>"
+                     << one_util::escape_xml(sml)
+                     << "</" << base << "_sec_max_length>\n";
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void pin_cpu(ofstream& file, const VectorAttribute * topology,
+        std::vector<const VectorAttribute *> &nodes)
+{
+    HostShare::PinPolicy pp = HostShare::PP_NONE;
+    unsigned int vcpu_id = 0;
+
+    std::ostringstream oss;
+
+    if ( topology != 0 )
+    {
+        std::string pp_s;
+
+        pp_s = topology->vector_value("PIN_POLICY");
+        pp   = HostShare::str_to_pin_policy(pp_s);
+    }
+
+    if ( pp == HostShare::PP_NONE )
+    {
+        return;
+    }
+
+    for (auto it = nodes.begin(); it != nodes.end() ; ++it)
+    {
+        unsigned int nv = 0;
+
+        std::vector<unsigned int> cpus_a;
+        std::string cpus = (*it)->vector_value("CPUS");
+
+        (*it)->vector_value("TOTAL_CPUS", nv);
+
+        if ( nv == 0 || cpus.empty())
+        {
+            continue;
+        }
+
+        one_util::split(cpus, ',', cpus_a);
+
+        for ( unsigned int i = 0; i < nv; ++i, ++vcpu_id )
+        {
+            file << "\t\t<vcpupin vcpu='" << vcpu_id << "' cpuset='";
+
+            if ( pp == HostShare::PP_SHARED )
+            {
+                file << cpus << "'/>\n";
+            }
+            else
+            {
+                file << cpus_a[i] << "'/>\n";
+            }
+        }
+
+        if ( it != nodes.begin() )
+        {
+            oss << ",";
+        }
+
+        oss << cpus;
+    }
+
+    file << "\t\t<emulatorpin cpuset='" << oss.str() << "'/>\n";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static void vtopol(ofstream& file, const VectorAttribute * topology,
+        std::vector<const VectorAttribute *> &nodes,  std::string &numatune,
+        std::string &membacking)
+{
+    std::string ma;
+    int hpsz_kb = 0;
+
+    if ( topology != 0 )
+    {
+        int s, c, t;
+
+        s = c = t = 1;
+
+        topology->vector_value("SOCKETS", s);
+        topology->vector_value("CORES", c);
+        topology->vector_value("THREADS", t);
+
+        topology->vector_value("HUGEPAGE_SIZE", hpsz_kb);
+        hpsz_kb = hpsz_kb * 1024;
+
+        ma = topology->vector_value("MEMORY_ACCESS");
+
+        if (!ma.empty() &&  hpsz_kb != 0)
+        {
+            one_util::tolower(ma);
+
+            if (ma != "private" && ma != "shared")
+            {
+                ma = "";
+            }
+        }
+
+        file << "\t\t<topology sockets='" << s << "' cores='" << c
+            << "' threads='"<< t <<"'/>\n";
+    }
+
+    if ( nodes.empty() )
+    {
+        return;
+    }
+
+    std::ostringstream oss, mnodes;
+
+    unsigned int cpuid = 0;
+    unsigned int cid   = 0;
+
+    oss << "\t<numatune>\n";
+    file << "\t\t<numa>\n";
+
+    for (auto it = nodes.begin() ; it != nodes.end() ; ++it, ++cid)
+    {
+        unsigned int ncpu = 0;
+
+        std::string mem    = (*it)->vector_value("MEMORY");
+        std::string mem_id = (*it)->vector_value("MEMORY_NODE_ID");
+
+        (*it)->vector_value("TOTAL_CPUS", ncpu);
+
+        file << "\t\t\t<cell id='" << cid << "' memory='" << mem << "'";
+
+        if ( ncpu > 0 )
+        {
+            file << " cpus='" << cpuid << "-" << cpuid + ncpu - 1 << "'";
+        }
+
+        if (!ma.empty())
+        {
+            file << " memAccess='" << ma << "'";
+        }
+
+        file << "/>\n";
+
+        cpuid += ncpu;
+
+        if (!mem_id.empty())
+        {
+            oss << "\t\t<memnode cellid='" << cid << "' mode='strict' nodeset='"
+                << mem_id <<"'/>\n";
+
+            if (!mnodes.str().empty())
+            {
+                mnodes << ",";
+            }
+
+            mnodes << mem_id;
+        }
+    }
+
+    file << "\t\t</numa>\n";
+
+    if (!mnodes.str().empty())
+    {
+        oss << "\t\t<memory mode='strict' nodeset='" << mnodes.str() << "'/>\n";
+        oss << "\t</numatune>\n";
+
+        numatune = oss.str();
+    }
+
+    if ( hpsz_kb != 0 )
+    {
+        std::ostringstream mboss;
+
+        mboss << "\t<memoryBacking>\n";
+        mboss << "\t\t<hugepages>\n";
+
+        mboss << "\t\t\t<page size=" << one_util::escape_xml_attr(hpsz_kb) << "/>\n";
+
+        mboss << "\t\t</hugepages>\n";
+        mboss << "\t</memoryBacking>\n";
+
+        membacking = mboss.str();
+    }
+}
+
+/**
+ *  Returns disk bus based on this table:
+ *         \ prefix   hd     sd             vd
+ *  chipset \
+ *  pc-q35-*          sata   [sd_default]   virtio
+ *  (other)           ide    [sd_default]   virtio
+ *
+ *  sd_default - SD_DISK_BUS value from vmm_exec_kvm.conf/template
+ *               'sata' or 'scsi'
+ */
+static string get_disk_bus(std::string &machine, std::string &target,
+        std::string &sd_default)
+{
+    switch (target[0])
+    {
+        case 's': // sd_ disk
+            return sd_default;
+        case 'v': // vd_ disk
+            return "virtio";
+        default:
+        {
+            std::size_t found = machine.find("q35");
+
+            if (found != std::string::npos)
+            {
+                return "sata";
+            }
+        }
+    }
+
+    return "ide";
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int LibVirtDriver::validate_raw(const string& raw_section, string& error) const
+{
+    ostringstream oss;
+
+    string path = Nebula::instance().get_share_location() + XML_DOMAIN_RNG_PATH;
+
+    oss << "<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>"
+        << "<name>aux</name>"
+        << raw_section << "</domain>";
+
+    int rc = ObjectXML::validate_rng(oss.str(), path);
+
+    if ( rc != 0 )
+    {
+        error = "Invalid RAW section: cannot validate DATA with domain.rng schema";
+        return -1;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int LibVirtDriver::deployment_description_kvm(
         const VirtualMachine *  vm,
         const string&           file_name) const
@@ -94,12 +413,12 @@ int LibVirtDriver::deployment_description_kvm(
     int       num;
 
     string  vcpu;
+    string  vcpu_max;
     float   cpu;
     int     memory;
+    int     memory_max;
 
     string  emulator_path = "";
-
-    const VectorAttribute * os;
 
     string  kernel     = "";
     string  initrd     = "";
@@ -110,6 +429,9 @@ int LibVirtDriver::deployment_description_kvm(
     string  machine    = "";
 
     vector<string> boots;
+
+    string  cpu_model = "";
+    string  cpu_mode  = "";
 
     vector<const VectorAttribute *> disk;
     const VectorAttribute * context;
@@ -138,19 +460,43 @@ int LibVirtDriver::deployment_description_kvm(
     string  gluster_volume  = "";
     string  luks_secret     = "";
 
-    string  total_bytes_sec = "";
-    string  read_bytes_sec  = "";
-    string  write_bytes_sec = "";
-    string  total_iops_sec  = "";
-    string  read_iops_sec   = "";
-    string  write_iops_sec  = "";
+    string  total_bytes_sec            = "";
+    string  total_bytes_sec_max_length = "";
+    string  total_bytes_sec_max        = "";
+    string  read_bytes_sec             = "";
+    string  read_bytes_sec_max_length  = "";
+    string  read_bytes_sec_max         = "";
+    string  write_bytes_sec            = "";
+    string  write_bytes_sec_max_length = "";
+    string  write_bytes_sec_max        = "";
+    string  total_iops_sec             = "";
+    string  total_iops_sec_max_length  = "";
+    string  total_iops_sec_max         = "";
+    string  read_iops_sec              = "";
+    string  read_iops_sec_max_length   = "";
+    string  read_iops_sec_max          = "";
+    string  write_iops_sec             = "";
+    string  write_iops_sec_max_length  = "";
+    string  write_iops_sec_max         = "";
 
-    string  default_total_bytes_sec = "";
-    string  default_read_bytes_sec  = "";
-    string  default_write_bytes_sec = "";
-    string  default_total_iops_sec  = "";
-    string  default_read_iops_sec   = "";
-    string  default_write_iops_sec  = "";
+    string  default_total_bytes_sec            = "";
+    string  default_total_bytes_sec_max_length = "";
+    string  default_total_bytes_sec_max        = "";
+    string  default_read_bytes_sec             = "";
+    string  default_read_bytes_sec_max_length  = "";
+    string  default_read_bytes_sec_max         = "";
+    string  default_write_bytes_sec            = "";
+    string  default_write_bytes_sec_max_length = "";
+    string  default_write_bytes_sec_max        = "";
+    string  default_total_iops_sec             = "";
+    string  default_total_iops_sec_max_length  = "";
+    string  default_total_iops_sec_max         = "";
+    string  default_read_iops_sec              = "";
+    string  default_read_iops_sec_max_length   = "";
+    string  default_read_iops_sec_max          = "";
+    string  default_write_iops_sec             = "";
+    string  default_write_iops_sec_max_length  = "";
+    string  default_write_iops_sec_max         = "";
 
     int     disk_id;
     int     order;
@@ -170,6 +516,9 @@ int LibVirtDriver::deployment_description_kvm(
     string  ip     = "";
     string  vrouter_ip = "";
     string  filter = "";
+    string  virtio_queues = "";
+    string  bridge_type = "";
+    string  nic_id = "";
 
     string  i_avg_bw = "";
     string  i_peak_bw = "";
@@ -203,8 +552,6 @@ int LibVirtDriver::deployment_description_kvm(
     string vm_slot   = "";
     string vm_func   = "";
 
-    const VectorAttribute * features;
-
     bool pae                = false;
     bool acpi               = false;
     bool apic               = false;
@@ -212,14 +559,7 @@ int LibVirtDriver::deployment_description_kvm(
     bool localtime          = false;
     bool guest_agent        = false;
     int  virtio_scsi_queues = 0;
-
-    int pae_found                   = -1;
-    int acpi_found                  = -1;
-    int apic_found                  = -1;
-    int hyperv_found                = -1;
-    int localtime_found             = -1;
-    int guest_agent_found           = -1;
-    int virtio_scsi_queues_found    = -1;
+    int  scsi_targets_num   = 0;
 
     string hyperv_options = "";
 
@@ -227,7 +567,23 @@ int LibVirtDriver::deployment_description_kvm(
     string default_raw = "";
     string data        = "";
 
+    const VectorAttribute * topology;
+    vector<const VectorAttribute *> nodes;
+
+    std::string numa_tune = "";
+    std::string mbacking  = "";
+
+    std::string sd_bus;
+    std::string disk_bus;
+
     string  vm_xml;
+
+    Nebula& nd = Nebula::instance();
+    auto host_ptr    = nd.get_hpool()->get_ro(vm->get_hid());
+    auto cluster_ptr = nd.get_clpool()->get_ro(vm->get_cid());
+
+    auto host    = host_ptr.get();
+    auto cluster = cluster_ptr.get();
 
     // ------------------------------------------------------------------------
 
@@ -235,7 +591,8 @@ int LibVirtDriver::deployment_description_kvm(
 
     if (file.fail() == true)
     {
-        goto error_file;
+        vm->log("VMM", Log::ERROR, "Could not open KVM deployment file.");
+        return -1;
     }
 
     // ------------------------------------------------------------------------
@@ -253,29 +610,46 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t<name>one-" << vm->get_oid() << "</name>" << endl;
 
     // ------------------------------------------------------------------------
+    // Title name
+    // ------------------------------------------------------------------------
+
+    file << "\t<title>" << vm->get_name() << "</title>" << endl;
+
+    // ------------------------------------------------------------------------
     // CPU & Memory
     // ------------------------------------------------------------------------
 
-    vm->get_template_attribute("VCPU", vcpu);
+    get_attribute(vm, host, cluster, "VCPU", vcpu);
+    get_attribute(vm, host, cluster, "VCPU_MAX", vcpu_max);
 
-    if(vcpu.empty())
+    if (vcpu.empty())
     {
-        get_default("VCPU", vcpu);
+        vcpu = vcpu_max;
     }
 
-    if (!vcpu.empty())
+    if (!vcpu_max.empty())
+    {
+        file << "\t<vcpu current=" << one_util::escape_xml_attr(vcpu) << ">"
+             << one_util::escape_xml(vcpu_max) << "</vcpu>" << endl;
+            }
+    else if (!vcpu.empty())
     {
         file << "\t<vcpu>" << one_util::escape_xml(vcpu) << "</vcpu>" << endl;
     }
 
     //Every process gets 1024 shares by default (cgroups), scale this with CPU
-    if(vm->get_template_attribute("CPU", cpu))
-    {
-        file << "\t<cputune>" << endl
-             << "\t\t<shares>"<< ceil( cpu * CGROUP_BASE_CPU_SHARES )
-             << "</shares>"   << endl
-             << "\t</cputune>"<< endl;
-    }
+    cpu = 1;
+    vm->get_template_attribute("CPU", cpu);
+
+    topology = vm->get_template_attribute("TOPOLOGY");
+    vm->get_template_attribute("NUMA_NODE", nodes);
+
+    file << "\t<cputune>\n";
+    file << "\t\t<shares>"<< ceil(cpu * CGROUP_BASE_CPU_SHARES) << "</shares>\n";
+
+    pin_cpu(file, topology, nodes);
+
+    file << "\t</cputune>\n";
 
     // Memory must be expressed in Kb
     if (vm->get_template_attribute("MEMORY",memory))
@@ -284,7 +658,20 @@ int LibVirtDriver::deployment_description_kvm(
     }
     else
     {
-        goto error_memory;
+        vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
+        return -1;
+    }
+
+    bool has_memory_max = vm->get_template_attribute("MEMORY_MAX", memory_max);
+    has_memory_max = has_memory_max && memory < memory_max;
+
+    if (!topology && has_memory_max)
+    {
+        int slots = 0;
+        get_attribute(vm, host, cluster, "MEMORY_SLOTS", slots);
+
+        file << "\t<maxMemory slots='" << slots
+             << "'>" << memory_max * 1024 << "</maxMemory>" << endl;
     }
 
     // ------------------------------------------------------------------------
@@ -293,67 +680,29 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "\t<os>" << endl;
 
-    os = vm->get_template_attribute("OS");
+    get_attribute(vm, host, cluster, "OS", "ARCH", arch);
+    get_attribute(vm, host, cluster, "OS", "MACHINE", machine);
+    get_attribute(vm, host, cluster, "OS", "KERNEL", kernel);
+    get_attribute(vm, host, cluster, "OS", "INITRD", initrd);
+    get_attribute(vm, host, cluster, "OS", "BOOTLOADER", bootloader);
+    get_attribute(vm, host, cluster, "OS", "ROOT", root);
+    get_attribute(vm, host, cluster, "OS", "KERNEL_CMD", kernel_cmd);
+    get_attribute(vm, host, cluster, "OS", "SD_DISK_BUS", sd_bus);
 
-    if( os != 0 )
+    if (arch.empty())
     {
-        kernel     = os->vector_value("KERNEL");
-        initrd     = os->vector_value("INITRD");
-        root       = os->vector_value("ROOT");
-        kernel_cmd = os->vector_value("KERNEL_CMD");
-        bootloader = os->vector_value("BOOTLOADER");
-        arch       = os->vector_value("ARCH");
-        machine    = os->vector_value("MACHINE");
-    }
-
-    if ( arch.empty() )
-    {
-        get_default("OS","ARCH",arch);
-
-        if ( arch.empty() )
-        {
-            goto error_arch;
-        }
-    }
-
-    if ( machine.empty() )
-    {
-        get_default("OS", "MACHINE", machine);
+        vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
+        return -1;
     }
 
     file << "\t\t<type arch=" << one_util::escape_xml_attr(arch);
 
-    if ( !machine.empty() )
+    if (!machine.empty())
     {
         file << " machine=" << one_util::escape_xml_attr(machine);
     }
 
     file << ">hvm</type>" << endl;
-
-    if ( kernel.empty() )
-    {
-        get_default("OS","KERNEL",kernel);
-    }
-
-    if ( initrd.empty() )
-    {
-        get_default("OS","INITRD",initrd);
-    }
-
-    if ( bootloader.empty() )
-    {
-        get_default("OS","BOOTLOADER",bootloader);
-    }
-
-    if ( root.empty() )
-    {
-        get_default("OS","ROOT",root);
-    }
-
-    if ( kernel_cmd.empty() )
-    {
-        get_default("OS","KERNEL_CMD",kernel_cmd);
-    }
 
     // Start writing to the file with the info we got
 
@@ -386,19 +735,75 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t</os>" << endl;
 
     // ------------------------------------------------------------------------
+    // CPU SECTION
+    // ------------------------------------------------------------------------
+    get_attribute(vm, host, cluster, "CPU_MODEL", "MODEL", cpu_model);
+
+    if (cpu_model == "host-passthrough")
+    {
+        cpu_mode = "host-passthrough";
+    }
+    else
+    {
+        cpu_mode = "custom";
+    }
+
+    if ( !cpu_model.empty() || topology != 0 || has_memory_max )
+    {
+        file << "\t<cpu";
+
+        if (!cpu_model.empty())
+        {
+            file << " mode=" << one_util::escape_xml_attr(cpu_mode) << ">\n";
+
+            if ( cpu_mode == "custom" )
+            {
+                file << "\t\t<model fallback='forbid'>"
+                    << one_util::escape_xml(cpu_model) << "</model>\n";
+            }
+        }
+        else
+        {
+            file << ">\n";
+        }
+
+        if (nodes.empty() && has_memory_max)
+        {
+            int cpus = to_i(vcpu) - 1;
+            if (cpus < 0)
+            {
+                cpus = 0;
+            }
+
+            file << "\t\t<numa>\n\t\t\t<cell id='0' cpus='0-" << cpus
+                << "' memory=" << one_util::escape_xml_attr(memory * 1024)
+                << " unit='KiB'/>\n\t\t</numa>" << endl;
+        }
+
+        vtopol(file, topology, nodes, numa_tune, mbacking);
+
+        file << "\t</cpu>\n";
+    }
+
+    if (!numa_tune.empty())
+    {
+        file << numa_tune;
+    }
+
+    if (!mbacking.empty())
+    {
+        file << mbacking;
+    }
+
+    // ------------------------------------------------------------------------
     // DEVICES SECTION
     // ------------------------------------------------------------------------
     file << "\t<devices>" << endl;
 
-    vm->get_template_attribute("EMULATOR", emulator_path);
-    if(emulator_path.empty())
+    get_attribute(vm, host, cluster, "EMULATOR", emulator_path);
+    if (emulator_path.empty())
     {
-        get_default("EMULATOR",emulator_path);
-
-        if(emulator_path.empty())
-        {
-            emulator_path = "/usr/bin/kvm";
-        }
+        emulator_path = "/usr/bin/kvm";
     }
 
     file << "\t\t<emulator>" << one_util::escape_xml(emulator_path)
@@ -407,28 +812,46 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Disks
     // ------------------------------------------------------------------------
-    get_default("DISK", "DRIVER", default_driver);
+    get_attribute(nullptr, host, cluster, "DISK", "DRIVER", default_driver);
 
     if (default_driver.empty())
     {
         default_driver = "raw";
     }
 
-    get_default("DISK", "CACHE", default_driver_cache);
+    get_attribute(nullptr, host, cluster, "DISK", "CACHE", default_driver_cache);
 
     if (default_driver_cache.empty())
     {
        default_driver_cache = "default";
     }
 
-    get_default("DISK", "IO", default_driver_disk_io);
-    get_default("DISK", "DISCARD", default_driver_discard);
-    get_default("DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
-    get_default("DISK", "READ_BYTES_SEC", default_read_bytes_sec);
-    get_default("DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
-    get_default("DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
-    get_default("DISK", "READ_IOPS_SEC", default_read_iops_sec);
-    get_default("DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "IO", default_driver_disk_io);
+    get_attribute(nullptr, host, cluster, "DISK", "DISCARD", default_driver_discard);
+
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC", default_total_bytes_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC_MAX", default_total_bytes_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_BYTES_SEC_MAX_LENGTH", default_total_bytes_sec_max_length);
+
+    get_attribute(nullptr, host, cluster, "DISK", "READ_BYTES_SEC", default_read_bytes_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_BYTES_SEC_MAX", default_read_bytes_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_BYTES_SEC_MAX_LENGTH", default_read_bytes_sec_max_length);
+
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_BYTES_SEC", default_write_bytes_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_BYTES_SEC_MAX", default_write_bytes_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_BYTES_SEC_MAX_LENGTH", default_write_bytes_sec_max_length);
+
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_IOPS_SEC", default_total_iops_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_IOPS_SEC_MAX", default_total_iops_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "TOTAL_IOPS_SEC_MAX_LENGTH", default_total_iops_sec_max_length);
+
+    get_attribute(nullptr, host, cluster, "DISK", "READ_IOPS_SEC", default_read_iops_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_IOPS_SEC_MAX", default_read_iops_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "READ_IOPS_SEC_MAX_LENGTH", default_read_iops_sec_max_length);
+
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC", default_write_iops_sec);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC_MAX", default_write_iops_sec_max);
+    get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC_MAX_LENGTH", default_write_iops_sec_max_length);
 
     // ------------------------------------------------------------------------
 
@@ -436,75 +859,87 @@ int LibVirtDriver::deployment_description_kvm(
 
     for (int i=0; i < num ;i++)
     {
-        type            = disk[i]->vector_value("TYPE");
-        disk_type       = disk[i]->vector_value("DISK_TYPE");
-        target          = disk[i]->vector_value("TARGET");
-        ro              = disk[i]->vector_value("READONLY");
-        driver          = disk[i]->vector_value("DRIVER");
-        cache           = disk[i]->vector_value("CACHE");
-        disk_io         = disk[i]->vector_value("IO");
-        discard         = disk[i]->vector_value("DISCARD");
-        source          = disk[i]->vector_value("SOURCE");
-        clone           = disk[i]->vector_value("CLONE");
+        type      = disk[i]->vector_value("TYPE");
+        disk_type = disk[i]->vector_value("DISK_TYPE");
+        target    = disk[i]->vector_value("TARGET");
+        ro        = disk[i]->vector_value("READONLY");
+        driver    = disk[i]->vector_value("DRIVER");
+        cache     = disk[i]->vector_value("CACHE");
+        disk_io   = disk[i]->vector_value("IO");
+        discard   = disk[i]->vector_value("DISCARD");
+        source    = disk[i]->vector_value("SOURCE");
+        clone     = disk[i]->vector_value("CLONE");
 
-        ceph_host       = disk[i]->vector_value("CEPH_HOST");
-        ceph_secret     = disk[i]->vector_value("CEPH_SECRET");
-        ceph_user       = disk[i]->vector_value("CEPH_USER");
-        pool_name       = disk[i]->vector_value("POOL_NAME");
-      
-        iscsi_host      = disk[i]->vector_value("ISCSI_HOST");
-        iscsi_user      = disk[i]->vector_value("ISCSI_USER");
-        iscsi_usage     = disk[i]->vector_value("ISCSI_USAGE");
-        iscsi_iqn       = disk[i]->vector_value("ISCSI_IQN");
+        ceph_host   = disk[i]->vector_value("CEPH_HOST");
+        ceph_secret = disk[i]->vector_value("CEPH_SECRET");
+        ceph_user   = disk[i]->vector_value("CEPH_USER");
+        pool_name   = disk[i]->vector_value("POOL_NAME");
 
-        luks_secret     = disk[i]->vector_value("LUKS_SECRET");
+        iscsi_host  = disk[i]->vector_value("ISCSI_HOST");
+        iscsi_user  = disk[i]->vector_value("ISCSI_USER");
+        iscsi_usage = disk[i]->vector_value("ISCSI_USAGE");
+        iscsi_iqn   = disk[i]->vector_value("ISCSI_IQN");
 
-        gluster_host    = disk[i]->vector_value("GLUSTER_HOST");
-        gluster_volume  = disk[i]->vector_value("GLUSTER_VOLUME");
+        gluster_host   = disk[i]->vector_value("GLUSTER_HOST");
+        gluster_volume = disk[i]->vector_value("GLUSTER_VOLUME");
 
         sheepdog_host   = disk[i]->vector_value("SHEEPDOG_HOST");
         total_bytes_sec = disk[i]->vector_value("TOTAL_BYTES_SEC");
-        read_bytes_sec  = disk[i]->vector_value("READ_BYTES_SEC");
-        write_bytes_sec = disk[i]->vector_value("WRITE_BYTES_SEC");
-        total_iops_sec  = disk[i]->vector_value("TOTAL_IOPS_SEC");
-        read_iops_sec   = disk[i]->vector_value("READ_IOPS_SEC");
-        write_iops_sec  = disk[i]->vector_value("WRITE_IOPS_SEC");
 
-        if ( total_bytes_sec.empty() && !default_total_bytes_sec.empty())
-        {
-            total_bytes_sec = default_total_bytes_sec;
-        }
+        total_bytes_sec            = disk[i]->vector_value("TOTAL_BYTES_SEC");
+        total_bytes_sec_max        = disk[i]->vector_value("TOTAL_BYTES_SEC_MAX");
+        total_bytes_sec_max_length = disk[i]->vector_value("TOTAL_BYTES_SEC_MAX_LENGTH");
 
-        if ( read_bytes_sec.empty() && !default_read_bytes_sec.empty())
-        {
-            read_bytes_sec = default_read_bytes_sec;
-        }
+        read_bytes_sec             = disk[i]->vector_value("READ_BYTES_SEC");
+        read_bytes_sec_max         = disk[i]->vector_value("READ_BYTES_SEC_MAX");
+        read_bytes_sec_max_length  = disk[i]->vector_value("READ_BYTES_SEC_MAX_LENGTH");
 
-        if ( write_bytes_sec.empty() && !default_write_bytes_sec.empty())
-        {
-            write_bytes_sec = default_write_bytes_sec;
-        }
+        write_bytes_sec            = disk[i]->vector_value("WRITE_BYTES_SEC");
+        write_bytes_sec_max        = disk[i]->vector_value("WRITE_BYTES_SEC_MAX");
+        write_bytes_sec_max_length = disk[i]->vector_value("WRITE_BYTES_SEC_MAX_LENGTH");
 
-        if ( total_iops_sec.empty() && !default_total_iops_sec.empty())
-        {
-            total_iops_sec = default_total_iops_sec;
-        }
+        total_iops_sec             = disk[i]->vector_value("TOTAL_IOPS_SEC");
+        total_iops_sec_max         = disk[i]->vector_value("TOTAL_IOPS_SEC_MAX");
+        total_iops_sec_max_length  = disk[i]->vector_value("TOTAL_IOPS_SEC_MAX_LENGTH");
 
-        if ( read_iops_sec.empty() && !default_read_iops_sec.empty())
-        {
-            read_iops_sec = default_read_iops_sec;
-        }
+        read_iops_sec              = disk[i]->vector_value("READ_IOPS_SEC");
+        read_iops_sec_max          = disk[i]->vector_value("READ_IOPS_SEC_MAX");
+        read_iops_sec_max_length   = disk[i]->vector_value("READ_IOPS_SEC_MAX_LENGTH");
 
-        if ( write_iops_sec.empty() && !default_write_iops_sec.empty())
-        {
-            write_iops_sec = default_write_iops_sec;
-        }
+        write_iops_sec             = disk[i]->vector_value("WRITE_IOPS_SEC");
+        write_iops_sec_max         = disk[i]->vector_value("WRITE_IOPS_SEC_MAX");
+        write_iops_sec_max_length  = disk[i]->vector_value("WRITE_IOPS_SEC_MAX_LENGTH");
+
+        set_sec_default(read_bytes_sec, default_read_bytes_sec);
+        set_sec_default(read_bytes_sec_max, default_read_bytes_sec_max);
+        set_sec_default(read_bytes_sec_max_length, default_read_bytes_sec_max_length);
+
+        set_sec_default(write_bytes_sec, default_write_bytes_sec);
+        set_sec_default(write_bytes_sec_max, default_write_bytes_sec_max);
+        set_sec_default(write_bytes_sec_max_length, default_write_bytes_sec_max_length);
+
+        set_sec_default(total_bytes_sec, default_total_bytes_sec);
+        set_sec_default(total_bytes_sec_max, default_total_bytes_sec_max);
+        set_sec_default(total_bytes_sec_max_length, default_total_bytes_sec_max_length);
+
+        set_sec_default(read_iops_sec, default_read_iops_sec);
+        set_sec_default(read_iops_sec_max, default_read_iops_sec_max);
+        set_sec_default(read_iops_sec_max_length, default_read_iops_sec_max_length);
+
+        set_sec_default(write_iops_sec, default_write_iops_sec);
+        set_sec_default(write_iops_sec_max, default_write_iops_sec_max);
+        set_sec_default(write_iops_sec_max_length, default_write_iops_sec_max_length);
+
+        set_sec_default(total_iops_sec, default_total_iops_sec);
+        set_sec_default(total_iops_sec_max, default_total_iops_sec_max);
+        set_sec_default(total_iops_sec_max_length, default_total_iops_sec_max_length);
 
         disk[i]->vector_value_str("DISK_ID", disk_id);
 
         if (target.empty())
         {
-            goto error_disk;
+            vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
+            return -1;
         }
 
         readonly = false;
@@ -687,7 +1122,17 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- target device to map the disk ----
 
-        file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target) << "/>\n";
+        file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
+
+        disk_bus = get_disk_bus(machine, target, sd_bus);
+
+        if (!disk_bus.empty())
+        {
+             file << " bus="<< one_util::escape_xml_attr(disk_bus);
+        }
+
+        file <<"/>\n";
+
 
         // ---- luks secret for target ----
 
@@ -762,54 +1207,52 @@ int LibVirtDriver::deployment_description_kvm(
 
         file << "/>" << endl;
 
-        // ---- I/O Options  ----
-
-        if (!(total_bytes_sec.empty() && read_bytes_sec.empty() &&
-              write_bytes_sec.empty() && total_iops_sec.empty() &&
-              read_iops_sec.empty() && write_iops_sec.empty()))
+        // ---- I/O Options ----
+        // - total cannot be set if read or write
+        // - max_length cannot be set if no max
+        // - max has to be greater than value
+        // ---------------------
+        if (!(total_bytes_sec.empty() &&
+              total_bytes_sec_max.empty() &&
+              read_bytes_sec.empty() &&
+              read_bytes_sec_max.empty() &&
+              write_bytes_sec.empty() &&
+              write_bytes_sec_max.empty() &&
+              total_iops_sec.empty() &&
+              total_iops_sec_max.empty() &&
+              read_iops_sec.empty() &&
+              read_iops_sec_max.empty() &&
+              write_iops_sec.empty() &&
+              write_iops_sec_max.empty()))
         {
             file << "\t\t\t<iotune>" << endl;
 
-            if ( !total_bytes_sec.empty() )
+            if ( total_bytes_sec.empty() && total_bytes_sec_max.empty() )
             {
-                file << "\t\t\t\t<total_bytes_sec>"
-                     << one_util::escape_xml(total_bytes_sec)
-                     << "</total_bytes_sec>\n";
+                insert_sec(file, "read_bytes", read_bytes_sec ,
+                        read_bytes_sec_max , read_bytes_sec_max_length);
+
+                insert_sec(file, "write_bytes", write_bytes_sec ,
+                        write_bytes_sec_max , write_bytes_sec_max_length);
+            }
+            else
+            {
+                insert_sec(file, "total_bytes", total_bytes_sec ,
+                        total_bytes_sec_max , total_bytes_sec_max_length);
             }
 
-            if ( !read_bytes_sec.empty() )
+            if ( total_iops_sec.empty() && total_iops_sec_max.empty() )
             {
-                file << "\t\t\t\t<read_bytes_sec>"
-                     << one_util::escape_xml(read_bytes_sec)
-                     << "</read_bytes_sec>\n";
-            }
+                insert_sec(file, "read_iops", read_iops_sec ,
+                        read_iops_sec_max , read_iops_sec_max_length);
 
-            if ( !write_bytes_sec.empty() )
-            {
-                file << "\t\t\t\t<write_bytes_sec>"
-                     << one_util::escape_xml(write_bytes_sec)
-                     << "</write_bytes_sec>\n";
+                insert_sec(file, "write_iops", write_iops_sec ,
+                        write_iops_sec_max , write_iops_sec_max_length);
             }
-
-            if ( !total_iops_sec.empty() )
+            else
             {
-                file << "\t\t\t\t<total_iops_sec>"
-                     << one_util::escape_xml(total_iops_sec)
-                     << "</total_iops_sec>\n";
-            }
-
-            if ( !read_iops_sec.empty() )
-            {
-                file << "\t\t\t\t<read_iops_sec>"
-                     << one_util::escape_xml(read_iops_sec)
-                     << "</read_iops_sec>\n";
-            }
-
-            if ( !write_iops_sec.empty() )
-            {
-                file << "\t\t\t\t<write_iops_sec>"
-                     << one_util::escape_xml(write_iops_sec)
-                     << "</write_iops_sec>\n";
+                insert_sec(file, "total_iops", total_iops_sec ,
+                        total_iops_sec_max , total_iops_sec_max_length);
             }
 
             file << "\t\t\t</iotune>" << endl;
@@ -825,6 +1268,7 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 file << "\t\t\t<address type='drive' controller='0' bus='0' " <<
                      "target='" << target_number << "' unit='0'/>" << endl;
+                scsi_targets_num++;
             }
         }
 
@@ -852,8 +1296,16 @@ int LibVirtDriver::deployment_description_kvm(
             file << "\t\t<disk type='file' device='cdrom'>\n"
                  << "\t\t\t<source file="
                      << one_util::escape_xml_attr(fname.str())  << "/>\n"
-                 << "\t\t\t<target dev="
-                     << one_util::escape_xml_attr(target) << "/>\n"
+                 << "\t\t\t<target dev=" << one_util::escape_xml_attr(target);
+
+            disk_bus = get_disk_bus(machine, target, sd_bus);
+
+            if (!disk_bus.empty())
+            {
+                 file << " bus="<< one_util::escape_xml_attr(disk_bus);
+            }
+
+            file <<"/>\n"
                  << "\t\t\t<readonly/>\n"
                  << "\t\t\t<driver name='qemu' type='raw'/>\n"
                  << "\t\t</disk>\n";
@@ -868,22 +1320,25 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Network interfaces
     // ------------------------------------------------------------------------
-    get_default("NIC", "FILTER", default_filter);
+    get_attribute(nullptr, host, cluster, "NIC", "FILTER", default_filter);
 
-    get_default("NIC", "MODEL", default_model);
+    get_attribute(nullptr, host, cluster, "NIC", "MODEL", default_model);
 
     num = vm->get_template_attribute("NIC", nic);
 
-    for(int i=0; i<num; i++)
+    for (int i=0; i<num; i++)
     {
-        bridge = nic[i]->vector_value("BRIDGE");
-        vn_mad = nic[i]->vector_value("VN_MAD");
-        mac    = nic[i]->vector_value("MAC");
-        target = nic[i]->vector_value("TARGET");
-        script = nic[i]->vector_value("SCRIPT");
-        model  = nic[i]->vector_value("MODEL");
-        ip     = nic[i]->vector_value("IP");
-        filter = nic[i]->vector_value("FILTER");
+        nic_id        = nic[i]->vector_value("NIC_ID");
+        bridge        = nic[i]->vector_value("BRIDGE");
+        vn_mad        = nic[i]->vector_value("VN_MAD");
+        mac           = nic[i]->vector_value("MAC");
+        target        = nic[i]->vector_value("TARGET");
+        script        = nic[i]->vector_value("SCRIPT");
+        model         = nic[i]->vector_value("MODEL");
+        ip            = nic[i]->vector_value("IP");
+        filter        = nic[i]->vector_value("FILTER");
+        virtio_queues = nic[i]->vector_value("VIRTIO_QUEUES");
+        bridge_type   = nic[i]->vector_value("BRIDGE_TYPE");
 
         vrouter_ip = nic[i]->vector_value("VROUTER_IP");
 
@@ -901,37 +1356,51 @@ int LibVirtDriver::deployment_description_kvm(
         }
         else
         {
-            file << "\t\t<interface type='bridge'>" << endl;
-
-
-            if (VirtualNetwork::str_to_driver(vn_mad) == VirtualNetwork::OVSWITCH)
+            switch (VirtualNetwork::str_to_bridge_type(bridge_type))
             {
-                file << "\t\t\t<virtualport type='openvswitch'/>" << endl;
-            }
+                case VirtualNetwork::UNDEFINED:
+                case VirtualNetwork::LINUX:
+                case VirtualNetwork::VCENTER_PORT_GROUPS:
+                case VirtualNetwork::BRNONE:
+                    file << "\t\t<interface type='bridge'>\n"
+                         << "\t\t\t<source bridge="
+                         << one_util::escape_xml_attr(bridge) << "/>\n";
+                    break;
 
-            file << "\t\t\t<source bridge="
-                 << one_util::escape_xml_attr(bridge) << "/>\n";
+                case VirtualNetwork::OPENVSWITCH:
+                    file << "\t\t<interface type='bridge'>\n"
+                         << "\t\t\t<virtualport type='openvswitch'/>\n"
+                         << "\t\t\t<source bridge="
+                         << one_util::escape_xml_attr(bridge) << "/>\n";
+                    break;
+
+                case VirtualNetwork::OPENVSWITCH_DPDK:
+                    file << "\t\t<interface type='vhostuser'>\n"
+                         << "\t\t\t<source type='unix' mode='server' path='"
+                         << vm->get_system_dir() << "/" << target << "' />\n";
+                    break;
+            }
         }
 
-        if( !mac.empty() )
+        if (!mac.empty())
         {
             file << "\t\t\t<mac address=" << one_util::escape_xml_attr(mac)
                  << "/>\n";
         }
 
-        if( !target.empty() )
+        if (!target.empty())
         {
             file << "\t\t\t<target dev=" << one_util::escape_xml_attr(target)
                  << "/>\n";
         }
 
-        if ( nic[i]->vector_value("ORDER", order) == 0 )
+        if (nic[i]->vector_value("ORDER", order) == 0)
         {
             file << "\t\t\t<boot order=" << one_util::escape_xml_attr(order)
                  << "/>\n";
         }
 
-        if( !script.empty() )
+        if (!script.empty())
         {
             file << "\t\t\t<script path=" << one_util::escape_xml_attr(script)
                  << "/>\n";
@@ -952,6 +1421,13 @@ int LibVirtDriver::deployment_description_kvm(
         {
             file << "\t\t\t<model type="
                  << one_util::escape_xml_attr(*the_model) << "/>\n";
+
+            if (!virtio_queues.empty() && *the_model == "virtio")
+            {
+                file << "\t\t\t<driver name='vhost' queues="
+                     << one_util::escape_xml_attr(virtio_queues)
+                     << "/>\n";
+            }
         }
 
         if (!ip.empty() )
@@ -1082,7 +1558,7 @@ int LibVirtDriver::deployment_description_kvm(
 
             if ( type == "spice" )
             {
-                get_default("SPICE_OPTIONS", spice_options);
+                get_attribute(vm, host, cluster, "SPICE_OPTIONS", spice_options);
 
                 if (!spice_options.empty())
                 {
@@ -1176,54 +1652,13 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     // Features
     // ------------------------------------------------------------------------
-    features = vm->get_template_attribute("FEATURES");
-
-    if ( features != 0 )
-    {
-        pae_found         = features->vector_value("PAE", pae);
-        acpi_found        = features->vector_value("ACPI", acpi);
-        apic_found        = features->vector_value("APIC", apic);
-        hyperv_found      = features->vector_value("HYPERV", hyperv);
-        localtime_found   = features->vector_value("LOCALTIME", localtime);
-        guest_agent_found = features->vector_value("GUEST_AGENT", guest_agent);
-        virtio_scsi_queues_found =
-            features->vector_value("VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
-    }
-
-    if ( pae_found != 0 )
-    {
-        get_default("FEATURES", "PAE", pae);
-    }
-
-    if ( acpi_found != 0 )
-    {
-        get_default("FEATURES", "ACPI", acpi);
-    }
-
-    if ( apic_found != 0 )
-    {
-        get_default("FEATURES", "APIC", apic);
-    }
-
-    if ( hyperv_found != 0 )
-    {
-        get_default("FEATURES", "HYPERV", hyperv);
-    }
-
-    if ( localtime_found != 0 )
-    {
-        get_default("FEATURES", "LOCALTIME", localtime);
-    }
-
-    if ( guest_agent_found != 0 )
-    {
-        get_default("FEATURES", "GUEST_AGENT", guest_agent);
-    }
-
-    if ( virtio_scsi_queues_found != 0 )
-    {
-        get_default("FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
-    }
+    get_attribute(vm, host, cluster, "FEATURES", "PAE", pae);
+    get_attribute(vm, host, cluster, "FEATURES", "ACPI", acpi);
+    get_attribute(vm, host, cluster, "FEATURES", "APIC", apic);
+    get_attribute(vm, host, cluster, "FEATURES", "HYPERV", hyperv);
+    get_attribute(vm, host, cluster, "FEATURES", "LOCALTIME", localtime);
+    get_attribute(vm, host, cluster, "FEATURES", "GUEST_AGENT", guest_agent);
+    get_attribute(vm, host, cluster, "FEATURES", "VIRTIO_SCSI_QUEUES", virtio_scsi_queues);
 
     if ( acpi || pae || apic || hyperv )
     {
@@ -1246,7 +1681,7 @@ int LibVirtDriver::deployment_description_kvm(
 
         if ( hyperv )
         {
-            get_default("HYPERV_OPTIONS", hyperv_options);
+            get_attribute(vm, host, cluster, "HYPERV_OPTIONS", hyperv_options);
 
             file << "\t\t<hyperv>" << endl;
             file << hyperv_options << endl;
@@ -1271,13 +1706,16 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t</devices>" << endl;
     }
 
-    if ( virtio_scsi_queues > 0 )
+    if ( virtio_scsi_queues > 0 || scsi_targets_num > 1)
     {
         file << "\t<devices>" << endl
              << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
              << endl;
 
-        file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+        if ( virtio_scsi_queues > 0 )
+        {
+            file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+        }
 
         file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;
@@ -1288,7 +1726,7 @@ int LibVirtDriver::deployment_description_kvm(
     // ------------------------------------------------------------------------
     num = vm->get_template_attribute("RAW", raw);
 
-    for(int i=0; i<num;i++)
+    for (int i=0; i<num; i++)
     {
         type = raw[i]->vector_value("TYPE");
 
@@ -1301,7 +1739,7 @@ int LibVirtDriver::deployment_description_kvm(
         }
     }
 
-    get_default("RAW", default_raw);
+    get_attribute(nullptr, host, cluster, "RAW", default_raw);
 
     if ( !default_raw.empty() )
     {
@@ -1312,34 +1750,39 @@ int LibVirtDriver::deployment_description_kvm(
     // Metadata used by drivers
     // ------------------------------------------------------------------------
     file << "\t<metadata>\n"
-         << "\t\t<system_datastore>"
+         << "\t\t<one:vm xmlns:one=\"http://opennebula.org/xmlns/libvirt/1.0\">\n"
+         << "\t\t\t<one:system_datastore>"
          << one_util::escape_xml(vm->get_system_dir())
-         << "\t\t</system_datastore>\n"
+         << "</one:system_datastore>\n"
+         << "\t\t\t<one:name>"
+         << one_util::escape_xml(vm->get_name())
+         << "</one:name>\n"
+         << "\t\t\t<one:uname>"
+         << one_util::escape_xml(vm->get_uname())
+         << "</one:uname>\n"
+         << "\t\t\t<one:uid>"
+         << vm->get_uid()
+         << "</one:uid>\n"
+         << "\t\t\t<one:gname>"
+         << one_util::escape_xml(vm->get_gname())
+         << "</one:gname>\n"
+         << "\t\t\t<one:gid>"
+         << vm->get_gid()
+         << "</one:gid>\n"
+         << "\t\t\t<one:opennebula_version>"
+         << Nebula::instance().code_version()
+         << "</one:opennebula_version>\n"
+         << "\t\t\t<one:stime>"
+         << vm->get_stime()
+         << "</one:stime>\n"
+         << "\t\t\t<one:deployment_time>"
+         << time(0)
+         << "</one:deployment_time>\n"
+         << "\t\t</one:vm>\n"
         // << "\t\t<opennebula>\n" << vm->to_xml(vm_xml) << "\t\t</opennebula>\n"
          << "\t</metadata>\n";
 
     file << "</domain>" << endl;
 
-    file.close();
-
     return 0;
-
-error_file:
-    vm->log("VMM", Log::ERROR, "Could not open KVM deployment file.");
-    return -1;
-
-error_memory:
-    vm->log("VMM", Log::ERROR, "No MEMORY defined and no default provided.");
-    file.close();
-    return -1;
-
-error_arch:
-    vm->log("VMM", Log::ERROR, "No ARCH defined and no default provided.");
-    file.close();
-    return -1;
-
-error_disk:
-    vm->log("VMM", Log::ERROR, "Wrong target value in DISK.");
-    file.close();
-    return -1;
 }

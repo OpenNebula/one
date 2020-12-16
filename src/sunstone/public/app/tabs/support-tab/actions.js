@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,16 +15,35 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaSupport = require('opennebula/support');
-  var SupportUtils = require('./utils/common');
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaSupport = require("opennebula/support");
+  var SupportUtils = require("./utils/common");
 
   var RESOURCE = "Support";
-  var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var UPLOAD_DIALOG_ID = require('./dialogs/upload/dialogId');
-
+  var TAB_ID = require("./tabId");
+  var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
+  var UPLOAD_DIALOG_ID = require("./dialogs/upload/dialogId");
+  var majorVersion = function(version){
+    var r = 0;
+    if(version && version.length){
+      var major = version.substring(0, version.lastIndexOf("."));
+      if(major && major.length){
+        r = parseFloat(major);
+      }
+    }
+    return r;
+  };
+  var minorVersion = function(version){
+    var r = 0;
+    if(version && version.length){
+      var minor = version.substring(version.lastIndexOf(".")+1);
+      if(minor && minor.length){
+        r = parseFloat(minor);
+      }
+    }
+    return r;
+  };
   var _actions = {
     "Support.list" : {
       type: "list",
@@ -33,26 +52,23 @@ define(function(require) {
         SupportUtils.showSupportList();
         $(".support_open_value").text(res.open_requests);
         $(".support_pending_value").text(res.pending_requests);
-
         var elements = [];
         if(res.REQUEST_POOL.REQUEST){
           elements = res.REQUEST_POOL.REQUEST;
         }
-
         Sunstone.getDataTable(TAB_ID).updateView(req, elements);
       },
       error: function(request, error_json) {
         if (error_json.error.http_status=="401") {
           SupportUtils.stopIntervalRefresh();
         }
-
         SupportUtils.showSupportConnect();
       }
     },
     "Support.refresh" : {
       type: "custom",
       call: function() {
-        var tab = $('#' + TAB_ID);
+        var tab = $("#" + TAB_ID);
         if (Sunstone.rightInfoVisible(tab)) {
           Sunstone.runAction(RESOURCE+".show", Sunstone.rightInfoResourceId(tab));
         } else {
@@ -69,7 +85,7 @@ define(function(require) {
       call: OpenNebulaSupport.show,
       callback: function(request, response) {
         //Sunstone.getDataTable(TAB_ID).updateElement(request, response);
-        if (Sunstone.rightInfoVisible($('#'+TAB_ID))) {
+        if (Sunstone.rightInfoVisible($("#"+TAB_ID))) {
           Sunstone.insertPanels(TAB_ID, response);
         }
       },
@@ -118,7 +134,7 @@ define(function(require) {
       type: "single",
       call: function() {
         $.ajax({
-          url: 'support/credentials',
+          url: "support/credentials",
           type: "DELETE",
           dataType: "text",
           success: function(){

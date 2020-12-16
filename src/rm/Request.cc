@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,16 @@
 #include "Client.h"
 
 #include "PoolObjectAuth.h"
+#include "HookAPI.h"
+#include "HookManager.h"
+#include "RaftManager.h"
+
+#include <xmlrpc-c/abyss.h>
+
+#include <sys/socket.h>
+#include <netdb.h>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -66,6 +76,10 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
             return "marketplaceapp";
         case PoolObjectSQL::VMGROUP:
             return "vm group";
+        case PoolObjectSQL::VNTEMPLATE:
+            return "virtual network template";
+        case PoolObjectSQL::HOOK:
+            return "hook";
         default:
             return "-";
       }
@@ -74,11 +88,52 @@ string Request::object_name(PoolObjectSQL::ObjectType ob)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+static void get_client_ip(const xmlrpc_c::callInfo * call_info, char * const
+        ip, char * const port)
+{
+    struct abyss_unix_chaninfo * unix_ci;
+
+    const xmlrpc_c::callInfo_serverAbyss * abyss_ci =
+            static_cast<const xmlrpc_c::callInfo_serverAbyss *>(call_info);
+
+    SessionGetChannelInfo(abyss_ci->abyssSessionP, (void **) &unix_ci);
+
+    // -------------------------------------------------------------------------
+    // NOTE: This only works for IPv4 as abyss_unix_chaninfo is not IPv6 ready
+    // it should use sockaddr_storage for peerAddr, and set peerAddrLen properly
+    // This could be bypassed with getpeername if library exposes access to
+    // channel implementation, i.e. socket fd
+    // -------------------------------------------------------------------------
+
+    int rc = getnameinfo(&(unix_ci->peerAddr), unix_ci->peerAddrLen, ip,
+            NI_MAXHOST, port, NI_MAXSERV, NI_NUMERICHOST|NI_NUMERICSERV);
+
+    if ( rc != 0 )
+    {
+        ip[0] = '-';
+        ip[1] = '\0';
+
+        port[0] = '-';
+        port[1] = '\0';
+    }
+}
+
 void Request::log_method_invoked(const RequestAttributes& att,
         const xmlrpc_c::paramList&  paramList, const string& format_str,
-        const std::string& method_name, const std::set<int>& hidden_params)
+        const std::string& method_name, const std::set<int>& hidden_params,
+        const xmlrpc_c::callInfo * call_info)
 {
     std::ostringstream oss;
+    std::ostringstream oss_limit;
+
+    int limit = DEFAULT_LOG_LIMIT;
+    char mod;
+
+    char ip[NI_MAXHOST];
+    char port[NI_MAXSERV];
+
+    ip[0]   = '\0';
+    port[0] = '\0';
 
     for (unsigned int j = 0 ;j < format_str.length() - 1; j++ )
     {
@@ -88,7 +143,14 @@ void Request::log_method_invoked(const RequestAttributes& att,
         }
         else
         {
-            char mod = format_str[j+1];
+            if (j+1 < format_str.length())
+            {
+                mod = format_str[j+1];
+            }
+            else
+            {
+                break;
+            }
 
             switch(mod)
             {
@@ -129,6 +191,17 @@ void Request::log_method_invoked(const RequestAttributes& att,
                 break;
 
                 case 'l':
+                    while ((j+2)<format_str.length() && isdigit(format_str[j+2]))
+                    {
+                        oss_limit << format_str[j+2];
+                        j = j+1;
+                    }
+
+                    if ( !oss_limit.str().empty() )
+                    {
+                        limit = stoi(oss_limit.str());
+                    }
+
                     for (unsigned int i=1; i<paramList.size(); i++)
                     {
                         if ( hidden_params.count(i) == 1 )
@@ -137,9 +210,27 @@ void Request::log_method_invoked(const RequestAttributes& att,
                         }
                         else
                         {
-                            log_xmlrpc_value(paramList[i], oss);
+                            log_xmlrpc_value(paramList[i], oss, limit);
                         }
                     }
+                break;
+
+                case 'A':
+                    if ( ip[0] == '\0' )
+                    {
+                        get_client_ip(call_info, ip, port);
+                    }
+
+                    oss << ip;
+                break;
+
+                case 'P':
+                    if ( port[0] == '\0' )
+                    {
+                        get_client_ip(call_info, ip, port);
+                    }
+
+                    oss << port;
                 break;
 
                 default:
@@ -183,7 +274,7 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
 
         for (unsigned int i=1; i<vvalue.size()-1; i++)
         {
-            log_xmlrpc_value(vvalue[i], oss);
+            log_xmlrpc_value(vvalue[i], oss, DEFAULT_LOG_LIMIT);
         }
 
         NebulaLog::log("ReM", Log::DEBUG, oss);
@@ -200,9 +291,9 @@ void Request::log_result(const RequestAttributes& att, const string& method_name
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss)
+void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss,const int limit)
 {
-    size_t st_limit = 20;
+    size_t st_limit = limit;
     size_t st_newline;
 
     switch (v.type())
@@ -225,7 +316,7 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
             break;
         case xmlrpc_c::value::TYPE_STRING:
             st_newline =
-                    static_cast<string>(xmlrpc_c::value_string(v)).find("\n");
+                    static_cast<string>(xmlrpc_c::value_string(v)).length();
 
             if ( st_newline < st_limit )
             {
@@ -245,6 +336,9 @@ void Request::log_xmlrpc_value(const xmlrpc_c::value& v, std::ostringstream& oss
         case xmlrpc_c::value::TYPE_DOUBLE:
             oss << ", "
                 << static_cast<double>(xmlrpc_c::value_double(v));
+            break;
+        case xmlrpc_c::value::TYPE_I8:
+            oss << ", " << static_cast<uint64_t>(xmlrpc_c::value_i8(v));
             break;
         default:
             oss  << ", unknown param type";
@@ -266,27 +360,32 @@ const long long Request::xmlrpc_timeout = 10000;
 
 void Request::execute(
         xmlrpc_c::paramList const& _paramList,
+        const xmlrpc_c::callInfo * _callInfoP,
         xmlrpc_c::value *   const  _retval)
 {
-    RequestAttributes att;
+    RequestAttributes att(auth_op);
 
     att.retval  = _retval;
-    att.session = xmlrpc_c::value_string (_paramList.getString(0));
+    att.session = xmlrpc_c::value_string(_paramList.getString(0));
 
-    att.req_id  = (reinterpret_cast<uintptr_t>(this) * rand()) % 10000;
+    att.req_id  = (reinterpret_cast<uintptr_t>(this) * one_util::random<int>()) % 10000;
 
     Nebula& nd  = Nebula::instance();
 
     RaftManager * raftm = nd.get_raftm();
     UserPool* upool     = nd.get_upool();
 
+    HookManager * hm = nd.get_hm();
+
     bool authenticated = upool->authenticate(att.session, att.password,
         att.uid, att.gid, att.uname, att.gname, att.group_ids, att.umask);
+
+    att.set_auth_op(vm_action);
 
     if ( log_method_call )
     {
         log_method_invoked(att, _paramList, format_str, method_name,
-                hidden_params);
+                hidden_params, _callInfoP);
     }
 
     if ( authenticated == false )
@@ -298,11 +397,15 @@ void Request::execute(
         return;
     }
 
-    if ( raftm->is_follower() && leader_only)
+    if ( (raftm->is_follower() || nd.is_cache()) && leader_only)
     {
         string leader_endpoint, error;
 
-        if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
+        if ( nd.is_cache() )
+        {
+            leader_endpoint = nd.get_master_oned();
+        }
+        else if ( raftm->get_leader_endpoint(leader_endpoint) != 0 )
         {
             att.resp_msg = "Cannot process request, no leader found";
             failure_response(INTERNAL, att);
@@ -329,9 +432,26 @@ void Request::execute(
         att.resp_msg = "Cannot process request, oned cluster in election mode";
         failure_response(INTERNAL, att);
     }
+    else if ( raftm->is_reconciling() && leader_only)
+    {
+        att.resp_msg = "Cannot process request, oned cluster is replicating log";
+        failure_response(INTERNAL, att);
+    }
     else //leader or solo or !leader_only
     {
         request_execute(_paramList, att);
+    }
+
+    //--------------------------------------------------------------------------
+    // Register API hook event & log call
+    //--------------------------------------------------------------------------
+    ParamList pl(&_paramList, hidden_params);
+
+    std::string event = HookAPI::format_message(method_name, pl, att);
+
+    if (!event.empty())
+    {
+        hm->trigger_send_event(event);
     }
 
     if ( log_method_call )
@@ -343,11 +463,9 @@ void Request::execute(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool Request::basic_authorization(int oid,
-                                  AuthRequest::Operation op,
-                                  RequestAttributes& att)
+bool Request::basic_authorization(int oid, RequestAttributes& att)
 {
-    ErrorCode ec = basic_authorization(pool, oid, op, auth_object, att);
+    ErrorCode ec = basic_authorization(pool, oid, auth_object, att);
 
     if (ec == SUCCESS)
     {
@@ -366,47 +484,32 @@ bool Request::basic_authorization(int oid,
 Request::ErrorCode Request::basic_authorization(
         PoolSQL*                pool,
         int                     oid,
-        AuthRequest::Operation  op,
         PoolObjectSQL::ObjectType auth_object,
         RequestAttributes&      att)
 {
-    PoolObjectSQL * object;
     PoolObjectAuth  perms;
 
     if ( oid >= 0 )
     {
-        object = pool->get(oid,true);
+        auto object = pool->get_ro<PoolObjectSQL>(oid);
 
-        if ( object == 0 )
+        if ( object == nullptr )
         {
             att.resp_id = oid;
 
             return NO_EXISTS;
         }
 
-        if ( att.uid == 0 )
-        {
-            object->unlock();
-            return SUCCESS;
-        }
-
         object->get_permissions(perms);
-
-        object->unlock();
     }
     else
     {
-        if ( att.uid == 0 )
-        {
-            return SUCCESS;
-        }
-
         perms.obj_type = auth_object;
     }
 
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(op, perms);
+    ar.add_auth(att.auth_op, perms);
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -428,13 +531,12 @@ bool Request::user_quota_authorization (Template * tmpl,
 {
     Nebula& nd        = Nebula::instance();
     UserPool *  upool = nd.get_upool();
-    User *      user;
 
     bool   rc = false;
 
-    user = upool->get(att.uid, true);
+    auto user = upool->get(att.uid);
 
-    if ( user == 0 )
+    if ( user == nullptr )
     {
         error_str = "User not found";
         return false;
@@ -446,7 +548,7 @@ bool Request::user_quota_authorization (Template * tmpl,
 
     if (rc == true)
     {
-        upool->update_quotas(user);
+        upool->update_quotas(user.get());
     }
     else
     {
@@ -457,8 +559,6 @@ bool Request::user_quota_authorization (Template * tmpl,
 
         error_str = oss.str();
     }
-
-    user->unlock();
 
     return rc;
 }
@@ -472,13 +572,12 @@ bool Request::group_quota_authorization (Template * tmpl,
 {
     Nebula&     nd    = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
-    Group *     group;
 
     bool   rc = false;
 
-    group = gpool->get(att.gid, true);
+    auto group = gpool->get(att.gid);
 
-    if ( group == 0 )
+    if ( group == nullptr )
     {
         error_str = "Group not found";
         return false;
@@ -490,7 +589,7 @@ bool Request::group_quota_authorization (Template * tmpl,
 
     if (rc == true)
     {
-        gpool->update_quotas(group);
+        gpool->update_quotas(group.get());
     }
     else
     {
@@ -501,8 +600,6 @@ bool Request::group_quota_authorization (Template * tmpl,
 
         error_str = oss.str();
     }
-
-    group->unlock();
 
     return rc;
 }
@@ -516,20 +613,12 @@ void Request::user_quota_rollback(Template *         tmpl,
     Nebula& nd        = Nebula::instance();
     UserPool * upool  = nd.get_upool();
 
-    User * user;
-
-    user = upool->get(att.uid, true);
-
-    if ( user == 0 )
+    if ( auto user = upool->get(att.uid) )
     {
-        return;
+        user->quota.quota_del(qtype, tmpl);
+
+        upool->update_quotas(user.get());
     }
-
-    user->quota.quota_del(qtype, tmpl);
-
-    upool->update_quotas(user);
-
-    user->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -541,20 +630,12 @@ void Request::group_quota_rollback(Template *         tmpl,
     Nebula& nd        = Nebula::instance();
     GroupPool * gpool = nd.get_gpool();
 
-    Group * group;
-
-    group = gpool->get(att.gid, true);
-
-    if ( group == 0 )
+    if ( auto group = gpool->get(att.gid) )
     {
-        return;
+        group->quota.quota_del(qtype, tmpl);
+
+        gpool->update_quotas(group.get());
     }
-
-    group->quota.quota_del(qtype, tmpl);
-
-    gpool->update_quotas(group);
-
-    group->unlock();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -635,19 +716,41 @@ void Request::quota_rollback(Template *         tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+template <typename T>
+static void make_parameter(std::ostringstream& oss, int pos, const T& val)
+{
+    oss << "<PARAMETER>"
+        << "<POSITION>" << pos << "</POSITION>"
+        << "<TYPE>OUT</TYPE>"
+        << "<VALUE>" << val << "</VALUE>"
+        << "</PARAMETER>";
+}
+
 void Request::failure_response(ErrorCode ec, const string& str_val,
-                               RequestAttributes& att)
+                               RequestAttributes& att) const
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(false));
+    make_parameter(oss, 1, "false");
+
     arrayData.push_back(xmlrpc_c::value_string(str_val));
+    make_parameter(oss, 2, one_util::escape_xml(str_val));
+
     arrayData.push_back(xmlrpc_c::value_int(ec));
+    make_parameter(oss, 3, ec);
+
     arrayData.push_back(xmlrpc_c::value_int(att.resp_id));
+    make_parameter(oss, 4, att.resp_id);
+
+    arrayData.push_back(xmlrpc_c::value_i8(att.replication_idx));
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = false;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -717,6 +820,26 @@ string Request::failure_message(ErrorCode ec, RequestAttributes& att)
                 oss << " " << att.resp_msg;
             }
             break;
+        case LOCKED:
+            oss << "The resource " << obname << " is locked.";
+
+            if ( att.resp_id != -1 )
+            {
+               oss << " [" << att.resp_id << "].";
+            }
+            break;
+        case REPLICATION:
+            oss << "Error replicating log entry " << att.replication_idx;
+
+            if (att.resp_msg.empty())
+            {
+                oss << ".";
+            }
+            else
+            {
+                oss << ": " << att.resp_msg << ".";
+            }
+            break;
     }
 
     return oss.str();
@@ -736,15 +859,22 @@ void Request::failure_response(ErrorCode ec, RequestAttributes& att)
 void Request::success_response(int id, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_int(id));
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 1, "true");
 
+    arrayData.push_back(xmlrpc_c::value_int(id));
+    make_parameter(oss, 2, id);
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -752,14 +882,22 @@ void Request::success_response(int id, RequestAttributes& att)
 void Request::success_response(const string& val, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_string(val));
+    make_parameter(oss, 1, "true");
+
+    arrayData.push_back(static_cast<xmlrpc_c::value_string>(val));
+    make_parameter(oss, 2, val);
+
     arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -768,15 +906,46 @@ void Request::success_response(const string& val, RequestAttributes& att)
 void Request::success_response(bool val, RequestAttributes& att)
 {
     vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
 
     arrayData.push_back(xmlrpc_c::value_boolean(true));
-    arrayData.push_back(xmlrpc_c::value_boolean(val));
-    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 1, "true");
 
+    arrayData.push_back(xmlrpc_c::value_boolean(val));
+    make_parameter(oss, 2, val? "true": "false");
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
 
     xmlrpc_c::value_array arrayresult(arrayData);
 
-    *(att.retval) = arrayresult;
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Request::success_response(uint64_t val, RequestAttributes& att)
+{
+    vector<xmlrpc_c::value> arrayData;
+    ostringstream oss;
+
+    arrayData.push_back(xmlrpc_c::value_boolean(true));
+    make_parameter(oss, 1, "true");
+
+    arrayData.push_back(xmlrpc_c::value_i8(val));
+    make_parameter(oss, 2, val);
+
+    arrayData.push_back(xmlrpc_c::value_int(SUCCESS));
+    make_parameter(oss, 3, SUCCESS);
+
+    xmlrpc_c::value_array arrayresult(arrayData);
+
+    *(att.retval)  = arrayresult;
+    att.success    = true;
+    att.retval_xml = oss.str();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -791,9 +960,9 @@ int Request::get_info(
         string&                   name,
         bool                      throw_error)
 {
-    PoolObjectSQL * ob;
+    auto ob = pool->get_ro<PoolObjectSQL>(id);
 
-    if ((ob = pool->get(id,true)) == 0 )
+    if (ob == nullptr)
     {
         if (throw_error)
         {
@@ -809,10 +978,146 @@ int Request::get_info(
 
     name = ob->get_name();
 
-    ob->unlock();
-
     return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+Request::ErrorCode Request::as_uid_gid(Template * tmpl, RequestAttributes& att)
+{
+    string gname;
+    string uname;
+
+    PoolObjectAuth uperms;
+    PoolObjectAuth gperms;
+
+    int uid = att.uid, as_uid = -1, as_gid = -1;
+
+    set<int> gids = att.group_ids;
+
+    int rc;
+
+    UserPool * upool  = Nebula::instance().get_upool();
+    GroupPool * gpool = Nebula::instance().get_gpool();
+
+    if ( tmpl->get("AS_UID", as_uid) )
+    {
+        tmpl->erase("AS_UID");
+
+        rc = get_info(upool, as_uid, PoolObjectSQL::USER, att, uperms, uname,
+                true);
+
+        if ( rc == -1 )
+        {
+            return NO_EXISTS;
+        }
+    }
+    else
+    {
+        as_uid = -1;
+    }
+
+    if ( tmpl->get("AS_GID", as_gid) )
+    {
+        tmpl->erase("AS_GID");
+
+        rc = get_info(gpool, as_gid, PoolObjectSQL::GROUP, att, gperms, gname,
+                true);
+
+        if ( rc == -1 )
+        {
+            return NO_EXISTS;
+        }
+    }
+    else
+    {
+        as_gid = -1;
+    }
+
+    if ( as_gid == -1 && as_uid == -1)
+    {
+        return SUCCESS;
+    }
+
+    if ( uid != 0 )
+    {
+        AuthRequest ar(uid, gids);
+
+        if (as_uid > 0)
+        {
+            ar.add_auth(AuthRequest::MANAGE, uperms); // MANAGE USER
+        }
+        if (as_gid > 0)
+        {
+            ar.add_auth(AuthRequest::MANAGE, gperms); // MANAGE GROUP
+        }
+
+        if (UserPool::authorize(ar) == -1)
+        {
+            att.resp_msg = ar.message;
+            return AUTHORIZATION;
+        }
+    }
+
+    if ( as_uid > 0 )
+    {
+        att.uid = as_uid;
+        att.uname = uname;
+    }
+
+    if ( as_gid > 0 )
+    {
+        att.gid = as_gid;
+        att.gname = gname;
+        att.group_ids.clear();
+        att.group_ids.insert(as_gid);
+    }
+
+    return SUCCESS;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void RequestAttributes::set_auth_op(VMActions::Action action)
+{
+    if (action == VMActions::NONE_ACTION)
+    {
+        return;
+    }
+
+    AuthRequest::Operation result = AuthRequest::NONE;
+
+    auto& nd  = Nebula::instance();
+
+    if (auto user = nd.get_upool()->get_ro(uid))
+    {
+        result = user->get_vm_auth_op(action);
+    }
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+        return;
+    }
+
+    if (auto group = nd.get_gpool()->get_ro(gid))
+    {
+        result = group->get_vm_auth_op(action);
+    }
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+        return;
+    }
+
+    result = nd.get_vm_auth_op(action);
+
+    if (result != AuthRequest::NONE)
+    {
+        auth_op = result;
+    }
+}
+

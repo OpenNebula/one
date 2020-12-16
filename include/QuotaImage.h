@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -52,7 +52,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, string& error);
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& error);
 
     /**
      *  Decrement usage counters when deallocating image
@@ -71,7 +71,7 @@ protected:
      *
      *    @return 0 on success, -1 if not found
      */
-    int get_default_quota(const string& id,
+    int get_default_quota(const std::string& id,
                         Quotas& default_quotas,
                         VectorAttribute **va);
 

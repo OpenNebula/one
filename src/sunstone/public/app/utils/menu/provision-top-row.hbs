@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -22,23 +22,23 @@
             <img src="{{logo}}">
         </li>
         <li class="active">
-          <a href"#" class="provision_dashboard_button" id=""> <i class="fa fa-lg fa-fw fa-dashboard"/>{{tr "Dashboard"}}
+          <a href"#" class="provision_dashboard_button" id=""> <i class="fas fa-lg fa-fw fa-tachometer-alt"/>{{tr "Dashboard"}}
           </a>
         </li>
         <li>
-          <a href"#" class="provision_vms_list_button" id=""> <i class="fa fa-lg fa-fw fa-th"/>{{tr "VMs"}}
+          <a href"#" class="provision_vms_list_button" id=""> <i class="fas fa-lg fa-fw fa-th"/>{{tr "VMs"}}
           </a>
         </li>
         {{#isProvisionTabEnabled "provision-tab" "templates"}}
         <li>
-          <a href"#" class="provision_templates_list_button"> <i class="fa fa-lg fa-fw fa-save"/>{{tr "Templates"}}
+          <a href"#" class="provision_templates_list_button"> <i class="fas fa-lg fa-fw fa-save"/>{{tr "Templates"}}
           </a>
         </li>
         {{/isProvisionTabEnabled}}
           {{#isProvisionTabEnabled "provision-tab" "flows"}}
         <li>
           <a href"#" class="provision_flows_list_button" id="">
-            <i class="fa fa-lg fa-fw fa-cubes"/>
+            <i class="fas fa-lg fa-fw fa-cubes"/>
             {{tr "Services"}}
           </a>
         </li>

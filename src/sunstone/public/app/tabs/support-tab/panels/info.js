@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -88,7 +88,7 @@ define(function(require) {
 
     $("#submit_support_comment").on("submit", function(){
       $("button[type=submit]", context).attr("disabled", "disabled");
-      $("button[type=submit]", context).html('<i class="fa fa-spinner fa-spin"></i>');
+      $("button[type=submit]", context).html('<i class="fas fa-spinner fa-spin"></i>');
 
       var request_id = that.element.id;
       var request_json = {

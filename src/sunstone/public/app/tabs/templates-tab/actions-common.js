@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,9 @@ define(function(require) {
   var CommonActions = require('utils/common-actions');
   var OpenNebulaAction = require('opennebula/action');
   var Navigation = require('utils/navigation');
+  var OpenNebula = require('opennebula');
+  var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
+  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
 
   var XML_ROOT = "VMTEMPLATE"
 
@@ -45,7 +48,7 @@ define(function(require) {
       _actions[resource+".show"] =  _commonActions.show(),
       _actions[resource+".refresh"] =  _commonActions.refresh(),
       _actions[resource+".delete"] =  _commonActions.del(),
-      
+
       _actions[resource+".delete_dialog"] =
         {
           type: "custom",
@@ -158,9 +161,11 @@ define(function(require) {
           Sunstone.hideFormPanel();
           OpenNebulaAction.clear_cache("VM");
 
-          Notifier.notifyCustom(Locale.tr("VM created"),
+          Notifier.notifyCustom(
+            Locale.tr("VM created"),
             Navigation.link(" ID: " + response, "vms-tab", response),
-            false);
+            false
+          );
         },
         elements: function(opts) {
           return Sunstone.getDataTable(TAB_ID).elements(opts);
@@ -250,9 +255,47 @@ define(function(require) {
         },
         error: Notifier.onError,
         notify: true
+      },
+      _actions[resource+".lockA"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".lockM"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".lockU"] =  _commonActions.multipleAction("lock"),
+      _actions[resource+".unlock"] =  _commonActions.multipleAction("unlock"),
+      _actions[resource+".upload_marketplace_dialog"] =  {
+        type: "custom",
+        call: function() {
+          var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
+  
+          if (selectedNodes.length !== 1) {
+            Notifier.notifyMessage(Locale.tr("Please select one (and just one) Image to export."));
+            return false;
+          }
+  
+          var resourceId = '' + selectedNodes[0];
+  
+          OpenNebulaResource.show({
+            data : {
+                id: resourceId
+            },
+            success: function(){
+              Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+              Sunstone.showFormPanel(
+                MARKETPLACEAPPS_TAB_ID,
+                CREATE_APP_DIALOG_ID,
+                'export_template',
+                function(formPanelInstance, context) {
+                  formPanelInstance.setTemplateId(resourceId);
+                  $('#marketplaceapps-tab-wizardForms #TYPE').val('vmtemplate').change();
+                }
+              );
+            },
+            error: function(error){
+              Notifier.onError(error);
+            } 
+          });
+        }
       }
 
-  
+
     return _actions;
   }
 

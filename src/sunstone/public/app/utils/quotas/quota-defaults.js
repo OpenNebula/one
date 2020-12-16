@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,10 +19,13 @@ define(function(require) {
   var _defaultUserQuotas = {
     "VM_QUOTA": {
       "VM": {
-        "CPU":      QUOTA_LIMIT_UNLIMITED,
-        "MEMORY":   QUOTA_LIMIT_UNLIMITED,
-        "VMS":      QUOTA_LIMIT_UNLIMITED,
+        "CPU":              QUOTA_LIMIT_UNLIMITED,
+        "MEMORY":           QUOTA_LIMIT_UNLIMITED,
+        "VMS":              QUOTA_LIMIT_UNLIMITED,
         "SYSTEM_DISK_SIZE": QUOTA_LIMIT_UNLIMITED,
+        "RUNNING_CPU":      QUOTA_LIMIT_UNLIMITED,
+        "RUNNING_MEMORY":   QUOTA_LIMIT_UNLIMITED,
+        "RUNNING_VMS":      QUOTA_LIMIT_UNLIMITED,
       }
     },
     "DATASTORE_QUOTA": {},
@@ -33,10 +36,13 @@ define(function(require) {
   var _defaultGroupQuotas = {
     "VM_QUOTA": {
       "VM": {
-        "CPU":      QUOTA_LIMIT_UNLIMITED,
-        "MEMORY":   QUOTA_LIMIT_UNLIMITED,
-        "VMS":      QUOTA_LIMIT_UNLIMITED,
+        "CPU":              QUOTA_LIMIT_UNLIMITED,
+        "MEMORY":           QUOTA_LIMIT_UNLIMITED,
+        "VMS":              QUOTA_LIMIT_UNLIMITED,
         "SYSTEM_DISK_SIZE": QUOTA_LIMIT_UNLIMITED,
+        "RUNNING_CPU":      QUOTA_LIMIT_UNLIMITED,
+        "RUNNING_MEMORY":   QUOTA_LIMIT_UNLIMITED,
+        "RUNNING_VMS":      QUOTA_LIMIT_UNLIMITED,
       }
     },
     "DATASTORE_QUOTA": {},
@@ -87,10 +93,13 @@ define(function(require) {
     if ($.isEmptyObject(default_quotas.VM_QUOTA)){
       default_quotas.VM_QUOTA = {
         "VM" : {
-          "VMS"           : QUOTA_LIMIT_UNLIMITED,
-          "MEMORY"        : QUOTA_LIMIT_UNLIMITED,
-          "CPU"           : QUOTA_LIMIT_UNLIMITED,
-          "SYSTEM_DISK_SIZE" : QUOTA_LIMIT_UNLIMITED
+          "VMS"              : QUOTA_LIMIT_UNLIMITED,
+          "MEMORY"           : QUOTA_LIMIT_UNLIMITED,
+          "CPU"              : QUOTA_LIMIT_UNLIMITED,
+          "SYSTEM_DISK_SIZE" : QUOTA_LIMIT_UNLIMITED,
+          "RUNNING_CPU"      : QUOTA_LIMIT_UNLIMITED,
+          "RUNNING_MEMORY"   : QUOTA_LIMIT_UNLIMITED,
+          "RUNNING_VMS"      : QUOTA_LIMIT_UNLIMITED
         }
       };
     }

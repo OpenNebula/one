@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -14,20 +14,25 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 <div>
-  <fieldset class="large-font">
-    <legend>
-      <ul class="menu simple">
-        <li>
-          {{tr "Virtual Networks"}} <span class=" total_vnets"></span> 
-        </li>
-        <li></li>
-        <li><span>{{tr "USED IPs"}}</span> <span class="addresses_vnets"></span></li>
-        <li></li>
-        <li>
-          <button class="button radius tiny show_vnets_tab"> <i class="fa fa-lg fa-list fa-fw"></i></button>
-          <button class="button success radius tiny show_create_vnet"> <i class="fa fa-lg fa-plus fa-fw"></i></button>
-        </li>
-      </ul>
-    </legend>
+  <fieldset class="large-font dashboard-fieldset">
+    <div class="row small-12 medium-12 columns">
+      <div class="small-6 medium-8 columns dashboard-div-titles">
+        <h5>{{tr "Virtual Networks"}}</h5>
+      </div>
+      <div class="small-6 medium-4 columns dashboard-div-buttons">
+        <button class="button radius tiny show_vnets_tab"> <i class="fas fa-lg fa-list fa-fw"></i></button>
+        <button class="button success radius tiny show_create_vnet"> <i class="fas fa-lg fa-plus fa-fw"></i></button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="card small-12 medium-6 columns">
+        <h3 class="total_vnets fadeinout number-title">0</h3>
+        <span class="small-12 medium-12 columns label-card">{{tr "VNETS"}}</span>
+      </div>
+      <div class="card small-12 medium-6 columns">
+          <h3 class="addresses_vnets fadeinout number-title">0</h3>
+          <span class="small-12 medium-12 columns label-card">{{tr "USED IPs"}}</span>
+      </div>
+    </div>
   </fieldset>
 </div>

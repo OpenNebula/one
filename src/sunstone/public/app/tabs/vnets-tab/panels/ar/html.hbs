@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -17,20 +17,20 @@
 <form id="ar_list_form">
   <div class="row">
     <div class="large-12 columns">
-      {{#isTabActionEnabled "vnets-tab" "Network.add_ar"}}
+      {{#isTabActionEnabled tab action_add}}
         <button class="button success small radius" id="add_ar_button">
-          <span class="fa fa-plus"></span> {{tr "Address Range"}}
+          <span class="fas fa-plus"></span> {{tr "Address Range"}}
         </button>
       {{/isTabActionEnabled}}
       <span class="right">
-        {{#isTabActionEnabled "vnets-tab" "Network.update_ar"}}
+        {{#isTabActionEnabled tab action_update}}
           <button class="button secondary small radius" id="update_ar_button" ar_id="" disabled="disabled">
-            <span class="fa fa-pencil-square-o"></span> {{tr "Update"}}
+            <span class="fas fa-edit"></span> {{tr "Update"}}
           </button>
         {{/isTabActionEnabled}}
-        {{#isTabActionEnabled "vnets-tab" "Network.remove_ar"}}
+        {{#isTabActionEnabled tab action_rm}}
           <button class="button secondary small radius" id="rm_ar_button" ar_id="" disabled="disabled">
-            <span class="fa fa-trash-o"></span> {{tr "Remove"}}
+            <span class="fas fa-trash-alt"></span> {{tr "Remove"}}
           </button>
         {{/isTabActionEnabled}}
       </span>
@@ -66,8 +66,8 @@
     {{#if arList}}
       <div class="text-center">
         <span class="fa-stack fa-5x" style="color: #dfdfdf">
-          <i class="fa fa-cloud fa-stack-2x"></i>
-          <i class="fa fa-info-circle fa-stack-1x fa-inverse"></i>
+          <i class="fas fa-cloud fa-stack-2x"></i>
+          <i class="fas fa-info-circle fa-stack-1x fa-inverse"></i>
         </span>
         <br>
         <br>

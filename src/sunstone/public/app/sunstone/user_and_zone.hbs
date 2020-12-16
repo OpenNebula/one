@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -18,14 +18,14 @@
   {{#if filterView}}
   <li>
     <a class="thin-font" href="#" id="filter-view">
-      <i class="fa fa-filter fa-fw header-icon"></i>
+      <i class="fas fa-filter fa-fw header-icon"></i>
       <span class="filter-name"></span>
     </a>
   </li>
   {{/if}}
   <li>
     <a class="thin-font" href="#" id="userselector">
-      <i class="fa fa-user fa-fw header-icon"></i>
+      <i class="fas fa-user fa-fw header-icon"></i>
       <span class="username">
         {{displayName}}
       </span>
@@ -34,28 +34,28 @@
       {{#if settingsTabEnabled}}
       <li>
         <a href="#" class="configuration">
-          <i class="fa fa-fw fa-cog"></i>
+          <i class="fas fa-fw fa-cog"></i>
           {{tr "Settings"}}
         </a>
       </li>
       {{/if}}
       <li>
         <a href="#" class="logout">
-          <i class="fa fa-fw fa-power-off"></i>
+          <i class="fas fa-fw fa-power-off"></i>
           {{tr "Sign Out"}}
         </a>
       </li>
       {{#if availableViews}}
       <li>
         <a href="#">
-          <i class="fa fa-fw fa-eye"></i>
-          {{tr "Views"}}
+          <i class="fas fa-fw fa-eye"></i>
+          {{tr "Views"}} ({{mode}})
         </a>
         <ul class="menu">
           {{#each availableViews}}
           <li>
             <a href="#" class="quickconf_view" view="{{this}}">
-              <i class="fa fa-fw"></i> 
+              <i class="fas fa-fw"></i>
               {{this}}
             </a>
           </li>
@@ -65,16 +65,16 @@
       {{/if}}
       <li>
         <a href="#">
-          <i class="fa fa-fw fa-users"></i>
+          <i class="fas fa-fw fa-users"></i>
           {{tr "Groups"}}
         </a>
-        <ul class="menu groups-menu"></ul>      
+        <ul class="menu groups-menu"></ul>
       </li>
     </ul>
   </li>
   <li>
     <a class="thin-font" id="zonelector" href="#">
-      <i class="fa fa-globe fa-fw header-icon"></i>
+      <i class="fas fa-globe fa-fw header-icon"></i>
       <span class="zonename">
         {{zoneName}}
       </span>

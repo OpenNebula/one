@@ -1,12 +1,14 @@
 ---
 :ID:
   :desc: ONE identifier for Virtual Machine
-  :size: 6
+  :size: 4
+  :adjust: true
 
 :NAME:
   :desc: Name of the Virtual Machine
   :size: 15
   :left: true
+  :expand: true
 
 :USER:
   :desc: Username of the Virtual Machine owner
@@ -22,18 +24,19 @@
   :desc: Actual status
   :size: 4
 
-:UCPU:
-  :desc: CPU percentage used by the VM
+:CPU:
+  :desc: CPU assigned to the VM
   :size: 4
 
-:UMEM:
-  :desc: Memory used by the VM
+:MEM:
+  :desc: Memory assigned by the VM
   :size: 7
 
 :HOST:
   :desc: Host where the VM is running
   :size: 10
   :left: true
+  :expand: true
 
 :CLUSTER:
   :desc: Cluster where the VM is running
@@ -55,8 +58,8 @@
 - :GROUP
 - :NAME
 - :STAT
-- :UCPU
-- :UMEM
+- :CPU
+- :MEM
 - :HOST
 - :TIME
 
@@ -66,7 +69,17 @@
     - :NAME
     - :IP
     - :STAT
-    - :UCPU
-    - :UMEM
+    - :CPU
+    - :MEM
     - :HOST
     - :TIME
+
+:charters:
+  :suspend:
+    :time: "+1209600"
+    :warning:
+      :time: 86400
+  :terminate:
+    :time: "+1209600"
+    :warning:
+      :time: 86400

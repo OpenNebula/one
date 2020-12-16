@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 #include "VirtualNetworkPool.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
+#include "Nebula.h"
 
 #include <arpa/inet.h>
 #include <algorithm>
@@ -176,10 +177,7 @@ int AddressRange::init_mac(string& error_msg)
 		}
 		else
 		{
-			srand(time(0));
-
-			mac[0] = rand() & 0x0000FFFF;
-			mac[0]+= (rand()<<16) & 0xFFFF0000;
+			mac[0] = one_util::random<uint32_t>() & 0xFFFFFFFF;
 		}
 
         set_mac(0, attr);
@@ -224,25 +222,25 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
 
     /* ---------------------- L3 & L2 start addresses ---------------------- */
 
-	if ( init_ipv4(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_ipv4(error_msg) != 0 )
+    {
+        return -1;
+    }
 
-	if ( init_ipv6(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_ipv6(error_msg) != 0 )
+    {
+        return -1;
+    }
 
-	if ( init_ipv6_static(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_ipv6_static(error_msg) != 0 )
+    {
+        return -1;
+    }
 
-	if ( init_mac(error_msg) != 0 )
-	{
-		return -1;
-	}
+    if ( init_mac(error_msg) != 0 )
+    {
+        return -1;
+    }
 
     /* ------------------------- Security Groups ---------------------------- */
 
@@ -526,17 +524,17 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
             << "</IP6_GLOBAL>";
     }
 
-	if ( ip6[0] != 0 || ip6[1] != 0 || ip6[2] != 0 || ip6[3] != 0 )
-	{
-		unsigned int ip_low[4];
+    if ( ip6[0] != 0 || ip6[1] != 0 || ip6[2] != 0 || ip6[3] != 0 )
+    {
+        unsigned int ip_low[4];
 
-		ip_low[3] = ip6[3];
-		ip_low[2] = ip6[2];
-		ip_low[1] = ip6[1];
-		ip_low[0] = ip6[0] + index;
+        ip_low[3] = ip6[3];
+        ip_low[2] = ip6[2];
+        ip_low[1] = ip6[1];
+        ip_low[0] = ip6[0] + index;
 
         oss << "<IP6>" << ip6_to_s(ip_low, ip6_s) << "</IP6>";
-	}
+    }
 
     oss << "<SIZE>" << rsize << "</SIZE>"
         << "</ADDRESS>";
@@ -548,13 +546,12 @@ void AddressRange::addr_to_xml(unsigned int index, unsigned int rsize,
 void AddressRange::to_xml(ostringstream &oss) const
 {
     const map<string,string>& ar_attrs = attr->value();
-    map<string,string>::const_iterator it;
 
     unsigned int mac_end[2];
 
     oss << "<AR>";
 
-    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
         if ( it->first == "ALLOCATED" )
         {
@@ -573,10 +570,10 @@ void AddressRange::to_xml(ostringstream &oss) const
 
     if (is_ipv4())
     {
-		string       aux_st;
+        string       aux_st;
         unsigned int ip_i;
 
-		aux_st = attr->vector_value("IP");
+        aux_st = attr->vector_value("IP");
 
         if (ip_to_i(aux_st, ip_i) == 0)
         {
@@ -611,19 +608,19 @@ void AddressRange::to_xml(ostringstream &oss) const
         }
     }
 
-	if (is_ipv6_static())
-	{
+    if (is_ipv6_static())
+    {
         string ip6_s;
-		unsigned int ip_low[4];
+        unsigned int ip_low[4];
 
-		ip_low[3] = ip6[3];
-		ip_low[2] = ip6[2];
-		ip_low[1] = ip6[1];
-		ip_low[0] = ip6[0] +  size - 1;
+        ip_low[3] = ip6[3];
+        ip_low[2] = ip6[2];
+        ip_low[1] = ip6[1];
+        ip_low[0] = ip6[0] +  size - 1;
 
-		ip6_to_s(ip_low, ip6_s);
-		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
-	}
+        ip6_to_s(ip_low, ip6_s);
+        oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
+    }
 
     oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
     oss << "</AR>";
@@ -636,7 +633,6 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
         const vector<int>& vns, const vector<int>& vrs) const
 {
     const map<string,string>&          ar_attrs = attr->value();
-    map<string,string>::const_iterator it;
 
     int          rc;
     unsigned int mac_end[2];
@@ -648,7 +644,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
     oss << "<AR>";
 
-    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
         if ( it->first == "ALLOCATED" )
         {
@@ -668,7 +664,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
     if (is_ipv4())
     {
         unsigned int ip_i;
-		string aux_st = attr->vector_value("IP");
+        string aux_st = attr->vector_value("IP");
 
         rc = ip_to_i(aux_st, ip_i);
 
@@ -690,7 +686,7 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
             ip6_to_s(ula6, mac_end, ip6_s);
             oss << "<IP6_ULA_END>" << one_util::escape_xml(ip6_s)
-				<< "</IP6_ULA_END>";
+                << "</IP6_ULA_END>";
         }
 
         if (global6[1] != 0 || global6[0] != 0 ) /* Glocal Unicast */
@@ -701,23 +697,23 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
 
             ip6_to_s(global6, mac_end, ip6_s);
             oss << "<IP6_GLOBAL_END>" << one_util::escape_xml(ip6_s)
-				<< "</IP6_GLOBAL_END>";
+                << "</IP6_GLOBAL_END>";
         }
     }
 
-	if (is_ipv6_static())
-	{
+    if (is_ipv6_static())
+    {
         string ip6_s;
-		unsigned int ip_low[4];
+        unsigned int ip_low[4];
 
-		ip_low[3] = ip6[3];
-		ip_low[2] = ip6[2];
-		ip_low[1] = ip6[1];
-		ip_low[0] = ip6[0] +  size - 1;
+        ip_low[3] = ip6[3];
+        ip_low[2] = ip6[2];
+        ip_low[1] = ip6[1];
+        ip_low[0] = ip6[0] +  size - 1;
 
-		ip6_to_s(ip_low, ip6_s);
-		oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
-	}
+        ip6_to_s(ip_low, ip6_s);
+        oss << "<IP6_END>" << one_util::escape_xml(ip6_s) << "</IP6_END>";
+    }
 
     oss << "<USED_LEASES>" << get_used_addr() << "</USED_LEASES>";
 
@@ -727,14 +723,12 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
     }
     else
     {
-        map<unsigned int, long long>::const_iterator it;
-
         VectorAttribute lease("LEASE");
         bool            is_in;
 
         oss << "<LEASES>";
 
-        for (it = allocated.begin(); it != allocated.end(); it++)
+        for (auto it = allocated.begin(); it != allocated.end(); it++)
         {
             lease.clear();
 
@@ -1019,7 +1013,7 @@ int AddressRange::ip6_to_s(const unsigned int prefix[],
     struct in6_addr ip6;
     char dst[INET6_ADDRSTRLEN];
 
-    eui64[1] = ((mac[1]+512)<<16) + ((mlow & 0xFF000000)>>16) + 0x000000FF;
+    eui64[1] = ((mac[1]^0x0200)<<16) + ((mlow & 0xFF000000)>>16) + 0x000000FF;
     eui64[0] = 4261412864 + (mlow & 0x00FFFFFF);
 
     ip6.s6_addr32[2] = htonl(eui64[1]);
@@ -1091,7 +1085,7 @@ bool AddressRange::is_valid_mac(unsigned int& index, const string& mac_s,
 /* -------------------------------------------------------------------------- */
 
 bool AddressRange::is_valid_ip(unsigned int& index, const string& ip_s,
-    bool check_free)
+    bool check_free) const
 {
     if (!is_ipv4())//Not of type IP4 or IP4_6
     {
@@ -1264,15 +1258,14 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
         nic->replace("VLAN_ID", vlanid);
     }
 
-    vector<string>::const_iterator it;
-
-    for (it = inherit.begin(); it != inherit.end(); it++)
+    for (const auto& inherited : inherit)
     {
-        string inherit_val = attr->vector_value((*it).c_str());
+        string current_val = nic->vector_value(inherited);
+        string inherit_val = attr->vector_value(inherited);
 
-        if (!inherit_val.empty())
+        if (current_val.empty() && !inherit_val.empty())
         {
-            nic->replace((*it).c_str(), inherit_val);
+            nic->replace(inherited, inherit_val);
         }
     }
 }
@@ -1288,11 +1281,9 @@ void AddressRange::allocated_to_attr()
         return;
     }
 
-    map<unsigned int, long long>::const_iterator it;
-
     ostringstream oss;
 
-    for (it = allocated.begin(); it != allocated.end(); it++)
+    for (auto it = allocated.begin(); it != allocated.end(); it++)
     {
         oss << " " << it->first << " " << it->second;
     }
@@ -1353,9 +1344,7 @@ int AddressRange::free_allocated_addr(PoolObjectSQL::ObjectType ot, int obid,
 {
     long long lobid = obid & 0x00000000FFFFFFFFLL;
 
-    map<unsigned int, long long>::iterator it;
-
-    it = allocated.find(addr_index);
+    auto it = allocated.find(addr_index);
 
     if (it != allocated.end() && it->second == (ot|lobid))
     {
@@ -1527,7 +1516,7 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = mac_i[0] - mac[0];
 
-    if (index < 0 || index >= size)
+    if ( mac[0] > mac_i[0] || index >= size)
     {
         return -1;
     }
@@ -1563,7 +1552,7 @@ int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = ip_i - ip;
 
-    if (index < 0 || index >= size)
+    if (ip > ip_i || index >= size)
     {
         return -1;
     }
@@ -1598,7 +1587,7 @@ int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = ip_i[0] - ip6[0];
 
-    if (index < 0 || index >= size || ip6[3] != ip_i[3] || ip6[2] != ip_i[2]
+    if (ip6[0] > ip_i[0] || index >= size || ip6[3] != ip_i[3] || ip6[2] != ip_i[2]
             || ip6[1] != ip_i[1])
     {
         return -1;
@@ -1620,7 +1609,7 @@ int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
 
 int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
 {
-    map<unsigned int, long long>::iterator it = allocated.begin();
+    auto it = allocated.begin();
 
     long long obj_pack = ot | (obid & 0x00000000FFFFFFFFLL);
 
@@ -1632,9 +1621,7 @@ int AddressRange::free_addr_by_owner(PoolObjectSQL::ObjectType ot, int obid)
     {
         if (it->second == obj_pack && free_addr(it->first, error_msg) == 0)
         {
-            map<unsigned int, long long>::iterator prev_it = it++;
-
-            allocated.erase(prev_it);
+            it = allocated.erase(it);
 
             freed++;
         }
@@ -1665,9 +1652,9 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
 
     string error_msg;
 
-    if ((0 <= index) && (index < size))
+    if ((mac[0] <= mac_i[0]) && (index < size))
     {
-        map<unsigned int, long long>::iterator it = allocated.find(index);
+        auto it = allocated.find(index);
 
         if (it == allocated.end())
         {
@@ -1681,9 +1668,7 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
             if (it != allocated.end() && it->second == obj_pack &&
                      free_addr(it->first, error_msg) == 0)
             {
-                map<unsigned int, long long>::iterator prev_it = it++;
-
-                allocated.erase(prev_it);
+                it = allocated.erase(it);
 
                 freed++;
             }
@@ -1983,9 +1968,8 @@ bool AddressRange::check(string& rs_attr) const
     }
 
     const map<string,string>& ar_attrs = attr->value();
-    map<string,string>::const_iterator it;
 
-    for (it=ar_attrs.begin(); it != ar_attrs.end(); it++)
+    for (auto it=ar_attrs.begin(); it != ar_attrs.end(); it++)
     {
         if (restricted_attributes.count(it->first) > 0)
         {
@@ -2019,16 +2003,15 @@ void AddressRange::set_restricted_attributes(vector<const SingleAttribute *>& ra
 
 void AddressRange::remove_restricted(VectorAttribute* va)
 {
-    set<string>::const_iterator it;
     size_t pos;
 
-    for (it=restricted_attributes.begin(); it!=restricted_attributes.end(); it++)
+    for (const auto& restricted : restricted_attributes)
     {
-        pos = it->find("AR/");
+        pos = restricted.find("AR/");
 
         if (pos != string::npos)
         {
-            va->remove( it->substr(pos+3) );
+            va->remove(restricted.substr(pos+3));
         }
     }
 }
@@ -2038,12 +2021,11 @@ void AddressRange::remove_restricted(VectorAttribute* va)
 
 void AddressRange::remove_all_except_restricted(VectorAttribute* va)
 {
-    map<string,string>::iterator it;
     map<string,string> vals = va->value();
 
     ostringstream oss;
 
-    for(it = vals.begin(); it != vals.end(); it++)
+    for (auto it = vals.begin(); it != vals.end(); it++)
     {
         oss.str("");
         oss << "AR/" << it->first;
@@ -2054,3 +2036,19 @@ void AddressRange::remove_all_except_restricted(VectorAttribute* va)
         }
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void AddressRange::decrypt()
+{
+    string one_key;
+
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    for ( const auto& ea : VirtualNetworkTemplate::encrypted )
+    {
+        attr->decrypt(one_key, ea.second);
+    }
+}
+

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,15 +18,16 @@
 #define CLUSTER_POOL_H_
 
 #include "Cluster.h"
-#include "SqlDB.h"
-
-using namespace std;
+#include "PoolSQL.h"
+#include "OneDB.h"
 
 
 class ClusterPool : public PoolSQL
 {
 public:
-    ClusterPool(SqlDB * db, const VectorAttribute * vnc_conf);
+    ClusterPool(SqlDB * db,
+                const VectorAttribute * vnc_conf,
+                std::vector<const SingleAttribute *>& encrypted_attrs);
 
     ~ClusterPool(){};
 
@@ -37,7 +38,7 @@ public:
     /**
      *  Name for the "none" cluster
      */
-    static const string NONE_CLUSTER_NAME;
+    static const std::string NONE_CLUSTER_NAME;
 
     /**
      *  Identifier for the "none" cluster
@@ -47,7 +48,7 @@ public:
     /**
      *  Name for the default cluster
      */
-    static const string DEFAULT_CLUSTER_NAME;
+    static const std::string DEFAULT_CLUSTER_NAME;
 
     /**
      *  Identifier for the default cluster
@@ -67,19 +68,15 @@ public:
     {
         int rc = -1;
 
-        Cluster * cluster = get(oid, true);
-
-        if ( cluster != 0 )
+        if ( auto cluster = get(oid) )
         {
-          rc = cluster->get_vnc_port(vm_id, port);
+            rc = cluster->get_vnc_port(vm_id, port);
 
-          update(cluster);
-
-          cluster->unlock();
+            update_vnc_bitmap(cluster.get());
         }
 
         return rc;
-    };
+    }
 
     /**
      * Release a previously allocated VNC port in the cluster
@@ -88,15 +85,11 @@ public:
      */
     void release_vnc_port(int oid, unsigned int port)
     {
-        Cluster * cluster = get(oid, true);
-
-        if ( cluster != 0 )
+        if ( auto cluster = get(oid) )
         {
             cluster->release_vnc_port(port);
 
-            update(cluster);
-
-            cluster->unlock();
+            update_vnc_bitmap(cluster.get());
         }
     }
 
@@ -111,15 +104,11 @@ public:
     {
         int rc = -1;
 
-        Cluster * cluster = get(oid, true);
-
-        if ( cluster != 0 )
+        if ( auto cluster = get(oid) )
         {
             rc = cluster->set_vnc_port(port);
 
-            update(cluster);
-
-            cluster->unlock();
+            update_vnc_bitmap(cluster.get());
         }
 
         return rc;
@@ -138,46 +127,30 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(string name, int * oid, string& error_str);
-
-    /**
-     *  Function to get a cluster from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid cluster unique id
-     *    @param lock locks the cluster mutex
-     *    @return a pointer to the cluster, 0 if the cluster could not be loaded
-     */
-    Cluster * get(int oid, bool lock)
-    {
-        return static_cast<Cluster *>(PoolSQL::get(oid,lock));
-    };
+    int allocate(std::string name, int * oid, std::string& error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Cluster unique identifier
+     *   @return a pointer to the Cluster, nullptr in case of failure
      */
-    Cluster * get(const string& name, bool lock)
+    std::unique_ptr<Cluster> get(int oid)
     {
-        // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Cluster *>(PoolSQL::get(name,-1,lock));
-    };
+        return PoolSQL::get<Cluster>(oid);
+    }
 
     /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Cluster unique identifier
+     *   @return a pointer to the Cluster, nullptr in case of failure
      */
-    string key(const string& name, int uid)
+    std::unique_ptr<Cluster> get_ro(int oid)
     {
-        // Name is enough key because Clusters can't repeat names.
-        return name;
-    };
+        return PoolSQL::get_ro<Cluster>(oid);
+    }
 
     /**
      *  Drops the Cluster from the data base. The object mutex SHOULD be
@@ -189,7 +162,7 @@ public:
      *          -2 object is a system cluster (ID < 100)
      *          -3 Cluster's User IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Cluster pool
@@ -197,12 +170,12 @@ public:
      */
     static int bootstrap(SqlDB * _db)
     {
-        ostringstream oss_bitmap;
+        std::ostringstream oss_bitmap;
         int rc;
 
         rc  = Cluster::bootstrap(_db);
         rc += _db->exec_local_wr(
-                BitMap<0>::bootstrap(Cluster::bitmap_table, oss_bitmap));
+                BitMap<0>::bootstrap(one_db::cluster_bitmap_table, oss_bitmap));
 
         return rc;
     };
@@ -212,14 +185,18 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "CLUSTER_POOL", Cluster::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "CLUSTER_POOL", "body",
+                             one_db::cluster_table, where,
+                             sid, eid, desc);
     };
 
     /**
@@ -229,8 +206,8 @@ public:
      *    @param auth_object to generate the filter for
      *    @param cids vector of cluster ids
      */
-    static void cluster_acl_filter(ostringstream& filter,
-            PoolObjectSQL::ObjectType auth_object, const vector<int>& cids);
+    static void cluster_acl_filter(std::ostringstream& filter,
+            PoolObjectSQL::ObjectType auth_object, const std::vector<int>& cids);
 
     /**
      * Returns the Datastore Clusters performing a DB query
@@ -238,7 +215,7 @@ public:
      * @param cluster_ids Will contain the Cluster IDs
      * @return 0 on success
      */
-    int query_datastore_clusters(int oid, set<int> &cluster_ids);
+    int query_datastore_clusters(int oid, std::set<int> &cluster_ids);
 
     /**
      * Returns the VNet Clusters performing a DB query
@@ -246,7 +223,39 @@ public:
      * @param cluster_ids Will contain the Cluster IDs
      * @return 0 on success
      */
-    int query_vnet_clusters(int oid, set<int> &cluster_ids);
+    int query_vnet_clusters(int oid, std::set<int> &cluster_ids);
+
+    /**
+     * Adds a resource to the specifyed cluster and update the clusters body.
+     * @param type Resource type
+     * @param cluster Cluster in which the resource will be included
+     * @param resource_id Id of the resource
+     * @param error_msg error message
+     * @return 0 on success
+     */
+    int add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                       int resource_id, std::string& error_msg);
+
+    /**
+     * Removes a resource from the specifyed cluster and update the clusters body.
+     * @param type Resource type
+     * @param cluster Cluster from which the resource will be removed
+     * @param resource_id Id of the resource
+     * @param error_msg error message
+     * @return 0 on success
+     */
+    int del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                         int resource_id, std::string& error_msg);
+
+    /**
+     * Updates the cluster vnc bitmap.
+     * @cluster the cluster to be updated.
+     * @return 0 on success
+     */
+    int update_vnc_bitmap(Cluster* cluster)
+    {
+        return cluster->update_vnc_bitmap(db);
+    }
 
 private:
     /**
@@ -262,11 +271,6 @@ private:
     {
         return new Cluster(-1,"",0, &vnc_conf);
     };
-
-
-    int get_clusters_cb(
-            void * _cluster_ids, int num, char **values, char **names);
-
 };
 
 #endif /*CLUSTER_POOL_H_*/

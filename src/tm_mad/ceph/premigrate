@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,7 +32,7 @@ DST_PATH=$3
 VMID=$4
 DSID=$5
 
-TEMPLATE_64=$6
+TEMPLATE_64=$(cat)
 
 #--------------------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ fi
 
 #--------------------------------------------------------------------------------
 
-if [ -n "$7" ]; then
-    log "Called from tm/$7 but I've nothing to do"
+if [ -n "$6" ]; then
+    log "Called from tm/$6 but I've nothing to do"
     exit 0
 fi
 
@@ -70,10 +70,13 @@ log "Moving $SRC_HOST:$DST_PATH to $DST_HOST:$DST_PATH"
 ssh_exec_and_log "$DST_HOST" "rm -rf '$DST_PATH'" \
     "Error removing target path to prevent overwrite errors"
 
-TAR_COPY="$SSH $SRC_HOST '$TAR -C $DST_PATH_DIRNAME --sparse -cf - $DST_PATH_BASENAME'"
-TAR_COPY="$TAR_COPY | $SSH $DST_HOST '$TAR -C $DST_PATH_DIRNAME --sparse -xf -'"
+TAR_SSH=$(cat <<EOF
+set -e -o pipefail
+$TAR -C $DST_PATH_DIRNAME --sparse -cf - $DST_PATH_BASENAME | $SSH $DST_HOST '$TAR -C $DST_PATH_DIRNAME --sparse -xf -'
+EOF
+)
 
-exec_and_log "eval $TAR_COPY" "Error copying disk directory to target host"
+ssh_forward ssh_exec_and_log "$SRC_HOST" "$TAR_SSH" "Error copying disk directory to target host"
 
 migrate_other "$@"
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,8 +17,13 @@
 #include "DatastorePool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "DatastoreTemplate.h"
+#include "ClusterPool.h"
+#include "ImageManager.h"
 
 #include <stdexcept>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* There is a default datastore boostrapped by the core:                      */
@@ -40,23 +45,21 @@ const int    DatastorePool::FILE_DS_ID   = 2;
 
 DatastorePool::DatastorePool(
         SqlDB * db,
-        const vector<const SingleAttribute *>& _inherit_attrs) :
-    PoolSQL(db, Datastore::table)
+        const vector<const SingleAttribute *>& _inherit_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs) :
+    PoolSQL(db, one_db::ds_table)
 
 {
     ostringstream oss;
     string        error_str;
 
-    vector<const SingleAttribute *>::const_iterator it;
-
-    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+    for (auto sattr : _inherit_attrs)
     {
-        inherit_attrs.push_back((*it)->value());
+        inherit_attrs.push_back(sattr->value());
     }
 
     if (get_lastOID() == -1) //lastOID is set in PoolSQL::init_cb
     {
-        DatastoreTemplate * ds_tmpl;
         int      rc;
         set<int> cluster_ids;
 
@@ -70,7 +73,7 @@ DatastorePool::DatastorePool(
             << "TYPE   = SYSTEM_DS" << endl
             << "TM_MAD = ssh";
 
-        ds_tmpl = new DatastoreTemplate;
+        auto ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
 
         if( rc < 0 )
@@ -83,7 +86,7 @@ DatastorePool::DatastorePool(
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 0137,
-                ds_tmpl,
+                move(ds_tmpl),
                 &rc,
                 cluster_ids,
                 error_str);
@@ -103,7 +106,7 @@ DatastorePool::DatastorePool(
             << "DS_MAD = fs" << endl
             << "TM_MAD = ssh";
 
-        ds_tmpl = new DatastoreTemplate;
+        ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
 
         if( rc < 0 )
@@ -116,7 +119,7 @@ DatastorePool::DatastorePool(
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 0137,
-                ds_tmpl,
+                move(ds_tmpl),
                 &rc,
                 cluster_ids,
                 error_str);
@@ -136,7 +139,7 @@ DatastorePool::DatastorePool(
             << "DS_MAD = fs" << endl
             << "TM_MAD = ssh";
 
-        ds_tmpl = new DatastoreTemplate;
+        ds_tmpl = make_unique<DatastoreTemplate>();
         rc = ds_tmpl->parse_str_or_xml(oss.str(), error_str);
 
         if( rc < 0 )
@@ -149,7 +152,7 @@ DatastorePool::DatastorePool(
                 UserPool::oneadmin_name,
                 GroupPool::ONEADMIN_NAME,
                 0137,
-                ds_tmpl,
+                move(ds_tmpl),
                 &rc,
                 cluster_ids,
                 error_str);
@@ -162,6 +165,9 @@ DatastorePool::DatastorePool(
         // User created datastores will start from ID 100
         set_lastOID(99);
     }
+
+    // Parse encrypted attributes
+    DatastoreTemplate::parse_encrypted(encrypted_attrs);
 
     return;
 
@@ -182,20 +188,20 @@ int DatastorePool::allocate(
         const string&       uname,
         const string&       gname,
         int                 umask,
-        DatastoreTemplate * ds_template,
+        std::unique_ptr<DatastoreTemplate> ds_template,
         int *               oid,
         const set<int>      &cluster_ids,
         string&             error_str)
 {
     Datastore * ds;
-    Datastore * ds_aux = 0;
 
+    int    db_oid;
     string name;
 
     ostringstream oss;
 
     ds = new Datastore(uid, gid, uname, gname, umask,
-            ds_template, cluster_ids);
+            move(ds_template), cluster_ids);
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -208,9 +214,10 @@ int DatastorePool::allocate(
         goto error_name;
     }
 
-    ds_aux = get(name,false);
+    // Check for duplicates
+    db_oid = exist(name);
 
-    if( ds_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -231,7 +238,7 @@ int DatastorePool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by DATASTORE " << ds_aux->get_oid() << ".";
+    oss << "NAME is already taken by DATASTORE " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -276,16 +283,14 @@ int DatastorePool::drop(PoolObjectSQL * objsql, string& error_msg)
 
 int DatastorePool::disk_attribute(int ds_id, VirtualMachineDisk * disk)
 {
-    Datastore * ds = get(ds_id, true);
+    auto ds = get_ro(ds_id);
 
-    if (ds == 0)
+    if (!ds)
     {
         return -1;
     }
 
     ds->disk_attribute(disk, inherit_attrs);
-
-    ds->unlock();
 
     return 0;
 }

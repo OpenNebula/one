@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,6 +51,7 @@ function exit_error
 DST_PATH=`arg_path $DST`
 DST_HOST=`arg_host $DST`
 DST_DIR=`dirname $DST_PATH`
+DST_FILE=`basename $DST_PATH`
 
 #-------------------------------------------------------------------------------
 # Create DST path
@@ -65,10 +66,14 @@ log "Generating context block device at $DST"
 
 VM_ID=`basename $DST_DIR`
 ISO_DIR="$DS_DIR/.isofiles/$VM_ID"
-ISO_FILE="$ISO_DIR/$VM_ID.iso"
+ISO_FILE="$VM_ID.iso"
+ISO_PATH="$ISO_DIR/$ISO_FILE"
+
+exec_and_log "rm -rf $ISO_DIR" \
+    "Could not delete temp. to make context dev"
 
 exec_and_set_error "mkdir -p $ISO_DIR" \
-    "Could not create tmp dir to make context dev"
+    "Could not create temp. dir to make context dev"
 [ -n "$ERROR" ] && exit_error
 
 for f in "${SRC[@]}"; do
@@ -93,11 +98,28 @@ for f in "${SRC[@]}"; do
     [ -n "$ERROR" ] && exit_error
 done
 
-exec_and_set_error "$MKISOFS -o $ISO_FILE -V CONTEXT -J -R $ISO_DIR" \
-    "Error creating iso fs"
+# This generates context ISO first into a temporary file and renames to final
+# file, to workaround problem when datastores are on FUSE mounted volume
+# (e.g,. fuse-overlayfs), cached files metadata are not consistent and
+# and tar sparse detection algorithm could identify file as empty.
+MKCONTEXT_CMD=$(cat <<EOF
+    set -e -o pipefail
+    $MKISOFS -o $ISO_PATH.tmp -V CONTEXT -J -R $ISO_DIR
+    mv $ISO_PATH.tmp $ISO_PATH
+EOF
+)
+
+multiline_exec_and_set_error "$MKCONTEXT_CMD" "Error creating iso fs"
 [ -n "$ERROR" ] && exit_error
 
-exec_and_set_error "$SCP $ISO_FILE $DST" "Error copying context ISO to $DST"
+COPY_CMD=$(cat <<EOF
+    set -e -o pipefail
+    $TAR -C $ISO_DIR --transform="flags=r;s|$ISO_FILE|$DST_FILE|" -cSf - $ISO_FILE | \
+        $SSH $DST_HOST "$TAR -xSf - -C $DST_DIR"
+EOF
+)
+
+multiline_exec_and_set_error "$COPY_CMD" "Error copying context ISO to $DST"
 [ -n "$ERROR" ] && exit_error
 
 rm -rf $ISO_DIR > /dev/null 2>&1

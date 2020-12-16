@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'OpenNebulaJSON/JSONUtils'
+require 'opennebula/virtual_machine_ext'
 
 module OpenNebulaJSON
 
@@ -45,8 +46,10 @@ module OpenNebulaJSON
             rc = case action_hash['perform']
                  when "deploy"       then self.deploy(action_hash['params'])
                  when "hold"         then self.hold
-                 when "livemigrate"  then self.migrate(action_hash['params'], true)
-                 when "migrate"      then self.migrate(action_hash['params'], false)
+                 when "livemigrate"  then self.migrate(action_hash['params'], true, 0)
+                 when "migrate"      then self.migrate(action_hash['params'], false, 0)
+                 when "migrate_poff"      then self.migrate(action_hash['params'], false, 1)
+                 when "migrate_poff_hard" then self.migrate(action_hash['params'], false, 2)
                  when "resume"       then self.resume
                  when "release"      then self.release
                  when "stop"         then self.stop
@@ -57,6 +60,7 @@ module OpenNebulaJSON
                  when "snapshot_delete"       then self.snapshot_delete(action_hash['params'])
                  when "disk_snapshot_create"  then self.disk_snapshot_create(action_hash['params'])
                  when "disk_snapshot_revert"  then self.disk_snapshot_revert(action_hash['params'])
+                 when "disk_snapshot_rename"  then self.disk_snapshot_rename(action_hash['params'])
                  when "disk_snapshot_delete"  then self.disk_snapshot_delete(action_hash['params'])
                  when "terminate"    then self.terminate(action_hash['params'])
                  when "reboot"       then self.reboot(action_hash['params'])
@@ -77,6 +81,8 @@ module OpenNebulaJSON
                  when "recover"      then self.recover(action_hash['params'])
                  when "save_as_template" then self.save_as_template(action_hash['params'])
                  when "disk_resize"  then self.disk_resize(action_hash['params'])
+                 when "lock"         then self.lock(action_hash['params'])
+                 when "unlock"       then self.unlock(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -104,8 +110,8 @@ module OpenNebulaJSON
             super(params['hard'])
         end
 
-        def migrate(params=Hash.new, live=false)
-            super(params['host_id'], live, params['enforce'], params['ds_id'])
+        def migrate(params=Hash.new, live=false, mtype)
+            super(params['host_id'], live, params['enforce'], params['ds_id'], mtype)
         end
 
         def disk_saveas(params=Hash.new)
@@ -135,6 +141,10 @@ module OpenNebulaJSON
 
         def disk_snapshot_revert(params=Hash.new)
             super(params['disk_id'].to_i, params['snapshot_id'].to_i)
+        end
+
+        def disk_snapshot_rename(params=Hash.new)
+            super(params['disk_id'].to_i, params['snapshot_id'].to_i, params['new_name'])
         end
 
         def disk_snapshot_delete(params=Hash.new)
@@ -191,6 +201,14 @@ module OpenNebulaJSON
             super(params['name'])
         end
 
+        def lock(params=Hash.new)
+            super(params['level'].to_i)
+        end
+
+        def unlock(params=Hash.new)
+            super()
+        end
+
         def recover(params=Hash.new)
             super(params['result'].to_i)
         end
@@ -198,6 +216,9 @@ module OpenNebulaJSON
         def save_as_template(params=Hash.new)
             vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id),
                                         @client)
+
+            vm_new.extend(VirtualMachineExt)
+
             vm_new.save_as_template(params['name'],params['description'], params['persistent'])
         end
     end

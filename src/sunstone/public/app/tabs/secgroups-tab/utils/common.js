@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -49,6 +49,9 @@ define(function(require) {
       case "ICMP":
         text["PROTOCOL"] = Locale.tr("ICMP");
         break;
+      case "ICMPV6":
+        text["PROTOCOL"] = Locale.tr("ICMPv6")
+        break;
       case "IPSEC":
         text["PROTOCOL"] = Locale.tr("IPsec");
         break;
@@ -81,6 +84,12 @@ define(function(require) {
       text["ICMP_TYPE"] = _icmpToSt(rule.ICMP_TYPE);
     } else {
       text["ICMP_TYPE"] = "";
+    }
+
+    if(rule.ICMPv6_TYPE != undefined){
+      text["ICMPv6_TYPE"] = _icmpv6ToSt(rule.ICMPv6_TYPE);
+    } else {
+      text["ICMPv6_TYPE"] = "";
     }
 
     if(rule.RANGE != undefined && rule.RANGE != ""){
@@ -152,6 +161,19 @@ define(function(require) {
       case "253": return "253: RFC3692-style Experiment 1";
       case "254": return "254: RFC3692-style Experiment 2";
       default:  return "" + icmp_type;
+    }
+  }
+
+  function _icmpv6ToSt(icmpv6_type){
+    switch( icmpv6_type){
+      case "": return Locale.tr("All");
+      case "1": return "1: Destination Unreachable";
+      case "2": return "2/0: Packet too long";
+      case "3": return "3: Time exceeded";
+      case "4": return "4: Parameter problem";
+      case "128": return "128/0: Echo request (ping)";
+      case "129": return "129/0: Echo reply (pong)";
+      default: return "" + icmpv6_type;
     }
   }
 

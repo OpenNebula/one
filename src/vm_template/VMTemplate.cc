@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -15,8 +15,12 @@
 /* ------------------------------------------------------------------------ */
 
 #include "VMTemplate.h"
+#include "Nebula.h"
+#include "VirtualMachineManager.h"
+#include "ScheduledAction.h"
+#include "OneDB.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+using namespace std;
 
 /* ************************************************************************ */
 /* VMTemplate :: Constructor/Destructor                                     */
@@ -28,46 +32,25 @@ VMTemplate::VMTemplate(int id,
                        const string& _uname,
                        const string& _gname,
                        int umask,
-                       VirtualMachineTemplate * _template_contents):
-        PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,table),
-        regtime(time(0))
+                       unique_ptr<Template> _template_contents):
+    PoolObjectSQL(id,TEMPLATE,"",_uid,_gid,_uname,_gname,one_db::vm_template_table),
+    regtime(time(0))
 {
-    if (_template_contents != 0)
+    if (_template_contents)
     {
-        obj_template = _template_contents;
+        obj_template = move(_template_contents);
     }
     else
     {
-        obj_template = new VirtualMachineTemplate;
+        obj_template = make_unique<VirtualMachineTemplate>();
     }
 
     set_umask(umask);
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-VMTemplate::~VMTemplate()
-{
-    delete obj_template;
-}
-
 /* ************************************************************************ */
 /* VMTemplate :: Database Access Functions                                  */
 /* ************************************************************************ */
-
-const char * VMTemplate::table = "template_pool";
-
-const char * VMTemplate::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * VMTemplate::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS template_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int VMTemplate::insert(SqlDB *db, string& error_str)
 {
@@ -77,9 +60,24 @@ int VMTemplate::insert(SqlDB *db, string& error_str)
     erase_template_attribute("NAME", name);
 
     // ---------------------------------------------------------------------
-    // Remove DONE/MESSAGE from SCHED_ACTION
+    // Remove DONE/MESSAGE from SCHED_ACTION and check rest attributes
     // ---------------------------------------------------------------------
-    parse_sched_action();
+    int rc = parse_sched_action(error_str);
+
+    if (rc == -1)
+    {
+        return rc;
+    }
+
+    // ------------------------------------------------------------------------
+    // Validate RAW attribute
+    // ------------------------------------------------------------------------
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template.get(), error_str);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
 
     // ------------------------------------------------------------------------
     // Insert the Template
@@ -102,14 +100,14 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Object
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -123,24 +121,29 @@ int VMTemplate::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::vm_template_table << " SET "
+            << "name = '"      << sql_name   << "', "
+            << "body = '"      << sql_xml    << "', "
+            << "uid = "        << uid        << ", "
+            << "gid = "        << gid        << ", "
+            << "owner_u = "    << owner_u    << ", "
+            << "group_u = "    << group_u    << ", "
+            << "other_u = "    << other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::vm_template_table
+            << " (" << one_db::vm_template_db_names << ") VALUES ("
+            <<            oid        << ","
+            << "'"     << sql_name   << "',"
+            << "'"     << sql_xml    << "',"
+            <<            uid        << ","
+            <<            gid        << ","
+            <<            owner_u    << ","
+            <<            group_u    << ","
+            <<            other_u    << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO " << table <<" ("<< db_names <<") VALUES ("
-        <<            oid        << ","
-        << "'"     << sql_name   << "',"
-        << "'"     << sql_xml    << "',"
-        <<            uid        << ","
-        <<            gid        << ","
-        <<            owner_u    << ","
-        <<            group_u    << ","
-        <<            other_u    << ")";
 
     rc = db->exec_wr(oss);
 
@@ -170,18 +173,24 @@ error_common:
     return -1;
 }
 
-void VMTemplate::parse_sched_action()
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VMTemplate::bootstrap(SqlDB * db)
 {
-    vector<VectorAttribute *> _sched_actions;
-    vector<VectorAttribute *>::iterator i;
+    ostringstream oss(one_db::vm_template_db_bootstrap);
 
-    get_template_attribute("SCHED_ACTION", _sched_actions);
+    return db->exec_local_wr(oss);
+};
 
-    for ( i = _sched_actions.begin(); i != _sched_actions.end() ; ++i)
-    {
-        (*i)->remove("DONE");
-        (*i)->remove("MESSAGE");
-    }
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VMTemplate::parse_sched_action(string& error_str)
+{
+    SchedActions sactions(obj_template.get());
+
+    return sactions.parse(error_str, true);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -189,7 +198,21 @@ void VMTemplate::parse_sched_action()
 
 int VMTemplate::post_update_template(string& error)
 {
-    parse_sched_action();
+    vector<const VectorAttribute *> raw;
+
+    int rc = parse_sched_action(error);
+
+    if (rc == -1)
+    {
+        return rc;
+    }
+
+    rc = Nebula::instance().get_vmm()->validate_raw(obj_template.get(), error);
+
+    if (rc != 0)
+    {
+        return rc;
+    }
 
     return 0;
 }
@@ -200,7 +223,7 @@ int VMTemplate::post_update_template(string& error)
 
 string& VMTemplate::to_xml(string& xml) const
 {
-    return to_xml(xml, obj_template);
+    return to_xml(xml, obj_template.get());
 }
 
 /* ------------------------------------------------------------------------ */
@@ -211,6 +234,7 @@ string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
     ostringstream   oss;
     string          template_xml;
     string          perm_str;
+    string          lock_str;
 
     oss << "<VMTEMPLATE>"
             << "<ID>"       << oid        << "</ID>"
@@ -219,6 +243,7 @@ string& VMTemplate::to_xml(string& xml, const Template* tmpl) const
             << "<UNAME>"    << uname      << "</UNAME>"
             << "<GNAME>"    << gname      << "</GNAME>"
             << "<NAME>"     << name       << "</NAME>"
+            << lock_db_to_xml(lock_str)
             << perms_to_xml(perm_str)
             << "<REGTIME>"  << regtime    << "</REGTIME>"
             << tmpl->to_xml(template_xml)
@@ -249,6 +274,7 @@ int VMTemplate::from_xml(const string& xml)
     rc += xpath(name,       "/VMTEMPLATE/NAME",    "not_found");
     rc += xpath<time_t>(regtime, "/VMTEMPLATE/REGTIME", 0);
 
+    rc += lock_db_from_xml();
     // Permissions
     rc += perms_from_xml();
 

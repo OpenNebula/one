@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -17,13 +17,11 @@
 #ifndef CLUSTER_H_
 #define CLUSTER_H_
 
-#include "PoolSQL.h"
-#include "ObjectCollection.h"
-#include "DatastorePool.h"
+#include "PoolObjectSQL.h"
 #include "ClusterTemplate.h"
 #include "BitMap.h"
+#include "ObjectCollection.h"
 
-using namespace std;
 
 /**
  *  The Cluster class.
@@ -31,134 +29,41 @@ using namespace std;
 class Cluster : public PoolObjectSQL
 {
 public:
+
+    virtual ~Cluster() = default;
+
     // *************************************************************************
     // Object Collections (Public)
     // *************************************************************************
 
     /**
-     *  Adds this host ID to the set.
-     *    @param id to be added to the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int add_host(int id, string& error_msg)
-    {
-        int rc = hosts.add(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Host ID is already in the cluster set.";
-        }
-
-        return rc;
-    }
-
-    /**
-     *  Deletes this host ID from the set.
-     *    @param id to be deleted from the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int del_host(int id, string& error_msg)
-    {
-        int rc = hosts.del(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Host ID is not part of the cluster set.";
-        }
-
-        return rc;
-    }
-
-    /**
-     *  Adds this datastore ID to the set.
-     *    @param id to be added to the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int add_datastore(int id, string& error_msg);
-
-    /**
-     *  Deletes this datastore ID from the set.
-     *    @param id to be deleted from the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int del_datastore(int id, string& error_msg);
-
-    /**
-     *  Returns a copy of the datastore IDs set
-     */
-    set<int> get_datastores()
-    {
-        return datastores.clone();
-    };
-
-    /**
      *  Returns a system DS for the cluster when none is set at the API level
      *    @return the ID of the System
      */
-    static int get_default_system_ds(const set<int>& ds_collection);
-
-    /**
-     *  Adds this vnet ID to the set.
-     *    @param id to be added to the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int add_vnet(int id, string& error_msg)
-    {
-        int rc = vnets.add(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Network ID is already in the cluster set.";
-        }
-
-        return rc;
-    }
-
-    /**
-     *  Deletes this vnet ID from the set.
-     *    @param id to be deleted from the cluster
-     *    @param error_msg Error message, if any
-     *    @return 0 on success
-     */
-    int del_vnet(int id, string& error_msg)
-    {
-        int rc = vnets.del(id);
-
-        if ( rc < 0 )
-        {
-            error_msg = "Network ID is not part of the cluster set.";
-        }
-
-        return rc;
-    }
+    static int get_default_system_ds(const std::set<int>& ds_collection);
 
     /**
      *  Returns a copy of the host IDs set
      */
-    set<int> get_host_ids()
+    const std::set<int>& get_host_ids() const
     {
-        return hosts.clone();
+        return hosts.get_collection();
     }
 
     /**
      *  Returns a copy of the datastore IDs set
      */
-    set<int> get_datastore_ids()
+    const std::set<int>& get_datastore_ids() const
     {
-        return datastores.clone();
+        return datastores.get_collection();
     }
 
     /**
      *  Returns a copy of the vnet IDs set
      */
-    set<int> get_vnet_ids()
+    const std::set<int>& get_vnet_ids() const
     {
-        return vnets.clone();
+        return vnets.get_collection();
     }
 
     /**
@@ -167,7 +72,7 @@ public:
      *    @param cpu reserved cpu (percentage, or absolute)
      *    @param mem reserved mem (in KB)
      */
-    void get_reserved_capacity(string& cpu, string& mem)
+    void get_reserved_capacity(std::string& cpu, std::string& mem) const
     {
         get_template_attribute("RESERVED_CPU", cpu);
 
@@ -175,9 +80,35 @@ public:
     }
 
     // *************************************************************************
+    // DataBase implementation (Public)
+    // *************************************************************************
+    /**
+     * Function to print the Cluster object into a string in XML format
+     *  @param xml the resulting XML string
+     *  @return a reference to the generated string
+     */
+    std::string& to_xml(std::string& xml) const override;
+
+    /**
+     *  Rebuilds the object from an xml formatted string
+     *    @param xml_str The xml-formatted string
+     *
+     *    @return 0 on success, -1 otherwise
+     */
+    int from_xml(const std::string &xml_str) override;
+
+private:
+
+    // -------------------------------------------------------------------------
+    // Friends
+    // -------------------------------------------------------------------------
+
+    friend class ClusterPool;
+    friend class PoolSQL;
+
+    // *************************************************************************
     // VNC Port management function
     // *************************************************************************
-
     /**
      *  Returns a free VNC port, it will try first to allocate base_port + vmid.
      *  If this port is not free the first lower port from the VNC_PORT/START
@@ -186,7 +117,7 @@ public:
      *    @param port reserved
      *    @return 0 on success
      */
-    int get_vnc_port(int vmid, unsigned int& port)
+    int get_vnc_port(int vmid, unsigned int& port) const
     {
         unsigned int base_port = vnc_bitmap.get_start_bit();
         unsigned int hint_port = base_port + (vmid % (65535 - base_port));
@@ -205,39 +136,11 @@ public:
     }
 
     // *************************************************************************
-    // DataBase implementation (Public)
-    // *************************************************************************
-
-    /**
-     * Function to print the Cluster object into a string in XML format
-     *  @param xml the resulting XML string
-     *  @return a reference to the generated string
-     */
-    string& to_xml(string& xml) const;
-
-    /**
-     *  Rebuilds the object from an xml formatted string
-     *    @param xml_str The xml-formatted string
-     *
-     *    @return 0 on success, -1 otherwise
-     */
-    int from_xml(const string &xml_str);
-
-private:
-
-    // -------------------------------------------------------------------------
-    // Friends
-    // -------------------------------------------------------------------------
-
-    friend class ClusterPool;
-
-    // *************************************************************************
     // Constructor
     // *************************************************************************
-    Cluster(int id, const string& name, ClusterTemplate*  cl_template,
+    Cluster(int id, const std::string& name,
+            std::unique_ptr<ClusterTemplate>  cl_template,
             const VectorAttribute& vnc_conf);
-
-    virtual ~Cluster(){};
 
     // *************************************************************************
     // Attributes (Private)
@@ -251,19 +154,7 @@ private:
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * table;
 
-    static const char * datastore_table;
-    static const char * datastore_db_names;
-    static const char * datastore_db_bootstrap;
-
-    static const char * network_table;
-    static const char * network_db_names;
-    static const char * network_db_bootstrap;
-
-    static const char * bitmap_table;
     /**
      *  Execute an INSERT or REPLACE Sql query.
      *    @param db The SQL DB
@@ -271,35 +162,20 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Cluster
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        int rc;
-        ostringstream oss;
-
-        oss.str(Cluster::db_bootstrap);
-        rc = db->exec_local_wr(oss);
-
-        oss.str(Cluster::datastore_db_bootstrap);
-        rc += db->exec_local_wr(oss);
-
-        oss.str(Cluster::network_db_bootstrap);
-        rc += db->exec_local_wr(oss);
-
-        return rc;
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the Cluster in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
+    int insert(SqlDB *db, std::string& error_str) override
     {
         int rc;
 
@@ -318,15 +194,21 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
 
-        int rc = insert_replace(db, true, error_str);
+        return insert_replace(db, true, error_str);
+    }
 
-        rc += vnc_bitmap.update(db);
-
-        return rc;
+    /**
+     *  Writes/updates the vnc_bitmap data in the database.
+     *    @param db pointer to the db
+     *    @return 0 on success
+     */
+    int update_vnc_bitmap(SqlDB *db)
+    {
+        return vnc_bitmap.update(db);
     }
 
     /**
@@ -334,7 +216,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB *db)
+    int select(SqlDB *db) override
     {
         int rc = PoolObjectSQL::select(db);
 
@@ -351,7 +233,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-     int select(SqlDB *db, const string& _name, int _uid)
+     int select(SqlDB *db, const std::string& _name, int _uid) override
      {
          int rc = PoolObjectSQL::select(db, _name, _uid);
 
@@ -370,14 +252,84 @@ private:
      * @param error_msg Error message, if any.
      * @return 0 if cluster can be dropped, -1 otherwise
      */
-    int check_drop(string& error_msg);
+    int check_drop(std::string& error_msg);
 
     /**
      *  Factory method for cluster templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new ClusterTemplate;
+        return std::make_unique<ClusterTemplate>();
+    }
+
+    /**
+     * Add a resource to the corresponding set.
+     * @return 0 on success
+     */
+    int add_resource(PoolObjectSQL::ObjectType type, int resource_id,
+                     std::string& error_msg)
+    {
+        std::ostringstream oss;
+
+        int rc;
+
+        switch (type)
+        {
+            case PoolObjectSQL::DATASTORE:
+                rc = datastores.add(resource_id);
+                break;
+            case PoolObjectSQL::NET:
+                rc = vnets.add(resource_id);
+                break;
+            case PoolObjectSQL::HOST:
+                rc = hosts.add(resource_id);
+                break;
+            default:
+                oss << "Invalid resource type: "<< PoolObjectSQL::type_to_str(type);
+                error_msg = oss.str();
+                return -1;
+        }
+
+        if (rc != 0)
+        {
+            oss << PoolObjectSQL::type_to_str(type) << " ID is already in the cluster set.";
+            error_msg = oss.str();
+        }
+
+        return rc;
+    }
+
+    /**
+     * Remove a resource from the corresponding set.
+     * @return 0 on success
+     */
+    int del_resource(PoolObjectSQL::ObjectType type, int resource_id,
+                     std::string& error_msg)
+    {
+        int rc;
+
+        switch (type)
+        {
+            case PoolObjectSQL::DATASTORE:
+                rc = datastores.del(resource_id);
+                break;
+            case PoolObjectSQL::NET:
+                rc = vnets.del(resource_id);
+                break;
+            case PoolObjectSQL::HOST:
+                rc = hosts.del(resource_id);
+                break;
+            default:
+                error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
+                return -1;
+        }
+
+        if (rc != 0)
+        {
+            error_msg = PoolObjectSQL::type_to_str(type) + " is not in the cluster set.";
+        }
+
+        return rc;
     }
 };
 

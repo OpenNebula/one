@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 
 #include "PoolSQL.h"
 #include "Document.h"
+#include "OneDB.h"
 
 /**
  *  The Document Pool class.
@@ -27,7 +28,10 @@ class DocumentPool : public PoolSQL
 {
 public:
 
-    DocumentPool(SqlDB * db) : PoolSQL(db, Document::table){};
+    DocumentPool(SqlDB * db, std::vector<const SingleAttribute *>& ea) :
+        PoolSQL(db, one_db::doc_table) {
+        DocumentTemplate::parse_encrypted(ea);
+    };
 
     ~DocumentPool(){};
 
@@ -48,16 +52,17 @@ public:
      */
     int allocate(int                      uid,
                  int                      gid,
-                 const string&            uname,
-                 const string&            gname,
+                 const std::string&       uname,
+                 const std::string&       gname,
                  int                      umask,
                  int                      type,
-                 Template *               template_contents,
+                 std::unique_ptr<Template> template_contents,
                  int *                    oid,
-                 string&                  error_str)
+                 std::string&             error_str)
     {
         *oid = PoolSQL::allocate(
-            new Document(-1, uid, gid, uname, gname, umask, type, template_contents),
+            new Document(-1, uid, gid, uname, gname, umask, type,
+                         std::move(template_contents)),
             error_str);
 
         return *oid;
@@ -65,30 +70,43 @@ public:
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param oid the object unique identifier
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Document unique identifier
+     *   @return a pointer to the Document, nullptr in case of failure
      */
-    Document * get(int oid, bool lock)
+    std::unique_ptr<Document> get(int oid)
     {
-        return static_cast<Document *>(PoolSQL::get(oid,lock));
-    };
+        return PoolSQL::get<Document>(oid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Document unique identifier
+     *   @return a pointer to the Document, nullptr in case of failure
+     */
+    std::unique_ptr<Document> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<Document>(oid);
+    }
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "DOCUMENT_POOL", Document::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "DOCUMENT_POOL", "body", one_db::doc_table,
+                             where, sid, eid, desc);
     };
 
     /**

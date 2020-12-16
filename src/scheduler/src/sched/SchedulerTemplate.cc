@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,8 @@
 
 #include "SchedulerTemplate.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -26,9 +28,7 @@ const char * SchedulerTemplate::conf_name="sched.conf";
 
 void SchedulerTemplate::set_conf_default()
 {
-    SingleAttribute *   attribute;
     VectorAttribute *   vattribute;
-    string              value;
     map<string,string>  vvalue;
 
 /*
@@ -44,56 +44,19 @@ void SchedulerTemplate::set_conf_default()
 #  DEFAULT_SCHED
 #  DEFAULT_DS_SCHED
 #  LIVE_RESCHEDS
+#  COLD_MIGRATE_MODE
 #  LOG
 #-------------------------------------------------------------------------------
 */
-    //MESSAGE_SIZE
-    value = "1073741824";
-
-    attribute = new SingleAttribute("MESSAGE_SIZE",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //TIMEOUT
-    value = "60";
-
-    attribute = new SingleAttribute("TIMEOUT",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //ONE_XMLRPC
-    value = "http://localhost:2633/RPC2";
-
-    attribute = new SingleAttribute("ONE_XMLRPC",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // SCHED_INTERVAL
-    value = "30";
-
-    attribute = new SingleAttribute("SCHED_INTERVAL",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // MAX_VM
-    value = "300";
-
-    attribute = new SingleAttribute("MAX_VM",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    // MAX_DISPATCH
-    value = "30";
-
-    attribute = new SingleAttribute("MAX_DISPATCH",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //MAX_HOST
-    value = "1";
-
-    attribute = new SingleAttribute("MAX_HOST",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
-
-    //LIVE_RESCHEDS
-    value = "0";
-
-    attribute = new SingleAttribute("LIVE_RESCHEDS",value);
-    conf_default.insert(make_pair(attribute->name(),attribute));
+    set_conf_single("MESSAGE_SIZE", "1073741824");
+    set_conf_single("TIMEOUT", "60");
+    set_conf_single("ONE_XMLRPC", "http://localhost:2633/RPC2");
+    set_conf_single("SCHED_INTERVAL", "30");
+    set_conf_single("MAX_VM", "300");
+    set_conf_single("MAX_DISPATCH", "30");
+    set_conf_single("MAX_HOST", "1");
+    set_conf_single("LIVE_RESCHEDS", "0");
+    set_conf_single("COLD_MIGRATE_MODE", "0");
 
     //DEFAULT_SCHED
     vvalue.clear();
@@ -108,6 +71,16 @@ void SchedulerTemplate::set_conf_default()
 
     vattribute = new VectorAttribute("DEFAULT_DS_SCHED",vvalue);
     conf_default.insert(make_pair(vattribute->name(),vattribute));
+
+    //DEFAULT_NIC_SCHED
+    vvalue.clear();
+    vvalue.insert(make_pair("POLICY","1"));
+
+    vattribute = new VectorAttribute("DEFAULT_NIC_SCHED",vvalue);
+    conf_default.insert(make_pair(vattribute->name(),vattribute));
+
+    set_conf_single("MEMORY_SYSTEM_DS_SCALE", "0");
+    set_conf_single("DIFFERENT_VNETS", "YES");
 
     //LOG CONFIGURATION
     vvalue.clear();
@@ -195,6 +168,51 @@ string SchedulerTemplate::get_ds_policy() const
 
         case 1: //Striping
             rank = "FREE_MB";
+        break;
+
+        case 2: //Custom
+            rank = sched->vector_value("RANK");
+        break;
+
+        case 3: //Fixed
+            rank = "PRIORITY";
+        break;
+
+        default:
+            rank = "";
+    }
+
+    return rank;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string SchedulerTemplate::get_nics_policy() const
+{
+    int    policy;
+    string rank;
+
+    istringstream iss;
+
+    const  VectorAttribute * sched = get("DEFAULT_NIC_SCHED");
+
+    if (sched == 0)
+    {
+        return "";
+    }
+
+    iss.str(sched->vector_value("POLICY"));
+    iss >> policy;
+
+    switch (policy)
+    {
+        case 0: //Packing
+            rank = "- USED_LEASES";
+        break;
+
+        case 1: //Striping
+            rank = "USED_LEASES";
         break;
 
         case 2: //Custom

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,27 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerPoolInfoFilter.h"
+#include "HookLog.h"
+#include "Nebula.h"
+#include "AuthManager.h"
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "MarketPlaceAppPool.h"
+#include "MarketPlacePool.h"
+#include "SecurityGroupPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
+#include "OneDB.h"
 
 using namespace std;
 
@@ -82,270 +103,6 @@ bool RequestManagerPoolInfoFilter::use_filter(RequestAttributes& att,
     }
 
     return all;
-};
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void VirtualMachinePoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
-    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
-    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
-    int state       = xmlrpc_c::value_int(paramList.getInt(4));
-
-    ostringstream state_filter;
-
-    if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
-        ( state > VirtualMachine::CLONING_FAILURE ))
-    {
-        att.resp_msg = "Incorrect filter_flag, state";
-        failure_response(XML_RPC_API, att);
-        return;
-    }
-
-    switch(state)
-    {
-        case VirtualMachinePoolInfo::ALL_VM:
-            break;
-
-        case VirtualMachinePoolInfo::NOT_DONE:
-            state_filter << "state <> " << VirtualMachine::DONE;
-            break;
-
-        default:
-            state_filter << "state = " << state;
-            break;
-    }
-
-    dump(att, filter_flag, start_id, end_id, state_filter.str(), "");
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void VirtualMachinePoolAccounting::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
-    int time_start  = xmlrpc_c::value_int(paramList.getInt(2));
-    int time_end    = xmlrpc_c::value_int(paramList.getInt(3));
-
-    ostringstream oss;
-    string        where;
-    int           rc;
-
-    if ( filter_flag < GROUP )
-    {
-        att.resp_msg = "Incorrect filter_flag";
-        failure_response(XML_RPC_API, att);
-        return;
-    }
-
-    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
-
-    rc = (static_cast<VirtualMachinePool *>(pool))->dump_acct(oss,
-                                                              where,
-                                                              time_start,
-                                                              time_end);
-    if ( rc != 0 )
-    {
-        att.resp_msg = "Internal error";
-        failure_response(INTERNAL, att);
-        return;
-    }
-
-    success_response(oss.str(), att);
-
-    return;
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void VirtualMachinePoolShowback::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
-    int start_month = xmlrpc_c::value_int(paramList.getInt(2));
-    int start_year  = xmlrpc_c::value_int(paramList.getInt(3));
-    int end_month   = xmlrpc_c::value_int(paramList.getInt(4));
-    int end_year    = xmlrpc_c::value_int(paramList.getInt(5));
-
-    ostringstream oss;
-    string        where;
-    int           rc;
-
-    if ( filter_flag < GROUP )
-    {
-        att.resp_msg = "Incorrect filter_flag";
-        failure_response(XML_RPC_API, att);
-        return;
-    }
-
-    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
-
-    rc = (static_cast<VirtualMachinePool *>(pool))->dump_showback(oss,
-                                                              where,
-                                                              start_month,
-                                                              start_year,
-                                                              end_month,
-                                                              end_year);
-    if ( rc != 0 )
-    {
-        att.resp_msg = "Internal error";
-        failure_response(INTERNAL, att);
-        return;
-    }
-
-    success_response(oss.str(), att);
-
-    return;
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void VirtualMachinePoolMonitoring::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
-
-    ostringstream oss;
-    string        where;
-    int           rc;
-
-    if ( filter_flag < GROUP )
-    {
-        att.resp_msg = "Incorrect filter_flag";
-        failure_response(XML_RPC_API, att);
-        return;
-    }
-
-    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
-
-    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, where);
-
-    if ( rc != 0 )
-    {
-        att.resp_msg = "Internal error";
-        failure_response(INTERNAL, att);
-        return;
-    }
-
-    success_response(oss.str(), att);
-
-    return;
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void HostPoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    dump(att, ALL, -1, -1, "", "");
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void HostPoolMonitoring::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    ostringstream oss;
-    string        where;
-    int           rc;
-
-    where_filter(att, ALL, -1, -1, "", "", false, false, false, where);
-
-    rc = (static_cast<HostPool *>(pool))->dump_monitoring(oss, where);
-
-    if ( rc != 0 )
-    {
-        att.resp_msg = "Internal error";
-        failure_response(INTERNAL, att);
-        return;
-    }
-
-    success_response(oss.str(), att);
-
-    return;
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void GroupPoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    dump(att, ALL, -1, -1, "", "");
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void UserPoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    dump(att, ALL, -1, -1, "", "");
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void DatastorePoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    dump(att, ALL, -1, -1, "", "");
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void ClusterPoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    dump(att, ALL, -1, -1, "", "");
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void DocumentPoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
-    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
-    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
-    int type        = xmlrpc_c::value_int(paramList.getInt(4));
-
-    ostringstream oss;
-    oss << "type = " << type;
-
-    dump(att, filter_flag, start_id, end_id, oss.str(), "");
-}
-
-/* ------------------------------------------------------------------------- */
-/* ------------------------------------------------------------------------- */
-
-void ZonePoolInfo::request_execute(
-        xmlrpc_c::paramList const& paramList,
-        RequestAttributes& att)
-{
-    dump(att, ALL, -1, -1, "", "");
 }
 
 /* ------------------------------------------------------------------------- */
@@ -387,7 +144,7 @@ void RequestManagerPoolInfoFilter::where_filter(
 
     if (!oid_str.empty())
     {
-        filter << "(" << oid_str << ")" ;
+        filter << "(" << oid_str << ")";
         empty = false;
     }
 
@@ -437,9 +194,16 @@ void RequestManagerPoolInfoFilter::dump(
         const string&      and_clause,
         const string&      or_clause)
 {
-    ostringstream oss;
-    string        where_string, limit_clause;
-    int           rc;
+    std::string str;
+
+    std::ostringstream oss;
+
+    std::string where_string, limit_clause;
+    std::string desc;
+
+    int limit_end_id = -1;
+
+    int rc;
 
     if ( filter_flag < GROUP )
     {
@@ -461,12 +225,28 @@ void RequestManagerPoolInfoFilter::dump(
 
     if ( end_id < -1 )
     {
-        oss << start_id << "," << -end_id;
-        limit_clause = oss.str();
-        oss.str("");
+        limit_end_id = -end_id;
     }
 
-    rc = pool->dump(oss, where_string, limit_clause);
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid,
+            "API_LIST_ORDER", desc);
+
+    if ( extended )
+    {
+        rc = pool->dump_extended(str,
+                                 where_string,
+                                 start_id,
+                                 limit_end_id,
+                                 one_util::toupper(desc) == "DESC");
+    }
+    else
+    {
+        rc = pool->dump(str,
+                        where_string,
+                        start_id,
+                        limit_end_id,
+                        one_util::toupper(desc) == "DESC");
+    }
 
     if ( rc != 0 )
     {
@@ -475,9 +255,347 @@ void RequestManagerPoolInfoFilter::dump(
         return;
     }
 
-    success_response(oss.str(), att);
+    success_response(str, att);
 
     return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualMachinePoolInfo::VirtualMachinePoolInfo()
+    : RequestManagerPoolInfoFilter("one.vmpool.info",
+                                   "Returns the virtual machine instances pool",
+                                   "A:siiiis")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmpool();
+    auth_object = PoolObjectSQL::VM;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualMachinePoolInfo::VirtualMachinePoolInfo(const string& method_name,
+                                               const string& help,
+                                               const string& signature)
+    : RequestManagerPoolInfoFilter(method_name, help, signature)
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmpool();
+    auth_object = PoolObjectSQL::VM;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
+    int state       = xmlrpc_c::value_int(paramList.getInt(4));
+
+    std::string fts_query;
+
+    if (paramList.size() > 5)
+    {
+        fts_query = xmlrpc_c::value_string(paramList.getString(5));
+
+        if (!fts_query.empty() && !pool->supports(SqlDB::SqlFeature::FTS))
+        {
+            att.resp_msg = "Full text search is not supported by the SQL backend";
+
+            failure_response(INTERNAL, att);
+            return;
+        }
+    }
+
+    ostringstream and_filter;
+
+    if (( state < VirtualMachinePoolInfo::ALL_VM ) ||
+        ( state > VirtualMachine::CLONING_FAILURE ))
+    {
+        att.resp_msg = "Incorrect filter_flag, state";
+
+        failure_response(XML_RPC_API, att);
+        return;
+    }
+
+    switch (state)
+    {
+        case VirtualMachinePoolInfo::ALL_VM:
+            break;
+
+        case VirtualMachinePoolInfo::NOT_DONE:
+            and_filter << "state <> " << VirtualMachine::DONE;
+            break;
+
+        default:
+            and_filter << "state = " << state;
+            break;
+    }
+
+    if (!fts_query.empty())
+    {
+        char * _fts_query = pool->escape_str(fts_query);
+
+        if ( _fts_query == 0 )
+        {
+            att.resp_msg = "Error building search query";
+
+            failure_response(INTERNAL, att);
+            return;
+        }
+
+        if (!and_filter.str().empty())
+        {
+            and_filter << " AND ";
+        }
+
+        and_filter << "MATCH(search_token) AGAINST ('+\"";
+        one_util::escape_token(_fts_query, and_filter);
+        and_filter << "\"' in boolean mode)";
+
+        pool->free_str(_fts_query);
+    }
+
+    dump(att, filter_flag, start_id, end_id, and_filter.str(), "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualMachinePoolInfoSet::VirtualMachinePoolInfoSet()
+    : RequestManagerPoolInfoFilter("one.vmpool.infoset",
+                                   "Returns a virtual machine instances set",
+                                   "A:ss")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmpool();
+    auth_object = PoolObjectSQL::VM;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolInfoSet::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    std::string ids_str = xmlrpc_c::value_string(paramList.getString(1));
+    extended            = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+
+    ostringstream and_filter;
+    ostringstream oss;
+    std::set<unsigned int> ids;
+
+    one_util::split_unique(ids_str, ',', ids);
+
+    if (ids.empty())
+    {
+        std::string empty_pool = "<VM_POOL></VM_POOL>";
+        success_response(empty_pool, att);
+        return;
+    }
+
+    and_filter << "oid in (" << one_util::join(ids, ',') << ")";
+
+    dump(att, -2, -1, -1, and_filter.str(), "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualMachinePoolAccounting::VirtualMachinePoolAccounting()
+    : RequestManagerPoolInfoFilter("one.vmpool.accounting",
+                                   "Returns the virtual machine history records",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmpool();
+    auth_object = PoolObjectSQL::VM;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolAccounting::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int time_start  = xmlrpc_c::value_int(paramList.getInt(2));
+    int time_end    = xmlrpc_c::value_int(paramList.getInt(3));
+
+    string oss;
+    string where;
+    int rc;
+
+    if ( filter_flag < GROUP )
+    {
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
+        return;
+    }
+
+    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_acct(oss,
+                                                              where,
+                                                              time_start,
+                                                              time_end);
+    if ( rc != 0 )
+    {
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(oss, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualMachinePoolShowback::VirtualMachinePoolShowback()
+    : RequestManagerPoolInfoFilter("one.vmpool.showback",
+                                   "Returns the virtual machine showback records",
+                                   "A:siiiii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmpool();
+    auth_object = PoolObjectSQL::VM;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolShowback::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_month = xmlrpc_c::value_int(paramList.getInt(2));
+    int start_year  = xmlrpc_c::value_int(paramList.getInt(3));
+    int end_month   = xmlrpc_c::value_int(paramList.getInt(4));
+    int end_year    = xmlrpc_c::value_int(paramList.getInt(5));
+
+    string oss;
+    string        where;
+    int           rc;
+
+    if ( filter_flag < GROUP )
+    {
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
+        return;
+    }
+
+    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_showback(oss,
+                                                              where,
+                                                              start_month,
+                                                              start_year,
+                                                              end_month,
+                                                              end_year);
+    if ( rc != 0 )
+    {
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(oss, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualMachinePoolMonitoring::VirtualMachinePoolMonitoring()
+    : RequestManagerPoolInfoFilter("one.vmpool.monitoring",
+                                   "Returns the virtual machine monitoring records",
+                                   "A:si")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmpool();
+    auth_object = PoolObjectSQL::VM;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualMachinePoolMonitoring::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+
+    string oss;
+    string where;
+    int rc;
+
+    int seconds = -1;
+
+    if ( filter_flag < GROUP )
+    {
+        att.resp_msg = "Incorrect filter_flag";
+        failure_response(XML_RPC_API, att);
+        return;
+    }
+
+    if (paramList.size() > 2)
+    {
+        seconds = xmlrpc_c::value_int(paramList.getInt(2));
+    }
+
+    where_filter(att, filter_flag, -1, -1, "", "", false, false, false, where);
+
+    rc = (static_cast<VirtualMachinePool *>(pool))->dump_monitoring(oss, where, seconds);
+
+    if ( rc != 0 )
+    {
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(oss, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+TemplatePoolInfo::TemplatePoolInfo()
+    : RequestManagerPoolInfoFilter("one.templatepool.info",
+                                   "Returns the virtual machine template pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_tpool();
+    auth_object = PoolObjectSQL::TEMPLATE;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualNetworkPoolInfo::VirtualNetworkPoolInfo()
+    : RequestManagerPoolInfoFilter("one.vnpool.info",
+                                   "Returns the virtual network pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vnpool();
+    auth_object = PoolObjectSQL::NET;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -489,6 +607,8 @@ void VirtualNetworkPoolInfo::request_execute(
     int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
     int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
     int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
+
+    int limit_end_id = -1;
 
     if ( filter_flag < GROUP )
     {
@@ -522,16 +642,20 @@ void VirtualNetworkPoolInfo::request_execute(
 
     if ( end_id < -1 )
     {
-        limit_clause << start_id << "," << -end_id;
+        limit_end_id = -end_id;
     }
 
     /* ---------------------------------------------------------------------- */
     /*  Get the VNET pool                                                     */
     /* ---------------------------------------------------------------------- */
+    std::string pool_oss;
+    std::string desc;
 
-    ostringstream pool_oss;
+    Nebula::instance().get_configuration_attribute(att.uid, att.gid,
+            "API_LIST_ORDER", desc);
 
-    int rc = pool->dump(pool_oss, where_string.str(), limit_clause.str());
+    int rc = pool->dump(pool_oss, where_string.str(), start_id, limit_end_id,
+            one_util::toupper(desc) == "DESC");
 
     if ( rc != 0 )
     {
@@ -540,9 +664,278 @@ void VirtualNetworkPoolInfo::request_execute(
         return;
     }
 
-    success_response(pool_oss.str(), att);
+    success_response(pool_oss, att);
 
     return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VirtualNetworkTemplatePoolInfo::VirtualNetworkTemplatePoolInfo()
+    : RequestManagerPoolInfoFilter("one.vntemplatepool.info",
+                                   "Returns the virtual network template pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vntpool();
+    auth_object = PoolObjectSQL::VNTEMPLATE;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+ImagePoolInfo::ImagePoolInfo()
+    : RequestManagerPoolInfoFilter("one.imagepool.info",
+                                   "Returns the image pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_ipool();
+    auth_object = PoolObjectSQL::IMAGE;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+HostPoolInfo::HostPoolInfo()
+    : RequestManagerPoolInfoFilter("one.hostpool.info",
+                                   "Returns the host pool",
+                                   "A:s")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_hpool();
+    auth_object = PoolObjectSQL::HOST;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void HostPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+HostPoolMonitoring::HostPoolMonitoring()
+    : RequestManagerPoolInfoFilter("one.hostpool.monitoring",
+                                   "Returns the host monitoring records",
+                                   "A:s")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_hpool();
+    auth_object = PoolObjectSQL::HOST;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void HostPoolMonitoring::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    string oss;
+    string where;
+
+    int rc;
+
+    int seconds = -1;
+
+    if (paramList.size() > 1)
+    {
+        seconds = xmlrpc_c::value_int(paramList.getInt(1));
+    }
+
+    where_filter(att, ALL, -1, -1, "", "", false, false, false, where);
+
+    rc = (static_cast<HostPool *>(pool))->dump_monitoring(oss, where, seconds);
+
+    if ( rc != 0 )
+    {
+        att.resp_msg = "Internal error";
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(oss, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+GroupPoolInfo::GroupPoolInfo()
+    : RequestManagerPoolInfoFilter("one.grouppool.info",
+                                   "Returns the group pool",
+                                   "A:s")
+{
+    Nebula& nd = Nebula::instance();
+    pool       = nd.get_gpool();
+    auth_object = PoolObjectSQL::GROUP;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void GroupPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+UserPoolInfo::UserPoolInfo()
+    : RequestManagerPoolInfoFilter("one.userpool.info",
+                                   "Returns the user pool",
+                                   "A:s")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_upool();
+    auth_object = PoolObjectSQL::USER;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void UserPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+DatastorePoolInfo::DatastorePoolInfo()
+    : RequestManagerPoolInfoFilter("one.datastorepool.info",
+                                   "Returns the datastore pool",
+                                   "A:s")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_dspool();
+    auth_object = PoolObjectSQL::DATASTORE;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void DatastorePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+ClusterPoolInfo::ClusterPoolInfo()
+    : RequestManagerPoolInfoFilter("one.clusterpool.info",
+                                   "Returns the cluster pool",
+                                   "A:s")
+{
+    Nebula& nd = Nebula::instance();
+    pool       = nd.get_clpool();
+    auth_object = PoolObjectSQL::CLUSTER;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ClusterPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+DocumentPoolInfo::DocumentPoolInfo()
+    : RequestManagerPoolInfoFilter("one.documentpool.info",
+                                   "Returns the generic document pool",
+                                   "A:siiii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_docpool();
+    auth_object = PoolObjectSQL::DOCUMENT;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void DocumentPoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    int filter_flag = xmlrpc_c::value_int(paramList.getInt(1));
+    int start_id    = xmlrpc_c::value_int(paramList.getInt(2));
+    int end_id      = xmlrpc_c::value_int(paramList.getInt(3));
+    int type        = xmlrpc_c::value_int(paramList.getInt(4));
+
+    ostringstream oss;
+    oss << "type = " << type;
+
+    dump(att, filter_flag, start_id, end_id, oss.str(), "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+ZonePoolInfo::ZonePoolInfo()
+    : RequestManagerPoolInfoFilter("one.zonepool.info",
+                                   "Returns the zone pool",
+                                   "A:s")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_zonepool();
+    auth_object = PoolObjectSQL::ZONE;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void ZonePoolInfo::request_execute(
+        xmlrpc_c::paramList const& paramList,
+        RequestAttributes& att)
+{
+    dump(att, ALL, -1, -1, "", "");
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+SecurityGroupPoolInfo::SecurityGroupPoolInfo()
+    : RequestManagerPoolInfoFilter("one.secgrouppool.info",
+                                   "Returns the security group pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_secgrouppool();
+    auth_object = PoolObjectSQL::SECGROUP;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+VdcPoolInfo::VdcPoolInfo()
+    : RequestManagerPoolInfoFilter("one.vdcpool.info",
+                                    "Returns the VDC pool",
+                                    "A:s")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vdcpool();
+    auth_object = PoolObjectSQL::VDC;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -558,6 +951,32 @@ void VdcPoolInfo::request_execute(
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+VirtualRouterPoolInfo::VirtualRouterPoolInfo()
+    : RequestManagerPoolInfoFilter("one.vrouterpool.info",
+                                   "Returns the virtual router pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vrouterpool();
+    auth_object = PoolObjectSQL::VROUTER;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+MarketPlacePoolInfo::MarketPlacePoolInfo()
+    : RequestManagerPoolInfoFilter("one.marketpool.info",
+                                   "Returns the marketplace pool",
+                                   "A:s")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_marketpool();
+    auth_object = PoolObjectSQL::MARKETPLACE;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 void MarketPlacePoolInfo::request_execute(
         xmlrpc_c::paramList const& paramList,
         RequestAttributes& att)
@@ -565,3 +984,156 @@ void MarketPlacePoolInfo::request_execute(
     dump(att, ALL, -1, -1, "", "");
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+MarketPlaceAppPoolInfo::MarketPlaceAppPoolInfo()
+    : RequestManagerPoolInfoFilter("one.marketapppool.info",
+                                   "Returns the market place pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_apppool();
+    auth_object = PoolObjectSQL::MARKETPLACEAPP;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+VMGroupPoolInfo::VMGroupPoolInfo():
+    RequestManagerPoolInfoFilter("one.vmgrouppool.info",
+                                    "Returns the vm group pool",
+                                    "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_vmgrouppool();
+    auth_object = PoolObjectSQL::VMGROUP;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+HookPoolInfo::HookPoolInfo()
+    : RequestManagerPoolInfoFilter("one.hookpool.info",
+                                   "Returns the hook pool",
+                                   "A:siii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_hkpool();
+    auth_object = PoolObjectSQL::HOOK;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+HookLogInfo::HookLogInfo()
+    : RequestManagerPoolInfoFilter("one.hooklog.info",
+                                   "Returns the hook pool log info",
+                                   "A:siiii")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_hkpool();
+    auth_object = PoolObjectSQL::HOOK;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HookLogInfo::request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att)
+{
+    int min_ts  = xmlrpc_c::value_int(_paramList.getInt(1));
+    int max_ts  = xmlrpc_c::value_int(_paramList.getInt(2));
+    int hook_id = xmlrpc_c::value_int(_paramList.getInt(3));
+    int rc_hook = xmlrpc_c::value_int(_paramList.getInt(4));
+
+    Nebula& nd = Nebula::instance();
+
+    HookLog*     hklog  = nd.get_hl();
+
+    PoolObjectAuth hk_perms;
+
+    ostringstream oss;
+    bool empty = true;
+
+    int rc;
+
+    string dump_xml;
+
+    /* ---------------------------------------------------------------------- */
+    /* Check permissions                                                      */
+    /* ---------------------------------------------------------------------- */
+
+    if (!att.is_oneadmin_group())
+    {
+        att.resp_id  = -1;
+
+        failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Build where clause                                                     */
+    /* ---------------------------------------------------------------------- */
+
+    if (min_ts >= 0)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        oss << "timestamp > " << min_ts;
+        empty = false;
+    }
+    if (max_ts >= 0)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        oss << "timestamp < " << max_ts;
+        empty = false;
+    }
+    if (hook_id >= 0)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        oss << "hkid = " << hook_id;
+        empty = false;
+    }
+    if (rc_hook == -1 || rc_hook == 1)
+    {
+        if (!empty)
+        {
+            oss << " AND ";
+        }
+
+        if (rc_hook == -1)
+        {
+            oss << "rc <> 0";
+        }
+        else
+        {
+            oss << "rc = 0";
+        }
+    }
+
+
+
+    rc = hklog->dump_log(oss.str(), dump_xml);
+
+    if (rc != 0)
+    {
+        failure_response(INTERNAL, att);
+        return;
+    }
+
+    success_response(dump_xml, att);
+
+    return;
+}

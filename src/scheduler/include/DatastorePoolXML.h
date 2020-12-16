@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,7 +21,6 @@
 #include "PoolXML.h"
 #include "DatastoreXML.h"
 
-using namespace std;
 
 class DatastorePoolXML : public PoolXML
 {
@@ -44,8 +43,6 @@ public:
 
 protected:
 
-    virtual int get_suitable_nodes(vector<xmlNodePtr>& content) = 0;
-
     void add_object(xmlNodePtr node);
 
     int load_info(xmlrpc_c::value &result);
@@ -60,7 +57,7 @@ public:
     SystemDatastorePoolXML(Client* client):DatastorePoolXML(client){};
 
 protected:
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=1 and STATE=0]", content);
     };
@@ -75,7 +72,7 @@ public:
     ImageDatastorePoolXML(Client* client):DatastorePoolXML(client){};
 
 protected:
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         return get_nodes("/DATASTORE_POOL/DATASTORE[TYPE=0]", content);
     };

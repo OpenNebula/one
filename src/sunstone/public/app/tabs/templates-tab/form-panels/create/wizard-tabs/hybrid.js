@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,6 +55,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-cloud';
     this.title = Locale.tr("Hybrid");
+    this.classes = "not_firecracker";
 
     this.oneEnabled = false;
 
@@ -184,7 +185,7 @@ define(function(require) {
       '<div class="row">' +
         '<div class="large-12 columns">' +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="ec2" id="amazonRadio' + htmlId + '"><label for="amazonRadio' + htmlId + '">Amazon EC2</label>' +
-          '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="AZURE" id="azureRadio' + htmlId + '"><label for="azureRadio' + htmlId + '">Microsoft Azure</label>' +
+          '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="azure" id="azureRadio' + htmlId + '"><label for="azureRadio' + htmlId + '">Microsoft Azure</label>' +
           oneInput +
           '<input type="radio" class="hybridRadio" name="hybrid' + htmlId + '" value="custom" id="customRadio' + htmlId + '"><label for="customRadio' + htmlId + '">' + Locale.tr("Custom") + '</label>' +
         '</div>' +
@@ -236,7 +237,7 @@ define(function(require) {
           $("#HOST", providerSection).append("<option value="+value.ID+">"+value.NAME+"</option>");
         });
         $("#HOST", providerSection)
-      } else if (this.value == "AZURE"){
+      } else if (this.value == "azure"){
         $(".hybrid_inputs", providerSection).append(AzureHTML());
       } else if (this.value == "opennebula"){
         $(".hybrid_inputs", providerSection).append(OpenNebulaHTML());

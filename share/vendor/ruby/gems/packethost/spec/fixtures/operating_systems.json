@@ -1,0 +1,83 @@
+{
+  "operating_systems": [
+    {
+      "slug": "centos_7",
+      "name": "CentOS 7",
+      "distro": "centos",
+      "version": "7",
+      "provisionable_on": [
+        "baremetal_1",
+        "baremetal_3"
+      ]
+    },
+    {
+      "slug": "centos_6",
+      "name": "CentOS 6",
+      "distro": "centos",
+      "version": "6",
+      "provisionable_on": [
+        "baremetal_1",
+        "baremetal_3"
+      ]
+    },
+    {
+      "slug": "coreos_stable",
+      "name": "CoreOS (stable)",
+      "distro": "coreos",
+      "version": "stable",
+      "provisionable_on": [
+        "baremetal_1"
+      ]
+    },
+    {
+      "slug": "coreos_beta",
+      "name": "CoreOS (beta)",
+      "distro": "coreos",
+      "version": "beta",
+      "provisionable_on": [
+        "baremetal_1"
+      ]
+    },
+    {
+      "slug": "coreos_alpha",
+      "name": "CoreOS (alpha)",
+      "distro": "coreos",
+      "version": "alpha",
+      "provisionable_on": [
+        "baremetal_1",
+        "baremetal_3"
+      ]
+    },
+    {
+      "slug": "debian_8",
+      "name": "Debian 8",
+      "distro": "debian",
+      "version": "8",
+      "provisionable_on": [
+        "baremetal_1",
+        "baremetal_0",
+        "baremetal_3"
+      ]
+    },
+    {
+      "slug": "debian_7",
+      "name": "Debian 7",
+      "distro": "debian",
+      "version": "7",
+      "provisionable_on": [
+        "baremetal_1"
+      ]
+    },
+    {
+      "slug": "ubuntu_14_04",
+      "name": "Ubuntu 14.04 LTS",
+      "distro": "ubuntu",
+      "version": "14.04",
+      "provisionable_on": [
+        "baremetal_1",
+        "baremetal_0",
+        "baremetal_3"
+      ]
+    }
+  ]
+}

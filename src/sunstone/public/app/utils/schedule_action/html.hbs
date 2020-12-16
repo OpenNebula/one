@@ -1,0 +1,134 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems }} {{! }} 
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may }} {{! not use this
+file except in compliance with the License. You may obtain }} {{! a copy of the License at }} {{! }} {{! http://www.apache.org/licenses/LICENSE-2.0
+}} {{! }} {{! Unless required by applicable law or agreed to in writing, software }} {{! distributed under the License is
+distributed on an "AS IS" BASIS, }} {{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. }} {{! See
+the License for the specific language governing permissions and }} {{! limitations under the License. }} {{! --------------------------------------------------------------------------
+}}
+
+<tr class="create">
+	<td id="title">
+		<h6 class="title_label">{{tr "New scheduled action"}}:</h6>
+	</td>
+</tr>
+<tr id="tr_schedule_base" class="create">
+	<td>
+		<select style="width: 80%" id="select_new_action" class="select_new_action" name="select_action">{{{actions}}}</select>
+	</td>
+	<td colspan="2">
+    <input type="checkbox" id="relative_time"/>
+    <label for="relative_time">{{tr "Relative Time"}}</label>
+  </td>
+</tr>
+<tr id="input_sched_action_form">
+  <td></td>
+  <td colspan="6">
+    <div style="display: flex;">
+      <input type="number" class="hide" id="diskid" placeholder="{{tr 'Disk Id'}}" style="width: 100%">
+      <input type="number" class="hide" id="snapid" placeholder="{{tr 'Snap Id'}}" style="width: 100%">
+      <input type="string" id="snapname" class="hide" placeholder="{{tr 'Snap Name'}}" style="width: 100%">
+    </div>
+  </td>
+</tr>
+<tr id="relative_time_form" class="hide">
+  <td></td>
+  <td>
+    <input type="number" id="time_number" placeholder="{{tr 'Time'}}" style="width: 80%">
+  </td>
+  <td>
+    <select id="time_unit" style="width: 80%">
+      <option value="years">{{tr "Years"}}</option>
+      <option value="months">{{tr "Months"}}</option>
+      <option value="weeks">{{tr "Weeks"}}</option>
+      <option value="days">{{tr "Days"}}</option>
+      <option value="hours">{{tr "Hours"}}</option>
+      <option value="minutes">{{tr "Minutes"}}</option>
+    </select>
+  </td>
+  <td></td>
+</tr>
+<tr id="no_relative_time_form">
+  <td></td>
+  <td>
+		<input style="width: 80%" id="date_input" type="text" />
+	</td>
+	<td>
+		<input style="width: 80%" class="timepicker" id="time_input" type="text" />
+	</td>
+	<td>
+		<input id="schedule_type" type="checkbox">
+		<label>{{tr "Periodic"}}</label>
+	</td>
+</tr>
+<tr class="periodic create">
+	<td>
+		<label class="title_label">{{tr "Repeat"}}: </label>
+	</td>
+	<td>
+		<select style="width: 75%" id="repeat" name="repeat">
+			<option value="week">{{tr "Weekly"}}</option>
+			<option value="month">{{tr "Monthly"}}</option>
+			<option value="year">{{tr "Yearly"}}</option>
+			<option value="hour">{{tr "Hourly"}}</option>
+		</select>
+	</td>
+	<td id="td_days" colspan="3">
+		<div id="days_week_value" style="margin: 10px 0 10px 0;">
+			<input type="checkbox" id="mon" name="days" value="0">
+			<label for="mon">{{tr "Mo"}}</label>
+			<input type="checkbox" id="tue" name="days" value="1">
+			<label for="tue">{{tr "Tu"}}</label>
+			<input type="checkbox" id="wed" name="days" value="2">
+			<label for="wed">{{tr "We"}}</label>
+			<input type="checkbox" id="thu" name="days" value="3">
+			<label for="thu">{{tr "Th"}}</label>
+			<input type="checkbox" id="fri" name="days" value="4">
+			<label for="fri">{{tr "Fr"}}</label>
+			<input type="checkbox" id="sat" name="days" value="5">
+			<label for="sat">{{tr "Sa"}}</label>
+			<input type="checkbox" id="sun" name="days" value="6">
+			<label for="sun">{{tr "Su"}}</label>
+		</div>
+	</td>
+</tr>
+<tr class="periodic create">
+	<td>
+		<label class="title_label">{{tr "Ends"}}: </label>
+	</td>
+</tr>
+
+<tr class="periodic create">
+	<td>
+		<input type="radio" name="end_type" id="end_type_ever" value="never" checked>
+		<label for="end_type_ever">{{tr "Never"}}</label>
+	</td>
+</tr>
+<tr class="periodic create">
+	<td>
+		<input type="radio" name="end_type" id="end_type_n_rep" value="date">
+		<label for="end_type_date">{{tr "On"}}</label>
+	</td>
+	<td id="td_end_value_date">
+		<input class="end_input" id="end_value_date" type="text" disabled/>
+	</td>
+</tr>
+<tr class="periodic create">
+	<td>
+		<input type="radio" name="end_type" id="end_type_n_rep" value="n_rep">
+		<label for="end_type_n_rep">{{tr "After"}}</label>
+	</td>
+	<td id="td_end_value_nrep">
+		<input class="end_input" id="end_value_n_rep" type="number" placeholder="1" disabled/>
+	</td>
+	<td>
+		<label for="end_value_date">{{tr "times"}}</label>
+	</td>
+</tr>
+<br>
+<tr class="create">
+	<td>
+		<button style="margin-top: 15px;" id="add_{{res}}_action_json" class="button small success secondary radius">{{tr "Add"}}</button>
+    <button style="margin-top: 15px;" id="edit_{{res}}_action_json" class="button small warning radius">{{tr "Edit"}}</button>
+	</td>
+</tr>

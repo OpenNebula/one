@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,23 +16,31 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/onetemplate_helper'
 require 'one_helper/onevm_helper'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "`onetemplate` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`onetemplate` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneTemplateHelper.new
@@ -41,13 +49,37 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
+    USE = {
+        :name => 'use',
+        :large => '--use',
+        :description => 'lock use actions'
+    }
+
+    MANAGE = {
+        :name => 'manage',
+        :large => '--manage',
+        :description => 'lock manage actions'
+    }
+
+    ADMIN = {
+        :name => 'admin',
+        :large => '--admin',
+        :description => 'lock admin actions'
+    }
+
+    ALL = {
+        :name => 'all',
+        :large => '--all',
+        :description => 'lock all actions'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+    set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
-    list_options = CLIHelper::OPTIONS
-    list_options << OpenNebulaHelper::XML
+    list_options  = CLIHelper::OPTIONS
+    list_options += OpenNebulaHelper::FORMAT
     list_options << OpenNebulaHelper::NUMERIC
     list_options << OpenNebulaHelper::DESCRIBE
 
@@ -56,18 +88,18 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         OneTemplateHelper::MULTIPLE,
         OneTemplateHelper::USERDATA,
         OneVMHelper::HOLD,
-        OneTemplateHelper::PERSISTENT,
+        OneTemplateHelper::PERSISTENT
     ]
 
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
 
-    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "USER")
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
     end
 
     set :format, :templateid, OneTemplateHelper.to_id_desc do |arg|
@@ -101,18 +133,17 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
           - using two disks:
 
-            onetempate create --name "test vm" --memory 128 --cpu 1 \\
-                              --disk arch,data
+            onetemplate create --name "test vm" --memory 128 --cpu 1 \\
+                               --disk arch,data
 
     EOT
 
     command :create, create_desc, [:file, nil], :options =>
-            [OneTemplateHelper::VM_NAME]+OpenNebulaHelper::TEMPLATE_OPTIONS+
+            [OneTemplateHelper::VM_NAME] + OpenNebulaHelper::TEMPLATE_OPTIONS +
             [OpenNebulaHelper::DRY] do
-
         if args[0] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts "You can not use both template file and template"<<
-                " creation options."
+            STDERR.puts 'You can not use both template file and template' \
+                        ' creation options.'
             next -1
         end
 
@@ -137,9 +168,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 else
                     tmpl.allocate(template)
                 end
-            rescue => e
-                STDERR.puts e.messsage
-                exit -1
+            rescue StandardError => e
+                STDERR.puts e.message
+                exit(-1)
             end
         end
     end
@@ -149,11 +180,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :clone, clone_desc, :templateid, :name,
-            :options =>OneTemplateHelper::RECURSIVE do
-
+            :options => OneTemplateHelper::RECURSIVE do
         recursive = (options[:recursive] == true)
 
-        helper.perform_action(args[0],options,"cloned") do |t|
+        helper.perform_action(args[0], options, 'cloned') do |t|
             res = t.clone(args[1], recursive)
 
             if !OpenNebula.is_error?(res)
@@ -169,11 +199,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :templateid_list],
-            :options =>OneTemplateHelper::RECURSIVE do
-
+            :options => OneTemplateHelper::RECURSIVE do
         recursive = (options[:recursive] == true)
 
-        helper.perform_actions(args[0],options,"deleted") do |t|
+        helper.perform_actions(args[0], options, 'deleted') do |t|
             t.delete(recursive)
         end
     end
@@ -187,27 +216,28 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
-            :options=>instantiate_options+OpenNebulaHelper::TEMPLATE_OPTIONS do
-        exit_code=0
+            :options => instantiate_options +
+                        OpenNebulaHelper::TEMPLATE_OPTIONS do
+        exit_code = 0
 
         if args[1] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts "You cannot use both template file and template"<<
-                " creation options."
+            STDERR.puts 'You cannot use both template file and template' \
+                        ' creation options.'
             next -1
         end
 
-        number = options[:multiple] || 1
-        user_inputs = nil
+        number      = options[:multiple] || 1
+        user_inputs = options[:user_inputs]
 
         number.times do |i|
-            exit_code=helper.perform_action(args[0], options,
-                                            "instantiated") do |t|
+            exit_code = helper.perform_action(args[0], options,
+                                              'instantiated') do |t|
                 name = options[:name]
-                name = name.gsub("%i",i.to_s) if name
+                name = name.gsub('%i', i.to_s) if name
 
-                on_hold = options[:hold] != nil
+                on_hold = !options[:hold].nil?
 
-                extra_template = ""
+                extra_template = ''
                 rc = t.info
 
                 if OpenNebula.is_error?(rc)
@@ -228,11 +258,22 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     extra_template = res.last
                 end
 
-                user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash) unless user_inputs
+                if !user_inputs
+                    user_inputs = OneTemplateHelper.get_user_inputs(t.to_hash)
+                else
+                    optionals = OneTemplateHelper.get_user_inputs(
+                        t.to_hash,
+                        options[:user_inputs_keys]
+                    )
 
-                extra_template << "\n" << user_inputs
+                    user_inputs = user_inputs + "\n" + optionals
+                end
 
-                persistent = options[:persistent] != nil
+                extra_template << "\n#{user_inputs}"
+
+                extra_template.strip!
+
+                persistent = !options[:persistent].nil?
 
                 res = t.instantiate(name, on_hold, extra_template, persistent)
 
@@ -243,7 +284,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 res
             end
 
-            break if exit_code==-1
+            break if exit_code == -1
         end
 
         exit_code
@@ -253,8 +294,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Template group
     EOT
 
-    command :chgrp, chgrp_desc,[:range, :templateid_list], :groupid do
-        helper.perform_actions(args[0],options,"Group changed") do |t|
+    command :chgrp, chgrp_desc, [:range, :templateid_list], :groupid do
+        helper.perform_actions(args[0], options, 'Group changed') do |t|
             t.chown(-1, args[1].to_i)
         end
     end
@@ -264,9 +305,9 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chown, chown_desc, [:range, :templateid_list], :userid,
-            [:groupid,nil] do
-        gid = args[2].nil? ? -1 : args[2].to_i
-        helper.perform_actions(args[0],options,"Owner/Group changed") do |t|
+            [:groupid, nil] do
+        args[2].nil? ? gid = -1 : gid = args[2].to_i
+        helper.perform_actions(args[0], options, 'Owner/Group changed') do |t|
             t.chown(args[1].to_i, gid)
         end
     end
@@ -276,11 +317,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :templateid_list], :octet,
-            :options =>OneTemplateHelper::RECURSIVE do
-
+            :options => OneTemplateHelper::RECURSIVE do
         recursive = (options[:recursive] == true)
 
-        helper.perform_actions(args[0],options, "Permissions changed") do |t|
+        helper.perform_actions(args[0], options, 'Permissions changed') do |t|
             t.chmod_octet(args[1], recursive)
         end
     end
@@ -291,8 +331,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :templateid, [:file, nil],
-    :options=>OpenNebulaHelper::APPEND do
-        helper.perform_action(args[0],options,"modified") do |obj|
+            :options => OpenNebulaHelper::APPEND do
+        helper.perform_action(args[0], options, 'modified') do |obj|
             if options[:append]
                 str = OpenNebulaHelper.append_template(args[0], obj, args[1])
             else
@@ -315,12 +355,12 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rename, rename_desc, :templateid, :name do
-        helper.perform_action(args[0],options,"renamed") do |o|
+        helper.perform_action(args[0], options, 'renamed') do |o|
             o.rename(args[1])
         end
     end
 
-    command :list, list_desc, [:filterflag, nil], :options=>list_options do
+    command :list, list_desc, [:filterflag, nil], :options => list_options do
         helper.list_pool(options, false, args[0])
     end
 
@@ -329,16 +369,55 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, :templateid,
-        :options=>[OpenNebulaHelper::XML,OneTemplateHelper::EXTENDED] do
-
-        helper.show_resource(args[0],options)
+            :options => [OpenNebulaHelper::FORMAT,
+                         OneTemplateHelper::EXTENDED] do
+        helper.show_resource(args[0], options)
     end
 
     top_desc = <<-EOT.unindent
         Lists Templates continuously
     EOT
 
-    command :top, top_desc, [:filterflag, nil], :options=>list_options do
+    command :top, top_desc, [:filterflag, nil], :options => list_options do
         helper.list_pool(options, true, args[0])
+    end
+
+    lock_desc = <<-EOT.unindent
+        Locks a VM with differents levels for lock any actions with this VM,
+        show and monitoring never will be locked.
+        Valid states are: All.
+        Levels:
+        [Use]: locks Admin, Manage and Use actions.
+        [Manage]: locks Manage and Use actions.
+        [Admin]: locks only Admin actions.
+    EOT
+
+    command :lock, lock_desc, :templateid,
+            :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0], options, 'Template locked') do |t|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                level = 1
+            end
+            t.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+        Unlocks a VM for unlock any actions with this VM.
+        Valid states are: All.
+    EOT
+
+    command :unlock, unlock_desc, :templateid do
+        helper.perform_action(args[0], options, 'Template unlocked') do |t|
+            t.unlock
+        end
     end
 end

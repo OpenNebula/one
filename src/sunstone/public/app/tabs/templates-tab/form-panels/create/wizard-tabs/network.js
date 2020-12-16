@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -53,7 +53,8 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-globe';
     this.title = Locale.tr("Network");
-    this.classes = "hypervisor only_kvm only_vcenter"
+    this.nics = [];
+    this.classes = "hypervisor";
 
     if(opts.listener != undefined){
       this.listener = opts.listener;
@@ -69,6 +70,8 @@ define(function(require) {
   WizardTab.prototype.renameTabLinks = _renameTabLinks;
   WizardTab.prototype.addNicTab = _addNicTab;
   WizardTab.prototype.notify = _notify;
+  WizardTab.prototype.enableRDP = _enableRDP;
+  WizardTab.prototype.enableSSH = _enableSSH;
 
   return WizardTab;
 
@@ -115,6 +118,7 @@ define(function(require) {
     var templateJSON = {}
     var nicsJSON = [];
     var pcisJSON = [];
+    var aliasJSON = [];
 
     var tmpJSON;
     $.each(this.nicTabObjects, function(id, nicTab) {
@@ -124,6 +128,8 @@ define(function(require) {
           delete tmpJSON["NIC_PCI"];
           tmpJSON["TYPE"] = "NIC";
           pcisJSON.push(tmpJSON);
+        } else if (tmpJSON["PARENT"]) {
+          aliasJSON.push(tmpJSON);
         } else {
           nicsJSON.push(tmpJSON);
         }
@@ -131,12 +137,19 @@ define(function(require) {
     })
 
     if (nicsJSON.length > 0) { templateJSON['NIC'] = nicsJSON; };
+    if (aliasJSON.length > 0) { templateJSON['NIC_ALIAS'] = aliasJSON; };
     if (pcisJSON.length > 0) { templateJSON['NIC_PCI'] = pcisJSON; };
 
-    var nicDefault = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
-    if (nicDefault) {
-      templateJSON['NIC_DEFAULT'] = {
-        'MODEL': nicDefault
+    var nicDefaultModel = WizardFields.retrieveInput($('#DEFAULT_MODEL', context));
+    var nicDefaultFilter = WizardFields.retrieveInput($('#DEFAULT_FILTER', context));
+    if (nicDefaultModel || nicDefaultFilter) {
+      templateJSON['NIC_DEFAULT'] = {}
+
+      if (nicDefaultModel) {
+        templateJSON['NIC_DEFAULT']['MODEL'] = nicDefaultModel
+      }
+      if (nicDefaultFilter) {
+        templateJSON['NIC_DEFAULT']['FILTER'] = nicDefaultFilter
       }
     }
 
@@ -146,6 +159,7 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var that = this;
     var nics = [];
+    var alias = [];
 
     if (templateJSON.NIC != undefined){
       nics = templateJSON.NIC;
@@ -154,6 +168,18 @@ define(function(require) {
     if (!(nics instanceof Array)) {
       nics = [nics];
     }
+
+    if (templateJSON.NIC_ALIAS != undefined){
+      alias = templateJSON.NIC_ALIAS;
+    }
+
+    if (!(alias instanceof Array)) {
+      alias = [alias];
+    }
+
+    $.each(alias, function() {
+        nics.push(this);
+    });
 
     if (templateJSON.PCI != undefined){
       var pcis = templateJSON.PCI;
@@ -177,10 +203,22 @@ define(function(require) {
       var nicTab = that.nicTabObjects[that.numberOfNics];
       var nicContext = $('#' + nicTab.nicTabId, context);
       nicTab.fill(nicContext, nicJSON);
+
+      if (nicJSON.PARENT) {
+        nicTab.fill_alias(nicJSON.PARENT);
+      }
     });
+
+    that.renameTabLinks(context);
+    that.enableRDP(context);
+    that.enableSSH(context);
 
     if (templateJSON.NIC) {
       delete templateJSON.NIC;
+    }
+
+    if (templateJSON.NIC_ALIAS) {
+      delete templateJSON.NIC_ALIAS;
     }
 
     if (templateJSON.PCI != undefined) {
@@ -208,6 +246,9 @@ define(function(require) {
       if (nicDefault.MODEL) {
         WizardFields.fillInput($('#DEFAULT_MODEL', context), nicDefault.MODEL);
       }
+      if (nicDefault.FILTER) {
+        WizardFields.fillInput($('#DEFAULT_FILTER', context), nicDefault.FILTER);
+      }
 
       delete templateJSON.NIC_DEFAULT;
     }
@@ -215,8 +256,16 @@ define(function(require) {
 
   function _addNicTab(context) {
     var that = this;
+
+    if (!that.nics.find(nic => nic.NAME === ("NIC" + that.numberOfNics))) {
+        that.nics.push({"NAME": "NIC" + that.numberOfNics,
+                        "ALIAS": false,
+                        "ID": that.numberOfNics,
+                        "CONTEXT": context});
+    }
+
     that.numberOfNics++;
-    var nicTab = new NicTab(that.numberOfNics);
+    var nicTab = new NicTab(that.numberOfNics, that.nics);
 
     var content = $('<div id="' + nicTab.nicTabId + '" class="nic wizard_internal_tab tabs-panel">' +
         nicTab.html() +
@@ -234,6 +283,8 @@ define(function(require) {
     content.attr("nicId", that.numberOfNics);
 
     that.renameTabLinks(context);
+    that.enableRDP(context);
+    that.enableSSH(context);
     that.nicTabObjects[that.numberOfNics] = nicTab;
 
     // close icon: removing the tab on click
@@ -242,11 +293,14 @@ define(function(require) {
       var li = $(this).closest('li');
       var ul = $(this).closest('ul');
       var content = $(target);
+      var nicId = content.attr("nicId");
+      var index = that.nics.findIndex(nic => nic.NAME === ("NIC" + (nicId - 1)));
+
+      that.nics.splice(index, 1);
 
       li.remove();
       content.remove();
 
-      var nicId = content.attr("nicId");
       delete that.nicTabObjects[nicId];
 
       if (li.hasClass('is-active')) {
@@ -254,17 +308,39 @@ define(function(require) {
       }
 
       that.renameTabLinks(context);
+      that.enableRDP(context);
+      that.numberOfNics --;
     });
   }
 
   function _renameTabLinks(context) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
-      $("a", this).html(Locale.tr("NIC") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
+      $("a", this).html(Locale.tr("NIC") + ' ' + index + " <i id='update_remove_nic_" + index + "'class='fa fa-times-circle remove-tab'></i>");
+
+      if (that.nics.find(nic => nic.ALIAS === ("NIC" + index))) {
+        $("#update_remove_nic_" + index).hide();
+      } else {
+        $("#update_remove_nic_" + index).show();
+      }
     })
 
     if(this.listener != undefined){
       this.listener.notify();
     }
+  }
+
+  function _enableRDP(context) {
+    const canRDP = $("fieldset#rdp_connection input[type='checkbox']:not(#" + that.nicTabId + "_rdp):checked", context).length === 0;
+
+    if (canRDP) $("fieldset#rdp_connection").show();
+    else $("fieldset#rdp_connection", that.context).hide();
+  }
+
+  function _enableSSH(context) {
+    const canSSH = $("fieldset#ssh_connection input[type='checkbox']:not(#" + that.nicTabId + "_ssh):checked", context).length === 0;
+
+    if (canSSH) $("fieldset#ssh_connection").show();
+    else $("fieldset#ssh_connection", that.context).hide();
   }
 
   function _notify(context, templateJSON) {

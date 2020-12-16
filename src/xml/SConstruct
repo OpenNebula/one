@@ -1,7 +1,7 @@
 # SConstruct for src/xml
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -20,28 +20,9 @@ Import('env')
 
 lib_name='nebula_xml'
 
-if env['parsers']=='yes':
-    # LEX
-    parser=env.Lex(
-        source='expr_parser.l'
-    )
-    env.NoClean(parser)
-
-    # BISON
-    parser=env.Bison(
-        source='expr_arith.y'
-    )
-    env.NoClean(parser)
-
-    parser=env.Bison(
-        source='expr_bool.y'
-    )
-    env.NoClean(parser)
-
-source_files=['ObjectXML.cc',
-              'expr_parser.c',
-              'expr_bool.cc',
-              'expr_arith.cc']
+source_files=[
+    'ObjectXML.cc'
+]
 
 # Build library
 env.StaticLibrary(lib_name, source_files)

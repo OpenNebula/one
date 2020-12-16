@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -17,41 +17,48 @@
 # ---------------------------------------------------------------------------- #
 
 ###############################################################################
-# This script is used retrieve the file size of a disk
+# This script is used to export a VMDK from a vCenter DS to a Marketplace
 ###############################################################################
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'opennebula'
 
 drv_action_enc = ARGV[0]
-id             = ARGV[1]
 
 drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
+drv_action.initialize_xml(Base64.decode64(drv_action_enc),
+                          'DS_DRIVER_ACTION_DATA')
 
-img_source = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE"]
-img_size   = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/SIZE"]
-md5        = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5"]
+img_source = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/SOURCE']
+img_size = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/SIZE']
+md5 = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/MD5']
+md5 ||= '-'
 
-md5 = md5.nil? ? "-" : md5
-
-ds_id = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/ID"]
+ds_id = drv_action['/DS_DRIVER_ACTION_DATA/DATASTORE/ID']
 
 if img_source.nil?
-    message = "Not enough information to export the image,"\
-              " missing image source."
+    message = 'Not enough information to export the image, '\
+              'missing image source.'
     STDERR.puts error_message(message)
-    exit -1
+    exit(-1)
 end
 
 # Create vcenter url with all needed information to extract the file from

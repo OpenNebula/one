@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -63,6 +63,8 @@ module OpenNebulaJSON
                  when "snapshot_flatten"    then self.snapshot_flatten(action_hash['params'])
                  when "snapshot_revert"     then self.snapshot_revert(action_hash['params'])
                  when "snapshot_delete"     then self.snapshot_delete(action_hash['params'])
+                 when "lock"         then self.lock(action_hash['params'])
+                 when "unlock"       then self.unlock(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -134,6 +136,14 @@ module OpenNebulaJSON
 
         def snapshot_delete(params=Hash.new)
             super(params['snapshot_id'].to_i)
+        end
+
+        def lock(params=Hash.new)
+            super(params['level'].to_i)
+        end
+
+        def unlock(params=Hash.new)
+            super()
         end
     end
 end

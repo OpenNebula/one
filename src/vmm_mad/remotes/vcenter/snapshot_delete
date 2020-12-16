@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,16 +16,24 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
@@ -33,22 +41,25 @@ vm_ref          = ARGV[0]
 snap_id         = ARGV[1]
 vc_cluster_name = ARGV[3]
 
-host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, vc_cluster_name)
-host_id = host['ID']
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VMM_DRIVER_ACTION_DATA')
+
+host_id = drv_action['VM/HISTORY_RECORDS/HISTORY/HID']
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
-
-    vm = VCenterDriver::VirtualMachine.new_from_ref(vm_ref, vi_client)
+    vm        = VCenterDriver::VirtualMachine.new_without_id(vi_client, vm_ref)
 
     vm.delete_snapshot(snap_id)
-
-rescue Exception => e
+rescue StandardError => e
     message = "Snapshot of VM #{vm_ref} on vCenter cluster "\
               "#{vc_cluster_name} could not be deleted due to "\
-              "\"#{e.message}\"\n#{e.backtrace}"
-    STDERR.puts error_message(message)
-    exit -1
+              "\"#{e.message}\"\n"
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

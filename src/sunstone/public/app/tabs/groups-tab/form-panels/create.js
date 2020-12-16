@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -277,9 +277,15 @@ define(function(require) {
         group_json['group']['default_admin_view'] = default_admin_view;
       }
 
-      group_json['group']['opennebula']={};
-      group_json['group']['opennebula']["default_image_persistent_new"] = $('#default_image_persistent_new', context).is(':checked')?'YES':'NO';
-      group_json['group']['opennebula']["default_image_persistent"] = $('#default_image_persistent', context).is(':checked')?'YES':'NO';
+      group_json['group']['opennebula'] = {};
+
+      if ($('#default_image_persistent_new', context).val() !== ""){
+        group_json['group']['opennebula']["default_image_persistent_new"] = $('#default_image_persistent_new', context).val();
+      }
+
+      if ($('#default_image_persistent', context).val() !== ""){
+        group_json['group']['opennebula']["default_image_persistent"] = $('#default_image_persistent', context).val();
+      }
 
       Sunstone.runAction("Group.create",group_json);
       return false;
@@ -310,9 +316,15 @@ define(function(require) {
         template_json['SUNSTONE'] = sunstone_template;
       }
 
-      template_json['OPENNEBULA']={};
-      template_json['OPENNEBULA']["default_image_persistent_new"] = $('#default_image_persistent_new', context).is(':checked')?'YES':'NO';
-      template_json['OPENNEBULA']["default_image_persistent"] = $('#default_image_persistent', context).is(':checked')?'YES':'NO';
+      template_json['OPENNEBULA'] = {};
+
+      if ($('#default_image_persistent_new', context).val() !== ""){
+        template_json['OPENNEBULA']["default_image_persistent_new"] = $('#default_image_persistent_new', context).val();
+      }
+
+      if ($('#default_image_persistent', context).val() !== ""){
+        template_json['OPENNEBULA']["default_image_persistent"] = $('#default_image_persistent', context).val();
+      }
 
       var template_str = TemplateUtils.templateToString(template_json);
       Sunstone.runAction("Group.update", this.resourceId, template_str);
@@ -386,10 +398,13 @@ define(function(require) {
       $('#admin_view_default', context).val("").change();
     }
 
-    if(opennebula_template && opennebula_template.DEFAULT_IMAGE_PERSISTENT_NEW == "YES")
-      $('#default_image_persistent_new', context).prop('checked', true);
-    if(opennebula_template && opennebula_template.DEFAULT_IMAGE_PERSISTENT == "YES")
-      $('#default_image_persistent', context).prop('checked', true);
+    if (opennebula_template && opennebula_template.DEFAULT_IMAGE_PERSISTENT_NEW){
+      $('#default_image_persistent_new', context).val(opennebula_template.DEFAULT_IMAGE_PERSISTENT_NEW);
+    }
+
+    if (opennebula_template && opennebula_template.DEFAULT_IMAGE_PERSISTENT){
+      $('#default_image_persistent', context).val(opennebula_template.DEFAULT_IMAGE_PERSISTENT);
+    }
   }
 
   function _generateViewsSelect(context, idPrefix, value) {

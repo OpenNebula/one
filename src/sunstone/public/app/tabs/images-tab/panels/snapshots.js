@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -198,7 +198,7 @@ define(function(require){
     var active = (snapshot.ACTIVE == "YES");
 
     if(active){
-      html += '<i class="fa fa-play-circle-o fa-lg" title="'+
+      html += '<i class="fas fa-play-circle fa-lg" title="'+
               Locale.tr("Active")+'"/>' + SPACE;
     }
 

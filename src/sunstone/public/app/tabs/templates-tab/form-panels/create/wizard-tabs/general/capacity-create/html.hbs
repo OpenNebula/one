@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -97,7 +97,7 @@
     <div class="row">
       <div class="small-12 columns">
         <label class="" for="CPU">
-          {{tr "CPU"}}
+          {{tr "Physical CPU"}}
           {{{tip (tr "Percentage of CPU divided by 100 required for the Virtual Machine. Half a processor is written 0.5.")}}}
         </label>
         <div class="cpu_input">
@@ -110,7 +110,7 @@
       </div>
     </div>
   </div>
-  <div class="medium-6 small-12 columns">
+  <div class="medium-6 small-12 columns not_firecracker">
     <div class="row">
       <div class="small-12 columns">
         <label>
@@ -145,7 +145,7 @@
     <div class="row">
       <div class="small-12 columns">
         <label class="" for="VCPU">
-          {{tr "VCPU"}}
+          {{tr "Virtual CPU"}}
           {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
         </label>
         <div class="vcpu_input">
@@ -180,6 +180,30 @@
           </div>
         </div>
         <input type=text class="vcpu_modify_opt list" placeholder="4,8,16"/>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="medium-6 small-12 columns hypervisor only_vcenter" style="display: none;">
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="CORES_PER_SOCKET">
+          {{tr " Virtual Cores per Socket"}} 
+          {{{tip (tr "Number of cores per socket. The number of sockets is automatically calculated dividing the VCPU value by the number of cores per socket value.")}}}
+        </label>
+        <div class="cores_per_socket_select">
+          <select wizard_field="CORES" id="CORES_PER_SOCKET"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="medium-6 small-12 columns hypervisor only_vcenter socket_info" style="display: none;">
+    <div class="row">
+      <div class="small-12 columns">
+        <label>
+          {{tr "Sockets"}}: <span id="number_sockets"></span> 
+        </label>
       </div>
     </div>
   </div>

@@ -2,11 +2,13 @@
 :ID:
   :desc: ONE identifier for the MarketPlaceApp
   :size: 4
+  :adjust: true
 
 :NAME:
   :desc: Name of the MarketPlaceApp
-  :size: 25
+  :size: 20
   :left: true
+  :expand: true
 
 :VERSION:
   :desc: Version of the MarketPlaceApp
@@ -30,7 +32,7 @@
 
 :MARKET:
   :desc: Name of the MarketPlace
-  :size: 20
+  :size: 10
   :left: true
 
 :ZONE:

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,31 +19,36 @@
 
 #include <map>
 #include <string>
-#include <sstream>
-
 #include "VirtualMachineManagerDriver.h"
 
 class LibVirtDriver : public VirtualMachineManagerDriver
 {
 public:
 
-    LibVirtDriver(int userid, const map<string,string> &attrs, bool sudo,
-        VirtualMachinePool * pool, const string& emu)
-        :VirtualMachineManagerDriver(userid, attrs,sudo,pool), emulator(emu)
-    {};
+    LibVirtDriver(const std::string& mad_location,
+                  const std::map<std::string, std::string> &attrs,
+                  const std::string& emu)
+        : VirtualMachineManagerDriver(mad_location, attrs), emulator(emu)
+    {}
 
-    ~LibVirtDriver(){};
+    ~LibVirtDriver() = default;
+
+    int validate_raw(const std::string& raw_section,
+                     std::string& error) const override;
 
 private:
-    static const float CGROUP_BASE_CPU_SHARES;
+    static const float  CGROUP_BASE_CPU_SHARES;
 
-    static const int   CEPH_DEFAULT_PORT;
+    static const int    CEPH_DEFAULT_PORT;
 
-    static const int   GLUSTER_DEFAULT_PORT;
+    static const int    GLUSTER_DEFAULT_PORT;
 
-    static const int   ISCSI_DEFAULT_PORT;
+    static const int    ISCSI_DEFAULT_PORT;
 
-    int deployment_description(const VirtualMachine * vm, const string& fn) const
+    static const char * XML_DOMAIN_RNG_PATH;
+
+    int deployment_description(const VirtualMachine * vm,
+                               const std::string& fn) const override
     {
         int   rc = -1;
 
@@ -55,9 +60,10 @@ private:
         return rc;
     }
 
-    int deployment_description_kvm(const VirtualMachine * v, const string& f) const;
+    int deployment_description_kvm(const VirtualMachine * v,
+                                   const std::string& f) const;
 
-    const string emulator;
+    const std::string emulator;
 };
 
 #endif /*LIBVIRT_DRIVER_H_*/

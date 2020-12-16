@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,7 +65,6 @@ function set_proxy
     proxy_found=false
 
     for arg in $*; do
-        echo "arg: |${arg}|" >> /tmp/proxy
         if $proxy_found ; then
             proxy=$arg
             break

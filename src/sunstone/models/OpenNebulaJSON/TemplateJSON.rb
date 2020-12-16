@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,6 +51,8 @@ module OpenNebulaJSON
                  when "clone"       then self.clone(action_hash['params'])
                  when "rename"      then self.rename(action_hash['params'])
                  when "delete_recursive" then self.delete_recursive(action_hash['params'])
+                 when "lock"       then self.lock(action_hash['params'])
+                 when "unlock"       then self.unlock(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -104,9 +106,17 @@ module OpenNebulaJSON
                 select_network = self['TEMPLATE/SUNSTONE/NETWORK_SELECT']
                 if (select_network && select_network.upcase == "NO")
                     params['template'].delete("NIC")
+                    params['template'].delete("NIC_ALIAS")
                 end
 
                 template = template_to_str(params['template'])
+
+                ['NIC', 'NIC_ALIAS', 'SCHED_ACTION', 'SCHED_REQUIREMENTS', 'SCHED_DS_REQUIREMENTS'].each { |i|
+                    if params['template'][i] && params['template'][i].empty?
+                        template << "\n#{i} = []"
+                    end
+                }
+
                 super(params['vm_name'], params['hold'], template, persistent)
             else
                 super(params['vm_name'], params['hold'], "", persistent)
@@ -132,6 +142,14 @@ module OpenNebulaJSON
         def delete_recursive(params=Hash.new)
             recursive = (params['recursive'] == true)
             self.delete(recursive)
+        end
+
+        def lock(params=Hash.new)
+            super(params['level'].to_i)
+        end
+
+        def unlock(params=Hash.new)
+            super()
         end
     end
 end

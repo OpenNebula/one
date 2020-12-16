@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,28 +32,36 @@ DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    SSH_UTILS=/var/lib/one/remotes/tm/ssh/ssh_utils.sh
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    SSH_UTILS=$ONE_LOCATION/var/remotes/tm/ssh/ssh_utils.sh
 fi
 
 . $TMCOMMON
+. $SSH_UTILS
 
 DRIVER_PATH=$(dirname $0)
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 
-SRC_PATH=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
+SRC_PATH="$(arg_path $SRC)"
+DST_PATH="$(arg_path $DST)"
 
 SRC_PATH_SNAP="${SRC_PATH}.snap"
 DST_PATH_SNAP="${DST_PATH}.snap"
 
-SRC_HOST=`arg_host $SRC`
-DST_HOST=`arg_host $DST`
+SRC_HOST="$(arg_host $SRC)"
+DST_HOST="$(arg_host $DST)"
 
-DST_DIR=`dirname $DST_PATH`
+SRC_FILE="$(basename $SRC_PATH)"
+DST_FILE="$(basename $DST_PATH)"
+
+SRC_DIR="$(dirname $SRC_PATH)"
+DST_DIR="$(dirname $DST_PATH)"
 
 ssh_make_path $DST_HOST $DST_DIR "ssh"
 
@@ -63,33 +71,51 @@ ssh_make_path $DST_HOST $DST_DIR "ssh"
 
 DISK_ID=$(basename ${DST_PATH} | cut -d. -f2)
 
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
 unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/DS_ID)
 
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+SYS_DS_ID="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
+# Check for REPLICA_HOST in DATASTORE TEMPLATE and exec ./$0.replica if found
+#-------------------------------------------------------------------------------
+REPLICA_HOST=$(get_replica_host $SYS_DS_ID)
+
+if [ -n "$REPLICA_HOST" ]; then
+    $0.replica $@ "$REPLICA_HOST"
+    exit $?
+fi
 
 #-------------------------------------------------------------------------------
 # Copy files to the remote host
 #-------------------------------------------------------------------------------
-log "Cloning $SRC in $DST_PATH"
-exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
+log "Cloning $SRC_PATH in $DST_PATH"
 
-if [ -d "${SRC_PATH_SNAP}" ]; then
-    exec_and_log "$SCP -r $SRC_HOST:${SRC_PATH_SNAP} $DST_HOST:${DST_PATH_SNAP}" \
-        "Error copying $SRC to $DST"
-fi
+COPY_CMD=$(cat <<EOF
+    set -e -o pipefail
 
-if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
+    if [ -d "${SRC_PATH_SNAP}" ]; then
+        SRC_SNAP="${SRC_FILE}.snap"
+    fi
+
+    $TAR -C $SRC_DIR --transform="flags=r;s|$SRC_FILE|$DST_FILE|" -cSf - $SRC_FILE \$SRC_SNAP | \
+        $SSH $DST_HOST "$TAR -xSf - -C $DST_DIR"
+EOF
+)
+
+ssh_forward ssh_exec_and_log "$SRC_HOST" "$COPY_CMD" \
+                             "Error copying $SRC_PATH to $DST"
+
+if [ -n "$ORIGINAL_SIZE" ] && [ "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
    RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
    ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \
        "Error resizing image $DST"
 fi
-

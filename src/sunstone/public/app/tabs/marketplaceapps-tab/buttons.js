@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
+  var Tips = require('utils/tips');
 
   var MarketPlaceAppButtons = {
     "MarketPlaceApp.refresh" : {
@@ -29,11 +30,15 @@ define(function(require) {
     },
     "MarketPlaceApp.download_opennebula_dialog" : {
       type: "action",
-      text: '<i class="fa fa-lg fa-cloud-download"/>'
+      text: '<i class="fas fa-lg fa-cloud-download-alt"/>',
+      tip: Locale.tr('Import into Datastore'),
+      custom_classes : "state-dependent"
     },
     "MarketPlaceApp.download_local" : {
       type: "action",
-      text: '<i class="fa fa-lg fa-download"/>'
+      text: '<i class="fas fa-lg fa-download"/>',
+      tip: Locale.tr('Download to your desktop'),
+      custom_classes : "state-dependent"
     },
     "MarketPlaceApp.chown" : {
       type: "confirm_with_select",
@@ -66,6 +71,29 @@ define(function(require) {
     },
     "MarketPlaceApp.edit_labels" : {
       layout: "labels",
+    },
+    // "MarketPlaceApp.lockA" : {
+    //   type: "action",
+    //   text: Locale.tr("Admin"),
+    //   layout: "lock_buttons",
+    //   data: 3
+    // },
+    // "MarketPlaceApp.lockM" : {
+    //   type: "action",
+    //   text: Locale.tr("Manage"),
+    //   layout: "lock_buttons",
+    //   data: 2
+    // },
+    "MarketPlaceApp.lockU" : {
+      type: "action",
+      text: Locale.tr("Lock"),
+      layout: "lock_buttons",
+      data: 1
+    },
+    "MarketPlaceApp.unlock" : {
+      type: "action",
+      text: Locale.tr("Unlock"),
+      layout: "lock_buttons"
     }
   };
 

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,6 +19,7 @@
 
 #include "Quotas.h"
 #include "ObjectSQL.h"
+#include "OneDB.h"
 
 class QuotasSQL : public Quotas, ObjectSQL
 {
@@ -40,7 +41,7 @@ public:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(int _oid, SqlDB *db, string& error_str)
+    int insert(int _oid, SqlDB *db, std::string& error_str)
     {
         oid = _oid;
         return insert(db, error_str);
@@ -82,7 +83,7 @@ protected:
 
     virtual const char * table_oid_column() const = 0;
 
-    int from_xml(const string& xml);
+    int from_xml(const std::string& xml);
 
 private:
     /**
@@ -102,7 +103,7 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str)
+    int insert(SqlDB *db, std::string& error_str)
     {
         return insert_replace(db, false, error_str);
     };
@@ -114,7 +115,7 @@ private:
      */
     int update(SqlDB *db)
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
@@ -134,7 +135,7 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Generates a string representation of the quotas in XML format, enclosed
@@ -142,7 +143,7 @@ private:
      *    @param xml the string to store the XML
      *    @return the same xml string to use it in << compounds
      */
-    string& to_xml_db(string& xml) const;
+    std::string& to_xml_db(std::string& xml) const;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -165,7 +166,7 @@ public:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_quota(GroupQuotas::db_bootstrap);
+        std::ostringstream oss_quota(one_db::group_quotas_db_bootstrap);
 
         return db->exec_local_wr(oss_quota);
     };
@@ -174,30 +175,23 @@ protected:
 
     const char * table() const
     {
-        return db_table;
+        return one_db::group_quotas_db_table;
     };
 
     const char * table_names() const
     {
-        return db_names;
+        return one_db::group_quotas_db_names;
     };
 
     const char * table_oid_column() const
     {
-        return db_oid_column;
+        return one_db::group_quotas_db_oid_column;
     };
 
 private:
 
     friend class GroupPool;
 
-    // *************************************************************************
-    // DataBase implementation
-    // *************************************************************************
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * db_table;
-    static const char * db_oid_column;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -218,7 +212,7 @@ public:
      */
     static int bootstrap(SqlDB * db)
     {
-        ostringstream oss_quota(UserQuotas::db_bootstrap);
+        std::ostringstream oss_quota(one_db::user_quotas_db_bootstrap);
 
         return db->exec_local_wr(oss_quota);
     };
@@ -227,30 +221,22 @@ protected:
 
     const char * table() const
     {
-        return db_table;
+        return one_db::user_quotas_db_table;
     };
 
     const char * table_names() const
     {
-        return db_names;
+        return one_db::user_quotas_db_names;
     };
 
     const char * table_oid_column() const
     {
-        return db_oid_column;
+        return one_db::user_quotas_db_oid_column;
     };
 
 private:
 
     friend class UserPool;
-
-    // *************************************************************************
-    // DataBase implementation
-    // *************************************************************************
-    static const char * db_names;
-    static const char * db_bootstrap;
-    static const char * db_table;
-    static const char * db_oid_column;
 };
 
 #endif /*QUOTAS_SQL_H_*/

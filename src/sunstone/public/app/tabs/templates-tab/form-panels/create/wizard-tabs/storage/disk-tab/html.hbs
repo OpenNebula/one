@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -18,47 +18,49 @@
   <div class="large-12 columns">
     <input id="{{diskTabId}}radioImage" type="radio" name="{{diskTabId}}" value="image" checked>
     <label for="{{diskTabId}}radioImage">{{tr "Image"}}</label>
-    <input id="{{diskTabId}}radioVolatile" type="radio" name="{{diskTabId}}" value="volatile">
-    <label for="{{diskTabId}}radioVolatile">{{tr "Volatile disk"}}</label>
+    <input id="{{diskTabId}}radioVolatile" type="radio" name="{{diskTabId}}" value="volatile" class="not_lxd">
+    <label for="{{diskTabId}}radioVolatile" class="not_lxd">{{tr "Volatile disk"}}</label>
   </div>
 </div>
 <div id="disk_type" class="image">
   {{{imageTableSelectHTML}}}
   <br>
-  {{#advancedSection (tr "Advanced options") }}
-  <fieldset>
-    <legend>{{tr "Image"}}</legend>
-    <div class="row">
-      <div class="medium-6 columns">
-        <label for="IMAGE_ID">
-          {{tr "Image ID"}}
-        </label>
-        <input type="text" wizard_field="IMAGE_ID" id="IMAGE_ID" name="IMAGE_ID"/>
+  <div id="image_values">
+     {{#advancedSection (tr "Advanced options") }}
+    <fieldset>
+      <legend>{{tr "Image"}}</legend>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="IMAGE_ID">
+            {{tr "Image ID"}}
+          </label>
+          <input type="text" wizard_field="IMAGE_ID" id="IMAGE_ID" name="IMAGE_ID"/>
+        </div>
+        <div class="medium-6 columns">
+          <label for="IMAGE">
+            {{tr "Image name"}}
+          </label>
+          <input type="text" wizard_field="IMAGE" id="IMAGE" name="IMAGE"/>
+        </div>
       </div>
-      <div class="medium-6 columns">
-        <label for="IMAGE">
-          {{tr "Image name"}}
-        </label>
-        <input type="text" wizard_field="IMAGE" id="IMAGE" name="IMAGE"/>
+      <div class="row">
+        <div class="medium-6 columns">
+          <label for="IMAGE_UID">
+            {{tr "Image owner's user ID"}}
+          </label>
+          <input type="text" wizard_field="IMAGE_UID" id="IMAGE_UID" name="IMAGE_UID"/>
+        </div>
+        <div class="medium-6 columns">
+          <label for="IMAGE_UNAME">
+            {{tr "Image owner's user name"}}
+          </label>
+          <input type="text" wizard_field="IMAGE_UNAME" id="IMAGE_UNAME" name="IMAGE_UNAME"/>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="medium-6 columns">
-        <label for="IMAGE_UID">
-          {{tr "Image owner's user ID"}}
-        </label>
-        <input type="text" wizard_field="IMAGE_UID" id="IMAGE_UID" name="IMAGE_UID"/>
-      </div>
-      <div class="medium-6 columns">
-        <label for="IMAGE_UNAME">
-          {{tr "Image owner's user name"}}
-        </label>
-        <input type="text" wizard_field="IMAGE_UNAME" id="IMAGE_UNAME" name="IMAGE_UNAME"/>
-      </div>
-    </div>
-  </fieldset>
+    </fieldset>
   {{> ./options volatile=false }}
   {{/advancedSection}}
+  </div>
 </div>
 <div id="disk_type" class="volatile" style="display: none;">
   <div class="row">
@@ -74,6 +76,7 @@
           <select class="mb_input_unit">
             <option value="MB">{{tr "MB"}}</option>
             <option value="GB" selected>{{tr "GB"}}</option>
+            <option value="TB">{{tr "TB"}}</option>
           </select>
         </div>
       </div>
@@ -93,8 +96,16 @@
       </select>
     </div>
     <div class="medium-6 columns">
+      <label for="TYPE">
+        {{tr "Filesystem"}}
+      </label>
+      <select class="hypervisor only_kvm" wizard_field="FS" id="TYPE_KVM" name="type">
+        {{{pepe}}}
+      </select>
+    </div>
+    <div class="medium-6 columns">
       <label for="FORMAT">
-        {{tr "Filesystem format"}}
+        {{tr "Format"}}
       </label>
       <select class="hypervisor only_kvm" wizard_field="FORMAT" name="format" id="FORMAT_KVM">
         <option value="raw" selected="selected">raw</option>
@@ -106,7 +117,9 @@
     </div>
   </div>
   <br>
+  {{#isAdvancedEnabled "show_attach_disk_advanced"}}
   {{#advancedSection (tr "Advanced options") }}
   {{> ./options volatile=true }}
   {{/advancedSection}}
+  {{/isAdvancedEnabled}}
 </div>

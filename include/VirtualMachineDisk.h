@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,9 +19,11 @@
 
 #include <queue>
 #include <set>
+#include <memory>
 
 #include "VirtualMachineAttribute.h"
 #include "Snapshots.h"
+#include "NebulaUtil.h"
 
 class AuthRequest;
 
@@ -54,28 +56,16 @@ public:
         return is_flag("PERSISTENT");
     }
 
-    bool is_managed() const
+    Snapshots::AllowOrphansMode allow_orphans() const
     {
-        bool one_managed;
-
-        if (vector_value("OPENNEBULA_MANAGED", one_managed) == -1)
-        {
-            one_managed = true;
-        }
-
-        return one_managed;
-    }
-
-    bool allow_orphans() const
-    {
-        bool orphans;
+        std::string orphans;
 
         if (vector_value("ALLOW_ORPHANS", orphans) == -1)
         {
-            orphans = false;
+            orphans = Snapshots::DENY;
         }
 
-        return orphans;
+        return Snapshots::str_to_allow_orphans_mode(one_util::toupper(orphans));
     }
 
     void set_attach()
@@ -113,7 +103,7 @@ public:
         clear_flag("DISK_SNAPSHOT_ACTIVE");
     };
 
-    bool is_active_snapshot()
+    bool is_active_snapshot() const
     {
         return is_flag("DISK_SNAPSHOT_ACTIVE");
     }
@@ -142,7 +132,7 @@ public:
     /**
      *  Return the "effective" target (LN_TARGET/CLONE_TARGET)
      */
-    string get_tm_target() const;
+    std::string get_tm_target() const;
 
     /**
      *  Check if the given disk is volatile
@@ -152,7 +142,7 @@ public:
     /**
      *  Get the effective uid to get an image. Used in VM parsers
      */
-    int get_uid(int _uid);
+    int get_uid(int _uid) const;
 
     /**
      *  Gets the ID of the image associated to the disks
@@ -160,7 +150,12 @@ public:
      *    @param uid effective user id making the call
      *    @return 0 if the disk uses an image, -1 otherwise
      */
-    int get_image_id(int &id, int uid);
+    int get_image_id(int &id, int uid) const;
+
+    /**
+     *  Return the TM_MAD_SYSTEM attribute
+     */
+    std::string get_tm_mad_system() const;
 
     /* ---------------------------------------------------------------------- */
     /* Image Manager Interface                                                */
@@ -175,8 +170,9 @@ public:
      *  requirements
      *    @param uid of user making the request
      *    @param ar auth request
+     *    @param  check_lock for check if the resource is lock or not
      */
-    void authorize(int uid, AuthRequest* ar);
+    void authorize(int uid, AuthRequest* ar, bool check_lock);
 
     /* ---------------------------------------------------------------------- */
     /* Snapshots Interface                                                    */
@@ -245,9 +241,39 @@ public:
     /**
      *  @return true if the disk has snapshots
      */
-    bool has_snapshots()
+    bool has_snapshots() const
     {
         return (snapshots != 0);
+    }
+
+    bool has_snapshot(int snap_id) const
+    {
+        if (!has_snapshots())
+        {
+            return false;
+        }
+
+        return snapshots->exists(snap_id);
+    }
+
+
+    /**
+     * Renames a snapshot
+     *
+     * @param id_snap of the snapshot
+     * @param new_name of the snapshot
+     * @return 0 on success
+     */
+    int rename_snapshot(int snap_id, const std::string& new_name,
+                        std::string& str_error)
+    {
+        if (!snapshots)
+        {
+            str_error = "The VM does not have any snapshot";
+            return -1;
+        }
+
+        return snapshots->rename_snapshot(snap_id, new_name, str_error);
     }
 
     /**
@@ -256,14 +282,16 @@ public:
      *    @param error if any
      *    @return the id of the new snapshot or -1 if error
      */
-    int create_snapshot(const string& name, string& error);
+    int create_snapshot(const std::string& name, std::string& error);
 
     /**
      *  Sets the snap_id as active, the VM will boot from it next time
      *    @param snap_id of the snapshot
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      *    @return -1 if error
      */
-    int revert_snapshot(int snap_id);
+    int revert_snapshot(int snap_id, bool revert);
 
     /**
      *  Deletes the snap_id from the list
@@ -304,12 +332,12 @@ public:
     /**
      *  @return the space required by this disk in the system datastore
      */
-    long long system_ds_size();
+    long long system_ds_size() const;
 
     /**
      *  @return the space required by this disk in the image datastore
      */
-    long long image_ds_size();
+    long long image_ds_size() const;
 
     /**
      *  Compute the storage needed by the disk in the system and/or image
@@ -318,7 +346,20 @@ public:
      *    @param img_sz size in image datastore needed
      *    @param sys_sz size in system datastore needed
      */
-    void datastore_sizes(int& ds_id, long long& img_sz, long long& sys_sz);
+    void datastore_sizes(int& ds_id, long long& img_sz, long long& sys_sz) const;
+
+    /**
+     *  Update the TYPE and DISK_TYPE attributes based on the system DS
+     *  name
+     *    @param ds_name of the system ds tm_mad
+     */
+    void set_types(const std::string& ds_name);
+
+    /**
+     *  Marshall disk attributes in XML format with just essential information
+     *    @param stream to write the disk XML description
+     */
+    void to_xml_short(std::ostringstream& oss) const;
 
 private:
 
@@ -355,7 +396,8 @@ public:
      *  The DIKS need to have a DISK_ID assgined to create the disk set.
      *    @param va vector of DISK Vector Attributes
      */
-    VirtualMachineDisks(vector<VectorAttribute *>& va, bool has_id, bool dispose):
+    VirtualMachineDisks(std::vector<VectorAttribute *>& va, bool has_id,
+                        bool dispose):
         VirtualMachineAttributeSet(dispose)
     {
         init(va, has_id);
@@ -452,7 +494,8 @@ public:
      *    @param tmpl with DISK descriptions
      *    @param ds_quotas templates for quota updates
      */
-    static void image_ds_quotas(Template * tmpl, vector<Template *>& ds_quotas);
+    static void image_ds_quotas(Template * tmpl,
+                                std::vector<std::unique_ptr<Template>>& ds_quotas);
 
     /**
      *  Sets Datastore information on volatile disks
@@ -469,7 +512,7 @@ public:
      *    @param ids set of image ids
      *    @param uid effective user id making the call
      */
-    void get_image_ids(set<int>& ids, int uid);
+    void get_image_ids(std::set<int>& ids, int uid);
 
     /* ---------------------------------------------------------------------- */
     /* Image Manager Interface                                                */
@@ -478,13 +521,15 @@ public:
      *  Get all disk images for this Virtual Machine
      *  @param vm_id of the VirtualMachine
      *  @param uid of owner
+     *  @param tm_mad_sys tm_mad_sys mode to deploy the disks
      *  @param disks list of DISK Attribute in VirtualMachine Template
      *  @param context attribute, 0 if none
      *  @param error_str Returns the error reason, if any
      *  @return 0 if success
      */
-    int get_images(int vm_id, int uid, vector<Attribute *> disks,
-            VectorAttribute * context, std::string& error_str);
+    int get_images(int vm_id, int uid, const std::string& tm_mad_sys,
+            std::vector<Attribute *> disks, VectorAttribute * context,
+            std::string& error_str);
 
     /**
      *  Release the images in the disk set
@@ -492,7 +537,8 @@ public:
      *    @param img_error true if the image has to be set in error state
      *    @param quotas disk space usage to free from image datastores
      */
-    void release_images(int vmid, bool img_error, vector<Template *>& quotas);
+    void release_images(int vmid, bool img_error,
+                        std::vector<Template *>& quotas);
 
     /* ---------------------------------------------------------------------- */
     /* DISK cloning functions                                                 */
@@ -513,7 +559,9 @@ public:
     /**
      * Clears the flag for the disks waiting for the given image
      */
-    void clear_cloning_image_id(int image_id, const string& source);
+    void clear_cloning_image_id(int image_id,
+                                const std::string& source,
+                                const std::string& format);
 
     /* ---------------------------------------------------------------------- */
     /* Attach disk Interface                                                  */
@@ -529,7 +577,7 @@ public:
     /**
      *  Get the attach disk (ATTACH=YES)
      */
-    VirtualMachineDisk * get_attach()
+    VirtualMachineDisk * get_attach() const
     {
         return static_cast<VirtualMachineDisk *>(get_attribute("ATTACH"));
     }
@@ -562,7 +610,8 @@ public:
      *     @return Pointer to the new disk or 0 in case of error
      */
     VirtualMachineDisk * set_up_attach(int vmid, int uid, int cluster_id,
-            VectorAttribute * vdisk, VectorAttribute * vcontext, string& error);
+            VectorAttribute * vdisk, const std::string& tsys,
+            VectorAttribute * vcontext, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* Save as Interface                                                      */
@@ -570,7 +619,7 @@ public:
     /**
      *  Get the saveas disk (HOTPLUG_SAVE_AS_ACTIVE = YES)
      */
-    VirtualMachineDisk * get_saveas()
+    VirtualMachineDisk * get_saveas() const
     {
         return static_cast<VirtualMachineDisk *>(
                 get_attribute("HOTPLUG_SAVE_AS_ACTIVE"));
@@ -587,7 +636,7 @@ public:
      *    @return -1 if the image cannot saveas, 0 on success
      */
     int set_saveas(int disk_id, int snap_id, int &iid, long long &size,
-            string& err_str);
+            std::string& err_str);
 
     /**
      *  Set save attributes for the disk
@@ -595,7 +644,7 @@ public:
      *    @param  source to save the disk
      *    @param  img_id ID of the image this disk will be saved to
      */
-    int set_saveas(int disk_id, const string& source, int iid);
+    int set_saveas(int disk_id, const std::string& source, int iid);
 
     /**
      * Clears the SAVE_AS_* attributes of the disk being saved as
@@ -614,13 +663,13 @@ public:
      *    @param  ds_id of the datastore in use by the disk
      *    @return -1 if failure
      */
-    int get_saveas_info(int& disk_id, string& source, int& image_id,
-            string& snap_id, string& tm_mad, string& ds_id);
+    int get_saveas_info(int& disk_id, std::string& source, int& image_id,
+            std::string& snap_id, std::string& tm_mad, std::string& ds_id) const;
 
     /* ---------------------------------------------------------------------- */
     /* Resize disk Interface                                                  */
     /* ---------------------------------------------------------------------- */
-    VirtualMachineDisk * get_resize()
+    VirtualMachineDisk * get_resize() const
     {
         return static_cast<VirtualMachineDisk *>(get_attribute("RESIZE"));
     }
@@ -645,12 +694,12 @@ public:
      *
      *     @return 0 on success
      */
-	int set_up_resize(int disk_id, long size, string& error);
+	int set_up_resize(int disk_id, long size, std::string& error);
 
     /* ---------------------------------------------------------------------- */
     /* SNAPSHOT interface                                                     */
     /* ---------------------------------------------------------------------- */
-    VirtualMachineDisk * get_active_snapshot()
+    VirtualMachineDisk * get_active_snapshot() const
     {
         return static_cast<VirtualMachineDisk *>(
                 get_attribute("DISK_SNAPSHOT_ACTIVE"));
@@ -666,7 +715,7 @@ public:
     /**
      *  Return the snapshots for the disk
      */
-    const Snapshots * get_snapshots(int id, string& error) const;
+    const Snapshots * get_snapshots(int id, std::string& error) const;
 
     /**
      *  Set the disk as being snapshotted (reverted...)
@@ -687,8 +736,8 @@ public:
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
      */
-    int get_active_snapshot(int& ds_id, string& tm_mad, int& disk_id,
-            int& snap_id);
+    int get_active_snapshot(int& ds_id, std::string& tm_mad, int& disk_id,
+            int& snap_id) const;
     /**
      *  Creates a new snapshot of the given disk
      *    @param disk_id of the disk
@@ -696,15 +745,17 @@ public:
      *    @param error if any
      *    @return the id of the new snapshot or -1 if error
      */
-    int create_snapshot(int disk_id, const string& name, string& error);
+    int create_snapshot(int disk_id, const std::string& name, std::string& error);
 
     /**
      *  Sets the snap_id as active, the VM will boot from it next time
      *    @param disk_id of the disk
      *    @param snap_id of the snapshot
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      *    @return -1 if error
      */
-    int revert_snapshot(int disk_id, int snap_id);
+    int revert_snapshot(int disk_id, int snap_id, bool revert);
 
     /**
      *  Deletes the snap_id from the list
@@ -719,22 +770,36 @@ public:
             Template **vm_quota, bool& io, bool& vo);
 
     /**
+     *  Renames a given snapshot
+     *    @param disk_id of the disk
+     *    @param snap_id of the snapshot
+     *    @param new_name of the snapshot
+     *    @return 0 on success
+     */
+    int rename_snapshot(int disk_id, int snap_id,
+                        const std::string& new_name, std::string& str_error);
+
+    /**
      * Deletes all the disk snapshots for non-persistent disks and for persistent
      * disks in no shared system ds.
      *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
      *     @param ds_quotas The DS SIZE freed from image datastores.
      */
     void delete_non_persistent_snapshots(Template **vm_quotas,
-        vector<Template *> &ds_quotas);
+                                         std::vector<Template *> &ds_quotas);
 
     /**
-     * Restores the disk original size for non-persistent and for persistent
-     * disks in no shared system ds.
-     *     @param vm_quotas The SYSTEM_DISK_SIZE freed by the deleted snapshots
-     *     @param ds_quotas The DS SIZE freed from image datastores.
+     *  Marshall disks in XML format with just essential information
+     *    @param xml string to write the disk XML description
      */
-    void delete_non_persistent_resizes(Template **vm_quotas,
-        vector<Template *> &ds_quotas);
+    std::string& to_xml_short(std::string& xml);
+
+    /**
+     *  Check if a tm_mad is valid for each Virtual Machine Disk and set
+     *  clone_target and ln_target
+     *  @param tm_mad is the tm_mad for system datastore chosen
+     */
+    int check_tm_mad(const std::string& tm_mad, std::string& error);
 
 protected:
 
@@ -757,7 +822,7 @@ private:
      *     @param used_targets that cannot be used
      */
     void assign_disk_targets(
-            std::queue<pair <std::string, VirtualMachineDisk *> >& dqueue,
+            std::queue<std::pair <std::string, VirtualMachineDisk *> >& dqueue,
             std::set<std::string>& used_targets);
 };
 

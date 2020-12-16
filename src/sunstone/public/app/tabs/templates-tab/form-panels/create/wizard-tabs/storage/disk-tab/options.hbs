@@ -1,40 +1,11 @@
 <div class="row">
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_firecracker">
     <label for="TARGET">
-      {{tr "Target device"}}
-      {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
+      <span class="hypervisor only_kvm"> {{tr "Target device"}} </span>
+      <span class="hypervisor only_lxd"> {{tr "Mountpoint"}} </span>
+      {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping. In LXD this setting specifies a disk mount point like /mnt.")}}}
     </label>
     <input type="text" wizard_field="TARGET" id="TARGET" name="target" placeholder="sdc"/>
-  </div>
-  <div class="medium-6 columns hypervisor only_kvm">
-    <label for="DRIVER">
-      {{tr "Image mapping driver"}}
-    </label>
-    <select wizard_field="DRIVER" id="DRIVER" name="DRIVER">
-      <option value=""></option>
-      <option value="raw">raw</option>
-      <option value="bochs">bochs</option>
-      <option value="qcow2">qcow2</option>
-      <option value="qed">qed</option>
-      <option value="custom">custom</option>
-    </select>
-  </div>
-</div>
-<div class="row">
-  <div class="medium-6 columns hypervisor only_kvm">
-    <label>
-      {{tr "BUS"}}
-      <select id="disk_dev_prefix" name="disk_dev_prefix">
-        <option value="" selected="selected"></option>
-        <option value="vd">Virtio</option>
-        <option value="sd">SCSI</option>
-        <option value="hd">Parallel ATA (IDE)</option>
-        <option value="custom">custom</option>
-      </select>
-    </label>
-    <div>
-      <input type="text" id="custom_disk_dev_prefix" name="custom_disk_dev_prefix" />
-    </div>
   </div>
   <div class="medium-6 columns hypervisor only_kvm">
     <label for="READONLY">
@@ -46,7 +17,22 @@
       <option value="no">{{tr "no"}}</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_vcenter">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
+    <label>
+      {{tr "BUS"}}
+      <select id="disk_dev_prefix" name="disk_dev_prefix">
+        <option value="" selected="selected"></option>
+        <option value="vd">Virtio</option>
+        <option value="sd">SCSI/SATA</option>
+        <option value="hd">Parallel ATA (IDE)</option>
+        <option value="custom">custom</option>
+      </select>
+    </label>
+    <div>
+      <input type="text" id="custom_disk_dev_prefix" name="custom_disk_dev_prefix" />
+    </div>
+  </div>
+  <div class="medium-6 columns hypervisor only_vcenter not_firecracker">
     <label for="vcenter_adapter_type">
       {{tr "Bus adapter controller"}}
     </label>
@@ -58,7 +44,7 @@
       <option value="custom">custom</option>
     </select>
   </div>
-  <div class="medium-6 columns only_vcenter">
+  <div class="medium-6 columns only_vcenter not_firecracker">
     <label for="vcenter_disk_type">
       {{tr "Disk provisioning type"}}
     </label>
@@ -72,7 +58,7 @@
   </div>
 </div>
 <div class="row vm_param">
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label for="CACHE">
       {{tr "Cache"}}
     </label>
@@ -86,7 +72,7 @@
       <option value="unsafe">unsafe</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label for="IO">
       {{tr "IO policy"}}
     </label>
@@ -96,8 +82,7 @@
       <option value="native">native</option>
     </select>
   </div>
-  {{#unless volatile}}
-  <div class="medium-6 columns hypervisor only_kvm">
+  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
     <label for="DISCARD">
       {{tr "Discard"}}
     </label>
@@ -107,9 +92,8 @@
       <option value="unmap">{{tr "unmap"}}</option>
     </select>
   </div>
-  {{/unless}}
   {{#unless volatile}}
-  <div class="medium-6 columns hypervisor">
+  <div class="medium-6 columns hypervisor only_kvm">
     <label for="SIZE">
       {{tr "Size on instantiate"}}
       {{{tip (tr "The size of the disk will be modified to match this size when the template is instantiated")}}}
@@ -122,45 +106,130 @@
         <select class="mb_input_unit">
           <option value="MB">{{tr "MB"}}</option>
           <option value="GB" selected>{{tr "GB"}}</option>
+          <option value="TB">{{tr "TB"}}</option>
         </select>
       </div>
     </div>
   </div>
   {{/unless}}
 </div>
-<div class="row vm_param">
-  <div class="medium-6 columns hypervisor only_kvm">
-    <fieldset>
-      <legend>{{tr "IO throttling (bytes/s)"}}</legend>
-      <label for="TOTAL_BYTES_SEC">
-        {{tr "Total (read+write) bytes/s"}}
-      </label>
-      <input wizard_field="TOTAL_BYTES_SEC" type="number" min="0" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />
-      <label for="READ_BYTES_SEC">
-        {{tr "Read bytes/s"}}
-      </label>
-      <input wizard_field="READ_BYTES_SEC" type="number" min="0" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />
-      <label for="WRITE_BYTES_SEC">
-        {{tr "Write bytes/s"}}
-      </label>
-      <input wizard_field="WRITE_BYTES_SEC" type="number" min="0" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />
-    </fieldset>
+<fieldset class="not_firecracker">
+  <legend>{{tr "Throttling (Bytes/s)"}}</legend>
+  <div class="row vm_param">
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Total"}}</legend>
+        <label for="TOTAL_BYTES_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="TOTAL_BYTES_SEC" type="number" min="0" id="TOTAL_BYTES_SEC" name="TOTAL_BYTES_SEC" />
+        <label for="TOTAL_BYTES_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="TOTAL_BYTES_SEC_MAX" type="number" min="0" id="TOTAL_BYTES_SEC_MAX" name="TOTAL_BYTES_SEC_MAX" />
+        <label for="TOTAL_BYTES_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="TOTAL_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="TOTAL_BYTES_SEC_MAX_LENGTH" name="TOTAL_BYTES_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Read"}}</legend>
+        <label for="READ_BYTES_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="READ_BYTES_SEC" type="number" min="0" id="READ_BYTES_SEC" name="READ_BYTES_SEC" />
+        <label for="READ_BYTES_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="READ_BYTES_SEC_MAX" type="number" min="0" id="READ_BYTES_SEC_MAX" name="READ_BYTES_SEC_MAX" />
+        <label for="READ_BYTES_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="READ_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="READ_BYTES_SEC_MAX_LENGTH" name="READ_BYTES_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Write"}}</legend>
+        <label for="WRITE_BYTES_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="WRITE_BYTES_SEC" type="number" min="0" id="WRITE_BYTES_SEC" name="WRITE_BYTES_SEC" />
+        <label for="WRITE_BYTES_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="WRITE_BYTES_SEC_MAX" type="number" min="0" id="WRITE_BYTES_SEC_MAX" name="WRITE_BYTES_SEC_MAX" />
+        <label for="WRITE_BYTES_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="WRITE_BYTES_SEC_MAX_LENGTH" type="number" min="0" id="WRITE_BYTES_SEC_MAX_LENGTH" name="WRITE_BYTES_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm">
-    <fieldset>
-      <legend>{{tr "IO throttling (IOPS)"}}</legend>
-      <label for="TOTAL_IOPS_SEC">
-        {{tr "Total (read+write) IOPS"}}
-      </label>
-      <input wizard_field="TOTAL_IOPS_SEC" type="number" min="0" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />
-      <label for="READ_IOPS_SEC">
-        {{tr "Read IOPS"}}
-      </label>
-      <input wizard_field="READ_IOPS_SEC" type="number" min="0" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />
-      <label for="WRITE_IOPS_SEC">
-        {{tr "Write IOPS Sec"}}
-      </label>
-      <input wizard_field="WRITE_IOPS_SEC" type="number" min="0" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
-    </fieldset>
+</fieldset>
+<fieldset class="not_firecracker">
+  <legend>{{tr "Throttling (IOPS)"}}</legend>
+  <div class="row vm_param">
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Total"}}</legend>
+        <label for="TOTAL_IOPS_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="TOTAL_IOPS_SEC" type="number" min="0" id="TOTAL_IOPS_SEC" name="TOTAL_IOPS_SEC" />
+        <label for="TOTAL_IOPS_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="TOTAL_IOPS_SEC_MAX" type="number" min="0" id="TOTAL_IOPS_SEC_MAX" name="TOTAL_IOPS_SEC_MAX" />
+        <label for="TOTAL_IOPS_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="TOTAL_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="TOTAL_IOPS_SEC_MAX_LENGTH" name="TOTAL_IOPS_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Read"}}</legend>
+        <label for="READ_IOPS_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="READ_IOPS_SEC" type="number" min="0" id="READ_IOPS_SEC" name="READ_IOPS_SEC" />
+        <label for="READ_IOPS_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="READ_IOPS_SEC_MAX" type="number" min="0" id="READ_IOPS_SEC_MAX" name="READ_IOPS_SEC_MAX" />
+        <label for="READ_IOPS_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="READ_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="READ_IOPS_SEC_MAX_LENGTH" name="READ_IOPS_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="medium-4 columns hypervisor only_kvm">
+      <fieldset>
+        <legend>{{tr "Write"}}</legend>
+        <label for="WRITE_IOPS_SEC">
+          {{tr "Value"}}
+        </label>
+        <input wizard_field="WRITE_IOPS_SEC" type="number" min="0" id="WRITE_IOPS_SEC" name="WRITE_IOPS_SEC" />
+        <label for="WRITE_IOPS_SEC_MAX">
+          {{tr "Maximum"}}
+        </label>
+        <input wizard_field="WRITE_IOPS_SEC_MAX" type="number" min="0" id="WRITE_IOPS_SEC_MAX" name="WRITE_IOPS_SEC_MAX" />
+        <label for="WRITE_IOPS_SEC_MAX_LENGTH">
+          {{tr "Maximum length"}}
+        </label>
+        <input wizard_field="WRITE_IOPS_SEC_MAX_LENGTH" type="number" min="0" id="WRITE_IOPS_SEC_MAX_LENGTH" name="WRITE_IOPS_SEC_MAX_LENGTH" />
+      </fieldset>
+    </div>
+    <div class="row" style="display: none">
+      <div class="medium-6 columns">
+        <label>
+          {{tr "OPENNEBULA MANAGEMENT"}}
+        </label>
+        <input type="text" wizard_field="OPENNEBULA_MANAGED" id="OPENNEBULA_MANAGED" name="OPENNEBULA_MANAGED"/>
+      </div>
+    </div>
   </div>
-</div>
+</fieldset>

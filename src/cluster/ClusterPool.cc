@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,8 +17,12 @@
 #include "ClusterPool.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "ClusterTemplate.h"
+#include "DatastorePool.h"
 
 #include <stdexcept>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* There is a default cluster boostrapped by the core: 0, default             */
@@ -35,8 +39,10 @@ const int    ClusterPool::DEFAULT_CLUSTER_ID   = 0;
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
-    PoolSQL(db, Cluster::table), vnc_conf(_vnc_conf)
+ClusterPool::ClusterPool(SqlDB * db,
+                         const VectorAttribute * _vnc_conf,
+                         vector<const SingleAttribute *>& encrypted_attrs):
+    PoolSQL(db, one_db::cluster_table), vnc_conf(_vnc_conf)
 {
     ostringstream oss;
     string        error_str;
@@ -51,29 +57,31 @@ ClusterPool::ClusterPool(SqlDB * db, const VectorAttribute * _vnc_conf):
 
         allocate(DEFAULT_CLUSTER_NAME, &rc, error_str);
 
-        if( rc != DEFAULT_CLUSTER_ID )
+        if (rc != DEFAULT_CLUSTER_ID)
         {
             goto error_bootstrap;
         }
 
-        Cluster* cluster = get(DEFAULT_CLUSTER_ID, true);
+        auto cluster = get(DEFAULT_CLUSTER_ID);
 
-        if (cluster == 0)
+        if (!cluster)
         {
             goto error_bootstrap;
         }
 
-        cluster->add_datastore(DatastorePool::SYSTEM_DS_ID, error_str);
-        cluster->add_datastore(DatastorePool::DEFAULT_DS_ID, error_str);
-        cluster->add_datastore(DatastorePool::FILE_DS_ID, error_str);
-
-        update(cluster);
-
-        cluster->unlock();
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
+                DatastorePool::SYSTEM_DS_ID, error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
+                DatastorePool::DEFAULT_DS_ID, error_str);
+        add_to_cluster(PoolObjectSQL::DATASTORE, cluster.get(),
+                DatastorePool::FILE_DS_ID, error_str);
 
         // User created clusters will start from ID 100
         set_lastOID(99);
     }
+
+    // Parse encrypted attributes
+    ClusterTemplate::parse_encrypted(encrypted_attrs);
 
     return;
 
@@ -95,6 +103,8 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
 
     ostringstream oss;
 
+    int db_oid;
+
     // Check name
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
@@ -102,9 +112,9 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
     }
 
     // Check for duplicates
-    cluster = get(name, false);
+    db_oid = exist(name);
 
-    if( cluster != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -119,7 +129,7 @@ int ClusterPool::allocate(string name, int * oid, string& error_str)
 
 
 error_duplicated:
-    oss << "NAME is already taken by CLUSTER " << cluster->get_oid() << ".";
+    oss << "NAME is already taken by CLUSTER " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -183,13 +193,13 @@ void ClusterPool::cluster_acl_filter(ostringstream& filter,
             break;
 
         case PoolObjectSQL::DATASTORE:
-            filter << " OR oid IN ( SELECT oid from " << Cluster::datastore_table
-                   << " WHERE ";
+            filter << " OR oid IN ( SELECT oid from "
+                   << one_db::cluster_datastore_table << " WHERE ";
             fc = ")";
             break;
 
         case PoolObjectSQL::NET:
-            filter << " OR oid IN ( SELECT oid from " << Cluster::network_table
+            filter << " OR oid IN ( SELECT oid from " << one_db::cluster_network_table
                    << " WHERE ";
             fc = ")";
             break;
@@ -198,7 +208,7 @@ void ClusterPool::cluster_acl_filter(ostringstream& filter,
             return;
     }
 
-    for ( vector<int>::const_iterator it = cids.begin(); it < cids.end(); it++ )
+    for ( auto it = cids.begin(); it != cids.end(); it++ )
     {
         if ( it != cids.begin() )
         {
@@ -217,15 +227,16 @@ void ClusterPool::cluster_acl_filter(ostringstream& filter,
 int ClusterPool::query_datastore_clusters(int oid, set<int> &cluster_ids)
 {
     ostringstream oss;
+    set_cb<int>   cb;
 
-    set_callback(static_cast<Callbackable::Callback>(&ClusterPool::get_clusters_cb),
-                 static_cast<void *>(&cluster_ids));
+    cb.set_callback(&cluster_ids);
 
-    oss << "SELECT cid FROM " << Cluster::datastore_table << " WHERE oid = " << oid;
+    oss << "SELECT cid FROM " << one_db::cluster_datastore_table
+        << " WHERE oid = " << oid;
 
-    int rc = db->exec_rd(oss, this);
+    int rc = db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     if ( rc != 0 )
     {
@@ -241,15 +252,15 @@ int ClusterPool::query_datastore_clusters(int oid, set<int> &cluster_ids)
 int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 {
     ostringstream oss;
+    set_cb<int>   cb;
 
-    set_callback(static_cast<Callbackable::Callback>(&ClusterPool::get_clusters_cb),
-                 static_cast<void *>(&cluster_ids));
+    cb.set_callback(&cluster_ids);
 
-    oss << "SELECT cid FROM " << Cluster::network_table << " WHERE oid = " << oid;
+    oss << "SELECT cid FROM " << one_db::cluster_network_table << " WHERE oid = "<<oid;
 
-    int rc = db->exec_rd(oss, this);
+    int rc = db->exec_rd(oss, &cb);
 
-    unset_callback();
+    cb.unset_callback();
 
     if ( rc != 0 )
     {
@@ -262,16 +273,114 @@ int ClusterPool::query_vnet_clusters(int oid, set<int> &cluster_ids)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int ClusterPool::get_clusters_cb(
-        void * _cluster_ids, int num, char **values, char **names)
+int ClusterPool::add_to_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                                          int resource_id, string& error_msg)
 {
-    if ( num == 0 || values == 0 || values[0] == 0 )
+    string table, names;
+
+    switch (type)
+    {
+        case PoolObjectSQL::DATASTORE:
+            table = one_db::cluster_datastore_table;
+            names = one_db::cluster_datastore_db_names;
+            break;
+        case PoolObjectSQL::NET:
+            table = one_db::cluster_network_table;
+            names = one_db::cluster_network_db_names;
+            break;
+        case PoolObjectSQL::HOST:
+            break;
+        default:
+            error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
+            return -1;
+    }
+
+    int rc = cluster->add_resource(type, resource_id, error_msg);
+
+    if (rc != 0)
     {
         return -1;
     }
 
-    int cluster_id = atoi(values[0]);
-    static_cast<set<int>*>(_cluster_ids)->insert(cluster_id);
+    if (!table.empty())
+    {
+        ostringstream oss;
+
+        oss << "INSERT INTO " << table <<" ("
+            << names << ") VALUES (" << cluster->get_oid()
+            << "," << resource_id << ")";
+
+        rc = db->exec_wr(oss);
+
+        if (rc != 0)
+        {
+            cluster->del_resource(type, resource_id, error_msg);
+
+            error_msg =  "Error updating cluster elemnts table";
+
+            return -1;
+        }
+    }
+
+    update(cluster);
 
     return 0;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ClusterPool::del_from_cluster(PoolObjectSQL::ObjectType type, Cluster* cluster,
+                                          int resource_id, string& error_msg)
+{
+    string table;
+
+    switch (type)
+    {
+        case PoolObjectSQL::DATASTORE:
+            table = one_db::cluster_datastore_table;
+            break;
+        case PoolObjectSQL::NET:
+            table = one_db::cluster_network_table;
+            break;
+        case PoolObjectSQL::HOST:
+            break;
+        default:
+            error_msg = "Invalid resource type: " + PoolObjectSQL::type_to_str(type);
+            return -1;
+    }
+
+    int rc = cluster->del_resource(type, resource_id, error_msg);
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    if (!table.empty())
+    {
+        ostringstream oss;
+
+        oss << "DELETE FROM " << table << " WHERE cid = "
+            << cluster->get_oid() << " AND oid = " << resource_id;
+
+        int rc = db->exec_wr(oss);
+
+        if (rc != 0)
+        {
+            cluster->add_resource(type, resource_id, error_msg);
+
+            error_msg =  "Error updating cluster elements table";
+
+            return -1;
+        }
+    }
+
+    update(cluster);
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+

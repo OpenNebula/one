@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,15 +16,17 @@
 
 require 'opennebula'
 
+# rubocop:disable Style/MixinUsage
 include OpenNebula
+# rubocop:enable Style/MixinUsage
 
 require 'opennebula/document_json'
 require 'opennebula/document_pool_json'
+require 'opennebula/flow/service_pool'
+require 'opennebula/flow/service_template_pool'
+require 'opennebula/flow/service_template'
 
-require 'validator'
+require 'opennebula/flow/validator'
 
-require 'models/role.rb'
-require 'models/service_pool.rb'
-require 'models/service.rb'
-require 'models/service_template_pool.rb'
-require 'models/service_template.rb'
+require 'models/role'
+require 'models/service'

@@ -1,0 +1,19 @@
+---
+:ID:
+  :desc: Provider identifier
+  :size: 4
+
+:NAME:
+  :desc: Name of the Provider
+  :size: 15
+  :left: true
+  :expand: true
+
+:REGTIME:
+  :desc: Registration time of the Provider
+  :size: 15
+
+:default:
+- :ID
+- :NAME
+- :REGTIME

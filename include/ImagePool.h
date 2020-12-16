@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,19 +19,14 @@
 
 #include "PoolSQL.h"
 #include "Image.h"
-#include "NebulaLog.h"
 #include "Datastore.h"
+#include "OneDB.h"
 
-#include <time.h>
-#include <sstream>
-
-#include <iostream>
 #include <vector>
 
 class AuthRequest;
 class Snapshots;
 
-using namespace std;
 
 /**
  *  The Image Pool class.
@@ -42,13 +37,11 @@ public:
 
     ImagePool(
             SqlDB *                          db,
-            const string&                    __default_type,
-            const string&                    __default_dev_prefix,
-            const string&                    __default_cdrom_dev_prefix,
-            vector<const SingleAttribute *>& restricted_attrs,
-            vector<const VectorAttribute *>& hook_mads,
-            const string&                    remotes_location,
-            const vector<const SingleAttribute *>& _inherit_image_attrs);
+            const std::string&                    __default_type,
+            const std::string&                    __default_dev_prefix,
+            const std::string&                    __default_cdrom_dev_prefix,
+            std::vector<const SingleAttribute *>& restricted_attrs,
+            const std::vector<const SingleAttribute *>& _inherit_image_attrs);
 
     ~ImagePool(){};
 
@@ -77,47 +70,71 @@ public:
     int allocate (
         int                      uid,
         int                      gid,
-        const string&            uname,
-        const string&            gname,
+        const std::string&       uname,
+        const std::string&       gname,
         int                      umask,
-        ImageTemplate *          img_template,
+        std::unique_ptr<ImageTemplate> img_template,
         int                      ds_id,
-        const string&            ds_name,
+        const std::string&       ds_name,
         Image::DiskType          disk_type,
-        const string&            ds_data,
+        const std::string&       ds_data,
         Datastore::DatastoreType ds_type,
-        const string&            ds_mad,
-        const string&            tm_mad,
-        const string&            extra_data,
+        const std::string&       ds_mad,
+        const std::string&       tm_mad,
+        const std::string&       extra_data,
         int                      source_img_id,
         int *                    oid,
-        string&                  error_str);
-
-    /**
-     **  Function to get a Image from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Image unique id
-     *    @param lock locks the Image mutex
-     *    @return a pointer to the Image, 0 if the Image could not be loaded
-     */
-    Image * get(int oid, bool lock)
-    {
-        return static_cast<Image *>(PoolSQL::get(oid,lock));
-    };
+        std::string&             error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Image unique identifier
+     *   @return a pointer to the Image, nullptr in case of failure
+     */
+    std::unique_ptr<Image> get(int oid)
+    {
+        return PoolSQL::get<Image>(oid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Image unique identifier
+     *   @return a pointer to the Image, nullptr in case of failure
+     */
+    std::unique_ptr<Image> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<Image>(oid);
+    }
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param name of the object
      *   @param uid id of owner
-     *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    Image * get(const string& name, int uid, bool lock)
+    std::unique_ptr<Image> get(const std::string& name, int uid)
     {
-        return static_cast<Image *>(PoolSQL::get(name,uid,lock));
-    };
+        return PoolSQL::get<Image>(name,uid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    std::unique_ptr<Image> get_ro(const std::string& name, int uid)
+    {
+        return PoolSQL::get_ro<Image>(name, uid);
+    }
 
     /**
      *  Bootstraps the database table(s) associated to the Image pool
@@ -133,13 +150,17 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "IMAGE_POOL", Image::table, where, limit);
+        return PoolSQL::dump(oss, "IMAGE_POOL", "body", one_db::image_table,
+                             where, sid, eid, desc);
     }
 
     /**
@@ -154,6 +175,7 @@ public:
      *    @param uid of VM owner (to look for the image id within its images)
      *    @param image_id on success returns the acquired image id
      *    @param snaps list of snapshots associated to this image
+     *    @param attach true if attaching the image to a VM
      *    @param error_str string describing the error
      *
      *    @return 0 on success, -1 otherwise
@@ -162,11 +184,12 @@ public:
                      VirtualMachineDisk *  disk,
                      int                disk_id,
                      Image::ImageType&  img_type,
-                     string&            dev_prefix,
+                     std::string&       dev_prefix,
                      int                uid,
                      int&               image_id,
                      Snapshots **       snaps,
-                     string&            error_str);
+                     bool               attach,
+                     std::string&       error_str);
     /**
      *  Generates a DISK attribute for VM templates using the Image metadata
      *
@@ -179,17 +202,17 @@ public:
                         int                 disk_id,
                         int                 uid);
 
-    static const string& default_type()
+    static const std::string& default_type()
     {
         return _default_type;
     };
 
-    static const string& default_dev_prefix()
+    static const std::string& default_dev_prefix()
     {
         return _default_dev_prefix;
     };
 
-    static const string& default_cdrom_dev_prefix()
+    static const std::string& default_cdrom_dev_prefix()
     {
         return _default_cdrom_dev_prefix;
     };
@@ -202,22 +225,22 @@ private:
     /**
      * Default image type
      **/
-    static string  _default_type;
+    static std::string  _default_type;
 
     /**
      * Default device prefix
      **/
-    static string  _default_dev_prefix;
+    static std::string  _default_dev_prefix;
 
     /**
      * Default device prefix for cdrom disks
      **/
-    static string _default_cdrom_dev_prefix;
+    static std::string _default_cdrom_dev_prefix;
 
     /**
      * Image attributes to be inherited into the VM disk
      */
-    vector<string> inherit_attrs;
+    std::vector<std::string> inherit_attrs;
 
     //--------------------------------------------------------------------------
     // Pool Attributes

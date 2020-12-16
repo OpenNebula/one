@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -43,7 +43,7 @@ function get_type
     else
         command=$1
 
-        ( $command | head -n 1024 | file -b --mime-type - ) 2>/dev/null
+        ( eval "$command" | head -n 1024 | file -b --mime-type - ) 2>/dev/null
     fi
 }
 
@@ -57,7 +57,10 @@ function get_decompressor
         echo "gunzip -c -"
         ;;
     "application/x-bzip2")
-        echo "bunzip2 -c -"
+        echo "bunzip2 -qc -"
+        ;;
+    "application/x-xz")
+        echo "unxz -c -"
         ;;
     *)
         echo "cat"
@@ -91,7 +94,7 @@ function hasher
     fi
 }
 
-# Unarchives a tar or a zip a file to a directpry with the same name.
+# Unarchives a tar or a zip a file to a directory with the same name.
 function unarchive
 {
     TO="$1"
@@ -221,10 +224,10 @@ function get_rbd_cmd
     echo "ssh '$(esc_sq "$DST_HOST")' \"$RBD export '$(esc_sq "$SOURCE")' -\""
 }
 
-TEMP=`getopt -o m:s:l:n -l md5:,sha1:,limit:,nodecomp -- "$@"`
+TEMP=`getopt -o m:s:l:c:n -l md5:,sha1:,limit:,max-size:,convert:,nodecomp -- "$@"`
 
 if [ $? != 0 ] ; then
-    echo "Arguments error"
+    echo "Arguments error" >&2
     exit -1
 fi
 
@@ -250,6 +253,14 @@ while true; do
             export LIMIT_RATE="$2"
             shift 2
             ;;
+        -c|--max-size)
+            export MAX_SIZE="$2"
+            shift 2
+            ;;
+        --convert)
+            export CONVERT="$2"
+            shift 2
+            ;;
         --)
             shift
             break
@@ -263,8 +274,13 @@ done
 FROM="$1"
 TO="$2"
 
-# File used by the hasher function to store the resulting hash
-export HASH_FILE="/tmp/downloader.hash.$$"
+if [ -n "${HASH_TYPE}" -a -n "${MAX_SIZE}" ]; then
+    echo "Hash check not supported for partial downloads" >&2
+    exit -1
+else
+    # File used by the hasher function to store the resulting hash
+    export HASH_FILE="/tmp/downloader.hash.$$"
+fi
 
 GLOBAL_CURL_ARGS="--fail -sS -k -L"
 
@@ -293,7 +309,6 @@ ssh://*)
     command="ssh ${ssh_arg[0]} $rmt_cmd"
     ;;
 s3://*)
-
     # Read s3 environment
     s3_env
 
@@ -312,6 +327,14 @@ rbd://*)
 vcenter://*)
     command="$VAR_LOCATION/remotes/datastore/vcenter_downloader.rb '$(esc_sq "$FROM")'"
     ;;
+lxd://*)
+    file_type="application/octet-stream"
+    command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
+    ;;
+docker://*)
+    file_type="application/octet-stream"
+    command="$VAR_LOCATION/remotes/datastore/docker_downloader.sh \"$FROM\""
+    ;;
 *)
     if [ ! -r $FROM ]; then
         echo "Cannot read from $FROM" >&2
@@ -321,14 +344,51 @@ vcenter://*)
     ;;
 esac
 
-file_type=$(get_type "$command")
+[ -z "$file_type" ] && file_type=$(get_type "$command")
 decompressor=$(get_decompressor "$file_type")
 
-eval "$command" | tee >( hasher $HASH_TYPE) | decompress "$decompressor" "$TO"
+if [ -z "${MAX_SIZE}" ]; then
+    eval "$command" | \
+        tee >( hasher $HASH_TYPE) | \
+        decompress "$decompressor" "$TO"
 
-if [ "$?" != "0" -o "$PIPESTATUS" != "0" ]; then
-    echo "Error copying" >&2
-    exit -1
+    if [ "$?" != "0" -o "$PIPESTATUS" != "0" ]; then
+        echo "Error copying" >&2
+        exit -1
+    fi
+else
+    # Order of the 'head' command is here on purpose:
+    # 1. We want to download more bytes than needed to get a requested
+    #    number of bytes on the output. Decompressor may need more
+    #    data to decompress the stream.
+    # 2. Decompressor command is also misused to detect SIGPIPE error.
+    eval "$command" | \
+        decompress "$decompressor" "$TO" 2>/dev/null | \
+        head -c "${MAX_SIZE}"
+
+    # Following table shows exit codes of each command
+    # in the pipe for various scenarios:
+    #
+    # ----------------------------------------------------
+    # | $COMMAND | TYPE          | PIPESTATUS | BEHAVIOUR
+    # ----------------------------------------------------
+    # | cat      | partial       | 141 141  0 | OK
+    # | cat      | full          |   0   0  0 | OK
+    # | cat      | error         |   1   0  0 | fail
+    # | curl     | partial       |  23 141  0 | OK
+    # | curl     | full          |   0   0  0 | OK
+    # | curl     | error         |  22   0  0 | fail
+    # | ssh      | partial       | 255 141  0 | OK
+    # | ssh      | full          |   0   0  0 | OK
+    # | ssh      | error ssh     | 255   0  0 | fail
+    # | ssh      | error ssh cat |   1   0  0 | fail
+    if [ \( "${PIPESTATUS[0]}" != '0' -a "${PIPESTATUS[1]}" = '0' \) \
+         -o \( "${PIPESTATUS[1]}" != '0' -a "${PIPESTATUS[1]}" != '141' \) \
+         -o \( "${PIPESTATUS[2]}" != "0" \) ];
+    then
+        echo "Error copying" >&2
+        exit -1
+    fi
 fi
 
 if [ -n "$HASH_TYPE" ]; then
@@ -340,8 +400,26 @@ if [ -n "$HASH_TYPE" ]; then
     fi
 fi
 
+function convert_image
+{
+    original_type=$(qemu-img info $TO | grep "^file format:" | awk '{print $3}' || :)
+    if [ "$CONVERT" != "$original_type" ]; then
+        tmpimage=$TO".tmp"
+        qemu-img convert -f $original_type -O $CONVERT $TO $tmpimage
+        mv $tmpimage $TO
+    fi
+}
+
 # Unarchive only if the destination is filesystem
 if [ "$TO" != "-" ]; then
     unarchive "$TO"
-fi
 
+    if [ -n "$CONVERT" ] && [ -f "$TO" ]; then
+        convert_image
+    fi
+
+    fallocate -d "$TO"
+
+elif [ -n "$CONVERT" ]; then
+    convert_image
+fi

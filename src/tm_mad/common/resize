@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -34,6 +34,12 @@ fi
 
 SRC_PATH=$(arg_path $SRC)
 SRC_HOST=$(arg_host $SRC)
+
+# for running VMs, leave disk resize on kvm/resize_disk
+if [ `lcm_state $VMID` -eq 62 ]; then
+    log "Not resizing disk ${SRC_PATH} for running virt. machine directly"
+    exit 0
+fi
 
 ssh_exec_and_log "${SRC_HOST}" "qemu-img resize ${SRC_PATH} ${SIZE}M" \
                  "Error resizing image ${SRC_PATH}"

@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -30,7 +30,7 @@
       <input id="{{dataTableId}}_search" class="search" type="search" placeholder="{{tr "Search"}}"/>
     </div>
     <div class="small-2 columns right">
-      <a id="refresh_button_{{dataTableId}}" href="#" class="refresh-table right"> <i class="fa fa-lg fa-fw fa-refresh" /></a>
+      <a id="refresh_button_{{dataTableId}}" href="#" class="refresh-table right"> <i class="fas fa-lg fa-fw fa-sync-alt" /></a>
     </div>
   </div>
   {{/if}}
@@ -38,7 +38,8 @@
     <thead>
       <tr>
         <th class="check">
-          <input type="checkbox" class="check_all" value=""/>
+          <input style="vertical-align: inherit;" type="checkbox" class="check_all" value=""/>
+          <span style="display: table; float:left; margin-right: 3px; width: 5px; height: 20px; background: transparent;"></span>
         </th>
         {{#each columns}}
         <th>{{this}}</th>

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -24,31 +24,39 @@
 #   - vmid is the id of the VM
 #   - dsid is the target datastore (0 is the system datastore)
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-size               = ARGV[0]
-path               = ARGV[2]
-vmid               = ARGV[3]
-dsid               = ARGV[4]
+size = ARGV[0]
+path = ARGV[2]
+vmid = ARGV[3]
+dsid = ARGV[4]
 
-check_valid size, "size"
-check_valid path, "path"
-check_valid vmid, "vmid"
-check_valid dsid, "dsid"
+check_valid size, 'size'
+check_valid path, 'path'
+check_valid vmid, 'vmid'
+check_valid dsid, 'dsid'
 
-hostname, img_name = path.split(":")
-disk_id  = img_name.split(".")[-1]
+hostname, img_name = path.split(':')
+disk_id = img_name.split('.')[-1]
 
 # Get host ID
 host = VCenterDriver::VIHelper.find_by_name(OpenNebula::HostPool, hostname)
@@ -62,17 +70,21 @@ ds_ref = one_ds['TEMPLATE/VCENTER_DS_REF']
 one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vmid)
 
 # Adapter and disk type from one_vm
-adapter_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_ADAPTER_TYPE"] ||
-               VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE")
-disk_type = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_DISK_TYPE"] ||
-            VCenterDriver::VIHelper.get_default("IMAGE/TEMPLATE/VCENTER_DISK_TYPE")
+disk_xpath = "/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/"
 
-check_valid adapter_type, "adapter_type"
-check_valid disk_type, "disk_type"
+adapter_type = one_vm[disk_xpath+'VCENTER_ADAPTER_TYPE'] ||
+               VCenterDriver::VIHelper
+               .get_default('IMAGE/TEMPLATE/VCENTER_ADAPTER_TYPE')
+
+disk_type = one_vm[disk_xpath+'VCENTER_DISK_TYPE'] ||
+            VCenterDriver::VIHelper
+            .get_default('IMAGE/TEMPLATE/VCENTER_DISK_TYPE')
+
+check_valid adapter_type, 'adapter_type'
+check_valid disk_type, 'disk_type'
 
 # Volatile images dir from one_vm
-ds_volatile_dir = one_vm["/VM/TEMPLATE/DISK[DISK_ID=#{disk_id}]/VCENTER_DS_VOLATILE_DIR"] ||
-            "one-volatile"
+ds_volatile_dir = one_vm[disk_xpath+'VCENTER_DS_VOLATILE_DIR'] || 'one-volatile'
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
@@ -84,12 +96,14 @@ begin
     if ds_vc.class == VCenterDriver::Datastore
         ds_vc.create_virtual_disk(img_name, size, adapter_type, disk_type)
     end
-
-rescue Exception => e
+rescue StandardError => e
     message = "Error creating virtual disk in #{ds_vc['name']}."\
-              " Reason: #{e.message}\n#{e.backtrace}"
-    STDERR.puts error_message(message)
-    exit -1
+              " Reason: #{e.message}}."
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,29 +16,29 @@
 
 define(function(require) {
   // Dependencies
-  var Locale = require('utils/locale');
-  var Sunstone = require('sunstone');
-  var OpenNebulaHost = require('opennebula/host');
-  var OpenNebulaCluster = require('opennebula/cluster');
-  var OpenNebulaError = require('opennebula/error');
-  var DomDataTable = require('utils/dom-datatable');
-  var Notifier = require('utils/notifier');
-  var UniqueId = require('utils/unique-id');
-  var VCenterCommon = require('./vcenter-common');
+  var Locale = require("utils/locale");
+  var Sunstone = require("sunstone");
+  var OpenNebulaHost = require("opennebula/host");
+  var OpenNebulaCluster = require("opennebula/cluster");
+  var OpenNebulaError = require("opennebula/error");
+  var DomDataTable = require("utils/dom-datatable");
+  var Notifier = require("utils/notifier");
+  var UniqueId = require("utils/unique-id");
+  var VCenterCommon = require("./vcenter-common");
 
-  var TemplateHTML = require('hbs!./common/html');
-  var RowTemplate = require('hbs!./clusters/row');
-  var EmptyFieldsetHTML = require('hbs!./common/empty-fieldset');
-  var FieldsetTableHTML = require('hbs!./common/fieldset-table');
+  var TemplateHTML = require("hbs!./common/html");
+  var RowTemplate = require("hbs!./clusters/row");
+  var EmptyFieldsetHTML = require("hbs!./common/empty-fieldset");
+  var FieldsetTableHTML = require("hbs!./common/fieldset-table");
 
   function VCenterClusters() {
     return this;
   }
 
   VCenterClusters.prototype = {
-    'html': VCenterCommon.html,
-    'insert': _fillVCenterClusters,
-    'import': _import
+    "html": VCenterCommon.html,
+    "insert": _fillVCenterClusters,
+    "import": _import
   };
   VCenterClusters.prototype.constructor = VCenterClusters;
 
@@ -56,7 +56,7 @@ define(function(require) {
   function _fillVCenterClusters(opts) {
     this.opts = opts;
 
-    var path = '/vcenter';
+    var path = "/vcenter/hosts";
 
     var context = $(".vcenter_import", opts.container);
     context.html( TemplateHTML({}) );
@@ -79,7 +79,7 @@ define(function(require) {
           var content;
           if (elements.length == 0) {
             content = EmptyFieldsetHTML({
-              title : datacenter_name + ' ' + Locale.tr("DataCenter"),
+              title : datacenter_name + " " + Locale.tr("DataCenter"),
               message : Locale.tr("No new clusters found in this DataCenter")
             });
 
@@ -88,32 +88,32 @@ define(function(require) {
             var tableId = "vcenter_import_table_" + UniqueId.id();
             content = FieldsetTableHTML({
               tableId : tableId,
-              title : datacenter_name + ' ' + Locale.tr("DataCenter"),
-              clearImported : Locale.tr("Clear Imported DataCenters"),
+              title : datacenter_name + " " + Locale.tr("DataCenter"),
               toggleAdvanced : false,
               columns : [
-                '<input type="checkbox" class="check_all"/>',
+                "<input type=\"checkbox\" class=\"check_all\"/>",
                 Locale.tr("Cluster"),
+                Locale.tr("vCenter ref"),
                 Locale.tr("Location"),
                 ""
               ]
             });
 
             var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
-            var tbody = $('#' + tableId + ' tbody', context);
+            var tbody = $("#" + tableId + " tbody", context);
 
             $.each(elements, function(id, cluster) {
               var cluster_name = cluster.simple_name;
               var cluster_location = cluster.cluster_location;
-              var cluster_hash = cluster.cluster_hash;
-              var rp_list = '<select class="select_rp"><option></option>';
-              if(cluster.rp_list.length > 0){
-                for(var i = 0; i < cluster.rp_list.length; i++){
-                  rp_list += '<option>' + cluster.rp_list[i].name + '</option>';
+              var cluster_ref = cluster.cluster_ref;
+              var rp_list = "<select class=\"select_rp\"><option></option>";
+              if (cluster.rp_list.length > 0){
+                for (var i = 0; i < cluster.rp_list.length; i++){
+                  rp_list += "<option>" + cluster.rp_list[i].name + "</option>";
                 }
               }
-              rp_list += '</select>';
-              var opts = { name: cluster_name, location: cluster_location, hash: cluster_hash };
+              rp_list += "</select>";
+              var opts = { name: cluster_name, location: cluster_location, cluster_ref: cluster_ref };
               var trow = $(RowTemplate(opts)).appendTo(tbody);
 
               $(".check_item", trow).data("cluster", cluster);
@@ -131,8 +131,8 @@ define(function(require) {
                   //"ordering": false,
                   "aoColumnDefs": [
                     {"sWidth": "35px", "aTargets": [0]},
-                    {"bSortable": false, "aTargets": [0,2]},
-                    {"bSortable": true, "aTargets": [1]},
+                    {"bSortable": false, "aTargets": [0,3,4]},
+                    {"bSortable": true, "aTargets": [1,2]},
                   ],
                 }
               });
@@ -147,8 +147,8 @@ define(function(require) {
               selected: Locale.tr("%1$s Clusters selected.")
             });
 
-            context.off('click', '.clear_imported');
-            context.on('click', '.clear_imported', function() {
+            context.off("click", ".clear_imported");
+            context.on("click", ".clear_imported", function() {
               _fillVCenterClusters(opts);
               return false;
             });
@@ -180,47 +180,42 @@ define(function(require) {
         var vcenter_version = $(this).data("cluster").vcenter_version;
         var cluster_name = $(this).data("cluster").cluster_name;
 
-        if (cluster_id == 0) {
 
-          var cluster_json = {
-            "cluster": {
-              "name": cluster_name
-            }
-          };
+        var host_json = {
+          "host": {
+            "name": cluster_name,
+            "vm_mad": "vcenter",
+            "vnm_mad": "dummy",
+            "im_mad": "vcenter",
+            "cluster_id": null
+          }
+        };
 
-          OpenNebulaCluster.create({
-            timeout: true,
-            data: cluster_json,
-            success: function(request, response) {
-
-              var host_json = {
-                "host": {
-                  "name": cluster_name,
-                  "vm_mad": "vcenter",
-                  "vnm_mad": "dummy",
-                  "im_mad": "vcenter",
-                  "cluster_id": response.CLUSTER.ID
+        function successClusterList(request, obj_list){
+          if (cluster_name && obj_list) {
+            let r = null;
+            obj_list.map(cluster => {
+              if (cluster && cluster.CLUSTER && cluster.CLUSTER.NAME) {
+                if (cluster.CLUSTER.NAME === cluster_name){
+                  r = cluster.CLUSTER;
+                }
+              }
+            });
+            if(r && r.ID){
+              host_json.host.cluster_id = r.ID;
+              createHost();
+            }else{
+              var cluster_json = {
+                "cluster": {
+                  "name": cluster_name
                 }
               };
-
-              OpenNebulaHost.create({
+              OpenNebulaCluster.create({
                 timeout: true,
-                data: host_json,
+                data: cluster_json,
                 success: function(request, response) {
-                  VCenterCommon.importSuccess({
-                    context : row_context,
-                    message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
-                  });
-
-                  var template_raw =
-                    "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-                    "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-                    "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
-                    "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
-                    "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
-                    "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
-
-                  Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+                  host_json.host.cluster_id = response.CLUSTER.ID;
+                  createHost();
                 },
                 error: function (request, error_json) {
                   VCenterCommon.importFailure({
@@ -229,6 +224,43 @@ define(function(require) {
                   });
                 }
               });
+            }
+          }
+        }
+        
+        function createHost(){
+          OpenNebulaHost.create({
+            timeout: true,
+            data: host_json,
+            success: function(request, response) {
+              VCenterCommon.importSuccess({
+                context : row_context,
+                message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
+              });
+              var template_raw =
+                  "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
+                  "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
+                  "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
+                  "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
+                  "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
+
+              var vcenterHost = that.opts.vcenter_host.split(":");
+
+              if (vcenterHost.length === 2) {
+                template_raw += "VCENTER_HOST=\"" + vcenterHost[0] + "\"\n";
+                template_raw += "VCENTER_PORT=\"" + vcenterHost[1] + "\"\n";
+              } else {
+                template_raw += "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n";
+              }
+
+              Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
+
+              $.ajax({
+                url: '/vcenter/register_hooks',
+                type: "POST",
+                processData: false
+              });
+
             },
             error: function (request, error_json) {
               VCenterCommon.importFailure({
@@ -237,48 +269,20 @@ define(function(require) {
               });
             }
           });
-
-
-        } else {
-
-          var host_json = {
-              "host": {
-                "name": cluster_name,
-                "vm_mad": "vcenter",
-                "vnm_mad": "dummy",
-                "im_mad": "vcenter",
-                "cluster_id": cluster_id
-              }
-            };
-
-            OpenNebulaHost.create({
-              timeout: true,
-              data: host_json,
-              success: function(request, response) {
-                VCenterCommon.importSuccess({
-                  context : row_context,
-                  message : Locale.tr("Host created successfully. ID: %1$s", response.HOST.ID)
-                });
-
-                var template_raw =
-                  "VCENTER_USER=\"" + that.opts.vcenter_user + "\"\n" +
-                  "VCENTER_PASSWORD=\"" + that.opts.vcenter_password + "\"\n" +
-                  "VCENTER_HOST=\"" + that.opts.vcenter_host + "\"\n" +
-                  "VCENTER_INSTANCE_ID=\"" + vcenter_uuid + "\"\n" +
-                  "VCENTER_CCR_REF=\"" + cluster_ref + "\"\n" +
-                  "VCENTER_VERSION=\"" + vcenter_version + "\"\n";
-
-                Sunstone.runAction("Host.update_template", response.HOST.ID, template_raw);
-              },
-              error: function (request, error_json) {
-                VCenterCommon.importFailure({
-                  context : row_context,
-                  message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-                });
-              }
-            });
         }
 
+        if (cluster_id == 0) {
+          OpenNebulaCluster.list({
+            timeout: true,
+            success: successClusterList,
+            error: error => {
+              console.log("ERROR", error);
+            }
+          });
+        } else {
+          host_json.host.cluster_id = cluster_id;
+          createHost();
+        }
       });
     });
   }

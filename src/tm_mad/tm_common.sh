@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -47,7 +47,11 @@ function arg_host
 function arg_path
 {
     ARG_PATH=`echo $1 | $SED 's/^[^:]*:(.*)$/\1/'`
-    fix_dir_slashes "$ARG_PATH"
+    if [ "$2" = "NOFIX" ]; then
+        echo "$ARG_PATH"
+    else
+        fix_dir_slashes "$ARG_PATH"
+    fi
 }
 
 #Return 1 if the first argument is a disk
@@ -105,7 +109,7 @@ function lcm_state
 
     while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
-    done < <(onevm show -x $VMID| $XPATH \
+    done < <(onevm show -x "${1:-$VMID}" | $XPATH \
                         /VM/LCM_STATE )
 
     LCM_STATE="${XPATH_ELEMENTS[0]}"
@@ -115,6 +119,7 @@ function lcm_state
 
 function migrate_other
 {
+
     DRIVER_PATH=$(dirname $0)
     MAD=${DRIVER_PATH##*/}
 
@@ -123,7 +128,7 @@ function migrate_other
     unset i
     while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
-    done< <("$XPATH" -b "$6" \
+    done< <(echo $TEMPLATE_64 | base64 -d | "$XPATH" \
             /VM/TEMPLATE/CONTEXT/DISK_ID \
             %m%/VM/TEMPLATE/DISK/DISK_ID \
             %m%/VM/TEMPLATE/DISK/CLONE \
@@ -138,7 +143,7 @@ function migrate_other
     CLONE_ARRAY=($CLONES)
     TM_MAD_ARRAY=($TM_MADS)
 
-    if [ -n "$7" ]; then
+    if [ -n "$6" ]; then
         return 0
     fi
 
@@ -152,7 +157,7 @@ function migrate_other
             # call the other TM_MADs with same arguments
             # but mark that it is not SYSTEM_DS
             log "Call $TM/${0##*/}"
-            "${DRIVER_PATH}/../$TM/${0##*/}" "$@" "$MAD"
+            echo $TEMPLATE_64 | "${DRIVER_PATH}/../$TM/${0##*/}" "$@" "$MAD"
             PROCESSED+=" $TM "
         fi
     done

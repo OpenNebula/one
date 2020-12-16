@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,7 @@
 
 #include "RequestManagerVirtualNetwork.h"
 #include "VirtualNetworkTemplate.h"
+#include "ClusterPool.h"
 
 using namespace std;
 
@@ -30,7 +31,6 @@ void RequestManagerVirtualNetwork::
     string str_tmpl = xmlrpc_c::value_string (paramList.getString(2));
 
     VirtualNetworkTemplate tmpl;
-    VirtualNetwork *       vn;
 
     int rc;
 
@@ -47,28 +47,25 @@ void RequestManagerVirtualNetwork::
         return;
     }
 
-    vn = static_cast<VirtualNetwork *>(pool->get(id,true));
+    auto vn = pool->get<VirtualNetwork>(id);
 
-    if ( vn == 0 )
+    if ( vn == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = leases_action(vn, &tmpl, att, att.resp_msg);
+    rc = leases_action(vn.get(), &tmpl, att, att.resp_msg);
 
     if ( rc < 0 )
     {
         failure_response(INTERNAL, att);
 
-        vn->unlock();
         return;
     }
 
-    pool->update(vn);
-
-    vn->unlock();
+    pool->update(vn.get());
 
     success_response(id, att);
 }
@@ -83,8 +80,6 @@ void VirtualNetworkRmAddressRange::
     int    id = xmlrpc_c::value_int(paramList.getInt(1));
     int ar_id = xmlrpc_c::value_int(paramList.getInt(2));
 
-    VirtualNetwork * vn;
-
     // -------------------------------------------------------------------------
     // Authorize the operation VNET:MANAGE
     // -------------------------------------------------------------------------
@@ -93,43 +88,53 @@ void VirtualNetworkRmAddressRange::
         return;
     }
 
-    // -------------------------------------------------------------------------
-    // Get VNET and data for reservations
-    // -------------------------------------------------------------------------
-    vn = static_cast<VirtualNetwork *>(pool->get(id,true));
-
-    if ( vn == 0 )
+    bool force = false;
+    if (paramList.size() > 3)
     {
-        att.resp_id = id;
-        failure_response(NO_EXISTS, att);
-        return;
+        force = xmlrpc_c::value_boolean(paramList.getBoolean(3));
     }
 
     string mac;
     int    rsize;
 
-    int parent    = vn->get_parent();
-    int parent_ar = vn->get_ar_parent(ar_id);
+    int parent;
+    int parent_ar;
 
-    int uid = vn->get_uid();
-    int gid = vn->get_gid();
+    int uid;
+    int gid;
 
-    int rc  = vn->get_template_attribute("SIZE", rsize, ar_id);
+    int rc;
 
-    vn->get_template_attribute("MAC" , mac  , ar_id);
-
-    if ( vn->rm_ar(ar_id, att.resp_msg) < 0 )
+    // -------------------------------------------------------------------------
+    // Get VNET and data for reservations
+    // -------------------------------------------------------------------------
+    if ( auto vn = pool->get<VirtualNetwork>(id) )
     {
-        failure_response(INTERNAL, att);
+        parent    = vn->get_parent();
+        parent_ar = vn->get_ar_parent(ar_id);
 
-        vn->unlock();
+        uid = vn->get_uid();
+        gid = vn->get_gid();
 
+        rc  = vn->get_template_attribute("SIZE", rsize, ar_id);
+
+        vn->get_template_attribute("MAC" , mac  , ar_id);
+
+        if (vn->rm_ar(ar_id, force, att.resp_msg) < 0)
+        {
+            failure_response(INTERNAL, att);
+
+            return;
+        }
+
+        pool->update(vn.get());
+    }
+    else
+    {
+        att.resp_id = id;
+        failure_response(NO_EXISTS, att);
         return;
     }
-
-    pool->update(vn);
-
-    vn->unlock();
 
     // -------------------------------------------------------------------------
     // Free addresses in parent VNET for reservations
@@ -137,16 +142,14 @@ void VirtualNetworkRmAddressRange::
 
     if (parent != -1 && parent_ar != -1 && !mac.empty() && rc == 0)
     {
-        vn = static_cast<VirtualNetwork *>(pool->get(parent, true));
-
-        if ( vn != 0 )
+        if ( auto vn = pool->get<VirtualNetwork>(parent) )
         {
             int freed = vn->free_addr_by_range((unsigned int) parent_ar,
                 PoolObjectSQL::NET, id, mac, rsize);
 
-            pool->update(vn);
+            pool->update(vn.get());
 
-            vn->unlock();
+            vn.reset();
 
             if (freed > 0)
             {
@@ -180,13 +183,10 @@ void VirtualNetworkReserve::request_execute(
     VirtualNetworkPool *   vnpool = static_cast<VirtualNetworkPool *>(pool);
     VirtualNetworkTemplate tmpl;
 
-    VirtualNetwork * vn  = 0;
-    VirtualNetwork * rvn = 0;
-
     int rc;
     set<int> cluster_ids;
 
-    VirtualNetworkTemplate * vtmpl;
+    unique_ptr<VirtualNetworkTemplate> vtmpl;
 
     PoolObjectAuth reserv_perms;
 
@@ -235,9 +235,9 @@ void VirtualNetworkReserve::request_execute(
             return;
         }
 
-        rvn = vnpool->get(rid,true);
+        auto rvn = vnpool->get_ro(rid);
 
-        if (rvn == 0)
+        if (rvn == nullptr)
         {
             att.resp_id = rid;
             failure_response(NO_EXISTS, att);
@@ -250,8 +250,6 @@ void VirtualNetworkReserve::request_execute(
         {
             att.resp_msg = "Cannot add reservations to a non-reservation VNET";
             failure_response(ACTION, att);
-
-            rvn->unlock();
 
             return;
         }
@@ -266,14 +264,10 @@ void VirtualNetworkReserve::request_execute(
             att.resp_msg = oss.str();
             failure_response(ACTION, att);
 
-            rvn->unlock();
-
             return;
         }
 
         rvn->get_permissions(reserv_perms);
-
-        rvn->unlock();
     }
 
     /* ------------------- Reservation NAME ---------------- */
@@ -319,42 +313,39 @@ void VirtualNetworkReserve::request_execute(
     // -------------------------------------------------------------------------
     // Authorize the operation Parent:USE Reservation:MANAGE
     // -------------------------------------------------------------------------
-    vn = vnpool->get(id,true);
+    PoolObjectAuth parent_perms;
+    AuthRequest    ar(att.uid, att.group_ids);
 
-    if ( vn == 0 )
+    if ( auto vn = vnpool->get_ro(id) )
+    {
+        if (vn->get_parent() != -1)
+        {
+            att.resp_msg = "Cannot reserve addresses from a reserved VNET";
+            failure_response(ACTION, att);
+
+            return;
+        }
+
+        vn->get_permissions(parent_perms);
+
+        ar.add_auth(AuthRequest::USE, parent_perms);
+
+        if (on_exisiting)
+        {
+            ar.add_auth(AuthRequest::MANAGE, reserv_perms);
+        }
+        else
+        {
+            vtmpl       = vn->clone_template();
+            cluster_ids = vn->get_cluster_ids();
+        }
+    }
+    else
     {
         att.resp_msg = id;
         failure_response(NO_EXISTS, att);
         return;
     }
-
-    if (vn->get_parent() != -1)
-    {
-        att.resp_msg = "Cannot reserve addresses from a reserved VNET";
-        failure_response(ACTION, att);
-
-        vn->unlock();
-        return;
-    }
-
-    PoolObjectAuth parent_perms;
-    AuthRequest    ar(att.uid, att.group_ids);
-
-    vn->get_permissions(parent_perms);
-
-    ar.add_auth(AuthRequest::USE, parent_perms);
-
-    if (on_exisiting)
-    {
-        ar.add_auth(AuthRequest::MANAGE, reserv_perms);
-    }
-    else
-    {
-        vtmpl       = vn->clone_template();
-        cluster_ids = vn->get_cluster_ids();
-    }
-
-    vn->unlock();
 
     if (UserPool::authorize(ar) == -1)
     {
@@ -372,7 +363,7 @@ void VirtualNetworkReserve::request_execute(
         vtmpl->replace("NAME", name);
 
         rc = vnpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                id, vtmpl, &rid, cluster_ids, att.resp_msg);
+                id, move(vtmpl), &rid, cluster_ids, att.resp_msg);
 
         if (rc < 0)
         {
@@ -381,20 +372,21 @@ void VirtualNetworkReserve::request_execute(
         }
     }
 
-    rvn = vnpool->get(rid, true);
+    int ruid;
+    int rgid;
 
-    if (rvn == 0)
+    if (auto rvn = vnpool->get_ro(rid))
+    {
+        ruid = rvn->get_uid();
+        rgid = rvn->get_gid();
+    }
+    else
     {
         att.resp_id = rid;
         failure_response(NO_EXISTS, att);
 
         return;
     }
-
-    int ruid = rvn->get_uid();
-    int rgid = rvn->get_gid();
-
-    rvn->unlock();
 
     // -------------------------------------------------------------------------
     // Check & update quotas on the target VNET & *reservation owner*
@@ -415,13 +407,9 @@ void VirtualNetworkReserve::request_execute(
     {
         if (!on_exisiting)
         {
-            rvn = vnpool->get(rid, true);
-
-            if (rvn != 0)
+            if (auto rvn = vnpool->get(rid))
             {
-                vnpool->drop(rvn, att.resp_msg);
-
-                rvn->unlock();
+                vnpool->drop(rvn.get(), att.resp_msg);
             }
         }
         return;
@@ -465,13 +453,9 @@ void VirtualNetworkReserve::request_execute(
 
         if (!on_exisiting)
         {
-            rvn = vnpool->get(rid, true);
-
-            if (rvn != 0)
+            if (auto rvn = vnpool->get(rid))
             {
-                vnpool->drop(rvn, att.resp_msg);
-
-                rvn->unlock();
+                vnpool->drop(rvn.get(), att.resp_msg);
             }
         }
 
@@ -487,17 +471,11 @@ void VirtualNetworkReserve::request_execute(
 
         ClusterPool * clpool = nd.get_clpool();
 
-        for (set<int>::iterator i=cluster_ids.begin(); i!= cluster_ids.end(); i++)
+        for (auto cid : cluster_ids)
         {
-            Cluster * cluster = clpool->get(*i, true);
-
-            if ( cluster != 0 )
+            if ( auto cluster = clpool->get(cid) )
             {
-                cluster->add_vnet(rid, att.resp_msg);
-
-                clpool->update(cluster);
-
-                cluster->unlock();
+                clpool->add_to_cluster(PoolObjectSQL::NET, cluster.get(), rid, att.resp_msg);
             }
         }
     }

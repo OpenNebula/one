@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://opennebula.org/XMLSchema" elementFormDefault="qualified" targetNamespace="http://opennebula.org/XMLSchema">
+  <xs:element name="VNTEMPLATE">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ID" type="xs:integer"/>
+        <xs:element name="UID" type="xs:integer"/>
+        <xs:element name="GID" type="xs:integer"/>
+        <xs:element name="UNAME" type="xs:string"/>
+        <xs:element name="GNAME" type="xs:string"/>
+        <xs:element name="NAME" type="xs:string"/>
+        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="LOCKED" type="xs:integer"/>
+              <xs:element name="OWNER" type="xs:integer"/>
+              <xs:element name="TIME" type="xs:integer"/>
+              <xs:element name="REQ_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PERMISSIONS" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="OWNER_U" type="xs:integer"/>
+              <xs:element name="OWNER_M" type="xs:integer"/>
+              <xs:element name="OWNER_A" type="xs:integer"/>
+              <xs:element name="GROUP_U" type="xs:integer"/>
+              <xs:element name="GROUP_M" type="xs:integer"/>
+              <xs:element name="GROUP_A" type="xs:integer"/>
+              <xs:element name="OTHER_U" type="xs:integer"/>
+              <xs:element name="OTHER_M" type="xs:integer"/>
+              <xs:element name="OTHER_A" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="REGTIME" type="xs:integer"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+             <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="VN_MAD" type="xs:string"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

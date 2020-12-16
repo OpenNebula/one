@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,6 +15,23 @@
 /* -------------------------------------------------------------------------- */
 
 #include "RequestManagerSecurityGroup.h"
+#include "LifeCycleManager.h"
+#include "Nebula.h"
+#include "SecurityGroupPool.h"
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+SecurityGroupCommit::SecurityGroupCommit()
+    : Request("one.secgroup.commit", "A:sib",
+              "Commit security group changes to VMs")
+{
+    Nebula& nd  = Nebula::instance();
+    pool        = nd.get_secgrouppool();
+
+    auth_object = PoolObjectSQL::SECGROUP;
+    auth_op     = AuthRequest::MANAGE;
+}
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -25,8 +42,6 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
     int  oid     = xmlrpc_c::value_int(paramList.getInt(1));
     bool recover = xmlrpc_c::value_boolean(paramList.getBoolean(2));
 
-    SecurityGroup * sg;
-
     LifeCycleManager*  lcm = Nebula::instance().get_lcm();
 
 
@@ -35,7 +50,7 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    sg = static_cast<SecurityGroupPool *>(pool)->get(oid,true);
+    auto sg = static_cast<SecurityGroupPool *>(pool)->get(oid);
 
     if ( sg == 0 )
     {
@@ -46,11 +61,9 @@ void SecurityGroupCommit::request_execute(xmlrpc_c::paramList const& paramList,
 
     sg->commit(recover);
 
-    pool->update(sg);
+    pool->update(sg.get());
 
-    sg->unlock();
-
-    lcm->trigger(LCMAction::UPDATESG, oid, att);
+    lcm->trigger_updatesg(oid);
 
     success_response(oid, att);
 

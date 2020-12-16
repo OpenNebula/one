@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,7 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var VMsTableUtils = require('./utils/datatable-common');
   var OpenNebulaVM = require('opennebula/vm');
+  var OpenNebulaAction = require("opennebula/action");
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var StateActions = require('./utils/state-actions');
@@ -29,7 +30,11 @@ define(function(require) {
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
+  var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
+  var TemplateUtils = require('utils/template-utils');
+  var FireedgeValidator = require('utils/fireedge-validator');
+  var Websocket = require("utils/websocket");
 
   /*
     CONSTANTS
@@ -62,12 +67,12 @@ define(function(require) {
           {"sType": "ip-address", "aTargets": [0]},
           {"sType": "num", "aTargets": [1]},
           {"sType": "date-euro", "aTargets": [ 10 ]},
-          {"bSortable": false, "aTargets": ["check", 6, 7, 11]},
+          {"bSortable": false, "aTargets": ["check", 11]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
           {"bVisible": false, "aTargets": ['_all']}
       ]
-    }
+    };
 
     this.columns = VMsTableUtils.columns;
 
@@ -149,37 +154,172 @@ define(function(require) {
   }
 
   function _postUpdateView() {
-    $(".total_vms").text(this.totalVms);
-    $(".active_vms").text(this.activeVms);
-    $(".pending_vms").text(this.pendingVms);
-    $(".failed_vms").text(this.failedVms);
+    $(".total_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".total_vms", this.totalVms);
+
+    $(".active_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".active_vms", this.activeVms);
+
+    $(".pending_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".pending_vms", this.pendingVms);
+
+    $(".failed_vms").removeClass("fadeinout");
+    DashboardUtils.counterAnimation(".failed_vms", this.failedVms);
+
     $(".off_vms").text(this.offVms);
+
+    VMsTableUtils.tooltipCharters()
+
+    $("#rdp-buttons").foundation();
+
+    var create_socket = function(token){
+      if (Websocket.disconnected()){
+        Websocket.start(token);
+      }
+    }
+
+    if (FireedgeValidator.fireedgeToken == ""){
+      FireedgeValidator.validateFireedgeToken(create_socket);
+    }
+
   }
 
   function _initialize(opts) {
     var that = this;
 
     TabDataTable.prototype.initialize.call(this, opts);
+    
+    //download virt-viewer file 
+    $('#' + this.dataTableId).on("click", '.w-file', function(){
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id") && data.hasOwnProperty("hostname") && data.hasOwnProperty("type") && data.hasOwnProperty("port"))
+        ? Sunstone.runAction(
+          "VM.save_virt_viewer_action",
+          String(data.id),
+          { hostname: data.hostname, type: data.type, port: data.port }
+        )
+        : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
+
+        return false;
+    });
+
+    //download RDP file
+    $('#' + this.dataTableId).on("click", '.save-rdp', function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("ip") && data.hasOwnProperty("name"))
+        ? Sunstone.runAction("VM.save_rdp", data)
+        : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
+
+      return false;
+    });
+
+    $('#' + this.dataTableId).on("click", ".rdp", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id"))
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'rdp')
+        : Notifier.notifyError(Locale.tr("RDP - Invalid action"));
+
+      return false;
+    });
+
+    $('#' + this.dataTableId).on("click", ".ssh", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id"))
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'ssh')
+        : Notifier.notifyError(Locale.tr("SSH - Invalid action"));
+
+      return false;
+    });
+
+    $('#' + this.dataTableId).on("click", ".guac-vnc", function() {
+      var data = $(this).data();
+
+      (data.hasOwnProperty("id"))
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'vnc')
+        : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
+
+      return false;
+    });
 
     $('#' + this.dataTableId).on("click", '.vnc', function() {
-      var vmId = $(this).attr('vm_id');
+      var that = this;
 
-      if (!Vnc.lockStatus()) {
-        Vnc.lock();
-        Sunstone.runAction("VM.startvnc_action", vmId);
-      } else {
-        Notifier.notifyError(Locale.tr("VNC Connection in progress"))
+      function promiseVmInfo(id, success) {
+        return $.ajax({
+          url: "vm/" + id,
+          type: "GET",
+          dataType: "json",
+          success: success
+        })
+      }
+
+      function callVNC() {
+        var data = $(that).data();
+
+        if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
+          Vnc.lock();
+          Sunstone.runAction("VM.startvnc_action", String(data.id));
+        } else {
+          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
+        }
+      }
+
+      function callVMRC(){
+        var data = $(that).data();
+
+        (data.hasOwnProperty("id"))
+          ? Sunstone.runAction("VM.startvmrc_action", String(data.id), 'vnc')
+          : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
+      }
+
+      function callGuac(){
+        var data = $(that).data();
+
+        (data.hasOwnProperty("id"))
+          ? Sunstone.runAction("VM.startguac_action", String(data.id), 'vnc')
+          : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
+      }
+
+      var remote_connections = function(){
+        if (FireedgeValidator.fireedgeToken != ""){
+          var data = $(that).data();
+          // Get VM info
+          if (data.hasOwnProperty('id')){
+            promiseVmInfo(data['id'], function(data){
+              if (data && data.VM && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.HYPERVISOR == 'vcenter'){
+                callVMRC();
+              }
+              else{
+                callGuac();
+              }
+            });
+          }
+        }
+        else{
+          callVNC();
+        }
+      }
+
+      if (fireedgeToken == "") {
+        FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
+      }
+      else{
+        remote_connections();
       }
 
       return false;
     });
 
     $('#' + this.dataTableId).on("click", '.spice', function() {
-      var vmId = $(this).attr('vm_id');
+      var data = $(this).data();
 
-      if (!Spice.lockStatus()) {
+      if (!Spice.lockStatus() && data.hasOwnProperty("id")) {
         Spice.lock();
-        Sunstone.runAction("VM.startspice_action", vmId);
+        Sunstone.runAction("VM.startspice_action", String(data.id));
       } else {
         Notifier.notifyError(Locale.tr("SPICE Connection in progress"))
       }
@@ -206,4 +346,6 @@ define(function(require) {
     });
 
   }
+
+
 });

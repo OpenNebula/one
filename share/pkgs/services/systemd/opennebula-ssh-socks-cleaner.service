@@ -1,0 +1,9 @@
+[Unit]
+Description=OpenNebula SSH persistent connection cleaner
+ConditionDirectoryNotEmpty=/var/run/one/ssh-socks/
+
+[Service]
+Group=oneadmin
+User=oneadmin
+Type=oneshot
+ExecStart=/bin/sh -c '/usr/lib/one/sh/ssh-socks-cleaner'

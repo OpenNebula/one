@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,18 +17,16 @@
 #ifndef TEMPLATE_H_
 #define TEMPLATE_H_
 
-#include <iostream>
 #include <map>
 #include <set>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 
 #include "Attribute.h"
-
-using namespace std;
 
 /**
  *  Base class for file templates. A template is a file (or a string for the
@@ -42,43 +40,62 @@ class Template
 {
 public:
 
-    Template(bool         _replace_mode = false,
-             const char   _separator    = '=',
-             const char * _xml_root     = "TEMPLATE"):
+    explicit Template(bool         _replace_mode = false,
+                      const char   _separator    = '=',
+                      const char * _xml_root     = "TEMPLATE"):
                  replace_mode(_replace_mode),
                  separator(_separator),
-                 xml_root(_xml_root){};
+                 xml_root(_xml_root){}
 
     Template(const Template& t)
     {
-        multimap<string,Attribute *>::const_iterator it;
-
         replace_mode = t.replace_mode;
         separator    = t.separator;
         xml_root     = t.xml_root;
 
-        for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
+        for (auto it = t.attributes.begin() ; it != t.attributes.end() ; it++)
         {
             attributes.insert(make_pair(it->first,(it->second)->clone()));
         }
     }
 
+    Template(Template&& t) noexcept
+        : attributes(std::move(t.attributes))
+        , replace_mode(t.replace_mode)
+        , separator(t.separator)
+        , xml_root(std::move(t.xml_root))
+    {
+    }
+
     Template& operator=(const Template& t)
     {
-        multimap<string,Attribute *>::const_iterator it;
-
         if (this != &t)
         {
             replace_mode = t.replace_mode;
             separator    = t.separator;
             xml_root     = t.xml_root;
 
-            attributes.clear();
+            clear();
 
-            for (it = t.attributes.begin() ; it != t.attributes.end() ; it++)
+            for (auto att : t.attributes)
             {
-                attributes.insert(make_pair(it->first,(it->second)->clone()));
+                attributes.insert(make_pair(att.first,(att.second)->clone()));
             }
+        }
+
+        return *this;
+    }
+
+    Template& operator=(Template&& t) noexcept
+    {
+        if (this != &t)
+        {
+            replace_mode = t.replace_mode;
+            separator    = t.separator;
+            xml_root     = std::move(t.xml_root);
+
+            clear();
+            attributes   = std::move(t.attributes);
         }
 
         return *this;
@@ -100,7 +117,7 @@ public:
      *    This string is null if no error occurred.
      *    @return 0 on success.
      */
-    int parse(const string &parse_str, char **error_msg);
+    int parse(const std::string &parse_str, char **error_msg);
 
     /**
      *  Parse a template file.
@@ -120,7 +137,7 @@ public:
      *    This string is null if no error occurred.
      *    @return 0 on success.
      */
-    int parse_str_or_xml(const string &parse_str, string& error_msg);
+    int parse_str_or_xml(const std::string &parse_str, std::string& error_msg);
 
     /**
      *  Rebuilds the template from a xml formatted string
@@ -128,7 +145,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str);
 
     /**
      *  Rebuilds the object from an xml node
@@ -141,7 +158,7 @@ public:
     /**
      *  Writes the Template into a output stream in txt format
      */
-    friend ostream& operator<<(ostream& os, const Template& t);
+    friend std::ostream& operator<<(std::ostream& os, const Template& t);
 
     /* ---------------------------------------------------------------------- */
     /* Functions to render a Template in a str, or xml                        */
@@ -152,7 +169,7 @@ public:
      *    @param str_tempalte string that hold the template
      *    @param delim to separate attributes
      */
-    void marshall(string &str, const char delim='\n');
+    void marshall(std::string &str, const char delim = '\n');
 
     /**
      *  Writes the template in a simple xml string:
@@ -168,14 +185,18 @@ public:
      *    @param xml string that hold the xml template representation
      *    @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const;
+
+    std::string& to_json(std::string& xml) const;
+
+    std::string& to_token(std::string& xml) const;
 
     /**
      *  Writes the template in a plain text string
      *    @param str string that hold the template representation
      *    @return a reference to the generated string
      */
-    string& to_str(string& str) const;
+    std::string& to_str(std::string& str) const;
 
     /* ---------------------------------------------------------------------- */
     /* Functions to add, remove and change attributes from a Template         */
@@ -183,7 +204,7 @@ public:
     /**
      *  Clears all the attributes from the template
      */
-    void clear();
+    virtual void clear();
 
     /**
      *  Sets a new attribute, the attribute MUST BE ALLOCATED IN THE HEAP, and
@@ -192,12 +213,12 @@ public:
      */
     virtual void set(Attribute * attr);
 
-    virtual void set(vector<SingleAttribute *>& values)
+    virtual void set(std::vector<SingleAttribute *>& values)
     {
         _set<SingleAttribute>(values);
     }
 
-    virtual void set(vector<VectorAttribute *>& values)
+    virtual void set(std::vector<VectorAttribute *>& values)
     {
         _set<VectorAttribute>(values);
     }
@@ -209,7 +230,7 @@ public:
      *    @return 0 on success
      */
     template<typename T>
-    int replace(const string& name, const T& value)
+    int replace(const std::string& name, const T& value)
     {
         std::ostringstream oss;
 
@@ -218,9 +239,9 @@ public:
         return replace(name, oss.str());
     }
 
-    int replace(const string& name, const string& value);
+    int replace(const std::string& name, const std::string& value);
 
-    int replace(const string& name, const bool& value);
+    int replace(const std::string& name, const bool& value);
 
     /**
      *  Adds a new single attribute to the template. It will replace an existing
@@ -229,22 +250,22 @@ public:
      *    @param value of the attribute
      */
     template<typename T>
-    void add(const string& name, const T& value)
+    void add(const std::string& name, const T& value)
     {
         std::ostringstream oss;
 
         oss << value;
 
         set(new SingleAttribute(name, oss.str()));
-	}
+    }
 
-	void add(const string& name, const string& value)
-	{
-		set(new SingleAttribute(name, value));
-	}
+    void add(const std::string& name, const std::string& value)
+    {
+        set(new SingleAttribute(name, value));
+    }
 
-	void add(const string& name, bool value)
-	{
+    void add(const std::string& name, bool value)
+    {
         if ( value )
         {
             set(new SingleAttribute(name, "YES"));
@@ -253,7 +274,7 @@ public:
         {
             set(new SingleAttribute(name, "NO"));
         }
-	}
+    }
 
     /**
      *  Removes an attribute from the template. The attributes are returned. The
@@ -263,18 +284,13 @@ public:
      *    @return the number of attributes removed
      */
     template<typename T>
-    int remove(const string& name, vector<T *>& values)
+    int remove(const std::string& name, std::vector<T *>& values)
     {
-        pair<multimap<string, Attribute *>::iterator,
-             multimap<string, Attribute *>::iterator> index;
+        int j = 0;
 
-        multimap<string, Attribute *>::iterator i;
+        auto index = attributes.equal_range(name);
 
-        int j;
-
-        index = attributes.equal_range(name);
-
-        for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
+        for ( auto i = index.first; i != index.second; i++,j++ )
         {
             values.push_back(static_cast<T *>(i->second));
         }
@@ -298,7 +314,7 @@ public:
      *    @param name of the attribute
      *    @return the number of attributes removed
      */
-    virtual int erase(const string& name);
+    virtual int erase(const std::string& name);
 
     /* ---------------------------------------------------------------------- */
     /* Functions get attributes from a template                               */
@@ -312,22 +328,24 @@ public:
      *
      *    @return the number of elements in the vector
      */
-    inline virtual int get(const string& n, vector<const VectorAttribute*>& v) const
+    inline virtual int get(const std::string& n,
+                           std::vector<const VectorAttribute*>& v) const
     {
         return __get<VectorAttribute>(n, v);
     }
 
-    inline virtual int get( const string& n, vector<VectorAttribute*>& v)
+    inline virtual int get(const std::string& n, std::vector<VectorAttribute*>& v)
     {
         return __get<VectorAttribute>(n, v);
     }
 
-    inline virtual int get(const string& n, vector<const SingleAttribute*>& s) const
+    inline virtual int get(const std::string& n,
+                           std::vector<const SingleAttribute*>& s) const
     {
         return __get<SingleAttribute>(n, s);
     }
 
-    inline virtual int get( const string& n, vector<SingleAttribute*>& s)
+    inline virtual int get(const std::string& n, std::vector<SingleAttribute*>& s)
     {
         return __get<SingleAttribute>(n, s);
     }
@@ -338,12 +356,12 @@ public:
      *    @param name the attribute name.
      *    @return true first attribute or 0 if not found or wrong type
      */
-    inline const VectorAttribute * get(const string& name) const
+    inline const VectorAttribute * get(const std::string& name) const
     {
       return __get<VectorAttribute>(name);
     }
 
-    inline VectorAttribute * get(const string& name)
+    inline VectorAttribute * get(const std::string& name)
     {
       return __get<VectorAttribute>(name);
     }
@@ -358,7 +376,7 @@ public:
      *    value, false otherwise.
      */
     template<typename T>
-    bool get(const string& name, T& value) const
+    bool get(const std::string& name, T& value) const
     {
         const SingleAttribute * s = __get<SingleAttribute>(name);
 
@@ -369,7 +387,7 @@ public:
             return false;
         }
 
-        istringstream iss(s->value());
+        std::istringstream iss(s->value());
 
         iss >> value;
 
@@ -381,16 +399,16 @@ public:
         return true;
     }
 
-    virtual bool get(const string& name, bool& value) const;
+    virtual bool get(const std::string& name, bool& value) const;
 
-    virtual bool get(const string& name, string& value) const;
+    virtual bool get(const std::string& name, std::string& value) const;
 
     /**
      *  Trims the trailing spaces in the attribute
      *    @param name of the attribute
      *    @return True if the attribute was found and trimmed
      */
-    virtual bool trim(const string& name);
+    virtual bool trim(const std::string& name);
 
     /**
      *  Trims the trailing spaces in the NAME attribute
@@ -422,29 +440,50 @@ public:
      *   The version of this method without base template just look for any
      *   restricted attribute.
      */
-    virtual bool check_restricted(string& rs_attr, const Template* base)
+    virtual bool check_restricted(std::string& rs_attr, const Template* base)
     {
         return false;
     }
 
-    virtual bool check_restricted(string& rs_attr)
+    virtual bool check_restricted(std::string& rs_attr)
     {
         return false;
     }
 
     /**
+     *  Encrypt all secret attributes
+     */
+    virtual void encrypt(const std::string& one_key){};
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    virtual void decrypt(const std::string& one_key){};
+
+    /**
      *  @return true if template is empty
      */
-    bool empty()
+    bool empty() const
     {
         return attributes.empty();
+    }
+
+    /**
+     *  Generic iterator over Template attributes
+     */
+    void each_attribute(std::function<void(const Attribute * a)>&& f) const
+    {
+        for(const auto& it: attributes)
+        {
+            f(it.second);
+        }
     }
 
 protected:
     /**
      *  The template attributes
      */
-    multimap<string,Attribute *> attributes;
+    std::multimap<std::string,Attribute *> attributes;
 
     /**
      *  Builds a SingleAttribute from the given node
@@ -474,7 +513,7 @@ protected:
      *      }
      *    If the RA is Single the sub attribute list will be empty.
      */
-    static void parse_restricted(const vector<const SingleAttribute *>& ras,
+    static void parse_restricted(const std::vector<const SingleAttribute *>& ras,
         std::map<std::string, std::set<std::string> >& rattr_m);
 
     /**
@@ -489,11 +528,39 @@ protected:
      *    @return true if a restricted attribute with a different value is found
      *    in the template
      */
-    bool check_restricted(string& rs_attr, const Template* base,
+    bool check_restricted(std::string& rs_attr, const Template* base,
            const std::map<std::string, std::set<std::string> >& ras);
 
-    bool check_restricted(string& rs_attr,
+    bool check_restricted(std::string& rs_attr,
            const std::map<std::string, std::set<std::string> >& ras);
+
+    /**
+     *  Parses a list of encrypted attributes in the form ATTRIBUTE_NAME or
+     *  ATTRIBUTE_NAME/SUBATTRIBUTE.
+     *    @param eas list of encrypted attributes
+     *    @param eattr_m result list of attributes indexed by ATTRIBUTE_NAME.
+     *    EAs are stored:
+     *      {
+     *        ENCRYPTED_ATTR_NAME => [ ENCRYPTED_SUB_ATTRIBUTES ],
+     *        ...
+     *      }
+     *    If the EA is Single the sub attribute list will be empty.
+     */
+    static void parse_encrypted(const std::vector<const SingleAttribute *>& eas,
+        std::map<std::string, std::set<std::string> >& eattr_m);
+
+    /**
+     *  Encrypt all secret attributes
+     */
+    void encrypt(const std::string& one_key,
+                 const std::map<std::string, std::set<std::string> >& eas);
+
+    /**
+     *  Decrypt all secret attributes
+     */
+    void decrypt(const std::string& one_key,
+                 const std::map<std::string, std::set<std::string> >& eas);
+
     /**
      * Updates the xml root element name
      *
@@ -505,12 +572,7 @@ protected:
     };
 
 private:
-
     bool                            replace_mode;
-    /**
-     *  Mutex to perform just one flex-bison parsing at a time
-     */
-    static pthread_mutex_t          mutex;
 
     /**
      * Character to separate key from value when dump onto a string
@@ -520,7 +582,7 @@ private:
     /**
      *  Name of the Root element for the XML document
      */
-    string                          xml_root;
+    std::string                          xml_root;
 
     /**
      *  Builds the template attribute from the node
@@ -538,18 +600,13 @@ private:
      *    @return the number of elements in the vector
      */
     template<typename T>
-    int __get(const string& name, vector<const T *>& values) const
+    int __get(const std::string& name, std::vector<const T *>& values) const
     {
-        pair<multimap<string, Attribute *>::const_iterator,
-             multimap<string, Attribute *>::const_iterator> index;
-
-        multimap<string, Attribute *>::const_iterator i;
-
         int j = 0;
 
-        index = attributes.equal_range(name);
+        auto index = attributes.equal_range(name);
 
-        for (i = index.first; i != index.second ; i++)
+        for (auto i = index.first; i != index.second ; i++)
         {
             const T * vatt = dynamic_cast<const T *>(i->second);
 
@@ -567,18 +624,13 @@ private:
 
     /* Non-const version of get for all attributes  */
     template<typename T>
-    int __get(const string& name, vector<T *>& values)
+    int __get(const std::string& name, std::vector<T *>& values)
     {
-        pair<multimap<string, Attribute *>::iterator,
-             multimap<string, Attribute *>::iterator> index;
-
-        multimap<string, Attribute *>::iterator i;
-
         int j = 0;
 
-        index = attributes.equal_range(name);
+        auto index = attributes.equal_range(name);
 
-        for (i = index.first; i != index.second ; i++)
+        for (auto i = index.first; i != index.second ; i++)
         {
             T * vatt = dynamic_cast<T *>(i->second);
 
@@ -601,9 +653,9 @@ private:
      *    @return true first attribute or 0 if not found or wrong type
      */
     template<typename T>
-    const T * __get(const string& s) const
+    const T * __get(const std::string& s) const
     {
-        vector<const T*> atts;
+        std::vector<const T*> atts;
 
         if (__get<T>(s, atts) < 1)
         {
@@ -614,20 +666,18 @@ private:
     }
 
     template<typename T>
-    T * __get(const string& s)
+    T * __get(const std::string& s)
     {
         return const_cast<T *>(
                 static_cast<const Template&>(*this).__get<T>(s));
     }
 
     template<typename T>
-    void _set(vector<T *>& values)
+    void _set(std::vector<T *>& values)
     {
-        typename vector<T *>::iterator it;
-
-        for(it = values.begin(); it != values.end(); it++ )
+        for (auto v : values)
         {
-            set(*it);
+            set(v);
         }
     }
 };

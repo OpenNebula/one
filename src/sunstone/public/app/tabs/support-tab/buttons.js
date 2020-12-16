@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,13 +26,13 @@ define(function(require) {
     "Support.upload" : {
       type: "action",
       layout: "main",
-      text: '<i class="fa fa-cloud-upload"/> '+Locale.tr("Upload a file"),
+      text: '<i class="fas fa-cloud-upload"/> '+Locale.tr("Upload a file"),
       custom_classes: "only-sunstone-info"
     },
     "Support.signout" : {
       type: "action",
       layout: "main",
-      text: '<i class="fa fa-sign-out fa fa-lg">',
+      text: '<i class="fas fa-sign-out-alt fas fa-lg">',
       tip: "Sign out of Commercial Support",
       alwaysActive: true
     },

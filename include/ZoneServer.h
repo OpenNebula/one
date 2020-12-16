@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,9 +16,6 @@
 
 #ifndef ZONE_SERVER_H_
 #define ZONE_SERVER_H_
-
-#include <queue>
-#include <set>
 
 #include "ExtendedAttribute.h"
 
@@ -40,7 +37,7 @@ public:
      *  @param error string if any
      *  @return -1 if server data could not be initialized, 0 on success
      */
-    int init(string& error)
+    int init(std::string& error)
     {
         if ( vector_value("NAME").empty() )
         {
@@ -94,7 +91,7 @@ public:
 
         for ( zone_iterator it = begin() ; it != end() ; ++it )
         {
-            string error;
+            std::string error;
 
             int i = (*it)->get_id();
 
@@ -159,7 +156,7 @@ public:
         return static_cast<ZoneServer *>(get_attribute(id));
     }
 
-    int add_server(VectorAttribute * va, int& sid, string& error)
+    int add_server(VectorAttribute * va, int& sid, std::string& error)
     {
         ZoneServer * server = new ZoneServer(va, next_id);
 

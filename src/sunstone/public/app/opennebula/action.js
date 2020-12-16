@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,9 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var OpenNebulaHelper = require('./helper');
-  var OpenNebulaError = require('./error');
-  var Config = require('sunstone-config');
+  var OpenNebulaHelper = require("./helper");
+  var OpenNebulaError = require("./error");
+  var Config = require("sunstone-config");
 
   var listCache = {};
   var listWaiting = {};
@@ -30,7 +30,7 @@ define(function(require) {
   var _clearCache = function(cache_name) {
     listCache[cache_name] = null;
     //console.log(cache_name+" cache cleaned");
-  }
+  };
 
   //Example: Simple action: publish. Simple action with action obj: deploy
   var _simple_action = function(params, resource, method, action_obj, path) {
@@ -44,11 +44,10 @@ define(function(require) {
     } else {
       action = OpenNebulaHelper.action(method);
       request = OpenNebulaHelper.request(resource, method, id);
-    };
+    }
 
     var reqPath = path ? path : resource.toLowerCase();
     var cache_name = params.cache_name ? params.cache_name : resource;
-
     $.ajax({
       url: reqPath + "/" + id + "/action",
       type: "POST",
@@ -64,7 +63,7 @@ define(function(require) {
             callbackError(request, OpenNebulaError(response)) : null;
       }
     });
-  }
+  };
 
   var Action = {
     "create": function(params, resource, path) {
@@ -116,6 +115,55 @@ define(function(require) {
       });
     },
 
+    "cache": function(resource) {
+      return listCache[resource];
+    },
+
+    "check": function(params, path){
+      if(params &&
+        params.success &&
+        typeof params.success === "function" &&
+        params &&
+        params.error &&
+        typeof params.error === "function"){
+        var reqPath = path.toLowerCase();
+        $.ajax({
+          url: reqPath,
+          type: "GET",
+          success: function(response) {
+            params.success(response);
+            return false;
+          },
+          error: function(response) {
+            params.error(response);
+            return false;
+          }
+        });
+      }
+    },
+
+    "checkversion": function(params, path){
+      if(params &&
+        params.success &&
+        typeof params.success === "function" &&
+        params &&
+        params.error &&
+        typeof params.error === "function"){
+        var reqPath = path.toLowerCase();
+        $.ajax({
+          url: reqPath,
+          type: "GET",
+          success: function(response) {
+            params.success(response);
+            return false;
+          },
+          error: function(response) {
+            params.error(response);
+            return false;
+          }
+        });
+      }
+    },
     "list": function(params, resource, path, process) {
       var callback = params.success;
       var callbackError = params.error;
@@ -165,7 +213,6 @@ define(function(require) {
       listWaiting[cache_name] = true;
       var pool_filter = Config.isChangedFilter()?-4:-2;
       //console.log(cache_name+" list. NO cache, calling ajax");
-
       $.ajax({
         url: reqPath,
         type: "GET",
@@ -194,7 +241,6 @@ define(function(require) {
             var callback = listCallbacks[cache_name][i].success;
 
             if (callback) {
-              //console.log(cache_name+" list. Callback called");
               try{
                 callback(request, list, response);
               }catch(err){
@@ -232,14 +278,13 @@ define(function(require) {
       var timeout = params.timeout || false;
       var request = OpenNebulaHelper.request(resource, "list");
       var reqPath = path ? path : resource.toLowerCase();
-
       $.ajax({
         url: reqPath,
         type: "GET",
-        data: {timeout: timeout, zone_id: params.data.zone_id},
+        data: {timeout: timeout, zone_id: params.data.zone_id, pool_filter: params.data.pool_filter},
         dataType: "json",
         success: function(response) {
-          var list = OpenNebulaHelper.pool(resource, response)
+          var list = OpenNebulaHelper.pool(resource, response);
           return callback ?
               callback(request, list) : null;
         },
@@ -263,7 +308,6 @@ define(function(require) {
       var reqPath = path ? path : resource.toLowerCase();
       var url = reqPath + "/" + id;
       url = subresource ? url + "/" + subresource : url;
-
       $.ajax({
         url: url,
         type: "GET",
@@ -287,6 +331,41 @@ define(function(require) {
       _simple_action(params, resource, "chown", action_obj, path);
     },
 
+    "lock": function(params, resource, path) {
+      var level = params.data.extra_param;
+      var action_obj = {"level": level};
+
+      _simple_action(params, resource, "lock", action_obj, path);
+    },
+
+    "addFlowAction": function(params, resource) {
+      var callback = params && params.success;
+      var callbackError = params && params.error;
+      var id = params && params.data && params.data.id;
+      var roleName = params && params.data && params.data.roleName
+      var action = params && params.data && params.data.action
+      var cacheName = params.cacheName ? params.cacheName : resource;
+      if(id!==undefined && action && resource){
+        $.ajax({
+          url: roleName?
+            resource.toLowerCase()+"/"+id+"/role/"+roleName+"/action"
+          :
+            resource.toLowerCase()+"/"+id+"/action",
+          type: "POST",
+          dataType: "text",
+          contentType: "application/json; charset=utf-8",
+          data: JSON.stringify({"action": action}),
+          success: function(response) {
+            _clearCache(cacheName);
+            return callback ? callback(response) : null;
+          },
+          error: function(response) {
+            return callbackError ? callbackError(OpenNebulaError(response)) : null;
+          }
+        });
+      }
+    },
+
     "chgrp": function(params, resource, path) {
       var id = params.data.extra_param;
       var action_obj = {"owner_id": "-1",
@@ -307,11 +386,10 @@ define(function(require) {
 
       var url = path ? path : resource.toLowerCase();
       url = all ? url + "/monitor" : url + "/" + params.data.id + "/monitor";
-
       $.ajax({
         url: url,
         type: "GET",
-        data: data['monitor'],
+        data: data["monitor"],
         dataType: "json",
         success: function(response) {
           return callback ? callback(request, response) : null;
@@ -332,7 +410,6 @@ define(function(require) {
       var request = OpenNebulaHelper.request(resource, method, data);
 
       var url = path ? path : resource.toLowerCase() + "/accounting";
-
       $.ajax({
         url: url,
         type: "GET",
@@ -357,7 +434,6 @@ define(function(require) {
       var request = OpenNebulaHelper.request(resource, method, data);
 
       var url = path ? path : resource.toLowerCase() + "/showback";
-
       $.ajax({
         url: url,
         type: "GET",
@@ -387,6 +463,31 @@ define(function(require) {
       return ""+id;
     },
 
+    "getAppTags": function(params, resource){
+      var callback = params.success;
+      var callbackError = params.error;
+      var data = params.data;
+
+      var method = "getAppTags";
+      var request = OpenNebulaHelper.request(resource, method, data);
+
+      var url = resource.toLowerCase() + "/" + params.data.id + "/tags";
+      $.ajax({
+        url: url,
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+          return callback ? callback(request, response) : null;
+        },
+        error: function(response) {
+          return callbackError ?
+              callbackError(request, OpenNebulaError(response)) : null;
+        }
+      });
+    },
+    "get_all_cache": function() {
+      return listCache;
+    },
     "clear_cache": _clearCache
   };
 

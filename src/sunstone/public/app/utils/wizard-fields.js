@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,29 +32,33 @@ define(function(require) {
   function _retrieveWizardFields(context) {
     var templateJSON = {};
     var fields = $('[wizard_field]', context);
-
     fields.each(function() {
       var field = $(this);
-
-      if (field.prop('wizard_field_disabled') != true &&
-            field.val() != null && field.val().length &&
-            (field.attr("type") != "checkbox" || field.prop("checked")) &&
-            (field.attr("type") != "radio" || field.prop("checked"))) {
+      var field_default = field.attr('default');
+      var field_value = field.val() || field_default;
+      if (
+        field.prop('wizard_field_disabled') != true &&
+        field_value != null && field_value.length &&
+        (field.attr("type") != "checkbox" || field.prop("checked")) &&
+        (field.attr("type") != "radio" || field.prop("checked"))
+      ) {
         var field_name = field.attr('wizard_field');
-
         if (field.attr('wizard_field_64') == "true"){
-          templateJSON[field_name] = btoa(field.val());
+          templateJSON[field_name] = btoa(field_value);
         } else {
-          templateJSON[field_name] = _retrieveInput(field);
+          templateJSON[field_name] = _retrieveInput(field_value);
         }
       }
     });
-
     return templateJSON;
   }
 
   function _retrieveInput(input) {
-    return TemplateUtils.escapeDoubleQuotes( input.val() );
+    return TemplateUtils.escapeDoubleQuotes(
+      (input instanceof $)
+        ? input.val()
+        : input
+    );
   }
 
   // TODO: wizard_field_64 for fill method

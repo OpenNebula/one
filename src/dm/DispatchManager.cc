@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,81 +17,19 @@
 #include "DispatchManager.h"
 #include "Nebula.h"
 #include "NebulaLog.h"
+#include "VirtualMachine.h"
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * dm_action_loop(void *arg)
-{
-    DispatchManager *  dm;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    dm = static_cast<DispatchManager *>(arg);
-
-    NebulaLog::log("DiM",Log::INFO,"Dispatch Manager started.");
-
-    dm->am.loop();
-
-    NebulaLog::log("DiM",Log::INFO,"Dispatch Manager stopped.");
-
-    return 0;
-}
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 
 int DispatchManager::start()
 {
-    int               rc;
-    pthread_attr_t    pattr;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
     NebulaLog::log("DiM",Log::INFO,"Starting Dispatch Manager...");
 
-    rc = pthread_create(&dm_thread, &pattr, dm_action_loop,(void *) this);
+    Listener::start();
 
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-void DispatchManager::user_action(const ActionRequest& ar)
-{
-    const DMAction& dm_ar = static_cast<const DMAction& >(ar);
-    int vid   = dm_ar.vm_id();
-
-    switch (dm_ar.action())
-    {
-        case DMAction::SUSPEND_SUCCESS:
-            suspend_success_action(vid);
-            break;
-
-        case DMAction::STOP_SUCCESS:
-            stop_success_action(vid);
-            break;
-
-        case DMAction::UNDEPLOY_SUCCESS:
-            undeploy_success_action(vid);
-            break;
-
-        case DMAction::POWEROFF_SUCCESS:
-            poweroff_success_action(vid);
-            break;
-
-        case DMAction::DONE:
-            done_action(vid);
-            break;
-
-        case DMAction::RESUBMIT:
-            resubmit_action(vid);
-            break;
-    }
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -111,5 +49,9 @@ void DispatchManager::init_managers()
     vmpool      = nd.get_vmpool();
     clpool      = nd.get_clpool();
     vrouterpool = nd.get_vrouterpool();
+    upool       = nd.get_upool();
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 

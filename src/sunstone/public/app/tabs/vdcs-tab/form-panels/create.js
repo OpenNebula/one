@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,7 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-//  require('foundation.tab');
+  // require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
   var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
@@ -131,12 +131,16 @@ define(function(require) {
         success: function (request, obj_list){
           var zoneSection = $("#vdcCreateResourcesTab",context);
 
-          $.each(obj_list,function(){
-            that.resourcesTab.addResourcesZone(
-              this.ZONE.ID,
-              this.ZONE.NAME,
-              zoneSection);
-          });
+          $.each(
+            obj_list,
+            function(){
+              that.resourcesTab.addResourcesZone(
+                this.ZONE.ID,
+                this.ZONE.NAME,
+                zoneSection
+              );
+            }
+          );
 
           that.resourcesTab.setup(zoneSection);
         },
@@ -159,7 +163,6 @@ define(function(require) {
     $.extend(vdc_json, CustomTagsTable.retrieve($("#vdcCreateGeneralTab", context)));
 
     var group_ids = this.groupsTable.retrieveResourceTableSelect();
-
     if (this.action == "create") {
       var resources = this.resourcesTab.retrieve(context);
 
@@ -362,7 +365,8 @@ define(function(require) {
             this.ZONE.ID,
             this.ZONE.NAME,
             zoneSection);
-        });
+          }
+        );
 
         that.resourcesTab.setup(zoneSection);
         that.resourcesTab.fill(zoneSection, that.originalSelectedResources);

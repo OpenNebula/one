@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,29 +13,23 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-#include <limits.h>
-#include <string.h>
-#include <time.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <regex.h>
-#include <unistd.h>
-
-#include <iostream>
-#include <sstream>
-#include <queue>
-
 #include "VirtualMachine.h"
 #include "VirtualNetworkPool.h"
+#include "DatastorePool.h"
 #include "ImagePool.h"
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Snapshots.h"
-
+#include "HostShare.h"
 #include "Nebula.h"
 
 #include "vm_file_var_syntax.h"
 #include "vm_var_syntax.h"
+#include "vm_var_parser.h"
+
+#include <sstream>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* Parser constanta                                                           */
@@ -51,8 +45,6 @@ const char*  VirtualMachine::VROUTER_ATTRIBUTES[] = {
         "VROUTER_KEEPALIVED_ID",
         "VROUTER_KEEPALIVED_PASSWORD"};
 const int VirtualMachine::NUM_VROUTER_ATTRIBUTES = 3;
-
-pthread_mutex_t VirtualMachine::lex_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -72,7 +64,6 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     Nebula& nd = Nebula::instance();
 
     ImagePool * ipool = nd.get_ipool();
-    Image *     img   = 0;
 
     int img_id;
 
@@ -80,7 +71,6 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     Image::ImageState state;
 
     DatastorePool * ds_pool = nd.get_dspool();
-    Datastore *     ds;
     int             ds_id;
 
     string attr;
@@ -93,7 +83,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     string type_str;
 
-    attr = os->vector_value(base_name_ds.c_str());
+    attr = os->vector_value(base_name_ds);
 
     if ( attr.empty() )
     {
@@ -113,9 +103,9 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     img_id = img_ids.back();
 
-    img = ipool->get(img_id, true);
+    auto img = ipool->get_ro(img_id);
 
-    if ( img == 0 )
+    if ( img == nullptr )
     {
         error_str = "Image no longer exists in attribute: " + attr;
         return -1;
@@ -132,7 +122,7 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
     os->replace(base_name_source, img->get_source());
     os->replace(base_name_ds_id,  img->get_ds_id());
 
-    img->unlock();
+    img.reset();
 
     type_str = Image::type_to_str(type);
 
@@ -158,9 +148,9 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
         return -1;
     }
 
-    ds = ds_pool->get(ds_id, true);
+    auto ds = ds_pool->get_ro(ds_id);
 
-    if ( ds == 0 )
+    if ( ds == nullptr )
     {
         error_str = "Associated datastore for image does not exist";
         return -1;
@@ -168,14 +158,12 @@ int VirtualMachine::set_os_file(VectorAttribute* os, const string& base_name,
 
     os->replace(base_name_tm, ds->get_tm_mad());
 
-    set<int> cluster_ids = ds->get_cluster_ids();
+    const set<int>& cluster_ids = ds->get_cluster_ids();
 
     if (!cluster_ids.empty())
     {
         os->replace(base_name_cluster, one_util::join(cluster_ids, ','));
     }
-
-    ds->unlock();
 
     return 0;
 }
@@ -190,13 +178,11 @@ int VirtualMachine::parse_os(string& error_str)
     vector<Attribute *> os_attr;
     VectorAttribute *   os;
 
-    vector<Attribute *>::iterator it;
-
     num = user_obj_template->remove("OS", os_attr);
 
-    for (it=os_attr.begin(); it != os_attr.end(); it++)
+    for (auto attr : os_attr)
     {
-        obj_template->set(*it);
+        obj_template->set(attr);
     }
 
     if ( num == 0 )
@@ -237,14 +223,14 @@ int VirtualMachine::parse_os(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_defaults(string& error_str)
+int VirtualMachine::parse_defaults(string& error_str, Template * tmpl)
 {
     int num;
 
     vector<Attribute *> attr;
     VectorAttribute*    vatt = 0;
 
-    num = user_obj_template->remove("NIC_DEFAULT", attr);
+    num = tmpl->remove("NIC_DEFAULT", attr);
 
     if ( num == 0 )
     {
@@ -296,20 +282,20 @@ error_cleanup:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_vrouter(string& error_str)
+int VirtualMachine::parse_vrouter(string& error_str, Template * tmpl)
 {
     string st;
 
     for (int i = 0; i < NUM_VROUTER_ATTRIBUTES; i++)
     {
-        user_obj_template->get(VROUTER_ATTRIBUTES[i], st);
+        tmpl->get(VROUTER_ATTRIBUTES[i], st);
 
         if (!st.empty())
         {
             obj_template->replace(VROUTER_ATTRIBUTES[i], st);
         }
 
-        user_obj_template->erase(VROUTER_ATTRIBUTES[i]);
+        tmpl->erase(VROUTER_ATTRIBUTES[i]);
     }
 
     return 0;
@@ -319,12 +305,12 @@ int VirtualMachine::parse_vrouter(string& error_str)
 /* -------------------------------------------------------------------------- */
 
 static int check_pci_attributes(VectorAttribute * pci, const string& default_bus,
-		string& error_str)
+    string& error_str)
 {
     static string attrs[] = {"VENDOR", "DEVICE", "CLASS"};
     static int num_attrs  = 3;
 
-	string bus;
+    string bus;
     bool   found = false;
 
     for (int i = 0; i < num_attrs; i++)
@@ -349,39 +335,38 @@ static int check_pci_attributes(VectorAttribute * pci, const string& default_bus
         return -1;
     }
 
-	if ( HostSharePCI::set_pci_address(pci, default_bus) != 0 )
-	{
-		error_str = "Wrong BUS in PCI attribute";
-		return -1;
-	}
+    if ( HostSharePCI::set_pci_address(pci, default_bus) != 0 )
+    {
+        error_str = "Wrong BUS in PCI attribute";
+        return -1;
+    }
 
     return 0;
 }
 
-int VirtualMachine::parse_pci(string& error_str)
+int VirtualMachine::parse_pci(string& error_str, Template * tmpl)
 {
     vector<VectorAttribute *> array_pci;
-    vector<VectorAttribute *>::iterator it;
 
     int pci_id = 0;
 
-    user_obj_template->remove("PCI", array_pci);
+    tmpl->remove("PCI", array_pci);
 
-    for (it = array_pci.begin(); it !=array_pci.end(); ++it, ++pci_id)
+    for (auto it = array_pci.begin(); it !=array_pci.end(); ++it, ++pci_id)
     {
         (*it)->replace("PCI_ID", pci_id);
 
         obj_template->set(*it);
     }
 
-	Nebula& nd = Nebula::instance();
-	string  default_bus;
+    Nebula& nd = Nebula::instance();
+    string  default_bus;
 
-	nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
+    nd.get_configuration_attribute("PCI_PASSTHROUGH_BUS", default_bus);
 
-    for (it = array_pci.begin(); it !=array_pci.end(); ++it)
+    for (auto attr : array_pci)
     {
-        if ( check_pci_attributes(*it, default_bus, error_str) != 0 )
+        if ( check_pci_attributes(attr, default_bus, error_str) != 0 )
         {
             return -1;
         }
@@ -393,9 +378,9 @@ int VirtualMachine::parse_pci(string& error_str)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::parse_graphics(string& error_str)
+int VirtualMachine::parse_graphics(string& error_str, Template * tmpl)
 {
-    VectorAttribute * user_graphics = user_obj_template->get("GRAPHICS");
+    VectorAttribute * user_graphics = tmpl->get("GRAPHICS");
 
     if ( user_graphics == 0 )
     {
@@ -404,8 +389,9 @@ int VirtualMachine::parse_graphics(string& error_str)
 
     VectorAttribute * graphics = new VectorAttribute(user_graphics);
 
-    user_obj_template->erase("GRAPHICS");
+    tmpl->erase("GRAPHICS");
 
+    obj_template->erase("GRAPHICS");
     obj_template->set(graphics);
 
     if ( !graphics->vector_value("PORT").empty() )
@@ -422,10 +408,21 @@ int VirtualMachine::parse_graphics(string& error_str)
     }
 
     string random_passwd = graphics->vector_value("RANDOM_PASSWD");
+    string password = graphics->vector_value("PASSWD");
 
-    if ( !random_passwd.empty() )
+    if ( !random_passwd.empty() && password.empty() )
     {
-        graphics->replace("PASSWD", one_util::random_password());
+        password = one_util::random_password();
+
+        if ( graphics->vector_value("TYPE") == "SPICE" )
+        {
+            // Spice password must be 60 characters maximum
+            graphics->replace("PASSWD", password.substr(0, 59));
+        }
+        else
+        {
+            graphics->replace("PASSWD", password);
+        }
     }
 
     return 0;
@@ -519,22 +516,22 @@ void VirtualMachine::parse_well_known_attributes()
      * FEATURES
      * RAW
      * CLONING_TEMPLATE_ID
+     * TOPOLOGY
+     * NUMA_NODE
      */
+    std::vector<std::string> names = {"INPUT", "FEATURES", "RAW",
+        "CLONING_TEMPLATE_ID", "TOPOLOGY", "NUMA_NODE", "HYPERV_OPTIONS",
+        "SPICE_OPTIONS"};
 
-    vector<Attribute *>             v_attr;
-    vector<Attribute *>::iterator   it;
-
-    string names[] = {"INPUT", "FEATURES", "RAW", "CLONING_TEMPLATE_ID"};
-
-    for (int i=0; i<4; i++)
+    for (auto it = names.begin(); it != names.end() ; ++it)
     {
-        v_attr.clear();
+        vector<Attribute *> v_attr;
 
-        user_obj_template->remove(names[i], v_attr);
+        user_obj_template->remove(*it, v_attr);
 
-        for (it=v_attr.begin(); it != v_attr.end(); it++)
+        for (auto jt=v_attr.begin(); jt != v_attr.end(); jt++)
         {
-            obj_template->set(*it);
+            obj_template->set(*jt);
         }
     }
 }
@@ -545,54 +542,34 @@ void VirtualMachine::parse_well_known_attributes()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C"
-{
-    typedef struct yy_buffer_state * YY_BUFFER_STATE;
-
-    int vm_var_parse (VirtualMachine * vm,
-                      ostringstream *  parsed,
-                      char **          errmsg);
-
-    int vm_file_var_parse (VirtualMachine * vm,
-                           vector<int> *    img_ids,
-                           char **          errmsg);
-
-    int vm_var_lex_destroy();
-
-    YY_BUFFER_STATE vm_var__scan_string(const char * str);
-
-    void vm_var__delete_buffer(YY_BUFFER_STATE);
-}
-
-/* -------------------------------------------------------------------------- */
-
 int VirtualMachine::parse_template_attribute(const string& attribute,
                                              string&       parsed,
                                              string&       error_str)
 {
-    YY_BUFFER_STATE  str_buffer = 0;
-    const char *     str;
-    int              rc;
-    ostringstream    oss_parsed;
-    char *           error_msg = 0;
+    const char *  str;
+    int           rc;
+    ostringstream oss_parsed;
+    char *        error_msg = 0;
 
-    pthread_mutex_lock(&lex_mutex);
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t        scanner = 0;
+
+    vm_var_lex_init(&scanner);
 
     str        = attribute.c_str();
-    str_buffer = vm_var__scan_string(str);
+    str_buffer = vm_var__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
-        goto error_yy;
+        log("VM",Log::ERROR,"Error setting scan buffer");
+        return -1;
     }
 
-    rc = vm_var_parse(this, &oss_parsed, &error_msg);
+    rc = vm_var_parse(this, &oss_parsed, &error_msg, scanner);
 
-    vm_var__delete_buffer(str_buffer);
+    vm_var__delete_buffer(str_buffer, scanner);
 
-    vm_var_lex_destroy();
-
-    pthread_mutex_unlock(&lex_mutex);
+    vm_var_lex_destroy(scanner);
 
     if ( rc != 0 && error_msg != 0 )
     {
@@ -609,11 +586,6 @@ int VirtualMachine::parse_template_attribute(const string& attribute,
     parsed = oss_parsed.str();
 
     return rc;
-
-error_yy:
-    log("VM",Log::ERROR,"Error setting scan buffer");
-    pthread_mutex_unlock(&lex_mutex);
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -622,13 +594,15 @@ int VirtualMachine::parse_file_attribute(string       attribute,
                                          vector<int>& img_ids,
                                          string&      error)
 {
-    YY_BUFFER_STATE  str_buffer = 0;
-    const char *     str;
-    int              rc;
-    ostringstream    oss_parsed;
-    char *           error_msg = 0;
+    const char *  str;
+    int           rc;
+    ostringstream oss_parsed;
+    char *        error_msg = 0;
 
     size_t non_blank_pos;
+
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t        scanner = 0;
 
     //Removes leading blanks from attribute, these are not managed
     //by the parser as it is common to the other VM varibales
@@ -639,23 +613,22 @@ int VirtualMachine::parse_file_attribute(string       attribute,
         attribute.erase(0, non_blank_pos);
     }
 
-    pthread_mutex_lock(&lex_mutex);
+    vm_var_lex_init(&scanner);
 
     str        = attribute.c_str();
-    str_buffer = vm_var__scan_string(str);
+    str_buffer = vm_var__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
-        goto error_yy;
+        log("VM",Log::ERROR,"Error setting scan buffer");
+        return -1;
     }
 
-    rc = vm_file_var_parse(this, &img_ids, &error_msg);
+    rc = vm_file_var_parse(this, &img_ids, &error_msg, scanner);
 
-    vm_var__delete_buffer(str_buffer);
+    vm_var__delete_buffer(str_buffer, scanner);
 
-    vm_var_lex_destroy();
-
-    pthread_mutex_unlock(&lex_mutex);
+    vm_var_lex_destroy(scanner);
 
     if ( rc != 0  )
     {
@@ -675,9 +648,351 @@ int VirtualMachine::parse_file_attribute(string       attribute,
     }
 
     return rc;
+}
 
-error_yy:
-    log("VM",Log::ERROR,"Error setting scan buffer");
-    pthread_mutex_unlock(&lex_mutex);
-    return -1;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_public_clouds(const char * pname, string& error)
+{
+    vector<VectorAttribute *>           attrs;
+
+    string p_vatt;
+
+    int rc  = 0;
+    int num = user_obj_template->remove(pname, attrs);
+
+    for (auto attr : attrs)
+    {
+        string str = attr->marshall();
+
+        if ( str.empty() )
+        {
+            ostringstream oss;
+            oss << "Internal error processing " << pname;
+            error = oss.str();
+            rc    = -1;
+            break;
+        }
+
+        rc = parse_template_attribute(str, p_vatt, error);
+
+        if ( rc != 0 )
+        {
+            rc = -1;
+            break;
+        }
+
+        VectorAttribute * nvatt = new VectorAttribute(pname);
+
+        nvatt->unmarshall(p_vatt);
+
+        user_obj_template->set(nvatt);
+    }
+
+    for (int i = 0; i < num ; i++)
+    {
+        delete attrs[i];
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_cpu_model(Template * tmpl)
+{
+    vector<VectorAttribute *> cm_attr;
+
+    int num = tmpl->remove("CPU_MODEL", cm_attr);
+
+    if ( num == 0 )
+    {
+        return 0;
+    }
+
+    auto it = cm_attr.begin();
+
+    obj_template->set(*it);
+
+    for ( ++it; it != cm_attr.end(); ++it)
+    {
+        delete *it;
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
+{
+/**
+ *   TOPOLOGY
+ *      - NUMA_NODES: number of numa nodes
+ *      - PIN_POLICY: CORE, THREAD, SHARED, NONE
+ *      - THREADS
+ *      - CORES
+ *      - SOCKETS
+ */
+    std::vector<VectorAttribute *> numa_nodes;
+    std::vector<VectorAttribute *> vtopol_a;
+
+    VectorAttribute * vtopol = 0;
+
+    tmpl->remove("TOPOLOGY", vtopol_a);
+
+    if ( !vtopol_a.empty() )
+    {
+        auto it = vtopol_a.begin();
+        vtopol  = *it;
+
+        for ( ++it; it != vtopol_a.end(); ++it)
+        {
+            delete *it;
+        }
+    }
+
+    tmpl->get("NUMA_NODE", numa_nodes);
+
+    if ( vtopol == 0 && numa_nodes.empty() )
+    {
+        return 0;
+    }
+
+    if ( vtopol == 0 )
+    {
+        vtopol = new VectorAttribute("TOPOLOGY");
+    }
+
+    tmpl->set(vtopol);
+
+    std::string pp_s = vtopol->vector_value("PIN_POLICY");
+
+    HostShare::PinPolicy pp = HostShare::str_to_pin_policy(pp_s);
+
+    /* ---------------------------------------------------------------------- */
+    /* Set MEMORY, HUGEPAGE_SIZE, vCPU & update CPU for pinned VMS            */
+    /* ---------------------------------------------------------------------- */
+    long long    memory;
+    unsigned int vcpu = 0;
+
+    if (!tmpl->get("MEMORY", memory))
+    {
+        error = "VM has not MEMORY set";
+        return -1;
+    }
+
+    if (!tmpl->get("VCPU", vcpu))
+    {
+        vcpu = 1;
+        tmpl->replace("VCPU", 1);
+    }
+
+    if ( pp != HostShare::PP_NONE )
+    {
+        tmpl->replace("CPU", vcpu);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Check topology for non pinned & pinned VMs                             */
+    /*  - non-pinned VM needs to set SOCKETS, CORES and THREADS               */
+    /*  - pinned VM                                                           */
+    /*    1. Set sockets to number of NUMA_NODE or 1 if not given             */
+    /*    2. core and thread given. Check consistency                         */
+    /*    3. core given. Compute threads & check power of 2                   */
+    /*    4. other combinations are set by the scheduler                      */
+    /* ---------------------------------------------------------------------- */
+    unsigned int s, c, t;
+
+    s = c = t = 0;
+
+    vtopol->vector_value("SOCKETS", s);
+    vtopol->vector_value("CORES", c);
+    vtopol->vector_value("THREADS", t);
+
+    if ( pp == HostShare::PP_NONE )
+    {
+        if ( c == 0 || t == 0 || s == 0 )
+        {
+            error = "Non-pinned VMs with a virtual topology needs to set "
+                " SOCKETS, CORES and THREADS numbers.";
+            return -1;
+        }
+        else if ((s * c * t) != vcpu)
+        {
+            error = "Total threads per core and socket needs to match VCPU";
+            return -1;
+        }
+
+        vtopol->replace("PIN_POLICY", "NONE");
+
+        tmpl->erase("NUMA_NODE");
+
+        return 0;
+    }
+
+    if ( s == 0 )
+    {
+        if ( numa_nodes.empty() )
+        {
+            s = 1;
+        }
+        else
+        {
+            s = numa_nodes.size();
+        }
+
+        vtopol->replace("SOCKETS", s);
+    }
+
+    if ( c != 0 && t != 0 && (s * c * t) != vcpu)
+    {
+        error = "Total threads per core and socket needs to match VCPU";
+        return -1;
+    }
+
+    if ( t == 0 && c != 0 )
+    {
+        if ( vcpu%(c * s) != 0 )
+        {
+            error = "VCPU is not multiple of the total number of cores";
+            return -1;
+        }
+
+        t = vcpu/(c * s);
+
+        if ((t & (t - 1)) != 0 )
+        {
+            error = "Computed number of threads is not power of 2";
+            return -1;
+        }
+
+        vtopol->replace("THREADS", t);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* Build NUMA_NODE stanzas for the given topology                         */
+    /* ---------------------------------------------------------------------- */
+    if (numa_nodes.empty()) // Automatic Homogenous Topology
+    {
+        if ( vcpu % s != 0 )
+        {
+            error = "VCPU is not multiple of the number of NUMA nodes";
+            return -1;
+        }
+
+        if ( memory % s != 0 )
+        {
+            error = "MEMORY is not multiple of the number of NUMA nodes";
+            return -1;
+        }
+
+        long long mem_node = memory / s;
+
+        unsigned int cpu_node = vcpu / s;
+
+        for (unsigned int i = 0 ; i < s ; ++i)
+        {
+            VectorAttribute * node = new VectorAttribute("NUMA_NODE");
+
+            node->replace("TOTAL_CPUS", cpu_node);
+            node->replace("MEMORY", mem_node * 1024);
+
+            tmpl->set(node);
+        }
+    }
+    else // Manual/Asymmetric Topology, NUMA_NODE array
+    {
+        long long    node_mem = 0;
+        unsigned int node_cpu = 0;
+
+        long long    nmem = 0;
+        unsigned int ncpu = 0;
+
+        std::vector<VectorAttribute *> new_nodes;
+
+        for (auto it = numa_nodes.begin() ; it != numa_nodes.end() ; ++it)
+        {
+            ncpu = nmem = 0;
+
+            (*it)->vector_value("TOTAL_CPUS", ncpu);
+            (*it)->vector_value("MEMORY", nmem);
+
+            if ( ncpu <= 0 || nmem <= 0)
+            {
+                break;
+            }
+
+            VectorAttribute * node = new VectorAttribute("NUMA_NODE");
+
+            node->replace("TOTAL_CPUS", ncpu);
+            node->replace("MEMORY", nmem * 1024);
+
+            new_nodes.push_back(node);
+
+            node_cpu += ncpu;
+            node_mem += nmem;
+        }
+
+        tmpl->erase("NUMA_NODE");
+
+        if (node_cpu != vcpu || node_mem != memory ||
+                ncpu <= 0 || nmem <= 0)
+        {
+            for (auto it = new_nodes.begin(); it != new_nodes.end(); ++it)
+            {
+                delete *it;
+            }
+        }
+
+        if (ncpu <= 0)
+        {
+            error = "A NUMA_NODE must have TOTAL_CPUS greater than 0";
+            return -1;
+        }
+
+        if (nmem <= 0)
+        {
+            error = " A NUMA_NODE must have MEMORY greater than 0";
+            return -1;
+        }
+
+        if (node_cpu != vcpu)
+        {
+            error = "Total CPUS of NUMA nodes is different from VM VCPU";
+            return -1;
+        }
+
+        if (node_mem != memory)
+        {
+            error = "Total MEMORY of NUMA nodes is different from VM MEMORY";
+            return -1;
+        }
+
+        tmpl->set(new_nodes);
+    }
+
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachine::is_pinned() const
+{
+    VectorAttribute * topology = obj_template->get("TOPOLOGY");
+
+    if ( topology == 0 )
+    {
+        return false;
+    }
+
+    std::string pp_s = topology->vector_value("PIN_POLICY");
+
+    HostShare::PinPolicy pp = HostShare::str_to_pin_policy(pp_s);
+
+    return pp != HostShare::PP_NONE;
 }

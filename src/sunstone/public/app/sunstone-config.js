@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,34 +15,32 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('jquery');
-
+  require("jquery");
   // Clone the local config object in a private var
   var _config = $.extend(true, {}, config);
-
   var Config = {
-    'isTabEnabled': function(tabName) {
-      var enabled = _config['view']['enabled_tabs'].indexOf(tabName) != -1;
+    "isTabEnabled": function(tabName) {
+      var enabled = _config["view"]["enabled_tabs"].indexOf(tabName) != -1;
       return enabled;
     },
 
     "changeFilter": function(bool) {
-      _config['pool_filter'] = bool;
+      _config["pool_filter"] = bool;
     },
 
     "isChangedFilter": function(){
-      return _config['pool_filter'];
+      return _config["pool_filter"];
     },
 
     "isTabActionEnabled": function(tabName, actionName, panelName) {
       var enabled = false;
-      var configTab = _config['view']['tabs'][tabName];
+      var configTab = _config["view"]["tabs"][tabName];
 
       if (configTab != undefined) {
         if (panelName) {
-          enabled = configTab['panel_tabs_actions'][panelName][actionName];
+          enabled = configTab["panel_tabs_actions"][panelName][actionName];
         } else {
-          enabled = configTab['actions'][actionName];
+          enabled = configTab["actions"][actionName];
         }
       }
 
@@ -50,8 +48,8 @@ define(function(require) {
     },
 
     "isTabPanelEnabled": function(tabName, panelTabName) {
-      if (_config['view']['tabs'][tabName]) {
-        var enabled = _config['view']['tabs'][tabName]['panel_tabs'][panelTabName];
+      if (_config["view"]["tabs"][tabName]) {
+        var enabled = _config["view"]["tabs"][tabName]["panel_tabs"][panelTabName];
         return enabled;
       } else {
         return false;
@@ -59,13 +57,13 @@ define(function(require) {
     },
 
     "isProvisionTabEnabled": function(tabName, panelTabName) {
-      if (_config['view']['tabs'][tabName]) {
-        if (_config['view']['tabs'][tabName]['provision_tabs']) {
-          return _config['view']['tabs'][tabName]['provision_tabs'][panelTabName];
+      if (_config["view"]["tabs"][tabName]) {
+        if (_config["view"]["tabs"][tabName]["provision_tabs"]) {
+          return _config["view"]["tabs"][tabName]["provision_tabs"][panelTabName];
         } else {
           // if provision_tabs is not defined use panel_tabs.
           // This attribute was used in before 4.14, provision_tabs was include in 4.14.2
-          return _config['view']['tabs'][tabName]['panel_tabs'][panelTabName];
+          return _config["view"]["tabs"][tabName]["panel_tabs"][panelTabName];
         }
       } else {
         return false;
@@ -73,19 +71,35 @@ define(function(require) {
     },
 
     "isFeatureEnabled": function(featureName) {
-      if (_config['view']['features'] && _config['view']['features'][featureName]) {
+      if (_config["view"]["features"] && _config["view"]["features"][featureName]) {
         return true;
       } else {
         return false;
       }
     },
 
+    "isOneFeatureEnabled": function(feature1Name, feature2Name) {
+      if (_config["view"]["features"]) {
+        return _config["view"]["features"][feature1Name] || _config["view"]["features"][feature2Name];
+      } else {
+        return false;
+      }
+    },
+
+    "isAdvancedEnabled": function(featureName) {
+      if (_config["view"]["features"] && featureName in _config["view"]["features"]) {
+        return _config["view"]["features"][featureName];
+      } else {
+        return true;
+      }
+    },
+
     "tabTableColumns": function(tabName) {
-      if (!_config['view']['tabs'][tabName]) {
+      if (!_config["view"]["tabs"][tabName]) {
         return [];
       }
 
-      var columns = _config['view']['tabs'][tabName]['table_columns'];
+      var columns = _config["view"]["tabs"][tabName]["table_columns"];
 
       if (columns) {
         return columns;
@@ -97,19 +111,19 @@ define(function(require) {
     "isTemplateCreationTabEnabled": function(tabName, wizardTabName) {
       var enabled = false;
 
-      if (_config['view']['tabs'][tabName] && _config['view']['tabs'][tabName]['template_creation_tabs']) {
-        enabled = _config['view']['tabs'][tabName]['template_creation_tabs'][wizardTabName];
+      if (_config["view"]["tabs"][tabName] && _config["view"]["tabs"][tabName]["template_creation_tabs"]) {
+        enabled = _config["view"]["tabs"][tabName]["template_creation_tabs"][wizardTabName];
       }
 
       return (enabled == true);
     },
 
     "dashboardWidgets": function(perRow) {
-      if (!_config['view']['tabs']['dashboard-tab']) {
-        return []
+      if (!_config["view"]["tabs"]["dashboard-tab"]) {
+        return [];
       }
 
-      var widgets = _config['view']['tabs']['dashboard-tab'][perRow];
+      var widgets = _config["view"]["tabs"]["dashboard-tab"][perRow];
 
       if (widgets) {
         return widgets;
@@ -118,15 +132,11 @@ define(function(require) {
       }
     },
 
-    "tableOrder": function() {
-      return _config['user_config']["table_order"];
-    },
-
     "provision": {
       "dashboard": {
         "isEnabled": function(widget) {
-          if (_config['view']['tabs']['provision-tab']) {
-            var enabled = _config['view']['tabs']['provision-tab']['dashboard'][widget];
+          if (_config["view"]["tabs"]["provision-tab"]) {
+            var enabled = _config["view"]["tabs"]["provision-tab"]["dashboard"][widget];
             return enabled;
           } else {
             return false;
@@ -135,34 +145,44 @@ define(function(require) {
       },
       "create_vm": {
         "isEnabled": function(widget) {
-          if (_config['view']['tabs']['provision-tab'] && _config['view']['tabs']['provision-tab']["create_vm"]) {
-            return _config['view']['tabs']['provision-tab']['create_vm'][widget];
+          if (_config["view"]["tabs"]["provision-tab"] && _config["view"]["tabs"]["provision-tab"]["create_vm"]) {
+            return _config["view"]["tabs"]["provision-tab"]["create_vm"][widget];
           } else {
             return false;
           }
         }
       },
-      "logo": (_config['view']["provision_logo"] || "images/one_small_logo.png"),
+      "logo": (_config["view"]["provision_logo"] || "images/one_small_logo.png"),
     },
 
-    'tableOrder': _config['user_config']['table_order'],
-    'vncProxyPort': _config['system_config']['vnc_proxy_port'],
-    'vncWSS': _config['user_config']['vnc_wss'],
-    'requestVNCPassword': _config['system_config']['vnc_request_password'],
-    'logo': (_config['view']["small_logo"] || "images/one_small_logo.png"),
-    "link_logo": (_config['view']["link_logo"] || false),
-    "text_link_logo": (_config['view']["text_link_logo"] || false),
-    'vmLogos': (_config['vm_logos']),
-    'enabledTabs': _config['view']['enabled_tabs'],
-    'onedConf': _config['oned_conf'],
-    'confirmVMActions': _config['view']['confirm_vms'],
-    'scaleFactor': _config['view']['features']['instantiate_cpu_factor'],
-    'filterView': _config['view']['filter_view'],
+    "tableOrder": _config["user_config"]["table_order"],
+    "vncProxyPort": _config["system_config"]["vnc_client_port"] || _config["system_config"]["vnc_proxy_port"].split(":")[1] || _config["system_config"]["vnc_proxy_port"],
+    "vncWSS": _config["user_config"]["vnc_wss"],
+    "requestVNCPassword": _config["system_config"]["vnc_request_password"],
+    "logo": (_config["view"]["small_logo"] || "images/one_small_logo.png"),
+    "link_logo": (_config["view"]["link_logo"] || false),
+    "text_link_logo": (_config["view"]["text_link_logo"] || false),
+    "vmLogos": (_config["vm_logos"]),
+    "enabledTabs": _config["view"]["enabled_tabs"],
+    "onedConf": _config["oned_conf"],
+    "confirmVMActions": _config["view"]["confirm_vms"],
+    "scaleFactor": _config["view"]["features"]["instantiate_cpu_factor"],
+    "filterView": _config["view"]["filter-view"],
+    "doCountAnimation": _config["view"]["do_count_animation"],
 
     "allTabs": function() {
-      return Object.keys(_config['view']['tabs']);
-    }
-  }
+      return Object.keys(_config["view"]["tabs"]);
+    },
+    "thresholds":{
+      "min":_config["user_config"]["threshold_min"],
+      "low":_config["user_config"]["threshold_low"],
+      "high":_config["user_config"]["threshold_high"]
+    },
+    "isExtendedVmInfo": _config["system_config"] && _config["system_config"]["get_extended_vm_info"] && _config["system_config"]["get_extended_vm_info"] === "true",
+    "isLogEnabled": _config["zone_id"] === _config["id_own_federation"] ? true : false,
+    "publicFireedgeEndpoint": _config["system_config"]["public_fireedge_endpoint"],
+    "maxWaitingTries": _config["system_config"]["max_waiting_tries"],
+  };
 
   return Config;
 });

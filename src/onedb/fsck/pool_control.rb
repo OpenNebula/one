@@ -49,7 +49,7 @@ module OneDBFsck
     end
 
     def fix_pool_control
-        db = @db[:image_pool]
+        db = @db[:pool_control]
 
         @db.transaction do
             @fixes_pool_control.each do |name, last_oid|

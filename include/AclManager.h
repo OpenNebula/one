@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,24 +17,18 @@
 #ifndef ACL_MANAGER_H_
 #define ACL_MANAGER_H_
 
-#include "AuthManager.h"
+#include "Listener.h"
 #include "AuthRequest.h"
 #include "PoolObjectSQL.h"
-#include "AclRule.h"
-#include "NebulaLog.h"
 
-#include "SqlDB.h"
-
-using namespace std;
-
+class AclRule;
 class PoolObjectAuth;
-
-extern "C" void * acl_action_loop(void *arg);
+class SqlDB;
 
 /**
  *  This class manages the ACL rules and the authorization engine
  */
-class AclManager : public Callbackable, public ActionListener
+class AclManager : public Callbackable
 {
 public:
     /**
@@ -56,6 +50,8 @@ public:
     int start();
 
     void finalize();
+
+    void join_thread();
 
     /**
      *  Reload the ACL rules from the DB. This function needs to be used when
@@ -80,10 +76,21 @@ public:
      *    @param op The operation to be authorized
      *    @return true if the authorization is granted by any rule
      */
-    const bool authorize(int                    uid,
-                         const set<int>&        user_groups,
-                         const PoolObjectAuth&  obj_perms,
-                         AuthRequest::Operation op);
+    bool authorize(int                    uid,
+                   const std::set<int>&   user_groups,
+                   const PoolObjectAuth&  obj_perms,
+                   AuthRequest::Operation op) const;
+
+    /**
+     *  Takes an authorization request for oneadmin
+     *  and checks if the resource is locked
+     *
+     *    @param obj_perms The object's permission attributes
+     *    @param op The operation to be authorized
+     *    @return true if the authorization is granted for oneadmin
+     */
+    bool oneadmin_authorize(const PoolObjectAuth&  obj_perms,
+                         AuthRequest::Operation op) const;
 
     /**
      *  Adds a new rule to the ACL rule set
@@ -103,7 +110,7 @@ public:
                          long long resource,
                          long long rights,
                          long long zone,
-                         string&   error_str);
+                         std::string& error_str);
     /**
      *  Deletes a rule from the ACL rule set
      *
@@ -111,7 +118,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    virtual int del_rule(int oid, string& error_str);
+    virtual int del_rule(int oid, std::string& error_str);
 
     /**
      *  Deletes a new rule from the ACL rule set
@@ -128,7 +135,7 @@ public:
                          long long resource,
                          long long rights,
                          long long zone,
-                         string&   error_str);
+                         std::string& error_str);
 
     /**
      * Deletes rules that apply to this user id
@@ -180,16 +187,16 @@ public:
      *    @param cids Set of object cluster IDs over which the user can operate
      */
     void reverse_search(int                       uid,
-                        const set<int>&           user_groups,
+                        const std::set<int>&      user_groups,
                         PoolObjectSQL::ObjectType obj_type,
                         AuthRequest::Operation    op,
                         bool                      disable_all_acl,
                         bool                      disable_cluster_acl,
                         bool                      disable_group_acl,
                         bool&                     all,
-                        vector<int>&              oids,
-                        vector<int>&              gids,
-                        vector<int>&              cids);
+                        std::vector<int>&         oids,
+                        std::vector<int>&         gids,
+                        std::vector<int>&         cids);
 
     /* ---------------------------------------------------------------------- */
     /* DB management                                                          */
@@ -205,20 +212,7 @@ public:
      *    @param oss The output stream to dump the rule set contents
      *    @return 0 on success
      */
-    virtual int dump(ostringstream& oss);
-
-    // -------------------------------------------------------------------------
-    // Refresh loop thread
-    // -------------------------------------------------------------------------
-    /**
-     *  Gets the AclManager thread identification. The thread is only
-     *  initialized if the refresh_cache flag is true.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return acl_thread;
-    };
+    virtual int dump(std::ostringstream& oss);
 
 protected:
     /**
@@ -227,9 +221,11 @@ protected:
      *  from DB)
      */
     AclManager(int _zone_id)
-        :zone_id(_zone_id), db(0), is_federation_slave(false)
+        : zone_id(_zone_id)
+        , db(0)
+        , is_federation_slave(false)
+        , timer_period(-1)
     {
-       pthread_mutex_init(&mutex, 0);
     };
 
     // -------------------------------------------------------------------------
@@ -239,12 +235,12 @@ protected:
      *  ACL rules. Each rule is indexed by its 'user' long long attibute,
      *  several rules can apply to the same user
      */
-    multimap<long long, AclRule*> acl_rules;
+    std::multimap<long long, AclRule*> acl_rules;
 
     /**
      *  Rules indexed by oid. Stores the same rules as acl_rules
      */
-    map<int, AclRule *> acl_rules_oids;
+    std::map<int, AclRule *> acl_rules_oids;
 
 private:
 
@@ -266,16 +262,17 @@ private:
      *    @return true if any rule grants permission
      */
     bool match_rules(
-            long long             user_req,
-            long long             resource_oid_req,
-            long long             resource_gid_req,
-            const set<long long>& resource_cid_req,
-            long long             resource_all_req,
-            long long             rights_req,
-            long long             resource_oid_mask,
-            long long             resource_gid_mask,
-            long long             resource_cid_mask,
-            const multimap<long long, AclRule*>& rules);
+            long long                   user_req,
+            long long                   resource_oid_req,
+            long long                   resource_gid_req,
+            const std::set<long long>&  resource_cid_req,
+            long long                   resource_all_req,
+            long long                   rights_req,
+            long long                   resource_oid_mask,
+            long long                   resource_gid_mask,
+            long long                   resource_cid_mask,
+            const std::multimap<long long, AclRule*>& rules) const;
+
     /**
      *  Wrapper for match_rules. It will check if any rules in the temporary
      *  multimap or in the internal one grants permission.
@@ -294,16 +291,16 @@ private:
      *    @return true if any rule grants permission
      */
     bool match_rules_wrapper(
-            long long             user_req,
-            long long             resource_oid_req,
-            long long             resource_gid_req,
-            const set<long long>& resource_cid_req,
-            long long             resource_all_req,
-            long long             rights_req,
-            long long             individual_obj_type,
-            long long             group_obj_type,
-            long long             cluster_obj_type,
-            const multimap<long long, AclRule*> &tmp_rules);
+            long long                   user_req,
+            long long                   resource_oid_req,
+            long long                   resource_gid_req,
+            const std::set<long long>&  resource_cid_req,
+            long long                   resource_all_req,
+            long long                   rights_req,
+            long long                   individual_obj_type,
+            long long                   group_obj_type,
+            long long                   cluster_obj_type,
+            const std::multimap<long long, AclRule*> &tmp_rules) const;
     /**
      * Deletes all rules that match the user mask
      *
@@ -338,23 +335,7 @@ private:
     // Mutex synchronization
     // -------------------------------------------------------------------------
 
-    pthread_mutex_t mutex;
-
-    /**
-     *  Function to lock the manager
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the manager
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
+    mutable std::mutex acl_mutex;
 
     // -------------------------------------------------------------------------
     // DataBase implementation variables
@@ -363,15 +344,6 @@ private:
      *  Pointer to the database.
      */
     SqlDB * db;
-
-    /**
-     *  Tablename for the ACL rules
-     */
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
 
     /**
      *  Callback function to unmarshall the ACL rules
@@ -430,33 +402,18 @@ private:
     time_t          timer_period;
 
     /**
-     *  Thread id for the ACL Manager
+     *  Timer action async execution
      */
-    pthread_t       acl_thread;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager   am;
-
-    /**
-     *  Function to execute the Manager action loop method within a new pthread
-     *  (requires C linkage)
-     */
-    friend void * acl_action_loop(void *arg);
+    std::unique_ptr<Timer> timer_thread;
 
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    void timer_action(const ActionRequest& ar)
+    void timer_action()
     {
         select();
     };
 
-    void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("ACL",Log::INFO,"Stopping ACL Manager...");
-    };
 };
 
 #endif /*ACL_MANAGER_H*/

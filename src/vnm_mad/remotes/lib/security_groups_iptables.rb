@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -146,7 +146,11 @@ module SGIPTables
                 end
 
                 if !sets.include?(set)
-                    cmds.add :ipset, "create #{set} hash:net,port family #{family}"
+                    maxelem = vars[:nic][:conf][:ipset_maxelem] ?
+                        "maxelem #{vars[:nic][:conf][:ipset_maxelem]}" :
+                        "maxelem #{CONF[:ipset_maxelem]}"
+
+                    cmds.add :ipset, "create #{set} hash:net,port family #{family} #{maxelem}"
                     cmds.add command, "-A #{chain} -m set --match-set" \
                         " #{set} #{dir} -j RETURN"
 
@@ -318,10 +322,11 @@ module SGIPTables
 
         vars = {}
 
-        vars[:vm_id]     = vm_id,
-        vars[:nic_id]    = nic_id,
-        vars[:chain]     = "one-#{vm_id}-#{nic_id}",
-        vars[:chain_in]  = "#{vars[:chain]}-i",
+        vars[:nic]       = nic
+        vars[:vm_id]     = vm_id
+        vars[:nic_id]    = nic_id
+        vars[:chain]     = "one-#{vm_id}-#{nic_id}"
+        vars[:chain_in]  = "#{vars[:chain]}-i"
         vars[:chain_out] = "#{vars[:chain]}-o"
 
         if sg_id
@@ -345,8 +350,8 @@ module SGIPTables
     #       --physdev-is-bridged -j one-3-0-i"
     #   iptables -I opennebula -m physdev --physdev-in  vnet0
     #       --physdev-is-bridged -j one-3-0-o"
-    #   iptables -A one-3-0-i -m state --state ESTABLISHED,RELATED -j ACCEPT
-    #   iptables -A one-3-0-o -m state --state ESTABLISHED,RELATED -j ACCEPT
+    #   iptables -A one-3-0-i -m state --state ESTABLISHED,RELATED -j RETURN
+    #   iptables -A one-3-0-o -m state --state ESTABLISHED,RELATED -j RETURN
     #
     #   Mac spoofing (no output traffic from a different MAC)
     #   iptables -A one-3-0-o -m mac ! --mac-source 02:00:00:00:00:01 -j DROP
@@ -358,7 +363,6 @@ module SGIPTables
 
         vars = SGIPTables.vars(vm, nic)
 
-        chain     = vars[:chain]
         chain_in  = vars[:chain_in]
         chain_out = vars[:chain_out]
 
@@ -382,31 +386,31 @@ module SGIPTables
         # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
         ## Allow routers to send router advertisements
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 134 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow neighbor solicitations to reach the host
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 135 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow neighbor solicitations replies to reach the host
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 136 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow routers to send Redirect messages
         commands.add :ip6tables, "-A #{chain_in} -p icmpv6 --icmpv6-type 137 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow the host to send a router solicitation
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 133 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow the host to send neighbor solicitation requests
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 135 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         ## Allow the host to send neighbor solicitation replies
         commands.add :ip6tables, "-A #{chain_out} -p icmpv6 --icmpv6-type 136 "\
-            "-j ACCEPT"
+            "-j RETURN"
 
         # Mac-spofing
         if nic[:filter_mac_spoofing] == "YES"
@@ -428,7 +432,7 @@ module SGIPTables
                 #bootp
                 commands.add :iptables, "-A #{chain_out} -p udp "\
                     "--source 0.0.0.0/32 --sport 68 --destination "\
-                    "255.255.255.255/32 --dport 67 -j ACCEPT"
+                    "255.255.255.255/32 --dport 67 -j RETURN"
 
                 set = "#{vars[:chain]}-ip-spoofing"
 
@@ -469,13 +473,13 @@ module SGIPTables
 
         # Related, Established
         commands.add :iptables, "-A #{chain_in} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
         commands.add :iptables, "-A #{chain_out} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
         commands.add :ip6tables, "-A #{chain_in} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
         commands.add :ip6tables, "-A #{chain_out} -m state"\
-            " --state ESTABLISHED,RELATED -j ACCEPT"
+            " --state ESTABLISHED,RELATED -j RETURN"
 
         commands.run!
     end

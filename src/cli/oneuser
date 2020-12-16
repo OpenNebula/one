@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,16 +16,24 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/oneuser_helper'
@@ -33,8 +41,8 @@ require 'one_helper/onequota_helper'
 
 require 'uri'
 
-cmd = CommandParser::CmdParser.new(ARGV) do
-    usage "`oneuser` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneuser` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneUserHelper.new
@@ -43,7 +51,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         if ![:key].include?(@comm_name)
             begin
                 helper.set_client(options)
-            rescue Exception => e
+            rescue StandardError => e
                 STDERR.puts e.message
 
                 if e.message != OpenNebula::Client::NO_ONE_AUTH_ERROR
@@ -58,152 +66,151 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+    set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
-    list_options = CLIHelper::OPTIONS
-    list_options << OpenNebulaHelper::XML
+    list_options  = CLIHelper::OPTIONS
+    list_options += OpenNebulaHelper::FORMAT
     list_options << OpenNebulaHelper::NUMERIC
     list_options << OpenNebulaHelper::DESCRIBE
 
-    READ_FILE={
-        :name => "read_file",
-        :short => "-r",
-        :large => "--read-file",
-        :description => "Read password from file"
+    READ_FILE = {
+        :name => 'read_file',
+        :short => '-r',
+        :large => '--read-file',
+        :description => 'Read password from file'
     }
 
-    SHA1={
-        :name => "sha1",
-        :large => "--sha1",
-        :description => "The password will be hashed using the sha1\n"<<
-                        " "*31<<"algorithm"
+    SHA256 = {
+        :name => 'sha256',
+        :large => '--sha256',
+        :description => 'The password will be hashed using the sha256 algorithm'
     }
 
-    SSH={
-        :name => "ssh",
-        :large => "--ssh",
-        :description => "SSH Auth system",
-        :proc => lambda { |o, options|
+    SSH = {
+        :name => 'ssh',
+        :large => '--ssh',
+        :description => 'SSH Auth system',
+        :proc => lambda {|_, options|
             options[:driver] = OpenNebula::User::SSH_AUTH
         }
     }
 
-    X509={
-        :name => "x509",
-        :large => "--x509",
-        :description => "x509 Auth system for x509 certificates",
-        :proc => lambda { |o, options|
+    X509 = {
+        :name => 'x509',
+        :large => '--x509',
+        :description => 'x509 Auth system for x509 certificates',
+        :proc => lambda {|_, options|
             options[:driver] = OpenNebula::User::X509_AUTH
         }
     }
 
-    X509_PROXY={
-        :name => "x509_proxy",
-        :large => "--x509_proxy",
-        :description => "x509 Auth system based on x509 proxy certificates",
-        :proc => lambda { |o, options|
+    X509_PROXY = {
+        :name => 'x509_proxy',
+        :large => '--x509_proxy',
+        :description => 'x509 Auth system based on x509 proxy certificates',
+        :proc => lambda {|_, options|
             options[:driver] = OpenNebula::User::X509_PROXY_AUTH
         }
     }
 
-    KEY={
-        :name => "key",
-        :short => "-k path_to_private_key_pem",
-        :large => "--key path_to_private_key_pem",
+    KEY = {
+        :name => 'key',
+        :short => '-k path_to_private_key_pem',
+        :large => '--key path_to_private_key_pem',
         :format => String,
-        :description => "Path to the Private Key of the User"
+        :description => 'Path to the Private Key of the User'
     }
 
-    CERT={
-        :name => "cert",
-        :short => "-c path_to_user_cert_pem",
-        :large => "--cert path_to_user_cert_pem",
+    CERT = {
+        :name => 'cert',
+        :short => '-c path_to_user_cert_pem',
+        :large => '--cert path_to_user_cert_pem',
         :format => String,
-        :description => "Path to the Certificate of the User"
+        :description => 'Path to the Certificate of the User'
     }
 
-    PROXY={
-        :name => "proxy",
-        :large => "--proxy path_to_user_proxy_pem",
+    PROXY = {
+        :name => 'proxy',
+        :large => '--proxy path_to_user_proxy_pem',
         :format => String,
-        :description => "Path to the user proxy certificate"
+        :description => 'Path to the user proxy certificate'
     }
 
-    TIME={
-        :name  => "time",
-        :large => "--time x",
+    TIME = {
+        :name => 'time',
+        :large => '--time x',
         :format => Integer,
-        :description => "Token duration in seconds, defaults to 36000 (10 h). "\
-                        "To reset the token set time to 0." \
-                        "To generate a non-expiring token use -1"\
-                        " (not valid for ssh and x509 tokens). "\
+        :description => 'Token duration in seconds, defaults to 36000 (10 h). '\
+                        'To reset the token set time to 0.' \
+                        'To generate a non-expiring token use -1'\
+                        ' (not valid for ssh and x509 tokens). '\
     }
 
-    DRIVER={
-        :name => "driver",
-        :large => "--driver driver",
+    DRIVER = {
+        :name => 'driver',
+        :large => '--driver driver',
         :format => String,
-        :description => "Driver to authenticate this user"
+        :description => 'Driver to authenticate this user'
     }
 
     FORCE = {
-        :name   => "force",
-        :large  => "--force" ,
-        :description => "Force one_auth file rewrite"
+        :name => 'force',
+        :large => '--force',
+        :description => 'Force one_auth file rewrite'
     }
 
     TOKEN = {
-        :name => "token",
-        :large => "--token token_hint",
+        :name => 'token',
+        :large => '--token token_hint',
         :format => String,
-        :description => "The Token to be loaded."
+        :description => 'The Token to be loaded.'
     }
 
     GROUP = {
-        :name   => "group",
-        :large  => "--group id|name" ,
-        :description => "Effective GID to use with this token.",
+        :name => 'group',
+        :large => '--group id|name',
+        :description => 'Effective GID to use with this token.',
         :format => String,
-        :proc   => lambda { |o, options|
-            OpenNebulaHelper.rname_to_id(o, "GROUP")
+        :proc => lambda {|o, _|
+            OpenNebulaHelper.rname_to_id(o, 'GROUP')
         }
     }
 
     GROUP_CREATE = {
-        :name   => "group",
-        :large  => "--group id|name" ,
-        :description => "Comma-separated list of Groups for the new User. "\
-                        "The first Group will be the main one.",
+        :name => 'group',
+        :large => '--group id|name',
+        :description => 'Comma-separated list of Groups for the new User. '\
+                        'The first Group will be the main one.',
         :format => String,
-        :proc   => lambda { |o, options|
-            gids = o.split(",").map { |g|
-                id = OpenNebulaHelper.rname_to_id(g, "GROUP")
+        :proc => lambda {|o, _|
+            gids = o.split(',').map do |g|
+                id = OpenNebulaHelper.rname_to_id(g, 'GROUP')
 
-                if (id[0] == -1)
+                if id[0] == -1
                     puts id[1]
-                    exit -1
+                    exit(-1)
                 end
 
                 id[1]
-            }
+            end
 
             [0, gids]
         }
     }
 
     GLOBAL = {
-        :name   => "global",
-        :large  => "--global" ,
-        :description => "Find a global Token."
+        :name => 'global',
+        :large => '--global',
+        :description => 'Find a global Token.'
     }
 
     STDIN_PASSWORD = {
-        :name => "stdin_password",
-        :large => "--stdin_password",
-        :description => "enable stdin password"
+        :name => 'stdin_password',
+        :large => '--stdin_password',
+        :description => 'enable stdin password'
     }
 
-    auth_options = [READ_FILE, SHA1, SSH, X509, KEY, CERT, DRIVER]
+    auth_options = [READ_FILE, SHA256, SSH, X509, KEY, CERT, DRIVER]
 
     create_options = auth_options.clone.unshift(GROUP_CREATE)
 
@@ -223,8 +230,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
 
     set :format, :userid, OneUserHelper.to_id_desc do |arg|
@@ -255,15 +262,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :create, create_desc, :username, [:password, nil],
-            :options=>create_options do
+            :options => create_options do
         if args[1]
             pass = args[1]
         else
             rc = helper.password(options)
-            if rc.first == 0
+            if rc.first.zero?
                 pass = rc[1]
             else
-                exit_with_code *rc
+                exit_with_code(*rc)
             end
         end
 
@@ -282,8 +289,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :userid, [:file, nil],
-    :options=>OpenNebulaHelper::APPEND do
-        helper.perform_action(args[0],options,"modified") do |obj|
+            :options => OpenNebulaHelper::APPEND do
+        helper.perform_action(args[0], options, 'modified') do |obj|
             if options[:append]
                 str = OpenNebulaHelper.append_template(args[0], obj, args[1])
             else
@@ -303,12 +310,12 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :quota, quota_desc, :userid, [:file, nil] do
-        helper.perform_action(args[0], options, "modified") do |user|
+        helper.perform_action(args[0], options, 'modified') do |user|
             rc = user.info
 
             if OpenNebula.is_error?(rc)
                 puts rc.message
-                exit -1
+                exit(-1)
             end
 
             str = OneQuotaHelper.set_quota(user, args[1])
@@ -316,11 +323,11 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             helper.set_client(options)
             user = helper.retrieve_resource(user.id)
 
-            rc  = user.set_quota(str)
+            rc = user.set_quota(str)
 
             if OpenNebula.is_error?(rc)
                 puts rc.message
-                exit -1
+                exit(-1)
             end
         end
     end
@@ -334,8 +341,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             [:file, nil] do
         batch_str = OneQuotaHelper.get_batch_quota(args[1])
 
-	helper.set_client(options)
-        helper.perform_actions(args[0], options, "modified") do |user|
+        helper.set_client(options)
+        helper.perform_actions(args[0], options, 'modified') do |user|
             str = OneQuotaHelper.merge_quota(user, batch_str)
 
             if OpenNebula.is_error?(str)
@@ -354,7 +361,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     command :defaultquota, defaultquota_desc, [:file, nil] do
         system = System.new(OneUserHelper.get_client(options))
 
-        default_quotas = system.get_user_quotas()
+        default_quotas = system.get_user_quotas
 
         if OpenNebula.is_error?(default_quotas)
             puts default_quotas.message
@@ -364,7 +371,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         str = OneQuotaHelper.set_quota(default_quotas, args[0], true)
 
         system = System.new(OneUserHelper.get_client(options, true))
-        rc  = system.set_user_quotas(str)
+        rc = system.set_user_quotas(str)
 
         if OpenNebula.is_error?(rc)
             puts rc.message
@@ -385,21 +392,20 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :umask, umask_desc, [:range, :userid_list], [:mask, nil] do
-        helper.perform_actions(args[0],options,
-                "umask changed") do |user|
-
+        helper.perform_actions(args[0], options,
+                               'umask changed') do |user|
             rc = user.info
 
             if OpenNebula.is_error?(rc)
                 puts rc.message
-                exit -1
+                exit(-1)
             end
 
             user.delete_element('/USER/TEMPLATE/UMASK')
 
             tmp_str = user.template_str
 
-            if !args[1].nil? && args[1] != ""
+            if !args[1].nil? && args[1] != ''
                 tmp_str << "\nUMASK = #{args[1]}"
             end
 
@@ -411,7 +417,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Alias of token-create.
     EOT
 
-    command :login, login_desc, [:username, nil], :options=>login_options do
+    command :login, login_desc, [:username, nil], :options => login_options do
         helper.token_create(args, options)
     end
 
@@ -420,15 +426,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         for the SSH authentication mechanism.
     EOT
 
-    command :key, key_desc, :options=>[KEY] do
+    command :key, key_desc, :options => [KEY] do
         require 'opennebula/ssh_auth'
 
-        options[:key] ||= ENV['HOME']+'/.ssh/id_rsa'
+        options[:key] ||= ENV['HOME'] + '/.ssh/id_rsa'
 
         begin
-            sshauth = SshAuth.new(:private_key=>options[:key])
-        rescue Exception => e
-            exit_with_code -1, e.message
+            sshauth = SshAuth.new(:private_key => options[:key])
+        rescue StandardError => e
+            exit_with_code(-1, e.message)
         end
 
         puts sshauth.password
@@ -440,7 +446,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :userid_list] do
-        helper.perform_actions(args[0], options, "deleted") do |user|
+        helper.perform_actions(args[0], options, 'deleted') do |user|
             user.delete
         end
     end
@@ -449,20 +455,20 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Changes the given User's password
     EOT
 
-    command :passwd, passwd_desc, :userid, [:password, nil],
-            :options=>auth_options do
+    command :passwd, passwd_desc, [:userid], [:password, nil],
+            :options => auth_options do
         if args[1]
             pass = args[1]
         else
             rc = helper.password(options)
-            if rc.first == 0
+            if rc.first.zero?
                 pass = rc[1]
             else
-                exit_with_code *rc
+                exit_with_code(*rc)
             end
         end
 
-        helper.perform_action(args[0],options,"Password changed") do |user|
+        helper.perform_action(args[0], options, 'Password changed') do |user|
             user.passwd(pass)
         end
     end
@@ -472,7 +478,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chgrp, chgrp_desc, [:range, :userid_list], :groupid do
-        helper.perform_actions(args[0],options,"Group changed") do |user|
+        helper.perform_actions(args[0], options, 'Group changed') do |user|
             user.chgrp(args[1].to_i)
         end
     end
@@ -484,8 +490,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     command :addgroup, addgroup_desc, [:range, :userid_list], :groupid do
         gid = args[1]
 
-        helper.perform_actions(args[0],options,"group added") do |user|
-            user.addgroup( gid )
+        helper.perform_actions(args[0], options, 'group added') do |user|
+            user.addgroup(gid)
         end
     end
 
@@ -496,8 +502,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     command :delgroup, delgroup_desc, [:range, :userid_list], :groupid do
         gid = args[1]
 
-        helper.perform_actions(args[0],options,"group deleted") do |user|
-            user.delgroup( gid )
+        helper.perform_actions(args[0], options, 'group deleted') do |user|
+            user.delgroup(gid)
         end
     end
 
@@ -513,29 +519,29 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chauth, chauth_desc, :userid, [:auth, nil], [:password, nil],
-            :options=>auth_options do
+            :options => auth_options do
         if options[:driver]
             driver = options[:driver]
         elsif args[1]
             driver = args[1]
         else
-            exit_with_code 0, "An Auth driver should be specified"
+            exit_with_code 0, 'An Auth driver should be specified'
         end
 
         if args[2]
             pass = args[2]
         else
             rc = helper.password(options)
-            if rc.first == 0
+            if rc.first.zero?
                 pass = rc[1]
             else
-                pass = ""
+                pass = ''
             end
         end
 
         helper.perform_action(args[0],
-                            options,
-                            "Auth driver and password changed") do |user|
+                              options,
+                              'Auth driver and password changed') do |user|
             user.chauth(driver, pass)
         end
     end
@@ -544,7 +550,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         Lists Users in the pool
     EOT
 
-    command :list, list_desc, :options=>list_options do
+    command :list, list_desc, :options => list_options do
         helper.list_pool(options)
     end
 
@@ -553,9 +559,9 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :show, show_desc, [:userid, nil],
-            :options=>OpenNebulaHelper::XML do
-        user=args[0] || OpenNebula::User::SELF
-        helper.show_resource(user,options)
+            :options => OpenNebulaHelper::FORMAT do
+        user = args[0] || OpenNebula::User::SELF
+        helper.show_resource(user, options)
     end
 
     show_desc = <<-EOT.unindent
@@ -563,15 +569,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :encode, show_desc, :username, [:password, nil] do
-        ar=args.compact
+        ar = args.compact
 
         if defined?(URI::Parser)
-            parser=URI::Parser.new
+            parser = URI::DEFAULT_PARSER
         else
-            parser=URI
+            parser = URI
         end
 
-        puts ar.map{|a| parser.escape(a) }.join(':')
+        puts ar.map {|a| parser.escape(a) }.join(':')
 
         0
     end
@@ -582,9 +588,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :passwdsearch, passwdsearch_desc, :driver, :password,
-            :options=>[CLIHelper::CSV_OPT, OpenNebulaHelper::XML] do
-
-        options[:list] = ["ID", "NAME", "AUTH", "PASSWORD"]
+            :options => [CLIHelper::CSV_OPT, OpenNebulaHelper::XML] do
+        options[:list] = %w[ID NAME AUTH PASSWORD]
         options[:filter] = ["AUTH=#{args[0]}", "PASSWORD=#{args[1]}"]
 
         helper.list_pool(options)
@@ -618,8 +623,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"token-create", token_add_desc, [:username, nil],
-            :options=>login_options do
-
+            :options => login_options do
         helper.token_create(args, options)
     end
 
@@ -648,13 +652,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"token-set", token_set_desc, [:username, nil],
-            :options=>login_options+set_options do
-
+            :options => login_options + set_options do
         username = args[0]
 
         if username
             if username =~ /^\d+$/
-                exit_with_code 1, "The argument should be the username, not the ID."
+                exit_with_code(
+                    1,
+                    'The argument should be the username, not the ID.'
+                )
             end
 
             helper.client = helper.get_login_client(username, options)
@@ -679,14 +685,17 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             token_hint = nil
             group = -1
         else
-            exit_with_code 1, "One of these options must be supplied:\n" <<
-            "[--token <token>] [--group <id|group>] [--global]"
+            exit_with_code(
+                1,
+                "One of these options must be supplied:\n" \
+                '[--token <token>] [--group <id|group>] [--global]'
+            )
         end
 
         tokens = helper.find_token(user, token_hint, group, false)
 
-        if tokens.length == 0
-            exit_with_code 1, "No valid tokens found."
+        if tokens.length.zero?
+            exit_with_code 1, 'No valid tokens found.'
         end
 
         if token_hint && tokens.length > 1
@@ -694,25 +703,22 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             exit_with_code 1, msg
         end
 
-        token = tokens[0]["TOKEN"]
+        token = tokens[0]['TOKEN']
 
         egid  = user["LOGIN_TOKEN[TOKEN='#{token}']/EGID"]
 
         auth_string = "#{user['NAME']}:#{token}"
         auth_file   = helper.auth_file(auth_string)
 
-        begin
-            FileUtils.mkdir_p(File.dirname(auth_file))
-        rescue Errno::EEXIST
-        end
+        FileUtils.mkdir_p(File.dirname(auth_file)) rescue Errno::EEXIST
 
-        file = File.open(auth_file, "w")
+        file = File.open(auth_file, 'w')
         file.write(auth_string)
         file.close
 
-        File.chmod(0600, auth_file)
+        File.chmod(0o0600, auth_file)
 
-        msg ="export ONE_AUTH=" + auth_file
+        msg = 'export ONE_AUTH=' + auth_file
         msg << "; export ONE_EGID=#{egid}" if egid
 
         exit_with_code 0, msg
@@ -723,8 +729,7 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"token-delete", token_delete_desc, [:username, nil], :token,
-            :options=>login_options do
-
+            :options => login_options do
         if args.length == 1
             token_hint = args[0]
         else
@@ -746,12 +751,15 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         token = helper.find_token(user, token_hint, nil, true)
 
         if token.count > 1
-            exit_with_code 1, "More than one token starting with '#{token_hint}' found."
-        elsif token.count == 0
-            exit_with_code 1, "No tokens found."
+            exit_with_code(
+                1,
+                "More than one token starting with '#{token_hint}' found."
+            )
+        elsif token.count.zero?
+            exit_with_code 1, 'No tokens found.'
         end
 
-        token = token[0]["TOKEN"]
+        token = token[0]['TOKEN']
 
         rc = user.login(user['NAME'], token, 0)
 
@@ -759,17 +767,19 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             puts rc.message
             exit_with_code 1, rc.message
         else
-            puts "Token removed."
+            puts 'Token removed.'
         end
 
         auth_string = "#{user['NAME']}:#{token}"
         auth_file   = helper.auth_file(auth_string)
 
+        # rubocop:disable Lint/SuppressedException
         begin
             File.unlink(auth_file)
             puts "Removing #{auth_file}"
         rescue Errno::ENOENT
         end
+        # rubocop:enable Lint/SuppressedException
 
         0
     end
@@ -780,16 +790,36 @@ cmd = CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :"token-delete-all", token_delete_all, :username,
-            :options=>login_options do
-
+            :options => login_options do
         username = args[0]
 
         if username =~ /^\d+$/
-            exit_with_code 1, "The argument should be the username, not the ID."
+            exit_with_code 1, 'The argument should be the username, not the ID.'
         end
 
-        helper.perform_action(username, options, "Tokens expired") do |user|
-            user.login(username, "", 0)
+        helper.perform_action(username, options, 'Tokens expired') do |user|
+            user.login(username, '', 0)
         end
     end
+
+    enable_desc = <<-EOT.unindent
+        Enables the given User
+    EOT
+
+    command :enable, enable_desc, [:range, :userid_list] do
+        helper.perform_actions(args[0], options, 'enabled') do |user|
+            user.enable
+        end
+    end
+
+    disable_desc = <<-EOT.unindent
+        Disables the given User
+    EOT
+
+    command :disable, disable_desc, [:range, :userid_list] do
+        helper.perform_actions(args[0], options, 'disabled') do |user|
+            user.disable
+        end
+    end
+
 end

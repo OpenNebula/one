@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -60,7 +60,7 @@ module OpenNebula
 
         # Executes a SQL query command on OpenNebula DB
         #   @param [String] Sql string
-        #   @return [String, OpenNebula::Error] Sql execution result in XML 
+        #   @return [String, OpenNebula::Error] Sql execution result in XML
         #   format in case of success, Error otherwise
         #   <QUERY>
         #     the query sent to oned
@@ -110,7 +110,7 @@ module OpenNebula
             end
 
             config = XMLElement.new
-            config.initialize_xml(rc, 'TEMPLATE')
+            config.initialize_xml(rc, 'OPENNEBULA_CONFIGURATION')
 
             return config
         end

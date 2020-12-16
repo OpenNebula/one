@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -73,18 +73,6 @@ define(function(require) {
       });
     }
 
-    that.imMadNameList = [];
-    if (Config.onedConf.IM_MAD !== undefined) {
-      $.each(Config.onedConf.IM_MAD, function(index, imMad) {
-        if (imMad.SUNSTONE_NAME !== undefined) {
-          that.imMadNameList.push({
-              'displayName': imMad["SUNSTONE_NAME"],
-              'driverName': imMad["NAME"]
-          });
-        }
-      });
-    }
-
     BaseFormPanel.call(this);
   };
 
@@ -106,8 +94,7 @@ define(function(require) {
     return TemplateWizardHTML({
       'formPanelId': this.formPanelId,
       'vCenterClustersHTML': this.vCenterClusters.html(),
-      'vmMadNameList': this.vmMadNameList,
-      'imMadNameList': this.imMadNameList
+      'vmMadNameList': this.vmMadNameList
     });
   }
 
@@ -121,6 +108,7 @@ define(function(require) {
       $("#im_mad", context).val(this.value).change();
       $(".vcenter_credentials", context).hide();
       $(".ec2_extra", context).hide();
+      $(".one_extra", context).hide();
       $(".drivers", context).hide();
       $("#name_container", context).show();
 
@@ -133,6 +121,9 @@ define(function(require) {
         Sunstone.hideFormPanelSubmit(TAB_ID);
       } else if (this.value == "ec2") {
         $(".ec2_extra", context).show();
+        Sunstone.showFormPanelSubmit(TAB_ID);
+      } else if (this.value == "one") {
+        $(".one_extra", context).show();
         Sunstone.showFormPanelSubmit(TAB_ID);
       } else {
         Sunstone.showFormPanelSubmit(TAB_ID);
@@ -150,12 +141,33 @@ define(function(require) {
               <input class='capacity_value' type='number' min='0' name='value'>\
             </td>\
             <td style='width: 150%; display: flex; justify-content: flex-end'>\
-              <a href='#''><i class='fa fa-times-circle remove-capacity'></i></a>\
+              <a href='#''><i class='fas fa-times-circle remove-capacity'></i></a>\
             </td>\
           </tr>");
     });
 
     context.on("click", "tbody.capacity_ec2 i.remove-capacity", function(){
+      var tr = $(this).closest('tr');
+      tr.remove();
+    });
+
+    context.off("click", ".add_custom_tag", context);
+    context.on("click", ".add_custom_tag", context, function(){
+      $("tbody.capacity_one", context).append(
+          "<tr class='row_capacity_one'>\
+            <td style='display: flex; justify-content: flex-start'>\
+              <input class='capacity_key' type='text' name='key'>\
+            </td>\
+            <td>\
+              <input class='capacity_value' type='number' min='0' name='value'>\
+            </td>\
+            <td style='width: 150%; display: flex; justify-content: flex-end'>\
+              <a href='#'><i class='fas fa-times-circle remove-capacity'></i></a>\
+            </td>\
+          </tr>");
+    });
+
+    context.on("click", "tbody.capacity_one i.remove-capacity", function(){
       var tr = $(this).closest('tr');
       tr.remove();
     });
@@ -184,10 +196,10 @@ define(function(require) {
             $("#vcenter_user", context).attr("disabled", "disabled");
             $("#vcenter_password", context).attr("disabled", "disabled");
             $("#vcenter_host", context).attr("disabled", "disabled");
-            $("#get_vcenter_clusters", context).hide();
             $(".import_vcenter_clusters_div", context).show();
           }
-        })
+        });
+        $("#import_vcenter_clusters", this.parentElement).prop("disabled", false);
       })
       .on("submit", function(ev) {
         ev.preventDefault();
@@ -262,7 +274,24 @@ define(function(require) {
       host_json["host"]["region_name"] = region_name;
       host_json["host"]["ec2_secret"] = ec2_secret;
       host_json["host"]["ec2_access"] = ec2_access;
-      host_json["host"]["capacity"] = capacity;
+      if (capacity.length > 0){
+        host_json["host"]["capacity"] = capacity;
+      }
+    }
+
+    if(vmm_mad == "one"){
+      var user = $('input[name="ONE_USER"]').val();
+      var pass = $('input[name="ONE_PASSWORD"]').val();
+      var endpoint = $('input[name="ONE_ENDPOINT"]').val();
+      var cpu = $('input[name="ONE_CAPACITY_CPU"]').val();
+      var memory = $('input[name="ONE_CAPACITY_MEMORY"]').val();
+
+      host_json["host"]["ONE_USER"] = user;
+      host_json["host"]["ONE_PASSWORD"] = pass;
+      host_json["host"]["ONE_ENDPOINT"] = endpoint;
+      host_json["host"]["ONE_CAPACITY"] = {};
+      host_json["host"]["ONE_CAPACITY"]["CPU"] = cpu;
+      host_json["host"]["ONE_CAPACITY"]["MEMORY"] = memory;
     }
     //Create the OpenNebula.Host.
     //If it is successfull we refresh the list.

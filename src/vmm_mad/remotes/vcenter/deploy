@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,77 +16,133 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
-VNC_ESX_HOST_FOLDER = "/tmp"
+CONFIG = VCenterConf.new
 
 dfile        = ARGV[0]
 cluster_name = ARGV[1]
 vm_id        = ARGV[2]
 
+## Helpers
+
+def deploy_id_valid?(deploy_id)
+    deploy_id && !deploy_id.empty?
+end
+
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
-deploy_id    = drv_action["DEPLOY_ID"]
-host_id      = drv_action["HISTORY_RECORDS/HISTORY/HID"]
+deploy_id    = drv_action['DEPLOY_ID']
+host_id      = drv_action['HISTORY_RECORDS/HISTORY[last()]/HID']
+deploy       = {}
 
 begin
+    retries ||= 0
     vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
 
-    if deploy_id && !deploy_id.empty?
-        # VM is not new, we just need to reconfigure it and to power it on
-        vm = VCenterDriver::VirtualMachine.new_from_ref(deploy_id, vi_client)
-
-        # Setting one_item is optional, but it saves a couple of API calls if
-        # we already have it
-        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
-        vm.one_item = one_vm
-    else
-        # VM is new
-        vm = VCenterDriver::VirtualMachine.new
-
-        # Clone the VM from template and provide XML info
-        vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
-        vm.clone_vm(drv_action, vi_client)
-
-        one_vm = VCenterDriver::VIHelper.one_item(OpenNebula::VirtualMachine, vm_id)
-        vm.one_item = one_vm
-
-        # Set reference to template disks and nics in VM template for detach ops
-        vm.reference_unmanaged_devices(vc_template_ref)
+    if !drv_action.retrieve_xmlelements('USER_TEMPLATE/VCENTER_TAG').empty? &&
+       !REST_CLIENT
+        raise 'vSphere automation gems are not installed'
     end
 
-    # Resize unmanaged disks
-    vm.resize_unmanaged_disks
+    if deploy_id_valid?(deploy_id)
+        # VM is not new, we just need to reconfigure it and to power it on
+        vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
+    else
+        deploy[:boot] = drv_action['TEMPLATE/OS']
+        vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
+                                                          drv_action,
+                                                          vm_id)
+        if vm.instantiated_as_persistent?
+            oclient = OpenNebula::Client.new
 
-    vm.reconfigure
-    vm.poweron
-    vm.set_running(true)
+            template_id = vm.one_item['TEMPLATE/TEMPLATE_ID']
+            vm_template = OpenNebula::Template.new_with_id(template_id, oclient)
 
-    # Add VCENTER_ESX_HOST to MONITOR info so VNC works for running VMs F#4242
-    esx_host = vm["runtime.host.name"]
-    f = File.open(File.join(VNC_ESX_HOST_FOLDER, "vcenter_vnc_#{one_vm["ID"]}"), 'w')
-    f.write(esx_host)
-    f.close
+            rc = vm_template.info
+
+            raise if OpenNebula.is_error?(rc)
+
+            vm_template.lock(1)
+        end
+
+        if vm.vcenter_tags?
+            rest_client = VCenterDriver::RESTClient.new_from_host(host_id)
+            rest_client.sync_tags(vm)
+        end
+    end
+
+    if vm.powered_off?
+        spec_hash = {}
+        spec_hash[:cpuHotAddEnabled] = vm.cpu_hot_add_enabled?
+        spec_hash[:memoryHotAddEnabled] = vm.memory_hot_add_enabled?
+
+        spec = RbVmomi::VIM.VirtualMachineConfigSpec(
+            spec_hash
+        )
+        vm.item.ReconfigVM_Task(
+            :spec => spec
+        ).wait_for_completion
+
+        vm.sync(deploy)
+        # Only mark the VM as running if we are deploying it for the first time
+        set_running = !deploy_id_valid?(deploy_id)
+        vm.poweron(set_running)
+    end
 
     puts vm['_ref']
+rescue StandardError => e
+    message =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " \
+               "with #{dfile} failed due to \"#{e.message}\"" \
+               "on attempt \##{retries}."
 
-rescue Exception => e
-    message   =  "Deploy of VM #{vm_id} on vCenter cluster #{cluster_name} " +
-                 "with #{dfile} failed due to \"#{e.message}\"\n#{e.backtrace}"
-    STDERR.puts error_message(message)
-    exit -1
+    if (retries += 1) > CONFIG[:retries] &&
+       e.message.include?('ManagedObjectNotFound')
+        template_id = drv_action['TEMPLATE/TEMPLATE_ID'].to_i
+
+        client = OpenNebula::Client.new
+        resource = OpenNebula::Template.new_with_id(template_id, client)
+        rc = resource.info
+
+        if OpenNebula.is_error?(rc)
+            message << "\n#{rc.message}"
+        else
+            template_name = resource.name
+
+            message << "\nVerify inside vCenter cluster #{cluster_name} " \
+                       "that template #{template_name} currently " \
+                       'exists and has not been deleted'
+        end
+    end
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    sleep CONFIG[:retry_interval].to_i
+    retry if retries < CONFIG[:retries]
+
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,18 +17,18 @@
 #ifndef RAFT_MANAGER_H_
 #define RAFT_MANAGER_H_
 
-#include "ActionManager.h"
+#include "Listener.h"
 #include "ReplicaManager.h"
 #include "ReplicaRequest.h"
 #include "Template.h"
-#include "RaftHook.h"
+#include "ExecuteHook.h"
 
-extern "C" void * raft_manager_loop(void *arg);
+class LogDBRecord;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class RaftManager : public ActionListener
+class RaftManager
 {
 public:
     /**
@@ -54,13 +54,9 @@ public:
     RaftManager(int server_id, const VectorAttribute * leader_hook_mad,
         const VectorAttribute * follower_hook_mad, time_t log_purge,
         long long bcast, long long election, time_t xmlrpc,
-        const string& remotes_location);
+        const std::string& remotes_location);
 
-    ~RaftManager()
-    {
-        delete leader_hook;
-        delete follower_hook;
-    };
+    ~RaftManager() = default;
 
     // -------------------------------------------------------------------------
     // Raft associated actions (synchronous)
@@ -87,24 +83,19 @@ public:
      */
     void replicate_log(ReplicaRequest * rr);
 
-
     /**
-     *  Finalizes the Raft Consensus Manager
+     *  Allocate a replica request fot the given index.
+     *    @param rindex of the record for the request
      */
-    void finalize()
+    void replicate_allocate(uint64_t rindex)
     {
-        am.finalize();
+        requests.allocate(rindex);
     }
 
     /**
-     *  Starts the Raft Consensus Manager
+     *  Termination function
      */
-    int start();
-
-    pthread_t get_thread_id() const
-    {
-        return raft_thread;
-    };
+    void finalize();
 
     // -------------------------------------------------------------------------
     // Raft state query functions
@@ -120,39 +111,56 @@ public:
      */
     void follower(unsigned int term);
 
+    static std::string state_to_str(State _state)
+    {
+        std::string st;
+
+        switch (_state)
+        {
+            case SOLO:
+                st = "SOLO";
+                break;
+            case CANDIDATE:
+                st = "CANDIDATE";
+                break;
+            case FOLLOWER:
+                st = "FOLLOWER";
+                break;
+            case LEADER:
+                st = "LEADER";
+                break;
+        }
+        return st;
+    }
+
+    State get_state()
+    {
+        std::lock_guard<std::mutex> lock(raft_mutex);
+
+        return state;
+    }
+
     unsigned int get_term()
     {
-        unsigned int _term;
+        std::lock_guard<std::mutex> lock(raft_mutex);
 
-        pthread_mutex_lock(&mutex);
-
-        _term = term;
-
-        pthread_mutex_unlock(&mutex);
-
-        return _term;
+        return term;
     }
 
-    unsigned int get_commit()
+    uint64_t get_commit()
     {
-        unsigned int _commit;
+        std::lock_guard<std::mutex> lock(raft_mutex);
 
-        pthread_mutex_lock(&mutex);
-
-        _commit = commit;
-
-        pthread_mutex_unlock(&mutex);
-
-        return _commit;
+        return commit;
     }
 
-	/**
+    /**
      *  Update the commit index = min(leader_commit, log index).
-	 *  @param leader_commit index sent by leader in a replicate xml-rpc call
-	 *  @param index of the last record inserted in the database
-	 *  @return the updated commit index
-	 */
-	unsigned int update_commit(unsigned int leader_commit, unsigned int index);
+     *  @param leader_commit index sent by leader in a replicate xml-rpc call
+     *  @param index of the last record inserted in the database
+     *  @return the updated commit index
+     */
+    uint64_t update_commit(uint64_t leader_commit, uint64_t index);
 
     /**
      *  Evaluates a vote request. It is granted if no vote has been granted in
@@ -162,26 +170,26 @@ public:
      */
     int update_votedfor(int _votedfor);
 
-	/**
-	 *  Update the last_heartbeat time recieved from server. It stores the id
+    /**
+     *  Update the last_heartbeat time recieved from server. It stores the id
      *  of the leader.
      *    @param leader_id id of server, -1 if there is no leader set (e.g.
      *    during a election because a vote request was received)
-	 */
-	void update_last_heartbeat(int leader_id);
+     */
+    void update_last_heartbeat(int leader_id);
 
     /**
      *  @return true if the server is the leader of the zone, runs in solo mode
-	 *  or is a follower
+     *  or is a follower
      */
     bool is_leader()
     {
-		return test_state(LEADER);
+        return test_state(LEADER);
     }
 
     bool is_follower()
     {
-		return test_state(FOLLOWER);
+        return test_state(FOLLOWER);
     }
 
     bool is_candidate()
@@ -194,26 +202,34 @@ public:
         return test_state(SOLO);
     }
 
+    bool is_reconciling()
+    {
+        bool _reconciling;
+
+        std::lock_guard<std::mutex> lock(raft_mutex);
+
+        _reconciling = reconciling;
+
+        return _reconciling;
+    }
+
     /**
      *  Get next index to send to the follower
      *    @param follower server id
-     *    @return -1 on failure, the next index if success
+     *    @return UINT64_MAX on failure, the next index if success
      */
-    int get_next_index(int follower_id)
+    uint64_t get_next_index(int follower_id)
     {
-        std::map<int, unsigned int>::iterator it;
-        unsigned int _index = -1;
+        uint64_t _index = UINT64_MAX;
 
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(raft_mutex);
 
-        it = next.find(follower_id);
+        auto it = next.find(follower_id);
 
         if ( it != next.end() )
         {
             _index = it->second;
         }
-
-        pthread_mutex_unlock(&mutex);
 
         return _index;
     }
@@ -230,27 +246,27 @@ public:
     // -------------------------------------------------------------------------
     /**
      *  Calls the follower xml-rpc method
-	 *    @param follower_id to make the call
+     *    @param follower_id to make the call
      *    @param lr the record to replicate
      *    @param success of the xml-rpc method
      *    @param ft term in the follower as returned by the replicate call
-	 *    @param error describing error if any
+     *    @param error describing error if any
      *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
      */
-	int xmlrpc_replicate_log(int follower_id, LogDBRecord * lr, bool& success,
-			unsigned int& ft, std::string& error);
+    int xmlrpc_replicate_log(int follower_id, LogDBRecord * lr, bool& success,
+        unsigned int& ft, std::string& error);
 
     /**
      *  Calls the request vote xml-rpc method
-	 *    @param follower_id to make the call
+     *    @param follower_id to make the call
      *    @param lindex highest last log index
      *    @param lterm highest last log term
      *    @param success of the xml-rpc method
      *    @param ft term in the follower as returned by the replicate call
-	 *    @param error describing error if any
+     *    @param error describing error if any
      *    @return -1 if a XMl-RPC (network) error occurs, 0 otherwise
      */
-    int xmlrpc_request_vote(int follower_id, unsigned int lindex,
+    int xmlrpc_request_vote(int follower_id, uint64_t lindex,
             unsigned int lterm, bool& success, unsigned int& fterm,
             std::string& error);
 
@@ -263,39 +279,28 @@ public:
      *    @param follower_id id of new server
      *    @param xmlep xmlrpc endpoint for new server
      */
-	void add_server(int follower_id, const std::string& xmlep);
+    void add_server(int follower_id, const std::string& xmlep);
 
     /**
      *  Deletes a new server to the follower list and stops associated replica
      *  thread.
      *    @param follower_id id of server
      */
-	void delete_server(int follower_id);
+    void delete_server(int follower_id);
+
+    /**
+     *  Reset index for a follower.
+     *    @param follower_id id of server
+     */
+    void reset_index(int follower_id);
 
 private:
-    friend void * raft_manager_loop(void *arg);
-
-    /**
-     *  Thread id of the main event loop
-     */
-    pthread_t raft_thread;
-
-    pthread_mutex_t mutex;
-
-    /**
-     * Event engine for the RaftManager
-     */
-    ActionManager am;
+    std::mutex raft_mutex;
 
     /**
      * Clients waiting for a log replication
      */
-    std::map<int, ReplicaRequest *> requests;
-
-    /**
-     *  Secret to use in xmlrpc API calls
-     */
-    std::string xmlrpc_secret;
+    ReplicaRequestMap requests;
 
     // -------------------------------------------------------------------------
     // Raft state
@@ -305,10 +310,10 @@ private:
      */
     State state;
 
-	/**
-	 *  Server id
-	 */
-	int server_id;
+    /**
+     *  Server id
+     */
+    int server_id;
 
     /**
      *  Current term
@@ -320,10 +325,10 @@ private:
      */
     unsigned int num_servers;
 
-	/**
-	 *  Time when the last heartbeat was sent (LEADER) or received (FOLLOWER)
-	 */
-	struct timespec last_heartbeat;
+    /**
+     *  Time when the last heartbeat was sent (LEADER) or received (FOLLOWER)
+     */
+    struct timespec last_heartbeat;
 
     /**
      *  ID of the last candidate we voted for  ( -1 if none )
@@ -341,13 +346,24 @@ private:
      */
     Template raft_state;
 
+    /**
+     * Value for name column in system_attributes table for raft state.
+     */
+    static const std::string raft_state_name;
+
+    /**
+     *  After becoming a leader it is replicating and applying any pending
+     *  log entry.
+     */
+    bool reconciling;
+
     //--------------------------------------------------------------------------
     //  Timers
     //    - timer_period_ms. Base timer to wake up the manager (10ms)
     //    - purge_period_ms. How often the LogDB is purged (600s)
     //    - xmlrpc_timeout. To timeout xml-rpc api calls to replicate log
-	//    - election_timeout. Timeout leader heartbeats (followers)
-	//    - broadcast_timeout. To send heartbeat to followers (leader)
+    //    - election_timeout. Timeout leader heartbeats (followers)
+    //    - broadcast_timeout. To send heartbeat to followers (leader)
     //--------------------------------------------------------------------------
     static const time_t timer_period_ms;
 
@@ -355,9 +371,16 @@ private:
 
     time_t xmlrpc_timeout_ms;
 
-	struct timespec election_timeout;
+    struct timespec election_timeout;
 
-	struct timespec broadcast_timeout;
+    struct timespec broadcast_timeout;
+
+    /**
+     *  Timer action async execution
+     */
+    Timer timer_thread;
+
+    Timer purge_thread;
 
     //--------------------------------------------------------------------------
     // Volatile log index variables
@@ -368,17 +391,17 @@ private:
     //
     //   - next, next log to send to each follower <follower, next>
     //   - match, highest log replicated in this server <follower, match>
-	//   - servers, list of servers in zone and xml-rpc edp <follower, edp>
+    //   - servers, list of servers in zone and xml-rpc edp <follower, edp>
     // -------------------------------------------------------------------------
     RaftReplicaManager replica_manager;
 
     HeartBeatManager   heartbeat_manager;
 
-    unsigned int commit;
+    uint64_t commit;
 
-    std::map<int, unsigned int> next;
+    std::map<int, uint64_t> next;
 
-    std::map<int, unsigned int> match;
+    std::map<int, uint64_t> match;
 
     std::map<int, std::string>  servers;
 
@@ -386,51 +409,51 @@ private:
     // Hooks
     // -------------------------------------------------------------------------
 
-    RaftLeaderHook   * leader_hook;
-    RaftFollowerHook * follower_hook;
-
-    // -------------------------------------------------------------------------
-    // Action Listener interface
-    // -------------------------------------------------------------------------
-    /**
-     *  Termination function
-     */
-    void finalize_action(const ActionRequest& ar);
-
-    /**
-     *  This function is executed periodically to purge the state log
-     */
-    void timer_action(const ActionRequest& ar);
-
-	/**
-	 *  @param s the state to check
-	 *  @return true if the server states matches the provided one
-	 */
-	bool test_state(State s)
-	{
-        bool _is_state;
-
-        pthread_mutex_lock(&mutex);
-
-        _is_state = state == s;
-
-        pthread_mutex_unlock(&mutex);
-
-        return _is_state;
-	}
+    std::unique_ptr<ExecuteHook> leader_hook;
+    std::unique_ptr<ExecuteHook> follower_hook;
 
     // -------------------------------------------------------------------------
     // Internal Raft functions
     // -------------------------------------------------------------------------
-	/**
-	 *  Request votes of followers
-	 */
+    /**
+     *  This function is executed periodically to vote leader
+     */
+    void timer_action();
+
+    /**
+     *  This function is executed periodically to purge the state log
+     */
+    void purge_action();
+
+    /**
+     *  @param s the state to check
+     *  @return true if the server states matches the provided one
+     */
+    bool test_state(State s)
+    {
+        bool _is_state;
+
+        std::lock_guard<std::mutex> lock(raft_mutex);
+
+        _is_state = state == s;
+
+        return _is_state;
+    }
+
+    /**
+     *  Request votes of followers
+     */
     void request_vote();
 
     /**
      *  Makes this server leader, and start replica threads
      */
     void leader();
+
+    /**
+     * Init the raft state status row.
+     */
+    int init_raft_state(const std::string& raft_xml);
 };
 
 #endif /*RAFT_MANAGER_H_*/

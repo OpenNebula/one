@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -34,6 +34,10 @@ define(function(require) {
   var _actions = {
     "VirtualRouter.create" : _commonActions.create(CREATE_DIALOG_ID),
     "VirtualRouter.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "VirtualRouter.lockM": _commonActions.multipleAction('lock', false),
+    "VirtualRouter.lockU": _commonActions.multipleAction('lock', false),
+    "VirtualRouter.lockA": _commonActions.multipleAction('lock', false),
+    "VirtualRouter.unlock": _commonActions.multipleAction('unlock', false),
     "VirtualRouter.instantiate_vms" : {
       type: "custom",
       call: function() {

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -102,7 +102,7 @@ int SystemDB::local_bootstrap()
     oss << "INSERT INTO " << local_ver_table << " (" << local_ver_names << ") "
         << "VALUES (0, '" << Nebula::local_db_version() << "', " << time(0)
         << ", '" << Nebula::version() << " daemon bootstrap', "
-        << Nebula::instance().is_federation_slave() << ")";
+        << "'" << Nebula::instance().is_federation_slave() << "')";
 
     rc += db->exec_local_wr(oss);
 
@@ -273,7 +273,7 @@ int SystemDB::insert_replace(
     int    rc;
     char * sql_xml;
 
-    sql_xml = db->escape_str(xml_attr.c_str());
+    sql_xml = db->escape_str(xml_attr);
 
     if ( sql_xml == 0 )
     {
@@ -287,20 +287,16 @@ int SystemDB::insert_replace(
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << sys_table << " SET "
+            << "body = '" << sql_xml << "' "
+            << "WHERE name = '" << attr_name << "'";
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << sys_table << " (" << sys_names << ") VALUES ("
+            << "'" << attr_name << "',"
+            << "'" << sql_xml   << "')";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<< sys_table <<
-    " ("<< sys_names <<") VALUES ("
-        << "'" << attr_name << "',"
-        << "'" << sql_xml   << "')";
-
     rc = db->exec_wr(oss);
 
     db->free_str(sql_xml);

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -16,49 +16,33 @@
 
 #include "Vdc.h"
 #include "Nebula.h"
+#include "AclManager.h"
+#include "AclRule.h"
 
-/* -------------------------------------------------------------------------- */
+using namespace std;
 
 const int    Vdc::ALL_RESOURCES = -10;
 
-const char * Vdc::table = "vdc_pool";
-
-const char * Vdc::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Vdc::db_bootstrap = "CREATE TABLE IF NOT EXISTS vdc_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Vdc::Vdc(int id, Template* vdc_template):
-        PoolObjectSQL(id, VDC, "", -1, -1, "", "", table),
+Vdc::Vdc(int id, unique_ptr<Template> vdc_template):
+        PoolObjectSQL(id, VDC, "", -1, -1, "", "", one_db::vdc_table),
         clusters(PoolObjectSQL::CLUSTER),
         hosts(PoolObjectSQL::HOST),
         datastores(PoolObjectSQL::DATASTORE),
         vnets(PoolObjectSQL::NET)
 
 {
-    if (vdc_template != 0)
+    if (vdc_template)
     {
-        obj_template = vdc_template;
+        obj_template = move(vdc_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-Vdc::~Vdc()
-{
-    delete obj_template;
-};
 
 /* ************************************************************************ */
 /* Vdc :: Database Access Functions                                         */
@@ -110,14 +94,14 @@ int Vdc::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the vdc
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -131,25 +115,29 @@ int Vdc::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::vdc_table << " SET "
+            << "name = '"    <<   sql_name   << "', "
+            << "body = '"    <<   sql_xml    << "', "
+            << "uid = "      <<   uid        << ", "
+            << "gid = "      <<   gid        << ", "
+            << "owner_u = "  <<   owner_u    << ", "
+            << "group_u = "  <<   group_u    << ", "
+            << "other_u = "  <<   other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::vdc_table
+            << " (" << one_db::vdc_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
 
     rc = db->exec_wr(oss);
 
@@ -181,25 +169,33 @@ error_common:
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+int Vdc::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vdc_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int Vdc::drop(SqlDB * db)
 {
-    set<int>::const_iterator it;
     int rc;
 
     rc = PoolObjectSQL::drop(db);
 
     if ( rc == 0 )
     {
-        for (it = groups.begin(); it != groups.end(); it++)
+        for (auto gid : groups)
         {
-            clusters.del_group_rules(*it);
+            clusters.del_group_rules(gid);
 
-            hosts.del_group_rules(*it);
+            hosts.del_group_rules(gid);
 
-            datastores.del_group_rules(*it);
+            datastores.del_group_rules(gid);
 
-            vnets.del_group_rules(*it);
+            vnets.del_group_rules(gid);
         }
     }
 
@@ -214,18 +210,15 @@ string& Vdc::to_xml(string& xml) const
     ostringstream   oss;
     string          template_xml;
 
-    set<pair<int,int> >::const_iterator it;
-    set<int>::const_iterator group_it;
-
     oss <<
     "<VDC>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
         "<GROUPS>";
 
-    for (group_it = groups.begin(); group_it != groups.end(); group_it++)
+    for (auto gid : groups)
     {
-        oss << "<ID>" << *group_it << "</ID>";
+        oss << "<ID>" << gid << "</ID>";
     }
 
     oss << "</GROUPS>";
@@ -260,7 +253,6 @@ string& Vdc::to_xml(string& xml) const
 int Vdc::from_xml(const string& xml)
 {
     vector<xmlNodePtr> content;
-    vector<xmlNodePtr>::iterator it;
     int rc = 0;
 
     // Initialize the internal XML object
@@ -287,9 +279,9 @@ int Vdc::from_xml(const string& xml)
     // Set of Groups
     ObjectXML::get_nodes("/VDC/GROUPS/ID", content);
 
-    for (it = content.begin(); it != content.end(); it++)
+    for (auto node : content)
     {
-        ObjectXML tmp_xml(*it);
+        ObjectXML tmp_xml(node);
 
         int group_id;
 
@@ -350,9 +342,7 @@ int Vdc::from_xml(const string& xml)
 
 int Vdc::add_group(int group_id, string& error_msg)
 {
-    pair<set<int>::iterator,bool> ret;
-
-    ret = groups.insert(group_id);
+    auto ret = groups.insert(group_id);
 
     if( !ret.second )
     {
@@ -400,34 +390,64 @@ int Vdc::del_group(int group_id, string& error_msg)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+void ResourceSet::insert_default_rules(string name_attr, PoolObjectSQL::ObjectType type)
+{
+    string default_vdc_acl;
+    vector<string> vdc_acl;
+    long long op = AuthRequest::NONE;
+    AuthRequest::Operation user_op;
+
+    Nebula::instance().get_configuration_attribute(name_attr, default_vdc_acl);
+
+    vdc_acl = one_util::split(default_vdc_acl, '+', true);
+
+    for (const auto& str : vdc_acl)
+    {
+        user_op = AuthRequest::str_to_operation(str);
+        if ( str != "" && str != "-" && user_op != AuthRequest::NONE )
+        {
+            op = op | user_op;
+        }
+    }
+    if ( op != AuthRequest::NONE )
+    {
+        rules.insert(make_pair( type , op ));
+    }
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
 {
+    string default_vdc_acl;
+    vector<string> cluster_res = { "HOST", "NET", "DATASTORE" };
+    string str_type;
+    string name_attr= "";
+
     switch(type)
     {
         // @<gid> HOST/#<hid> MANAGE #<zid>
         case PoolObjectSQL::HOST:
-            rules.insert(make_pair(PoolObjectSQL::HOST, AuthRequest::MANAGE));
-            xml_name = "HOST";
-        break;
-
-        // @<gid> NET/#<vnetid> USE #<zone>
         case PoolObjectSQL::NET:
-            rules.insert(make_pair(PoolObjectSQL::NET, AuthRequest::USE));
-            xml_name = "VNET";
-        break;
-
-        // @<gid> DATASTORE/#<dsid> USE #<zone>
         case PoolObjectSQL::DATASTORE:
-            rules.insert(make_pair(PoolObjectSQL::DATASTORE, AuthRequest::USE));
-            xml_name = "DATASTORE";
-        break;
+            xml_name = ResourceSet::type_to_vdc_str(type);
+            name_attr = "DEFAULT_VDC_" + xml_name + "_ACL";
 
+            insert_default_rules(name_attr, type);
+
+        break;
         // @<gid> HOST/%<cid> MANAGE #<zid>
         // @<gid> DATASTORE+NET/%<cid> USE #<zid>
         case PoolObjectSQL::CLUSTER:
-            rules.insert(make_pair(PoolObjectSQL::HOST, AuthRequest::MANAGE));
-            rules.insert(make_pair(PoolObjectSQL::NET|PoolObjectSQL::DATASTORE,
-                AuthRequest::USE));
+
+            for (const auto& cluster : cluster_res)
+            {
+                name_attr = "DEFAULT_VDC_CLUSTER_" + cluster + "_ACL";
+
+                insert_default_rules(name_attr, PoolObjectSQL::str_to_type(cluster));
+            }
+
             xml_name = "CLUSTER";
         break;
 
@@ -441,9 +461,7 @@ ResourceSet::ResourceSet(PoolObjectSQL::ObjectType _type):type(_type)
 
 void ResourceSet::to_xml(ostringstream &oss) const
 {
-    set<pair<int,int> >::const_iterator it;
-
-    for (it = resources.begin(); it != resources.end(); it++)
+    for (auto it = resources.begin(); it != resources.end(); it++)
     {
         oss << "<"<< xml_name<<">" <<
             "<ZONE_ID>" << it->first << "</ZONE_ID>"
@@ -457,7 +475,6 @@ void ResourceSet::to_xml(ostringstream &oss) const
 
 int ResourceSet::from_xml_node(vector<xmlNodePtr>& content)
 {
-    vector<xmlNodePtr>::iterator it;
     int rc = 0;
 
     int zone_id, id;
@@ -465,9 +482,9 @@ int ResourceSet::from_xml_node(vector<xmlNodePtr>& content)
     string zone_path     = "/" + xml_name + "/ZONE_ID";
     string resource_path = "/" + xml_name + "/" + xml_name + "_ID";
 
-    for (it = content.begin(); it != content.end(); it++)
+    for (auto node : content)
     {
-        ObjectXML tmp_xml(*it);
+        ObjectXML tmp_xml(node);
 
         rc += tmp_xml.xpath(zone_id, zone_path.c_str(), -1);
         rc += tmp_xml.xpath(id, resource_path.c_str(), -1);
@@ -484,11 +501,7 @@ int ResourceSet::from_xml_node(vector<xmlNodePtr>& content)
 int ResourceSet::add(const set<int>& groups, int zone_id, int id,
     string& error_msg)
 {
-    set<int>::const_iterator it;
-
-    pair<set<pair<int, int> >::iterator,bool> ret;
-
-    ret = resources.insert(pair<int,int>(zone_id, id));
+    auto ret = resources.insert(pair<int,int>(zone_id, id));
 
     if( !ret.second )
     {
@@ -501,9 +514,9 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
         return -1;
     }
 
-    for (it = groups.begin(); it != groups.end(); it++)
+    for (auto group : groups)
     {
-        add_rule(*it, zone_id, id);
+        add_rule(group, zone_id, id);
     }
 
     // When using the 'all' resource id, clear the other previous IDs
@@ -512,11 +525,8 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
         string error_aux;
 
         vector<int>           del_ids;
-        vector<int>::iterator del_it;
 
-        set<pair<int, int> >::iterator res_it;
-
-        for (res_it = resources.begin(); res_it != resources.end(); res_it++)
+        for (auto res_it = resources.begin(); res_it != resources.end(); res_it++)
         {
             if(res_it->first == zone_id && res_it->second != Vdc::ALL_RESOURCES)
             {
@@ -524,9 +534,9 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
             }
         }
 
-        for (del_it = del_ids.begin(); del_it != del_ids.end(); del_it++)
+        for (auto id : del_ids)
         {
-            this->del(groups, zone_id, *del_it, error_aux);
+            this->del(groups, zone_id, id, error_aux);
         }
     }
 
@@ -539,8 +549,6 @@ int ResourceSet::add(const set<int>& groups, int zone_id, int id,
 int ResourceSet::del(const set<int>& groups, int zone_id, int id,
     string& error_msg)
 {
-    set<int>::const_iterator it;
-
     if( resources.erase(pair<int,int>(zone_id, id)) != 1 )
     {
         ostringstream oss;
@@ -552,9 +560,9 @@ int ResourceSet::del(const set<int>& groups, int zone_id, int id,
         return -1;
     }
 
-    for (it = groups.begin(); it != groups.end(); it++)
+    for (auto group : groups)
     {
-        del_rule(*it, zone_id, id);
+        del_rule(group, zone_id, id);
     }
 
     return 0;
@@ -565,9 +573,7 @@ int ResourceSet::del(const set<int>& groups, int zone_id, int id,
 
 void ResourceSet::add_group_rules(int group_id)
 {
-    set<pair<int,int> >::const_iterator it;
-
-    for (it = resources.begin(); it != resources.end(); it++)
+    for (auto it = resources.begin(); it != resources.end(); it++)
     {
         add_rule(group_id, it->first, it->second);
     }
@@ -578,9 +584,7 @@ void ResourceSet::add_group_rules(int group_id)
 
 void ResourceSet::del_group_rules(int group_id)
 {
-    set<pair<int,int> >::const_iterator it;
-
-    for (it = resources.begin(); it != resources.end(); it++)
+    for (auto it = resources.begin(); it != resources.end(); it++)
     {
         del_rule(group_id, it->first, it->second);
     }
@@ -591,8 +595,6 @@ void ResourceSet::del_group_rules(int group_id)
 
 void ResourceSet::add_rule(int group_id, int zone_id, int id)
 {
-    set<pair<long long, long long> >::const_iterator it;
-
     string    error_msg;
     long long mask_prefix;
 
@@ -611,7 +613,7 @@ void ResourceSet::add_rule(int group_id, int zone_id, int id)
         mask_prefix = AclRule::INDIVIDUAL_ID | id;
     }
 
-    for (it = rules.begin(); it != rules.end(); it++)
+    for (auto it = rules.begin(); it != rules.end(); it++)
     {
         long long resource = it->first;
         long long rights   = it->second;
@@ -635,8 +637,6 @@ void ResourceSet::add_rule(int group_id, int zone_id, int id)
 
 void ResourceSet::del_rule(int group_id, int zone_id, int id)
 {
-    set<pair<long long, long long> >::const_iterator it;
-
     string    error_msg;
     long long mask_prefix;
 
@@ -655,7 +655,7 @@ void ResourceSet::del_rule(int group_id, int zone_id, int id)
         mask_prefix = AclRule::INDIVIDUAL_ID | id;
     }
 
-    for (it = rules.begin(); it != rules.end(); it++)
+    for (auto it = rules.begin(); it != rules.end(); it++)
     {
         long long resource = it->first;
         long long rights   = it->second;

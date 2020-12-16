@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -40,7 +40,7 @@ define(function(require) {
     },
     "Role.resume" : {
       type: "action",
-      text: '<i class="fa fa-play"/>',
+      text: '<i class="fas fa-play"/>',
       layout: "vmsplay_buttons"
     },
     "Role.stop" : {

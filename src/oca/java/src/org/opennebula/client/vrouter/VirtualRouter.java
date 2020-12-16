@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ public class VirtualRouter extends PoolElement
     private static final String RENAME      = METHOD_PREFIX + "rename";
     private static final String ATTACHNIC   = METHOD_PREFIX + "attachnic";
     private static final String DETACHNIC   = METHOD_PREFIX + "detachnic";
+    private static final String LOCK        = METHOD_PREFIX + "lock";
+    private static final String UNLOCK      = METHOD_PREFIX + "unlock";
 
     /**
      * Creates a new VirtualRouter representation.
@@ -86,6 +88,20 @@ public class VirtualRouter extends PoolElement
     public static OneResponse info(Client client, int id)
     {
         return client.call(INFO, id);
+    }
+
+    /**
+     * Retrieves the information of the given VRouter.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VRouter id for the VRouter to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
     }
 
     /**
@@ -257,6 +273,31 @@ public class VirtualRouter extends PoolElement
             int nicId)
     {
         return client.call(DETACHNIC, id, nicId);
+    }
+
+    /**
+     * lock this virtual router
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual router id.
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this virtual router
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual router id.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
     }
 
     // =================================
@@ -483,6 +524,27 @@ public class VirtualRouter extends PoolElement
     public OneResponse nicDetach(int nicId)
     {
         return nicDetach(client, id, nicId);
+    }
+
+    /**
+     * Lock this virtual router
+     *
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse lock(int level)
+    {
+        return lock(client, id, level);
+    }
+
+    /**
+     * Unlock this virtual router
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unlock()
+    {
+        return unlock(client, id);
     }
 
     // =================================

@@ -1,12 +1,14 @@
 <fieldset>
+  {{#if fieldset}}
   <legend>
-    <i class="fa fa-globe"></i> {{tr "Network"}}
+    <i class="fas fa-globe"></i> {{name}}
   </legend>
+  {{/if}}
   <div>
     <dl class="accordion provision_nic_accordion" data-accordion data-allow-all-closed="true">
     </dl>
     <a class="button small provision_add_network_interface">
-      <i class="fa fa-lg fa-plus-circle"></i> {{tr "Network Interface"}}
+      <i class="fas fa-lg fa-plus-circle"></i> {{tr "Network Interface"}}
     </a>
   </div>
 </fieldset>

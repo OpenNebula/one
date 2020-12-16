@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,18 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,8 +40,8 @@ using namespace std;
 class RequestManagerChmod : public Request
 {
 protected:
-    RequestManagerChmod(const string& method_name, const string& help,
-        const string& params = "A:siiiiiiiiii"):
+    RequestManagerChmod(const std::string& method_name, const std::string& help,
+        const std::string& params = "A:siiiiiiiiii"):
             Request(method_name, params, help){};
 
     ~RequestManagerChmod(){};
@@ -38,7 +49,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-        RequestAttributes& att);
+        RequestAttributes& att) override;
 
     virtual ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
         int owner_a, int group_u, int group_m, int group_a, int other_u,
@@ -93,6 +104,32 @@ protected:
     ErrorCode chmod(PoolSQL * pool, int oid, int owner_u, int owner_m,
         int owner_a, int group_u, int group_m, int group_a, int other_u,
         int other_m, int other_a, bool recursive, RequestAttributes& att);
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkTemplateChmod : public RequestManagerChmod
+{
+public:
+    VirtualNetworkTemplateChmod():
+        RequestManagerChmod("one.vntemplate.chmod", "Changes permission bits of a "
+            "virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateChmod(){};
+
+    ErrorCode request_execute(PoolSQL * pool, int oid, int owner_u, int owner_m,
+        int owner_a, int group_u, int group_m, int group_a, int other_u,
+        int other_m, int other_a, bool recursive, RequestAttributes& att)
+    {
+        return chmod(pool, oid, owner_u, owner_m, owner_a, group_u, group_m,
+                group_a, other_u, other_m, other_a, recursive, att);
+    }
 };
 
 /* ------------------------------------------------------------- */
@@ -204,11 +241,19 @@ public:
                             "Changes permission bits of a virtual router")
     {
         Nebula& nd  = Nebula::instance();
-        pool        = nd.get_vrouterpool();
+        vrpool      = nd.get_vrouterpool();
+        pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VROUTER;
     };
 
     ~VirtualRouterChmod(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+        RequestAttributes& att) override;
+
+private:
+
+    VirtualRouterPool  * vrpool;
 };
 
 /* ------------------------------------------------------------------------- */

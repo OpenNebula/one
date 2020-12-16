@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ----------------------------------------------------------------------------
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -19,17 +19,25 @@
 # Set up the environment for the driver
 # ----------------------------------------------------------------------------
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    VAR_LOCATION      = "/var/lib/one"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VAR_LOCATION      = '/var/lib/one'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    VAR_LOCATION      = ONE_LOCATION + "/var"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VAR_LOCATION      = ONE_LOCATION + '/var'
 end
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require "OpenNebulaDriver"
 require 'getoptlong'
@@ -187,9 +195,20 @@ class MarketPlaceDriver < OpenNebulaDriver
             return
         end
 
-        rc, info = do_action(id,mp_mad,nil,:delete,"#{drv_message} #{id}",false)
+        # Marketplace apps types that don't call the driver action
+        # VMTEMPLATE (2) and pSERVICE_TEMPLATE (3)
+        if ![2, 3].include?(xml['MARKETPLACEAPP/TYPE'].to_i)
+            rc, info = do_action(id,
+                                 mp_mad,
+                                 nil,
+                                 :delete,
+                                 "#{drv_message} #{id}",
+                                 false)
 
-        send_message(ACTION[:delete], rc, id, info)
+            send_message(ACTION[:delete], rc, id, info)
+        else
+            send_message(ACTION[:delete], 0, id, nil)
+        end
     end
 
     ############################################################################

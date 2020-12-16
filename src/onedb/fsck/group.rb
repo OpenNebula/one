@@ -1,47 +1,52 @@
-
+# Group module
 module OneDBFsck
+
+    # Check groups users
     def check_group
         @fixes_group = groups_fix = {}
+        group        = @data_user[:group]
 
-        group = @data_user[:group]
-
-        @db.fetch("SELECT oid,body from group_pool") do |row|
+        @db.fetch('SELECT oid,body from group_pool') do |row|
             gid = row[:oid]
-            doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+            doc = nokogiri_doc(row[:body], 'group_pool')
 
-            users_elem = doc.root.at_xpath("USERS")
-            users_elem.remove if !users_elem.nil?
+            users_elem     = doc.root.at_xpath('USERS')
+            users_new_elem = doc.create_element('USERS')
+            error          = false
 
-            users_new_elem = doc.create_element("USERS")
+            users_elem.remove unless users_elem.nil?
             doc.root.add_child(users_new_elem)
-
-            error_found = false
 
             group[gid].each do |id|
                 id_elem = users_elem.at_xpath("ID[.=#{id}]")
+                id_e    = doc.create_element('ID')
 
                 if id_elem.nil?
-                    log_error("User #{id} is missing from Group #{gid} users id list", !db_version[:is_slave])
-                    error_found = true
+                    log_error("User #{id} is missing from Group #{gid}" \
+                              'users id list',
+                              !db_version[:is_slave])
+                    error = true
                 else
                     id_elem.remove
                 end
 
-                users_new_elem.add_child(doc.create_element("ID")).content = id.to_s
+                users_new_elem.add_child(id_e).content = id.to_s
             end
 
-            users_elem.xpath("ID").each do |id_elem|
-                log_error("User #{id_elem.text} is in Group #{gid} users id list, but it should not", !db_version[:is_slave])
-                error_found = true
+            users_elem.xpath('ID').each do |id|
+                id    = id.text
+                error = true
+
+                log_error("User #{id} is in Group #{gid} users id list, " \
+                          'but it should not',
+                          !db_version[:is_slave])
             end
 
-
-            if error_found
-                groups_fix[row[:oid]] = doc.root.to_s
-            end
+            groups_fix[gid] = doc.root.to_s if error
         end
     end
 
+    # Fix groups information
     def fix_group
         groups_fix = @fixes_group
 
@@ -52,7 +57,8 @@ module OneDBFsck
                 end
             end
         elsif !groups_fix.empty?
-            log_msg("^ Group errors need to be fixed in the master OpenNebula")
+            log_msg('^ Group errors need to be fixed in the master OpenNebula')
         end
     end
+
 end

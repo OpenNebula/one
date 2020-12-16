@@ -1,0 +1,94 @@
+<?xml version='1.0'?>
+<!-- A Relax NG schema for the libvirt domain checkpoint properties XML format -->
+<grammar xmlns='http://relaxng.org/ns/structure/1.0' datatypeLibrary='http://www.w3.org/2001/XMLSchema-datatypes'>
+  <start>
+    <ref name='domaincheckpoint'/>
+  </start>
+
+  <include href='domaincommon.rng'/>
+
+  <define name='domaincheckpoint'>
+    <element name='domaincheckpoint'>
+      <interleave>
+        <optional>
+          <element name='name'>
+            <ref name='checkpointName'/>
+          </element>
+        </optional>
+        <optional>
+          <element name='description'>
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name='creationTime'>
+            <ref name='unsignedLong'/>
+          </element>
+        </optional>
+        <optional>
+          <element name='disks'>
+            <oneOrMore>
+              <ref name='diskcheckpoint'/>
+            </oneOrMore>
+          </element>
+        </optional>
+        <optional>
+          <!-- Nested grammar ensures that any of our overrides of
+               storagecommon/domaincommon defines do not conflict
+               with any domain.rng overrides.  -->
+          <grammar>
+            <include href='domain.rng'/>
+          </grammar>
+        </optional>
+        <optional>
+          <element name='parent'>
+            <element name='name'>
+              <ref name='checkpointName'/>
+            </element>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+
+  <define name='diskcheckpoint'>
+    <element name='disk'>
+      <attribute name='name'>
+        <choice>
+          <ref name='diskTarget'/>
+          <ref name='absFilePath'/>
+        </choice>
+      </attribute>
+      <choice>
+        <attribute name='checkpoint'>
+          <value>no</value>
+        </attribute>
+        <group>
+          <optional>
+            <attribute name='checkpoint'>
+              <value>bitmap</value>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name='bitmap'>
+              <text/>
+            </attribute>
+          </optional>
+          <optional>
+            <attribute name='size'>
+              <ref name='unsignedLong'/>
+            </attribute>
+          </optional>
+        </group>
+      </choice>
+    </element>
+  </define>
+
+  <define name='checkpointName'>
+    <data type='string'>
+      <!-- Notably: no leading '.' and no embedded '/' or newline -->
+      <param name='pattern'>[a-zA-Z0-9_\-][a-zA-Z0-9_\-.]*</param>
+    </data>
+  </define>
+
+</grammar>

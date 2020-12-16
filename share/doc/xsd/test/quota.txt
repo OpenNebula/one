@@ -1,6 +1,0 @@
-VM=[
-  CPU="60.50",
-  MEMORY="102400",
-  SYSTEM_DISK_SIZE="204800",
-  VMS="1000"
-]

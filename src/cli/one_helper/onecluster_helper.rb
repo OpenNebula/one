@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -63,15 +63,15 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
             end
 
             column :HOSTS, "Number of Hosts", :size=>5 do |d|
-                @ext.element_size(d,"HOSTS")
+                @ext.element_size(d,"HOSTS") rescue 0
             end
 
             column :VNETS, "Number of Networks", :size=>5 do |d|
-                @ext.element_size(d,"VNETS")
+                @ext.element_size(d,"VNETS") rescue 0
             end
 
             column :DATASTORES, "Number of Datastores", :size=>10 do |d|
-                @ext.element_size(d,"DATASTORES")
+                @ext.element_size(d,"DATASTORES") rescue 0
             end
 
             default :ID, :NAME, :HOSTS, :VNETS, :DATASTORES

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -49,7 +49,9 @@ require 'opennebula/datastore_pool'
 require 'opennebula/cluster'
 require 'opennebula/cluster_pool'
 require 'opennebula/document'
+require 'opennebula/document_json'
 require 'opennebula/document_pool'
+require 'opennebula/document_pool_json'
 require 'opennebula/zone'
 require 'opennebula/zone_pool'
 require 'opennebula/security_group'
@@ -65,9 +67,15 @@ require 'opennebula/marketplaceapp'
 require 'opennebula/marketplaceapp_pool'
 require 'opennebula/vm_group'
 require 'opennebula/vm_group_pool'
+require 'opennebula/vntemplate'
+require 'opennebula/vntemplate_pool'
+require 'opennebula/hook'
+require 'opennebula/hook_pool'
+require 'opennebula/hook_log'
+require 'opennebula/flow'
 
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '5.5.80'
+    VERSION = '5.13.80'
 end

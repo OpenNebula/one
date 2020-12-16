@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -183,7 +183,26 @@ define(function(require) {
           return params.error ? params.error(request, OpenNebulaError(response)) : null;
         }
       });
-    }
+    },
+    "scale" : function(params) {
+      var request = OpenNebulaHelper.request(RESOURCE, "scale", params.data.id); 
+
+      $.ajax({
+        url: PATH + "/" + String(params.data.id) + "/scale",
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(params.data.extra_param),
+        success: function(response) {
+          return params.success ? params.success(request, response) : null;
+        },
+        error: function(response) {
+          response.status === 201
+            ? params.success ? params.success(request, response) : null
+            : params.error ? params.error(request, OpenNebulaError(response)) : null;
+        }
+      });
+    },
   }
 
   return Role;

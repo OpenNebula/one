@@ -6,71 +6,98 @@
         <xs:element name="ID" type="xs:integer"/>
         <xs:element name="NAME" type="xs:string"/>
         <!-- STATE values
-        
           INIT                 = 0  Initial state for enabled hosts
           MONITORING_MONITORED = 1  Monitoring the host (from monitored)
           MONITORED            = 2  The host has been successfully monitored
           ERROR                = 3  An error ocurrer while monitoring the host
-          DISABLED             = 4  The host is disabled 
+          DISABLED             = 4  The host is disabled
           MONITORING_ERROR     = 5  Monitoring the host (from error)
           MONITORING_INIT      = 6  Monitoring the host (from init)
           MONITORING_DISABLED  = 7  Monitoring the host (from disabled)
           OFFLINE              = 8  The host is totally offline
         -->
         <xs:element name="STATE" type="xs:integer"/>
+        <xs:element name="PREV_STATE" type="xs:integer"/>
         <xs:element name="IM_MAD" type="xs:string"/>
         <xs:element name="VM_MAD" type="xs:string"/>
-        <xs:element name="LAST_MON_TIME" type="xs:integer"/>
         <xs:element name="CLUSTER_ID" type="xs:integer"/>
         <xs:element name="CLUSTER" type="xs:string"/>
         <xs:element name="HOST_SHARE">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="DISK_USAGE" type="xs:integer"/>
               <xs:element name="MEM_USAGE" type="xs:integer"/>
               <!-- ^^ KB, Usage of MEMORY calculated by ONE as the summatory MEMORY requested by all VMs running in the host   -->
               <xs:element name="CPU_USAGE" type="xs:integer"/>
               <!-- ^^ Percentage, Usage of CPU calculated by ONE as the summatory CPU requested by all VMs running in the host   -->
               <xs:element name="TOTAL_MEM" type="xs:integer"/>
+              <!-- ^^ Maximum memory that could be used for VMs -->
               <xs:element name="TOTAL_CPU" type="xs:integer"/>
-              <xs:element name="MAX_DISK" type="xs:integer"/>
+              <!-- ^^ Number of CPU’s multiplied by 100. For example, a 16 cores machine will have a value of 1600 -->
               <xs:element name="MAX_MEM" type="xs:integer"/>
               <!-- ^^ KB, Total memory in the host   -->
               <xs:element name="MAX_CPU" type="xs:integer"/>
               <!-- ^^ Percentage, Total CPU in the host (# cores * 100)  -->
-              <xs:element name="FREE_DISK" type="xs:integer"/>
-              <xs:element name="FREE_MEM" type="xs:integer"/>
-              <!-- ^^ KB, Free MEMORY returned by the probes   -->
-              <xs:element name="FREE_CPU" type="xs:integer"/>
-              <!-- ^^ Percentage, Free CPU as returned by the probes   -->
-              <xs:element name="USED_DISK" type="xs:integer"/>
-              <xs:element name="USED_MEM" type="xs:integer"/>
-              <!-- ^^ KB, Memory used by all host processes (including VMs) over a total of MAX_MEM   -->
-              <xs:element name="USED_CPU" type="xs:integer"/>
-              <!-- ^^ Percentage of CPU used by all host processes (including VMs) over a total of # cores * 100   -->
-
 
               <xs:element name="RUNNING_VMS" type="xs:integer"/>
+              <xs:element name="VMS_THREAD" type="xs:integer"/>
               <xs:element name="DATASTORES">
                 <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="DS" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:all>
-                          <xs:element name="ID" type="xs:integer"/>
-                          <xs:element name="FREE_MB" type="xs:integer"/>
-                          <xs:element name="TOTAL_MB" type="xs:integer"/>
-                          <xs:element name="USED_MB" type="xs:integer"/>
-                        </xs:all>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
+                    <xs:all>
+                      <xs:element name="DISK_USAGE" type="xs:integer"/>
+                      <xs:element name="FREE_DISK" type="xs:integer"/>
+                      <xs:element name="MAX_DISK" type="xs:integer"/>
+                      <xs:element name="USED_DISK" type="xs:integer"/>
+                    </xs:all>
                 </xs:complexType>
               </xs:element>
               <xs:element name="PCI_DEVICES">
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element name="PCI" type="xs:anyType" minOccurs="0" maxOccurs="unbounded"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="NUMA_NODES">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="NODE" minOccurs="0" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="CORE" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:all>
+                                <xs:element name="CPUS" type="xs:string"/>
+                                <xs:element name="DEDICATED" type="xs:string"/>
+                                <xs:element name="FREE" type="xs:integer"/>
+                                <xs:element name="ID" type="xs:integer"/>
+                              </xs:all>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="HUGEPAGE" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:all>
+                                <xs:element name="FREE" type="xs:integer"/>
+                                <xs:element name="PAGES" type="xs:integer"/>
+                                <xs:element name="SIZE" type="xs:integer"/>
+                                <xs:element name="USAGE" type="xs:integer"/>
+                              </xs:all>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="MEMORY">
+                            <xs:complexType>
+                              <xs:all>
+                                <xs:element name="DISTANCE" type="xs:string"/>
+                                <xs:element name="FREE" type="xs:integer"/>
+                                <xs:element name="TOTAL" type="xs:integer"/>
+                                <xs:element name="USAGE" type="xs:integer"/>
+                                <xs:element name="USED" type="xs:integer"/>
+                              </xs:all>
+                            </xs:complexType>
+                          </xs:element>
+                          <xs:element name="NODE_ID" type="xs:integer"/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
@@ -84,7 +111,53 @@
                 </xs:sequence>
               </xs:complexType>
         </xs:element>
-        <xs:element name="TEMPLATE" type="xs:anyType"/>
+        <xs:element name="TEMPLATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="VCENTER_CCR_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_DS_REF" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="VCENTER_HOST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_PASSWORD" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_RESOURCE_POOL_INFO" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="VCENTER_USER" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCENTER_VERSION" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="MONITORING">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="TIMESTAMP" type="xs:integer" minOccurs="0"/>
+              <xs:element name="ID" type="xs:integer" minOccurs="0"/>
+              <xs:element name="CAPACITY" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="FREE_CPU" type="xs:integer"/>
+                    <!-- ^^ Percentage, Free CPU as returned by the probes   -->
+                    <xs:element name="FREE_MEMORY" type="xs:integer"/>
+                    <!-- ^^ KB, Free MEMORY returned by the probes   -->
+                    <xs:element name="USED_CPU" type="xs:integer"/>
+                    <!-- ^^ Percentage of CPU used by all host processes (including VMs) over a total of # cores * 100   -->
+                    <xs:element name="USED_MEMORY" type="xs:integer"/>
+                    <!-- ^^ KB, Memory used by all host processes (including VMs) over a total of MAX_MEM   -->
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="SYSTEM" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="NETRX" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="NETTX" type="xs:integer" minOccurs="0"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,23 +19,23 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TemplateHTML = require('hbs!./info/html');
-  var Locale = require('utils/locale');
-  var RenameTr = require('utils/panel/rename-tr');
-  var TemplateTable = require('utils/panel/template-table');
-  var Sunstone = require('sunstone');
-  var TemplateUtils = require('utils/template-utils');
+  var TemplateHTML = require("hbs!./info/html");
+  var Locale = require("utils/locale");
+  var RenameTr = require("utils/panel/rename-tr");
+  var TemplateTable = require("utils/panel/template-table");
+  var Sunstone = require("sunstone");
+  var TemplateUtils = require("utils/template-utils");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./info/panelId");
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
 
-  var OVERCOMMIT_DIALOG_ID = require('utils/dialogs/overcommit/dialogId');
+  var OVERCOMMIT_DIALOG_ID = require("utils/dialogs/overcommit/dialogId");
 
   /*
     CONSTRUCTOR
@@ -54,7 +54,7 @@ define(function(require) {
     // in the unshownTemplate object to be used when the element info is updated.
     that.unshownTemplate = {};
     that.strippedTemplate = {};
-    var unshownKeys = ['HOST', 'RESERVED_CPU', 'RESERVED_MEM'];
+    var unshownKeys = ["HOST", "RESERVED_CPU", "RESERVED_MEM"];
     $.each(that.element.TEMPLATE, function(key, value) {
       if ($.inArray(key, unshownKeys) > -1) {
         that.unshownTemplate[key] = value;
@@ -83,42 +83,76 @@ define(function(require) {
                                       RESOURCE,
                                       Locale.tr("Attributes"));
     var reservedMem;
-    (this.element.TEMPLATE.RESERVED_MEM != "0%" && this.element.TEMPLATE.RESERVED_MEM != "")?reservedMem = parseInt(this.element.TEMPLATE.RESERVED_MEM): reservedMem = 0;
-    var reservedCPU
-    (this.element.TEMPLATE.RESERVED_CPU != "0%" && this.element.TEMPLATE.RESERVED_CPU != "")? reservedCPU = parseInt(this.element.TEMPLATE.RESERVED_CPU): reservedCPU = 0;
+    var reservedMemInput;
+    if (this.element.TEMPLATE.RESERVED_MEM != "0%" && this.element.TEMPLATE.RESERVED_MEM != ""){
+      reservedMem = parseInt(this.element.TEMPLATE.RESERVED_MEM);
+      reservedMemInput = this.element.TEMPLATE.RESERVED_MEM;
+    } else {
+      reservedMem = 0;
+      reservedMemInput = "0%";
+    }
+
+    var reservedCPU;
+    var reservedCPUInput;
+    if (this.element.TEMPLATE.RESERVED_CPU != "0%" && this.element.TEMPLATE.RESERVED_CPU != ""){
+      reservedCPU = parseInt(this.element.TEMPLATE.RESERVED_CPU);
+      reservedCPUInput = this.element.TEMPLATE.RESERVED_CPU;
+    } else {
+      reservedCPU = 0;
+      reservedCPUInput = "0%";
+    }
+
     return TemplateHTML({
-      'element': this.element,
-      'renameTrHTML': renameTrHTML,
-      'templateTableHTML': templateTableHTML,
-      'percentCPU': reservedCPU,
-      'percentMEM': reservedMem,
+      "element": this.element,
+      "renameTrHTML": renameTrHTML,
+      "templateTableHTML": templateTableHTML,
+      "percentCPU": reservedCPU,
+      "percentCPUinput": reservedCPUInput,
+      "percentMEM": reservedMem,
+      "percentMEMinput": reservedMemInput
     });
   }
 
-  function changeBarCPU(){
-    if(parseInt(document.getElementById('change_bar_cpu').value) > 0)
-      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-    if(parseInt(document.getElementById('change_bar_cpu').value) < 0)
-      document.getElementById('textInput_reserved_cpu').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value + "%";
+  function changeBarColorCPU(){
+    var cpuValue = parseInt($("#change_bar_cpu").val());
+    if (cpuValue > 0){
+      $("#textInput_reserved_cpu").css("background-color", "rgba(111, 220, 111, 0.5)");
+    }
+
+    if (cpuValue < 0){
+      $("#textInput_reserved_cpu").css("background-color", "rgba(255, 80, 80,0.5)");
+    }
   }
 
-   function changeInputCPU(){
-    document.getElementById('change_bar_cpu').value = parseInt(document.getElementById('textInput_reserved_cpu').value);
-    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value + "%";
+  function changeBarColorMEM(){
+    var memValue = parseInt($("#change_bar_mem").val());
+    if (memValue > 0){
+      $("#textInput_reserved_mem").css("background-color", "rgba(111, 220, 111, 0.5)");
+    }
+
+    if (memValue < 0){
+      $("#textInput_reserved_mem").css("background-color", "rgba(255, 80, 80,0.5)");
+    }
+  }
+
+  function changeBarCPU(){
+    changeBarColorCPU();
+    document.getElementById("textInput_reserved_cpu").value = document.getElementById("change_bar_cpu").value + "%";
+  }
+
+  function changeInputCPU(){
+    document.getElementById("change_bar_cpu").value = parseInt(document.getElementById("textInput_reserved_cpu").value);
+    changeBarColorCPU();
   }
 
   function changeBarMEM(){
-    if(parseInt(document.getElementById('change_bar_mem').value) > 0)
-      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(111, 220, 111,0.5)';
-    if(parseInt(document.getElementById('change_bar_mem').value) < 0)
-      document.getElementById('textInput_reserved_mem').style.backgroundColor = 'rgba(255, 80, 80,0.5)';
-    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value + "%";
+    changeBarColorMEM();
+    document.getElementById("textInput_reserved_mem").value = document.getElementById("change_bar_mem").value + "%";
   }
 
-   function changeInputMEM(){
-    document.getElementById('change_bar_mem').value = parseInt(document.getElementById('textInput_reserved_mem').value);
-    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value + "%";
+  function changeInputMEM(){
+    document.getElementById("change_bar_mem").value = parseInt(document.getElementById("textInput_reserved_mem").value);
+    changeBarColorMEM();
   }
 
   function _setup(context) {
@@ -128,19 +162,20 @@ define(function(require) {
 
     TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
 
-    document.getElementById("change_bar_cpu").addEventListener("change", changeBarCPU);
-    document.getElementById("textInput_reserved_cpu").addEventListener("change", changeInputCPU);
-    document.getElementById("change_bar_mem").addEventListener("change", changeBarMEM);
-    document.getElementById("textInput_reserved_mem").addEventListener("change", changeInputMEM);
-    document.getElementById('textInput_reserved_cpu').value = document.getElementById('change_bar_cpu').value + "%";
-    document.getElementById('textInput_reserved_mem').value = document.getElementById('change_bar_mem').value + "%";
+    changeBarColorCPU();
+    changeBarColorMEM();
 
-    $(document).off('click', '.update_reserved').on("click", '.update_reserved', function(){
-        var reservedCPU = document.getElementById('change_bar_cpu').value+'%'; 
-        var reservedMem = document.getElementById('change_bar_mem').value+'%';
+    document.getElementById("change_bar_cpu").addEventListener("input", changeBarCPU);
+    document.getElementById("textInput_reserved_cpu").addEventListener("input", changeInputCPU);
+    document.getElementById("change_bar_mem").addEventListener("input", changeBarMEM);
+    document.getElementById("textInput_reserved_mem").addEventListener("input", changeInputMEM);
 
-        var obj = {RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem};
-        Sunstone.runAction("Cluster.append_template", that.element.ID, TemplateUtils.templateToString(obj)); 
+    $(document).off("click", ".update_reserved").on("click", ".update_reserved", function(){
+        var reservedCPU = document.getElementById("textInput_reserved_cpu").value;
+        var reservedMem = document.getElementById("textInput_reserved_mem").value;
+
+        var obj = { RESERVED_CPU: reservedCPU, RESERVED_MEM: reservedMem };
+        Sunstone.runAction("Cluster.append_template", that.element.ID, TemplateUtils.templateToString(obj));
     });
   }
 });

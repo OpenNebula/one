@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,62 +15,82 @@
 {{! -------------------------------------------------------------------------- }}
 
 <tr>
-  <td>
-    <input type="checkbox" class="check_item"/>
+  <td style="vertical-align: top">
+    <input type="checkbox" class="check_item" style="margin-top: 5px"/>
   </td>
   <td>
     <div class="accordion_advanced vcenter_row">
       <div class="row">
         <div class="large-12 columns">
           <label class="inline">
-            <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fa fa-fw fa-chevron-down"/><i class="fa fa-fw fa-chevron-up"/>
+            <a href="#{{data.uuid}}Advanced" class="accordion_advanced_toggle"> <i class="fas fa-fw fa-chevron-down"/><i class="fas fa-fw fa-chevron-up"/>
             </a>
             {{data.name}}
             - <i>{{data.type}}</i>
-            - Cluster: <i>{{data.cluster}}</i>
-            - Location: <i>{{data.cluster_location}}</i>
-            - OpenNebula Cluster ID: <i>{{data.one_cluster_id}}</i>
-            {{#if data.vlan}} - <i>VLAN: <span class="vlaninfo">{{data.vlan}}</span></i>{{/if}}
+            {{#if data.vlan}} - {{tr "VLAN"}}: <i><span class="vlaninfo">{{data.vlan}}</span></i>{{/if}}
           </label>
         </div>
       </div>
-      <div id="{{data.uuid}}Advanced" class="content row" hidden>
-        <div class="large-2 medium-3 small-6 columns">
-          <label>
-            {{tr "Size"}}
-            <input type="text" class="netsize" value="255"/>
-          </label>
-        </div>
-        <div class="large-2 medium-3 small-6 columns">
-          <label>
-            {{tr "Type"}}
-            <select class="type_select">
-              <option value="ETHER">eth</option>
-              <option value="IP4">ipv4</option>
-              <option value="IP6">ipv6</option>
-              <option value="IP6_STATIC">ipv6 static</option>
-            </select>
-          </label>
-        </div>
-        <div class="large-6 medium-12 small-12 columns end">
-          <div class="row net_options">
-            <div class="large-4 medium-3 small-12 columns end">
+      <div class="row">
+        <div id="{{data.uuid}}Advanced" class="content row" hidden>
+          <div class="row" style="margin-left: 59px">
+            <div class="large-2 medium-3 small-6 columns">
               <label>
-                {{tr "MAC"}}
-                <input type="text" class="eth_mac_net" placeholder="{{tr "Optional"}}"/>
+                {{tr "Size"}}
+                <input type="text" class="netsize" value="255"/>
               </label>
             </div>
+            <div class="large-2 medium-3 small-6 columns">
+              <label>
+                {{tr "Type"}}
+                <select class="type_select">
+                  <option value="ether">eth</option>
+                  <option value="ip4">ipv4</option>
+                  <option value="ip6">ipv6</option>
+                  <option value="ip6_static">ipv6 static</option>
+                </select>
+              </label>
+            </div>
+            <div class="large-6 medium-12 small-12 columns end">
+              <div class="row net_options">
+                <div class="large-4 medium-3 small-12 columns end">
+                  <label>
+                    {{tr "MAC"}}
+                    <input type="text" class="eth_mac_net" placeholder="{{tr "Optional"}}"/>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-left: 59px">
+            <div class="large-7 medium-5 small-10 columns">
+              <label>
+                {{tr "Cluster(s) to import"}}
+                <span class="tip">
+                  {{tr "Use ctrl key for multiple selection"}}
+                </span>
+                <select size="4" id="vnet-clusters" multiple="true">
+                  {{#each importedClusters}}
+                    <option value="{{this.id}}" selected>{{this.name}}</option>
+                  {{/each}}
+                </select>
+              </label>
+            </div>
+            <div class="large-3 medium-5 small-10 columns">
+              <label>
+                {{tr "Unimported Cluster(s)"}}
+                <select size="4" disabled>
+                  {{#each unimportedClusters}}
+                    <option value="{{this.id}}">{{this.name}}</option>
+                  {{/each}}
+                </select>
+              </label>
           </div>
         </div>
       </div>
-      <div class="row vcenter_import_result_row" style="display:none">
-        <div class="large-11 large-centered columns">
-          <span class="vcenter_import_result">
-          </span>&nbsp;
-          <span class="vcenter_import_response">
-          </span>
-        </div>
-      </div>
     </div>
+  </td>
+    <td>
+    <span class="vcenter_import_result"></span>
   </td>
 </tr>

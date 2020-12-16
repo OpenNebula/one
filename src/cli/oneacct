@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,36 +16,44 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/oneacct_helper'
 
 require 'json'
 
-cmd = CommandParser::CmdParser.new(ARGV) do
-    usage "`oneacct` [<options>]"
-    description ""
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneacct` [<options>]'
+    description ''
     version OpenNebulaHelper::ONE_VERSION
 
-    helper=OpenNebulaHelper::OneHelper.new
+    helper = OpenNebulaHelper::OneHelper.new
 
     before_proc do
         helper.set_client(options)
     end
 
     option AcctHelper::ACCT_OPTIONS + CommandParser::OPTIONS +
-        [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
-        OpenNebulaHelper::CLIENT_OPTIONS
+           [OpenNebulaHelper::DESCRIBE, CLIHelper::LIST, CLIHelper::CSV_OPT] +
+           OpenNebulaHelper::CLIENT_OPTIONS
 
     main do
         if options[:describe]
@@ -54,18 +62,22 @@ cmd = CommandParser::CmdParser.new(ARGV) do
         end
 
         filter_flag = (options[:userfilter] || VirtualMachinePool::INFO_ALL)
-        start_time  = options[:start_time] ? options[:start_time].to_i : -1
+        if options[:start_time]
+            start_time = options[:start_time].to_i
+        else
+            start_time = -1
+        end
 
         end_time = -1
 
-        if (!options[:end_time].nil?)
+        if !options[:end_time].nil?
             # Not the safest way to add a day, but since managing date/time
             # in ruby is... not entirely convenient, this will do
 
             t = options[:end_time]
 
-            if (t.hour == 0 && t.min == 0 && t.sec == 0)
-                t += 24*60*60
+            if t.hour.zero? && t.min.zero? && t.sec.zero?
+                t += 24 * 60 * 60
             end
 
             end_time = t.to_i
@@ -73,19 +85,19 @@ cmd = CommandParser::CmdParser.new(ARGV) do
 
         common_opts = {
             :start_time => start_time,
-            :end_time   => end_time,
-            :host       => options[:host],
-            :group      => options[:group],
-            :xpath      => options[:xpath]
+            :end_time => end_time,
+            :host => options[:host],
+            :group => options[:group],
+            :xpath => options[:xpath]
         }
 
-        pool   = OpenNebula::VirtualMachinePool.new(helper.client)
+        pool = OpenNebula::VirtualMachinePool.new(helper.client)
 
         if options[:json] || options[:xml]
             xml_str = pool.accounting_xml(filter_flag, common_opts)
             if OpenNebula.is_error?(xml_str)
                 puts xml_str.message
-                exit -1
+                exit(-1)
             end
 
             if options[:json]
@@ -96,10 +108,8 @@ cmd = CommandParser::CmdParser.new(ARGV) do
             elsif options[:xml]
                 puts xml_str
             end
-
-            exit_code 0
         else
-            order_by = Hash.new
+            order_by = {}
             order_by[:order_by_1] = 'VM/UID'
 
             if options[:split] && !options[:csv]
@@ -110,48 +120,48 @@ cmd = CommandParser::CmdParser.new(ARGV) do
                                         common_opts.merge(order_by))
             if OpenNebula.is_error?(acct_hash)
                 puts acct_hash.message
-                exit -1
+                exit(-1)
             end
 
             if options[:csv]
-                a=Array.new
+                a = []
                 acct_hash.each do |user_id, value|
                     value['HISTORY_RECORDS']['HISTORY'].each do |l|
-                        l['UID']=user_id
+                        l['UID'] = user_id
                         a << l
                     end
                 end
 
-                cols = [ :UID ] + AcctHelper::ACCT_TABLE.default_columns
+                cols = [:UID] + AcctHelper::ACCT_TABLE.default_columns
                 options[:list] ||= cols
 
                 AcctHelper::ACCT_TABLE.show(a, options)
                 exit(0)
             end
 
-            if ( start_time != -1 or end_time != -1 )
+            if start_time != -1 || end_time != -1
                 AcctHelper.print_start_end_time_header(start_time, end_time)
             end
 
-            acct_hash.each { |user_id, value|
+            acct_hash.each do |user_id, value|
                 AcctHelper.print_user_header(user_id)
 
                 if options[:split]
                     # Use one table for each VM
-                    value.each { |vm_id, history_array|
+                    value.each  do |_vm_id, history_array|
                         array = history_array['HISTORY_RECORDS']['HISTORY']
                         AcctHelper::ACCT_TABLE.show(array, options)
                         puts
-                    }
+                    end
                 else
                     # Use the same table for all the VMs
                     array = value['HISTORY_RECORDS']['HISTORY']
                     AcctHelper::ACCT_TABLE.show(array, options)
                     puts
                 end
-            }
-
-            exit_code 0
+            end
         end
+
+        exit_code 0
     end
 end

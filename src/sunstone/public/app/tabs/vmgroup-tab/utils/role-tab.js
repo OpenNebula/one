@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,7 @@ define(function(require) {
   var Tips = require('utils/tips');
   var Config = require('sunstone-config');
 
+  var TemplateUtils = require("../../../utils/template-utils");
   var TemplateHTML = require('hbs!./role-tab/html');
   var HostsTable = require('./datatable');
 
@@ -106,7 +107,7 @@ define(function(require) {
         if(text != ""){
           if(!equals(that.host_affined, text) && !equals(that.host_anti_affined, text)){
             html = "<a value="+text+" id='btn_HOST_ANTI_AFFINED_"+that.html_role_id+"' class='button alert radius btn_group_host_vm_roles' style='margin-top: 0.5em;'>\
-                      <i class='fa fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
+                      <i class='fas fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
                       </a>";
             var div = '<div style="margin: 3px; display: inline;" id="ANTI_AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="ANTI_AFFINED">' + html + '</div>';
             $("#group_vm_host_roles_"+that.html_role_id+"_anti_affined").append(div);
@@ -118,7 +119,7 @@ define(function(require) {
         if(text != ""){
           if(!equals(that.host_affined, text) && !equals(that.host_anti_affined, text)){
             html = "<a value="+text+" id='btn_HOST_AFFINED_"+that.html_role_id+"' class='button success radius btn_group_host_vm_roles' style='margin-top: 0.5em;'>\
-                      <i class='fa fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
+                      <i class='fas fa-lg fa-times-circle remove_host_affinity'> "+text+" </i>\
                       </a>";
             var div = '<div style="margin: 3px; display: inline;" id="AFFINED_'+that.html_role_id+'" class="group_host_role_content" typeAffinity="AFFINED">' + html + '</div>';
             $("#group_vm_host_roles_"+that.html_role_id+"_affined").append(div);
@@ -158,21 +159,21 @@ define(function(require) {
     
     var role = {};
     var text = "";
-    role['NAME'] = $('input[name="name"]', context).val();
-    role['VIRTUAL_MACHINES'] = $('input[name="cardinality"]', context).val();
-    role['POLICY'] = $('input[name="protocol_'+this.html_role_id+'"]:checked', context).val();
+    role['NAME'] = TemplateUtils.removeHTMLTags($('input[name="name"]', context).val());
+    role['VIRTUAL_MACHINES'] = TemplateUtils.removeHTMLTags($('input[name="cardinality"]', context).val());
+    role['POLICY'] = TemplateUtils.removeHTMLTags($('input[name="protocol_'+this.html_role_id+'"]:checked', context).val());
     if(this.host_affined.length > 0){
       for(data in this.host_affined)
         text += this.host_affined[data] + ", ";
       text = text.slice(0,-2); 
-      role['HOST_AFFINED'] = text
+      role['HOST_AFFINED'] = TemplateUtils.removeHTMLTags(text)
       text = "";
     }
     if(this.host_anti_affined.length > 0){
       for(data in this.host_anti_affined)
         text += this.host_anti_affined[data] + ", "; 
       text = text.slice(0,-2); 
-      role['HOST_ANTI_AFFINED'] = text;
+      role['HOST_ANTI_AFFINED'] = TemplateUtils.removeHTMLTags(text);
     }
     role = _removeEmptyObjects(role);
     return role;

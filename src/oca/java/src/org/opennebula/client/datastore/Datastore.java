@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,6 +108,20 @@ public class Datastore extends PoolElement
     public static OneResponse info(Client client, int id)
     {
         return client.call(INFO, id);
+    }
+
+    /**
+     * Retrieves the information of the given Datastore.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Datastore id for the Datastore to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
     }
 
     /**

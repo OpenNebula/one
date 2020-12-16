@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,17 +17,14 @@
 #ifndef AUTH_REQUEST_H_
 #define AUTH_REQUEST_H_
 
-#include <time.h>
 #include <set>
 
-#include "ActionManager.h"
 #include "PoolObjectAuth.h"
-#include "AuthManager.h"
 #include "NebulaUtil.h"
 
 #include "SyncRequest.h"
 
-using namespace std;
+class AuthManager;
 
 /**
  *  The AuthRequest class is used to pass an Authorization or Authentication
@@ -37,7 +34,11 @@ using namespace std;
 class AuthRequest : public SyncRequest
 {
 public:
-    AuthRequest(int _uid, set<int> _gids): uid(_uid),gids(_gids),self_authorize(true){};
+    AuthRequest(int _uid, const std::set<int>& _gids)
+        : uid(_uid)
+        , gids(_gids)
+        , self_authorize(true)
+    {}
 
     ~AuthRequest(){};
 
@@ -46,32 +47,52 @@ public:
      */
     enum Operation
     {
-        USE    = 0x1LL,  /**< Auth. to use an object                   */
-        MANAGE = 0x2LL,  /**< Auth. to perform management actions      */
-        ADMIN  = 0x4LL,  /**< Auth. to perform administrative actions  */
-        CREATE = 0x8LL   /**< Auth. to create an object                */
+        USE           = 0x1LL,   /**< Auth. to use an object                   */
+        USE_NO_LCK    = 0x11LL,  /**< Auth. to use an object no lockable       */
+        MANAGE        = 0x2LL,   /**< Auth. to perform management actions      */
+        MANAGE_NO_LCK = 0x12LL,  /**< Auth. to perform management actions of an object no lockable */
+        ADMIN         = 0x4LL,   /**< Auth. to perform administrative actions  */
+        ADMIN_NO_LCK  = 0x14LL,  /**< Auth. to perform administrative actions of an object no lockable */
+        CREATE        = 0x8LL,   /**< Auth. to create an object                */
+        CREATE_NO_LCK = 0x18LL,   /**< Auth. to create an object of an object no lockable */
+        NONE          = 0x0LL
     };
 
-    static string operation_to_str(Operation op)
+    static std::string operation_to_str(Operation op)
     {
         switch (op)
         {
-            case USE:    return "USE";
-            case MANAGE: return "MANAGE";
-            case ADMIN:  return "ADMIN";
-            case CREATE: return "CREATE";
-            default:     return "";
+            case USE:           return "USE";
+            case USE_NO_LCK:    return "USE";
+            case MANAGE:        return "MANAGE";
+            case MANAGE_NO_LCK: return "MANAGE";
+            case ADMIN:         return "ADMIN";
+            case ADMIN_NO_LCK:  return "ADMIN";
+            case CREATE:        return "CREATE";
+            case CREATE_NO_LCK: return "CREATE";
+            case NONE:          return "";
         }
+
+        return "";
+    };
+
+    static Operation str_to_operation(std::string str)
+    {
+            if      (str == "USE")    return USE;
+            else if (str == "MANAGE") return MANAGE;
+            else if (str == "ADMIN")  return ADMIN;
+            else if (str == "CREATE") return CREATE;
+            else     return NONE;
     };
 
     /**
      *  Sets the challenge to authenticate an user
      *  @param challenge a driver specific authentication challenge
      */
-    void add_authenticate(const string &_driver,
-                          const string &_username,
-                          const string &_password,
-                          const string &_session)
+    void add_authenticate(const std::string &_driver,
+                          const std::string &_username,
+                          const std::string &_password,
+                          const std::string &_session)
     {
         username = _username;
         password = _password;
@@ -90,7 +111,8 @@ public:
      *    @param type of the object to be created
      *    @param txml template of the new object
      */
-    void add_create_auth(int uid, int gid, PoolObjectSQL::ObjectType type, const string& txml)
+    void add_create_auth(int uid, int gid, PoolObjectSQL::ObjectType type,
+                         const std::string& txml)
     {
         PoolObjectAuth perms; //oid & gid set to -1
 
@@ -120,14 +142,14 @@ public:
      *  @return a space separated list of auth requests, or an empty string if
      *          no auth requests were added
      */
-    string get_auths()
+    std::string get_auths() const
     {
-        ostringstream oss;
+        std::ostringstream oss;
         unsigned int  i;
 
         if ( auths.empty() )
         {
-            return string();
+            return std::string();
         }
 
         for (i=0; i<auths.size()-1; i++)
@@ -142,14 +164,15 @@ public:
 
     bool core_authorize()
     {
-        return ( uid == 0 || self_authorize );
+        return self_authorize;
     }
 
     bool core_authenticate()
     {
-        string sha1_session = one_util::sha1_digest(session);
+        std::string sha1_session = one_util::sha1_digest(session);
+        std::string sha256_session = one_util::sha256_digest(session);
 
-        return (password == sha1_session);
+        return (password == sha1_session) || (password == sha256_session);
     }
 
 private:
@@ -164,32 +187,32 @@ private:
     /**
      *  The user groups ID set
      */
-    set<int> gids;
+    std::set<int> gids;
 
     /**
      *  Username to authenticate the user
      */
-    string username;
+    std::string username;
 
     /**
      *  User password to authenticate the user
      */
-    string password;
+    std::string password;
 
     /**
      *  Authentication token as sent in the XML-RPC call (user:session)
      */
-    string session;
+    std::string session;
 
     /**
      *  Authentication driver to be used with this request
      */
-    string driver;
+    std::string driver;
 
     /**
      *  A list of authorization requests
      */
-    vector<string> auths;
+    std::vector<std::string> auths;
 
     /**
      *  Plain authorization for the request
@@ -209,7 +232,7 @@ private:
      */
     void add_auth(Operation             op,
                   const PoolObjectAuth& ob_perms,
-                  string                ob_template);
+                  const std::string&    ob_template);
 };
 
 #endif

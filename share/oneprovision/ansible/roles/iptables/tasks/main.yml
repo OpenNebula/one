@@ -1,0 +1,18 @@
+---
+
+- name: Set net.ipv4.ip_forward
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "{{ iptables_ip_forward_enabled | int }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/ip_forward.conf
+    reload: yes
+
+- block:
+  - include: redhat.yml
+    when: ansible_os_family == "RedHat"
+  - include: debian.yml
+    when: ansible_os_family == "Debian"
+  when: iptables_manage_persistent
+
+- include: rules.yml

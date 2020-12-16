@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,47 +17,51 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
-#include "LogDB.h"
+#include "OpenNebulaTemplate.h"
 #include "SystemDB.h"
 
-#include "NebulaTemplate.h"
-
-#include "VirtualMachinePool.h"
-#include "VirtualNetworkPool.h"
-#include "HostPool.h"
-#include "UserPool.h"
-#include "VMTemplatePool.h"
-#include "GroupPool.h"
-#include "DatastorePool.h"
-#include "ClusterPool.h"
-#include "DocumentPool.h"
-#include "ZonePool.h"
-#include "SecurityGroupPool.h"
-#include "VdcPool.h"
-#include "VirtualRouterPool.h"
-#include "MarketPlacePool.h"
-#include "MarketPlaceAppPool.h"
-#include "VMGroupPool.h"
-
-#include "VirtualMachineManager.h"
-#include "LifeCycleManager.h"
-#include "InformationManager.h"
-#include "TransferManager.h"
-#include "DispatchManager.h"
-#include "RequestManager.h"
-#include "HookManager.h"
-#include "AuthManager.h"
-#include "AclManager.h"
-#include "ImageManager.h"
-#include "MarketPlaceManager.h"
-#include "IPAMManager.h"
-#include "RaftManager.h"
-#include "FedReplicaManager.h"
-
 #include "DefaultQuotas.h"
+#include "UserPool.h"
+#include "NebulaLog.h"
 
-#include "Callbackable.h"
+class LogDB;
+class FedLogDB;
+class User;
 
+class ClusterPool;
+class DatastorePool;
+class DocumentPool;
+class GroupPool;
+class HookPool;
+class HostPool;
+class ImagePool;
+class MarketPlacePool;
+class MarketPlaceAppPool;
+class SecurityGroupPool;
+class VdcPool;
+class VMGroupPool;
+class VMTemplatePool;
+class VNTemplatePool;
+class VirtualMachinePool;
+class VirtualNetworkPool;
+class VirtualRouterPool;
+class ZonePool;
+
+class AclManager;
+class AuthManager;
+class DispatchManager;
+class FedReplicaManager;
+class HookLog;
+class HookManager;
+class ImageManager;
+class InformationManager;
+class IPAMManager;
+class LifeCycleManager;
+class MarketPlaceManager;
+class RaftManager;
+class RequestManager;
+class TransferManager;
+class VirtualMachineManager;
 
 /**
  *  This is the main class for the OpenNebula daemon oned. It stores references
@@ -78,163 +82,182 @@ public:
     // --------------------------------------------------------------
     // Pool Accessors
     // --------------------------------------------------------------
-    LogDB * get_logdb()
+    LogDB * get_logdb() const
     {
         return logdb;
     };
 
-    VirtualMachinePool * get_vmpool()
+    VirtualMachinePool * get_vmpool() const
     {
         return vmpool;
     };
 
-    HostPool * get_hpool()
+    HostPool * get_hpool() const
     {
         return hpool;
     };
 
-    VirtualNetworkPool * get_vnpool()
+    VirtualNetworkPool * get_vnpool() const
     {
         return vnpool;
     };
 
-    UserPool * get_upool()
+    UserPool * get_upool() const
     {
         return upool;
     };
 
-    ImagePool * get_ipool()
+    ImagePool * get_ipool() const
     {
         return ipool;
     };
 
-    GroupPool * get_gpool()
+    GroupPool * get_gpool() const
     {
         return gpool;
     };
 
-    VMTemplatePool * get_tpool()
+    VMTemplatePool * get_tpool() const
     {
         return tpool;
     };
 
-    DatastorePool * get_dspool()
+    DatastorePool * get_dspool() const
     {
         return dspool;
     };
 
-    ClusterPool * get_clpool()
+    ClusterPool * get_clpool() const
     {
         return clpool;
     };
 
-    DocumentPool * get_docpool()
+    DocumentPool * get_docpool() const
     {
         return docpool;
     };
 
-    ZonePool * get_zonepool()
+    ZonePool * get_zonepool() const
     {
         return zonepool;
     };
 
-    SecurityGroupPool * get_secgrouppool()
+    SecurityGroupPool * get_secgrouppool() const
     {
         return secgrouppool;
     };
 
-    VdcPool * get_vdcpool()
+    VdcPool * get_vdcpool() const
     {
         return vdcpool;
     };
 
-    VirtualRouterPool * get_vrouterpool()
+    VirtualRouterPool * get_vrouterpool() const
     {
         return vrouterpool;
     };
 
-    MarketPlacePool * get_marketpool()
+    MarketPlacePool * get_marketpool() const
     {
         return marketpool;
     };
 
-    MarketPlaceAppPool * get_apppool()
+    MarketPlaceAppPool * get_apppool() const
     {
         return apppool;
     };
 
-    VMGroupPool * get_vmgrouppool()
+    VMGroupPool * get_vmgrouppool() const
     {
         return vmgrouppool;
     };
 
+    VNTemplatePool * get_vntpool() const
+    {
+        return vntpool;
+    }
+
+    HookPool * get_hkpool() const
+    {
+        return hkpool;
+    }
     // --------------------------------------------------------------
     // Manager Accessors
     // --------------------------------------------------------------
 
-    VirtualMachineManager * get_vmm()
+    VirtualMachineManager * get_vmm() const
     {
         return vmm;
     };
 
-    LifeCycleManager * get_lcm()
+    LifeCycleManager * get_lcm() const
     {
         return lcm;
     };
 
-    InformationManager * get_im()
+    InformationManager * get_im() const
     {
         return im;
     };
 
-    TransferManager * get_tm()
+    TransferManager * get_tm() const
     {
         return tm;
     };
 
-    DispatchManager * get_dm()
+    DispatchManager * get_dm() const
     {
         return dm;
     };
 
-    HookManager * get_hm()
+    HookManager * get_hm() const
     {
         return hm;
     };
 
-    AuthManager * get_authm()
+    HookLog * get_hl() const
+    {
+        return hl;
+    };
+
+    AuthManager * get_authm() const
     {
         return authm;
     };
 
-    ImageManager * get_imagem()
+    ImageManager * get_imagem() const
     {
         return imagem;
     };
 
-    AclManager * get_aclm()
+    AclManager * get_aclm() const
     {
         return aclm;
     };
 
-    MarketPlaceManager * get_marketm()
+    MarketPlaceManager * get_marketm() const
     {
         return marketm;
     };
 
-    IPAMManager * get_ipamm()
+    IPAMManager * get_ipamm() const
     {
         return ipamm;
     };
 
-    RaftManager * get_raftm()
+    RaftManager * get_raftm() const
     {
         return raftm;
     };
 
-    FedReplicaManager * get_frm()
+    FedReplicaManager * get_frm() const
     {
         return frm;
+    };
+
+    RequestManager * get_rm() const
+    {
+        return rm;
     };
 
     // --------------------------------------------------------------
@@ -258,7 +281,7 @@ public:
      *  not defined the nebula location is "/".
      *      @return the nebula location.
      */
-    const string& get_nebula_location()
+    const std::string& get_nebula_location() const
     {
         return nebula_location;
     };
@@ -269,7 +292,7 @@ public:
      *  /usr/lib/one/mads.
      *      @return the mad execs location.
      */
-    const string& get_mad_location()
+    const std::string& get_mad_location() const
     {
         return mad_location;
     };
@@ -279,7 +302,7 @@ public:
      *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
      *      @return the mad defaults location.
      */
-    const string& get_defaults_location()
+    const std::string& get_defaults_location() const
     {
         return etc_location;
     };
@@ -290,7 +313,7 @@ public:
      *  otherwise it is /var/log/one.
      *      @return the log location.
      */
-    const string& get_log_location()
+    const std::string& get_log_location() const
     {
         return log_location;
     };
@@ -300,16 +323,26 @@ public:
      *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
      *      @return the log location.
      */
-    const string& get_var_location()
+    const std::string& get_var_location() const
     {
         return var_location;
+    };
+
+    /**
+     *  Returns the default share location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/share, otherwise it is /usr/share/one.
+     *      @return the log location.
+     */
+    const std::string& get_share_location() const
+    {
+        return share_location;
     };
 
     /**
      *
      *
      */
-    void get_ds_location(string& dsloc);
+    void get_ds_location(std::string& dsloc) const;
 
     /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
@@ -318,7 +351,7 @@ public:
      *  logs (in self-contained mode only)
      *      @return the vms location.
      */
-    const string& get_vms_location()
+    const std::string& get_vms_location() const
     {
         return vms_location;
     };
@@ -331,13 +364,13 @@ public:
      *     /var/log/one/$VM_ID.log
      *  @return the log location for the VM.
      */
-    string get_vm_log_filename(int oid);
+    std::string get_vm_log_filename(int oid) const;
 
     /**
      *  Returns the name of the host running oned
      *    @return the name
      */
-    const string& get_nebula_hostname()
+    const std::string& get_nebula_hostname() const
     {
         return hostname;
     };
@@ -346,36 +379,40 @@ public:
      *  Returns the version of oned
      *    @return the version
      */
-    static string version()
+    static std::string version()
     {
-        return "OpenNebula " + code_version();
+       std::ostringstream os;
+       os << "OpenNebula " << code_version();
+       os << " (" << GITVERSION << ")";
+
+       return os.str();
     };
 
     /**
      *  Returns the version of oned
      * @return
      */
-    static string code_version()
+    static std::string code_version()
     {
-        return "5.5.80"; // bump version
+        return "5.13.80"; // bump version
     }
 
     /**
      * Version needed for the DB, shared tables
      * @return
      */
-    static string shared_db_version()
+    static std::string shared_db_version()
     {
-        return "5.5.80";
+        return "6.0.0";
     }
 
     /**
      * Version needed for the DB, local tables
      * @return
      */
-    static string local_db_version()
+    static std::string local_db_version()
     {
-        return "5.5.80";
+        return "6.0.0";
     }
 
     /**
@@ -411,17 +448,22 @@ public:
         return federation_enabled && !federation_master;
     };
 
-    int get_zone_id()
+    bool is_cache()
+    {
+        return cache;
+    };
+
+    int get_zone_id() const
     {
         return zone_id;
     };
 
-    int get_server_id()
+    int get_server_id() const
     {
         return server_id;
     };
 
-    const string& get_master_oned()
+    const std::string& get_master_oned() const
     {
         return master_oned;
     };
@@ -436,7 +478,7 @@ public:
      *    @param value of the attribute
      */
     template<typename T>
-    void get_configuration_attribute(const string& name, T& value) const
+    void get_configuration_attribute(const std::string& name, T& value) const
     {
         nebula_configuration->get(name, value);
     };
@@ -458,50 +500,40 @@ public:
     {
         if ( uid != -1 )
         {
-            User * user = upool->get(uid, true);
+            auto user = upool->get_ro(uid);
 
-            if ( user == 0 )
+            if (!user)
             {
                 return -1;
             }
 
-            const VectorAttribute * uconf;
+            auto uconf = user->get_template_attribute("OPENNEBULA");
 
-            uconf = user->get_template_attribute("OPENNEBULA");
-
-            if ( uconf != 0 )
+            if ( uconf != nullptr )
             {
                 if ( uconf->vector_value(name, value) == 0 )
                 {
-                    user->unlock();
                     return 0;
                 }
             }
-
-            user->unlock();
         }
 
-        Group * group = gpool->get(gid, true);
+        auto group = gpool->get_ro(gid);
 
-        if ( group == 0 )
+        if (!group)
         {
             return -1;
         }
 
-        const VectorAttribute * gconf;
+        auto gconf = group->get_template_attribute("OPENNEBULA");
 
-        gconf = group->get_template_attribute("OPENNEBULA");
-
-        if ( gconf != 0 )
+        if ( gconf != nullptr )
         {
             if ( gconf->vector_value(name, value) == 0 )
             {
-                group->unlock();
                 return 0;
             }
         }
-
-        group->unlock();
 
         nebula_configuration->get(name, value);
 
@@ -518,9 +550,18 @@ public:
     };
 
     /**
+     * Gets a VN configuration attribute
+     */
+    int get_vn_conf_attribute(const std::string& vn_name,
+        const VectorAttribute* &value) const
+    {
+        return get_conf_attribute("VN_MAD_CONF", vn_name, value);
+    }
+
+    /**
      *  Gets a TM configuration attribute
      */
-    int get_tm_conf_attribute(const string& tm_name,
+    int get_tm_conf_attribute(const std::string& tm_name,
         const VectorAttribute* &value) const
     {
         return get_conf_attribute("TM_MAD_CONF", tm_name, value);
@@ -529,7 +570,7 @@ public:
     /**
      *  Gets a Market configuration attribute
      */
-    int get_market_conf_attribute( const string& mk_name,
+    int get_market_conf_attribute( const std::string& mk_name,
         const VectorAttribute* &value) const
     {
         return get_conf_attribute("MARKET_MAD_CONF", mk_name, value);
@@ -539,7 +580,8 @@ public:
      *  Gets an Auth driver configuration attribute
      */
     template<typename T>
-    int get_auth_conf_attribute(const string& driver, const string& attribute,
+    int get_auth_conf_attribute(const std::string& driver,
+        const std::string& attribute,
         T& value) const
     {
         return get_conf_attribute("AUTH_MAD_CONF", driver, attribute, value);
@@ -549,7 +591,7 @@ public:
      *  Return the Authorization operation for a VM action
      *
      */
-    AuthRequest::Operation get_vm_auth_op(History::VMAction action)
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
     {
         return nebula_configuration->get_vm_auth_op(action);
     }
@@ -558,11 +600,20 @@ public:
      *  Gets an XML document with all of the configuration attributes
      *    @return the XML
      */
-    string get_configuration_xml() const
+    std::string get_configuration_xml() const
     {
-        string xml;
+        std::string xml;
         return nebula_configuration->to_xml(xml);
     };
+
+    /**
+     *  Gets the database backend type
+     *    @return database backend type
+     */
+    const std::string& get_db_backend() const
+    {
+        return db_backend_type;
+    }
 
     // -----------------------------------------------------------------------
     // Default Quotas
@@ -572,7 +623,7 @@ public:
      *  Get the default quotas for OpenNebula users
      *    @return the default quotas
      */
-    const DefaultQuotas& get_default_user_quota()
+    const DefaultQuotas& get_default_user_quota() const
     {
         return default_user_quota;
     };
@@ -584,7 +635,7 @@ public:
      *
      *    @return 0 if success
      */
-    int set_default_user_quota(Template *tmpl, string& error)
+    int set_default_user_quota(Template *tmpl, std::string& error)
     {
         int rc = default_user_quota.set(tmpl, error);
 
@@ -600,7 +651,7 @@ public:
      *  Get the default quotas for OpenNebula for groups
      *    @return the default quotas
      */
-    const DefaultQuotas& get_default_group_quota()
+    const DefaultQuotas& get_default_group_quota() const
     {
         return default_group_quota;
     };
@@ -612,7 +663,7 @@ public:
      *
      *    @return 0 if success
      */
-    int set_default_group_quota(Template *tmpl, string& error)
+    int set_default_group_quota(Template *tmpl, std::string& error)
     {
         int rc = default_group_quota.set(tmpl, error);
 
@@ -633,7 +684,7 @@ public:
      *    @param cb Callback that will receive the attribute in XML
      *    @return 0 on success
      */
-    int select_sys_attribute(const string& attr_name, string& attr_xml)
+    int select_sys_attribute(const std::string& attr_name, std::string& attr_xml)
     {
         return system_db->select_sys_attribute(attr_name, attr_xml);
     };
@@ -644,9 +695,9 @@ public:
      *    @return 0 on success
      */
     int insert_sys_attribute(
-        const string& attr_name,
-        const string& xml_attr,
-        string&       error_str)
+        const std::string& attr_name,
+        const std::string& xml_attr,
+        std::string&       error_str)
     {
         return system_db->insert_sys_attribute(attr_name, xml_attr, error_str);
     };
@@ -657,9 +708,9 @@ public:
      *    @return 0 on success
      */
     int update_sys_attribute(
-        const string& attr_name,
-        const string& xml_attr,
-        string&       error_str)
+        const std::string& attr_name,
+        const std::string& xml_attr,
+        std::string&       error_str)
     {
         return system_db->update_sys_attribute(attr_name, xml_attr, error_str);
     };
@@ -681,12 +732,12 @@ private:
                             "/DEFAULT_GROUP_QUOTAS/NETWORK_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/IMAGE_QUOTA",
                             "/DEFAULT_GROUP_QUOTAS/VM_QUOTA"),
-        system_db(0), logdb(0), fed_logdb(0),
+        system_db(0), db_backend_type("sqlite"), logdb(0), fed_logdb(0),
         vmpool(0), hpool(0), vnpool(0), upool(0), ipool(0), gpool(0), tpool(0),
         dspool(0), clpool(0), docpool(0), zonepool(0), secgrouppool(0),
         vdcpool(0), vrouterpool(0), marketpool(0), apppool(0), vmgrouppool(0),
-        lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0), authm(0), aclm(0),
-        imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
+        vntpool(0), hkpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0),
+        hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
         const char * nl = getenv("ONE_LOCATION");
 
@@ -700,6 +751,7 @@ private:
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
             vms_location     = "/var/lib/one/vms/";
+            share_location   = "/usr/share/one";
         }
         else
         {
@@ -716,47 +768,11 @@ private:
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
             vms_location     = nebula_location + "var/vms/";
+            share_location   = nebula_location + "share/";
         }
     };
 
-    ~Nebula()
-    {
-        delete vmpool;
-        delete vnpool;
-        delete hpool;
-        delete upool;
-        delete ipool;
-        delete gpool;
-        delete tpool;
-        delete dspool;
-        delete clpool;
-        delete docpool;
-        delete zonepool;
-        delete secgrouppool;
-        delete vdcpool;
-        delete vrouterpool;
-        delete marketpool;
-        delete apppool;
-        delete vmgrouppool;
-        delete vmm;
-        delete lcm;
-        delete im;
-        delete tm;
-        delete dm;
-        delete rm;
-        delete hm;
-        delete authm;
-        delete aclm;
-        delete imagem;
-        delete marketm;
-        delete ipamm;
-        delete raftm;
-        delete frm;
-        delete nebula_configuration;
-        delete logdb;
-        delete fed_logdb;
-        delete system_db;
-    };
+    ~Nebula();
 
     Nebula& operator=(Nebula const&){return *this;};
 
@@ -764,17 +780,17 @@ private:
     // Environment variables
     // ---------------------------------------------------------------
 
-    string  nebula_location;
+    std::string  nebula_location;
 
-    string  mad_location;
-    string  etc_location;
-    string  log_location;
-    string  var_location;
-    string  hook_location;
-    string  remotes_location;
-    string  vms_location;
+    std::string  mad_location;
+    std::string  etc_location;
+    std::string  log_location;
+    std::string  var_location;
+    std::string  remotes_location;
+    std::string  vms_location;
+    std::string  share_location;
 
-    string  hostname;
+    std::string  hostname;
 
     // ---------------------------------------------------------------
     // Configuration
@@ -786,11 +802,12 @@ private:
     // Federation - HA
     // ---------------------------------------------------------------
 
-    bool    federation_enabled;
-    bool    federation_master;
-    int     zone_id;
-    int     server_id;
-    string  master_oned;
+    bool        federation_enabled;
+    bool        federation_master;
+    bool        cache;
+    int         zone_id;
+    int         server_id;
+    std::string master_oned;
 
     // ---------------------------------------------------------------
     // Default quotas
@@ -803,7 +820,8 @@ private:
     // The system database
     // ---------------------------------------------------------------
 
-    SystemDB * system_db;
+    SystemDB *  system_db;
+    std::string db_backend_type;
 
     // ---------------------------------------------------------------
     // Nebula Pools
@@ -828,7 +846,8 @@ private:
     MarketPlacePool    * marketpool;
     MarketPlaceAppPool * apppool;
     VMGroupPool        * vmgrouppool;
-
+    VNTemplatePool     * vntpool;
+    HookPool           * hkpool;
     // ---------------------------------------------------------------
     // Nebula Managers
     // ---------------------------------------------------------------
@@ -840,6 +859,7 @@ private:
     DispatchManager *       dm;
     RequestManager *        rm;
     HookManager *           hm;
+    HookLog *               hl;
     AuthManager *           authm;
     AclManager *            aclm;
     ImageManager *          imagem;

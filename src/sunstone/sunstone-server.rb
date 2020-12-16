@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -17,35 +17,55 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    LOG_LOCATION = "/var/log/one"
-    VAR_LOCATION = "/var/lib/one"
-    ETC_LOCATION = "/etc/one"
-    SHARE_LOCATION = "/usr/share/one"
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
+    LOG_LOCATION      = '/var/log/one'
+    VAR_LOCATION      = '/var/lib/one'
+    ETC_LOCATION      = '/etc/one'
+    SHARE_LOCATION    = '/usr/share/one'
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    SUNSTONE_LOCATION = '/usr/lib/one/sunstone'
 else
-    VAR_LOCATION = ONE_LOCATION + "/var"
-    LOG_LOCATION = ONE_LOCATION + "/var"
-    ETC_LOCATION = ONE_LOCATION + "/etc"
-    SHARE_LOCATION = ONE_LOCATION + "/share"
-    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
+    VAR_LOCATION      = ONE_LOCATION + '/var'
+    LOG_LOCATION      = ONE_LOCATION + '/var'
+    ETC_LOCATION      = ONE_LOCATION + '/etc'
+    SHARE_LOCATION    = ONE_LOCATION + '/share'
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    SUNSTONE_LOCATION = ONE_LOCATION + '/lib/sunstone'
 end
 
-SUNSTONE_AUTH             = VAR_LOCATION + "/.one/sunstone_auth"
-SUNSTONE_LOG              = LOG_LOCATION + "/sunstone.log"
-CONFIGURATION_FILE        = ETC_LOCATION + "/sunstone-server.conf"
-
-PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-plugins.yaml"
-LOGOS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-logos.yaml"
+SUNSTONE_AUTH             = VAR_LOCATION + '/.one/sunstone_auth'
+SUNSTONE_LOG              = LOG_LOCATION + '/sunstone.log'
+CONFIGURATION_FILE        = ETC_LOCATION + '/sunstone-server.conf'
+PLUGIN_CONFIGURATION_FILE = ETC_LOCATION + '/sunstone-plugins.yaml'
+LOGOS_CONFIGURATION_FILE  = ETC_LOCATION + '/sunstone-logos.yaml'
 
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+'/cloud'
-$: << SUNSTONE_ROOT_DIR
-$: << SUNSTONE_ROOT_DIR+'/models'
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+
+    # for some platforms, we redistribute newer base Ruby gems which
+    # should be loaded instead of default ones in the distributions
+    %w[openssl json].each do |name|
+        begin
+            gem name
+        rescue LoadError
+            # ignore
+        end
+    end
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cloud'
+$LOAD_PATH << SUNSTONE_ROOT_DIR
+$LOAD_PATH << SUNSTONE_ROOT_DIR + '/models'
+$LOAD_PATH << SUNSTONE_ROOT_DIR + '/models/OpenNebula2FA'
 
 DISPLAY_NAME_XPATH = 'TEMPLATE/SUNSTONE/DISPLAY_NAME'
 TABLE_ORDER_XPATH = 'TEMPLATE/SUNSTONE/TABLE_ORDER'
@@ -53,6 +73,8 @@ DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_VIEW'
 GROUP_ADMIN_DEFAULT_VIEW_XPATH = 'TEMPLATE/SUNSTONE/GROUP_ADMIN_DEFAULT_VIEW'
 TABLE_DEFAULT_PAGE_LENGTH_XPATH = 'TEMPLATE/SUNSTONE/TABLE_DEFAULT_PAGE_LENGTH'
 LANG_XPATH = 'TEMPLATE/SUNSTONE/LANG'
+TWO_FACTOR_AUTH_SECRET_XPATH = 'TEMPLATE/SUNSTONE/TWO_FACTOR_AUTH_SECRET'
+DEFAULT_ZONE_ENDPOINT_XPATH = 'TEMPLATE/SUNSTONE/DEFAULT_ZONE_ENDPOINT'
 
 ONED_CONF_OPTS = {
     # If no costs are defined in oned.conf these values will be used
@@ -94,9 +116,21 @@ require 'rexml/document'
 require 'uri'
 require 'open3'
 
+require "sunstone_qr_code"
+require "sunstone_optp"
+require "sunstone_2f_auth"
 require 'CloudAuth'
 require 'SunstoneServer'
 require 'SunstoneViews'
+
+require 'net/http'
+
+begin
+    require "SunstoneWebAuthn"
+    webauthn_avail = true
+rescue LoadError
+    webauthn_avail = false
+end
 
 ##############################################################################
 # Configuration
@@ -109,7 +143,16 @@ rescue Exception => e
     exit 1
 end
 
+if $conf[:one_xmlrpc]
+    ENV['ONE_XMLRPC'] = $conf[:one_xmlrpc].to_s unless ENV['ONE_XMLRPC']
+end
+
+if $conf[:one_xmlrpc_timeout]
+    ENV['ONE_XMLRPC_TIMEOUT'] = $conf[:one_xmlrpc_timeout].to_s unless ENV['ONE_XMLRPC_TIMEOUT']
+end
+
 $conf[:debug_level] ||= 3
+$conf[:webauthn_avail] = webauthn_avail
 
 # Set Sunstone Session Timeout
 $conf[:session_expire_time] ||= 3600
@@ -124,10 +167,29 @@ CloudServer.print_configuration($conf)
 set :config, $conf
 set :bind, $conf[:host]
 set :port, $conf[:port]
+set :sockets, []
 
 if (proxy = $conf[:proxy])
     ENV['http_proxy'] = proxy
     ENV['HTTP_PROXY'] = proxy
+end
+
+if (no_proxy = $conf[:no_proxy])
+    ENV['no_proxy'] = no_proxy
+    ENV['NO_PROXY'] = no_proxy
+end
+
+if ENV["APP_ENV"] &&
+    !ENV["APP_ENV"].empty? &&
+    %w{production development test}.include?(ENV["APP_ENV"])
+    set :environment, ENV["APP_ENV"].to_sym
+else
+    case $conf[:env]
+    when "dev"
+        set :environment, :development
+    else
+        set :environment, :production
+    end
 end
 
 case $conf[:sessions]
@@ -177,17 +239,41 @@ end
 
 set :cloud_auth, $cloud_auth
 
-$views_config = SunstoneViews.new
+begin
+    $views_config = SunstoneViews.new($conf[:mode])
+rescue StandardError => e
+    logger.error { e.message }
+    exit -1
+end
+
+if $conf[:webauthn_avail]
+    begin
+        SunstoneWebAuthn.configure($conf)
+    rescue => e
+        logger.error {
+            "Error initializing WebAuthn" }
+        logger.error { e.message }
+        exit -1
+    end
+end
 
 #start VNC proxy
-
 $vnc = OpenNebulaVNC.new($conf, logger)
+
+#init Guacamole server
+$guac = OpenNebulaGuac.new(logger)
+
+#init VMRC server
+$vmrc = OpenNebulaVMRC.new(logger)
 
 configure do
     set :run, false
     set :vnc, $vnc
+    set :vmrc, $vmrc
     set :erb, :trim => '-'
 end
+
+$addons = OpenNebulaAddons.new(logger)
 
 DEFAULT_TABLE_ORDER = "desc"
 DEFAULT_PAGE_LENGTH = 10
@@ -198,17 +284,17 @@ SUPPORT = {
     :custom_field_severity => 391197,
     :author_id => 21231023,
     :author_name => "OpenNebula Support Team",
-    :support_subscription => "http://opennebula.systems/support/",
-    :account => "http://opennebula.systems/buy/",
-    :docs => "http://docs.opennebula.org/5.4/",
-    :community => "http://opennebula.org/support/community/",
+    :support_subscription => "https://opennebula.io/support/",
+    :account => "https://opennebula.io/buy-support",
+    :docs => "https://docs.opennebula.io/5.13/",
+    :community => "https://opennebula.io/usec",
     :project => "OpenNebula"
 }
 
 UPGRADE = {
-    :upgrade => "<span style='color: #0098c3'>Upgrade Available</span>&nbsp;<span style='color:#DC7D24'><i class='fa fa-exclamation-circle'></i></span>",
+    :upgrade => "<span style='color: #0098c3' id='itemUpdate' style='display:none;'>Upgrade Available</span>&nbsp;<span style='color:#DC7D24'><i class='fas fa-exclamation-circle'></i></span>",
     :no_upgrade => "",
-    :url => "http://opennebula.org/software/"
+    :url => "https://opennebula.io/use/"
 }
 
 ##############################################################################
@@ -237,121 +323,204 @@ helpers do
         session[:ip] && session[:ip] == request.ip
     end
 
+    def build_conf_locals
+        logos_conf = nil
+        begin
+            logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
+        rescue Exception => e
+            logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
+            error 500, ""
+        end
+        serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+        rc = OpenNebula::System.new(serveradmin_client).get_configuration
+        if OpenNebula.is_error?(rc)
+            logger.error { rc.message }
+            error 500, ""
+        end
+        oned_conf_template = rc.to_hash()['OPENNEBULA_CONFIGURATION']
+        oned_conf = {}
+        ONED_CONF_OPTS['ALLOWED_KEYS'].each do |key|
+            value = oned_conf_template[key]
+            if key == 'DEFAULT_COST'
+                if value
+                    oned_conf[key] = value
+                else
+                    oned_conf[key] = ONED_CONF_OPTS['DEFAULT_COST']
+                end
+            else
+                if ONED_CONF_OPTS['ARRAY_KEYS'].include?(key) && !value.is_a?(Array)
+                    oned_conf[key] = [value]
+                else
+                    oned_conf[key] = value
+                end
+            end
+        end
+        $conf[:locals] = {
+            :logos_conf => logos_conf,
+            :oned_conf  => oned_conf,
+            :support    => SUPPORT,
+            :upgrade    => UPGRADE
+        }
+    end
+
     def build_session
         begin
             result = $cloud_auth.auth(request.env, params)
-        rescue Exception => e
+        rescue StandardError => e
             logger.error { e.message }
-            return [500, ""]
+            return [500, '']
         end
 
         if result.nil?
-            logger.info { "Unauthorized login attempt" }
-            return [401, ""]
-        else
-            client  = $cloud_auth.client(result, session[:active_zone_endpoint])
-            user_id = OpenNebula::User::SELF
-
-            user    = OpenNebula::User.new_with_id(user_id, client)
-            rc = user.info
-            if OpenNebula.is_error?(rc)
-                logger.error { rc.message }
-                return [500, ""]
-            end
-
-            session[:user]         = user['NAME']
-            session[:user_id]      = user['ID']
-            session[:user_gid]     = user['GID']
-            session[:user_gname]   = user['GNAME']
-            session[:ip]           = request.ip
-            session[:remember]     = params[:remember]
-            session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
-
-            csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
-            session[:csrftoken] = Digest::MD5.hexdigest(csrftoken_plain)
-
-            group = OpenNebula::Group.new_with_id(user['GID'], client)
-            rc = group.info
-            if OpenNebula.is_error?(rc)
-                logger.error { rc.message }
-                return [500, ""]
-            end
-
-            #User IU options initialization
-            #Load options either from user settings or default config.
-            # - LANG
-            # - WSS CONECTION
-            # - TABLE ORDER
-
-            if user[LANG_XPATH]
-                session[:lang] = user[LANG_XPATH]
-            else
-                session[:lang] = $conf[:lang]
-            end
-
-            if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
-                session[:page_length] = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
-            else
-                session[:page_length] = DEFAULT_PAGE_LENGTH
-            end
-
-            wss = $conf[:vnc_proxy_support_wss]
-            #limit to yes,no options
-            session[:vnc_wss] = (wss == true || wss == "yes" || wss == "only" ?
-                             "yes" : "no")
-
-            if user[TABLE_ORDER_XPATH]
-                session[:table_order] = user[TABLE_ORDER_XPATH]
-            else
-                session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
-            end
-
-            if user[DEFAULT_VIEW_XPATH]
-                session[:default_view] = user[DEFAULT_VIEW_XPATH]
-            elsif group.contains_admin(user.id) && group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
-                session[:default_view] = group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
-            elsif group[DEFAULT_VIEW_XPATH]
-                session[:default_view] = group[DEFAULT_VIEW_XPATH]
-            else
-                session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
-            end
-
-            #end user options
-
-            if params[:remember] == "true"
-                env['rack.session.options'][:expire_after] = 30*60*60*24-1
-            end
-
-            serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
-            rc = OpenNebula::System.new(serveradmin_client).get_configuration
-            return [500, rc.message] if OpenNebula.is_error?(rc)
-            return [500, "Couldn't find out zone identifier"] if !rc['FEDERATION/ZONE_ID']
-
-            zone = OpenNebula::Zone.new_with_id(rc['FEDERATION/ZONE_ID'].to_i, client)
-            zone.info
-            session[:zone_name] = zone.name
-            session[:zone_id]   = zone.id
-
-            session[:federation_mode] = rc['FEDERATION/MODE'].upcase
-
-            return [204, ""]
+            logger.info { 'Unauthorized login attempt' }
+            return [401, '']
         end
+        client  = $cloud_auth.client(result, $conf[:one_xmlrpc])
+        user_id = OpenNebula::User::SELF
+
+        user    = OpenNebula::User.new_with_id(user_id, client)
+        rc = user.info
+        if OpenNebula.is_error?(rc)
+            logger.error { rc.message }
+            return [500, '']
+        end
+
+        # two factor_auth
+        isHOTPConfigured = (user[TWO_FACTOR_AUTH_SECRET_XPATH] && user[TWO_FACTOR_AUTH_SECRET_XPATH] != "")
+        isWebAuthnConfigured = $conf[:webauthn_avail] && SunstoneWebAuthn.getCredentialIDsForUser(user.id).length > 0
+        if isHOTPConfigured || isWebAuthnConfigured
+            two_factor_auth_token = params[:two_factor_auth_token]
+            if !two_factor_auth_token || two_factor_auth_token == ""
+                return [202, { code: "two_factor_auth", uid: user.id }.to_json]
+            end
+            isTwoFactorAuthSuccessful = false
+            if isHOTPConfigured && Sunstone2FAuth.authenticate(user[TWO_FACTOR_AUTH_SECRET_XPATH], two_factor_auth_token)
+                isTwoFactorAuthSuccessful = true
+            end
+            if isWebAuthnConfigured && SunstoneWebAuthn.authenticate(user.id, two_factor_auth_token)
+                isTwoFactorAuthSuccessful = true
+            end
+            if !isTwoFactorAuthSuccessful
+                logger.info { "Unauthorized two factor authentication login attempt" }
+                return [401, "Two factor authentication failed"]
+            end
+        end
+
+        # If active zone endpoint is not defined, pull it
+        # from user template if exists
+        unless user[DEFAULT_ZONE_ENDPOINT_XPATH].nil? or user[DEFAULT_ZONE_ENDPOINT_XPATH].empty?
+            session[:active_zone_endpoint] ||=
+                   user[DEFAULT_ZONE_ENDPOINT_XPATH]
+        end
+        client_active_endpoint = $cloud_auth.client(result, session[:active_zone_endpoint])
+
+        session[:user]         = user['NAME']
+        session[:user_id]      = user['ID']
+        session[:user_gid]     = user['GID']
+        session[:user_gname]   = user['GNAME']
+        session[:ip]           = request.ip
+        session[:remember]     = params[:remember]
+        session[:display_name] = user[DISPLAY_NAME_XPATH] || user['NAME']
+
+        csrftoken_plain = Time.now.to_f.to_s + SecureRandom.base64
+        session[:csrftoken] = Digest::SHA256.hexdigest(csrftoken_plain)
+
+        group = OpenNebula::Group.new_with_id(OpenNebula::Group::SELF, client_active_endpoint)
+        rc = group.info
+        if OpenNebula.is_error?(rc)
+            logger.error { rc.message }
+            return [500, '']
+        end
+
+        # User IU options initialization
+        # Load options either from user settings or default config.
+        # - LANG
+        # - WSS CONECTION
+        # - TABLE ORDER
+
+        if user[LANG_XPATH]
+            session[:lang] = user[LANG_XPATH]
+        else
+            session[:lang] = $conf[:lang]
+        end
+
+        if user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
+            session[:page_length] = user[TABLE_DEFAULT_PAGE_LENGTH_XPATH]
+        else
+            session[:page_length] = DEFAULT_PAGE_LENGTH
+        end
+
+        wss = $conf[:vnc_proxy_support_wss]
+        # limit to yes,no options
+        session[:vnc_wss] = (wss == true || wss == 'yes' || wss == 'only' ?
+                         'yes' : 'no')
+
+        if user[TABLE_ORDER_XPATH]
+            session[:table_order] = user[TABLE_ORDER_XPATH]
+        else
+            session[:table_order] = $conf[:table_order] || DEFAULT_TABLE_ORDER
+        end
+
+        if user[DEFAULT_VIEW_XPATH]
+            session[:default_view] = user[DEFAULT_VIEW_XPATH]
+        elsif group.contains_admin(user.id) && group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+            session[:default_view] = group[GROUP_ADMIN_DEFAULT_VIEW_XPATH]
+        elsif group[DEFAULT_VIEW_XPATH]
+            session[:default_view] = group[DEFAULT_VIEW_XPATH]
+        else
+            session[:default_view] = $views_config.available_views(session[:user], session[:user_gname]).first
+        end
+
+        # end user options
+
+        # secure cookies
+        if request.scheme == 'https'
+            env['rack.session.options'][:secure] = true
+        end
+        # end secure cookies
+
+        if params[:remember] == 'true'
+            env['rack.session.options'][:expire_after] = 30*60*60*24-1
+        end
+
+        serveradmin_client = $cloud_auth.client()
+        local_configuration = OpenNebula::System.new(serveradmin_client).get_configuration
+        return [500, local_configuration.message] if OpenNebula.is_error?(local_configuration)
+
+        session[:id_own_federation] = local_configuration['FEDERATION/ZONE_ID']
+
+        serveradmin_client_active_endpoint = $cloud_auth.client(nil, session[:active_zone_endpoint])
+        active_zone_configuration = OpenNebula::System.new(serveradmin_client_active_endpoint).get_configuration
+        return [500, active_zone_configuration.message] if OpenNebula.is_error?(active_zone_configuration)
+
+        return [500, "Couldn't find out zone identifier"] if !active_zone_configuration['FEDERATION/ZONE_ID']
+
+        zone = OpenNebula::Zone.new_with_id(active_zone_configuration['FEDERATION/ZONE_ID'].to_i, client_active_endpoint)
+        zone.info
+        session[:zone_name] = zone.name
+        session[:zone_id]   = zone.id
+        session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
+        session[:mode] = $conf[:mode]
+
+        auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>\w+)/)
+        session[:auth] = auth[:pass]
+
+        [204, ""]
     end
 
     def destroy_session
-        session.clear
-        return [204, ""]
+        session.destroy
+        [204, ""]
     end
 end
 
 before do
     cache_control :no_store
     content_type 'application/json', :charset => 'utf-8'
-
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc /spice /version).include?(request.path)
+    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get /ws /vmrc).include?(request.path)
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
@@ -364,7 +533,7 @@ before do
     end
 
     hpref        = "HTTP-"
-    head_zone    = "ZONE-NAME"
+    head_zone    = "ZONENAME"
     reqenv       = request_vars
 
     zone_name_header = reqenv[head_zone] ? reqenv[head_zone] : reqenv[hpref+head_zone]
@@ -372,7 +541,7 @@ before do
     # Try with underscores
     if zone_name_header.nil?
         hpref        = "HTTP_"
-        head_zone    = "ZONE_NAME"
+        head_zone    = "ZONENAME"
 
         zone_name_header = reqenv[head_zone] ? reqenv[head_zone] : reqenv[hpref+head_zone]
     end
@@ -419,11 +588,16 @@ before do
 
     client = $cloud_auth.client(session[:user], session[:active_zone_endpoint])
 
-    @SunstoneServer = SunstoneServer.new(client,$conf,logger)
+    @SunstoneServer = SunstoneServer.new(client, $conf, logger)
 end
 
 after do
-    unless request.path=='/login' || request.path=='/' || request.path=='/'
+    unless request.path == '/login' || request.path == '/' || request.path == '/'
+        # secure cookies
+        if request.scheme == 'https'
+            env['rack.session.options'][:secure] = true
+        end
+        # end secure cookies
         unless session[:remember] == "true"
             if params[:timeout] == "true"
                 env['rack.session.options'][:defer] = true
@@ -452,52 +626,37 @@ get '/' do
         return erb :login
     end
 
-    logos_conf = nil
-
-    begin
-        logos_conf = YAML.load_file(LOGOS_CONFIGURATION_FILE)
-    rescue Exception => e
-        logger.error { "Error parsing config file #{LOGOS_CONFIGURATION_FILE}: #{e.message}" }
-        error 500, ""
+    if $conf[:locals].nil?
+      build_conf_locals
     end
 
-    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+    erb :index, :locals =>  {
+            :logos_conf => $conf[:locals][:logos_conf],
+            :oned_conf  => $conf[:locals][:oned_conf],
+            :support    => $conf[:locals][:support],
+            :upgrade    => $conf[:locals][:upgrade]
+    }
+end
 
-    rc = OpenNebula::System.new(serveradmin_client).get_configuration
-
-    if OpenNebula.is_error?(rc)
-        logger.error { rc.message }
-        error 500, ""
-    end
-
-    oned_conf_template = rc.to_hash()['TEMPLATE']
-
-    oned_conf = {}
-    ONED_CONF_OPTS['ALLOWED_KEYS'].each do |key|
-        value = oned_conf_template[key]
-        if key == 'DEFAULT_COST'
-            if value
-                oned_conf[key] = value
-            else
-                oned_conf[key] = ONED_CONF_OPTS['DEFAULT_COST']
+get '/ws' do
+    logger.info { 'Incomming WS connection' }
+    if request.websocket?
+        request.websocket do |ws|
+            ws.onopen do
+                logger.info { "New client registered" }
+                settings.sockets << ws
             end
-        else
-            if ONED_CONF_OPTS['ARRAY_KEYS'].include?(key) && !value.is_a?(Array)
-                oned_conf[key] = [value]
-            else
-                oned_conf[key] = value
+
+            ws.onmessage do |msg|
+                logger.info { "New message received: #{msg}" }
+            end
+
+            ws.onclose do
+                logger.info { "Client disconnected." }
+                settings.sockets.delete(ws)
             end
         end
     end
-
-    response.set_cookie("one-user", :value=>"#{session[:user]}")
-
-    erb :index, :locals => {
-        :logos_conf => logos_conf,
-        :oned_conf  => oned_conf,
-        :support    => SUPPORT,
-        :upgrade    => UPGRADE
-    }
 end
 
 get '/login' do
@@ -509,12 +668,66 @@ get '/login' do
     end
 end
 
+get '/two_factor_auth_hotp_qr_code' do
+    content_type 'image/svg+xml'
+    issuer = $conf[:two_factor_auth_issuer].nil?? "sunstone-opennebula" : $conf[:two_factor_auth_issuer]
+    totp = SunstoneOPTP.build(params[:secret], issuer)
+    totp_uri = totp.provisioning_uri(session[:user])
+    qr_code = SunstoneQRCode.build(totp_uri)
+    [200, qr_code.as_svg]
+end
+
+get '/webauthn_options_for_create' do
+    content_type 'application/json'
+    if !$conf[:webauthn_avail]
+        return [501, '']
+    end
+    options = SunstoneWebAuthn.getOptionsForCreate(session[:user_id], session[:user])
+    [200, options]
+end
+
+get '/webauthn_options_for_get' do
+    content_type 'application/json'
+    if !$conf[:webauthn_avail]
+        return [501, '']
+    end
+    begin
+        user_id = Integer(params[:uid]).to_s
+    rescue ArgumentError => e
+        return [401, '']
+    end
+    options = SunstoneWebAuthn.getOptionsForGet(user_id)
+    if options.nil?
+        return [204, '']
+    end
+    [200, options]
+end
+
 get '/vnc' do
     content_type 'text/html', :charset => 'utf-8'
     if !authorized?
         erb :login
     else
-        erb :vnc
+        erb :vnc, :locals =>  {
+          :logos_conf => $conf[:locals][:logos_conf],
+          :oned_conf  => $conf[:locals][:oned_conf],
+          :support    => $conf[:locals][:support],
+          :upgrade    => $conf[:locals][:upgrade]
+        }
+    end
+end
+
+get '/vmrc' do
+    content_type 'text/html', :charset => 'utf-8'
+    if !authorized?
+        erb :login
+    else
+        erb :vmrc, :locals =>  {
+          :logos_conf => $conf[:locals][:logos_conf],
+          :oned_conf  => $conf[:locals][:oned_conf],
+          :support    => $conf[:locals][:support],
+          :upgrade    => $conf[:locals][:upgrade]
+        }
     end
 end
 
@@ -523,6 +736,7 @@ get '/spice' do
     if !authorized?
         erb :login
     else
+        params[:title] = CGI::escape(params[:title])
         erb :spice
     end
 end
@@ -530,16 +744,7 @@ end
 get '/version' do
     version = {}
 
-    if (remote_version_url = $conf[:remote_version])
-        begin
-            version = JSON.parse(Net::HTTP.get(URI(remote_version_url)))
-        rescue Exception
-        end
-    end
-
-    if !version["version"] || version["version"].empty?
-        version["version"] = OpenNebula::VERSION
-    end
+    version["version"] = OpenNebula::VERSION
 
     [200, version.to_json]
 end
@@ -613,7 +818,6 @@ get '/infrastructure' do
     infrastructure = {}
 
     set = Set.new
-
     xml = XMLElement.new
     xml.initialize_xml(hpool.to_xml, 'HOST_POOL')
     xml.each('HOST/HOST_SHARE/PCI_DEVICES/PCI') do |pci|
@@ -634,6 +838,28 @@ get '/infrastructure' do
     end
 
     infrastructure[:vcenter_customizations] = set.to_a
+
+    set_cpu_models = Set.new
+    set_kvm_machines = Set.new
+
+    xml.each('HOST/TEMPLATE') do |kvm|
+        if !kvm['KVM_CPU_MODELS'].nil?
+            set_cpu_models += kvm['KVM_CPU_MODELS'].split(" ")
+        end
+        if !kvm['KVM_MACHINES'].nil?
+            set_kvm_machines += kvm['KVM_MACHINES'].split(" ")
+        end
+    end
+
+    infrastructure[:kvm_info] = { :set_cpu_models => set_cpu_models.to_a, :set_kvm_machines => set_kvm_machines.to_a }
+
+    set_lxd_profiles = Set.new
+
+    xml.each('HOST/TEMPLATE/LXD_PROFILES') do |lxd_profiles|
+        set_lxd_profiles += lxd_profiles.text.split(" ")
+    end
+
+    infrastructure[:lxd_profiles] = set_lxd_profiles.to_a
 
     [200, infrastructure.to_json]
 end
@@ -685,6 +911,31 @@ get '/vm/showback' do
 end
 
 ##############################################################################
+# GET Fireedge token
+##############################################################################
+get '/fireedge' do
+    begin
+        uri = URI($conf[:private_fireedge_endpoint]+'/fireedge/api/auth')
+        user_pass = Base64.decode64(session[:auth])
+        username = user_pass.split(":")[0]
+        password = user_pass.split(":")[1]
+        params = { :user => username, :token => password }
+
+        fireedge_token = ""
+        res = Net::HTTP.post_form(uri, params)
+        fireedge_token = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
+        session[:fireedge_token] = fireedge_token
+        
+        response = {:token => fireedge_token}
+    rescue StandardError => error
+        logger.info("Fireedge server is not running. Error: #{error}")
+        response = {:token => ""}
+    end
+
+    [200,  response.to_json]
+end
+
+##############################################################################
 # GET Pool information
 ##############################################################################
 get '/:pool' do
@@ -694,7 +945,7 @@ get '/:pool' do
     if params[:zone_id] && session[:federation_mode] != "STANDALONE"
         zone = OpenNebula::Zone.new_with_id(params[:zone_id].to_i,
                                             $cloud_auth.client(session[:user],
-                                                session[:active_zone_endpoint]))
+                                            session[:active_zone_endpoint]))
 
         rc   = zone.info
         return [500, rc.message] if OpenNebula.is_error?(rc)
@@ -703,7 +954,7 @@ get '/:pool' do
     end
 
     if params[:pool_filter].nil?
-        filter = session[:user_gid]
+        filter = session[:user_uid]
     end
 
     @SunstoneServer.get_pool(params[:pool],
@@ -714,13 +965,12 @@ end
 ##############################################################################
 # GET Resource information
 ##############################################################################
-
 get '/:resource/:id/template' do
     @SunstoneServer.get_template(params[:resource], params[:id])
 end
 
 get '/:resource/:id' do
-    if params[:extended]
+    if  params[:extended] && params[:extended] != "false"
         @SunstoneServer.get_resource(params[:resource], params[:id], true)
     else
         @SunstoneServer.get_resource(params[:resource], params[:id])
@@ -837,6 +1087,13 @@ get '/marketplaceapp/:id/download' do
 end
 
 ##############################################################################
+# Retrive DockerHub tags
+##############################################################################
+get '/marketplaceapp/:id/tags' do
+    @SunstoneServer.get_docker_tags(params[:id])
+end
+
+##############################################################################
 # Create a new Resource
 ##############################################################################
 post '/:pool' do
@@ -849,6 +1106,24 @@ end
 post '/vm/:id/startvnc' do
     vm_id = params[:id]
     @SunstoneServer.startvnc(vm_id, $vnc)
+end
+
+##############################################################################
+# Start Guacamole Session for a target VM
+##############################################################################
+post '/vm/:id/guac/:type' do
+    vm_id = params[:id]
+    type_connection = params[:type]
+
+    @SunstoneServer.startguac(vm_id, type_connection, $guac)
+end
+
+##############################################################################
+# Start VMRC Session for a target VM
+##############################################################################
+post '/vm/:id/startvmrc' do
+    vm_id = params[:id]
+    @SunstoneServer.startvmrc(vm_id, $vmrc)
 end
 
 ##############################################################################

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -17,13 +17,12 @@
 #ifndef GROUP_H_
 #define GROUP_H_
 
-#include "PoolSQL.h"
+#include "PoolObjectSQL.h"
+#include "GroupTemplate.h"
 #include "ObjectCollection.h"
-#include "User.h"
 #include "QuotasSQL.h"
-#include "Template.h"
+#include "VMActions.h"
 
-using namespace std;
 
 /**
  *  The Group class.
@@ -32,12 +31,14 @@ class Group : public PoolObjectSQL
 {
 public:
 
+    virtual ~Group() = default;
+
     /**
      * Function to print the Group object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      * Function to print the Group object into a string in
@@ -45,7 +46,7 @@ public:
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml) const;
+    std::string& to_xml_extended(std::string& xml) const;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -53,7 +54,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Adds this user's ID to the set.
@@ -74,7 +75,7 @@ public:
     {
         if (admins.contains(id))
         {
-            string error;
+            std::string error;
 
             del_admin(id, error);
         }
@@ -90,7 +91,7 @@ public:
      *
      * @return 0 on success
      */
-    int add_admin(int user_id, string& error_msg);
+    int add_admin(int user_id, std::string& error_msg);
 
     /**
      * Deletes a User from the admin set. ACL Rules are updated only for this user.
@@ -100,8 +101,19 @@ public:
      *
      * @return 0 on success
      */
-    int del_admin(int user_id, string& error_msg);
+    int del_admin(int user_id, std::string& error_msg);
 
+    /**
+     * Retrun true if User is an admin member of the group
+     *
+     * @param user_id ID of the user
+     *
+     * @return true on success
+     */
+    bool is_admin(int user_id)
+    {
+        return admins.contains(user_id);
+    }
     /**
      *  Object quotas, provides set and check interface
      */
@@ -114,15 +126,15 @@ public:
      */
     int update_quotas(SqlDB *db)
     {
-        return quota.update(oid, db);
-    };
+        return quota.update(oid, db->get_local_db());
+    }
 
     /**
      *  Factory method for Group templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<GroupTemplate>();
     }
 
     /**
@@ -134,8 +146,26 @@ public:
      *     GROUP_ADMIN_VIEWS        = "cloud,groupadmin",
      *     VIEWS                    = "cloud" ]
      */
-    void sunstone_views(const string& user_default, const string& user_views,
-            const string& admin_default, const string& admin_views);
+    void sunstone_views(const std::string& user_default,
+                        const std::string& user_views,
+                        const std::string& admin_default,
+                        const std::string& admin_views);
+
+    /**
+     *  @return the operation level (admin, manage or use) associated to the
+     *  given action for this group
+     */
+    AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
+    {
+        return vm_actions.get_auth_op(action);
+    }
+
+protected:
+    /* Checks the validity of template attributes
+     *    @param error string describing the error if any
+     *    @return 0 on success
+     */
+    int post_update_template(std::string& error) override;
 
 private:
 
@@ -144,27 +174,13 @@ private:
     // -------------------------------------------------------------------------
 
     friend class GroupPool;
+    friend class PoolSQL;
 
     // *************************************************************************
     // Constructor
     // *************************************************************************
 
-    Group(int id, const string& name):
-        PoolObjectSQL(id,GROUP,name,-1,-1,"","",table),
-        quota(),
-        users("USERS"),
-        admins("ADMINS")
-    {
-        // Allow users in this group to see it
-        group_u = 1;
-
-        obj_template = new Template;
-    };
-
-    virtual ~Group()
-    {
-        delete obj_template;
-    };
+    Group(int id, const std::string& name);
 
     // *************************************************************************
     // Administrators
@@ -183,15 +199,14 @@ private:
     void add_admin_rules(int user_id);
     void del_admin_rules(int user_id);
 
+    /**
+     *  List of VM actions and rights for this group
+     */
+    VMActions vm_actions;
+
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -200,25 +215,20 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Group
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss_group(Group::db_bootstrap);
-
-        return db->exec_local_wr(oss_group);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Reads the Group (identified with its OID) from the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int select(SqlDB * db);
+    int select(SqlDB * db) override;
 
     /**
      *  Reads the Group (identified with its OID) from the database.
@@ -228,7 +238,7 @@ private:
      *
      *    @return 0 on success
      */
-    int select(SqlDB * db, const string& name, int uid);
+    int select(SqlDB * db, const std::string& name, int uid) override;
 
     /**
      *  Reads the Group quotas from the database.
@@ -242,14 +252,14 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int drop(SqlDB *db);
+    int drop(SqlDB *db) override;
 
     /**
      *  Writes the Group in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Group's data fields in the database. This method does
@@ -257,11 +267,11 @@ private:
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
-    };
+    }
 
     /**
      * Function to print the Group object into a string in
@@ -270,7 +280,7 @@ private:
      *  @param extended If true, default quotas are included
      *  @return a reference to the generated string
      */
-    string& to_xml_extended(string& xml, bool extended) const;
+    std::string& to_xml_extended(std::string& xml, bool extended) const;
 };
 
 #endif /*GROUP_H_*/

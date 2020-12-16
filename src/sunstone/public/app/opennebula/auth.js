@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,13 +27,14 @@ define(function(require) {
       var username = params.data.username;
       var password = params.data.password;
       var remember = params.remember;
+      var two_factor_auth_token = params.two_factor_auth_token;
 
       var request = OpenNebulaHelper.request(RESOURCE, "login");
 
       $.ajax({
         url: "login",
         type: "POST",
-        data: {remember: remember},
+        data: {remember: remember, two_factor_auth_token: two_factor_auth_token},
         beforeSend : function(req) {
           if (username && password) {
               var token = username + ':' + password;

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,23 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,8 +45,8 @@ using namespace std;
 class RequestManagerUpdateTemplate: public Request
 {
 protected:
-    RequestManagerUpdateTemplate(const string& method_name,
-                                 const string& help)
+    RequestManagerUpdateTemplate(const std::string& method_name,
+                                 const std::string& help)
         :Request(method_name, "A:sis", help)
     {
         auth_op = AuthRequest::MANAGE;
@@ -41,13 +57,28 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
-    virtual int replace_template(PoolObjectSQL * object, const string & tmpl,
-            const RequestAttributes &att, string &error_str);
+    virtual int replace_template(PoolObjectSQL * object,
+                                 const std::string & tmpl,
+                                 const RequestAttributes &att,
+                                 std::string &error_str);
 
-    virtual int append_template(PoolObjectSQL * object, const string & tmpl,
-            const RequestAttributes &att, string &error_str);
+    virtual int append_template(PoolObjectSQL * object,
+                                const std::string & tmpl,
+                                const RequestAttributes &att,
+                                std::string &error_str);
+
+    /**
+     *  Method por updating custom values not included in PoolSQL::update
+     *  mainly used for updating search information in the VMs.
+     *    @param object to be updated
+     *    @return 0 on success
+     */
+    virtual int extra_updates(PoolObjectSQL * obj)
+    {
+        return 0;
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -71,6 +102,24 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class VirtualNetworkTemplateUpdateTemplate: public RequestManagerUpdateTemplate
+{
+public:
+    VirtualNetworkTemplateUpdateTemplate():
+        RequestManagerUpdateTemplate("one.vntemplate.update",
+                                     "Updates a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateUpdateTemplate(){};
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class VirtualMachineUpdateTemplate: public RequestManagerUpdateTemplate
 {
 public:
@@ -81,11 +130,27 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+        vm_action   = VMActions::UPDATE_ACTION;
+    }
 
-        auth_op     = nd.get_vm_auth_op(History::UPDATE_ACTION);
+    ~VirtualMachineUpdateTemplate() = default;
+
+protected:
+    int extra_updates(PoolObjectSQL * obj) override
+    {
+        VirtualMachine * vm;
+
+        VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
+        if (obj == 0)
+        {
+            return -1;
+        }
+
+        vm = static_cast<VirtualMachine *>(obj);
+
+        return vmpool->update_search(vm);
     };
-
-    ~VirtualMachineUpdateTemplate(){};
 };
 
 /* ------------------------------------------------------------------------- */
@@ -214,6 +279,9 @@ public:
     };
 
     ~ClusterUpdateTemplate(){};
+
+protected:
+    int extra_updates(PoolObjectSQL * obj) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -358,6 +426,24 @@ public:
     };
 
     ~VMGroupUpdateTemplate(){};
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookUpdateTemplate : public RequestManagerUpdateTemplate
+{
+public:
+    HookUpdateTemplate():
+        RequestManagerUpdateTemplate("one.hook.update",
+                                     "Updates a hook template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
+    };
+
+    ~HookUpdateTemplate(){};
 };
 
 #endif

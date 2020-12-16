@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,8 @@ public class VirtualNetwork extends PoolElement{
     private static final String RENAME          = METHOD_PREFIX + "rename";
     private static final String RESERVE         = METHOD_PREFIX + "reserve";
     private static final String FREEAR          = METHOD_PREFIX + "free_ar";
+    private static final String LOCK            = METHOD_PREFIX + "lock";
+    private static final String UNLOCK          = METHOD_PREFIX + "unlock";
 
     /**
      * Creates a new virtual network representation.
@@ -115,6 +117,20 @@ public class VirtualNetwork extends PoolElement{
     public static OneResponse info(Client client, int id)
     {
         return client.call(INFO, id);
+    }
+
+       /**
+     * Retrieves the information of the given Virtual Network.
+     *
+     * @param client XML-RPC Client.
+     * @param id The Virtual Network id for the Virtual Network to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
     }
 
     /**
@@ -360,6 +376,31 @@ public class VirtualNetwork extends PoolElement{
     public static OneResponse free(Client client, int id, int arId)
     {
         return client.call(FREEAR, id, arId);
+    }
+
+    /**
+     * lock this virtual network
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid)
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this virtual network
+     *
+     * @param client XML-RPC Client.
+     * @param id The virtual network id (nid)
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
     }
 
     // =================================
@@ -677,6 +718,27 @@ public class VirtualNetwork extends PoolElement{
     public OneResponse free(int arId)
     {
         return free(client, id, arId);
+    }
+
+    /**
+     * Lock this virtual network
+     *
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse lock(int level)
+    {
+        return lock(client, id, level);
+    }
+
+    /**
+     * Unlock this virtual network
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unlock()
+    {
+        return unlock(client, id);
     }
 
     // =================================

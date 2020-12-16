@@ -76,6 +76,7 @@
           RECOVER_ACTION          = 42
           RETRY_ACTION            = 43
           MONITOR_ACTION          = 44
+          DISK_SNAPSHOT_RENAME_ACTION = 45
         -->
         <xs:element name="ACTION" type="xs:integer"/>
         <xs:element name="UID" type="xs:integer"/>
@@ -149,7 +150,10 @@
               <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
+                    <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
+                    <xs:element name="CURRENT_BASE" type="xs:integer"/>
                     <xs:element name="DISK_ID" type="xs:integer"/>
+                    <xs:element name="NEXT_SNAPSHOT" type="xs:integer"/>
                     <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>

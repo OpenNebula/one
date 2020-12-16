@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,23 +19,23 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TemplateInfo = require('hbs!./info/html');
-  var Locale = require('utils/locale');
-  var Views = require('../utils/views');
-  var Tips = require('utils/tips');
+  var TemplateInfo = require("hbs!./info/html");
+  var Locale = require("utils/locale");
+  var Views = require("../utils/views");
+  var Tips = require("utils/tips");
 
   /*
     TEMPLATES
    */
 
-  var TemplateTable = require('utils/panel/template-table');
+  var TemplateTable = require("utils/panel/template-table");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./info/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./info/panelId");
   var RESOURCE = "Group";
   var XML_ROOT = "GROUP";
 
@@ -65,7 +65,6 @@ define(function(require) {
   function _html() {
     var adminViews = [];
     var userViews = [];
-
     var sunstone_template = this.element.TEMPLATE.SUNSTONE;
     if (sunstone_template) {
       adminViews = _processViews(
@@ -87,10 +86,10 @@ define(function(require) {
     //====
 
     return TemplateInfo({
-      'element': this.element,
-      'adminViews': adminViews,
-      'userViews': userViews,
-      'templateTableHTML': templateTableHTML
+      "element": this.element,
+      "adminViews": adminViews,
+      "userViews": userViews,
+      "templateTableHTML": templateTableHTML
     });
   }
 
@@ -130,24 +129,24 @@ define(function(require) {
     var viewsArray = [];
 
     if (viewsStr){
-      $.each(viewsStr.split(','), function(index, view){
+      $.each(viewsStr.split(","), function(index, view){
         var viewElem;
 
         var knownView = Views.info[view];
         if (knownView){
           viewElem = {
-            'name': knownView.name,
-            'description': knownView.description
+            "name": knownView.name,
+            "description": knownView.description
           };
         } else {
           viewElem = {
-            'name': view,
-            'description': ''
+            "name": view,
+            "description": ""
           };
         }
 
         if (view == defaultView){
-          viewElem.name += ' (' + Locale.tr("default") + ')';
+          viewElem.name += " (" + Locale.tr("default") + ")";
         }
 
         viewsArray.push(viewElem);

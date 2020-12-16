@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,17 +19,17 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./clone/html');
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaTemplate = require('opennebula/template');
+  var BaseDialog = require("utils/dialogs/dialog");
+  var TemplateHTML = require("hbs!./clone/html");
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaTemplate = require("opennebula/template");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./clone/dialogId');
+  var DIALOG_ID = require("./clone/dialogId");
 
   /*
     CONSTRUCTOR
@@ -57,7 +57,7 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'dialogId': this.dialogId
+      "dialogId": this.dialogId
     });
   }
 
@@ -70,15 +70,15 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function(e) {
+    $("#" + DIALOG_ID + "Form", context).submit(function(e) {
       e.preventDefault();
       return false;
     });
 
-    $('#' + DIALOG_ID + 'Form', context).on("click", "button.custom_submit", function() {
-      if(!$('#' + DIALOG_ID + 'Form', context)[0].checkValidity()){
+    $("#" + DIALOG_ID + "Form", context).on("click", "button.custom_submit", function() {
+      if(!$("#" + DIALOG_ID + "Form", context)[0].checkValidity()){
         if ($(this).val() == that.resource+".clone_recursive"){
-          $('#' + DIALOG_ID + 'Form button[type="submit"]', context).click();
+          $("#" + DIALOG_ID + "Form button[type=\"submit\"]", context).click();
           return true;
         } else {
           return true;
@@ -86,7 +86,7 @@ define(function(require) {
       }
 
       var extra_info;
-      var name = $('#' + DIALOG_ID + 'Form input[name="name"]').val();
+      var name = $("#" + DIALOG_ID + "Form input[name=\"name\"]").val();
       var sel_elems = Sunstone.getDataTable(that.tabId).elements();
 
       if (sel_elems.length > 1) {
@@ -98,13 +98,14 @@ define(function(require) {
         }
       } else {
         extra_info = name;
-        Sunstone.runAction($(this).val(), sel_elems[0], extra_info)
+        Sunstone.runAction($(this).val(), sel_elems[0], extra_info);
       }
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
       setTimeout(function() {
         Sunstone.runAction(that.resource+'.refresh');
+        Sunstone.runAction(that.resource+".refresh");
       }, 1500);
 
       return false;
@@ -120,13 +121,13 @@ define(function(require) {
 
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
-      $('.clone_one', context).hide();
-      $('.clone_several', context).show();
-      $('input[name="name"]',context).val('Copy of ');
+      $(".clone_one", context).hide();
+      $(".clone_several", context).show();
+      $("input[name=\"name\"]",context).val("Copy of ");
     } else {
-      $('.clone_one', context).show();
-      $('.clone_several', context).hide();
-      $('input[name="name"]', context).val('Copy of ' + sel_elems[0].name);
+      $(".clone_one", context).show();
+      $(".clone_several", context).hide();
+      $("input[name=\"name\"]", context).val("Copy of " + sel_elems[0].name);
     };
 
     $("input[name='name']", context).focus();

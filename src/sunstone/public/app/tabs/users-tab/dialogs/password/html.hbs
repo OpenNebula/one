@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -25,8 +25,17 @@
         {{{userCreationHTML}}}
       </div>
     </div>
+    {{#if cantChangePassword}}
+      <div>
+        Special Cloud administrator accounts (oneadmin and serveradmin) 
+        cannot be changed in Sunstone as authorization files need to be changed 
+        to ensure the proper functioning of the OpenNebula cloud. Please follow the 
+        <a href="http://docs.opennebula.io/5.10/operation/users_groups_management/manage_users.html#change-credentials-for-oneadmin-or-serveradmin" target="_blank">documentation</a>
+        for this task.
+      </div>
+    {{/if}}
     <div class="form_buttons row">
-      <button type="submit" class="button radius right">
+      <button type="submit" class="button radius right" {{#if cantChangePassword}}disabled{{/if}}>
         {{tr "Change"}}
       </button>
     </div>

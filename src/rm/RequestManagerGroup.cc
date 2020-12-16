@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,8 +25,6 @@ void GroupSetQuota::
     int     id        = xmlrpc_c::value_int(paramList.getInt(1));
     string  quota_str = xmlrpc_c::value_string(paramList.getString(2));
 
-    Group * group;
-
     Template quota_tmpl;
     int      rc;
 
@@ -50,9 +48,9 @@ void GroupSetQuota::
         return;
     }
 
-    group = static_cast<Group *>(pool->get(id,true));
+    auto group = pool->get<Group>(id);
 
-    if ( group == 0 )
+    if ( group == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -61,9 +59,7 @@ void GroupSetQuota::
 
     group->quota.set(&quota_tmpl, att.resp_msg);
 
-    static_cast<GroupPool *>(pool)->update_quotas(group);
-
-    group->unlock();
+    static_cast<GroupPool *>(pool)->update_quotas(group.get());
 
     if ( rc != 0 )
     {
@@ -92,8 +88,6 @@ void GroupEditAdmin::request_execute(
     string user_name;
     string error_str;
 
-    Group* group;
-
     int rc;
 
     // -------------------------------------------------------------------------
@@ -119,40 +113,35 @@ void GroupEditAdmin::request_execute(
         return;
     }
 
-    if ( att.uid != 0 )
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(AuthRequest::ADMIN, group_perms);   // MANAGE GROUP
+
+    ar.add_auth(AuthRequest::ADMIN, user_perms);    // MANAGE USER
+
+    if (UserPool::authorize(ar) == -1)
     {
-        AuthRequest ar(att.uid, att.group_ids);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-        ar.add_auth(AuthRequest::ADMIN, group_perms);   // MANAGE GROUP
-
-        ar.add_auth(AuthRequest::ADMIN, user_perms);    // MANAGE USER
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
-
-            return;
-        }
+        return;
     }
 
-    group = static_cast<GroupPool*>(pool)->get(group_id, true);
+    auto group = pool->get<Group>(group_id);
 
-    if ( group  == 0 )
+    if ( group == nullptr )
     {
         att.resp_id = group_id;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    rc = edit_admin(group, user_id, att.resp_msg);
+    rc = edit_admin(group.get(), user_id, att.resp_msg);
 
     if (rc == 0)
     {
-        pool->update(group);
+        pool->update(group.get());
     }
-
-    group->unlock();
 
     if (rc != 0)
     {

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -17,6 +17,9 @@
 #include "VMGroup.h"
 #include "VMGroupRole.h"
 #include "VMGroupRule.h"
+#include "OneDB.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -24,37 +27,20 @@
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-const char * VMGroup::table = "vmgroup_pool";
-
-const char * VMGroup::db_names = "oid, name, body, uid, gid, owner_u, group_u, "
-    "other_u";
-
-const char * VMGroup::db_bootstrap = "CREATE TABLE IF NOT EXISTS vmgroup_pool "
-    "(oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, "
-    "uid INTEGER, gid INTEGER, owner_u INTEGER, group_u INTEGER, "
-    "other_u INTEGER, UNIQUE(name,uid))";
-
-/* ------------------------------------------------------------------------ */
-
 VMGroup::VMGroup(int _uid, int _gid, const string& _uname, const string& _gname,
-        int _umask, Template * group_template):
-    PoolObjectSQL(-1, VMGROUP, "", _uid, _gid, _uname, _gname, table)
+        int _umask, unique_ptr<Template> group_template):
+    PoolObjectSQL(-1, VMGROUP, "", _uid, _gid, _uname, _gname, one_db::vm_group_table)
 {
-    if (group_template != 0)
+    if (group_template)
     {
-        obj_template = group_template;
+        obj_template = move(group_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 
     set_umask(_umask);
-}
-
-VMGroup::~VMGroup()
-{
-    delete obj_template;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -66,6 +52,7 @@ string& VMGroup::to_xml(string& xml) const
     string template_xml;
     string perms_xml;
     string roles_xml;
+    string lock_str;
 
     oss <<
     "<VM_GROUP>"    <<
@@ -76,6 +63,7 @@ string& VMGroup::to_xml(string& xml) const
         "<GNAME>"   << gname    << "</GNAME>"  <<
         "<NAME>"    << name     << "</NAME>"   <<
         perms_to_xml(perms_xml)                <<
+        lock_db_to_xml(lock_str)               <<
         roles.to_xml(roles_xml)                <<
         obj_template->to_xml(template_xml)     <<
     "</VM_GROUP>";
@@ -105,6 +93,9 @@ int VMGroup::from_xml(const string &xml_str)
 
     // Permissions
     rc += perms_from_xml();
+
+    // Lock
+    rc += lock_db_from_xml();
 
     // Get associated template
     ObjectXML::get_nodes("/VM_GROUP/TEMPLATE", content);
@@ -153,14 +144,14 @@ int VMGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -174,24 +165,29 @@ int VMGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::vm_group_table << " SET "
+            << "name = '"    <<  sql_name  << "', "
+            << "body = '"    <<  sql_xml   << "', "
+            << "uid = "      <<  uid       << ", "
+            << "gid = "      <<  gid       << ", "
+            << "owner_u = "  <<  owner_u   << ", "
+            << "group_u = "  <<  group_u   << ", "
+            << "other_u = "  <<  other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::vm_group_table
+            << " (" << one_db::vm_group_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
 
     rc = db->exec_wr(oss);
 
@@ -224,10 +220,19 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+int VMGroup::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::vm_group_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 {
     vector<const SingleAttribute *> affined;
-    vector<const SingleAttribute *>::const_iterator jt;
 
     std::ostringstream oss;
     oss << policy;
@@ -236,16 +241,16 @@ int VMGroup::check_rule_names(VMGroupPolicy policy, std::string& error)
 
     obj_template->get(aname, affined);
 
-    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    for ( auto sattr : affined )
     {
         std::set<int> id_set;
 
-        if ( roles.names_to_ids((*jt)->value(), id_set) != 0 )
+        if ( roles.names_to_ids(sattr->value(), id_set) != 0 )
         {
             std::ostringstream oss;
 
             oss << "Some roles used in " << aname << " attribute ("
-                << (*jt)->value() << ") are not defined";
+                << sattr->value() << ") are not defined";
 
             error = oss.str();
 
@@ -263,7 +268,6 @@ int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
         std::string& error_str)
 {
     vector<const SingleAttribute *> affined;
-    vector<const SingleAttribute *>::const_iterator jt;
 
     std::ostringstream oss;
     oss << policy;
@@ -272,23 +276,21 @@ int VMGroup::get_rules(VMGroupPolicy policy, VMGroupRule::rule_set& rules,
 
     obj_template->get(aname, affined);
 
-    for ( jt = affined.begin() ; jt != affined.end() ; ++jt )
+    for ( auto sattr : affined )
     {
         std::set<int> id_set;
 
-        std::pair<std::set<VMGroupRule>::iterator, bool> rc;
-
-        roles.names_to_ids((*jt)->value(), id_set);
+        roles.names_to_ids(sattr->value(), id_set);
 
         VMGroupRule rule(policy, id_set);
 
-        rc = rules.insert(rule);
+        auto rc = rules.insert(rule);
 
         if ( rc.second == false )
         {
             std::ostringstream oss;
 
-            oss << "Duplicated " << aname << " rule (" << (*jt)->value()
+            oss << "Duplicated " << aname << " rule (" << sattr->value()
                 << ") detected.";
 
             error_str = oss.str();
@@ -307,8 +309,6 @@ int VMGroup::check_rule_consistency(std::string& error)
 {
     VMGroupRule::rule_set affined, anti;
 
-    VMGroupRule::rule_set::iterator it;
-
     VMGroupRule error_rule;
 
     if ( get_rules(VMGroupPolicy::AFFINED, affined, error) == -1 )
@@ -316,9 +316,9 @@ int VMGroup::check_rule_consistency(std::string& error)
         return -1;
     }
 
-    for (it=affined.begin() ; it != affined.end(); ++it)
+    for (auto rule : affined)
     {
-        const VMGroupRule::role_bitset rs = (*it).get_roles();
+        const VMGroupRule::role_bitset rs = rule.get_roles();
 
         for (int i = 0; i < VMGroupRoles::MAX_ROLES; ++i)
         {
@@ -375,7 +375,6 @@ int VMGroup::check_rule_consistency(std::string& error)
 int VMGroup::insert(SqlDB *db, string& error_str)
 {
     vector<Attribute*> va_roles;
-    vector<Attribute*>::iterator it;
 
     erase_template_attribute("NAME", name);
 
@@ -389,9 +388,9 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 
     if ( num_role > VMGroupRoles::MAX_ROLES )
     {
-        for ( it = va_roles.begin(); it != va_roles.end(); ++it )
+        for ( auto attr : va_roles )
         {
-            delete *it;
+            delete attr;
         }
 
         error_str = "Maximum number of roles in a VM Group reached";
@@ -399,19 +398,19 @@ int VMGroup::insert(SqlDB *db, string& error_str)
 
     bool error = false;
 
-    for ( it = va_roles.begin(); it != va_roles.end(); ++it )
+    for ( auto attr : va_roles )
     {
-        VectorAttribute * vatt = dynamic_cast<VectorAttribute *>(*it);
+        VectorAttribute * vatt = dynamic_cast<VectorAttribute *>(attr);
 
         if (vatt == 0 || error)
         {
-            delete *it;
+            delete attr;
             continue;
         }
 
         if ( roles.add_role(vatt, error_str) == -1 )
         {
-            delete *it;
+            delete attr;
             error = true;
         }
     }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,75 +15,81 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('vnc-util');
-  require('vnc-webutil');
-  require('vnc-base64');
-  require('vnc-websock');
-  require('vnc-des');
-  require('vnc-keysymdef');
-  require('vnc-keyboard');
-  require('vnc-input');
-  require('vnc-display');
-  require('vnc-jsunzip');
-  require('vnc-rfb');
-  require('vnc-keysym');
+  var RFB = require("vnc-rfb").default;
+  var Config = require("sunstone-config");
+  var _rfb;
+  var _is_encrypted = "";
 
-  var rfb;
-  var encrypt = WebUtil.getQueryVar('encrypt', (window.location.protocol === "https:"));
-  var repeaterID = WebUtil.getQueryVar('repeaterID', '');
-  var true_color = WebUtil.getQueryVar('true_color', true);
-  var local_cursor = WebUtil.getQueryVar('cursor', true);
-  var shared = WebUtil.getQueryVar('shared', true);
-  var view_only = WebUtil.getQueryVar('view_only', false);
-  var host = WebUtil.getQueryVar('host', window.location.hostname);
-  var port = WebUtil.getQueryVar('port', window.location.port);
-  var token = WebUtil.getQueryVar('token', null);
-  var password = WebUtil.getQueryVar('password', null);
-  var path = WebUtil.getQueryVar('path', 'websockify');
+  function setStatus(message="", status=""){
+    $(".NOVNC_message").text(message);
+    $("#noVNC_status").text(status);
+  }
+
+  function connected(){
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+  }
+
+  function disconnectedFromServer(e){
+    if (e.detail.clean) {
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+    } else {
+      setStatus("Something went wrong, connection is closed", "Failed");
+    }
+  }
+
+  function desktopNameChange(e) {
+    if (e.detail.name) {
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + e.detail.name);
+    }
+  }
+
+  function credentialsRequired(e) {
+    setStatus("Something went wrong, more credentials must be given to continue", "Failed");
+  }
 
   function passwordRequired(rfb) {
     var msg;
-    msg = '<form id="setPasswordForm"';
-    msg += '  style="margin-bottom: 0px">';
-    msg += 'Password Required: ';
-    msg += '<input type=password size=10 id="password_input" class="noVNC_status">';
-    msg += '<\/form>';
-    $D('noVNC_status_bar').setAttribute("class", "noVNC_status_warn");
-    $D('noVNC_status').innerHTML = msg;
-    document.getElementById("setPasswordForm").addEventListener("submit", setPassword);
+    msg = "<form id=\"setPasswordForm\"";
+    msg += "  style=\"margin-bottom: 0px\">";
+    msg += "Password Required: ";
+    msg += "<input type=password size=10 id=\"password_input\" class=\"noVNC_status\">";
+    msg += "<\/form>";
+    document.querySelector("#noVNC_status_bar").setAttribute("class", "noVNC_status_warn");
+    document.querySelector("#noVNC_status").innerHTML = msg;
+    document.querySelector("#setPasswordForm").addEventListener("submit", setPassword);
   }
   function setPassword(event) {
-    rfb.sendPassword($D('password_input').value);
+    _rfb.sendPassword(document.querySelector("#password_input").value);
     event.preventDefault();
     return false;
   }
   function sendCtrlAltDel() {
-    rfb.sendCtrlAltDel();
+    _rfb.sendCtrlAltDel();
     return false;
   }
   function xvpShutdown() {
-    rfb.xvpShutdown();
+    _rfb.xvpShutdown();
     return false;
   }
   function xvpReboot() {
-    rfb.xvpReboot();
+    _rfb.xvpReboot();
     return false;
   }
   function xvpReset() {
-    rfb.xvpReset();
+    _rfb.xvpReset();
     return false;
   }
   function updateState(rfb, state, oldstate, msg) {
     var s, sb, cad, level;
-    s = $D('noVNC_status');
-    sb = $D('noVNC_status_bar');
-    cad = $D('sendCtrlAltDelButton');
+    s = document.querySelector("#noVNC_status");
+    sb = document.querySelector("#noVNC_status_bar");
+    cad = document.querySelector("#sendCtrlAltDelButton");
     switch (state) {
-      case 'failed':       level = "error";  break;
-      case 'fatal':        level = "error";  break;
-      case 'normal':       level = "normal"; break;
-      case 'disconnected': level = "normal"; break;
-      case 'loaded':       level = "normal"; break;
+      case "failed":       level = "error";  break;
+      case "fatal":        level = "error";  break;
+      case "normal":       level = "normal"; break;
+      case "disconnected": level = "normal"; break;
+      case "loaded":       level = "normal"; break;
       default:             level = "warn";   break;
     }
 
@@ -94,7 +100,7 @@ define(function(require) {
       xvpInit(0);
     }
 
-    if (typeof(msg) !== 'undefined') {
+    if (typeof(msg) !== "undefined") {
       sb.setAttribute("class", "noVNC_status_" + level);
       s.innerHTML = msg;
     }
@@ -102,62 +108,68 @@ define(function(require) {
 
   function xvpInit(ver) {
     var xvpbuttons;
-    xvpbuttons = $D('noVNC_xvp_buttons');
+    xvpbuttons = document.querySelector("#noVNC_xvp_buttons");
     if (ver >= 1) {
-      xvpbuttons.style.display = 'inline';
+      xvpbuttons.style.display = "inline";
     } else {
-      xvpbuttons.style.display = 'none';
+      xvpbuttons.style.display = "none";
     }
   }
 
-    var host, port, password, path, token;
+  function getQueryVariable(variable)
+  {
+         var query = window.location.search.substring(1);
+         var vars = query.split("&");
+         for (var i=0;i<vars.length;i++) {
+                 var pair = vars[i].split("=");
+                 if(pair[0] == variable){return pair[1];}
+         }
+         return(false);
+  }
+  token = window.token;
+  var URL = "";
+  var proxy_host = window.location.hostname;
+  var proxy_port = Config.vncProxyPort;
+  var token = getQueryVariable("token");
+  var password = getQueryVariable("password");
 
-    $D('sendCtrlAltDelButton').style.display = "inline";
-    $D('sendCtrlAltDelButton').onclick = sendCtrlAltDel;
-    $D('xvpShutdownButton').onclick = xvpShutdown;
-    $D('xvpRebootButton').onclick = xvpReboot;
-    $D('xvpResetButton').onclick = xvpReset;
+  var rfbConfig = password? { "credentials": { "password": password } } : {};
 
-    WebUtil.init_logging(WebUtil.getQueryVar('logging', 'warn'));
-    document.title = unescape(WebUtil.getQueryVar('title', 'noVNC'));
-    // By default, use the host and port of server that served this file
+  if (window.location.protocol === "https:") {
+    URL = "wss";
+    _is_encrypted = "encrypted";
+  } else {
+    URL = "ws";
+    _is_encrypted = "unencrypted";
+  }
+  URL += "://" + window.location.hostname;
+  URL += ":" + proxy_port;
+  URL += "?host=" + proxy_host;
+  URL += "&port=" + proxy_port;
+  if(token){
+    URL += "&token=" + token;
+  }
+  URL += "&encrypt=" + Config.vncWSS;
 
-    // if port == 80 (or 443) then it won't be present and should be
-    // set manually
-    if (!port) {
-      if (window.location.protocol.substring(0, 4) == 'http') {
-        port = 80;
-      } else if (window.location.protocol.substring(0, 5) == 'https') {
-        port = 443;
-      }
-    }
+  document.querySelector("#sendCtrlAltDelButton").style.display = "inline";
+  document.querySelector("#sendCtrlAltDelButton").onclick = sendCtrlAltDel;
+  document.querySelector("#xvpShutdownButton").onclick = xvpShutdown;
+  document.querySelector("#xvpRebootButton").onclick = xvpReboot;
+  document.querySelector("#xvpResetButton").onclick = xvpReset;
 
-    // If a token variable is passed in, set the parameter in a cookie.
-    // This is used by nova-novncproxy.
-    if (token) {
-      WebUtil.createCookie('token', token, 1)
-    }
-
-    if ((!host) || (!port)) {
-      updateState('failed',
-          "Must specify host and port in URL");
-      return;
-    }
-
-    rfb = new RFB({'target':       $D('noVNC_canvas'),
-                   'encrypt':      encrypt,
-                   'repeaterID':   repeaterID,
-                   'true_color':   true_color,
-                   'local_cursor': local_cursor,
-                   'shared':       shared,
-                   'view_only':    view_only,
-                   'onUpdateState':  updateState,
-                   'onXvpInit':    xvpInit,
-                   'onPasswordRequired':  passwordRequired});
-
-    if (password) {
-      rfb.connect(host, port, password, path + "?token=" + token);
-    } else {
-      rfb.connect(host, port, undefined, path + "?token=" + token);
-    }
-})
+  if ((!proxy_host) || (!proxy_port)) {
+    updateState("failed",
+        "Must specify host and port in URL");
+    return;
+  }
+  try{
+    _rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
+    _rfb.addEventListener("connect",  connected);
+    _rfb.addEventListener("disconnect", disconnectedFromServer);
+    _rfb.addEventListener("desktopname", desktopNameChange);
+    _rfb.addEventListener("credentialsrequired", credentialsRequired);
+  }catch(err){
+    setStatus("Something went wrong, connection is closed", "Failed");
+    console.log("error start NOVNC ", err);
+  }
+});

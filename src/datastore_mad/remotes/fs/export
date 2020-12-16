@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -45,10 +45,12 @@ unset i XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
 unset i
 
 SRC="${XPATH_ELEMENTS[i++]}"
+SIZE="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 
 #-------------------------------------------------------------------------------
@@ -57,16 +59,15 @@ BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 
 INFO_SCRIPT=$(cat <<EOF
 CHECKSUM=\$(${MD5SUM} ${SRC} | cut -f1 -d' ')
-SIZE=\$(${DU} -Lm ${SRC} | cut -f1)
 FORMAT=\$(${QEMU_IMG} info ${SRC} 2>/dev/null | grep -Po '(?<=file format: )\w+')
 
-if [ -z "\$CHECKSUM" -o -z "\$SIZE" ]; then
+if [ -z "\$CHECKSUM" ]; then
     exit 1
 fi
 
 echo "<MD5><![CDATA[\$CHECKSUM]]></MD5>"
-echo "<SIZE><![CDATA[\$SIZE]]></SIZE>"
-echo "<FORMAT><![CDATA[\${FORMAT:-unknown}]]></FORMAT>"
+echo "<SIZE><![CDATA[${SIZE}]]></SIZE>"
+echo "<FORMAT><![CDATA[\${FORMAT:-raw}]]></FORMAT>"
 EOF
 )
 

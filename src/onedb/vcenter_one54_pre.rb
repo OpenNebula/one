@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,19 +16,27 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    REMOTES_LOCATION  = "/var/lib/one/remotes/"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    REMOTES_LOCATION  = '/var/lib/one/remotes/'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION+"/lib/ruby"
-    REMOTES_LOCATION  = ONE_LOCATION+"/var/remotes/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes/'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
-$: << REMOTES_LOCATION+"vmm/vcenter/"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << REMOTES_LOCATION + 'vmm/vcenter/'
 
 require 'fileutils'
 
@@ -37,6 +45,7 @@ require 'one_helper/onehost_helper'
 require 'one_helper/onecluster_helper'
 require 'vcenter_driver'
 require 'opennebula'
+require 'digest/md5'
 
 TEMP_DIR="/var/tmp/vcenter_one54"
 
@@ -65,6 +74,12 @@ def logo_banner(msg, header=false)
     STDOUT.puts "-"*80
     STDOUT.puts msg
     STDOUT.puts "="*80
+end
+
+def get_md5(string)
+    md5 = Digest::MD5.new
+    md5.update(string.to_s)
+    md5.hexdigest[0..4]
 end
 
 ################################################################################
@@ -324,6 +339,14 @@ def find_network_by_name(vnpool, name)
     return element
 end
 
+def find_network_by_bridge(vnpool, name)
+    element = vnpool.select do |e|
+        e["BRIDGE"] == name
+    end.first rescue nil
+
+    return element
+end
+
 def find_network_ar(vnet, mac)
     mac_int = mac.delete(":").to_i(16)
     vnet.retrieve_xmlelements("AR_POOL/AR").each do |ar|
@@ -459,7 +482,9 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             image_prefix  = "sd" if scsi_controlled.include?(device.key)
             image_prefix  = "sd" if sata_controlled.include?(device.key)
             file_name     = File.basename(image_path).gsub(/\.vmdk$/,"")
-            image_name    = "#{file_name} - #{ds_name}"
+
+            md5        = get_md5("#{ds_name}#{image_path}")
+            image_name = "#{file_name} - #{ds_name} - #{md5}"
 
             image_path_escaped = image_path.gsub(" ", "%20")
 
@@ -621,6 +646,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             end
         end
 
+
         # If VirtualEthernetCard
         if !device.class.ancestors.index(RbVmomi::VIM::VirtualEthernetCard).nil?
 
@@ -646,11 +672,12 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                  network_type   = "Port Group"
              end
 
-            network_name   = "#{network_bridge} [#{vm_name}(#{vm_id})]"
+            network_name   = "#{network_bridge} [#{vcenter_name}]"
 
             # Create network if doesn't exist
             if vm_wild
-                network = find_network_by_name(vnpool, network_name)
+                #network = find_network_by_name(vnpool, network_name)
+                network = find_network_by_bridge(vnpool, network_bridge)
             else
                 network = find_network(vnpool, network_ref, ccr_ref, template_ref, vcenter_uuid)
             end
@@ -658,6 +685,7 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
             mac_address = device.macAddress rescue nil
             ar_id = nil
 
+            # network not found
             if !network
                 one_net = ""
                 one_net << "NAME=\"#{network_name}\"\n"
@@ -696,7 +724,9 @@ def vm_unmanaged_discover(devices, xml_doc, template_xml,
                 raise "\n    ERROR! Could not get network info for vnet #{network_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
                 network = one_vn
                 STDOUT.puts "--- Network #{one_vn["NAME"]} with ID #{one_vn["ID"]} has been created"
+            # network found:
             else
+
                 STDOUT.puts "--- Network #{network["NAME"]} with ID #{network["ID"]} already exists"
 
                 ar_id = find_network_ar(network, mac_address)
@@ -1032,6 +1062,24 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
 
                 image_size = get_image_size(RbVmomi::VIM::Datastore.new(vi_client.vim, ds_ref), image_path_escaped)
 
+                template_pool = OpenNebula::TemplatePool.new(one_client)
+                template_pool.info(-1, template_id.to_i, template_id.to_i)
+
+                #get owner
+                uid_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/UID"]
+                gid_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/GID"]
+
+		        #get permissions
+                owu_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_U"]
+                owm_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_M"]
+                owa_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OWNER_A"]
+                gu_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_U"]
+                gm_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_M"]
+                ga_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/GROUP_A"]
+                ou_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_U"]
+                om_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_M"]
+                oa_image = template_pool["/VMTEMPLATE_POOL/VMTEMPLATE/PERMISSIONS/OTHER_A"]
+
                 #Create image
                 one_image = ""
                 one_image << "NAME=\"#{image_name}\"\n"
@@ -1045,6 +1093,12 @@ def template_unmanaged_discover(devices, ccr_name, ccr_ref,
                 one_i = OpenNebula::Image.new(OpenNebula::Image.build_xml, one_client)
                 rc = one_i.allocate(one_image, ds["ID"].to_i)
                 raise "\n    ERROR! Could not create image for template #{template_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
+                rc = one_i.chown(uid_image.to_i, gid_image.to_i)
+                raise "\n    ERROR! Could not set the owner for image #{image_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
+
+                rc = one_i.chmod(owu_image.to_i, owm_image.to_i, owa_image.to_i, gu_image.to_i, gm_image.to_i, ga_image.to_i, ou_image.to_i, om_image.to_i, oa_image.to_i)
+                raise "\n    ERROR! Could not set the permissions for image #{image_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
 
                 rc = one_i.info
                 raise "\n    ERROR! Could not get image info for template #{template_name}. Reason #{rc.message}" if OpenNebula.is_error?(rc)
@@ -1352,12 +1406,12 @@ def add_new_host_attrs(vc_clusters, hpool, one_client, vcenter_ids)
     hosts.each do |host|
         begin
             # Get OpenNebula host and prepare variables
-            one_host        = OpenNebula::Host.new_with_id(host["ID"], one_client)
+            one_host        = OpenNebula::Host.new_with_id(host["ID"], one_client) 
             rc              = one_host.info
             raise rc.message if OpenNebula.is_error?(rc)
             ccr_name = host["NAME"]
             ccr_ref  = nil
-            vi_client       = VCenterDriver::VIClient.new(host["ID"])
+            vi_client       = VCenterDriver::VIClient.new(host["ID"]) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             vcenter_version = vi_client.vim.serviceContent.about.apiVersion
 
@@ -1425,7 +1479,7 @@ def create_new_clusters(vc_clusters, hpool, cpool, one_client)
             one_host  = OpenNebula::Host.new_with_id(host["ID"], one_client)
             rc   = one_host.info
             raise rc.message if OpenNebula.is_error?(rc)
-            vi_client       = VCenterDriver::VIClient.new(host["ID"])
+            vi_client       = VCenterDriver::VIClient.new(host["ID"]) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             ccr_name = host["NAME"]
 
@@ -1564,7 +1618,8 @@ def inspect_datastores(vc_datastores, vc_clusters, one_clusters, dspool, hpool, 
             # Get cluster's host from its name stored in VCENTER_CLUSTER
             hosts = hpool.retrieve_xmlelements("HOST[NAME=\"#{ccr_name}\"]")
             if hosts.empty?
-                raise "Could not find OpenNebula host associated to VCENTER_CLUSTER"
+                STDERR.puts "Could not find OpenNebula host associated to VCENTER_CLUSTER #{ccr_name}. Not updating datastore #{ds_name}."
+                next
             end
 
             # Check if host already has the ccr moref
@@ -1575,7 +1630,7 @@ def inspect_datastores(vc_datastores, vc_clusters, one_clusters, dspool, hpool, 
 
             # Get OpenNebula host's id and create a Rbvmomi connection
             host_id = hosts.first["ID"]
-            vi_client       = VCenterDriver::VIClient.new(host_id)
+            vi_client       = VCenterDriver::VIClient.new(host_id) rescue next
             vcenter_uuid    = vi_client.vim.serviceContent.about.instanceUuid
             vcenter_name    = vi_client.host
 
@@ -1976,6 +2031,17 @@ def prepare_vnet_xml_templates(vnet_ids, one_client)
         raise rc.message if OpenNebula.is_error?(rc)
         xml_doc = Nokogiri::XML(one_vnet.to_xml, nil, "UTF-8"){|c| c.default_xml.noblanks}
         xml_doc.root.xpath("TEMPLATE/VCENTER_TYPE").remove
+        xml_doc.root.xpath("AR_POOL/AR/USED_LEASES").remove
+
+        xml_doc.search('.//MAC_END').remove
+        xml_doc.search('.//LEASES').remove
+        xml_doc.search('.//IP_END').remove
+        xml_doc.search('.//IP6_ULA').remove
+        xml_doc.search('.//IP6_ULA_END').remove
+        xml_doc.search('.//IP6_GLOBAL').remove
+        xml_doc.search('.//IP6_GLOBAL_END').remove
+
+
         File.open("#{TEMP_DIR}/one_migrate_vnet_#{vnet_id}","w"){|f| f.puts(xml_doc.root.to_s.gsub(/>\s*/, ">").gsub(/\s*</, "<"))}
         STDOUT.puts
         STDOUT.puts "New XML file #{TEMP_DIR}/one_migrate_vnet_#{vnet_id} for vnet \e[96m#{one_vnet["NAME"]}\e[39m \e[92mwas created and attributes were removed\e[39m\n"
@@ -2120,6 +2186,7 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
     # Retrieve all OpenNebula templates associated with PUBLIC_CLOUD=vcenter
     templates = tpool.retrieve_xmlelements("VMTEMPLATE[TEMPLATE/PUBLIC_CLOUD/TYPE=\"vcenter\"]")
 
+    selected_templates = {}
     templates.each do |template|
         begin
             # Refresh pools
@@ -2295,11 +2362,30 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
 
                 STDOUT.puts("#{template_refs.size+1}: None of the above.")
 
+                STDOUT.puts
+                STDOUT.puts "Template: #{template_name}"
+                STDOUT.puts
+                STDOUT.puts "Previously selected templates:"
+                selected_templates.each do |k,v|
+                    STDOUT.puts("#{k}: #{v}")
+                end
+                STDOUT.puts
+
                 loop do
                     STDOUT.print("\nFrom the list above, please \e[95mpick a number\e[39m in order to specify the template: ")
                     template_index = STDIN.gets.strip.to_i
-                    next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
-                    template_ref  = template_refs[template_index-1] rescue nil
+
+                    if template_index == template_refs.size + 1
+                        # selected None of the above
+                        break
+                    end
+
+                    # selection out of bounds
+                    next if template_index <= 0 || template_index > template_refs.size + 1
+
+                    template_ref = template_refs[template_index-1] rescue nil
+                    selected_templates[template_index] = templates_list[template_ref]["name"]
+
                     break
                 end
 
@@ -2488,22 +2574,30 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             # If vcenter_datastore is a SYSTEM_DS then it's a storage pod
             # Let's create a SCHED_DS_REQUIREMENTS to force using that datastore
             ds_id = nil
-            if !vcenter_datastore.empty?
-                ds = find_datastore_by_name(dspool, "#{vcenter_datastore}")
-                ds_id   = ds["ID"]
-                ds_type = ds["TEMPLATE/TYPE"]
-                if ds_type == "SYSTEM_DS"
-                    sched_ds_req = one_template["TEMPLATE/SCHED_DS_REQUIREMENTS"]
+            begin
+                if !vcenter_datastore.empty?
+                    ds = find_datastore_by_name(dspool, "#{vcenter_datastore}")
+                    ds_id   = ds["ID"]
+                    ds_type = ds["TEMPLATE/TYPE"]
+                    if ds_type == "SYSTEM_DS"
+                        sched_ds_req = one_template["TEMPLATE/SCHED_DS_REQUIREMENTS"]
 
-                    if sched_ds_req
-                        xml_template.xpath("SCHED_DS_REQUIREMENTS").remove
-                        requirements = "ID=#{ds_id} & (#{sched_ds_req})"
-                        xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"#{requirements}\""))
-                    else
-                        # Add a SCHED_DS_REQUIREMENTS to template
-                        xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"ID=#{ds_id}\""))
+                        if sched_ds_req
+                            xml_template.xpath("SCHED_DS_REQUIREMENTS").remove
+                            requirements = "ID=#{ds_id} & (#{sched_ds_req})"
+                            xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"#{requirements}\""))
+                        else
+                            # Add a SCHED_DS_REQUIREMENTS to template
+                            xml_template.add_child(xml_doc.create_element("SCHED_DS_REQUIREMENTS")).add_child(Nokogiri::XML::CDATA.new(xml_doc,"\"ID=#{ds_id}\""))
+                        end
                     end
                 end
+            rescue Exception => e
+                STDOUT.puts
+                if vcenter_datastore and !ds
+                    STDOUT.puts "vCenter datastore #{vcenter_datastore} cannot be found"
+                end
+                STDOUT.puts "Could not add SCHED_DS_REQUIREMENTS to VM Template #{template["NAME"]}. Please add it manually if needed. Reason: #{e.message}"
             end
 
             #Write new XML template to file
@@ -2515,7 +2609,11 @@ def inspect_templates(vc_templates, vc_clusters, one_clusters, tpool, ipool, vnp
             STDOUT.puts
 
         rescue Exception => e
-            raise e
+            STDOUT.puts
+            STDOUT.puts "VM Template \"#{template_name}\" couldn't be imported. Please consider removing the VM Template and importing it again with OpenNebula 5.4.x. Reason: #{e.message}"
+            if template_id
+                File.delete("#{TEMP_DIR}/one_migrate_template_#{template_id}") rescue nil
+            end
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2524,10 +2622,10 @@ end
 
 ################################################################################
 def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, ipool, tpool, vnpool, dspool, hpool, one_client, vcenter_ids)
-
     # Retrieve vCenter deployed or importer VMs
     vms = vmpool.retrieve_xmlelements("VM[USER_TEMPLATE/PUBLIC_CLOUD/TYPE=\"vcenter\"]")
 
+    selected_templates = {}
     vms.each do |vm|
         next if !vm["DEPLOY_ID"] # Ignore undeployed vms
 
@@ -2723,11 +2821,30 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
 
                     STDOUT.puts("#{template_refs.size+1}: None of the above.")
 
+                    STDOUT.puts
+                    STDOUT.puts "VirtualMachine: #{vm_name}"
+                    STDOUT.puts
+                    STDOUT.puts "Previously selected templates:"
+                    selected_templates.each do |k,v|
+                        STDOUT.puts("#{k}: #{v}")
+                    end
+                    STDOUT.puts
+
                     loop do
                         STDOUT.print("\nFrom the list above, please \e[95mpick up one number\e[39m in order to specify the venter template that this VM was based on: ")
                         template_index = STDIN.gets.strip.to_i
-                        next if template_index == 0 || template_index - 1 < 0 || template_index > template_refs.size + 1
-                        template_ref  = template_refs[template_index-1] rescue nil
+
+                        if template_index == template_refs.size + 1
+                            # selected None of the above
+                            break
+                        end
+
+                        # selection out of bounds
+                        next if template_index <= 0 || template_index > template_refs.size + 1
+
+                        template_ref = template_refs[template_index-1] rescue nil
+                        selected_templates[template_index] = templates_list[template_ref]["name"]
+
                         break
                     end
                 end
@@ -2836,7 +2953,8 @@ def inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, i
             STDOUT.puts "-" * 80
             STDOUT.puts
         rescue Exception => e
-            raise e
+            STDOUT.puts
+            STDOUT.puts "VM \"#{vm["NAME"]}\" couldn't be migrated. It may require manual intervention. Reason: #{e.message}"
         ensure
             vi_client.vim.close if vi_client
         end
@@ -2865,7 +2983,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     main do
         begin
-            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.3"
+            msg = "  vCenter pre-migrator tool for OpenNebula 5.4 - Version: 1.1.8"
             logo_banner(msg)
 
             # Initialize opennebula client
@@ -2941,7 +3059,7 @@ CommandParser::CmdParser.new(ARGV) do
             hpool.each do |host|
                 next if host['VM_MAD'] != "vcenter"
 
-                vi_client = VCenterDriver::VIClient.new(host["ID"])
+                vi_client = VCenterDriver::VIClient.new(host["ID"]) rescue next
                 vcenter_uuid = vi_client.vim.serviceContent.about.instanceUuid
                 if vcenter_instances.include?(vcenter_uuid)
                     vi_client.vim.close
@@ -3044,7 +3162,7 @@ CommandParser::CmdParser.new(ARGV) do
                                " - Reconfigure vCenter VM to add unmanaged disks and nics references\n"\
                                " - DEPLOY_ID will get VM's managed object reference\n"
 
-            banner " PHASE 8 - Inspect existing VMs", true
+            banner " PHASE 8 - Inspect existing VMs", true, extended_message
             STDOUT.puts
             inspect_vms(vc_vmachines, vc_templates, vc_clusters, one_clusters, vmpool, ipool, tpool, vnpool, dspool, hpool, one_client, vcenter_ids)
 

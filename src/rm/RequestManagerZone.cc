@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,13 @@
 #include "RequestManagerZone.h"
 #include "Nebula.h"
 #include "Client.h"
+#include "LogDB.h"
+#include "FedReplicaManager.h"
+#include "RaftManager.h"
+
+#include <unistd.h>
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -98,9 +105,9 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
+    auto zone = pool->get<Zone>(id);
 
-    if ( zone == 0 )
+    if ( zone == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -119,9 +126,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
     {
         std::vector<int> zids;
 
-        pool->update(zone);
-
-        zone->unlock();
+        pool->update(zone.get());
     }
     else
     {
@@ -135,7 +140,7 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
         ErrorCode ec = master_update_zone(oid, tmpl_xml, att);
 
-        zone->unlock();
+        zone.reset();
 
         if ( ec != SUCCESS )
         {
@@ -151,18 +156,14 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
         {
             bool updated = false;
 
-            while (!updated) 
+            while (!updated)
             {
-                Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
-
-                if ( zone != 0 )
+                if ( auto zone = pool->get_ro<Zone>(id) )
                 {
                     if ( zone->get_server(zs_id) != 0 )
                     {
                         updated = true;
                     }
-
-                    zone->unlock();
                 }
 
                 usleep(250000);
@@ -202,9 +203,9 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    Zone * zone = (static_cast<ZonePool *>(pool))->get(id, true);
+    auto zone = pool->get<Zone>(id);
 
-    if ( zone == 0 )
+    if ( zone == nullptr )
     {
         att.resp_id = id;
         failure_response(NO_EXISTS, att);
@@ -215,7 +216,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
     if ( zone->delete_server(zs_id, att.resp_msg) == -1 )
     {
         failure_response(ACTION, att);
-        zone->unlock();
 
         return;
     }
@@ -226,9 +226,7 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
     {
         std::vector<int> zids;
 
-        pool->update(zone);
-
-        zone->unlock();
+        pool->update(zone.get());
     }
     else
     {
@@ -239,8 +237,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
         zone->to_xml(tmpl_xml);
 
         ErrorCode ec = master_update_zone(oid, tmpl_xml, att);
-
-        zone->unlock();
 
         if ( ec != SUCCESS )
         {
@@ -257,6 +253,38 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void ZoneResetServer::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    int id     = xmlrpc_c::value_int(paramList.getInt(1));
+    int zs_id  = xmlrpc_c::value_int(paramList.getInt(2));
+
+    string error_str;
+
+    if ( id != nd.get_zone_id() )
+    {
+        att.resp_msg = "Servers have to be deleted through the target zone"
+             " endpoints";
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+	nd.get_raftm()->reset_index(zs_id);
+
+    success_response(id, att);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     RequestAttributes& att)
 {
@@ -265,15 +293,15 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     RaftManager * raftm = nd.get_raftm();
 
-    int leader_id     = xmlrpc_c::value_int(paramList.getInt(1));
-    int leader_commit = xmlrpc_c::value_int(paramList.getInt(2));
+    int leader_id            = xmlrpc_c::value_int(paramList.getInt(1));
+    uint64_t leader_commit   = xmlrpc_c::value_i8(paramList.getI8(2));
     unsigned int leader_term = xmlrpc_c::value_int(paramList.getInt(3));
 
-    unsigned int index      = xmlrpc_c::value_int(paramList.getInt(4));
+    uint64_t index          = xmlrpc_c::value_i8(paramList.getI8(4));
     unsigned int term       = xmlrpc_c::value_int(paramList.getInt(5));
-    unsigned int prev_index = xmlrpc_c::value_int(paramList.getInt(6));
+    uint64_t prev_index     = xmlrpc_c::value_i8(paramList.getI8(6));
     unsigned int prev_term  = xmlrpc_c::value_int(paramList.getInt(7));
-    unsigned int fed_index  = xmlrpc_c::value_int(paramList.getInt(8));
+    uint64_t fed_index      = xmlrpc_c::value_i8(paramList.getI8(8));
 
     string sql = xmlrpc_c::value_string(paramList.getString(9));
 
@@ -281,11 +309,20 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     LogDBRecord lr, prev_lr;
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = current_term;
 
         failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if ( nd.is_cache() )
+    {
+        att.resp_msg = "Server is in cache mode.";
+        att.resp_id  = 0;
+
+        failure_response(ACTION, att);
         return;
     }
 
@@ -329,11 +366,12 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
     if ( index == 0 && prev_index == 0 && term == 0 && prev_term == 0 &&
          sql.empty() )
     {
-        unsigned int lindex, lterm;
+        unsigned int lterm;
+        uint64_t lindex;
 
         logdb->get_last_record_index(lindex, lterm);
 
-        unsigned int new_commit = raftm->update_commit(leader_commit, lindex);
+        uint64_t new_commit = raftm->update_commit(leader_commit, lindex);
 
         logdb->apply_log_records(new_commit);
 
@@ -359,7 +397,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( index > 0 )
     {
-        if ( logdb->get_log_record(prev_index, prev_lr) != 0 )
+        if ( logdb->get_log_record(prev_index, prev_index - 1, prev_lr) != 0 )
         {
             att.resp_msg = "Error loading previous log record";
             att.resp_id  = current_term;
@@ -378,7 +416,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         }
     }
 
-    if ( logdb->get_log_record(index, lr) == 0 )
+    if ( logdb->get_log_record(index, index - 1, lr) == 0 )
     {
         if ( lr.term != term )
         {
@@ -393,7 +431,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     ostringstream sql_oss(sql);
 
-    if ( logdb->insert_log_record(index, term, sql_oss, 0, fed_index) != 0 )
+    if (logdb->insert_log_record(index, term, sql_oss, 0, fed_index, true) != 0)
     {
         att.resp_msg = "Error writing log record";
         att.resp_id  = current_term;
@@ -402,7 +440,7 @@ void ZoneReplicateLog::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    unsigned int new_commit = raftm->update_commit(leader_commit, index);
+    uint64_t new_commit = raftm->update_commit(leader_commit, index);
 
     logdb->apply_log_records(new_commit);
 
@@ -423,20 +461,30 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
     unsigned int candidate_term  = xmlrpc_c::value_int(paramList.getInt(1));
     unsigned int candidate_id    = xmlrpc_c::value_int(paramList.getInt(2));
 
-    unsigned int candidate_log_index = xmlrpc_c::value_int(paramList.getInt(3));
+    uint64_t candidate_log_index = xmlrpc_c::value_i8(paramList.getI8(3));
     unsigned int candidate_log_term  = xmlrpc_c::value_int(paramList.getInt(4));
 
     unsigned int current_term = raftm->get_term();
 
-    unsigned int log_index, log_term;
+    unsigned int log_term;
+    uint64_t log_index;
 
     logdb->get_last_record_index(log_index, log_term);
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
         att.resp_id  = current_term;
 
         failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if ( nd.is_cache() )
+    {
+        att.resp_msg = "Server is in cache mode.";
+        att.resp_id  = 0;
+
+        failure_response(ACTION, att);
         return;
     }
 
@@ -479,8 +527,6 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    raftm->update_last_heartbeat(-1);
-
     success_response(static_cast<int>(current_term), att);
 }
 
@@ -518,15 +564,24 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
 
     FedReplicaManager * frm = nd.get_frm();
 
-    int index  = xmlrpc_c::value_int(paramList.getInt(1));
-    int prev   = xmlrpc_c::value_int(paramList.getInt(2));
+    uint64_t index  = xmlrpc_c::value_i8(paramList.getI8(1));
+    uint64_t prev   = xmlrpc_c::value_i8(paramList.getI8(2));
     string sql = xmlrpc_c::value_string(paramList.getString(3));
 
-    if ( att.uid != 0 )
+    if (!att.is_oneadmin())
     {
-        att.resp_id  = -1;
+        att.replication_idx  = UINT64_MAX;
 
         failure_response(AUTHORIZATION, att);
+        return;
+    }
+
+    if ( nd.is_cache() )
+    {
+        att.resp_msg = "Server is in cache mode.";
+        att.replication_idx  = UINT64_MAX;
+
+        failure_response(ACTION, att);
         return;
     }
 
@@ -537,9 +592,9 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::ERROR, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = -1;
+        att.replication_idx  = UINT64_MAX;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
         return;
     }
 
@@ -550,28 +605,28 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::INFO, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = - 1;
+        att.replication_idx  = UINT64_MAX;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
         return;
     }
 
-    int rc = frm->apply_log_record(index, prev, sql);
+    uint64_t rc = frm->apply_log_record(index, prev, sql);
 
     if ( rc == 0 )
     {
         success_response(index, att);
     }
-    else if ( rc < 0 )
+    else if ( rc == UINT64_MAX )
     {
         oss << "Error replicating log entry " << index << " in zone";
 
         NebulaLog::log("ReM", Log::INFO, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = index;
+        att.replication_idx  = index;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
     }
     else // rc == last_index in log
     {
@@ -580,9 +635,9 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
         NebulaLog::log("ReM", Log::INFO, oss);
 
         att.resp_msg = oss.str();
-        att.resp_id  = rc;
+        att.replication_idx  = rc;
 
-        failure_response(ACTION, att);
+        failure_response(REPLICATION, att);
     }
 
     return;

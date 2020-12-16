@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -13,11 +13,131 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
-
-  {{{vnetsTableSelectHTML}}}
+  {{!-- {{#isFeatureEnabled "automatic_selection_vnet"}} --}}
+  <div class="only_create">
+    <div class="row autoContainer">
+      <fieldset id="{{nicTabId}}interface_type" class="small-12 large-6 columns">
+        <legend style="margin:0px;">{{tr "Interface type"}}</legend>
+        <div class="switch left">
+          <input class="switch-input" id="{{nicTabId}}_interface_type" type="checkbox">
+          <label class="switch-paddle" for="{{nicTabId}}_interface_type">
+          </label>
+        </div>
+        <label class="left">
+          &nbsp;&nbsp;
+          {{tr "Alias"}}
+          {{{tip (tr "The NIC will be attached as an alias")}}}
+        </label>
+        &nbsp;&nbsp;
+        <span id="{{nicTabId}}_no_alias" class="radius warning label">
+        <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
+        </span>
+        <select id="{{nicTabId}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
+      </fieldset>
+      <fieldset class="small-12 large-6 columns">
+        <legend style="margin:0px;">{{tr "Network selection"}}</legend>
+        <div class="switch left network_selection">
+          <input class="switch-input" id="{{nicTabId}}_network_mode" type="checkbox">
+          <label class="switch-paddle" for="{{nicTabId}}_network_mode">
+          </label>
+        </div>
+        <label class="left network_selection">
+          &nbsp;&nbsp;
+          {{tr "Automatic selection"}}
+          {{{tip (tr "The Schedule will decide which is the best virtual network")}}}
+        </label>
+      </fieldset>
+    </div>
+    <div class="row autoContainer">
+      <fieldset id="rdp_connection" class="small-12 large-6 columns">
+          <legend style="margin:0px;">{{tr "RDP connection"}}</legend>
+          <div class="switch left">
+            <input class="switch-input" id="{{nicTabId}}_rdp" type="checkbox">
+            <label class="switch-paddle" for="{{nicTabId}}_rdp">
+            </label>
+          </div>
+          <label class="left">
+            &nbsp;&nbsp;
+            {{tr "Activate"}}
+            {{{tip (tr "RDP will be activate in this network")}}}
+          </label>
+      </fieldset>
+      <fieldset id="ssh_connection" class="small-12 large-6 columns">
+        <legend style="margin:0px;">{{tr "SSH connection"}}</legend>
+        <div class="switch left">
+          <input class="switch-input" id="{{nicTabId}}_ssh" type="checkbox">
+          <label class="switch-paddle" for="{{nicTabId}}_ssh">
+          </label>
+        </div>
+        <label class="left">
+          &nbsp;&nbsp;
+          {{tr "Activate"}}
+          {{{tip (tr "SSH will be enable in this network")}}}
+        </label>
+      </fieldset>
+    </div>
+    <div class="auto">
+      <fieldset>
+        <legend>{{tr "Network Requirements"}}</legend>
+        <div class="row">
+          <div class="large-12 columns text-center">
+            <input type="radio" id="vnet_req" name="{{nicTabId}}_req_select" value="vnet_select">
+            <label for="vnet_req">{{tr "Select Vnets "}}</label>
+            <input type="radio" id="custom_req"  name="{{nicTabId}}_req_select" value="custom" checked>
+            <label for="custom_req">{{tr "Custom expression "}}</label>
+          </div>
+        </div>
+        <br>
+        <div id="{{nicTabId}}_vnetTable" class="net_select" hidden>{{{vnetsTableAutoSelectHTML}}}</div>
+        <div class="row">
+          <div class="large-12 columns">
+            <label for="{{nicTabId}}_SCHED_REQUIREMENTS">
+              {{tr "Expression"}}
+              {{{tip (tr "Boolean expression that rules out entries from the pool of datastores suitable to run this VM.")}}}
+            </label>
+            <input type="text" id="{{nicTabId}}_SCHED_REQUIREMENTS" name="requirements" />
+          </div>
+        </div>
+        </fieldset>
+      <div class="row autoContainer">
+        <fieldset class="nic_rank">
+          <legend>{{tr "Network Rank"}}</legend>
+          <div class="row">
+            <div class="large-12 columns text-center">
+              <input type="radio" id="packingRadio" name="{{nicTabId}}_rank_select" value="USED_LEASES">
+              <label for="packingRadio">
+                {{tr "Packing"}}
+                {{{tip (tr "Pack the VMs in the vnet to reduce VM fragmentation")}}}
+              </label>
+              <input type="radio"  id="stripingRadio" name="{{nicTabId}}_rank_select" value="-USED_LEASES">
+              <label for="stripingRadio">
+                {{tr "Stripping"}}
+                {{{tip (tr "Spread the VMs in the vnets")}}}
+              </label>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="large-12 columns">
+              <label for="{{nicTabId}}_SCHED_RANK">
+                {{tr "Expression"}}
+                {{{tip (tr "This field sets which attribute will be used to sort the suitable vnets for this VM")}}}
+              </label>
+              <input type="text" id="{{nicTabId}}_SCHED_RANK" name="RANK" />
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </div>
+  {{!-- {{/isFeatureEnabled}} --}}
+  <div class="no_auto">
+    {{{vnetsTableSelectHTML}}}
+  </div>
   <br>
+  <div id="nic_values">
   {{#advancedSection (tr "Advanced options") }}
-  <fieldset>
+  <fieldset class="no_auto">
     <legend>{{tr "Choose Network"}}</legend>
     <div class="row">
       <div class="medium-6 columns">
@@ -54,9 +174,9 @@
         </label>
         <input type="text" wizard_field="OPENNEBULA_MANAGED" id="OPENNEBULA_MANAGED" name="OPENNEBULA_MANAGED"/>
       </div>
-    </div> 
+    </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="no_auto">
     <legend>{{tr "Override Network Values IPv4"}}</legend>
     <div class="row">
       <div class="medium-6 columns">
@@ -109,7 +229,7 @@
       </div>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="no_auto">
     <legend>{{tr "Override Network Values IPv6"}}</legend>
     <div class="row">
       <div class="medium-6 columns">
@@ -135,7 +255,7 @@
       </div>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="not_firecracker">
     <legend>{{tr "Override Network Inbound Traffic QoS"}}</legend>
     <div class="row">
       <div class="medium-4 columns">
@@ -158,7 +278,7 @@
       </div>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="not_firecracker">
     <legend>{{tr "Override Network Outbound Traffic QoS"}}</legend>
     <div class="row">
       <div class="medium-4 columns">
@@ -181,7 +301,7 @@
       </div>
     </div>
   </fieldset>
-  <fieldset>
+  <fieldset class="not_firecracker">
     <legend>{{tr "Hardware"}}</legend>
     <div class="row">
       <div class="small-12 columns">
@@ -192,11 +312,18 @@
       </div>
     </div>
     <div class="row nic-model-row">
-      <div class="medium-6 columns">
+      <div class="medium-6 columns not_lxd">
         <label for="MODEL">
           {{tr "Hardware model to emulate"}}
         </label>
         <input type="text" wizard_field="MODEL" id="MODEL" name="MODEL" />
+      </div>
+      <div class="medium-6 columns">
+        <label for="VIRTIO_QUEUES">
+          {{tr "Transmission queue"}}
+          {{{tip (tr "Only supported for virtio driver.")}}}
+        </label>
+        <input type="number" min="0" wizard_field="VIRTIO_QUEUES" id="VIRTIO_QUEUES" name="VIRTIO_QUEUES" />
       </div>
     </div>
     <div class="row pci-row">
@@ -220,7 +347,10 @@
   <fieldset>
     <legend>{{tr "Security Groups"}}</legend>
     <div name="str_nic_tab_id" str_nic_tab_id="{{nicTabId}}">
-      {{{secgroupsTableSelectHTML}}}
+      {{{secgroupsTableSelectHTML}}}<br>
+      <span class="radius warning label">
+        <i class="fas fa-exclamation-triangle"/> {{tr "Security Groups belonging to the selected Virtual Network will be applied and cannot be unselected"}}
+      </span>
     </div>
   </fieldset>
   {{! Hidden inputs for white/black ports and icmp drop. These inputs are
@@ -276,3 +406,4 @@
     </fieldset>
   </div>
   {{/advancedSection}}
+</div>

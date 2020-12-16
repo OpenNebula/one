@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -51,7 +51,9 @@ class VirtualMachineDriver < OpenNebulaDriver
         :detach_nic  => "DETACHNIC",
         :disk_snapshot_create => "DISKSNAPSHOTCREATE",
         :resize_disk => "RESIZEDISK",
-        :update_sg   => "UPDATESG"
+        :update_sg   => "UPDATESG",
+        :update_conf => "UPDATECONF",
+        :resize      => "RESIZE"
     }
 
     POLL_ATTRIBUTE = OpenNebula::VirtualMachine::Driver::POLL_ATTRIBUTE
@@ -96,6 +98,8 @@ class VirtualMachineDriver < OpenNebulaDriver
         register_action(ACTION[:disk_snapshot_create].to_sym, method("disk_snapshot_create"))
         register_action(ACTION[:resize_disk].to_sym, method("resize_disk"))
         register_action(ACTION[:update_sg].to_sym, method("update_sg"))
+        register_action(ACTION[:update_conf].to_sym, method("update_conf"))
+        register_action(ACTION[:resize].to_sym, method("resize"))
     end
 
     # Decodes the encoded XML driver message received from the core
@@ -218,6 +222,16 @@ class VirtualMachineDriver < OpenNebulaDriver
     def cleanup(id, drv_message)
         error = "Action not implemented by driver #{self.class}"
         send_message(ACTION[:cleanup],RESULT[:failure],id,error)
+    end
+
+    def update_conf(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:update_conf],RESULT[:failure],id,error)
+    end
+
+    def resize(id, drv_message)
+        error = "Action not implemented by driver #{self.class}"
+        send_message(ACTION[:resize],RESULT[:failure],id,error)
     end
 
 private

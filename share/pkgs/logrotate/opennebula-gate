@@ -1,0 +1,11 @@
+/var/log/one/onegate.log {
+    delaycompress
+    dateext
+    dateformat -%Y%m%d-%s
+    compress
+    weekly
+    rotate 52
+    missingok
+    notifempty
+    copytruncate
+}

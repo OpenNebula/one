@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -91,28 +91,19 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         :format => String
     }
 
-    XML = {
-        :name  => "xml",
-        :short => "-x",
-        :large => "--xml",
-        :description => "Show the resource in xml format"
-    }
-
-    JSON = {
-        :name  => "json",
-        :short => "-j",
-        :large => "--json",
-        :description => "Show the resource in json format"
-    }
-
     SPLIT={
         :name  => "split",
         :large => "--split",
         :description => "Split the output in a table for each VM"
     }
 
-    ACCT_OPTIONS     = [START_TIME_ACCT, END_TIME_ACCT, USERFILTER, GROUP, HOST, XPATH, XML, JSON, SPLIT]
-    SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP, XML, JSON]
+    ACCT_OPTIONS     = [START_TIME_ACCT, END_TIME_ACCT, USERFILTER, GROUP, HOST, XPATH, SPLIT]
+    SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP]
+
+    ACCT_OPTIONS << OpenNebulaHelper::XML
+    ACCT_OPTIONS << OpenNebulaHelper::JSON
+
+    SHOWBACK_OPTIONS += OpenNebulaHelper::FORMAT
 
     ACCT_TABLE = CLIHelper::ShowTable.new(self.table_conf("oneacct.yaml"), nil) do
         column :UID, "User ID", :size=>4 do |d|
@@ -144,43 +135,47 @@ class AcctHelper < OpenNebulaHelper::OneHelper
         end
 
         column :MEMORY, "Assigned memory", :size=>6 do |d|
-            OpenNebulaHelper.unit_to_str(d["VM"]["TEMPLATE"]["MEMORY"].to_i, {}, 'M')
+            OpenNebulaHelper.unit_to_str(d["VM"]["TEMPLATE"]["MEMORY"].to_i, {}, 'M') rescue "-"
         end
 
         column :CPU, "Number of CPUs", :size=>3 do |d|
-            d["VM"]["TEMPLATE"]["CPU"]
+            d["VM"]["TEMPLATE"]["CPU"] rescue "-"
         end
 
         column :NETRX, "Data received from the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING"]["NETRX"].to_i / 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING"]["NETRX"].to_i / 1024.0, {}) rescue "-"
         end
 
         column :NETTX, "Data sent to the network", :size=>6 do |d|
             # NET is measured in bytes, unit_to_str expects KBytes
-            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING"]["NETTX"].to_i / 1024.0, {})
+            OpenNebulaHelper.unit_to_str(d["VM"]["MONITORING"]["NETTX"].to_i / 1024.0, {}) rescue "-"
         end
 
         column :DISK, "Total disk size used", :size=>6 do |d|
             # DISK size is measured in mb, unit_to_str expects KBytes
-            total_disk_size = 0
+            begin
+                total_disk_size = 0
 
-            vm_id = d["VM"]["ID"].to_i
+                vm_id = d["VM"]["ID"].to_i
 
-            disks_all = [d["VM"]["TEMPLATE"]["DISK"]].flatten.compact rescue []
-            disks_all.each do |disk|
-                total_disk_size += disk["SIZE"].to_i
-            end
-
-            snapshots_all = [d["VM"]["SNAPSHOTS"]].flatten.compact rescue []
-            snapshots_all.each do |snapshot|
-                snapshot_disk = [snapshot["SNAPSHOT"]].flatten.compact rescue []
-                snapshot_disk.each do |snapshot|
-                    total_disk_size += snapshot["SIZE"].to_i
+                disks_all = [d["VM"]["TEMPLATE"]["DISK"]].flatten.compact rescue []
+                disks_all.each do |disk|
+                    total_disk_size += disk["SIZE"].to_i
                 end
-            end
 
-            OpenNebulaHelper.unit_to_str(total_disk_size * 1024.0, {})
+                snapshots_all = [d["VM"]["SNAPSHOTS"]].flatten.compact rescue []
+                snapshots_all.each do |snapshot|
+                    snapshot_disk = [snapshot["SNAPSHOT"]].flatten.compact rescue []
+                    snapshot_disk.each do |snapshot|
+                        total_disk_size += snapshot["SIZE"].to_i
+                    end
+                end
+
+                OpenNebulaHelper.unit_to_str(total_disk_size * 1024.0, {})
+            rescue
+                "-"
+            end
         end
 
         default :VID, :HOSTNAME, :ACTION, :START_TIME, :END_TIME, :MEMORY, :CPU, :NETRX, :NETTX, :DISK

@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -18,18 +18,23 @@
   <div class="row collapse">
     <div class="large-12 columns" style="padding-bottom: 1em;">
       {{#isTabActionEnabled "vms-tab" "VM.disk_saveas"}}
-      <button class="disk_snapshot_saveas button secondary small radius" disabled="disabled">
-        <span class="fa fa-save fa-fw"></span>{{tr "Save as"}}
+      <button class="disk_snapshot_saveas button secondary small radius not_firecracker" disabled="disabled">
+        <span class="fas fa-save fa-fw"></span>{{tr "Save as"}}
+      </button>
+      {{/isTabActionEnabled}}
+      {{#isTabActionEnabled "vms-tab" "VM.disk_snapshot_rename"}}
+      <button class="disk_snapshot_rename button secondary small radius" disabled="disabled">
+        <span class="fas fa-edit fa-fw"></span>{{tr "Rename"}}
       </button>
       {{/isTabActionEnabled}}
       {{#isTabActionEnabled "vms-tab" "VM.disk_snapshot_revert"}}
       <button class="disk_snapshot_revert button secondary small radius" disabled="disabled">
-        <span class="fa fa-reply fa-fw"></span>{{tr "Revert"}}
+        <span class="fas fa-reply fa-fw"></span>{{tr "Revert"}}
       </button>
       {{/isTabActionEnabled}}
       {{#isTabActionEnabled "vms-tab" "VM.disk_snapshot_delete"}}
       <button class="disk_snapshot_delete button secondary small radius" disabled="disabled">
-        <span class="fa fa-times fa-fw"></span>{{tr "Delete"}}
+        <span class="fas fa-times fa-fw"></span>{{tr "Delete"}}
       </button>
       {{/isTabActionEnabled}}
     </div>

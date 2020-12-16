@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,687 +16,391 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+'/cli'
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+
+require 'json'
+require 'tempfile'
 
 require 'command_parser'
 require 'opennebula/oneflow_client'
+require 'one_helper/oneflow_helper'
 
-require 'cli_helper'
-require 'one_helper/onevm_helper'
-
-require 'json'
-
-USER_AGENT = "CLI"
+USER_AGENT = 'CLI'
 
 # Base Path representing the resource to be used in the requests
-RESOURCE_PATH = "/service"
+RESOURCE_PATH = '/service'
 
-#
-# Table
-#
-
-SERVICE_TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :ID, "ID", :size=>10 do |d|
-        d["ID"]
-    end
-
-    column :USER, "Username", :left, :size=>15 do |d|
-        d["UNAME"]
-    end
-
-    column :GROUP, "Group", :left, :size=>15 do |d|
-        d["GNAME"]
-    end
-
-    column :NAME, "Name", :size=>25, :left=>true do |d|
-        d["NAME"]
-    end
-
-    column :STATE, "State", :size=>11, :left=>true do |d|
-        Service.state_str(d["TEMPLATE"]["BODY"]['state'])
-    end
-
-    default :ID, :USER, :GROUP, :NAME, :STATE
-end
-
-NODE_TABLE = CLIHelper::ShowTable.new(nil, self) do
-    column :VM_ID, "ONE identifier for Virtual Machine", :size=>6 do |d|
-        st = ""
-        if d['scale_up']
-            st << "\u2191 "
-        elsif d['disposed']
-            st << "\u2193 "
-        end
-
-        if d['vm_info'].nil?
-            st << d['deploy_id'].to_s
-        else
-            st << d['vm_info']['VM']["ID"]
-        end
-
-        st
-    end
-
-    column :NAME, "Name of the Virtual Machine", :left,
-            :size=>23 do |d|
-        if !d['vm_info'].nil?
-            if d['vm_info']['VM']["RESCHED"] == "1"
-                "*#{d["NAME"]}"
-            else
-                d['vm_info']['VM']["NAME"]
-            end
-        else
-            ""
-        end
-    end
-
-    column :USER, "Username of the Virtual Machine owner", :left,
-            :size=>8 do |d|
-        if !d['vm_info'].nil?
-            d['vm_info']['VM']["UNAME"]
-        else
-            ""
-        end
-    end
-
-    column :GROUP, "Group of the Virtual Machine", :left,
-            :size=>8 do |d|
-        if !d['vm_info'].nil?
-            d['vm_info']['VM']["GNAME"]
-        else
-            ""
-        end
-    end
-
-    column :STAT, "Actual status", :size=>4 do |d,e|
-        if !d['vm_info'].nil?
-            OneVMHelper.state_to_str(d['vm_info']['VM']["STATE"], d['vm_info']['VM']["LCM_STATE"])
-        else
-            ""
-        end
-    end
-
-    column :UCPU, "CPU percentage used by the VM", :size=>4 do |d|
-        if !d['vm_info'].nil?
-            d['vm_info']['VM']["CPU"]
-        else
-            ""
-        end
-    end
-
-    column :UMEM, "Memory used by the VM", :size=>7 do |d|
-        if !d['vm_info'].nil?
-            OpenNebulaHelper.unit_to_str(d['vm_info']['VM']["MEMORY"].to_i, {})
-        else
-            ""
-        end
-    end
-
-    column :HOST, "Host where the VM is running", :left, :size=>20 do |d|
-        if !d['vm_info'].nil?
-            if d['vm_info']['VM']['HISTORY_RECORDS'] && d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
-                state_str = VirtualMachine::VM_STATE[d['vm_info']['VM']['STATE'].to_i]
-                if %w{ACTIVE SUSPENDED}.include? state_str
-                    history = if d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].instance_of?(Array)
-                        d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY'].last
-                    else
-                        d['vm_info']['VM']['HISTORY_RECORDS']['HISTORY']
-                    end
-
-                    history['HOSTNAME']
-                end
-            end
-        else
-            ""
-        end
-    end
-
-    column :TIME, "Time since the VM was submitted", :size=>10 do |d|
-        if !d['vm_info'].nil?
-            stime = d['vm_info']['VM']["STIME"].to_i
-            etime = d['vm_info']['VM']["ETIME"]=="0" ? Time.now.to_i : d['vm_info']['VM']["ETIME"].to_i
-            dtime = etime-stime
-            OpenNebulaHelper.period_to_str(dtime, false)
-        else
-            ""
-        end
-    end
-
-    default :VM_ID, :NAME, :STAT, :UCPU, :UMEM, :HOST, :TIME
-end
-
-# List the services. This method is used in top and list commands
-# @param [Service::Client] client
-# @param [Array] args
-# @param [Hash] options
-# @return [[Integer, String], Integer] Returns the exit_code and optionally
-#   a String to be printed
-def list_services(client, args, options)
-    response = client.get(RESOURCE_PATH)
-
-    if CloudClient::is_error?(response)
-        [response.code.to_i, response.to_s]
-    else
-        #[0,response.body]
-        if options[:json]
-            [0,response.body]
-        else
-            array_list = JSON.parse(response.body)
-            SERVICE_TABLE.show(array_list['DOCUMENT_POOL']['DOCUMENT'])
-            0
-        end
-    end
-end
-
-# Show the service information. This method is used in top and show commands
-# @param [Service::Client] client
-# @param [Array] args
-# @param [Hash] options
-# @return [[Integer, String], Integer] Returns the exit_code and optionally
-#   a String to be printed
-def show_service(client, args, options)
-    response = client.get("#{RESOURCE_PATH}/#{args[0]}")
-
-    if CloudClient::is_error?(response)
-        [response.code.to_i, response.to_s]
-    else
-        #[0,response.body]
-        if options[:json]
-            [0,response.body]
-        else
-            str="%-20s: %-20s"
-            str_h1="%-80s"
-
-            document_hash = JSON.parse(response.body)
-            template = document_hash['DOCUMENT']['TEMPLATE']['BODY']
-
-            CLIHelper.print_header(str_h1 % "SERVICE #{document_hash['DOCUMENT']['ID']} INFORMATION")
-
-            puts str % ["ID",   document_hash['DOCUMENT']['ID']]
-            puts str % ["NAME", document_hash['DOCUMENT']['NAME']]
-            puts str % ["USER", document_hash['DOCUMENT']['UNAME']]
-            puts str % ["GROUP",document_hash['DOCUMENT']['GNAME']]
-
-            puts str % ["STRATEGY", template['deployment']]
-            puts str % ["SERVICE STATE", Service.state_str(template['state'])]
-            puts str % ["SHUTDOWN", template['shutdown_action']] if template['shutdown_action']
-
-            puts
-
-            CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
-
-            ["OWNER", "GROUP", "OTHER"].each { |e|
-                mask = "---"
-                mask[0] = "u" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_U"] == "1"
-                mask[1] = "m" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_M"] == "1"
-                mask[2] = "a" if document_hash['DOCUMENT']['PERMISSIONS']["#{e}_A"] == "1"
-
-                puts str % [e,  mask]
-            }
-
-            puts
-
-            template['roles'].each {|role|
-                CLIHelper.print_header("ROLE #{role['name']}", false)
-
-                puts str % ["ROLE STATE", Role.state_str(role['state'])]
-                puts str % ["PARENTS", role['parents'].join(', ')] if role['parents']
-                puts str % ["VM TEMPLATE", role['vm_template']]
-                puts str % ["CARDINALITY", role['cardinality']]
-                puts str % ["MIN VMS", role['min_vms']] if role['min_vms']
-                puts str % ["MAX VMS", role['max_vms']] if role['max_vms']
-                puts str % ["COOLDOWN", "#{role['cooldown']}s"] if role['cooldown']
-                puts str % ["SHUTDOWN", role['shutdown_action']] if role['shutdown_action']
-
-                puts "NODES INFORMATION"
-                NODE_TABLE.show(role['nodes'])
-
-                if !role['elasticity_policies'].nil? && role['elasticity_policies'].size > 0 || !role['scheduled_policies'].nil? && role['scheduled_policies'].size > 0
-                    puts
-                    puts "ELASTICITY RULES"
-
-                    if role['elasticity_policies'] && role['elasticity_policies'].size > 0
-                        puts
-#                        puts "ELASTICITY POLICIES"
-                        CLIHelper::ShowTable.new(nil, self) do
-                            column :ADJUST, "", :left, :size=>12 do |d|
-                                adjust_str(d)
-                            end
-
-                            column :EXPRESSION, "", :left, :size=>48 do |d|
-                                if !d['expression_evaluated'].nil?
-                                    d['expression_evaluated']
-                                else
-                                    d['expression']
-                                end
-                            end
-
-                            column :'EVALS', "", :right, :size=>5 do |d|
-                                if d['period_number']
-                                    "#{d['true_evals'].to_i}/#{d['period_number']}"
-                                else
-                                    "-"
-                                end
-                            end
-
-                            column :PERIOD, "", :size=>6 do |d|
-                                d['period'] ?  "#{d['period']}s" : '-'
-                            end
-
-                            column :COOL, "", :size=>5 do |d|
-                                d['cooldown'] ? "#{d['cooldown']}s" : '-'
-                            end
-
-                            default :ADJUST, :EXPRESSION, :EVALS, :PERIOD, :COOL
-                        end.show([role['elasticity_policies']].flatten, {})
-                    end
-
-                    if role['scheduled_policies'] && role['scheduled_policies'].size > 0
-                        puts
-#                        puts "SCHEDULED POLICIES"
-                        CLIHelper::ShowTable.new(nil, self) do
-                            column :ADJUST, "", :left, :size=>12 do |d|
-                                adjust_str(d)
-                            end
-
-                            column :TIME, "", :left, :size=>67 do |d|
-                                if d['start_time']
-                                    Time.parse(d['start_time']).to_s
-                                else
-                                    d['recurrence']
-                                end
-                            end
-
-                            default :ADJUST, :TIME
-                        end.show([role['scheduled_policies']].flatten, {})
-                    end
-                end
-
-                puts
-            }
-
-            puts
-
-            CLIHelper.print_header(str_h1 % "LOG MESSAGES",false)
-
-            if template['log']
-                template['log'].each { |log|
-                    t = Time.at(log['timestamp']).strftime("%m/%d/%y %H:%M")
-                    puts "#{t} [#{log['severity']}] #{log['message']}"
-                }
-            end
-
-            0
-        end
-    end
-end
-
-def adjust_str(policy)
-    sign = policy['adjust'].to_i >= 0 ? "+" : "-"
-    adjust = policy['adjust'].to_i.abs
-
-    case policy['type']
-    when 'CARDINALITY'
-        "= #{adjust}"
-    when 'PERCENTAGE_CHANGE'
-        st = "#{sign} #{adjust} %"
-        if policy['min_adjust_step']
-            st << " (#{policy['min_adjust_step']})"
-        end
-
-        st
-    else
-        "#{sign} #{adjust}"
-    end
-end
-
-#
-# Commands
-#
-
-cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "`oneflow` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneflow` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     set :option, Service::DEFAULT_OPTIONS
     set :option, CommandParser::VERSION
     set :option, CommandParser::HELP
 
-    #
+    DONE = {
+        :name => 'done',
+        :large => '--done',
+        :description => 'Show services in DONE state'
+    }
+
+    ARGS = {
+        :name => 'args',
+        :large => '--args arg1,arg2',
+        :description => 'Schedule action arguments',
+        :format => String
+    }
+
+    DELETE = {
+        :name => 'delete',
+        :large => '--delete',
+        :description => 'Force flow necover delete'
+    }
+
+    # create helper object
+    helper = OneFlowHelper.new
+
+    ############################################################################
     # Formatters for arguments
-    #
-    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    ############################################################################
+
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
 
-    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "USER")
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
     end
 
-    set :format, :service_id, Service.rname_to_id_desc("SERVICE") do |arg|
-        Service.rname_to_id(arg, "SERVICE")
+    set :format, :service_id, Service.rname_to_id_desc('SERVICE') do |arg|
+        Service.rname_to_id(arg, 'SERVICE')
     end
 
-    set :format, :service_id_list, Service.list_to_id_desc("SERVICE") do |arg|
-        Service.list_to_id(arg, "SERVICE")
+    set :format, :service_id_list, Service.list_to_id_desc('SERVICE') do |arg|
+        Service.list_to_id(arg, 'SERVICE')
     end
 
-    set :format, :vm_action, "Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}" do |arg|
+    set :format,
+        :vm_action,
+        'Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}' do |arg|
         if Role::SCHEDULE_ACTIONS.include?(arg)
             [0, arg]
         else
-            [-1, "Action #{arg} is not supported. Actions supported: #{Role::SCHEDULE_ACTIONS.join(', ')}"]
+            [-1, "Action '#{arg}' is not supported. Supported actions: " \
+                 "#{Role::SCHEDULE_ACTIONS.join(', ')}"]
         end
     end
 
-    #
-    # List
-    #
+    ###
 
     list_desc = <<-EOT.unindent
         List the available services
     EOT
 
-    command :list, list_desc, :options => Service::JSON_FORMAT do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
-
-        list_services(client, args, options)
+    command :list, list_desc, :options => OpenNebulaHelper::FORMAT + [DONE] do
+        helper.list_service_pool(helper.client(options), options)
     end
 
-    #
-    # Show
-    #
+    ###
+
+    top_desc = <<-EOT.unindent
+        Top the available services
+    EOT
+
+    command :top, top_desc, :options => [CLIHelper::DELAY, DONE] do
+        Signal.trap('INT') { exit(-1) }
+
+        helper.top_service_pool(helper.client(options), options)
+
+        0
+    end
+
+    ###
 
     show_desc = <<-EOT.unindent
         Show detailed information of a given service
     EOT
 
-    command :show, show_desc, :service_id, :options => Service::JSON_FORMAT do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
-
-        show_service(client, args, options)
+    command :show,
+            show_desc,
+            :service_id,
+            :options => OpenNebulaHelper::FORMAT do
+        helper.format_resource(helper.client(options), args[0], options)
     end
 
-    #
-    # Top
-    #
-
-    top_desc = <<-EOT.unindent
-        Top the services or the extended information of the target service if a
-        id is specified
-    EOT
-
-    command :top, top_desc, [:service_id, nil],
-            :options => [Service::JSON_FORMAT, Service::TOP, CLIHelper::DELAY] do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
-
-        delay=options[:delay] ? options[:delay] : 3
-
-        begin
-            while true
-                CLIHelper.scr_cls
-                CLIHelper.scr_move(0,0)
-
-                if args[0]
-                    rc, message = show_service(client, args, options)
-
-                    if rc != 0
-                        raise message
-                    end
-                else
-                    rc, message = list_services(client, args, options)
-
-                    if rc != 0
-                        raise message
-                    end
-                end
-
-                sleep delay
-            end
-        rescue Exception => e
-            puts e.message
-            -1
-        end
-    end
-
-    #
-    # Delete
-    #
+    ###
 
     delete_desc = <<-EOT.unindent
         Delete a given service
     EOT
 
     command :delete, delete_desc, [:range, :service_id_list] do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+        client = helper.client(options)
 
-        Service.perform_actions(args[0]) { |service_id|
+        Service.perform_actions(args[0]) do |service_id|
             client.delete("#{RESOURCE_PATH}/#{service_id}")
-        }
+        end
     end
 
-    #
-    # Shutdown
-    #
-
-    shutdown_desc = <<-EOT.unindent
-        Shutdown a service.
-            From RUNNING or WARNING shuts down the Service
-    EOT
-
-    command :shutdown, shutdown_desc, [:range, :service_id_list] do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
-
-        Service.perform_actions(args[0]) { |service_id|
-            json_action = Service.build_json_action('shutdown')
-
-            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
-    end
-
-    #
-    # Recover
-    #
+    ###
 
     recover_desc = <<-EOT.unindent
         Recover a failed service, cleaning the failed VMs.
             From FAILED_DEPLOYING continues deploying the Service
             From FAILED_SCALING continues scaling the Service
             From FAILED_UNDEPLOYING continues shutting down the Service
-            From COOLDOWN the Service is set to running ignoring the cooldown duration
+            From COOLDOWN the Service is set to running ignoring the cooldown
             From WARNING failed VMs are deleted, and new VMs are instantiated
     EOT
 
-    command :recover, recover_desc, [:range, :service_id_list] do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+    command :recover,
+            recover_desc,
+            [:range, :service_id_list],
+            :options => DELETE do
+        client = helper.client(options)
 
-        Service.perform_actions(args[0]) { |service_id|
-            json_action = Service.build_json_action('recover')
+        Service.perform_actions(args[0]) do |service_id|
+            params = {}
+            params['delete'] = options.key?(:delete)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+            json = Service.build_json_action('recover', params)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
+        end
     end
 
-    #
-    # Scale
-    #
+    ###
 
     scale_desc = <<-EOT.unindent
         Scale a role to the given cardinality
     EOT
 
-    command :'scale', scale_desc, :service_id, :role_name,
-        :cardinality, :options => [Service::FORCE] do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
-
-        if !(args[2] =~ /^\d+$/)
-            puts "Cardinality must be an integer number"
-            exit -1
+    command :scale,
+            scale_desc,
+            :service_id,
+            :role_name,
+            :cardinality,
+            :options => [Service::FORCE] do
+        if args[2] !~ /^\d+$/
+            STDERR.puts 'Cardinality must be an integer number'
+            exit(-1)
         end
 
-        exit_code = 0
+        json = "{ \"cardinality\" : #{args[2]},\n" \
+               "  \"force\" : #{options[:force] == true}, " \
+               "  \"role_name\" : \"#{args[1]}\"}"
 
-        json =  "{ \"cardinality\" : #{args[2]},\n"<<
-                "  \"force\" : #{options[:force] == true} }"
-
-        response = client.put("#{RESOURCE_PATH}/#{args[0]}/role/#{args[1]}", json)
-
-        if CloudClient::is_error?(response)
-            puts response.to_s
-            exit_code = response.code.to_i
+        Service.perform_action(args[0]) do |service_id|
+            helper.client(options).post("#{RESOURCE_PATH}/#{service_id}/scale",
+                                        json)
         end
-
-        exit_code
     end
+
+    ###
 
     chgrp_desc = <<-EOT.unindent
         Changes the service group
     EOT
 
     command :chgrp, chgrp_desc, [:range, :service_id_list], :groupid do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+        client = helper.client(options)
 
-        Service.perform_actions(args[0]) { |service_id|
-            params = Hash.new
+        Service.perform_actions(args[0]) do |service_id|
+            params = {}
             params['group_id'] = args[1].to_i
 
-            json_action = Service.build_json_action('chgrp', params)
+            json = Service.build_json_action('chgrp', params)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
+        end
     end
+
+    ###
 
     chown_desc = <<-EOT.unindent
         Changes the service owner and group
     EOT
 
-    command :chown, chown_desc, [:range, :service_id_list], :userid, [:groupid, nil] do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+    command :chown,
+            chown_desc,
+            [:range, :service_id_list],
+            :userid,
+            [:groupid, nil] do
+        client = helper.client(options)
 
-        Service.perform_actions(args[0]) { |service_id|
-            params = Hash.new
+        Service.perform_actions(args[0]) do |service_id|
+            params = {}
             params['owner_id'] = args[1]
             params['group_id'] = args[2] if args[2]
 
-            json_action = Service.build_json_action('chown', params)
+            json = Service.build_json_action('chown', params)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
+        end
     end
+
+    ###
 
     chmod_desc = <<-EOT.unindent
         Changes the service permissions
     EOT
 
     command :chmod, chmod_desc, [:range, :service_id_list], :octet do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+        if !/\A\d+\z/.match(args[1])
+            STDERR.puts "Invalid '#{args[1]}' octed permissions"
+            exit(-1)
+        end
 
-        Service.perform_actions(args[0]) { |service_id|
-            params = Hash.new
+        client = helper.client(options)
+
+        Service.perform_actions(args[0]) do |service_id|
+            params = {}
             params['octet'] = args[1]
 
-            json_action = Service.build_json_action('chmod', params)
+            json = Service.build_json_action('chmod', params)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/action", json_action)
-        }
-    end
-
-    rename_desc = <<-EOT.unindent
-        Renames the Service 
-    EOT
-
-    command :rename, rename_desc, :service_id, :name do
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
-
-        params = Hash.new
-        params['name'] = args[1]
-
-        json_action = Service.build_json_action('rename', params)
-
-        response = client.post("#{RESOURCE_PATH}/#{args[0]}/action", json_action)
-
-        if CloudClient::is_error?(response)
-            [response.code.to_i, response.to_s]
-        else
-            response.code.to_i
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
         end
     end
 
-    action_desc = <<-EOT.unindent
-        Perform an action on all the Virtual Machines of a given role.
-        Actions supported: #{Role::SCHEDULE_ACTIONS.join(",")}
+    ###
+
+    rename_desc = <<-EOT.unindent
+        Renames the Service
     EOT
 
-    command :"action", action_desc, :service_id, :role_name, :vm_action,
-        :options => [Service::PERIOD, Service::NUMBER] do
+    command :rename, rename_desc, :service_id, :name do
+        Service.perform_action(args[0]) do |service_id|
+            params = {}
+            params['name'] = args[1]
 
-        client = Service::Client.new(
-                    :username   => options[:username],
-                    :password   => options[:password],
-                    :url        => options[:server],
-                    :user_agent => USER_AGENT)
+            json = Service.build_json_action('rename', params)
 
-        Service.perform_actions([args[0]]) { |service_id|
-            params = Hash.new
+            helper.client(options).post("#{RESOURCE_PATH}/#{service_id}/action",
+                                        json)
+        end
+    end
+
+    ###
+
+    action_desc = <<-EOT.unindent
+        Perform an action on all the Virtual Machines of a given role.
+        Actions supported: #{Role::SCHEDULE_ACTIONS.join(',')}
+    EOT
+
+    command :action,
+            action_desc,
+            :service_id,
+            :role_name,
+            :vm_action,
+            :options => [Service::PERIOD, Service::NUMBER, ARGS] do
+        Service.perform_action(args[0]) do |service_id|
+            params = {}
             params[:period] = options[:period].to_i if options[:period]
             params[:number] = options[:number].to_i if options[:number]
+            params[:args]   = options[:args] if options[:args]
 
-            json_action = Service.build_json_action(args[2], params)
+            json   = Service.build_json_action(args[2], params)
+            client = helper.client(options)
 
-            client.post("#{RESOURCE_PATH}/#{service_id}/role/#{args[1]}/action", json_action)
-        }
+            client.post("#{RESOURCE_PATH}/#{service_id}/role/#{args[1]}/action",
+                        json)
+        end
+    end
+
+    ###
+
+    action_desc = <<-EOT.unindent
+        Perform an action on all the Virtual Machines of a given service.
+        Actions supported: #{Role::SCHEDULE_ACTIONS.join(',')}
+    EOT
+
+    command [:service, :action],
+            action_desc,
+            :service_id,
+            :vm_action,
+            :options => [Service::PERIOD, Service::NUMBER, ARGS] do
+        Service.perform_action(args[0]) do |service_id|
+            params = {}
+            params[:period] = options[:period].to_i if options[:period]
+            params[:number] = options[:number].to_i if options[:number]
+            params[:args]   = options[:args] if options[:args]
+
+            json   = Service.build_json_action(args[1], params)
+            client = helper.client(options)
+
+            client.post("#{RESOURCE_PATH}/#{service_id}/action", json)
+        end
+    end
+
+    ###
+
+    update_desc = <<-EOT.unindent
+        Update the template contents. If a path is not provided the editor will
+        be launched to modify the current content.
+    EOT
+
+    command :update, update_desc, :service_id, [:file, nil] do
+        service_id = args[0]
+        client     = helper.client(options)
+
+        if args[1]
+            path = args[1]
+        else
+            response = client.get("#{RESOURCE_PATH}/#{service_id}")
+
+            if CloudClient.is_error?(response)
+                exit_with_code response.code.to_i, response.to_s
+            else
+                document = JSON.parse(response.body)['DOCUMENT']
+                template = document['TEMPLATE']['BODY']
+
+                tmp  = Tempfile.new(service_id.to_s)
+                path = tmp.path
+
+                tmp.write(JSON.pretty_generate(template))
+                tmp.flush
+
+                if ENV['EDITOR']
+                    editor_path = ENV['EDITOR']
+                else
+                    editor_path = OpenNebulaHelper::EDITOR_PATH
+                end
+
+                system("#{editor_path} #{path}")
+
+                unless $CHILD_STATUS.exitstatus.zero?
+                    STDERR.puts 'Editor not defined'
+                    exit(-1)
+                end
+
+                tmp.close
+            end
+        end
+
+        response = client.put("#{RESOURCE_PATH}/#{service_id}", File.read(path))
+
+        if CloudClient.is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            0
+        end
     end
 end

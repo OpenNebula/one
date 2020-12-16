@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,7 +19,6 @@ require 'json'
 
 require 'pp'
 
-
 # This class is used by Sunstone to set and return the views available to a user
 # as well as available tabs.
 class SunstoneViews
@@ -32,15 +31,23 @@ class SunstoneViews
     VIEWS_CONFIGURATION_FILE = ETC_LOCATION + "/sunstone-views.yaml"
     VIEWS_CONFIGURATION_DIR  = ETC_LOCATION + "/sunstone-views/"
 
-    def initialize
+    def initialize(mode)
+
+        raise "Sunstone configuration file does not contain default view mode, aborting" if mode.nil?
+
         @views_config = YAML.load_file(VIEWS_CONFIGURATION_FILE)
 
         base_path = SUNSTONE_ROOT_DIR+'/public/js/'
 
         @views = Hash.new
 
-        Dir[VIEWS_CONFIGURATION_DIR+'*.yaml'].each do |p_path|
-            m = p_path.match(/^#{VIEWS_CONFIGURATION_DIR}(.*).yaml$/)
+        raise "The #{mode} view directory does not exists, aborting" if Dir[VIEWS_CONFIGURATION_DIR + mode].empty?
+
+        raise "The #{mode} view directory is empty, aborting" if Dir[VIEWS_CONFIGURATION_DIR + mode + '/*.yaml'].empty?
+
+        Dir[VIEWS_CONFIGURATION_DIR + mode + '/*.yaml'].each do |p_path|
+            reg = VIEWS_CONFIGURATION_DIR + mode + '/'
+            m = p_path.match(/^#{reg}(.*).yaml$/)
             if m && m[1]
                 @views[m[1]] = YAML.load_file(p_path)
             end

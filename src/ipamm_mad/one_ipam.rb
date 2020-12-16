@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,18 +16,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    ETC_LOCATION="/etc/one/"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    ETC_LOCATION      = '/etc/one/'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    ETC_LOCATION=ONE_LOCATION+"/etc/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    ETC_LOCATION      = ONE_LOCATION + '/etc/'
 end
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
 
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'scripts_common'
 require 'OpenNebulaDriver'
@@ -37,13 +44,13 @@ require 'shellwords'
 
 # IPAM Manager driver
 class IPAMDriver < OpenNebulaDriver
-
     # IPAM Driver Protocol constants
     ACTION = {
-        :register_address_range => "REGISTER_ADDRESS_RANGE",
-        :allocate_address       => "ALLOCATE_ADDRESS",
-        :get_address            => "GET_ADDRESS",
-        :free_address           => "FREE_ADDRESS"
+        :register_address_range   => "REGISTER_ADDRESS_RANGE",
+        :unregister_address_range => "UNREGISTER_ADDRESS_RANGE",
+        :allocate_address         => "ALLOCATE_ADDRESS",
+        :get_address              => "GET_ADDRESS",
+        :free_address             => "FREE_ADDRESS"
     }
 
     # Init the driver
@@ -53,10 +60,11 @@ class IPAMDriver < OpenNebulaDriver
             :threaded      => false,
             :retries       => 0,
             :local_actions => {
-                ACTION[:register_address_range] => nil,
-                ACTION[:allocate_address]       => nil,
-                ACTION[:get_address]            => nil,
-                ACTION[:free_address]           => nil
+                ACTION[:register_address_range]   => nil,
+                ACTION[:unregister_address_range] => nil,
+                ACTION[:allocate_address]         => nil,
+                ACTION[:get_address]              => nil,
+                ACTION[:free_address]             => nil
             }
         }.merge!(options)
 
@@ -75,6 +83,9 @@ class IPAMDriver < OpenNebulaDriver
         register_action(ACTION[:register_address_range].to_sym,
             method("register_address_range"))
 
+        register_action(ACTION[:unregister_address_range].to_sym,
+            method("unregister_address_range"))
+
         register_action(ACTION[:allocate_address].to_sym,
             method("allocate_address"))
 
@@ -85,6 +96,10 @@ class IPAMDriver < OpenNebulaDriver
 
     def register_address_range(id, drv_message)
         do_ipam_action(id, :register_address_range, drv_message)
+    end
+
+    def unregister_address_range(id, drv_message)
+        do_ipam_action(id, :unregister_address_range, drv_message)
     end
 
     def allocate_address(id, drv_message)
@@ -98,6 +113,7 @@ class IPAMDriver < OpenNebulaDriver
     def free_address(id, drv_message)
         do_ipam_action(id, :free_address, drv_message)
     end
+
     private
 
     def do_ipam_action(id, action, arguments)
@@ -118,9 +134,9 @@ class IPAMDriver < OpenNebulaDriver
 
         path = File.join(@local_scripts_path, ipam)
         cmd  = File.join(path, ACTION[action].downcase)
-        cmd << " " << arguments
+        cmd << " " << id
 
-        rc = LocalCommand.run(cmd, log_method(id))
+        rc = LocalCommand.run(cmd, log_method(id), arguments)
 
         result, info = get_info_from_execution(rc)
 

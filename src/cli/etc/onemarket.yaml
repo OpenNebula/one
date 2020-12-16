@@ -2,21 +2,23 @@
 :ID:
   :desc: ONE identifier for the Marketplace
   :size: 4
+  :adjust: true
 
 :USER:
   :desc: Username of the Marketplace owner
-  :size: 10
+  :size: 8
   :left: true
 
 :GROUP:
   :desc: Group of the Marketplace
-  :size: 10
+  :size: 8
   :left: true
 
 :NAME:
   :desc: Name of the Marketplace
-  :size: 30
+  :size: 15
   :left: true
+  :expand: true
 
 :SIZE:
   :desc: Marketplace total size

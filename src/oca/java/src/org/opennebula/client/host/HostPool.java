@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,20 @@ public class HostPool extends Pool implements Iterable<Host>{
     public static OneResponse monitoring(Client client)
     {
         return client.call(MONITORING);
+    }
+
+    /**
+     * Retrieves the monitoring data for all the hosts in the pool.
+     *
+     * @param client XML-RPC Client.
+     * @param num: Retrieve monitor records in the last num seconds.
+     * 0 just the last record, -1 all records.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse monitoring(Client client, int num)
+    {
+        return client.call(MONITORING, num);
     }
 
     /**

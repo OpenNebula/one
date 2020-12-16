@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,7 @@
 define(function(require) {
   var Handlebars = require('hbs/handlebars');
   var Locale = require('utils/locale');
+  var templateUtils = require("utils/template-utils");
 
   var valOrDefault = function(value, defaultValue, options) {
     var out;
@@ -24,7 +25,7 @@ define(function(require) {
     if (value == undefined || ($.isPlainObject(value) && $.isEmptyObject(value))){
         out = defaultValue;
     } else {
-        out = value;
+        out = templateUtils.removeHTMLTags(value);
     }
 
     return new Handlebars.SafeString(out);

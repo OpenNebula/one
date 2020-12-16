@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,6 +30,7 @@ require 'set'
 require 'nokogiri'
 
 require 'opennebula'
+require 'database_schema'
 
 require 'fsck/pool_control'
 require 'fsck/user'
@@ -52,8 +53,6 @@ require 'fsck/template'
 require 'fsck/quotas'
 
 module OneDBFsck
-    VERSION = "5.5.80"
-    LOCAL_VERSION = "5.5.80"
 
     def db_version
         if defined?(@db_version) && @db_version
@@ -66,12 +65,12 @@ module OneDBFsck
     def check_db_version()
         # db_version = read_db_version()
 
-        if ( db_version[:version] != VERSION ||
-             db_version[:local_version] != LOCAL_VERSION )
+        if ( db_version[:version] != OneDBBacKEnd::LATEST_DB_VERSION ||
+             db_version[:local_version] != OneDBBacKEnd::LATEST_LOCAL_DB_VERSION )
 
             raise <<-EOT
 Version mismatch: fsck file is for version
-Shared: #{VERSION}, Local: #{LOCAL_VERSION}
+Shared: #{OneDBBacKEnd::LATEST_DB_VERSION}, Local: #{OneDBBacKEnd::LATEST_LOCAL_DB_VERSION}
 
 Current database is version
 Shared: #{db_version[:version]}, Local: #{db_version[:local_version]}
@@ -80,7 +79,7 @@ EOT
     end
 
     def one_version
-        "OpenNebula #{VERSION}"
+        "OpenNebula #{OneDBBacKEnd::LATEST_DB_VERSION}"
     end
 
     # def db_version
@@ -99,7 +98,7 @@ EOT
         "marketplaceapp_pool"].freeze
 
     FEDERATED_TABLES = ["group_pool", "user_pool", "acl", "zone_pool",
-        "vdc_pool", "marketplace_pool", "marketplaceapp_pool"].freeze
+        "vdc_pool", "marketplace_pool", "marketplaceapp_pool", "db_versioning"].freeze
 
     def tables
         TABLES
@@ -107,12 +106,6 @@ EOT
 
     def federated_tables
         FEDERATED_TABLES
-    end
-
-    def nokogiri_doc(body)
-        Nokogiri::XML(body, nil, NOKOGIRI_ENCODING) do |c|
-            c.default_xml.noblanks
-        end
     end
 
     def add_element(elem, name)
@@ -358,6 +351,7 @@ EOT
         log_time
 
         # VNC
+        check_vnc_ports
 
         # DATA: VNC Bitmap
 
@@ -462,17 +456,20 @@ EOT
         # USER QUOTAS
         ########################################################################
 
-        check_fix_user_quotas
+        check_fix_quotas('user')
+
+        check_fix_quotas('user', 'running')
 
         log_time
-
         ########################################################################
         # Groups
         #
         # GROUP QUOTAS
         ########################################################################
 
-        check_fix_group_quotas
+        check_fix_quotas('group')
+
+        check_fix_quotas('group', 'running')
 
         log_time
 
@@ -483,9 +480,8 @@ EOT
         ########################################################################
 
         check_template
-        fix_template
 
-        log_time
+        fix_template
 
         log_total_errors
 
@@ -527,7 +523,7 @@ EOT
     end
 
     def mac_s_to_i(mac)
-        return nil if mac.empty?
+        return nil if mac.nil? || mac.empty?
         return mac.split(":").map {|e|
             e.to_i(16).to_s(16).rjust(2,"0")}.join("").to_i(16)
     end
@@ -554,7 +550,7 @@ EOT
         mlow = mac[0]
         eui64 = [
             4261412864 + (mlow & 0x00FFFFFF),
-            ((mac[1]+512)<<16) + ((mlow & 0xFF000000)>>16) + 0x000000FF
+            ((mac[1]^0x0200)<<16) + ((mlow & 0xFF000000)>>16) + 0x000000FF
         ]
 
         return (eui64[1] << 32) + eui64[0]
@@ -618,7 +614,7 @@ EOT
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
-        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        image = nokogiri_doc(row[:body], 'image_pool')
         return image
     end
 
@@ -650,7 +646,7 @@ EOT
         # No image found, so unable to get image TYPE
         return nil if row.nil?
 
-        image = Nokogiri::XML(row[:body], nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+        image = nokogiri_doc(row[:body], 'image_pool')
 
         return image
     end

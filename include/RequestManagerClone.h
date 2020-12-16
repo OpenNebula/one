@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,7 +21,9 @@
 #include "RequestManagerVMTemplate.h"
 #include "Nebula.h"
 
-using namespace std;
+#include "DocumentPool.h"
+#include "SecurityGroupPool.h"
+#include "VNTemplatePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -30,8 +32,8 @@ using namespace std;
 class RequestManagerClone: public Request
 {
 protected:
-    RequestManagerClone(const string& method_name, const string& help,
-        const string& params = "A:sis"):
+    RequestManagerClone(const std::string& method_name, const std::string& help,
+        const std::string& params = "A:sis"):
         Request(method_name,params,help){};
 
     ~RequestManagerClone(){};
@@ -39,7 +41,7 @@ protected:
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-            RequestAttributes& att);
+            RequestAttributes& att) override;
 
     /* -------------------------------------------------------------------- */
     /* Especialization Functions for specific Clone actions                 */
@@ -48,18 +50,18 @@ protected:
 	/**
      *  Function to clone the object
      */
-    virtual ErrorCode clone(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_uattr, RequestAttributes& att);
+    virtual ErrorCode clone(int source_id, const std::string &name, int &new_id,
+            bool recursive, const std::string& s_uattr, RequestAttributes& att);
 
 	/**
      *  Function to clone the base template
      */
-    virtual Template * clone_template(PoolObjectSQL* obj) = 0;
+    virtual std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) = 0;
 
 	/**
      *  Function to merge user/additional attributes in the cloned object
      */
-    virtual ErrorCode merge(Template * tmpl, const string &str_uattrs,
+    virtual ErrorCode merge(Template * tmpl, const std::string &str_uattrs,
             RequestAttributes& att)
     {
         return SUCCESS;
@@ -68,8 +70,8 @@ protected:
 	/**
      *  Function to allocated the new clone object
      */
-    virtual int pool_allocate(int source_id, Template * tmpl, int& id,
-            RequestAttributes& att) = 0;
+    virtual int pool_allocate(int source_id, std::unique_ptr<Template> tmpl,
+                              int& id, RequestAttributes& att) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -91,39 +93,92 @@ public:
 
     ~VMTemplateClone(){};
 
-    ErrorCode request_execute(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_uattrs, RequestAttributes& att)
+    ErrorCode request_execute(int source_id, const std::string &name,
+                              int &new_id, bool recursive,
+                              const std::string& s_uattrs,
+                              RequestAttributes& att)
     {
         return clone(source_id, name, new_id, recursive, s_uattrs, att);
     };
 
 protected:
 
-    ErrorCode clone(int source_id, const string &name, int &new_id,
-            bool recursive, const string& s_a, RequestAttributes& att);
+    ErrorCode clone(int source_id, const std::string &name, int &new_id,
+                    bool recursive, const std::string& s_a,
+                    RequestAttributes& att) override;
 
-    Template * clone_template(PoolObjectSQL* obj)
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<VMTemplate*>(obj)->clone_template();
-    };
+    }
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl, int& id,
+                      RequestAttributes& att) override
     {
         VMTemplatePool * tpool     = static_cast<VMTemplatePool *>(pool);
-        VirtualMachineTemplate * t = static_cast<VirtualMachineTemplate*>(tmpl);
+        std::unique_ptr<VirtualMachineTemplate> t(
+            static_cast<VirtualMachineTemplate*>(tmpl.release()));
 
         return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                t, &id, att.resp_msg);
+                std::move(t), &id, att.resp_msg);
+    }
+
+    ErrorCode merge(Template * tmpl, const std::string &s_a,
+                    RequestAttributes& att) override
+    {
+        VMTemplateInstantiate vm_instantiate;
+
+        return vm_instantiate.merge(tmpl, s_a, att);
     };
 
-    ErrorCode merge(Template * tmpl, const string &s_a, RequestAttributes& att)
-	{
-		VMTemplateInstantiate vm_instantiate;
-
-		return vm_instantiate.merge(tmpl, s_a, att);
-	};
+    static const std::vector<const char*> REMOVE_DISK_ATTRS;
 };
 
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VNTemplateClone : public RequestManagerClone
+{
+public:
+    VNTemplateClone():
+        RequestManagerClone("one.vntemplate.clone",
+                "Clone a virtual network template", "A:sis")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+        auth_op     = AuthRequest::USE;
+    };
+
+    ~VNTemplateClone(){};
+
+    ErrorCode request_execute(int source_id, const std::string &name,
+                              int &new_id, const std::string& s_uattrs,
+                              RequestAttributes& att)
+    {
+        return clone(source_id, name, new_id, false, s_uattrs, att);
+    };
+
+protected:
+
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
+    {
+        return static_cast<VNTemplate*>(obj)->clone_template();
+    }
+
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl,
+                      int& id, RequestAttributes& att) override
+    {
+        VNTemplatePool * tpool     = static_cast<VNTemplatePool *>(pool);
+        std::unique_ptr<VirtualNetworkTemplate> t(
+            static_cast<VirtualNetworkTemplate*>(tmpl.release()));
+
+        return tpool->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
+                std::move(t), &id, att.resp_msg);
+    }
+
+};
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -145,28 +200,27 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj)
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<Document*>(obj)->clone_template();
-    };
+    }
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl,
+                      int& id, RequestAttributes& att) override
     {
         DocumentPool * docpool = static_cast<DocumentPool *>(pool);
-        Document * doc         = docpool->get(sid, true);
+        auto           doc     = docpool->get_ro(sid);
 
-        if ( doc == 0 )
+        if (!doc)
         {
             return -1;
         }
 
         int dtype = doc->get_document_type();
 
-        doc->unlock();
-
         return docpool->allocate(att.uid, att.gid, att.uname, att.gname,
-            att.umask, dtype, tmpl, &id, att.resp_msg);
-    };
+            att.umask, dtype, std::move(tmpl), &id, att.resp_msg);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -189,18 +243,19 @@ public:
 
 protected:
 
-    Template * clone_template(PoolObjectSQL* obj)
+    std::unique_ptr<Template> clone_template(PoolObjectSQL* obj) override
     {
         return static_cast<SecurityGroup*>(obj)->clone_template();
-    };
+    }
 
-    int pool_allocate(int sid, Template * tmpl, int& id, RequestAttributes& att)
+    int pool_allocate(int sid, std::unique_ptr<Template> tmpl,
+                      int& id, RequestAttributes& att) override
     {
         SecurityGroupPool * sg = static_cast<SecurityGroupPool *>(pool);
 
         return sg->allocate(att.uid, att.gid, att.uname, att.gname, att.umask,
-                tmpl, &id, att.resp_msg);
-    };
+                std::move(tmpl), &id, att.resp_msg);
+    }
 };
 
 /* -------------------------------------------------------------------------- */

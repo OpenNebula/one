@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,20 +19,20 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./clone/html');
-  var Sunstone = require('sunstone');
-  var DatastoreTable = require('tabs/datastores-tab/datatable')
-  var Notifier = require('utils/notifier');
-  var OpenNebulaImage = require('opennebula/image');
-  var OpenNebulaDatastore = require('opennebula/datastore');
+  var BaseDialog = require("utils/dialogs/dialog");
+  var TemplateHTML = require("hbs!./clone/html");
+  var Sunstone = require("sunstone");
+  var DatastoreTable = require("tabs/datastores-tab/datatable");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaImage = require("opennebula/image");
+  var OpenNebulaDatastore = require("opennebula/datastore");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./clone/dialogId');
-  var IMAGES_TAB_ID = require('tabs/images-tab/tabId')
+  var DIALOG_ID = require("./clone/dialogId");
+  var IMAGES_TAB_ID = require("tabs/images-tab/tabId");
 
   /*
     CONSTRUCTOR
@@ -41,10 +41,10 @@ define(function(require) {
   function Dialog() {
     this.dialogId = DIALOG_ID;
 
-    this.datastoreTable = new DatastoreTable('image_clone', {
-      'select': true,
-      'selectOptions': {
-        'filter_fn': function(ds) {
+    this.datastoreTable = new DatastoreTable("image_clone", {
+      "select": true,
+      "selectOptions": {
+        "filter_fn": function(ds) {
           return ds.TYPE == OpenNebulaDatastore.TYPES.IMAGE_DS;
         }
       }
@@ -68,8 +68,8 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'dialogId': this.dialogId,
-      'datastoreTableSelectHTML': this.datastoreTable.dataTableHTML
+      "dialogId": this.dialogId,
+      "datastoreTableSelectHTML": this.datastoreTable.dataTableHTML
     });
   }
 
@@ -78,33 +78,33 @@ define(function(require) {
     // TODO: Show DS with the same ds mad only
     that.datastoreTable.initialize();
 
-    $('#' + DIALOG_ID + 'Form', dialog).submit(function() {
-      var name = $('input[name="image_clone_name"]', this).val();
+    $("#" + DIALOG_ID + "Form", dialog).submit(function() {
+      var name = $("input[name=\"image_clone_name\"]", this).val();
       var sel_elems = Sunstone.getDataTable(IMAGES_TAB_ID).elements();
 
       var extra_info = {};
 
       var targeDS = that.datastoreTable.retrieveResourceTableSelect();
       if (targeDS) {
-        extra_info['target_ds'] = targeDS;
+        extra_info["target_ds"] = targeDS;
       }
 
       if (sel_elems.length > 1) {
         for (var i = 0; i < sel_elems.length; i++) {
           //If we are cloning several images we
           //use the name as prefix
-          extra_info['name'] = name + OpenNebulaImage.getName(sel_elems[i]);
-          Sunstone.runAction('Image.clone', sel_elems[i], extra_info);
+          extra_info["name"] = name + OpenNebulaImage.getName(sel_elems[i]);
+          Sunstone.runAction("Image.clone", sel_elems[i], extra_info);
         }
       } else {
-        extra_info['name'] = name;
-        Sunstone.runAction('Image.clone', sel_elems[0], extra_info)
+        extra_info["name"] = name;
+        Sunstone.runAction("Image.clone", sel_elems[0], extra_info);
       }
 
       Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
       setTimeout(function() {
-        Sunstone.runAction('Image.refresh');
+        Sunstone.runAction("Image.refresh");
       }, 1500);
       return false;
     });
@@ -119,13 +119,13 @@ define(function(require) {
 
     //show different text depending on how many elements are selected
     if (sel_elems.length > 1) {
-      $('.clone_one', dialog).hide();
-      $('.clone_several', dialog).show();
-      $('input[name="image_clone_name"]', dialog).val('Copy of ');
+      $(".clone_one", dialog).hide();
+      $(".clone_several", dialog).show();
+      $("input[name=\"image_clone_name\"]", dialog).val("Copy of ");
     } else {
-      $('.clone_one', dialog).show();
-      $('.clone_several', dialog).hide();
-      $('input[name="image_clone_name"]', dialog).val('Copy of ' + sel_elems[0].name);
+      $(".clone_one", dialog).show();
+      $(".clone_several", dialog).hide();
+      $("input[name=\"image_clone_name\"]", dialog).val("Copy of " + sel_elems[0].name);
     };
 
     this.datastoreTable.resetResourceTableSelect();

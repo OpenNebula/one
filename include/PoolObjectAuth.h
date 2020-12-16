@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -45,14 +45,15 @@ public:
         other_a(0),
         disable_all_acl(false),
         disable_cluster_acl(false),
-        disable_group_acl(false) {};
+        disable_group_acl(false),
+        locked(0) {};
 
     void get_acl_rules(AclRule& owner_rule,
                        AclRule& group_rule,
                        AclRule& other_rule,
                        int zone_id) const;
 
-    string type_to_str() const
+    std::string type_to_str() const
     {
         return PoolObjectSQL::type_to_str(obj_type);
     };
@@ -64,7 +65,7 @@ public:
     int oid;
     int uid;
     int gid;
-    set<int> cids;
+    std::set<int> cids;
 
     int owner_u;
     int owner_m;
@@ -81,6 +82,8 @@ public:
     bool disable_all_acl;     // All objects of this type (e.g. NET/*)
     bool disable_cluster_acl; // All objects in a cluster (e.g. NET/%100)
     bool disable_group_acl;   // All objects own by this group (e.g. NET/@101)
+
+    int locked;
 };
 
 #endif /*POOL_OBJECT_AUTH_H_*/

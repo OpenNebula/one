@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,8 @@
 #include "NebulaLog.h"
 #include "Nebula.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 
 const string VdcPool::DEFAULT_NAME = "default";
@@ -25,7 +27,8 @@ const int    VdcPool::DEFAULT_ID   = 0;
 
 /* -------------------------------------------------------------------------- */
 
-VdcPool::VdcPool(SqlDB * db, bool is_federation_slave): PoolSQL(db, Vdc::table)
+VdcPool::VdcPool(SqlDB * db, bool is_federation_slave)
+    : PoolSQL(db, one_db::vdc_table)
 {
     string error_str;
 
@@ -39,7 +42,7 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave): PoolSQL(db, Vdc::table)
     if (get_lastOID() == -1)
     {
         ostringstream vdc_tmpl;
-        Template *    tmpl = new Template;
+        auto tmpl = make_unique<Template>();
 
         // Build the default vdc
         vdc_tmpl << "NAME=" << DEFAULT_NAME << endl
@@ -54,21 +57,19 @@ VdcPool::VdcPool(SqlDB * db, bool is_federation_slave): PoolSQL(db, Vdc::table)
             goto error_bootstrap;
         }
 
-        allocate(tmpl, &rc, error_str);
+        allocate(move(tmpl), &rc, error_str);
 
         if( rc < 0 )
         {
             goto error_bootstrap;
         }
 
-        Vdc* vdc = get(rc, true);
+        auto vdc = get(rc);
 
         vdc->add_group(GroupPool::USERS_ID, error_str);
         vdc->add_cluster(Nebula::instance().get_zone_id(), Vdc::ALL_RESOURCES, error_str);
 
-        update(vdc);
-
-        vdc->unlock();
+        update(vdc.get());
 
         // The first 100 Vdc IDs are reserved for system Vdcs.
         // Regular ones start from ID 100
@@ -89,13 +90,11 @@ error_bootstrap:
 /* -------------------------------------------------------------------------- */
 
 int VdcPool::allocate(
-        Template *  vdc_template,
+        unique_ptr<Template> vdc_template,
         int *       oid,
         string&     error_str)
 {
-    Vdc * vdc;
-    Vdc * vdc_aux = 0;
-
+    int    db_oid;
     string name;
 
     ostringstream oss;
@@ -109,7 +108,7 @@ int VdcPool::allocate(
         return -1;
     }
 
-    vdc = new Vdc(-1, vdc_template);
+    auto vdc = new Vdc(-1, move(vdc_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -122,9 +121,9 @@ int VdcPool::allocate(
         goto error_name;
     }
 
-    vdc_aux = get(name,false);
+    db_oid = exist(name);
 
-    if( vdc_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -134,7 +133,7 @@ int VdcPool::allocate(
     return *oid;
 
 error_duplicated:
-    oss << "NAME is already taken by Vdc " << vdc_aux->get_oid() << ".";
+    oss << "NAME is already taken by Vdc " << db_oid << ".";
     error_str = oss.str();
 
 error_name:

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -46,7 +46,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, string& err)
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& err)
     {
         return check(PoolObjectSQL::VM, tmpl, default_quotas, err);
     }
@@ -71,7 +71,7 @@ protected:
      *
      *    @return 0 on success, -1 if not found
      */
-    int get_default_quota(const string& id,
+    int get_default_quota(const std::string& id,
                         Quotas& default_quotas,
                         VectorAttribute **va);
 
@@ -97,7 +97,7 @@ private:
      *    @return true if the operation can be performed
      */
     bool check(PoolObjectSQL::ObjectType otype, Template* tmpl,
-            Quotas& default_quotas, string& error);
+            Quotas& default_quotas, std::string& error);
 
     /**
      *  Decrement usage counters when freeing a lease. This method considers
@@ -120,7 +120,7 @@ public:
 
     virtual ~QuotaNetworkVirtualRouter(){};
 
-    bool check(Template* tmpl, Quotas& default_quotas, string& err)
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& err)
     {
         QuotaNetwork * qn = static_cast<QuotaNetwork *>(quota);
 

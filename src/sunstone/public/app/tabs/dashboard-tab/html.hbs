@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,6 +15,13 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div>
+  <div id="two_per_row">
+    {{#each twoPerRow}}
+    <div class="small-12 medium-6 columns">
+      {{{this}}}
+    </div>
+    {{/each}}
+  </div>
   <div id="one_per_row">
     {{#each onePerRow}}
     <div class="small-12 large-12 columns">
@@ -25,13 +32,6 @@
   <div id="three_per_row">
     {{#each threePerRow}}
     <div class="small-12 medium-4 columns">
-      {{{this}}}
-    </div>
-    {{/each}}
-  </div>
-  <div id="two_per_row">
-    {{#each twoPerRow}}
-    <div class="small-12 medium-6 columns">
       {{{this}}}
     </div>
     {{/each}}

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,18 @@
 #include "Request.h"
 #include "Nebula.h"
 
-using namespace std;
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +40,9 @@ using namespace std;
 class RequestManagerChown : public Request
 {
 protected:
-    RequestManagerChown(const string& method_name,
-                        const string& help,
-                        const string& params = "A:siii")
+    RequestManagerChown(const std::string& method_name,
+                        const std::string& help,
+                        const std::string& params = "A:siii")
         :Request(method_name,params,help)
     {
         auth_op = AuthRequest::MANAGE;
@@ -50,13 +61,24 @@ protected:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
 
-    PoolObjectSQL * get_and_quota(int                       oid,
-                                  int                       new_uid,
-                                  int                       new_gid,
-                                  RequestAttributes&        att);
+    std::unique_ptr<PoolObjectSQL> get_and_quota(int                oid,
+                                                 int                new_uid,
+                                                 int                new_gid,
+                                                 RequestAttributes& att)
+    {
+        return get_and_quota(oid, new_uid, new_gid, att, pool, auth_object);
+    }
+
+    std::unique_ptr<PoolObjectSQL> get_and_quota(
+            int                       oid,
+            int                       new_uid,
+            int                       new_gid,
+            RequestAttributes&        att,
+            PoolSQL *                 pool,
+            PoolObjectSQL::ObjectType auth_object);
 
     /**
      * Checks if the new owner cannot has other object with the same name (if
@@ -69,8 +91,6 @@ protected:
      * @return 0 if the operation is allowed, -1 otherwise
      */
     virtual int check_name_unique(int oid, int noid, RequestAttributes& att);
-
-    virtual PoolObjectSQL * get(const string& name, int uid, bool lock) = 0;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -90,12 +110,7 @@ public:
 
     ~VirtualMachineChown(){};
 
-    int check_name_unique(int oid, int noid, RequestAttributes& att)
-    {
-        return 0;
-    };
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -117,12 +132,26 @@ public:
     };
 
     ~TemplateChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VMTemplatePool*>(pool)->get(name, uid, lock);
-    };
 };
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkTemplateChown : public RequestManagerChown
+{
+public:
+    VirtualNetworkTemplateChown():
+        RequestManagerChown("one.vntemplate.chown",
+                            "Changes ownership of a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
+    };
+
+    ~VirtualNetworkTemplateChown(){};
+};
+
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -141,11 +170,6 @@ public:
     };
 
     ~VirtualNetworkChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VirtualNetworkPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -164,11 +188,6 @@ public:
     };
 
     ~ImageChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<ImagePool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -191,10 +210,10 @@ public:
 
     /* -------------------------------------------------------------------- */
 
-    virtual void request_execute(xmlrpc_c::paramList const& _paramList,
-                                 RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att)  override;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -217,7 +236,7 @@ public:
 
     ~DatastoreChown(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -240,7 +259,7 @@ public:
 
     ~DocumentChown(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -262,11 +281,6 @@ public:
     };
 
     ~SecurityGroupChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -285,11 +299,6 @@ public:
     };
 
     ~VirtualRouterChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -309,7 +318,7 @@ public:
 
     ~MarketPlaceChown(){};
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int check_name_unique(int oid, int noid, RequestAttributes& att) override
     {
         return 0;
     };
@@ -331,11 +340,6 @@ public:
     };
 
     ~MarketPlaceAppChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<MarketPlaceAppPool *>(pool)->get(name, uid, lock);
-    };
 };
 
 /* -------------------------------------------------------------------------- */
@@ -354,11 +358,6 @@ public:
     };
 
     ~VMGroupChown(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return static_cast<VMGroupPool*>(pool)->get(name, uid, lock);
-    };
 };
 
 #endif

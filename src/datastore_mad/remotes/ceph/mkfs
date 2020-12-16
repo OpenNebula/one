@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -33,7 +33,8 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
-source ${DRIVER_PATH}/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
 
 # -------- Get mkfs and datastore arguments from OpenNebula core ------------
 
@@ -53,11 +54,13 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/POOL_NAME \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/STAGING_DIR \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/RBD_FORMAT \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/FSTYPE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/FORMAT \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SIZE \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/FS \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_USER \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_KEY \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CEPH_CONF \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/EC_POOL_NAME)
 
 unset i
 
@@ -68,11 +71,13 @@ BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 POOL_NAME="${XPATH_ELEMENTS[i++]:-$POOL_NAME}"
 STAGING_DIR="${XPATH_ELEMENTS[i++]:-$STAGING_DIR}"
 RBD_FORMAT="${XPATH_ELEMENTS[i++]:-$RBD_FORMAT}"
-FSTYPE="${XPATH_ELEMENTS[i++]}"
+FORMAT="${XPATH_ELEMENTS[i++]}"
 SIZE="${XPATH_ELEMENTS[i++]}"
+FS="${XPATH_ELEMENTS[i++]}"
 CEPH_USER="${XPATH_ELEMENTS[i++]}"
 CEPH_KEY="${XPATH_ELEMENTS[i++]}"
 CEPH_CONF="${XPATH_ELEMENTS[i++]}"
+EC_POOL_NAME="${XPATH_ELEMENTS[i++]}"
 
 DST_HOST=`get_destination_host $ID`
 
@@ -93,32 +98,53 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
+if [ -n "$EC_POOL_NAME" ]; then
+    RBD="$RBD --data-pool ${EC_POOL_NAME}"
+fi
+
 set_up_datastore "$BASE_PATH" "$RESTRICTED_DIRS" "$SAFE_DIRS"
 
 IMAGE_NAME="one-${ID}"
 RBD_SOURCE="${POOL_NAME}/${IMAGE_NAME}"
 
-# ------------ Image to save_as disk, no need to create a FS ------------
+# ------------ Image to save_as disk, no need to create a new image ------------
 
-if [ "$FSTYPE" = "save_as" ]; then
+if [ "$FORMAT" = "save_as" ]; then
     echo "$RBD_SOURCE"
     exit 0
 fi
 
 # ------------ Create the image in the repository ------------
 
-MKFS_CMD=`mkfs_command /dev/rbd/${RBD_SOURCE} $FSTYPE $SIZE`
-
 if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
 fi
 
-REGISTER_CMD=$(cat <<EOF
-    export PATH=/usr/sbin:/sbin:\$PATH
+REGISTER_CMD=""
+if [ ! -z $FS ]; then
+    set -e -o pipefail
 
-    $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
+    IMAGE_HASH=`generate_image_hash`
+    TMP_DST="$STAGING_DIR/$IMAGE_HASH"
+    FS_OPTS=$(eval $(echo "echo \$FS_OPTS_$FS"))
+
+    MKFS_CMD=`mkfs_command $TMP_DST raw $SIZE $SUPPORTED_FS $FS $FS_OPTS`
+
+    REGISTER_CMD=$(cat <<EOF
+        export PATH=/usr/sbin:/sbin:\$PATH
+
+        ${MKFS_CMD}
+        $RBD import $FORMAT_OPT $TMP_DST $RBD_SOURCE
 EOF
 )
+else
+    REGISTER_CMD=$(cat <<EOF
+        export PATH=/usr/sbin:/sbin:\$PATH
+
+        $RBD create $FORMAT_OPT $RBD_SOURCE --size ${SIZE} || exit \$?
+EOF
+)
+fi
 
 ssh_exec_and_log "$DST_HOST" "$REGISTER_CMD" \
     "Error registering $RBD_SOURCE in $DST_HOST"

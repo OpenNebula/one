@@ -1,0 +1,282 @@
+<?xml version="1.0"?>
+<!-- A Relax NG schema for the libvirt domain capabilities XML format -->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href='basictypes.rng'/>
+  <include href='cputypes.rng'/>
+  <start>
+    <ref name='domainCapabilities'/>
+  </start>
+
+
+  <define name='domainCapabilities'>
+    <element name='domainCapabilities'>
+      <interleave>
+        <element name='path'>
+          <ref name="absFilePath"/>
+        </element>
+        <element name='domain'>
+          <text/>
+        </element>
+        <optional>
+          <element name='machine'>
+            <text/>
+          </element>
+        </optional>
+        <element name='arch'>
+          <text/>
+        </element>
+        <optional>
+          <ref name='vcpu'/>
+        </optional>
+        <optional>
+          <ref name='iothreads'/>
+        </optional>
+        <optional>
+          <ref name='os'/>
+        </optional>
+        <optional>
+          <ref name='cpu'/>
+        </optional>
+        <optional>
+          <ref name='devices'/>
+        </optional>
+        <optional>
+          <ref name='features'/>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+
+  <define name='vcpu'>
+    <element name='vcpu'>
+      <attribute name='max'>
+        <ref name='unsignedInt'/>
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+
+  <define name='iothreads'>
+    <element name='iothreads'>
+      <ref name='supported'/>
+      <empty/>
+    </element>
+  </define>
+
+  <define name='loader'>
+    <element name='loader'>
+      <ref name='supported'/>
+      <optional>
+        <ref name='value'/>
+      </optional>
+      <ref name='enum'/>
+    </element>
+  </define>
+
+  <define name='os'>
+    <element name='os'>
+      <interleave>
+        <ref name='supported'/>
+        <ref name='enum'/>
+        <optional>
+          <ref name='loader'/>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+
+  <define name='cpu'>
+    <element name='cpu'>
+      <ref name='cpuHost'/>
+      <ref name='cpuHostModel'/>
+      <ref name='cpuCustom'/>
+    </element>
+  </define>
+
+  <define name='cpuHost'>
+    <element name='mode'>
+      <attribute name='name'>
+        <value>host-passthrough</value>
+      </attribute>
+      <ref name='supported'/>
+    </element>
+  </define>
+
+  <define name='cpuHostModel'>
+    <element name='mode'>
+      <attribute name='name'>
+        <value>host-model</value>
+      </attribute>
+      <ref name='supported'/>
+      <optional>
+        <ref name="cpuModel"/>
+        <optional>
+          <ref name="cpuVendor"/>
+        </optional>
+        <zeroOrMore>
+          <ref name="cpuFeature"/>
+        </zeroOrMore>
+      </optional>
+    </element>
+  </define>
+
+  <define name='cpuCustom'>
+    <element name='mode'>
+      <attribute name='name'>
+        <value>custom</value>
+      </attribute>
+      <ref name='supported'/>
+      <zeroOrMore>
+        <element name='model'>
+          <attribute name='usable'>
+            <choice>
+              <value>yes</value>
+              <value>no</value>
+              <value>unknown</value>
+            </choice>
+          </attribute>
+          <text/>
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+
+  <define name='devices'>
+    <element name='devices'>
+      <optional>
+        <ref name='disk'/>
+      </optional>
+      <optional>
+        <ref name='graphics'/>
+      </optional>
+      <optional>
+        <ref name='video'/>
+      </optional>
+      <optional>
+        <ref name='hostdev'/>
+      </optional>
+      <optional>
+        <ref name='rng'/>
+      </optional>
+    </element>
+  </define>
+
+  <define name='disk'>
+    <element name='disk'>
+      <ref name='supported'/>
+      <ref name='enum'/>
+    </element>
+  </define>
+
+  <define name='graphics'>
+    <element name='graphics'>
+      <ref name='supported'/>
+      <ref name='enum'/>
+    </element>
+  </define>
+
+  <define name='video'>
+    <element name='video'>
+      <ref name='supported'/>
+      <ref name='enum'/>
+    </element>
+  </define>
+
+  <define name='hostdev'>
+    <element name='hostdev'>
+      <ref name='supported'/>
+      <ref name='enum'/>
+    </element>
+  </define>
+
+  <define name='rng'>
+    <element name='rng'>
+      <ref name='supported'/>
+      <ref name='enum'/>
+    </element>
+  </define>
+
+  <define name='features'>
+    <element name='features'>
+      <optional>
+        <ref name='gic'/>
+      </optional>
+      <optional>
+        <ref name='vmcoreinfo'/>
+      </optional>
+      <optional>
+        <ref name='vmgenid'/>
+      </optional>
+      <optional>
+        <ref name='backingStoreInput'/>
+      </optional>
+      <optional>
+        <ref name='sev'/>
+      </optional>
+    </element>
+  </define>
+
+  <define name='gic'>
+    <element name='gic'>
+      <ref name='supported'/>
+      <ref name='enum'/>
+    </element>
+  </define>
+
+  <define name='vmcoreinfo'>
+    <element name='vmcoreinfo'>
+      <ref name='supported'/>
+    </element>
+  </define>
+
+  <define name='vmgenid'>
+    <element name='genid'>
+      <ref name='supported'/>
+    </element>
+  </define>
+
+  <define name='backingStoreInput'>
+    <element name='backingStoreInput'>
+      <ref name='supported'/>
+    </element>
+  </define>
+
+  <define name='sev'>
+    <element name='sev'>
+      <ref name='supported'/>
+      <optional>
+        <element name='cbitpos'>
+          <data type='unsignedInt'/>
+        </element>
+        <element name='reducedPhysBits'>
+          <data type='unsignedInt'/>
+        </element>
+      </optional>
+    </element>
+  </define>
+
+  <define name='value'>
+    <zeroOrMore>
+      <element name='value'>
+        <text/>
+      </element>
+    </zeroOrMore>
+  </define>
+
+  <define name='supported'>
+    <attribute name='supported'>
+      <ref name="virYesNo"/>
+    </attribute>
+  </define>
+
+  <define name='enum'>
+    <zeroOrMore>
+      <element name='enum'>
+        <attribute name='name'>
+          <text/>
+        </attribute>
+        <ref name='value'/>
+      </element>
+    </zeroOrMore>
+  </define>
+</grammar>

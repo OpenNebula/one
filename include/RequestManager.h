@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,44 +17,34 @@
 #ifndef REQUEST_MANAGER_H_
 #define REQUEST_MANAGER_H_
 
-#include "ActionManager.h"
-#include "VirtualMachinePool.h"
-#include "HostPool.h"
-#include "UserPool.h"
-#include "VirtualNetworkPool.h"
-#include "ImagePool.h"
-#include "VMTemplatePool.h"
-#include "GroupPool.h"
-
-#include "AuthManager.h"
-
 #include <xmlrpc-c/base.hpp>
 #include <xmlrpc-c/registry.hpp>
 #include <xmlrpc-c/server_abyss.hpp>
 
-using namespace std;
+#include <set>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
-extern "C" void * rm_action_loop(void *arg);
+class ConnectionManager;
 
-extern "C" void * rm_xml_server_loop(void *arg);
-
-class RequestManager : public ActionListener
+class RequestManager
 {
 public:
 
     RequestManager(
-            const string& _port,
+            const std::string& _port,
             int _max_conn,
             int _max_conn_backlog,
             int _keepalive_timeout,
             int _keepalive_max_conn,
             int _timeout,
-            const string& _xml_log_file,
-            const string& call_log_format,
-            const string& _listen_address,
+            const std::string& _xml_log_file,
+            const std::string& call_log_format,
+            const std::string& _listen_address,
             int message_size);
 
-    ~RequestManager(){};
+    ~RequestManager();
 
     /**
      *  This functions starts the associated listener thread (XML server), and
@@ -64,48 +54,64 @@ public:
      */
     int start();
 
-    /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return rm_thread;
-    };
+    void finalize();
 
     /**
-     *
+     *  @return an AbyssServer to run xmlrpc connections
      */
-    void finalize()
-    {
-        am.finalize();
-    };
+    xmlrpc_c::serverAbyss * create_abyss();
 
+    bool exist_method(const std::string& call)
+    {
+        return RequestManagerRegistry.exist(call);
+    }
 
 private:
 
-    //--------------------------------------------------------------------------
-    // Friends, thread functions require C-linkage
-    //--------------------------------------------------------------------------
+    struct NebulaRegistry
+    {
+        std::set<std::string> registered_methods;
+        xmlrpc_c::registry registry;
 
-    friend void * rm_xml_server_loop(void *arg);
+        void addMethod(std::string const name, xmlrpc_c::methodPtr const methodP)
+        {
+            registered_methods.insert(name);
+            registry.addMethod(name, methodP);
+        };
 
-    friend void * rm_action_loop(void *arg);
+        bool exist(const std::string& call)
+        {
+            return registered_methods.find(call) != registered_methods.end();
+        }
+    };
 
     /**
-     *  Thread id for the RequestManager
+     *  XML Server main thread loop. Waits for client connections and starts
+     *  a new thread to handle the request.
      */
-    pthread_t               rm_thread;
+    void xml_server_loop();
 
     /**
      *  Thread id for the XML Server
      */
-    pthread_t               rm_xml_server_thread;
+    std::thread xml_server_thread;
+
+    /**
+     *  Manage the number of connections to the RM
+     */
+    std::unique_ptr<ConnectionManager> cm;
+
+    /**
+     *  Flag to end the main server loop
+     */
+    std::mutex end_lock;
+
+    std::atomic<bool> end;
 
     /**
      *  Port number where the connection will be open
      */
-    string port;
+    std::string port;
 
     /*
      *  FD for the XML server socket
@@ -140,27 +146,17 @@ private:
     /**
      *  Filename for the log of the xmlrpc server that listens
      */
-    string xml_log_file;
+    std::string xml_log_file;
 
     /**
      *  Specifies the address xmlrpc server will bind to
      */
-    string listen_address;
-
-    /**
-     *  Action engine for the Manager
-     */
-    ActionManager   am;
+    std::string listen_address;
 
     /**
      *  To register XML-RPC methods
      */
-    xmlrpc_c::registry RequestManagerRegistry;
-
-    /**
-     *  The XML-RPC server
-     */
-    xmlrpc_c::serverAbyss *  AbyssServer;
+    NebulaRegistry RequestManagerRegistry;
 
     /**
      *  Register the XML-RPC API Calls
@@ -168,32 +164,7 @@ private:
     void register_xml_methods();
 
     int setup_socket();
-
-    // ------------------------------------------------------------------------
-    // ActioListener Interface
-    // ------------------------------------------------------------------------
-    virtual void finalize_action(const ActionRequest& ar)
-    {
-        NebulaLog::log("ReM",Log::INFO,"Stopping Request Manager...");
-
-        pthread_cancel(rm_xml_server_thread);
-
-        pthread_join(rm_xml_server_thread,0);
-
-        NebulaLog::log("ReM",Log::INFO,"XML-RPC server stopped.");
-
-        delete AbyssServer;
-
-        if ( socket_fd != -1 )
-        {
-            close(socket_fd);
-        }
-    };
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 #endif
 

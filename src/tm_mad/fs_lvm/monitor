@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -42,20 +42,21 @@ XPATH="${DRIVER_PATH}/../../datastore/xpath.rb -b $DRV_ACTION"
 
 unset i XPATH_ELEMENTS
 
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
+while IFS= read -r -d '' ELEMENT; do
+    XPATH_ELEMENTS[i++]="$ELEMENT"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE_LOCATION \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST)
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
+                    /DS_DRIVER_ACTION_DATA/MONITOR_VM_DISKS)
 
 unset i
 
 BASE_PATH="${XPATH_ELEMENTS[i++]}/$2"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
+MONITOR_VM_DISKS="${XPATH_ELEMENTS[i++]}"
 
 # ------------ Compute datastore usage -------------
 
 LVM_VG_PREFIX="vg-one-"
-LVM_SIZE_CMD="$SUDO $VGDISPLAY --separator : --units m -o vg_size,vg_free --nosuffix --noheadings -C"
 
 MONITOR_SCRIPT=$(cat <<EOF
 if [ ! -d $BASE_PATH ]; then
@@ -65,7 +66,7 @@ fi
 # If vg-one-$DS_ID exists, we assume it's an fs_lvm image datastore, therefore'
 # we return the space of the lvm, no of the filesystem
 if PATH=\$PATH:/sbin:/bin:/usr/sbin:/usr/bin which vgdisplay &> /dev/null; then
-    LVM_SIZE=\$(sudo vgdisplay \
+    LVM_SIZE=\$($SUDO $VGDISPLAY \
                     --separator : \
                     --units m \
                     -o vg_size,vg_free \
@@ -90,8 +91,8 @@ else
 fi
 
 if [ -z "\$USED_MB" -o -z "\$TOTAL_MB" -o -z "\$FREE_MB" ]; then
-    msg="Empty value found"
-    echo "\$msg: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
+    MSG="Empty value found"
+    echo "\$MSG: USED_MB=\$USED_MB, TOTAL_MB=\$TOTAL_MB, FREE_MB=\$FREE_MB"
     exit 1
 fi
 
@@ -99,49 +100,64 @@ echo "USED_MB=\$USED_MB"
 echo "FREE_MB=\$FREE_MB"
 echo "TOTAL_MB=\$TOTAL_MB"
 
-lvdata=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
-[ -z "\$lvdata" ] && exit 0
+EOF
+)
 
-vm_previous='n'
+MONITOR_VM_SCRIPT=$(cat <<EOF
+LVDATA=\$($SUDO $LVS --noheadings --nosuffix --units m -o lv_name,lv_size --separator : "${LVM_VG_PREFIX}${DS_ID}" | sed -e 's/^[[:space:]]*//' | grep '^lv-one-' | sed 's/^lv-one-//' | tr '-' ':' | sort -n)
+[ -z "\$LVDATA" ] && exit 0
 
-while IFS="\n" read -r line; do
-    vm=\$(echo "\$line" | cut -d':' -f1)
-    [ -n "\$vm" ] || continue
+VM_PREVIOUS='n'
 
-    disk=\$(echo "\$line" | cut -d':' -f2)
-    size=\$(echo "\$line" | cut -d':' -f3 | cut -d'.' -f1)
+while IFS="\n" read -r LINE; do
+    VM=\$(echo "\$LINE" | cut -d':' -f1)
+    [ -n "\$VM" ] || continue
 
-    if [ "\$vm" != "\$vm_previous" ]; then
-        [ "\$vm_previous" != "n" ] && echo "\"]"
+    DISK=\$(echo "\$LINE" | cut -d':' -f2)
+    SIZE=\$(echo "\$LINE" | cut -d':' -f3 | cut -d'.' -f1)
 
-        vm_previous="\$vm"
-        echo -n "VM=[ID=\$vm,POLL=\""
+    if [ "\$VM" != "\$VM_PREVIOUS" ]; then
+        [ "\$VM_PREVIOUS" != "n" ] && echo "\"]"
+
+        VM_PREVIOUS="\$VM"
+        echo -n "VM=[ID=\$VM,MONITOR=\""
     else
         echo -n " "
     fi
 
-    echo -n "DISK_SIZE=[ID=\$disk,SIZE=\$size]"
+    MONITOR_B64="\$(echo -n "DISK_SIZE=[ID=\$DISK,SIZE=\$SIZE]" | base64 -w 0)"
+    echo -n "\$MONITOR_B64"
 
-done <<< "\$( echo "\$lvdata" )"
+done <<< "\$( echo "\$LVDATA" )"
 
-[ "\$vm_previous" != "n" ] && echo "\"]"
+[ "\$VM_PREVIOUS" != "n" ] && echo "\"]"
 
 EOF
 )
 
 if [ -n "$BRIDGE_LIST" ]; then
     HOST=`get_destination_host`
-    MONITOR_DATA="$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)"
+    MONITOR_DATA=$(ssh_monitor_and_log "$HOST" "$MONITOR_SCRIPT" "Remote monitor script" 2>&1)
+    MONITOR_STATUS=$?
+
+    if [ $MONITOR_VM_DISKS -eq 1 ]; then
+        MONITOR_DATA_VMS=$(ssh_monitor_and_log "$HOST" "$MONITOR_VM_SCRIPT" "Remote VM disks monitor script" 2>&1)
+        MONITOR_VMS_STATUS=$?
+    fi
 else
-    MONITOR_DATA="$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)"
+    MONITOR_DATA=$(monitor_and_log "$MONITOR_SCRIPT" "Monitor script" 2>&1)
+    MONITOR_STATUS=$?
+
+    if [ $MONITOR_VM_DISKS -eq 1 ]; then
+        MONITOR_DATA_VMS=$(monitor_and_log "$MONITOR_VM_SCRIPT" "VM disks monitor script" 2>&1)
+        MONITOR_VMS_STATUS=$?
+    fi
 fi
 
-MONITOR_STATUS=$?
+echo $MONITOR_DATA
 
-if [ "$MONITOR_STATUS" = "0" ]; then
-    echo "$MONITOR_DATA"
-    exit 0
-else
-    echo "$MONITOR_DATA"
-    exit $MONITOR_STATUS
+if [ $MONITOR_VM_DISKS -eq 1 ]; then
+    send_to_monitor MONITOR_VM $MONITOR_VMS_STATUS -1 "$MONITOR_DATA_VMS"
 fi
+
+exit $MONITOR_STATUS

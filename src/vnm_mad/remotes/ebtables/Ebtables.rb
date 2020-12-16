@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 
 require 'vnmmad'
 
-class EbtablesVLAN < VNMMAD::VNMDriver
+class EbtablesVLAN < VNMMAD::NoVLANDriver
 
     DRIVER = "ebtables"
     XPATH_FILTER = "TEMPLATE/NIC[VN_MAD='ebtables']"
@@ -35,6 +35,11 @@ class EbtablesVLAN < VNMMAD::VNMDriver
     # Activates ebtables rules
     #
     def activate
+        if VNMMAD.pre_action?
+            super()
+            return 0
+        end
+
         lock
 
         process do |nic|
@@ -58,7 +63,7 @@ class EbtablesVLAN < VNMMAD::VNMDriver
 
         unlock
 
-        return 0
+        0
     end
 
     def deactivate
@@ -88,7 +93,9 @@ class EbtablesVLAN < VNMMAD::VNMDriver
 
         unlock
 
-        return 0
+        super
+
+        0
     end
 
     def rules

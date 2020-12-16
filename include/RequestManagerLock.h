@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,9 +18,6 @@
 #define REQUEST_MANAGER_LOCK_H_
 
 #include "Request.h"
-#include "Nebula.h"
-
-using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,21 +26,24 @@ using namespace std;
 class RequestManagerLock: public Request
 {
 protected:
-    RequestManagerLock(const string& method_name,
-                       const string& help)
+    RequestManagerLock(const std::string& method_name,
+                       const std::string& help)
         :Request(method_name, "A:sis", help)
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
-    ~RequestManagerLock(){};
+    ~RequestManagerLock() = default;
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
-    virtual int lock_db(PoolObjectSQL * object, const string& owner) = 0;
+    int lock_db(PoolObjectSQL * object, const int owner, const int req_id, const int level)
+    {
+        return object->lock_db(owner, req_id, level);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -52,21 +52,24 @@ protected:
 class RequestManagerUnlock: public Request
 {
 protected:
-    RequestManagerUnlock(const string& method_name,
-                         const string& help)
-        :Request(method_name, "A:sis", help)
+    RequestManagerUnlock(const std::string& method_name,
+                         const std::string& help)
+        :Request(method_name, "A:sii", help)
     {
-        auth_op = AuthRequest::MANAGE;
+        auth_op = AuthRequest::MANAGE_NO_LCK;
     };
 
-    ~RequestManagerUnlock(){};
+    ~RequestManagerUnlock() = default;
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 
-    virtual void unlock_db(PoolObjectSQL * object, const string& owner) = 0;
+    int unlock_db(PoolObjectSQL * object, const int owner, const int req_id)
+    {
+        return object->unlock_db(owner, req_id);
+    };
 };
 
 /* ------------------------------------------------------------------------- */
@@ -75,21 +78,9 @@ protected:
 class DocumentLock : public RequestManagerLock
 {
 public:
-    DocumentLock():
-        RequestManagerLock("one.document.lock",
-                           "Tries to acquire the object's lock")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_docpool();
-        auth_object = PoolObjectSQL::DOCUMENT;
-    };
+    DocumentLock();
 
-    ~DocumentLock(){};
-
-    int lock_db(PoolObjectSQL * object, const string& owner)
-    {
-        return static_cast<Document*>(object)->lock_db(owner);
-    };
+    ~DocumentLock() = default;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -98,25 +89,206 @@ public:
 class DocumentUnlock : public RequestManagerUnlock
 {
 public:
-    DocumentUnlock():
-        RequestManagerUnlock("one.document.unlock",
-                           "Unlocks the object")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_docpool();
-        auth_object = PoolObjectSQL::DOCUMENT;
-    };
+    DocumentUnlock();
 
-    ~DocumentUnlock(){};
-
-    void unlock_db(PoolObjectSQL * object, const string& owner)
-    {
-        return static_cast<Document*>(object)->unlock_db(owner);
-    };
+    ~DocumentUnlock() = default;
 };
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+class VirtualMachineLock: public RequestManagerLock
+{
+public:
+    VirtualMachineLock();
+
+    ~VirtualMachineLock() = default;
+};
 /* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineUnlock: public RequestManagerUnlock
+{
+public:
+    VirtualMachineUnlock();
+
+    ~VirtualMachineUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VMTemplateLock: public RequestManagerLock
+{
+public:
+    VMTemplateLock();
+
+    ~VMTemplateLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VMTemplateUnlock: public RequestManagerUnlock
+{
+public:
+    VMTemplateUnlock();
+
+    ~VMTemplateUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VNTemplateLock: public RequestManagerLock
+{
+public:
+    VNTemplateLock();
+
+    ~VNTemplateLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VNTemplateUnlock: public RequestManagerUnlock
+{
+public:
+    VNTemplateUnlock();
+
+    ~VNTemplateUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualNetworkLock: public RequestManagerLock
+{
+public:
+    VirtualNetworkLock();
+
+    ~VirtualNetworkLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualNetworkUnlock: public RequestManagerUnlock
+{
+public:
+    VirtualNetworkUnlock();
+
+    ~VirtualNetworkUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ImageLock: public RequestManagerLock
+{
+public:
+    ImageLock();
+
+    ~ImageLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ImageUnlock: public RequestManagerUnlock
+{
+public:
+    ImageUnlock();
+
+    ~ImageUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class MarketPlaceAppLock: public RequestManagerLock
+{
+public:
+    MarketPlaceAppLock();
+
+    ~MarketPlaceAppLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class MarketPlaceAppUnlock: public RequestManagerUnlock
+{
+public:
+    MarketPlaceAppUnlock();
+
+    ~MarketPlaceAppUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualRouterLock: public RequestManagerLock
+{
+public:
+    VirtualRouterLock();
+
+    ~VirtualRouterLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualRouterUnlock: public RequestManagerUnlock
+{
+public:
+    VirtualRouterUnlock();
+
+    ~VirtualRouterUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VMGroupLock: public RequestManagerLock
+{
+public:
+    VMGroupLock();
+
+    ~VMGroupLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VMGroupUnlock: public RequestManagerUnlock
+{
+public:
+    VMGroupUnlock();
+
+    ~VMGroupUnlock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookLock: public RequestManagerLock
+{
+public:
+    HookLock();
+
+    ~HookLock() = default;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookUnlock: public RequestManagerUnlock
+{
+public:
+    HookUnlock();
+
+    ~HookUnlock() = default;
+};
 
 #endif

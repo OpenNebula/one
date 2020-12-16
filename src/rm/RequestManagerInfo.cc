@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,8 @@
 #include "RequestManagerInfo.h"
 #include "RequestManagerPoolInfoFilter.h"
 #include "VirtualMachineDisk.h"
+#include "Nebula.h"
+#include "VirtualRouterPool.h"
 
 using namespace std;
 
@@ -27,7 +29,6 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
     int             oid = xmlrpc_c::value_int(paramList.getInt(1));
-    PoolObjectSQL * object;
     string          str;
 
     if ( oid == -1 )
@@ -47,18 +48,30 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
-    object = pool->get(oid,true);
+    auto object = pool->get_ro<PoolObjectSQL>(oid);
 
-    if ( object == 0 )
+    if ( object == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
         return;
     }
 
-    to_xml(att, object, str);
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+    if (att.is_admin() && paramList.size() > 2)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
 
-    object->unlock();
+    if (decrypt)
+    {
+        object->decrypt();
+    }
+
+    load_monitoring(object.get());
+
+    to_xml(att, object.get(), str);
 
     success_response(str, att);
 
@@ -71,24 +84,25 @@ void RequestManagerInfo::request_execute(xmlrpc_c::paramList const& paramList,
 void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
                                          RequestAttributes& att)
 {
-    VMTemplatePool *         tpool   = static_cast<VMTemplatePool *>(pool);
-    VirtualMachineTemplate * extended_tmpl = 0;
-    VMTemplate *             vm_tmpl;
+    VMTemplatePool * tpool   = static_cast<VMTemplatePool *>(pool);
+
+    unique_ptr<VirtualMachineTemplate> extended_tmpl;
 
     PoolObjectAuth perms;
 
-    int             oid = xmlrpc_c::value_int(paramList.getInt(1));
-    bool            extended = false;
-    string          str;
+    int  oid = xmlrpc_c::value_int(paramList.getInt(1));
+    bool extended = false;
+
+    string str;
 
     if ( paramList.size() > 2 )
     {
         extended = xmlrpc_c::value_boolean(paramList.getBoolean(2));
     }
 
-    vm_tmpl = tpool->get(oid,true);
+    auto vm_tmpl = tpool->get_ro(oid);
 
-    if ( vm_tmpl == 0 )
+    if ( vm_tmpl == nullptr )
     {
         att.resp_id = oid;
         failure_response(NO_EXISTS, att);
@@ -102,54 +116,102 @@ void TemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
 
     vm_tmpl->get_permissions(perms);
 
-    vm_tmpl->unlock();
-
     AuthRequest ar(att.uid, att.group_ids);
 
-    ar.add_auth(auth_op, perms); //USE TEMPLATE
+    ar.add_auth(att.auth_op, perms); //USE TEMPLATE
 
     if (extended)
     {
-        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl);
+        VirtualMachine::set_auth_request(att.uid, ar, extended_tmpl.get(), false);
 
-        VirtualMachineDisks::extended_info(att.uid, extended_tmpl);
+        VirtualMachineDisks::extended_info(att.uid, extended_tmpl.get());
     }
 
-    if ( att.uid != UserPool::ONEADMIN_ID && att.gid != GroupPool::ONEADMIN_ID )
+    if (UserPool::authorize(ar) == -1)
     {
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-            failure_response(AUTHORIZATION, att);
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
 
-            delete extended_tmpl;
-            return;
-        }
-    }
-
-    vm_tmpl = tpool->get(oid,true);
-
-    if ( vm_tmpl == 0 )
-    {
-        att.resp_id = oid;
-        failure_response(NO_EXISTS, att);
-
-        delete extended_tmpl;
         return;
     }
 
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+
+    if (att.is_admin() && paramList.size() > 3)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(3));
+    }
+
+    if (decrypt)
+    {
+        vm_tmpl->decrypt();
+    }
+
     if (extended)
     {
-        vm_tmpl->to_xml(str, extended_tmpl);
-
-        delete extended_tmpl;
+        vm_tmpl->to_xml(str, extended_tmpl.get());
     }
     else
     {
         vm_tmpl->to_xml(str);
     }
 
-    vm_tmpl->unlock();
+    success_response(str, att);
+
+    return;
+}
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+void VirtualNetworkTemplateInfo::request_execute(xmlrpc_c::paramList const& paramList,
+                                         RequestAttributes& att)
+{
+    VNTemplatePool * tpool   = static_cast<VNTemplatePool *>(pool);
+
+    PoolObjectAuth perms;
+
+    int    oid = xmlrpc_c::value_int(paramList.getInt(1));
+    string str;
+
+    auto vn_tmpl = tpool->get_ro(oid);
+
+    if ( vn_tmpl == nullptr )
+    {
+        att.resp_id = oid;
+        failure_response(NO_EXISTS, att);
+        return;
+    }
+
+    vn_tmpl->get_permissions(perms);
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(att.auth_op, perms); //USE TEMPLATE
+
+    if (UserPool::authorize(ar) == -1)
+    {
+        att.resp_msg = ar.message;
+        failure_response(AUTHORIZATION, att);
+
+        return;
+    }
+
+    // Check optional parameter - decrypt
+    bool decrypt = false;
+
+    if (att.is_admin() && paramList.size() > 2)
+    {
+        decrypt = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    }
+
+    if (decrypt)
+    {
+        vn_tmpl->decrypt();
+    }
+
+    vn_tmpl->to_xml(str);
 
     success_response(str, att);
 

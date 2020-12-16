@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,24 @@
 
 #include "Request.h"
 #include "Nebula.h"
+#include "ClusterPool.h"
+#include "DatastorePool.h"
+#include "DocumentPool.h"
+#include "HookPool.h"
+#include "HostPool.h"
+#include "ImagePool.h"
+#include "MarketPlacePool.h"
+#include "MarketPlaceAppPool.h"
+#include "SecurityGroupPool.h"
+#include "VdcPool.h"
+#include "VirtualMachinePool.h"
+#include "VirtualNetworkPool.h"
+#include "VirtualRouterPool.h"
+#include "VMGroupPool.h"
+#include "VMTemplatePool.h"
+#include "VNTemplatePool.h"
+#include "ZonePool.h"
 
-using namespace std;
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,31 +45,26 @@ using namespace std;
 class RequestManagerRename : public Request
 {
 protected:
-    RequestManagerRename(const string& method_name,
-                         const string& help,
-                         const string& params = "A:sis")
+    RequestManagerRename(const std::string& method_name,
+                         const std::string& help,
+                         const std::string& params = "A:sis")
         :Request(method_name,params,help)
     {
-        pthread_mutex_init(&mutex, 0);
-
         auth_op = AuthRequest::MANAGE;
-    };
+    }
 
-    virtual ~RequestManagerRename(){};
+    ~RequestManagerRename() = default;
 
     /* -------------------------------------------------------------------- */
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                        RequestAttributes& att);
+                        RequestAttributes& att) override;
 
     /**
      *  Gets and object by name and owner. Default implementation returns no
      *  object
      */
-    virtual PoolObjectSQL * get(const string& name, int uid, bool lock)
-    {
-        return 0;
-    }
+    virtual int exist(const std::string& name, int uid) = 0;
 
     /**
      *  Batch rename of related objects. Default implementation does nothing
@@ -66,13 +77,9 @@ protected:
      */
     bool test_and_set_rename(int oid)
     {
-        pair<set<int>::iterator,bool> rc;
+        std::lock_guard<std::mutex> lock(_mutex);
 
-        pthread_mutex_lock(&mutex);
-
-        rc = rename_ids.insert(oid);
-
-        pthread_mutex_unlock(&mutex);
+        auto rc = rename_ids.insert(oid);
 
         return rc.second == true;
     }
@@ -82,23 +89,32 @@ protected:
      */
     void clear_rename(int oid)
     {
-        pthread_mutex_lock(&mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         rename_ids.erase(oid);
+    }
 
-        pthread_mutex_unlock(&mutex);
+    /**
+     *  Method por updating custom values not included in PoolSQL::update
+     *  mainly used for updating search information in the VMs.
+     *    @param object to be updated
+     *    @return 0 on success
+     */
+    virtual int extra_updates(PoolObjectSQL * obj)
+    {
+        return 0;
     }
 
 private:
     /**
      *  Mutex to control concurrent access to the ongoing rename operations
      */
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Set of IDs being renamed;
      */
-    set<int> rename_ids;
+    std::set<int> rename_ids;
 
 };
 
@@ -114,11 +130,31 @@ public:
         Nebula& nd  = Nebula::instance();
         pool        = nd.get_vmpool();
         auth_object = PoolObjectSQL::VM;
+        vm_action   = VMActions::RENAME_ACTION;
+    }
 
-        auth_op     = nd.get_vm_auth_op(History::RENAME_ACTION);
-    };
+    ~VirtualMachineRename() = default;
 
-    ~VirtualMachineRename(){};
+    int exist(const std::string& name, int uid) override
+    {
+        return -1;
+    }
+
+    int extra_updates(PoolObjectSQL * obj) override
+    {
+        VirtualMachine * vm;
+
+        VirtualMachinePool * vmpool = static_cast<VirtualMachinePool *>(pool);
+
+        if (obj == 0)
+        {
+            return -1;
+        }
+
+        vm = static_cast<VirtualMachine *>(obj);
+
+        return vmpool->update_search(vm);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -136,12 +172,35 @@ public:
         auth_object = PoolObjectSQL::TEMPLATE;
     };
 
-    ~TemplateRename(){};
+    ~TemplateRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<VMTemplatePool*>(pool)->get(name, uid, lock);
+        return pool->exist(name, uid);
+    }
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
+class VirtualNetworkTemplateRename : public RequestManagerRename
+{
+public:
+    VirtualNetworkTemplateRename():
+        RequestManagerRename("one.vntemplate.rename",
+                             "Renames a virtual network template")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_vntpool();
+        auth_object = PoolObjectSQL::VNTEMPLATE;
     };
+
+    ~VirtualNetworkTemplateRename() = default;
+
+    int exist(const std::string& name, int uid) override
+    {
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -159,12 +218,12 @@ public:
         auth_object = PoolObjectSQL::NET;
     };
 
-    ~VirtualNetworkRename(){};
+    ~VirtualNetworkRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<VirtualNetworkPool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -181,12 +240,12 @@ public:
         auth_object = PoolObjectSQL::IMAGE;
     };
 
-    ~ImageRename(){};
+    ~ImageRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<ImagePool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -203,7 +262,12 @@ public:
         auth_object = PoolObjectSQL::DOCUMENT;
     };
 
-    ~DocumentRename(){};
+    ~DocumentRename() = default;
+
+    int exist(const std::string& name, int uid) override
+    {
+        return -1;
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -220,14 +284,14 @@ public:
         auth_object = PoolObjectSQL::CLUSTER;
     };
 
-    ~ClusterRename(){};
+    ~ClusterRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<ClusterPool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
-    void batch_rename(int oid);
+    void batch_rename(int oid) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -244,14 +308,14 @@ public:
         auth_object = PoolObjectSQL::DATASTORE;
     };
 
-    ~DatastoreRename(){};
+    ~DatastoreRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<DatastorePool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
-    void batch_rename(int oid);
+    void batch_rename(int oid) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -269,15 +333,14 @@ public:
 
         auth_op = AuthRequest::ADMIN;
     };
+    ~HostRename() = default;
 
-    ~HostRename(){};
-
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<HostPool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
-    void batch_rename(int oid);
+    void batch_rename(int oid) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -294,7 +357,12 @@ public:
         auth_object = PoolObjectSQL::ZONE;
     };
 
-    ~ZoneRename(){};
+    ~ZoneRename() = default;
+
+    int exist(const std::string& name, int uid) override
+    {
+        return pool->exist(name);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -311,12 +379,12 @@ public:
         auth_object = PoolObjectSQL::SECGROUP;
     };
 
-    ~SecurityGroupRename(){};
+    ~SecurityGroupRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<SecurityGroupPool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -333,7 +401,12 @@ public:
         auth_object = PoolObjectSQL::VDC;
     };
 
-    ~VdcRename(){};
+    ~VdcRename() = default;
+
+    int exist(const std::string& name, int uid) override
+    {
+        return pool->exist(name);
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -350,12 +423,12 @@ public:
         auth_object = PoolObjectSQL::VROUTER;
     };
 
-    ~VirtualRouterRename(){};
+    ~VirtualRouterRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<VirtualRouterPool*>(pool)->get(name, uid, lock);
-    };
+        return -1;
+    }
 };
 
 /* ------------------------------------------------------------------------- */
@@ -372,14 +445,14 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACE;
     };
 
-    ~MarketPlaceRename(){};
+    ~MarketPlaceRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<MarketPlacePool*>(pool)->get(name, lock);
-    };
+        return pool->exist(name);
+    }
 
-    void batch_rename(int oid);
+    void batch_rename(int oid) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -396,12 +469,12 @@ public:
         auth_object = PoolObjectSQL::MARKETPLACEAPP;
     };
 
-    ~MarketPlaceAppRename(){};
+    ~MarketPlaceAppRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<MarketPlaceAppPool*>(pool)->get(name, uid, lock);
-    };
+        return pool->exist(name, uid);
+    }
 };
 
 /* -------------------------------------------------------------------------- */
@@ -418,12 +491,34 @@ public:
         auth_object = PoolObjectSQL::VMGROUP;
     };
 
-    ~VMGroupRename(){};
+    ~VMGroupRename() = default;
 
-    PoolObjectSQL * get(const string& name, int uid, bool lock)
+    int exist(const std::string& name, int uid) override
     {
-        return static_cast<VMGroupPool*>(pool)->get(name, uid, lock);
+        return pool->exist(name, uid);
+    }
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class HookRename: public RequestManagerRename
+{
+public:
+    HookRename():
+        RequestManagerRename("one.hook.rename", "Renames a hook")
+    {
+        Nebula& nd  = Nebula::instance();
+        pool        = nd.get_hkpool();
+        auth_object = PoolObjectSQL::HOOK;
     };
+
+    ~HookRename() = default;
+
+    int exist(const std::string& name, int uid)
+    {
+        return pool->exist(name, uid);
+    }
 };
 
 #endif

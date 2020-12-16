@@ -1,0 +1,58 @@
+resource "aws_vpc" "device_<%= obj['ID'] %>" {
+    cidr_block = "<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
+
+    tags = {
+        Name = "<%= obj['NAME'] %>_vpc"
+    }
+}
+
+resource "aws_subnet" "device_<%= obj['ID'] %>" {
+    vpc_id     = aws_vpc.device_<%= obj['ID'] %>.id
+    cidr_block = "<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
+
+    map_public_ip_on_launch = true
+
+    tags = {
+        Name = "<%= obj['NAME'] %>_subnet"
+    }
+}
+
+resource "aws_internet_gateway" "device_<%= obj['ID'] %>" {
+    vpc_id = aws_vpc.device_<%= obj['ID'] %>.id
+
+    tags = {
+        Name = "<%= obj['NAME'] %>_gateway"
+    }
+}
+
+resource "aws_route" "device_<%= obj['ID'] %>" {
+    route_table_id         = aws_vpc.device_<%= obj['ID'] %>.main_route_table_id
+    destination_cidr_block = "0.0.0.0/0"
+    gateway_id             = aws_internet_gateway.device_<%= obj['ID'] %>.id
+}
+
+resource "aws_security_group" "device_<%= obj['ID'] %>_ssh" {
+  name        = "allow_ssh"
+  description = "Allow SSH inbound traffic"
+  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
+
+  ingress {
+    description = "TLS from all"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "device_<%= obj['ID'] %>_ssh"
+  }
+}
+

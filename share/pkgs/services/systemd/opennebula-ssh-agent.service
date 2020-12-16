@@ -1,0 +1,24 @@
+[Unit]
+Description=OpenNebula SSH agent
+After=remote-fs.target
+
+[Service]
+Type=forking
+Group=oneadmin
+User=oneadmin
+Environment=SSH_AUTH_SOCK=/var/run/one/ssh-agent.sock
+# ssh-agent is executed via shell wrapper to workaround a SELinux issue
+ExecStartPre=/bin/sh -c "echo SSH_AUTH_SOCK=$SSH_AUTH_SOCK > /var/run/one/ssh-agent.env"
+ExecStart=/bin/sh -c "exec /usr/bin/ssh-agent -a $SSH_AUTH_SOCK"
+ExecStartPost=-/bin/sh -c "/usr/bin/ssh-add"
+ExecStopPost=/usr/bin/rm -f /var/run/one/ssh-agent.env
+ExecReload=/bin/sh -c "/usr/bin/ssh-add -D && /usr/bin/ssh-add"
+Restart=on-failure
+# NOTE: ssh-agent returns "2" as the exit code on SIGTERM or on termination via:
+#   SSH_AGENT_PID=??? ssh-agent -k
+# without this following directive the "systemctl stop" would fail and cleanup
+# (ExecStopPost) would not be triggered...
+SuccessExitStatus=2
+
+[Install]
+WantedBy=default.target

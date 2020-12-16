@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,11 @@ define(function(require) {
       layout: "refresh",
       alwaysActive: true
     },
+    "Service.update_dialog" : {
+      type: "action",
+      text: Locale.tr("Update"),
+      layout: "main",
+    },
     "Service.create_dialog" : {
       type: "action",
       layout: "create",
@@ -44,8 +49,13 @@ define(function(require) {
     },
     "Service.recover" : {
       type: "action",
-      layout: "main",
-      text: Locale.tr("Recover")
+      text: Locale.tr("Recover"),
+      layout: "vmsplanification_buttons",
+    },
+    "Service.recover_delete" : {
+      type: "action",
+      text: Locale.tr("Recover") + ' <span class="label secondary radius">' + Locale.tr("delete") + '</span>',
+      layout: "vmsplanification_buttons",
     },
     "Service.shutdown" : {
       type: "confirm",

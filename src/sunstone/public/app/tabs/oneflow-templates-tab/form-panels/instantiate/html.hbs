@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -41,9 +41,17 @@
       </span>
     </h5>
     <div id="instantiate_service_user_inputs">
-      <i class="fa fa-spinner fa-spin"></i>
+      <i class="fas fa-spinner fa-spin"></i>
     </div>
-    <div class="row" id="instantiate_service_role_user_inputs">
+    <div id="charter">
+      {{#if userInputsCharters}}
+        <fieldset>
+        <legend>{{tr "Add Charters Values Configuration" }}</legend>
+        <div class="charters_values">{{{userInputsCharters}}}</div>
+        </fieldset>
+      {{/if}}
     </div>
+    <fieldset class="row" id="instantiate_service_role_user_inputs">
+    </fieldset>
   </div>
 </form>

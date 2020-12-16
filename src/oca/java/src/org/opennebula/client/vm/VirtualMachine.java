@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ public class VirtualMachine extends PoolElement{
     private static final String DISKSNAPSHOTCREATE  = METHOD_PREFIX + "disksnapshotcreate";
     private static final String DISKSNAPSHOTREVERT  = METHOD_PREFIX + "disksnapshotrevert";
     private static final String DISKSNAPSHOTDELETE  = METHOD_PREFIX + "disksnapshotdelete";
+    private static final String DISKSNAPSHOTRENAME  = METHOD_PREFIX + "disksnapshotrename";
     private static final String DISKRESIZE          = METHOD_PREFIX + "diskresize";
     private static final String UPDATECONF          = METHOD_PREFIX + "updateconf";
 
@@ -152,7 +153,9 @@ public class VirtualMachine extends PoolElement{
         "PROLOG_MIGRATE_UNKNOWN_FAILURE",
         "DISK_RESIZE",
         "DISK_RESIZE_POWEROFF",
-        "DISK_RESIZE_UNDEPLOYED"
+        "DISK_RESIZE_UNDEPLOYED",
+        "HOTPLUG_NIC_POWEROFF",
+        "HOTPLUG_RESIZE"
     };
 
     private static final String[] SHORT_LCM_STATES =
@@ -221,7 +224,9 @@ public class VirtualMachine extends PoolElement{
         "fail",     // PROLOG_MIGRATE_UNKNOWN_FAILURE
         "drsz",     // DISK_RESIZE
         "drsz",     // DISK_RESIZE_POWEROFF
-        "drsz"      // DISK_RESIZE_UNDEPLOYED
+        "drsz",     // DISK_RESIZE_UNDEPLOYED
+        "hotp",     // HOTPLUG_NIC_POWEROFF
+        "hotp"      // HOTPLUG_RESIZE
     };
 
     /**
@@ -320,6 +325,20 @@ public class VirtualMachine extends PoolElement{
     public static OneResponse info(Client client, int id)
     {
         return client.call(INFO, id);
+    }
+
+    /**
+     * Retrieves the information of the given VM.
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id for the VM to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean decrypt)
+    {
+        return client.call(INFO, id, decrypt);
     }
 
     /**
@@ -576,6 +595,23 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Deletes a disk snapshot
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param diskId Id of the disk
+     * @param snapId Id of the snapshot
+     * @param new_name New name of the snapshot
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse diskSnapshotRename(Client client, int id,
+        int diskId, int snapId, String new_name)
+    {
+        return client.call(DISKSNAPSHOTRENAME, id, diskId, snapId, new_name);
+    }
+
+
+    /**
      * Resize VM disk
      *
      * @param client XML-RPC Client.
@@ -645,9 +681,9 @@ public class VirtualMachine extends PoolElement{
      * default, set it to -1
      * @return If an error occurs the error message contains the reason.
      */
-    public OneResponse deploy(int hostId, boolean enforce, int dsId)
+    public OneResponse deploy(int hostId, boolean enforce, int dsId, String extra_template)
     {
-        return client.call(DEPLOY, id, hostId, enforce, dsId);
+        return client.call(DEPLOY, id, hostId, enforce, dsId, extra_template);
     }
 
     /**
@@ -659,7 +695,7 @@ public class VirtualMachine extends PoolElement{
      */
     public OneResponse deploy(int hostId)
     {
-        return deploy(hostId, false, -1);
+        return deploy(hostId, false, -1, "");
     }
 
     /**
@@ -691,6 +727,27 @@ public class VirtualMachine extends PoolElement{
     protected OneResponse action(String action)
     {
         return client.call(ACTION, action, id);
+    }
+
+    /**
+     * Migrates the virtual machine to the target host (hid).
+     *
+     * @param hostId The target host id (hid) where we want to migrate
+     * the vm.
+     * @param live If true we are indicating that we want livemigration,
+     * otherwise false.
+     * @param enforce If it is set to true, the host capacity
+     * will be checked, and the deployment will fail if the host is
+     * overcommited. Defaults to false
+     * @param ds_id The System Datastore where to migrate the VM. To use the
+     * current one, set it to -1
+     * @param migration_type the migration type to use
+     * (0 save, 1 poweroff, 2 poweroff hard)
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse migrate(int hostId, boolean live, boolean enforce, int ds_id, int migration_type)
+    {
+        return client.call(MIGRATE, id, hostId, live, enforce, ds_id, migration_type);
     }
 
     /**

@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -16,8 +16,8 @@
 
 require 'pp'
 require 'open3'
-require 'stringio'
 require 'timeout'
+require 'base64'
 
 # Generic command executor that holds the code shared by all the command
 # executors.
@@ -70,59 +70,30 @@ class GenericCommand
         @logger.call(message, all) if @logger
     end
 
-    def kill(pid)
-        # executed processes now have its own process group to be able
-        # to kill all children
-        pgid = Process.getpgid(pid)
-
-        # Kill all processes belonging to process group
-        Process.kill("HUP", pgid * -1)
-    end
-
     # Runs the command
     def run
-        std = nil
-        process = Proc.new do
-            std = execute
+        begin
+            @stdout, @stderr, status = execute
 
-            # Close standard IO descriptors
-            if @stdin
-                std[0] << @stdin
-                std[0].flush
+            if status && status.exited?
+                @code = status.exitstatus
+            else
+                @code = 255
             end
-            std[0].close if !std[0].closed?
 
-            @stdout=std[1].read
-            std[1].close if !std[1].closed?
-
-            @stderr=std[2].read
-            std[2].close if !std[2].closed?
-
-            @code=get_exit_code(@stderr)
-
-            if @code!=0
-                log("Command execution fail: #{command}")
+            if @code != 0
+                log("Command execution failed (exit code: #{@code}): #{command}")
                 log(@stderr)
             end
-        end
-
-        begin
-            if @timeout
-                Timeout.timeout(@timeout, nil, &process)
+        rescue Exception => e
+            if e.is_a?(Timeout::Error)
+                error_message = "Timeout executing #{command}"
             else
-                process.call
+                error_message = "Internal error #{e}"
             end
-        rescue Timeout::Error
-            error_message = "Timeout executing #{command}"
+
             log(error_message)
-
             @stderr = ERROR_OPEN + "\n" + error_message + "\n" + ERROR_CLOSE
-
-            3.times {|n| std[n].close if !std[n].closed? }
-
-            pid = std[-1].pid
-            self.kill(pid)
-
             @code = 255
         end
 
@@ -136,21 +107,96 @@ class GenericCommand
         tmp[0].join(' ').strip
     end
 
-private
+    def to_xml
+        stdout = @stdout.nil? ? '' : @stdout
+        stderr = @stderr.nil? ? '' : @stderr
 
-    # Gets exit code from STDERR
-    def get_exit_code(str)
-        tmp=str.scan(/^ExitCode: (\d*)$/)
-        return nil if !tmp[0]
-        tmp[0][0].to_i
+        '<EXECUTION_RESULT>' \
+            "<COMMAND>#{@command}</COMMAND>" \
+            "<STDOUT>#{Base64.encode64(stdout)}</STDOUT>" \
+            "<STDERR>#{Base64.encode64(stderr)}</STDERR>" \
+            "<CODE>#{@code}</CODE>" \
+        '</EXECUTION_RESULT>'
     end
+
+private
 
     # Low level command execution. This method has to be redefined
     # for each kind of command execution. Returns an array with
-    # +stdin+, +stdout+ and +stderr+ handlers of the command execution.
+    # +stdout+, +stderr+ and +status+ of the command execution.
     def execute
         puts "About to execute \"#{@command}\""
-        [StringIO.new, StringIO.new, StringIO.new]
+        ['', '', nil]
+    end
+
+    # modified Open3.capture with terminator thread
+    # to deal with timeouts
+    def capture3_timeout(*cmd)
+        if Hash === cmd.last
+            opts = cmd.pop.dup
+        else
+            opts = {}
+        end
+
+        stdin_data = opts.delete(:stdin_data) || ''
+        binmode = opts.delete(:binmode)
+
+        Open3.popen3(*cmd, opts) {|i, o, e, t|
+            if binmode
+                i.binmode
+                o.binmode
+                e.binmode
+            end
+
+            terminator_e = nil
+            mutex = Mutex.new
+
+            out_reader = Thread.new { o.read }
+            err_reader = Thread.new { e.read }
+            terminator = Thread.new {
+                if @timeout and @timeout>0
+                    begin
+                        pid = Process.getpgid(t.pid) * -1
+                    rescue
+                        pid = t.pid
+                    end
+
+                    if pid
+                        begin
+                            sleep @timeout
+
+                            mutex.synchronize do
+                                terminator_e = Timeout::Error
+                            end
+                        ensure
+                        end
+
+                        Process.kill('TERM', pid)
+                    end
+                end
+            }
+
+            i.write stdin_data
+            i.close
+
+            # blocking wait for process termination
+            t.value
+
+            # if reader threads are not dead yet, kill them
+            [out_reader, err_reader].each do |reader|
+                next unless reader.status
+
+                reader.join(0.1)
+                reader.kill
+            end
+
+            mutex.lock
+            terminator.kill
+            raise terminator_e if terminator_e
+
+            # return values
+            [out_reader.value, err_reader.value, t.value]
+        }
     end
 
 end
@@ -161,8 +207,8 @@ class LocalCommand < GenericCommand
 private
 
     def execute
-        Open3.popen3("#{command} ; echo ExitCode: $? 1>&2",
-                        :pgroup => true)
+        capture3_timeout("#{command}",
+                        :pgroup => true, :stdin_data => @stdin)
     end
 end
 
@@ -189,10 +235,10 @@ private
 
     def execute
         if @stdin
-            Open3.popen3("ssh #{@host} #{@command} ; echo ExitCode: $? 1>&2",
-                            :pgroup => true)
+            capture3_timeout("ssh #{@host} #{@command}",
+                            :pgroup => true, :stdin_data => @stdin)
         else
-            Open3.popen3("ssh -n #{@host} #{@command} ; echo ExitCode: $? 1>&2",
+            capture3_timeout("ssh -n #{@host} #{@command}",
                             :pgroup => true)
         end
     end
@@ -245,7 +291,7 @@ private
         SSHCommand.run("mkdir -p #{remote_dir}",host,logger)
 
         # Use SCP to sync:
-        sync_cmd = "scp -rp #{REMOTES_LOCATION}/. #{host}:#{remote_dir}"
+        sync_cmd = "scp -rp #{REMOTES_LOCATION}/* #{host}:#{remote_dir}"
 
         # Use rsync to sync:
         # sync_cmd = "rsync -Laz #{REMOTES_LOCATION} #{host}:#{@remote_dir}"

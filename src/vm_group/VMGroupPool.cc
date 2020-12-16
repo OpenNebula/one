@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,18 +17,20 @@
 #include "VMGroupPool.h"
 #include "AuthRequest.h"
 
+using namespace std;
+
 int VMGroupPool::allocate(int uid, int gid, const string& uname,
-        const string& gname, int umask, Template * vmgroup_template, int * oid,
-        string& error_str)
+        const string& gname, int umask, unique_ptr<Template> vmgroup_template,
+        int * oid, string& error_str)
 {
     VMGroup * vmgrp;
-    VMGroup * vmgrp_aux = 0;
 
+    int    db_oid;
     string name;
 
     ostringstream os;
 
-    vmgrp = new VMGroup(uid, gid, uname, gname, umask, vmgroup_template);
+    vmgrp = new VMGroup(uid, gid, uname, gname, umask, move(vmgroup_template));
 
     vmgrp->get_template_attribute("NAME", name);
 
@@ -37,9 +39,9 @@ int VMGroupPool::allocate(int uid, int gid, const string& uname,
         goto error_name;
     }
 
-    vmgrp_aux = get(name, uid, false);
+    db_oid = exist(name, uid);
 
-    if( vmgrp_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -49,7 +51,7 @@ int VMGroupPool::allocate(int uid, int gid, const string& uname,
     return *oid;
 
 error_duplicated:
-    os << "NAME is already taken by VMGroup " << vmgrp_aux->get_oid() << ".";
+    os << "NAME is already taken by VMGroup " << db_oid << ".";
     error_str = os.str();
 
 error_name:
@@ -62,9 +64,10 @@ error_name:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-VMGroup * VMGroupPool::get_from_attribute(const VectorAttribute *va, int _uid)
+std::unique_ptr<VMGroup> VMGroupPool::get_from_attribute(
+    const VectorAttribute *va, int _uid)
 {
-    VMGroup * vmgroup = 0;
+    std::unique_ptr<VMGroup> vmgroup;
 
     string vmg_name = va->vector_value("VMGROUP_NAME");
     int vmg_id;
@@ -78,11 +81,11 @@ VMGroup * VMGroupPool::get_from_attribute(const VectorAttribute *va, int _uid)
             vmg_uid = _uid;
         }
 
-        vmgroup = get(vmg_name, vmg_uid, true);
+        vmgroup = get(vmg_name, vmg_uid);
     }
     else if ( va->vector_value("VMGROUP_ID", vmg_id) == 0 )
     {
-        vmgroup = get(vmg_id, true);
+        vmgroup = get(vmg_id);
     }
 
     return vmgroup;
@@ -101,9 +104,9 @@ int VMGroupPool::vmgroup_attribute(VectorAttribute * va, int uid, int vid,
         return -1;
     }
 
-    VMGroup * vmgroup = get_from_attribute(va, uid);
+    auto vmgroup = get_from_attribute(va, uid);
 
-    if ( vmgroup == 0 )
+    if ( vmgroup == nullptr )
     {
         error = "Cannot find VM Group to associate the VM";
         return -1;
@@ -119,10 +122,8 @@ int VMGroupPool::vmgroup_attribute(VectorAttribute * va, int uid, int vid,
     }
     else
     {
-        update(vmgroup);
+        update(vmgroup.get());
     }
-
-    vmgroup->unlock();
 
     return rc;
 }
@@ -146,40 +147,26 @@ void VMGroupPool::del_vm(const VectorAttribute * va, int vid)
         return;
     }
 
-    VMGroup * vmgroup = get(vmg_id, true);
-
-    if ( vmgroup == 0 )
+    if ( auto vmgroup = get(vmg_id) )
     {
-        return;
+        vmgroup->del_vm(vmg_role, vid);
+
+        update(vmgroup.get());
     }
-
-    vmgroup->del_vm(vmg_role, vid);
-
-    update(vmgroup);
-
-    vmgroup->unlock();
 }
 
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VMGroupPool::authorize(const VectorAttribute * va, int uid,AuthRequest* ar)
+void VMGroupPool::authorize(const VectorAttribute * va, int uid, AuthRequest* ar)
 {
-    PoolObjectAuth perm;
-
-    VMGroup * vmgroup = get_from_attribute(va, uid);
-
-    if ( vmgroup == 0 )
+    if ( auto vmgroup = get_from_attribute(va, uid) )
     {
-        return;
+        PoolObjectAuth perm;
+
+        vmgroup->get_permissions(perm);
+
+        ar->add_auth(AuthRequest::USE, perm);
     }
-
-    vmgroup->get_permissions(perm);
-
-    vmgroup->unlock();
-
-    ar->add_auth(AuthRequest::USE, perm);
 }
-
-

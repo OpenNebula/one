@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 deploy_id=$1
@@ -34,6 +34,26 @@ for snap in $snaps; do
         "Failed to delete snapshot $snap from $deploy_id"
 done
 
+# do live migration, but cleanup target host in case of error
 virsh --connect $QEMU_PROTOCOL://$src_host/system \
     migrate --live $deploy_id $MIGRATE_OPTIONS $QEMU_PROTOCOL://$dest_host/system
 
+RC=$?
+
+if [ $RC -ne 0 ]; then
+    for CLEAN_OP in destroy undefine; do
+        virsh --connect $QEMU_PROTOCOL://$dest_host/system "${CLEAN_OP}" $deploy_id >/dev/null 2>&1
+    done
+
+    error_message "Could not migrate $deploy_id to $dest_host"
+    exit $RC
+fi
+
+if [ "$SYNC_TIME" = "yes" ]; then
+    (
+        for i in $(seq 3); do
+            virsh --connect $QEMU_PROTOCOL://$dest_host/system domtime --sync $deploy_id && break
+            [ "$i" -gt 1 ] && sleep 6
+        done
+    ) &> /dev/null &
+fi

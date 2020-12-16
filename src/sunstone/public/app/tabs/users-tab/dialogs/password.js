@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -43,7 +43,7 @@ define(function(require) {
 
     this.userCreation = new UserCreation(DIALOG_ID,
                         {name: false, auth_driver: false, group_select: false});
-
+  
     BaseDialog.call(this);
   }
 
@@ -70,9 +70,11 @@ define(function(require) {
   }
 
   function _html() {
+    this.cantChangePassword = parseInt(this.selectedElements) <= 1;
     return TemplateHTML({
       'dialogId': this.dialogId,
-      'userCreationHTML': this.userCreation.html()
+      'cantChangePassword': this.cantChangePassword,
+      'userCreationHTML': this.userCreation.html()      
     });
   }
 

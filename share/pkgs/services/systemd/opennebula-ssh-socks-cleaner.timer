@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenNebula SSH persistent connection cleaner
+After=remote-fs.target
+
+[Timer]
+## Replaced by OnCalendar due to issue #4939
+#OnActiveSec=0s
+#OnUnitActiveSec=30s
+OnCalendar=*-*-* *:*:10
+OnCalendar=*-*-* *:*:40
+AccuracySec=1s
+
+[Install]
+WantedBy=default.target

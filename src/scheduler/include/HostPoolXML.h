@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,9 +20,10 @@
 
 #include "PoolXML.h"
 #include "HostXML.h"
-#include "ClusterPoolXML.h"
 
-using namespace std;
+class ClusterPoolXML;
+class MonitorPoolXML;
+
 
 class HostPoolXML : public PoolXML
 {
@@ -53,9 +54,16 @@ public:
      */
     void merge_clusters(ClusterPoolXML * clpool);
 
+    /**
+     * Add the last MONITORING information to each Host
+     *
+     * @param mpool Monitoring Pool with last data
+     */
+    void merge_monitoring(MonitorPoolXML * mpool);
+
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         return get_nodes("/HOST_POOL/HOST[STATE=1 or STATE=2]", content);
     };

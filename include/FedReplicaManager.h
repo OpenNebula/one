@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,16 +20,15 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <mutex>
 
 #include "ReplicaManager.h"
-#include "ActionManager.h"
-
-extern "C" void * frm_loop(void *arg);
 
 class LogDB;
 class LogDBRecord;
 
-class FedReplicaManager : public ReplicaManager, ActionListener
+
+class FedReplicaManager : public ReplicaManager
 {
 public:
 
@@ -56,7 +55,7 @@ public:
      *    @param sql command to apply to DB
      *    @return 0 on success, last_index if missing records, -1 on DB error
      */
-    int apply_log_record(int index, int prev, const std::string& sql);
+    uint64_t apply_log_record(uint64_t index, uint64_t prev, const std::string& sql);
 
     /**
      *  Record was successfully replicated on zone, increase next index and
@@ -70,7 +69,7 @@ public:
      *  send any pending records.
      *    @param zone_id
      */
-    void replicate_failure(int zone_id, int zone_last);
+    void replicate_failure(int zone_id, uint64_t zone_last);
 
     /**
      *  XML-RPC API call to replicate a log entry on slaves
@@ -80,21 +79,8 @@ public:
      *     @param error description if any
      *     @return 0 on success -1 if a xml-rpc/network error occurred
      */
-    int xmlrpc_replicate_log(int zone_id, bool& success, int& last,
+    int xmlrpc_replicate_log(int zone_id, bool& success, uint64_t& last,
             std::string& err);
-
-    /**
-     *  Finalizes the Federation Replica Manager
-     */
-    void finalize()
-    {
-        am.finalize();
-    }
-
-    /**
-     *  Starts the Federation Replica Manager
-     */
-    int start();
 
     /**
      *  Start the replication threads, and updates the server list of the zone
@@ -130,36 +116,16 @@ public:
      */
     void delete_zone(int zone_id);
 
-    /**
-     *  @return the id of fed. replica thread
-     */
-    pthread_t get_thread_id() const
-    {
-        return frm_thread;
-    };
-
 private:
-    friend void * frm_loop(void *arg);
-
     /**
      *  Creates federation replica thread objects
      */
     ReplicaThread * thread_factory(int follower_id);
 
     /**
-     *  Thread id of the main event loop
-     */
-    pthread_t frm_thread;
-
-    /**
      *  Controls access to the zone list and server data
      */
-    pthread_mutex_t mutex;
-
-    /**
-     *  Secret to use in xmlrpc API calls
-     */
-    std::string xmlrpc_secret;
+    std::mutex fed_mutex;
 
     // -------------------------------------------------------------------------
     // Synchronization variables
@@ -172,8 +138,8 @@ private:
 
     struct ZoneServers
     {
-        ZoneServers(int z, unsigned int l, const std::string& s):
-            zone_id(z), endpoint(s), next(l), last(-1){};
+        ZoneServers(int z, uint64_t l, const std::string& s):
+            zone_id(z), endpoint(s), next(l), last(UINT64_MAX){};
 
         ~ZoneServers(){};
 
@@ -181,24 +147,14 @@ private:
 
         std::string  endpoint;
 
-        int next;
+        uint64_t next;
 
-        int last;
+        uint64_t last;
     };
 
     std::map<int, ZoneServers *> zones;
 
     LogDB * logdb;
-
-    // -------------------------------------------------------------------------
-    // Action Listener interface
-    // -------------------------------------------------------------------------
-    ActionManager am;
-
-    /**
-     *  Termination function
-     */
-    void finalize_action(const ActionRequest& ar);
 
     /**
      *  Get the nerxt record to replicate in a zone

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,23 +25,23 @@
 class RequestManagerUpdateDB: public Request
 {
 protected:
-    RequestManagerUpdateDB(const string& name): Request(name, "A:sis",
+    RequestManagerUpdateDB(const std::string& name): Request(name, "A:sis",
             "Updates the DB object from a XML document")
     {
         auth_op = AuthRequest::MANAGE;
     };
 
-    virtual ~RequestManagerUpdateDB(){};
+    ~RequestManagerUpdateDB(){};
 
     /* ---------------------------------------------------------------------- */
 
     virtual void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& att)
+            RequestAttributes& att) override
     {
         int oid = xmlrpc_c::value_int(pl.getInt(1));
         std::string xml = xmlrpc_c::value_string(pl.getString(2));
 
-        if ( att.uid != UserPool::ONEADMIN_ID )
+        if (!att.is_oneadmin())
         {
             failure_response(AUTHORIZATION, att);
             return;
@@ -65,7 +65,7 @@ protected:
     ErrorCode request_execute(int oid, const std::string& xml,
             RequestAttributes& att)
     {
-        PoolObjectSQL * object = pool->get(oid,true);
+        auto object = pool->get<PoolObjectSQL>(oid);
 
         if ( object == 0 )
         {
@@ -73,14 +73,13 @@ protected:
             return NO_EXISTS;
         }
 
-        string old_xml;
+        std::string old_xml;
 
         object->to_xml(old_xml);
 
         if ( object->from_xml(xml) != 0 )
         {
             object->from_xml(old_xml);
-            object->unlock();
 
             att.resp_msg = "Cannot update object from XML";
             return INTERNAL;
@@ -89,15 +88,12 @@ protected:
         if ( object->get_oid() != oid )
         {
             object->from_xml(old_xml);
-            object->unlock();
 
             att.resp_msg = "Consistency check failed";
             return INTERNAL;
         }
 
-        pool->update(object);
-
-        object->unlock();
+        pool->update(object.get());
 
         return SUCCESS;
     }
@@ -145,13 +141,13 @@ public:
 
     ~ZoneUpdateDB(){};
 
-    virtual void request_execute(xmlrpc_c::paramList const& pl,
-            RequestAttributes& att)
+    void request_execute(xmlrpc_c::paramList const& pl,
+            RequestAttributes& att) override
     {
         int oid = xmlrpc_c::value_int(pl.getInt(1));
         std::string xml = xmlrpc_c::value_string(pl.getString(2));
 
-        if ( att.uid != UserPool::ONEADMIN_ID )
+        if (!att.is_oneadmin())
         {
             failure_response(AUTHORIZATION, att);
             return;

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -18,25 +18,24 @@
 #define ZONE_H_
 
 #include "PoolObjectSQL.h"
-#include "NebulaLog.h"
-
-using namespace std;
 
 class ZoneServers;
 class ZoneServer;
+
 /**
  *  The Zone class.
  */
 class Zone : public PoolObjectSQL
 {
 public:
+    virtual ~Zone();
 
     /**
      * Function to print the Zone object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -44,7 +43,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Add servers to this zone
@@ -55,7 +54,8 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int add_server(Template& tmpl, int& sid, string& xmlep, string& error);
+    int add_server(Template& tmpl, int& sid,
+                   std::string& xmlep, std::string& error);
 
     /**
      *  Delete a server from this zone
@@ -64,7 +64,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int delete_server(int id, string& error);
+    int delete_server(int id, std::string& error);
 
     /**
      *  @return the servers in this zone
@@ -94,9 +94,7 @@ private:
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
-    Zone(int id, Template* zone_template);
-
-    ~Zone();
+    Zone(int id, std::unique_ptr<Template> zone_template);
 
     // -------------------------------------------------------------------------
     // Zone servers
@@ -108,11 +106,6 @@ private:
     // -------------------------------------------------------------------------
     // DataBase implementation (Private)
     // -------------------------------------------------------------------------
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -121,43 +114,38 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the Zone
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(Zone::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the Zone in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the Zone's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
     /**
      *  Factory method for Zone templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new Template;
+        return std::make_unique<Template>();
     }
 
     /**
@@ -166,7 +154,7 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error);
+    int post_update_template(std::string& error) override;
 };
 
 #endif /*ZONE_H_*/

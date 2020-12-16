@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,6 +22,8 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <random>
+#include <mutex>
 
 #include <openssl/crypto.h>
 
@@ -49,36 +51,83 @@ namespace one_util
      */
     std::string sha1_digest(const std::string& in);
 
-   /**
-    *  Base 64 encoding
-    *    @param in the string to encoded
-    *    @return a pointer to the encoded string (must be freed) or 0 in case of
-    *    error
-    */
-    std::string * base64_encode(const std::string& in);
+    /**
+     *  sha256 digest
+     *  @param in the string to be hashed
+     *  @return sha256 hash of str
+     */
+    std::string sha256_digest(const std::string& in);
 
-   /**
-    *  Base 64 decoding
-    *    @param in the string to decode
-    *    @return a pointer to the decoded string (must be freed) or 0 in case of
-    *    error
-    */
-    std::string * base64_decode(const std::string& in);
 
    /**
     *  AES256 encryption
     *    @param in the string to encrypt
     *    @param password to encrypt data
-    *    @return a pointer to the encrypted string (must be freed) or 0 in case of
+    *    @return a pointer to the encrypted string (must be freed) or nullptr in case of
     *    error
     */
-    std::string * aes256cbc_encrypt(const std::string& in, const std::string password);
+    std::string * aes256cbc_encrypt(const std::string& in, const std::string& password);
+
+   /**
+    *  AES256 decryption
+    *    @param in the base64 string to decrypt
+    *    @param password to decrypt data
+    *    @return a pointer to the decrypted string (must be freed) or nullptr in case of
+    *    error
+    */
+    std::string * aes256cbc_decrypt(const std::string& in, const std::string& password);
 
     /**
      *  Creates a random number, using time(0) as seed, and performs an sha1 hash
      *    @return a new random password
      */
     std::string random_password();
+
+    /**
+     *  Returns random number, default range is <0, Type Max Value>, specialization for integer types
+     *    @param min - minimal potentially generated number, defaults to 0
+     *    @param max - maximal potentially generated number, defaults to type max value
+     *    @return number between min, max
+     */
+    template<typename Integer, typename std::enable_if<std::is_integral<Integer>::value>::type* = nullptr>
+    Integer random(Integer min = 0, Integer max = std::numeric_limits<Integer>::max())
+    {
+        static std::mutex _mutex;
+
+        static std::random_device rd;
+        static std::mt19937_64    rng(rd());
+
+        std::uniform_int_distribution<Integer> distribution(min, max);
+
+        std::lock_guard<std::mutex> lock(_mutex);
+
+        Integer i = distribution(rng);
+
+        return i;
+    }
+
+    /**
+     *  Returns random number, default range is <0, Type Max Value>, specialization for floating types
+     *    @param min - minimal potentially generated number, defaults to 0
+     *    @param max - maximal potentially generated number, defaults to type max value
+     *    @return number between min, max
+     */
+    template<typename Floating, typename std::enable_if<std::is_floating_point<Floating>::value>::type* = nullptr>
+    Floating random(Floating min = 0, Floating max = std::numeric_limits<Floating>::max())
+    {
+        static std::mutex _mutex;
+
+        static std::random_device rd;
+        static std::mt19937_64    rng(rd());
+
+        std::uniform_real_distribution<Floating> distribution(min, max);
+
+        std::lock_guard<std::mutex> lock(_mutex);
+
+        Floating f = distribution(rng);
+
+        return f;
+    }
 
     /**
      * Splits a string, using the given delimiter
@@ -92,10 +141,36 @@ namespace one_util
      *
      * @return a vector containing the resulting substrings
      */
-    std::vector<std::string> split(
-            const std::string& st,
-            char delim,
-            bool clean_empty=true);
+    template <class T>
+    void split(const std::string &st, char delim, std::vector<T> &parts)
+    {
+        std::string part;
+
+        std::stringstream ss(st);
+
+        while (getline(ss, part, delim))
+        {
+            if (part.empty())
+            {
+                continue;
+            }
+
+            std::istringstream iss(part);
+            T part_t;
+
+            iss >> part_t;
+
+            if ( iss.fail() )
+            {
+                continue;
+            }
+
+            parts.push_back(part_t);
+        }
+    }
+
+    std::vector<std::string> split(const std::string& st, char delim,
+            bool clean_empty = true);
 
     /**
      * Splits a string, using the given delimiter
@@ -108,13 +183,12 @@ namespace one_util
     void split_unique(const std::string& st, char delim, std::set<T>& result)
     {
         T elem;
-        std::vector<std::string>::const_iterator it;
 
         std::vector<std::string> strings = split(st, delim, true);
 
-        for (it = strings.begin(); it != strings.end(); it++)
+        for (const auto& str : strings)
         {
-            std::istringstream iss(*it);
+            std::istringstream iss(str);
             iss >> elem;
 
             if ( iss.fail() )
@@ -146,7 +220,7 @@ namespace one_util
     {
         std::ostringstream oss;
 
-        for(Iterator it = first; it != last; it++)
+        for (Iterator it = first; it != last; it++)
         {
             if (it != first)
             {
@@ -167,7 +241,7 @@ namespace one_util
      * @return the joined strings
      */
     template <class T>
-    std::string join(const std::set<T> values, char delim)
+    std::string join(const std::set<T>& values, char delim)
     {
         return join(values.begin(), values.end(), delim);
     }
@@ -208,6 +282,11 @@ namespace one_util
     {
         return escape(v, "'", "'");
     }
+
+    void escape_json(const std::string& str, std::ostringstream& s);
+
+    void escape_token(const std::string& str, std::ostringstream& s);
+
     /**
      * Checks if a strings matches a regular expression
      *
@@ -236,7 +315,8 @@ namespace one_util
             const std::string& replacement);
 
     template <class T>
-    std::set<T> set_intersection(const std::set<T> &first, const std::set<T> &second)
+    std::set<T> set_intersection(const std::set<T> &first, const std::set<T>
+            &second)
     {
         std::set<T> output;
 
@@ -247,48 +327,6 @@ namespace one_util
         return output;
     }
 
-	/**
-     *  Compress the input string unsing zlib
-     *    @param in input string
-     *    @param bool64 true to base64 encode output
-     *    @return pointer to the compressed sting (must be freed) or 0 in case
-     *    of error
-     */
-	std::string * zlib_compress(const std::string& in, bool base64);
-
-	/**
-     *  Decompress the input string unsing zlib
-     *    @param in input string
-     *    @param base64 true if the input is base64 encoded
-     *    @return pointer to the decompressed sting (must be freed) or 0 in case
-     *    of error
-     */
-	std::string * zlib_decompress(const std::string& in, bool base64);
-
-	extern "C" void sslmutex_lock_callback(int mode, int type, char *file,
-		int line);
-
-	extern "C" unsigned long sslmutex_id_callback();
-
-	class SSLMutex
-	{
-	public:
-		static void initialize();
-
-		static void finalize();
-
-	private:
-		friend void sslmutex_lock_callback(int mode, int type, char *file,
-			int line);
-
-		SSLMutex();
-
-		~SSLMutex();
-
-		static SSLMutex * ssl_mutex;
-
-		static std::vector<pthread_mutex_t *> vmutex;
-	};
-};
+} // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */

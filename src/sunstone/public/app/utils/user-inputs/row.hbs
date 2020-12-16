@@ -16,6 +16,7 @@
         <option value="range">        {{tr "range"}}           </option>
         <option value="range-float">  {{tr "range (float)"}}   </option>
         <option value="list">         {{tr "list"}}            </option>
+        <option value="list-multiple">{{tr "list (multiple)"}} </option>
         <option value="boolean">      {{tr "boolean"}}         </option>
       </select>
     </label>
@@ -24,6 +25,16 @@
     <label>{{tr "Description"}}
       <textarea class="user_input_description"/>
     </label>
+    <div class="user_input_type_right text">
+      <label>{{tr "Default value"}}
+        <input type="text" class="user_input_initial" placeholder="default"/>
+      </label>
+    </div>
+    <div class="user_input_type_right text64">
+      <label>{{tr "Default value"}}
+        <input type="text" class="user_input_initial" placeholder="default64"/>
+      </label>
+    </div>
     <div class="user_input_type_right number">
       <label>{{tr "Default value"}}
         <input type="number" class="user_input_initial" placeholder="42"/>
@@ -73,7 +84,7 @@
         <input type="number" step="any" class="user_input_initial" placeholder="8.5"/>
       </label>
     </div>
-    <div class="user_input_type_right list">
+    <div class="user_input_type_right list list-multiple">
       <label style="display: initial;">
         {{tr "Options"}}
         {{{tip (tr "Comma-separated list of options for the drop-down select input")}}}
@@ -91,6 +102,6 @@
   </td>
   <td>
     <br/>
-    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
+    <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>
   </td>
 </tr>

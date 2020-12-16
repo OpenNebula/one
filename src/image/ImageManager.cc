@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,50 +17,28 @@
 #include "ImageManager.h"
 #include "ImagePool.h"
 #include "Nebula.h"
+#include "DatastorePool.h"
+#include "RaftManager.h"
+
+using namespace std;
 
 const char * ImageManager::image_driver_name = "image_exe";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * image_action_loop(void *arg)
+int ImageManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 {
-    ImageManager *  im;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    NebulaLog::log("ImM",Log::INFO,"Image Manager started.");
-
-    im = static_cast<ImageManager *>(arg);
-
-    im->am.loop(im->timer_period);
-
-    NebulaLog::log("ImM",Log::INFO,"Image Manager stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int ImageManager::load_mads(int uid)
-{
-    ImageManagerDriver *    imagem_mad;
-    ostringstream           oss;
     const VectorAttribute * vattr = 0;
-    int                     rc;
 
     NebulaLog::log("ImM",Log::INFO,"Loading Image Manager driver.");
 
-    if ( mad_conf.size() > 0 )
+    if (_mads.size() > 0)
     {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+        vattr = _mads[0];
     }
 
-    if ( vattr == 0 )
+    if (vattr == nullptr)
     {
         NebulaLog::log("ImM",Log::INFO,"Failed to load Image Manager driver.");
         return -1;
@@ -68,21 +46,17 @@ int ImageManager::load_mads(int uid)
 
     VectorAttribute image_conf("IMAGE_MAD",vattr->value());
 
-    image_conf.replace("NAME",image_driver_name);
+    image_conf.replace("NAME", image_driver_name);
 
-    imagem_mad= new ImageManagerDriver(0,image_conf.value(),false,ipool,dspool);
-
-    rc = add(imagem_mad);
-
-    if ( rc == 0 )
+    if (load_driver(&image_conf) != 0)
     {
-        oss.str("");
-        oss << "\tImage Manager loaded";
-
-        NebulaLog::log("ImM",Log::INFO,oss);
+        NebulaLog::error("ImM", "Unable to load Image Manager driver");
+        return -1;
     }
 
-    return rc;
+    NebulaLog::info("ImM", "\tImage Manager loaded");
+
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -90,30 +64,58 @@ int ImageManager::load_mads(int uid)
 
 int ImageManager::start()
 {
-    int               rc;
-    pthread_attr_t    pattr;
+    using namespace std::placeholders; // for _1
 
-    rc = MadManager::start();
+    register_action(ImageManagerMessages::UNDEFINED,
+            &ImageManager::_undefined);
 
-    if ( rc != 0 )
+    register_action(ImageManagerMessages::STAT,
+            bind(&ImageManager::_stat, this, _1));
+
+    register_action(ImageManagerMessages::CP,
+            bind(&ImageManager::_cp, this, _1));
+
+    register_action(ImageManagerMessages::CLONE,
+            bind(&ImageManager::_clone, this, _1));
+
+    register_action(ImageManagerMessages::MKFS,
+            bind(&ImageManager::_mkfs, this, _1));
+
+    register_action(ImageManagerMessages::RM,
+            bind(&ImageManager::_rm, this, _1));
+
+    register_action(ImageManagerMessages::MONITOR,
+            bind(&ImageManager::_monitor, this, _1));
+
+    register_action(ImageManagerMessages::SNAP_DELETE,
+            bind(&ImageManager::_snap_delete, this, _1));
+
+    register_action(ImageManagerMessages::SNAP_REVERT,
+            bind(&ImageManager::_snap_revert, this, _1));
+
+    register_action(ImageManagerMessages::SNAP_FLATTEN,
+            bind(&ImageManager::_snap_flatten, this, _1));
+
+    register_action(ImageManagerMessages::LOG,
+            &ImageManager::_log);
+
+    NebulaLog::info("ImM", "Starting Image Manager...");
+
+    string error;
+    if (DriverManager::start(error) != 0)
     {
+        NebulaLog::error("ImM", "Unable to start Image Manager driver: "
+            + error);
         return -1;
     }
 
-    NebulaLog::log("ImM",Log::INFO,"Starting Image Manager...");
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    rc = pthread_create(&imagem_thread,&pattr,image_action_loop,(void *) this);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void ImageManager::timer_action(const ActionRequest& ar)
+void ImageManager::timer_action()
 {
     static int mark = 0;
     static int tics = monitor_period;
@@ -137,7 +139,6 @@ void ImageManager::timer_action(const ActionRequest& ar)
     int rc;
 
     vector<int>           datastores;
-    vector<int>::iterator it;
 
     Nebula& nd             = Nebula::instance();
     DatastorePool * dspool = nd.get_dspool();
@@ -155,9 +156,9 @@ void ImageManager::timer_action(const ActionRequest& ar)
         return;
     }
 
-    for(it = datastores.begin() ; it != datastores.end(); it++)
+    for (auto ds : datastores)
     {
-        monitor_datastore(*it);
+        monitor_datastore(ds);
     }
 
     return;
@@ -169,8 +170,8 @@ void ImageManager::timer_action(const ActionRequest& ar)
 
 void ImageManager::monitor_datastore(int ds_id)
 {
+    static map<int,int> monitor_vm_disk_counter;
     string  ds_data, ds_location, ds_name;
-    string* drv_msg;
 
     bool shared;
 
@@ -181,9 +182,9 @@ void ImageManager::monitor_datastore(int ds_id)
 
     ostringstream oss;
 
-    const ImageManagerDriver* imd = get();
+    const auto* imd = get();
 
-    if ( imd == 0 )
+    if ( imd == nullptr )
     {
         oss << "Error getting ImageManagerDriver";
 
@@ -191,20 +192,18 @@ void ImageManager::monitor_datastore(int ds_id)
         return;
     }
 
-    Datastore * ds = dspool->get(ds_id, true);
+    if ( auto ds = dspool->get_ro(ds_id) )
+    {
+        ds->to_xml(ds_data);
 
-    if ( ds == 0 )
+        shared  = ds->is_shared();
+        ds_type = ds->get_type();
+        ds_name = ds->get_name();
+    }
+    else
     {
         return;
     }
-
-    ds->to_xml(ds_data);
-
-    shared     = ds->is_shared();
-    ds_type    = ds->get_type();
-    ds_name    = ds->get_name();
-
-    ds->unlock();
 
     ds_location = "";
 
@@ -217,10 +216,22 @@ void ImageManager::monitor_datastore(int ds_id)
             }
 
             nd.get_ds_location(ds_location);
-
             oss << "<DATASTORE_LOCATION>"
                 << ds_location
                 << "</DATASTORE_LOCATION>";
+
+            if ( monitor_vm_disk > 0)
+            {
+                bool vm_monitor = --monitor_vm_disk_counter[ds_id] <= 0;
+                oss << "<MONITOR_VM_DISKS>"
+                    << vm_monitor
+                    << "</MONITOR_VM_DISKS>";
+                if (vm_monitor)
+                {
+                    monitor_vm_disk_counter[ds_id] = monitor_vm_disk;
+                }
+            }
+
             ds_location = oss.str();
 
             break;
@@ -230,14 +241,13 @@ void ImageManager::monitor_datastore(int ds_id)
             break;
     }
 
-    drv_msg = ImageManager::format_message("", ds_data, ds_location);
+    string drv_msg(ImageManager::format_message("", ds_data, ds_location));
 
     oss.str("");
     oss << "Monitoring datastore " << ds_name  << " (" << ds_id << ")";
 
     NebulaLog::log("InM", Log::DEBUG, oss);
 
-    imd->monitor(ds_id, *drv_msg);
-
-    delete drv_msg;
+    image_msg_t msg(ImageManagerMessages::MONITOR, "", ds_id, drv_msg);
+    imd->write(msg);
 }

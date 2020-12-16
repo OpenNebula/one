@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,18 +18,17 @@
 #define GROUP_POOL_H_
 
 #include "Group.h"
-#include "SqlDB.h"
-
-using namespace std;
+#include "PoolSQL.h"
 
 
 class GroupPool : public PoolSQL
 {
 public:
-    GroupPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-          const string& remotes_location, bool is_federation_slave);
 
-    ~GroupPool(){};
+    GroupPool(SqlDB * db, bool is_federation_slave,
+        std::vector<const SingleAttribute *>& restricted_attrs);
+
+    ~GroupPool() = default;
 
     /* ---------------------------------------------------------------------- */
     /* Constants for DB management                                            */
@@ -38,7 +37,7 @@ public:
     /**
      *  Default name for the oneadmin group
      */
-    static const string ONEADMIN_NAME;
+    static const std::string ONEADMIN_NAME;
 
     /**
      *  Identifier for the oneadmin group
@@ -48,7 +47,7 @@ public:
     /**
      *  Default name for the users group
      */
-    static const string USERS_NAME;
+    static const std::string USERS_NAME;
 
     /**
      *  Identifier for the user group
@@ -68,68 +67,50 @@ public:
      *
      *    @return the oid assigned to the object, -1 in case of failure
      */
-    int allocate(string                   name,
+    int allocate(std::string              name,
                  int *                    oid,
-                 string&                  error_str);
-
-    /**
-     *  Function to get a group from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid group unique id
-     *    @param lock locks the group mutex
-     *    @return a pointer to the group, 0 if the group could not be loaded
-     */
-    Group * get(int oid, bool lock)
-    {
-        return static_cast<Group *>(PoolSQL::get(oid,lock));
-    };
+                 std::string&             error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Group unique identifier
+     *   @return a pointer to the Group, nullptr in case of failure
      */
-    Group * get(const string& name, bool lock)
+    std::unique_ptr<Group> get(int oid)
     {
-        // The owner is set to -1, because it is not used in the key() method
-        return static_cast<Group *>(PoolSQL::get(name,-1,lock));
-    };
+        return PoolSQL::get<Group>(oid);
+    }
 
     /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Group unique identifier
+     *   @return a pointer to the Group, nullptr in case of failure
      */
-    string key(const string& name, int uid)
+    std::unique_ptr<Group> get_ro(int oid)
     {
-        // Name is enough key because Groups can't repeat names.
-        return name;
-    };
+        return PoolSQL::get_ro<Group>(oid);
+    }
 
     /**
      *  Returns the name of a group
      *    @param id of the group
      *    @return name of the group
      */
-    const string& get_name(int gid)
+    const std::string get_name(int gid)
     {
-        static string error_str = "";
+        static std::string error_str = "";
 
-        Group * group = get(gid, true);
+        auto group = get_ro(gid);
 
         if ( group == 0 )
         {
             return error_str;
         }
 
-        const string& gname = group->get_name();
-
-        group->unlock();
+        const std::string gname = group->get_name();
 
         return gname;
     }
@@ -158,7 +139,7 @@ public:
      *          -2 object is a system group (ID < 100)
      *          -3 Group's User IDs set is not empty
      */
-    int drop(PoolObjectSQL * objsql, string& error_msg);
+    int drop(PoolObjectSQL * objsql, std::string& error_msg);
 
     /**
      *  Bootstraps the database table(s) associated to the Group pool
@@ -174,11 +155,14 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit);
+    int dump(std::string& oss, const std::string& where,
+             int sid, int eid, bool desc);
 
 private:
 
@@ -190,15 +174,6 @@ private:
     {
         return new Group(-1,"");
     };
-
-    /**
-     *  Callback function to get output in XML format
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*GROUP_POOL_H_*/

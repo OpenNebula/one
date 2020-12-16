@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -26,6 +26,7 @@ define(function(require) {
   var WizardFields = require('utils/wizard-fields');
   var DiskTab = require('./storage/disk-tab');
   var UniqueId = require('utils/unique-id');
+  var OpenNebula = require('opennebula');
 
   /*
     TEMPLATES
@@ -51,9 +52,9 @@ define(function(require) {
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = 'fa-tasks';
+    this.icon = 'fa-server';
     this.title = Locale.tr("Storage");
-    this.classes = "hypervisor only_kvm only_vcenter"
+    this.classes = "hypervisor";
 
     if(opts.listener != undefined){
       this.listener = opts.listener;
@@ -89,7 +90,10 @@ define(function(require) {
   }
 
   function _setup(context) {
+    Tips.setup(context);
     var that = this;
+    this.ds_tm_mads = [];
+    var groupDropdownOptions = '<option value="">'+Locale.tr("Default")+'</option>';
 
     that.numberOfDisks = 0;
     that.diskTabObjects = {};
@@ -108,19 +112,48 @@ define(function(require) {
         that.listener.notify();
       });
     }
+
+    OpenNebula.Datastore.list({
+      timeout: true,
+      success: function(request, ds_list){
+        $.each(ds_list, function(ds_id, ds){
+          if (ds["DATASTORE"]["TEMPLATE"]["TYPE"] === "IMAGE_DS") {
+            tm_mad_system = ds["DATASTORE"]["TEMPLATE"]["TM_MAD_SYSTEM"]
+            if (tm_mad_system){
+              tm_mad_system.split(",").map(function(item) {
+                var i = item.trim();
+                if(that.ds_tm_mads.indexOf(i) === -1){
+                  that.ds_tm_mads.push(i);
+                  groupDropdownOptions += '<option elem_id="'+i+'" value="'+i+'">'+i+'</option>';
+                }
+              });
+            }
+          }
+        });
+        $('select#TM_MAD_SYSTEM', context).html(groupDropdownOptions);
+      }
+    });
   }
 
   function _retrieve(context) {
     var templateJSON = {};
+
     var disksJSON = [];
     var diskJSON;
     $.each(this.diskTabObjects, function(id, diskTab) {
-      diskJSON = diskTab.retrieve($('#' + diskTab.diskTabId, context))
-      if (!$.isEmptyObject(diskJSON)) {disksJSON.push(diskJSON)};
-    })
+      diskJSON = diskTab.retrieve($("#" + diskTab.diskTabId, context));
+      if (!$.isEmptyObject(diskJSON)) { disksJSON.push(diskJSON); };
+    });
+
+    $('select#TM_MAD_SYSTEM', context).each(function(index, element){
+      var value = $(element).val();
+      if(value){
+        templateJSON["TM_MAD_SYSTEM"] = value;
+      }
+    });
 
     if (disksJSON.length > 0) {
-      templateJSON['DISK'] = disksJSON;
+      templateJSON["DISK"] = disksJSON;
       localStorage.setItem("disksJSON", JSON.stringify(disksJSON));
       $("#DISK_COST").trigger("change");
     };
@@ -131,6 +164,7 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var that = this;
     var disks = templateJSON.DISK
+
     if (disks instanceof Array) {
       $.each(disks, function(diskId, diskJSON) {
         if (diskId > 0) {
@@ -145,6 +179,16 @@ define(function(require) {
       var diskTab = that.diskTabObjects[that.numberOfDisks];
       var diskContext = $('#' + diskTab.diskTabId, context);
       diskTab.fill(diskContext, disks);
+    }
+
+    if ( templateJSON.TM_MAD_SYSTEM ){
+      $('select#TM_MAD_SYSTEM', context).val(templateJSON.TM_MAD_SYSTEM);
+      if ( !$('select#TM_MAD_SYSTEM', context).val() ) {
+        $('select#TM_MAD_SYSTEM', context).val("");
+      }
+      delete templateJSON.TM_MAD_SYSTEM;
+    } else {
+      $('select#TM_MAD_SYSTEM', context).val("");
     }
 
     if (templateJSON.DISK) {
@@ -198,7 +242,7 @@ define(function(require) {
 
   function _renameTabLinks(context) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
-      $("a", this).html(Locale.tr("Disk") + ' ' + index + " <i class='fa fa-times-circle remove-tab'></i>");
+      $("a", this).html(Locale.tr("DISK") + ' ' + index + " <i class='fas fa-times-circle remove-tab'></i>");
     })
 
     if(this.listener != undefined){

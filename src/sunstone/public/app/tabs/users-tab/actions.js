@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,20 +15,21 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var DataTable = require('./datatable');
-  var OpenNebulaResource = require('opennebula/user');
-  var CommonActions = require('utils/common-actions');
-  var TemplateUtils = require('utils/template-utils');
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var Locale = require("utils/locale");
+  var DataTable = require("./datatable");
+  var OpenNebulaResource = require("opennebula/user");
+  var CommonActions = require("utils/common-actions");
+  var TemplateUtils = require("utils/template-utils");
 
-  var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
-  var PASSWORD_DIALOG_ID = require('./dialogs/password/dialogId');
-  var AUTH_DRIVER_DIALOG_ID = require('./dialogs/auth-driver/dialogId');
-  var QUOTAS_DIALOG_ID = require('./dialogs/quotas/dialogId');
-  var GROUPS_DIALOG_ID = require('./dialogs/groups/dialogId');
+  var TAB_ID = require("./tabId");
+  var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
+  var PASSWORD_DIALOG_ID = require("./dialogs/password/dialogId");
+  var AUTH_DRIVER_DIALOG_ID = require("./dialogs/auth-driver/dialogId");
+  var QUOTAS_DIALOG_ID = require("./dialogs/quotas/dialogId");
+  var GROUPS_DIALOG_ID = require("./dialogs/groups/dialogId");
+  var TWO_FACTOR_AUTH_DIALOG_ID = require('tabs/users-tab/dialogs/two-factor-auth/dialogId');
 
   var RESOURCE = "User";
   var XML_ROOT = "USER";
@@ -43,9 +44,9 @@ define(function(require) {
     "User.show" : _commonActions.show(),
     "User.refresh" : _commonActions.refresh(),
     "User.delete" : _commonActions.del(),
-    "User.chgrp": _commonActions.multipleAction('chgrp'),
-    "User.addgroup": _commonActions.multipleAction('addgroup'),
-    "User.delgroup": _commonActions.multipleAction('delgroup'),
+    "User.chgrp": _commonActions.multipleAction("chgrp"),
+    "User.addgroup": _commonActions.multipleAction("addgroup"),
+    "User.delgroup": _commonActions.multipleAction("delgroup"),
     "User.groups_dialog" : _commonActions.checkAndShow("groups"),
 
     "User.groups" : {
@@ -95,13 +96,13 @@ define(function(require) {
       callback: function(request) {
         var reqId = request.request.data[0];
 
-        Sunstone.runAction(RESOURCE+'.show',reqId);
+        Sunstone.runAction(RESOURCE+".show",reqId);
 
-        if (reqId == config['user_id'] || reqId == "-1") {
-          Sunstone.runAction('Settings.refresh');
+        if (reqId == config["user_id"] || reqId == "-1") {
+          Sunstone.runAction("Settings.refresh");
 
           $.ajax({
-            url: 'config',
+            url: "config",
             type: "POST",
             dataType: "json",
             success: function() {
@@ -121,13 +122,13 @@ define(function(require) {
       callback: function(request) {
         var reqId = request.request.data[0];
 
-        Sunstone.runAction(RESOURCE+'.show',reqId);
+        Sunstone.runAction(RESOURCE+".show",reqId);
 
-        if (reqId == config['user_id'] || reqId == "-1") {
-          Sunstone.runAction('Settings.refresh');
+        if (reqId == config["user_id"] || reqId == "-1") {
+          Sunstone.runAction("Settings.refresh");
 
           $.ajax({
-            url: 'config',
+            url: "config",
             type: "POST",
             dataType: "json",
             success: function() {
@@ -147,9 +148,10 @@ define(function(require) {
       callback: function(request) {
         var reqId = request.request.data[0];
 
-        if (reqId == config['user_id'] || reqId == "-1") {
+        if (reqId == config["user_id"] || reqId == "-1") {
+
           $.ajax({
-            url: 'config',
+            url: "config",
             type: "POST",
             dataType: "json",
             success: function() {
@@ -159,8 +161,92 @@ define(function(require) {
             }
           });
         } else {
+          Sunstone.runAction(RESOURCE+".show",reqId);
+        }
+      },
+      error: Notifier.onError
+    },
+
+    "User.enable_sunstone_two_factor_auth" : {
+      type: "single",
+      call: OpenNebulaResource.enable_sunstone_two_factor_auth,
+      callback: function(request) {
+        var reqId = request.request.data[0];
+        if (reqId == config['user_id'] || reqId == "-1") {
+            window.location.href = ".";
+        } else {
           Sunstone.runAction(RESOURCE+'.show',reqId);
         }
+      },
+      error: Notifier.onError
+    },
+
+    "User.disable_sunstone_two_factor_auth" : {
+      type: "single",
+      call: OpenNebulaResource.disable_sunstone_two_factor_auth,
+      callback: function(request) {
+        var reqId = request.request.data[0];
+        if (reqId == config['user_id'] || reqId == "-1") {
+            window.location.href = ".";
+        } else {
+          Sunstone.runAction(RESOURCE+'.show',reqId);
+        }
+      },
+      error: Notifier.onError
+    },
+
+    "User.enable_sunstone_security_key" : {
+      type: "single",
+      call: OpenNebulaResource.enable_sunstone_security_key,
+      callback: function(request, response) {
+        OpenNebulaResource.show({
+          data : {
+            id: request.request.data[0]
+          },
+          success: function(request, response) {
+            var sunstone_template = {};
+            if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
+              $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
+            }
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).hide();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).setParams({
+              element: response[XML_ROOT],
+              sunstone_setting: sunstone_template
+            });
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).reset();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).show();
+          },
+          error: Notifier.onError
+        });
+        Sunstone.runAction("Settings.refresh");
+      },
+      error: Notifier.onError
+    },
+
+    "User.disable_sunstone_security_key" : {
+      type: "single",
+      call: OpenNebulaResource.disable_sunstone_security_key,
+      callback: function(request, response) {
+        OpenNebulaResource.show({
+          data : {
+            id: request.request.data[0]
+          },
+          success: function(request, response) {
+            var sunstone_template = {};
+            if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
+              $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
+            }
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).hide();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).setParams({
+              element: response[XML_ROOT],
+              sunstone_setting: sunstone_template
+            });
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).reset();
+            Sunstone.getDialog(TWO_FACTOR_AUTH_DIALOG_ID).show();
+          },
+          error: Notifier.onError
+        });
+        Sunstone.runAction("Settings.refresh");
       },
       error: Notifier.onError
     },
@@ -178,8 +264,8 @@ define(function(require) {
               $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
             }
 
-            $.extend(sunstone_template, params.data.extra_param)
-            var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
+            $.extend(sunstone_template, params.data.extra_param);
+            var template_str = TemplateUtils.templateToString({"SUNSTONE": sunstone_template});
             Sunstone.runAction("User.append_template_refresh", params.data.id, template_str);
           },
           error: Notifier.onError
@@ -200,8 +286,8 @@ define(function(require) {
               $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
             }
 
-            $.extend(sunstone_template, params.data.extra_param)
-            var template_str = TemplateUtils.templateToString({'SUNSTONE': sunstone_template});
+            $.extend(sunstone_template, params.data.extra_param);
+            var template_str = TemplateUtils.templateToString({"SUNSTONE": sunstone_template});
             Sunstone.runAction("User.append_template", params.data.id, template_str);
           },
           error: Notifier.onError
@@ -223,15 +309,15 @@ define(function(require) {
     "User.quotas_dialog" : {
       type: "custom",
       call: function() {
-        var tab = $('#' + TAB_ID);
+        var tab = $("#" + TAB_ID);
         if (Sunstone.rightInfoVisible(tab)) {
-          $('a[href="#user_quotas_tab"]', tab).click();
-          $('#edit_quotas_button', tab).click();
+          $("a[href=\"#user_quotas_tab\"]", tab).click();
+          $("#edit_quotas_button", tab).click();
         } else {
           var sel_elems = Sunstone.getDataTable(TAB_ID).elements();
           //If only one user is selected we fecth the user's quotas
           if (sel_elems.length == 1){
-            Sunstone.runAction(RESOURCE+'.fetch_quotas',sel_elems[0]);
+            Sunstone.runAction(RESOURCE+".fetch_quotas",sel_elems[0]);
           } else {
             // More than one, shows '0' usage
             Sunstone.getDialog(QUOTAS_DIALOG_ID).setParams({element: {}});
@@ -251,7 +337,7 @@ define(function(require) {
       callback: function(request) {
         Sunstone.getDialog(QUOTAS_DIALOG_ID).hide();
 
-        Sunstone.runAction(RESOURCE+'.show',request.request.data[0]);
+        Sunstone.runAction(RESOURCE+".show",request.request.data[0]);
       },
       error: Notifier.onError
     }

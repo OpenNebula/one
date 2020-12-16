@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -31,23 +31,31 @@
 #                 unless you are very sure about what you're doing
 ##############################################################################
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    VMDIR="/var/lib/one"
-    CONFIG_FILE="/var/lib/one/config"
-    LOG_FILE="/var/log/one/host_error.log"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VMDIR             = '/var/lib/one'
+    CONFIG_FILE       = '/var/lib/one/config'
+    LOG_FILE          = '/var/log/one/host_error.log'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    VMDIR=ONE_LOCATION+"/var"
-    CONFIG_FILE=ONE_LOCATION+"/var/config"
-    LOG_FILE=ONE_LOCATION+"/var/host_error.log"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VMDIR             = ONE_LOCATION + '/var'
+    CONFIG_FILE       = ONE_LOCATION + '/var/config'
+    LOG_FILE          = ONE_LOCATION + '/var/host_error.log'
 end
 
 FENCE_HOST = File.dirname(__FILE__) + '/fence_host.sh'
 
-$: << RUBY_LIB_LOCATION
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
 
 require 'opennebula'
 include OpenNebula
@@ -60,11 +68,14 @@ require 'open3'
 # Arguments
 ################################################################################
 
-HOST_ID = ARGV[0]
+# Get arguments from standard input
+standard_input = STDIN.read
+ARGV.replace(standard_input.split(' '))
 
-if HOST_ID.nil?
-    exit -1
-end
+raw_host_template = Base64.decode64(ARGV[0])
+xml_host_template = Nokogiri::XML(raw_host_template)
+
+HOST_ID = xml_host_template.xpath('HOST/ID').text
 
 ################################################################################
 # Methods
@@ -153,9 +164,9 @@ sys  = OpenNebula::System.new(client)
 conf = sys.get_configuration
 
 begin
-    MONITORING_INTERVAL = conf['MONITORING_INTERVAL'] || 60
+    MONITORING_INTERVAL = conf['MONITORING_INTERVAL_HOST'] || 60
 rescue Exception => e
-    log_error "Could not get MONITORING_INTERVAL"
+    log_error "Could not get MONITORING_INTERVAL_HOST"
     log_error e.to_s
     exit_error
 end
@@ -200,12 +211,12 @@ if fencing
     log "Fencing enabled"
 
     begin
-        i, oe, w = Open3.popen2e(FENCE_HOST, host64)
-        if w.value.success?
-            log oe.read
+        oe, w = Open3.capture2e(FENCE_HOST, :stdin_data=>host64)
+        if w.success?
+            log oe
             log "Fencing success"
         else
-            raise oe.read << "\n" << "Fencing error"
+            raise oe << "\n" << "Fencing error"
         end
     rescue Exception => e
         log_error e.to_s

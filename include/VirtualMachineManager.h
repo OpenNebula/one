@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,109 +17,27 @@
 #ifndef VIRTUAL_MACHINE_MANAGER_H_
 #define VIRTUAL_MACHINE_MANAGER_H_
 
-#include "MadManager.h"
-#include "ActionManager.h"
 #include "VirtualMachineManagerDriver.h"
-#include "VirtualMachinePool.h"
-#include "HostPool.h"
-#include "DatastorePool.h"
-#include "NebulaTemplate.h"
+#include "DriverManager.h"
+#include "Listener.h"
 
-using namespace std;
-
-extern "C" void * vmm_action_loop(void *arg);
+class DatastorePool;
+class HostPool;
+class VirtualMachinePool;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-class VMMAction : public ActionRequest
-{
-public:
-    enum Actions
-    {
-        DEPLOY,
-        SAVE,
-        SHUTDOWN,
-        CANCEL,
-        CANCEL_PREVIOUS,
-        CLEANUP,
-        CLEANUP_BOTH,
-        CLEANUP_PREVIOUS,
-        MIGRATE,
-        RESTORE,
-        REBOOT,
-        RESET,
-        POLL,
-        DRIVER_CANCEL,
-        ATTACH,
-        DETACH,
-        ATTACH_NIC,
-        DETACH_NIC,
-        SNAPSHOT_CREATE,
-        SNAPSHOT_REVERT,
-        SNAPSHOT_DELETE,
-        DISK_SNAPSHOT_CREATE,
-        DISK_RESIZE
-    };
-
-    VMMAction(Actions a, int v):ActionRequest(ActionRequest::USER),
-        _action(a), _vm_id(v){};
-
-    VMMAction(const VMMAction& o):ActionRequest(o._type), _action(o._action),
-        _vm_id(o._vm_id){};
-
-    Actions action() const
-    {
-        return _action;
-    }
-
-    int vm_id() const
-    {
-        return _vm_id;
-    }
-
-    ActionRequest * clone() const
-    {
-        return new VMMAction(*this);
-    }
-
-private:
-    Actions _action;
-
-    int     _vm_id;
-};
-
-class VirtualMachineManager : public MadManager, public ActionListener
+class VirtualMachineManager :
+    public DriverManager<VirtualMachineManagerDriver>,
+    public Listener
 {
 public:
 
     VirtualMachineManager(
-        time_t                    _timer_period,
-        time_t                    _poll_period,
-        bool                      _do_vm_poll,
-        int                       _vm_limit,
-        vector<const VectorAttribute*>& _mads);
+        const std::string&        _mads);
 
-    ~VirtualMachineManager(){};
-
-    /**
-     *  Triggers specific actions to the Virtual Machine Manager. This function
-     *  wraps the ActionManager trigger function.
-     *    @param action the VMM action
-     *    @param vid VM unique id. This is the argument of the passed to the
-     *    invoked action.
-     */
-    void trigger(VMMAction::Actions action, int vid)
-    {
-        VMMAction vmm_ar(action, vid);
-
-        am.trigger(vmm_ar);
-    }
-
-    void finalize()
-    {
-        am.finalize();
-    }
+    ~VirtualMachineManager() = default;
 
     /**
      *  This functions starts the associated listener thread, and creates a
@@ -130,21 +48,10 @@ public:
     int start();
 
     /**
-     *  Gets the thread identification.
-     *    @return pthread_t for the manager thread (that in the action loop).
-     */
-    pthread_t get_thread_id() const
-    {
-        return vmm_thread;
-    };
-
-    /**
      *  Loads Virtual Machine Manager Mads defined in configuration file
-     *   @param uid of the user executing the driver. When uid is 0 the nebula
-     *   identity will be used. Otherwise the Mad will be loaded through the
-     *   sudo application.
+     *   @param _mads configuration of drivers
      */
-    int load_mads(int uid);
+    int load_drivers(const std::vector<const VectorAttribute*>& _mads);
 
     /**
      *  Check if action is supported for imported VMs
@@ -152,11 +59,11 @@ public:
      *    @param action
      *    @return True if it is supported
      */
-    bool is_imported_action_supported(const string& mad,History::VMAction action)
+    bool is_imported_action_supported(const std::string& mad, VMActions::Action action)
     {
         const VirtualMachineManagerDriver * vmd = get(mad);
 
-        if ( vmd == 0 )
+        if ( vmd == nullptr )
         {
             return false;
         }
@@ -176,11 +83,11 @@ public:
     /**
      * Get keep_snapshots capability from driver
      */
-    bool is_keep_snapshots(const string& name)
+    bool is_keep_snapshots(const std::string& name)
     {
         const VirtualMachineManagerDriver * vmd = get(name);
 
-        if ( vmd == 0 )
+        if ( vmd == nullptr )
         {
             return false;
         }
@@ -188,12 +95,60 @@ public:
         return vmd->is_keep_snapshots();
     }
 
-private:
     /**
-     *  Thread id for the Virtual Machine Manager
+     * Get cold_nic_attach behavior for the driver. When true the driver will be
+     * invoked in cold NIC attach operations
      */
-    pthread_t               vmm_thread;
+    bool is_cold_nic_attach(const std::string& name)
+    {
+        const VirtualMachineManagerDriver * vmd = get(name);
 
+        if ( vmd == nullptr )
+        {
+            return false;
+        }
+
+        return vmd->is_cold_nic_attach();
+    }
+
+    /**
+     * Get live_resize capability from driver
+     */
+    bool is_live_resize(const std::string& name)
+    {
+        const VirtualMachineManagerDriver * vmd = get(name);
+
+        if ( vmd == nullptr )
+        {
+            return false;
+        }
+
+        return vmd->is_live_resize();
+    }
+
+    /**
+     *  Returns a pointer to a Virtual Machine Manager driver. The driver is
+     *  searched by its name.
+     *    @param name the name of the driver
+     *    @return the VM driver owned by uid with attribute name equal to value
+     *    or 0 in not found
+     */
+    const VirtualMachineManagerDriver * get(const std::string& name) const
+    {
+        return DriverManager::get_driver(name);
+    };
+
+    /**
+     *  Validates raw sections in the Virtual Machine Template for the
+     *  target driver
+     *  @param template of the virtual machine
+     *  @param error_str error if any
+     *
+     *  @return 0 on success (valid raw)
+     */
+    int validate_raw(const Template * vmt, std::string& error_str);
+
+private:
     /**
      *  Pointer to the Virtual Machine Pool, to access VMs
      */
@@ -209,84 +164,164 @@ private:
      */
     DatastorePool *         ds_pool;
 
-    /**
-     *  Timer period for the Virtual Machine Manager.
-     */
-    time_t                  timer_period;
+    // -------------------------------------------------------------------------
+    // Protocol implementation, procesing messages from driver
+    // -------------------------------------------------------------------------
+    static void _undefined(std::unique_ptr<vm_msg_t> msg);
 
     /**
-     *  Virtual Machine polling interval
+     *
      */
-    time_t                  poll_period;
+    void _deploy(std::unique_ptr<vm_msg_t> msg);
 
     /**
-     *  Perform pro-active VM monitoring
+     *
      */
-    bool                    do_vm_poll;
+    void _shutdown(std::unique_ptr<vm_msg_t> msg);
 
     /**
-     *  Virtual Machine polling limit
+     *
      */
-    int                     vm_limit;
+    void _reset(std::unique_ptr<vm_msg_t> msg);
 
     /**
-     *  Action engine for the Manager
+     *
      */
-    ActionManager           am;
+    void _reboot(std::unique_ptr<vm_msg_t> msg);
 
     /**
-     *  Function to execute the Manager action loop method within a new pthread
-     * (requires C linkage)
+     *
      */
-    friend void * vmm_action_loop(void *arg);
+    void _cancel(std::unique_ptr<vm_msg_t> msg);
 
     /**
-     *  Returns a pointer to a Virtual Machine Manager driver.
-     *    @param uid of the owner of the driver
-     *    @param name of an attribute of the driver (e.g. its type)
-     *    @param value of the attribute
-     *    @return the VM driver owned by uid with attribute name equal to value
-     *    or 0 in not found
+     *
      */
-    const VirtualMachineManagerDriver * get(
-        const string&   name,
-        const string&   value)
-    {
-        return static_cast<const VirtualMachineManagerDriver *>
-               (MadManager::get(0,name,value));
-    };
+    void _cleanup(std::unique_ptr<vm_msg_t> msg);
 
     /**
-     *  Returns a pointer to a Virtual Machine Manager driver. The driver is
-     *  searched by its name.
-     *    @param name the name of the driver
-     *    @return the VM driver owned by uid with attribute name equal to value
-     *    or 0 in not found
+     *
      */
-    const VirtualMachineManagerDriver * get(
-        const string&   name)
-    {
-        string _name("NAME");
-        return static_cast<const VirtualMachineManagerDriver *>
-               (MadManager::get(0,_name,name));
-    };
+    void _checkpoint(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _save(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _restore(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _migrate(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _attachdisk(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _detachdisk(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _attachnic(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _detachnic(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snapshotcreate(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snapshotrevert(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _snapshotdelete(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _disksnapshotcreate(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _disksnapshotrevert(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _resizedisk(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _updateconf(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _updatesg(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _driver_cancel(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void _resize(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    static void _log(std::unique_ptr<vm_msg_t> msg);
+
+    /**
+     *
+     */
+    void log_error(VirtualMachine* vm_id,
+                   const std::string& payload,
+                   const char* msg);
+
+    /**
+     *
+     */
+    void log_error(int vm_id, const std::string& payload, const char* msg);
+
+
+    /**
+     *
+     */
+    bool check_vm_state(int vm_id, vm_msg_t* msg);
 
     // -------------------------------------------------------------------------
     // Action Listener interface
     // -------------------------------------------------------------------------
-    /**
-     *  This function is executed periodically to poll the running VMs
-     */
-    void timer_action(const ActionRequest& ar);
 
-    void finalize_action(const ActionRequest& ar)
+    static const int drivers_timeout = 10;
+
+    void finalize_action()
     {
-        NebulaLog::log("VMM",Log::INFO,"Stopping Virtual Machine Manager...");
-
-        MadManager::stop();
+        DriverManager::stop(drivers_timeout);
     };
-
-    void user_action(const ActionRequest& ar);
 
     /**
      *  Function to format a VMM Driver message in the form:
@@ -317,57 +352,53 @@ private:
      *    @param ds_id of the system datastore
      *    @param id of the security group
      */
-    string * format_message(
-        const string& hostname,
-        const string& m_hostname,
-        const string& domain,
-        const string& ldfile,
-        const string& rdfile,
-        const string& cfile,
-        const string& tm_command,
-        const string& tm_command_rollback,
-        const string& disk_target_path,
-        const string& tmpl,
+    std::string format_message(
+        const std::string& hostname,
+        const std::string& m_hostname,
+        const std::string& domain,
+        const std::string& ldfile,
+        const std::string& rdfile,
+        const std::string& cfile,
+        const std::string& tm_command,
+        const std::string& tm_command_rollback,
+        const std::string& disk_target_path,
+        const std::string& tmpl,
         int ds_id,
         int sgid);
 
+public:
     /**
      *  Function executed when a DEPLOY action is received. It deploys a VM on
      *  a Host.
      *    @param vid the id of the VM to be deployed.
      */
-    void deploy_action(
-        int vid);
+    void trigger_deploy(int vid);
 
     /**
      *  Function to stop a running VM and generate a checkpoint file. This
      *  function is executed when a SAVE action is triggered.
      *    @param vid the id of the VM.
      */
-    void save_action(
-        int vid);
+    void trigger_save(int vid);
 
     /**
      *  Shutdowns a VM when a SHUTDOWN action is received.
      *    @param vid the id of the VM.
      */
-    void shutdown_action(
-        int vid);
+    void trigger_shutdown(int vid);
 
     /**
      *  Cancels a VM when a CANCEL action is received.
      *    @param vid the id of the VM.
      */
-    void cancel_action(
-        int vid);
+    void trigger_cancel(int vid);
 
     /**
      *  Cancels a VM (in the previous host) when a CANCEL action is received.
      *  Note that the domain-id is the last one returned by a boot action
      *    @param vid the id of the VM.
      */
-    void cancel_previous_action(
-        int vid);
+    void trigger_cancel_previous(int vid);
 
     /**
      *  Cleanups a host (cancel VM + delete disk images).
@@ -375,89 +406,70 @@ private:
      *    @param cancel_previous if true the VM will be canceled in the previous
      *    host (only relevant to delete VM's in MIGRATE state)
      */
-    void cleanup_action(
-        int vid, bool cancel_previous);
+    void trigger_cleanup(int vid, bool cancel_previous);
 
     /**
      *  Cleanups the previous host (cancel VM + delete disk images).
      *    @param vid the id of the VM.
      */
-    void cleanup_previous_action(
-        int vid);
+    void trigger_cleanup_previous(int vid);
 
     /**
      *  Function to migrate (live) a VM (MIGRATE action).
      *    @param vid the id of the VM.
      */
-    void migrate_action(
-        int vid);
+    void trigger_migrate(int vid);
 
     /**
      *  Restores a VM from a checkpoint file.
      *    @param vid the id of the VM.
      */
-    void restore_action(
-        int vid);
+    void trigger_restore(int vid);
 
     /**
      *  Reboots a running VM.
      *    @param vid the id of the VM.
      */
-    void reboot_action(
-        int vid);
+    void trigger_reboot(int vid);
 
     /**
      *  Resets a running VM.
      *    @param vid the id of the VM.
      */
-    void reset_action(
-        int vid);
-
-    /**
-     *  Polls a VM.
-     *    @param vid the id of the VM.
-     */
-    void poll_action(
-        int vid);
-
+    void trigger_reset(int vid);
 
     /**
      * Attaches a new disk to a VM. The VM must have a disk with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void attach_action(
-        int vid);
+    void trigger_attach(int vid);
 
     /**
      * Detaches a disk from a VM. The VM must have a disk with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void detach_action(
-        int vid);
+    void trigger_detach(int vid);
 
     /**
      * Attaches a new NIC to a VM. The VM must have a NIC with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void attach_nic_action(
-        int vid);
+    void trigger_attach_nic(int vid);
 
     /**
      * Detaches a NIC from a VM. The VM must have a NIC with the
      * attribute ATTACH = YES
      *    @param vid the id of the VM.
      */
-    void detach_nic_action(
-        int vid);
+    void trigger_detach_nic(int vid);
 
     /**
      *  This function cancels the current driver operation
      */
-    void driver_cancel_action(
-        int vid);
+    void trigger_driver_cancel(int vid);
 
     /**
      * Creates a new system snapshot. The VM must have a snapshot with the
@@ -465,8 +477,7 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_create_action(
-        int vid);
+    void trigger_snapshot_create(int vid);
 
     /**
      * Reverts to a snapshot. The VM must have a snapshot with the
@@ -474,8 +485,7 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_revert_action(
-        int vid);
+    void trigger_snapshot_revert(int vid);
 
     /**
      * Deletes a snapshot. The VM must have a snapshot with the
@@ -483,24 +493,35 @@ private:
      *
      * @param vid the id of the VM.
      */
-    void snapshot_delete_action(
-        int vid);
+    void trigger_snapshot_delete(int vid);
 
     /**
      * Creates a new disk system snapshot.
      *
      * @param vid the id of the VM.
      */
-    void disk_snapshot_create_action(
-        int vid);
+    void trigger_disk_snapshot_create(int vid);
 
     /**
      * Resize a VM disk
      *
      * @param vid the id of the VM.
      */
-    void disk_resize_action(
-        int vid);
+    void trigger_disk_resize(int vid);
+
+    /**
+     * Update VM context
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_update_conf(int vid);
+
+    /**
+     * Update VM context
+     *
+     * @param vid the id of the VM.
+     */
+    void trigger_resize(int vid);
 };
 
 #endif /*VIRTUAL_MACHINE_MANAGER_H*/

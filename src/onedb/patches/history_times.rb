@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -87,7 +87,7 @@ EOT
         history_doc = nil
 
         @db.fetch("SELECT * FROM history WHERE vid = #{vid} AND seq = #{seq}") do |row|
-            history_doc = Nokogiri::XML(row[:body],nil,NOKOGIRI_ENCODING){|c| c.default_xml.noblanks}
+            history_doc = nokogiri_doc(row[:body], 'history')
 
             pphistory(history_doc)
 

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -17,8 +17,7 @@
 #ifndef VMGROUP_ROLE_H_
 #define VMGROUP_ROLE_H_
 
-#include "PoolObjectSQL.h"
-#include "NebulaUtil.h"
+#include "Template.h"
 
 class VMGroupPool;
 
@@ -46,7 +45,7 @@ public:
     /**
      *  @return the role id
      */
-    int id()
+    int id() const
     {
         int rid;
 
@@ -58,7 +57,7 @@ public:
     /**
      *  @return the role name
      */
-    std::string name()
+    std::string name() const
     {
         return va->vector_value("NAME");
     }
@@ -66,7 +65,7 @@ public:
     /**
      *  @return the set of VMs in a string in a comma separated list
      */
-    std::string vms_s()
+    std::string vms_s() const
     {
         return va->vector_value("VMS");
     }
@@ -84,12 +83,12 @@ public:
     /* ---------------------------------------------------------------------- */
     /* VMS set Interface                                                      */
     /* ---------------------------------------------------------------------- */
-    const std::set<int>& get_vms()
+    const std::set<int>& get_vms() const
     {
         return vms;
     };
 
-    int size_vms()
+    int size_vms() const
     {
         return vms.size();
     }
@@ -202,7 +201,7 @@ public:
      *
      *    @return 0 on success
      */
-    int add_role(VectorAttribute * vrole, string& error);
+    int add_role(VectorAttribute * vrole, std::string& error);
 
     /**
      *  Generates the ids corresponding to a set of role names
@@ -348,13 +347,11 @@ private:
 
         VMGroupRole * get(T k)
         {
-            typename std::map<T, VMGroupRole *>::iterator it;
-
-            it = roles.find(k);
+            auto it = roles.find(k);
 
             if ( it == roles.end() )
             {
-                return 0;
+                return nullptr;
             }
 
             return it->second;

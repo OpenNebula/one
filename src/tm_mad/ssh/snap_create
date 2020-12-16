@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -21,65 +21,62 @@
 SRC=$1
 SNAP_ID=$2
 VMID=$3
-DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    DATASTORES=/var/lib/one/datastores
+    SSH_RC=/var/lib/one/remotes/etc/tm/ssh/sshrc
+    SSH_UTILS=/var/lib/one/remotes/tm/ssh/ssh_utils.sh
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    DATASTORES=$ONE_LOCATION/var/datastores
+    SSH_RC=$ONE_LOCATION/var/remotes/etc/tm/ssh/sshrc
+    SSH_UTILS=$ONE_LOCATION/var/remotes/tm/ssh/ssh_utils.sh
 fi
 
 DRIVER_PATH=$(dirname $0)
 
-. $TMCOMMON
+source $TMCOMMON
+source $SSH_RC
+source $SSH_UTILS
 
-SRC_PATH=$(arg_path $SRC)
+SRC_PATH=$(arg_path $SRC NOFIX)
 SRC_HOST=$(arg_host $SRC)
 
 #-------------------------------------------------------------------------------
-# Get Image information
+# Get VM information
 #-------------------------------------------------------------------------------
-
-DISK_ID=$(basename ${SRC} | cut -d. -f2)
 
 XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
 
-unset i j XPATH_ELEMENTS
+DS_ID=$(awk 'gsub(/[\0]/, x)' \
+    <(onevm show $VMID -x|$XPATH /VM/HISTORY_RECORDS/HISTORY[last\(\)]/DS_ID))
 
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onevm show -x $VMID| $XPATH \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
-
-DISK_SRC="${XPATH_ELEMENTS[j++]}"
-CLONE="${XPATH_ELEMENTS[j++]}"
-
-
-SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
-IMAGE_DS_PATH=$(dirname ${DISK_SRC})
-
-DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
-
-SNAP_DIR="${DISK_PATH}.snap"
+VM_DIR="$(dirname ${SRC_PATH})"
+DISK_NAME="$(basename $SRC_PATH)"
+SNAP_DIR="${SRC_PATH}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
-SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
-CURRENT_PATH=${DISK_PATH}
+
+REPLICA_HOST=$(get_replica_host $DS_ID)
 
 CMD=$(cat <<EOT
 set -ex -o pipefail
 
-if [ ! -d "${SNAP_DIR}" ]; then
-    mkdir "${SNAP_DIR}"
-fi
+mkdir -p "${SNAP_DIR}"
+touch $SNAP_PATH
 
 # Copy current state to a new snapshot
-cp "${CURRENT_PATH}" "${SNAP_PATH}"
+cp "${SRC_PATH}" "${SNAP_PATH}"
+
+if [ -n "$REPLICA_HOST" ]; then
+    ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
+
+    cd $VM_DIR
+    tar --transform="flags=r;s|${DISK_NAME}.snap/${SNAP_ID}|${DISK_NAME}.replica_snap|" \
+        -cSf - ${DISK_NAME}.snap/${SNAP_ID} | \
+        ssh $REPLICA_SSH_OPTS ${REPLICA_HOST} \
+        "tar xSf - -C $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
+fi
 EOT
 )
 
-ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
-                 "Error creating snapshot ${SNAP_PATH}"
-
+ssh_forward ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
+    "Error creating snapshot ${SNAP_PATH}"

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,7 +18,11 @@
 #define IPAM_REQUEST_H_
 
 #include "SyncRequest.h"
-#include "NebulaUtil.h"
+#include "SSLUtil.h"
+#include "Attribute.h"
+#include "Template.h"
+
+class AddressRange;
 
 /**
  *  The IPAMRequest class represents a request for the IPAM driver. The request
@@ -32,12 +36,15 @@ public:
     /* ---------------------------------------------------------------------- */
     /* IPAM Request constructors                                              */
     /* ---------------------------------------------------------------------- */
-    IPAMRequest(const std::string& _ar_xml) :
-        ar_xml(_ar_xml), address_xml("<ADDRESS><MAC/><IP/><IP6_GLOBAL/>"
-                "<IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+    IPAMRequest(VectorAttribute * _ar_vattr) : IPAMRequest(_ar_vattr,
+            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
 
-    IPAMRequest(const std::string& _ar_xml, const std::string& _address_xml) :
-        ar_xml(_ar_xml), address_xml(_address_xml){};
+    IPAMRequest(VectorAttribute * _ar_vattr, const std::string& _address_xml);
+
+    IPAMRequest(AddressRange * _ar) : IPAMRequest(_ar,
+            "<ADDRESS><MAC/><IP/><IP6_GLOBAL/><IP6_ULA/><IP6/><SIZE/></ADDRESS>"){};
+
+    IPAMRequest(AddressRange * _ar, const std::string& _address_xml);
 
     virtual ~IPAMRequest(){};
 
@@ -72,17 +79,13 @@ public:
     std::string& to_xml64(std::string& action_data) const
     {
         std::ostringstream oss;
-        std::string * aux_str;
 
         oss << "<IPAM_DRIVER_ACTION_DATA>"
             << ar_xml
             << address_xml
             << "</IPAM_DRIVER_ACTION_DATA>";
 
-        aux_str     = one_util::base64_encode(oss.str());
-        action_data = *aux_str;
-
-        free(aux_str);
+        ssl_util::base64_encode(oss.str(), action_data);
 
         return action_data;
     }
@@ -156,12 +159,12 @@ private:
     /**
      *  XML representation for this request <AR>...</AR>
      */
-    string ar_xml;
+    std::string ar_xml;
 
     /**
      * Address request representation
      */
-    string address_xml;
+    std::string address_xml;
 
     /**
      *  Parse a response from an IPAM driver OpenNebula template or XML
@@ -173,19 +176,11 @@ private:
      */
     int parse_response(Template& response, std::string& error) const
     {
-        std::string * msg = one_util::base64_decode(message);
+        std::string msg;
 
-        if ( msg == 0 )
-        {
-            error = "Error decoding base64 IPAM driver response";
-            return -1;
-        }
+        ssl_util::base64_decode(message, msg);
 
-        int rc = response.parse_str_or_xml(*msg, error);
-
-        free(msg);
-
-        return rc;
+        return response.parse_str_or_xml(msg, error);
     }
 };
 

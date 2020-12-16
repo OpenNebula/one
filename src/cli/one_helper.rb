@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -15,6 +15,8 @@
 #--------------------------------------------------------------------------- #
 
 require 'cli_helper'
+require 'open3'
+require 'io/console'
 
 begin
     require 'opennebula'
@@ -28,19 +30,19 @@ include OpenNebula
 module OpenNebulaHelper
     ONE_VERSION=<<-EOT
 OpenNebula #{OpenNebula::VERSION}
-Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
-
-Licensed under the Apache License, Version 2.0 (the "License"); you may
-not use this file except in compliance with the License. You may obtain
-a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
 EOT
 
     if ONE_LOCATION
-        TABLE_CONF_PATH=ONE_LOCATION+"/etc/cli"
-        VAR_LOCATION=ONE_LOCATION+"/var" if !defined?(VAR_LOCATION)
+        TABLE_CONF_PATH     = ONE_LOCATION + "/etc/cli"
+        VAR_LOCATION        = ONE_LOCATION + "/var" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION = ONE_LOCATION + "/lib/ruby/cli/addons"
+        XSD_PATH            = ONE_LOCATION + '/share/schemas/xsd'
     else
-        TABLE_CONF_PATH="/etc/one/cli"
-        VAR_LOCATION="/var/lib/one" if !defined?(VAR_LOCATION)
+        TABLE_CONF_PATH     = "/etc/one/cli"
+        VAR_LOCATION        = "/var/lib/one" if !defined?(VAR_LOCATION)
+        CLI_ADDONS_LOCATION = "/usr/lib/one/ruby/cli/addons"
+        XSD_PATH            = '/usr/share/one/schemas/xsd'
     end
 
     EDITOR_PATH='/usr/bin/vi'
@@ -53,6 +55,23 @@ EOT
         :short => "-x",
         :large => "--xml",
         :description => "Show the resource in xml format"
+    }
+
+    JSON = {
+        :name => 'json',
+        :short => '-j',
+        :large => '--json',
+        :description => 'Show the resource in JSON format',
+        :proc        => lambda do |_, _|
+            require 'json'
+        end
+    }
+
+    YAML = {
+        :name => 'yaml',
+        :short => '-y',
+        :large => '--yaml',
+        :description => 'Show the resource in YAML format'
     }
 
     NUMERIC={
@@ -174,6 +193,20 @@ EOT
         }
     ]
 
+    AS_USER = {
+            :name   => 'as_uid',
+            :large  => '--as_uid uid',
+            :format => Integer,
+            :description => 'The User ID to instantiate the VM'
+    }
+
+    AS_GROUP = {
+            :name   => 'as_gid',
+            :large  => '--as_gid gid',
+            :format => Integer,
+            :description => 'The Group ID to instantiate the VM'
+    }
+
     #NOTE: Other options defined using this array, add new options at the end
     TEMPLATE_OPTIONS=[
         {
@@ -241,7 +274,8 @@ EOT
             :description => "Networks to attach. To use a network owned by"<<
                             " other user use user[network]. Additional"<<
                             " attributes are supported like with the --disk"<<
-                            " option.",
+                            " option. Also you can use auto if you want that" <<
+                            " OpenNebula select automatically the network",
             :format => Array
         },
         {
@@ -361,13 +395,48 @@ EOT
             :format => String,
             :description => "In a vCenter environment sets the the VMs and Template folder where the VM will be placed in." \
             " The path uses slashes to separate folders. For example: --vcenter_vm_folder \"/Management/VMs\""
-        }
+        },
+        {
+            :name   => 'user_inputs',
+            :large  => '--user-inputs ui1,ui2,ui3',
+            :format => Array,
+            :description => 'Specify the user inputs values when instantiating',
+            :proc => lambda do |o, options|
+                # Store user inputs that has been already processed
+                options[:user_inputs_keys] = []
+
+                # escape values
+                options[:user_inputs].map! do |user_input|
+                    user_input_split = user_input.split('=')
+
+                    options[:user_inputs_keys] << user_input_split[0]
+
+                    "#{user_input_split[0]}=\"#{user_input_split[1]}\""
+                end
+
+                options[:user_inputs] = o.join("\n")
+            end
+        },
+        AS_GROUP,
+        AS_USER
     ]
 
     FORCE={
         :name  => 'force',
         :large  => '--force',
         :description => 'Overwrite the file'
+    }
+
+    EXTENDED={
+        :name => 'extended',
+        :large => '--extended',
+        :description => 'Show info extended (it only works with xml output)'
+    }
+
+    DECRYPT = {
+        :name => 'decrypt',
+        :large => '--decrypt',
+        :description => 'Get decrypted attributes'
     }
 
     TEMPLATE_OPTIONS_VM   = [TEMPLATE_NAME_VM] + TEMPLATE_OPTIONS + [DRY]
@@ -378,7 +447,9 @@ EOT
     UPDATECONF_OPTIONS_VM = TEMPLATE_OPTIONS[6..15] + [TEMPLATE_OPTIONS[2],
       TEMPLATE_OPTIONS[17], TEMPLATE_OPTIONS[18]]
 
-    OPTIONS = XML, NUMERIC, KILOBYTES
+    FORMAT = [XML, JSON, YAML]
+
+    OPTIONS = FORMAT, EXTENDED, NUMERIC, KILOBYTES
 
     class OneHelper
         attr_accessor :client
@@ -417,8 +488,8 @@ EOT
                 else
                     sync = true
                 end
-
-                @@client=OpenNebula::Client.new(secret, endpoint, :sync => sync)
+                options[:sync] = sync
+                @@client=OpenNebula::Client.new(secret, endpoint, options)
             end
         end
 
@@ -475,8 +546,12 @@ EOT
             @translation_hash = nil
         end
 
-        def set_client(options)
-            @client=OpenNebulaHelper::OneHelper.get_client(options, true)
+        def set_client(options, client=nil)
+            if client.nil?
+                @client=OpenNebulaHelper::OneHelper.get_client(options, true)
+            else
+                @client = client
+            end
         end
 
         def create_resource(options, &block)
@@ -491,61 +566,424 @@ EOT
             end
         end
 
+        #-----------------------------------------------------------------------
+        #  List pool functions
+        #-----------------------------------------------------------------------
+        def start_pager
+            pager = ENV['ONE_PAGER'] || 'more'
+
+            # Start pager, defaults to less
+            p_r, p_w = IO.pipe
+
+            Signal.trap('PIPE', 'SIG_IGN')
+
+            lpid = fork do
+                $stdin.reopen(p_r)
+
+                p_r.close
+                p_w.close
+
+                Kernel.select [$stdin]
+
+                exec([pager, pager])
+            end
+
+            # Send listing to pager pipe
+            $stdout.close
+            $stdout = p_w.dup
+
+            p_w.close
+            p_r.close
+
+            return lpid
+        end
+
+        def stop_pager(lpid)
+            $stdout.close
+
+            begin
+                Process.wait(lpid)
+            rescue Interrupt
+                Process.kill("TERM", lpid)
+                Process.wait(lpid)
+            rescue Errno::ECHILD
+            end
+        end
+
+        def print_page(pool, options)
+            elements = 0
+            page     = ""
+
+            if options[:xml]
+                pool.each {|e|
+                    elements += 1
+                    page << e.to_xml(true) << "\n"
+                }
+            else
+                pname = pool.pool_name
+                ename = pool.element_name
+
+                if options[:decrypt]
+                    page = pool.map do |element|
+                        element.info(true)
+                        element.to_hash[ename]
+                    end
+                else
+                    page  = pool.to_hash
+                    elems = page[pname][ename]
+                end
+
+                if elems.class == Array
+                    elements = elems.length
+                else
+                    elements = 1
+                end
+            end
+
+            return elements, page
+        end
+
+        #-----------------------------------------------------------------------
+        # List the pool in table form, it uses pagination for interactive
+        # output
+        #-----------------------------------------------------------------------
+        def list_pool_table(table, pool, options, filter_flag)
+            if $stdout.isatty and (!options.key?:no_pager)
+                size = $stdout.winsize[0] - 1
+
+                # ----------- First page, check if pager is needed -------------
+                rc = pool.get_page(size, 0, false)
+                ps = ""
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                elements, hash = print_page(pool, options)
+
+                ppid = -1
+
+                if elements >= size
+                    ppid = start_pager
+                end
+
+                table.show(hash, options)
+
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
+                # ------- Rest of the pages in the pool, piped to pager --------
+                current = size
+
+                options[:no_header] = true
+
+                loop do
+                    rc = pool.get_page(size, current, false)
+
+                    return -1, rc.message if OpenNebula.is_error?(rc)
+
+                    current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
+
+                    elements, hash = print_page(pool, options)
+
+                    table.show(hash, options)
+
+                    $stdout.flush
+
+                    break if elements < size
+                end
+
+                stop_pager(ppid)
+            else
+                rc = pool.info
+
+                return rc if OpenNebula.is_error?(rc)
+
+                _, hash = print_page(pool, options)
+
+               if options[:ids] && elements
+                    hash.reject! do |element|
+                        !options[:ids].include?(element['ID'].to_i)
+                    end
+                end
+
+                table.show(hash, options)
+            end
+
+            return 0
+        end
+
+        #-----------------------------------------------------------------------
+        # List pool in XML format, pagination is used in interactive output
+        #-----------------------------------------------------------------------
+        def list_pool_xml(pool, options, filter_flag)
+            extended = options.include?(:extended) && options[:extended]
+
+            if $stdout.isatty and (!options.key?:no_pager)
+                size = $stdout.winsize[0] - 1
+
+                # ----------- First page, check if pager is needed -------------
+                rc = pool.get_page(size, 0, extended)
+                ps = ""
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                pname = pool.pool_name
+
+                elements, page = print_page(pool, options)
+
+                ppid = -1
+
+                if elements >= size
+                    ppid = start_pager
+                end
+
+                puts "<#{pname}>"
+
+                puts page
+
+                if elements < size
+                    puts "</#{pname}>"
+                    return 0
+                end
+
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
+                # ------- Rest of the pages in the pool, piped to pager --------
+                current = size
+
+                loop do
+                    rc = pool.get_page(size, current, extended)
+
+                    return -1, rc.message if OpenNebula.is_error?(rc)
+
+                    current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
+
+                    elements, page = print_page(pool, options)
+
+                    puts page
+
+                    $stdout.flush
+
+                    break if elements < size
+                end
+
+                puts "</#{pname}>"
+
+                stop_pager(ppid)
+            else
+                if pool.pool_name == "VM_POOL" && extended
+                    rc = pool.info_all_extended
+                else
+                    rc = pool.info
+                end
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                puts pool.to_xml(true)
+            end
+
+            return 0
+        end
+
+        #-----------------------------------------------------------------------
+        # List pool in JSON format, pagination is used in interactive output
+        #-----------------------------------------------------------------------
+        def list_pool_format(pool, options, filter_flag)
+            extended = options.include?(:extended) && options[:extended]
+
+            if $stdout.isatty and (!options.key?:no_pager)
+                size = $stdout.winsize[0] - 1
+
+                # ----------- First page, check if pager is needed -------------
+                rc = pool.get_page(size, 0, extended)
+                ps = ""
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                elements = get_format_size(pool, options)
+                ppid     = -1
+
+                if elements >= size
+                    ppid = start_pager
+                end
+
+                yield(pool) if block_given?
+
+                if elements < size
+                    return 0
+                end
+
+                if elements < size
+                    return 0
+                elsif !pool.is_paginated?
+                    stop_pager(ppid)
+                    return 0
+                end
+
+                # ------- Rest of the pages in the pool, piped to pager --------
+                current = size
+
+                loop do
+                    rc = pool.get_page(size, current, extended)
+
+                    return -1, rc.message if OpenNebula.is_error?(rc)
+
+                    current += size
+
+                    begin
+                        Process.waitpid(ppid, Process::WNOHANG)
+                    rescue Errno::ECHILD
+                        break
+                    end
+
+                    elements = get_format_size(pool, options)
+
+                    break if elements < size
+
+                    yield(pool) if block_given?
+
+                    $stdout.flush
+                end
+
+                stop_pager(ppid)
+            else
+                if pool.pool_name == "VM_POOL" && extended
+                    rc = pool.info_all_extended
+                else
+                    rc = pool.info
+                end
+
+                return -1, rc.message if OpenNebula.is_error?(rc)
+
+                yield(pool) if block_given?
+            end
+
+            return 0
+        end
+
+        #-----------------------------------------------------------------------
+        # List pool table in top-like form
+        #-----------------------------------------------------------------------
+        def list_pool_top(table, pool, options)
+            table.top(options) {
+                array = pool.get_hash
+
+                return -1, array.message if OpenNebula.is_error?(array)
+
+                array
+            }
+
+            return 0
+        end
+
 
         def list_pool(options, top=false, filter_flag=nil)
-            if options[:describe]
-                table = format_pool(options)
+            table = format_pool(options)
 
+            if options[:describe]
                 table.describe_columns
+
                 return 0
             end
 
             filter_flag ||= OpenNebula::Pool::INFO_ALL
 
-            pool = factory_pool(filter_flag)
+            pool  = factory_pool(filter_flag)
+            pname = pool.pool_name
+            ename = pool.element_name
 
-            if options[:xml]
-                # TODO: use paginated functions
-                rc=pool.info
-                return -1, rc.message if OpenNebula.is_error?(rc)
-                return 0, pool.to_xml(true)
-            else
-                table = format_pool(options)
+            if top
+                return list_pool_top(table, pool, options)
+            elsif options[:xml]
+                return list_pool_xml(pool, options, filter_flag)
+            elsif options[:json]
+                list_pool_format(pool, options, filter_flag) do |pool|
+                    hash        = check_resource_xsd(pool, pname)
+                    hash[pname] = check_resource_xsd(hash[pname], ename)
 
-                if top
-                    table.top(options) {
-                        array=pool.get_hash
-                        return -1, array.message if OpenNebula.is_error?(array)
-
-                        array
-                    }
-                else
-                    array=pool.get_hash
-                    return -1, array.message if OpenNebula.is_error?(array)
-
-                    rname=self.class.rname
-                    elements=array["#{rname}_POOL"][rname]
-                    if options[:ids] && elements
-                        elements.reject! do |element|
-                            !options[:ids].include?(element['ID'].to_i)
-                        end
-                    end
-
-                    table.show(array, options)
+                    puts ::JSON.pretty_generate(hash)
                 end
+            elsif options[:yaml]
+                list_pool_format(pool, options, filter_flag) do |pool|
+                    hash        = check_resource_xsd(pool, pname)
+                    hash[pname] = check_resource_xsd(hash[pname], ename)
 
-                return 0
+                    puts hash.to_yaml(:indent => 4)
+                end
+            else
+                return list_pool_table(table, pool, options, filter_flag)
             end
+
+            return 0
+        end
+
+        # Check if a resource defined by attributes is referenced in pool
+        #
+        # @param pool pool to search in
+        # @param xpath xpath to search in pool
+        # @param resource_name name of the resource to search (e.g IMAGE)
+        # @attributes hash with resource attributes, must contains :id, :name
+        # and :uname
+        #
+        # atributes {uname => ..., name => ..., id => ...}
+        def check_orphan(pool, xpath, resource_name, attributes)
+            return false if attributes.empty?
+
+            return false unless pool["#{xpath}[#{resource_name}_ID = "\
+                                     "#{attributes[:id]}]"].nil?
+
+            return false unless pool["#{xpath}[#{resource_name} = "\
+                                     "'#{attributes[:name]}' and "\
+                                     "#{resource_name}_UNAME = "\
+                                     "'#{attributes[:uname]}']"].nil?
+
+            true
         end
 
         def show_resource(id, options)
             resource = retrieve_resource(id)
 
-            rc = resource.info
+            if !options.key? :decrypt
+                rc = resource.info
+            else
+                rc = resource.info(true)
+            end
+
             return -1, rc.message if OpenNebula.is_error?(rc)
 
             if options[:xml]
                 return 0, resource.to_xml(true)
+            elsif options[:json]
+                # If body is set, the resource contains a JSON inside
+                if options[:body]
+                    return 0, check_resource_xsd(resource)
+                else
+                    return 0, ::JSON.pretty_generate(
+                        check_resource_xsd(resource)
+                    )
+                end
+            elsif options[:yaml]
+                return 0, check_resource_xsd(resource).to_yaml(:indent => 4)
             else
                 format_resource(resource, options)
                 return 0
@@ -745,11 +1183,208 @@ EOT
 
             rc = pool.info
             if OpenNebula.is_error?(rc)
-                return -1, "OpenNebula #{self.class.rname} name not " <<
+                if rc.message.empty?
+                    return -1, "OpenNebula #{self.class.rname} name not " <<
                            "found, use the ID instead"
+                else
+                    return -1,rc.message
+                end
             end
 
             return 0, pool
+        end
+
+        def get_format_size(pool, options)
+            if options[:json]
+                ::JSON.pretty_generate(pool.to_hash).split("\n").size
+            elsif options[:yaml]
+                pool.to_hash.to_yaml.split("\n").size
+            else
+                STDERR.puts 'ERROR: Format not found'
+                exit(-1)
+            end
+        end
+
+        ########################################################################
+        # XSD check and fix
+        ########################################################################
+
+        # Check XSD values for a single resource
+        #
+        # @param resource [OpenNebula::Object] Resource to check
+        # @param ename    [String]             Resource name
+        #
+        # @return [Object] Hash with correct values
+        def check_resource_xsd(resource, ename = nil)
+            hash  = resource.to_hash
+            ename = hash.keys.first unless ename
+            xsd   = read_xsd(ename)
+
+            return hash unless xsd
+
+            hash[ename] = check_xsd(hash[ename], nil, ename, xsd)
+
+            hash
+        end
+
+        # Read XSD file and parse to XML
+        #
+        # @param ename [String] Element name to read XSD
+        #
+        # @return [Hash] XSD in hash format, nil if not found
+        def read_xsd(ename)
+            require 'active_support/core_ext/hash/conversions'
+
+            # Try GEM directory
+            file = File.expand_path(
+                "../share/schemas/xsd/#{ename.downcase}.xsd",
+                File.dirname(__FILE__)
+            )
+
+            file = "#{XSD_PATH}/#{ename.downcase}.xsd" unless File.exist?(file)
+
+            unless File.exist?(file)
+                STDERR.puts "WARNING: XSD for #{ename} not found, skipping check"
+                return nil
+            end
+
+            hash = Hash.from_xml(Nokogiri::XML(File.read(file)).to_s)
+            hash = hash['schema']['element']
+
+            if hash.keys.include?('complexType')
+                hash['complexType']['sequence']['element']
+            else
+                hash['element']
+            end
+        end
+
+        # Check values XSD
+        #
+        # @param hash     [Object] Resource information in hash format
+        # @param elements [Array]  Keys to check
+        # @param ename    [String] Element name to take XSD
+        # @param xsd      [Hash]   XSD file content
+        # @param parents  [Array]  Parent keys of current hash
+        def check_xsd(hash, elements, ename, xsd, parents = [])
+            return unless hash
+
+            if (hash.is_a? Hash) && !hash.empty?
+                hash.map do |ki, vi|
+                    vi = [vi].flatten if is_array?(xsd, [ki])
+
+                    if (vi.is_a? Hash) && !vi.empty?
+                        parents << ki
+
+                        vi.map do |kj, vj|
+                            parents << kj
+
+                            path = (parents + [ki, kj]).uniq
+                            vj   = [vj].flatten if is_array?(xsd, path)
+
+                            hash[ki][kj] = check_xsd(vj,
+                                                     [ki, kj],
+                                                     ename,
+                                                     xsd,
+                                                     parents)
+                        end
+
+                        parents.clear
+                    elsif vi.is_a? Array
+                        hash[ki] = check_xsd(vi, [ki], ename, xsd, parents)
+                    else
+                        hash[ki] = check_xsd(vi, [ki], ename, xsd, parents)
+                    end
+                end
+
+                hash
+            elsif hash.is_a? Array
+                ret = []
+
+                hash.each do |v|
+                    ret << check_xsd(v, elements, ename, xsd, parents)
+                end
+
+                ret
+            else
+                check_type(hash) do
+                    type = get_xsd_path(xsd, elements)
+                    type['type'] unless type.nil?
+                end
+            end
+        end
+
+        # Get xsd path value
+        #
+        # @param xsd      [Hash]  XSD information
+        # @param elements [Array] Path to get
+        #
+        # @return [Hash] Path information
+        def get_xsd_path(xsd, elements)
+            return unless elements
+
+            element = elements.shift
+
+            # Return nil, because is an empty complexType
+            return unless element
+
+            element = [xsd].flatten.find do |v|
+                v['name'] == element || v['ref'] == element
+            end
+
+            # Return nil, because element was not find in XSD
+            return unless element
+
+            if element.keys.include?('complexType') && !elements.empty?
+                if element['complexType']['all']
+                    element = element['complexType']['all']['element']
+                else
+                    element = element['complexType']['sequence']['element']
+                end
+
+                get_xsd_path(element, elements)
+            else
+                element
+            end
+        end
+
+        # CHeck if current element is an array
+        #
+        # @param xsd      [Hash]  XSD information
+        # @param elements [Array] Path to check
+        #
+        # @return [Boolean] True if it's an array, false otherwise
+        def is_array?(xsd, elements)
+            max = get_xsd_path(xsd, elements)
+            max = max['maxOccurs'] if max
+
+            max == 'unbounded' || max.to_i > 1
+        end
+
+        # Check XSD type for especific value
+        #
+        # @param value [Object] Value to check
+        #
+        # @return [Object] nil if the type is not correct, value otherwise
+        def check_type(value)
+            type = yield if block_given?
+
+            # If there is no type, return current value
+            return value unless type
+
+            types = %w[string decimal integer boolean date time]
+            type  = type.split(':')[1]
+
+            if types.include?(type)
+                # If the current type is different, return string
+                # because this value doesn't respect the type
+                if (value.is_a? Hash) || (value.is_a? Array)
+                    ''
+                else
+                    value
+                end
+            else
+                value
+            end
         end
     end
 
@@ -759,17 +1394,20 @@ EOT
         client=OneHelper.client
 
         pool = case poolname
-        when "HOST"        then OpenNebula::HostPool.new(client)
-        when "GROUP"       then OpenNebula::GroupPool.new(client)
-        when "USER"        then OpenNebula::UserPool.new(client)
-        when "DATASTORE"   then OpenNebula::DatastorePool.new(client)
-        when "CLUSTER"     then OpenNebula::ClusterPool.new(client)
-        when "VNET"        then OpenNebula::VirtualNetworkPool.new(client)
-        when "IMAGE"       then OpenNebula::ImagePool.new(client)
-        when "VMTEMPLATE"  then OpenNebula::TemplatePool.new(client)
-        when "VM"          then OpenNebula::VirtualMachinePool.new(client)
-        when "ZONE"        then OpenNebula::ZonePool.new(client)
-        when "MARKETPLACE" then OpenNebula::MarketPlacePool.new(client)
+        when "HOST"          then OpenNebula::HostPool.new(client)
+        when "HOOK"          then OpenNebula::HookPool.new(client)
+        when "GROUP"         then OpenNebula::GroupPool.new(client)
+        when "USER"          then OpenNebula::UserPool.new(client)
+        when "DATASTORE"     then OpenNebula::DatastorePool.new(client)
+        when "CLUSTER"       then OpenNebula::ClusterPool.new(client)
+        when "VNET"          then OpenNebula::VirtualNetworkPool.new(client)
+        when "IMAGE"         then OpenNebula::ImagePool.new(client)
+        when "VMTEMPLATE"    then OpenNebula::TemplatePool.new(client)
+        when "VNTEMPLATES"   then OpenNebula::VNTemplatePool.new(client)
+        when "VM"            then OpenNebula::VirtualMachinePool.new(client)
+        when "ZONE"          then OpenNebula::ZonePool.new(client)
+        when "MARKETPLACE"   then OpenNebula::MarketPlacePool.new(client)
+        when "FLOWTEMPLATES" then OpenNebula::ServiceTemplatePool.new(client)
         end
 
         rc = pool.info
@@ -782,13 +1420,15 @@ EOT
     end
 
     def OpenNebulaHelper.size_in_mb(size)
-        m = size.match(/^(\d+(?:\.\d+)?)(m|mb|g|gb)?$/i)
+        m = size.match(/^(\d+(?:\.\d+)?)(t|tb|m|mb|g|gb)?$/i)
 
         if !m
             # return OpenNebula::Error.new('Size value malformed')
             return -1, 'Size value malformed'
         else
             multiplier=case m[2]
+            when /(t|tb)/i
+                1024*1024
             when /(g|gb)/i
                 1024
             else
@@ -814,15 +1454,34 @@ EOT
         end
     end
 
-    def OpenNebulaHelper.time_to_str(time, print_seconds=true)
-        value=time.to_i
+    def OpenNebulaHelper.time_to_str(time, print_seconds=true,
+        print_hours=true, print_years=false)
+
+        value = time.to_i
+
         if value==0
             value='-'
         else
-            if print_seconds
-                value=Time.at(value).strftime("%m/%d %H:%M:%S")
+            if print_hours
+                if print_seconds
+                    if print_years
+                        value=Time.at(value).strftime("%m/%d/%y %H:%M:%S")
+                    else
+                        value=Time.at(value).strftime("%m/%d %H:%M:%S")
+                    end
+                else
+                    if print_years
+                        value=Time.at(value).strftime("%m/%d/%y %H:%M")
+                    else
+                        value=Time.at(value).strftime("%m/%d %H:%M")
+                    end
+                end
             else
-                value=Time.at(value).strftime("%m/%d %H:%M")
+                if print_years
+                    value=Time.at(value).strftime("%m/%d/%y")
+                else
+                    value=Time.at(value).strftime("%m/%d")
+                end
             end
         end
 
@@ -874,6 +1533,18 @@ EOT
         end
     end
 
+    def OpenNebulaHelper.bytes_to_unit(value, unit = 'K')
+        j = 0
+        i = BinarySufix.index(unit).to_i
+
+        while j < i do
+            value /= 1024.0
+            j += 1
+        end
+
+        value
+    end
+
     # If the cluster name is empty, returns a '-' char.
     #
     # @param str [String || Hash] Cluster name, or empty Hash (when <CLUSTER/>)
@@ -919,6 +1590,43 @@ EOT
             end
 
             return editor_input(resource.template_like_str(xpath))
+        end
+    end
+
+    def OpenNebulaHelper.update_obj(obj, file, plain = false)
+        rc = obj.info(true)
+
+        return rc if OpenNebula.is_error?(rc)
+
+        if file
+            path = file
+        else
+            tmp  = Tempfile.new(obj['ID'])
+            path = tmp.path
+
+            tmp.write(yield(obj)) if block_given?
+            tmp.flush
+
+            if ENV['EDITOR']
+                editor_path = ENV['EDITOR']
+            else
+                editor_path = EDITOR_PATH
+            end
+
+            system("#{editor_path} #{path}")
+
+            unless $CHILD_STATUS.exitstatus.zero?
+                STDERR.puts 'Editor not defined'
+                exit(-1)
+            end
+
+            tmp.close
+        end
+
+        if plain
+            obj.update(File.read(path), plain)
+        else
+            obj.update(File.read(path))
         end
     end
 
@@ -995,15 +1703,19 @@ EOT
             user, object=*res
 
             template<<"#{section.upcase}=[\n"
-            template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
-            extra_attributes.each do |extra_attribute|
-                key, value = extra_attribute.split("=")
-                template<<"  #{key.upcase}=\"#{value}\",\n"
-            end
-            if object.match(/^\d+$/)
-                template<<"  #{name.upcase}_ID=#{object}\n"
+            if object.downcase == "auto"
+                template<<"  NETWORK_MODE=\"#{object}\"\n"
             else
-                template<<"  #{name.upcase}=\"#{object}\"\n"
+                template<<"  #{name.upcase}_UNAME=\"#{user}\",\n" if user
+                extra_attributes.each do |extra_attribute|
+                    key, value = extra_attribute.split("=")
+                    template<<"  #{key.upcase}=\"#{value}\",\n"
+                end
+                if object.match(/^\d+$/)
+                    template<<"  #{name.upcase}_ID=#{object}\n"
+                else
+                    template<<"  #{name.upcase}=\"#{object}\"\n"
+                end
             end
             template<<"]\n"
         end if objects
@@ -1098,6 +1810,9 @@ EOT
         template<<"MEMORY=#{options[:memory]}\n" if options[:memory]
         template<<"#{options[:raw]}\n" if options[:raw]
 
+        template<<"AS_UID=#{options[:as_uid]}\n" if options[:as_uid]
+        template<<"AS_GID=#{options[:as_gid]}\n" if options[:as_gid]
+
         if options[:disk]
             res=create_disk_net(options[:disk], 'DISK', 'IMAGE')
             return res if res.first!=0
@@ -1153,6 +1868,82 @@ EOT
         end
 
         [0, template]
+    end
+
+    def self.create_ar(options)
+        ar = 'AR = [ '
+
+        if options[:ip]
+            if options[:ip6_global] || options[:ip6_ula]
+                ar << 'TYPE="IP4_6"'
+            elsif options[:ip6]
+                ar << 'TYPE="IP4_6_STATIC"'
+            else
+                ar << 'TYPE="IP4"'
+            end
+        elsif options[:ip6]
+            ar << 'TYPE="IP6_STATIC"'
+        elsif options[:ip6_global] || options[:ip6_ula]
+            ar << 'TYPE="IP6"'
+        else
+            ar << 'TYPE="ETHER"'
+        end
+
+        if options[:size]
+            ar << ', SIZE = ' << options[:size]
+        else
+            STDERR.puts 'Address range needs to specify size (-s size)'
+            exit(-1)
+        end
+
+        if options[:ip6]
+            m = %r{([\h:]*)\/(\d.*)$}.match(options[:ip6])
+
+            if m.nil? || m[1].nil?
+                STDERR.puts 'Missing or wrong IP6'
+                exit(-1)
+            else
+                begin
+                    require 'ipaddr'
+
+                    ip = IPAddr.new(m[1])
+
+                    if !ip.ipv6?
+                        STDERR.puts 'Wrong IP6 format address'
+                        exit(-1)
+                    end
+                rescue StandardError
+                    STDERR.puts 'Wrong IP6 format address'
+                    exit(-1)
+                end
+
+            end
+
+            if m[2].nil?
+                STDERR.puts 'IP6 address need to set the prefix length'
+                exit(-1)
+            end
+
+            ar << ", PREFIX_LENGTH=\"#{m[2]}\""
+
+            options[:ip6] = m[1]
+        end
+
+        ar << ', IP = ' << options[:ip] if options[:ip]
+        ar << ', IP6 = ' << options[:ip6] if options[:ip6]
+        ar << ', MAC = ' << options[:mac] if options[:mac]
+        if options[:ip6_global]
+            ar << ', GLOBAL_PREFIX = ' << options[:ip6_global]
+        end
+        if options[:ip6_ula]
+            ar << ', ULA_PREFIX = ' << options[:ip6_ula]
+        end
+        ar << ', GATEWAY = ' << options[:gateway] if options[:gateway]
+        ar << ', MASK = '    << options[:netmask] if options[:netmask]
+        ar << ', VN_MAD = '  << options[:vn_mad]  if options[:vn_mad]
+        ar << ', VLAN_ID = ' << options[:vlanid]  if options[:vlanid]
+
+        ar << ']'
     end
 
     def self.create_template_options_used?(options)
@@ -1267,4 +2058,262 @@ EOT
             return OpenNebula::Error.new("Remote server error: #{error_message}")
         end
     end
+
+    def OpenNebulaHelper.level_lock_to_str(str)
+        level = str.to_i
+        if level == 0
+            "None"
+        elsif level == 1
+            "Use"
+        elsif level == 2
+            "Manage"
+        elsif level == 3
+            "Admin"
+        elsif level == 4
+            "All"
+        else
+            "-"
+        end
+    end
+
+    def OpenNebulaHelper.parse_user_inputs(inputs, keys = [])
+        unless inputs.keys == keys
+            puts 'There are some parameters that require user input. ' \
+                 'Use the string <<EDITOR>> to launch an editor ' \
+                 '(e.g. for multi-line inputs)'
+        end
+
+        answers = {}
+
+        inputs.each do |key, val|
+            next if keys.include? key
+
+            input_cfg = val.split('|', -1)
+
+            if input_cfg.length < 3
+                STDERR.puts 'Malformed user input. It should have at least 3 '\
+                            "parts separated by '|':"
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+
+            mandatory, type, description, params, initial = input_cfg
+            optional = mandatory.strip == 'O'
+            type.strip!
+            description.strip!
+
+            if input_cfg.length > 3
+                if input_cfg.length != 5
+                    STDERR.puts 'Malformed user input. It should have 5 parts'\
+                                " separated by '|':"
+                    STDERR.puts "  #{key}: #{val}"
+                    exit(-1)
+                end
+
+                params.strip!
+                initial.strip!
+            end
+
+            puts "  * (#{key}) #{description}"
+
+            header = '    '
+            if !initial.nil? && initial != ''
+                header += "Press enter for default (#{initial}). "
+            end
+
+            case type
+            when 'text', 'text64'
+                print header
+
+                answer = STDIN.readline.chop
+
+                if answer == '<<EDITOR>>'
+                    answer = OpenNebulaHelper.editor_input
+                end
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
+                if type == 'text64'
+                    answer = Base64.encode64(answer).strip.delete("\n")
+                end
+
+            when 'boolean'
+                print header
+
+                answer = STDIN.readline.chop
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
+                unless %w[YES NO].include?(answer)
+                    STDERR.puts "Invalid boolean '#{answer}'"
+                    STDERR.puts 'Boolean has to be YES or NO'
+                    exit(-1)
+                end
+
+            when 'password'
+                print header
+
+                answer = OpenNebulaHelper::OneHelper.get_password
+
+                # use default in case it's empty
+                answer = initial if answer.empty?
+
+            when 'number', 'number-float'
+                if type == 'number'
+                    header += 'Integer: '
+                    exp = INT_EXP
+                else
+                    header += 'Float: '
+                    exp = FLOAT_EXP
+                end
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    answer = initial if answer == ''
+                        noanswer = ((answer == '') && optional)
+                end while !noanswer && (answer =~ exp) == nil
+
+                if noanswer
+                    next
+                end
+
+            when 'range', 'range-float'
+                min, max = params.split('..')
+
+                if min.nil? || max.nil?
+                    STDERR.puts 'Malformed user input. '\
+                                "Parameters should be 'min..max':"
+                    STDERR.puts "  #{key}: #{val}"
+                    exit(-1)
+                end
+
+                if type == 'range'
+                    exp = INT_EXP
+                    min = min.to_i
+                    max = max.to_i
+
+                    header += "Integer in the range [#{min}..#{max}]: "
+                else
+                    exp = FLOAT_EXP
+                    min = min.to_f
+                    max = max.to_f
+
+                    header += "Float in the range [#{min}..#{max}]: "
+                end
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    answer = initial if answer == ''
+
+                    noanswer = (answer == '') && optional
+                end while !noanswer && ((answer =~ exp) == nil ||
+                          answer.to_f < min || answer.to_f > max)
+
+                if noanswer
+                    next
+                end
+
+            when 'list'
+                options = params.split(',')
+
+                options.each_with_index do |opt, i|
+                    puts "    #{i}  #{opt}"
+                end
+
+                puts
+
+                header += 'Please type the selection number: '
+
+                begin
+                    print header
+                    answer = STDIN.readline.chop
+
+                    if answer == ''
+                        answer = initial
+                    else
+                        answer = options[answer.to_i]
+                    end
+
+                    noanswer = ((answer == '') && optional)
+                end while !noanswer && !options.include?(answer)
+
+                if noanswer
+                    next
+                end
+
+            when 'fixed'
+                puts "    Fixed value of (#{initial}). Cannot be changed"
+                answer = initial
+
+            else
+                STDERR.puts 'Wrong type for user input:'
+                STDERR.puts "  #{key}: #{val}"
+                exit(-1)
+            end
+
+            answers[key] = answer
+        end
+
+        answers
+    end
+
+    # Returns plot object to print it on the CLI
+    #
+    # @param x     [Array]  Data to x axis (Time axis)
+    # @param y     [Array]  Data to y axis
+    # @param attr  [String] Parameter to y axis
+    # @param title [String] Plot title
+    #
+    # @return Gnuplot plot object
+    def OpenNebulaHelper.get_plot(x, y, attr, title)
+        # Require gnuplot gem only here
+        begin
+            require 'gnuplot'
+        rescue LoadError, Gem::LoadError
+            STDERR.puts(
+                'Gnuplot gem is not installed, run `gem install gnuplot` '\
+                'to install it'
+            )
+            exit(-1)
+        end
+
+        # Check if gnuplot is installed on the system
+        unless system('gnuplot --version')
+            STDERR.puts(
+                'Gnuplot is not installed, install it depending on your distro'
+            )
+            exit(-1)
+        end
+
+        Gnuplot.open do |gp|
+            Gnuplot::Plot.new(gp) do |p|
+                p.title title
+
+                p.xlabel 'Time'
+                p.ylabel attr
+
+                p.xdata   'time'
+                p.timefmt "'%H:%M'"
+                p.format  "x '%H:%M'"
+
+                p.style    'data lines'
+                p.terminal 'dumb'
+
+                p.data << Gnuplot::DataSet.new([x, y]) do |ds|
+                    ds.with      = 'linespoints'
+                    ds.linewidth = '3'
+                    ds.using     = '1:2'
+
+                    ds.notitle
+                end
+            end
+        end
+    end
+
 end

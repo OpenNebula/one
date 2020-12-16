@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -14,24 +14,28 @@
 /* limitations under the License.                                           */
 /* ------------------------------------------------------------------------ */
 
-#include <limits.h>
-#include <string.h>
-
-#include <iostream>
-#include <sstream>
-
 #include "Group.h"
 #include "Nebula.h"
+#include "AclManager.h"
+#include "AclRule.h"
+#include "OneDB.h"
 
-const char * Group::table = "group_pool";
+#include <sstream>
 
-const char * Group::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
+using namespace std;
 
-const char * Group::db_bootstrap = "CREATE TABLE IF NOT EXISTS group_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
+
+Group::Group(int id, const string& name):
+    PoolObjectSQL(id,GROUP,name,-1,-1,"","",one_db::group_table),
+    quota(),
+    users("USERS"),
+    admins("ADMINS")
+{
+    // Allow users in this group to see it
+    group_u = 1;
+
+    obj_template = make_unique<GroupTemplate>();
+}
 
 /* ************************************************************************ */
 /* Group :: Database Access Functions                                       */
@@ -48,7 +52,7 @@ int Group::select(SqlDB * db)
         return rc;
     }
 
-    return quota.select(oid, db);
+    return quota.select(oid, db->get_local_db());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -64,7 +68,7 @@ int Group::select(SqlDB * db, const string& name, int uid)
         return rc;
     }
 
-    return quota.select(oid, db);
+    return quota.select(oid, db->get_local_db());
 }
 
 /* -------------------------------------------------------------------------- */
@@ -78,7 +82,7 @@ int Group::drop(SqlDB * db)
 
     if ( rc == 0 )
     {
-        rc += quota.drop(db);
+        rc += quota.drop(db->get_local_db());
     }
 
     return rc;
@@ -93,7 +97,7 @@ int Group::insert(SqlDB *db, string& error_str)
 
     if (rc == 0)
     {
-        rc = quota.insert(oid, db, error_str);
+        rc = quota.insert(oid, db->get_local_db(), error_str);
     }
 
     return rc;
@@ -120,14 +124,14 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Group
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -141,25 +145,29 @@ int Group::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::group_table << " SET "
+            << "name = '"    << sql_name << "', "
+            << "body = '"    << sql_xml  << "', "
+            << "uid = "      << uid      << ", "
+            << "gid = "      << gid      << ", "
+            << "owner_u = "  << owner_u  << ", "
+            << "group_u = "  << group_u  << ", "
+            << "other_u = "  << other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::group_table
+            << " (" << one_db::group_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
 
     rc = db->exec_wr(oss);
 
@@ -242,11 +250,23 @@ string& Group::to_xml_extended(string& xml, bool extended) const
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+int Group::bootstrap(SqlDB * db)
+{
+    ostringstream oss_group(one_db::group_db_bootstrap);
+
+    return db->exec_local_wr(oss_group);
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 int Group::from_xml(const string& xml)
 {
     int rc = 0;
+
+    string error;
+
     vector<xmlNodePtr> content;
-    vector<xmlNodePtr>::iterator it;
 
     // Initialize the internal XML object
     update_from_str(xml);
@@ -279,6 +299,8 @@ int Group::from_xml(const string& xml)
 
     ObjectXML::free_nodes(content);
     content.clear();
+
+    rc += vm_actions.set_auth_ops(*obj_template, error);
 
     if (rc != 0)
     {
@@ -537,42 +559,49 @@ void Group::sunstone_views(const string& user_default, const string& user_views,
             const string& admin_default, const string& admin_views)
 {
 
-	VectorAttribute * sunstone = obj_template->get("SUNSTONE");
+    VectorAttribute * sunstone = obj_template->get("SUNSTONE");
 
-	if ( sunstone == 0 )
-	{
-		map<string,string>  vvalue;
+    if ( sunstone == 0 )
+    {
+        map<string,string>  vvalue;
 
-		vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
-		vvalue.insert(make_pair("VIEWS", user_views));
-		vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
-		vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
+        vvalue.insert(make_pair("DEFAULT_VIEW", user_default));
+        vvalue.insert(make_pair("VIEWS", user_views));
+        vvalue.insert(make_pair("GROUP_ADMIN_DEFAULT_VIEW", admin_default));
+        vvalue.insert(make_pair("GROUP_ADMIN_VIEWS", admin_views));
 
-		sunstone = new VectorAttribute("SUNSTONE", vvalue);
+        sunstone = new VectorAttribute("SUNSTONE", vvalue);
 
-		obj_template->set(sunstone);
-	}
- 	else
-	{
-		if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
-		{
-			sunstone->replace("DEFAULT_VIEW", user_default);
-		}
+        obj_template->set(sunstone);
+    }
+    else
+    {
+        if ( sunstone->vector_value("DEFAULT_VIEW").empty() )
+        {
+            sunstone->replace("DEFAULT_VIEW", user_default);
+        }
 
-		if ( sunstone->vector_value("VIEWS").empty() )
-		{
-			sunstone->replace("VIEWS", user_views);
-		}
+        if ( sunstone->vector_value("VIEWS").empty() )
+        {
+            sunstone->replace("VIEWS", user_views);
+        }
 
-		if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
-		{
-			sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
-		}
+        if ( sunstone->vector_value("GROUP_ADMIN_DEFAULT_VIEW").empty() )
+        {
+            sunstone->replace("GROUP_ADMIN_DEFAULT_VIEW", admin_default);
+        }
 
-		if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
-		{
-			sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
-		}
-	}
+        if ( sunstone->vector_value("GROUP_ADMIN_VIEWS").empty() )
+        {
+            sunstone->replace("GROUP_ADMIN_VIEWS", admin_views);
+        }
+    }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Group::post_update_template(string& error)
+{
+    return vm_actions.set_auth_ops(*obj_template, error);
+}

@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -14,14 +14,6 @@
 /* limitations under the License.                                           */
 /* ------------------------------------------------------------------------ */
 
-#include <limits.h>
-#include <string.h>
-
-#include <iostream>
-#include <sstream>
-#include <openssl/evp.h>
-#include <iomanip>
-
 #include "Image.h"
 #include "ImagePool.h"
 
@@ -29,9 +21,15 @@
 #include "UserPool.h"
 #include "NebulaUtil.h"
 #include "LifeCycleManager.h"
+#include "VirtualMachineDisk.h"
 #include "Nebula.h"
+#include "DatastorePool.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+#include <sstream>
+#include <openssl/evp.h>
+#include <iomanip>
+
+using namespace std;
 
 /* ************************************************************************ */
 /* Image :: Constructor/Destructor                                          */
@@ -42,14 +40,15 @@ Image::Image(int             _uid,
              const string&   _uname,
              const string&   _gname,
              int             _umask,
-             ImageTemplate * _image_template):
-        PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,table),
+             unique_ptr<ImageTemplate> _image_template):
+        PoolObjectSQL(-1,IMAGE,"",_uid,_gid,_uname,_gname,one_db::image_table),
         type(OS),
         disk_type(FILE),
         regtime(time(0)),
         source(""),
         path(""),
-        fs_type(""),
+        format(""),
+        fs(""),
         size_mb(0),
         state(INIT),
         running_vms(0),
@@ -60,55 +59,34 @@ Image::Image(int             _uid,
         vm_collection("VMS"),
         img_clone_collection("CLONES"),
         app_clone_collection("APP_CLONES"),
-        snapshots(-1, false),
+        snapshots(-1, Snapshots::DENY),
         target_snapshot(-1)
-{
-    if (_image_template != 0)
     {
-        obj_template = _image_template;
-    }
-    else
-    {
-        obj_template = new ImageTemplate;
-    }
+        if (_image_template)
+        {
+            obj_template = move(_image_template);
+        }
+        else
+        {
+            obj_template = make_unique<ImageTemplate>();
+        }
 
-    set_umask(_umask);
-}
-
-Image::~Image()
-{
-    delete obj_template;
-}
+        set_umask(_umask);
+    }
 
 /* ************************************************************************ */
 /* Image :: Database Access Functions                                       */
 /* ************************************************************************ */
 
-const char * Image::table = "image_pool";
-
-const char * Image::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Image::db_bootstrap = "CREATE TABLE IF NOT EXISTS image_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name,uid) )";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
 int Image::insert(SqlDB *db, string& error_str)
 {
     int rc;
 
-    string path_attr;
-    string type_att;
+    string type_attr;
     string persistent_attr;
     string dev_prefix;
-    string source_attr;
-    string saved_id;
     string size_attr;
-    string driver;
+    string tm_mad;
 
     istringstream iss;
     ostringstream oss;
@@ -123,14 +101,14 @@ int Image::insert(SqlDB *db, string& error_str)
 
     // ------------ TYPE --------------------
 
-    erase_template_attribute("TYPE", type_att);
+    erase_template_attribute("TYPE", type_attr);
 
-    if ( type_att.empty() == true )
+    if ( type_attr.empty() == true )
     {
-        type_att = ImagePool::default_type();
+        type_attr = ImagePool::default_type();
     }
 
-    if (set_type(type_att, error_str) != 0)
+    if (set_type(type_attr, error_str) != 0)
     {
         goto error_common;
     }
@@ -144,12 +122,12 @@ int Image::insert(SqlDB *db, string& error_str)
         case OS:
         case DATABLOCK:
         case CDROM:
-            TO_UPPER(persistent_attr);
+            one_util::toupper(persistent_attr);
             persistent_img = (persistent_attr == "YES");
 
             get_template_attribute("DEV_PREFIX", dev_prefix);
 
-            if( dev_prefix.empty() )
+            if (dev_prefix.empty())
             {
                 if (type == CDROM)
                 {
@@ -182,14 +160,27 @@ int Image::insert(SqlDB *db, string& error_str)
     iss.str(size_attr);
     iss >> size_mb;
 
-    // ------------ PATH & SOURCE --------------------
+    // ------------ SIZE --------------------
+
+    erase_template_attribute("FS", fs);
+
+    // ------------ DRIVER (generate, cannot be set by user) -------------------
+    remove_template_attribute("DRIVER");
+
+    // ------------ PATH & SOURCE & FORMAT --------------------
 
     erase_template_attribute("PATH", path);
     erase_template_attribute("SOURCE", source);
+    erase_template_attribute("FORMAT", format);
+    erase_template_attribute("TM_MAD", tm_mad);
 
-    if (!is_saving())
+    if (is_saving())
     {
-        if ( source.empty() && path.empty() && type != DATABLOCK )
+        format = "save_as";
+    }
+    else if (get_cloning_id() == -1) // !is_saving() && !is_cloning
+    {
+        if ( source.empty() && path.empty() && type != DATABLOCK && type != OS)
         {
             goto error_no_path;
         }
@@ -197,10 +188,37 @@ int Image::insert(SqlDB *db, string& error_str)
         {
             goto error_path_and_source;
         }
-    }
-    else
-    {
-        fs_type = "save_as";
+
+        /* MKFS image, FORMAT is mandatory, precedence:
+         *   1. TM_MAD_CONF/DRIVER in oned.conf
+         *   2. DRIVER in DS Template
+         *   3. IMAGE template
+         *   4. "raw" Default
+         */
+        if ( path.empty() && (type == Image::DATABLOCK || type == Image::OS))
+        {
+            DatastorePool * ds_pool = Nebula::instance().get_dspool();
+
+            string ds_driver = ds_pool->get_ds_driver(ds_id);
+
+            // If the DS have a driver defined we force the DS driver.
+            if (!ds_driver.empty())
+            {
+                replace_template_attribute("DRIVER", ds_driver);
+
+                format = ds_driver;
+            }
+            else if (format.empty())
+            {
+                format = "raw"; //Default
+            }
+            // else format in the IMAGE template
+        }
+        else
+        {
+            // It's filled by the driver depending on the type of file.
+            format = "";
+        }
     }
 
     state = LOCKED; //LOCKED till the ImageManager copies it to the Repository
@@ -251,14 +269,14 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Image
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -270,26 +288,31 @@ int Image::insert_replace(SqlDB *db, bool replace, string& error_str)
         goto error_xml;
     }
 
-    if(replace)
+    if (replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::image_table << " SET "
+            << "name = '"    << sql_name << "', "
+            << "body = '"    << sql_xml  << "', "
+            << "uid = "      << uid      << ", "
+            << "gid = "      << gid      << ", "
+            << "owner_u = "  << owner_u  << ", "
+            << "group_u = "  << group_u  << ", "
+            << "other_u = "  << other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::image_table
+            << " (" << one_db::image_db_names << ") VALUES ("
+            <<          oid             << ","
+            << "'" <<   sql_name        << "',"
+            << "'" <<   sql_xml         << "',"
+            <<          uid             << ","
+            <<          gid             << ","
+            <<          owner_u         << ","
+            <<          group_u         << ","
+            <<          other_u         << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<< table <<" ("<< db_names <<") VALUES ("
-        <<          oid             << ","
-        << "'" <<   sql_name        << "',"
-        << "'" <<   sql_xml         << "',"
-        <<          uid             << ","
-        <<          gid             << ","
-        <<          owner_u         << ","
-        <<          group_u         << ","
-        <<          other_u         << ")";
 
     rc = db->exec_wr(oss);
 
@@ -319,8 +342,18 @@ error_common:
     return -1;
 }
 
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Image::bootstrap(SqlDB * db)
+{
+    ostringstream oss_image(one_db::image_db_bootstrap);
+
+    return db->exec_local_wr(oss_image);
+};
+
 /* ************************************************************************ */
-/* Image :: Misc                                                             */
+/* Image :: Misc                                                            */
 /* ************************************************************************ */
 
 string& Image::to_xml(string& xml) const
@@ -332,6 +365,7 @@ string& Image::to_xml(string& xml) const
     string        clone_collection_xml;
     string        app_clone_collection_xml;
     string        snapshots_xml;
+    string        lock_str;
 
     oss <<
         "<IMAGE>" <<
@@ -341,6 +375,7 @@ string& Image::to_xml(string& xml) const
             "<UNAME>"          << uname           << "</UNAME>"       <<
             "<GNAME>"          << gname           << "</GNAME>"       <<
             "<NAME>"           << name            << "</NAME>"        <<
+            lock_db_to_xml(lock_str)                                  <<
             perms_to_xml(perms_xml)                                   <<
             "<TYPE>"           << type            << "</TYPE>"        <<
             "<DISK_TYPE>"      << disk_type       << "</DISK_TYPE>"   <<
@@ -348,7 +383,8 @@ string& Image::to_xml(string& xml) const
             "<REGTIME>"        << regtime         << "</REGTIME>"     <<
             "<SOURCE>"         << one_util::escape_xml(source) << "</SOURCE>" <<
             "<PATH>"           << one_util::escape_xml(path)   << "</PATH>"   <<
-            "<FSTYPE>"         << one_util::escape_xml(fs_type)<< "</FSTYPE>" <<
+            "<FORMAT>"         << one_util::escape_xml(format) << "</FORMAT>" <<
+            "<FS>"             << one_util::escape_xml(fs)     << "</FS>"     <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
@@ -394,10 +430,11 @@ int Image::from_xml(const string& xml)
 
     rc += xpath(name,   "/IMAGE/NAME", "not_found");
 
-    rc += xpath(int_type,       "/IMAGE/TYPE",      0);
-    rc += xpath(int_disk_type,  "/IMAGE/DISK_TYPE", 0);
-    rc += xpath(persistent_img, "/IMAGE/PERSISTENT",0);
-    rc += xpath<time_t>(regtime,"/IMAGE/REGTIME",   0);
+    rc += xpath(int_type,        "/IMAGE/TYPE",      0);
+    rc += xpath(int_disk_type,   "/IMAGE/DISK_TYPE", 0);
+    rc += xpath(persistent_img,  "/IMAGE/PERSISTENT",0);
+    rc += xpath<time_t>(regtime, "/IMAGE/REGTIME",   0);
+    rc += xpath(format,          "/IMAGE/FORMAT",   "");
 
     rc += xpath<long long>(size_mb, "/IMAGE/SIZE", 0);
 
@@ -412,12 +449,13 @@ int Image::from_xml(const string& xml)
     rc += xpath(ds_id,          "/IMAGE/DATASTORE_ID",  -1);
     rc += xpath(ds_name,        "/IMAGE/DATASTORE",     "not_found");
 
+    rc += lock_db_from_xml();
     // Permissions
     rc += perms_from_xml();
 
     //Optional image attributes
     xpath(path,"/IMAGE/PATH", "");
-    xpath(fs_type,"/IMAGE/FSTYPE","");
+    xpath(fs, "/IMAGE/FS", "");
 
     type      = static_cast<ImageType>(int_type);
     disk_type = static_cast<DiskType>(int_disk_type);
@@ -474,11 +512,8 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
 
     bool ro;
 
-    vector<string>::const_iterator it;
-
     img_type   = type;
     target     = disk->vector_value("TARGET");
-    driver     = disk->vector_value("DRIVER");
     dev_prefix = disk->vector_value("DEV_PREFIX");
 
     long long snap_size;
@@ -492,7 +527,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     get_template_attribute("DRIVER", template_driver);
     get_template_attribute("PERSISTENT_TYPE", template_ptype);
 
-    TO_UPPER(template_ptype);
+    one_util::toupper(template_ptype);
 
     //---------------------------------------------------------------------------
     //                       DEV_PREFIX ATTRIBUTE
@@ -532,11 +567,17 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     snap_size = snapshots.get_total_size();
     disk->replace("DISK_SNAPSHOT_TOTAL_SIZE", snap_size);
 
-    if (driver.empty() && !template_driver.empty())//DRIVER in Image,not in DISK
+    // Force FORMAT and DRIVER from image
+    if (!format.empty())
     {
-        disk->replace("DRIVER",template_driver);
+        disk->replace("DRIVER", format);
+        disk->replace("FORMAT", format);
     }
-
+    else
+    {
+        disk->remove("DRIVER");
+        disk->remove("FORMAT");
+    }
     disk->replace("IMAGE_STATE", state);
 
     //--------------------------------------------------------------------------
@@ -575,10 +616,21 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         }
     }
 
+    //Image is being copied/cloned
+    if ( state == Image::LOCKED_USED || state == Image::LOCKED_USED_PERS
+            || state == Image::LOCKED )
+    {
+        disk->replace("CLONING", "YES");
+    }
+    else
+    {
+        disk->remove("CLONING");
+    }
+
     //--------------------------------------------------------------------------
     //   TYPE attribute
     //--------------------------------------------------------------------------
-    switch(type)
+    switch (type)
     {
         case OS:
         case DATABLOCK:
@@ -588,7 +640,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         case CDROM: //Always use CDROM type for these ones
             DiskType new_disk_type;
 
-            switch(disk_type)
+            switch (disk_type)
             {
                 case RBD:
                     new_disk_type = RBD_CDROM;
@@ -624,13 +676,14 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         disk->replace("TARGET", template_target);
     }
 
-    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
+    for (const auto& inherit : inherit_attrs)
     {
-        get_template_attribute((*it).c_str(), inherit_val);
+        string current_val = disk->vector_value(inherit);
+        get_template_attribute(inherit, inherit_val);
 
-        if (!inherit_val.empty())
+        if (current_val.empty() && !inherit_val.empty())
         {
-            disk->replace(*it, inherit_val);
+            disk->replace(inherit, inherit_val);
         }
     }
 }
@@ -642,7 +695,7 @@ int Image::set_type(string& _type, string& error)
 {
     int rc = 0;
 
-    TO_UPPER(_type);
+    one_util::toupper(_type);
 
     if ((_type != "OS" && _type != "DATABLOCK") && (snapshots.size() > 0))
     {
@@ -686,17 +739,17 @@ int Image::set_type(string& _type, string& error)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-ImageTemplate * Image::clone_template(const string& new_name) const
+std::unique_ptr<ImageTemplate> Image::clone_template(const string& new_name) const
 {
 
-    ImageTemplate * tmpl = new ImageTemplate(
-            *(static_cast<ImageTemplate *>(obj_template)));
+    auto tmpl = make_unique<ImageTemplate>(*obj_template);
 
     tmpl->replace("NAME",   new_name);
     tmpl->replace("TYPE",   type_to_str(type));
     tmpl->replace("PATH",   source);
-    tmpl->replace("FSTYPE", fs_type);
+    tmpl->replace("FORMAT", format);
     tmpl->replace("SIZE",   size_mb);
+    tmpl->erase("VCENTER_IMPORTED");
 
     if ( is_persistent() )
     {
@@ -722,7 +775,7 @@ Image::ImageType Image::str_to_type(string& str_type)
         str_type = ImagePool::default_type();
     }
 
-    TO_UPPER(str_type);
+    one_util::toupper(str_type);
 
     if ( str_type == "OS" )
     {
@@ -765,29 +818,41 @@ Image::DiskType Image::str_to_disk_type(string& s_disk_type)
     {
         type = Image::FILE;
     }
-    else if (s_disk_type == "BLOCK")
-    {
-        type = Image::BLOCK;
-    }
-    else if (s_disk_type == "ISCSI")
-    {
-        type = Image::ISCSI;
-    }
     else if (s_disk_type == "CDROM")
     {
         type = Image::CD_ROM;
+    }
+    else if (s_disk_type == "BLOCK")
+    {
+        type = Image::BLOCK;
     }
     else if (s_disk_type == "RBD")
     {
         type = Image::RBD;
     }
-    else if (s_disk_type == "SHEEPDOG")
+    else if (s_disk_type == "RBD_CDROM")
     {
-        type = Image::SHEEPDOG;
+        type = Image::RBD_CDROM;
     }
     else if (s_disk_type == "GLUSTER")
     {
         type = Image::GLUSTER;
+    }
+    else if (s_disk_type == "GLUSTER_CDROM")
+    {
+        type = Image::GLUSTER_CDROM;
+    }
+    else if (s_disk_type == "SHEEPDOG")
+    {
+        type = Image::SHEEPDOG;
+    }
+    else if (s_disk_type == "SHEEPDOG_CDROM")
+    {
+        type = Image::SHEEPDOG_CDROM;
+    }
+    else if (s_disk_type == "ISCSI")
+    {
+        type = Image::ISCSI;
     }
 
     return type;
@@ -803,10 +868,18 @@ void Image::set_state(ImageState _state)
         LifeCycleManager* lcm = Nebula::instance().get_lcm();
         const set<int>& vms   = vm_collection.get_collection();
 
-        for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
+        for (auto vm_id : vms)
         {
-            lcm->trigger(LCMAction::DISK_LOCK_FAILURE, *i);
+            lcm->trigger_disk_lock_failure(vm_id);
         }
+    }
+    else if (state == LOCKED)
+    {
+        lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
+    }
+    if (_state != LOCKED )
+    {
+        unlock_db(-1,-1);
     }
 
     state = _state;
@@ -823,6 +896,7 @@ void Image::set_state_unlock()
 
     switch (state) {
         case LOCKED:
+            unlock_db(-1,-1);
             set_state(READY);
             break;
 
@@ -843,7 +917,7 @@ void Image::set_state_unlock()
             }
             else
             {
-                if(is_persistent())
+                if (is_persistent())
                 {
                     set_state(USED_PERS);
                 }
@@ -864,9 +938,9 @@ void Image::set_state_unlock()
     {
         const set<int>& vms = vm_collection.get_collection();
 
-        for(set<int>::iterator i = vms.begin(); i != vms.end(); i++)
+        for (auto vm_id : vms)
         {
-            lcm->trigger(LCMAction::DISK_LOCK_SUCCESS, *i);
+            lcm->trigger_disk_lock_success(vm_id);
         }
     }
 }
@@ -882,7 +956,8 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     string per_oned;
     string conf_name;
 
-    bool persistent;
+    bool persistent  = false;
+    bool tmpl_persis = false;
 
     if ( is_allocate )
     {
@@ -893,19 +968,32 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
         conf_name = "DEFAULT_IMAGE_PERSISTENT";
     }
 
+    bool has_persistent = image_template->get("PERSISTENT", tmpl_persis);
+
+    // Get default persistent value from user, group or oned.conf
+    // If no default value found the use PERSISTENT from image template
     int rc = nd.get_configuration_attribute(uid, gid, conf_name, per_oned);
 
-    if ( rc != 0 || per_oned.empty() ) //No DEFAULT_* defined or empty value
+    if ( rc == 0 )
     {
-        image_template->get("PERSISTENT", persistent);
-    }
-    else if ( rc == 0 && one_util::toupper(per_oned) == "YES" )
-    {
-        persistent = true;
+        if ( per_oned.empty() )
+        {
+            persistent = tmpl_persis;
+        }
+        else if (one_util::toupper(per_oned) == "YES")
+        {
+            persistent = true;
+        }
     }
     else
     {
-        persistent = false;
+        persistent = tmpl_persis;
+    }
+
+    // Honor template persistent value for ne.image.allocate
+    if (is_allocate && has_persistent)
+    {
+        persistent = tmpl_persis;
     }
 
     image_template->replace("PERSISTENT", persistent);
@@ -913,3 +1001,5 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     return persistent;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

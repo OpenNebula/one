@@ -2,21 +2,29 @@
 :CURRENT:
   :desc: Active Zone
   :size: 1
+
 :ID:
   :desc: ONE identifier for the Zone
-  :size: 5
+  :size: 4
+  :adjust: true
 
 :NAME:
   :desc: Name of the Zone
-  :size: 25
+  :size: 15
   :left: true
+  :expand: true
 
 :ENDPOINT:
   :desc: Endpoint of the Zone
   :size: 45
+
+:FED_INDEX:
+  :desc: Federation index
+  :size: 10
 
 :default:
 - :CURRENT
 - :ID
 - :NAME
 - :ENDPOINT
+- :FED_INDEX

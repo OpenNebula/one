@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -25,16 +25,89 @@
 #include "Resource.h"
 
 #include "VirtualMachineTemplate.h"
+#include "ScheduledAction.h"
 
 class ImageDatastorePoolXML;
 
-using namespace std;
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class VirtualMachineNicXML : public ObjectXML
+{
+public:
+
+    /**
+     *  Returns a vector of matched datastores
+    */
+    const std::vector<Resource *>& get_match_networks() const
+    {
+        return match_networks.get_resources();
+    }
+
+    /**
+     *  Adds a matching network
+     *    @param oid of the network
+     */
+    void add_match_network(int oid)
+    {
+        match_networks.add_resource(oid);
+    }
+
+    /**
+     *  Sort the matched networks for the VM
+     */
+    void sort_match_networks()
+    {
+       match_networks.sort_resources();
+    }
+
+    /**
+     *  Removes the matched networks
+     */
+    void clear_match_networks()
+    {
+        match_networks.clear();
+    }
+
+    //--------------------------------------------------------------------------
+    // Rank & requirements set & get
+    //--------------------------------------------------------------------------
+    const std::string& get_rank() const
+    {
+        return rank;
+    };
+
+    void set_rank(const std::string& r)
+    {
+        rank = r;
+    }
+
+    const std::string& get_requirements() const
+    {
+        return requirements;
+    };
+
+    void set_requirements(const std::string& r)
+    {
+        requirements = r;
+    }
+
+private:
+    ResourceMatch match_networks;
+
+    std::string rank;
+
+    std::string requirements;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 class VirtualMachineXML : public ObjectXML
 {
 public:
 
-    VirtualMachineXML(const string &xml_doc): ObjectXML(xml_doc)
+    VirtualMachineXML(const std::string &xml_doc): ObjectXML(xml_doc)
     {
         init_attributes();
     };
@@ -46,137 +119,119 @@ public:
 
     ~VirtualMachineXML()
     {
-        if (vm_template != 0)
+        for (auto nic : nics)
         {
-            delete vm_template;
-        }
-
-        if (user_template != 0)
-        {
-            delete user_template;
+            delete nic.second;
         }
     }
 
     //--------------------------------------------------------------------------
     // Get Methods for VirtualMachineXML class
     //--------------------------------------------------------------------------
-    int get_oid() const
-    {
-        return oid;
-    };
+    int get_oid() const { return oid; };
 
-    int get_uid() const
-    {
-        return uid;
-    };
+    int get_uid() const { return uid; };
 
-    int get_gid() const
-    {
-        return gid;
-    };
+    int get_gid() const { return gid; };
 
-    int get_hid() const
-    {
-        return hid;
-    };
+    int get_hid() const { return hid; };
 
-    int get_dsid() const
-    {
-        return dsid;
-    };
+    int get_dsid() const { return dsid; };
 
-    bool is_resched() const
-    {
-        return (resched == 1);
-    }
+    time_t get_stime() const { return stime; }
 
-    bool is_resume() const
-    {
-        return resume;
-    }
+    bool is_resched() const { return resched; }
 
-    const string& get_rank()
-    {
-        return rank;
-    };
+    bool is_resume() const { return resume; }
 
-    const string& get_ds_rank()
-    {
-        return ds_rank;
-    };
+    bool is_public_cloud() const { return public_cloud; }
 
-    const string& get_requirements()
-    {
-        return requirements;
-    };
+    bool is_active() const { return active; }
 
-    const string& get_ds_requirements()
-    {
-        return ds_requirements;
-    }
+    bool is_only_public_cloud() const { return only_public_cloud; }
 
-    /**
-     *  Return VM usage requirments
-     */
-    void get_requirements(int& cpu, int& memory, long long& disk,
-        vector<VectorAttribute *> &pci);
+    void set_only_public_cloud() { only_public_cloud = true; }
 
-    /**
-     *  Return the requirements of this VM (as is) and reset them
-     *    @param cpu in unit
-     *    @param memory in kb
-     *    @param disk in mb (system ds usage)
-     */
-    void reset_requirements(float& cpu, int& memory, long long& disk);
+    //--------------------------------------------------------------------------
+    // Scheduling requirements and rank
+    //--------------------------------------------------------------------------
+    const std::string& get_requirements() const { return requirements; };
 
-    /**
-     *  @return the usage requirements in image ds.
-     */
-    map<int,long long> get_storage_usage();
+    const std::string& get_ds_requirements() const { return ds_requirements; }
 
-    /**
-     * Checks if the VM can be deployed in a public cloud provider
-     * @return true if the VM can be deployed in a public cloud provider
-     */
-    bool is_public_cloud() const
-    {
-        return public_cloud;
-    };
+    const std::string& get_rank() const { return rank; };
 
-    /**
-     *   Adds usage requirements to this VM
-     *     @param cpu in unit form
-     *     @param m memory in kb
-     *     @param d in mb (system ds usage)
-     */
-    void add_requirements(float c, int m, long long d);
+    const std::string& get_ds_rank() const { return ds_rank; };
 
     /**
      *  Adds (logical AND) new placement requirements to the current ones
      *    @param reqs additional requirements
      */
-    void add_requirements(const string& reqs)
-    {
-        if ( reqs.empty() )
-        {
-            return;
-        }
-        else if ( requirements.empty() )
-        {
-            requirements = reqs;
-        }
-        else
-        {
-            requirements += " & (" + reqs + ")";
-        }
-    }
+    void add_requirements(const std::string& reqs);
+
+    //--------------------------------------------------------------------------
+    // Functions to schedule network interfaces (NIC)
+    //--------------------------------------------------------------------------
+    VirtualMachineNicXML * get_nic(int nic_id) const;
+
+    const std::string& get_nic_rank(int nic_id) const;
+
+    const std::string& get_nic_requirements(int nic_id) const;
 
     /**
-     *  Check if the VM is ACTIVE state
+     *  Return ids of NICs with NETWORK_MODE=auto (i.e. need to schedule networks)
      */
-    bool is_active() const
+    const std::set<int>& get_nics_ids() const
     {
-        return state == 3;
+        return nics_ids_auto;
+    }
+
+    //--------------------------------------------------------------------------
+    // Capacity Interface
+    //--------------------------------------------------------------------------
+    /**
+     *  This function fills a share capacity request based on the VM information:
+     *    - cpu
+     *    - memory
+     *    - system_ds disk usage
+     *    - PCI devices
+     *    - NUMA node topology
+     */
+    void get_capacity(HostShareCapacity &sr) const;
+
+    /**
+     *  Add capacity to (cpu, mem, system_ds disk, numa_nodes) this VM
+     *    @param the capacity to be added
+     */
+    void add_capacity(HostShareCapacity &sr);
+
+    /**
+     *  Clears the capacity allocaton of this VM and return it.
+     *    @param sr, the sorage requirements
+     */
+    void reset_capacity(HostShareCapacity &sr);
+
+    /**
+     *  Tests if the Image DS have enough free space to host the VM
+     *    @param img_datastores Image Datastores
+     *    @param error_msg error reason
+     *    @return true if the Image Datastores can host the VM
+     */
+    bool test_image_datastore_capacity(
+            ImageDatastorePoolXML * img_dspool, std::string & error_msg) const;
+
+    /**
+     *  Adds the VM disk requirements to each Image Datastore counter
+     *    @param img_datastores Image Datastores
+     */
+    void add_image_datastore_capacity(ImageDatastorePoolXML * img_dspool);
+
+    /**
+     *  @return storage usage for the VM
+     */
+    const std::map<int,long long>& get_storage_usage() const
+    {
+        return ds_usage;
     }
 
     //--------------------------------------------------------------------------
@@ -188,7 +243,7 @@ public:
      */
     void add_match_host(int oid)
     {
-        if (( resched == 1 && hid != oid ) || ( resched == 0 ))
+        if ((resched && hid != oid) || !resched )
         {
             match_hosts.add_resource(oid);
         }
@@ -204,9 +259,23 @@ public:
     }
 
     /**
+     *  Adds a matching network
+     *    @param oid of the network
+     */
+    void add_match_network(int oid, int nic_id)
+    {
+        auto it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            it->second->add_match_network(oid);
+        }
+    }
+
+    /**
      *  Returns a vector of matched hosts
      */
-    const vector<Resource *> get_match_hosts()
+    const std::vector<Resource *>& get_match_hosts() const
     {
         return match_hosts.get_resources();
     }
@@ -214,9 +283,26 @@ public:
     /**
      *  Returns a vector of matched datastores
      */
-    const vector<Resource *> get_match_datastores()
+    const std::vector<Resource *>& get_match_datastores() const
     {
         return match_datastores.get_resources();
+    }
+
+    /**
+     *  Returns a vector of matched networks
+     */
+    const std::vector<Resource *>& get_match_networks(int nic_id) const
+    {
+        static std::vector<Resource *> ev;
+
+        auto it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            return it->second->get_match_networks();
+        }
+
+        return ev;
     }
 
     /**
@@ -236,6 +322,19 @@ public:
     }
 
     /**
+     *  Sort the matched networks for the VM
+     */
+    void sort_match_networks(int nic_id)
+    {
+        auto it = nics.find(nic_id);
+
+        if ( it != nics.end() )
+        {
+            it->second->sort_match_networks();
+        }
+    }
+
+    /**
      *  Removes the matched hosts
      */
     void clear_match_hosts()
@@ -252,15 +351,15 @@ public:
     }
 
     /**
-     * Marks the VM to be only deployed on public cloud hosts
+     *  Removes the matched networks
      */
-    void set_only_public_cloud();
-
-    /**
-     * Returns true is the VM can only be deployed in public cloud hosts
-     * @return true is the VM can only be deployed in public cloud hosts
-     */
-    bool is_only_public_cloud() const;
+    void clear_match_networks()
+    {
+        for (auto it = nics.begin(); it != nics.end(); it++ )
+        {
+            it->second->clear_match_networks();
+        }
+    }
 
     /**
      *  Add a VM to the set of affined VMs. This is used for the VM leader
@@ -274,39 +373,19 @@ public:
         affined_vms.insert(vmid);
     }
 
-    const set<int>& get_affined_vms() const
+    const std::set<int>& get_affined_vms() const
     {
         return affined_vms;
     }
 
     //--------------------------------------------------------------------------
-    // Capacity Interface
+    // Scheduled Action Interface
     //--------------------------------------------------------------------------
-
-    /**
-     *  Tests if the Image DS have enough free space to host the VM
-     *    @param img_datastores Image Datastores
-     *    @param error_msg error reason
-     *    @return true if the Image Datastores can host the VM
-     */
-    bool test_image_datastore_capacity(
-            ImageDatastorePoolXML * img_dspool, string & error_msg) const;
-
-    /**
-     *  Adds the VM disk requirements to each Image Datastore counter
-     *    @param img_datastores Image Datastores
-     */
-    void add_image_datastore_capacity(ImageDatastorePoolXML * img_dspool);
-
-    //--------------------------------------------------------------------------
-    // Action Interface
-    //--------------------------------------------------------------------------
-
     /**
      *  Get the user template of the VM
      *    @return the template as a XML string
      */
-    string& get_template(string& xml_str)
+    std::string& get_template(std::string& xml_str) const
     {
         if (user_template != 0)
         {
@@ -321,15 +400,13 @@ public:
     }
 
     /**
-     * Removes (but does not delete) the scheduled actions of the VM
+     * Get scheduled actions of the VM
      *
      * @param attributes to hold the VM actions
      */
-    void get_actions(vector<Attribute *>& attributes) const
+    SchedActions get_actions() const
     {
-        attributes.clear();
-
-        user_template->remove("SCHED_ACTION", attributes);
+        return SchedActions(user_template.get());
     }
 
     /**
@@ -349,18 +426,21 @@ public:
      *    returned here
      *    @return 0 on success.
      */
-    static int parse_action_name(string& action_st);
+    static int parse_action_name(std::string& action_st);
 
+    //--------------------------------------------------------------------------
+    // Logging
+    //--------------------------------------------------------------------------
     /**
      *  Function to write a Virtual Machine in an output stream
      */
-    friend ostream& operator<<(ostream& os, VirtualMachineXML& vm);
+    friend std::ostream& operator<<(std::ostream& os, VirtualMachineXML& vm);
 
     /**
      * Adds a message to the VM's USER_TEMPLATE/SCHED_MESSAGE attribute
      *   @param st Message to set
      */
-    void log(const string &st);
+    void log(const std::string &st);
 
     /**
      * Clears the VM's USER_TEMPLATE/SCHED_MESSAGE attribute
@@ -370,7 +450,6 @@ public:
     bool clear_log();
 
 protected:
-
     /**
      *  For constructors
      */
@@ -378,47 +457,49 @@ protected:
 
     void init_storage_usage();
 
-    /* ------------------- SCHEDULER INFORMATION --------------------------- */
-
+    /* ---------------------- SCHEDULER INFORMATION ------------------------- */
     ResourceMatch match_hosts;
 
     ResourceMatch match_datastores;
 
     bool only_public_cloud;
 
-    set<int> affined_vms;
+    std::set<int> affined_vms;
 
     /* ----------------------- VIRTUAL MACHINE ATTRIBUTES ------------------- */
-    int   oid;
+    int oid;
 
-    int   uid;
-    int   gid;
+    int uid;
+    int gid;
 
-    int   hid;
-    int   dsid;
+    int hid;
+    int dsid;
 
-    int   resched;
-    bool  resume;
+    bool resched;
+    bool resume;
+    bool active;
+    bool public_cloud;
 
-    int   state;
-
-    int         memory;
+    long int    memory;
     float       cpu;
     long long   system_ds_usage;
 
-    map<int,long long> ds_usage;
+    std::map<int,long long> ds_usage;
 
-    bool   public_cloud;
+    std::string rank;
+    std::string requirements;
 
-    string rank;
-    string requirements;
+    std::string ds_requirements;
+    std::string ds_rank;
 
-    string ds_requirements;
-    string ds_rank;
+    time_t stime;
 
-    VirtualMachineTemplate * vm_template;   /**< The VM template */
-    VirtualMachineTemplate * user_template; /**< The VM user template */
+    std::set<int> nics_ids_auto;
 
+    std::map<int, VirtualMachineNicXML *> nics;
+
+    std::unique_ptr<VirtualMachineTemplate> vm_template;   /**< The VM template */
+    std::unique_ptr<VirtualMachineTemplate> user_template; /**< The VM user template */
 };
 
 #endif /* VM_XML_H_ */

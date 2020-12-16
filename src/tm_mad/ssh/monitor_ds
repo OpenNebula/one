@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,33 +19,64 @@
 dir="$1"
 
 vms=$(ls "$dir" | grep '^[0-9]\+$')
+one_dir=$(dirname $0 |  sed -e 's/tm\/ssh//')
+xpath="$one_dir/datastore/xpath.rb --stdin"
 
 for vm in $vms; do
     vmdir="${dir}/${vm}"
-    disks=$(ls "$vmdir" | grep '^disk\.[0-9]\+$')
+    disks=$(ls "$vmdir" 2>/dev/null | grep '^disk\.[0-9]\+$')
 
     [ -z "$disks" ] && continue
 
-    echo -n "VM=[ID=$vm,POLL=\""
+    echo -n "VM = [ ID = $vm, MONITOR = \""
+
+    vm_monitor=""
 
     for disk in $disks; do
         disk_id="$(echo "$disk" | cut -d. -f2)"
-        disk_size="$(du -mL "${vmdir}/${disk}" | awk '{print $1}')"
+        disk_size="$(du -mL "${vmdir}/${disk}" 2>/dev/null | awk '{print $1}')"
         snap_dir="${vmdir}/${disk}.snap"
 
         [ -z "$disk_size" ] && continue
-        echo -n "DISK_SIZE=[ID=${disk_id},SIZE=${disk_size}] "
+
+        vm_monitor="${vm_monitor}\nDISK_SIZE = [ ID=${disk_id}, SIZE=${disk_size}]"
 
         if [ -e "$snap_dir" ]; then
             snaps="$(ls "$snap_dir" | grep '^[0-9]$')"
 
             for snap in $snaps; do
-                snap_size="$(du -mL "${snap_dir}/${snap}" | awk '{print $1}')"
+                snap_size="$(du -mL "${snap_dir}/${snap}" 2>/dev/null | awk '{print $1}')"
                 [ -z "$snap_size" ] && continue
-                echo -n "SNAPSHOT_SIZE=[ID=${snap},DISK_ID=${disk_id},SIZE=${snap_size}] "
+
+                vm_monitor="${vm_monitor}\nSNAPSHOT_SIZE = "\
+                    "[ ID=${snap}, DISK_ID=${disk_id}, SIZE=${snap_size}]"
             done
         fi
+
+        # create disk recovery snapshot if required
+        if [ -f "${dir}/${vm}/vm.xml" ] && [ -f "${dir}/${vm}/ds.xml" ] ; then
+            freq=$(awk 'gsub(/[\0]/, x)' <(cat "${dir}/${vm}/vm.xml"| $xpath \
+                /VM/TEMPLATE/DISK[DISK_ID=$disk_id]/RECOVERY_SNAPSHOT_FREQ))
+
+            replica_host=$(awk 'gsub(/[\0]/, x)' <(cat "${dir}/${vm}/ds.xml"| $xpath \
+                /DATASTORE/TEMPLATE/REPLICA_HOST))
+
+            if [ -n "$freq" ] && [ -n "$replica_host" ]; then
+
+                snap_ts=$($one_dir/tm/ssh/recovery_snap_create_live \
+                    $vm $vmdir/$disk $freq $replica_host)
+                rc=$?
+
+                if [ -n "$snap_ts" ] && [ "$rc" = "0" ]; then
+                    vm_monitor="${vm_monitor}\nDISK_RECOVERY_SNAPSHOT = [ ID=${disk_id}, TIMESTAMP=${snap_ts}]"
+                else
+                    vm_monitor="${vm_monitor}\nDISK_RECOVERY_SNAPSHOT = [ ID=${disk_id}, MSG=\"ERROR $rc\"]"
+                fi
+            fi
+        fi
     done
+
+    echo -e "$vm_monitor" | base64 -w 0 -
 
     echo "\"]"
 done

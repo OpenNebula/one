@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,22 +32,23 @@ LVCREATE=${LVCREATE:-lvcreate}
 LVREMOVE=${LVREMOVE:-lvremove}
 LVCHANGE=${LVCHANGE:-lvchange}
 LVSCAN=${LVSCAN:-lvscan}
+LVEXTEND=${LVEXTEND:-lvextend}
 LVS=${LVS:-lvs}
 LN=${LN:-ln}
 MD5SUM=${MD5SUM:-md5sum}
 MKFS=${MKFS:-mkfs}
 MKISOFS=${MKISOFS:-genisoimage}
 MKSWAP=${MKSWAP:-mkswap}
-QEMU_IMG=${QMEMU_IMG:-qemu-img}
+QEMU_IMG=${QEMU_IMG:-qemu-img}
 RADOS=${RADOS:-rados}
 RBD=${RBD:-rbd}
 READLINK=${READLINK:-readlink}
 RM=${RM:-rm}
 CP=${CP:-cp}
-SCP=${SCP:-scp}
 SED=${SED:-sed}
 SSH=${SSH:-ssh}
-SUDO=${SUDO:-sudo}
+SSH_FWD=${SSH_FWD:-ssh -o ForwardAgent=yes -o ControlMaster=no -o ControlPath=none}
+SUDO=${SUDO:-sudo -n}
 SYNC=${SYNC:-sync}
 TAR=${TAR:-tar}
 TGTADM=${TGTADM:-tgtadm}
@@ -78,7 +79,7 @@ SCRIPT_NAME=`basename $0`
 # /some//path///somewhere/ -> /some/path/somewhere
 function fix_dir_slashes
 {
-    dirname "$1/file" | $SED 's/\/+/\//g'
+    dirname "$1/file" | $SED 's/\/\+/\//g'
 }
 
 # ------------------------------------------------------------------------------
@@ -142,14 +143,14 @@ function exclusive
     ( umask 0027; touch "${LOCK_FILE}" 2>/dev/null )
 
     # open lockfile
-    exec 2>/dev/null {FD}>"${LOCK_FILE}"
+    { exec {FD}>"${LOCK_FILE}"; } 2>/dev/null
     if [ $? -ne 0 ]; then
         log_error "Could not create or open lock ${LOCK_FILE}"
         exit -2
     fi
 
     # acquire lock
-    flock -w "${TIMEOUT}" "${FD}"
+    flock -w "${TIMEOUT}" "${FD}" 2>/dev/null
     if [ $? -ne 0 ]; then
         log_error "Could not acquire exclusive lock on ${LOCK_FILE}"
         exit -2
@@ -162,23 +163,57 @@ function exclusive
     return $EXEC_RC
 }
 
+# Retries if command fails and STDERR matches
+function retry_if
+{
+    MATCH=$1
+    TRIES=$2
+    SLEEP=$3
+    shift 3
+
+    unset TSTD TERR RC
+
+    while [ $TRIES -gt 0 ]; do
+        TRIES=$(( TRIES - 1 ))
+
+        eval "$( ("$@" ) \
+                2> >(TERR=$(cat); typeset -p TERR) \
+                 > >(TSTD=$(cat); typeset -p TSTD); RC=$?; typeset -p RC )"
+
+        [ $RC -eq 0 ] && break
+
+        if echo "$TERR" | grep -q "$MATCH"; then
+            sleep $SLEEP;
+            continue
+        fi
+
+        break
+    done
+
+    [ -n "$TERR" ] && echo $TERR >&2
+    [ -n "$TSTD" ] && echo $TSTD
+    return $RC
+}
+
 # Executes a command, if it fails returns error message and exits
 # If a second parameter is present it is used as the error message when
 # the command fails
+# args: <command> [<error message>]
 function exec_and_log
 {
-    message=$2
+    _cmd="$1"
+    _msg="$2"
 
-    EXEC_LOG_ERR=`$1 2>&1 1>/dev/null`
+    EXEC_LOG_ERR=$(${_cmd} 2>&1 1>/dev/null)
     EXEC_LOG_RC=$?
 
     if [ $EXEC_LOG_RC -ne 0 ]; then
-        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+        log_error "Command \"${_cmd}\" failed: $EXEC_LOG_ERR"
 
-        if [ -n "$2" ]; then
-            error_message "$2"
+        if [ -n "${_msg}" ]; then
+            error_message "${_msg}"
         else
-            error_message "Error executing $1: $EXEC_LOG_ERR"
+            error_message "Error executing \"${_cmd}\": $EXEC_LOG_ERR"
         fi
         exit $EXEC_LOG_RC
     fi
@@ -246,6 +281,32 @@ function exec_and_set_error
     message=$2
 
     EXEC_LOG_ERR=$(bash -c "$1" 2>&1 1>/dev/null)
+    EXEC_LOG_RC=$?
+
+    export ERROR=""
+
+    if [ $EXEC_LOG_RC -ne 0 ]; then
+        log_error "Command \"$1\" failed: $EXEC_LOG_ERR"
+
+        if [ -n "$2" ]; then
+            export ERROR="$2"
+        else
+            export ERROR="Error executing $1: $EXEC_LOG_ERR"
+        fi
+    fi
+}
+
+# Like exec_and_log but does not exit on failure. Just sets the variable
+# ERROR to the error message.
+function multiline_exec_and_set_error
+{
+    message=$2
+
+    EXEC_LOG_ERR=`bash -s 2>&1 1>/dev/null <<EOF
+export LANG=C
+export LC_ALL=C
+$1
+EOF`
     EXEC_LOG_RC=$?
 
     export ERROR=""
@@ -343,24 +404,80 @@ function force_shutdown {
     fi
 }
 
+function contains {
+    LIST=$1
+    ELEMENT=$2
+    SEPARATOR=$3
+
+    MATCH=0
+    for i in $(echo $LIST | sed "s/$SEPARATOR/ /g"); do
+        if [[ "${ELEMENT}" = "${i}" ]]; then
+            MATCH=1
+            break
+        fi
+    done
+
+    if [ "${MATCH}" = "0" ]; then
+        return 1
+    fi
+
+    return 0
+}
+
 # This function will return a command that upon execution will format a
 # filesystem with its proper parameters based on the filesystem type
 function mkfs_command {
     DST=$1
-    FSTYPE=$2
+    FORMAT=$2
     SIZE=${3:-0}
+    SUPPORTED_FS=$4
+    FS=$5
+    FS_OPTS=$6
 
-    if [ "$FSTYPE" = "qcow2" ]; then
-        QEMU_FORMAT="qcow2"
+    if [ ! -z "${FS}" ]; then
+        contains "${SUPPORTED_FS}" "${FS}" ","
+
+        if [ $? != 0 ]; then
+            log_error "Unsupported file system type: ${FS}. Supported types are: ${SUPPORTED_FS}"
+            exit -1
+        fi
+
+        # Image create is required because of old MKFS version in c7
+        echo "$QEMU_IMG create -f raw ${DST} ${SIZE}M"
+        echo "$MKFS -F -t ${FS} ${FS_OPTS} ${DST}"
+
+        if [ "$FORMAT" = "qcow2" ]; then
+            echo "$QEMU_IMG convert -f raw -O qcow2 ${DST} ${DST}.qcow2"
+            echo "mv ${DST}.qcow2 ${DST}"
+        fi
     else
-        QEMU_FORMAT="raw"
+        if [ "$FORMAT" = "qcow2" ]; then
+            QEMU_FORMAT="qcow2"
+        else
+            QEMU_FORMAT="raw"
+        fi
+
+        echo "$QEMU_IMG create -f ${QEMU_FORMAT} ${DST} ${SIZE}M"
     fi
 
-    echo "$QEMU_IMG create -f ${QEMU_FORMAT} ${DST} ${SIZE}M"
-
-    if [ "$FSTYPE" = "swap" ]; then
+    if [ "$FORMAT" = "swap" ]; then
         echo "$MKSWAP -L swap $DST"
     fi
+}
+
+# This function will accept command as an argument for which it will override
+# the env. variables SSH with their agent forwarding alternative
+ssh_forward()
+{
+    _ssh_cmd_saved="$SSH"
+    SSH="$SSH_FWD"
+
+    "$@"
+
+    _ssh_forward_result=$?
+    SSH="$_ssh_cmd_saved"
+
+    return $_ssh_forward_result
 }
 
 #This function executes $2 at $1 host and report error $3 but does not exit
@@ -462,12 +579,23 @@ function ssh_make_path
 {
     SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
 set -e -o pipefail
-if [ ! -d $2 ]; then
-   mkdir -p $2
 
-   if [ -n "$3" ]; then
-       echo "$3" > "\$(dirname $2)/.monitor"
-   fi
+if [ ! -d $2 ]; then
+    mkdir -p $2
+fi
+
+# create or update .monitor content
+if [ -n "$3" ]; then
+    MONITOR_FN="\$(dirname $2)/.monitor"
+
+    MONITOR=''
+    if [ -f "\\${MONITOR_FN}" ]; then
+        MONITOR="\\$(cat "\\${MONITOR_FN}" 2>/dev/null)"
+    fi
+
+    if [ "x\\${MONITOR}" != "x$3" ]; then
+        echo "$3" > "\\${MONITOR_FN}"
+    fi
 fi
 EOF`
     SSH_EXEC_RC=$?
@@ -477,6 +605,18 @@ EOF`
 
         exit $SSH_EXEC_RC
     fi
+}
+
+# Escape characters which could be interpreted as XML markup
+function xml_esc
+{
+   R=${1//\'/&apos;}
+   R=${R//\"/&quot;}
+   R=${R//\&/&amp;}
+   R=${R//\</&lt;}
+   R=${R//\>/&gt;}
+
+   echo "${R}"
 }
 
 # TODO -> Use a dynamically loaded scripts directory. Not removing this due
@@ -535,7 +675,7 @@ function tgtadm_next_tid {
 
 function tgt_admin_dump_config {
     FILE_PATH="$1"
-    echo "$TGTADMIN --dump |sudo tee $FILE_PATH > /dev/null 2>&1"
+    echo "$TGTADMIN --dump |sudo -n tee $FILE_PATH > /dev/null 2>&1"
 }
 
 ###
@@ -626,7 +766,7 @@ function get_source_xml {
         BCK_IFS=$IFS
         IFS=':'
 
-        unset k HOST_PARTS SOURCE_HOST
+        unset k HOST_PARTS
 
         for part in $host ; do
             HOST_PARTS[k++]="$part"
@@ -679,6 +819,26 @@ function get_source_xml {
 # * POOL_NAME
 # * SIZE
 # * DISK_TARGET
+# * DISK_IO
+# * ORDER
+# * TOTAL_BYTES_SEC
+# * TOTAL_BYTES_SEC_MAX
+# * TOTAL_BYTES_SEC_MAX_LENGTH
+# * READ_BYTES_SEC
+# * READ_BYTES_SEC_MAX
+# * READ_BYTES_SEC_MAX_LENGTH
+# * WRITE_BYTES_SEC
+# * WRITE_BYTES_SEC_MAX
+# * WRITE_BYTES_SEC_MAX_LENGTH
+# * TOTAL_IOPS_SEC
+# * TOTAL_IOPS_SEC_MAX
+# * TOTAL_IOPS_SEC_MAX_LENGTH
+# * READ_IOPS_SEC
+# * READ_IOPS_SEC_MAX
+# * READ_IOPS_SEC_MAX_LENGTH
+# * WRITE_IOPS_SEC
+# * WRITE_IOPS_SEC_MAX
+# * WRITE_IOPS_SEC_MAX_LENGTH
 # * TYPE_SOURCE: libvirt xml source name. $TYPE_SOURCE=$SOURCE => file=/my/path
 # * SOURCE: disk source, can be path, ceph pool/image, device...
 # * TYPE_XML
@@ -722,7 +882,28 @@ function get_disk_information {
                         $DISK_XPATH/DISK_TYPE \
                         $DISK_XPATH/POOL_NAME \
                         $DISK_XPATH/SIZE \
-                        $DISK_XPATH/TARGET)
+                        $DISK_XPATH/TARGET \
+                        $DISK_XPATH/TM_MAD \
+                        $DISK_XPATH/IO \
+                        $DISK_XPATH/ORDER \
+                        $DISK_XPATH/TOTAL_BYTES_SEC \
+                        $DISK_XPATH/TOTAL_BYTES_SEC_MAX \
+                        $DISK_XPATH/TOTAL_BYTES_SEC_MAX_LENGTH \
+                        $DISK_XPATH/READ_BYTES_SEC \
+                        $DISK_XPATH/READ_BYTES_SEC_MAX \
+                        $DISK_XPATH/READ_BYTES_SEC_MAX_LENGTH \
+                        $DISK_XPATH/WRITE_BYTES_SEC \
+                        $DISK_XPATH/WRITE_BYTES_SEC_MAX \
+                        $DISK_XPATH/WRITE_BYTES_SEC_MAX_LENGTH \
+                        $DISK_XPATH/TOTAL_IOPS_SEC \
+                        $DISK_XPATH/TOTAL_IOPS_SEC_MAX \
+                        $DISK_XPATH/TOTAL_IOPS_SEC_MAX_LENGTH \
+                        $DISK_XPATH/READ_IOPS_SEC \
+                        $DISK_XPATH/READ_IOPS_SEC_MAX \
+                        $DISK_XPATH/READ_IOPS_SEC_MAX_LENGTH \
+                        $DISK_XPATH/WRITE_IOPS_SEC \
+                        $DISK_XPATH/WRITE_IOPS_SEC_MAX \
+                        $DISK_XPATH/WRITE_IOPS_SEC_MAX_LENGTH )
 
     VMID="${XPATH_ELEMENTS[j++]}"
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
@@ -745,8 +926,30 @@ function get_disk_information {
     POOL_NAME="${XPATH_ELEMENTS[j++]}"
     SIZE="${XPATH_ELEMENTS[j++]}"
     DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+    DISK_TM_MAD="${XPATH_ELEMENTS[j++]}"
+    DISK_IO="${XPATH_ELEMENTS[j++]}"
+    ORDER="${XPATH_ELEMENTS[j++]}"
+    TOTAL_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    TOTAL_BYTES_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    TOTAL_BYTES_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
+    READ_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_BYTES_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    READ_BYTES_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
+    WRITE_BYTES_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_BYTES_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    WRITE_BYTES_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
+    TOTAL_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    TOTAL_IOPS_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    TOTAL_IOPS_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
+    READ_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    READ_IOPS_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    READ_IOPS_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
+    WRITE_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    WRITE_IOPS_SEC_MAX="${XPATH_ELEMENTS[j++]}"
+    WRITE_IOPS_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
+    READONLY=$(echo "$READONLY"|tr A-Z a-z)
 
     NAME="$SOURCE"
 
@@ -768,7 +971,7 @@ function get_disk_information {
         fi
 
         SOURCE_ARGS="protocol='iscsi'"
-        SOURCE_HOST=$(get_source_xml $ISCSI_HOST)
+        SOURCE_HOST=$(get_source_xml "$ISCSI_HOST")
 
         if [ -n "$ISCSI_USAGE" -a -n "$ISCSI_USER" ]; then
             AUTH="<auth username='$ISCSI_USER'>\
@@ -798,7 +1001,7 @@ function get_disk_information {
         fi
 
         SOURCE_ARGS="protocol='rbd'"
-        SOURCE_HOST=$(get_source_xml $CEPH_HOST)
+        SOURCE_HOST=$(get_source_xml "$CEPH_HOST")
 
         if [ -n "$CEPH_USER" -a -n "$CEPH_SECRET" ]; then
             AUTH="<auth username='$CEPH_USER'>\
@@ -838,13 +1041,23 @@ function get_disk_information {
             fi
             ;;
         *)
-            TYPE_SOURCE="file"
-            TYPE_XML="file"
-            DEVICE="disk"
+            case "$DISK_TM_MAD" in
+            fs_lvm)
+                TYPE_SOURCE="dev"
+                TYPE_XML="block"
+                DEVICE="disk"
+                ;;
+            *)
+                TYPE_SOURCE="file"
+                TYPE_XML="file"
+                DEVICE="disk"
+                ;;
+            esac
             ;;
-        esac
 
+        esac
         ;;
+
     esac
 }
 
@@ -871,6 +1084,7 @@ function get_disk_information {
 # * MODEL
 # * IP
 # * FILTER
+# * VIRTIO_QUEUES
 # * VROUTER_IP
 # * INBOUND_AVG_BW
 # * INBOUND_PEAK_BW
@@ -896,6 +1110,7 @@ function get_nic_information {
     done < <($CMD       /VMM_DRIVER_ACTION_DATA/VM/ID \
                         $NIC_XPATH/NIC_ID \
                         $NIC_XPATH/BRIDGE \
+                        $NIC_XPATH/BRIDGE_TYPE \
                         $NIC_XPATH/VN_MAD \
                         $NIC_XPATH/MAC \
                         $NIC_XPATH/TARGET \
@@ -903,6 +1118,7 @@ function get_nic_information {
                         $NIC_XPATH/MODEL \
                         $NIC_XPATH/IP \
                         $NIC_XPATH/FILTER \
+                        $NIC_XPATH/VIRTIO_QUEUES \
                         $NIC_XPATH/VROUTER_IP \
                         $NIC_XPATH/INBOUND_AVG_BW \
                         $NIC_XPATH/INBOUND_PEAK_BW \
@@ -915,6 +1131,7 @@ function get_nic_information {
     VMID="${XPATH_ELEMENTS[j++]}"
     NIC_ID="${XPATH_ELEMENTS[j++]}"
     BRIDGE="${XPATH_ELEMENTS[j++]}"
+    BRIDGE_TYPE="${XPATH_ELEMENTS[j++]}"
     VN_MAD="${XPATH_ELEMENTS[j++]}"
     MAC="${XPATH_ELEMENTS[j++]}"
     NIC_TARGET="${XPATH_ELEMENTS[j++]}"
@@ -922,6 +1139,7 @@ function get_nic_information {
     MODEL="${XPATH_ELEMENTS[j++]}"
     IP="${XPATH_ELEMENTS[j++]}"
     FILTER="${XPATH_ELEMENTS[j++]}"
+    VIRTIO_QUEUES="${XPATH_ELEMENTS[j++]}"
     VROUTER_IP="${XPATH_ELEMENTS[j++]}"
     INBOUND_AVG_BW="${XPATH_ELEMENTS[j++]}"
     INBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
@@ -930,4 +1148,79 @@ function get_nic_information {
     OUTBOUND_PEAK_BW="${XPATH_ELEMENTS[j++]}"
     OUTBOUND_PEAK_KB="${XPATH_ELEMENTS[j++]}"
     ORDER="${XPATH_ELEMENTS[j++]}"
+}
+
+# Send message to monitor daemon
+# This function reads monitor network and encryption settings from monitord.conf,
+# packs and optionally encrypt the message and sends it to monitor daemon
+# Parameters
+#   $1 Message type: MONITOR_VM, BEACON_HOST, MONITOR_HOST, SYSTEM_HOST, STATE_VM, LOG, ...
+#   $2 Result of the operation:
+#        0 or "SUCCESS" means succesful monitoring
+#        everything else is failure
+#   $3 Object ID, use -1 if not relevant
+#   $4 Message payload (the monitoring data)
+function send_to_monitor {
+    msg_type="$1"
+    msg_result="$2"
+    msg_oid="$3"
+    msg_payload="$4"
+
+    if [ "$msg_result" = "0" -o "$msg_result" = "SUCCESS" ]; then
+        msg_result="SUCCESS"
+    else
+        msg_result="FAILURE"
+    fi
+
+    # Read monitord config
+    if [ -z "${ONE_LOCATION}" ]; then
+        mon_conf=/etc/one/monitord.conf
+    else
+        mon_conf=$ONE_LOCATION/etc/monitord.conf
+    fi
+
+    mon_config=$(augtool -L -l $mon_conf ls /files/$mon_conf/NETWORK)
+    mon_address=$(echo "$mon_config" | grep MONITOR_ADDRESS | awk '{print $3}')
+    mon_port=$(echo "$mon_config" | grep PORT | awk '{print $3}')
+    mon_key=$(echo "$mon_config" | grep PUBKEY | awk '{print $3}' | \
+        sed 's/^"\(.*\)"$/\1/')
+
+    if [[ $mon_address == *"auto"* ]]; then
+        mon_address="127.0.0.1"
+    fi
+
+    # Encrypt message
+    if [ -n "$mon_key" -a -r "$mon_key" ]; then
+        # Read block size from public key
+        block_size=$(openssl rsa -RSAPublicKey_in -in "$mon_key" -text -noout \
+            | grep "Public-Key" | tr -dc '0-9')
+        block_size=$(( block_size / 8 ))
+
+        # Convert public key to format known to openssl
+        pub_key=$(mktemp)
+        openssl rsa -RSAPublicKey_in -in "$mon_key" -pubout -out "$pub_key"
+            \2>/dev/null
+
+        # Encrypt payload per block_size to temporary file
+        tmp_file=$(mktemp)
+        for line in $(echo "$msg_payload" | fold -w$block_size); do
+            echo $line | openssl rsautl -encrypt -pubin -inkey "$pub_key" \
+                >>$tmp_file
+        done
+
+        payload_b64="$(cat "$tmp_file" | \
+            ruby -e "require 'zlib'; puts Zlib::Deflate.deflate(STDIN.read)" \
+            | base64 -w 0)"
+
+        rm "$tmp_file"
+        rm "$pub_key"
+    else
+        payload_b64="$(echo $msg_payload | \
+            ruby -e "require 'zlib'; puts Zlib::Deflate.deflate(STDIN.read)" \
+            | base64 -w 0)"
+    fi
+
+    # Send message
+    echo "$msg_type $msg_result $msg_oid $payload_b64" |
+        nc -u -w1 $mon_address $mon_port
 }

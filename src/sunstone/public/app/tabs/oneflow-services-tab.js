@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -31,7 +31,8 @@ define(function(require) {
   var _panels = [
     require('./oneflow-services-tab/panels/info'),
     require('./oneflow-services-tab/panels/roles'),
-    require('./oneflow-services-tab/panels/log')
+    require('./oneflow-services-tab/panels/log'),
+    require('./oneflow-services-tab/panels/sched_actions')
   ];
 
   var _panelsHooks = [
@@ -39,7 +40,8 @@ define(function(require) {
   ];
 
   var _formPanels = [
-    require('./oneflow-services-tab/form-panels/create')
+    require('./oneflow-services-tab/form-panels/create'),
+    require('./oneflow-services-tab/form-panels/update')
   ];
 
   var Tab = {
@@ -50,6 +52,7 @@ define(function(require) {
     parentTab: "instances-top-tab",
     listHeader: Locale.tr("Services"),
     infoHeader: Locale.tr("Service"),
+    lockable: false,
     subheader: '',
     content: '<div class="row oneflow_services_error_message" hidden>\
         <div class="small-6 columns small-centered text-center">\

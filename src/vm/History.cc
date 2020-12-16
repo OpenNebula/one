@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,20 +16,12 @@
 
 #include "VirtualMachine.h"
 #include "Nebula.h"
+#include "OneDB.h"
 
 #include <iostream>
 #include <sstream>
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-const char * History::table = "history";
-
-const char * History::db_names = "vid, seq, body, stime, etime";
-
-const char * History::db_bootstrap = "CREATE TABLE IF NOT EXISTS "
-    "history (vid INTEGER, seq INTEGER, body MEDIUMTEXT, "
-    "stime INTEGER, etime INTEGER,PRIMARY KEY(vid,seq))";
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -57,7 +49,7 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        action(NONE_ACTION),
+        action(VMActions::NONE_ACTION),
         vm_info("<VM/>"){};
 
 /* -------------------------------------------------------------------------- */
@@ -91,7 +83,7 @@ History::History(
         running_etime(0),
         epilog_stime(0),
         epilog_etime(0),
-        action(NONE_ACTION),
+        action(VMActions::NONE_ACTION),
         vm_info(_vm_info)
 {
     non_persistent_data();
@@ -168,7 +160,7 @@ int History::insert_replace(SqlDB *db, bool replace)
         return 0;
     }
 
-    sql_xml = db->escape_str(to_db_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_db_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -177,19 +169,22 @@ int History::insert_replace(SqlDB *db, bool replace)
 
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::history_table << " SET "
+            << "body = '"  <<  sql_xml  << "', "
+            << "stime = "  <<  stime    << ", "
+            << "etime = "  <<  etime
+            << " WHERE vid = " << oid << " AND seq = " << seq;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::history_table
+            << " (" << one_db::history_db_names << ") VALUES ("
+            <<          oid             << ","
+            <<          seq             << ","
+            << "'" <<   sql_xml         << "',"
+            <<          stime           << ","
+            <<          etime           << ")";
     }
-
-    oss << " INTO " << table << " ("<< db_names <<") VALUES ("
-        <<          oid             << ","
-        <<          seq             << ","
-        << "'" <<   sql_xml         << "',"
-        <<          stime           << ","
-        <<          etime           << ")";
 
     rc = db->exec_wr(oss);
 
@@ -264,7 +259,7 @@ int History::drop(SqlDB * db)
 {
     ostringstream   oss;
 
-    oss << "DELETE FROM " << table << " WHERE vid= "<< oid;
+    oss << "DELETE FROM " << one_db::history_table << " WHERE vid= "<< oid;
 
     return db->exec_wr(oss);
 }
@@ -341,6 +336,85 @@ string& History::to_xml(string& xml, bool database) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+string& History::to_json(string& json) const
+{
+    ostringstream oss;
+
+    oss << "\"HISTORY\": {" <<
+          "\"OID\": \""      << oid           << "\"," <<
+          "\"SEQ\": \""      << seq           << "\"," <<
+          "\"HOSTNAME\": \"" << hostname      << "\"," <<
+          "\"HID\": \""      << hid           << "\"," <<
+          "\"CID\": \""      << cid           << "\"," <<
+          "\"STIME\": \""    << stime         << "\"," <<
+          "\"ETIME\": \""    << etime         << "\"," <<
+          "\"VM_MAD\": \""   << vmm_mad_name  << "\"," <<
+          "\"TM_MAD\": \""   << tm_mad_name   << "\"," <<
+          "\"DS_ID\": \""    << ds_id         << "\"," <<
+          "\"PSTIME\": \""   << prolog_stime  << "\"," <<
+          "\"PETIME\": \""   << prolog_etime  << "\"," <<
+          "\"RSTIME\": \""   << running_stime << "\"," <<
+          "\"RETIME\": \""   << running_etime << "\"," <<
+          "\"ESTIME\": \""   << epilog_stime  << "\"," <<
+          "\"EETIME\": \""   << epilog_etime  << "\"," <<
+          "\"ACTION\": \""   << action        << "\"," <<
+          "\"UID\": \""      << uid           << "\"," <<
+          "\"GID\": \""      << gid           << "\"," <<
+          "\"REQUEST_ID\": \"" << req_id      << "\",";
+
+    oss << "}";
+
+    json = oss.str();
+
+    return json;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& History::to_token(string& text) const
+{
+    ostringstream oss;
+
+    oss << "HOSTNAME=";
+    one_util::escape_token(hostname, oss);
+    oss << "\n";
+
+    oss << "HID="   << hid   << "\n" <<
+           "CID="   << cid   << "\n" <<
+           "DS_ID=" << ds_id << "\n";
+
+    text = oss.str();
+
+    return text;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string& History::to_xml_short(string& xml) const
+{
+    ostringstream oss;
+
+    oss <<
+        "<HISTORY>" <<
+          "<OID>" << oid << "</OID>" <<
+          "<SEQ>" << seq << "</SEQ>" <<
+          "<HOSTNAME>" << one_util::escape_xml(hostname) << "</HOSTNAME>" <<
+          "<HID>"    << hid   << "</HID>"   <<
+          "<CID>"    << cid   << "</CID>"   <<
+          "<DS_ID>"  << ds_id << "</DS_ID>" <<
+          "<ACTION>" << one_util::escape_xml(action) << "</ACTION>" <<
+        "</HISTORY>";
+
+   xml = oss.str();
+
+   return xml;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int History::rebuild_attributes()
 {
     vector<xmlNodePtr> content;
@@ -375,7 +449,7 @@ int History::rebuild_attributes()
     rc += xpath(gid, "/HISTORY/GID", -1);
     rc += xpath(req_id, "/HISTORY/REQUEST_ID", -1);
 
-    action = static_cast<VMAction>(int_action);
+    action = static_cast<VMActions::Action>(int_action);
 
     // -------------------------------------------------------------------------
     ObjectXML::get_nodes("/HISTORY/VM", content);
@@ -405,317 +479,3 @@ int History::rebuild_attributes()
     return 0;
 }
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-string History::action_to_str(VMAction action)
-{
-    string st;
-
-    switch (action)
-    {
-        case MIGRATE_ACTION:
-            st = "migrate";
-        break;
-        case LIVE_MIGRATE_ACTION:
-            st = "live-migrate";
-        break;
-        case TERMINATE_ACTION:
-            st = "terminate";
-        break;
-        case TERMINATE_HARD_ACTION:
-            st = "terminate-hard";
-        break;
-        case UNDEPLOY_ACTION:
-            st = "undeploy";
-        break;
-        case UNDEPLOY_HARD_ACTION:
-            st = "undeploy-hard";
-        break;
-        case HOLD_ACTION:
-            st = "hold";
-        break;
-        case RELEASE_ACTION:
-            st = "release";
-        break;
-        case STOP_ACTION:
-            st = "stop";
-        break;
-        case SUSPEND_ACTION:
-            st = "suspend";
-        break;
-        case RESUME_ACTION:
-            st = "resume";
-        break;
-        case DELETE_ACTION:
-            st = "delete";
-        break;
-        case DELETE_RECREATE_ACTION:
-            st = "delete-recreate";
-        break;
-        case REBOOT_ACTION:
-            st = "reboot";
-        break;
-        case REBOOT_HARD_ACTION:
-            st = "reboot-hard";
-        break;
-        case RESCHED_ACTION:
-            st = "resched";
-        break;
-        case UNRESCHED_ACTION:
-            st = "unresched";
-        break;
-        case POWEROFF_ACTION:
-            st = "poweroff";
-        break;
-        case POWEROFF_HARD_ACTION:
-            st = "poweroff-hard";
-        break;
-        case DISK_ATTACH_ACTION:
-            st = "disk-attach";
-        break;
-        case DISK_DETACH_ACTION:
-            st = "disk-detach";
-        break;
-        case NIC_ATTACH_ACTION:
-            st = "nic-attach";
-        break;
-        case NIC_DETACH_ACTION:
-            st = "nic-detach";
-        break;
-        case DISK_SNAPSHOT_CREATE_ACTION:
-            st = "disk-snapshot-create";
-        break;
-        case DISK_SNAPSHOT_DELETE_ACTION:
-            st = "disk-snapshot-delete";
-        break;
-        case DISK_RESIZE_ACTION:
-            st = "disk-resize";
-        break;
-        case DEPLOY_ACTION:
-            st = "deploy";
-        break;
-        case CHOWN_ACTION:
-            st = "chown";
-        break;
-        case CHMOD_ACTION:
-            st = "chmod";
-        break;
-        case UPDATECONF_ACTION:
-            st = "updateconf";
-        break;
-        case RENAME_ACTION:
-            st = "rename";
-        break;
-        case RESIZE_ACTION:
-            st = "resize";
-        break;
-        case UPDATE_ACTION:
-            st = "update";
-        break;
-        case SNAPSHOT_CREATE_ACTION:
-            st = "snapshot-resize";
-        break;
-        case SNAPSHOT_DELETE_ACTION:
-            st = "snapshot-delete";
-        break;
-        case SNAPSHOT_REVERT_ACTION:
-            st = "snapshot-revert";
-        break;
-        case DISK_SAVEAS_ACTION:
-            st = "disk-saveas";
-        break;
-        case DISK_SNAPSHOT_REVERT_ACTION:
-            st = "disk-snapshot-revert";
-        break;
-        case RECOVER_ACTION:
-            st = "recover";
-        break;
-        case RETRY_ACTION:
-            st = "retry";
-        break;
-        case MONITOR_ACTION:
-            st = "monitor";
-        break;
-        case NONE_ACTION:
-            st = "none";
-        break;
-    }
-
-    return st;
-};
-
-int History::action_from_str(const string& st, VMAction& action)
-{
-    if (st == "migrate")
-    {
-        action = MIGRATE_ACTION;
-    }
-    else if (st == "live-migrate")
-    {
-        action = LIVE_MIGRATE_ACTION;
-    }
-    else if (st == "terminate")
-    {
-        action = TERMINATE_ACTION;
-    }
-    else if (st == "terminate-hard")
-    {
-        action = TERMINATE_HARD_ACTION;
-    }
-    else if (st == "undeploy")
-    {
-        action = UNDEPLOY_ACTION;
-    }
-    else if (st == "undeploy-hard")
-    {
-        action = UNDEPLOY_HARD_ACTION;
-    }
-    else if (st == "hold")
-    {
-        action = HOLD_ACTION;
-    }
-    else if (st == "release")
-    {
-        action = RELEASE_ACTION;
-    }
-    else if (st == "stop")
-    {
-        action = STOP_ACTION;
-    }
-    else if (st == "suspend")
-    {
-        action = SUSPEND_ACTION;
-    }
-    else if (st == "resume")
-    {
-        action = RESUME_ACTION;
-    }
-    else if (st == "delete")
-    {
-        action = DELETE_ACTION;
-    }
-    else if (st == "delete-recreate")
-    {
-        action = DELETE_RECREATE_ACTION;
-    }
-    else if (st == "reboot")
-    {
-        action = REBOOT_ACTION;
-    }
-    else if (st == "reboot-hard")
-    {
-        action = REBOOT_HARD_ACTION;
-    }
-    else if (st == "resched")
-    {
-        action = RESCHED_ACTION;
-    }
-    else if (st == "unresched")
-    {
-        action = UNRESCHED_ACTION;
-    }
-    else if (st == "poweroff")
-    {
-        action = POWEROFF_ACTION;
-    }
-    else if (st == "poweroff-hard")
-    {
-        action = POWEROFF_HARD_ACTION;
-    }
-    else if (st == "disk-attach")
-    {
-        action = DISK_ATTACH_ACTION;
-    }
-    else if (st == "disk-detach")
-    {
-        action = DISK_DETACH_ACTION;
-    }
-    else if (st == "nic-attach")
-    {
-        action = NIC_ATTACH_ACTION;
-    }
-    else if (st == "nic-detach")
-    {
-        action = NIC_DETACH_ACTION;
-    }
-    else if (st == "disk-snapshot-create")
-    {
-        action = DISK_SNAPSHOT_CREATE_ACTION;
-    }
-    else if (st == "disk-snapshot-snap-delete")
-    {
-        action = DISK_SNAPSHOT_DELETE_ACTION;
-    }
-    else if (st == "disk-resize")
-    {
-        action = DISK_RESIZE_ACTION;
-    }
-    else if ( st == "deploy")
-    {
-        action = DEPLOY_ACTION;
-    }
-    else if ( st == "chown")
-    {
-        action = CHOWN_ACTION;
-    }
-    else if ( st == "chmod")
-    {
-        action = CHMOD_ACTION;
-    }
-    else if ( st == "updateconf")
-    {
-        action = UPDATECONF_ACTION;
-    }
-    else if ( st == "rename")
-    {
-        action = RENAME_ACTION;
-    }
-    else if ( st == "resize")
-    {
-        action = RESIZE_ACTION;
-    }
-    else if ( st == "update")
-    {
-        action = UPDATE_ACTION;
-    }
-    else if ( st == "snapshot-resize")
-    {
-        action = SNAPSHOT_CREATE_ACTION;
-    }
-    else if ( st == "snapshot-delete")
-    {
-        action = SNAPSHOT_DELETE_ACTION;
-    }
-    else if ( st == "snapshot-revert")
-    {
-        action = SNAPSHOT_REVERT_ACTION;
-    }
-    else if ( st == "disk-saveas")
-    {
-        action = DISK_SAVEAS_ACTION;
-    }
-    else if ( st == "disk-snapshot-revert")
-    {
-        action = DISK_SNAPSHOT_REVERT_ACTION;
-    }
-    else if ( st == "recover")
-    {
-        action = RECOVER_ACTION;
-    }
-    else if ( st == "retry")
-    {
-        action = RETRY_ACTION;
-    }
-    else if ( st == "monitor")
-    {
-        action = MONITOR_ACTION;
-    }
-    else
-    {
-        action = NONE_ACTION;
-        return -1;
-    }
-
-    return 0;
-};

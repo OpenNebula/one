@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -28,6 +28,32 @@
           <td class="value_td" colspan="2">{{element.ID}}</td>
         </tr>
         {{{renameTrHTML}}}
+      </tbody>
+    </table>
+  </div>
+  <div class="large-6 columns"></div>
+</div>
+<div class="row">
+  <div class="large-6 columns">
+    <table id="info_zone_table" class="dataTable">
+      <thead>
+        <tr>
+          <th colspan="3">{{tr "Server Pool"}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{tr "ID"}}</td>
+          <td>{{tr "Name"}}</td>
+          <td>{{tr "ENDPOINT"}}</td>
+        </tr>
+        {{#each serverPool}}
+          <tr>
+            <td>{{ID}}</td>
+            <td>{{NAME}}</td>
+            <td>{{ENDPOINT}}</td>
+          </tr>
+        {{/each}}
       </tbody>
     </table>
   </div>

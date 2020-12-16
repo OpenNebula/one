@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,8 @@ public class Template extends PoolElement
     private static final String INSTANTIATE = METHOD_PREFIX + "instantiate";
     private static final String CLONE    = METHOD_PREFIX + "clone";
     private static final String RENAME   = METHOD_PREFIX + "rename";
+    private static final String LOCK     = METHOD_PREFIX + "lock";
+    private static final String UNLOCK   = METHOD_PREFIX + "unlock";
 
     /**
      * Creates a new Template representation.
@@ -100,6 +102,20 @@ public class Template extends PoolElement
     public static OneResponse info(Client client, int id, boolean extended)
     {
         return client.call(INFO, id, extended);
+    }
+
+    /**
+     * Retrieves the information of the given Template.
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id for the template to retrieve the information from
+     * @param decrypt If true decrypt sensitive attributes
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse info(Client client, int id, boolean extended, boolean decrypt)
+    {
+        return client.call(INFO, id, extended, decrypt);
     }
 
     /**
@@ -350,6 +366,31 @@ public class Template extends PoolElement
     public static OneResponse rename(Client client, int id, String name)
     {
         return client.call(RENAME, id, name);
+    }
+
+    /**
+     * lock this template
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id.
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this template
+     *
+     * @param client XML-RPC Client.
+     * @param id The template id.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
     }
 
     // =================================
@@ -664,6 +705,27 @@ public class Template extends PoolElement
     public OneResponse rename(String name)
     {
         return rename(client, id, name);
+    }
+
+    /**
+     * Lock this template
+     *
+     * @param level Lock level.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse lock(int level)
+    {
+        return lock(client, id, level);
+    }
+
+    /**
+     * Unlock this template
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unlock()
+    {
+        return unlock(client, id);
     }
 
     // =================================

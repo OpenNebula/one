@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,6 +17,101 @@
 #include "VirtualMachinePoolXML.h"
 #include <stdexcept>
 #include <iomanip>
+#include <queue>
+
+using namespace std;
+
+/* -------------------------------------------------------------------------- */
+/**
+ * Parses value from string to given type
+ *
+ * @param val_s string value
+ * @param val parsed value
+ *
+ * @return 0 on success, -1 otherwise
+ */
+/* -------------------------------------------------------------------------- */
+template<typename T>
+static int from_str(const string& val_s, T& val)
+{
+    if (val_s.empty())
+    {
+        return -1;
+    }
+
+    istringstream iss(val_s);
+
+    iss >> val;
+
+    if (iss.fail() || !iss.eof())
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+template<>
+int from_str(const string& val_s, string& val)
+{
+    if (val_s.empty())
+    {
+        return -1;
+    }
+
+    val = val_s;
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/**
+ * Parses tokens to scpecific value with given type
+ *
+ * @param tokens values to parse
+ * @param value given type to parse it
+ *
+ * @return 0 on success, -1 otherwise
+ */
+/* -------------------------------------------------------------------------- */
+template<typename T>
+static int parse_args(queue<string>& tokens, T& value)
+{
+    if (tokens.empty())
+    {
+        return -1;
+    }
+
+    int rc = from_str(tokens.front(), value);
+
+    tokens.pop();
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+template<typename T, typename... Args>
+static int parse_args(queue<string>& tokens, T& value, Args&... args)
+{
+    if (tokens.empty())
+    {
+        return -1;
+    }
+
+    int rc = from_str(tokens.front(), value);
+
+    tokens.pop();
+
+    if ( rc != 0 )
+    {
+        return -1;
+    }
+
+    return parse_args(tokens, args...);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 int VirtualMachinePoolXML::set_up()
 {
@@ -26,8 +121,6 @@ int VirtualMachinePoolXML::set_up()
 
     if ( rc == 0 )
     {
-        map<int, ObjectXML*>::iterator it;
-
         if (objects.empty())
         {
             return -2;
@@ -35,10 +128,10 @@ int VirtualMachinePoolXML::set_up()
 
         vm_resources.clear();
 
-        for ( it = objects.begin(); it != objects.end(); ++it )
+        for ( auto it = objects.begin(); it != objects.end(); ++it )
         {
             vm_resources.add_resource(it->first);
-        } 
+        }
 
         if (NebulaLog::log_level() >= Log::DDDEBUG)
         {
@@ -54,11 +147,9 @@ int VirtualMachinePoolXML::set_up()
                 << " Image DS" << endl
                 << setw(60) << setfill('-') << "-" << setfill(' ') << endl;
 
-            for (it = objects.begin() ; it != objects.end() ; ++it)
+            for (auto it = objects.begin() ; it != objects.end() ; ++it)
             {
-                int cpu, mem;
-                long long disk;
-                vector<VectorAttribute *> pci;
+                HostShareCapacity sr;
 
                 string action = "DEPLOY";
 
@@ -66,7 +157,7 @@ int VirtualMachinePoolXML::set_up()
 
                 vm = static_cast<VirtualMachineXML *>(it->second);
 
-                vm->get_requirements(cpu, mem, disk, pci);
+                vm->get_capacity(sr);
 
                 if (vm->is_resched())
                 {
@@ -79,15 +170,14 @@ int VirtualMachinePoolXML::set_up()
 
                 oss << right << setw(8)  << action      << " "
                     << right << setw(8)  << it->first   << " "
-                    << right << setw(4)  << cpu         << " "
-                    << right << setw(11) << mem         << " "
-                    << right << setw(3)  << pci.size()  << " "
-                    << right << setw(11) << disk        << " ";
+                    << right << setw(4)  << sr.cpu        << " "
+                    << right << setw(11) << sr.mem        << " "
+                    << right << setw(3)  << sr.pci.size() << " "
+                    << right << setw(11) << sr.disk       << " ";
 
                 map<int,long long> ds_usage = vm->get_storage_usage();
-                map<int,long long>::const_iterator ds_it;
 
-                for ( ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
+                for ( auto ds_it = ds_usage.begin(); ds_it != ds_usage.end(); ds_it++)
                 {
                     oss << " DS " << ds_it->first << ": " << ds_it->second <<" ";
                 }
@@ -120,7 +210,7 @@ void VirtualMachinePoolXML::add_object(xmlNodePtr node)
 
     VirtualMachineXML* vm = new VirtualMachineXML(node);
 
-    objects.insert(pair<int,ObjectXML*>(vm->get_oid(),vm));
+    objects.insert(pair<int,ObjectXML*>(vm->get_oid(), vm));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -130,7 +220,7 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 {
     try
     {
-        client->call("one.vmpool.info", "iiii", &result, -2, -1, -1, -1);
+        client->call("one.vmpool.infoextended", "iiii", &result, -2, -1, -1, -1);
 
         return 0;
     }
@@ -148,7 +238,7 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) const
+int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,const string& extra_template) const
 {
     xmlrpc_c::value deploy_result;
 
@@ -164,22 +254,26 @@ int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched) co
         if (resched == true)
         {
             client->call("one.vm.migrate",// methodName
-                         "iibb",          // arguments format
+                         "iibbii",        // arguments format
                          &deploy_result,  // resultP
                          vid,             // argument 1 (VM)
                          hid,             // argument 2 (HOST)
                          live_resched,    // argument 3 (LIVE)
-                         false);          // argument 4 (ENFORCE)
+                         false,           // argument 4 (ENFORCE)
+                         -1,              // argument 5 (DS_ID)
+                         cold_migrate_mode // argument 6 (0 save, 1 poweroff, 2 poweroff hard)
+                         );
         }
         else
         {
             client->call("one.vm.deploy", // methodName
-                         "iibi",          // arguments format
+                         "iibis",         // arguments format
                          &deploy_result,  // resultP
                          vid,             // argument 1 (VM)
                          hid,             // argument 2 (HOST)
                          false,           // argument 3 (ENFORCE)
-                         dsid);           // argument 5 (SYSTEM SD)
+                         dsid,            // argument 4 (SYSTEM SD)
+                         extra_template.c_str()); // argument 5 (EXTRA TEMPLATE)
         }
     }
     catch (exception const& e)
@@ -224,7 +318,7 @@ int VirtualMachinePoolXML::update(int vid, const string &st) const
 
     try
     {
-        client->call("one.vm.update", "is", &result, vid, st.c_str());
+        client->call("one.vm.update", "isi", &result, vid, st.c_str(), 1);
     }
     catch (exception const& e)
     {
@@ -264,9 +358,7 @@ int VirtualMachineActionsPoolXML::set_up()
         oss.str("");
         oss << "VMs with scheduled actions:" << endl;
 
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
+        for (auto it=objects.begin(); it!=objects.end(); it++)
         {
             oss << " " << it->first;
         }
@@ -283,16 +375,133 @@ int VirtualMachineActionsPoolXML::set_up()
 int VirtualMachineActionsPoolXML::action(
         int             vid,
         const string&   action,
+        const string&   args,
         string&         error_msg) const
 {
     xmlrpc_c::value result;
     bool            success;
 
+    queue<string>  sargs;
+    string         tmp_arg;
+
+    stringstream    ss(args);
+
+    while (getline(ss, tmp_arg, ','))
+    {
+        sargs.push(tmp_arg);
+    }
+
     try
     {
         if (action == "snapshot-create")
         {
-            client->call("one.vm.snapshotcreate", "is", &result, vid, "");
+            string name = "";
+
+            int rc = parse_args(sargs, name);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: snapshot-create."
+                    " Format: snapshot-name";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotcreate",
+                         "is",
+                         &result,
+                         vid,
+                         name.c_str());
+        }
+        else if (action == "snapshot-revert")
+        {
+            int snapid = 0;
+
+            int rc = parse_args(sargs, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: snapshot-revert."
+                    " Format: snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotrevert", "ii", &result, vid, snapid);
+        }
+        else if (action == "snapshot-delete")
+        {
+            int snapid = 0;
+
+            int rc = parse_args(sargs, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: snapshot-delete."
+                    " Format: snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.snapshotdelete", "ii", &result, vid, snapid);
+        }
+        else if (action == "disk-snapshot-create")
+        {
+            int diskid  = 0;
+            string name = "";
+
+            int rc = parse_args(sargs, diskid, name);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: disk-snapshot-create."
+                    " Format: disk-id, snapshot-name";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotcreate",
+                         "iis",
+                         &result,
+                         vid,
+                         diskid,
+                         name.c_str());
+        }
+        else if (action == "disk-snapshot-revert")
+        {
+            int diskid = 0, snapid = 0;
+
+            int rc = parse_args(sargs, diskid, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: disk-snapshot-revert."
+                    " Format: disk-id, snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotrevert",
+                         "iii",
+                         &result,
+                         vid,
+                         diskid,
+                         snapid);
+        }
+        else if (action == "disk-snapshot-delete")
+        {
+            int diskid = 0, snapid = 0;
+
+            int rc = parse_args(sargs, diskid, snapid);
+
+            if (rc != 0)
+            {
+                error_msg = "Missing or malformed ARGS for: disk-snapshot-delete."
+                    " Format: disk-id, snapshot-id";
+                return -1;
+            }
+
+            client->call("one.vm.disksnapshotdelete",
+                         "iii",
+                         &result,
+                         vid,
+                         diskid,
+                         snapid);
         }
         else
         {
@@ -319,6 +528,7 @@ int VirtualMachineActionsPoolXML::action(
     return 0;
 }
 
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -332,9 +542,7 @@ int VirtualMachineRolePoolXML::set_up()
 
         oss << "VMs in VMGroups:" << endl;
 
-        map<int,ObjectXML*>::iterator it;
-
-        for (it=objects.begin();it!=objects.end();it++)
+        for (auto it=objects.begin(); it!=objects.end(); it++)
         {
             oss << " " << it->first;
         }

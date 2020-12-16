@@ -66,6 +66,10 @@ $black: #0a0a0a;
 $dark-black: #000;
 //$black: #333;
 $white: #fefefe;
+$isolated: #7d7b7b;
+
+$free: #cacaca;
+$busy: #4DBBD3;
 $deploying-color: #C7731F;
 $error-color: #cf280e;
 $powering_off-color: #cf280e;
@@ -583,7 +587,15 @@ $tooltip-pip-width: 1rem;
 $tooltip-pip-height: $tooltip-pip-width * 0.866;
 $tooltip-radius: $global-radius;
 
-// 36. Top Bar
+// 36. Lock
+// -----------
+
+$is-lock-cursor: pointer;
+$is-lock-color: $light-black;
+$is-unlock-cursor: pointer;
+$isunlock-color: $light-black;
+
+// 37. Top Bar
 // -----------
 
 $topbar-padding: 0.5rem;

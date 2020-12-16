@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -61,17 +61,19 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'arTabHTML': this.arTab.html("add_ar")
+      'arTabHTML': this.arTab.html("add_ar"),
+      'action': "Network.add_ar"
     });
   }
 
   function _setup(context) {
     var that = this;
     Foundation.reflow(context, 'abide');
-    
+
     that.arTab.setup(context, "add_ar");
 
     $('#submit_ar_reset_button', context).click(function(){
+      Sunstone.getDialog(DIALOG_ID).hide();
       Sunstone.getDialog(DIALOG_ID).reset();
       Sunstone.getDialog(DIALOG_ID).show();
     });

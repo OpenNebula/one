@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2002-2017, OpenNebula Project, OpenNebula Systems
+ * Copyright 2002-2020, OpenNebula Project, OpenNebula Systems
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public class OneSystem
     private static final String GROUP_QUOTA_INFO    = "groupquota.info";
     private static final String GROUP_QUOTA_UPDATE  = "groupquota.update";
 
-    public static final String VERSION = "5.5.80";
+    public static final String VERSION = "5.13.80";
 
     public OneSystem(Client client)
     {

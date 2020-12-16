@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -32,9 +32,9 @@ public:
    /**
     *  Index for this log entry (and previous)
     */
-    unsigned int index;
+    uint64_t index;
 
-    unsigned int prev_index;
+    uint64_t prev_index;
 
     /**
      *  Term where this log (and previous) entry was generated
@@ -57,7 +57,7 @@ public:
      *  The index in the federation, -1 if the log entry is not federated.
      *  At master fed_index is equal to index.
      */
-    int fed_index;
+    uint64_t fed_index;
 
     /**
      *  Sets callback to load register from DB
@@ -79,10 +79,11 @@ private:
  *  This class implements a generic DB interface with replication. The associated
  *  DB stores a log to replicate on followers.
  */
-class LogDB : public SqlDB, Callbackable
+class LogDB : public SqlDB
 {
 public:
-    LogDB(SqlDB * _db, bool solo, unsigned int log_retention);
+    LogDB(SqlDB * _db, bool solo, bool cache, uint64_t log_retention,
+            uint64_t limit_purge);
 
     virtual ~LogDB();
 
@@ -93,23 +94,24 @@ public:
      *  Loads a log record from the database. Memory is allocated by this class
      *  and needs to be freed.
      *    @param index of the associated logDB entry
+     *    @param prev_index of the associated logDB entry
      *    @param lr logDBrecored to load from the DB
      *    @return 0 on success -1 otherwise
      */
-    int get_log_record(unsigned int index, LogDBRecord& lr);
+    int get_log_record(uint64_t index, uint64_t prev_index, LogDBRecord& lr);
 
     /**
      *  Applies the SQL command of the given record to the database. The
-     *  timestamp of the record is updated.
+     *  timestamp of the record is updated. (Do not use for Federation)
      *    @param index of the log record
      */
-	int apply_log_records(unsigned int commit_index);
+    int apply_log_records(uint64_t commit_index);
 
     /**
-     *  Deletes the record in start_index and all that follow it
+     *  Deletes the record in start_index and all that follow it (do not use for Federation)
      *    @param start_index first log record to delete
      */
-    int delete_log_records(unsigned int start_index);
+    int delete_log_records(uint64_t start_index);
 
     /**
      *  Inserts a new log record in the database. This method should be used
@@ -118,12 +120,23 @@ public:
      *    @param term for the record
      *    @param sql command of the record
      *    @param timestamp associated to this record
-     *    @param fed_index index in the federation -1 if not federated
+     *    @param fed_index index in the federation UINT64_MAX if not federated
+     *    @param replace if true will replace the record if it exists
      *
-     *    @return -1 on failure, index of the inserted record on success
+     *    @return 0 on sucess, -1 on failure
      */
-    int insert_log_record(unsigned int index, unsigned int term,
-            std::ostringstream& sql, time_t timestamp, int fed_index);
+    int insert_log_record(uint64_t index, unsigned int term,
+            std::ostringstream& sql, time_t timestamp, uint64_t fed_index,
+            bool replace);
+
+    /**
+     *  Replicate a log record on followers. It will also replicate any missing
+     *  previous records
+     *    @param rindex of the record to replicate
+     *
+     *    @return 0 on success, -1 in case of failure
+     */
+    int replicate(uint64_t rindex);
 
     //--------------------------------------------------------------------------
     // Functions to manage the Raft state. Log record 0, term -1
@@ -133,19 +146,19 @@ public:
      *    @param raft attributes in XML format
      *    @return 0 on success
      */
-    int update_raft_state(std::string& raft_xml);
+    int update_raft_state(std::string name, std::string& raft_xml);
 
     /**
      *  Returns the raft state attributes as stored in the log
      *    @param raft_xml attributes in xml
      *    @return 0 on success
      */
-    int get_raft_state(std::string &raft_xml);
+    int get_raft_state(std::string name, std::string &raft_xml);
 
     /**
      *  Purge log records. Delete old records applied to database upto the
      *  LOG_RETENTION configuration variable.
-     *    @return 0 on success
+     *    @return number of records deleted from DB
      */
     int purge_log();
 
@@ -156,46 +169,55 @@ public:
      *  This function replicates the DB changes on followers before updating
      *  the DB state
      */
-    int exec_wr(ostringstream& cmd)
+    int exec_wr(std::ostringstream& cmd)
     {
-        return _exec_wr(cmd, -1);
+        return _exec_wr(cmd, UINT64_MAX);
     }
 
-    int exec_federated_wr(ostringstream& cmd)
+    int exec_wr(std::ostringstream& cmd, Callbackable* obj)
+    {
+        return exec_wr(cmd);
+    }
+
+    int exec_federated_wr(std::ostringstream& cmd)
     {
         return _exec_wr(cmd, 0);
     }
 
-    int exec_federated_wr(ostringstream& cmd, int index)
+    int exec_federated_wr(std::ostringstream& cmd, uint64_t index)
     {
         return _exec_wr(cmd, index);
     }
 
-    int exec_local_wr(ostringstream& cmd)
+    int exec_local_wr(std::ostringstream& cmd)
     {
         return db->exec_local_wr(cmd);
     }
 
-    int exec_rd(ostringstream& cmd, Callbackable* obj)
+    int exec_rd(std::ostringstream& cmd, Callbackable* obj)
     {
         return db->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const string& str)
+    char * escape_str(const std::string& str) const
     {
         return db->escape_str(str);
     }
 
-    void free_str(char * str)
+    void free_str(char * str) const
     {
         db->free_str(str);
     }
 
-    bool multiple_values_support()
+    bool supports(SqlDB::SqlFeature ft) const
     {
-        return db->multiple_values_support();
+        return db->supports(ft);
     }
 
+    std::string limit_string(int start_id, int end_id) const
+    {
+        return db->limit_string(start_id, end_id);
+    }
     // -------------------------------------------------------------------------
     // Database methods
     // -------------------------------------------------------------------------
@@ -208,40 +230,63 @@ public:
      *
      *    @return 0 on success
      */
-    int setup_index(int& last_applied, int& last_index);
+    int setup_index(uint64_t& last_applied, uint64_t& last_index);
 
     /**
      *  Gets the index & term of the last record in the log
      *    @param _i the index
      *    @param _t the term
      */
-    void get_last_record_index(unsigned int& _i, unsigned int& _t);
+    void get_last_record_index(uint64_t& _i, unsigned int& _t);
 
     // -------------------------------------------------------------------------
     // Federate log methods
     // -------------------------------------------------------------------------
     /**
-     *  Get last federated index, and previous
+     *  Get last federated index
      */
-    int last_federated();
+    uint64_t last_federated();
 
-    int previous_federated(int index);
+    /**
+     *  Get previous federated index
+     */
+    uint64_t previous_federated(uint64_t index);
 
-    int next_federated(int index);
+    /**
+     *  Get next federated index
+     */
+    uint64_t next_federated(uint64_t index);
 
-protected:
-    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    /**
+     *  Returns a pointer to the non-federated version this database. This
+     *  is need for objects that stores its data in both federated and
+     *  non-federated tables: user, group.
+     *
+     *  @return pointer to the non-federated logDB
+     */
+    virtual SqlDB * get_local_db()
     {
-        return -1;
+        return this;
     }
 
+protected:
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
+    {
+        return SqlDB::INTERNAL;
+    };
+
 private:
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  The Database was started in solo mode (no server_id defined)
      */
     bool solo;
+
+    /**
+     * True for cache servers
+     */
+    bool cache;
 
     /**
      *  Pointer to the underlying DB store
@@ -251,17 +296,17 @@ private:
     /**
      *  Index to be used by the next logDB record
      */
-    unsigned int next_index;
+    uint64_t next_index;
 
     /**
      *  Index of the last log entry applied to the DB state
      */
-    unsigned int last_applied;
+    uint64_t last_applied;
 
     /**
      *  Index of the last (highest) log entry
      */
-    unsigned int last_index;
+    uint64_t last_index;
 
     /**
      *  term of the last (highest) log entry
@@ -271,7 +316,12 @@ private:
     /**
      *  Max number of records to keep in the database
      */
-    unsigned int log_retention;
+    uint64_t log_retention;
+
+    /**
+     *  Max number of logs purged on each call.
+     */
+    uint64_t limit_purge;
 
     // -------------------------------------------------------------------------
     // Federated Log
@@ -280,7 +330,7 @@ private:
      *  The federated log stores a map with the federated log index and its
      *  corresponding local index. For the master both are the same
      */
-    std::set<int> fed_log;
+    std::set<uint64_t> fed_log;
 
     /**
      *  Generates the federated index, it should be called whenever a server
@@ -291,25 +341,15 @@ private:
     // -------------------------------------------------------------------------
     // DataBase implementation
     // -------------------------------------------------------------------------
-    static const char * table;
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
 
     /**
      *  Replicates writes in the followers and apply changes to DB state once
      *  it is safe to do so.
      *
-     *  @param federated -1 not federated (fed_index = -1), 0 generate fed index
-     *  (fed_index = index), > 0 set (fed_index = federated)
+     *  @param federated UINT64_MAX not federated (fed_index = UINT64_MAX), 0
+     *  generate fed index (fed_index = index), > 0 set (fed_index = federated)
      */
-    int _exec_wr(ostringstream& cmd, int federated);
-
-    /**
-     *  Callback to store the IDs of federated records in the federated log.
-     */
-    int index_cb(void *null, int num, char **values, char **names);
+    int _exec_wr(std::ostringstream& cmd, uint64_t federated);
 
     /**
      *  Applies the SQL command of the given record to the database. The
@@ -325,10 +365,12 @@ private:
      *    @param sql command to modify DB state
      *    @param ts timestamp of record application to DB state
      *    @param fi the federated index -1 if none
+     *    @param replace if true will replace the record if it exists
      *
      *    @return 0 on success
      */
-    int insert(int index, int term, const std::string& sql, time_t ts, int fi);
+    int insert(uint64_t index, unsigned int term, const std::string& sql,
+               time_t ts, uint64_t fi, bool replace);
 
     /**
      *  Inserts a new log record in the database. If the record is successfully
@@ -340,8 +382,8 @@ private:
      *
      *    @return -1 on failure, index of the inserted record on success
      */
-    int insert_log_record(unsigned int term, std::ostringstream& sql,
-            time_t timestamp, int federated);
+    uint64_t insert_log_record(unsigned int term, std::ostringstream& sql,
+            time_t timestamp, uint64_t fed_index);
 };
 
 // -----------------------------------------------------------------------------
@@ -355,38 +397,50 @@ public:
 
     virtual ~FedLogDB(){};
 
-    int exec_wr(ostringstream& cmd);
+    int exec_wr(std::ostringstream& cmd);
 
-    int exec_local_wr(ostringstream& cmd)
+    int exec_local_wr(std::ostringstream& cmd)
     {
         return _logdb->exec_local_wr(cmd);
     }
 
-    int exec_rd(ostringstream& cmd, Callbackable* obj)
+    int exec_rd(std::ostringstream& cmd, Callbackable* obj)
     {
         return _logdb->exec_rd(cmd, obj);
     }
 
-    char * escape_str(const string& str)
+    char * escape_str(const std::string& str) const
     {
         return _logdb->escape_str(str);
     }
 
-    void free_str(char * str)
+    void free_str(char * str) const
     {
         _logdb->free_str(str);
     }
 
-    bool multiple_values_support()
+    bool supports(SqlDB::SqlFeature ft) const
     {
-        return _logdb->multiple_values_support();
+        return _logdb->supports(ft);
+    }
+
+    /**
+     *  Returns a pointer to the non-federated version of this database. This
+     *  is need for objects that stores its data in both federated and
+     *  non-federated tables: user, group.
+     *
+     *  @return pointer to the non-federated logDB
+     */
+    virtual SqlDB * get_local_db()
+    {
+        return _logdb->get_local_db();
     }
 
 protected:
-    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
+    int exec_ext(std::ostringstream& cmd, Callbackable *obj, bool quiet)
     {
-        return -1;
-    }
+        return SqlDB::INTERNAL;
+    };
 
 private:
 

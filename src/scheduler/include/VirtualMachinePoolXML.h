@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,7 +21,6 @@
 #include "PoolXML.h"
 #include "VirtualMachineXML.h"
 
-using namespace std;
 
 class VirtualMachinePoolXML : public PoolXML
 {
@@ -29,8 +28,12 @@ public:
 
     VirtualMachinePoolXML(Client*        client,
                           unsigned int   machines_limit,
-                          bool           _live_resched):
-        PoolXML(client, machines_limit), live_resched(_live_resched){};
+                          bool           _live_resched,
+                          unsigned int   _cold_migrate_mode)
+        : PoolXML(client, machines_limit)
+        , live_resched(_live_resched)
+        , cold_migrate_mode(_cold_migrate_mode)
+    {}
 
     virtual ~VirtualMachinePoolXML(){};
 
@@ -59,8 +62,10 @@ public:
      *    @param vid the VM id
      *    @param hid the id of the target host
      *    @param resched the machine is going to be rescheduled
+     *    @param extra template with result nics
      */
-    int dispatch(int vid, int hid, int dsid, bool resched) const;
+    int dispatch(int vid, int hid, int dsid, bool resched,
+                 const std::string& extra_template) const;
 
     /**
      *  Update the VM template
@@ -69,7 +74,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int update(int vid, const string &st) const;
+    int update(int vid, const std::string &st) const;
 
     /**
      *  Update the VM template
@@ -79,7 +84,7 @@ public:
      */
     int update(VirtualMachineXML * vm) const
     {
-        string xml;
+        std::string xml;
 
         return update(vm->get_oid(), vm->get_template(xml));
     };
@@ -87,7 +92,7 @@ public:
     /**
      *  Returns a vector of matched hosts
      */
-    const vector<Resource *> get_vm_resources()
+    const std::vector<Resource *>& get_vm_resources() const
     {
         return vm_resources.get_resources();
     }
@@ -102,11 +107,11 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
         // Pending or ((running or unknown) and resched))
         return get_nodes("/VM_POOL/VM[STATE=1 or "
-            "((LCM_STATE=3 or LCM_STATE=16) and RESCHED=1)]", content);
+            "((STATE=8 or (LCM_STATE=3 or LCM_STATE=16)) and RESCHED=1)]", content);
     }
 
     virtual void add_object(xmlNodePtr node);
@@ -117,6 +122,8 @@ protected:
      * Do live migrations to resched VMs
      */
     bool live_resched;
+
+    unsigned int cold_migrate_mode;
 
 private:
     /**
@@ -134,7 +141,7 @@ public:
 
     VirtualMachineActionsPoolXML(Client*       client,
                                  unsigned int  machines_limit):
-        VirtualMachinePoolXML(client, machines_limit, false){};
+        VirtualMachinePoolXML(client, machines_limit, false, 0){};
 
     virtual ~VirtualMachineActionsPoolXML(){};
 
@@ -152,20 +159,24 @@ public:
      *
      * @param vid The VM id
      * @param action Action argument (terminate, hold, release...)
+     * @param args Action arguments
      * @param error_msg Error reason, if any
      *
      * @return 0 on success, -1 otherwise
      */
-    int action(int vid, const string &action, string &error_msg) const;
+    int action(int vid,
+               const std::string &action,
+               const std::string &args,
+               std::string &error_msg) const;
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
-        oss << "/VM_POOL/VM/USER_TEMPLATE/SCHED_ACTION[TIME < " << time(0)
-            << " and not(DONE > 0)]/../..";
+        oss << "/VM_POOL/VM/USER_TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
+            << " and (not(DONE > 0) or boolean(REPEAT))) or ( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
 
         return get_nodes(oss.str().c_str(), content);
     }
@@ -179,7 +190,7 @@ class VirtualMachineRolePoolXML : public VirtualMachinePoolXML
 public:
 
     VirtualMachineRolePoolXML(Client * client, unsigned int machines_limit):
-        VirtualMachinePoolXML(client, machines_limit, false){};
+        VirtualMachinePoolXML(client, machines_limit, false, 0){};
 
     virtual ~VirtualMachineRolePoolXML(){};
 
@@ -194,9 +205,9 @@ public:
 
 protected:
 
-    int get_suitable_nodes(vector<xmlNodePtr>& content)
+    int get_suitable_nodes(std::vector<xmlNodePtr>& content) const override
     {
-        ostringstream oss;
+        std::ostringstream oss;
 
         oss << "/VM_POOL/VM[TEMPLATE/VMGROUP/ROLE]";
 

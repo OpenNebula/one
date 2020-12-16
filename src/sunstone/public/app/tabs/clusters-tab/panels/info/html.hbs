@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -38,12 +38,12 @@
     <table class="dataTable">
       <thead>
         <tr>
-          <th colspan="4">{{tr "Overcommitment"}} 
+          <th colspan="4">{{tr "Overcommitment"}}
           <span class="right">
             <button id="update_reserved" type="button" class="button small success update_reserved right radius">
               {{tr "Update"}}
             </button>
-          </span> 
+          </span>
           </th>
         </tr>
       </thead>
@@ -52,13 +52,13 @@
             <td class="key_td">{{tr "Reserved CPU"}}</td>
             <td><input type="range" name="rangeInput" id="change_bar_cpu" min="-100" value="{{percentCPU}}" max="100">
             <label align="center">0%</label></td>
-            <td><input type="text" id="textInput_reserved_cpu" value="{{percentCPU}}" min="-100" max="100" size="1"></td>
+            <td><input type="text" id="textInput_reserved_cpu" value="{{percentCPUinput}}" min="-100" max="100" size="1"></td>
           </tr>
           <tr colspan="3">
             <td class="key_td">{{tr "Reserved Memory"}}</td>
             <td><input type="range" name="rangeInput" id="change_bar_mem" min="-100" value="{{percentMEM}}" max="100">
             <label align="center">0%</label></td>
-            <td><input type="text" id="textInput_reserved_mem" value="{{percentMEM}}" min="-100" max="100" size="1"></td>
+            <td><input type="text" id="textInput_reserved_mem" value="{{percentMEMinput}}" min="-100" max="100" size="1"></td>
           </tr>
       </tbody>
     </table>

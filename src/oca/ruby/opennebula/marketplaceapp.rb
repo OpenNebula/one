@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,43 +14,53 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'opennebula/lockable_ext'
+require 'opennebula/marketplaceapp_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
+
     class MarketPlaceApp < PoolElement
+
         #######################################################################
         # Constants and Class Methods
         #######################################################################
 
         MARKETPLACEAPP_METHODS = {
-            :info       => "marketapp.info",
-            :allocate   => "marketapp.allocate",
-            :delete     => "marketapp.delete",
-            :update     => "marketapp.update",
-            :chown      => "marketapp.chown",
-            :chmod      => "marketapp.chmod",
-            :rename     => "marketapp.rename",
-            :enable     => "marketapp.enable"
+            :info       => 'marketapp.info',
+            :allocate   => 'marketapp.allocate',
+            :delete     => 'marketapp.delete',
+            :update     => 'marketapp.update',
+            :chown      => 'marketapp.chown',
+            :chmod      => 'marketapp.chmod',
+            :rename     => 'marketapp.rename',
+            :enable     => 'marketapp.enable',
+            :lock       => 'marketapp.lock',
+            :unlock     => 'marketapp.unlock'
         }
 
-        MARKETPLACEAPP_STATES=%w{INIT READY LOCKED ERROR DISABLED}
+        MARKETPLACEAPP_STATES = %w{INIT READY LOCKED ERROR DISABLED}
 
         SHORT_MARKETPLACEAPP_STATES={
-            "INIT"      => "ini",
-            "READY"     => "rdy",
-            "LOCKED"    => "lck",
-            "ERROR"     => "err",
-            "DISABLED"  => "dis"
+            'INIT'      => 'ini',
+            'READY'     => 'rdy',
+            'LOCKED'    => 'lck',
+            'ERROR'     => 'err',
+            'DISABLED'  => 'dis'
         }
 
-        MARKETPLACEAPP_TYPES=%w{UNKNOWN IMAGE VMTEMPLATE SERVICE_TEMPLATE}
+        MARKETPLACEAPP_TYPES = %w{UNKNOWN
+                                  IMAGE
+                                  VMTEMPLATE
+                                  SERVICE_TEMPLATE}
 
         SHORT_MARKETPLACEAPP_TYPES = {
-            "UNKNOWN"           => "unk",
-            "IMAGE"             => "img",
-            "VMTEMPLATE"        => "tpl",
-            "SERVICE_TEMPLATE"  => "srv"
+            'UNKNOWN'          => 'unk',
+            'IMAGE'            => 'img',
+            'VMTEMPLATE'       => 'tpl',
+            'SERVICE_TEMPLATE' => 'srv'
         }
+
         # Creates a MarketPlace description with just its identifier
         # this method should be used to create plain MarketPlace objects.
         # +id+ the id of the user
@@ -58,18 +68,20 @@ module OpenNebula
         # Example:
         #  app = MarketPlaceApp.new(MarketPlace.build_xml(3),rpc_client)
         #
-        def MarketPlaceApp.build_xml(pe_id=nil)
+        def MarketPlaceApp.build_xml(pe_id = nil)
             if pe_id
                 app_xml = "<MARKETPLACEAPP><ID>#{pe_id}</ID></MARKETPLACEAPP>"
             else
-                app_xml = "<MARKETPLACEAPP></MARKETPLACEAPP>"
+                app_xml = '<MARKETPLACEAPP></MARKETPLACEAPP>'
             end
 
-            XMLElement.build_xml(app_xml,'MARKETPLACEAPP')
+            XMLElement.build_xml(app_xml, 'MARKETPLACEAPP')
         end
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, MARKETPLACEAPP_METHODS)
+
             super(xml, client)
         end
 
@@ -78,7 +90,7 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given marketplace app
-        def info()
+        def info
             super(MARKETPLACEAPP_METHODS[:info], 'MARKETPLACEAPP')
         end
 
@@ -96,7 +108,7 @@ module OpenNebula
         end
 
         # Deletes the marketplace app
-        def delete()
+        def delete
             super(MARKETPLACEAPP_METHODS[:delete])
         end
 
@@ -108,7 +120,7 @@ module OpenNebula
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-        def update(new_template, append=false)
+        def update(new_template, append = false)
             super(MARKETPLACEAPP_METHODS[:update], new_template, append ? 1 : 0)
         end
 
@@ -150,84 +162,17 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def rename(name)
-            return call(MARKETPLACEAPP_METHODS[:rename], @pe_id, name)
-        end
-
-        # Exports this app to a suitable OpenNebula object
-        # @param appid [Integer] id of the marketplace app
-        # @param options [Hash] to control the export behavior
-        #   dsid [Integer] datastore to save images
-        #   name [String] of the new object
-        #   vmtemplate_name [String] name for the VM Template, if the App has one
-        #
-        # @return [Hash, OpenNebula::Error] with the ID and type of the created
-        # objects. Instead of an ID, the array may contain OpenNebula::Error with
-        # specific object creation errors
-        #   { :vm => [ vm ids/OpenNebula::Error ],
-        #     :vmtemplate => [ vmtemplates ids/OpenNebula::Error ],
-        #     :image => [ vm ids/OpenNebula::Error ] }
-        def export(options={})
-            return Error.new("Missing datastore id") if options[:dsid].nil?
-            return Error.new("Missing name to export app") if options[:name].nil?
-
-            rc  = info
-            return rc if OpenNebula.is_error?(rc)
-            return Error.new("App is not in READY state") if state_str!="READY"
-
-            case type_str
-            when "IMAGE"
-                if !self['APPTEMPLATE64'].nil?
-                    tmpl=Base64::decode64(self['APPTEMPLATE64'])
-                else
-                    tmpl=""
-                end
-
-                name = options[:name] || "marketapp-#{self.id}"
-
-                tmpl << "\n"
-                tmpl << "NAME=\"" << name << "\"\n"
-                tmpl << "FROM_APP=\""       << self['ID'] << "\"\n"
-
-                image = Image.new(Image.build_xml, @client)
-                rc    = image.allocate(tmpl, options[:dsid])
-
-                return { :image => [rc] } if OpenNebula.is_error?(rc)
-
-                image_id = image.id
-                vmtpl_id = -1
-
-                if !self['TEMPLATE/VMTEMPLATE64'].nil?
-                    tmpl=Base64::decode64(self['TEMPLATE/VMTEMPLATE64'])
-
-                    tmpl_name = options[:vmtemplate_name] || name
-
-                    tmpl << "\nNAME=\"#{tmpl_name}\"\n"
-                    tmpl << "DISK=[ IMAGE_ID = #{image.id} ]\n"
-
-                    vmtpl = Template.new(Template.build_xml, @client)
-                    rc    = vmtpl.allocate(tmpl)
-
-                    if OpenNebula.is_error?(rc)
-                        return { :image => [image_id], :vmtemplate => [rc] }
-                    end
-
-                    vmtpl_id = vmtpl.id
-                end
-
-                return { :image => [image_id], :vmtemplate => [vmtpl_id] }
-            else
-                return Error.new("App type #{app.type_str} not supported")
-            end
+            call(MARKETPLACEAPP_METHODS[:rename], @pe_id, name)
         end
 
         # Enables this app
         def enable
-            return call(MARKETPLACEAPP_METHODS[:enable], @pe_id, true)
+            call(MARKETPLACEAPP_METHODS[:enable], @pe_id, true)
         end
 
         # Enables this app
         def disable
-            return call(MARKETPLACEAPP_METHODS[:enable], @pe_id, false)
+            call(MARKETPLACEAPP_METHODS[:enable], @pe_id, false)
         end
 
         # ---------------------------------------------------------------------
@@ -263,5 +208,7 @@ module OpenNebula
         def short_state_str
             SHORT_MARKETPLACEAPP_STATES[state_str]
         end
+
     end
+
 end

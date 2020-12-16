@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -64,6 +64,14 @@ get '/service/:id' do
     af_format_response(resp)
 end
 
+put '/service/:id' do
+    client = af_build_client
+
+    resp = client.put('/service/' + params[:id], @request_body)
+
+    af_format_response(resp)
+end
+
 delete '/service/:id' do
     client = af_build_client
 
@@ -76,6 +84,14 @@ post '/service/:id/action' do
     client = af_build_client
 
     resp = client.post('/service/' + params[:id] + '/action', @request_body)
+
+    af_format_response(resp)
+end
+
+post '/service/:id/scale' do
+    client = af_build_client
+
+    resp = client.post('/service/' + params[:id] + '/scale', @request_body)
 
     af_format_response(resp)
 end
@@ -127,7 +143,7 @@ end
 
 post '/service_template/:id/action' do
     client = af_build_client
-
+    client.set_content_type(content_type)
     resp = client.post('/service_template/' + params[:id] + '/action', @request_body)
 
     af_format_response(resp)
@@ -135,7 +151,7 @@ end
 
 post '/service_template' do
     client = af_build_client
-
+    client.set_content_type(content_type)
     resp = client.post('/service_template', @request_body)
 
     af_format_response(resp)

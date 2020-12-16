@@ -1,3 +1,19 @@
+.sunstone-header{
+
+  &.support_place{
+    text-align: right;
+    margin: 20px 2rem -2rem 0px;
+
+    .officialy_support{
+      font-family: $body-font-family;
+      font-weight: bold;
+      color: $dark-primary;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+  }
+}
+
 #menu {
 
   #navigation {
@@ -11,15 +27,15 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    padding: 0;
+    margin: 1.4rem 0.5rem;
 
     &.topTab {
-
-
       & > a {
         color: $light-black;
       }
     }
-    &.subTab > a {
+    &.subTab > * {
       padding: 0.5rem 1rem;
       color: $dark-gray;
     }
@@ -31,37 +47,50 @@
 
     a {
       font-weight: bold;
+      padding: 0px;
     }
 
     a:hover {
       color: $black;
     }
+
+    li {
+      margin: .5rem 0;
+    }
   }
 
   .nested {
     margin-left: 0;
-
-    & > li:last-child {
-      padding-bottom: 1rem;
-    }
   }
 
   #li_support-tab {
+    margin-top: 1rem;
     a {
-      margin-top: 1rem;
       border: 1px solid #dfdfdf;
       padding: 1rem;
       background: $bg-li-support-tab;
+      cursor: default;
 
       .support_connect {
+        .officialy_support{
+          padding: 0px;
+          color: $dark-primary;
+        }
         span {
-          display: inline-box;
+          display: block;
           color: $dark-gray;
           padding: 0.5rem 0 0 0;
         }
-
         .button {
           margin-top: 1rem;
+        }
+      }
+
+      .support_not_connected {
+        text-align: center;
+
+        button.alert {
+          margin: 0.5rem auto;
         }
       }
 
@@ -70,9 +99,20 @@
         .support_pending,
         .support_open_value,
         .support_pending_value {
-          display: inline-block;
+          display: block;
           color: $dark-gray;
           padding: 0.5rem 0 0 0;
+        }
+        .table{
+          display: table;
+          width: 100%;
+          *{
+            display: table-cell !important;
+          }
+        }
+        .officialy_support{
+          padding: 0px;
+          color: #4DBBD3;
         }
 
         .button {

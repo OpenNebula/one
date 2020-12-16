@@ -1,0 +1,7 @@
+ARGUMENTS = "$TEMPLATE -m -p 5"
+COMMAND   = "ft/host_error.rb"
+NAME      = "host_error"
+STATE     = "ERROR"
+REMOTE    = "no"
+RESOURCE  = HOST
+TYPE      = state

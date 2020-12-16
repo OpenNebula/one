@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -19,32 +19,40 @@
 if [ -z "$ONE_LOCATION" ]; then
     ONE_PID=/var/run/one/oned.pid
     ONE_SCHEDPID=/var/run/one/sched.pid
+    ONE_HEMPID=/var/run/one/hem.pid
     ONE_CONF=/etc/one/oned.conf
     ONE_DB=/var/lib/one/one.db
     ONE_LOG=/var/log/one/oned.log
     ONE_SCHED_LOG=/var/log/one/sched.log
+    ONE_HEM_LOG=/var/log/one/onehem.log
     ONE_XMLRPC_LOG=/var/log/one/one_xmlrpc.log
+    ONE_MONITOR_LOG=/var/log/one/monitor.log
 
     ONED=/usr/bin/oned
     ONE_SCHEDULER=/usr/bin/mm_sched
+    ONE_HEM=/usr/bin/onehem-server
 
     LOCK_FILE=/var/lock/one/one
 else
     ONE_PID=$ONE_LOCATION/var/oned.pid
     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
+    ONE_HEMPID=$ONE_LOCATION/var/hem.pid
     ONE_CONF=$ONE_LOCATION/etc/oned.conf
     ONE_DB=$ONE_LOCATION/var/one.db
     ONE_LOG=$ONE_LOCATION/var/oned.log
     ONE_SCHED_LOG=$ONE_LOCATION/var/sched.log
+    ONE_HEM_LOG=$ONE_LOCATION/var/onehem.log
     ONE_XMLRPC_LOG=$ONE_LOCATION/var/one_xmlrpc.log
+    ONE_MONITOR_LOG=$ONE_LOCATION/var/monitor.log
 
     ONED=$ONE_LOCATION/bin/oned
     ONE_SCHEDULER=$ONE_LOCATION/bin/mm_sched
+    ONE_HEM=$ONE_LOCATION/bin/onehem-server
 
-    LOCK_FILE=$ONE_LOCATION/var/.lock
+    LOCK_FILE=$ONE_LOCATION/var/lock/.lock
 fi
 
-KILL_9_SECONDS=5
+KILL_9_SECONDS=10
 BACKUP="true"
 
 #------------------------------------------------------------------------------
@@ -74,10 +82,11 @@ setup()
             ONESCHEDPID=`cat $ONE_SCHEDPID`
             ps $ONESCHEDPID > /dev/null 2>&1
             if [ $? -eq 0 ]; then
-                echo "The scheduler is still running (PID:$ONEPID). Please try 'one stop' first."
+                echo "The scheduler is still running (PID:$ONESCHEDPID). Please try 'one stop' first."
                 exit 1
             fi
         fi
+
         echo "Stale .lock detected. Erasing it."
         rm $LOCK_FILE
     fi
@@ -91,6 +100,8 @@ stop()
     stop_oned
 
     stop_sched
+
+    stop_hem
 }
 
 stop_oned()
@@ -121,6 +132,11 @@ stop_sched()
     fi
 }
 
+stop_hem()
+{
+    onehem-server stop > /dev/null 2>&1
+}
+
 #------------------------------------------------------------------------------
 # Function that starts the daemons
 #------------------------------------------------------------------------------
@@ -133,6 +149,11 @@ start()
 
     if [ ! -x "$ONE_SCHEDULER" ]; then
         echo "Can not find $ONE_SCHEDULER."
+        exit 1
+    fi
+
+    if [ ! -x "$ONE_HEM" ]; then
+        echo "Can not find $ONE_HEM."
         exit 1
     fi
 
@@ -152,6 +173,9 @@ start()
 
     # Start the scheduler
     start_sched
+
+    # Start hook execution manager server
+    start_hem
 
     # Wait for the daemons to warm up
     sleep 3
@@ -183,6 +207,7 @@ start_oned()
     if [ "$BACKUP" = "true" ];then
         [ -f "$ONE_LOG" ] && mv $ONE_LOG{,.$(date '+%Y%m%d%H%M%S')}
         [ -f "$ONE_XMLRPC_LOG" ] && mv $ONE_XMLRPC_LOG{,.$(date '+%Y%m%d%H%M%S')}
+        [ -f "$ONE_MONITOR_LOG" ] && mv $ONE_MONITOR_LOG{,.$(date '+%Y%m%d%H%M%S')}
     fi
     $ONED -f 2>&1 &
 
@@ -215,6 +240,22 @@ start_sched()
     fi
 }
 
+start_hem()
+{
+    if [ "$BACKUP" = "true" ];then
+        [ -f "$ONE_HEM_LOG" ] && mv $ONE_HEM_LOG{,.$(date '+%Y%m%d%H%M%S')}
+    fi
+
+    onehem-server start > /dev/null 2>&1
+
+    LASTRC=$?
+
+    if [ $LASTRC -ne 0 ]; then
+        echo "Error starting onehem-server"
+        exit 1
+    fi
+}
+
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
@@ -230,13 +271,11 @@ case "$1" in
         ;;
     stop)
         stop
-        echo "oned and scheduler stopped"
         ;;
     restart)
         stop
         setup
         start
-        echo "oned and scheduler restarted"
         ;;
     start-sched)
         start_sched

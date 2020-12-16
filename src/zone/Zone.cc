@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -16,18 +16,12 @@
 
 #include "Zone.h"
 #include "ZoneServer.h"
+#include "OneDB.h"
+#include "NebulaLog.h"
+
+using namespace std;
 
 /* ------------------------------------------------------------------------ */
-
-const char * Zone::table = "zone_pool";
-
-const char * Zone::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Zone::db_bootstrap = "CREATE TABLE IF NOT EXISTS zone_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
 
 const char * ZoneServers::SERVER_NAME    = "SERVER";
 
@@ -36,17 +30,18 @@ const char * ZoneServers::SERVER_ID_NAME = "ID";
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-Zone::Zone(int id, Template* zone_template):
-        PoolObjectSQL(id, ZONE, "", -1, -1, "", "", table), servers_template(
-                false, '=', "SERVER_POOL"), servers(0)
+Zone::Zone(int id, unique_ptr<Template> zone_template):
+    PoolObjectSQL(id, ZONE, "", -1, -1, "", "", one_db::zone_table),
+    servers_template(false, '=', "SERVER_POOL"),
+    servers(0)
 {
-    if (zone_template != 0)
+    if (zone_template)
     {
-        obj_template = zone_template;
+        obj_template = move(zone_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 }
 
@@ -55,8 +50,6 @@ Zone::Zone(int id, Template* zone_template):
 
 Zone::~Zone()
 {
-    delete obj_template;
-
     delete servers;
 };
 
@@ -128,14 +121,14 @@ int Zone::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the zone
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -149,25 +142,29 @@ int Zone::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::zone_table << " SET "
+            << "name = '"    <<   sql_name  << "', "
+            << "body = '"    <<   sql_xml   << "', "
+            << "uid = "      <<   uid       << ", "
+            << "gid = "      <<   gid       << ", "
+            << "owner_u = "  <<   owner_u   << ", "
+            << "group_u = "  <<   group_u   << ", "
+            << "other_u = "  <<   other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::zone_table
+            << " (" << one_db::zone_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
 
     rc = db->exec_wr(oss);
 
@@ -196,6 +193,15 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int Zone::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::zone_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -302,9 +308,6 @@ int Zone::post_update_template(string& error)
 
 int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
 {
-    vector<VectorAttribute *> vs;
-    vector<VectorAttribute *>::iterator it;
-
     VectorAttribute * server;
 
     sid = -1;

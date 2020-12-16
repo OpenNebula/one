@@ -9,6 +9,16 @@
         <xs:element name="GID" type="xs:integer"/>
         <xs:element name="UNAME" type="xs:string"/>
         <xs:element name="GNAME" type="xs:string"/>
+        <xs:element name="LOCK" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="LOCKED" type="xs:integer"/>
+              <xs:element name="OWNER" type="xs:integer"/>
+              <xs:element name="TIME" type="xs:integer"/>
+              <xs:element name="REQ_ID" type="xs:integer"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="REGTIME" type="xs:integer"/>
         <xs:element name="NAME" type="xs:string"/>
         <xs:element name="ZONE_ID" type="xs:string"/>

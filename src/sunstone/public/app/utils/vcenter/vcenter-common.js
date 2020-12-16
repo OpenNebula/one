@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,8 @@
 
 define(function(require) {
   var sprintf = require("sprintf").sprintf
+  var Notifier = require("utils/notifier");
+  var Navigation = require('utils/navigation');
 
   function _html() {
     return '<div class="vcenter_import"></div>';
@@ -95,8 +97,8 @@ define(function(require) {
   function _importLoading(opts) {
     $(".vcenter_import_result:not(.success)", opts.context).html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
-        '<i class="fa fa-cloud fa-stack-2x"></i>' +
-        '<i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
+        '<i class="fas fa-cloud fa-stack-2x"></i>' +
+        '<i class="fas fa-spinner fa-spin fa-stack-1x fa-inverse"></i>' +
       '</span>');
 
     $(".vcenter_import_result_row", opts.context).show();
@@ -109,9 +111,9 @@ define(function(require) {
   function _importSuccess(opts) {
     $(".vcenter_import_result", opts.context).addClass("success").html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
-        '<i class="fa fa-cloud fa-stack-2x running-color"></i>' +
-        '<i class="fa fa-check fa-stack-1x fa-inverse"></i>' +
-      '</span>');
+        '<i class="fas fa-cloud fa-stack-2x running-color"></i>' +
+        '<i class="fas fa-check fa-stack-1x fa-inverse"></i>' +
+      '</span>&nbsp&nbsp');
 
     $(".vcenter_import_response", opts.context).html(opts.message);
   }
@@ -119,12 +121,29 @@ define(function(require) {
   function _importFailure(opts) {
     $(".vcenter_import_result", opts.context).html(
       '<span class="fa-stack" style="color: #dfdfdf">' +
-        '<i class="fa fa-cloud fa-stack-2x error-color"></i>' +
-        '<i class="fa fa-warning fa-stack-1x fa-inverse"></i>' +
-      '</span>');
+        '<i class="fas fa-cloud fa-stack-2x error-color"></i>' +
+        '<i class="fas fa-exclamation fa-stack-1x fa-inverse"></i>' +
+      '</span>&nbsp&nbsp');
 
     $(".vcenter_import_response", opts.context).addClass("error-color").html(
       opts.message);
+  }
+
+  function _jGrowlSuccess(opts){
+    var success = opts.success;
+    $.each(success, function(key, value){
+      var rs1 = Navigation.link(value.id[0], opts.link_tab, value.id[0]);
+      var rs2 = Navigation.link(value.id[1], opts.link_tab, value.id[1]);
+      Notifier.notifyMessage(opts.resource + " " + value.name + " imported as " + rs1 + " " + rs2 + " successfully");
+    });
+  }
+
+  function _jGrowlFailure(opts){
+    var error = opts.error;
+    $.each(error, function(key, value){
+      id = Object.keys(value)[0];
+      Notifier.notifyError(opts.resource + " with ref " + id + " could not be imported\n"+ value[id]);
+    });
   }
 
   return {
@@ -132,6 +151,8 @@ define(function(require) {
     'setupTable': _setupTable,
     'importLoading': _importLoading,
     'importSuccess': _importSuccess,
-    'importFailure': _importFailure
+    'importFailure': _importFailure,
+    'jGrowlSuccess': _jGrowlSuccess,
+    'jGrowlFailure': _jGrowlFailure
   };
 });

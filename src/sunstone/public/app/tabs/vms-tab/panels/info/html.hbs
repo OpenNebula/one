@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -33,12 +33,28 @@
         {{{renameTrHTML}}}
         <tr>
           <td class="key_td">{{tr "State"}}</td>
-          <td class="value_td">{{stateStr}}</td>
+          <td id="state_value" class="value_td">
+            {{#if stateClass}}
+              <span class="label {{stateClass}} round" style="border-radius: 1em; font-weight: bold;">
+                <div>{{stateStr}}</div>
+              </span>
+            {{else}}
+              {{stateStr}}
+            {{/if}}
+          </td>
           <td></td>
         </tr>
         <tr>
           <td class="key_td">{{tr "LCM State"}}</td>
-          <td class="value_td">{{lcmStateStr}}</td>
+          <td id="lcm_state_value" class="value_td">
+            {{#if stateClass}}
+              {{lcmStateStr}}
+            {{else}}
+              <span class="label {{lcmStateClass}} round" style="border-radius: 1em; font-weight: bold;">
+                {{lcmStateStr}}
+              </span>
+            {{/if}}
+          </td>
           <td></td>
         </tr>
         <tr>
@@ -52,6 +68,14 @@
           <td class="value_td">{{{IP}}}</td>
           <td></td>
         </tr>
+
+        {{#if alias }}
+          <tr>
+            <td class="key_td">{{tr "Alias"}}</td>
+            <td class="value_td">{{{alias}}}</td>
+            <td></td>
+          </tr>
+        {{/if }}
 
         <tr>
           <td class="key_td">{{tr "Start time"}}</td>
@@ -81,25 +105,29 @@
 </div>
 <div class="large-6 columns">{{{permissionsTableHTML}}}</div>
 </div>
-<div class="row vcenter">
-<div class="large-9 columns">{{{templateTableVcenterHTML}}}</div>
-</div>
-<div class="row">
-<div class="large-9 columns">{{{templateTableHTML}}}</div>
-</div>
-{{#if monitoringTableContentHTML}}
-<div class="row">
-<div class="large-9 columns">
-  <table class="dataTable">
-    <thead>
-      <tr>
-        <th colspan="2">{{tr "Monitoring"}}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{{monitoringTableContentHTML}}}
-    </tbody>
-  </table>
-</div>
-</div>
-{{/if}}
+{{#isFeatureEnabled "show_attributes_info"}}
+  <div class="row vcenter">
+  <div class="large-9 columns">{{{templateTableVcenterHTML}}}</div>
+  </div>
+  <div class="row">
+  <div class="large-9 columns">{{{templateTableHTML}}}</div>
+  </div>
+{{/isFeatureEnabled}}
+{{#isFeatureEnabled "show_monitoring_info"}}
+  {{#if monitoringTableContentHTML}}
+    <div class="row">
+    <div class="large-9 columns">
+      <table class="dataTable fixed">
+        <thead>
+          <tr>
+            <th colspan="2">{{tr "Monitoring"}}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{{monitoringTableContentHTML}}}
+        </tbody>
+      </table>
+    </div>
+    </div>
+  {{/if}}
+{{/isFeatureEnabled}}

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,7 +14,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
+require 'opennebula/lockable_ext'
 require 'opennebula/pool_element'
 
 module OpenNebula
@@ -22,7 +22,6 @@ module OpenNebula
         #######################################################################
         # Constants and Class Methods
         #######################################################################
-
 
         TEMPLATE_METHODS = {
             :allocate    => "template.allocate",
@@ -33,7 +32,9 @@ module OpenNebula
             :chown       => "template.chown",
             :chmod       => "template.chmod",
             :clone       => "template.clone",
-            :rename      => "template.rename"
+            :rename      => "template.rename",
+            :lock        => "template.lock",
+            :unlock      => "template.unlock"
         }
 
         # Creates a Template description with just its identifier
@@ -55,6 +56,8 @@ module OpenNebula
 
         # Class constructor
         def initialize(xml, client)
+            LockableExt.make_lockable(self, TEMPLATE_METHODS)
+
             super(xml,client)
 
             @client = client
@@ -67,10 +70,10 @@ module OpenNebula
         # Retrieves the information of the given Template.
         # @param extended [true,false] optional flag to process the template and
         # include extended information, such as the SIZE for each DISK
-        def info(extended=false)
+        def info(extended=false, decrypt=false)
             return Error.new('ID not defined') if !@pe_id
 
-            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, extended)
+            rc = @client.call(TEMPLATE_METHODS[:info], @pe_id, extended, decrypt)
 
             if !OpenNebula.is_error?(rc)
                 initialize_xml(rc, 'VMTEMPLATE')
@@ -96,10 +99,10 @@ module OpenNebula
         end
 
         # Deletes the Template
-        # 
+        #
         # @param recursive [true,false] optional, deletes the template plus
         # any image defined in DISK.
-        # 
+        #
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def delete(recursive=false)

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project Leads (OpenNebula.org)             */
+/* Copyright 2002-2020, OpenNebula Project Leads (OpenNebula.org)             */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,12 +20,11 @@
 
 #include "ObjectXML.h"
 
-using namespace std;
 
 class ClusterXML : public ObjectXML
 {
 public:
-    ClusterXML(const string &xml_doc):ObjectXML(xml_doc)
+    ClusterXML(const std::string &xml_doc):ObjectXML(xml_doc)
     {
         init_attributes();
     };

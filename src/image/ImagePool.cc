@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,6 +23,11 @@
 #include "AuthManager.h"
 #include "Nebula.h"
 #include "PoolObjectAuth.h"
+#include "ImageManager.h"
+#include "VirtualMachineDisk.h"
+#include "DatastorePool.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -39,10 +44,8 @@ ImagePool::ImagePool(
         const string&                    __default_dev_prefix,
         const string&                    __default_cdrom_dev_prefix,
         vector<const SingleAttribute *>& restricted_attrs,
-        vector<const VectorAttribute *>& hook_mads,
-        const string&                    remotes_location,
         const vector<const SingleAttribute *>& _inherit_attrs)
-    :PoolSQL(db, Image::table)
+    : PoolSQL(db, one_db::image_table)
 {
     // Init static defaults
     _default_type       = __default_type;
@@ -51,11 +54,9 @@ ImagePool::ImagePool(
     _default_cdrom_dev_prefix = __default_cdrom_dev_prefix;
 
     // Init inherit attributes
-    vector<const SingleAttribute *>::const_iterator it;
-
-    for (it = _inherit_attrs.begin(); it != _inherit_attrs.end(); it++)
+    for (auto sattr : _inherit_attrs)
     {
-        inherit_attrs.push_back((*it)->value());
+        inherit_attrs.push_back(sattr->value());
     }
 
     // Set default type
@@ -68,8 +69,6 @@ ImagePool::ImagePool(
     }
 
     ImageTemplate::parse_restricted(restricted_attrs);
-
-    register_hooks(hook_mads, remotes_location);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -81,7 +80,7 @@ int ImagePool::allocate (
         const string&            uname,
         const string&            gname,
         int                      umask,
-        ImageTemplate *          img_template,
+        unique_ptr<ImageTemplate> img_template,
         int                      ds_id,
         const string&            ds_name,
         Image::DiskType          disk_type,
@@ -98,16 +97,15 @@ int ImagePool::allocate (
     ImageManager *  imagem = nd.get_imagem();
 
     Image *         img;
-    Image *         img_aux = 0;
     string          name;
     string          type;
-    string          fs_type;
     string          driver;
     ostringstream   oss;
 
+    int db_oid;
     int rc;
 
-    img = new Image(uid, gid, uname, gname, umask, img_template);
+    img = new Image(uid, gid, uname, gname, umask, move(img_template));
 
     // -------------------------------------------------------------------------
     // Check name & duplicates
@@ -142,9 +140,9 @@ int ImagePool::allocate (
         break;
     }
 
-    img_aux = get(name,uid,false);
+    db_oid = exist(name, uid);
 
-    if( img_aux != 0 )
+    if( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -166,43 +164,9 @@ int ImagePool::allocate (
     }
 
     // ---------------------------------------------------------------------
-    // Get FSTYPE
+    // Set TM_MAD to infer FSTYPE if needed
     // ---------------------------------------------------------------------
-    img->get_template_attribute("FSTYPE", fs_type);
-
-    if (!fs_type.empty())
-    {
-        img->fs_type = fs_type;
-    }
-    else
-    {
-        img->get_template_attribute("DRIVER", driver);
-
-        if (!driver.empty())
-        {
-            // infer fs_type from driver
-            one_util::tolower(driver);
-
-            if (driver == "qcow2")
-            {
-                img->fs_type = "qcow2";
-            }
-            else
-            {
-                img->fs_type = "raw";
-            }
-        } else {
-            // no driver, infer ds_type from tm_mad
-            if (tm_mad == "qcow2")
-            {
-                img->fs_type = "qcow2";
-            }
-            else
-            {
-                img->fs_type = "raw";
-            }
-        }
-    }
+    img->replace_template_attribute("TM_MAD", tm_mad);
 
     // ---------------------------------------------------------------------
     // Insert the Object in the pool & Register the image in the repository
@@ -217,15 +181,11 @@ int ImagePool::allocate (
 
             if ( rc == -1 )
             {
-                img = get(*oid, true);
-
-                if ( img != 0 )
+                if ( auto img = get(*oid) )
                 {
                     string aux_str;
 
-                    drop(img, aux_str);
-
-                    img->unlock();
+                    drop(img.get(), aux_str);
                 }
 
                 *oid = -1;
@@ -234,23 +194,16 @@ int ImagePool::allocate (
         }
         else
         {
-            rc = imagem->clone_image(*oid,
-                                     cloning_id,
-                                     ds_data,
-                                     extra_data,
-                                     error_str);
+            rc = imagem->clone_image(*oid, cloning_id, ds_data, extra_data,
+                    error_str);
 
             if (rc == -1)
             {
-                img = get(*oid, true);
-
-                if ( img != 0 )
+                if ( auto img = get(*oid) )
                 {
                     string aux_str;
 
-                    drop(img, aux_str);
-
-                    img->unlock();
+                    drop(img.get(), aux_str);
                 }
 
                 *oid = -1;
@@ -272,7 +225,7 @@ error_types_missmatch_image:
     goto error_common;
 
 error_duplicated:
-    oss << "NAME is already taken by IMAGE " << img_aux->get_oid() << ".";
+    oss << "NAME is already taken by IMAGE " << db_oid << ".";
     error_str = oss.str();
 
     goto error_common;
@@ -297,10 +250,11 @@ int ImagePool::acquire_disk(int               vm_id,
                             int               uid,
                             int&              image_id,
                             Snapshots **      snap,
+                            bool              attach,
                             string&           error_str)
 {
     string  source;
-    Image * img = 0;
+    unique_ptr<Image> img;
     int     rc  = 0;
     int     datastore_id;
     int     iid;
@@ -314,9 +268,9 @@ int ImagePool::acquire_disk(int               vm_id,
 
     if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        img = imagem->acquire_image(vm_id, iid, error_str);
+        img = imagem->acquire_image(vm_id, iid, attach, error_str);
 
-        if ( img == 0 )
+        if ( img == nullptr )
         {
             return -1;
         }
@@ -336,9 +290,9 @@ int ImagePool::acquire_disk(int               vm_id,
             return -1;
         }
 
-        img = imagem->acquire_image(vm_id, source, uiid, error_str);
+        img = imagem->acquire_image(vm_id, source, uiid, attach, error_str);
 
-        if ( img == 0 )
+        if ( img == nullptr )
         {
             return -1;
         }
@@ -378,7 +332,7 @@ int ImagePool::acquire_disk(int               vm_id,
         }
     }
 
-    if ( img != 0 )
+    if ( img != nullptr )
     {
         DatastorePool * ds_pool = nd.get_dspool();
 
@@ -387,7 +341,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if (has_size && img->is_persistent() && size != img->get_size())
         {
-            img->unlock();
+            img.reset();
 
             imagem->release_image(vm_id, iid, false);
 
@@ -400,7 +354,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if (has_size && img->get_type() == Image::CDROM && size != img->get_size())
         {
-            img->unlock();
+            img.reset();
 
             imagem->release_image(vm_id, iid, false);
 
@@ -413,7 +367,7 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if (has_size && size < img->get_size())
         {
-            img->unlock();
+            img.reset();
 
             imagem->release_image(vm_id, iid, false);
 
@@ -436,13 +390,7 @@ int ImagePool::acquire_disk(int               vm_id,
             (*snap)->set_disk_id(disk_id);
         }
 
-        if ( img->get_state() == Image::LOCKED_USED ||
-                img->get_state() == Image::LOCKED_USED_PERS )
-        {
-            disk->replace("CLONING", "YES");
-        }
-
-        img->unlock();
+        img.reset();
 
         if ( ds_pool->disk_attribute(datastore_id, disk) == -1 )
         {
@@ -470,7 +418,7 @@ void ImagePool::disk_attribute(
         int                 uid)
 {
     string  source;
-    Image * img = 0;
+    unique_ptr<Image> img;
     int     datastore_id;
     int     iid;
 
@@ -484,7 +432,7 @@ void ImagePool::disk_attribute(
 
     if ( disk->vector_value("IMAGE_ID", iid) == 0 )
     {
-        img = get(iid, true);
+        img = get_ro(iid);
     }
     else if ( disk->vector_value("IMAGE", source) == 0 )
     {
@@ -492,17 +440,17 @@ void ImagePool::disk_attribute(
 
         if ( uiid != -1)
         {
-            img = get(source, uiid, true);
+            img = get_ro(source, uiid);
         }
     }
 
-    if ( img != 0 )
+    if ( img != nullptr )
     {
         img->disk_attribute(disk, img_type, dev_prefix, inherit_attrs);
 
         datastore_id = img->get_ds_id();
 
-        img->unlock();
+        img.reset();
 
         ds_pool->disk_attribute(datastore_id, disk);
     }

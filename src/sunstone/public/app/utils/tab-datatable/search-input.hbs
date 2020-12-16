@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,12 +15,17 @@
 {{! -------------------------------------------------------------------------- }}
 
 {{#if searchDropdownHTML}}
-<div id="{{dataTableSearchId}}-wrapper" class="input-group">
-  <input class="input-group-field" id="{{dataTableSearchId}}" type="search" placeholder="{{tr "Search"}}" />
+<div id="{{dataTableSearchId}}-wrapper" class="input-group" style="display:flex;">
+  <select search-field="TYPE" id="{{dataTableSearchId}}-selectTYPE" class="type-selector">
+    <option value="">{{tr "All"}}</option>
+    <option value="VMTEMPLATE">{{tr "VM Templates"}}</option>
+    <option value="IMAGE">{{tr "Images"}}</option>
+    <option value="SERVICE_TEMPLATE">{{tr "Service Templates"}}</option>
+  </select>
+  &nbsp;
+  <input class="input-group-field" id="{{dataTableSearchId}}" name="{{dataTableSearchId}}" autocomplete="off" type="search" placeholder="{{tr "Search"}}" />
   <div class="input-group-button">
-    <button type="button" class="button search-dropdown secondary" data-toggle="{{dataTableSearchId}}-dropdown">
-      <i class="fa fa-fw fa-caret-down"/>
-    </button>
+    <i class="fas fa-filter search-button" data-toggle="{{dataTableSearchId}}-dropdown"></i>
   </div>
   <div class="dropdown-pane left large" id="{{dataTableSearchId}}-dropdown" data-dropdown data-auto-focus="true">
     {{{searchDropdownHTML}}}
@@ -33,7 +38,7 @@
     <div class="row">
       <div class="small-12 columns">
         <button type="button" class="button advanced-search">
-          <i class="fa fa-fw fa-search"/>
+          <i class="fas fa-fw fa-search"/>
         </button>
         <a class="advanced-search-clear right">{{tr "Clear search"}}</a>
       </div>

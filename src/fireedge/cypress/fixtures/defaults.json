@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "jwtName": "FireedgeToken",
+    "username": "oneadmin",
+    "password": "opennebula"
+  },
+  "endpoints": {
+    "login": "/api/auth/",
+    "userInfo": "/api/user/info"
+  }
+}

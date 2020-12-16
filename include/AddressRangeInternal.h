@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,7 +20,6 @@
 #include <string>
 
 #include "AddressRange.h"
-#include "AddressRangePool.h"
 
 class VectorAttribute;
 
@@ -53,7 +52,8 @@ public:
      *
      *    @return 0 if success
      */
-    int allocate_addr(unsigned int index, unsigned int rsize, string& error_msg)
+    int allocate_addr(unsigned int index, unsigned int rsize,
+                      std::string& error_msg)
     {
         return 0;
     }
@@ -66,7 +66,8 @@ public:
      *
      *    @return 0 if success
      */
-    int get_addr(unsigned int& index, unsigned int rsize, string& error_msg)
+    int get_addr(unsigned int& index, unsigned int rsize,
+                 std::string& error_msg)
     {
         if ( rsize == 1 )
         {
@@ -83,7 +84,7 @@ public:
      *
      *    @return 0 if success
      */
-    int free_addr(unsigned int index, string& msg)
+    int free_addr(unsigned int index, std::string& msg)
     {
         return 0;
     };
@@ -109,7 +110,7 @@ private:
      *    @param msg with error description if any
      *    @return 0 on success -1 otherwise
      */
-    int get_range_addr(unsigned int& index, unsigned int sz, std::string& msg);
+    int get_range_addr(unsigned int& index, unsigned int sz, std::string& msg) const;
 };
 
 #endif

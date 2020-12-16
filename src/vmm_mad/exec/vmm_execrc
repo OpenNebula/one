@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,4 +16,7 @@
 
 # Space separated list of VMM-TM pairs that support live disk snapshots. VMM
 # and TM must be separated by '-'
-LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-ceph"
+LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-ceph kvm-ssh"
+
+# Space separated list VNM_MAD-ACTION pairs that run locally
+VNMAD_LOCAL_ACTIONS="elastic-post elastic-clean"

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,7 +14,14 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'json'
 require 'OpenNebulaJSON/JSONUtils'
+require 'sunstone_2f_auth'
+
+begin
+    require "SunstoneWebAuthn"
+rescue LoadError
+end
 
 module OpenNebulaJSON
     class UserJSON < OpenNebula::User
@@ -39,14 +46,18 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
-                 when "passwd"       then self.passwd(action_hash['params'])
-                 when "chgrp"        then self.chgrp(action_hash['params'])
-                 when "chauth"       then self.chauth(action_hash['params'])
-                 when "update"       then self.update(action_hash['params'])
-                 when "set_quota"    then self.set_quota(action_hash['params'])
-                 when "addgroup"     then self.addgroup(action_hash['params'])
-                 when "delgroup"     then self.delgroup(action_hash['params'])
-                 when "login"        then self.login(action_hash['params'])
+                 when "passwd"                  then self.passwd(action_hash['params'])
+                 when "chgrp"                   then self.chgrp(action_hash['params'])
+                 when "chauth"                  then self.chauth(action_hash['params'])
+                 when "update"                  then self.update(action_hash['params'])
+                 when "enable_two_factor_auth"  then self.enable_two_factor_auth(action_hash['params'])
+                 when "disable_two_factor_auth" then self.disable_two_factor_auth(action_hash['params'])
+                 when "enable_security_key"     then self.enable_security_key(action_hash['params'])
+                 when "disable_security_key"    then self.disable_security_key(action_hash['params'])
+                 when "set_quota"               then self.set_quota(action_hash['params'])
+                 when "addgroup"                then self.addgroup(action_hash['params'])
+                 when "delgroup"                then self.delgroup(action_hash['params'])
+                 when "login"                   then self.login(action_hash['params'])
                  else
                      error_msg = "#{action_hash['perform']} action not " <<
                          " available for this resource"
@@ -72,6 +83,68 @@ module OpenNebulaJSON
             else
                 super(params['template_raw'])
             end
+        end
+
+        def enable_two_factor_auth(params=Hash.new)
+            unless Sunstone2FAuth.authenticate(params["secret"], params["token"])
+              return OpenNebula::Error.new("Invalid token.")
+            end
+
+            sunstone_setting = { 
+                "sunstone" => params["current_sunstone_setting"].merge("TWO_FACTOR_AUTH_SECRET" => params["secret"]) 
+            }
+            template_raw = template_to_str(sunstone_setting)
+            update_params = { "template_raw" => template_raw, "append" => true }
+            update(update_params)
+        end
+
+        def disable_two_factor_auth(params=Hash.new)
+            sunstone_setting = params["current_sunstone_setting"]
+            sunstone_setting.delete("TWO_FACTOR_AUTH_SECRET")
+            if !params['delete_all'].nil? && params['delete_all'] == true
+                sunstone_setting.delete("WEBAUTHN_CREDENTIALS")
+            end
+            sunstone_setting = { "sunstone" => sunstone_setting }
+            template_raw = template_to_str_sunstone_with_explicite_empty_value(sunstone_setting)
+            update_params = { "template_raw" => template_raw, "append" => true }
+            update(update_params)
+        end
+
+        def enable_security_key(params=Hash.new)
+            if !$conf[:webauthn_avail]
+                return OpenNebula::Error.new("WebAuthn not available.")
+            end
+            sunstone_setting = params["current_sunstone_setting"]
+            webauthn_credential = SunstoneWebAuthn.verifyCredentialFromRegistration(@pe_id, params['publicKeyCredential'])
+            template_credentials = self['TEMPLATE/SUNSTONE/WEBAUTHN_CREDENTIALS'] || "{'cs':[]}"
+            credentials = parse_json(template_credentials.gsub("'", '"'), 'cs')
+            credentials.append({
+                'id'   => webauthn_credential.id,
+                'pk'   => webauthn_credential.public_key,
+                'cnt'  => webauthn_credential.sign_count,
+                'name' => params['nickname']
+            })
+            sunstone_setting["WEBAUTHN_CREDENTIALS"] = JSON.generate({ "cs" => credentials}).gsub('"', "'")
+            sunstone_setting = { "sunstone" => sunstone_setting }
+            template_raw = template_to_str_sunstone_with_explicite_empty_value(sunstone_setting)
+            update_params = { "template_raw" => template_raw, "append" => true }
+            update(update_params)
+        end
+
+        def disable_security_key(params=Hash.new)
+            sunstone_setting = params["current_sunstone_setting"]
+            credentials = parse_json(sunstone_setting["WEBAUTHN_CREDENTIALS"].gsub("'", '"'), 'cs')
+            for i in 0..credentials.length() do
+                if credentials[i]["pk"] == params["tokenid_to_remove"]
+                    credentials.delete_at(i)
+                    break
+                end
+            end
+            sunstone_setting["WEBAUTHN_CREDENTIALS"] = JSON.generate({ "cs" => credentials}).gsub('"', "'")
+            sunstone_setting = { "sunstone" => sunstone_setting }
+            template_raw = template_to_str_sunstone_with_explicite_empty_value(sunstone_setting)
+            update_params = { "template_raw" => template_raw, "append" => true }
+            update(update_params)
         end
 
         def set_quota(params=Hash.new)

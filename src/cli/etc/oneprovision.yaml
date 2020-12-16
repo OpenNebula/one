@@ -1,0 +1,39 @@
+---
+:ID:
+  :desc: Provision identifier
+  :size: 4
+
+:NAME:
+  :desc: Name of the Provision
+  :size: 15
+  :left: true
+  :expand: true
+
+:CLUSTERS:
+  :desc: Number of Clusters
+  :size: 8
+
+:HOSTS:
+  :desc: Number of Hosts
+  :size: 5
+
+:NETWORKS:
+  :desc: Number of Networks
+  :size: 8
+
+:DATASTORES:
+  :desc: Number of Datastores
+  :size: 10
+
+:STAT:
+  :desc: Provision state
+  :size: 12
+
+:default:
+- :ID
+- :NAME
+- :CLUSTERS
+- :HOSTS
+- :NETWORKS
+- :DATASTORES
+- :STAT

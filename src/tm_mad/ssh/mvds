@@ -1,7 +1,7 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-# mvds host:remote_system_ds/disk.i fe:SOURCE vmid dsid
+# mvds host:remote_system_ds/disk.i fe:SOURCE|SOURCE vmid dsid
 #   - fe is the front-end hostname
 #   - SOURCE is the path of the disk image in the form DS_BASE_PATH/disk
 #   - host is the target host to deploy the VM
@@ -39,20 +39,52 @@ fi
 . $TMCOMMON
 
 SRC_PATH="$(arg_path $SRC)"
+DST_PATH="$(arg_path $DST)"
 SRC_HOST="$(arg_host $SRC)"
+DST_HOST="$(arg_host $DST)"
+
 SRC_PATH_SNAP="${SRC_PATH}.snap"
 
 DST_SNAP="${DST}.snap"
+
+SRC_FILE="$(basename $SRC_PATH)"
+DST_FILE="$(basename $DST_PATH)"
+
+DST_DIR="$(dirname $DST_PATH)"
+SRC_DIR="$(dirname $SRC_PATH)"
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 
-log "Moving $SRC to datastore as $DST"
-exec_and_log "$SCP -r $SRC $DST" "Error copying $SRC to $DST"
+log "Moving $SRC to datastore as $DST_PATH"
+
+# Copy from possibly remote host to possible remote host
+if [ "$(fix_dir_slashes $DST_HOST)" != "$DST_PATH" ]; then
+    COPY_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $TAR -C $SRC_DIR --transform="flags=r;s|$SRC_FILE|$DST_FILE|" -cSf - $SRC_FILE | \
+            $SSH $DST_HOST "$TAR -xSf - -C $DST_DIR"
+EOF
+)
+
+    ssh_forward ssh_exec_and_log "$SRC_HOST" "$COPY_CMD" \
+                                 "Error copying $SRC to $DST_HOST:$DST_PATH"
+else # Copy from possibly remote host to local
+    REMOTE_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $SSH $SRC_HOST "$TAR -C $SRC_DIR --transform=\"flags=r;s|$SRC_FILE|$DST_FILE|\" -cSf - $SRC_FILE" | \
+            $TAR -xSf - -C $DST_DIR
+EOF
+)
+
+    multiline_exec_and_log "$REMOTE_CMD" "Error copying $SRC to $DST_PATH"
+fi
 
 if $SSH $SRC_HOST ls ${SRC_PATH_SNAP} >/dev/null 2>&1; then
     exec_and_log "rsync -r --delete ${SRC_HOST}:${SRC_PATH_SNAP}/ ${DST_SNAP}"
 fi
+
+rm -f ${DST}.md5sum
 
 exit 0

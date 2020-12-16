@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,20 +19,21 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./attach-nic/html');
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Tips = require('utils/tips');
-  var NicTab = require('tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab');
-  var WizardFields = require('utils/wizard-fields');
+  var OpennebulaVM = require("opennebula/vm");
+  var BaseDialog = require("utils/dialogs/dialog");
+  var TemplateHTML = require("hbs!./attach-nic/html");
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var Tips = require("utils/tips");
+  var NicTab = require("tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab");
+  var WizardFields = require("utils/wizard-fields");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./attach-nic/dialogId');
-  var TAB_ID = require('../tabId')
+  var DIALOG_ID = require("./attach-nic/dialogId");
+  var TAB_ID = require("../tabId");
 
   /*
     CONSTRUCTOR
@@ -41,7 +42,7 @@ define(function(require) {
   function Dialog() {
     this.dialogId = DIALOG_ID;
 
-    this.nicTab = new NicTab(DIALOG_ID + 'NickTab');
+    this.nicTab = new NicTab(DIALOG_ID + "NickTab");
 
     BaseDialog.call(this);
   };
@@ -53,6 +54,7 @@ define(function(require) {
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
   Dialog.prototype.setElement = _setElement;
+  Dialog.prototype.setNicsNames = _setNicsNames;
 
   return Dialog;
 
@@ -62,27 +64,54 @@ define(function(require) {
 
   function _html() {
     return TemplateHTML({
-      'dialogId': this.dialogId,
-      'nicTabHTML': this.nicTab.html()
+      "dialogId": this.dialogId,
+      "nicTabHTML": this.nicTab.html()
     });
   }
 
   function _setup(context) {
+    this.context = context;
+
     var that = this;
-    that.nicTab.setup(context, {hide_pci: true});
+
+    that.nicTab.setup(context, {hide_pci: true, hide_auto: true});
 
     Tips.setup(context);
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function() {
+    $("#parent", context).hide();
+
+    $("#cb_attach_alias", context).change(function() {
+      $("#parent", context).toggle(this.checked);
+    });
+
+    $("#" + DIALOG_ID + "Form", context).submit(function() {
       var templateJSON = that.nicTab.retrieve(context);
-      var obj = {
-        "NIC": templateJSON
+      var selectedNetwork = Object.keys(templateJSON).length > 0 && templateJSON.constructor === Object;
+
+      if($("#cb_attach_rdp", context).prop("checked")) {
+        templateJSON.RDP = "YES";
       }
 
-      Sunstone.runAction('VM.attachnic', that.element.ID, obj);
+      if($("#cb_attach_alias", context).prop("checked")) {
+        templateJSON.PARENT = $("#parent").val();
 
-      Sunstone.getDialog(DIALOG_ID).hide();
-      Sunstone.getDialog(DIALOG_ID).reset();
+        var obj = {
+            "NIC_ALIAS": templateJSON
+        };
+      } else {
+        var obj = {
+            "NIC": templateJSON
+        };
+      }
+
+      if(selectedNetwork){
+        Sunstone.runAction("VM.attachnic", that.element.ID, obj);
+        Sunstone.getDialog(DIALOG_ID).hide();
+        Sunstone.getDialog(DIALOG_ID).reset();
+      }else{
+        Notifier.notifyError("Select a network");
+      }
+
       return false;
     });
 
@@ -93,11 +122,35 @@ define(function(require) {
     this.setNames( {tabId: TAB_ID} );
 
     this.nicTab.onShow(context);
+    $("#cb_attach_alias").prop("checked", false).change();
+
+    var showRdp = false, template = this.element.TEMPLATE;
+    if (template.NIC) {
+      showRdp = OpennebulaVM.hasConnection(template.NIC, "rdp");
+
+      if (!showRdp && template.NIC_ALIAS) {
+        showRdp = OpennebulaVM.hasConnection(template.NIC_ALIAS, "rdp");
+      }
+    }
+    $(".attach_rdp").toggle(!showRdp);
 
     return false;
   }
 
   function _setElement(element) {
-    this.element = element
+    this.element = element;
+  }
+
+  function _setNicsNames(nicsNames) {
+    $("#parent", this.context).empty();
+    var that = this;
+
+    nicsNames.forEach(function(element) {
+      var nicID = element && element.ID? element.ID : "";
+      var nicNET = element && element.NET? element.NET : "";
+      var nicIP = element && element.IP? element.IP : "";
+      var alias_str = nicID + " - " + nicNET + " " + nicIP;
+      $("#parent", that.context).append(new Option(alias_str, element.NAME));
+    });
   }
 });

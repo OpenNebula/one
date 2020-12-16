@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,15 +19,12 @@
 
 #include "PoolSQL.h"
 #include "Host.h"
+#include "HostMonitoringTemplate.h"
+#include "OneDB.h"
 
-#include <time.h>
 #include <sstream>
 
-#include <iostream>
-
 #include <vector>
-
-using namespace std;
 
 /**
  *  The Host Pool class.
@@ -35,11 +32,9 @@ using namespace std;
 class HostPool : public PoolSQL
 {
 public:
-    HostPool(SqlDB * db, vector<const VectorAttribute *> hook_mads,
-        const string& hook_location, const string& remotes_location,
-        time_t expire_time);
+    HostPool(SqlDB * db, std::vector<const SingleAttribute *>& secrets);
 
-    ~HostPool();
+    ~HostPool() = default;
 
     /**
      *  Function to allocate a new Host object
@@ -47,64 +42,70 @@ public:
      *    @return the oid assigned to the object or -1 in case of failure
      */
     int allocate (
-        int *  oid,
-        const string& hostname,
-        const string& im_mad_name,
-        const string& vmm_mad_name,
-        int           cluster_id,
-        const string& cluster_name,
-        string& error_str);
+        int *              oid,
+        const std::string& hostname,
+        const std::string& im_mad_name,
+        const std::string& vmm_mad_name,
+        int                cluster_id,
+        const std::string& cluster_name,
+        std::string&       error_str);
 
     /**
-     *  Function to get a Host from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param oid Host unique id
-     *    @param lock locks the Host mutex
-     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     *  Updates a Host in the data base. It also updates the previous state
+     *  after executing the hooks.
+     *    @param objsql a pointer to the Host
+     *
+     *    @return 0 on success.
      */
-    Host * get(
-        int     oid,
-        bool    lock)
+    virtual int update(PoolObjectSQL * objsql);
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the Host unique identifier
+     *   @return a pointer to the Host, nullptr in case of failure
+     */
+    std::unique_ptr<Host> get(int oid)
     {
-        Host * h = static_cast<Host *>(PoolSQL::get(oid,lock));
-
-        if ( h != 0 )
-        {
-            HostVM * hv = get_host_vm(oid);
-
-            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
-            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
-
-            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
-        }
-
-        return h;
-    };
+        return PoolSQL::get<Host>(oid);
+    }
 
     /**
-     *  Function to get a Host from the pool, if the object is not in memory
-     *  it is loaded from the DB
-     *    @param hostname
-     *    @param lock locks the Host mutex
-     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the Host unique identifier
+     *   @return a pointer to the Host, nullptr in case of failure
      */
-    Host * get(string name, bool lock)
+    std::unique_ptr<Host> get_ro(int oid)
+    {
+        return PoolSQL::get_ro<Host>(oid);
+    }
+
+    /**
+     *  Gets an object from the pool (if needed the object is loaded from the
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *    @param hostname
+     *    @return a pointer to the Host, nullptr if the Host could not be loaded
+     */
+    std::unique_ptr<Host> get(std::string name)
     {
         // The owner is set to -1, because it is not used in the key() method
-        Host * h = static_cast<Host *>(PoolSQL::get(name,-1,lock));
+        return PoolSQL::get<Host>(name, -1);
+    }
 
-        if ( h != 0 )
-        {
-            HostVM * hv = get_host_vm(h->oid);
-
-            h->tmp_lost_vms   = &(hv->tmp_lost_vms);
-            h->tmp_zombie_vms = &(hv->tmp_zombie_vms);
-
-            h->prev_rediscovered_vms = &(hv->prev_rediscovered_vms);
-        }
-
-        return h;
-    };
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *    @param hostname
+     *    @return a pointer to the Host, 0 if the Host could not be loaded
+     */
+    std::unique_ptr<Host> get_ro(std::string name)
+    {
+        // The owner is set to -1, because it is not used in the key() method
+        return PoolSQL::get_ro<Host>(name, -1);
+    }
 
     /**
      *  Generate an index key for the object
@@ -113,7 +114,7 @@ public:
      *
      *    @return the key, a string
      */
-    string key(const string& name, int uid)
+    std::string key(const std::string& name, int uid)
     {
         // Name is enough key because Hosts can't repeat names.
         return name;
@@ -125,17 +126,16 @@ public:
      */
     static int bootstrap(SqlDB *_db)
     {
-        return Host::bootstrap(_db);
-    };
+        int rc;
 
-    /**
-     * Get the least monitored hosts
-     *   @param discovered hosts
-     *   @param host_limit max. number of hosts to monitor at a time
-     *   @param target_time Filters hosts with last_mon_time <= target_time
-     *   @return int 0 if success
-     */
-    int discover(set<int> * discovered_hosts, int host_limit, time_t target_time);
+        std::ostringstream oss_host(one_db::host_db_bootstrap);
+        std::ostringstream oss_monitor(one_db::host_monitor_db_bootstrap);
+
+        rc =  _db->exec_local_wr(oss_host);
+        rc += _db->exec_local_wr(oss_monitor);
+
+        return rc;
+    };
 
     /**
      * Allocates a given capacity to the host
@@ -148,19 +148,15 @@ public:
      *
      *   @return 0 on success -1 in case of failure
      */
-    int add_capacity(int oid, int vm_id, int cpu, int mem, int disk,
-            vector<VectorAttribute *> pci)
+    int add_capacity(int oid, HostShareCapacity &sr)
     {
         int rc = 0;
-        Host * host = get(oid, true);
 
-        if ( host != 0 )
+        if ( auto host = get(oid) )
         {
-          host->add_capacity(vm_id, cpu, mem, disk, pci);
+          host->add_capacity(sr);
 
-          update(host);
-
-          host->unlock();
+          update(host.get());
         }
         else
         {
@@ -168,7 +164,7 @@ public:
         }
 
         return rc;
-    };
+    }
 
     /**
      * De-Allocates a given capacity to the host
@@ -179,22 +175,17 @@ public:
      *   @param disk amount of disk
      *   @param pci devices requested by the VM
      */
-    void del_capacity(int oid, int vm_id, int cpu, int mem, int disk,
-            vector<VectorAttribute *> pci)
+    void del_capacity(int oid, HostShareCapacity &sr)
     {
-        Host *  host = get(oid, true);
-
-        if ( host != 0 )
+        if ( auto host = get(oid) )
         {
-            host->del_capacity(vm_id, cpu, mem, disk, pci);
+            host->del_capacity(sr);
 
-            update(host);
-
-            host->unlock();
+            update(host.get());
         }
-    };
+    }
 
-    int drop(PoolObjectSQL * objsql, string& error_msg)
+    int drop(PoolObjectSQL * objsql, std::string& error_msg)
     {
         Host * host = static_cast<Host *>(objsql);
 
@@ -204,14 +195,7 @@ public:
             return -1;
         }
 
-        int rc = PoolSQL::drop(objsql, error_msg);
-
-        if ( rc == 0 )
-        {
-            delete_host_vm(host->oid);
-        }
-
-        return rc;
+        return PoolSQL::drop(objsql, error_msg);
     };
 
     /**
@@ -219,13 +203,17 @@ public:
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where, const string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "HOST_POOL", Host::table, where, limit);
+        return PoolSQL::dump(oss, "HOST_POOL", "body", one_db::host_table,
+                where, sid, eid, desc);
     };
 
     /**
@@ -236,9 +224,9 @@ public:
      *
      *   @return 0 on success
      */
-    int search(vector<int>& oids, const string& where)
+    int search(std::vector<int>& oids, const std::string& where)
     {
-        return PoolSQL::search(oids, Host::table, where);
+        return PoolSQL::search(oids, one_db::host_table, where);
     };
 
     /**
@@ -247,11 +235,11 @@ public:
      *
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param seconds Retrieve monitor records in the last seconds
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        const string&  where);
+    int dump_monitoring(std::string& oss, const std::string&  where, const int seconds);
 
     /**
      *  Dumps the HOST monitoring information for a single HOST
@@ -261,71 +249,22 @@ public:
      *
      *  @return 0 on success
      */
-    int dump_monitoring(ostringstream& oss,
-                        int            hostid)
+    int dump_monitoring(std::string& oss, int hostid)
     {
-        ostringstream filter;
+        std::ostringstream filter;
 
         filter << "oid = " << hostid;
 
-        return dump_monitoring(oss, filter.str());
+        return dump_monitoring(oss, filter.str(), -1);
     }
 
     /**
-     * Inserts the last monitoring, and deletes old monitoring entries for this
-     * host
-     *
-     * @param host pointer to the host object
-     * @return 0 on success
+     * Returns last monitoring info for a host
+     *  @param hid host id
      */
-    int update_monitoring(Host * host)
-    {
-        if ( _monitor_expiration <= 0 )
-        {
-            return 0;
-        }
-
-        return host->update_monitoring(db);
-    };
-
-    /**
-     * Deletes the expired monitoring entries for all hosts
-     *
-     * @return 0 on success
-     */
-    int clean_expired_monitoring();
+    HostMonitoringTemplate get_monitoring(int hid);
 
 private:
-    /**
-     * Stores several Host counters to give VMs one monitor grace cycle before
-     * moving them to another state
-     */
-    struct HostVM
-    {
-        /**
-         * Tmp set of lost VM IDs. 
-         */
-        set<int> tmp_lost_vms;
-
-        /**
-         * Tmp set of zombie VM IDs. 
-         */
-        set<int> tmp_zombie_vms;
-
-        /**
-         * VMs reported as found from the poweroff state.
-         */
-        set<int> prev_rediscovered_vms;
-    };
-
-    pthread_mutex_t host_vm_lock;
-
-    map<int, HostVM *> host_vms;
-
-    HostVM * get_host_vm(int oid);
-
-    void delete_host_vm(int oid);
-
     /**
      *  Factory method to produce Host objects
      *    @return a pointer to the new Host
@@ -334,31 +273,6 @@ private:
     {
         return new Host(-1,"","","",-1,"");
     };
-
-    /**
-     *  Callback function to get the IDs of the hosts to be monitored
-     *  (Host::discover)
-     *
-     *    @param _set the set<int>* of host ids
-     *    @param num the number of columns read from the DB
-     *    @param values the column values
-     *    @param names the column names
-     *
-     *    @return 0 on success
-     */
-    int discover_cb(void * _set, int num, char **values, char **names);
-
-    /**
-     * Deletes all monitoring entries for all hosts
-     *
-     * @return 0 on success
-     */
-    int clean_all_monitoring();
-
-    /**
-     * Size, in seconds, of the historical monitoring information
-     */
-    static time_t _monitor_expiration;
 };
 
 #endif /*HOST_POOL_H_*/

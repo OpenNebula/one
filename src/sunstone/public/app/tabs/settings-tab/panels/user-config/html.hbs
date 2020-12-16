@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -21,11 +21,11 @@
       <dd class="accordion-item" data-accordion-item>
         <a href="#provision_update_language_accordion" class="text-center accordion-title">
           <div class="text-center only-not-active">
-            <span class="fa-stack fa-3x"> <i class="fa fa-cloud fa-stack-2x"></i> <i class="fa fa-comments fa-stack-1x fa-inverse"></i>
+            <span class="fa-stack fa-3x"> <i class="fas fa-cloud fa-stack-2x"></i> <i class="fas fa-comments fa-stack-1x fa-inverse"></i>
             </span>
           </div>
           <br class="only-not-active">
-          <i class="fa fa-lg fa-comments only-active"></i>
+          <i class="fas fa-lg fa-comments only-active"></i>
           {{tr "Change Language"}}
         </a>
         <div id="provision_update_language_accordion" class="accordion-content" data-tab-content>
@@ -54,12 +54,12 @@
         <a href="#provision_update_password_accordion" class="text-center accordion-title">
           <div class="text-center only-not-active">
             <span class="fa-stack fa-3x">
-              <i class="fa fa-cloud fa-stack-2x"></i>
-              <i class="fa fa-lock fa-stack-1x fa-inverse"></i>
+              <i class="fas fa-cloud fa-stack-2x"></i>
+              <i class="fas fa-lock fa-stack-1x fa-inverse"></i>
             </span>
           </div>
           <br class="only-not-active">
-          <i class="fa fa-lg fa-lock only-active"></i>
+          <i class="fas fa-lg fa-lock only-active"></i>
           {{tr "Change Password"}}
         </a>
         <div id="provision_update_password_accordion" class="accordion-content" data-tab-content>
@@ -75,9 +75,18 @@
                 <input type="password" id="provision_new_confirm_password" class="provision-input" placeholder="{{tr "Confirm Password"}}"/>
               </div>
             </div>
+            {{#if cantChangePassword}}
+              <div>
+                Special Cloud administrator accounts (oneadmin and serveradmin)
+                cannot be changed in Sunstone as authorization files need to be changed
+                to ensure the proper functioning of the OpenNebula cloud. Please follow the
+                <a href="http://docs.opennebula.io/5.10/operation/users_groups_management/manage_users.html#change-credentials-for-oneadmin-or-serveradmin" target="_blank">documentation</a>
+                for this task.
+              </div>
+            {{/if}}
             <div class="row">
               <div class="large-12 columns">
-                <button href"#" type="submit" class="button large radius large-12 small-12">{{tr "Update Password"}}</button>
+                <button href"#" type="submit" class="button large radius large-12 small-12" {{#if cantChangePassword}}disabled{{/if}}>{{tr "Update Password"}}</button>
               </div>
             </div>
           </form>
@@ -95,12 +104,12 @@
         <a href="#provision_update_view_accordion" class="text-center accordion-title">
           <div class="text-center only-not-active">
             <span class="fa-stack fa-3x">
-              <i class="fa fa-cloud fa-stack-2x"></i>
-              <i class="fa fa-picture-o fa-stack-1x fa-inverse"></i>
+              <i class="fas fa-cloud fa-stack-2x"></i>
+              <i class="fas fa-image fa-stack-1x fa-inverse"></i>
             </span>
           </div>
           <br class="only-not-active">
-          <i class="fa fa-lg fa-picture-o only-active"></i>
+          <i class="fas fa-lg fa-image only-active"></i>
           {{tr "Change view"}}
         </a>
         <div id="provision_update_view_accordion" class="accordion-content" data-tab-content>
@@ -132,12 +141,12 @@
               <a href="#provision_add_ssh_key_accordion" class="text-center accordion-title">
                 <div class="text-center only-not-active">
                   <span class="fa-stack fa-3x">
-                    <i class="fa fa-cloud fa-stack-2x"></i>
-                    <i class="fa fa-key fa-stack-1x fa-inverse"></i>
+                    <i class="fas fa-cloud fa-stack-2x"></i>
+                    <i class="fas fa-key fa-stack-1x fa-inverse"></i>
                   </span>
                 </div>
                 <br class="only-not-active">
-                <i class="fa fa-key fa-lg only-active"></i>
+                <i class="fas fa-key fa-lg only-active"></i>
                 <span class="provision_add_ssh_key_button">{{tr "Add SSH Key"}}</span>
                 <span class="provision_update_ssh_key_button">{{tr "Update SSH Key"}}</span>
               </a>
@@ -185,12 +194,12 @@
             <a href="#provision_login_token_accordion" class="text-center accordion-title">
               <div class="text-center only-not-active">
                 <span class="fa-stack fa-3x">
-                  <i class="fa fa-cloud fa-stack-2x"></i>
-                  <i class="fa fa-unlock-alt fa-stack-1x fa-inverse"></i>
+                  <i class="fas fa-cloud fa-stack-2x"></i>
+                  <i class="fas fa-unlock-alt fa-stack-1x fa-inverse"></i>
                 </span>
               </div>
               <br class="only-not-active">
-              <i class="fa fa-lg fa-unlock-alt only-active"></i>
+              <i class="fas fa-lg fa-unlock-alt only-active"></i>
               {{tr "Login Token"}}
             </a>
             <div id="provision_login_token_accordion" class="accordion-content" data-tab-content>
@@ -201,6 +210,40 @@
               <div class="row">
                 <div class="large-12 columns">
                   <button href"#" type="submit" class="button large radius large-12 small-12 provision_login_token_button">{{tr "Manage login tokens"}}</button>
+                </div>
+              </div>
+            </div>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+  {{/isTabActionEnabled}}
+  {{#isTabActionEnabled "settings-tab" "Settings.two_factor_auth"}}
+  <div class="medium-6 columns end">
+    <div class="row">
+      <div class="large-12 large-centered columns">
+        <dl class="accordion" data-accordion>
+          <dd class="accordion-item" data-accordion-item>
+            <a href="#provision_two_factor_auth_accordion" class="text-center accordion-title">
+              <div class="text-center only-not-active">
+                <span class="fa-stack fa-3x">
+                  <i class="fas fa-cloud fa-stack-2x"></i>
+                  <i class="fas fa-unlock-alt fa-stack-1x fa-inverse"></i>
+                </span>
+              </div>
+              <br class="only-not-active">
+              <i class="fas fa-lg fa-unlock-alt only-active"></i>
+              {{tr "Two Factor Authentication"}}
+            </a>
+            <div id="provision_two_factor_auth_accordion" class="accordion-content" data-tab-content>
+              <br/>
+              <p>
+                {{tr "Two factor authentication can be enabled for logging into Sunstone UI."}}
+              </p>
+              <div class="row">
+                <div class="large-12 columns">
+                  <button href"#" type="submit" class="button large radius large-12 small-12 provision_two_factor_auth_button"></button>
                 </div>
               </div>
             </div>

@@ -1,0 +1,11 @@
+[Unit]
+Description=OpenNebula's periodic showback calculation
+After=remote-fs.target
+
+[Timer]
+OnCalendar=daily
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=default.target

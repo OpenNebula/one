@@ -1,0 +1,851 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+#
+# Configuration file for rubocop linter
+# Applies to every ruby file on the OpenNebula repository
+#
+
+AllCops:
+  Exclude:
+    - src/sunstone/public/node_modules/**/*
+    - src/tm_mad
+    - share/onegate/onegate
+    - share/scons/get_xmlrpc_config
+    - share/rubygems/generate
+    - share/hooks/raft/follower_cleanup
+    - share/esx-fw-vnc/Vagrantfile
+    - share/vendor/ruby/gems/packethost/Rakefile
+    - share/vendor/ruby/gems/packethost/Gemfile
+    - share/vendor/ruby/gems/packethost/packethost.gemspec
+    - share/install_gems/Gemfile
+    - share/install_gems/install_gems
+    - share/install_gems/install_gems-obsolete
+    - src/authm_mad/remotes/dummy/authenticate
+    - src/authm_mad/remotes/plain/authenticate
+    - src/authm_mad/remotes/ldap/authenticate
+    - src/authm_mad/remotes/server_x509/authenticate
+    - src/authm_mad/remotes/server_cipher/authenticate
+    - src/authm_mad/remotes/x509/authenticate
+    - src/authm_mad/remotes/ssh/authenticate
+    - src/sunstone/bin/novnc-server
+    - src/sunstone/config.ru
+    - src/im_mad/remotes/dummy-probes.d/vms/monitor/monitor.rb
+    - src/im_mad/remotes/dummy.d/monitord-client.rb
+    - src/im_mad/remotes/dummy.d/monitord-client.rb
+    - src/im_mad/remotes/kvm-probes.d/host/monitor/numa_usage.rb
+    - src/im_mad/remotes/kvm-probes.d/host/system/machines_models.rb
+    - src/im_mad/remotes/kvm-probes.d/host/system/numa_host.rb
+    - src/im_mad/remotes/lib/kvm.rb
+    - src/im_mad/remotes/lib/probe_db.rb
+    - src/im_mad/remotes/lxd-probes.d/host/monitor/numa_usage.rb
+    - src/im_mad/remotes/lxd-probes.d/host/system/numa_host.rb
+    - src/im_mad/remotes/lxd-probes.d/vms/status/state.rb
+    - src/im_mad/remotes/node-probes.d/numa_usage.rb
+    - src/im_mad/remotes/lib/linux.rb
+    - src/im_mad/remotes/node-probes.d/numa_host.rb
+    - src/pm_mad/remotes/dummy/cancel
+    - src/pm_mad/remotes/dummy/shutdown
+    - src/pm_mad/remotes/dummy/reboot
+    - src/pm_mad/remotes/dummy/deploy
+    - src/pm_mad/remotes/dummy/reset
+    - src/pm_mad/remotes/dummy/poll
+    - src/pm_mad/remotes/packet/cancel
+    - src/pm_mad/remotes/packet/shutdown
+    - src/pm_mad/remotes/packet/reboot
+    - src/pm_mad/remotes/packet/deploy
+    - src/pm_mad/remotes/packet/reset
+    - src/pm_mad/remotes/packet/poll
+    - src/pm_mad/remotes/ec2/cancel
+    - src/pm_mad/remotes/ec2/shutdown
+    - src/pm_mad/remotes/ec2/reboot
+    - src/pm_mad/remotes/ec2/deploy
+    - src/pm_mad/remotes/ec2/reset
+    - src/pm_mad/remotes/ec2/poll
+    - src/onegate/config.ru
+    - src/im_mad/remotes/kvm-probes.d/host/system/pci.rb
+    - src/im_mad/remotes/lxd-probes.d/host/system/pci.rb
+    - src/im_mad/remotes/lxd-probes.d/pci.rb
+    - src/im_mad/remotes/kvm-probes.d/pci.rb
+    - src/im_mad/remotes/kvm.d/monitord-client.rb
+    - src/im_mad/remotes/lxd.d/monitord-client.rb
+    - src/im_mad/remotes/vcenter.d/poll
+    - src/im_mad/remotes/packet.d/poll
+    - src/im_mad/remotes/ec2.d/poll
+    - src/im_mad/remotes/one.d/poll
+    - src/im_mad/remotes/az.d/poll
+    - src/im_mad/remotes/lib/vcenter_cluster.rb
+    - src/im_mad/remotes/lib/vcenter_monitor.rb
+    - src/im_mad/remotes/lib/vcenter_monitor_vms.rb
+    - src/vnm_mad/remotes/ovswitch/post
+    - src/vnm_mad/remotes/ovswitch/clean
+    - src/vnm_mad/remotes/ovswitch/pre
+    - src/vnm_mad/remotes/802.1Q/post
+    - src/vnm_mad/remotes/802.1Q/update_sg
+    - src/vnm_mad/remotes/802.1Q/clean
+    - src/vnm_mad/remotes/802.1Q/pre
+    - src/vnm_mad/remotes/ebtables/post
+    - src/vnm_mad/remotes/ebtables/update_sg
+    - src/vnm_mad/remotes/ebtables/clean
+    - src/vnm_mad/remotes/ebtables/pre
+    - src/vnm_mad/remotes/bridge/clean
+    - src/vnm_mad/remotes/bridge/pre
+    - src/vnm_mad/remotes/vxlan/post
+    - src/vnm_mad/remotes/vxlan/update_sg
+    - src/vnm_mad/remotes/vxlan/clean
+    - src/vnm_mad/remotes/vxlan/pre
+    - src/vnm_mad/remotes/fw/post
+    - src/vnm_mad/remotes/fw/update_sg
+    - src/vnm_mad/remotes/fw/clean
+    - src/vnm_mad/remotes/fw/pre
+    - src/vnm_mad/remotes/ovswitch_vxlan/post
+    - src/vnm_mad/remotes/ovswitch_vxlan/clean
+    - src/vnm_mad/remotes/ovswitch_vxlan/pre
+    - src/vmm_mad/remotes/lxd/attach_nic
+    - src/vmm_mad/remotes/lxd/detach_nic
+    - src/vmm_mad/remotes/lxd/detach_disk
+    - src/vmm_mad/remotes/lxd/shutdown
+    - src/vmm_mad/remotes/lxd/attach_disk
+    - src/vmm_mad/remotes/lxd/reboot
+    - src/vmm_mad/remotes/lxd/deploy
+    - src/vmm_mad/remotes/lxd/prereconfigure
+    - src/vmm_mad/remotes/lxd/reconfigure
+    - src/vmm_mad/remotes/lxd/poll
+    - src/vmm_mad/remotes/one/cancel
+    - src/vmm_mad/remotes/one/shutdown
+    - src/vmm_mad/remotes/one/reboot
+    - src/vmm_mad/remotes/one/deploy
+    - src/vmm_mad/remotes/one/reset
+    - src/vmm_mad/remotes/one/save
+    - src/vmm_mad/remotes/one/restore
+    - src/vmm_mad/remotes/one/poll
+    - src/vmm_mad/remotes/kvm/poll
+    - src/vmm_mad/remotes/az/cancel
+    - src/vmm_mad/remotes/az/shutdown
+    - src/vmm_mad/remotes/az/reboot
+    - src/vmm_mad/remotes/az/deploy
+    - src/vmm_mad/remotes/az/save
+    - src/vmm_mad/remotes/az/restore
+    - src/vmm_mad/remotes/az/poll
+    - src/vmm_mad/remotes/packet/cancel
+    - src/vmm_mad/remotes/packet/shutdown
+    - src/vmm_mad/remotes/packet/reboot
+    - src/vmm_mad/remotes/packet/deploy
+    - src/vmm_mad/remotes/packet/reset
+    - src/vmm_mad/remotes/packet/poll
+    - src/vmm_mad/remotes/ec2/cancel
+    - src/vmm_mad/remotes/ec2/shutdown
+    - src/vmm_mad/remotes/ec2/reboot
+    - src/vmm_mad/remotes/ec2/deploy
+    - src/vmm_mad/remotes/ec2/save
+    - src/vmm_mad/remotes/ec2/restore
+    - src/vmm_mad/remotes/ec2/poll
+    - src/cloud/ec2/bin/econe-detach-volume
+    - src/cloud/ec2/bin/econe-start-instances
+    - src/cloud/ec2/bin/econe-associate-address
+    - src/cloud/ec2/bin/econe-create-volume
+    - src/cloud/ec2/bin/econe-delete-volume
+    - src/cloud/ec2/bin/econe-attach-volume
+    - src/cloud/ec2/bin/econe-stop-instances
+    - src/cloud/ec2/bin/econe-delete-keypair
+    - src/cloud/ec2/bin/econe-register
+    - src/cloud/ec2/bin/econe-release-address
+    - src/cloud/ec2/bin/econe-describe-images
+    - src/cloud/ec2/bin/econe-terminate-instances
+    - src/cloud/ec2/bin/econe-describe-keypairs
+    - src/cloud/ec2/bin/econe-describe-instances
+    - src/cloud/ec2/bin/econe-reboot-instances
+    - src/cloud/ec2/bin/econe-allocate-address
+    - src/cloud/ec2/bin/econe-upload
+    - src/cloud/ec2/bin/econe-describe-addresses
+    - src/cloud/ec2/bin/econe-run-instances
+    - src/cloud/ec2/bin/econe-disassociate-address
+    - src/cloud/ec2/bin/econe-create-keypair
+    - src/cloud/ec2/bin/econe-describe-volumes
+    - src/market_mad/remotes/s3/monitor
+    - src/market_mad/remotes/s3/delete
+    - src/market_mad/remotes/s3/import
+    - src/flow/config.ru
+    - src/flow/Gemfile
+    - src/cli/one
+    - share/scons/po2json.rb
+    - share/sudoers/sudo_commands.rb
+    - share/hooks/vcenter/delete_vcenter_net.rb
+    - share/hooks/vcenter/create_vcenter_net.rb
+    - share/hooks/ft/host_error.rb
+    - share/instance_types/ec2-instance-types.rb
+    - share/instance_types/az-instance-types.rb
+    - share/vendor/ruby/gems/packethost/spec/spec_helper.rb
+    - share/vendor/ruby/gems/packethost/spec/support/webmock.rb
+    - share/vendor/ruby/gems/packethost/spec/support/fake_packet.rb
+    - share/vendor/ruby/gems/packethost/spec/support/shared/entity.rb
+    - share/vendor/ruby/gems/packethost/spec/lib/packet_spec.rb
+    - share/vendor/ruby/gems/packethost/spec/lib/packet/client_spec.rb
+    - share/vendor/ruby/gems/packethost/spec/lib/packet/project_spec.rb
+    - share/vendor/ruby/gems/packethost/spec/lib/packet/configuration_spec.rb
+    - share/vendor/ruby/gems/packethost/spec/lib/packet/device_spec.rb
+    - share/vendor/ruby/gems/packethost/lib/packet.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/project.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/errors.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/entity/base.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/entity/serialization.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/entity/associations.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/entity/finders.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/entity/timestamps.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/entity/persistence.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/entity.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/facility.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/operating_system.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/device.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/ip_range.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/version.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/global_id.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/configuration.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/devices.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/projects.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/plans.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/facilities.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/ip_ranges.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/ssh_keys.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/users.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/operating_systems.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/client/ips.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/ssh_key.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/ip.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/plan.rb
+    - share/vendor/ruby/gems/packethost/lib/packet/user.rb
+    - share/vendor/ruby/gems/packethost/lib/packethost.rb
+    - share/router/vmcontext.rb
+    - src/authm_mad/one_auth_mad.rb
+    - src/authm_mad/remotes/ldap/test/ldap_auth_spec.rb
+    - src/authm_mad/remotes/ldap/ldap_auth.rb
+    - src/authm_mad/remotes/server_x509/server_x509_auth.rb
+    - src/authm_mad/remotes/server_cipher/server_cipher_auth.rb
+    - src/authm_mad/remotes/x509/x509_auth.rb
+    - src/authm_mad/remotes/ssh/ssh_auth.rb
+    - src/sunstone/sunstone-server.rb
+    - src/sunstone/test/spec/spec_helper.rb
+    - src/sunstone/test/spec/vnet_spec.rb
+    - src/sunstone/test/spec/image_spec.rb
+    - src/sunstone/test/spec/vm_spec.rb
+    - src/sunstone/test/spec/host_spec.rb
+    - src/sunstone/test/spec/user_spec.rb
+    - src/sunstone/OpenNebulaAddons.rb
+    - src/sunstone/OpenNebulaVNC.rb
+    - src/sunstone/models/OpenNebulaJSON.rb
+    - src/sunstone/models/SunstoneViews.rb
+    - src/sunstone/models/SunstoneServer.rb
+    - src/sunstone/models/OpenNebulaJSON/SecurityGroupJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/HostJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/PoolJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/TemplateJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/DatastoreJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/UserJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/AclJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/JSONUtils.rb
+    - src/sunstone/models/OpenNebulaJSON/VirtualMachineJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/MarketPlaceAppJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/ImageJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/ZoneJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/MarketPlaceJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/VirtualNetworkJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/VirtualRouterJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/VirtualNetworkTemplateJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/GroupJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/ClusterJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/VMGroupJSON.rb
+    - src/sunstone/models/OpenNebulaJSON/VdcJSON.rb
+    - src/sunstone/public/config.rb
+    - src/sunstone/routes/oneflow.rb
+    - src/sunstone/routes/vcenter.rb
+    - src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb
+    - src/onegate/onegate-server.rb
+    - src/datastore_mad/remotes/vcenter_downloader.rb
+    - src/datastore_mad/remotes/vcenter_uploader.rb
+    - src/datastore_mad/remotes/xpath.rb
+    - src/datastore_mad/remotes/url.rb
+    - src/datastore_mad/one_datastore.rb
+    - src/im_mad/dummy/one_im_dummy.rb
+    - src/im_mad/im_exec/one_im_exec.rb
+    - src/im_mad/remotes/lxd-probes.d/lxd.rb
+    - src/im_mad/remotes/kvm-probes.d/kvm.rb
+    - src/im_mad/remotes/kvm-probes.d/machines-models.rb
+    - src/im_mad/remotes/common.d/monitord-client.rb
+    - src/im_mad/remotes/node-probes.d/pci.rb
+    - src/hm_mad/one_hm.rb
+    - src/vnm_mad/remotes/ovswitch/OpenvSwitch.rb
+    - src/vnm_mad/remotes/802.1Q/vlan_tag_driver.rb
+    - src/vnm_mad/remotes/ebtables/Ebtables.rb
+    - src/vnm_mad/remotes/vxlan/vxlan.rb
+    - src/vnm_mad/remotes/vxlan/vxlan_driver.rb
+    - src/vnm_mad/remotes/ovswitch_vxlan/OpenvSwitchVXLAN.rb
+    - src/vnm_mad/remotes/lib/no_vlan.rb
+    - src/vnm_mad/remotes/lib/nic.rb
+    - src/vnm_mad/remotes/lib/vnmmad.rb
+    - src/vnm_mad/remotes/lib/security_groups.rb
+    - src/vnm_mad/remotes/lib/security_groups_iptables.rb
+    - src/vnm_mad/remotes/lib/vm.rb
+    - src/vnm_mad/remotes/lib/vnm_driver.rb
+    - src/vnm_mad/remotes/lib/sg_driver.rb
+    - src/vnm_mad/remotes/lib/address.rb
+    - src/cli/command_parser.rb
+    - src/cli/one_helper.rb
+    - src/cli/one_helper/onevmgroup_helper.rb
+    - src/cli/one_helper/onemarket_helper.rb
+    - src/cli/one_helper/onesecgroup_helper.rb
+    - src/cli/one_helper/onezone_helper.rb
+    - src/cli/one_helper/onetemplate_helper.rb
+    - src/cli/one_helper/onevm_helper.rb
+    - src/cli/one_helper/oneacct_helper.rb
+    - src/cli/one_helper/onequota_helper.rb
+    - src/cli/one_helper/oneuser_helper.rb
+    - src/cli/one_helper/onegroup_helper.rb
+    - src/cli/one_helper/onevnet_helper.rb
+    - src/cli/one_helper/onevcenter_helper.rb
+    - src/cli/one_helper/onecluster_helper.rb
+    - src/cli/one_helper/onevntemplate_helper.rb
+    - src/cli/one_helper/onevrouter_helper.rb
+    - src/cli/one_helper/onevdc_helper.rb
+    - src/cli/one_helper/onedatastore_helper.rb
+    - src/oca/ruby/test/VirtualMachine_spec.rb
+    - src/oca/ruby/test/VirtualMachinePool_spec.rb
+    - src/oca/ruby/test/XMLUtils_spec.rb
+    - src/oca/ruby/test/UserPool_spec.rb
+    - src/oca/ruby/test/Host_spec.rb
+    - src/oca/ruby/test/User_spec.rb
+    - src/oca/ruby/test/helpers/MockClient.rb
+    - src/oca/ruby/test/VirtualNetwork_spec.rb
+    - src/oca/ruby/test/HostPool_spec.rb
+    - src/oca/ruby/test/VirtualNetworkPool_spec.rb
+    - src/oca/ruby/opennebula.rb
+    - src/oca/ruby/opennebula/image.rb
+    - src/oca/ruby/opennebula/datastore.rb
+    - src/oca/ruby/opennebula/group_pool.rb
+    - src/oca/ruby/opennebula/template_pool.rb
+    - src/oca/ruby/opennebula/marketplaceapp_pool.rb
+    - src/oca/ruby/opennebula/acl_pool.rb
+    - src/oca/ruby/opennebula/virtual_machine_pool.rb
+    - src/oca/ruby/opennebula/pool.rb
+    - src/oca/ruby/opennebula/host_pool.rb
+    - src/oca/ruby/opennebula/security_group.rb
+    - src/oca/ruby/opennebula/cluster_pool.rb
+    - src/oca/ruby/opennebula/document.rb
+    - src/oca/ruby/opennebula/zone.rb
+    - src/oca/ruby/opennebula/virtual_router_pool.rb
+    - src/oca/ruby/opennebula/user_pool.rb
+    - src/oca/ruby/opennebula/xml_utils.rb
+    - src/oca/ruby/opennebula/virtual_router.rb
+    - src/oca/ruby/opennebula/document_json.rb
+    - src/oca/ruby/opennebula/marketplace.rb
+    - src/oca/ruby/opennebula/virtual_machine.rb
+    - src/oca/ruby/opennebula/xml_element.rb
+    - src/oca/ruby/opennebula/template.rb
+    - src/oca/ruby/opennebula/group.rb
+    - src/oca/ruby/opennebula/virtual_network.rb
+    - src/oca/ruby/opennebula/virtual_machine_ext.rb
+    - src/oca/ruby/opennebula/security_group_pool.rb
+    - src/oca/ruby/opennebula/pool_element.rb
+    - src/oca/ruby/opennebula/document_pool.rb
+    - src/oca/ruby/opennebula/vm_group_pool.rb
+    - src/oca/ruby/opennebula/vntemplate_pool.rb
+    - src/oca/ruby/opennebula/vdc_pool.rb
+    - src/oca/ruby/opennebula/datastore_pool.rb
+    - src/oca/ruby/opennebula/cluster.rb
+    - src/oca/ruby/opennebula/utils.rb
+    - src/oca/ruby/opennebula/acl.rb
+    - src/oca/ruby/opennebula/vntemplate.rb
+    - src/oca/ruby/opennebula/oneflow_client.rb
+    - src/oca/ruby/opennebula/host.rb
+    - src/oca/ruby/opennebula/vm_group.rb
+    - src/oca/ruby/opennebula/xml_pool.rb
+    - src/oca/ruby/opennebula/client.rb
+    - src/oca/ruby/opennebula/document_pool_json.rb
+    - src/oca/ruby/opennebula/zone_pool.rb
+    - src/oca/ruby/opennebula/error.rb
+    - src/oca/ruby/opennebula/image_pool.rb
+    - src/oca/ruby/opennebula/virtual_network_pool.rb
+    - src/oca/ruby/opennebula/system.rb
+    - src/oca/ruby/opennebula/marketplaceapp.rb
+    - src/oca/ruby/opennebula/marketplace_pool.rb
+    - src/oca/ruby/opennebula/vdc.rb
+    - src/oca/ruby/opennebula/user.rb
+    - src/oca/ruby/deprecated/OpenNebula.rb
+    - src/vmm_mad/dummy/one_vmm_dummy.rb
+    - src/vmm_mad/remotes/one/opennebula_driver.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
+    - src/vmm_mad/remotes/lib/vcenter_driver/vm_template.rb
+    - src/vmm_mad/remotes/lib/lxd/mapper/qcow2.rb
+    - src/vmm_mad/remotes/lib/lxd/mapper/mapper.rb
+    - src/vmm_mad/remotes/lib/lxd/mapper/rbd.rb
+    - src/vmm_mad/remotes/lib/lxd/mapper/raw.rb
+    - src/vmm_mad/remotes/lib/lxd/container.rb
+    - src/vmm_mad/remotes/lib/lxd/client.rb
+    - src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb
+    - src/vmm_mad/remotes/lib/lxd/command.rb
+    - src/vmm_mad/remotes/lib/poll_common.rb
+    - src/vmm_mad/remotes/packet/packet_driver.rb
+    - src/vmm_mad/remotes/ec2/ec2_driver.rb
+    - src/mad/ruby/ssh_stream.rb
+    - src/mad/ruby/test/MonkeyPatcher.rb
+    - src/mad/ruby/test/OpenNebulaDriver_spec.rb
+    - src/mad/ruby/VirtualMachineDriver.rb
+    - src/mad/ruby/ActionManager.rb
+    - src/mad/ruby/CommandManager.rb
+    - src/mad/ruby/test_mad.rb
+    - src/mad/ruby/OpenNebulaDriver.rb
+    - src/mad/ruby/scripts_common.rb
+    - src/ipamm_mad/one_ipam.rb
+    - src/cloud/common/CloudClient.rb
+    - src/cloud/common/CloudServer.rb
+    - src/cloud/common/CloudAuth.rb
+    - src/cloud/common/CloudAuth/RemoteCloudAuth.rb
+    - src/cloud/common/CloudAuth/X509CloudAuth.rb
+    - src/cloud/common/CloudAuth/EC2CloudAuth.rb
+    - src/cloud/common/CloudAuth/SunstoneCloudAuth.rb
+    - src/cloud/common/CloudAuth/OneGateCloudAuth.rb
+    - src/cloud/common/CloudAuth/OpenNebulaCloudAuth.rb
+    - src/cloud/ec2/lib/ebs.rb
+    - src/cloud/ec2/lib/elastic_ip.rb
+    - src/cloud/ec2/lib/ImageEC2.rb
+    - src/cloud/ec2/lib/net_ssh_replacement.rb
+    - src/cloud/ec2/lib/keypair.rb
+    - src/cloud/ec2/lib/EC2QueryServer.rb
+    - src/cloud/ec2/lib/econe-server.rb
+    - src/cloud/ec2/lib/EC2QueryClient.rb
+    - src/cloud/ec2/lib/tags.rb
+    - src/cloud/ec2/lib/instance.rb
+    - src/cloud/ec2/lib/econe_application.rb
+    - src/onedb/database_schema.rb
+    - src/onedb/fsck/image.rb
+    - src/onedb/fsck/vrouter.rb
+    - src/onedb/fsck/pool_control.rb
+    - src/onedb/fsck/marketplace.rb
+    - src/onedb/fsck/template.rb
+    - src/onedb/fsck/vm.rb
+    - src/onedb/fsck/marketplaceapp.rb
+    - src/onedb/fsck.rb
+    - src/onedb/patches/ip4_ip6_static.rb
+    - src/onedb/patches/history_times.rb
+    - src/onedb/patches/marketapps_clean.rb
+    - src/onedb/patches/4.14_monitoring.rb
+    - src/onedb/patches/next_snapshot.rb
+    - src/onedb/vcenter_one54_pre.rb
+    - src/onedb/vcenter_one54.rb
+    - src/onedb/onedb.rb
+    - src/onedb/shared/4.2.0_to_4.3.80.rb
+    - src/onedb/shared/5.3.80_to_5.4.0.rb
+    - src/onedb/shared/3.0.0_to_3.1.0.rb
+    - src/onedb/shared/3.2.0_to_3.2.1.rb
+    - src/onedb/shared/3.6.0_to_3.7.80.rb
+    - src/onedb/shared/3.5.80_to_3.6.0.rb
+    - src/onedb/shared/5.6.0_to_5.7.80.rb
+    - src/onedb/shared/4.4.1_to_4.5.80.rb
+    - src/onedb/shared/3.1.0_to_3.1.80.rb
+    - src/onedb/shared/3.8.0_to_3.8.1.rb
+    - src/onedb/shared/2.0_to_2.9.80.rb
+    - src/onedb/shared/3.8.5_to_3.9.80.rb
+    - src/onedb/shared/4.5.80_to_4.6.0.rb
+    - src/onedb/shared/3.8.2_to_3.8.3.rb
+    - src/onedb/shared/4.0.1_to_4.1.80.rb
+    - src/onedb/shared/4.11.80_to_4.90.0.rb
+    - src/onedb/shared/3.9.80_to_3.9.90.rb
+    - src/onedb/shared/4.90.0_to_5.2.0.rb
+    - src/onedb/shared/4.6.0_to_4.11.80.rb
+    - src/onedb/shared/3.3.0_to_3.3.80.rb
+    - src/onedb/shared/3.4.1_to_3.5.80.rb
+    - src/onedb/shared/5.4.1_to_5.5.80.rb
+    - src/onedb/shared/4.3.85_to_4.3.90.rb
+    - src/onedb/shared/4.4.0_to_4.4.1.rb
+    - src/onedb/shared/3.8.1_to_3.8.2.rb
+    - src/onedb/shared/2.9.90_to_3.0.0.rb
+    - src/onedb/shared/3.8.3_to_3.8.4.rb
+    - src/onedb/shared/2.9.80_to_2.9.85.rb
+    - src/onedb/shared/5.2.0_to_5.3.80.rb
+    - src/onedb/shared/3.4.0_to_3.4.1.rb
+    - src/onedb/shared/5.4.0_to_5.4.1.rb
+    - src/onedb/shared/4.3.80_to_4.3.85.rb
+    - src/onedb/shared/3.2.1_to_3.3.0.rb
+    - src/onedb/shared/2.9.85_to_2.9.90.rb
+    - src/onedb/shared/3.8.4_to_3.8.5.rb
+    - src/onedb/shared/3.7.80_to_3.8.0.rb
+    - src/onedb/shared/3.1.80_to_3.2.0.rb
+    - src/onedb/shared/5.6.0_to_5.10.0.rb
+    - src/onedb/shared/3.3.80_to_3.4.0.rb
+    - src/onedb/shared/4.3.90_to_4.4.0.rb
+    - src/onedb/shared/3.9.90_to_4.0.0.rb
+    - src/onedb/shared/4.0.0_to_4.0.1.rb
+    - src/onedb/shared/4.1.80_to_4.2.0.rb
+    - src/onedb/shared/5.6.0_to_5.10.0.rb
+    - src/onedb/shared/5.5.80_to_5.6.0.rb
+    - src/onedb/shared/5.10.0_to_5.12.0.rb
+    - src/onedb/local/5.3.80_to_5.4.0.rb
+    - src/onedb/local/4.13.80_to_4.13.85.rb
+    - src/onedb/local/5.6.0_to_5.7.80.rb
+    - src/onedb/local/5.4.1_to_5.5.80.rb
+    - src/onedb/local/4.13.85_to_4.90.0.rb
+    - src/onedb/local/5.4.0_to_5.4.1.rb
+    - src/onedb/local/4.11.80_to_4.13.80.rb
+    - src/onedb/local/4.10.3_to_4.11.80.rb
+    - src/onedb/local/4.90.0_to_5.3.80.rb
+    - src/onedb/local/4.5.80_to_4.7.80.rb
+    - src/onedb/local/4.9.80_to_4.10.3.rb
+    - src/onedb/local/5.5.80_to_5.6.0.rb
+    - src/onedb/local/4.7.80_to_4.9.80.rb
+    - src/onedb/local/5.8.0_to_5.9.80.rb
+    - src/onedb/local/5.8.0_to_5.10.0.rb
+    - src/onedb/local/5.6.0_to_5.10.0.rb
+    - src/onedb/local/5.10.0_to_5.12.0.rb
+    - src/onedb/onedb_live.rb
+    - src/onedb/onedb_backend.rb
+    - src/onedb/sqlite2mysql.rb
+    - src/market_mad/remotes/s3/S3.rb
+    - src/market_mad/one_market.rb
+    - src/tm_mad/one_tm.rb
+    - src/oca/ruby/opennebula/flow/grammar.rb
+    - src/oca/ruby/opennebula/flow/validator.rb
+    - src/sunstone/OpenNebulaVMRC.rb
+  NewCops: enable
+
+########
+# LAYOUT
+########
+
+# Line Length config:
+Layout/LineLength:
+    Max: 80
+
+# Check indendation
+Layout/IndentationWidth:
+    Width: 4
+
+# no space before block paramenter {|var| code }
+Layout/SpaceInsideBlockBraces:
+    SpaceBeforeBlockParameters: false
+
+# Align the end keyword
+Layout/EndAlignment:
+    AutoCorrect: true
+
+# empty line after X declaration and before X end:
+Layout/EmptyLinesAroundClassBody:
+    EnforcedStyle: empty_lines
+
+Layout/EmptyLinesAroundModuleBody:
+    EnforcedStyle: empty_lines
+
+# it's mandatory to left a empty line before guard clause
+Layout/EmptyLineAfterGuardClause:
+    Enabled: true
+
+Layout/HashAlignment:
+    Enabled: false
+
+Layout/SpaceAroundOperators:
+    Enabled: false
+
+Layout/SpaceAroundMethodCallOperator:
+    Enabled: true
+
+Layout/EmptyLinesAroundAttributeAccessor:
+    Enabled: true
+
+Layout/MultilineOperationIndentation:
+    Enabled: false
+
+#######
+# STYLE
+#######
+
+Style/OptionalBooleanParameter:
+    Enabled: false
+
+Style/StringConcatenation:
+    Enabled: false
+
+Style/StringLiterals:
+    EnforcedStyle: single_quotes
+
+Style/SignalException:
+    EnforcedStyle: only_raise
+
+Style/ConditionalAssignment:
+    EnforcedStyle: assign_inside_condition
+
+# No parentheses with no argument
+Style/DefWithParentheses:
+    Enabled: true
+
+# Simple loop does not require each
+Style/EachForSimpleLoop:
+    Enabled: false
+
+# empty elses must be omitted
+Style/EmptyElse:
+    EnforcedStyle: empty
+
+# use for instead of each
+Style/For:
+    EnforcedStyle: each
+
+# declare key, value pairs with =>
+Style/HashSyntax:
+    EnforcedStyle: hash_rockets
+
+# You can put if blocks inside if
+Style/IfInsideElse:
+    Enabled: false
+
+# one line if/unless conditions
+Style/IfUnlessModifier:
+    Enabled: false
+
+# Mandatory use of Parentheses in method calls
+Style/MethodCallWithArgsParentheses:
+    Enabled: false
+
+# Use unless in one line statement
+Style/NegatedIf:
+    EnforcedStyle: postfix
+
+# better tu use next instead of if
+Style/Next:
+    EnforcedStyle: skip_modifier_ifs
+
+# not use _ in numbers
+Style/NumericLiterals:
+    Enabled: false
+
+# optional parameters always at the end
+Style/OptionalArguments:
+    Enabled: true
+
+# return nil not allowed
+Style/ReturnNil:
+    Enabled: true
+
+# use rescue splitted in lines
+Style/RescueModifier:
+    Enabled: false
+
+Style/MutableConstant:
+    Enabled: false
+
+Style/SymbolProc:
+    Enabled: false
+
+# TODO: Remove this whenever there is strenght to do so
+Style/StderrPuts:
+    Enabled: false
+
+Style/HashEachMethods:
+    Enabled: false
+
+Style/HashTransformKeys:
+    Enabled: false
+
+Style/HashTransformValues:
+    Enabled: false
+
+#This breaks Ruby 1.9
+Style/SymbolArray:
+    EnforcedStyle: brackets
+
+Style/FrozenStringLiteralComment:
+    Enabled: false
+
+Style/NumericPredicate:
+    Enabled: false
+
+Style/SafeNavigation:
+    Enabled: false
+
+Style/FloatDivision:
+    Enabled: false
+
+Style/RedundantBegin:
+    Enabled: false
+
+Style/ExponentialNotation:
+    Enabled: true
+
+Style/SlicingWithRange:
+    Enabled: true
+
+Style/AccessorGrouping:
+  Enabled: False
+
+Style/ArrayCoercion:
+  Enabled: True
+
+Style/BisectedAttrAccessor:
+  Enabled: True
+
+Style/CaseLikeIf:
+  Enabled: True
+
+Style/HashAsLastArrayItem:
+  Enabled: True
+
+Style/HashLikeCase:
+  Enabled: True
+
+Style/RedundantAssignment:
+  Enabled: True
+
+Style/RedundantFetchBlock:
+  Enabled: True
+
+Style/RedundantFileExtensionInRequire:
+  Enabled: True
+
+Style/RedundantRegexpCharacterClass:
+  Enabled: True
+
+Style/RedundantRegexpEscape:
+  Enabled: False
+
+Style/GlobalStdStream:
+  Enabled: False
+
+Style/ClassEqualityComparison:
+  Enabled: False
+
+Style/LineEndConcatenation:
+  Enabled: False
+
+Style/MultilineIfModifier:
+  Enabled: False
+
+Style/UnpackFirst:
+  Enabled: False
+
+######
+# LINT
+######
+
+Lint/ConstantDefinitionInBlock:
+    Enabled: false
+
+Lint/FloatComparison:
+    Enabled: false
+
+Lint/RaiseException:
+    Enabled: true
+
+Lint/StructNewOverride:
+    Enabled: true
+
+Lint/DeprecatedOpenSSLConstant:
+    Enabled: true
+
+# check duplicate X:
+Lint/DuplicateCaseCondition:
+    Enabled: true
+
+Lint/DuplicateMethods:
+    Enabled: true
+
+Lint/DuplicateHashKey:
+    Enabled: true
+##
+
+# check empty exceptions
+Lint/SuppressedException:
+    Enabled: false
+
+# Workaround version 0.84
+Lint/RedundantCopDisableDirective:
+    Enabled: false
+
+# check matching parameters in format
+Lint/FormatParameterMismatch:
+    Enabled: true
+
+## else as block
+Lint/ElseLayout:
+    Enabled: true
+
+# Check for shadowed parameters inside a block
+Lint/ShadowingOuterLocalVariable:
+    Enabled: true
+
+# Check for debugger info
+Lint/Debugger:
+    Enabled: true
+
+# Check file permissions
+Lint/ScriptPermission:
+    Enabled: false
+
+Lint/DuplicateElsifCondition:
+  Enabled: True
+
+Lint/MixedRegexpCaptureTypes:
+  Enabled: True
+
+#########
+# METRICS
+########
+
+Metrics/BlockLength:
+    Enabled: False
+
+Metrics/ModuleLength:
+    Enabled: False
+
+Metrics/ClassLength:
+    Enabled: False
+
+# Parameter list config:
+Metrics/ParameterLists:
+    Max: 5
+    CountKeywordArgs: true
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+# Block nesting is 4
+Metrics/BlockNesting:
+  Max: 5
+
+Metrics/AbcSize:
+  Enabled: false
+
+# Disable method length
+Metrics/MethodLength:
+  Enabled: false
+
+# uppercase constant mandatory
+Naming/ConstantName:
+    Enabled: true
+
+Naming/HeredocDelimiterNaming:
+    Enabled: false
+
+Naming/MethodParameterName:
+    Enabled: false
+
+###
+# Bundler
+####
+
+# order alphabetically deactivated
+Bundler/OrderedGems:
+    Enabled: false

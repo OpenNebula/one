@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,23 +16,31 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/oneimage_helper'
 require 'one_helper/onedatastore_helper'
 
-cmd=CommandParser::CmdParser.new(ARGV) do
-    usage "`oneimage` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`oneimage` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneImageHelper.new
@@ -41,27 +49,51 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
+    USE = {
+        :name => 'use',
+        :large => '--use',
+        :description => 'lock use actions'
+    }
+
+    MANAGE = {
+        :name => 'manage',
+        :large => '--manage',
+        :description => 'lock manage actions'
+    }
+
+    ADMIN = {
+        :name => 'admin',
+        :large => '--admin',
+        :description => 'lock admin actions'
+    }
+
+    ALL = {
+        :name => 'all',
+        :large => '--all',
+        :description => 'lock all actions'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+    set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
-    list_options = CLIHelper::OPTIONS
-    list_options << OpenNebulaHelper::XML
+    list_options  = CLIHelper::OPTIONS
+    list_options += OpenNebulaHelper::FORMAT
     list_options << OpenNebulaHelper::NUMERIC
     list_options << OpenNebulaHelper::DESCRIBE
 
-    CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE]
+    CREATE_OPTIONS = [OneDatastoreHelper::DATASTORE, OneImageHelper::IMAGE]
 
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
 
-    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "USER")
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
     end
 
     set :format, :imageid, OneImageHelper.to_id_desc do |arg|
@@ -76,13 +108,13 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         helper.filterflag_to_i(arg)
     end
 
-    format(:type, "Image type: #{Image::IMAGE_TYPES.join(", ")}") do |arg|
-        type=arg.strip.upcase
+    format(:type, "Image type: #{Image::IMAGE_TYPES.join(', ')}") do |arg|
+        type = arg.strip.upcase
         if Image::IMAGE_TYPES.include? type
             [0, type]
         else
-            [1, "Image type not supported. Must be "<<
-                 Image::IMAGE_TYPES.join(", ")<<"."]
+            [1, 'Image type not supported. Must be ' <<
+                Image::IMAGE_TYPES.join(', ') << '.']
         end
     end
 
@@ -114,25 +146,32 @@ cmd=CommandParser::CmdParser.new(ARGV) do
 
     EOT
 
-    command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS +
-            OneImageHelper::TEMPLATE_OPTIONS do
-
+    command :create,
+            create_desc,
+            [:file, nil],
+            :options => CREATE_OPTIONS + OneImageHelper::TEMPLATE_OPTIONS do
         if options[:datastore].nil? && !options[:dry]
-            STDERR.puts "Datastore to save the image is mandatory: "
-            STDERR.puts "\t -d datastore_id"
-            exit -1
+            STDERR.puts 'Datastore to save the image is mandatory: '
+            STDERR.puts '\t -d datastore_id'
+            exit(-1)
+        end
+
+        if options[:no_check_capacity].nil?
+            check_capacity = false
+        else
+            check_capacity = true
         end
 
         if args[0] && OpenNebulaHelper.create_template_options_used?(options)
-            STDERR.puts "You can not use both template file and template"<<
-                " creation options."
+            STDERR.puts 'You can not use both template file and template' \
+                        ' creation options.'
             next -1
         end
 
         helper.create_resource(options) do |image|
             begin
                 if args[0]
-                    template=File.read(args[0])
+                    template = File.read(args[0])
                 else
                     res = OneImageHelper.create_image_template(options)
 
@@ -149,10 +188,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                     exit 0
                 end
 
-                image.allocate(template, options[:datastore])
-            rescue => e
-                STDERR.puts e.messsage
-                exit -1
+                image.allocate(template, options[:datastore], check_capacity)
+            rescue StandardError => e
+                STDERR.puts e.message
+                exit(-1)
             end
         end
     end
@@ -162,8 +201,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :clone, clone_desc, :imageid, :name,
-        :options=>[OneDatastoreHelper::DATASTORE] do
-        helper.perform_action(args[0],options,"cloned") do |image|
+            :options => [OneDatastoreHelper::DATASTORE] do
+        helper.perform_action(args[0], options, 'cloned') do |image|
             ds_id = options[:datastore] || -1 # -1 clones to self
             res   = image.clone(args[1], ds_id)
 
@@ -171,7 +210,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
                 puts "ID: #{res}"
             else
                 puts res.message
-                exit -1
+                exit(-1)
             end
         end
     end
@@ -181,7 +220,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :imageid_list] do
-        helper.perform_actions(args[0],options,"deleted") do |image|
+        helper.perform_actions(args[0], options, 'deleted') do |image|
             image.delete
         end
     end
@@ -193,8 +232,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         one VM instance at a time.
     EOT
 
-    command :persistent, persistent_desc, [:range,:imageid_list] do
-        helper.perform_actions(args[0],options,"made persistent") do |image|
+    command :persistent, persistent_desc, [:range, :imageid_list] do
+        helper.perform_actions(args[0], options, 'made persistent') do |image|
             image.persistent
         end
     end
@@ -203,8 +242,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Makes the given Image non persistent. See 'oneimage persistent'
     EOT
 
-    command :nonpersistent, nonpersistent_desc, [:range,:imageid_list] do
-        helper.perform_actions(args[0],options,"made non persistent") do |image|
+    command :nonpersistent, nonpersistent_desc, [:range, :imageid_list] do
+        helper.perform_actions(args[0],
+                               options,
+                               'made non persistent') do |image|
             image.nonpersistent
         end
     end
@@ -215,8 +256,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :imageid, [:file, nil],
-    :options=>OpenNebulaHelper::APPEND do
-        helper.perform_action(args[0],options,"modified") do |obj|
+            :options => OpenNebulaHelper::APPEND do
+        helper.perform_action(args[0], options, 'modified') do |obj|
             if options[:append]
                 str = OpenNebulaHelper.append_template(args[0], obj, args[1])
             else
@@ -234,8 +275,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Enables the given Image
     EOT
 
-    command :enable, enable_desc, [:range,:imageid_list] do
-        helper.perform_actions(args[0],options,"enabled") do |image|
+    command :enable, enable_desc, [:range, :imageid_list] do
+        helper.perform_actions(args[0], options, 'enabled') do |image|
             image.enable
         end
     end
@@ -244,8 +285,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Image's type
     EOT
 
-    command :chtype, chtype_desc,[:range, :imageid_list], :type do
-        helper.perform_actions(args[0],options,"Type changed") do |image|
+    command :chtype, chtype_desc, [:range, :imageid_list], :type do
+        helper.perform_actions(args[0], options, 'Type changed') do |image|
             image.chtype(args[1])
         end
     end
@@ -254,8 +295,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Disables the given Image
     EOT
 
-    command :disable, disable_desc, [:range,:imageid_list] do
-        helper.perform_actions(args[0],options,"disabled") do |image|
+    command :disable, disable_desc, [:range, :imageid_list] do
+        helper.perform_actions(args[0], options, 'disabled') do |image|
             image.disable
         end
     end
@@ -264,8 +305,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Changes the Image group
     EOT
 
-    command :chgrp, chgrp_desc,[:range, :imageid_list], :groupid do
-        helper.perform_actions(args[0],options,"Group changed") do |image|
+    command :chgrp, chgrp_desc, [:range, :imageid_list], :groupid do
+        helper.perform_actions(args[0], options, 'Group changed') do |image|
             image.chown(-1, args[1].to_i)
         end
     end
@@ -275,10 +316,10 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chown, chown_desc, [:range, :imageid_list], :userid,
-            [:groupid,nil] do
-        gid = args[2].nil? ? -1 : args[2].to_i
-        helper.perform_actions(args[0],options,
-                "Owner/Group changed") do |image|
+            [:groupid, nil] do
+        args[2].nil? ? gid = -1 : gid = args[2].to_i
+        helper.perform_actions(args[0], options,
+                               'Owner/Group changed') do |image|
             image.chown(args[1].to_i, gid)
         end
     end
@@ -288,8 +329,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :imageid_list], :octet do
-        helper.perform_actions(args[0],options,
-                "Permissions changed") do |image|
+        helper.perform_actions(args[0], options,
+                               'Permissions changed') do |image|
             image.chmod_octet(args[1])
         end
     end
@@ -299,7 +340,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rename, rename_desc, :imageid, :name do
-        helper.perform_action(args[0],options,"renamed") do |o|
+        helper.perform_action(args[0], options, 'renamed') do |o|
             o.rename(args[1])
         end
     end
@@ -308,8 +349,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Deletes a snapshot from the image
     EOT
 
-    command :"snapshot-delete", snapshot_delete_desc, :imageid, :snapshot_id do
-        helper.perform_action(args[0], options, "snapshot deleted") do |o|
+    command :'snapshot-delete', snapshot_delete_desc, :imageid, :snapshot_id do
+        helper.perform_action(args[0], options, 'snapshot deleted') do |o|
             o.snapshot_delete(args[1].to_i)
         end
     end
@@ -318,8 +359,8 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Reverts image state to a snapshot
     EOT
 
-    command :"snapshot-revert", snapshot_revert_desc, :imageid, :snapshot_id do
-        helper.perform_action(args[0], options, "image state reverted") do |o|
+    command :'snapshot-revert', snapshot_revert_desc, :imageid, :snapshot_id do
+        helper.perform_action(args[0], options, 'image state reverted') do |o|
             o.snapshot_revert(args[1].to_i)
         end
     end
@@ -328,8 +369,11 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Flattens the snapshot and removes all other snapshots in the image
     EOT
 
-    command :"snapshot-flatten", snapshot_flatten_desc, :imageid, :snapshot_id do
-        helper.perform_action(args[0], options, "snapshot flattened") do |o|
+    command :'snapshot-flatten',
+            snapshot_flatten_desc,
+            :imageid,
+            :snapshot_id do
+        helper.perform_action(args[0], options, 'snapshot flattened') do |o|
             o.snapshot_flatten(args[1].to_i)
         end
     end
@@ -338,7 +382,7 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Lists Images in the pool
     EOT
 
-    command :list, list_desc, [:filterflag, nil], :options=>list_options do
+    command :list, list_desc, [:filterflag, nil], :options => list_options do
         helper.list_pool(options, false, args[0])
     end
 
@@ -346,15 +390,64 @@ cmd=CommandParser::CmdParser.new(ARGV) do
         Shows information for the given Image
     EOT
 
-    command :show, show_desc, :imageid, :options=>OpenNebulaHelper::XML do
-        helper.show_resource(args[0],options)
+    command :show, show_desc, :imageid, :options => OpenNebulaHelper::FORMAT do
+        helper.show_resource(args[0], options)
     end
 
     top_desc = <<-EOT.unindent
         Lists Images continuously
     EOT
 
-    command :top, top_desc, [:filterflag, nil], :options=>list_options do
+    command :top, top_desc, [:filterflag, nil], :options => list_options do
         helper.list_pool(options, true, args[0])
+    end
+
+    lock_desc = <<-EOT.unindent
+        Locks a VM with differents levels for lock any actions with this VM, show and
+        monitoring never will be locked.
+        Valid states are: All.
+        Levels:
+        [Use]: locks Admin, Manage and Use actions.
+        [Manage]: locks Manage and Use actions.
+        [Admin]: locks only Admin actions.
+    EOT
+
+    command :lock, lock_desc, :imageid,
+            :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0], options, 'Image locked') do |i|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                level = 1
+            end
+            i.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+        Unlocks a VM for unlock any actions with this VM.
+        Valid states are: All.
+    EOT
+
+    command :unlock, unlock_desc, :imageid do
+        helper.perform_action(args[0], options, 'Image unlocked') do |i|
+            i.unlock
+        end
+    end
+
+    show_desc = <<-EOT.unindent
+        Shows orphans images (i.e images not referenced in any template).
+    EOT
+
+    command :orphans, show_desc do
+        puts helper.check_orphans
+
+        return 0
     end
 end

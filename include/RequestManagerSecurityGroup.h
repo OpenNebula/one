@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,25 +18,15 @@
 #define REQUEST_MANAGER_SECURITY_GROUP_H_
 
 #include "Request.h"
-#include "Nebula.h"
 
 class SecurityGroupCommit : public Request
 {
 public:
-    SecurityGroupCommit() : Request("one.secgroup.commit", "A:sib",
-        "Commit security group changes to VMs")
-    {
-        Nebula& nd  = Nebula::instance();
-        pool        = nd.get_secgrouppool();
+    SecurityGroupCommit();
 
-        auth_object = PoolObjectSQL::SECGROUP;
-        auth_op     = AuthRequest::MANAGE;
-    };
+    ~SecurityGroupCommit() = default;
 
-    ~SecurityGroupCommit(){};
-
-    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att);
+    void request_execute(xmlrpc_c::paramList const& pl, RequestAttributes& att) override;
 };
-
 
 #endif

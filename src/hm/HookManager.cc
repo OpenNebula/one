@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,27 +17,39 @@
 #include "HookManager.h"
 #include "NebulaLog.h"
 
+using namespace std;
+
 const char * HookManager::hook_driver_name = "hook_exe";
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-extern "C" void * hm_action_loop(void *arg)
+int HookManager::start()
 {
-    HookManager *  hm;
+    using namespace std::placeholders; // for _1
 
-    if ( arg == 0 )
+    register_action(HookManagerMessages::UNDEFINED,
+            &HookManager::_undefined);
+
+    register_action(HookManagerMessages::EXECUTE,
+            bind(&HookManager::_execute, this, _1));
+
+    register_action(HookManagerMessages::RETRY,
+            bind(&HookManager::_retry, this, _1));
+
+    register_action(HookManagerMessages::LOG,
+            &HookManager::_log);
+
+    string error;
+    if ( DriverManager::start(error) != 0 )
     {
-        return 0;
+        NebulaLog::error("HKM", error);
+        return -1;
     }
 
-    NebulaLog::log("HKM",Log::INFO,"Hook Manager started.");
+    NebulaLog::log("HKM",Log::INFO,"Starting Hook Manager...");
 
-    hm = static_cast<HookManager *>(arg);
-
-    hm->am.loop();
-
-    NebulaLog::log("HKM",Log::INFO,"Hook Manager stopped.");
+    Listener::start();
 
     return 0;
 }
@@ -45,21 +57,18 @@ extern "C" void * hm_action_loop(void *arg)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HookManager::load_mads(int uid)
+int HookManager::load_drivers(const std::vector<const VectorAttribute*>& _mads)
 {
-    HookManagerDriver *     hm_mad;
-    ostringstream           oss;
-    const VectorAttribute * vattr = 0;
-    int                     rc;
+    const VectorAttribute * vattr = nullptr;
 
     NebulaLog::log("HKM",Log::INFO,"Loading Hook Manager driver.");
 
-    if ( mad_conf.size() > 0 )
+    if ( _mads.size() > 0 )
     {
-        vattr = static_cast<const VectorAttribute *>(mad_conf[0]);
+        vattr = static_cast<const VectorAttribute *>(_mads[0]);
     }
 
-    if ( vattr == 0 )
+    if ( vattr == nullptr )
     {
         NebulaLog::log("HKM",Log::INFO,"Failed to load Hook Manager driver.");
         return -1;
@@ -69,46 +78,77 @@ int HookManager::load_mads(int uid)
 
     hook_conf.replace("NAME",hook_driver_name);
 
-    hm_mad = new HookManagerDriver(0,hook_conf.value(),false,vmpool);
-
-    rc = add(hm_mad);
-
-    if ( rc == 0 )
+    if ( load_driver(&hook_conf) != 0 )
     {
-        oss.str("");
-        oss << "\tHook Manager loaded";
-
-        NebulaLog::log("HKM",Log::INFO,oss);
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int HookManager::start()
-{
-    int               rc;
-    pthread_attr_t    pattr;
-
-    rc = MadManager::start();
-
-    if ( rc != 0 )
-    {
+        NebulaLog::error("HKM", "Unable to load Hook Manager driver");
         return -1;
     }
 
-    NebulaLog::log("HKM",Log::INFO,"Starting Hook Manager...");
+    NebulaLog::log("HKM",Log::INFO,"\tHook Manager loaded");
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    rc = pthread_create(&hm_thread,&pattr,hm_action_loop,(void *) this);
-
-    return rc;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void HookManager::trigger_send_event(const std::string& message)
+{
+    trigger([this, message] {
+        auto hmd = get();
+
+        if ( hmd == nullptr )
+        {
+            return;
+        }
+
+        hook_msg_t msg(HookManagerMessages::EXECUTE, "", -1, message);
+        hmd->write(msg);
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void HookManager::trigger_retry(const std::string& message)
+{
+    trigger([this, message] {
+        auto hmd = get();
+
+        if ( hmd == nullptr )
+        {
+            return;
+        }
+
+        hook_msg_t msg(HookManagerMessages::RETRY, "", -1, message);
+        hmd->write(msg);
+    });
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string HookManager::format_message(const string& args, const string&remote_host,
+                                     int hook_id)
+{
+    std::ostringstream oss;
+
+    oss << "<HOOK_MESSAGE>"
+        << "<ARGUMENTS>"   << args        << "</ARGUMENTS>"
+        << "<HOOK_ID>"     << hook_id     << "</HOOK_ID>";
+
+    if (!remote_host.empty())
+    {
+        oss << "<REMOTE_HOST>" << remote_host << "</REMOTE_HOST>";
+    }
+
+    oss << "</HOOK_MESSAGE>";
+
+    string base64;
+    ssl_util::base64_encode(oss.str(), base64);
+
+    return base64;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

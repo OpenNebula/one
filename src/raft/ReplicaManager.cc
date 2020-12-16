@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,9 +24,7 @@
 
 ReplicaThread * ReplicaManager::get_thread(int server_id)
 {
-    std::map<int, ReplicaThread *>::iterator it;
-
-    it = thread_pool.find(server_id);
+    auto it = thread_pool.find(server_id);
 
     if ( it == thread_pool.end() )
     {
@@ -41,11 +39,9 @@ ReplicaThread * ReplicaManager::get_thread(int server_id)
 
 void ReplicaManager::start_replica_threads(std::vector<int>& fids)
 {
-    std::vector<int>::iterator it;
-
-    for (it = fids.begin(); it != fids.end(); ++it)
+    for (auto id : fids)
     {
-        add_replica_thread(*it);
+        add_replica_thread(id);
     }
 };
 
@@ -54,9 +50,7 @@ void ReplicaManager::start_replica_threads(std::vector<int>& fids)
 
 void ReplicaManager::stop_replica_threads()
 {
-    std::map<int, ReplicaThread *>::iterator it;
-
-    for ( it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
+    for ( auto it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
     {
         it->second->finalize();
     }
@@ -69,9 +63,7 @@ void ReplicaManager::stop_replica_threads()
 
 void ReplicaManager::replicate()
 {
-    std::map<int, ReplicaThread *>::iterator it;
-
-    for ( it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
+    for ( auto it = thread_pool.begin() ; it != thread_pool.end() ; ++it )
     {
         it->second->add_request();
     }
@@ -94,10 +86,7 @@ void ReplicaManager::replicate(int follower)
 
 void ReplicaManager::delete_replica_thread(int follower_id)
 {
-
-    std::map<int, ReplicaThread *>::iterator it;
-
-    it = thread_pool.find(follower_id);
+    auto it = thread_pool.find(follower_id);
 
     if ( it == thread_pool.end() )
     {
@@ -114,9 +103,6 @@ void ReplicaManager::delete_replica_thread(int follower_id)
 
 void ReplicaManager::add_replica_thread(int follower_id)
 {
-    pthread_attr_t pattr;
-    pthread_t thid;
-
     Nebula& nd  = Nebula::instance();
     int this_id = nd.get_server_id();
 
@@ -129,13 +115,14 @@ void ReplicaManager::add_replica_thread(int follower_id)
 
     thread_pool.insert(std::make_pair(follower_id, rthread));
 
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate(&pattr, PTHREAD_CREATE_DETACHED);
+    std::thread replica_thread([rthread] {
+        rthread->do_replication();
 
-    pthread_create(&thid, &pattr, replication_thread, (void *) rthread);
+        delete rthread;
+    });
 
-    pthread_attr_destroy(&pattr);
-};
+    replica_thread.detach();
+}
 
 // -----------------------------------------------------------------------------
 

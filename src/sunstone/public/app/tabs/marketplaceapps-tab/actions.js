@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -37,6 +37,10 @@ define(function(require) {
   var _actions = {
     "MarketPlaceApp.create" : _commonActions.create(CREATE_DIALOG_ID),
     "MarketPlaceApp.create_dialog" : _commonActions.showCreate(CREATE_DIALOG_ID),
+    "MarketPlaceApp.lockM": _commonActions.multipleAction('lock', false),
+    "MarketPlaceApp.lockU": _commonActions.multipleAction('lock', false),
+    "MarketPlaceApp.lockA": _commonActions.multipleAction('lock', false),
+    "MarketPlaceApp.unlock": _commonActions.multipleAction('unlock', false),
     "MarketPlaceApp.download_opennebula_dialog" : {
       type: "custom",
       call: function() {
@@ -47,12 +51,24 @@ define(function(require) {
         }
 
         var resourceId = "" + selected_nodes[0];
+        var type       = "IMAGE"; //Sunstone.getDataTable(TAB_ID).type;
 
         Sunstone.resetFormPanel(TAB_ID, EXPORT_DIALOG_ID);
-        Sunstone.showFormPanel(TAB_ID, EXPORT_DIALOG_ID, "export",
+        Sunstone.showFormPanel(
+          TAB_ID, 
+          EXPORT_DIALOG_ID, 
+          "export",
           function(formPanelInstance, context) {
-            formPanelInstance.setResourceId(context, resourceId);
-          });
+            OpenNebulaResource.show({
+              data: { id: resourceId },
+              success: function(_, app_json) {
+                formPanelInstance.setDockerTags(resourceId, app_json);
+                formPanelInstance.setResourceId(context, app_json, type);
+              },
+              error: Notifier.onError
+            });
+          }
+        );
       }
     },
     "MarketPlaceApp.export" : {
@@ -111,8 +127,33 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-    "MarketPlaceApp.list" : _commonActions.list(),
-    "MarketPlaceApp.show" : _commonActions.show(),
+    "MarketPlaceApp.list" : {
+      type: "list",
+      call: OpenNebulaResource.list,
+      callback: function(request, response) {
+        var datatable = Sunstone.getDataTable(TAB_ID);
+        if (datatable){
+          datatable.updateView(request, response);
+          datatable.updateStateActions();
+        }
+      },
+      error: Notifier.onError
+    },
+    "MarketPlaceApp.show" : {
+      type: "single",
+      call: OpenNebulaResource.show,
+      callback: function(request, response) {
+          var datatable = Sunstone.getDataTable(TAB_ID);
+          if (datatable){
+            datatable.updateElement(request, response);
+            datatable.updateStateActions(response);
+            if (Sunstone.rightInfoVisible($('#' + TAB_ID))) {
+              Sunstone.insertPanels(TAB_ID, response);
+            }
+          }
+      },
+      error: Notifier.onError
+    },
     "MarketPlaceApp.refresh" : _commonActions.refresh(),
 
     "MarketPlaceApp.delete" : {
@@ -168,7 +209,80 @@ define(function(require) {
     //"MarketPlaceApp.update" : _commonActions.updateTemplate(),
     "MarketPlaceApp.update_template" : _commonActions.updateTemplate(),
     "MarketPlaceApp.append_template" : _commonActions.appendTemplate(),
-    "MarketPlaceApp.rename": _commonActions.singleAction('rename')
+    "MarketPlaceApp.rename": _commonActions.singleAction('rename'),
+    
+    'MarketPlaceApp.import_vm_template': {
+      type: 'single',
+      call: OpenNebulaResource.import_vm_template,
+      callback : function(request, response) {
+        template_name = ''
+        if (request && 
+            request.request && 
+            request.request.data &&
+            request.request.data[1] &&
+            request.request.data[1].NAME){
+          template_name = request.request.data[1].NAME
+        }
+
+        if (Array.isArray(response) && response[0] == template_name){
+          Sunstone.resetFormPanel(_commonActions.tabId, CREATE_DIALOG_ID);
+          Sunstone.hideFormPanel(_commonActions.tabId);
+          Notifier.notifyCustom(_commonActions.createdStr + " ID: " + response[1], "", false);
+        }
+        else{
+          Sunstone.hideFormPanelLoading(_commonActions.tabId);
+          var error = {
+            error: {
+              message: response[0]
+            }
+          } 
+          Notifier.onError(request, error);
+        }
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(_commonActions.tabId);
+        var error = {
+          error: {
+            message: response[0]
+          }
+        } 
+        Notifier.onError(request, error);
+      }
+    },
+
+    'MarketPlaceApp.import_service_template': {
+      type: 'single',
+      call: OpenNebulaResource.import_service_template,
+      callback : function(request, response) {
+        template_name = ''
+        if (request && 
+            request.request && 
+            request.request.data &&
+            request.request.data[1] &&
+            request.request.data[1].NAME){
+          template_name = request.request.data[1].NAME
+        }
+
+        if (Array.isArray(response) && response[0] == 0){
+          Sunstone.resetFormPanel(_commonActions.tabId, CREATE_DIALOG_ID);
+          Sunstone.hideFormPanel(_commonActions.tabId);
+          Notifier.notifyCustom(_commonActions.createdStr + ' ID: ' + response[1], '', false);
+        }
+        else{
+          Sunstone.hideFormPanelLoading(_commonActions.tabId);
+          var error = {
+            error: {
+              message: response[1]
+            }
+          } 
+          Notifier.onError(request, error);
+        }
+      },
+      error: function(request, response) {
+        Sunstone.hideFormPanelLoading(_commonActions.tabId);
+        Notifier.onError(request, response);
+      }
+    }
   }
 
   return _actions;

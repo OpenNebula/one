@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -15,6 +15,9 @@
 /* ------------------------------------------------------------------------ */
 
 #include "Document.h"
+#include "OneDB.h"
+
+using namespace std;
 
 /* ************************************************************************ */
 /* Document :: Constructor/Destructor                                       */
@@ -27,45 +30,25 @@ Document::Document( int id,
                     const string& _gname,
                     int _umask,
                     int _type,
-                    Template * _template_contents):
-        PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,table), type(_type)
+                    std::unique_ptr<Template> _template_contents)
+    : PoolObjectSQL(id,DOCUMENT,"",_uid,_gid,_uname,_gname,one_db::doc_table)
+    , type(_type)
 {
-    if (_template_contents != 0)
+    if (_template_contents)
     {
-        obj_template = _template_contents;
+        obj_template = move(_template_contents);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<DocumentTemplate>();
     }
 
     set_umask(_umask);
 }
 
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
-
-Document::~Document()
-{
-    delete obj_template;
-}
-
 /* ************************************************************************ */
 /* Document :: Database Access Functions                                    */
 /* ************************************************************************ */
-
-const char * Document::table = "document_pool";
-
-const char * Document::db_names =
-        "oid, name, body, type, uid, gid, owner_u, group_u, other_u";
-
-const char * Document::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS document_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, type INTEGER, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
-
-/* ------------------------------------------------------------------------ */
-/* ------------------------------------------------------------------------ */
 
 int Document::insert(SqlDB *db, string& error_str)
 {
@@ -88,6 +71,9 @@ int Document::insert(SqlDB *db, string& error_str)
         error_str = "NAME is too long; max length is 128 chars.";
         return -1;
     }
+
+    // Encrypt all the secrets
+    encrypt();
 
     // ------------------------------------------------------------------------
     // Insert the Document
@@ -113,14 +99,14 @@ int Document::insert_replace(SqlDB *db, bool replace, string& error_str)
 
    // Update the Object
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -134,25 +120,31 @@ int Document::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::doc_table << " SET "
+            << "name = '"    << sql_name << "', "
+            << "body = '"    << sql_xml  << "', "
+            << "type = "     << type     << ", "
+            << "uid = "      << uid      << ", "
+            << "gid = "      << gid      << ", "
+            << "owner_u = "  << owner_u  << ", "
+            << "group_u = "  << group_u  << ", "
+            << "other_u = "  << other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::doc_table
+            << " (" << one_db::doc_db_names << ") VALUES ("
+            <<            oid        << ","
+            << "'"     << sql_name   << "',"
+            << "'"     << sql_xml    << "',"
+            <<            type       << ","
+            <<            uid        << ","
+            <<            gid        << ","
+            <<            owner_u    << ","
+            <<            group_u    << ","
+            <<            other_u    << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO " << table <<" ("<< db_names <<") VALUES ("
-        <<            oid        << ","
-        << "'"     << sql_name   << "',"
-        << "'"     << sql_xml    << "',"
-        <<            type       << ","
-        <<            uid        << ","
-        <<            gid        << ","
-        <<            owner_u    << ","
-        <<            group_u    << ","
-        <<            other_u    << ")";
 
     rc = db->exec_wr(oss);
 
@@ -180,6 +172,16 @@ error_generic:
     error_str = "Error inserting Document in DB.";
 error_common:
     return -1;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int Document::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::doc_db_bootstrap);
+
+    return db->exec_local_wr(oss);
 }
 
 /* ************************************************************************ */

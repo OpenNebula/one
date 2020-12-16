@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -19,20 +19,9 @@
 #include "NebulaLog.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
+#include "OneDB.h"
 
-/* ************************************************************************ */
-/* MarketPlace:: Database Definition                                        */
-/* ************************************************************************ */
-
-const char * MarketPlace::table = "marketplace_pool";
-
-const char * MarketPlace::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * MarketPlace::db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS marketplace_pool (oid INTEGER PRIMARY KEY, "
-    "name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, gid INTEGER, "
-    "owner_u INTEGER, group_u INTEGER, other_u INTEGER)";
+using namespace std;
 
 /* ************************************************************************ */
 /* MarketPlace:: Constructor / Destructor                                   */
@@ -44,8 +33,8 @@ MarketPlace::MarketPlace(
     const std::string&    uname,
     const std::string&    gname,
     int                   umask,
-    MarketPlaceTemplate * mp_template):
-        PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, table),
+    unique_ptr<MarketPlaceTemplate> mp_template):
+        PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, one_db::mp_table),
         market_mad(""),
         total_mb(0),
         free_mb(0),
@@ -53,21 +42,16 @@ MarketPlace::MarketPlace(
         zone_id(-1),
         marketapps("MARKETPLACEAPPS")
 {
-    if (mp_template != 0)
+    if (mp_template)
     {
-        obj_template = mp_template;
+        obj_template = move(mp_template);
     }
     else
     {
-        obj_template = new MarketPlaceTemplate;
+        obj_template = make_unique<MarketPlaceTemplate>();
     }
 
     set_umask(umask);
-};
-
-MarketPlace::~MarketPlace()
-{
-    delete obj_template;
 };
 
 /* *************************************************************************** */
@@ -82,7 +66,7 @@ int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
     std::vector <std::string> vrequired_attrs;
 
     int    rc;
-    std::string required_attrs, required_attr, value;
+    std::string required_attrs, value;
 
     std::ostringstream oss;
 
@@ -102,19 +86,19 @@ int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
 
     vrequired_attrs = one_util::split(required_attrs, ',');
 
-    for ( std::vector<std::string>::const_iterator it = vrequired_attrs.begin();
-         it != vrequired_attrs.end(); it++ )
+    for ( auto& required_attr : vrequired_attrs )
     {
-        required_attr = *it;
-
         required_attr = one_util::trim(required_attr);
         one_util::toupper(required_attr);
 
-        get_template_attribute(required_attr.c_str(), value);
+        get_template_attribute(required_attr, value);
 
         if ( value.empty() )
         {
-            goto error_required;
+            oss << "MarketPlace template is missing the \"" << required_attr
+                << "\" attribute or it's empty.";
+
+            goto error_common;
         }
     }
 
@@ -123,10 +107,6 @@ int MarketPlace::set_market_mad(std::string &mad, std::string &error_str)
 error_conf:
     oss << "MARKET_MAD_CONF named \"" << mad << "\" is not defined in oned.conf";
     goto error_common;
-
-error_required:
-    oss << "MarketPlace template is missing the \"" << required_attr
-        << "\" attribute or it's empty.";
 
 error_common:
     error_str = oss.str();
@@ -164,6 +144,9 @@ error_common:
     return -1;
 }
 
+/* --------------------------------------------------------------------------- */
+/* --------------------------------------------------------------------------- */
+
 int MarketPlace::insert(SqlDB *db, string& error_str)
 {
     return insert_replace(db, false, error_str);
@@ -182,14 +165,14 @@ int MarketPlace::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_name;
     char * sql_xml;
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -203,28 +186,34 @@ int MarketPlace::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::mp_table << " SET "
+            << "name = '"   << sql_name << "', "
+            << "body = '"   << sql_xml  << "', "
+            << "gid = "     << gid      << ", "
+            << "uid = "     << uid      << ", "
+            << "owner_u = " << owner_u  << ", "
+            << "group_u = " << group_u  << ", "
+            << "other_u = " << other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::mp_table
+            << " (" << one_db::mp_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
-    rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
+
+    rc = db->exec_wr(oss);
 
     return rc;
 
@@ -251,6 +240,13 @@ error_common:
 
 /* --------------------------------------------------------------------------- */
 /* --------------------------------------------------------------------------- */
+
+int MarketPlace::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::mp_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* *************************************************************************** */
 /* MartketPlace :: Template Functions                                          */
@@ -292,16 +288,15 @@ static void set_supported_actions(ActionSet<MarketPlaceApp::Action>& as,
         const string& astr)
 {
     std::vector<std::string> actions;
-    std::vector<std::string>::iterator vit;
 
     std::string action;
     MarketPlaceApp::Action id;
 
     actions = one_util::split(astr, ',');
 
-    for (vit = actions.begin() ; vit != actions.end() ; ++vit)
+    for (const auto& act : actions)
     {
-        action = one_util::trim(*vit);
+        action = one_util::trim(act);
 
         if ( MarketPlaceApp::action_from_str(action, id) != 0 )
         {

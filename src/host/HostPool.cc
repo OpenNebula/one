@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -23,139 +23,23 @@
 
 #include "Nebula.h"
 #include "HostPool.h"
-#include "HostHook.h"
+#include "HookStateHost.h"
+#include "HookManager.h"
 #include "NebulaLog.h"
 #include "GroupPool.h"
 #include "ClusterPool.h"
+#include "InformationManager.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-time_t HostPool::_monitor_expiration;
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-HostPool::HostPool(SqlDB*                    db,
-                   vector<const VectorAttribute *> hook_mads,
-                   const string&             hook_location,
-                   const string&             remotes_location,
-                   time_t                    expire_time)
-                        : PoolSQL(db, Host::table)
+HostPool::HostPool(SqlDB * db, vector<const SingleAttribute *>& ea) :
+            PoolSQL(db, one_db::host_table)
 {
-
-    _monitor_expiration = expire_time;
-
-    if ( _monitor_expiration == 0 )
-    {
-        clean_all_monitoring();
-    }
-
-    // ------------------ Initialize Hooks for the pool ----------------------
-    string name;
-    string on;
-    string cmd;
-    string arg;
-    bool   remote;
-
-    bool state_hook = false;
-
-    for (unsigned int i = 0 ; i < hook_mads.size() ; i++ )
-    {
-        name = hook_mads[i]->vector_value("NAME");
-        on   = hook_mads[i]->vector_value("ON");
-        cmd  = hook_mads[i]->vector_value("COMMAND");
-        arg  = hook_mads[i]->vector_value("ARGUMENTS");
-        hook_mads[i]->vector_value("REMOTE", remote);
-
-        one_util::toupper(on);
-
-        if ( on.empty() || cmd.empty() )
-        {
-            ostringstream oss;
-
-            oss << "Empty ON or COMMAND attribute in HOST_HOOK. Hook "
-                << "not registered!";
-            NebulaLog::log("ONE",Log::WARNING,oss);
-
-            continue;
-        }
-
-        if ( name.empty() )
-        {
-            name = cmd;
-        }
-
-        if (cmd[0] != '/')
-        {
-            ostringstream cmd_os;
-
-            if ( remote )
-            {
-                cmd_os << hook_location << "/" << cmd;
-            }
-            else
-            {
-                cmd_os << remotes_location << "/hooks/" << cmd;
-            }
-
-            cmd = cmd_os.str();
-        }
-
-        if ( on == "CREATE" )
-        {
-            HostAllocateHook * hook;
-
-            hook = new HostAllocateHook(name,cmd,arg,remote);
-
-            add_hook(hook);
-        }
-        else if ( on == "DISABLE" )
-        {
-            HostStateHook * hook;
-
-            hook = new HostStateHook(name, cmd, arg, remote, Host::DISABLED);
-
-            add_hook(hook);
-
-            state_hook = true;
-        }
-        else if ( on == "ERROR" )
-        {
-            HostStateHook * hook;
-
-            hook = new HostStateHook(name, cmd, arg, remote, Host::ERROR);
-
-            add_hook(hook);
-
-            state_hook = true;
-        }
-    }
-
-    if ( state_hook )
-    {
-        HostUpdateStateHook * hook;
-
-        hook = new HostUpdateStateHook();
-
-        add_hook(hook);
-    }
-
-    pthread_mutex_init(&host_vm_lock,0);
+    HostTemplate::parse_encrypted(ea);
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-HostPool::~HostPool()
-{
-    map<int, HostVM *>::iterator it;
-
-    for (it=host_vms.begin(); it != host_vms.end() ; ++it)
-    {
-        delete it->second;
-    } 
-};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -172,6 +56,8 @@ int HostPool::allocate (
     Host *        host;
     ostringstream oss;
 
+    int db_oid;
+
     if ( !PoolObjectSQL::name_is_valid(hostname, error_str) )
     {
         goto error_name;
@@ -187,9 +73,9 @@ int HostPool::allocate (
         goto error_vmm;
     }
 
-    host = get(hostname,false);
+    db_oid = exist(hostname);
 
-    if ( host !=0)
+    if ( db_oid != -1 )
     {
         goto error_duplicated;
     }
@@ -208,6 +94,19 @@ int HostPool::allocate (
 
     *oid = PoolSQL::allocate(host, error_str);
 
+    if (*oid >= 0)
+    {
+        if ( auto host = get(*oid) )
+        {
+            std::string event = HookStateHost::format_message(host.get());
+
+            Nebula::instance().get_hm()->trigger_send_event(event);
+
+            auto *im = Nebula::instance().get_im();
+            im->update_host(host.get());
+        }
+    }
+
     return *oid;
 
 error_im:
@@ -219,7 +118,7 @@ error_vmm:
     goto error_common;
 
 error_duplicated:
-    oss << "NAME is already taken by HOST " << host->get_oid() << ".";
+    oss << "NAME is already taken by HOST " << db_oid << ".";
     error_str = oss.str();
 
 error_name:
@@ -232,69 +131,100 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::discover_cb(void * _set, int num, char **values, char **names)
+int HostPool::update(PoolObjectSQL * objsql)
 {
-    set<int> *  discovered_hosts;
-    string      im_mad;
-    int         hid;
+    Host * host = dynamic_cast<Host *>(objsql);
 
-    discovered_hosts = static_cast<set<int> *>(_set);
-
-    if ( (num<1) || (values[0] == 0) )
+    if ( host == nullptr )
     {
         return -1;
     }
 
-    hid = atoi(values[0]);
+    if ( HookStateHost::trigger(host) )
+    {
+        std::string event = HookStateHost::format_message(host);
 
-    discovered_hosts->insert(hid);
+        Nebula::instance().get_hm()->trigger_send_event(event);
+    }
 
-    return 0;
-}
+    host->set_prev_state();
 
-/* -------------------------------------------------------------------------- */
+    Nebula::instance().get_im()->update_host(host);
 
-int HostPool::discover(
-        set<int> *  discovered_hosts,
-        int         host_limit,
-        time_t      target_time)
-{
-    ostringstream   sql;
-    int             rc;
-
-    set_callback(static_cast<Callbackable::Callback>(&HostPool::discover_cb),
-                 static_cast<void *>(discovered_hosts));
-
-    sql << "SELECT oid FROM " << Host::table
-        << " WHERE last_mon_time <= " << target_time
-        << " ORDER BY last_mon_time ASC LIMIT " << host_limit;
-
-    rc = db->exec_rd(sql,this);
-
-    unset_callback();
-
-    return rc;
+    return host->update(db);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 int HostPool::dump_monitoring(
-        ostringstream& oss,
-        const string&  where)
+        string& oss,
+        const string&  where,
+        const int seconds)
 {
     ostringstream cmd;
 
-    cmd << "SELECT " << Host::monit_table << ".body FROM " << Host::monit_table
-        << " INNER JOIN " << Host::table
-        << " WHERE hid = oid";
-
-    if ( !where.empty() )
+    switch(seconds)
     {
-        cmd << " AND " << where;
-    }
+        case 0: //Get last monitor value
+            /*
+            * SELECT host_monitoring.body
+            * FROM host_monitoring
+            *     INNER JOIN (
+            *         SELECT hid, MAX(last_mon_time) as last_mon_time
+            *             FROM host_monitoring
+            *             GROUP BY hid
+            *     ) lmt on lmt.hid = host_monitoring.hid AND lmt.last_mon_time = host_monitoring.last_mon_time
+            *     INNER JOIN host_pool ON host_monitoring.hid = oid
+            * ORDER BY oid;
+            */
+            cmd << "SELECT " << one_db::host_monitor_table << ".body "
+                << "FROM " << one_db::host_monitor_table << " INNER JOIN ("
+                << "SELECT hid, MAX(last_mon_time) as last_mon_time FROM "
+                << one_db::host_monitor_table << " GROUP BY hid) as lmt "
+                << "ON lmt.hid = " << one_db::host_monitor_table << ".hid "
+                << "AND lmt.last_mon_time = " << one_db::host_monitor_table
+                << ".last_mon_time INNER JOIN " << one_db::host_table
+                << " ON " << one_db::host_monitor_table << ".hid = oid";
 
-    cmd << " ORDER BY hid, " << Host::monit_table << ".last_mon_time;";
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY oid";
+
+            break;
+
+        case -1: //Get all monitoring
+            cmd << "SELECT " << one_db::host_monitor_table << ".body FROM "
+                << one_db::host_monitor_table << " INNER JOIN " << one_db::host_table
+                << " ON hid = oid";
+
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY hid, " << one_db::host_monitor_table << ".last_mon_time;";
+
+            break;
+
+        default: //Get monitor in last s seconds
+            cmd << "SELECT " << one_db::host_monitor_table << ".body FROM "
+                << one_db::host_monitor_table << " INNER JOIN " << one_db::host_table
+                << " ON hid = oid WHERE " << one_db::host_monitor_table
+                << ".last_mon_time > " << time(nullptr) - seconds;
+
+            if ( !where.empty() )
+            {
+                cmd << " AND " << where;
+            }
+
+            cmd << " ORDER BY hid, " << one_db::host_monitor_table << ".last_mon_time;";
+
+            break;
+    }
 
     return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
 }
@@ -302,82 +232,24 @@ int HostPool::dump_monitoring(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int HostPool::clean_expired_monitoring()
+HostMonitoringTemplate HostPool::get_monitoring(int hid)
 {
-    if ( _monitor_expiration == 0 )
+    ostringstream cmd;
+    string monitor_str;
+
+    cmd << "SELECT " << one_db::host_monitor_table << ".body FROM "
+        << one_db::host_monitor_table
+        << " WHERE hid = " << hid
+        << " AND last_mon_time=(SELECT MAX(last_mon_time) FROM "
+        << one_db::host_monitor_table
+        << " WHERE hid = " << hid << ")";
+
+    HostMonitoringTemplate info;
+
+    if (PoolSQL::dump(monitor_str, "", cmd) == 0 && !monitor_str.empty())
     {
-        return 0;
+        info.from_xml(monitor_str);
     }
 
-    int             rc;
-    time_t          max_mon_time;
-    ostringstream   oss;
-
-    max_mon_time = time(0) - _monitor_expiration;
-
-    oss << "DELETE FROM " << Host::monit_table
-        << " WHERE last_mon_time < " << max_mon_time;
-
-    rc = db->exec_local_wr(oss);
-
-    return rc;
+    return info;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int HostPool::clean_all_monitoring()
-{
-    ostringstream   oss;
-    int             rc;
-
-    oss << "DELETE FROM " << Host::monit_table;
-
-    rc = db->exec_local_wr(oss);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-HostPool::HostVM * HostPool::get_host_vm(int oid)
-{
-    HostVM * hvm;
-
-    pthread_mutex_lock(&host_vm_lock);
-
-    map<int, HostVM *>::iterator it = host_vms.find(oid);
-
-    if ( it == host_vms.end() )
-    {
-        hvm = new HostVM;
-
-        host_vms.insert(make_pair(oid, new HostVM));
-    }
-    else
-    {
-        hvm = it->second;
-    }
-
-    pthread_mutex_unlock(&host_vm_lock);
-
-    return hvm;
-}
-
-void HostPool::delete_host_vm(int oid)
-{
-    pthread_mutex_lock(&host_vm_lock);
-
-    map<int, HostVM *>::iterator it = host_vms.find(oid);
-
-    if ( it != host_vms.end() )
-    {
-        delete it->second;
-
-        host_vms.erase(it);
-    }
-
-    pthread_mutex_unlock(&host_vm_lock);
-}
-

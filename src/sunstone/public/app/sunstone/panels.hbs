@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -17,10 +17,10 @@
 <div id="{{containerId}}">
   <ul id="{{containerId}}Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
     {{#each panels}}
-    <li class="tabs-title {{#if active}}is-active{{/if}}">
+    <li class="{{class}} tabs-title {{#if active}}is-active{{/if}}">
       <a href="#{{panelName}}">
-        {{#if icon}} 
-          <i class="fa {{icon}}"></i>
+        {{#if icon}}
+          <i class="fas {{icon}}"></i>
           <br>
         {{/if}}
         {{title}}

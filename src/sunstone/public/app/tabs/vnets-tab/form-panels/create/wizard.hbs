@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -16,42 +16,46 @@
 <form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
   <dl id="vnet_create_tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
     <dd class="tabs-title is-active">
-      <a href="#vnetCreateGeneralTab"> <i class="fa fa-globe"></i>
+      <a href="#{{createGeneralTab}}"> <i class="fas fa-globe"></i>
         <br>{{tr "General"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateBridgeTab"> <i class="fa fa-cog"></i>
+      <a href="#{{createBridgeTab}}"> <i class="fas fa-cog"></i>
         <br>{{tr "Conf"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateARTab">
-        <i class="fa fa-align-justify"></i>
+      <a href="#{{createARTab}}">
+        <i class="fas fa-align-justify"></i>
         <br>{{tr "Addresses"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateSecurityTab">
-        <i class="fa fa-shield"></i>
+      <a href="#{{createSecurityTab}}">
+        <i class="fas fa-shield-alt"></i>
         <br>{{tr "Security"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateQoSTab">
-        <i class="fa fa-wrench"></i>
+      <a href="#{{createQoSTab}}">
+        <i class="fas fa-wrench"></i>
         <br>{{tr "QoS"}}</a>
     </dd>
     <dd class="tabs-title">
-      <a href="#vnetCreateContextTab">
-        <i class="fa fa-folder"></i>
+      <a href="#{{createContextTab}}">
+        <i class="fas fa-folder"></i>
         <br>{{tr "Context"}}</a>
     </dd>
   </dl>
   <div id="vnet_create_tabs_content" class="tabs-content" data-tabs-content="vnet_create_tabs">
-    <div class="tabs-panel is-active" id="vnetCreateGeneralTab">
+    <div class="tabs-panel is-active" id="{{createGeneralTab}}">
       <div class="row">
         <div class="medium-6 columns">
           <label for="name" >
             {{tr "Name"}}
           </label>
           <input type="text" wizard_field="NAME" required name="name" id="name"/>
+        </div>
+        <div class="medium-6 columns" id="vnet_cluster_div" hidden>
+          <label for="cluster">{{tr "Cluster"}}</label>
+          <div id="vnet_cluster_id" name="vnet_cluster_id"></div>
         </div>
       </div>
       <div class="row">
@@ -62,8 +66,14 @@
           <textarea type="text" wizard_field="DESCRIPTION" id="DESCRIPTION" name="DESCRIPTION"/>
         </div>
       </div>
+      <div class="row">
+        <div class="medium-12 columns" id="vnet_cluster_table_div" hidden>
+          <label for="cluster">{{tr "Clusters"}}</label>
+          {{{clustersTableHTML}}}
+        </div>
+      </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateBridgeTab">
+    <div class="tabs-panel" id="{{createBridgeTab}}">
       <div class="row">
         <div class="medium-6 columns">
           <label for="bridge">
@@ -81,15 +91,58 @@
             {{tr "Network mode"}}
           </label>
           <select wizard_field="VN_MAD" name="network_mode" id="network_mode">
-            <option value="dummy">{{tr "Bridged"}}</option>
-            <option value="fw">{{tr "Bridged & Security Groups"}}</option>
-            <option value="ebtables">{{tr "Bridged & ebtables VLAN"}}</option>
-            <option value="802.1Q">{{tr "802.1Q"}}</option>
-            <option value="vxlan">{{tr "VXLAN"}}</option>
-            <option value="ovswitch">{{tr "Open vSwitch"}}</option>
-            <option value="vcenter">{{tr "vCenter"}}</option>
-            <option value="custom">{{tr "Custom"}}</option>
+            <option value="bridge" data-form="bridge">{{tr "Bridged"}}</option>
+            <option value="fw" data-form="fw">{{tr "Bridged & Security Groups"}}</option>
+            <option value="ebtables" data-form="ebtables">{{tr "Bridged & ebtables VLAN"}}</option>
+            <option value="802.1Q" data-form="802.1Q">{{tr "802.1Q"}}</option>
+            <option value="vxlan" data-form="vxlan">{{tr "VXLAN"}}</option>
+            <option value="ovswitch" data-form="ovswitch">{{tr "Open vSwitch"}}</option>
+            <option value="ovswitch_vxlan" data-form="ovswitch_vxlan">{{tr "Open vSwitch - VXLAN"}}</option>
+            <option value="vcenter" data-form="vcenter">{{tr "vCenter"}}</option>
+            <option value="vcenter" data-form="nsx">{{tr "NSX"}}</option>
+            <option value="custom" data-form="custom">{{tr "Custom"}}</option>
           </select>
+        </div>
+        <div class="row columns">
+          <div class="mode_param nsx large-12 columns nsx-form">
+            <div class="row">
+              <div class="small-12 columns">
+                <label for="">
+                  {{tr "Host"}}
+                </label>
+                <select wizard_field="VCENTER_PORTGROUP_TYPE" name="nsx-type" id="nsx-type"></select>
+              </div>
+            </div>
+            <!--hide-->
+            <div class="row hide">
+              <div class="small-12 columns">
+                <label for="">
+                  {{tr "Host Instance"}}
+                </label>
+                <input type="text" wizard_field="VCENTER_INSTANCE_ID" name="nsx-instance-id" id="nsx-instance-id">
+              </div>
+            </div>
+            <!--hide-->
+            <div class="row hide">
+              <div class="small-12 columns">
+                <label for="">
+                  {{tr "Host ID"}}
+                </label>
+                <input type="text" wizard_field="VCENTER_ONE_HOST_ID" name="nsx-host-id" id="nsx-host-id"></select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="small-12 columns">
+                <label for="">
+                  {{tr "Transport"}}
+                </label>
+                <select wizard_field="NSX_TZ_ID" name="nsx-transport" id="nsx-transport">
+                  <option value="">--</option>
+                </select>
+              </div>
+            </div>
+            <div class="row" id="nsx-fields"></div>
+          </div>
         </div>
         <div class="large-3 medium-6 columns mode_param vcenter custom" id="div_vn_mad">
           <label for="vn_mad">
@@ -98,8 +151,8 @@
           <input type="text" wizard_field="VN_MAD" name="vn_mad" id="vn_mad" />
         </div>
         <div class="large-12 columns">
-          <div class="network_mode_description" value="dummy">
-            {{tr "Bridged, virtual machine traffic is directly bridged through an existing Linux bridge in the nodes. No traffic filtering is made."}}
+          <div class="network_mode_description" value="bridge">
+            {{tr "Bridged, virtual machine traffic is directly bridged. The Linux bridge is created in the nodes as needed. No traffic filtering is made."}}
           </div>
           <div class="network_mode_description" value="fw">
             {{tr "Bridged & Security Groups, bridged network with Security Group rules."}}
@@ -116,6 +169,9 @@
           <div class="network_mode_description" value="ovswitch">
             {{tr "Open vSwitch, restrict network access with Open vSwitch Virtual Switch. Security Groups are not applied."}}
           </div>
+          <div class="network_mode_description" value="ovswitch_vxlan">
+            {{tr "Open vSwitch on VXLAN L2 network overlay. Security Groups are not applied."}}
+          </div>
           <div class="network_mode_description" value="vcenter">
             {{tr "vSphere standard switches or distributed switches with port groups. Security Groups are not applied."}}
           </div>
@@ -126,7 +182,7 @@
       </div>
       <br>
       <div class="row">
-        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch custom">
+        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch ovswitch_vxlan custom">
           <label for="mac_spoofing">
             <input type="checkbox" wizard_field="FILTER_MAC_SPOOFING" value="YES" name="mac_spoofing" id="mac_spoofing" />
             {{tr "MAC spoofing filter"}}
@@ -134,7 +190,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch custom">
+        <div class="large-6 columns mode_param ebtables 8021Q vxlan fw ovswitch ovswitch_vxlan custom">
           <label for="ip_spoofing">
             <input type="checkbox" wizard_field="FILTER_IP_SPOOFING" value="YES" name="ip_spoofing" id="ip_spoofing" />
             {{tr "IP spoofing filter"}}
@@ -143,18 +199,18 @@
         </div>
       </div>
       <div class="row">
-        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch vcenter custom">
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch ovswitch_vxlan vcenter custom">
           <label>
             {{tr "VLAN ID"}}
-            <select wizard_field="AUTOMATIC_VLAN_ID">
+            <select id="automatic_vlan_id" wizard_field="AUTOMATIC_VLAN_ID">
               <option value="YES">{{tr "Automatic VLAN ID"}}</option>
               <option value="NO">{{tr "No VLAN network"}}</option>
               <option value="">{{tr "Manual VLAN ID"}}</option>
             </select>
-            <input type="number" wizard_field="VLAN_ID"/>
+            <input id="manual_id" type="number" wizard_field="VLAN_ID"/>
           </label>
         </div>
-        <div class="medium-3 columns left mode_param 8021Q vxlan custom">
+        <div class="medium-3 columns left mode_param bridge fw ebtables 8021Q vxlan ovswitch ovswitch_vxlan custom">
           <label for="phydev">
             {{tr "Physical device"}}
             <span class="tip">
@@ -172,11 +228,24 @@
           </label>
           <input type="text" wizard_field="PHYDEV" name="phydev" id="phydev" />
         </div>
-        <div class="medium-3 columns left mode_param 8021Q vxlan vcenter custom">
+        <div class="medium-3 columns left mode_param 8021Q vxlan ovswitch_vxlan vcenter custom">
           <label for="mtu">
             {{tr "MTU of the interface"}}
           </label>
           <input type="text" wizard_field="MTU" name="mtu" id="mtu" />
+        </div>
+        <div class="medium-3 columns left mode_param ovswitch_vxlan">
+          <label>
+            {{tr "Outer VLAN ID"}}
+            <span class="tip">
+              {{tr "First level (outer, service) VLAN ID"}}
+            </span>
+            <select wizard_field="AUTOMATIC_OUTER_VLAN_ID">
+              <option value="YES">{{tr "Automatic Outer VLAN ID"}}</option>
+              <option value="">{{tr "Manual Outer VLAN ID"}}</option>
+            </select>
+            <input type="text" wizard_field="OUTER_VLAN_ID" name="outer_vlan_id" id="outer_vlan_id" />
+          </label>
         </div>
       </div>
       <div class="row">
@@ -209,13 +278,13 @@
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateARTab">
-      <div class="row collapse" id="vnetCreateARTabCreate">
+    <div class="tabs-panel" id="{{createARTab}}">
+      <div class="row collapse" id="{{createARTab}}Create">
         <div class="medium-2 columns">
           <ul class="tabs vertical" id="vnet_wizard_ar_tabs" data-tabs></ul>
           <div class="text-center">
-            <button type="button" class="button small tabs-add" id="vnet_wizard_ar_btn">
-              <i class="fa fa-lg fa-plus-circle"></i>
+            <button type="button" class="button small tabs-add" id="vnet_wizard_ar_btn" style="margin-top: 5%">
+              <i class="fas fa-lg fa-plus-circle"></i>
             </button>
           </div>
         </div>
@@ -223,7 +292,7 @@
           <div class="tabs-content vertical" id="vnet_wizard_ar_tabs_content" data-tabs-content="vnet_wizard_ar_tabs"></div>
         </div>
       </div>
-      <div class="row" id="vnetCreateARTabUpdate">
+      <div class="row" id="{{createARTab}}Update">
         <div class="large-12 columns">
           <p>
             {{tr "Address Ranges need to be managed in the individual Virtual Network panel"}}
@@ -231,17 +300,17 @@
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateSecurityTab">
+    <div class="tabs-panel" id="{{createSecurityTab}}">
       {{{securityGroupsTableHTML}}}
       <div class="row" id="default_sg_warning">
         <div class="large-12 columns">
           <span class="radius warning label">
-            <i class="fa fa-warning"/> {{tr "The default Security Group 0 is automatically added to new Virtual Networks"}}
+            <i class="fas fa-exclamation-triangle"/> {{tr "The default Security Group 0 is automatically added to new Virtual Networks"}}
           </span>
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateQoSTab">
+    <div class="tabs-panel" id="{{createQoSTab}}">
       <fieldset>
         <legend>{{tr "Inbound traffic"}}</legend>
         <div class="row">
@@ -291,12 +360,12 @@
       <div class="row">
         <div class="large-12 columns">
           <span class="radius secondary label">
-            <i class="fa fa-info-circle"/> {{tr "These values apply to each VM interface individually, they are not global values for the Virtual Network"}}
+            <i class="fas fa-info-circle"/> {{tr "These values apply to each VM interface individually, they are not global values for the Virtual Network"}}
           </span>
         </div>
       </div>
     </div>
-    <div class="tabs-panel" id="vnetCreateContextTab">
+    <div class="tabs-panel" id="{{createContextTab}}">
       <div class="row">
         <div class="medium-6 columns">
           <label for="net_address">

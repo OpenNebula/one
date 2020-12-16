@@ -2,7 +2,7 @@
 <vib version="5.0">
   <type>bootbank</type>
   <name>fw-vnc</name>
-  <version>1.0.0-1</version>
+  <version>1.1.0-1</version>
   <vendor>OpenNebulaSystems</vendor>
   <summary>Firewall rules to enable VNC traffic</summary>
   <description>Firewall rules to enable VNC traffic</description>

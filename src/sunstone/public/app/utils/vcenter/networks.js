@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,28 +16,32 @@
 
 define(function(require) {
   // Dependencies
-  var Locale = require('utils/locale');
-  var OpenNebulaNetwork = require('opennebula/network');
-  var OpenNebulaError = require('opennebula/error');
-  var DomDataTable = require('utils/dom-datatable');
-  var Notifier = require('utils/notifier');
-  var UniqueId = require('utils/unique-id');
-  var VCenterCommon = require('./vcenter-common');
-  var Sunstone = require('sunstone');
+  var Locale = require("utils/locale");
+  var OpenNebulaNetwork = require("opennebula/network");
+  var OpenNebulaError = require("opennebula/error");
+  var DomDataTable = require("utils/dom-datatable");
+  var Notifier = require("utils/notifier");
+  var UniqueId = require("utils/unique-id");
+  var VCenterCommon = require("./vcenter-common");
+  var Sunstone = require("sunstone");
+  var Tips = require("utils/tips");
 
-  var TemplateHTML = require('hbs!./common/html');
-  var RowTemplate = require('hbs!./networks/row');
-  var EmptyFieldsetHTML = require('hbs!./common/empty-fieldset');
-  var FieldsetTableHTML = require('hbs!./common/fieldset-table');
+  var TemplateHTML = require("hbs!./common/html");
+  var RowTemplate = require("hbs!./networks/row");
+  var EmptyFieldsetHTML = require("hbs!./common/empty-fieldset");
+  var FieldsetTableHTML = require("hbs!./common/fieldset-table");
+
+  var path = "/vcenter/networks";
+  var resource = "Networks";
 
   function VCenterNetworks() {
     return this;
   }
 
   VCenterNetworks.prototype = {
-    'html': VCenterCommon.html,
-    'insert': _fillVCenterNetworks,
-    'import': _import
+    "html": VCenterCommon.html,
+    "insert": _fillVCenterNetworks,
+    "import": _import
   };
   VCenterNetworks.prototype.constructor = VCenterNetworks;
 
@@ -47,16 +51,12 @@ define(function(require) {
     Retrieve the list of networks from vCenter and fill the container with them
 
     opts = {
-      datacenter: "Datacenter Name",
-      cluster: "Cluster Name",
       container: Jquery div to inject the html,
-      vcenter_user: vCenter Username,
-      vcenter_password: vCenter Password,
-      vcenter_host: vCenter Host
+      selectedHost: Host selected for vCenter credentials
     }
    */
   function _fillVCenterNetworks(opts) {
-    var path = '/vcenter/networks';
+    this.opts = opts;
 
     var context = $(".vcenter_import", opts.container);
     context.html(TemplateHTML());
@@ -65,151 +65,93 @@ define(function(require) {
     $.ajax({
       url: path,
       type: "GET",
-      data: {timeout: false},
+      data: { host: opts.selectedHost, timeout: false },
       dataType: "json",
-      headers: {
-        "X-VCENTER-USER": opts.vcenter_user,
-        "X-VCENTER-PASSWORD": opts.vcenter_password,
-        "X-VCENTER-HOST": opts.vcenter_host
-      },
       success: function(response) {
         $(".vcenter_datacenter_list", context).html("");
 
-        $.each(response, function(datacenter_name, elements) {
-          var content;
-          if (elements.length == 0) {
-            content = EmptyFieldsetHTML({
-              title : datacenter_name + ' ' + Locale.tr("DataCenter"),
-              message : Locale.tr("No new networks found in this DataCenter")
-            });
+        var vcenter_name = Object.keys(response)[0];
+        response = response[vcenter_name];
 
-            $(".vcenter_datacenter_list", context).append(content);
-          } else {
-            var tableId = "vcenter_import_table_" + UniqueId.id();
-            content = FieldsetTableHTML({
-              tableId : tableId,
-              title : datacenter_name + ' ' + Locale.tr("DataCenter"),
-              clearImported : Locale.tr("Clear Imported Networks"),
-              toggleAdvanced : true,
-              columns : [
-                '<input type="checkbox" class="check_all"/>',
-                Locale.tr("Network")
-              ]
-            });
+        if (Object.keys(response).length === 0){
+          content = EmptyFieldsetHTML({
+            title : Locale.tr("vCenter Networks") + ": " + vcenter_name,
+            message : Locale.tr("No new networks found")
+          });
+          $(".vcenter_datacenter_list", context).append(content);
 
-            var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
-            var tbody = $('#' + tableId + ' tbody', context);
+        } else {
+          var tableId = "vcenter_import_table_" + UniqueId.id();
+          content = FieldsetTableHTML({
+            tableId : tableId,
+            title : Locale.tr("vCenter Networks") + ": " + vcenter_name,
+            toggleAdvanced : true,
+            columns : [
+              "<input type=\"checkbox\" class=\"check_all\"/>",
+              Locale.tr("Network"),
+              ""
+            ]
+          });
 
-            $.each(elements, function(id, element) {
-              var opts = { data: element };
-              var trow = $(RowTemplate(opts)).appendTo(tbody);
+          var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
+          var tbody = $("#" + tableId + " tbody", context);
 
-              $('.check_item', trow).data("import_data", element);
-            });
-
-            var elementsTable = new DomDataTable(
-              tableId,
-              {
-                actions: false,
-                info: false,
-                dataTableOptions: {
-                  "bAutoWidth": false,
-                  "bSortClasses" : false,
-                  "bDeferRender": false,
-                  "ordering": false,
-                  "aoColumnDefs": [
-                  {"sWidth": "35px", "aTargets": [0]},
-                  ],
-                },
-                "customTrListener": function(tableObj, tr){ return false; }
-              });
-
-            elementsTable.initialize();
-
-            $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Networks", elements.length));
-
-            VCenterCommon.setupTable({
-              context : newdiv,
-              allSelected : Locale.tr("All %1$s Networks selected."),
-              selected: Locale.tr("%1$s Networks selected.")
-            });
-
-            context.off('click', '.clear_imported');
-            context.on('click', '.clear_imported', function() {
-              _fillVCenterNetworks(opts);
-              return false;
-            });
-
-            context.off('change', '.type_select');
-            context.on("change", '.type_select', function() {
-              var row_context = $(this).closest(".vcenter_row");
-              var type = $(this).val();
-
-              var net_form_str = ''
-
-              switch (type) {
-                case 'ETHER':
-                  net_form_str =
-                    '<div class="large-4 medium-6 columns end">' +
-                      '<label>' + Locale.tr("MAC") +
-                        '<input type="text" class="eth_mac_net" placeholder="' + Locale.tr("Optional") + '"/>' +
-                      '</label>' +
-                    '</div>';
-                  break;
-                case 'IP4':
-                  net_form_str =
-                    '<div class="large-4 medium-6 columns">' +
-                      '<label>' + Locale.tr("IP Start") +
-                        '<input type="text" class="four_ip_net"/>' +
-                      '</label>' +
-                    '</div>' +
-                    '<div class="large-4 medium-6 columns end">' +
-                      '<label>' + Locale.tr("MAC") +
-                        '<input type="text" class="eth_mac_net" placeholder="' + Locale.tr("Optional") + '"/>' +
-                      '</label>' +
-                    '</div>';
-                  break;
-                case 'IP6':
-                  net_form_str =
-                    '<div class="large-6 medium-6 columns">' +
-                      '<label>' + Locale.tr("Global Prefix") +
-                        '<input type="text" class="six_global_net" placeholder="' + Locale.tr("Optional") + '"/>' +
-                      '</label>' +
-                    '</div>' +
-                    '<div class="large-4 medium-6 columns">' +
-                      '<label>' + Locale.tr("MAC") +
-                        '<input type="text" class="eth_mac_net"/>' +
-                      '</label>' +
-                    '</div>' +
-                    '<div class="large-6 medium-6 columns end">' +
-                      '<label>' + Locale.tr("ULA Prefix") +
-                        '<input type="text" class="six_ula_net" placeholder="' + Locale.tr("Optional") + '"/>' +
-                      '</label>' +
-                    '</div>';
-                  break;
-                  case 'IP6_STATIC':
-                  net_form_str =
-                    '<div class="large-6 medium-6 columns end">' +
-                      '<label>' + Locale.tr("IPv6 address") +
-                        '<input type="text" class="six_static_net"/>' +
-                      '</label>' +
-                    '</div>'+'<div class="large-4 medium-6 columns end">' +
-                      '<label>' + Locale.tr("Prefix length") +
-                        '<input type="text" class="six_prefix_net"/>' +
-                      '</label>' +
-                    '</div>'+
-                    '<div class="large-6 medium-6 columns end">' +
-                      '<label>' + Locale.tr("MAC") +
-                        '<input type="text" class="eth_mac_net" placeholder="' + Locale.tr("Optional") + '"/>' +
-                      '</label>' +
-                    '</div>';
-                  break;
+          $.each(response, function(network_name, element) {
+            var importedClusters = [];
+            var unimportedClusters = [];
+            for (var i = 0; i < element.clusters.one_ids.length; i++){
+              var cluster = {};
+              cluster.name = element.clusters.names[i];
+              cluster.id = element.clusters.one_ids[i];
+              if (cluster.id === -1){
+                unimportedClusters.push(cluster);
+              } else {
+                importedClusters.push(cluster);
               }
+            }
+            var opts = { data: element, importedClusters: importedClusters, unimportedClusters: unimportedClusters };
+            var trow = $(RowTemplate(opts)).appendTo(tbody);
 
-              $('.net_options', row_context).html(net_form_str);
+            Tips.setup(trow);
+
+            $(".check_item", trow).data("import_data", element);
+          });
+
+          var elementsTable = new DomDataTable(
+            tableId,
+            {
+              actions: false,
+              info: false,
+              dataTableOptions: {
+                "bAutoWidth": false,
+                "bSortClasses" : false,
+                "bDeferRender": false,
+                "ordering": false,
+                "aoColumnDefs": [
+                {"sWidth": "35px", "aTargets": [0]},
+                ],
+              },
+              "customTrListener": function(tableObj, tr){ return false; }
             });
-          }
-        });
+
+          elementsTable.initialize();
+
+          $("a.vcenter-table-select-all", context).text(Locale.tr("Select all %1$s Networks", Object.keys(response).length));
+
+          VCenterCommon.setupTable({
+            context : newdiv,
+            allSelected : Locale.tr("All %1$s Networks selected."),
+            selected: Locale.tr("%1$s Networks selected.")
+          });
+
+          context.off("click", ".clear_imported");
+          context.on("click", ".clear_imported", function() {
+            _fillVCenterNetworks(opts);
+            return false;
+          });
+
+          setupAdvanced(context);
+        }
       },
       error: function(response) {
         context.hide();
@@ -218,115 +160,155 @@ define(function(require) {
     });
   }
 
+  function setupAdvanced(context){
+    context.off("change", ".type_select");
+    context.on("change", ".type_select", function() {
+      var row_context = $(this).closest(".vcenter_row");
+      var type = $(this).val();
+
+      var net_form_str = "";
+
+      switch (type) {
+        case "ether":
+          net_form_str =
+            "<div class=\"large-4 medium-6 columns end\">" +
+              "<label>" + Locale.tr("MAC") +
+                "<input type=\"text\" class=\"eth_mac_net\" placeholder=\"" + Locale.tr("Optional") + "\"/>" +
+              "</label>" +
+            "</div>";
+          break;
+        case "ip4":
+          net_form_str =
+            "<div class=\"large-4 medium-6 columns\">" +
+              "<label>" + Locale.tr("IP Start") +
+                "<input type=\"text\" class=\"four_ip_net\"/>" +
+              "</label>" +
+            "</div>" +
+            "<div class=\"large-4 medium-6 columns end\">" +
+              "<label>" + Locale.tr("MAC") +
+                "<input type=\"text\" class=\"eth_mac_net\" placeholder=\"" + Locale.tr("Optional") + "\"/>" +
+              "</label>" +
+            "</div>";
+          break;
+        case "ip6":
+          net_form_str =
+            "<div class=\"large-6 medium-6 columns\">" +
+              "<label>" + Locale.tr("Global Prefix") +
+                "<input type=\"text\" class=\"six_global_net\" placeholder=\"" + Locale.tr("Optional") + "\"/>" +
+              "</label>" +
+            "</div>" +
+            "<div class=\"large-4 medium-6 columns\">" +
+              "<label>" + Locale.tr("MAC") +
+                "<input type=\"text\" class=\"eth_mac_net\"/>" +
+              "</label>" +
+            "</div>" +
+            "<div class=\"large-6 medium-6 columns end\">" +
+              "<label>" + Locale.tr("ULA Prefix") +
+                "<input type=\"text\" class=\"six_ula_net\" placeholder=\"" + Locale.tr("Optional") + "\"/>" +
+              "</label>" +
+            "</div>";
+          break;
+        case "ip6_static":
+          net_form_str =
+            "<div class=\"large-6 medium-6 columns end\">" +
+              "<label>" + Locale.tr("IPv6 address") +
+                "<input type=\"text\" class=\"six_static_net\"/>" +
+              "</label>" +
+            "</div>"+"<div class=\"large-4 medium-6 columns end\">" +
+              "<label>" + Locale.tr("Prefix length") +
+                "<input type=\"text\" class=\"six_prefix_net\"/>" +
+              "</label>" +
+            "</div>"+
+            "<div class=\"large-6 medium-6 columns end\">" +
+              "<label>" + Locale.tr("MAC") +
+                "<input type=\"text\" class=\"eth_mac_net\" placeholder=\"" + Locale.tr("Optional") + "\"/>" +
+              "</label>" +
+            "</div>";
+          break;
+      }
+      $(".net_options", row_context).html(net_form_str);
+    });
+  }
+
   function _import(context) {
-    $.each($(".vcenter_import_table", context), function() {
-      $.each($(this).DataTable().$(".check_item:checked"), function() {
-        var row_context = $(this).closest("tr");
+    var vcenter_refs = [];
+    var opts = {};
 
-        VCenterCommon.importLoading({context : row_context});
+    var table = $("table.vcenter_import_table", context);
 
-        var network_size = $(".netsize", row_context).val();
-        var network_tmpl = $(this).data("import_data").one;
-        var type         = $('.type_select', row_context).val();
+    $.each(table.DataTable().$(".check_item:checked"), function() {
+      var row_context = $(this).closest("tr");
+      VCenterCommon.importLoading({context : row_context});
 
-        var ar_array = [];
-        ar_array.push("TYPE=" + type);
-        ar_array.push("SIZE=" + network_size);
+      var ref = $(this).data("import_data").ref;
+      vcenter_refs.push(ref);
 
-        switch (type) {
-          case 'ETHER':
-            var mac = $('.eth_mac_net', row_context).val();
+      opts[ref] = {};
 
-            if (mac) {
-              ar_array.push("MAC=" + mac);
-            }
+      opts[ref].size = $(".netsize", row_context).val();
+      opts[ref].type = $(".type_select", row_context).val();
 
-            break;
-          case 'IP4':
-            var mac = $('.four_mac_net', row_context).val();
-            var ip = $('.four_ip_net', row_context).val();
+      switch (opts[ref].type) {
+        case "ether":
+          opts[ref].mac = $(".eth_mac_net", row_context).val();
 
-            if (mac) {
-              ar_array.push("MAC=" + mac);
-            }
-            if (ip) {
-              ar_array.push("IP=" + ip);
-            }
+          break;
+        case "ip4":
+          opts[ref].mac = $(".four_mac_net", row_context).val();
+          opts[ref].ip = $(".four_ip_net", row_context).val();
 
-            break;
-          case 'IP6':
-            var mac = $('.six_mac_net', row_context).val();
-            var gp = $('.six_global_net', row_context).val();
-            var ula = $('.six_mac_net', row_context).val();
+          break;
+        case "ip6":
+          opts[ref].mac = $(".six_mac_net", row_context).val();
+          opts[ref].global_prefix = $(".six_global_net", row_context).val();
+          opts[ref].ula_prefix = $(".six_mac_net", row_context).val();
 
-            if (mac) {
-              ar_array.push("MAC=" + mac);
-            }
-            if (gp) {
-              ar_array.push("GLOBAL_PREFIX=" + gp);
-            }
-            if (ula) {
-              ar_array.push("ULA_PREFIX=" + ula);
-            }
+          break;
+        case "ip6_static":
+          opts[ref].mac = $(".six_mac_net", row_context).val();
+          opts[ref].ip6 = $(".six_static_net", row_context).val();
+          opts[ref].prefix_lenght = $(".six_prefix_net", row_context).val();
 
-            break;
-          case 'IP6_STATIC':
-            var mac = $('.six_mac_net', row_context).val();
-            var ip6_static = $('.six_static_net', row_context).val();
-            var prefix = $('.six_prefix_net', row_context).val();
+          break;
+      }
 
-            if (mac) {
-              ar_array.push("MAC=" + mac);
-            }
-            if (ip6_static) {
-              ar_array.push("IP6=" + ip6_static);
-            }
-            if (prefix) {
-              ar_array.push("PREFIX_LENGTH=" + prefix);
-            }
-            break;
-        }
-
-        network_tmpl += "\nAR=["
-        network_tmpl += ar_array.join(",\n")
-        network_tmpl += "]"
-
-        var vlaninfo = $(".vlaninfo", row_context).text();
-
-        if ( vlaninfo != undefined && vlaninfo != "" ) {
-          network_tmpl += "\nVLAN_TAGGED_ID=" + vlaninfo + "\n";
-        }
-
-        var vnet_json = {
-          "vnet": {
-            "vnet_raw": network_tmpl
-          }
-        };
-
-        var one_cluster_id  = $(this).data("import_data").one_cluster_id;
-
-        OpenNebulaNetwork.create({
-          timeout: true,
-          data: vnet_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Virtual Network created successfully. ID: %1$s", response.VNET.ID)
-            });
-
-            if (one_cluster_id != -1) {
-              Sunstone.runAction("Cluster.addvnet",one_cluster_id,response.VNET.ID);
-            }
-          },
-          error: function (request, error_json) {
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_json.error.message || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
+      var clParams = [];
+      $.each($("#vnet-clusters option:selected", row_context), function(){
+        clParams.push($(this).val());
       });
+      opts[ref].selected_clusters = clParams;
     });
 
+    vcenter_refs = vcenter_refs.join(",");
+
+    if (vcenter_refs.length === 0){
+      Notifier.notifyMessage("You must select at least one network");
+      return false;
+    }
+
+    $.ajax({
+      url: path,
+      type: "POST",
+      data: {
+        timeout: false,
+        networks: vcenter_refs,
+        opts: opts
+      },
+      dataType: "json",
+      success: function(response){
+        VCenterCommon.jGrowlSuccess({success : response.success, resource : resource, link_tab : "vnets-tab"});
+        VCenterCommon.jGrowlFailure({error : response.error, resource : resource});
+
+        $("#get-vcenter-networks").click();
+      },
+      error: function(request, error_json){
+        if (request.responseJSON === undefined){
+          Notifier.notifyError("Empty response received from server. Check your setup to avoid timeouts");
+        } else {
+          Notifier.notifyError(request.responseJSON.error.message);
+        }
+        $("#get-vcenter-networks").click();
+      }
+    });
   }
 });

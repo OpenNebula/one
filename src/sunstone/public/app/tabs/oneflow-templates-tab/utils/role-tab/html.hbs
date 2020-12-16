@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -22,7 +22,7 @@
       <small class="form-error">{{tr "Can only contain alphanumeric and underscore characters"}}</small>
     </label>
   </div>
-  <div class="service_template_param service_role medium-2 columns end">
+  <div class="service_template_param service_role medium-4 columns end">
     <label>
       {{tr "Number of VMs"}}
       <input type="number" min="0" id="cardinality" name="cardinality" value="1"/>
@@ -39,20 +39,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="service_template_param service_role medium-6 columns">
-    <table class="networks_role dataTable">
-      <thead>
-        <tr>
-          <th colspan="2">
-            <i class="fa fa-lg fa-fw fa-globe off-color"/>{{tr "Network Interfaces"}}
-          </th>
-        </tr>
-      </thead>
-      <tbody class="networks_role_body">
-      </tbody>
-    </table>
-  </div>
-  <div class="service_template_param service_role medium-6 columns">
+  <div class="service_template_param service_role large-12 columns">
     <table class="parent_roles dataTable">
       <thead>
         <tr>
@@ -64,6 +51,32 @@
       <tbody class="parent_roles_body">
       </tbody>
     </table>
+  </div>
+  <div class="networks_accordion large-12 columns ">
+    {{#advancedSection (tr "Role network") }}
+    <div class="service_template_param service_role">
+      <table class="networks_role dataTable">
+        <thead>
+          <tr>
+            <th colspan="4">
+              <label for="interfaces_role">
+                <i class="fas fa-lg fa-fw fa-globe off-color"/>{{tr "Network Interfaces"}}
+                <span class="tip">{{tr "This network interface will be configured as an ALIAS in the VM without context configuration."}}</span>
+              </label>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="networks_role_body">
+        </tbody>
+      </table>
+      <div class="form-group networks_role_rdp" style="padding:0.6rem;">
+        <label for="rdp">RDP</label>
+        <select class="form-control" id="rdp">
+          <option value=""></option>
+        </select>
+      </div>
+    </div>
+    {{/advancedSection}}
   </div>
 </div>
 <br>
@@ -99,7 +112,7 @@
           <tfoot>
             <tr>
               <td colspan="8">
-                <a type="button" class="button small radius secondary small-12" id="tf_btn_elas_policies"><i class="fa fa-lg fa-plus-circle"></i></a>
+                <a type="button" class="button small radius secondary small-12" id="tf_btn_elas_policies"><i class="fas fa-lg fa-plus-circle"></i></a>
               </td>
             </tr>
           </tfoot>
@@ -116,7 +129,7 @@
           <tfoot>
             <tr>
               <td colspan="6">
-                <a type="button" class="button small radius secondary small-12" id="tf_btn_sche_policies"><i class="fa fa-lg fa-plus-circle"></i></a>
+                <a type="button" class="button small radius secondary small-12" id="tf_btn_sche_policies"><i class="fas fa-lg fa-plus-circle"></i></a>
               </td>
             </tr>
           </tfoot>
@@ -142,14 +155,6 @@
         </select>
       </div>
       <div class="medium-6 columns">
-      </div>
-    </div>
-    <div class="row">
-      <div class="service_template_param st_man large-12 columns">
-        <label  for="vm_template_contents">{{tr "VM template content"}}
-          <span class="tip">{{tr "This information will be merged with the original Virtual Machine template. Configuration attributes and network interfaces will be replaced by those provided by the user when the template is instantiated"}}</span>
-        </label>
-        <textarea type="text" rows="4" class="vm_template_contents monospace" name="vm_template_contents" placeholder='ATTRIBUTE = "VALUE"'/>
       </div>
     </div>
     {{/advancedSection}}

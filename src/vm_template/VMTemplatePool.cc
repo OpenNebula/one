@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,8 @@
 
 #include "VMTemplatePool.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
@@ -29,13 +31,11 @@ int VMTemplatePool::allocate (
         const string&            uname,
         const string&            gname,
         int                      umask,
-        VirtualMachineTemplate * template_contents,
+        unique_ptr<VirtualMachineTemplate> template_contents,
         int *                    oid,
         string&                  error_str)
 {
-    VMTemplate *  vm_template;
-    VMTemplate *  aux = 0;
-
+    int     db_oid;
     string  name;
 
     ostringstream oss;
@@ -43,7 +43,8 @@ int VMTemplatePool::allocate (
     // ------------------------------------------------------------------------
     // Build a new VMTemplate object
     // ------------------------------------------------------------------------
-    vm_template = new VMTemplate(-1, uid, gid, uname, gname, umask, template_contents);
+    auto vm_template = new VMTemplate(-1, uid, gid, uname, gname, umask,
+                                      move(template_contents));
 
     // Check name
     vm_template->get_template_attribute("NAME", name);
@@ -54,24 +55,24 @@ int VMTemplatePool::allocate (
     }
 
     // Check for duplicates
-    aux = get(name, uid, false);
+    db_oid = exist(name, uid);
 
-    if( aux != 0 )
+    if( db_oid != -1 )
     {
-            goto error_duplicated;
+        goto error_duplicated;
     }
 
     // ------------------------------------------------------------------------
     // Insert the Object in the pool
     // ------------------------------------------------------------------------
 
-    *oid = PoolSQL::allocate(vm_template, error_str);
+    *oid = PoolSQL::allocate(move(vm_template), error_str);
 
     return *oid;
 
 
 error_duplicated:
-    oss << "NAME is already taken by TEMPLATE " << aux->get_oid() << ".";
+    oss << "NAME is already taken by TEMPLATE " << db_oid << ".";
     error_str = oss.str();
 
 error_name:

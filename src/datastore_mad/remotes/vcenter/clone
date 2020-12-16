@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # ---------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                  #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                  #
 #                                                                              #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may      #
 # not use this file except in compliance with the License. You may obtain      #
@@ -16,62 +16,81 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"] if !defined?(ONE_LOCATION)
+ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby" if !defined?(RUBY_LIB_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << File.dirname(__FILE__)
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << File.dirname(__FILE__)
 
 require 'vcenter_driver'
 
 drv_action_enc = ARGV[0]
 id             = ARGV[1]
 
-drv_action = OpenNebula::XMLElement.new
-drv_action.initialize_xml(Base64.decode64(drv_action_enc), 'DS_DRIVER_ACTION_DATA')
+DRV_ACTION_DS = '/DS_DRIVER_ACTION_DATA/DATASTORE/'
 
-target_ds_ref    = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_REF"]
-ds_image_dir     = drv_action["/DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/VCENTER_DS_IMAGE_DIR"].match(%r{^/*(.*?)/*$})[1] rescue "one"
-src_path_escaped = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/PATH"]
-src_img_id       = drv_action["/DS_DRIVER_ACTION_DATA/IMAGE/CLONING_ID"]
+drv_action = OpenNebula::XMLElement.new
+drv_action.initialize_xml(Base64.decode64(drv_action_enc),
+                          'DS_DRIVER_ACTION_DATA')
+
+target_ds_ref    = drv_action[DRV_ACTION_DS + 'TEMPLATE/VCENTER_DS_REF']
+ds_image_dir     = drv_action[DRV_ACTION_DS + 'TEMPLATE/VCENTER_DS_IMAGE_DIR']
+                   .match(%r{^/*(.*?)/*$})[1] rescue 'one'
+src_path_escaped = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/PATH']
+src_img_id       = drv_action['/DS_DRIVER_ACTION_DATA/IMAGE/CLONING_ID']
 
 src_path = VCenterDriver::FileHelper.unescape_path(src_path_escaped)
 
-check_valid src_img_id, "cloning id"
-check_valid src_path, "image path"
-check_valid target_ds_ref, "target ds ref"
+check_valid src_img_id, 'cloning id'
+check_valid src_path, 'image path'
+check_valid target_ds_ref, 'target ds ref'
 
 # Get source ds_ref
 source_img = VCenterDriver::VIHelper.one_item(OpenNebula::Image, src_img_id)
 source_ds_id = source_img['DATASTORE_ID']
-source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore, source_ds_id)
+source_ds = VCenterDriver::VIHelper.one_item(OpenNebula::Datastore,
+                                             source_ds_id)
 source_ds_ref = source_ds['TEMPLATE/VCENTER_DS_REF']
 
 # Generate target path
-target_path = "#{ds_image_dir}/#{id}/one-#{id}.vmdk"
+target_path = "#{ds_image_dir}/#{id}/one-#{id}"
 
 begin
-
     vi_client = VCenterDriver::VIClient.new_from_datastore(source_ds_id)
 
     ds = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
 
-    target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
+    target_ds_vc = VCenterDriver::Datastore.new_from_ref(target_ds_ref,
+                                                         vi_client)
 
     target_ds_name = target_ds_vc['name']
 
-    puts ds.copy_virtual_disk(src_path, target_ds_vc, target_path)
+    ext = File.extname(src_path)
+    ext = '.vmdk' if ext.empty?
+    target_path << ext
 
-rescue Exception => e
+    puts ds.copy_virtual_disk(src_path, target_ds_vc, target_path)
+rescue StandardError => e
     message = "Error cloning img #{src_path} to #{target_ds_name}"\
-              " Reason: \"#{e.message}\"\n#{e.backtrace}"
-    STDERR.puts error_message(message)
-    exit -1
+      " Reason: \"#{e.message}\"."
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end

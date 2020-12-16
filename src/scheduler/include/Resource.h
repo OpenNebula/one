@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -83,7 +83,7 @@ public:
      *  Return a reference to the resources of the object
      *    @return vector of resources.
      */
-    const vector<Resource *>& get_resources() const
+    const std::vector<Resource *>& get_resources() const
     {
         return resources;
     };
@@ -94,11 +94,9 @@ public:
      */
     void clear()
     {
-        vector<Resource *>::iterator jt;
-
-        for (jt=resources.begin(); jt!=resources.end(); jt++)
+        for (auto res : resources)
         {
-            delete *jt;
+            delete res;
         }
 
         resources.clear();
@@ -106,7 +104,7 @@ public:
 
 protected:
 
-    vector<Resource *> resources;
+    std::vector<Resource *> resources;
 };
 
 /**

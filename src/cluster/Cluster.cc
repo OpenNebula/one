@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -14,39 +14,15 @@
 /* limitations under the License.                                           */
 /* ------------------------------------------------------------------------ */
 
-#include <limits.h>
-#include <string.h>
-
-#include <iostream>
-#include <sstream>
-
 #include "Cluster.h"
 #include "GroupPool.h"
 #include "Nebula.h"
+#include "OneDB.h"
+#include "DatastorePool.h"
 
-const char * Cluster::table = "cluster_pool";
+#include <sstream>
 
-const char * Cluster::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * Cluster::db_bootstrap = "CREATE TABLE IF NOT EXISTS cluster_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name))";
-
-const char * Cluster::datastore_table = "cluster_datastore_relation";
-const char * Cluster::datastore_db_names = "cid, oid";
-const char * Cluster::datastore_db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS cluster_datastore_relation ("
-    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
-
-const char * Cluster::network_table = "cluster_network_relation";
-const char * Cluster::network_db_names = "cid, oid";
-const char * Cluster::network_db_bootstrap =
-    "CREATE TABLE IF NOT EXISTS cluster_network_relation ("
-    "cid INTEGER, oid INTEGER, PRIMARY KEY(cid, oid))";
-
-const char * Cluster::bitmap_table = "cluster_vnc_bitmap";
+using namespace std;
 
 /* ************************************************************************** */
 /* Cluster :: Constructor/Destructor                                          */
@@ -55,21 +31,21 @@ const char * Cluster::bitmap_table = "cluster_vnc_bitmap";
 Cluster::Cluster(
         int id,
         const string& name,
-        ClusterTemplate*  cl_template,
+        std::unique_ptr<ClusterTemplate>  cl_template,
         const VectorAttribute& vnc_conf):
-            PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",table),
+            PoolObjectSQL(id,CLUSTER,name,-1,-1,"","",one_db::cluster_table),
             hosts("HOSTS"),
             datastores("DATASTORES"),
             vnets("VNETS"),
-            vnc_bitmap(vnc_conf, id, bitmap_table)
+            vnc_bitmap(vnc_conf, id, one_db::cluster_bitmap_table)
 {
-    if (cl_template != 0)
+    if (cl_template)
     {
-        obj_template = cl_template;
+        obj_template = move(cl_template);
     }
     else
     {
-        obj_template = new ClusterTemplate;
+        obj_template = make_unique<ClusterTemplate>();
     }
 
     add_template_attribute("RESERVED_CPU", "");
@@ -118,60 +94,21 @@ error_common:
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int Cluster::add_datastore(int id, string& error_msg)
-{
-   int rc = datastores.add(id);
-
-    if ( rc < 0 )
-    {
-        error_msg = "Datastore ID is already in the cluster set.";
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-int Cluster::del_datastore(int id, string& error_msg)
-{
-    int rc = datastores.del(id);
-
-    if ( rc < 0 )
-    {
-        error_msg = "Datastore ID is not part of the cluster set.";
-    }
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Cluster::get_default_system_ds(const set<int>& ds_set)
 {
     Nebula& nd = Nebula::instance();
 
     DatastorePool*  dspool = nd.get_dspool();
-    Datastore*      ds;
 
-    for (set<int>::const_iterator it = ds_set.begin(); it != ds_set.end(); it++)
+    for (auto dsid : ds_set)
     {
-        ds = dspool->get(*it, true);
-
-        if (ds == 0)
+        if ( auto ds = dspool->get_ro(dsid) )
         {
-            continue;
+            if (ds->get_type() == Datastore::SYSTEM_DS)
+            {
+                return dsid;
+            }
         }
-
-        if (ds->get_type() == Datastore::SYSTEM_DS)
-        {
-            ds->unlock();
-
-            return *it;
-        }
-
-        ds->unlock();
     }
 
     return -1;
@@ -197,14 +134,14 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the Cluster
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -218,121 +155,35 @@ int Cluster::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::cluster_table << " SET "
+            << "name = '"   << sql_name << "', "
+            << "body = '"   << sql_xml  << "', "
+            << "uid =  "    << uid      << ", "
+            << "gid =  "    << gid      << ", "
+            << "owner_u = " << owner_u  << ", "
+            << "group_u = " << group_u  << ", "
+            << "other_u = " << other_u
+            << " WHERE oid = " << oid;
+
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::cluster_table
+            << " (" << one_db::cluster_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
 
     rc = db->exec_wr(oss);
 
     db->free_str(sql_name);
     db->free_str(sql_xml);
-
-    if (rc == 0)
-    {
-        if (db->multiple_values_support())
-        {
-            set<int>::iterator i;
-
-            rc = 0;
-
-            oss.str("");
-            oss << "DELETE FROM " << network_table  << " WHERE cid = " << oid;
-            rc += db->exec_wr(oss);
-
-            oss.str("");
-            oss << "DELETE FROM " << datastore_table<< " WHERE cid = " << oid;
-            rc += db->exec_wr(oss);
-
-            set<int> datastore_set = datastores.get_collection();
-
-            if (!datastore_set.empty())
-            {
-                oss.str("");
-                oss << "INSERT INTO " << datastore_table
-                    << " (" << datastore_db_names << ") VALUES ";
-
-                i = datastore_set.begin();
-
-                oss << "(" << oid  << "," << *i << ")";
-
-                for(++i; i != datastore_set.end(); i++)
-                {
-                    oss << ", (" << oid  << "," << *i << ")";
-                }
-
-                rc += db->exec_wr(oss);
-            }
-
-            set<int> vnet_set = vnets.get_collection();
-
-            if (!vnet_set.empty())
-            {
-                oss.str("");
-                oss << "INSERT INTO " << network_table
-                    << " (" << network_db_names << ") VALUES ";
-
-                i = vnet_set.begin();
-
-                oss << "(" << oid  << "," << *i << ")";
-
-                for(++i; i != vnet_set.end(); i++)
-                {
-                    oss << ", (" << oid  << "," << *i << ")";
-                }
-
-                rc += db->exec_wr(oss);
-            }
-        }
-        else
-        {
-            oss.str("");
-
-            oss <<"BEGIN; "
-                <<"DELETE FROM "<< network_table  <<" WHERE cid = "<< oid<< "; "
-                <<"DELETE FROM "<< datastore_table<<" WHERE cid = "<< oid<< "; ";
-
-            set<int>::iterator i;
-
-            set<int> datastore_set = datastores.get_collection();
-
-            for(i = datastore_set.begin(); i != datastore_set.end(); i++)
-            {
-                oss << "INSERT INTO " << datastore_table
-                    << " (" << datastore_db_names << ") VALUES ("
-                    << oid  << ","
-                    << *i   << "); ";
-            }
-
-            set<int> vnet_set = vnets.get_collection();
-
-            for(i = vnet_set.begin(); i != vnet_set.end(); i++)
-            {
-                oss << "INSERT INTO " << network_table
-                    << " (" << network_db_names << ") VALUES ("
-                    << oid  << ","
-                    << *i   << "); ";
-            }
-
-            oss << "COMMIT";
-
-            rc = db->exec_wr(oss);
-        }
-    }
 
     return rc;
 
@@ -355,6 +206,26 @@ error_generic:
     error_str = "Error inserting Cluster in DB.";
 error_common:
     return -1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int Cluster::bootstrap(SqlDB * db)
+{
+    int rc;
+    ostringstream oss;
+
+    oss.str(one_db::cluster_db_bootstrap);
+    rc = db->exec_local_wr(oss);
+
+    oss.str(one_db::cluster_datastore_db_bootstrap);
+    rc += db->exec_local_wr(oss);
+
+    oss.str(one_db::cluster_network_db_bootstrap);
+    rc += db->exec_local_wr(oss);
+
+    return rc;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -427,7 +298,3 @@ int Cluster::from_xml(const string& xml)
 
     return 0;
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-

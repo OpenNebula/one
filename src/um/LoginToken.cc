@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -41,9 +41,7 @@ LoginTokenPool::~LoginTokenPool()
 
 void LoginTokenPool::reset()
 {
-    std::map<std::string, LoginToken *>::iterator it;
-
-    for (it = tokens.begin() ; it != tokens.end() ; ++it)
+    for (auto it = tokens.begin() ; it != tokens.end() ; ++it)
     {
         delete it->second;
     }
@@ -75,9 +73,7 @@ int LoginTokenPool::set(std::string& utk, time_t valid, int egid)
 
 int LoginTokenPool::reset(const std::string& utk)
 {
-    std::map<std::string, LoginToken *>::iterator it;
-
-    it = tokens.find(utk);
+    auto it = tokens.find(utk);
 
     if ( it == tokens.end() )
     {
@@ -95,21 +91,13 @@ int LoginTokenPool::reset(const std::string& utk)
 
 void LoginTokenPool::reset_expired()
 {
-    std::map<std::string, LoginToken *>::iterator it, tmp_it;
-
-    for (it = tokens.begin(); it != tokens.end(); )
+    for (auto it = tokens.begin(); it != tokens.end(); )
     {
         if ((it->second)->is_expired())
         {
-            tmp_it = it;
-
-            ++tmp_it;
-
             delete it->second;
 
-            tokens.erase(it);
-
-            it = tmp_it;
+            it = tokens.erase(it);
         }
         else
         {
@@ -120,17 +108,18 @@ void LoginTokenPool::reset_expired()
 
 /* -------------------------------------------------------------------------- */
 
-bool LoginTokenPool::is_valid(const std::string& utk, int& egid)
+bool LoginTokenPool::is_valid(const std::string& utk, int& egid, bool& exists_token)
 {
-    std::map<std::string, LoginToken *>::iterator it;
-
     egid = -1;
-    it   = tokens.find(utk);
+    auto it = tokens.find(utk);
 
     if ( it == tokens.end() )
     {
+        exists_token = false;
         return false;
     }
+
+    exists_token = true;
 
     if ( it->second->is_valid(utk, egid) == true)
     {
@@ -148,12 +137,10 @@ bool LoginTokenPool::is_valid(const std::string& utk, int& egid)
 
 void LoginTokenPool::from_xml_node(const std::vector<xmlNodePtr>& content)
 {
-    std::vector<xmlNodePtr>::const_iterator it;
-
-    for (it = content.begin(); it != content.end(); ++it)
+    for (auto node : content)
     {
         LoginToken * tk = new LoginToken;
-        std::string utk = tk->from_xml_node(*it);
+        std::string utk = tk->from_xml_node(node);
 
         tokens.insert(std::pair<std::string, LoginToken *>(utk, tk));
     }
@@ -163,10 +150,9 @@ void LoginTokenPool::from_xml_node(const std::vector<xmlNodePtr>& content)
 
 std::string& LoginTokenPool::to_xml(std::string& xml) const
 {
-    std::map<std::string, LoginToken *>::const_iterator it;
     std::ostringstream oss;
 
-    for ( it = tokens.begin() ; it != tokens.end() ; ++it)
+    for ( auto it = tokens.begin() ; it != tokens.end() ; ++it)
     {
         it->second->to_xml(oss);
     }

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,9 +17,9 @@
 define(function(require) {
   // Dependencies
 //  require('foundation.abide');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var Sunstone = require('sunstone');
+  var Notifier = require("utils/notifier");
+  var Locale = require("utils/locale");
+  var Sunstone = require("sunstone");
 
   function BaseFormPanel() {
     this.formContext = $("#" + this.tabId+" div[form-panel-id="+this.formPanelId+"]");
@@ -28,16 +28,16 @@ define(function(require) {
   }
 
   BaseFormPanel.prototype = {
-    'insert': _insert,
-    'reInit': _reInit,
-    'reset': _reset,
-    'setAction': _setAction,
-    'title': _title,
-    'setHeader': _setHeader,
-    'buttonText': _buttonText,
-    'resetButton': _resetButton,
-    'actionOptions': _actionOptions
-  }
+    "insert": _insert,
+    "reInit": _reInit,
+    "reset": _reset,
+    "setAction": _setAction,
+    "title": _title,
+    "setHeader": _setHeader,
+    "buttonText": _buttonText,
+    "resetButton": _resetButton,
+    "actionOptions": _actionOptions
+  };
 
   return BaseFormPanel;
 
@@ -48,12 +48,12 @@ define(function(require) {
       this.advancedElement = $(that.htmlAdvanced()).appendTo( $(".advancedForms", context) );
     }
 
-    Foundation.reflow(context, 'abide');
+    Foundation.reflow(context, "abide");
 
     that.reInit(context);
 
     // Mutation observer to reInit abide when nodes are added/removed
-    $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context).each(function(i, form){
+    $("#" + that.formPanelId + "Wizard, #" + that.formPanelId + "Advanced", context).each(function(i, form){
       var observer = new MutationObserver(function(mutations) {
         that.reInit(context);
       });
@@ -67,28 +67,28 @@ define(function(require) {
   function _reInit(context) {
     var that = this;
 
-    $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context)
-      .off('forminvalid.zf.abide').off('formvalid.zf.abide').off("submit");
+    $("#" + that.formPanelId + "Wizard, #" + that.formPanelId + "Advanced", context)
+      .off("forminvalid.zf.abide").off("formvalid.zf.abide").off("submit");
 
-    Foundation.reInit($('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context));
+    Foundation.reInit($("#" + that.formPanelId + "Wizard, #" + that.formPanelId + "Advanced", context));
 
-    $('#' + that.formPanelId + 'Wizard, #' + that.formPanelId + 'Advanced', context)
-      .on('forminvalid.zf.abide', function(ev, frm) {
-        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."));
+    $("#" + that.formPanelId + "Wizard, #" + that.formPanelId + "Advanced", context)
+      .on("forminvalid.zf.abide", function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."),ev.target,context);
         Sunstone.hideFormPanelLoading(that.tabId);
       })
       .on("submit", function(ev) {
         ev.preventDefault();
       });
 
-    $('#' + that.formPanelId + 'Wizard', context)
-      .on('formvalid.zf.abide', function(ev, frm) {
+    $("#" + that.formPanelId + "Wizard", context)
+      .on("formvalid.zf.abide", function(ev, frm) {
         that.submitWizard(frm);
         return false;
       });
 
-    $('#' + that.formPanelId + 'Advanced', context)
-      .on('formvalid.zf.abide', function(ev, frm) {
+    $("#" + that.formPanelId + "Advanced", context)
+      .on("formvalid.zf.abide", function(ev, frm) {
         that.submitAdvanced(frm);
         return false;
       });
@@ -116,7 +116,7 @@ define(function(require) {
   // @return [Object] actionOptions of the form based on the defined action
   function _actionOptions() {
     if (this.action) {
-      var actionOptions = this.actions[this.action]
+      var actionOptions = this.actions[this.action];
       if (actionOptions) {
         return actionOptions;
       } else {
@@ -138,8 +138,8 @@ define(function(require) {
   }
 
   function _setHeader(element) {
-    $(".sunstone-form-id", '#' + this.tabId).text(element.ID);
-    $('.sunstone-form-info-header', '#' + this.tabId).text(element.NAME);
+    $(".sunstone-form-id", "#" + this.tabId).text(element.ID);
+    $(".sunstone-form-info-header", "#" + this.tabId).text(element.NAME);
   }
 
   // @return [String] The buttonText of the form based on the defined action
@@ -161,4 +161,4 @@ define(function(require) {
       return false;
     }
   }
-})
+});

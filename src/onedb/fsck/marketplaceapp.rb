@@ -22,10 +22,10 @@ module OneDBFsck
 
         # DATA: go through all apps
         @db.fetch("SELECT oid,body FROM marketplaceapp_pool") do |row|
-            doc = Document.new(row[:body])
+            doc = nokogiri_doc(row[:body], 'marketplaceapp_pool')
 
-            market_id   = doc.root.get_text('MARKETPLACE_ID').to_s.to_i
-            market_name = doc.root.get_text('MARKETPLACE')
+            market_id   = doc.root.xpath('MARKETPLACE_ID').text.to_i
+            market_name = doc.root.xpath('MARKETPLACE').text
 
             ####################################################################
             # DATA: TODO, BUG: this code will only work for a standalone oned.
@@ -34,8 +34,8 @@ module OneDBFsck
             ####################################################################
 
             # DATA: get image origin id. Does it work?
-            origin_id = doc.root.get_text('ORIGIN_ID').to_s.to_i
-            if origin_id >= 0 && doc.root.get_text('STATE').to_s.to_i == 2 # LOCKED
+            origin_id = doc.root.xpath('ORIGIN_ID').text.to_i
+            if origin_id >= 0 && doc.root.xpath('STATE').text.to_i == 2 # LOCKED
                 counters[:image][origin_id][:app_clones].add(row[:oid])
             end
 
@@ -56,7 +56,7 @@ module OneDBFsck
                     if market_name != market_entry[:name]
                         log_error("Marketplace App #{row[:oid]} has a wrong name for marketplace #{market_id}, #{market_name}. It will be changed to #{market_entry[:name]}")
 
-                        doc.root.each_element('MARKETPLACE') do |e|
+                        doc.root.xpath('MARKETPLACE').each do |e|
                             e.text = market_entry[:name]
                         end
 

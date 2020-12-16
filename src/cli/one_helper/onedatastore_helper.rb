@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -22,6 +22,16 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
         :short  => "-d id|name",
         :large  => "--datastore id|name" ,
         :description => "Selects the datastore",
+        :format => String,
+        :proc   => lambda { |o, options|
+            OpenNebulaHelper.rname_to_id(o, "DATASTORE")
+        }
+    }
+
+    FILE_DATASTORE = {
+        :name   => "file_datastore",
+        :large  => "--file-datastore id|name" ,
+        :description => "Selects the file datastore",
         :format => String,
         :proc   => lambda { |o, options|
             OpenNebulaHelper.rname_to_id(o, "DATASTORE")
@@ -88,8 +98,8 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
             end
 
             column :TYPE, "Datastore type", :left, :size=>4 do |d|
-                type = Datastore::DATASTORE_TYPES[d["TYPE"].to_i]
-                Datastore::SHORT_DATASTORE_TYPES[type]
+                type = OpenNebula::Datastore::DATASTORE_TYPES[d["TYPE"].to_i]
+                OpenNebula::Datastore::SHORT_DATASTORE_TYPES[type]
             end
 
             column :DS, "Datastore driver", :left, :size=>7 do |d|
@@ -101,8 +111,8 @@ class OneDatastoreHelper < OpenNebulaHelper::OneHelper
             end
 
             column :STAT, "State of the Datastore", :left, :size=>3 do |d|
-                state = Datastore::DATASTORE_STATES[d["STATE"].to_i]
-                Datastore::SHORT_DATASTORE_STATES[state]
+                state = OpenNebula::Datastore::DATASTORE_STATES[d["STATE"].to_i]
+                OpenNebula::Datastore::SHORT_DATASTORE_STATES[state]
             end
 
             default :ID, :USER, :GROUP, :NAME, :SIZE, :AVAIL, :CLUSTERS, :IMAGES,

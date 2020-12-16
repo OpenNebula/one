@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -30,9 +30,9 @@
         <option ds="fs" tm="qcow2"  value="fs_qcow2">{{tr "Filesystem - qcow2 mode"}}</option>
         <option ds="ceph" tm="ceph" value="ceph">{{tr "Ceph"}}</option>
         <option ds="vcenter" tm="vcenter" value="vcenter">{{tr "vCenter"}}</option>
-        <option ds="fs" tm="lvm" value="lvm">{{tr "LVM"}}</option>
+        <option ds="fs" tm="fs_lvm" value="lvm">{{tr "LVM"}}</option>
         <option ds="dev" tm="dev" value="raw">{{tr "Raw Device Mapping"}}</option>
-        <option ds="iscsi" tm="iscsi" value="iscsi_libvirt">{{tr "iSCSI - Libvirt initiator "}}</option>
+        <option ds="iscsi_libvirt" tm="iscsi_libvirt" value="iscsi_libvirt">{{tr "iSCSI - Libvirt initiator "}}</option>
         <option value="custom">{{tr "Custom"}}</option>
       </select>
     </div>
@@ -249,6 +249,15 @@
         {{tr "Staging directory for Image registration"}}
       </label>
       <input type="text" name="staging_dir" id="staging_dir" />
+    </div>
+    <div class="medium-6 columns">
+      <label class="only_img_ds" for="compatible_sys_ds">
+        {{tr "Compatible system datastores"}} 
+        <span class="tip">
+          {{tr "Specifies which system datastores are compatible with this image datastore"}}
+        </span>
+      </label>
+      <input class="only_img_ds" type="text" name="compatible_sys_ds" id="compatible_sys_ds" placeholder="0,100" />
     </div>
     <div class="medium-6 columns">
       <label for="rbd_format">

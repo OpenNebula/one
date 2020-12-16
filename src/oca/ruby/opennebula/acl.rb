@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -72,7 +72,8 @@ module OpenNebula
             "VROUTER"       =>  0x4000000000000,
             "MARKETPLACE"   =>  0x8000000000000,
             "MARKETPLACEAPP"=> 0x10000000000000,
-            "VMGROUP"       => 0x20000000000000
+            "VMGROUP"       => 0x20000000000000,
+            "VNTEMPLATE"    => 0x40000000000000
         }
 
         RIGHTS =

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,6 +21,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <queue>
+#include <condition_variable>
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -29,9 +30,6 @@
 #include "NebulaLog.h"
 #include "SqlDB.h"
 #include "ObjectSQL.h"
-
-
-using namespace std;
 
 #ifdef MYSQL_DB
 
@@ -44,11 +42,14 @@ class MySqlDB : public SqlDB
 {
 public:
 
-    MySqlDB(const string& _server,
-            int           _port,
-            const string& _user,
-            const string& _password,
-            const string& _database);
+    MySqlDB(const std::string& _server,
+            int                _port,
+            const std::string& _user,
+            const std::string& _password,
+            const std::string& _database,
+            const std::string& _encoding,
+            int                _connections,
+            std::string&       _compare_binary);
 
     ~MySqlDB();
 
@@ -59,21 +60,16 @@ public:
      *    @param str the string to be escaped
      *    @return a valid SQL string or NULL in case of failure
      */
-    char * escape_str(const string& str);
+    char * escape_str(const std::string& str) const;
 
     /**
      *  Frees a previously scaped string
      *    @param str pointer to the str
      */
-    void free_str(char * str);
-
-    /**
-     * Returns true if the syntax INSERT VALUES (data), (data), (data)
-     * is supported
-     *
-     * @return true if supported
-     */
-    bool multiple_values_support();
+    void free_str(char * str) const
+    {
+        delete[] str;
+    }
 
 protected:
     /**
@@ -82,47 +78,55 @@ protected:
      *    @param obj Callbackable obj to call if the query succeeds
      *    @return 0 on success
      */
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet);
+    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override;
 
 private:
 
     /**
+     *  This functions set the encoding to that being used for the OpenNebula
+     *  database and creates the database if needed
+     */
+    int db_encoding(std::string& error);
+
+    /**
      *  Number of concurrent DB connections.
      */
-    static const int  DB_CONNECT_SIZE;
+    int  max_connections;
 
     /**
      * The MySql connection pool handler
      */
-    queue<MYSQL *> db_connect;
+    std::queue<MYSQL *> db_connect;
 
     /**
      * Cached DB connection to escape strings (it uses the server character set)
      */
-    MYSQL *        db_escape_connect;
+    MYSQL * db_escape_connect;
 
     /**
      *  MySQL Connection parameters
      */
-    string              server;
+    std::string server;
 
-    int                 port;
+    int    port;
 
-    string              user;
+    std::string user;
 
-    string              password;
+    std::string password;
 
-    string              database;
+    std::string database;
+
+    std::string encoding;
 
     /**
      *  Fine-grain mutex for DB access (pool of DB connections)
      */
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Conditional variable to wake-up waiting threads.
      */
-    pthread_cond_t  cond;
+    std::condition_variable  cond;
 
     /**
      *  Gets a free DB connection from the pool.
@@ -132,7 +136,7 @@ private:
     /**
      *  Returns the connection to the pool.
      */
-    void    free_db_connection(MYSQL * db);
+    void free_db_connection(MYSQL * db);
 };
 #else
 //CLass stub
@@ -140,27 +144,28 @@ class MySqlDB : public SqlDB
 {
 public:
 
-    MySqlDB(
-            string server,
-            int    port,
-            string user,
-            string password,
-            string database)
+    MySqlDB(const std::string& _server,
+            int                _port,
+            const std::string& _user,
+            const std::string& _password,
+            const std::string& _database,
+            const std::string& _encoding,
+            int                _connections,
+            std::string&       _compare_binary)
     {
-        throw runtime_error("Aborting oned, MySQL support not compiled!");
+        throw std::runtime_error("Aborting oned, MySQL support not compiled!");
     };
 
     ~MySqlDB(){};
 
+    char * escape_str(const std::string& str) const override {return nullptr;};
 
-    char * escape_str(const string& str){return 0;};
-
-    void free_str(char * str){};
-
-    bool multiple_values_support(){return true;};
+    void free_str(char * str) const override {};
 
 protected:
-    int exec(ostringstream& cmd, Callbackable* obj, bool quiet){return -1;};
+    int exec_ext(std::ostringstream& c, Callbackable *o, bool q) override {
+        return -1;
+    };
 };
 #endif
 

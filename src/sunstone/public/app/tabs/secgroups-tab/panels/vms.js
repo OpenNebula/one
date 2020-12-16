@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -72,7 +72,7 @@ define(function(require){
         read_only: true,
         fixed_ids: ids,
         starred_ids: updatingIds,
-        starred_icon: '<i class="fa fa-warning fa-fw"></i>'
+        starred_icon: '<i class="fas fa-exclamation-triangle fa-fw"></i>'
       }
     };
 

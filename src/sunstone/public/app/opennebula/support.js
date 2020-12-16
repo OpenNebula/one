@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,10 +15,12 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var OpenNebulaAction = require('./action');
+  var OpenNebulaAction = require("./action");
 
   var RESOURCE = "REQUEST";
-  var PATH = 'support/request';
+  var PATH = "support/request";
+  var PATH_CHECK_SUPPORT = "support/check";
+  var PATH_CHECK_VERSION = "support/check/version";
   var CACHE_NAME = "REQUEST";
 
   var Support = {
@@ -29,15 +31,21 @@ define(function(require) {
     "update": function(params) {
       OpenNebulaAction.simple_action(params, RESOURCE, "update", params.data.extra_param, PATH);
     },
+    "check": function(params){
+      OpenNebulaAction.check(params, PATH_CHECK_SUPPORT);
+    },
+    "checkversion": function(params){
+      OpenNebulaAction.checkversion(params, PATH_CHECK_VERSION);
+    },
     "list" : function(params) {
       params.cache_name = CACHE_NAME;
       OpenNebulaAction.clear_cache(params.cache_name);
-      OpenNebulaAction.list(params, RESOURCE, PATH)
+      OpenNebulaAction.list(params, RESOURCE, PATH);
     },
     "show" : function(params) {
-      OpenNebulaAction.show(params, RESOURCE, false, PATH)
+      OpenNebulaAction.show(params, RESOURCE, false, PATH);
     }
-  }
+  };
 
   return Support;
-})
+});

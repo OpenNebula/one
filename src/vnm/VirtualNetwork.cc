@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -28,7 +28,9 @@
 
 #include "NebulaUtil.h"
 
-#define TO_UPPER(S) transform(S.begin(),S.end(),S.begin(),(int(*)(int))toupper)
+#include "Nebula.h"
+
+using namespace std;
 
 /* ************************************************************************** */
 /* Virtual Network :: Constructor/Destructor                                  */
@@ -41,33 +43,26 @@ VirtualNetwork::VirtualNetwork(int                      _uid,
                                int                      _umask,
                                int                      _pvid,
                                const set<int>           &_cluster_ids,
-                               VirtualNetworkTemplate * _vn_template):
-            PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,table),
+                               unique_ptr<VirtualNetworkTemplate> _vn_template):
+            PoolObjectSQL(-1,NET,"",_uid,_gid,_uname,_gname,one_db::vn_table),
             Clusterable(_cluster_ids),
             bridge(""),
             vlan_id_automatic(false),
+            outer_vlan_id_automatic(false),
             parent_vid(_pvid),
             vrouters("VROUTERS")
 {
-    if (_vn_template != 0)
+    if (_vn_template)
     {
-        obj_template = _vn_template;
+        obj_template = move(_vn_template);
     }
     else
     {
-        obj_template = new VirtualNetworkTemplate;
+        obj_template = make_unique<VirtualNetworkTemplate>();
     }
 
     set_umask(_umask);
 };
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualNetwork::~VirtualNetwork()
-{
-    delete obj_template;
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -83,23 +78,114 @@ void VirtualNetwork::get_permissions(PoolObjectAuth& auths)
     }
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::parse_vlan_id(const char * id_name, const char * auto_name,
+        string& id, bool& auto_id)
+{
+    string vis;
+
+    if ( PoolObjectSQL::get_template_attribute(id_name, vis) && !vis.empty() )
+    {
+        erase_template_attribute(id_name, id);
+
+        add_template_attribute(id_name, id);
+
+        remove_template_attribute(auto_name);
+
+        auto_id = false;
+    }
+    else
+    {
+        erase_template_attribute(auto_name, auto_id);
+    }
+}
+
+//-------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
+/*
+LIST OF MANDATORY ARGUMENTS FOR NETWORK DEFINITION
+
++----------------+---------+--------+--------------------------+----------------+
+|    Driver      | PHYDEV  | BRIDGE |         VLAN_ID          |      OTHER     |
++----------------+---------+--------+--------------------------+----------------+
+| vcenter        | no      | yes    | no                       | VCENTER_NET_REF|
+| dummy          | no      | yes    | no                       |                |
+| bridge         | no      | no     | no                       |                |
+| ebtables       | no      | no     | no                       |                |
+| fw             | no      | no     | no                       |                |
+| 802.1q         | yes     | no     | yes or AUTOMATIC         |                |
+| vxlan          | yes     | no     | yes or AUTOMATIC         |                |
+| ovswitch       | no      | no     | yes or AUTOMATIC         |                |
+| ovswitch_vxlan | yes     | no     | OUTER or AUTOMATIC_OUTER |                |
++----------------+---------+--------+--------------------------+----------------+
+*/
+int VirtualNetwork::parse_phydev_vlans(const Template* tmpl, const string& vn_mad, const string& phydev,
+                                       const string& bridge, const bool auto_id, const string& vlan_id,
+                                       const bool auto_outer, const string& outer_id, string& estr)
+{
+    bool check_phydev = false;
+    bool check_bridge = false;
+    bool check_vlan   = false;
+    bool check_outer  = false;
+
+    switch (VirtualNetwork::str_to_driver(vn_mad))
+    {
+        case VirtualNetwork::DUMMY:
+            check_bridge = true;
+            break;
+
+        case VirtualNetwork::VXLAN:
+        case VirtualNetwork::VLAN:
+            check_phydev = true;
+            check_vlan   = true;
+            break;
+
+        case VirtualNetwork::OVSWITCH_VXLAN:
+            check_outer  = true;
+
+        case VirtualNetwork::BRIDGE:
+        case VirtualNetwork::VCENTER:
+        case VirtualNetwork::OVSWITCH:
+        case VirtualNetwork::EBTABLES:
+        case VirtualNetwork::FW:
+            break;
+
+        case VirtualNetwork::NONE:
+            return 0;
+    }
+
+    if ( check_phydev && phydev.empty())
+    {
+        estr = "PHYDEV is mandatory for driver " + vn_mad;
+        return -1;
+    }
+
+    if ( check_bridge && bridge.empty())
+    {
+        estr = "BRIDGE is mandatory for driver " + vn_mad;
+        return -1;
+    }
+
+    if ( check_vlan && !auto_id && vlan_id.empty() )
+    {
+        estr = "VLAN_ID (or AUTOMATIC_VLAN_ID) is mandatory for driver " + vn_mad;
+        return -1;
+    }
+
+    if ( check_outer && !auto_outer && outer_id.empty() )
+    {
+        estr = "OUTER_VLAN_ID (or AUTOMATIC) is mandatory for driver " + vn_mad;
+        return -1;
+    }
+
+    return 0;
+}
+
 /* ************************************************************************** */
 /* Virtual Network :: Database Access Functions                               */
 /* ************************************************************************** */
-
-const char * VirtualNetwork::table    = "network_pool";
-
-const char * VirtualNetwork::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u, pid";
-
-const char * VirtualNetwork::db_bootstrap = "CREATE TABLE IF NOT EXISTS"
-    " network_pool (oid INTEGER PRIMARY KEY, name VARCHAR(128),"
-    " body MEDIUMTEXT, uid INTEGER, gid INTEGER,"
-    " owner_u INTEGER, group_u INTEGER, other_u INTEGER,"
-    " pid INTEGER, UNIQUE(name,uid))";
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
 
 int VirtualNetwork::insert(SqlDB * db, string& error_str)
 {
@@ -108,22 +194,62 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     string sg_str, vis;
 
+    string value;
+    string name;
+    string prefix;
+
     int rc, num_ars;
 
-    //--------------------------------------------------------------------------
-    // VirtualNetwork Attributes from the template
-    //--------------------------------------------------------------------------
+    ostringstream oss;
 
-    // ------------ NAME ----------------------
+    // ------------------------------------------------------------------------
+    // Set a name if the VN has not got one (and is created via template)
+    // ------------------------------------------------------------------------
 
-    erase_template_attribute("NAME",name);
+    obj_template->get("TEMPLATE_ID", value);
+    obj_template->erase("TEMPLATE_ID");
 
-    if (name.empty())
+    if (!value.empty())
+    {
+        obj_template->add("TEMPLATE_ID", value);
+    }
+
+    obj_template->get("NAME",name);
+    obj_template->erase("NAME");
+
+    obj_template->get("TEMPLATE_NAME", prefix);
+    obj_template->erase("TEMPLATE_NAME");
+
+    if (prefix.empty() && name.empty())
     {
         goto error_name;
     }
 
-    // ------------ VN_MAD --------------------
+    if (name.empty() == true)
+    {
+        oss.str("");
+        oss << prefix << "-" << oid;
+        name = oss.str();
+    }
+
+    if ( !PoolObjectSQL::name_is_valid(name, error_str) )
+    {
+        goto error_name;
+    }
+
+    this->name = name;
+
+    //--------------------------------------------------------------------------
+    // VirtualNetwork Attributes from the template
+    // NAME
+    // VN_MAD
+    // PHYDEV
+    // BRIDGE
+    // VLAN_ID / AUTOMATIC_VLAN_ID
+    // OUTER_VLAN_ID / AUTOMATIC_OUTER_VLAN_ID
+    //
+    // Note: VLAN_IDs if not set will be allocated in VirtualNetworkPool
+    //--------------------------------------------------------------------------
 
     erase_template_attribute("VN_MAD", vn_mad);
 
@@ -134,56 +260,56 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("VN_MAD", vn_mad);
 
-    // ------------ PHYDEV --------------------
-
     erase_template_attribute("PHYDEV", phydev);
 
     add_template_attribute("PHYDEV", phydev);
 
-    // ---- VLAN_ID if not set allocated in VirtualNetworkPool, if needed -----
-
-    if (PoolObjectSQL::get_template_attribute("VLAN_ID", vis) && !vis.empty())
-    {
-        erase_template_attribute("VLAN_ID", vlan_id);
-
-        add_template_attribute("VLAN_ID", vlan_id);
-
-        remove_template_attribute("AUTOMATIC_VLAN_ID");
-
-        vlan_id_automatic = false;
-    }
-    else
-    {
-        erase_template_attribute("AUTOMATIC_VLAN_ID", vlan_id_automatic);
-    }
-
-    // ------------ BRIDGE --------------------
-
     erase_template_attribute("BRIDGE",bridge);
 
-    if (bridge.empty())
+    parse_vlan_id("VLAN_ID", "AUTOMATIC_VLAN_ID", vlan_id, vlan_id_automatic);
+
+    parse_vlan_id("OUTER_VLAN_ID", "AUTOMATIC_OUTER_VLAN_ID", outer_vlan_id,
+            outer_vlan_id_automatic);
+
+    // -------------------------------------------------------------------------
+    // Check consistency for PHYDEV, BRIDGE and VLAN_IDs based on the driver
+    // -------------------------------------------------------------------------
+    rc = parse_phydev_vlans(obj_template.get(), vn_mad, phydev, bridge,
+                            vlan_id_automatic, vlan_id,
+                            outer_vlan_id_automatic, outer_vlan_id, error_str);
+
+    if (rc != 0)
     {
-        if (phydev.empty())
+        goto error_parse;
+    }
+
+    erase_template_attribute("BRIDGE_TYPE", bridge_type);
+
+    rc = parse_bridge_type(vn_mad, error_str);
+
+    if (rc != 0)
+    {
+        goto error_common;
+    }
+
+    add_template_attribute("BRIDGE_TYPE", bridge_type);
+
+    if (bridge.empty() && bridge_type != "none")
+    {
+        ostringstream oss;
+
+        oss << "onebr";
+
+        if (!vlan_id.empty())
         {
-            goto error_bridge;
+            oss << "." << vlan_id;
         }
         else
         {
-            ostringstream oss;
-
-            oss << "onebr";
-
-            if (!vlan_id.empty())
-            {
-                oss << "." << vlan_id;
-            }
-            else
-            {
-                oss << oid;
-            }
-
-            bridge = oss.str();
+            oss << oid;
         }
+
+        bridge = oss.str();
     }
 
     add_template_attribute("BRIDGE", bridge);
@@ -228,6 +354,9 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     add_template_attribute("SECURITY_GROUPS", sg_str);
 
+    // Encrypt all the secrets
+    encrypt();
+
     //--------------------------------------------------------------------------
     // Insert the Virtual Network
     //--------------------------------------------------------------------------
@@ -240,24 +369,18 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
     return 0;
 
 error_name:
-    ose << "No NAME in template for Virtual Network.";
+    error_str = "No NAME in template for Virtual Network.";
     goto error_common;
 
 error_vn_mad:
-    ose << "No VN_MAD in template for Virtual Network.";
+    error_str = "No VN_MAD in template for Virtual Network.";
     goto error_common;
 
-error_bridge:
-    ose << "BRIDGE or PHY_DEV have to be set in Virtual Network template.";
-    goto error_common;
-
+error_parse:
 error_db:
 error_ar:
-    ose << error_str;
-
 error_common:
-    error_str = ose.str();
-    NebulaLog::log("VNM", Log::ERROR, ose);
+    NebulaLog::log("VNM", Log::ERROR, error_str);
     return -1;
 }
 
@@ -287,6 +410,8 @@ int VirtualNetwork::post_update_template(string& error)
 
     remove_template_attribute("AUTOMATIC_VLAN_ID");
 
+    remove_template_attribute("AUTOMATIC_OUTER_VLAN_ID");
+
     if (!vlan_id_automatic)
     {
         erase_template_attribute("VLAN_ID", vlan_id);
@@ -295,6 +420,16 @@ int VirtualNetwork::post_update_template(string& error)
     else
     {
         remove_template_attribute("VLAN_ID");
+    }
+
+    if (!outer_vlan_id_automatic)
+    {
+        erase_template_attribute("OUTER_VLAN_ID", outer_vlan_id);
+        add_template_attribute("OUTER_VLAN_ID", outer_vlan_id);
+    }
+    else
+    {
+        remove_template_attribute("OUTER_VLAN_ID");
     }
 
     erase_template_attribute("BRIDGE",new_bridge);
@@ -329,14 +464,14 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     char * sql_xml;
 
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -351,23 +486,31 @@ int VirtualNetwork::insert_replace(SqlDB *db, bool replace, string& error_str)
     // Construct the SQL statement to Insert or Replace
     if(replace)
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::vn_table << " SET "
+            << "name = '"    <<   sql_name    << "', "
+            << "body = '"    <<   sql_xml     << "', "
+            << "uid = "      <<   uid         << ", "
+            << "gid = "      <<   gid         << ", "
+            << "owner_u = "  <<   owner_u     << ", "
+            << "group_u = "  <<   group_u     << ", "
+            << "other_u = "  <<   other_u     << ", "
+            << "pid = "      <<   parent_vid
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::vn_table
+            << " (" << one_db::vn_db_names << ") VALUES ("
+            <<          oid         << ","
+            << "'" <<   sql_name    << "',"
+            << "'" <<   sql_xml     << "',"
+            <<          uid         << ","
+            <<          gid         << ","
+            <<          owner_u     << ","
+            <<          group_u     << ","
+            <<          other_u     << ","
+            <<          parent_vid  << ")";
     }
-
-    oss << " INTO " << table << " (" << db_names << ") VALUES ("
-        <<          oid         << ","
-        << "'" <<   sql_name    << "',"
-        << "'" <<   sql_xml     << "',"
-        <<          uid         << ","
-        <<          gid         << ","
-        <<          owner_u     << ","
-        <<          group_u     << ","
-        <<          other_u     << ","
-        <<          parent_vid  << ")";
 
     rc = db->exec_wr(oss);
 
@@ -397,6 +540,15 @@ error_common:
     return -1;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+int VirtualNetwork::bootstrap(SqlDB * db)
+{
+    ostringstream oss_vnet(one_db::vn_db_bootstrap);
+
+    return db->exec_local_wr(oss_vnet);
+};
+
 /* ************************************************************************** */
 /* Virtual Network :: Misc                                                    */
 /* ************************************************************************** */
@@ -405,7 +557,7 @@ string& VirtualNetwork::to_xml(string& xml) const
 {
     const vector<int> empty;
 
-    return to_xml_extended(xml,false, empty, empty, empty);
+    return to_xml_extended(xml, false, empty, empty, empty);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -414,13 +566,13 @@ string& VirtualNetwork::to_xml(string& xml) const
 string& VirtualNetwork::to_xml_extended(string& xml, const vector<int>& vms,
         const vector<int>& vnets, const vector<int>& vrs) const
 {
-    return to_xml_extended(xml,true, vms, vnets, vrs);
+    return to_xml_extended(xml, true, vms, vnets, vrs);
 }
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
+string& VirtualNetwork::to_xml_extended(string& xml, bool extended_and_check,
     const vector<int>& vms, const vector<int>& vnets,
     const vector<int>& vrs) const
 {
@@ -431,8 +583,10 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
     string template_xml;
     string leases_xml;
     string perm_str;
+    string lock_str;
 
     int int_vlan_id_automatic = vlan_id_automatic ? 1 : 0;
+    int int_outer_vlan_id_automatic = outer_vlan_id_automatic ? 1 : 0;
 
     os <<
         "<VNET>" <<
@@ -442,9 +596,11 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
             "<UNAME>"  << uname    << "</UNAME>" <<
             "<GNAME>"  << gname    << "</GNAME>" <<
             "<NAME>"   << name     << "</NAME>"  <<
+            lock_db_to_xml(lock_str) <<
             perms_to_xml(perm_str) <<
             Clusterable::to_xml(clusters_xml)    <<
-            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>";
+            "<BRIDGE>" << one_util::escape_xml(bridge) << "</BRIDGE>"
+            "<BRIDGE_TYPE>" << one_util::escape_xml(bridge_type) << "</BRIDGE_TYPE>";
 
     if (parent_vid != -1)
     {
@@ -482,15 +638,45 @@ string& VirtualNetwork::to_xml_extended(string& xml, bool extended,
         os << "<VLAN_ID/>";
     }
 
+    if (!outer_vlan_id.empty())
+    {
+        os << "<OUTER_VLAN_ID>" << one_util::escape_xml(outer_vlan_id)
+           << "</OUTER_VLAN_ID>";
+    }
+    else
+    {
+        os << "<OUTER_VLAN_ID/>";
+    }
+
     os << "<VLAN_ID_AUTOMATIC>" << int_vlan_id_automatic <<"</VLAN_ID_AUTOMATIC>";
+
+    os << "<OUTER_VLAN_ID_AUTOMATIC>" << int_outer_vlan_id_automatic
+       << "</OUTER_VLAN_ID_AUTOMATIC>";
 
     os << "<USED_LEASES>"<< ar_pool.get_used_addr() << "</USED_LEASES>";
 
-    os << vrouters.to_xml(vrouters_xml);
+    if (((vrs.size() == 1) && vrs[0] == -1) || !extended_and_check)
+    {
+        os << vrouters.to_xml(vrouters_xml);
+    }
+    else
+    {
+        os << "<VROUTERS>";
+
+        for (auto vr_id : vrs)
+        {
+            if (vrouters.contains(vr_id))
+            {
+                os << "<ID>" << vr_id << "</ID>";
+            }
+        }
+
+        os << "</VROUTERS>";
+    }
 
     os << obj_template->to_xml(template_xml);
 
-    os << ar_pool.to_xml(leases_xml, extended, vms, vnets, vrs);
+    os << ar_pool.to_xml(leases_xml, extended_and_check, vms, vnets, vrs);
 
     os << "</VNET>";
 
@@ -507,7 +693,9 @@ int VirtualNetwork::from_xml(const string &xml_str)
     vector<xmlNodePtr> content;
 
     int rc = 0;
+
     int int_vlan_id_automatic;
+    int int_outer_vlan_id_automatic;
 
     // Initialize the internal XML object
     update_from_str(xml_str);
@@ -521,16 +709,25 @@ int VirtualNetwork::from_xml(const string &xml_str)
     rc += xpath(name,   "/VNET/NAME",  "not_found");
     rc += xpath(bridge, "/VNET/BRIDGE","not_found");
 
+    rc += lock_db_from_xml();
+
     // Permissions
     rc += perms_from_xml();
 
     xpath(vn_mad, "/VNET/VN_MAD", "");
     xpath(phydev, "/VNET/PHYDEV", "");
-    xpath(vlan_id,"/VNET/VLAN_ID","");
+    xpath(bridge_type, "/VNET/BRIDGE_TYPE", "");
+
+    xpath(vlan_id, "/VNET/VLAN_ID", "");
+    xpath(outer_vlan_id, "/VNET/OUTER_VLAN_ID", "");
+
+    xpath(int_vlan_id_automatic, "/VNET/VLAN_ID_AUTOMATIC", 0);
+    xpath(int_outer_vlan_id_automatic, "/VNET/OUTER_VLAN_ID_AUTOMATIC", 0);
+
     xpath(parent_vid,"/VNET/PARENT_NETWORK_ID",-1);
-    xpath(int_vlan_id_automatic,"/VNET/VLAN_ID_AUTOMATIC",0);
 
     vlan_id_automatic = int_vlan_id_automatic;
+    outer_vlan_id_automatic = int_outer_vlan_id_automatic;
 
     // Set of cluster IDs
     rc += Clusterable::from_xml(this, "/VNET/");
@@ -592,8 +789,6 @@ int VirtualNetwork::nic_attribute(
 
     ostringstream oss;
 
-    vector<string>::const_iterator it;
-
     set<int> nic_sgs;
     int      ar_id;
 
@@ -620,6 +815,11 @@ int VirtualNetwork::nic_attribute(
         nic->replace("VLAN_ID", vlan_id);
     }
 
+    if (!outer_vlan_id.empty())
+    {
+        nic->replace("OUTER_VLAN_ID", outer_vlan_id);
+    }
+
     if (parent_vid != -1)
     {
         nic->replace("PARENT_NETWORK_ID", parent_vid);
@@ -633,18 +833,14 @@ int VirtualNetwork::nic_attribute(
         nic->replace("TARGET", oss.str());
     }
 
-    set<int> cluster_ids = get_cluster_ids();
+    const set<int>& cluster_ids = get_cluster_ids();
 
     nic->replace("CLUSTER_ID", one_util::join(cluster_ids, ','));
 
-    for (it = inherit_attrs.begin(); it != inherit_attrs.end(); it++)
-    {
-        PoolObjectSQL::get_template_attribute((*it).c_str(), inherit_val);
 
-        if (!inherit_val.empty())
-        {
-            nic->replace(*it, inherit_val);
-        }
+    if (!bridge_type.empty())
+    {
+        nic->replace("BRIDGE_TYPE", bridge_type);
     }
 
     //--------------------------------------------------------------------------
@@ -686,6 +882,17 @@ int VirtualNetwork::nic_attribute(
                 inherit_attrs);
     }
 
+    for (const auto& inherited : inherit_attrs)
+    {
+        string current_val = nic->vector_value(inherited);
+        PoolObjectSQL::get_template_attribute(inherited, inherit_val);
+
+        if (current_val.empty() && !inherit_val.empty())
+        {
+            nic->replace(inherited, inherit_val);
+        }
+    }
+
     //--------------------------------------------------------------------------
     //  Copy the security group IDs
     //--------------------------------------------------------------------------
@@ -717,7 +924,6 @@ int VirtualNetwork::vrouter_nic_attribute(
 {
     int     rc = 0;
     bool    floating;
-    vector<string>::const_iterator it;
 
     //--------------------------------------------------------------------------
     //  Set default values from the Virtual Network
@@ -791,9 +997,17 @@ void VirtualNetwork::process_security_rule(
 
 int VirtualNetwork::add_var(vector<VectorAttribute *> &var, string& error_msg)
 {
-    for (vector<VectorAttribute *>::iterator it=var.begin(); it!=var.end(); it++)
+    string ipam_mad;
+    PoolObjectSQL::get_template_attribute("IPAM_MAD", ipam_mad);
+
+    for (auto vattr : var)
     {
-        VectorAttribute * ar = (*it)->clone();
+        VectorAttribute * ar = vattr->clone();
+
+        if (!ipam_mad.empty() && ar->vector_value("IPAM_MAD").empty())
+        {
+            ar->replace("IPAM_MAD", ipam_mad);
+        }
 
         if (ar_pool.from_vattr(ar, error_msg) != 0)
         {
@@ -818,6 +1032,16 @@ int VirtualNetwork::add_ar(VirtualNetworkTemplate * ars_tmpl, string& error_msg)
     }
 
     VectorAttribute * nar = ar->clone();
+
+    string ipam_mad_vnet;
+    string ipam_mad_ar = nar->vector_value("IPAM_MAD");
+
+    if (ipam_mad_ar.empty() &&
+        PoolObjectSQL::get_template_attribute("IPAM_MAD", ipam_mad_vnet) &&
+        !ipam_mad_vnet.empty())
+    {
+        nar->replace("IPAM_MAD", ipam_mad_vnet);
+    }
 
     if (ar_pool.from_vattr(nar, error_msg) != 0)
     {
@@ -852,9 +1076,17 @@ int VirtualNetwork::update_ar(
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::rm_ar(unsigned int ar_id, string& error_msg)
+int VirtualNetwork::rm_ar(unsigned int ar_id, bool force, string& error_msg)
 {
-    return ar_pool.rm_ar(ar_id, error_msg);
+    return ar_pool.rm_ar(ar_id, force, error_msg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::rm_ars(string& error_msg)
+{
+    return ar_pool.rm_ars(error_msg);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1009,7 +1241,7 @@ int VirtualNetwork::free_leases(VirtualNetworkTemplate * leases_template,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-void VirtualNetwork::get_template_attribute(const char * name,
+void VirtualNetwork::get_template_attribute(const string& name,
     string& value, int ar_id) const
 {
     ar_pool.get_attribute(name, value, ar_id);
@@ -1023,7 +1255,7 @@ void VirtualNetwork::get_template_attribute(const char * name,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualNetwork::get_template_attribute(const char * name, int& value,
+int VirtualNetwork::get_template_attribute(const string& name, int& value,
     int ar_id) const
 {
     int rc = ar_pool.get_attribute(name, value, ar_id);
@@ -1139,7 +1371,91 @@ int VirtualNetwork::reserve_addr_by_mac(int rid, unsigned int rsize,
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 bool VirtualNetwork::is_reservation() const
 {
     return parent_vid != -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::get_security_groups(set<int> & sgs)
+{
+    for (auto sg_id : security_groups)
+    {
+        sgs.insert(sg_id);
+    }
+
+    ar_pool.get_all_security_groups(sgs);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int VirtualNetwork::parse_bridge_type(const string &vn_mad, string &error_str)
+{
+    const VectorAttribute* vatt;
+    std::string br_type;
+
+    ostringstream oss;
+
+    if ( Nebula::instance().get_vn_conf_attribute(vn_mad, vatt) != 0 )
+    {
+        goto error_conf;
+    }
+
+    if ( vatt->vector_value("BRIDGE_TYPE", br_type) == -1)
+    {
+        goto error;
+    }
+    else
+    {
+        if (str_to_bridge_type(br_type) == UNDEFINED)
+        {
+            goto error;
+        }
+
+        bridge_type = br_type;
+    }
+
+    return 0;
+
+error_conf:
+    oss << "VN_MAD named \"" << vn_mad << "\" is not defined in oned.conf";
+    goto error_common;
+
+error:
+    oss << "Attribute bridge type in VN_MAD_CONF for "
+        << vn_mad << " is missing or has wrong value in oned.conf";
+
+error_common:
+    error_str = oss.str();
+    return -1;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void VirtualNetwork::encrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->encrypt(one_key);
+    ar_pool.encrypt(one_key);
+}
+
+void VirtualNetwork::decrypt()
+{
+    std::string one_key;
+    Nebula::instance().get_configuration_attribute("ONE_KEY", one_key);
+
+    obj_template->decrypt(one_key);
+    ar_pool.decrypt(one_key);
+}
+
+

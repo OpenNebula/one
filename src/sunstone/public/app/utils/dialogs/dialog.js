@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,50 +15,50 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var TemplateUtils = require('utils/template-utils');
-  var Sunstone = require('sunstone');
+  var TemplateUtils = require("utils/template-utils");
+  var Sunstone = require("sunstone");
 
   function BaseDialog() {
     return this;
   }
 
   BaseDialog.prototype = {
-    'insert': _insert,
-    'show': _show,
-    'hide': _hide,
-    'reset': _reset,
-    'setNames': _setNames,
+    "insert": _insert,
+    "show": _show,
+    "hide": _hide,
+    "reset": _reset,
+    "setNames": _setNames,
   };
 
   return BaseDialog;
 
   function _insert(dialog) {
     var that = this;
-    var dialogElement = $(that.html()).appendTo('div#dialogs');
+    var dialogElement = $(that.html()).appendTo("div#dialogs");
     that.setup(dialogElement);
-    Foundation.reflow(dialogElement, 'reveal');
+    Foundation.reflow(dialogElement, "reveal");
 
-    dialogElement.on('open.zf.reveal', function (e) {
+    dialogElement.on("open.zf.reveal", function (e) {
       that.onShow(dialogElement);
     });
 
-    dialogElement.on('closed.zf.reveal', function (e) {
+    dialogElement.on("closed.zf.reveal", function (e) {
       if (that.onClose) {
         that.onClose(dialogElement);
       }
     });
 
-    dialogElement.on('click', '.resetDialog', function() {
+    dialogElement.on("click", ".resetDialog", function() {
       that.reset();
       that.show();
     });
 
-    dialogElement.on('keydown', function(evt) {
-        if (evt.keyCode  == 27 && dialogElement[0].id == "vncVMDialog") {
+    dialogElement.on("keydown", function(evt) {
+        if (evt.keyCode == 27 && dialogElement[0].id == "vncVMDialog") {
           evt.keyCode = 0;
           evt.key = "";
           evt.which = 0;
-        }               
+        }
     });
 
     that.dialogElement = dialogElement;
@@ -67,12 +67,12 @@ define(function(require) {
   }
 
   function _show() {
-    this.dialogElement.foundation('open');
+    this.dialogElement.foundation("open");
     return false;
   }
 
   function _hide() {
-      this.dialogElement.foundation('close');
+      this.dialogElement.foundation("close");
   }
 
   function _reset() {
@@ -103,16 +103,18 @@ define(function(require) {
     }
 
     if (elements) {
-      html = '<h6 class="subheader">';
+      if (elements.id || elements.name) {
+        html = "<h6 class=\"subheader\">";
 
-      html += elements.map(function(element){
-        return (TemplateUtils.htmlEncode(element.id)+'&nbsp;'+
-                TemplateUtils.htmlEncode(element.name));
-        }).join(',&emsp;')
+        html += elements.map(function(element){
+          return (TemplateUtils.htmlEncode(element.id)+"&nbsp;"+
+                  TemplateUtils.htmlEncode(element.name));
+          }).join(",&emsp;")
 
-      html += '</h6>';
+        html += "</h6>";
+      }
     }
 
-    $('.confirm-resources-header', this.dialogElement).html(html);
+    $(".confirm-resources-header", this.dialogElement).html(html);
   }
-})
+});

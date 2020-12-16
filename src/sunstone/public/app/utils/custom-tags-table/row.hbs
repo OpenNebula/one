@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -14,10 +14,18 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<tr>
-  <td style="display: flex; justify-content: flex-start">
+<tr style="vertical-align:top">
+  <td style="{{#if styles }}display: flex; color:red;justify-content: flex-start{{/if}}">
     <input class="custom_tag_key" type="text" name="key" value="{{key}}">
   </td>
+  {{#if mandatory}}
+    <td>
+      <select class="custom_tag_mandatory">
+        <option value="M" {{#ifEquals mandatory "M"}} selected="selected" {{/ifEquals}}>{{ tr "Mandatory" }}</option>
+        <option value="O" {{#ifEquals mandatory "O"}} selected="selected" {{/ifEquals}}>{{ tr "Optional" }}</option>
+      </select>
+    </td>
+  {{/if}}
   <td>
     <table>
       <tbody class="custom_body">
@@ -27,16 +35,23 @@
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="3">
+          <td colspan="5">
             <a type="button" style="border-radius: 20px; background-color:#2E9CB9" class="change_to_vector_attribute button small small-12 secondary radius">
-              <i class="fa fa-plus"></i>
+              <i class="fas fa-plus"></i>
             </a>
           </td>
         </tr>
       </tfoot>
     </table>
   </td>
-  <td style="width: 150%; display: flex; justify-content: flex-end">
-    <a href="#"><i class="fa fa-times-circle remove-tab"></i></a>
+  {{#if valueDefault }}
+    <td>
+      <textarea style="margin-left: 7px" class="custom_tag_default" name="value">
+        {{~valueDefault~}}
+      </textarea>
+    </td>
+  {{/if}}
+  <td style="{{#if styles }}width: 150%; display: flex; justify-content: flex-end; {{/if}}text-align: right;">
+    <a href="#"><i class="fas fa-times-circle remove-tab"></i></a>
   </td>
 </tr>

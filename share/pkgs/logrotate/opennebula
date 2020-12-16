@@ -1,25 +1,11 @@
-delaycompress
-dateext
-dateformat -%Y%m%d-%s
-
-compress
-weekly
-rotate 52
-
-/var/log/one/one_xmlrpc.log {
-   missingok
-   notifempty
-   copytruncate
-}
-
-/var/log/one/oned.log {
-   missingok
-   notifempty
-   copytruncate
-}
-
-/var/log/one/sched.log {
-   missingok
-   notifempty
-   copytruncate
+/var/log/one/one_xmlrpc.log /var/log/one/oned.log /var/log/one/monitor.log /var/log/one/vcenter_monitor.log {
+    delaycompress
+    dateext
+    dateformat -%Y%m%d-%s
+    compress
+    weekly
+    rotate 52
+    missingok
+    notifempty
+    copytruncate
 }

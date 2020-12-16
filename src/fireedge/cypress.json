@@ -1,0 +1,9 @@
+{
+  "port": 3001,
+  "numTestsKeptInMemory": 20,
+  "env":{},
+  "video": false,
+  "viewportHeight": 720,
+  "viewportWidth": 1280,
+  "baseUrl": "http://localhost:3000"
+}

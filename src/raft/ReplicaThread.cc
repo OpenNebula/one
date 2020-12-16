@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,14 +14,17 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+#include "ReplicaThread.h"
+#include "LogDB.h"
+#include "RaftManager.h"
+#include "Nebula.h"
+#include "NebulaLog.h"
+#include "FedReplicaManager.h"
+
 #include <errno.h>
 #include <string>
 
-#include "LogDB.h"
-#include "RaftManager.h"
-#include "ReplicaThread.h"
-#include "Nebula.h"
-#include "NebulaLog.h"
+using namespace std;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -34,50 +37,6 @@ const time_t ReplicaThread::max_retry_timeout = 2.5e9;
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-extern "C" void * replication_thread(void *arg)
-{
-    ReplicaThread * rt;
-
-    int oldstate;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    rt = static_cast<ReplicaThread *>(arg);
-
-    rt->_thread_id = pthread_self();
-
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
-
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldstate);
-
-    rt->do_replication();
-
-    NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
-
-    delete rt;
-
-    return 0;
-}
-
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-static void set_timeout(struct timespec& timeout, time_t nsec )
-{
-    clock_gettime(CLOCK_REALTIME, &timeout);
-
-    timeout.tv_nsec += nsec;
-
-    while ( timeout.tv_nsec >= 1000000000 )
-    {
-        timeout.tv_sec  += 1;
-        timeout.tv_nsec -= 1000000000;
-    }
-}
-
 void ReplicaThread::do_replication()
 {
     int rc;
@@ -86,28 +45,25 @@ void ReplicaThread::do_replication()
 
     while ( _finalize == false )
     {
-        pthread_mutex_lock(&mutex);
-
-        while ( _pending_requests == false )
         {
-            struct timespec timeout;
+            std::unique_lock<std::mutex> lock(_mutex);
 
-            set_timeout(timeout, retry_timeout);
-
-            if ( pthread_cond_timedwait(&cond, &mutex, &timeout) == ETIMEDOUT )
+            while ( _pending_requests == false )
             {
-                _pending_requests = retry_request;
+                if (cond.wait_for(lock, chrono::nanoseconds(retry_timeout))
+                    == std::cv_status::timeout)
+                {
+                    _pending_requests = retry_request || _pending_requests;
+                }
+
+                if ( _finalize )
+                {
+                    return;
+                }
             }
 
-            if ( _finalize )
-            {
-                return;
-            }
+            _pending_requests = false;
         }
-
-        _pending_requests = false;
-
-        pthread_mutex_unlock(&mutex);
 
         rc = replicate();
 
@@ -126,6 +82,8 @@ void ReplicaThread::do_replication()
             retry_request = false;
         }
     }
+
+    NebulaLog::log("RCM", Log::INFO, "Replication thread stopped");
 }
 
 // -----------------------------------------------------------------------------
@@ -133,15 +91,13 @@ void ReplicaThread::do_replication()
 
 void ReplicaThread::finalize()
 {
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
 
     _finalize = true;
 
     _pending_requests = false;
 
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
+    cond.notify_one();
 }
 
 // -----------------------------------------------------------------------------
@@ -149,13 +105,11 @@ void ReplicaThread::finalize()
 
 void ReplicaThread::add_request()
 {
-    pthread_mutex_lock(&mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
 
     _pending_requests = true;
 
-    pthread_cond_signal(&cond);
-
-    pthread_mutex_unlock(&mutex);
+    cond.notify_one();
 }
 
 // -----------------------------------------------------------------------------
@@ -184,9 +138,21 @@ int RaftReplicaThread::replicate()
 
     unsigned int term  = raftm->get_term();
 
-    int next_index = raftm->get_next_index(follower_id);
+    uint64_t next_index = raftm->get_next_index(follower_id);
 
-    if ( logdb->get_log_record(next_index, lr) != 0 )
+    if ( next_index == UINT64_MAX )
+    {
+        ostringstream ess;
+
+        ess << "Failed to get next replica index for follower: " << follower_id;
+
+        NebulaLog::log("RCM", Log::ERROR, ess);
+
+        return -1;
+    }
+
+
+    if ( logdb->get_log_record(next_index, next_index - 1, lr) != 0 )
     {
         ostringstream ess;
 
@@ -200,6 +166,13 @@ int RaftReplicaThread::replicate()
     if ( raftm->xmlrpc_replicate_log(follower_id, &lr, success, follower_term,
                 error) != 0 )
     {
+        std::ostringstream oss;
+
+        oss << "Failed to replicate log record at index: " << next_index
+            << " on follower: " << follower_id << ", error: " << error;
+
+        NebulaLog::log("RCM", Log::DEBUG, oss);
+
         return -1;
     }
 
@@ -248,12 +221,18 @@ int FedReplicaThread::replicate()
 
     bool success = false;
 
-    int last;
+    uint64_t last;
 
-    if ( frm->xmlrpc_replicate_log(follower_id, success, last, error) != 0 )
+    int rc = frm->xmlrpc_replicate_log(follower_id, success, last, error);
+
+    if ( rc == -1 )
     {
         NebulaLog::log("FRM", Log::ERROR, error);
         return -1;
+    }
+    else if ( rc == -2 )
+    {
+        return 0;
     }
 
     if ( success )
@@ -304,7 +283,7 @@ int HeartBeatThread::replicate()
 	lr.sql = "";
 
 	lr.timestamp = 0;
-    lr.fed_index = -1;
+    lr.fed_index = UINT64_MAX;
 
     rc = raftm->xmlrpc_replicate_log(follower_id, &lr, success, fterm, error);
 

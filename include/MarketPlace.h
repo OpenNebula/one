@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -30,12 +30,14 @@
 class MarketPlace : public PoolObjectSQL
 {
 public:
+    virtual ~MarketPlace() = default;
+
     /**
      * Function to print the MarketPlace object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -43,7 +45,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Adds this marketplace app's ID to the set.
@@ -68,16 +70,16 @@ public:
     /**
      *  Returns a copy of the Image IDs set
      */
-    set<int> get_marketapp_ids()
+    const std::set<int>& get_marketapp_ids() const
     {
-        return marketapps.clone();
+        return marketapps.get_collection();
     }
 
     /**
      *  Retrieves marketplace mad name
      *    @return string mp mad name
      */
-    const string& get_market_mad() const
+    const std::string& get_market_mad() const
     {
         return market_mad;
     };
@@ -141,7 +143,7 @@ private:
     /**
      * Name of the marketplace driver used to import apps
      */
-    string market_mad;
+    std::string market_mad;
 
     /**
      * Total capacity in MB
@@ -179,22 +181,14 @@ private:
     MarketPlace(
             int                  uid,
             int                  gid,
-            const string&        uname,
-            const string&        gname,
+            const std::string&   uname,
+            const std::string&   gname,
             int                  umask,
-            MarketPlaceTemplate* mp_template);
-
-    virtual ~MarketPlace();
+            std::unique_ptr<MarketPlaceTemplate> mp_template);
 
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Builds the marketplace from the template. This function MUST be called
@@ -202,7 +196,7 @@ private:
      *    @param error_str describing the error
      *    @return 0 on success;
      */
-    int parse_template(string& error_str);
+    int parse_template(std::string& error_str);
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -211,50 +205,45 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Bootstraps the database table(s) associated to the MarketPlace
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the MarketPlace in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the MarketPlace's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string error_str;
+        std::string error_str;
         return insert_replace(db, true, error_str);
     }
 
     /**
      *  Factory method for marketplace templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new MarketPlaceTemplate;
+        return std::make_unique<MarketPlaceTemplate>();
     }
 
     /**
      *  Verify the proper definition of the Market by checking the
      *  attributes of the MARKET_MAD_CONF parameter
      */
-    int set_market_mad(string &tm_mad, string &error_str);
+    int set_market_mad(std::string &tm_mad, std::string &error_str);
 
     /**
      * Child classes can process the new template set with replace_template or
@@ -262,7 +251,7 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(string& error);
+    int post_update_template(std::string& error) override;
 };
 
 #endif /*MARKETPLACE_H*/

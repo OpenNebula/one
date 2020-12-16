@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -47,7 +47,7 @@ class CloudAuth
     # The user pool will be updated every EXPIRE_USER_CACHE seconds.
     EXPIRE_USER_CACHE = 60
 
-    attr_reader :client, :token, :logger
+    attr_reader :client, :token, :logger, :conf
 
     # conf a hash with the configuration attributes as symbols
     def initialize(conf, logger=nil)
@@ -143,7 +143,7 @@ class CloudAuth
         retrieve_from_userpool(xpath)
     end
 
-    # Selects the username that matches the driver and evaluates to true the 
+    # Selects the username that matches the driver and evaluates to true the
     # block passed to the function
     # block:: { |user| true or false }
     # [return] the username or nil

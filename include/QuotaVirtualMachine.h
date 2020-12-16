@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -22,13 +22,19 @@
 /**
  *  VM Quotas, defined as:
  *  VM  = [
- *        VMS               = <Max. number of VMs>
- *        MEMORY            = <Max. number of MB requested by VMs>
- *        CPU               = <Max. number of CPU units requested by VMs>
- *        SYSTEM_DISK_SIZE  = <Max. number of system disk MB>
- *        VMS_USED          = Current number of VMs
- *        MEMORY_USED       = Overall Memory requested
- *        CPU_USED          = Overall CPU requested
+ *        VMS                   = <Max. number of VMs>
+ *        RUNNING_VMS           = <Max. number of RUNNING VMS>
+ *        MEMORY                = <Max. number of MB requested by VMs>
+ *        RUNNING_MEMORY        = <Max. number of MB requested by RUNNING VMs>
+ *        CPU                   = <Max. number of CPU units requested by VMs>
+ *        RUNNING_CPU           = <Max. number of running CPU units requested by VMs>
+ *        SYSTEM_DISK_SIZE      = <Max. number of system disk MB>
+ *        VMS_USED              = Current number of VMs
+ *        RUNNING_VMS_USED      = Current number of running VMs
+ *        MEMORY_USED           = Overall Memory requested
+ *        RUNNING_MEMORY_USED   = Overall running Memory requested
+ *        CPU_USED              = Overall CPU requested
+ *        RUNNING_CPU_USED      = Overall running CPU requested
  *        SYSTEM_DISK_SIZE_USED = Overall system disk requested
  *    ]
  *
@@ -57,7 +63,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool check(Template* tmpl, Quotas& default_quotas, string& error);
+    bool check(Template* tmpl, Quotas& default_quotas, std::string& error);
 
     /**
      *  Check if the resource update (change in MEMORY or CPU) will exceed the
@@ -67,7 +73,7 @@ public:
      *    @param error string
      *    @return true if the operation can be performed
      */
-    bool update(Template * tmpl, Quotas& default_quotas, string& error);
+    bool update(Template * tmpl, Quotas& default_quotas, std::string& error);
 
     /**
      *  Decrement usage counters when deallocating image
@@ -82,7 +88,7 @@ public:
      *
      *    @return a pointer to the quota or 0 if not found
      */
-    int get_quota(const string& id, VectorAttribute **va);
+    int get_quota(const std::string& id, VectorAttribute **va);
 
 protected:
 
@@ -96,9 +102,9 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     int get_quota(
-            const string& id,
+            const std::string& id,
             VectorAttribute **va,
-            map<string, Attribute *>::iterator& it)
+            std::map<std::string, Attribute *>::iterator& it)
     {
         it = attributes.begin();
         return get_quota(id, va);
@@ -114,13 +120,14 @@ protected:
      *    @return 0 on success, -1 if not found
      */
     int get_default_quota(
-        const string& id,
+        const std::string& id,
         Quotas& default_quotas,
         VectorAttribute **va);
 
     static const char * VM_METRICS[];
 
     static const int NUM_VM_METRICS;
+
 };
 
 #endif /*QUOTA_VIRTUALMACHINE_H_*/

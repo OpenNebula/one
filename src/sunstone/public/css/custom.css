@@ -105,8 +105,12 @@ fieldset legend {
 }
 
 #top-row .user-zone-info a{
-	font-weight:bold;
-	color:#555;
+	font-weight: bold;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 #top-row .user-zone-info .submenu a{
 	color:#8a8a8a;
@@ -116,7 +120,9 @@ fieldset legend {
 }
 
 .labels-tree li .labeltree-line{
-	color:#8a8a8a;
+  color:#8a8a8a;
+  display: inline-block;
+  padding: 0 0 0 .5rem;
 }
 .labels-tree li .labeltree-line:hover{
 	color:#0a0a0a;
@@ -127,6 +133,12 @@ fieldset legend {
 }
 .labels-tree .tree-toggle:hover{
 	color:#0a0a0a;
+}
+#menu .labels-tree{
+  padding: .5rem 0;
+}
+.labels-tree li{
+  padding:  .1rem 0;
 }
 
 /*----TABLE----*/
@@ -143,4 +155,66 @@ table thead th{
 table .markrow,table .markrowchecked{
 	background-color:#f4f4f4;
 	font-weight:normal;
+}
+
+.fadeinout{
+  opacity: 1;
+  animation: fade 1s ease-in-out infinite;
+}
+
+@keyframes fade {
+  0%,100% { opacity: 1 }
+  50% { opacity: 0 }
+}
+
+.card{
+  background-color: #ffffff;
+  text-align: center;
+  border: 3px solid #f8f8f8;
+}
+meter {
+  height: .9rem !important;
+}
+.dashboard-div-titles{
+  text-align: left;
+  margin-top: -20px;
+}
+.dashboard-div-buttons{
+  text-align: right;
+}
+.number-title{
+  margin-top: -15px;
+}
+.label-card{
+  margin-top: -25px;
+}
+.dashboard-fieldset{
+  background-color: #f8f8f8;
+  border: 1px solid #eaeaea;
+}
+
+.tabs.vertical .tabs-title.is-active {
+  border: .1538461538rem solid #4DBBD3;
+  border-right:  0px;
+  border-radius: 15px 0px 0px 15px;
+  padding-left: 15px;
+}
+
+.tabs-content.vertical {
+  border-left: .1538461538rem solid #4DBBD3;
+  min-height: 200px;
+}
+
+.tabs-content.vertical.disks-container {
+  min-height: 400px;
+}
+
+.search-button {
+  color: #8a8a8a;
+  padding: 0.6em;
+}
+
+/* To resolve bug in foundation dropdown-pane */
+.dropdown-pane:not(.is-open) {
+  left: 0 !important;
 }

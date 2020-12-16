@@ -1,17 +1,18 @@
 ---
 :ID:
   :desc: To which resource owner the rule applies to
-  :size: 5
+  :size: 4
   :right: true
+  :adjust: true
 
 :USER:
   :desc: To which resource owner the rule applies to
   :size: 8
   :right: true
 
-:RES_VHNIUTGDCOZSvRMAP:
+:RES_VHNIUTGDCOZSvRMAPt:
   :desc: Which resource the rule applies to
-  :size: 21
+  :size: 22
 
 :RID:
   :desc: Resource ID
@@ -28,10 +29,15 @@
   :size: 8
   :right: true
 
+:STRING:
+  :desc: ACL rule in string format
+  :adjust: true
+  :left: true
+
 :default:
 - :ID
 - :USER
-- :RES_VHNIUTGDCOZSvRMAP
+- :RES_VHNIUTGDCOZSvRMAPt
 - :RID
 - :OPE_UMAC
 - :ZONE

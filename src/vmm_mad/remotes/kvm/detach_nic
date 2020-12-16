@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,7 +16,7 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-source $(dirname $0)/kvmrc
+source $(dirname $0)/../../etc/vmm/kvm/kvmrc
 source $(dirname $0)/../../scripts_common.sh
 
 DOMAIN=$1
@@ -24,12 +24,23 @@ MAC=$2
 
 DETACH_ARGS="--domain $DOMAIN --type bridge --mac $MAC"
 
-exec_and_log "virsh --connect $LIBVIRT_URI detach-interface $DETACH_ARGS" \
-    "Could not detach NIC ($MAC) from $DOMAIN"
+function is_attached
+{
+    virsh --connect $LIBVIRT_URI domiflist $DOMAIN | grep $MAC > /dev/null 2>&1
+}
 
-virsh --connect $LIBVIRT_URI domiflist $DOMAIN | grep $MAC > /dev/null 2>&1
+function detach_nic
+{
+    exec_and_log "virsh --connect $LIBVIRT_URI detach-interface $DETACH_ARGS" \
+        "Could not detach NIC ($MAC) from $DOMAIN" || return 1
 
-if [ $? -eq 0 ] ; then
-    error_message "Could not detach NIC ($MAC) from $DOMAIN"
-    exit -1
+    if is_attached; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+if ! retry ${VIRSH_RETRIES:-3} detach_nic; then
+    exit 1
 fi

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,10 +18,9 @@
 #define MARKETPLACE_POOL_H_
 
 #include "MarketPlace.h"
-#include "NebulaLog.h"
-#include "SqlDB.h"
+#include "PoolSQL.h"
+#include "OneDB.h"
 
-class SqlDB;
 class MarketPlaceApp;
 
 class MarketPlacePool : public PoolSQL
@@ -56,46 +55,32 @@ public:
             const std::string& uname,
             const std::string& gname,
             int                umask,
-            MarketPlaceTemplate * mp_template,
+            std::unique_ptr<MarketPlaceTemplate> mp_template,
             int *              oid,
             std::string&       error_str);
 
     /**
-     *  Function to get a MarketPlace from the pool, the object is loaded if not
-     *  in memory
-     *    @param oid MarketPlace unique id
-     *    @param lock locks the MarketPlace mutex
-     *    @return a pointer to the MarketPlace, 0 if not loaded
-     */
-    MarketPlace * get(int oid, bool lock)
-    {
-        return static_cast<MarketPlace *>(PoolSQL::get(oid,lock));
-    };
-
-    /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
-     *   @param name of the object
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
+     *   @param oid the MarketPlace unique identifier
+     *   @return a pointer to the MarketPlace, nullptr in case of failure
      */
-    MarketPlace * get(const std::string& name, bool lock)
+    std::unique_ptr<MarketPlace> get(int oid)
     {
-        return static_cast<MarketPlace *>(PoolSQL::get(name,-1,lock));
-    };
+        return PoolSQL::get<MarketPlace>(oid);
+    }
 
     /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the MarketPlace unique identifier
+     *   @return a pointer to the MarketPlace, nullptr in case of failure
      */
-    string key(const std::string& name, int uid)
+    std::unique_ptr<MarketPlace> get_ro(int oid)
     {
-        return name;
-    };
+        return PoolSQL::get_ro<MarketPlace>(oid);
+    }
 
     /** Update a particular MarketPlace
      *    @param  objsql points to the market
@@ -126,15 +111,17 @@ public:
      *  the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(std::ostringstream& oss, const std::string& where,
-		const std::string& limit)
+    int dump(std::string& oss, const std::string& where, int sid, int eid,
+        bool desc)
     {
-        return PoolSQL::dump(oss, "MARKETPLACE_POOL", MarketPlace::table, where,
-                             limit);
+        return PoolSQL::dump(oss, "MARKETPLACE_POOL", "body", one_db::mp_table,
+                where, sid, eid, desc);
     };
 
     /**
@@ -145,7 +132,7 @@ public:
      */
      int list(std::vector<int>& oids)
      {
-        return PoolSQL::list(oids, MarketPlace::table);
+        return PoolSQL::list(oids, one_db::mp_table);
      }
 
     /**

@@ -1,5 +1,5 @@
  /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,46 +17,48 @@
 define(function(require) {
   /*
     DEPENDENCIES
-   */
-  var Notifier = require('utils/notifier');
-  var BaseFormPanel = require('utils/form-panels/form-panel');
-  var Sunstone = require('sunstone');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var TemplateUtils = require('utils/template-utils');
-  var WizardFields = require('utils/wizard-fields');
-
+  */
+  var Notifier = require("utils/notifier");
+  var BaseFormPanel = require("utils/form-panels/form-panel");
+  var Sunstone = require("sunstone");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var TemplateUtils = require("utils/template-utils");
+  var WizardFields = require("utils/wizard-fields");
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaTemplate = require("opennebula/template");
   /*
     TEMPLATES
    */
 
-  var TemplateWizardHTML = require('hbs!./create/wizard');
-  var TemplateAdvancedHTML = require('hbs!./create/advanced');
+  var TemplateWizardHTML = require("hbs!./create/wizard");
+  var TemplateAdvancedHTML = require("hbs!./create/advanced");
 
   /*
     CONSTANTS
    */
 
   var WIZARD_TABS = [
-    require('./create/wizard-tabs/general'),
-    require('./create/wizard-tabs/storage'),
-    require('./create/wizard-tabs/network'),
-    require('./create/wizard-tabs/os'),
-    require('./create/wizard-tabs/io'),
-    require('./create/wizard-tabs/actions'),
-    require('./create/wizard-tabs/context'),
-    require('./create/wizard-tabs/scheduling'),
-    require('./create/wizard-tabs/hybrid'),
-    require('./create/wizard-tabs/vmgroup'),
-    require('./create/wizard-tabs/other')
-  ]
+    require("./create/wizard-tabs/general"),
+    require("./create/wizard-tabs/storage"),
+    require("./create/wizard-tabs/network"),
+    require("./create/wizard-tabs/os"),
+    require("./create/wizard-tabs/io"),
+    require("./create/wizard-tabs/actions"),
+    require("./create/wizard-tabs/context"),
+    require("./create/wizard-tabs/scheduling"),
+    require("./create/wizard-tabs/hybrid"),
+    require("./create/wizard-tabs/vmgroup"),
+    require("./create/wizard-tabs/other"),
+    require("./create/wizard-tabs/numa")
+  ];
 
-  var TEMPLATES_TAB_ID = require('tabs/templates-tab/tabId');
-  var VROUTER_TEMPLATES_TAB_ID = require('tabs/vrouter-templates-tab/tabId');
+  var TEMPLATES_TAB_ID = require("tabs/templates-tab/tabId");
+  var VROUTER_TEMPLATES_TAB_ID = require("tabs/vrouter-templates-tab/tabId");
 
   /*
     CONSTRUCTOR
-   */
+  */
 
   function FormPanel() {
     var create_title;
@@ -71,15 +73,15 @@ define(function(require) {
     }
 
     this.actions = {
-      'create': {
-        'title': create_title,
-        'buttonText': Locale.tr("Create"),
-        'resetButton': true
+      "create": {
+        "title": create_title,
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       },
-      'update': {
-        'title': update_title,
-        'buttonText': Locale.tr("Update"),
-        'resetButton': false
+      "update": {
+        "title": update_title,
+        "buttonText": Locale.tr("Update"),
+        "resetButton": false
       }
     };
 
@@ -103,7 +105,7 @@ define(function(require) {
       } catch (err) {
         console.log(err);
       }
-    })
+    });
 
     BaseFormPanel.call(this);
   }
@@ -129,8 +131,8 @@ define(function(require) {
   function _htmlWizard() {
 
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId,
-      'wizardTabs': this.wizardTabs
+      "formPanelId": this.formPanelId,
+      "wizardTabs": this.wizardTabs
     });
   }
 
@@ -140,67 +142,219 @@ define(function(require) {
 
   function _setup(context) {
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.setup($('#' + wizardTab.wizardTabId, context));
+      wizardTab.setup($("#" + wizardTab.wizardTabId, context));
     });
 
-    Foundation.reflow(context, 'tabs');
-    Foundation.reflow(context, 'tooltip');
+    Foundation.reflow(context, "tabs");
+    Foundation.reflow(context, "tooltip");
   }
 
   function _onShow(context) {
     var that = this;
-    $('a[href="#'+ that.wizardTabs[0].wizardTabId +'"]', context).trigger("click");
+    $("a[href=\"#"+ that.wizardTabs[0].wizardTabId +"\"]", context).trigger("click");
 
     $.each(that.wizardTabs, function(index, wizardTab) {
-      wizardTab.onShow($('#' + wizardTab.wizardTabId, context), that);
+      wizardTab.onShow($("#" + wizardTab.wizardTabId, context), that);
     });
   }
 
   function _retrieve(context) {
-    var templateJSON = {}
+    var templateJSON = {};
     $.each(this.wizardTabs, function(index, wizardTab) {
-      $.extend(true, templateJSON, wizardTab.retrieve($('#' + wizardTab.wizardTabId, context)));
+      $.extend(true, templateJSON, wizardTab.retrieve($("#" + wizardTab.wizardTabId, context)));
+      var a = templateJSON;
     });
+
+
+    if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["DELETE"]){
+      delete templateJSON["TOPOLOGY"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] &&
+      (templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === undefined || 
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === null ||
+      templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0)
+    ){
+      delete templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"];
+    }
+
+    if(
+      templateJSON["TOPOLOGY"] &&
+      (templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === undefined || 
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === null ||
+      templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0)
+    ){
+      delete templateJSON["TOPOLOGY"]["MEMORY_ACCESS"];
+    }
+
+    if (templateJSON["CORES"]){
+      if (!templateJSON["TOPOLOGY"]){
+        templateJSON["TOPOLOGY"] = {};
+      }
+      templateJSON["TOPOLOGY"]["CORES"] = templateJSON["CORES"];
+      templateJSON["TOPOLOGY"]["SOCKETS"] = parseInt(templateJSON["VCPU"]) / parseInt(templateJSON["CORES"]);
+      templateJSON["TOPOLOGY"]["THREADS"] = 1;
+      delete templateJSON["CORES"];
+    }
 
     // vCenter PUBLIC_CLOUD is not defined in the hybrid tab. Because it is
     // part of an array, and it is filled in different tabs, the $.extend deep
     // merge can't work. We define an auxiliary attribute for it.
 
-    if (templateJSON['PUBLIC_CLOUD'] == undefined) {
-      templateJSON['PUBLIC_CLOUD'] = [];
+    if (templateJSON["PUBLIC_CLOUD"] == undefined) {
+      templateJSON["PUBLIC_CLOUD"] = [];
     }
 
     // PCI with TYPE=NIC is not defined in the 'other' tab. Because it is
     // part of an array, and it is filled in different tabs, the $.extend deep
     // merge can't work. We define an auxiliary attribute for it.
 
+    if (templateJSON["NIC_ALIAS"]) {
+        var alias = templateJSON["NIC_ALIAS"];
+
+        if (alias) {
+            templateJSON["NIC_ALIAS"] = alias;
+        } else {
+            delete templateJSON["NIC_ALIAS"];
+        }
+    }
+
     if (templateJSON["NIC_PCI"] != undefined) {
-      if (templateJSON['PCI'] == undefined) {
-        templateJSON['PCI'] = [];
+      if (templateJSON["PCI"] == undefined) {
+        templateJSON["PCI"] = [];
       }
 
-      templateJSON['PCI'] = templateJSON['PCI'].concat(templateJSON["NIC_PCI"]);
+      templateJSON["PCI"] = templateJSON["PCI"].concat(templateJSON["NIC_PCI"]);
 
       delete templateJSON["NIC_PCI"];
     }
-
+ 
     return templateJSON;
   }
 
   function _submitWizard(context) {
     var templateJSON = this.retrieve(context);
-
+    var current = {};
+    cachedTemplate = OpenNebulaAction.cache("VMTEMPLATE");
+    if(
+      this && 
+      this.resourceId && 
+      cachedTemplate && 
+      cachedTemplate.data &&
+      Array.isArray(cachedTemplate.data)
+    ){
+      var id = this.resourceId;
+      var currentTemplate = cachedTemplate.data.filter(function(vmtemplate){
+        var rtn = false;
+        if(
+          vmtemplate && 
+          vmtemplate.VMTEMPLATE && 
+          vmtemplate.VMTEMPLATE.TEMPLATE && 
+          vmtemplate.VMTEMPLATE.ID && 
+          vmtemplate.VMTEMPLATE.ID === id
+        ){
+          return vmtemplate.VMTEMPLATE.TEMPLATE;
+        }
+        return rtn;
+      });
+      if(
+        currentTemplate &&
+        currentTemplate[0] &&
+        currentTemplate[0].VMTEMPLATE && 
+        currentTemplate[0].VMTEMPLATE.TEMPLATE
+      ){
+        current = currentTemplate[0].VMTEMPLATE.TEMPLATE;
+      }
+      if(current) {
+        for (key in current) {
+          if (!templateJSON[key]) {
+            delete current[key]
+          }
+        }
+      }
+    }
     if (this.action == "create") {
-      Sunstone.runAction(this.resource+".create", {'vmtemplate': templateJSON});
+      Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
       return false;
     } else if (this.action == "update") {
-      Sunstone.runAction(this.resource+".update", this.resourceId, TemplateUtils.templateToString(templateJSON));
+      var actionUpdate = this.resource + ".update";
+      var resourceId = this.resourceId;
+      if(
+        window &&
+        window.lastInfoVmTemplate &&
+        window.lastInfoVmTemplate.data &&
+        templateJSON &&
+        templateJSON.DISK &&
+        templateJSON.HYPERVISOR &&
+        templateJSON.HYPERVISOR === "vcenter"
+      ){
+        params = {
+          data: window.lastInfoVmTemplate.data,
+          success: function(request, response){
+            if(response){
+              var template = response.VMTEMPLATE && response.VMTEMPLATE.TEMPLATE;
+              if(
+                template &&
+                template.DISK &&
+                template.DISK instanceof Array &&
+                templateJSON &&
+                templateJSON.DISK &&
+                templateJSON.DISK instanceof Array
+              ){
+                var disks = [];
+                var lastDisks = template.DISK;
+                var lengthLastDisks = lastDisks.length;
+                var lengthNewDisks = templateJSON.DISK.length;
+                var diffPositions = lengthLastDisks - lengthNewDisks;
+                templateJSON.DISK.map(function(element,id){
+                  var disk = element;
+                  var position = diffPositions>0? id+diffPositions : id;
+                  if(lastDisks && lastDisks[position] && JSON.stringify(lastDisks[position]) !== JSON.stringify(element)){
+                    if(element.OPENNEBULA_MANAGED && element.OPENNEBULA_MANAGED === "NO"){
+                      disk.LAST_IMAGE_DISK = (lastDisks[position] && lastDisks[position].IMAGE_ID) || (lastDisks[position] && lastDisks[position].IMAGE);
+                      delete disk.OPENNEBULA_MANAGED;
+                    }
+                  }
+                  
+                  disks.push(disk);
+                });
+                templateJSON.DISK = disks;
+                Sunstone.runAction(
+                  actionUpdate,
+                  resourceId,
+                  TemplateUtils.templateToString(
+                    $.extend( current, templateJSON)
+                  )
+                );
+              }else{
+                Sunstone.runAction(
+                  actionUpdate,
+                  resourceId,
+                  TemplateUtils.templateToString(
+                    $.extend( current, templateJSON)
+                  )
+                );
+              }
+            }
+          }
+        };
+        OpenNebulaAction.show(params,OpenNebulaTemplate.resource);
+      }else{
+        Sunstone.runAction(
+          actionUpdate,
+          resourceId,
+          TemplateUtils.templateToString(
+            $.extend( current, templateJSON)
+          )
+        );
+      }
       return false;
     }
   }
 
   function _submitAdvanced(context) {
-    var templateStr = $('textarea#template', context).val();
+    var templateStr = $("textarea#template", context).val();
 
     if (this.action == "create") {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": {"template_raw": templateStr}});
@@ -218,17 +372,19 @@ define(function(require) {
     this.setHeader(element);
 
     this.resourceId = element.ID;
-
+    if(element && element.TEMPLATE && element.TEMPLATE.SCHED_RANK){
+      $("#SCHED_RANK").val(element.TEMPLATE.SCHED_RANK);
+    }
     var templateJSON = element.TEMPLATE;
 
     // Fills the name
     WizardFields.fillInput($("#NAME", context), element.NAME);
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(TemplateUtils.templateToString(templateJSON));
+    $("#template", context).val(TemplateUtils.templateToString(templateJSON));
 
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.fill($('#' + wizardTab.wizardTabId, context), templateJSON);
+      wizardTab.fill($("#" + wizardTab.wizardTabId, context), templateJSON);
     });
 
     // After all tabs have been filled, perform a notify
@@ -253,7 +409,7 @@ define(function(require) {
 
       $.each(that.wizardTabs, function(index, wizardTab) {
         if (wizardTab.notify != undefined){
-          wizardTab.notify($('#' + wizardTab.wizardTabId, context), templateJSON);
+          wizardTab.notify($("#" + wizardTab.wizardTabId, context), templateJSON);
         }
       });
 

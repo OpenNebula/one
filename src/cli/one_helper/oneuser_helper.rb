@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -65,9 +65,9 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             password = OpenNebula::X509Auth.escape_dn(password)
         end
 
-        if options[:sha1] || options[:driver] == OpenNebula::User::CIPHER_AUTH
-            require 'digest/sha1'
-            password = Digest::SHA1.hexdigest(password)
+        if options[:sha256] || options[:driver] == OpenNebula::User::CIPHER_AUTH
+            require 'digest/sha2'
+            password = Digest::SHA256.hexdigest(password)
         end
 
         return 0, password
@@ -201,6 +201,10 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             login_client = self.get_login_client(username, options)
         end
 
+        if (login_client.is_a? Array) && login_client[0] == -1
+            return login_client
+        end
+
         user = OpenNebula::User.new(User.build_xml, login_client)
 
         egid = options[:group] || -1
@@ -215,8 +219,20 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
         # Check that ONE_AUTH target can be written
         #-----------------------------------------------------------------------
         if File.file?(ONE_AUTH) && !options[:force]
+            puts "  * Do you want to overwrite the file #{ONE_AUTH}? (Y|N): "
+
+            answer = STDIN.readline.chop
+
+            case answer
+            when 'Y', 'y', 'yes', 'YES', 'Yes'
+                puts "overwriting #{ONE_AUTH} ..."
+            when 'N', 'n', 'no', 'NO', 'No'
                 return 0, "File #{ONE_AUTH} exists, use --force to overwrite."\
                 "\n#{token_info}"
+            else
+                puts "Not valid option."
+                return -1
+            end
         end
 
         #-----------------------------------------------------------------------
@@ -268,6 +284,14 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d["NAME"]
             end
 
+            column :ENABLED, "User is enabled", :left, :size=>4 do |d|
+                if d["ENABLED"] == "1"
+                    "yes"
+                else
+                    "no"
+                end
+            end
+
             column :GROUP, "Group of the User", :left, :size=>10 do |d|
                 helper.group_name(d, options)
             end
@@ -282,12 +306,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
                         q['VM_QUOTA']['VM'] = {
-                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"    => "0",
-                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"    => "0",
-                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED" => "0",
+                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"              => "0",
+                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"              => "0",
+                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED"           => "0",
+                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_VMS_USED"      => "0",
+                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_CPU_USED"      => "0",
+                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_MEMORY_USED"   => "0",
                             "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "SYSTEM_DISK_SIZE_USED" => "0"
                         }
@@ -321,12 +351,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
                         q['VM_QUOTA']['VM'] = {
-                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"    => "0",
-                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"    => "0",
-                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED" => "0",
+                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"              => "0",
+                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"              => "0",
+                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED"           => "0",
+                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_VMS_USED"      => "0",
+                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_CPU_USED"      => "0",
+                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_MEMORY_USED"   => "0",
                             "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "SYSTEM_DISK_SIZE_USED" => "0"
                         }
@@ -363,12 +399,18 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
 
                     if q['VM_QUOTA']['VM'].nil? && d["ID"].to_i != 0
                         q['VM_QUOTA']['VM'] = {
-                            "VMS"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "VMS_USED"    => "0",
-                            "CPU"         => OneQuotaHelper::LIMIT_DEFAULT,
-                            "CPU_USED"    => "0",
-                            "MEMORY"      => OneQuotaHelper::LIMIT_DEFAULT,
-                            "MEMORY_USED" => "0",
+                            "VMS"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "VMS_USED"              => "0",
+                            "CPU"                   => OneQuotaHelper::LIMIT_DEFAULT,
+                            "CPU_USED"              => "0",
+                            "MEMORY"                => OneQuotaHelper::LIMIT_DEFAULT,
+                            "MEMORY_USED"           => "0",
+                            "RUNNING_VMS"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_VMS_USED"      => "0",
+                            "RUNNING_CPU"           => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_CPU_USED"      => "0",
+                            "RUNNING_MEMORY"        => OneQuotaHelper::LIMIT_DEFAULT,
+                            "RUNNING_MEMORY_USED"   => "0",
                             "SYSTEM_DISK_SIZE"      => OneQuotaHelper::LIMIT_DEFAULT,
                             "SYSTEM_DISK_SIZE_USED" => "0"
                         }
@@ -400,7 +442,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
                 d['PASSWORD']
             end
 
-            default :ID, :NAME, :GROUP, :AUTH, :VMS, :MEMORY, :CPU
+            default :ID, :NAME, :ENABLED, :GROUP, :AUTH, :VMS, :MEMORY, :CPU
         end
 
         table
@@ -522,7 +564,7 @@ class OneUserHelper < OpenNebulaHelper::OneHelper
             CLIHelper::ShowTable.new(nil, self) do
                 column :ID, "", :size=>7 do |d|
                     d["TOKEN"]
-               end
+                end
 
                 column :EGID, "", :left, :size=>5 do |d|
                     d["EGID"].to_i == -1 ? "*" + gid : d["EGID"]

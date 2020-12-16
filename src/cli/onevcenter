@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,182 +16,323 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION="/usr/lib/one/ruby"
-    REMOTES_LOCATION="/var/lib/one/remotes/"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    REMOTES_LOCATION  = '/var/lib/one/remotes/'
 else
-    RUBY_LIB_LOCATION=ONE_LOCATION+"/lib/ruby"
-    REMOTES_LOCATION=ONE_LOCATION+"/var/remotes/"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes/'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
-$: << REMOTES_LOCATION+"vmm/vcenter/"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
+$LOAD_PATH << REMOTES_LOCATION + 'vmm/vcenter/'
 
 require 'command_parser'
-require 'one_helper/onehost_helper'
-require 'one_helper/onecluster_helper'
+require 'one_helper/onevcenter_helper'
 require 'vcenter_driver'
 
-def connection_options(object_name, options)
-    if  options[:vuser].nil? ||
-        options[:vcenter].nil?
-        STDERR.puts "vCenter connection parameters are mandatory to import"\
-                    " #{object_name}:\n"\
-                    "\t --vcenter vCenter hostname\n"\
-                    "\t --vuser username to login in vcenter"
-        exit -1
-    end
-
-    password = options[:vpass] || OpenNebulaHelper::OneHelper.get_password
-
-    {
-       :user     => options[:vuser],
-       :password => password,
-       :host     => options[:vcenter]
-    }
-end
-
-cmd=CommandParser::CmdParser.new(ARGV) do
-
-    usage "`onevcenter` <command> [<args>] [<options>]"
+CommandParser::CmdParser.new(ARGV) do
+    usage '`onevcenter` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
-    helper = OneHostHelper.new
+    helper = OneVcenterHelper.new
 
     before_proc do
         helper.set_client(options)
     end
 
-    ############################################################################
-    # Global Options
-    ############################################################################
-    cmd_options=CommandParser::OPTIONS-[CommandParser::VERBOSE]
-    set :option, cmd_options+OpenNebulaHelper::CLIENT_OPTIONS
+    OBJECT = {
+        :name => 'object',
+        :short => '-o object',
+        :large => '--object object ',
+        :format => String,
+        :description => 'vCenter object: [datastores, templates,'\
+                        'networks, datastores, images]'
+    }
 
+    HOST = {
+        :name => 'host',
+        :short => '-h host_id',
+        :large => '--host host_id',
+        :format => String,
+        :description => 'OpenNebula host used to authenticate the operation'
+    }
+
+    DATASTORE = {
+        :name => 'datastore',
+        :short => '-d datastore_id',
+        :large => '--datastore datastore_id',
+        :format => String,
+        :description => 'OpenNebula datastore used'
+    }
+
+    CONFIG = {
+        :name => 'configuration',
+        :large => '--config file',
+        :format => String,
+        :description => 'Configuration file for custom options'
+    }
 
     VCENTER = {
-        :name   => "vcenter",
-        :large  => "--vcenter vCenter" ,
-        :description => "The vCenter hostname",
+        :name => 'vcenter',
+        :large => '--vcenter vCenter',
+        :description => 'The vCenter hostname',
         :format => String
     }
 
     USER = {
-        :name   => "vuser",
-        :large  => "--vuser username" ,
-        :description => "The username to interact with vCenter",
+        :name => 'vuser',
+        :large => '--vuser username',
+        :description => 'The username to interact with vCenter',
         :format => String
     }
 
     PASS = {
-        :name   => "vpass",
-        :large  => "--vpass password",
-        :description => "The password for the user",
+        :name => 'vpass',
+        :large => '--vpass password',
+        :description => 'The password for the user',
         :format => String
     }
 
+    PORT = {
+        :name => 'port',
+        :short => '-p port',
+        :large => '--port port',
+        :format => String,
+        :description => 'vCenter API port, defaults to 443 (SSL) or 80'
+    }
+
     USE_DEFAULTS = {
-        :name   => "defaults",
-        :large  => "--use-defaults",
-        :description => "Use defaults for answers to questions",
+        :name => 'defaults',
+        :large => '--use-defaults',
+        :description => 'Use defaults for answers to questions',
         :format => String
     }
+
+    ALL = {
+        :name => 'all',
+        :large => '--all',
+        :description => 'Import all list',
+        :format => String
+    }
+
+    ############################################################################
+    # Global Options
+    ############################################################################
+    cmd_options = CommandParser::OPTIONS - [CommandParser::VERBOSE]
+    set :option, cmd_options + OpenNebulaHelper::CLIENT_OPTIONS
+
+    ############################################################################
+    # list resources
+    ############################################################################
+    list_desc = <<-EOT.unindent
+        Show a list with unimported vCenter objects
+
+        Examples:
+           - listing available templates:
+
+             onevcenter list -o templates -h <host_id>
+
+           - listing available images:
+
+             onevcenter list -o datastores -h <host_id> -d <ds-img_id>
+    EOT
+
+    command :list,
+            list_desc,
+            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS] do
+        begin
+            args = helper.parse_opts(options)
+            args[:filter] = true
+            args[:short] = true
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter
+                       .new_child(helper.client, vi_client, options[:object])
+
+            list = importer.retrieve_resources(args)
+
+            helper.list_object(options, list)
+        rescue StandardError => e
+            puts e.message
+        end
+
+        exit 0
+    end
+
+    list_desc = <<-EOT.unindent
+        Show a list with unimported vCenter objects excluding all filters
+
+        Examples:
+          - listing networks including uplinks:
+
+            onevcenter list_all -o networks -h <host_id>
+
+    EOT
+
+    command :list_all,
+            list_desc,
+            :options => [OBJECT, HOST, DATASTORE, VCENTER, USER, PASS] do
+        begin
+            args = helper.parse_opts(options)
+            args[:filter] = false
+            args[:short] = true
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter
+                       .new_child(helper.client, vi_client, options[:object])
+
+            list = importer.retrieve_resources(args)
+
+            helper.list_object(options, list)
+        rescue StandardError => e
+            puts e.message
+        end
+
+        exit 0
+    end
+
+    import_desc = <<-EOT.unindent
+        Import the the desired vCenter object
+
+        Examples:
+           - importing first datastore
+
+             onevcenter list -o templates -h <host_id>
+
+           - importing 2 concrete templates:
+
+             onevcenter import "vm-1252, vm-553, vm-1248" -o templates -h <host_id>
+
+           - importing a image range:
+
+             onevcenter import 0..10 -o images -h <host_id> -d <ds-img_id>
+    EOT
+
+    command :import,
+            import_desc, [:oid, nil],
+            :options => [OBJECT, HOST, DATASTORE] do
+        begin
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter.new_child(helper.client,
+                                                           vi_client,
+                                                           options[:object])
+
+            importer.retrieve_resources(helper.parse_opts(options))
+            indexes = importer.get_indexes(args.first)
+
+            if indexes.nil?
+                raise "Could not get any unimported #{options[:object]}"\
+                    " resources info in host: #{options[:host]} with"\
+                    " this input: #{args.first}"
+            end
+
+            importer.process_import(indexes) do |object_info|
+                helper.cli_dialogue(object_info)
+            end
+
+            importer.stdout
+        rescue StandardError => e
+            puts e.message
+        end
+
+        exit 0
+    end
+
+    command :import_defaults,
+            import_desc,
+            [:oid, nil],
+            :options => [OBJECT, HOST, DATASTORE, CONFIG] do
+        begin
+            vi_client = VCenterDriver::VIClient.new_from_host(options[:host])
+            importer = VCenterDriver::VcImporter.new_child(helper.client,
+                                                           vi_client,
+                                                           options[:object])
+            importer.retrieve_resources(helper.parse_opts(options))
+            indexes = importer.get_indexes(args.first)
+
+            importer.process_import(indexes)
+
+            importer.stdout
+        rescue StandardError => e
+            puts e.message
+        end
+
+        exit 0
+    end
 
     ############################################################################
     # Import clusters
     ############################################################################
-    hosts_desc = <<-EOT.unindent
+    host_desc = <<-EOT.unindent
         Import vCenter clusters as OpenNebula hosts
+
+        Example:
+           - Get available clusters:
+
+             onevcenter hosts --vcenter <vcenter> --vuser <vcenter_user> --vpass <password>
     EOT
+    command :hosts,
+            host_desc,
+            :options => [VCENTER, USER, PASS, USE_DEFAULTS, PORT] do
+        con_ops = helper.connection_options('Hosts', options)
 
-    command :hosts, hosts_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("Hosts", options)
-
-        VCenterDriver::Importer.import_clusters(con_ops, options)
+        VCenterDriver::VcImporter.import_clusters(con_ops, options)
 
         exit 0
     end
 
     ############################################################################
-    # Import templates
+    # Clear VM tags
     ############################################################################
-    templates_desc = <<-EOT.unindent
-        Import vCenter VM Templates into OpenNebula
+    cleartags_desc = <<-EOT.unindent
+        Clear extraconfig tags from a vCenter VM, useful when a VM has been
+        launched by OpenNebula and needs to be reimported
+
+        Example:
+           - Clean VM 15:
+
+           onevcenter cleargs 15
     EOT
+    command :cleartags, cleartags_desc, :vmid do
+        vmid = args[0]
+        remove_str = "\n        onevm recover --delete-db #{vmid}" \
+                     "\n\nAfter a monitoring cycle, the VM will appear "\
+                     'as a Wild VM for reimport.'
 
-    command :templates, templates_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("VM Templates", options)
+        print 'Extracting information from VM ' + vmid
 
-        VCenterDriver::Importer.import_templates(con_ops, options)
+        begin
+            print '.'
+            vm, keys = helper.clear_tags(vmid)
+            print '.'
 
-        exit 0
-    end
+            if keys.empty?
+                puts "\n\nNo OpenNebula keys present, is safe to remove the VM."
+                puts remove_str
+                exit 0
+            end
+            puts '.'
 
-    ############################################################################
-    # Import vms (deprecated)
-    ############################################################################
-    vms_desc = <<-EOT.unindent
-        Deprecated action in onevcenter, please use onehost importvm instead
-    EOT
+            puts 'The following keys will be removed:'
+            keys.each {|key| puts "\t- #{key}" }
 
-    command :vms, vms_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        STDERR.puts "Deprecated action in onevcenter, please use onehost "\
-                    "importvm instead"
-        exit -1
-    end
-
-    ############################################################################
-    # Import networks
-    ############################################################################
-    network_desc = <<-EOT.unindent
-        Import vCenter networks into OpenNebula
-    EOT
-
-    command :networks, network_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("Networks", options)
-
-        VCenterDriver::Importer.import_networks(con_ops, options)
-
-        exit 0
-    end
-
-    ############################################################################
-    # Import datastores
-    ############################################################################
-    datastores_desc = <<-EOT.unindent
-        Import vCenter Datastores into OpenNebula
-    EOT
-
-    command :datastores, datastores_desc, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        con_ops = connection_options("Datastores", options)
-
-        VCenterDriver::Importer.import_datastore(con_ops, options)
-
-        exit 0
-    end
-
-    ############################################################################
-    # Import images
-    ############################################################################
-    images_desc = <<-EOT.unindent
-        Import vCenter Images into OpenNebula
-    EOT
-
-    command :images, images_desc, :ds_name, :options=>[ VCENTER, USER, PASS, USE_DEFAULTS ] do
-        ds_name = args[0]
-
-        if !ds_name
-            STDERR.puts "Datastore name needed to import images from"
-            exit -1
+            helper.remove_keys(vm, keys)
+        rescue StandardError => e
+            STDERR.puts "Couldn't clear VM tags. Reason: #{e.message}"
+            exit 1
         end
-
-        con_ops = connection_options("Images", options)
-
-        VCenterDriver::Importer.import_images(con_ops, ds_name, options)
-
+        puts "\nKeys removed from VM. Is safe to remove it"
+        puts remove_str
         exit 0
     end
 end

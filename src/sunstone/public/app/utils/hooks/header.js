@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,11 +19,19 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
+  var Locale = require('utils/locale');
+  var Humanize = require('utils/humanize');
 
   function _pre(info, contextTabId) {
     var element = info[Object.keys(info)[0]];
 
     $('.resource-info-header', '#' + contextTabId).text(element.NAME);
+
+    if (element.LOCK){
+      $('.resource-lock-header-small', '#' + contextTabId).html("<span data-tooltip aria-haspopup='true' class='has-tip' data-disable-hover='false' tabindex='1' title="+Locale.tr(Humanize.lock_to_str(element.LOCK.LOCKED))+"><i class='fas fa-lock fa-2x'/></span>");
+    } else {
+      $('.resource-lock-header-small', '#' + contextTabId).html("<i style='color: #cacedd;' class='fas fa-unlock-alt fa-2x'/>");
+    }
   }
 
   function _post(info, contextTabId) {

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -41,7 +41,7 @@ module OpenNebula
 
                 hash['DOCUMENT_POOL']['DOCUMENT'].each { |doc|
                     body = doc['TEMPLATE']["#{TEMPLATE_TAG}"]
-                    if body
+                    if body && !body.empty?
                         b_hash = JSON.parse(body)
                         doc['TEMPLATE']["#{TEMPLATE_TAG}"] = b_hash
                     end

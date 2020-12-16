@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,7 @@ define(function(require) {
    */
 
   var Locale = require('utils/locale');
+  var Humanize = require('utils/humanize');
   var RenameTr = require('utils/panel/rename-tr');
   var PermissionsTable = require('utils/panel/permissions-table');
 
@@ -66,7 +67,7 @@ define(function(require) {
 
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-
+    var prettyRegTime = Humanize.prettyTime(this.element.TEMPLATE.BODY['registration_time']);
     var customAttrs = [];
 
     if ( ! $.isEmptyObject( this.element.TEMPLATE.BODY['custom_attrs'] ) ) {
@@ -103,6 +104,7 @@ define(function(require) {
 
     return TemplateHTML({
       'element': this.element,
+      'prettyRegTime': prettyRegTime,
       'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'customAttrs': customAttrs

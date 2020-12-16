@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -17,7 +17,7 @@
   <div class="row collapse" id="default_vdc_warning">
     <div class="large-12 columns">
       <span class="radius warning label">
-        <i class="fa fa-warning"/> {{tr "New Groups are automatically added to the default VDC"}}
+        <i class="fas fa-exclamation-triangle"/> {{tr "New Groups are automatically added to the default VDC"}}
       </span>
     </div>
   </div>
@@ -25,25 +25,25 @@
     <div class="columns medium-12">
       <dl id="{{formPanelId}}Tabs" class="tabs sunstone-info-tabs text-center" data-tabs>
         <dd class="tabs-title is-active">
-          <a href="#general"> <i class="fa fa-desktop"></i>
+          <a href="#general"> <i class="fas fa-desktop"></i>
             <br>{{tr "General"}}</a>
         </dd>
         <dd class="tabs-title">
-          <a href="#resource_views"> <i class="fa fa-eye"></i>
+          <a href="#resource_views"> <i class="fas fa-eye"></i>
             <br>{{tr "Views"}}</a>
         </dd>
         <dd class="tabs-title">
-          <a href="#administrators"> <i class="fa fa-upload"></i>
+          <a href="#administrators"> <i class="fas fa-upload"></i>
             <br>{{tr "Admin"}}</a>
         </dd>
         <dd class="tabs-title">
           <a href="#resource_creation">
-            <i class="fa fa-folder-open"></i>
+            <i class="fas fa-folder-open"></i>
             <br>{{tr "Permissions"}}</a>
         </dd>
         <dd class="tabs-title">
           <a href="#system">
-            <i class="fa fa-cog"></i>
+            <i class="fas fa-cog"></i>
             <br>{{tr "System"}}</a>
         </dd>
       </dl>
@@ -93,7 +93,7 @@
               {{#if description}}
                 <span class="tip">{{description}}</span>
                 {{/if}}
-                <a id="link_{{link}}"">{{tr "Image"}}</a>
+                <a id="link_{{link}}">{{tr "Image"}}</a>
               </h6>
               <table class="dataTable">
                 <tr>
@@ -154,15 +154,15 @@
             <div class="large-6 columns">
               {{tr "Make new images persistent by default"}}
               <span class="tip">
-                {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage create). By default images are no persistent if not set."}}
+                {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."}}
               </span>
             </div>
             <div class="large-4 columns">
-              <div class="switch left">
-                <input class="switch-input" id="default_image_persistent_new" name="DEFAULT_IMAGE_PERSISTENT_NEW" type="checkbox">
-                <label class="switch-paddle" for="default_image_persistent_new">
-                </label>
-              </div>
+              <select id="default_image_persistent_new">
+                <option value=""></option>
+                <option value="YES"> {{tr "YES"}}</option>
+                <option value="NO"> {{tr "NO"}}</option>
+              </select>
             </div>
           </div>
           <div class="row">
@@ -173,11 +173,11 @@
               </span>
             </div>
             <div class="large-4 columns">
-              <div class="switch left">
-                <input class="switch-input " id="default_image_persistent" name="DEFAULT_IMAGE_PERSISTENT" type="checkbox">
-                <label class="switch-paddle" for="default_image_persistent">
-                </label>
-              </div>
+              <select id="default_image_persistent">
+                <option value=""></option>
+                <option value="YES"> {{tr "YES"}}</option>
+                <option value="NO"> {{tr "NO"}}</option>
+              </select>
             </div>
           </div>
         </fieldset>

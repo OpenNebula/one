@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,12 +18,9 @@
 #define _NEBULA_LOG_H_
 
 #include "Log.h"
-#include "NebulaUtil.h"
 
 #include <sstream>
 #include <syslog.h>
-
-using namespace std;
 
 /**
  *  The Logger class for the OpenNebula components
@@ -44,11 +41,11 @@ public:
     // ---------------------------------------------------------------
 
     static void init_log_system(
-        LogType             ltype,
-        Log::MessageType    clevel,
-        const char *        filename,
-        ios_base::openmode  mode,
-        const string&       daemon)
+        LogType                 ltype,
+        Log::MessageType        clevel,
+        const char *            filename,
+        std::ios_base::openmode mode,
+        const std::string&      daemon)
     {
         _log_type = ltype;
 
@@ -69,7 +66,7 @@ public:
         }
     };
 
-    static LogType str_to_type(string& type)
+    static LogType str_to_type(std::string& type)
     {
         one_util::toupper(type);
 
@@ -103,9 +100,9 @@ public:
     };
 
     static void log(
-        const char *           module,
-        const Log::MessageType type,
-        const ostringstream&   message)
+        const char *                module,
+        const Log::MessageType      type,
+        const std::ostringstream&   message)
     {
         logger->log(module,type,message.str().c_str());
     };
@@ -113,10 +110,40 @@ public:
     static void log(
         const char *           module,
         const Log::MessageType type,
-        const string&          message)
+        const std::string&          message)
     {
         logger->log(module,type,message.c_str());
     };
+
+    static void error(const char* module, const std::string& msg)
+    {
+        logger->log(module, Log::ERROR, msg.c_str());
+    }
+
+    static void warn(const char* module, const std::string& msg)
+    {
+        logger->log(module, Log::WARNING, msg.c_str());
+    }
+
+    static void info(const char* module, const std::string& msg)
+    {
+        logger->log(module, Log::INFO, msg.c_str());
+    }
+
+    static void debug(const char* module, const std::string& msg)
+    {
+        logger->log(module, Log::DEBUG, msg.c_str());
+    }
+
+    static void ddebug(const char* module, const std::string& msg)
+    {
+        logger->log(module, Log::DDEBUG, msg.c_str());
+    }
+
+    static void dddebug(const char* module, const std::string& msg)
+    {
+        logger->log(module, Log::DDDEBUG, msg.c_str());
+    }
 
     static Log::MessageType log_level()
     {

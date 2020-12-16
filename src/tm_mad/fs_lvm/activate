@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+# This script is used for one-shot LVM volumes activation
+# in case of virtualization host reboot.
+
+TIMEOUT=${TIMEOUT:-90}    # wait time for VG one to be ready
+HOSTNAME=$(hostname -f)
+
+if [ -z "${ONE_LOCATION}" ]; then
+    DATASTORES=${DATASTORES:-/var/lib/one/datastores}
+else
+    DATASTORES=${DATASTORES:-${ONE_LOCATION}/var/datastores}
+fi
+
+# check for LVM utils
+PATH="${PATH}:/sbin:/bin:/usr/sbin:/usr/bin" which vgdisplay >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    exit 0
+fi
+
+# wait for any VG named vg-one-
+while true; do
+    sudo -n lvscan >/dev/null 2>&1
+    if sudo -n vgdisplay -C 2>/dev/null | grep -q vg-one-; then
+        break
+    fi
+
+    TIMEOUT=$((TIMEOUT - 30))
+
+    if [ ${TIMEOUT} -ge 0 ]; then
+        sleep 30
+    else
+        exit 1
+    fi
+done
+
+# list directories of the virtual machines originally running on this host
+DIRS=$(find -L "${DATASTORES}" \
+        -name .host \
+        -type f \
+        -exec grep -lxF "${HOSTNAME}" {} \; \
+    | xargs dirname)
+
+for DIR in ${DIRS}; do
+    for DISK in $(ls "${DIR}/disk."*); do
+        DEVICE=$(readlink "${DISK}" 2>/dev/null)
+
+        # disk symlink resolves and target file/device doesn't
+        # exist yet, but lvs knows about it -> activate
+        if [ -n "${DEVICE}" ] && ! [ -e "${DEVICE}" ]; then
+            if sudo -n lvs "${DEVICE}" >/dev/null 2>&1; then
+                sudo -n lvchange -ay "${DEVICE}" >/dev/null 2>&1
+            fi
+        fi
+    done
+done
+
+exit 0

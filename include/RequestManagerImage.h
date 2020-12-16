@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,7 @@
 
 #include "Request.h"
 #include "Nebula.h"
-
-using namespace std;
+#include "ImagePool.h"
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -29,9 +28,9 @@ using namespace std;
 class RequestManagerImage: public Request
 {
 protected:
-    RequestManagerImage(const string& method_name,
-                        const string& help,
-                        const string& params)
+    RequestManagerImage(const std::string& method_name,
+                        const std::string& help,
+                        const std::string& params)
         :Request(method_name,params,help)
     {
         Nebula& nd  = Nebula::instance();
@@ -64,7 +63,7 @@ public:
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -85,7 +84,7 @@ public:
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -103,7 +102,7 @@ public:
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -120,13 +119,13 @@ public:
 
     ~ImageClone(){};
 
-    ErrorCode request_execute(int clone_id, const string &name, int ds_id,
-        int &new_id, RequestAttributes& att);
+    ErrorCode request_execute(int clone_id, const std::string &name, int ds_id,
+        bool persistent, int &new_id, RequestAttributes& att);
 
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -144,7 +143,7 @@ public:
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -162,7 +161,7 @@ public:
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -180,7 +179,7 @@ public:
 protected:
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
-                         RequestAttributes& att);
+                         RequestAttributes& att) override;
 };
 
 /* -------------------------------------------------------------------------- */

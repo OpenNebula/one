@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -39,7 +39,7 @@ public:
         MONITOR = 3
     };
 
-    static int action_from_str(string& st, Action& action)
+    static int action_from_str(std::string& st, Action& action)
     {
         if (st == "create")
         {
@@ -79,9 +79,9 @@ public:
      * @param state The state
      * @return the string representation
      */
-    static string state_to_str(State state)
+    static std::string state_to_str(State state)
     {
-        switch(state)
+        switch (state)
         {
             case INIT:     return "INIT";   break;
             case READY:    return "READY";  break;
@@ -97,7 +97,7 @@ public:
      */
     enum Type
     {
-		UNKNOWN          = 0, /** < Unknown types     */
+        UNKNOWN          = 0, /** < Unknown types     */
         IMAGE            = 1, /** < Image MarketPlace App*/
         VMTEMPLATE       = 2, /** < VM Template MarketPlace App*/
         SERVICE_TEMPLATE = 3  /** < Service Template MarketPlace App*/
@@ -108,7 +108,7 @@ public:
      *    @param ob the type
      *    @return the string
      */
-    static string type_to_str(Type ob)
+    static std::string type_to_str(Type ob)
     {
         switch (ob)
         {
@@ -125,14 +125,16 @@ public:
      *    @param str_type string representing the type
      *    @return the MarketPlaceType
      */
-    static Type str_to_type(string& str_type);
+    static Type str_to_type(std::string& str_type);
+
+    virtual ~MarketPlaceApp() = default;
 
     /**
      * Function to print the MarketPlaceApp object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(std::string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -140,7 +142,7 @@ public:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const std::string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  Rebuilds the object from base64 encoded template representation
@@ -209,12 +211,12 @@ public:
         return origin_id;
     };
 
-    const string& get_source() const
+    const std::string& get_source() const
     {
         return source;
     }
 
-    const string& get_md5() const
+    const std::string& get_md5() const
     {
         return md5;
     }
@@ -224,11 +226,10 @@ public:
         return size_mb;
     }
 
-    const string& get_format() const
+    const std::string& get_format() const
     {
         return format;
     }
-
 
     State get_state() const
     {
@@ -354,19 +355,11 @@ private:
             const std::string&      uname,
             const std::string&      gname,
             int                     umask,
-            MarketPlaceAppTemplate* app_template);
-
-    virtual ~MarketPlaceApp();
+            std::unique_ptr<MarketPlaceAppTemplate> app_template);
 
     // *************************************************************************
     // DataBase implementation (Private)
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Builds the market app from the template. This function MUST be called
@@ -374,7 +367,7 @@ private:
      *    @param error_str describing the error
      *    @return 0 on success;
      */
-    int parse_template(string& error_str);
+    int parse_template(std::string& error_str);
 
     /**
      *  Execute an INSERT or REPLACE Sql query.
@@ -389,26 +382,21 @@ private:
      *  Bootstraps the database table(s) associated to the MarketPlace
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Writes the MarketPlace in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int insert(SqlDB *db, std::string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the MarketPlace's data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
         std::string error_str;
         return insert_replace(db, true, error_str);
@@ -420,14 +408,14 @@ private:
      *    @param error string describing the error if any
      *    @return 0 on success
      */
-    int post_update_template(std::string& error);
+    int post_update_template(std::string& error) override;
 
     /**
      *  Factory method for marketplace app templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new MarketPlaceAppTemplate;
+        return std::make_unique<MarketPlaceAppTemplate>();
     }
 };
 

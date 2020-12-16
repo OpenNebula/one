@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -15,7 +15,7 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div class="text-center provision_info_vm_loading">
-  <span class="fa-stack fa-5x"> <i class="fa fa-cloud fa-stack-2x"></i> <i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>
+  <span class="fa-stack fa-5x"> <i class="fas fa-cloud fa-stack-2x"></i> <i class="fa  fa-spinner fa-spin fa-stack-1x fa-inverse"></i>
   </span>
   <br>
   <br>
@@ -37,50 +37,58 @@
           <ul class="menu provision_action_icons without-link">
             <li>
               <button href"#" title="{{tr "Open a remote console in a new window"}}" class="button radius provision_vnc_button tip-top">
-                <i class="fa fa-fw fa-lg fa-desktop"/></button>
+                <i class="fas fa-fw fa-lg fa-desktop"/></button>
+            </li>
+            <li>
+              <button href"#" title="{{tr "Download a file with RDP connection"}}" class="button radius provision_rdp_button tip-top">
+                <i class="fab fa-fw fa-lg fa-windows"/></button>
+            </li>
+            <li>
+              <button href"#" title="{{tr "Download a file with virt-viewer connection"}}" class="button radius provision_wfile_button tip-top">
+                <i class="fas fa-fw fa-lg fa-external-link-square-alt"/></button>
             </li>
             <li>
               <button title="{{tr "You have to boot the Virtual Machine first"}}" class="button radius white provision_vnc_button_disabled disabled tip-top" disabled>
-                <i class="fa fa-fw fa-lg fa-desktop"/></button>
+                <i class="fas fa-fw fa-lg fa-desktop"/></button>
             </li>
             {{#isTabActionEnabled "provision-tab" "VM.save_as_template"}}
             <li>
               <button href"#" title="{{tr "The disks of the Virtual Machine will be saved in a new Image"}}" class="button radius success provision_save_as_template_confirm_button tip-top">
-                <i class="fa fa-fw fa-lg fa-save"/>
+                <i class="fas fa-fw fa-lg fa-save"/>
               </button>
             </li>
             <li>
               <button title="{{tr "You have to power-off the virtual machine first"}}" class="button radius white provision_save_as_template_confirm_button_disabled disabled tip-top" disabled>
-                <i class="fa fa-fw fa-lg fa-save"/>
+                <i class="fas fa-fw fa-lg fa-save"/>
               </button>
             </li>
             {{/isTabActionEnabled}}
             <li>
             <li>
               <button href"#" title="{{tr "Terminate"}}" class="button radius alert provision_terminate_confirm_button tip-top">
-                <i class="fa fa-fw fa-lg fa-trash-o"/>
+                <i class="fas fa-fw fa-lg fa-trash-alt"/>
               </button>
             </li>
             <li>
               <button href"#" title="{{tr "Power off"}}" class="button radius secondary provision_poweroff_confirm_button tip-top">
-                <i class="fa fa-fw fa-lg fa-power-off"/>
+                <i class="fas fa-fw fa-lg fa-power-off"/>
               </button>
             </li>
             <li>
               <button href"#" title="{{tr "Power off"}}" class="button radius secondary provision_undeploy_confirm_button tip-top">
-                <i class="fa fa-fw fa-lg fa-power-off"/>
+                <i class="fas fa-fw fa-lg fa-power-off"/>
               </button>
             </li>
             {{#isTabActionEnabled "provision-tab" "VM.resume"}}
             <li>
               <button href"#" title="{{tr "Power on"}}" class="button radius secondary provision_resume_button tip-top">
-                <i class="fa fa-fw fa-lg fa-play"/>
+                <i class="fas fa-fw fa-lg fa-play"/>
               </button>
             </li>
             {{/isTabActionEnabled}}
             <li>
               <button href"#" title="{{tr "Reboot"}}" class="button radius secondary provision_reboot_confirm_button tip-top">
-                <i class="fa fa-fw fa-lg fa-repeat"/>
+                <i class="fas fa-fw fa-lg fa-redo-alt"/>
               </button>
             </li>
           </ul>

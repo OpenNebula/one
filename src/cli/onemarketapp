@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,18 +16,26 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION=ENV["ONE_LOCATION"]
+ONE_LOCATION = ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = "/usr/lib/one/ruby"
-    VAR_LOCATION      = "/var/lib/one"
+    RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
+    GEMS_LOCATION     = '/usr/share/one/gems'
+    VAR_LOCATION      = '/var/lib/one'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + "/lib/ruby"
-    VAR_LOCATION      = ONE_LOCATION + "/var"
+    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
+    VAR_LOCATION      = ONE_LOCATION + '/var'
 end
 
-$: << RUBY_LIB_LOCATION
-$: << RUBY_LIB_LOCATION+"/cli"
+if File.directory?(GEMS_LOCATION)
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
+end
+
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/onemarketapp_helper'
@@ -35,7 +43,7 @@ require 'one_helper/onemarket_helper'
 require 'one_helper/onedatastore_helper'
 
 CommandParser::CmdParser.new(ARGV) do
-    usage "`onemarket` <command> [<args>] [<options>]"
+    usage '`onemarket` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
 
     helper = OneMarketPlaceAppHelper.new
@@ -44,28 +52,89 @@ CommandParser::CmdParser.new(ARGV) do
         helper.set_client(options)
     end
 
+    USE = {
+        :name => 'use',
+        :large => '--use',
+        :description => 'lock use actions'
+    }
+
+    MANAGE = {
+        :name => 'manage',
+        :large => '--manage',
+        :description => 'lock manage actions'
+    }
+
+    ADMIN = {
+        :name => 'admin',
+        :large => '--admin',
+        :description => 'lock admin actions'
+    }
+
+    ALL = {
+        :name => 'all',
+        :large => '--all',
+        :description => 'lock all actions'
+    }
+
+    TAG = {
+        :name => 'tag',
+        :large => '--tag tag',
+        :format => String,
+        :description => 'DockerHub image tag (default latest)'
+    }
+
+    YES = {
+        :name => 'yes',
+        :large => '--yes',
+        :description => 'Import associated VM templates/images',
+        :proc => lambda do |_, options|
+            options[:yes] = 'yes'
+        end
+    }
+
+    NO = {
+        :name => 'no',
+        :large => '--no',
+        :description => 'Do not import/export associated VM templates/images',
+        :proc => lambda do |_, options|
+            options[:no] = 'no'
+        end
+    }
+
+    MARKET = {
+        :name => 'market',
+        :large => '--market market_id',
+        :format => Integer,
+        :description => 'Market to import all objects'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
-    set :option, CommandParser::OPTIONS+OpenNebulaHelper::CLIENT_OPTIONS
+    set :option, CommandParser::OPTIONS + OpenNebulaHelper::CLIENT_OPTIONS
 
-    list_options = CLIHelper::OPTIONS
-    list_options << OpenNebulaHelper::XML
+    list_options  = CLIHelper::OPTIONS
+    list_options += OpenNebulaHelper::FORMAT
     list_options << OpenNebulaHelper::NUMERIC
     list_options << OpenNebulaHelper::DESCRIBE
 
     CREATE_OPTIONS = [OneMarketPlaceHelper::MARKETPLACE]
-    EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE, OneMarketPlaceAppHelper::VMNAME]
+    EXPORT_OPTIONS = [OneDatastoreHelper::DATASTORE,
+                      OneDatastoreHelper::FILE_DATASTORE,
+                      OneMarketPlaceAppHelper::VMNAME,
+                      TAG,
+                      NO]
+    IMPORT_OPTIONS = [YES, NO, MARKET, OneMarketPlaceAppHelper::VMNAME]
 
     ########################################################################
     # Formatters for arguments
     ########################################################################
-    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc("GROUP") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "GROUP")
+    set :format, :groupid, OpenNebulaHelper.rname_to_id_desc('GROUP') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'GROUP')
     end
 
-    set :format, :userid, OpenNebulaHelper.rname_to_id_desc("USER") do |arg|
-        OpenNebulaHelper.rname_to_id(arg, "USER")
+    set :format, :userid, OpenNebulaHelper.rname_to_id_desc('USER') do |arg|
+        OpenNebulaHelper.rname_to_id(arg, 'USER')
     end
 
     set :format, :appid, OneMarketPlaceAppHelper.to_id_desc do |arg|
@@ -76,7 +145,8 @@ CommandParser::CmdParser.new(ARGV) do
         helper.list_to_id(arg)
     end
 
-    set :format, :filterflag, OneMarketPlaceAppHelper.filterflag_to_i_desc do |arg|
+    set :format, :filterflag,
+        OneMarketPlaceAppHelper.filterflag_to_i_desc do |arg|
         helper.filterflag_to_i(arg)
     end
 
@@ -88,27 +158,29 @@ CommandParser::CmdParser.new(ARGV) do
         Creates a new marketplace app in the given marketplace
     EOT
 
-    command :create, create_desc, [:file, nil], :options=>CREATE_OPTIONS +
-            OneMarketPlaceAppHelper::TEMPLATE_OPTIONS do
-
+    command :create, create_desc, [:file, nil],
+            :options => CREATE_OPTIONS +
+                        OneMarketPlaceAppHelper::TEMPLATE_OPTIONS do
         if options[:marketplace].nil?
-            STDERR.puts "Marketplace to save the app is mandatory: "
-            STDERR.puts "\t -m marketplace_id"
+            STDERR.puts 'Marketplace to save the app is mandatory: '
+            STDERR.puts '\t -m marketplace_id'
             exit(-1)
         end
 
-        if args[0] && OneMarketPlaceAppHelper.create_template_options_used?(options)
-            STDERR.puts "You can not use both template file and template"<<
-                " creation options."
+        if args[0] &&
+           OneMarketPlaceAppHelper.create_template_options_used?(options)
+            STDERR.puts 'You can not use both template file and template'\
+                        ' creation options.'
             next -1
         end
 
         helper.create_resource(options) do |app|
             begin
                 if args[0]
-                    template=File.read(args[0])
+                    template = File.read(args[0])
                 else
-                    res = OneMarketPlaceAppHelper.create_datastore_template(options)
+                    res = OneMarketPlaceAppHelper
+                          .create_datastore_template(options)
 
                     if res.first != 0
                         STDERR.puts res.last
@@ -124,38 +196,103 @@ CommandParser::CmdParser.new(ARGV) do
                 end
 
                 app.allocate(template, options[:marketplace])
-            rescue => e
+            rescue StandardError => e
                 STDERR.puts e.message
                 exit(-1)
             end
         end
     end
 
+    import_desc = <<-EOT.unindent
+        Imports a service template into the marketplace
+    EOT
+
+    command [:'service-template', :import],
+            import_desc,
+            :service_template_id,
+            :options => IMPORT_OPTIONS do
+        helper.import(args[0], ServiceTemplate) do |id|
+            helper.import_service_template(id, options)
+        end
+    end
+
+    vm_import_desc = <<-EOT.unindent
+        Imports a VM template into the marketplace
+    EOT
+
+    command [:'vm-template', :import],
+            vm_import_desc,
+            :vm_template_id,
+            :options => IMPORT_OPTIONS do
+        helper.import(args[0], TemplatePool) do |id|
+            helper.import_vm_template(id, options)
+        end
+    end
+
+    vm_import_desc = <<-EOT.unindent
+        Imports a VM into the marketplace
+    EOT
+
+    command [:vm, :import],
+            vm_import_desc,
+            :vm_id,
+            :options => IMPORT_OPTIONS do
+        t_id = helper.save_as_template(
+            helper.get_obj_id(args[0], VirtualMachinePool)
+        )
+
+        if OpenNebula.is_error?(t_id)
+            STDERR.puts t_id.message
+            exit(-1)
+        else
+            helper.import(t_id, TemplatePool) do |id|
+                helper.import_vm_template(id, options)
+            end
+        end
+
+        puts
+        puts 'To delete saved template use: ' \
+             "`onetemplate delete #{t_id} --recursive`"
+
+        0
+    end
+
     export_desc = <<-EOT.unindent
         Exports the marketplace app to the OpenNebula cloud
     EOT
 
-    command :export, export_desc, :appid, :name, :options=>EXPORT_OPTIONS  do
-        helper.perform_action(args[0], options, "exported") do |obj|
+    command :export, export_desc, :appid, :name, :options => EXPORT_OPTIONS do
+        helper.perform_action(args[0], options, 'exported') do |obj|
+            tag ="tag=#{options[:tag]}" if options[:tag]
 
-            rc = obj.export({
-                :dsid=>options[:datastore],
-                :name=>args[1],
-                :vmtemplate_name=>options[:vmname]
-            })
+            obj.extend(MarketPlaceAppExt)
 
-            next rc if OpenNebula.is_error?(rc)
+            rc = obj.export(
+                :dsid => options[:datastore],
+                :name => args[1],
+                :vmtemplate_name => options[:vmname],
+                :url_args => tag,
+                :notemplate => options[:no] == 'no'
+            )
 
-            rc.each { |key, value|
-                puts "#{key.to_s.upcase}"
-                value.each{ |id|
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
+            rc.each  do |key, value|
+                next if value.nil? || value.empty? || key == :image_type
+
+                puts key.to_s.upcase
+                value.each do |id|
                     if OpenNebula.is_error?(id)
                         puts id.to_str
+                        exit(-1)
                     else
                         puts "    ID: #{id}"
                     end
-                }
-            }
+                end
+            end
         end
     end
 
@@ -164,8 +301,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :download, download_desc, :appid, :path,
-        :options => [OpenNebulaHelper::FORCE] do
-        helper.perform_action(args[0],options,"downloaded") do |app|
+            :options => [OpenNebulaHelper::FORCE] do
+        helper.perform_action(args[0], options, 'downloaded') do
             download_args = [:marketplaceapp, args[0], args[1], options[:force]]
             OpenNebulaHelper.download_resource_sunstone(*download_args)
         end
@@ -176,7 +313,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :delete, delete_desc, [:range, :appid_list] do
-        helper.perform_actions(args[0], options, "deleted") do |app|
+        helper.perform_actions(args[0], options, 'deleted') do |app|
             app.delete
         end
     end
@@ -187,9 +324,8 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :update, update_desc, :appid, [:file, nil],
-        :options=>OpenNebulaHelper::APPEND do
-
-        helper.perform_action(args[0],options,"modified") do |obj|
+            :options => OpenNebulaHelper::APPEND do
+        helper.perform_action(args[0], options, 'modified') do |obj|
             if options[:append]
                 str = OpenNebulaHelper.append_template(args[0], obj, args[1])
             else
@@ -204,8 +340,8 @@ CommandParser::CmdParser.new(ARGV) do
         Changes the marketplace app group
     EOT
 
-    command :chgrp, chgrp_desc,[:range, :appid_list], :groupid do
-        helper.perform_actions(args[0], options, "Group changed") do |app|
+    command :chgrp, chgrp_desc, [:range, :appid_list], :groupid do
+        helper.perform_actions(args[0], options, 'Group changed') do |app|
             app.chown(-1, args[1].to_i)
         end
     end
@@ -216,9 +352,9 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :chown, chown_desc, [:range, :appid_list], :userid,
             [:groupid, nil] do
-        gid = args[2].nil? ? -1 : args[2].to_i
+        args[2].nil? ? gid = -1 : gid = args[2].to_i
 
-        helper.perform_actions(args[0], options, "Owner/Group changed") do |app|
+        helper.perform_actions(args[0], options, 'Owner/Group changed') do |app|
             app.chown(args[1].to_i, gid)
         end
     end
@@ -228,7 +364,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :chmod, chmod_desc, [:range, :appid_list], :octet do
-        helper.perform_actions(args[0], options, "Permissions changed") do |app|
+        helper.perform_actions(args[0], options, 'Permissions changed') do |app|
             app.chmod_octet(args[1])
         end
     end
@@ -238,7 +374,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :rename, rename_desc, :appid, :name do
-        helper.perform_action(args[0], options, "renamed") do |o|
+        helper.perform_action(args[0], options, 'renamed') do |o|
             o.rename(args[1])
         end
     end
@@ -247,7 +383,7 @@ CommandParser::CmdParser.new(ARGV) do
         Lists marketplace apps
     EOT
 
-    command :list, list_desc, [:filterflag, nil], :options=>list_options do
+    command :list, list_desc, [:filterflag, nil], :options => list_options do
         helper.list_pool(options, false, args[0])
     end
 
@@ -255,7 +391,7 @@ CommandParser::CmdParser.new(ARGV) do
         Shows information for the given marketplace app
     EOT
 
-    command :show, show_desc, :appid, :options=>OpenNebulaHelper::XML do
+    command :show, show_desc, :appid, :options => OpenNebulaHelper::FORMAT do
         helper.show_resource(args[0], options)
     end
 
@@ -264,7 +400,7 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :enable, enable_desc, [:range, :appid_list] do
-        helper.perform_actions(args[0], options, "enabled") do |obj|
+        helper.perform_actions(args[0], options, 'enabled') do |obj|
             obj.enable
         end
     end
@@ -275,8 +411,51 @@ CommandParser::CmdParser.new(ARGV) do
     EOT
 
     command :disable, disable_desc, [:range, :appid_list] do
-        helper.perform_actions(args[0], options, "disabled") do |obj|
+        helper.perform_actions(args[0], options, 'disabled') do |obj|
             obj.disable
+        end
+    end
+
+    lock_desc = <<-EOT.unindent
+        Locks a VM with differents levels for lock any actions with this VM,
+        show and monitoring never will be locked.
+        Valid states are: All.
+        Levels:
+        [Use]: locks Admin, Manage and Use actions.
+        [Manage]: locks Manage and Use actions.
+        [Admin]: locks only Admin actions.
+    EOT
+
+    command :lock, lock_desc, :appid,
+            :options => [USE, MANAGE, ADMIN, ALL] do
+        helper.perform_action(args[0],
+                              options,
+                              'MarketPlaceApp locked') do |app|
+            if !options[:use].nil?
+                level = 1
+            elsif !options[:manage].nil?
+                level = 2
+            elsif !options[:admin].nil?
+                level = 3
+            elsif !options[:all].nil?
+                level = 4
+            else
+                level = 1
+            end
+            app.lock(level)
+        end
+    end
+
+    unlock_desc = <<-EOT.unindent
+        Unlocks a VM for unlock any actions with this VM.
+        Valid states are: All.
+    EOT
+
+    command :unlock, unlock_desc, :appid do
+        helper.perform_action(args[0],
+                              options,
+                              'MarketPlaceApp unlocked') do |app|
+            app.unlock
         end
     end
 end

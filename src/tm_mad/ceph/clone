@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -40,7 +40,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
-source ${DRIVER_PATH}/../../datastore/ceph/ceph.conf
+source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
 
 CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 
@@ -51,9 +51,13 @@ CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 DST_HOST=`arg_host $DST`
 
 SRC_PATH=`arg_path $SRC`
+DST_PATH=`arg_path $DST`
+
+DST_DIR=`dirname $DST_PATH`
 
 DISK_ID=$(echo $DST|awk -F. '{print $NF}')
 RBD_DST="${SRC_PATH}-${VM_ID}-${DISK_ID}"
+DST_DS_ID=$(echo $DST | sed s#//*#/#g | awk -F/ '{print $(NF-2)}')
 
 #-------------------------------------------------------------------------------
 # Get Image information
@@ -65,18 +69,31 @@ unset i j XPATH_ELEMENTS
 
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
-        done < <(onevm show -x $VM_ID| $XPATH  \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
-                            /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
+done < <(onevm show -x $VM_ID| $XPATH  \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE )
 
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+
+#-------------------------------------------------------------------------------
+# Get Datastore information
+#-------------------------------------------------------------------------------
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+done < <(onedatastore show -x $DST_DS_ID | $XPATH \
+                    /DATASTORE/TEMPLATE/EC_POOL_NAME)
+
+EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Clone the image and create @snap if it does not exists
@@ -94,6 +111,10 @@ if [ -n "$CEPH_CONF" ]; then
     RBD="$RBD --conf ${CEPH_CONF}"
 fi
 
+if [ -n "$EC_POOL_NAME" ]; then
+    EC_POOL_OPT="--data-pool ${EC_POOL_NAME}"
+fi
+
 CLONE_CMD=$(cat <<EOF
     RBD="${RBD}"
 
@@ -104,7 +125,7 @@ CLONE_CMD=$(cat <<EOF
     set -e -o pipefail
 
     if [ "\$(rbd_format $SRC_PATH)" = "2" ]; then
-        $RBD clone "$SRC_PATH@snap" $RBD_DST
+        $RBD ${EC_POOL_OPT} clone "$SRC_PATH@snap" $RBD_DST
     else
         $RBD copy $SRC_PATH $RBD_DST
     fi

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,17 +17,12 @@
 #ifndef POOL_SQL_H_
 #define POOL_SQL_H_
 
-#include <map>
 #include <string>
-#include <queue>
-#include <set>
+#include <memory>
 
 #include "SqlDB.h"
 #include "PoolObjectSQL.h"
-#include "Log.h"
-#include "Hook.h"
-
-using namespace std;
+#include "PoolSQLCache.h"
 
 /**
  * PoolSQL class. Provides a base class to implement persistent generic pools.
@@ -35,7 +30,7 @@ using namespace std;
  * multithreaded applications. Any modification or access function to the pool
  * SHOULD block the mutex.
  */
-class PoolSQL: public Callbackable, public Hookable
+class PoolSQL
 {
 public:
     /**
@@ -58,31 +53,96 @@ public:
      */
     virtual int allocate(
         PoolObjectSQL   *objsql,
-        string&          error_str);
+        std::string&     error_str);
 
     /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param oid the object unique identifier
-     *   @param lock locks the object if true
-     *
-     *   @return a pointer to the object, 0 in case of failure
+     *   @return a pointer to the object, nullptr in case of failure
      */
-    PoolObjectSQL * get(int oid, bool lock);
+    template<typename T>
+    std::unique_ptr<T> get(int oid)
+    {
+        if ( oid < 0 )
+        {
+            return nullptr;
+        }
+
+        std::mutex * object_lock = cache.lock_line(oid);
+
+        std::unique_ptr<T> objectsql(static_cast<T *>(create()));
+
+        objectsql->oid = oid;
+
+        objectsql->ro  = false;
+
+        objectsql->_mutex = object_lock;
+
+        int rc = objectsql->select(db);
+
+        if ( rc != 0 )
+        {
+            return nullptr;
+        }
+
+        return objectsql;
+    }
 
     /**
-     * Updates the cache name index. Must be called when the owner of an object
-     * is changed
-     *
-     * @param old_name Object's name before the change
-     * @param old_uid Object's owner ID before the change
-     * @param new_name Object's name after the change
-     * @param new_uid Object's owner ID after the change
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database). No object lock, other threads may work with the same object.
+     *   @param oid the object unique identifier
+     *   @return a pointer to the object, nullptr in case of failure
      */
-    void update_cache_index(string& old_name,
-                            int     old_uid,
-                            string& new_name,
-                            int     new_uid);
+    template<typename T>
+    std::unique_ptr<T> get_ro(int oid)
+    {
+        if ( oid < 0 )
+        {
+            return nullptr;
+        }
+
+        std::unique_ptr<T> objectsql(static_cast<T *>(create()));
+
+        objectsql->oid = oid;
+
+        objectsql->ro = true;
+
+        int rc = objectsql->select(db);
+
+        if ( rc != 0 )
+        {
+            return nullptr;
+        }
+
+        return objectsql;
+    }
+
+    /**
+     *  Check if there is an object with the same for a given user
+     *    @param name of object
+     *    @param ouid of user
+     *
+     *    @return oid of the object if it exists, -1 otherwise
+     */
+    int exist(const std::string& name, int ouid)
+    {
+        return PoolObjectSQL::select_oid(db, table.c_str(), name, ouid);
+    }
+
+    int exist(const std::string& name)
+    {
+        return PoolObjectSQL::select_oid(db, table.c_str(), name, -1);
+    }
+
+    int exist(int oid)
+    {
+        return PoolObjectSQL::exist(db, table.c_str(), oid);
+    }
+
+    void exist(const std::string& id_str, std::set<int>& id_list);
 
     /**
      *  Finds a set objects that satisfies a given condition
@@ -93,9 +153,9 @@ public:
      *   @return 0 on success
      */
     virtual int search(
-        vector<int>&    oids,
-        const char *    table,
-        const string&   where);
+        std::vector<int>&   oids,
+        const char *        table,
+        const std::string&  where);
 
     /**
      *  List the objects in the pool
@@ -105,8 +165,8 @@ public:
      *   @return 0 on success
      */
     int list(
-        vector<int>&    oids,
-        const char *    table)
+        std::vector<int>&   oids,
+        const char *        table)
     {
         return search(oids, table, "");
     }
@@ -121,16 +181,7 @@ public:
     virtual int update(
         PoolObjectSQL * objsql)
     {
-        int rc;
-
-        rc = objsql->update(db);
-
-        if ( rc == 0 )
-        {
-            do_hooks(objsql, Hook::UPDATE);
-        }
-
-        return rc;
+        return objsql->update(db);;
     };
 
     /**
@@ -140,39 +191,31 @@ public:
      *    @param error_msg Error reason, if any
      *    @return 0 on success, -1 DB error
      */
-    virtual int drop(PoolObjectSQL * objsql, string& error_msg)
+    virtual int drop(PoolObjectSQL * objsql, std::string& error_msg)
     {
-        int rc = objsql->drop(db);
+        int rc  = objsql->drop(db);
 
         if ( rc != 0 )
         {
             error_msg = "SQL DB error";
             return -1;
         }
-        else
-        {
-            do_hooks(objsql, Hook::REMOVE);
-        }
 
         return 0;
     };
-
-    /**
-     *  Removes all the elements from the pool
-     */
-    void clean();
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the
      *  query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss, const string& where)
+    int dump(std::string& oss, const std::string& where, bool desc)
     {
-        return dump(oss, where, "");
+        return dump(oss, where, 0, -1, desc);
     }
 
     /**
@@ -180,13 +223,35 @@ public:
      *  to the query
      *  @param oss the output stream to dump the pool contents
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
+    virtual int dump(std::string& oss, const std::string& where,
+                     int sid, int eid,
+                     bool desc) = 0;
 
-    virtual int dump(ostringstream& oss, const string& where,
-                     const string& limit) = 0;
+    /**
+     *  Dumps the pool in extended XML format
+     *  A filter and limit can be also added to the query
+     *  @param oss the output stream to dump the pool contents
+     *  @param where filter for the objects, defaults to all
+     *  @param sid first element used for pagination
+     *  @param eid last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
+     *
+     *  @return 0 on success
+     */
+    virtual int dump_extended(std::string& oss,
+                      const std::string& where,
+                      int sid,
+                      int eid,
+                      bool desc)
+    {
+        return dump(oss, where, sid, eid, desc);
+    }
 
     // -------------------------------------------------------------------------
     // Function to generate dump filters
@@ -206,13 +271,13 @@ public:
      *
      */
     static void acl_filter(int                       uid,
-                           const set<int>&           user_groups,
+                           const std::set<int>&      user_groups,
                            PoolObjectSQL::ObjectType auth_object,
                            bool&                     all,
                            bool                      disable_all_acl,
                            bool                      disable_cluster_acl,
                            bool                      disable_group_acl,
-                           string&                   filter);
+                           std::string&              filter);
     /**
      *  Creates a filter for the objects owned by a given user/group
      *    @param uid the user id
@@ -222,45 +287,96 @@ public:
      *    @param all user can access all objects
      *    @param filter the resulting filter string
      */
-    static void usr_filter(int              uid,
-                           int              gid,
-                           const set<int>&  user_groups,
-                           int              filter_flag,
-                           bool             all,
-                           const string&    acl_str,
-                           string&          filter);
+    static void usr_filter(int                  uid,
+                           int                  gid,
+                           const std::set<int>& user_groups,
+                           int                  filter_flag,
+                           bool                 all,
+                           const std::string&   acl_str,
+                           std::string&         filter);
     /**
      *  Creates a filter for a given set of objects based on their id
      *    @param start_id first id
      *    @param end_id last id
      *    @param filter the resulting filter string
      */
-    static void oid_filter(int     start_id,
-                           int     end_id,
-                           string& filter);
+    static void oid_filter(int          start_id,
+                           int          end_id,
+                           std::string& filter);
+
+    /**
+     *  This function returns a legal SQL string that can be used in an SQL
+     *  statement. The string is encoded to an escaped SQL string, taking into
+     *  account the current character set of the connection.
+     *    @param str the string to be escaped
+     *    @return a valid SQL string or NULL in case of failure
+     */
+    char * escape_str(const std::string& str)
+    {
+        return db->escape_str(str);
+    }
+
+    /**
+     *  Frees a previously scaped string
+     *    @param str pointer to the str
+     */
+    void free_str(char * str)
+    {
+        db->free_str(str);
+    }
+
+    /**
+     * Return true if feature is supported
+     */
+     bool supports(SqlDB::SqlFeature ft)
+     {
+         return db->supports(ft);
+     }
+
 protected:
 
     /**
-     *  Register on "CREATE" and on "REMOVE" hooks for the pool. The hooks are
-     *  meant to be executed locally by the generic AllocateHook and RemoveHook
-     *  classes.
-     *    @param hook_mads, array of HOOKs to be installed
-     *    @param remotes_location, path to remotes in the front-end where the
-     *    hooks are installed
-     */
-    void register_hooks(vector<const VectorAttribute *> hook_mads,
-                        const string&                   remotes_location);
-
-    /**
      *  Gets an object from the pool (if needed the object is loaded from the
-     *  database).
+     *  database). The object is locked, other threads can't access the same
+     *  object. The lock is released by destructor.
      *   @param name of the object
      *   @param uid id of owner
-     *   @param lock locks the object if true
      *
      *   @return a pointer to the object, 0 in case of failure
      */
-    PoolObjectSQL * get(const string& name, int uid, bool lock);
+    template<typename T>
+    std::unique_ptr<T> get(const std::string& name, int uid)
+    {
+        int oid = PoolObjectSQL::select_oid(db, table.c_str(), name, uid);
+
+        if ( oid == -1 )
+        {
+            return nullptr;
+        }
+
+        return get<T>(oid);
+    }
+
+    /**
+     *  Gets a read only object from the pool (if needed the object is loaded from the
+     *  database).
+     *   @param name of the object
+     *   @param uid id of owner
+     *
+     *   @return a pointer to the object, 0 in case of failure
+     */
+    template<typename T>
+    std::unique_ptr<T> get_ro(const std::string& name, int uid)
+    {
+        int oid = PoolObjectSQL::select_oid(db, table.c_str(), name, uid);
+
+        if ( oid == -1 )
+        {
+            return nullptr;
+        }
+
+        return get_ro<T>(oid);
+    }
 
     /**
      *  Pointer to the database.
@@ -274,15 +390,20 @@ protected:
      *  @param elem_name Name of the root xml pool name
      *  @param table Pool table name
      *  @param where filter for the objects, defaults to all
-     *  @param limit parameters used for pagination
+     *  @param start_id first element used for pagination
+     *  @param end_id last element used for pagination, -1 to disable
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss,
-             const string&  elem_name,
-             const char *   table,
-             const string&  where,
-             const string&  limit);
+    int dump(std::string&       oss,
+             const std::string& elem_name,
+             const std::string& column,
+             const char *       table,
+             const std::string& where,
+             int                start_id,
+             int                end_id,
+             bool               desc);
 
     /**
      *  Dumps the pool in XML format. A filter can be also added to the
@@ -291,15 +412,17 @@ protected:
      *  @param elem_name Name of the root xml pool name
      *  @param table Pool table name
      *  @param where filter for the objects, defaults to all
+     *  @param desc descending order of pool elements
      *
      *  @return 0 on success
      */
-    int dump(ostringstream& oss,
-             const string&  elem_name,
-             const char *   table,
-             const string&  where)
+    int dump(std::string&       oss,
+             const std::string& elem_name,
+             const char *       table,
+             const std::string& where,
+             bool               desc)
     {
-        return dump(oss, elem_name, table, where, "");
+        return dump(oss, elem_name, "body", table, where, 0, -1, desc);
     }
 
     /**
@@ -311,17 +434,9 @@ protected:
      *
      *   @return 0 on success
      */
-    int dump(ostringstream&  oss,
-             const string&   root_elem_name,
-             ostringstream&  sql_query);
-
-    /**
-     * Child classes can add extra elements to the dump xml, right after all the
-     * pool objects
-     *
-     * @param oss The output stream to dump the xml contents
-     */
-    virtual void add_extra_xml(ostringstream&  oss){};
+    int dump(std::string&        oss,
+             const std::string&  root_elem_name,
+             std::ostringstream& sql_query);
 
     /* ---------------------------------------------------------------------- */
     /* Interface to access the lastOID assigned by the pool                   */
@@ -340,18 +455,18 @@ protected:
 
 private:
 
-    pthread_mutex_t mutex;
+    std::mutex _mutex;
 
     /**
      *  Tablename for this pool
      */
-    string table;
+    std::string table;
 
     /**
-     *  The pool is implemented with a Map of SQL object pointers, using the
-     *  OID as key.
+     *  The pool cache is implemented with a Map of SQL object pointers,
+     *  using the OID as key.
      */
-    vector<PoolObjectSQL *> pool;
+    PoolSQLCache cache;
 
     /**
      *  Factory method, must return an ObjectSQL pointer to an allocated pool
@@ -359,70 +474,6 @@ private:
      */
     virtual PoolObjectSQL * create() = 0;
 
-    /**
-     *  Function to lock the pool
-     */
-    void lock()
-    {
-        pthread_mutex_lock(&mutex);
-    };
-
-    /**
-     *  Function to unlock the pool
-     */
-    void unlock()
-    {
-        pthread_mutex_unlock(&mutex);
-    };
-
-    /**
-     * Cleans all the objects in the cache, except the ones locked.
-     * The object with the given oid will not be ignored if locked, the
-     * method will wait for it to be unlocked and ensure it is erased from
-     * the cache
-     *
-     * @param oid
-     */
-    void flush_cache(int oid);
-
-    /**
-     * Same as flush_cache(int), but with the object name-uid key
-     *
-     * @param name_key
-     */
-    void flush_cache(const string& name_key);
-
-    /**
-     *  Generate an index key for the object
-     *    @param name of the object
-     *    @param uid owner of the object, only used if needed
-     *
-     *    @return the key, a string
-     */
-    virtual string key(const string& name, int uid)
-    {
-        ostringstream key;
-
-        key << name << ':' << uid;
-
-        return key.str();
-    };
-
-    /* ---------------------------------------------------------------------- */
-    /* ---------------------------------------------------------------------- */
-    /**
-     *  Callback to store the IDs of pool objects (PoolSQL::search)
-     */
-    int  search_cb(void *_oids, int num, char **values, char **names);
-
-    /**
-     *  Callback function to get output in XML format
-     *    @param num the number of columns read from the DB
-     *    @param names the column names
-     *    @param vaues the column values
-     *    @return 0 on success
-     */
-    int dump_cb(void * _oss, int num, char **values, char **names);
 };
 
 #endif /*POOL_SQL_H_*/

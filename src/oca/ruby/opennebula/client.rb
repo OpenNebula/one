@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -43,7 +43,7 @@ module OpenNebula
                     Ox.sax_parse(self, StringIO.new(str),
                         :symbolize => false,
                         :convert_special => true,
-                        :skip => false)
+                        :skip => :skip_none)
                 end
             end
         end
@@ -69,7 +69,7 @@ module OpenNebula
         end
     end
 
-    DEFAULT_POOL_PAGE_SIZE = 2000
+    DEFAULT_POOL_PAGE_SIZE = 200
 
     if size=ENV['ONE_POOL_PAGE_SIZE']
         if size.strip.match(/^\d+$/) && size.to_i >= 2
@@ -153,7 +153,11 @@ module OpenNebula
             @async = !options[:sync]
 
             timeout=nil
-            timeout=options[:timeout] if options[:timeout]
+            if options[:timeout]
+                timeout = options[:timeout]
+            elsif ENV['ONE_XMLRPC_TIMEOUT']
+                timeout = ENV['ONE_XMLRPC_TIMEOUT'].to_i
+            end
 
             http_proxy=nil
             http_proxy=options[:http_proxy] if options[:http_proxy]

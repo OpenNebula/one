@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,17 +16,17 @@
 
 #include "VirtualMachineAttribute.h"
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 VirtualMachineAttribute * VirtualMachineAttributeSet::get_attribute(
         const string& flag) const
 {
-    std::map<int, ExtendedAttribute*>::const_iterator it;
-
     VirtualMachineAttribute * vma;
 
-    for( it = a_set.begin(); it != a_set.end(); ++it)
+    for (auto it = a_set.begin(); it != a_set.end(); ++it)
     {
         vma = static_cast<VirtualMachineAttribute *>(it->second);
 
@@ -62,19 +62,18 @@ int VirtualMachineAttributeSet::set_flag(int a_id, const string& flag_name)
 VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
         const string& flag)
 {
-    std::map<int, ExtendedAttribute*>::const_iterator it;
-
     VirtualMachineAttribute * vma;
     VirtualMachineAttribute * tmp = 0;
 
-    for( it = a_set.begin(); it != a_set.end(); ++it)
+    for (auto it = a_set.begin(); it != a_set.end(); ++it)
     {
         vma = static_cast<VirtualMachineAttribute *>(it->second);
 
         if ( vma->is_flag(flag) == true )
         {
-            tmp = vma;
             a_set.erase(it);
+
+            return vma;
         }
     }
 
@@ -87,11 +86,9 @@ VirtualMachineAttribute * VirtualMachineAttributeSet::remove_attribute(
 VirtualMachineAttribute * VirtualMachineAttributeSet::clear_flag(
         const string& flag)
 {
-    std::map<int, ExtendedAttribute *>::iterator it;
-
     VirtualMachineAttribute * vma;
 
-    for( it = a_set.begin(); it != a_set.end(); ++it)
+    for (auto it = a_set.begin(); it != a_set.end(); ++it)
     {
         vma = static_cast<VirtualMachineAttribute *>(it->second);
 

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project (OpenNebula.org), C12G Labs        #
+# Copyright 2002-2020, OpenNebula Project (OpenNebula.org), C12G Labs        #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -27,7 +27,7 @@ module RemoteCloudAuth
 
     def do_auth(env, params={})
         # For Kerberos, the web service should be set to include the remote_user in the environment.
-        remote_user   = env['REMOTE_USER']
+        remote_user   = env['REMOTE_USER'] || env['HTTP_X_AUTH_USERNAME']
         remote_user   = nil if remote_user == '(null)'
 
         # Use the https credentials for authentication

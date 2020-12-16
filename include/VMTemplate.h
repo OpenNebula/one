@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -30,12 +30,14 @@ class VMTemplate : public PoolObjectSQL
 {
 public:
 
+    virtual ~VMTemplate() = default;
+
     /**
      * Function to print the VMTemplate object into a string in XML format
      *  @param xml the resulting XML string
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml) const;
+    std::string& to_xml(std::string& xml) const override;
 
 
     /**
@@ -46,7 +48,7 @@ public:
      *  not altered
      *  @return a reference to the generated string
      */
-    string& to_xml(string& xml, const Template* tmpl) const;
+    std::string& to_xml(std::string& xml, const Template* tmpl) const;
 
     // ------------------------------------------------------------------------
     // Template Contents
@@ -55,37 +57,35 @@ public:
     /**
      *  Factory method for virtual machine templates
      */
-    Template * get_new_template() const
+    std::unique_ptr<Template> get_new_template() const override
     {
-        return new VirtualMachineTemplate;
+        return std::make_unique<VirtualMachineTemplate>();
     }
 
     /**
      *  Returns a copy of the VirtualMachineTemplate
      *    @return A copy of the VirtualMachineTemplate
      */
-    VirtualMachineTemplate * clone_template() const
+    std::unique_ptr<VirtualMachineTemplate> clone_template() const
     {
-        return new VirtualMachineTemplate(
-                *(static_cast<VirtualMachineTemplate *>(obj_template)));
-    };
+        return std::make_unique<VirtualMachineTemplate>(*obj_template);
+    }
 
     /**
      * Returns a copy of the DISK attributes of this template, the attributes
-	 * are copied and must be freed by the calling function.
-	 *   @param a vector to store the disks.
+     * are copied and must be freed by the calling function.
+     *   @param a vector to store the disks.
      */
-    void clone_disks(vector<VectorAttribute *>& disks)
+    void clone_disks(std::vector<VectorAttribute *>& disks)
     {
-		vector<const VectorAttribute *> _disks;
+        std::vector<const VectorAttribute *> _disks;
 
-		obj_template->get("DISK", _disks);
+        obj_template->get("DISK", _disks);
 
-		for (vector<const VectorAttribute *>::const_iterator i = _disks.begin();
-				i != _disks.end() ; ++i)
-		{
-			disks.push_back(new VectorAttribute(*i));
-		}
+        for (auto disk : _disks)
+        {
+            disks.push_back(new VectorAttribute(disk));
+        }
     }
 
     /**
@@ -95,7 +95,7 @@ public:
      *   @param disks a vector with the new disks
      *
      */
-    void replace_disks(vector<VectorAttribute *>& disks)
+    void replace_disks(std::vector<VectorAttribute *>& disks)
     {
         obj_template->erase("DISK");
 
@@ -139,25 +139,20 @@ private:
      *    @param error_str Returns the error reason, if any
      *    @return 0 one success
      */
-    int insert_replace(SqlDB *db, bool replace, string& error_str);
+    int insert_replace(SqlDB *db, bool replace, std::string& error_str);
 
     /**
      *  Execute this method after update the template.
      *    @param error Returns the error reason, if any
      *    @return 0 one success
      */
-    int post_update_template(string& error);
+    int post_update_template(std::string& error) override;
 
     /**
      *  Bootstraps the database table(s) associated to the VMTemplate
      *    @return 0 on success
      */
-    static int bootstrap(SqlDB * db)
-    {
-        ostringstream oss(VMTemplate::db_bootstrap);
-
-        return db->exec_local_wr(oss);
-    };
+    static int bootstrap(SqlDB * db);
 
     /**
      *  Rebuilds the object from an xml formatted string
@@ -165,12 +160,12 @@ private:
      *
      *    @return 0 on success, -1 otherwise
      */
-    int from_xml(const string &xml_str);
+    int from_xml(const std::string &xml_str) override;
 
     /**
      *  This method removes sched_action DONE/MESSAGE attributes
      */
-    void parse_sched_action();
+    int parse_sched_action(std::string& error_str);
 
 protected:
 
@@ -180,22 +175,14 @@ protected:
     VMTemplate(int id,
                int uid,
                int gid,
-               const string& uname,
-               const string& gname,
+               const std::string& uname,
+               const std::string& gname,
                int umask,
-               VirtualMachineTemplate * _template_contents);
-
-    ~VMTemplate();
+               std::unique_ptr<Template> _template_contents);
 
     // *************************************************************************
     // DataBase implementation
     // *************************************************************************
-
-    static const char * db_names;
-
-    static const char * db_bootstrap;
-
-    static const char * table;
 
     /**
      *  Writes the VMTemplate in the database.
@@ -203,16 +190,16 @@ protected:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int insert(SqlDB *db, string& error_str);
+    int insert(SqlDB *db, std::string& error_str) override;
 
     /**
      *  Writes/updates the VMTemplate data fields in the database.
      *    @param db pointer to the db
      *    @return 0 on success
      */
-    int update(SqlDB *db)
+    int update(SqlDB *db) override
     {
-        string err;
+        std::string err;
         return insert_replace(db, true, err);
     };
 };

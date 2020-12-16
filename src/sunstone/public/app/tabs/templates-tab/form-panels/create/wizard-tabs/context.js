@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -55,7 +55,7 @@ define(function(require) {
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = 'fa-folder';
     this.title = Locale.tr("Context");
-    this.classes = "hypervisor only_kvm only_vcenter";
+    this.classes = "hypervisor";
 
     this.contextFilesTable = new FilesTable('ContextTable' + UniqueId.id(), {
       'select': true,
@@ -80,6 +80,7 @@ define(function(require) {
    */
 
   function _html() {
+    CustomTagsTable.reset();
     return TemplateHTML({
       'uniqueId': UniqueId.id(),
       'userInputsHTML': UserInputs.html(),
@@ -151,7 +152,8 @@ define(function(require) {
     });
 
     UserInputs.setup(context);
-    CustomTagsTable.setup(context);
+    CustomTagsTable.reset();
+    CustomTagsTable.setup(context, true);
 
     var selectOptions = {
       'selectOptions': {
@@ -232,7 +234,7 @@ define(function(require) {
       var start_script = WizardFields.retrieveInput($(".START_SCRIPT", context));
       if (start_script != "") {
         if ($(".ENCODE_START_SCRIPT", context).is(":checked")) {
-          contextJSON["START_SCRIPT_BASE64"] = btoa($(".START_SCRIPT", context).val());
+          contextJSON["START_SCRIPT_BASE64"] = btoa(unescape(encodeURIComponent($(".START_SCRIPT", context).val())));
         } else {
           contextJSON["START_SCRIPT"] = start_script;
         }
@@ -341,7 +343,7 @@ define(function(require) {
 
         } else if ("START_SCRIPT_BASE64" == key) {
           $(".ENCODE_START_SCRIPT", context).prop('checked', 'checked');
-          $(".START_SCRIPT", context).val(atob(value));
+          $(".START_SCRIPT", context).val(decodeURIComponent(escape(window.atob(value))));
         } else if ("START_SCRIPT" ==  key) {
           WizardFields.fillInput($(".START_SCRIPT", context), value);
         } else {
@@ -366,7 +368,7 @@ define(function(require) {
             id: fileId
           },
           success: function(request, obj_file){
-            req_string.push("$FILE[IMAGE=" + '"' + obj_file.IMAGE.NAME + '"' + ", IMAGE_UNAME=" + obj_file.IMAGE.UNAME + "]");
+            req_string.push("$FILE[IMAGE=" + '"' + obj_file.IMAGE.NAME + '"' + ", IMAGE_UNAME=" + '"' + obj_file.IMAGE.UNAME + '"]');
             $('.FILES_DS', context).val(req_string.join(" "));
           }
         });

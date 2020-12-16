@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -30,7 +30,8 @@ module OpenNebula
             :rename         => "zone.rename",
             :delete         => "zone.delete",
             :addserver      => "zone.addserver",
-            :delserver      => "zone.delserver"
+            :delserver      => "zone.delserver",
+            :resetserver    => "zone.resetserver"
         }
 
         # Creates a Zone description with just its identifier
@@ -66,7 +67,48 @@ module OpenNebula
             super(ZONE_METHODS[:info], 'ZONE')
         end
 
+        # Retrieves the information extended of the given Zone.
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def info_extended()
+            rc = info()
+
+            return rc if OpenNebula.is_error?(rc)
+
+            @xml.xpath("SERVER_POOL/SERVER").each do |server|
+                endpoint = server.xpath("ENDPOINT")
+                endpoint = endpoint.text if endpoint
+
+                next if endpoint.nil?
+
+                client = OpenNebula::Client.new(nil, endpoint, {:timeout => 5})
+
+                xml = client.call("zone.raftstatus")
+
+                if OpenNebula.is_error?(xml)
+                    add_element(server, "STATE", "-")
+                    add_element(server, "TERM", "-")
+                    add_element(server, "VOTEDFOR", "-")
+                    add_element(server, "COMMIT", "-")
+                    add_element(server, "LOG_INDEX", "-")
+                    add_element(server, "FEDLOG_INDEX", "-")
+
+                    next
+                end
+
+                xml = Nokogiri::XML(xml)
+
+                add_element_xml(server, xml, "STATE", "RAFT/STATE")
+                add_element_xml(server, xml, "TERM", "RAFT/TERM")
+                add_element_xml(server, xml, "VOTEDFOR", "RAFT/VOTEDFOR")
+                add_element_xml(server, xml, "COMMIT", "RAFT/COMMIT")
+                add_element_xml(server, xml, "LOG_INDEX", "RAFT/LOG_INDEX")
+                add_element_xml(server, xml, "FEDLOG_INDEX","RAFT/FEDLOG_INDEX")
+            end
+        end
+
         alias_method :info!, :info
+        alias_method :info_extended!, :info_extended
 
         # Allocates a new Zone in OpenNebula
         #
@@ -125,6 +167,41 @@ module OpenNebula
         #   otherwise
         def delete_servers(server_id)
             return call(ZONE_METHODS[:delserver], @pe_id, server_id)
+        end
+
+        # Reset index for a follower
+        #
+        # @param id [Int] Server ID
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def reset_server(server_id)
+            return call(ZONE_METHODS[:resetserver], @pe_id, server_id)
+        end
+
+        private
+
+        # These methods adds elements to the given node of the zone
+        def add_element(parent, key, value)
+            elem = Nokogiri::XML::Node.new(key, @xml.document)
+            elem.content = value
+
+            parent.add_child(elem)
+        end
+
+        def add_element_xml(parent, doc, key, xpath)
+            value = doc.at_xpath(xpath)
+
+            if value
+                value = value.text
+            else
+                value = "-"
+            end
+
+            elem = Nokogiri::XML::Node.new(key, @xml.document)
+            elem.content = value
+
+            parent.add_child(elem)
         end
     end
 end

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -16,40 +16,39 @@
 <!--
  Default configuration attributes for the Azure driver
  (all domains will use these values as defaults)
- Valid attributes are: INSTANCE_TYPE, IMAGE, VM_USER, VM_PASSWORD, LOCATION,
- STORAGE_ACCOUNT, WIN_RM, CLOUD_SERVICE, TCP_ENDPOINTS, SSHPORT, AFFINITY_GROUP,
- VIRTUAL_NETWORK_NAME, SUBNET and AVAILABILITY_SET
+ Valid attributes are: LOCATION, INSTANCE_TYPE, IMAGE_PUBLISHER, IMAGE_OFFER,
+ IMAGE_SKU, IMAGE_VERSION, VM_USER, VM_PASSWORD, VIRTUAL_NETWORK_NAME,
+ PUBLIC_IP, VNET_NAME, VNET_ADDR_PREFIX, VNET_DNS, VNET_SUBNAME,
+ VNET_SUB_PREFIX,
  Use XML syntax to specify defaults, note elements are UPCASE
  Example:
  <TEMPLATE>
    <AZURE>
-     <LOCATION>west-europe</LOCATION>
-     <INSTANCE_TYPE>Small</INSTANCE_TYPE>
-     <CLOUD_SERVICE>MyDefaultCloudService</CLOUD_SERVICE>
-     <IMAGE>0b11de9248dd4d87b18621318e037d37__RightImage-Ubuntu-12.04-x64-v13.4</IMAGE>
-     <VM_USER>MyUser</VM_USER>
-     <VM_PASSWORD>MyPassword</VM_PASSWORD>
-     <STORAGE_ACCOUNT>MyStorageAccountName</STORAGE_ACCOUNT>
-     <WIN_RM>http</WIN_RM>
-     <CLOUD_SERVICE>MyCloudServiceName</CLOUD_SERVICE>
-     <TCP_ENDPOINTS>80,3389:3390</TCP_ENDPOINTS>
-     <SSHPORT>2222</SSHPORT>
-     <AFFINITY_GROUP>MyAffinityGroup</AFFINITY_GROUP>
-     <VIRTUAL_NETWORK_NAME>MyVirtualNetwork</VIRTUAL_NETWORK_NAME>
-     <SUBNET>MySubNet<SUBNET>
-     <AVAILABILITY_SET>MyAvailabilitySetName<AVAILABILITY_SET>
+     # mandatory attributes
+     <LOCATION>westeurope</LOCATION>
+     <INSTANCE_TYPE>Standard_B1ls</INSTANCE_TYPE>
+     <IMAGE_PUBLISHER>canonical</IMAGE_PUBLISHER>
+     <IMAGE_OFFER>UbuntuServer</IMAGE_OFFER>
+     <IMAGE_SKU>18.04.0-LTS</IMAGE_SKU>
+     <IMAGE_VERSION>latest</IMAGE_VERSION>
+     <VM_USER>one</VM_USER>
+     <VM_PASSWORD>Q2ejfz$Cbzf</VM_PASSWORD>
+
+     # optional attributes
+     <VIRTUAL_NETWORK_NAME></VIRTUAL_NETWORK_NAME>
+     <PUBLIC_IP>YES</PUBLIC_IP>
+     <VNET_NAME>one-vnet</VNET_NAME>
+     <VNET_ADDR_PREFIX>10.0.0.0/16</VNET_ADDR_PREFIX>
+     <VNET_DNS>8.8.8.8</VNET_DNS>
+     <VNET_SUBNAME>default</VNET_SUBNAME>
+     <VNET_SUB_PREFIX>10.0.0.0/24</VNET_SUB_PREFIX>
    </AZURE>
  </TEMPLATE>
 -->
 
 <TEMPLATE>
   <AZURE>
-     <LOCATION>west-europe</LOCATION>
-     <INSTANCE_TYPE>Small</INSTANCE_TYPE>
+     <LOCATION>westeurope</LOCATION>
+     <INSTANCE_TYPE>Standard_B1ls</INSTANCE_TYPE>
   </AZURE>
 </TEMPLATE>
-
-
-
-
-

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -15,7 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "Template.h"
+
 #include "template_syntax.h"
+#include "template_parser.h"
+
 #include "NebulaUtil.h"
 
 #include <iostream>
@@ -23,14 +26,14 @@
 #include <cstring>
 #include <cstdio>
 
+using namespace std;
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 Template::~Template()
 {
-    multimap<string,Attribute *>::iterator  it;
-
-    for ( it = attributes.begin(); it != attributes.end(); it++)
+    for ( auto it = attributes.begin(); it != attributes.end(); it++)
     {
         delete it->second;
     }
@@ -39,57 +42,40 @@ Template::~Template()
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-pthread_mutex_t Template::mutex = PTHREAD_MUTEX_INITIALIZER;
-
-extern "C"
-{
-    typedef struct yy_buffer_state * YY_BUFFER_STATE;
-
-    extern FILE *template_in, *template_out;
-
-    int template_parse(Template * tmpl, char ** errmsg);
-
-    int template_lex_destroy();
-
-    YY_BUFFER_STATE template__scan_string(const char * str);
-
-    void template__delete_buffer(YY_BUFFER_STATE);
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
 int Template::parse(const char * filename, char **error_msg)
 {
-    int     rc;
+    int rc;
 
-    pthread_mutex_lock(&mutex);
+    yyscan_t scanner = 0;
+
+    YY_BUFFER_STATE file_buffer = 0;
 
     *error_msg = 0;
 
-    template_in = fopen (filename, "r");
+    FILE * template_in = fopen (filename, "r");
 
     if ( template_in == 0 )
     {
-        goto error_open;
+        *error_msg = strdup("Error opening template file");
+
+        return -1;
     }
 
-    rc = template_parse(this,error_msg);
+    template_lex_init(&scanner);
+
+    file_buffer = template__create_buffer(template_in, YY_BUF_SIZE, scanner);
+
+    template__switch_to_buffer(file_buffer, scanner);
+
+    rc = template_parse(this, error_msg, scanner);
 
     fclose(template_in);
 
-    template_lex_destroy();
+    template__delete_buffer(file_buffer, scanner);
 
-    pthread_mutex_unlock(&mutex);
+    template_lex_destroy(scanner);
 
     return rc;
-
-error_open:
-    *error_msg = strdup("Error opening template file");
-
-    pthread_mutex_unlock(&mutex);
-
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -97,40 +83,34 @@ error_open:
 
 int Template::parse(const string &parse_str, char **error_msg)
 {
-    YY_BUFFER_STATE     str_buffer = 0;
-    const char *        str;
-    int                 rc;
+    const char * str;
+    int rc;
 
-    pthread_mutex_lock(&mutex);
+    YY_BUFFER_STATE str_buffer = 0;
+    yyscan_t scanner = 0;
 
     *error_msg = 0;
 
+    template_lex_init(&scanner);
+
     str = parse_str.c_str();
 
-    str_buffer = template__scan_string(str);
+    str_buffer = template__scan_string(str, scanner);
 
     if (str_buffer == 0)
     {
-        goto error_yy;
+        *error_msg=strdup("Error setting scan buffer");
+
+        return -1;
     }
 
-    rc = template_parse(this,error_msg);
+    rc = template_parse(this, error_msg, scanner);
 
-    template__delete_buffer(str_buffer);
+    template__delete_buffer(str_buffer, scanner);
 
-    template_lex_destroy();
-
-    pthread_mutex_unlock(&mutex);
+    template_lex_destroy(scanner);
 
     return rc;
-
-error_yy:
-
-    *error_msg=strdup("Error setting scan buffer");
-
-    pthread_mutex_unlock(&mutex);
-
-    return -1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -189,21 +169,18 @@ int Template::parse_str_or_xml(const string &parse_str, string& error_msg)
 
 void Template::marshall(string &str, const char delim)
 {
-    multimap<string,Attribute *>::iterator  it;
-    string *                                attr;
+    str = "";
 
-    for(it=attributes.begin(),str="";it!=attributes.end();it++)
+    for(auto it = attributes.begin(); it != attributes.end(); it++)
     {
-        attr = it->second->marshall();
+        string attr = it->second->marshall();
 
-        if ( attr == 0 )
+        if ( attr.empty() )
         {
             continue;
         }
 
-        str += it->first + "=" + *attr + delim;
-
-        delete attr;
+        str += it->first + "=" + attr + delim;
     }
 }
 
@@ -214,13 +191,9 @@ void Template::set(Attribute * attr)
 {
     if ( replace_mode == true )
     {
-        multimap<string, Attribute *>::iterator         i;
-        pair<multimap<string, Attribute *>::iterator,
-        multimap<string, Attribute *>::iterator>        index;
+        auto index = attributes.equal_range(attr->name());
 
-        index = attributes.equal_range(attr->name());
-
-        for ( i = index.first; i != index.second; i++)
+        for ( auto i = index.first; i != index.second; i++)
         {
             delete i->second;
         }
@@ -236,19 +209,13 @@ void Template::set(Attribute * attr)
 
 int Template::replace(const string& name, const string& value)
 {
-    pair<multimap<string, Attribute *>::iterator,
-         multimap<string, Attribute *>::iterator>   index;
-
-    index = attributes.equal_range(name);
+    auto index = attributes.equal_range(name);
 
     if (index.first != index.second )
     {
-        multimap<string, Attribute *>::iterator i;
-
-        for ( i = index.first; i != index.second; i++)
+        for ( auto i = index.first; i != index.second; i++)
         {
-            Attribute * attr = i->second;
-            delete attr;
+            delete i->second;
         }
 
         attributes.erase(index.first, index.second);
@@ -268,19 +235,13 @@ int Template::replace(const string& name, const bool& value)
 {
     string s_val;
 
-    pair<multimap<string, Attribute *>::iterator,
-         multimap<string, Attribute *>::iterator>   index;
-
-    index = attributes.equal_range(name);
+    auto index = attributes.equal_range(name);
 
     if (index.first != index.second )
     {
-        multimap<string, Attribute *>::iterator i;
-
-        for ( i = index.first; i != index.second; i++)
+        for ( auto i = index.first; i != index.second; i++)
         {
-            Attribute * attr = i->second;
-            delete attr;
+            delete i->second;
         }
 
         attributes.erase(index.first, index.second);
@@ -307,25 +268,18 @@ int Template::replace(const string& name, const bool& value)
 
 int Template::erase(const string& name)
 {
-    multimap<string, Attribute *>::iterator         i;
+    int                                             j = 0;
 
-    pair<
-        multimap<string, Attribute *>::iterator,
-        multimap<string, Attribute *>::iterator
-        >                                           index;
-    int                                             j;
-
-    index = attributes.equal_range(name);
+    auto index = attributes.equal_range(name);
 
     if (index.first == index.second )
     {
         return 0;
     }
 
-    for ( i = index.first,j=0 ; i != index.second ; i++,j++ )
+    for ( auto i = index.first; i != index.second; i++,j++ )
     {
-        Attribute * attr = i->second;
-        delete attr;
+        delete i->second;
     }
 
     attributes.erase(index.first,index.second);
@@ -338,16 +292,9 @@ int Template::erase(const string& name)
 
 Attribute * Template::remove(Attribute * att)
 {
-    multimap<string, Attribute *>::iterator         i;
+    auto index = attributes.equal_range( att->name() );
 
-    pair<
-        multimap<string, Attribute *>::iterator,
-        multimap<string, Attribute *>::iterator
-        >                                           index;
-
-    index = attributes.equal_range( att->name() );
-
-    for ( i = index.first; i != index.second; i++ )
+    for ( auto i = index.first; i != index.second; i++ )
     {
         if ( i->second == att )
         {
@@ -408,19 +355,13 @@ bool Template::get(const string& name, bool& value) const
 
 string& Template::to_xml(string& xml) const
 {
-    multimap<string,Attribute *>::const_iterator  it;
-    ostringstream                           oss;
-    string *                                s;
+    ostringstream oss;
 
     oss << "<" << xml_root << ">";
 
-    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
     {
-        s = it->second->to_xml();
-
-        oss << *s;
-
-        delete s;
+        it->second->to_xml(oss);
     }
 
     oss << "</" << xml_root << ">";
@@ -429,22 +370,91 @@ string& Template::to_xml(string& xml) const
 
     return xml;
 }
+
+string& Template::to_json(string& json) const
+{
+    ostringstream oss;
+
+    bool is_first = true;
+
+    oss << "\"" << xml_root << "\": {";
+
+    for ( auto it = attributes.begin(); it!=attributes.end(); )
+    {
+        if (!is_first)
+        {
+            oss << ",";
+        }
+        else
+        {
+            is_first = false;
+        }
+
+        oss << "\"" << it->first << "\": ";
+
+        if ( attributes.count(it->first) == 1 )
+        {
+            it->second->to_json(oss);
+
+            ++it;
+        }
+        else
+        {
+            std::string jelem = it->first;
+            bool is_array_first = true;
+
+            oss << "[ ";
+
+            for ( ; it->first == jelem && it != attributes.end() ; ++it )
+            {
+                if ( !is_array_first )
+                {
+                    oss << ",";
+                }
+                else
+                {
+                    is_array_first = false;
+                }
+
+                it->second->to_json(oss);
+            }
+
+            oss << "]";
+        }
+    }
+
+    oss << "}";
+
+    json = oss.str();
+
+    return json;
+}
+
+string& Template::to_token(string& str) const
+{
+    ostringstream os;
+
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
+    {
+        it->second->to_token(os);
+    }
+
+    str = os.str();
+    return str;
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 string& Template::to_str(string& str) const
 {
     ostringstream os;
-    multimap<string,Attribute *>::const_iterator  it;
-    string *                                s;
 
-    for ( it = attributes.begin(); it!=attributes.end(); it++)
+    for ( auto it = attributes.begin(); it!=attributes.end(); it++)
     {
-        s = it->second->marshall(",");
+        string s = it->second->marshall(",");
 
-        os << it->first << separator << *s << endl;
-
-        delete s;
+        os << it->first << separator << s << endl;
     }
 
     str = os.str();
@@ -627,9 +637,7 @@ void Template::clear()
         return;
     }
 
-    multimap<string,Attribute *>::iterator it;
-
-    for ( it = attributes.begin(); it != attributes.end(); it++)
+    for ( auto it = attributes.begin(); it != attributes.end(); it++)
     {
         delete it->second;
     }
@@ -646,30 +654,38 @@ void Template::clear()
 
 void Template::merge(const Template * from)
 {
-    multimap<string, Attribute *>::const_iterator it, jt;
-
-    for (it = from->attributes.begin(); it != from->attributes.end(); ++it)
+    for (auto it = from->attributes.begin(); it != from->attributes.end(); ++it)
     {
         erase(it->first);
     }
 
-    for (it = from->attributes.begin(); it != from->attributes.end(); ++it)
+    for (auto it = from->attributes.begin(); it != from->attributes.end(); ++it)
     {
-        set(it->second->clone());
+        if ( it->second->type() == Attribute::VECTOR )
+        {
+            VectorAttribute * va = static_cast<VectorAttribute *>(it->second);
+
+            if (!va->value().empty())
+            {
+                set(it->second->clone());
+            }
+        }
+        else //Attribute::SINGLE
+        {
+            set(it->second->clone());
+        }
     }
 }
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
-void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
-        std::map<std::string, std::set<std::string> >& ras_m)
+static void parse_attributes(const vector<const SingleAttribute *>& as,
+        std::map<std::string, std::set<std::string> >& as_m)
 {
-    vector<const SingleAttribute *>::const_iterator it;
-
-    for (it = ras.begin(); it != ras.end(); ++it)
+    for (auto attr : as)
     {
-        string va  = (*it)->value();
+        string va  = attr->value();
         size_t pos = va.find("/");
 
         if (pos != string::npos) //Vector Attribute
@@ -677,17 +693,15 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
             string avector = va.substr(0,pos);
             string vattr   = va.substr(pos+1);
 
-            map<std::string, std::set<string> >::iterator jt;
+            auto jt = as_m.find(avector);
 
-            jt = ras_m.find(avector);
-
-            if ( jt == ras_m.end() )
+            if ( jt == as_m.end() )
             {
                 std::set<std::string> aset;
 
                 aset.insert(vattr);
 
-                ras_m.insert(make_pair(avector, aset));
+                as_m.insert(make_pair(avector, aset));
             }
             else
             {
@@ -698,7 +712,7 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
         {
             std::set<std::string> eset;
 
-            ras_m.insert(make_pair(va, eset));
+            as_m.insert(make_pair(va, eset));
         }
     }
 }
@@ -706,45 +720,64 @@ void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static void restricted_values(const string& vname, const set<string>& vsubs,
+void Template::parse_restricted(const vector<const SingleAttribute *>& ras,
+    std::map<std::string, std::set<std::string> >& rattr_m)
+{
+    parse_attributes(ras, rattr_m);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::parse_encrypted(const vector<const SingleAttribute *>& eas,
+    std::map<std::string, std::set<std::string> >& eattr_m)
+{
+    parse_attributes(eas, eattr_m);
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+static bool restricted_values(const string& vname, const set<string>& vsubs,
         const Template* tmpl, vector<string>& rstrings)
 {
     string value;
+    bool exists;
 
-    vector<const VectorAttribute *>::const_iterator va_it;
     vector<const VectorAttribute *> va;
 
-    tmpl->get(vname, va);
+    exists = tmpl->get(vname, va);
 
-    for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
+    for ( auto vattr : va )
     {
-        for (set<string>::iterator jt = vsubs.begin(); jt != vsubs.end(); ++jt)
+        for (const auto& sub : vsubs)
         {
-            if ( (*va_it)->vector_value(*jt, value) == 0 )
+            if ( vattr->vector_value(sub, value) == 0 )
             {
-                rstrings.push_back(*jt + value);
+                rstrings.push_back(sub + value);
             }
         }
     }
 
     sort(rstrings.begin(), rstrings.end());
+
+    return exists;
 }
 
 bool Template::check_restricted(string& ra, const Template* base,
         const std::map<std::string, std::set<std::string> >& ras)
 {
-    std::map<std::string, std::set<std::string> >::const_iterator rit;
-
-    for ( rit = ras.begin(); rit != ras.end(); ++rit )
+    for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {
         if (!(rit->second).empty())
         {
             vector<string> rvalues, rvalues_base;
+            bool has_restricted;
 
-            restricted_values(rit->first, rit->second, this, rvalues);
+            has_restricted = restricted_values(rit->first, rit->second, this, rvalues);
             restricted_values(rit->first, rit->second, base, rvalues_base);
 
-            if ( rvalues != rvalues_base )
+            if ( rvalues != rvalues_base && has_restricted)
             {
                 ra = rit->first;
                 return true;
@@ -752,10 +785,17 @@ bool Template::check_restricted(string& ra, const Template* base,
         }
         else
         {
+            // +---------+--------+--------------------+
+            // | current | base   | outcome            |
+            // +---------+--------+--------------------+
+            // |  YES    | YES/NO | Error if different |
+            // |  NO     | YES    | Add to current     |
+            // |  NO     | NO     | Nop                |
+            // +---------+--------+--------------------+
+            string ra_b;
+
             if ( get(rit->first, ra) )
             {
-                string ra_b;
-
                 base->get(rit->first, ra_b);
 
                 if ( ra_b != ra )
@@ -763,6 +803,10 @@ bool Template::check_restricted(string& ra, const Template* base,
                     ra = rit->first;
                     return true;
                 }
+            }
+            else if ( base->get(rit->first, ra_b) )
+            {
+                add(rit->first, ra_b);
             }
         }
     }
@@ -776,9 +820,7 @@ bool Template::check_restricted(string& ra, const Template* base,
 bool Template::check_restricted(string& ra,
         const std::map<std::string, std::set<std::string> >& ras)
 {
-    std::map<std::string, std::set<std::string> >::const_iterator rit;
-
-    for ( rit = ras.begin(); rit != ras.end(); ++rit )
+    for ( auto rit = ras.begin(); rit != ras.end(); ++rit )
     {
         const std::set<std::string>& sub = rit->second;
 
@@ -786,19 +828,17 @@ bool Template::check_restricted(string& ra,
         {
             // -----------------------------------------------------------------
             // -----------------------------------------------------------------
-            std::set<std::string>::iterator jt;
-            std::vector<VectorAttribute *>::iterator va_it;
-
             std::vector<VectorAttribute *> va;
 
             get(rit->first, va);
 
-            for ( va_it = va.begin(); va_it != va.end() ; ++va_it )
+            for ( auto vattr : va )
             {
-                for ( jt = sub.begin(); jt != sub.end(); ++jt )
+                for ( const auto& s : sub )
                 {
-                    if ( (*va_it)->vector_value(*jt, ra) == 0 )
+                    if ( vattr->vector_value(s, ra) == 0 )
                     {
+                        ra = s;
                         return true;
                     }
                 }
@@ -806,9 +846,86 @@ bool Template::check_restricted(string& ra,
         }
         else if ( get(rit->first, ra) ) //Single Attribute
         {
+            ra = rit->first;
             return true;
         }
     }
 
     return false;
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::encrypt(const std::string& one_key,
+                       const std::map<std::string, std::set<std::string> >& eas)
+{
+    for (const auto& eit : eas )
+    {
+        const std::set<std::string>& sub = eit.second;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            vector<VectorAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            if (vatt.empty())
+            {
+                continue;
+            }
+
+            for ( const auto& vattit : vatt )
+            {
+                vattit->encrypt(one_key, sub);
+            }
+        }
+        else
+        {
+            vector<SingleAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            for ( const auto& attit : vatt )
+            {
+                attit->encrypt(one_key, sub);
+            }
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Template::decrypt(const std::string& one_key,
+                       const std::map<std::string, std::set<std::string> >& eas)
+{
+    for ( const auto& eit : eas )
+    {
+        const std::set<std::string>& sub = eit.second;
+
+        if (!sub.empty()) //Vector Attribute
+        {
+            vector<VectorAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            for ( const auto& vattit : vatt )
+            {
+                vattit->decrypt(one_key, sub);
+
+            }
+        }
+        else
+        {
+            vector<SingleAttribute *> vatt;
+
+            get(eit.first, vatt);
+
+            for ( const auto& attit : vatt )
+            {
+                attit->decrypt(one_key, sub);
+            }
+        }
+    }
 }

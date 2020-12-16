@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -18,6 +18,10 @@
 #include "ReplicaThread.h"
 #include "Nebula.h"
 #include "Client.h"
+#include "ZonePool.h"
+#include "LogDB.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -29,17 +33,7 @@ const time_t FedReplicaManager::xmlrpc_timeout_ms = 10000;
 
 FedReplicaManager::FedReplicaManager(LogDB * d): ReplicaManager(), logdb(d)
 {
-    std::string error;
-
-    pthread_mutex_init(&mutex, 0);
-
-    am.addListener(this);
-
-    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
-    {
-        throw runtime_error(error);
-    }
-};
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -47,9 +41,7 @@ FedReplicaManager::~FedReplicaManager()
 {
     Nebula& nd = Nebula::instance();
 
-    std::map<int, ZoneServers *>::iterator it;
-
-    for ( it = zones.begin() ; it != zones.end() ; ++it )
+    for ( auto it = zones.begin() ; it != zones.end() ; ++it )
     {
         delete it->second;
     }
@@ -60,86 +52,31 @@ FedReplicaManager::~FedReplicaManager()
     {
         stop_replica_threads();
     }
-};
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int FedReplicaManager::apply_log_record(int index, int prev, 
+uint64_t FedReplicaManager::apply_log_record(uint64_t index, uint64_t prev,
         const std::string& sql)
 {
-    int rc;
+    lock_guard<mutex> ul(fed_mutex);
 
-    pthread_mutex_lock(&mutex);
-
-    int last_index = logdb->last_federated();
+    uint64_t last_index = logdb->last_federated();
 
     if ( prev != last_index )
     {
-        rc = last_index;
-
-        pthread_mutex_unlock(&mutex);
-        return rc;
+        return last_index;
     }
 
     std::ostringstream oss(sql);
 
     if ( logdb->exec_federated_wr(oss, index) != 0 )
     {
-        pthread_mutex_unlock(&mutex);
-        return -1;
+        return UINT64_MAX;
     }
 
-    pthread_mutex_unlock(&mutex);
-
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-extern "C" void * frm_loop(void *arg)
-{
-    FedReplicaManager * fedrm;
-
-    if ( arg == 0 )
-    {
-        return 0;
-    }
-
-    fedrm = static_cast<FedReplicaManager *>(arg);
-
-    NebulaLog::log("FRM",Log::INFO,"Federation Replica Manger started.");
-
-    fedrm->am.loop();
-
-    NebulaLog::log("FRM",Log::INFO,"Federation Replica Manger stopped.");
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-int FedReplicaManager::start()
-{
-    int               rc;
-    pthread_attr_t    pattr;
-
-    pthread_attr_init (&pattr);
-    pthread_attr_setdetachstate (&pattr, PTHREAD_CREATE_JOINABLE);
-
-    NebulaLog::log("FRM",Log::INFO,"Starting Federation Replica Manager...");
-
-    rc = pthread_create(&frm_thread, &pattr, frm_loop,(void *) this);
-
-    return rc;
-}
-
-/* -------------------------------------------------------------------------- */
-
-void FedReplicaManager::finalize_action(const ActionRequest& ar)
-{
-    NebulaLog::log("FRM", Log::INFO, "Federation Replica Manager...");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -150,8 +87,6 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
-    vector<int>::iterator it;
-
     int zone_id = nd.get_zone_id();
 
     if ( zpool->list_zones(zone_ids) != 0 )
@@ -159,13 +94,13 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
         return;
     }
 
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
-    int last_index = logdb->last_federated();
+    uint64_t last_index = logdb->last_federated();
 
     zones.clear();
 
-    for (it = zone_ids.begin() ; it != zone_ids.end(); )
+    for (auto it = zone_ids.begin() ; it != zone_ids.end(); )
     {
         if ( *it == zone_id )
         {
@@ -173,19 +108,11 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
         }
         else
         {
-            Zone * zone = zpool->get(*it, true);
-
-            if ( zone == 0 )
-            {
-                it = zone_ids.erase(it);
-            }
-            else
+            if ( auto zone = zpool->get(*it) )
             {
                 std::string zedp;
 
                 zone->get_template_attribute("ENDPOINT", zedp);
-
-                zone->unlock();
 
                 ZoneServers * zs = new ZoneServers(*it, last_index, zedp);
 
@@ -193,10 +120,12 @@ void FedReplicaManager::update_zones(std::vector<int>& zone_ids)
 
                 ++it;
             }
+            else
+            {
+                it = zone_ids.erase(it);
+            }
         }
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -211,18 +140,16 @@ void FedReplicaManager::add_zone(int zone_id)
     Nebula& nd       = Nebula::instance();
     ZonePool * zpool = nd.get_zonepool();
 
-    Zone * zone = zpool->get(zone_id, true);
-
-    if ( zone == 0 )
+    if (auto zone = zpool->get_ro(zone_id))
+    {
+        zone->get_template_attribute("ENDPOINT", zedp);
+    }
+    else
     {
         return;
     }
 
-    zone->get_template_attribute("ENDPOINT", zedp);
-
-    zone->unlock();
-
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
     int last_index = logdb->last_federated();
 
@@ -235,8 +162,6 @@ void FedReplicaManager::add_zone(int zone_id)
     NebulaLog::log("FRM", Log::INFO, oss);
 
     add_replica_thread(zone_id);
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -245,11 +170,9 @@ void FedReplicaManager::delete_zone(int zone_id)
 {
     std::ostringstream oss;
 
-    std::map<int, ZoneServers *>::iterator it;
+    lock_guard<mutex> ul(fed_mutex);
 
-    pthread_mutex_lock(&mutex);
-
-    it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
@@ -265,8 +188,6 @@ void FedReplicaManager::delete_zone(int zone_id)
     NebulaLog::log("FRM", Log::INFO, oss);
 
     delete_replica_thread(zone_id);
-
-    pthread_mutex_unlock(&mutex);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -283,13 +204,12 @@ ReplicaThread * FedReplicaManager::thread_factory(int zone_id)
 int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
         LogDBRecord& lr, std::string& error)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
-    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
-        pthread_mutex_unlock(&mutex);
         return -1;
     }
 
@@ -298,7 +218,7 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
     zedp  = zs->endpoint;
 
     //Initialize next index for the zone
-    if ( zs->next == -1 )
+    if ( zs->next == UINT64_MAX )
     {
         zs->next= logdb->last_federated();
     }
@@ -307,15 +227,27 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
     if ( zs->last == zs->next )
     {
         zs->next = logdb->next_federated(zs->next);
-
-        if ( zs->last == zs->next ) //no new records
-        {
-            pthread_mutex_unlock(&mutex);
-            return -1;
-        }
     }
 
-    int rc = logdb->get_log_record(zs->next, lr);
+    if ( zs->next == UINT64_MAX ) //no new records
+    {
+        return -2;
+    }
+
+    uint64_t prev_index = logdb->previous_federated(zs->next);
+
+    if ( prev_index == UINT64_MAX )
+    {
+        std::ostringstream oss;
+
+        oss << "Missing federation record previous to: " << zs->next;
+
+        error = oss.str();
+
+        return -1;
+    }
+
+    int rc = logdb->get_log_record(zs->next, prev_index, lr);
 
     if ( rc == -1 )
     {
@@ -327,8 +259,6 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
         error = oss.str();
     }
 
-    pthread_mutex_unlock(&mutex);
-
     return rc;
 }
 
@@ -337,13 +267,12 @@ int FedReplicaManager::get_next_record(int zone_id, std::string& zedp,
 
 void FedReplicaManager::replicate_success(int zone_id)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
-    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it == zones.end() )
     {
-        pthread_mutex_unlock(&mutex);
         return;
     }
 
@@ -353,40 +282,36 @@ void FedReplicaManager::replicate_success(int zone_id)
 
     zs->next = logdb->next_federated(zs->next);
 
-    if ( zs->next != -1 )
+    if ( zs->next != UINT64_MAX )
     {
         ReplicaManager::replicate(zone_id);
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 /* -------------------------------------------------------------------------- */
 
-void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
+void FedReplicaManager::replicate_failure(int zone_id, uint64_t last_zone)
 {
-    pthread_mutex_lock(&mutex);
+    lock_guard<mutex> ul(fed_mutex);
 
-    std::map<int, ZoneServers *>::iterator it = zones.find(zone_id);
+    auto it = zones.find(zone_id);
 
     if ( it != zones.end() )
     {
         ZoneServers * zs = it->second;
 
-        if ( last_zone >= 0 )
+        if ( last_zone != UINT64_MAX )
         {
             zs->last = last_zone;
 
             zs->next = logdb->next_federated(zs->last);
         }
 
-        if ( zs->next != -1 )
+        if ( zs->next != UINT64_MAX )
         {
             ReplicaManager::replicate(zone_id);
         }
     }
-
-    pthread_mutex_unlock(&mutex);
 }
 
 
@@ -394,22 +319,24 @@ void FedReplicaManager::replicate_failure(int zone_id, int last_zone)
 /* -------------------------------------------------------------------------- */
 
 int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
-        int& last, std::string& error)
+        uint64_t& last, std::string& error)
 {
     static const std::string replica_method = "one.zone.fedreplicate";
 
-    std::string zedp;
+    std::string zedp, xmlrpc_secret;
 
 	int xml_rc = 0;
 
     LogDBRecord lr;
 
-    if ( get_next_record(zone_id, zedp, lr, error) != 0 )
+    int rc = get_next_record(zone_id, zedp, lr, error);
+
+    if ( rc != 0 )
     {
-        return -1;
+        return rc;
     }
 
-    int prev_index = logdb->previous_federated(lr.index);
+    uint64_t prev_index = logdb->previous_federated(lr.index);
 
     // -------------------------------------------------------------------------
     // Get parameters to call append entries on follower
@@ -417,9 +344,14 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
     xmlrpc_c::value result;
     xmlrpc_c::paramList replica_params;
 
+    if ( Client::read_oneauth(xmlrpc_secret, error) == -1 )
+    {
+        return -1;
+    }
+
     replica_params.add(xmlrpc_c::value_string(xmlrpc_secret));
-    replica_params.add(xmlrpc_c::value_int(lr.index));
-    replica_params.add(xmlrpc_c::value_int(prev_index));
+    replica_params.add(xmlrpc_c::value_i8(lr.index));
+    replica_params.add(xmlrpc_c::value_i8(prev_index));
     replica_params.add(xmlrpc_c::value_string(lr.sql));
 
     // -------------------------------------------------------------------------
@@ -437,12 +369,12 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
         if ( success ) //values[2] = error code (string)
         {
-            last = xmlrpc_c::value_int(values[1]);
+            last = xmlrpc_c::value_i8(values[1]);
         }
         else
         {
             error = xmlrpc_c::value_string(values[1]);
-            last  = xmlrpc_c::value_int(values[3]);
+            last  = xmlrpc_c::value_i8(values[4]);
         }
     }
     else
@@ -459,3 +391,4 @@ int FedReplicaManager::xmlrpc_replicate_log(int zone_id, bool& success,
 
     return xml_rc;
 }
+

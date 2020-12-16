@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -157,7 +157,7 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
                 d["ICMPV6_TYPE"]
             end
 
-            column :NETWORK, "", :left, :donottruncate, :size=>35 do |d|
+            column :NETWORK, "", :left, :adjust, :size=>35 do |d|
                 network = ""
                 if(!d["NETWORK_ID"].nil? && d["NETWORK_ID"] != "")
                     network += "VNet " + d["NETWORK_ID"]
@@ -185,7 +185,7 @@ class OneSecurityGroupHelper < OpenNebulaHelper::OneHelper
                 network
             end
 
-            column :RANGE, "", :left, :donottruncate, :size=>16 do |d|
+            column :RANGE, "", :left, :adjust, :size=>16 do |d|
                 d["RANGE"]
             end
         end.show(rule_list, {})

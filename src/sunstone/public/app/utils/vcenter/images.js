@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,28 +16,31 @@
 
 define(function(require) {
   // Dependencies
-  var Locale = require('utils/locale');
-  var OpenNebulaImage = require('opennebula/image');
-  var OpenNebulaError = require('opennebula/error');
-  var DomDataTable = require('utils/dom-datatable');
-  var Notifier = require('utils/notifier');
-  var UniqueId = require('utils/unique-id');
-  var Humanize = require('utils/humanize');
-  var VCenterCommon = require('./vcenter-common');
+  var Locale = require("utils/locale");
+  var OpenNebulaImage = require("opennebula/image");
+  var OpenNebulaError = require("opennebula/error");
+  var DomDataTable = require("utils/dom-datatable");
+  var Notifier = require("utils/notifier");
+  var UniqueId = require("utils/unique-id");
+  var Humanize = require("utils/humanize");
+  var VCenterCommon = require("./vcenter-common");
 
-  var TemplateHTML = require('hbs!./common/html');
-  var RowTemplate = require('hbs!./images/row');
-  var EmptyFieldsetHTML = require('hbs!./common/empty-fieldset');
-  var FieldsetTableHTML = require('hbs!./common/fieldset-table');
+  var TemplateHTML = require("hbs!./common/html");
+  var RowTemplate = require("hbs!./images/row");
+  var EmptyFieldsetHTML = require("hbs!./common/empty-fieldset");
+  var FieldsetTableHTML = require("hbs!./common/fieldset-table");
+
+  var path = "/vcenter/images";
+  var resource = "Image";
 
   function VCenterImages() {
     return this;
   }
 
   VCenterImages.prototype = {
-    'html': VCenterCommon.html,
-    'insert': _fillVCenterImages,
-    'import': _import
+    "html": VCenterCommon.html,
+    "insert": _fillVCenterImages,
+    "import": _import
   };
   VCenterImages.prototype.constructor = VCenterImages;
 
@@ -48,17 +51,13 @@ define(function(require) {
     the container with them
 
     opts = {
-      datacenter: "Datacenter Name",
-      cluster: "Cluster Name",
-      container: Jquery div to inject the html,
-      vcenter_user: vCenter Username,
-      vcenter_password: vCenter Password,
-      vcenter_host: vCenter Host,
-      vcenter_datastore: vCenter datastore
+      container: JQuery div to inject the html,
+      selectedHost: Host selected for vCenter credentials
+      selectedHost: Datastore selected
     }
    */
   function _fillVCenterImages(opts) {
-    var path = '/vcenter/images/' + opts.vcenter_datastore;
+    this.opts = opts;
 
     var context = $(".vcenter_import", opts.container);
     context.html(TemplateHTML({}));
@@ -67,33 +66,31 @@ define(function(require) {
     $.ajax({
       url: path,
       type: "GET",
-      data: {timeout: false},
+      data: { host: opts.selectedHost, ds: opts.selectedDs, timeout: false},
       dataType: "json",
-      headers: {
-        "X-VCENTER-USER": opts.vcenter_user,
-        "X-VCENTER-PASSWORD": opts.vcenter_password,
-        "X-VCENTER-HOST": opts.vcenter_host
-      },
       success: function(response) {
         $(".vcenter_datacenter_list", context).html("");
-        var content;
-        if (response.length == 0) {
-          content = EmptyFieldsetHTML({
-            title : opts.vcenter_datastore + ' ' + Locale.tr("Datastore"),
-            message : Locale.tr("No new images found in this datastore")
-          });
 
+        var vcenter_name = Object.keys(response)[0];
+        response = response[vcenter_name];
+
+        if (Object.keys(response).length === 0){
+          content = EmptyFieldsetHTML({
+            title : Locale.tr("vCenter Images") + ": " + vcenter_name,
+            message : Locale.tr("No new images found")
+          });
           $(".vcenter_datacenter_list", context).append(content);
-        } else {
+        }
+
+        else {
           var tableId = "vcenter_import_table_" + UniqueId.id();
           content = FieldsetTableHTML({
             tableId : tableId,
-            title : opts.vcenter_datastore + ' ' + Locale.tr("Datastore"),
-            clearImported : Locale.tr("Clear Imported Images"),
+            title : Locale.tr("vCenter Images") + ": " + vcenter_name,
             toggleAdvanced : false,
             columns : [
-              '<input type="checkbox" class="check_all"/>',
-              Locale.tr("Path"),
+              "<input type=\"checkbox\" class=\"check_all\"/>",
+              Locale.tr("Image Path"),
               Locale.tr("Size"),
               Locale.tr("Type"),
               ""
@@ -101,14 +98,12 @@ define(function(require) {
           });
 
           var newdiv = $(content).appendTo($(".vcenter_datacenter_list", context));
-          var tbody = $('#' + tableId + ' tbody', context);
+          var tbody = $("#" + tableId + " tbody", context);
 
-          $.each(response, function(id, element) {
+          $.each(response, function(image_name, element) {
             var opts = { name: element.path, size: element.size, type: element.type };
             var trow = $(RowTemplate(opts)).appendTo(tbody);
-
-            $(".check_item", trow).data("datastore_id", element.dsid);
-            $(".check_item", trow).data("one_template", element.one);
+            $(".check_item", trow).data("import_data", element);
           });
 
           var elementsTable = new DomDataTable(
@@ -120,18 +115,18 @@ define(function(require) {
                   "bAutoWidth": false,
                   "bSortClasses" : false,
                   "bDeferRender": false,
-                  //"ordering": false,
                   "aoColumnDefs": [
-                    {"bSortable": false, "aTargets": [0,2,3]},
-                    {"bSortable": true, "aTargets": [1]},
+                    {"bSortable": false, "aTargets": [0,3,4]},
+                    {"bSortable": true, "aTargets": [1,2]},
                     {"sWidth": "35px", "aTargets": [0]},
+                    {"sType": "file-size", "aTargets": [2]}
                   ]
                 }
               });
 
           elementsTable.initialize();
 
-          $("a.vcenter-table-select-all").text(Locale.tr("Select all %1$s Images", response.length));
+          $("a.vcenter-table-select-all", context).text(Locale.tr("Select all %1$s Images", Object.keys(response).length));
 
           VCenterCommon.setupTable({
             context : newdiv,
@@ -139,11 +134,11 @@ define(function(require) {
             selected: Locale.tr("%1$s Images selected.")
           });
 
-          context.off('click', '.clear_imported');
-          context.on('click', '.clear_imported', function() {
+          context.off("click", ".clear_imported");
+          context.on("click", ".clear_imported", function() {
               _fillVCenterImages(opts);
               return false;
-            });
+          });
         }
       },
       error: function(response) {
@@ -154,43 +149,40 @@ define(function(require) {
   }
 
   function _import(context) {
-    $.each($("table.vcenter_import_table", context), function() {
-      $.each($(this).DataTable().$(".check_item:checked"), function() {
-        var row_context = $(this).closest("tr");
+    var vcenter_refs = [];
 
-        VCenterCommon.importLoading({context : row_context});
+    var table = $("table.vcenter_import_table", context);
+    $.each(table.DataTable().$(".check_item:checked"), function(){
+      vcenter_refs.push($(this).data("import_data").ref);
+      var row_context = $(this).closest("tr");
+      VCenterCommon.importLoading({context : row_context});
+    });
+    vcenter_refs = vcenter_refs.join(",");
 
-        var image_json = {
-          "image": {
-            "image_raw": $(this).data("one_template")
-          },
-          "ds_id" : $(this).data("datastore_id")
-        };
+    if (vcenter_refs.length === 0){
+      Notifier.notifyMessage("You must select at least one image");
+      return false;
+    }
 
-        OpenNebulaImage.create({
-          timeout: true,
-          data: image_json,
-          success: function(request, response) {
-            VCenterCommon.importSuccess({
-              context : row_context,
-              message : Locale.tr("Image created successfully. ID: %1$s", response.IMAGE.ID)
-            });
-          },
-          error: function (request, error_json) {
-            var error_message_str = error_json.error.message
+    $.ajax({
+      url: path,
+      type: "POST",
+      data: { images: vcenter_refs, timeout: false },
+      dataType: "json",
+      success: function(response){
+        VCenterCommon.jGrowlSuccess({success : response.success, resource : resource, link_tab : "images-tab"});
+        VCenterCommon.jGrowlFailure({error : response.error, resource : resource});
 
-            if(error_message_str=="[ImageAllocate] Not enough space in datastore"){
-              error_message_str =  error_message_str + ". "+
-                Locale.tr("Please disable DATASTORE_CAPACITY_CHECK in /etc/one/oned.conf and restart OpenNebula");
-            }
-
-            VCenterCommon.importFailure({
-              context : row_context,
-              message : (error_message_str || Locale.tr("Cannot contact server: is it running and reachable?"))
-            });
-          }
-        });
-      });
+        $("#get-vcenter-images").click();
+      },
+      error: function (request, error_json) {
+        if (request.responseJSON === undefined){
+          Notifier.notifyError("Empty response received from server. Check your setup to avoid timeouts");
+        } else {
+          Notifier.notifyError(request.responseJSON.error.message);
+        }
+        $("#get-vcenter-images").click();
+      }
     });
   }
 });

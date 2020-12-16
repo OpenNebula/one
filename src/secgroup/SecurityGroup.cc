@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------ */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems              */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems              */
 /*                                                                          */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may  */
 /* not use this file except in compliance with the License. You may obtain  */
@@ -17,19 +17,11 @@
 #include "SecurityGroup.h"
 #include "NebulaUtil.h"
 #include "Nebula.h"
+#include "LifeCycleManager.h"
+#include "OneDB.h"
 #include <arpa/inet.h>
 
-/* ------------------------------------------------------------------------ */
-
-const char * SecurityGroup::table = "secgroup_pool";
-
-const char * SecurityGroup::db_names =
-        "oid, name, body, uid, gid, owner_u, group_u, other_u";
-
-const char * SecurityGroup::db_bootstrap = "CREATE TABLE IF NOT EXISTS secgroup_pool ("
-    "oid INTEGER PRIMARY KEY, name VARCHAR(128), body MEDIUMTEXT, uid INTEGER, "
-    "gid INTEGER, owner_u INTEGER, group_u INTEGER, other_u INTEGER, "
-    "UNIQUE(name,uid))";
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -40,33 +32,24 @@ SecurityGroup::SecurityGroup(
         const string&   _uname,
         const string&   _gname,
         int             _umask,
-        Template*       sgroup_template):
-        PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,table),
-        updated("UPDATED_VMS"),
-        outdated("OUTDATED_VMS"),
-        updating("UPDATING_VMS"),
-        error("ERROR_VMS")
-
+        unique_ptr<Template> sgroup_template):
+    PoolObjectSQL(-1, SECGROUP, "", _uid,_gid,_uname,_gname,one_db::sg_table),
+    updated("UPDATED_VMS"),
+    outdated("OUTDATED_VMS"),
+    updating("UPDATING_VMS"),
+    error("ERROR_VMS")
 {
-    if (sgroup_template != 0)
+    if (sgroup_template)
     {
-        obj_template = sgroup_template;
+        obj_template = move(sgroup_template);
     }
     else
     {
-        obj_template = new Template;
+        obj_template = make_unique<Template>();
     }
 
     set_umask(_umask);
 }
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-SecurityGroup::~SecurityGroup()
-{
-    delete obj_template;
-};
 
 /* ************************************************************************ */
 /* SecurityGroup :: Database Access Functions                               */
@@ -74,7 +57,6 @@ SecurityGroup::~SecurityGroup()
 
 int SecurityGroup::insert(SqlDB *db, string& error_str)
 {
-    vector<const VectorAttribute*>::const_iterator it;
     vector<const VectorAttribute*> rules;
 
     erase_template_attribute("NAME",name);
@@ -86,9 +68,9 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("RULE", rules);
 
-    for ( it = rules.begin(); it != rules.end(); it++ )
+    for ( auto rule : rules )
     {
-        if (!isValidRule(*it, error_str))
+        if (!isValidRule(rule, error_str))
         {
             goto error_valid;
         }
@@ -126,14 +108,14 @@ int SecurityGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     // Update the security group
 
-    sql_name = db->escape_str(name.c_str());
+    sql_name = db->escape_str(name);
 
     if ( sql_name == 0 )
     {
         goto error_name;
     }
 
-    sql_xml = db->escape_str(to_xml(xml_body).c_str());
+    sql_xml = db->escape_str(to_xml(xml_body));
 
     if ( sql_xml == 0 )
     {
@@ -147,25 +129,29 @@ int SecurityGroup::insert_replace(SqlDB *db, bool replace, string& error_str)
 
     if ( replace )
     {
-        oss << "REPLACE";
+        oss << "UPDATE " << one_db::sg_table << " SET "
+            << "name = '"    << sql_name << "', "
+            << "body = '"    << sql_xml  << "', "
+            << "uid = "      <<  uid     << ", "
+            << "gid = "      <<  gid     << ", "
+            << "owner_u = "  <<  owner_u << ", "
+            << "group_u = "  <<  group_u << ", "
+            << "other_u = "  <<  other_u
+            << " WHERE oid = " << oid;
     }
     else
     {
-        oss << "INSERT";
+        oss << "INSERT INTO " << one_db::sg_table
+            << " (" << one_db::sg_db_names << ") VALUES ("
+            <<          oid                 << ","
+            << "'" <<   sql_name            << "',"
+            << "'" <<   sql_xml             << "',"
+            <<          uid                 << ","
+            <<          gid                 << ","
+            <<          owner_u             << ","
+            <<          group_u             << ","
+            <<          other_u             << ")";
     }
-
-    // Construct the SQL statement to Insert or Replace
-
-    oss <<" INTO "<<table <<" ("<< db_names <<") VALUES ("
-        <<          oid                 << ","
-        << "'" <<   sql_name            << "',"
-        << "'" <<   sql_xml             << "',"
-        <<          uid                 << ","
-        <<          gid                 << ","
-        <<          owner_u             << ","
-        <<          group_u             << ","
-        <<          other_u             << ")";
-
 
     rc = db->exec_wr(oss);
 
@@ -194,6 +180,16 @@ error_generic:
 error_common:
     return -1;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int SecurityGroup::bootstrap(SqlDB * db)
+{
+    ostringstream oss(one_db::sg_db_bootstrap);
+
+    return db->exec_local_wr(oss);
+};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -283,15 +279,14 @@ int SecurityGroup::from_xml(const string& xml)
 
 void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
 {
-    vector<const VectorAttribute*>::const_iterator it;
     vector<const VectorAttribute*> rules;
 
     get_template_attribute("RULE", rules);
 
-    for ( it = rules.begin(); it != rules.end(); it++ )
+    for ( auto rule : rules )
     {
         VectorAttribute* new_rule = new VectorAttribute(
-                                    "SECURITY_GROUP_RULE", (*it)->value());
+                                    "SECURITY_GROUP_RULE", rule->value());
 
         new_rule->replace("SECURITY_GROUP_ID", this->get_oid());
         new_rule->replace("SECURITY_GROUP_NAME", this->get_name());
@@ -438,14 +433,13 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
 
 int SecurityGroup::post_update_template(string& error)
 {
-    vector<const VectorAttribute*>::const_iterator it;
     vector<const VectorAttribute*> rules;
 
     get_template_attribute("RULE", rules);
 
-    for ( it = rules.begin(); it != rules.end(); it++ )
+    for ( auto rule : rules )
     {
-        if (!isValidRule(*it, error))
+        if (!isValidRule(rule, error))
         {
             return -1;
         }
@@ -453,7 +447,7 @@ int SecurityGroup::post_update_template(string& error)
 
     commit(false);
 
-    Nebula::instance().get_lcm()->trigger(LCMAction::UPDATESG, oid);
+    Nebula::instance().get_lcm()->trigger_updatesg(oid);
 
     return 0;
 }

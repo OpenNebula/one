@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -32,7 +32,7 @@ module OpenNebulaJSON
                           host_hash['cluster_id'].to_i)
             delete_values = ['name', 'im_mad', 'vm_mad', 'cluster_id']
 
-            template_str = hash_to_str(host_hash, delete_values)
+            template_str = template_to_str(host_hash, delete_values)
             if !template_str.nil?
                 params=Hash.new
                 params['template_raw'] = template_str

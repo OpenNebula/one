@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -27,44 +27,38 @@ define(function(require) {
     @param {Boolean} hostShareFlag if true the info param is the HOST_SHARE element instead of HOSt
    */
   var _html = function(host, hostShareFlag) {
-    var hostShare = hostShareFlag ? host : host.HOST_SHARE;
-    var maxCPU = parseInt(hostShare.MAX_CPU);
+    var hostShare = hostShareFlag ? host : host && host.HOST_SHARE;
+    var hostMonitoring = hostShareFlag ? host : host.MONITORING && host.MONITORING.CAPACITY
     var infoStr;
-
     var allocatedCPUBar
     if (hostShare.CPU_USAGE) {
-      var allocatedCPU = parseInt(hostShare.CPU_USAGE);
-
+      var maxCPU = parseInt(hostShare.MAX_CPU||0);
+      var allocatedCPU = parseInt(hostShare.CPU_USAGE,10);
       if (maxCPU > 0) {
-          var ratioAllocatedCPU = Math.round((allocatedCPU / maxCPU) * 100);
+        var ratioAllocatedCPU = Math.round((allocatedCPU / maxCPU) * 100);
           infoStr = allocatedCPU + ' / ' + maxCPU + ' (' + ratioAllocatedCPU + '%)';
+        } else {
+          infoStr = "";
+        }
+        allocatedCPUBar = ProgressBar.html(allocatedCPU, maxCPU, infoStr);
+      }
+      var realCPUBar
+    if (hostMonitoring && hostMonitoring.USED_CPU) {
+      var totalCPU = parseInt(hostShare.TOTAL_CPU||0);
+      var realCPU = parseInt(hostMonitoring.USED_CPU,10);
+      if (totalCPU > 0) {
+          var ratioRealCPU = Math.round((realCPU / totalCPU) * 100);
+          infoStr = realCPU + ' / ' + totalCPU + ' (' + ratioRealCPU + '%)';
       } else {
           infoStr = "";
       }
-
-      allocatedCPUBar = ProgressBar.html(allocatedCPU, maxCPU, infoStr);
+      realCPUBar = ProgressBar.html(realCPU, totalCPU, infoStr);
     }
-
-    var realCPUBar
-    if (hostShare.USED_CPU) {
-      var realCPU = parseInt(hostShare.USED_CPU);
-
-      if (maxCPU > 0) {
-          var ratioRealCPU = Math.round((realCPU / maxCPU) * 100);
-          infoStr = realCPU + ' / ' + maxCPU + ' (' + ratioRealCPU + '%)';
-      } else {
-          infoStr = "";
-      }
-
-      realCPUBar = ProgressBar.html(realCPU, maxCPU, infoStr);
-    }
-
     return {
       real: realCPUBar,
       allocated: allocatedCPUBar
     }
   }
-
   return {
     'html': _html
   }

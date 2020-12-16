@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -113,7 +113,12 @@ define(function(require) {
     var strippedTemplate = {};
     var strippedTemplateVcenter = {};
     $.each(this.element.TEMPLATE, function(key, value) {
-      if (key.match(/^VCENTER_*/)){
+      if (!key.match(/^VCENTER_HOST$/) &&
+          !key.match(/^VCENTER_USER$/) &&
+          !key.match(/^VCENTER_PASSWORD$/) &&
+          !key.match(/^VCENTER_DS_IMAGE_DIR$/) &&
+          !key.match(/^VCENTER_DS_VOLATILE_DIR$/) &&
+          key.match(/^VCENTER_*/)){
         strippedTemplateVcenter[key] = value;
       }
       else {

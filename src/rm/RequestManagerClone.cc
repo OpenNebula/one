@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -20,6 +20,9 @@
 #include "RequestManagerVMTemplate.h"
 #include "PoolObjectAuth.h"
 #include "Nebula.h"
+#include "VirtualMachineDisk.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -60,53 +63,48 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
     int rc;
     PoolObjectAuth perms;
 
-    PoolObjectSQL * source_obj = pool->get(source_id, true);
+    unique_ptr<Template> tmpl;
 
-    if ( source_obj == 0 )
+    if ( auto source_obj = pool->get_ro<PoolObjectSQL>(source_id) )
+    {
+        tmpl = clone_template(source_obj.get());
+
+        source_obj->get_permissions(perms);
+    }
+    else
     {
         att.resp_id = source_id;
         return NO_EXISTS;
     }
 
-    Template * tmpl = clone_template(source_obj);
-
-    source_obj->get_permissions(perms);
-
-    source_obj->unlock();
-
-    ErrorCode ec = merge(tmpl, s_uattr, att);
+    ErrorCode ec = merge(tmpl.get(), s_uattr, att);
 
     if (ec != SUCCESS)
     {
-        delete tmpl;
         return ec;
     }
 
     tmpl->erase("NAME");
     tmpl->set(new SingleAttribute("NAME", name));
 
-    if ( att.uid != 0 )
+    string tmpl_str = "";
+
+    AuthRequest ar(att.uid, att.group_ids);
+
+    ar.add_auth(att.auth_op, perms); //USE OBJECT
+
+    tmpl->to_xml(tmpl_str);
+
+    ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
+
+    if (UserPool::authorize(ar) == -1)
     {
-        string tmpl_str = "";
+        att.resp_msg = ar.message;
 
-        AuthRequest ar(att.uid, att.group_ids);
-
-        ar.add_auth(auth_op, perms); //USE OBJECT
-
-        tmpl->to_xml(tmpl_str);
-
-        ar.add_create_auth(att.uid, att.gid, auth_object, tmpl_str);
-
-        if (UserPool::authorize(ar) == -1)
-        {
-            att.resp_msg = ar.message;
-
-            delete tmpl;
-            return AUTHORIZATION;
-        }
+        return AUTHORIZATION;
     }
 
-    rc = pool_allocate(source_id, tmpl, new_id, att);
+    rc = pool_allocate(source_id, move(tmpl), new_id, att);
 
     if ( rc < 0 )
     {
@@ -118,6 +116,9 @@ Request::ErrorCode RequestManagerClone::clone(int source_id, const string &name,
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
+
+const std::vector<const char*> VMTemplateClone::REMOVE_DISK_ATTRS = {
+    "IMAGE", "IMAGE_UNAME", "IMAGE_UID", "OPENNEBULA_MANAGED"};
 
 Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
         int &new_id, bool recursive, const string& s_uattr, RequestAttributes& att)
@@ -141,11 +142,10 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     // -------------------------------------------------------------------------
     // Clone the template images when recursive flag is set
     // -------------------------------------------------------------------------
-	ImageDelete     img_delete;
-	ImageClone      img_clone;
-    ImagePersistent img_persistent;
+    ImageDelete     img_delete;
+    ImageClone      img_clone;
 
-	TemplateDelete tmpl_delete;
+    TemplateDelete tmpl_delete;
 
     VMTemplatePool* tpool = static_cast<VMTemplatePool*>(pool);
 
@@ -155,39 +155,37 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
     vector<VectorAttribute *> vdisks;
 
     VirtualMachineDisks disks(false);
-    VirtualMachineDisks::disk_iterator disk;
 
     RequestAttributes del_att(att);
     RequestAttributes img_att(att);
     img_att.resp_obj    = PoolObjectSQL::IMAGE;
 
-    VMTemplate * vmtmpl = tpool->get(new_id, true);
-
-    if (vmtmpl == 0)
+    if ( auto vmtmpl = tpool->get_ro(new_id) )
+    {
+        vmtmpl->clone_disks(vdisks);
+    }
+    else
     {
         att.resp_msg = "VM template was removed during clone operation";
 
         return ACTION;
     }
 
-    vmtmpl->clone_disks(vdisks);
-
-    vmtmpl->unlock();
-
     disks.init(vdisks, false);
 
-    for ( disk = disks.begin(); disk != disks.end() ; ++disk )
+    for ( auto disk : disks )
     {
         int img_id;
         int new_img_id;
 
-        if ( (*disk)->get_image_id(img_id, att.uid) == 0)
+        if ( disk->get_image_id(img_id, att.uid) == 0)
         {
             ostringstream oss;
 
             oss << name << "-disk-" << ndisk;
 
-            ec = img_clone.request_execute(img_id,oss.str(),-1, new_img_id,img_att);
+            ec = img_clone.request_execute(img_id, oss.str(), -1,
+                    true, new_img_id, img_att);
 
             if ( ec != SUCCESS)
             {
@@ -198,27 +196,12 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
                 goto error_images;
             }
 
-            if ( (*disk)->is_managed() )
+            for (auto attr : REMOVE_DISK_ATTRS)
             {
-                ec = img_persistent.request_execute(new_img_id, true, img_att);
-
-                if (ec != SUCCESS)
-                {
-                    NebulaLog::log("ReM",Log::ERROR,failure_message(ec,img_att));
-
-                    img_delete.request_execute(img_id, img_att);
-
-                    att.resp_msg = "Failed to clone images: " + img_att.resp_msg;
-
-                    goto error_images;
-                }
+                disk->remove(attr);
             }
 
-            (*disk)->remove("IMAGE");
-            (*disk)->remove("IMAGE_UNAME");
-            (*disk)->remove("IMAGE_UID");
-
-            (*disk)->replace("IMAGE_ID", new_img_id);
+            disk->replace("IMAGE_ID", new_img_id);
 
             new_ids.push_back(new_img_id);
         }
@@ -226,20 +209,19 @@ Request::ErrorCode VMTemplateClone::clone(int source_id, const string &name,
         ndisk++;
     }
 
-    vmtmpl = tpool->get(new_id, true);
+    if ( auto vmtmpl = tpool->get(new_id) )
+    {
+        vmtmpl->replace_disks(vdisks);
 
-    if (vmtmpl == 0)
+        tpool->update(vmtmpl.get());
+    }
+    else
     {
         att.resp_msg = "VM template was removed during clone operation.";
 
         goto error_template;
     }
 
-    vmtmpl->replace_disks(vdisks);
-
-    tpool->update(vmtmpl);
-
-    vmtmpl->unlock();
 
     return SUCCESS;
 
@@ -252,18 +234,17 @@ error_images:
     goto error_template;
 
 error_template:
-    for (vector<int>::iterator i = new_ids.begin(); i != new_ids.end(); i++)
+    for (auto id : new_ids)
     {
-        if (img_delete.request_execute(*i, img_att) != SUCCESS)
+        if (img_delete.request_execute(id, img_att) != SUCCESS)
         {
             NebulaLog::log("ReM", Log::ERROR, failure_message(ec, img_att));
         }
     }
 
-    for (vector<VectorAttribute *>::iterator it = vdisks.begin();
-            it != vdisks.end() ; it++)
+    for (auto disk : vdisks)
     {
-        delete *it;
+        delete disk;
     }
 
     return ACTION;

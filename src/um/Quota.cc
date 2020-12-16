@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,6 +16,8 @@
 
 #include "Quota.h"
 #include "NebulaUtil.h"
+
+using namespace std;
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -73,7 +75,7 @@ void Quota::add_to_quota(VectorAttribute * attr, const string& va_name, float nu
     istringstream iss;
     float         total;
 
-    iss.str(attr->vector_value(va_name.c_str()));
+    iss.str(attr->vector_value(va_name));
 
     iss >> total;
 
@@ -130,11 +132,9 @@ error_limits:
 
     oss <<  "Negative limits or bad format in quota " << template_name;
 
-    string * quota_str = (*it)->marshall(",");
+    string quota_str = (*it)->marshall(",");
 
-    oss << " = [ " << *quota_str << " ]";
-
-    delete quota_str;
+    oss << " = [ " << quota_str << " ]";
 
     error = oss.str();
 
@@ -151,7 +151,6 @@ bool Quota::check_quota(const string& qid,
 {
     VectorAttribute * q;
     VectorAttribute * default_q;
-    map<string, float>::iterator it;
 
     bool check;
     float limit;
@@ -208,7 +207,7 @@ bool Quota::check_quota(const string& qid,
 
         metrics_used += "_USED";
 
-        it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metrics[i]);
 
         if (it == usage_req.end())
         {
@@ -216,7 +215,7 @@ bool Quota::check_quota(const string& qid,
         }
 
         q->vector_value(metrics[i],   limit);
-        q->vector_value(metrics_used.c_str(), usage);
+        q->vector_value(metrics_used, usage);
 
         if ( limit == DEFAULT )
         {
@@ -259,7 +258,7 @@ bool Quota::check_quota(const string& qid,
 
         metrics_used += "_USED";
 
-        it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metrics[i]);
 
         if (it == usage_req.end())
         {
@@ -278,7 +277,6 @@ bool Quota::check_quota(const string& qid,
 void Quota::del_quota(const string& qid, map<string, float>& usage_req)
 {
     VectorAttribute * q;
-    map<string, float>::iterator it;
 
     if ( get_quota(qid, &q) == -1)
     {
@@ -296,7 +294,7 @@ void Quota::del_quota(const string& qid, map<string, float>& usage_req)
 
         metrics_used += "_USED";
 
-        it = usage_req.find(metrics[i]);
+        auto it = usage_req.find(metrics[i]);
 
         if (it == usage_req.end())
         {
@@ -345,7 +343,7 @@ void Quota::cleanup_quota(const string& qid)
         metrics_used += "_USED";
 
         q->vector_value(metrics[i], limit);
-        q->vector_value(metrics_used.c_str(), usage);
+        q->vector_value(metrics_used, usage);
 
         if ( usage != 0 || limit != implicit_limit )
         {
@@ -372,10 +370,20 @@ int Quota::update_limits(
     {
         limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (( limit_f == -1 && limit == "" )    // NaN
-            ||
+        if (limit == "")
+        {
+            if ( is_default )
+            {
+                limit_f = UNLIMITED;
+            }
+            else
+            {
+                limit_f = DEFAULT;
+            }
+        }
+
             // Negative. Default & unlimited allowed
-            ( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
+        if (( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
             ||
             // Negative. Unlimited allowed
             ( is_default && limit_f < 0 && limit_f != UNLIMITED )
@@ -408,10 +416,19 @@ VectorAttribute * Quota::new_quota(VectorAttribute * va)
 
         limit = va->vector_value_str(metrics[i], limit_f);
 
-        if (( limit_f == -1 && limit == "" )    // NaN
-            ||
+        if (limit == "")
+        {
+            if ( is_default )
+            {
+                limit_f = UNLIMITED;
+            }
+            else
+            {
+                limit_f = DEFAULT;
+            }
+        }
             // Negative. Default & unlimited allowed
-            ( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
+        if (( !is_default && limit_f < 0 && limit_f != UNLIMITED && limit_f != DEFAULT )
             ||
             // Negative. Unlimited allowed
             ( is_default && limit_f < 0 && limit_f != UNLIMITED )

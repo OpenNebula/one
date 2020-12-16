@@ -18,6 +18,7 @@
     <% halt 500, "OpenNebula is unreachable" if view.nil? %>
     <script type="text/javascript">
       var csrftoken = '<%= session[:csrftoken] %>';
+      var fireedge_token = '<%= session[:fireedge_token] %>';
       var view = JSON.parse('<%= view.to_json %>')
       var available_views = JSON.parse('["<%=
           $views_config.available_views(session[:user], session[:user_gname]).join('","')
@@ -28,20 +29,34 @@
       var all_views = JSON.parse('["<%=
           $views_config.get_all_views.join('","')
         %>"]')
-
+      if ('<%= $conf[:addons] %>'){
+        var addons = JSON.parse('<%= $conf[:addons].to_json %>');
+      }
       var config = {
         'user_config' : {
             'lang' : '<%= session[:lang] %>',
             'vnc_wss' : '<%= session[:vnc_wss] %>',
             'table_order' : '<%= session[:table_order] %>',
             'default_view' : '<%= session[:default_view] %>',
-            'page_length' : '<%= session[:page_length] %>'
+            'page_length' : '<%= session[:page_length] %>',
+            'threshold_min' : '<%= $conf[:threshold_min] %>',
+            'threshold_low' : '<%= $conf[:threshold_low] %>',
+            'threshold_high' : '<%= $conf[:threshold_high] %>',
         },
         'system_config' : {
-            'marketplace_url' : '<%= $conf[:marketplace_url] %>',
-            'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
-            'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
-            'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
+          'support_fs': JSON.parse('<%= $conf[:support_fs] %>'),
+          'paginate': '<%= $conf[:paginate] %>',
+          'marketplace_url' : '<%= $conf[:marketplace_url] %>',
+          'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
+          'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
+          'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
+          'allow_vnc_federation' : '<%= (!$conf[:allow_vnc_federation].nil?)? $conf[:allow_vnc_federation] : "no" %>',
+          'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>,
+          'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>,
+          'mapped_ips' : '<%= $conf[:mapped_ips] ? $conf[:mapped_ips] : false %>',
+          'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>',
+          'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint] ? $conf[:public_fireedge_endpoint] : "http://localhost:2616" %>',
+          'max_waiting_tries': '<%= $conf[:max_waiting_tries] ? $conf[:max_waiting_tries] : 5 %>',
         },
         'view' : view,
         'available_views' : available_views,
@@ -53,15 +68,17 @@
         'zone_name' : '<%= session[:zone_name] %>',
         'zone_id' : '<%= session[:zone_id] %>',
         'federation_mode' : '<%= session[:federation_mode] %>',
-        'vm_logos' : <%= logos_conf.to_json %>,
+        'id_own_federation' : '<%= session[:id_own_federation] %>',
+	      'vm_logos' : <%= logos_conf.to_json %>,
         'oned_conf' : <%= oned_conf.to_json %>,
         'support' : <%= support.to_json %>,
-        'upgrade' : <%= upgrade.to_json %>
+        'upgrade' : <%= upgrade.to_json %>,
+        'mode' : '<%= session[:mode] %>'
       };
     </script>
 
-
-
+    <link href="bower_components/wickedpicker/dist/wickedpicker.min.css" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
+    <link href="bower_components/jquery-ui/themes/flick/jquery-ui.min.css" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <% if $conf[:env] == 'dev' %>
     <link href="css/app.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
     <link href="css/custom.css?v=<%= OpenNebula::VERSION %>" media="screen, projector, print" rel="stylesheet" type="text/css"></link>
@@ -81,9 +98,8 @@
           </ul>
         </div>
       <div id="footer" class="text-center large-12 columns">
-        <a href="http://opennebula.org" target="_blank">OpenNebula 5.5.80</a>
-        <br> by
-        <a href="http://OpenNebula.systems" target="_blank">OpenNebula Systems</a>.
+        <a href="http://opennebula.io" target="_blank">OpenNebula <%= OpenNebula::VERSION %></a>
+        <div id="latest_version" style="display:none;"></div>
       </div>
       </div>
 
@@ -95,12 +111,11 @@
       </div>
       <div id="loading" class="text-center">
         <span  id="loading-content">
-          <i class="fa fa-5x fa-spinner fa-pulse"></i>
+          <i class="fas fa-5x fa-spinner fa-pulse"></i>
         </span>
       </div>
       <div class="large-12 columns" id="dialogs"></div>
     </div>
-
 
     <% if $conf[:env] == 'dev' %>
       <script src="bower_components/requirejs/require.js" data-main="app/main"></script>

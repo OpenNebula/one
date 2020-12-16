@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,17 +19,39 @@
 
 #include "Template.h"
 
-using namespace std;
-
 /**
  *  User Template class, it represents the attributes of an user
  */
 class UserTemplate : public Template
 {
 public:
-    UserTemplate() : Template(true,'=',"TEMPLATE"){};
+    UserTemplate() : Template(true,'=',"TEMPLATE") {}
 
-    ~UserTemplate(){};
+    ~UserTemplate() = default;
+
+    // -------------------------------------------------------------------------
+    // Restricted attributes interface implementation
+    // -------------------------------------------------------------------------
+    bool check_restricted(std::string& rs_attr, const Template* base) override
+    {
+        return Template::check_restricted(rs_attr, base, restricted);
+    }
+
+    bool check_restricted(std::string& rs_attr) override
+    {
+        return Template::check_restricted(rs_attr, restricted);
+    }
+
+    static void parse_restricted(std::vector<const SingleAttribute *>& ra)
+    {
+        Template::parse_restricted(ra, restricted);
+    }
+
+private:
+    /**
+     *  Restricted attribute list for UserTemplate
+     */
+    static std::map<std::string, std::set<std::string>> restricted;
 };
 
 /* -------------------------------------------------------------------------- */

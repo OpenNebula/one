@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -49,13 +49,13 @@ define(function(require) {
     if(that.valueSt){
       if(that.affinity == "ANTI_AFFINED"){
         html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button alert small radius group_roles' style='font-size: 100%; width: 90%; margin-top:0.5em;'>\
-                  <i style='float: left' class='fa fa-lg fa-times-circle remove_group_affinity'></i> "+that.valueSt+"\
+                  <i style='float: left' class='fas fa-lg fa-times-circle remove_group_affinity'></i> "+that.valueSt+"\
                   </a>\
                   <br/>";
       }
       else{
         html = "<a value="+that.valueSt+" id="+that.html_group_role_id+" class='button success small radius group_roles' style='font-size: 100%; width: 90%; margin-top:0.5em;'>\
-                    <i style='float: left' class='fa fa-lg fa-times-circle remove_group_affinity'> </i>"+that.valueSt+"\
+                    <i style='float: left' class='fas fa-lg fa-times-circle remove_group_affinity'> </i>"+that.valueSt+"\
                   </a>\
                   <br/>";
       }

@@ -1,5 +1,5 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 require 'one_helper'
 require 'one_helper/onevm_helper'
 
@@ -96,33 +95,33 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 #        :description => "Number of addresses to reserve"
 #    }
 
-    GATEWAY = [
+    GATEWAY = {
         :name       => "gateway",
         :large      => "--gateway ip",
         :format     => String,
         :description=> "IP of the gateway"
-    ]
+    }
 
-    NETMASK = [
+    NETMASK = {
         :name       => "netmask",
         :large      => "--netmask mask",
         :format     => String,
         :description=> "Netmask in dot notation"
-    ]
+    }
 
-    VN_MAD = [
+    VN_MAD = {
         :name       => "vn_mad",
         :large      => "--vn_mad mad",
         :format     => String,
         :description=> "Use this driver for the network"
-    ]
+    }
 
-    VLAN_ID = [
+    VLAN_ID = {
         :name       => "vlanid",
         :large      => "--vlanid id",
         :format     => String,
         :description=> "VLAN ID assigned"
-    ]
+    }
 
     ADDAR_OPTIONS = [
         SIZE, MAC, IP, IP6, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VN_MAD,
@@ -160,7 +159,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
             end
 
             column :CLUSTERS, "Cluster IDs", :left, :size=>10 do |d|
-                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"])
+                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"]) rescue "-"
             end
 
             column :BRIDGE, "Bridge associated to the Virtual Network", :left,
@@ -192,6 +191,94 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         puts template
     end
 
+    def check_orphans
+        orphans = []
+        xpath = '/VMTEMPLATE_POOL/VMTEMPLATE/TEMPLATE/NIC'
+
+        pool = factory_pool
+        tmpl_pool = OpenNebula::TemplatePool.new(@client, -2)
+
+        pool.info
+        tmpl_pool.info
+
+        pool.each do |img|
+            attrs = { :id    => img['ID'],
+                      :name  => img['NAME'],
+                      :uname => img['UNAME'] }
+
+            orphans << img['ID'] if check_orphan(tmpl_pool,
+                                                 xpath,
+                                                 'NETWORK', attrs)
+        end
+
+        orphans
+    end
+
+    # Update VNet address range
+    #
+    # @param vnet_id [Intenger] Virtual Network ID
+    # @param ar_id   [Intenger] Address Range ID
+    # @param file    [String]   Path to file to read
+    # @param options [Hash]     User CLI options
+    def update_ar(vnet_id, ar_id, file, options)
+        perform_action(vnet_id, options, 'AR updated') do |obj|
+            rc = obj.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
+            obj.delete_element("AR_POOL/AR[AR_ID!=#{ar_id}]")
+            obj.delete_element('AR_POOL/AR/LEASES')
+            obj.delete_element('AR_POOL/AR/USED_LEASES')
+            obj.delete_element('AR_POOL/AR/MAC_END')
+            obj.delete_element('AR_POOL/AR/IP_END')
+            obj.delete_element('AR_POOL/AR/IP6_ULA')
+            obj.delete_element('AR_POOL/AR/IP6_ULA_END')
+            obj.delete_element('AR_POOL/AR/IP6_GLOBAL')
+            obj.delete_element('AR_POOL/AR/IP6_GLOBAL_END')
+
+            if obj.template_like_str('AR_POOL').empty?
+                STDERR.puts "Address Range #{ar_id} does not exist for " \
+                            "Virtual Network #{vnet_id}"
+                exit(-1)
+            end
+
+            xpath = "AR_POOL/AR[AR_ID=#{ar_id}]"
+
+            if options[:append]
+                str = OpenNebulaHelper.append_template(vnet_id,
+                                                       obj,
+                                                       file,
+                                                       xpath)
+            else
+                str = OpenNebulaHelper.update_template(vnet_id,
+                                                       obj,
+                                                       file,
+                                                       xpath)
+            end
+
+            if options[:append]
+                # Insert element in current template
+                parts = obj.template_like_str('AR_POOL').split("\n")
+
+                # Insert it in second position, OpenNebula will sort it
+                parts.insert(1, "#{str.strip},")
+
+                parts = parts.join("\n")
+                str   = parts
+            else
+                # Use the information from user
+                unless str.gsub(' ', '').match(/AR=\[/)
+                    str = "AR=[\n#{str.split("\n").join(",\n")}]"
+                end
+            end
+
+            obj.update_ar(str)
+        end
+    end
+
     private
 
     def factory(id=nil)
@@ -214,17 +301,21 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 %
             ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
 
-        str="%-15s: %-20s"
+        str="%-25s: %-20s"
         puts str % ["ID", vn.id.to_s]
         puts str % ["NAME", vn['NAME']]
         puts str % ["USER", vn['UNAME']]
         puts str % ["GROUP", vn['GNAME']]
+        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vn['LOCK/LOCKED'])]
         puts str % ["CLUSTERS",
             OpenNebulaHelper.clusters_str(vn.retrieve_elements("CLUSTERS/ID"))]
         puts str % ["BRIDGE", vn["BRIDGE"]]
         puts str % ["VN_MAD", vn['VN_MAD']] if !vn['VN_MAD'].empty?
         puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
         puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
+        puts str % ["AUTOMATIC VLAN ID", vn["VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
+        puts str % ["OUTER VLAN ID", vn["OUTER_VLAN_ID"]] if !vn["OUTER_VLAN_ID"]
+        puts str % ["AUTOMATIC OUTER VLAN ID", vn["OUTER_VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
         puts str % ["USED LEASES", vn['USED_LEASES']]
         puts
 
@@ -292,7 +383,6 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
         puts
         CLIHelper.print_header(str_h1 % ["LEASES"], false)
-
         ar_list = []
 
         if !vn_hash['VNET']['AR_POOL']['AR'].nil?
@@ -338,7 +428,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                     d["IP"]||"-"
             end
 
-            column :IP6, "", :donottruncate, :size=>26 do |d|
+            column :IP6, "", :adjust, :size=>26 do |d|
                     d["IP6"]||d["IP6_GLOBAL"]||"-"
             end
         end.show(leases, {})
@@ -356,5 +446,17 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 show_ar(vn, ar_id)
             end
         end
+    end
+
+    def self.add_ar_options_used?(options)
+        # Get the template options names as symbols. options hash
+        # uses symbols
+        add_ar_options=OneVNetHelper::ADDAR_OPTIONS.map do |o|
+            o[:name].to_sym
+        end
+
+        # Check if one at least one of the template options is
+        # in options hash
+        (add_ar_options-options.keys)!=add_ar_options
     end
 end

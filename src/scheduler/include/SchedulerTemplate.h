@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -24,15 +24,17 @@ class SchedulerTemplate : public NebulaTemplate
 {
 public:
 
-    SchedulerTemplate(const string& etc_location):
-        NebulaTemplate(etc_location, conf_name)
+    SchedulerTemplate(const std::string& etc_location):
+        NebulaTemplate(etc_location, conf_name, "SCHEDULER_CONFIGURATION")
         {};
 
     ~SchedulerTemplate(){};
 
-    string get_policy() const;
+    std::string get_policy() const;
 
-    string get_ds_policy() const;
+    std::string get_ds_policy() const;
+
+    std::string get_nics_policy() const;
 
 private:
     /**

@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -208,6 +208,16 @@ define(function(require) {
           _selectCustom(dialog);
           break;
       }
+
+      $("input[name='ds_type']", dialog).change(function() {
+        var value = $(this).val();
+        if ( value === "IMAGE_DS" ){
+          $(".only_img_ds", dialog).show();
+        } else {
+          $(".only_img_ds", dialog).hide();
+        }
+      });
+      $(".only_img_ds", dialog).show();
     });
 
     $('#presets', dialog).change();
@@ -248,6 +258,7 @@ define(function(require) {
     var iscsi_user      = $('#iscsi_user', dialog).val();
     var iscsi_usage     = $('#iscsi_usage', dialog).val();
     var vcenter_cluster = $('#vcenter_cluster', dialog).val();
+    var compatible_sys_ds = $('#compatible_sys_ds', dialog).val();
 
     var ds_obj = {
       "datastore" : {
@@ -332,6 +343,9 @@ define(function(require) {
 
     if (vcenter_cluster)
         ds_obj.datastore.vcenter_cluster = vcenter_cluster;
+
+    if (compatible_sys_ds)
+        ds_obj.datastore.compatible_sys_ds = compatible_sys_ds;
 
     Sunstone.runAction("Datastore.create", ds_obj);
     return false;
@@ -533,7 +547,7 @@ define(function(require) {
           if (e["NAME"] == mad) {
             if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
               $.each(e["REQUIRED_ATTRS"].split(","), function(i, e){
-                $('#' + e.toLowerCase(), dialog).attr('required', true).attr('required_active', '');
+                $('#' + e.trim().toLowerCase(), dialog).attr('required', true).attr('required_active', '');
               });
             }
             return false;

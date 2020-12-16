@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2017, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -17,15 +17,10 @@
 #ifndef SNAPSHOTS_H_
 #define SNAPSHOTS_H_
 
-#include <iostream>
 #include <string>
 #include <map>
 
-#include <libxml/parser.h>
-
 #include "Template.h"
-
-using namespace std;
 
 class VectorAttribute;
 
@@ -45,13 +40,66 @@ class VectorAttribute;
 class Snapshots
 {
 public:
-    Snapshots(int _disk_id, bool orphans);
+
+    /**
+     *  ALLOW_ORPHANS: Define how child snapshots are handled.
+     *    - ALLOW: Children can be orphan (no parent snapshot)
+     *      |- snap_1
+     *      |- snap_2
+     *      |- snap_3
+     *
+     *    - DENY: New snapshots are set active and child of the previous one
+     *      |- snap_1
+     *         |- snap_2
+     *            |- snap_3
+     *
+     *    - MIXED: Snapshots are children of last snapshot reverted to
+     *      |- snap_1 (<--- revert)
+     *         |- snap_2
+     *         |- snap_3
+     */
+    enum AllowOrphansMode
+    {
+        ALLOW = 0,
+        DENY  = 1,
+        MIXED = 2
+    };
+
+    static std::string allow_orphans_mode_to_str(AllowOrphansMode aom)
+    {
+        switch (aom)
+        {
+            case ALLOW: return "YES";
+            case DENY:  return "NO";
+            case MIXED: return "MIXED";
+        }
+
+        return "NO";
+    };
+
+    static AllowOrphansMode str_to_allow_orphans_mode(const std::string& aom)
+    {
+        if (aom == "YES")
+        {
+            return ALLOW;
+        }
+        else if (aom == "MIXED")
+        {
+            return MIXED;
+        }
+        else
+        {
+            return DENY;
+        }
+    };
+
+    Snapshots(int _disk_id, AllowOrphansMode orphans);
 
     Snapshots(const Snapshots& s);
 
     Snapshots& operator= (const Snapshots& s);
 
-    virtual ~Snapshots();
+    ~Snapshots() = default;
 
     // *************************************************************************
     // Inititalization functions
@@ -68,7 +116,7 @@ public:
     /**
      *  XML Representation of the Snapshots
      */
-    string& to_xml(string& xml) const
+    std::string& to_xml(std::string& xml) const
     {
         return snapshot_template.to_xml(xml);
     };
@@ -79,7 +127,7 @@ public:
      *   @param size_mb of the snapshot (virtual size)
      *   @return id of the new snapshot
      */
-    int create_snapshot(const string& name, long long size_mb);
+    int create_snapshot(const std::string& name, long long size_mb);
 
     /**
      *  Check if an snapshot can be deleted (no children, no active)
@@ -87,7 +135,7 @@ public:
      *    @param error if any
      *    @return true if can be deleted, false otherwise
      */
-    bool test_delete(int id, string& error) const;
+    bool test_delete(int id, std::string& error) const;
 
     /**
      *  Removes the snapshot from the list
@@ -98,15 +146,24 @@ public:
     /**
      *  Set the given snapshot as active. Updates the values of the current
      *  snapshot
+     *
+     *    @param id id of the snapshot
+     *    @param revert true if the cause of changing the active snapshot
+     *                  is because a revert
      */
-    int active_snapshot(int id);
+    int active_snapshot(int id, bool revert);
+
+    /**
+     * Rename the given snapshot by the given name
+     */
+
+    int rename_snapshot(int id, const std::string& name, std::string& str_error);
 
     /**
      *  Clear all the snapshots in the list
      */
     void clear()
     {
-        next_snapshot = 0;
         active        = -1;
         disk_id       = -1;
 
@@ -158,6 +215,14 @@ public:
     };
 
     /**
+     *  @return true if snapshot_pool is empty
+     */
+    bool empty() const
+    {
+        return snapshot_pool.empty();
+    };
+
+    /**
      *   Check if snapshot exists
      *   @param snap_id of the snapshot
      *   @return true if the snapshot with snap_id exisits
@@ -188,7 +253,7 @@ public:
      *
      *    @return value or empty if not found
      */
-    string get_snapshot_attribute(int id, const char* name) const;
+    std::string get_snapshot_attribute(int id, const char* name) const;
 
 private:
 
@@ -210,6 +275,19 @@ private:
      *  template
      */
     void init();
+
+    /**
+     *  Updates children list for the current base snapshot in the tree
+     *    @param snapshot new child to be added
+     */
+    void add_child_mixed(VectorAttribute *snapshot);
+
+    /**
+     *  Updates children list of the active snapshot
+     *    @param snapshot new child to be added
+     *    @return -1 in case of error (current active does not exist)
+     */
+    int add_child_deny(VectorAttribute *snapshot);
 
     /**
      *  Text representation of the snapshot pool. To be stored as part of the
@@ -235,12 +313,17 @@ private:
     /**
      * Allow to remove parent snapshots and active one
      */
-    bool orphans;
+    AllowOrphansMode orphans;
 
     /**
      * Snapshot pointer map
      */
-    map<int, VectorAttribute *> snapshot_pool;
+    std::map<int, VectorAttribute *> snapshot_pool;
+
+    /**
+     * Current snaphsot base for mixed mode
+     */
+    int current_base;
 };
 
 #endif /*SNAPSHOTS_H_*/
