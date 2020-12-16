@@ -1,0 +1,22 @@
+name: 'packet'
+
+plain:
+  image: 'EQUINIX.webp'
+
+connection:
+  token: 'Encrypted Packet token'
+  project: 'Encrypted Packet project'
+
+location_key: 'facility'
+
+locations:
+  ams1:
+    packet_os: 
+      -'centos_7'
+    packet_plan: 
+      - 'baremetal_0'
+  ams2:
+    packet_os: 
+      -'ubuntu_18_04'
+    packet_plan: 
+      -'baremetal_1'
