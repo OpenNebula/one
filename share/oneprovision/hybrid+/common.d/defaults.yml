@@ -22,3 +22,6 @@
 defaults:
   configuration:
     opennebula_node_kvm_use_ev: true
+
+    # required for copying recovery VM snaphosts to the replica host
+    opennebula_ssh_deploy_private_key: true
