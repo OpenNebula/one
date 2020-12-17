@@ -138,13 +138,13 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # server_x509
 #******
 */
-    set_conf_auth("core", "YES", "NO", "-1");
-    set_conf_auth("public", "NO", "NO", "-1");
-    set_conf_auth("ssh", "YES", "NO", "-1");
-    set_conf_auth("x509", "NO", "NO", "-1");
-    set_conf_auth("ldap", "YES", "YES", "86400");
-    set_conf_auth("server_cipher", "NO", "NO", "-1");
-    set_conf_auth("server_x509", "NO", "NO", "-1");
+    set_conf_auth("core", "YES", "NO", "NO", "-1");
+    set_conf_auth("public", "NO", "NO", "NO", "-1");
+    set_conf_auth("ssh", "YES", "NO", "NO", "-1");
+    set_conf_auth("x509", "NO", "NO", "NO", "-1");
+    set_conf_auth("ldap", "YES", "YES", "YES", "86400");
+    set_conf_auth("server_cipher", "NO", "NO", "NO", "-1");
+    set_conf_auth("server_x509", "NO", "NO", "NO", "-1");
 
     register_multiple_conf_default("AUTH_MAD_CONF");
 
@@ -304,6 +304,7 @@ void OpenNebulaTemplate::set_conf_market(const std::string& name,
 void OpenNebulaTemplate::set_conf_auth(const std::string& name,
                                        const std::string& password_change,
                                        const std::string& driver_managed_groups,
+                                       const std::string& driver_managed_group_admin,
                                        const std::string& max_token_time)
 {
     VectorAttribute *   vattribute;
@@ -312,6 +313,7 @@ void OpenNebulaTemplate::set_conf_auth(const std::string& name,
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("PASSWORD_CHANGE", password_change));
     vvalue.insert(make_pair("DRIVER_MANAGED_GROUPS", driver_managed_groups));
+    vvalue.insert(make_pair("DRIVER_MANAGED_GROUP_ADMIN", driver_managed_group_admin));
     vvalue.insert(make_pair("MAX_TOKEN_TIME", max_token_time));
 
     vattribute = new VectorAttribute("AUTH_MAD_CONF", vvalue);
