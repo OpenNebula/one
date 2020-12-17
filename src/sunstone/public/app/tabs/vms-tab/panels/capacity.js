@@ -120,13 +120,54 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-    if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
+   
+    if (that.element.STATE === "3" &&
+        that.element.USER_TEMPLATE.HOT_RESIZE.MEMORY_HOT_ADD_ENABLED === "NO" &&
+        that.element.USER_TEMPLATE.HOT_RESIZE.CPU_HOT_ADD_ENABLED === "NO"){
+          $('#resize_capacity',context).attr("disabled", "disabled");
+    }
+    else if (Config.isTabActionEnabled("vms-tab", "VM.resize")) {
       context.off("click", "#resize_capacity");
       context.on("click", "#resize_capacity", function() {
         var dialog = Sunstone.getDialog(RESIZE_DIALOG_ID);
         dialog.setElement(that.element);
         dialog.show();
         dialogContext = dialog.dialogElement;
+
+        if (that && 
+            that.element &&
+            that.element.STATE &&
+            that.element.STATE === "3"){
+              $('div.cpu_input_wrapper', dialogContext).hide();
+              if (that.element.USER_TEMPLATE &&
+                  that.element.USER_TEMPLATE.HOT_RESIZE &&
+                  that.element.USER_TEMPLATE.HOT_RESIZE.MEMORY_HOT_ADD_ENABLED &&
+                  that.element.USER_TEMPLATE.HOT_RESIZE.MEMORY_HOT_ADD_ENABLED === "NO"){
+                    $('div.enforce_checkbox_wrapper', dialogContext).hide();
+                    $('div.memory_input_wrapper', dialogContext).hide();
+              }
+              else{
+                $('div.enforce_checkbox_wrapper', dialogContext).show();
+                $('div.memory_input_wrapper', dialogContext).show();
+              }
+
+              if (that.element.USER_TEMPLATE &&
+                that.element.USER_TEMPLATE.HOT_RESIZE &&
+                that.element.USER_TEMPLATE.HOT_RESIZE.CPU_HOT_ADD_ENABLED &&
+                that.element.USER_TEMPLATE.HOT_RESIZE.CPU_HOT_ADD_ENABLED === "NO"){
+                  $('div.vcpu_input_wrapper', dialogContext).hide();
+              }
+              else{
+                $('div.vcpu_input_wrapper', dialogContext).show();
+              }
+        }
+        else{
+          $('div.cpu_input_wrapper', dialogContext).show();
+          $('div.enforce_checkbox_wrapper', dialogContext).show();
+          $('div.memory_input_wrapper', dialogContext).show();
+          $('div.vcpu_input_wrapper', dialogContext).show();
+        }
+
         if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
           $("div.cores_per_socket_select_wrapper", dialogContext).attr("style", "");
           $("div.socket_info", dialogContext).show();
