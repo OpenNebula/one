@@ -328,6 +328,7 @@ int UserPool::allocate(
     string upass       = password;
 
     string gname;
+    bool driver_managed_group_admin = false;
 
     ostringstream   oss;
 
@@ -426,19 +427,29 @@ int UserPool::allocate(
         gpool->update(group.get());
     }
 
-    // Set the user group admin
-    for (auto gid : agids)
+    if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
+            driver_managed_group_admin) != 0)
     {
-        auto group = gpool->get(gid);
+        driver_managed_group_admin = false;
+    }
 
-        if (!group) //Secondary group no longer exists
+
+    if ( driver_managed_group_admin )
+    {
+        // Set the user group admin
+        for (auto gid : agids)
         {
-            goto error_group;
+            auto group = gpool->get(gid);
+
+            if (!group) //Secondary group no longer exists
+            {
+                goto error_group;
+            }
+
+            group->add_admin(*oid, error_str);
+
+            gpool->update(group.get());
         }
-
-        group->add_admin(*oid, error_str);
-
-        gpool->update(group.get());
     }
 
     return *oid;
@@ -639,6 +650,7 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
     string error_str;
 
     bool driver_managed_groups = false;
+    bool driver_managed_group_admin = false;
 
     int egid    = -1;
     int new_gid = -1;
@@ -679,6 +691,12 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
             driver_managed_groups) != 0)
     {
         driver_managed_groups = false;
+    }
+
+    if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
+            driver_managed_group_admin) != 0)
+    {
+        driver_managed_group_admin = false;
     }
 
     AuthRequest ar(user_id, group_ids);
@@ -865,7 +883,8 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
     {
         if ( auto group = gpool->get(gid) )
         {
-            if ( new_group_admin_ids.find(gid) != new_group_admin_ids.end() )
+            if ( driver_managed_group_admin &&
+                 new_group_admin_ids.find(gid) != new_group_admin_ids.end() )
             {
                 group->add_admin(user_id, error_str);
             }
@@ -890,29 +909,32 @@ bool UserPool::authenticate_internal(unique_ptr<User> user,
     // For groups which user remained member also check if the admin status
     // did not changed
     // -------------------------------------------------------------------------
-    for (auto gid : groups_same)
+    if ( driver_managed_group_admin )
     {
-        // user was admin before but is not now
-        if ( group_admin_ids.find(gid) != group_admin_ids.end()
-             && new_group_admin_ids.find(gid) == new_group_admin_ids.end() )
+        for (auto gid : groups_same)
         {
-            if ( auto group = gpool->get(gid) )
+            // user was admin before but is not now
+            if ( group_admin_ids.find(gid) != group_admin_ids.end()
+                 && new_group_admin_ids.find(gid) == new_group_admin_ids.end() )
             {
-                group->del_admin(user_id, error_str);
+                if ( auto group = gpool->get(gid) )
+                {
+                    group->del_admin(user_id, error_str);
 
-                gpool->update(group.get());
+                    gpool->update(group.get());
+                }
             }
-        }
 
-        // user was not admin before but is now
-        if ( group_admin_ids.find(gid) == group_admin_ids.end()
-             && new_group_admin_ids.find(gid) != new_group_admin_ids.end() )
-        {
-            if ( auto group = gpool->get(gid) )
+            // user was not admin before but is now
+            if ( group_admin_ids.find(gid) == group_admin_ids.end()
+                 && new_group_admin_ids.find(gid) != new_group_admin_ids.end() )
             {
-                group->add_admin(user_id, error_str);
+                if ( auto group = gpool->get(gid) )
+                {
+                    group->add_admin(user_id, error_str);
 
-                gpool->update(group.get());
+                    gpool->update(group.get());
+                }
             }
         }
     }
