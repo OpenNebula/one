@@ -15,7 +15,7 @@
 {{! -------------------------------------------------------------------------- }}
 
 <div class="row">
-  <div class="medium-6 small-12 columns">
+  <div class="medium-3 small-12 columns">
     <div class="row">
       <div class="small-12 columns">
         <label class="" for="MEMORY">
@@ -45,7 +45,47 @@
       </div>
     </div>
   </div>
-  <div class="medium-6 small-12 columns">
+  <div class="medium-2 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="MEMORY_HOT_ADD_ENABLED">
+          {{tr "Enable hot resize?"}}
+        </label>
+      </div>
+      <div class="small-12 columns">
+        <select id="MEMORY_HOT_ADD_ENABLED" wizard_field="MEMORY_HOT_ADD_ENABLED">
+          <option value="YES">{{tr "yes"}}</option>
+          <option selected value="NO">{{tr "no"}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="medium-2 small-12 columns">
+    <div class="row" id="memory_max_group">
+      <div class="small-12 columns">
+        <label class="">
+          {{tr "Max memory"}}
+        </label>
+      </div>
+      <div class="small-12 columns">
+        <div class="input-group" style="margin-bottom:0rem;">
+          <div class="mb_max_unit memory_max_input input-group-field">
+            <input type="number" min="0" step="256" wizard_field="MEMORY_MAX" id="MEMORY_MAX"style="margin-bottom:0rem;"/>
+          </div>
+          <div class="gb_max_unit memory_max_gb_input input-group-field">
+            <input id="MEMORY_MAX_GB" type="number" min="0" step="1" name="MEMORY_MAX_GB" style="margin-bottom:0rem;"/>
+          </div>
+          <div class="input-group-button">
+            <select id="MEMORY_MAX_UNIT" name="MEMORY_MAX_UNIT" class="mb_input_unit" style="margin-bottom:0rem;">
+              <option value="MB">{{tr "MB"}}</option>
+              <option value="GB" selected>{{tr "GB"}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="medium-5 small-12 columns">
     <div class="row">
       <div class="small-12 columns">
         <label>
@@ -93,7 +133,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="medium-6 small-12 columns">
+  <div class="medium-7 small-12 columns">
     <div class="row">
       <div class="small-12 columns">
         <label class="" for="CPU">
@@ -110,7 +150,7 @@
       </div>
     </div>
   </div>
-  <div class="medium-6 small-12 columns not_firecracker">
+  <div class="medium-5 small-12 columns not_firecracker">
     <div class="row">
       <div class="small-12 columns">
         <label>
@@ -141,7 +181,7 @@
   </div>
 </div>
 <div class="row">
-  <div class="medium-6 small-12 columns">
+  <div class="medium-3 small-12 columns">
     <div class="row">
       <div class="small-12 columns">
         <label class="" for="VCPU">
@@ -154,7 +194,34 @@
       </div>
     </div>
   </div>
-  <div class="medium-6 small-12 columns">
+  <div class="medium-2 small-12 columns">
+    <div class="row">
+      <div class="small-12 columns">
+        <label class="" for="CPU_HOT_ADD_ENABLED">
+          {{tr "Enable hot resize?"}}
+        </label>
+      </div>
+      <div class="small-12 columns">
+        <select id="CPU_HOT_ADD_ENABLED" wizard_field="CPU_HOT_ADD_ENABLED">
+          <option value="YES">{{tr "yes"}}</option>
+          <option selected value="NO">{{tr "no"}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="medium-2 small-12 columns">
+    <div class="row" id="vcpu_max_group">
+      <div class="small-12 columns">
+        <label class="">
+          {{tr "Max VCPU"}}
+        </label>
+      </div>
+      <div class="small-12 columns">
+        <input type="number" min="0" step="1" id="VCPU_MAX" wizard_field="VCPU_MAX" style="margin-bottom:0rem;"/>
+      </div>
+    </div>
+  </div>
+  <div class="medium-5 small-12 columns">
     <div class="row">
       <div class="small-12 columns">
         <label>

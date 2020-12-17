@@ -366,7 +366,8 @@ define(function(require) {
     VCENTER_INSTANCE_ID: {edit: false, delete: false},
     VCENTER_PASSWORD: {edit: false, delete: false},
     VCENTER_USER: {edit: false, delete: false},
-    VCENTER_VERSION: {edit: false, delete: false}
+    VCENTER_VERSION: {edit: false, delete: false},
+    HOT_RESIZE: {edit: false, delete: false, show: false}
   }
 
   // Helper for fromJSONtoHTMLTable function
@@ -393,14 +394,16 @@ define(function(require) {
           );
         } else {
           // if it is a single value, create the row for this occurence of the key
-          str += fromJSONtoHTMLRow(
-            field,
-            current_value,
-            resourceType,
-            false,
-            it,
-            modify
-          );
+          if (!special_restrictions[field] || (special_restrictions[field] && special_restrictions[field]['show'])){
+            str += fromJSONtoHTMLRow(
+              field,
+              current_value,
+              resourceType,
+              false,
+              it,
+              modify
+              );
+          } 
         }
       }
     }else{
@@ -418,17 +421,19 @@ define(function(require) {
       } else {
         // If it is not comming from a vectorial daddy key, it can still vectorial itself
         if (typeof value == 'object') {
-          str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '"><td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td><td class="value_vectorial_td"></td>';
-          if (modify) {
-            str += '<td class="text-right nowrap"><span id="div_add_vectorial"><a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a></span>&emsp;<span id="div_minus"><a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a></span></td>';
+          if (!special_restrictions[field] || (special_restrictions[field] && special_restrictions[field]['show'])){
+            str += '<tr id="' + resourceType.toLowerCase() + '_template_table_' + field + '"><td class="key_td key_vectorial_td">' + Locale.tr(field) + '</td><td class="value_vectorial_td"></td>';
+            if (modify) {
+              str += '<td class="text-right nowrap"><span id="div_add_vectorial"><a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a></span>&emsp;<span id="div_minus"><a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a></span></td>';
+            }
+            str += fromJSONtoHTMLTable(
+                value,
+                resourceType,
+                field,
+                ocurrence,
+                modify
+            );
           }
-          str += fromJSONtoHTMLTable(
-              value,
-              resourceType,
-              field,
-              ocurrence,
-              modify
-          );
         } else {
           str += '<tr><td class="key_td">' + Locale.tr(field) + '</td><td class="value_td" id="value_td_input_' + field + '">';
           str += (field.toLowerCase() === "link")
@@ -438,10 +443,10 @@ define(function(require) {
           if (modify) {
             var edit_html = "";
             var delete_html = "";
-            if (!special_restrictions[field] || special_restrictions[field]["edit"]){
+            if (!special_restrictions[field] || (special_restrictions[field] && special_restrictions[field]['edit'])){
               edit_html = '<span id="div_edit"><a id="div_edit_' + field + '" class="edit_e' + ocurrence_str + '" href="#"><i class="fas fa-edit"/></a></span>';
             }
-            if (!special_restrictions[field] || special_restrictions[field]["delete"]){
+            if (!special_restrictions[field] || (special_restrictions[field] && special_restrictions[field]["delete"])){
               delete_html = '<span id="div_minus"><a id="div_minus_' + field + '" class="remove_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a></span>';
             }
             str += '<td class="text-right nowrap">' + edit_html + '&emsp;' + delete_html + '</td>';
