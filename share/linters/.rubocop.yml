@@ -750,6 +750,27 @@ Style/SoleNestedConditional:
 Style/StringConcatenation:
   Enabled: false
 
+Style/ArgumentsForwarding:
+  Enabled: true
+
+Style/CollectionCompact:
+  Enabled: true
+
+Style/DocumentDynamicEvalDefinition:
+  Enabled: true
+
+Style/NegatedIfElseCondition:
+  Enabled: false
+
+Style/NilLambda:
+  Enabled: true
+
+Style/RedundantArgument:
+  Enabled: false
+
+Style/SwapValues:
+  Enabled: true
+
 ######
 # LINT
 ######
@@ -853,6 +874,30 @@ Lint/UselessMethodDefinition:
   Enabled: true
 
 Lint/UselessTimes:
+  Enabled: true
+
+Lint/DuplicateBranch:
+  Enabled: false
+
+Lint/DuplicateRegexpCharacterClassElement:
+  Enabled: true
+
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/EmptyClass:
+  Enabled: false
+
+Lint/NoReturnInBeginEndBlocks:
+  Enabled: true
+
+Lint/ToEnumArguments:
+  Enabled: true
+
+Lint/UnexpectedBlockArity:
+  Enabled: false
+
+Lint/UnmodifiedReduceAccumulator:
   Enabled: true
 
 #########
