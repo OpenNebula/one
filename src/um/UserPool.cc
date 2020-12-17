@@ -327,6 +327,7 @@ int UserPool::allocate(
     string upass       = password;
 
     string gname;
+    bool driver_managed_group_admin = false;
 
     ostringstream   oss;
 
@@ -427,21 +428,30 @@ int UserPool::allocate(
         group->unlock();
     }
 
-    // Set the user group admin
-    for(set<int>::const_iterator it = agids.begin(); it != agids.end(); it++)
+    if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
+            driver_managed_group_admin) != 0)
     {
-        Group * group = gpool->get(*it);
+        driver_managed_group_admin = false;
+    }
 
-        if( group == 0 ) //Secondary group no longer exists
+    if ( driver_managed_group_admin )
+    {
+        // Set the user group admin
+        for(set<int>::const_iterator it = agids.begin(); it != agids.end(); it++)
         {
-            goto error_group;
+            Group * group = gpool->get(*it);
+
+            if( group == 0 ) //Secondary group no longer exists
+            {
+                goto error_group;
+            }
+
+            group->add_admin(*oid, error_str);
+
+            gpool->update(group);
+
+            group->unlock();
         }
-
-        group->add_admin(*oid, error_str);
-
-        gpool->update(group);
-
-        group->unlock();
     }
 
     return *oid;
@@ -652,6 +662,7 @@ bool UserPool::authenticate_internal(User *        user,
     string error_str;
 
     bool driver_managed_groups = false;
+    bool driver_managed_group_admin = false;
 
     int egid    = -1;
     int new_gid = -1;
@@ -694,6 +705,12 @@ bool UserPool::authenticate_internal(User *        user,
             driver_managed_groups) != 0)
     {
         driver_managed_groups = false;
+    }
+
+    if (nd.get_auth_conf_attribute(auth_driver, "DRIVER_MANAGED_GROUP_ADMIN",
+            driver_managed_group_admin) != 0)
+    {
+        driver_managed_group_admin = false;
     }
 
     AuthRequest ar(user_id, group_ids);
@@ -897,7 +914,8 @@ bool UserPool::authenticate_internal(User *        user,
             continue;
         }
 
-        if ( new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
+        if ( driver_managed_group_admin &&
+             new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
         {
             group->add_admin(user_id, error_str);
         }
@@ -929,32 +947,35 @@ bool UserPool::authenticate_internal(User *        user,
     // For groups which user remained member also check if the admin status
     // did not changed
     // -------------------------------------------------------------------------
-    for(it = groups_same.begin(); it != groups_same.end(); it++)
+    if ( driver_managed_group_admin )
     {
-        // user was admin before but is not now
-        if ( group_admin_ids.find(*it) != group_admin_ids.end()
-             && new_group_admin_ids.find(*it) == new_group_admin_ids.end() )
+        for(it = groups_same.begin(); it != groups_same.end(); it++)
         {
-            group = gpool->get(*it);
+            // user was admin before but is not now
+            if ( group_admin_ids.find(*it) != group_admin_ids.end()
+                 && new_group_admin_ids.find(*it) == new_group_admin_ids.end() )
+            {
+                group = gpool->get(*it);
 
-            group->del_admin(user_id, error_str);
+                group->del_admin(user_id, error_str);
 
-            gpool->update(group);
+                gpool->update(group);
 
-            group->unlock();
-        }
+                group->unlock();
+            }
 
-        // user was not admin before but is now
-        if ( group_admin_ids.find(*it) == group_admin_ids.end()
-             && new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
-        {
-            group = gpool->get(*it);
+            // user was not admin before but is now
+            if ( group_admin_ids.find(*it) == group_admin_ids.end()
+                 && new_group_admin_ids.find(*it) != new_group_admin_ids.end() )
+            {
+                group = gpool->get(*it);
 
-            group->add_admin(user_id, error_str);
+                group->add_admin(user_id, error_str);
 
-            gpool->update(group);
+                gpool->update(group);
 
-            group->unlock();
+                group->unlock();
+            }
         }
     }
 

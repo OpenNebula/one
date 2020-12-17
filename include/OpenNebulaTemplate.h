@@ -130,6 +130,7 @@ private:
     void set_conf_auth(const std::string& name,
                        const std::string& change_password,
                        const std::string& driver_managed_groups,
+                       const std::string& driver_managed_group_admin,
                        const std::string& max_token_time);
 
     /**
