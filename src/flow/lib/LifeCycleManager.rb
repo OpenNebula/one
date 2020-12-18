@@ -295,10 +295,7 @@ class ServiceLCM
 
             # If shutdown roles is empty, asume the service is in DONE and exit
             if roles.empty?
-                if service.all_roles_done?
-                    service.set_state(Service::STATE['DONE'])
-                    service.update
-                end
+                service.delete
 
                 break
             end
@@ -594,7 +591,9 @@ class ServiceLCM
                                        "Virtual Networks #{rc}"
                 end
 
-                service.set_state(Service::STATE['DONE'])
+                service.delete
+
+                break
             elsif service.strategy == 'straight'
                 set_deploy_strategy(service)
 

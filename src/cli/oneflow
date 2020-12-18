@@ -55,12 +55,6 @@ CommandParser::CmdParser.new(ARGV) do
     set :option, CommandParser::VERSION
     set :option, CommandParser::HELP
 
-    DONE = {
-        :name => 'done',
-        :large => '--done',
-        :description => 'Show services in DONE state'
-    }
-
     ARGS = {
         :name => 'args',
         :large => '--args arg1,arg2',
@@ -114,7 +108,7 @@ CommandParser::CmdParser.new(ARGV) do
         List the available services
     EOT
 
-    command :list, list_desc, :options => OpenNebulaHelper::FORMAT + [DONE] do
+    command :list, list_desc, :options => OpenNebulaHelper::FORMAT do
         helper.list_service_pool(helper.client(options), options)
     end
 
@@ -124,7 +118,7 @@ CommandParser::CmdParser.new(ARGV) do
         Top the available services
     EOT
 
-    command :top, top_desc, :options => [CLIHelper::DELAY, DONE] do
+    command :top, top_desc, :options => [CLIHelper::DELAY] do
         Signal.trap('INT') { exit(-1) }
 
         helper.top_service_pool(helper.client(options), options)
@@ -399,6 +393,23 @@ CommandParser::CmdParser.new(ARGV) do
 
         if CloudClient.is_error?(response)
             [response.code.to_i, response.to_s]
+        else
+            0
+        end
+    end
+
+    ###
+
+    purge_done_desc = <<-EOT.unindent
+        Purge and delete services in DONE state
+    EOT
+
+    command :'purge-done', purge_done_desc do
+        client   = helper.client(options)
+        response = client.post('/service_pool/purge_done', '')
+
+        if CloudClient.is_error?(response)
+            exit_with_code response.code.to_i, response.to_s
         else
             0
         end

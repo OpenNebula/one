@@ -34,7 +34,7 @@ module OpenNebula
     end
 
     # ServicePool class
-    class ServicePool
+    class ServicePool < Pool
 
         # rubocop:disable Style/ClassVars
         @@mutex      = Mutex.new
@@ -53,6 +53,13 @@ module OpenNebula
             @cloud_auth = cloud_auth
             @client     = client
             @one_pool   = nil
+
+            if @client
+                info     = Nokogiri::XML(@client.call('user.info', -1))
+                @user_id = Integer(info.xpath('/USER/ID').text)
+            end
+
+            super('DOCUMENT_POOL', 'DOCUMENT', @client)
         end
 
         def client
@@ -91,6 +98,23 @@ module OpenNebula
             return if @one_pool.nil?
 
             @one_pool.each(&block)
+        end
+
+        # Iterates over pool pages
+        # size:: nil => default page size
+        #        > 0 => page size
+        # state state of objects
+        def each_page(size)
+            loop_page(size, Service::DOCUMENT_TYPE, false) do |element, page|
+                page.each("//#{element}") do |obj|
+                    service = Service.new_with_id(obj['ID'], @client)
+                    service.info
+
+                    yield(service)
+                end
+
+                size
+            end
         end
 
         # Retrieves a Service element from OpenNebula. The Service::info()
