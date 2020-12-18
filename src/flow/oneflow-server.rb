@@ -83,6 +83,7 @@ conf[:vm_name_template]    ||= DEFAULT_VM_NAME_TEMPLATE
 conf[:wait_timeout]        ||= 30
 conf[:concurrency]         ||= 10
 conf[:auth]                = 'opennebula'
+conf[:page_size]           ||= 10
 
 set :bind, conf[:host]
 set :port, conf[:port]
@@ -383,6 +384,29 @@ post '/service/:id/scale' do
 
     if OpenNebula.is_error?(rc)
         return internal_error(rc.message, one_error_to_http(rc.errno))
+    end
+
+    status 204
+end
+
+##############################################################################
+# Service Pool
+##############################################################################
+
+post '/service_pool/purge_done' do
+    service_pool = OpenNebula::ServicePool.new(nil, @client)
+    rc           = service_pool.info
+
+    if OpenNebula.is_error?(rc)
+        return internal_error(rc.message, one_error_to_http(rc.errno))
+    end
+
+    Thread.new do
+        service_pool.each_page(conf[:page_size]) do |service|
+            next unless service.state == Service::STATE['DONE']
+
+            service.delete
+        end
     end
 
     status 204
