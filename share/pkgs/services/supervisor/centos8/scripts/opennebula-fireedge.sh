@@ -15,6 +15,15 @@ TIMEOUT=120
 # run service
 #
 
+for envfile in \
+    /etc/default/supervisor/fireedge \
+    ;
+do
+    if [ -f "$envfile" ] ; then
+        . "$envfile"
+    fi
+done
+
 if [ -f /var/lib/one/.one/sunstone_auth ] ; then
     msg "Found sunstone_auth - we can start service"
 else

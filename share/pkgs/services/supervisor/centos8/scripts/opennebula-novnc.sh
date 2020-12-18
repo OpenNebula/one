@@ -41,6 +41,15 @@ on_exit()
 
 #TODO: should I wait for sunstone or something?
 
+for envfile in \
+    /etc/default/supervisor/novnc \
+    ;
+do
+    if [ -f "$envfile" ] ; then
+        . "$envfile"
+    fi
+done
+
 # NOTE: /usr/bin/novnc-server is daemonizing itself which cannot work with
 # supervisord (or runit) and there is no way to switch it to foreground...
 

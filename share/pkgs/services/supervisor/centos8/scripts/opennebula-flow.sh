@@ -15,6 +15,15 @@ TIMEOUT=120
 # run service
 #
 
+for envfile in \
+    /etc/default/supervisor/oneflow \
+    ;
+do
+    if [ -f "$envfile" ] ; then
+        . "$envfile"
+    fi
+done
+
 if [ -f /var/lib/one/.one/oneflow_auth ] ; then
     msg "Found oneflow_auth - we can start service"
 else

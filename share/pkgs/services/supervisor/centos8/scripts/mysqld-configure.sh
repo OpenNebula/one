@@ -45,6 +45,15 @@ is_root_password_valid()
 # run service
 #
 
+for envfile in \
+    /etc/default/supervisor/mysqld \
+    ;
+do
+    if [ -f "$envfile" ] ; then
+        . "$envfile"
+    fi
+done
+
 # we are talking locally and this pollutes our env.
 unset MYSQL_HOST
 unset MYSQL_PORT
