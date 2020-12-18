@@ -15,6 +15,15 @@ TIMEOUT=120
 # run service
 #
 
+for envfile in \
+    /etc/default/supervisor/sched \
+    ;
+do
+    if [ -f "$envfile" ] ; then
+        . "$envfile"
+    fi
+done
+
 if [ -f /var/lib/one/.one/one_auth ] ; then
     msg "Found one_auth - we can start service"
 else

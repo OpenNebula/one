@@ -28,6 +28,7 @@ done
 
 for envfile in \
     /var/run/one/ssh-agent.env \
+    /etc/default/supervisor/onehem \
     ;
 do
     if [ -f "$envfile" ] ; then

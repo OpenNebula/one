@@ -46,7 +46,7 @@ wait_for_oned()
 
     while [ "$TIMEOUT" -gt 0 ] ; do
         if oneuser list -x \
-           --endpoint "http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2" \
+           --endpoint "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2" \
            > /dev/null 2>&1 \
            ;
         then
@@ -65,7 +65,7 @@ wait_for_memcached()
     TIMEOUT="${TIMEOUT:-120}"
 
     while [ "$TIMEOUT" -gt 0 ] ; do
-        if echo stats | nc "${OPENNEBULA_MEMCACHED_HOSTNAME}" 11211 \
+        if echo stats | nc "${MEMCACHED_HOST}" "${MEMCACHED_INTERNAL_PORT}" \
            > /dev/null 2>&1 \
            ;
         then
