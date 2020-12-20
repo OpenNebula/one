@@ -7,7 +7,7 @@ Cmnd_Alias ONE_HA = /bin/systemctl start opennebula-flow, /bin/systemctl stop op
 Cmnd_Alias ONE_LVM = /sbin/lvcreate, /sbin/lvremove, /sbin/lvs, /sbin/vgdisplay, /sbin/lvchange, /sbin/lvscan, /sbin/lvextend
 Cmnd_Alias ONE_LXD = /snap/bin/lxc, /usr/bin/catfstab, /bin/mount, /bin/umount, /bin/mkdir, /bin/lsblk, /sbin/losetup, /sbin/kpartx, /usr/bin/qemu-nbd, /sbin/blkid, /sbin/e2fsck, /sbin/resize2fs, /usr/sbin/xfs_growfs, /usr/bin/rbd-nbd, /usr/sbin/xfs_admin, /sbin/tune2fs
 Cmnd_Alias ONE_MARKET = /usr/lib/one/sh/create_container_image.sh, /usr/lib/one/sh/create_docker_image.sh
-Cmnd_Alias ONE_NET = /sbin/ebtables, /sbin/iptables, /sbin/ip6tables, /sbin/ipset, /sbin/ip link *, /sbin/ip tuntap *, /usr/sbin/ip route *, /usr/sbin/ip neighbour *
+Cmnd_Alias ONE_NET = /sbin/ebtables, /sbin/iptables, /sbin/ip6tables, /sbin/ipset, /sbin/ip link *, /sbin/ip tuntap *, /sbin/ip route *, /sbin/ip neighbour *
 Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl
 
 ## Command aliases are enabled individually in dedicated
