@@ -117,6 +117,7 @@ begin
     end
 
     cidr_s = data.xpath('//AR/CIDR').text
+    mask = cidr_s.split('/')[1]
 
     if cidr_s.empty?
         STDERR.puts 'Missing CIDR block in address range'
@@ -125,7 +126,7 @@ begin
 
     cidr = IPAddr.new(cidr_s)
 
-    if cidr.prefix != 16
+    if ! ['255.255.0.0', '16'].include? mask
         STDERR.puts 'Elastic CIDR block has to be /16'
         exit(-1)
     end
