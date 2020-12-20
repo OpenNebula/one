@@ -30,7 +30,9 @@ class Sudoers
                 'ip6tables',
                 'ipset',
                 'ip link *',
-                'ip tuntap *'
+                'ip tuntap *',
+                'ip route *',
+                'ip neighbour *'
             ],
             :LVM    => %w[
                 lvcreate lvremove lvs vgdisplay lvchange lvscan lvextend
