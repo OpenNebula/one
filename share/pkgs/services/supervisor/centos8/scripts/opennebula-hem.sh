@@ -38,5 +38,9 @@ done
 
 export SSH_AUTH_SOCK
 
+msg "Rotate log to start with an empty one"
+/usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
+    -f /etc/logrotate.d/opennebula-hem
+
 msg "Service started!"
 exec /usr/bin/ruby /usr/lib/one/onehem/onehem-server.rb
