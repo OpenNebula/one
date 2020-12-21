@@ -63,5 +63,9 @@ if [ -e /var/lock/one/one ] ; then
     rm -f /var/lock/one/one
 fi
 
+msg "Rotate log to start with an empty one"
+/usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
+    -f /etc/logrotate.d/opennebula
+
 msg "Service started!"
 exec /usr/bin/oned -f

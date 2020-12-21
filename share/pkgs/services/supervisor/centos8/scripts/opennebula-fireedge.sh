@@ -35,5 +35,9 @@ else
     msg "File created - continue"
 fi
 
+msg "Rotate log to start with an empty one"
+/usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
+    -f /etc/logrotate.d/opennebula-fireedge
+
 msg "Service started!"
 exec /usr/bin/node /usr/lib/one/fireedge/dist/index.js

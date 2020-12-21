@@ -35,5 +35,9 @@ else
     msg "File created - continue"
 fi
 
+msg "Rotate log to start with an empty one"
+/usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
+    -f /etc/logrotate.d/opennebula-gate
+
 msg "Service started!"
 exec /usr/bin/ruby /usr/lib/one/onegate/onegate-server.rb

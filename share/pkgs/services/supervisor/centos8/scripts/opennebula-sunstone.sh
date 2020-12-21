@@ -35,5 +35,9 @@ else
     msg "File created - continue"
 fi
 
+msg "Rotate log to start with an empty one"
+/usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
+    -f /etc/logrotate.d/opennebula-sunstone
+
 msg "Service started!"
 exec /usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb
