@@ -178,9 +178,7 @@ define(function(require) {
       }
     }
 
-    if (FireedgeValidator.fireedgeToken == ""){
-      FireedgeValidator.validateFireedgeToken(create_socket);
-    }
+    FireedgeValidator.validateFireedgeToken(create_socket);
 
   }
 
@@ -303,13 +301,8 @@ define(function(require) {
           callVNC();
         }
       }
-
-      if (FireedgeValidator.fireedgeToken == "") {
-        FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
-      }
-      else{
-        remote_connections(FireedgeValidator.fireedgeToken);
-      }
+        
+      FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
 
       return false;
     });

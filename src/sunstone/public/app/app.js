@@ -81,9 +81,7 @@ define(function(require) {
       }
     }
 
-    if (FireedgeValidator.fireedgeToken == ""){
-      FireedgeValidator.validateFireedgeToken(create_socket);    
-    }
+    FireedgeValidator.checkFireedgePublicURL(FireedgeValidator.validateFireedgeToken, create_socket);    
 
     $('#loading').hide();
   });

@@ -16,10 +16,31 @@
 
 define(function (require) {
 
-    var Config = require("sunstone-config");  
+    var Config = require("sunstone-config");
+    var Notifier = require('utils/notifier');
   
     // user config
     const fireedge_endpoint = Config.publicFireedgeEndpoint;
+
+    const STATUS = {
+        DISCONNECTED: 0,
+        CONNECTED: 1,
+        PROCESSING: 2
+    };
+
+    var connection = STATUS.DISCONNECTED;
+
+    var _connected = function(){
+        return connection == STATUS.CONNECTED;
+    }
+
+    var _disconnected = function(){
+        return connection == STATUS.DISCONNECTED;
+    }
+
+    var _processing = function(){
+        return connection == STATUS.PROCESSING;
+    }
 
     /**
      * Aux function to change the fireedge_token value.
@@ -44,27 +65,70 @@ define(function (require) {
      * be "".
      */
     var _validate_fireedge_token = function(success, error) {
-        $.ajax({
-            url: "/fireedge",
-            type: "GET",
-            success: function(data) {
-                set_fireedge_token(data.token);
-                if (typeof success == "function"){
-                    success(fireedge_token);
+        if (is_fireedge_configured && fireedge_token == "" && fireedge_endpoint){
+            console.log("HELLO");
+            $.ajax({
+                url: "/fireedge",
+                type: "GET",
+                success: function(data) {
+                    set_fireedge_token(data.token);
+                    if (typeof success == "function"){
+                        success(fireedge_token);
+                    }
+                },
+                error: function(request, response, data) {
+                    Notifier.onError(request, {error:{ message: "Fireedge private endpoint is not working, please contact you cloud administrator"}});
+                    is_fireedge_configured = false;
+                    clear_fireedge_token();
+                    if (typeof error == "function"){
+                        error();
+                    }
                 }
-            },
-            error: function(request, response, data) {
-                clear_fireedge_token();
-                if (typeof error == "function"){
-                    error();
-                }
+            });
+        }
+        else if (is_fireedge_configured){
+            if (typeof success == "function"){
+                success(fireedge_token);
             }
-        });
+        }
+        else{
+            if (typeof error == "function"){
+                error();
+            }
+        }
     }
-  
+
+    var _check_fireedge_public_url = function (success, aux, error) {
+        if (fireedge_endpoint){
+            $.ajax({
+                url: fireedge_endpoint,
+                type: "GET",
+                success: function() {
+                    is_fireedge_configured = true;
+                    if (typeof success == "function" && typeof aux == "function"){
+                        success(aux);
+                    }
+                },
+                error: function(request, response, data) {
+                    Notifier.onError(request, {error:{ message: "Fireedge public endpoint is not working, please contact you cloud administrator"}});
+                    is_fireedge_configured = false;
+                    if (typeof error == "function"){
+                        error();
+                    }
+                }
+            });
+        }
+        else {
+            is_fireedge_configured = false;
+            if (typeof error == "function"){
+                error();
+            }
+        }
+    }
+
     var fireedge_validator = {
       "validateFireedgeToken": _validate_fireedge_token,
-      "fireedgeToken": fireedge_token
+      "checkFireedgePublicURL": _check_fireedge_public_url
     };
   
     return fireedge_validator;

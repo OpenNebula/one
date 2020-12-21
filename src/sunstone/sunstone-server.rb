@@ -927,12 +927,12 @@ get '/fireedge' do
         session[:fireedge_token] = fireedge_token
         
         response = {:token => fireedge_token}
+        [200,  response.to_json]
     rescue StandardError => error
         logger.info("Fireedge server is not running. Error: #{error}")
         response = {:token => ""}
+        [400,  response.to_json]
     end
-
-    [200,  response.to_json]
 end
 
 ##############################################################################

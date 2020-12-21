@@ -175,37 +175,40 @@ define(function(require) {
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
 
-    var show_buttons = function(){
-      if (fireedge_token != ""){
-        $(".vnc-button").hide();
-        if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
-          if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
-            $(".vmrc-button").show();
-            $(".guac-button").hide();
-          }
-          if (that.element.USER_TEMPLATE.HYPERVISOR == "kvm"){
-            $(".guac-button").show();
-            $(".vmrc-button").hide();
-          }
+    var show_noVNC_buttons = function(){
+      $(".vnc-button").show();
+      $(".guac-button").hide();
+      $(".vmrc-button").hide();
+    }
+
+    var show_fireedge_buttons = function(){
+      $(".vnc-button").hide();
+      if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
+        if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
+          $(".vmrc-button").show();
+          $(".guac-button").hide();
         }
-        else{
+        if (that.element.USER_TEMPLATE.HYPERVISOR == "kvm"){
           $(".guac-button").show();
           $(".vmrc-button").hide();
         }
       }
       else{
-        $(".vnc-button").show();
-        $(".guac-button").hide();
+        $(".guac-button").show();
         $(".vmrc-button").hide();
       }
     }
 
-    if (FireedgeValidator.fireedgeToken == ""){
-      FireedgeValidator.validateFireedgeToken(show_buttons);
+    var show_buttons = function(fireedgeToken){
+      if (fireedgeToken != ""){
+        show_fireedge_buttons();
+      }
+      else{
+        show_noVNC_buttons();
+      }
     }
-    else{
-      show_buttons();
-    }
+
+    FireedgeValidator.validateFireedgeToken(show_buttons, show_noVNC_buttons);
 
   }
 });
