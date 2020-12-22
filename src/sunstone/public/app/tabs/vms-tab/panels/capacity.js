@@ -122,6 +122,10 @@ define(function(require) {
     var that = this;
    
     if (that.element.STATE === "3" &&
+        that.element.USER_TEMPLATE &&
+        that.element.USER_TEMPLATE.HOT_RESIZE &&
+        that.element.USER_TEMPLATE.HOT_RESIZE.MEMORY_HOT_ADD_ENABLED &&
+        that.element.USER_TEMPLATE.HOT_RESIZE.CPU_HOT_ADD_ENABLED &&
         that.element.USER_TEMPLATE.HOT_RESIZE.MEMORY_HOT_ADD_ENABLED === "NO" &&
         that.element.USER_TEMPLATE.HOT_RESIZE.CPU_HOT_ADD_ENABLED === "NO"){
           $('#resize_capacity',context).attr("disabled", "disabled");
