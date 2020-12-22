@@ -19,3 +19,4 @@ while sleep 1d ; do
     /usr/bin/oneshowback calculate 2>&1
 done
 
+exit $?

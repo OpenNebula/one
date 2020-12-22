@@ -51,6 +51,13 @@ class EventManager
         PROLOG_UNDEPLOY_FAILURE
     ]
 
+    SUBSCRIBE_STATES = %w[
+        STOPPED
+        SUSPENDED
+        POWEROFF
+        UNDEPLOYED
+    ]
+
     # --------------------------------------------------------------------------
     # Default configuration options for the module
     # --------------------------------------------------------------------------
@@ -108,7 +115,8 @@ class EventManager
                                 service_id,
                                 client,
                                 service_id,
-                                role_name)
+                                role_name,
+                                rc[1])
         else
             @lcm.trigger_action(:deploy_failure_cb,
                                 service_id,
@@ -163,7 +171,8 @@ class EventManager
                                 service_id,
                                 client,
                                 service_id,
-                                role_name)
+                                role_name,
+                                rc[1])
         else
             @lcm.trigger_action(:scaleup_failure_cb,
                                 service_id,
@@ -225,11 +234,17 @@ class EventManager
     def wait(nodes, state, lcm_state)
         subscriber = gen_subscriber
 
-        rc_nodes = { :successful => [], :failure => [] }
+        rc_nodes = { :successful => {}, :failure => {} }
         rc       = check_nodes(nodes, state, lcm_state, subscriber)
 
-        rc_nodes[:successful].concat(rc[:successful])
-        rc_nodes[:failure].concat(rc[:failure])
+        # rc_nodes[:successful] has the following structure
+        #
+        #   node_id => boolean
+        #
+        # = true means the VM was deleted by external user
+        # = false means the VM state is in SUBSCRIBE_STATES
+        rc_nodes[:successful].merge!(rc[:successful])
+        rc_nodes[:failure].merge!(rc[:failure])
 
         if nodes.empty? && rc_nodes[:failure].empty?
             subscriber.close
@@ -239,6 +254,10 @@ class EventManager
 
         nodes.each do |node|
             subscribe(node, state, lcm_state, subscriber)
+
+            (SUBSCRIBE_STATES + ['DONE']).each do |s|
+                subscribe(node, s, 'LCM_INIT', subscriber)
+            end
         end
 
         key = ''
@@ -248,21 +267,27 @@ class EventManager
             rc = subscriber.recv_string(key)
             rc = subscriber.recv_string(content) if rc != -1
 
+            # rubocop:disable Style/GuardClause
             if rc == -1 && ZMQ::Util.errno != ZMQ::EAGAIN
-                Log.error LOG_COMP, 'Error reading from subscriber.'
+                # rubocop:enable Style/GuardClause
+                next Log.error LOG_COMP, 'Error reading from subscriber.'
             elsif rc == -1
                 Log.info LOG_COMP, "Timeout reached for VM #{nodes} =>"\
                                    " (#{state}, #{lcm_state})"
 
                 rc = check_nodes(nodes, state, lcm_state, subscriber)
 
-                rc_nodes[:successful].concat(rc[:successful])
-                rc_nodes[:failure].concat(rc[:failure])
+                rc_nodes[:successful].merge!(rc[:successful])
+                rc_nodes[:failure].merge!(rc[:failure])
 
                 next if !nodes.empty? && rc_nodes[:failure].empty?
 
                 nodes.each do |id|
                     unsubscribe(id, state, lcm_state, subscriber)
+
+                    (SUBSCRIBE_STATES + ['DONE']).each do |s|
+                        unsubscribe(id, s, 'LCM_INIT', subscriber)
+                    end
                 end
 
                 # If any node is in error wait action will fails
@@ -271,12 +296,11 @@ class EventManager
                 return [true, rc_nodes] # (nodes.empty? && fail_nodes.empty?)
             end
 
-            id = retrieve_id(key)
-            Log.info LOG_COMP, "Node #{id} reached (#{state},#{lcm_state})"
+            states = { :state => state, :lcm_state => lcm_state }
+            rc     = check_nodes_event(nodes, states, key, content, subscriber)
 
-            nodes.delete(id)
-            unsubscribe(id, state, lcm_state, subscriber)
-            rc_nodes[:successful] << id
+            rc_nodes[:successful].merge!(rc[:successful])
+            rc_nodes[:failure].merge!(rc[:failure])
         end
 
         subscriber.close
@@ -285,17 +309,29 @@ class EventManager
     end
 
     def wait_report_ready(nodes)
-        rc_nodes = { :successful => [], :failure => [] }
+        rc_nodes = { :successful => {}, :failure => {} }
         rc       = check_nodes_report(nodes)
 
-        rc_nodes[:successful].concat(rc[:successful])
-        rc_nodes[:failure].concat(rc[:failure])
+        # rc_nodes[:successful] has the following structure
+        #
+        #   node_id => boolean
+        #
+        # = true means the VM was deleted by external user
+        # = false means the VM state is in SUBSCRIBE_STATES
+        rc_nodes[:successful].merge!(rc[:successful])
+        rc_nodes[:failure].merge!(rc[:failure])
 
         return [true, rc_nodes] if nodes.empty? && rc_nodes[:failure].empty?
 
         subscriber = gen_subscriber
 
         subscriber.setsockopt(ZMQ::SUBSCRIBE, 'EVENT API one.vm.update 1')
+
+        nodes.each do |node|
+            (SUBSCRIBE_STATES + ['DONE']).each do |s|
+                subscribe(node, s, 'LCM_INIT', subscriber)
+            end
+        end
 
         key     = ''
         content = ''
@@ -306,19 +342,26 @@ class EventManager
 
             # rubocop:disable Style/GuardClause
             if rc == -1 && ZMQ::Util.errno != ZMQ::EAGAIN
+                # rubocop:enable Style/GuardClause
                 next Log.error LOG_COMP, 'Error reading from subscriber.'
             elsif rc == -1
                 Log.info LOG_COMP, "Timeout reached for VM #{nodes} to report"
 
                 rc = check_nodes_report(nodes)
 
-                rc_nodes[:successful].concat(rc[:successful])
-                rc_nodes[:failure].concat(rc[:failure])
+                rc_nodes[:successful].merge!(rc[:successful])
+                rc_nodes[:failure].merge!(rc[:failure])
 
                 next if !nodes.empty? && rc_nodes[:failure].empty?
 
                 subscriber.setsockopt(ZMQ::UNSUBSCRIBE,
                                       'EVENT API one.vm.update 1')
+
+                nodes.each do |node|
+                    (SUBSCRIBE_STATES + ['DONE']).each do |s|
+                        unsubscribe(node, s, 'LCM_INIT', subscriber)
+                    end
+                end
 
                 # If any node is in error wait action will fails
                 return [false, rc_nodes] unless rc_nodes[:failure].empty?
@@ -326,13 +369,46 @@ class EventManager
                 return [true, rc_nodes] # (nodes.empty? && fail_nodes.empty?)
             end
 
-            # rubocop:enable Style/GuardClause
+            rc = check_nodes_event(nodes, {}, key, content, subscriber)
 
-            xml = Nokogiri::XML(Base64.decode64(content))
+            if rc.is_a? Array
+                next if !rc[1].match('READY=YES') || !nodes.include?(rc[0])
+            else
+                rc_nodes[:successful].merge!(rc[:successful])
+                rc_nodes[:failure].merge!(rc[:failure])
 
-            id = xml.xpath(
+                next
+            end
+
+            Log.info LOG_COMP, "Node #{rc[0]} reported ready"
+
+            (SUBSCRIBE_STATES + ['DONE']).each do |s|
+                unsubscribe(rc[0], s, 'LCM_INIT', subscriber)
+            end
+
+            nodes.delete(rc[0])
+
+            rc_nodes[:successful][rc[0]] = false
+        end
+
+        subscriber.setsockopt(ZMQ::UNSUBSCRIBE, 'EVENT API one.vm.update 1')
+
+        subscriber.close
+
+        [true, rc_nodes]
+    end
+
+    def check_nodes_event(nodes, states, key, content, subscriber)
+        xml = Nokogiri::XML(Base64.decode64(content))
+
+        # Read states we are waiting for
+        state     = states[:state]
+        lcm_state = states[:lcm_state]
+
+        if key.include?('one.vm.update')
+            id = Integer(xml.xpath(
                 '//PARAMETER[POSITION=2 and TYPE=\'IN\']/VALUE'
-            ).text.to_i
+            ).text)
             ready = xml.xpath(
                 '//PARAMETER[POSITION=3 and TYPE=\'IN\']/VALUE'
             ).text
@@ -344,23 +420,46 @@ class EventManager
             ready.gsub!(' ', '')
             # rubocop:enable Style/StringLiterals
 
-            next if !ready.match('READY=YES') || !nodes.include?(id)
+            [id, ready]
+        else
+            # Read information from hook message
+            id          = retrieve_id(key)
+            h_state     = xml.xpath('//HOOK_MESSAGE/STATE').text
+            h_lcm_state = xml.xpath('//HOOK_MESSAGE/LCM_STATE').text
 
-            Log.info LOG_COMP, "Node #{id} reported ready"
+            rc_nodes = { :successful => {}, :failure => {} }
 
-            nodes.delete(id)
-            rc_nodes[:successful] << id
+            Log.info LOG_COMP,
+                     "Node #{id} reached (#{h_state}, #{h_lcm_state})"
+
+            if h_state == 'DONE'
+                rc_nodes[:successful][id] = true
+            elsif h_state == state && h_lcm_state == lcm_state
+                rc_nodes[:successful][id] = false
+            elsif SUBSCRIBE_STATES.include?(vm_state)
+                rc_nodes[:successful][id] = false
+            end
+
+            if FAILURE_STATES.include? h_lcm_state
+                Log.error LOG_COMP, "Node #{id} is in FAILURE state"
+
+                rc_nodes[:failure][id] = false
+            else
+                unsubscribe(id, state, lcm_state, subscriber)
+
+                (SUBSCRIBE_STATES + ['DONE']).each do |s|
+                    unsubscribe(id, s, 'LCM_INIT', subscriber)
+                end
+
+                nodes.delete(id)
+            end
+
+            rc_nodes
         end
-
-        subscriber.setsockopt(ZMQ::UNSUBSCRIBE, 'EVENT API one.vm.update 1')
-
-        subscriber.close
-
-        [true, rc_nodes]
     end
 
     def check_nodes(nodes, state, lcm_state, subscriber)
-        rc_nodes = { :successful => [], :failure => [] }
+        rc_nodes = { :successful => {}, :failure => {} }
 
         nodes.delete_if do |node|
             vm = OpenNebula::VirtualMachine
@@ -371,18 +470,24 @@ class EventManager
             vm_state     = OpenNebula::VirtualMachine::VM_STATE[vm.state]
             vm_lcm_state = OpenNebula::VirtualMachine::LCM_STATE[vm.lcm_state]
 
+            Log.info LOG_COMP,
+                     "Node #{node} reached (#{vm_state},#{vm_lcm_state})"
+
             if vm_state == 'DONE' ||
                (vm_state == state && vm_lcm_state == lcm_state)
                 unsubscribe(node, state, lcm_state, subscriber)
 
-                rc_nodes[:successful] << node
+                rc_nodes[:successful][node] = true
+                next true
+            elsif SUBSCRIBE_STATES.include?(vm_state)
+                rc_nodes[:successful][node] = false
                 next true
             end
 
             if FAILURE_STATES.include? vm_lcm_state
                 Log.error LOG_COMP, "Node #{node} is in FAILURE state"
 
-                rc_nodes[:failure] << node
+                rc_nodes[:failure][node] = false
 
                 next true
             end
@@ -394,7 +499,7 @@ class EventManager
     end
 
     def check_nodes_report(nodes)
-        rc_nodes = { :successful => [], :failure => [] }
+        rc_nodes = { :successful => {}, :failure => {} }
 
         nodes.delete_if do |node|
             vm = OpenNebula::VirtualMachine.new_with_id(node,
@@ -402,11 +507,20 @@ class EventManager
 
             vm.info
 
+            vm_state     = OpenNebula::VirtualMachine::VM_STATE[vm.state]
             vm_lcm_state = OpenNebula::VirtualMachine::LCM_STATE[vm.lcm_state]
+
+            if vm_state == 'DONE'
+                rc_nodes[:successful][node] = true
+                next true
+            elsif SUBSCRIBE_STATES.include?(vm_state)
+                rc_nodes[:successful][node] = false
+                next true
+            end
 
             if vm['/VM/USER_TEMPLATE/READY'] &&
                vm['/VM/USER_TEMPLATE/READY'].strip == 'YES'
-                rc_nodes[:successful] << node
+                rc_nodes[:successful][node] = false
 
                 next true
             end
@@ -415,7 +529,7 @@ class EventManager
             if FAILURE_STATES.include? vm_lcm_state
                 Log.error LOG_COMP, "Node #{node} is in FAILURE state"
 
-                rc_nodes[:failure] << node
+                rc_nodes[:failure][node] = false
 
                 next true
             end

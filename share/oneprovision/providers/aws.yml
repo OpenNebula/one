@@ -1,0 +1,22 @@
+name: 'aws'
+
+plain:
+  image: 'AWS.webp'
+
+connection:
+  acces_key: "Encrypted aws access key"
+  secret_key: "Encrypted aws secret key"
+
+location_key: 'aws_region'
+
+locations:
+  us-east-1:
+      aws_ami_image: 
+         - 'ami-12345'
+      aws_instance_type: 
+         - 'i3-metal'
+  us-east-2:
+      aws_ami_image: 
+         - 'ami-6789'
+      aws_instance_type: 
+         - 'i4-metal'

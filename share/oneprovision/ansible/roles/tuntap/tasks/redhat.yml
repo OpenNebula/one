@@ -1,6 +1,0 @@
----
-
-- name: Configure TUN/TAP (RedHat like)
-  template:
-    src: ifcfg.j2
-    dest: /etc/sysconfig/network-scripts/ifcfg-{{ tuntap_name }}

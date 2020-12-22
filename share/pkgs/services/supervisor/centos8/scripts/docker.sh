@@ -30,7 +30,7 @@ done
 #
 
 for envfile in \
-    /etc/sysconfig/dockerd \
+    /etc/default/supervisor/dockerd \
     ;
 do
     if [ -f "$envfile" ] ; then
@@ -51,5 +51,4 @@ if ! wait_for_file "${CONTAINERD_SOCK}" ; then
 fi
 
 msg "Service started!"
-exec /usr/bin/dockerd ${DOCKER_HOSTS} \
-    --containerd="${CONTAINERD_SOCK}"
+exec /usr/bin/dockerd ${DOCKER_HOSTS} --containerd="${CONTAINERD_SOCK}"

@@ -59,7 +59,13 @@ fi
 trap clean EXIT
 
 # Mount container disk image and untar rootfs contents to it
-mount -o noexec,nodev,nosuid $img_raw $dockerdir/mnt > /dev/null 2>&1
+
+# try first to mount with the fuse2fs command and if that fails fallback to the
+# regular mount
+if ! fuse2fs -o noexec,nodev,nosuid $img_raw $dockerdir/mnt >/dev/null 2>&1 ; then
+    mount -o noexec,nodev,nosuid $img_raw $dockerdir/mnt
+fi
+
 chmod o+w $dockerdir/mnt
 tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
 

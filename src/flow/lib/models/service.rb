@@ -300,28 +300,6 @@ module OpenNebula
             end
         end
 
-        # Delete the service. All the VMs are also deleted from OpenNebula.
-        # @return [nil, OpenNebula::Error] nil in case of success, Error
-        #   otherwise
-        def delete
-            networks = JSON.parse(self['TEMPLATE/BODY'])['networks_values']
-
-            networks.each do |net|
-                next unless net[net.keys[0]].key? 'template_id'
-
-                net_id = net[net.keys[0]]['id'].to_i
-
-                rc = OpenNebula::VirtualNetwork
-                     .new_with_id(net_id, @client).delete
-
-                if OpenNebula.is_error?(rc)
-                    log_info("Error deleting vnet #{net_id}: #{rc}")
-                end
-            end if networks
-
-            super()
-        end
-
         # Retrieves the information of the Service and all its Nodes.
         #
         # @return [nil, OpenNebula::Error] nil in case of success, Error

@@ -93,8 +93,15 @@ require 'base64'
 require 'nokogiri'
 require 'opennebula'
 require 'oneprovision'
+require 'ipaddr'
 
 IP_TYPE = %w[public_ipv4 global_ipv4]
+
+class IPAddr
+    def ^(other)
+        return self.clone.set(@addr ^ other.to_i)
+    end
+end
 
 begin
     data = Nokogiri::XML(Base64.decode64(STDIN.read))
@@ -121,9 +128,9 @@ begin
     provider = provision.provider
     connect  = provider.body['connection']
 
-    pk_token    = connect['packet_token']
-    pk_project  = connect['packet_project']
-    pk_facility = connect['packet_facility']
+    pk_token    = connect['token']
+    pk_project  = connect['project']
+    pk_facility = connect['facility']
 
     # --------------------------------------------------------------------------
     # Connect to Packet and allocate a new IP
@@ -152,12 +159,16 @@ begin
 
     packet.create_ip(ip)
 
+    ipgw = IPAddr.new(ip.address) ^ 1
+
     puts <<-EOF
         AR = [
             TYPE     = "IP4",
             IP       = "#{ip.address}",
             SIZE     = "#{ip.quantity}",
             IPAM_MAD = "packet",
+            GATEWAY  = "#{ipgw}",
+            NETWORK_MASK = "255.255.255.254",
             PACKET_IP_ID = "#{ip.id}",
             PROVISION_ID = "#{provision_id}"
         ]

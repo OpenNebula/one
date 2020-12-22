@@ -136,7 +136,11 @@ group :vmware do
         gem 'vsphere-automation-vcenter', '~> 0.4.6'
     end
 
-    gem 'rbvmomi', '~> 2.2.0'
+    if ruby_version >= Gem::Version.new('2.4.1')
+        gem 'rbvmomi', '~> 3.0.0'
+    else
+        gem 'rbvmomi', '~> 2.2.0'
+    end
 end
 
 group :onecfg do

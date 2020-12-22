@@ -19,6 +19,7 @@
     <script type="text/javascript">
       var csrftoken = '<%= session[:csrftoken] %>';
       var fireedge_token = '<%= session[:fireedge_token] %>';
+      var is_fireedge_configured = <%= !$conf[:public_fireedge_endpoint].nil? && !$conf[:private_fireedge_endpoint].nil? %>
       var view = JSON.parse('<%= view.to_json %>')
       var available_views = JSON.parse('["<%=
           $views_config.available_views(session[:user], session[:user_gname]).join('","')
@@ -55,8 +56,7 @@
           'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>,
           'mapped_ips' : '<%= $conf[:mapped_ips] ? $conf[:mapped_ips] : false %>',
           'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>',
-          'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint] ? $conf[:public_fireedge_endpoint] : "http://localhost:2616" %>',
-          'max_waiting_tries': '<%= $conf[:max_waiting_tries] ? $conf[:max_waiting_tries] : 5 %>',
+          'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint] %>',
         },
         'view' : view,
         'available_views' : available_views,

@@ -241,7 +241,7 @@ define(function(require) {
           }
         }
       });
-      var cost = 0;
+
       var cpuCost    = capacity.CPU_COST;
       var memoryCost = capacity.MEMORY_COST;
       if (cpuCost == undefined){
@@ -250,7 +250,8 @@ define(function(require) {
       if (memoryCost == undefined){
         memoryCost = Config.onedConf.DEFAULT_COST.MEMORY_COST;
       }
-      var _redoCost = function(values){
+
+      var _redoCost = function(values) {
         var cost = 0;
         if (values.CPU != undefined){
           cost += cpuCost * values.CPU;
@@ -261,6 +262,7 @@ define(function(require) {
         $(".cost_value", context).html(cost.toFixed(2));
         _calculateCost();
       };
+
       if ((cpuCost != 0 || memoryCost != 0) && Config.isFeatureEnabled("showback")) {
         $(".provision_create_template_cost_div").show();
         _redoCost(capacity);
@@ -269,6 +271,11 @@ define(function(require) {
         }
       } else {
         $(".provision_create_template_cost_div").hide();
+      }
+      
+      if (!Config.provision.create_vm.isEnabled("capacity_select")) {
+        $('input, select', $(".provision_capacity_selector"))
+          .prop("disabled", true)
       }
     }
     function _calculateCost(){

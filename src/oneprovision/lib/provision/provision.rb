@@ -209,8 +209,6 @@ module OneProvision
             cfg.validate
 
             begin
-                @idx = nil
-
                 # Create configuration object
                 cfg = ProvisionConfig.new(config, inputs)
                 cfg.load
@@ -335,7 +333,7 @@ module OneProvision
 
             update
 
-            rc = Ansible.configure(hosts)
+            rc = Ansible.configure(hosts, datastores)
 
             if rc == 0
                 self.state = STATE['RUNNING']
@@ -619,19 +617,25 @@ module OneProvision
 
             infrastructure_objects['hosts'] = []
             cid = Integer(cluster['id'])
+            global_idx = -1
 
             cfg['hosts'].each do |h|
-                h['count'].nil? ? count = 1 : count = Integer(h['count'])
+                # Multiple host definition setup
+                if h['provision']['hostname'].is_a? Array
+                    count     = h['provision']['hostname'].size
+                    hostnames = h['provision']['hostname']
+                elsif h['provision']['count']
+                    count = Integer(h['provision']['count'])
+                else
+                    count = 1
+                end
 
-                # Get hostnames
-                host_names = h['provision']['hostname'] if count > 1
+                global_idx += 1
 
                 # Store original host template
                 h_bck = Marshal.load(Marshal.dump(h))
 
                 count.times.each do |idx|
-                    @idx = idx
-
                     Driver.retry_loop('Failed to create some host', self) do
                         playbooks = cfg['playbook']
                         playbooks = playbooks.join(',') if playbooks.is_a? Array
@@ -639,13 +643,12 @@ module OneProvision
                         h = Marshal.load(Marshal.dump(h_bck))
 
                         # Take hostname from array
-                        if host_names
-                            if host_names.is_a? Array
-                                h['provision']['hostname'] = host_names.shift
-                            else
-                                h['provision']['hostname'] = host_names
-                            end
+                        if hostnames
+                            h['provision']['hostname'] = hostnames.shift
                         end
+
+                        h['provision']['index'] = idx + global_idx
+                        h['provision']['count'] = count
 
                         host = Resource.object('hosts', @provider, h)
 

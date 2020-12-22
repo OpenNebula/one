@@ -29,6 +29,8 @@ module OneProvision
             :network   => 'packet_reserved_ip_block'
         }
 
+        KEYS = %w[project token facility]
+
         # Class constructor
         #
         # @param provider [Provider]

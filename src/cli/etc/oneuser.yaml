@@ -10,6 +10,11 @@
   :left: true
   :expand: true
 
+:ENABLED:
+  :desc: User is enabled
+  :size: 4
+  :left: true
+
 :GROUP:
   :desc: Group of the User
   :size: 8
@@ -39,6 +44,7 @@
 :default:
 - :ID
 - :NAME
+- :ENABLED
 - :GROUP
 - :AUTH
 - :VMS

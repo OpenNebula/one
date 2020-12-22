@@ -19,4 +19,4 @@
 LIVE_DISK_SNAPSHOTS="kvm-qcow2 kvm-ceph kvm-ssh"
 
 # Space separated list VNM_MAD-ACTION pairs that run locally
-VNMAD_LOCAL_ACTIONS="alias_sdnat-post alias_sdnat-clean"
+VNMAD_LOCAL_ACTIONS="elastic-post elastic-clean"

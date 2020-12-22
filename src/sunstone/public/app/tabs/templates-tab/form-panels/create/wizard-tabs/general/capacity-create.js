@@ -201,6 +201,11 @@ define(function(require) {
       $("div.memory_gb_input input", context).val(_m2g(this.value));
     });
 
+    // MB to GB, max memory
+    context.on("input", "div.memory_max_input input", function(){
+      $("div.memory_max_gb_input input", context).val(_m2g(this.value));
+    });
+
     // MB to GB, range input
     context.on("input", "div.mb_unit input.user_input_params_min", function(){
       $("div.gb_unit input.user_input_params_min").val(_m2g(this.value));
@@ -220,6 +225,11 @@ define(function(require) {
     // GB to MB
     context.on("input", "div.memory_gb_input input", function(){
       $("div.memory_input input", context).val(_g2m(this.value));
+    });
+
+    // GB to MB, max memory
+    context.on("input", "div.memory_max_gb_input input", function(){
+      $("div.memory_max_input input", context).val(_g2m(this.value));
     });
 
     // GB to MB, range input
@@ -255,6 +265,40 @@ define(function(require) {
 
     $("#memory_unit", context).change();
 
+    $('#MEMORY_HOT_ADD_ENABLED', context).on('change', function(){
+      if (this.value == 'NO'){
+        $('#memory_max_group', context).hide();
+      }
+      else{
+        $('#memory_max_group', context).show();
+      }
+    });
+
+    $('#CPU_HOT_ADD_ENABLED', context).on('change', function(){
+      if (this.value == 'NO'){
+        $('#vcpu_max_group', context).hide();
+      }
+      else{
+        $('#vcpu_max_group', context).show();
+      }
+    });
+
+    // Unit select
+    $("#MEMORY_MAX_UNIT", context).on("change", function() {
+      var memory_unit_val = $("#MEMORY_MAX_UNIT :selected", context).val();
+
+      if (memory_unit_val == "GB") {
+        $(".mb_max_unit", context).hide();
+        $(".gb_max_unit", context).show();
+      } else {
+        $(".mb_max_unit", context).show();
+        $(".gb_max_unit", context).hide();
+      }
+
+    });
+
+    $("#MEMORY_MAX_UNIT", context).change();
+
     // Select for memory, cpu, vcpu modification on instantiate
     $.each(["memory","cpu","vcpu"], function(i,classname){
       $("."+classname+"_modify_type", context).on("change", function(){
@@ -286,6 +330,10 @@ define(function(require) {
 
     WizardFields.fill(context, element);
 
+    if(element.TOPOLOGY && element.TOPOLOGY.CORES) {
+      $('#CORES_PER_SOCKET').val(element.TOPOLOGY.CORES).change()
+    }
+
     // Update memory_gb with the value set in memory
     $("div.memory_input input", context).trigger("input");
 
@@ -293,6 +341,15 @@ define(function(require) {
       $("#memory_unit", context).val("MB").change();
     } else {
       $("#memory_unit", context).val("GB").change();
+    }
+
+    // Update memory_max_gb with the value set in memory
+    $("div.memory_max_input input", context).trigger("input");
+
+    if ($("div.memory_max_input input", context).val() && $("div.memory_max_input input", context).val() < 1024){
+      $("#memory_max_unit", context).val("MB").change();
+    } else {
+      $("#memory_max_unit", context).val("GB").change();
     }
 
     var userInputsJSON = element["USER_INPUTS"];

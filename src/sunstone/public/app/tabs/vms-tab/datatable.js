@@ -178,9 +178,7 @@ define(function(require) {
       }
     }
 
-    if (FireedgeValidator.fireedgeToken == ""){
-      FireedgeValidator.validateFireedgeToken(create_socket);
-    }
+   FireedgeValidator.validateFireedgeToken(create_socket);
 
   }
 
@@ -188,8 +186,8 @@ define(function(require) {
     var that = this;
 
     TabDataTable.prototype.initialize.call(this, opts);
-    
-    //download virt-viewer file 
+
+    //download virt-viewer file
     $('#' + this.dataTableId).on("click", '.w-file', function(){
       var data = $(this).data();
 
@@ -304,12 +302,7 @@ define(function(require) {
         }
       }
 
-      if (FireedgeValidator.fireedgeToken == "") {
-        FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
-      }
-      else{
-        remote_connections(FireedgeValidator.fireedgeToken);
-      }
+      FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
 
       return false;
     });

@@ -125,6 +125,26 @@ public:
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
+class UserEnable : public RequestManagerUser
+{
+public:
+    UserEnable():
+        RequestManagerUser("one.user.enable",
+                           "Enable or disable user",
+                           "A:sii")
+    {
+        auth_op = AuthRequest::ADMIN;
+    }
+
+    int user_action(int                        user_id,
+                    xmlrpc_c::paramList const& _paramList,
+                    RequestAttributes&         att,
+                    std::string&               err) override;
+};
+
+/* ------------------------------------------------------------------------- */
+/* ------------------------------------------------------------------------- */
+
 class UserLogin : public Request
 {
 public:

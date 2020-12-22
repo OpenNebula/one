@@ -15,6 +15,15 @@ TIMEOUT=120
 # run service
 #
 
+for envfile in \
+    /etc/default/supervisor/oneflow \
+    ;
+do
+    if [ -f "$envfile" ] ; then
+        . "$envfile"
+    fi
+done
+
 if [ -f /var/lib/one/.one/oneflow_auth ] ; then
     msg "Found oneflow_auth - we can start service"
 else
@@ -25,6 +34,10 @@ else
     fi
     msg "File created - continue"
 fi
+
+msg "Rotate log to start with an empty one"
+/usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
+    -f /etc/logrotate.d/opennebula-flow
 
 msg "Service started!"
 exec /usr/bin/ruby /usr/lib/one/oneflow/oneflow-server.rb

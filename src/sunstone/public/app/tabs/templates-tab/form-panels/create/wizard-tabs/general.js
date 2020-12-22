@@ -389,6 +389,14 @@ define(function(require) {
     if (as_gid){
       templateJSON["AS_GID"] = as_gid;
     }
+
+    templateJSON.HOT_RESIZE = {
+      'CPU_HOT_ADD_ENABLED': templateJSON['CPU_HOT_ADD_ENABLED'],
+      'MEMORY_HOT_ADD_ENABLED': templateJSON['MEMORY_HOT_ADD_ENABLED'],
+    }
+    delete templateJSON.CPU_HOT_ADD_ENABLED;
+    delete templateJSON.MEMORY_HOT_ADD_ENABLED;
+
     return templateJSON;
   }
 
@@ -503,6 +511,16 @@ define(function(require) {
       };
       this.groupTable.selectResourceTableSelect(selectedResources);
       delete templateJSON["AS_GID"];
+    }
+
+    if (templateJSON['HOT_RESIZE']){
+      if (templateJSON.HOT_RESIZE['MEMORY_HOT_ADD_ENABLED']){
+        WizardFields.fillInput($('#MEMORY_HOT_ADD_ENABLED',context), templateJSON.HOT_RESIZE['MEMORY_HOT_ADD_ENABLED']);
+      }
+      if (templateJSON.HOT_RESIZE['CPU_HOT_ADD_ENABLED']){
+        WizardFields.fillInput($('#CPU_HOT_ADD_ENABLED',context), templateJSON.HOT_RESIZE['CPU_HOT_ADD_ENABLED']);
+      }
+      delete templateJSON['HOT_RESIZE'];
     }
 
     WizardFields.fill(context, templateJSON);

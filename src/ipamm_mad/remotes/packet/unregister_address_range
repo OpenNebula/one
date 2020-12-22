@@ -85,7 +85,7 @@ begin
 
     provider = provision.provider
     connect  = provider.body['connection']
-    pk_token = connect['packet_token']
+    pk_token = connect['token']
 
     # --------------------------------------------------------------------------
     # Connect to Packet and delete the IP

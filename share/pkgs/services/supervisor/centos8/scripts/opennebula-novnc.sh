@@ -41,6 +41,15 @@ on_exit()
 
 #TODO: should I wait for sunstone or something?
 
+for envfile in \
+    /etc/default/supervisor/novnc \
+    ;
+do
+    if [ -f "$envfile" ] ; then
+        . "$envfile"
+    fi
+done
+
 # NOTE: /usr/bin/novnc-server is daemonizing itself which cannot work with
 # supervisord (or runit) and there is no way to switch it to foreground...
 
@@ -52,6 +61,10 @@ if ! _pid=$(check_vnc) ; then
     msg "Service started!"
     /usr/bin/novnc-server start
 fi
+
+msg "Rotate log to start with an empty one"
+/usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
+    -f /etc/logrotate.d/opennebula-novnc
 
 # now we will stay in a loop monitoring and faking the foreground process...
 while sleep 1 ; do

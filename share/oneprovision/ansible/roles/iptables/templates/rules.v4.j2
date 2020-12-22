@@ -21,7 +21,6 @@ COMMIT
 {% endfor %}
 {% if iptables_base_rules_strict %}
 -A INPUT {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -j REJECT --reject-with icmp-host-prohibited
--A FORWARD {% if iptables_base_rules_interface %}-i {{ iptables_base_rules_interface }}{% endif %} -j REJECT --reject-with icmp-host-prohibited
 {% endif %}
 {% endif %}
 COMMIT

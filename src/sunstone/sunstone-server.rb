@@ -925,14 +925,14 @@ get '/fireedge' do
         res = Net::HTTP.post_form(uri, params)
         fireedge_token = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
         session[:fireedge_token] = fireedge_token
-        
+
         response = {:token => fireedge_token}
+       [200,  response.to_json]
     rescue StandardError => error
         logger.info("Fireedge server is not running. Error: #{error}")
         response = {:token => ""}
+        [400,  response.to_json]
     end
-
-    [200,  response.to_json]
 end
 
 ##############################################################################

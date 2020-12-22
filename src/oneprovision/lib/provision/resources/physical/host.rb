@@ -49,7 +49,7 @@ module OneProvision
                 @p_template['configuration'].to_yaml
             )
 
-            reject = %w[im_mad vm_mad provision connection configuration]
+            reject = %w[im_mad vm_mad provision connection configuration count]
 
             Nokogiri::XML::Builder.new do |xml|
                 xml.HOST do

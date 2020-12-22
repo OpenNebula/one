@@ -29,7 +29,7 @@ define(function(require) {
     ["VM.release", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.ACTIVE] =
-    ["VM.recover","VM.updateconf"];
+    ["VM.recover","VM.updateconf","VM.resize"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.STOPPED] =
     ["VM.resume", "VM.deploy", "VM.terminate_hard", "VM.recover"];

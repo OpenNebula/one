@@ -1,0 +1,9 @@
+---
+
+- name: Get authorized_keys
+  shell: cat /root/.ssh/authorized_keys
+  register: root_authorized_keys
+
+- name: Add authorized_keys
+  authorized_key: user=oneadmin key="{{ item }}"
+  with_items: "{{ root_authorized_keys.stdout_lines }}"
