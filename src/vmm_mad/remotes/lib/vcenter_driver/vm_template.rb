@@ -344,13 +344,12 @@ module VCenterDriver
                 ar_tmp << "AR=[\n"
                 ar_tmp << "TYPE=\"IP4\",\n"
                 ar_tmp << "IP=\"#{ipv4}\",\n"
-                ar_tmp << "PREFIX_LENGTH=\"64\",\n"
                 ar_tmp << "SIZE=\"1\"\n"
                 ar_tmp << "]\n"
             elsif ipv6
                 ar_tmp << "AR=[\n"
-                ar_tmp << "TYPE=\"IP6\",\n"
-                ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
+                ar_tmp << "TYPE=\"IP6_STATIC\",\n"
+                ar_tmp << "IP6=\"#{ipv6}\",\n"
                 ar_tmp << "PREFIX_LENGTH=\"64\",\n"
                 ar_tmp << "SIZE=\"1\"\n"
                 ar_tmp << "]\n"
@@ -437,7 +436,7 @@ module VCenterDriver
             [ipv4, ipv6]
         end
 
-        def find_ips_in_network(network, vm_object, nic, force = false)
+        def find_ips_in_network(network, vm_object, nic, force = false, first_ip = false)
             ipv4 = ipv6 = ''
             ar_id = -1
             return unless vm_object.is_a?(VCenterDriver::VirtualMachine)
@@ -464,6 +463,11 @@ module VCenterDriver
                         ar_array = network.to_hash['VNET']['AR_POOL']['AR']
                         ar_array = [ar_array] if ar_array.is_a?(Hash)
                         ipv4, ipv6, ar_id = find_ip_in_ar(ip, ar_array) if ar_array
+
+                        if first_ip
+                            return [ipv4, ipv6, ar_id]
+                        end
+
                         break if (ipv4 !='') || (ipv6 != '')
                     end
                     break
@@ -476,10 +480,13 @@ module VCenterDriver
             ipv4 = ipv6 = ''
             ar_id = -1
             ar_array.each do |ar|
-                next unless ar.key?('IP') && ar.key?('IP_END')
+                next unless ((ar.key?('IP') && ar.key?('IP_END')) || (ar.key?('IP6') && ar.key?('IP6_END')))
 
-                start_ip = IPAddr.new(ar['IP'])
-                end_ip = IPAddr.new(ar['IP_END'])
+                start_ip = IPAddr.new(ar['IP']) if !ar['IP'].nil?
+                end_ip = IPAddr.new(ar['IP_END']) if !ar['IP_END'].nil?
+                start_ip = IPAddr.new(ar['IP6']) if !ar['IP6'].nil?
+                end_ip = IPAddr.new(ar['IP6_END']) if !ar['IP6_END'].nil?
+
                 next unless ip.family == start_ip.family &&
                             ip.family == end_ip.family
 
@@ -514,6 +521,24 @@ module VCenterDriver
                     nic_alias_index += 1
                 end
             end
+            if nic[:ipv6_additionals]
+                nic[:ipv6_additionals].split(",").each do |ipv6_additional|
+                    ipv4, ipv6 = find_alias_ips_in_network(network_found, vm_object, alias_ipv6 = ipv6_additional)
+                    if ipv4.empty? && ipv6.empty?
+                        ar_tmp = create_ar(nic, with_id = false, ipv4 = nil, ipv6 = ipv6_additional)
+                        network_found.add_ar(ar_tmp)
+                    end
+                    network_found.info
+
+                    nic_tmp << "NIC_ALIAS=[\n"
+                    nic_tmp << "NETWORK_ID=\"#{id}\",\n"
+                    nic_tmp << "IP6=\"#{ipv6_additional}\",\n"
+                    nic_tmp << "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
+                    nic_tmp << "PARENT=\"NIC#{nic_index}\"\n"
+                    nic_tmp << "]\n"
+                    nic_alias_index += 1
+                end
+            end
 
             nic_tmp
         end
@@ -524,8 +549,6 @@ module VCenterDriver
             nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
 
             if vm?
-                last_id = save_ar_ids(one_vn, nic, ar_ids)
-                nic_tmp << "AR_ID=\"#{last_id}\",\n"
                 if nic[:mac]
                     nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 end
@@ -554,7 +577,9 @@ module VCenterDriver
             nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
             nic_tmp << "]\n"
 
-            nic_tmp << nic_alias_from_nic(one_vn.id, nic, nic_index, one_vn, vm_object)
+            if vm?
+                nic_tmp << nic_alias_from_nic(one_vn.id, nic, nic_index, one_vn, vm_object)
+            end
 
             nic_tmp
         end
@@ -565,22 +590,20 @@ module VCenterDriver
             nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
 
             if vm?
-                ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic)
+                ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic, false, true)
                 if ipv4.empty? && ipv6.empty?
                     ar_tmp = create_ar(nic)
                     network_found.add_ar(ar_tmp)
                 end
                 ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic, true)
                 network_found.info
-                last_id = save_ar_ids(network_found, nic, ar_ids)
 
                 # This is the existing nic info
-                nic_tmp << "AR_ID=\"#{last_id}\",\n"
                 if nic[:mac] && ipv4.empty? && ipv6.empty?
                     nic_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 end
                 nic_tmp << "IP=\"#{ipv4}\"," unless ipv4.empty?
-                nic_tmp << "IP=\"#{ipv6}\"," unless ipv6.empty?
+                nic_tmp << "IP6=\"#{ipv6}\"," unless ipv6.empty?
                 if nic[:ipv4_additionals]
                     nic_tmp <<
                         "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n"
@@ -606,7 +629,9 @@ module VCenterDriver
             nic_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
             nic_tmp << "]\n"
 
-            nic_tmp << nic_alias_from_nic(network_found['ID'], nic, nic_index, network_found, vm_object)
+            if vm?
+                nic_tmp << nic_alias_from_nic(network_found['ID'], nic, nic_index, network_found, vm_object)
+            end
 
             nic_tmp
         end
@@ -1141,27 +1166,19 @@ module VCenterDriver
                         nic[:ipv4] = ip
                     end
                 elsif ip_addresses[i].ipAddress =~ Resolv::IPv6::Regex
-                    if get_ipv6_prefix(ip, 3) == '2000'
-                        if nic[:ipv6_global]
-                            if nic[:ipv6_additionals]
-                                nic[:ipv6_additionals] += ',' + ip
-                            else
-                                nic[:ipv6_additionals] = ip
-                            end
-                        else
-                            nic[:ipv6_global] = ip
-                        end
-                    elsif get_ipv6_prefix(ip, 10) == 'fe80'
-                        nic[:ipv6] = ip
+                    if get_ipv6_prefix(ip, 10) == 'fe80'
+                        # we not process this address
                     elsif get_ipv6_prefix(ip, 7) == 'fc00'
-                        if nic[:ipv6_ula]
-                            if nic[:ipv6_additionals]
-                                nic[:ipv6_additionals] += ',' + ip
-                            else
-                                nic[:ipv6_additionals] = ip
-                            end
+                        nic[:ipv6_ula] = ip
+                    else
+                        if nic[:ipv6]
+                           if nic[:ipv6_additionals]
+                               nic[:ipv6_additionals] += ',' + ip
+                           else
+                               nic[:ipv6_additionals] = ip
+                           end
                         else
-                            nic[:ipv6_ula] = ip
+                            nic[:ipv6] = ip
                         end
                     end
                 end
