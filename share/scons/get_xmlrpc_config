@@ -143,7 +143,7 @@ Configs=[
     # Configuration for fedora
     {
         :description => "pkg-config",
-        :client => exec_command("pkg-config xmlrpc_client++ xmlrpc++ --libs"),
+        :client => exec_command("pkg-config xmlrpc_util xmlrpc_util++ xmlrpc_client++ xmlrpc++ --libs"),
         :server => exec_command("pkg-config xmlrpc_server_abyss++ --static --libs")
     },
     # Debian lenny
