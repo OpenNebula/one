@@ -15,10 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var OpenNebulaAction = require('./action');
+  var OpenNebulaAction = require("./action");
 
   var RESOURCE = "DOCUMENT";
-  var PATH = 'service_template';
+  var PATH = "service_template";
   var CACHE_NAME = "SERVICE_TEMPLATE";
 
   var ServiceTemplate = {
@@ -72,15 +72,16 @@ define(function(require) {
     },
     "del": function(params) {
       params.cache_name = CACHE_NAME;
-      OpenNebulaAction.del(params, RESOURCE, PATH);
+      var action_obj = params.data.extra_param;
+      OpenNebulaAction.del(params, RESOURCE, PATH, action_obj);
     },
     "list" : function(params) {
       params.cache_name = CACHE_NAME;
-      OpenNebulaAction.list(params, RESOURCE, PATH)
+      OpenNebulaAction.list(params, RESOURCE, PATH);
     },
     "show" : function(params) {
       params.cache_name = CACHE_NAME;
-      OpenNebulaAction.show(params, RESOURCE, false, PATH)
+      OpenNebulaAction.show(params, RESOURCE, false, PATH);
     },
     "chown" : function(params) {
       params.cache_name = CACHE_NAME;
@@ -108,7 +109,7 @@ define(function(require) {
     "getName": function(id){
       return OpenNebulaAction.getName(id, CACHE_NAME);
     }
-  }
+  };
 
   return ServiceTemplate;
-})
+});

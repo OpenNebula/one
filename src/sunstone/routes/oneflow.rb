@@ -136,7 +136,7 @@ end
 delete '/service_template/:id' do
     client = af_build_client
 
-    resp = client.delete('/service_template/' + params[:id])
+    resp = client.delete('/service_template/' + params[:id], @request_body)
 
     af_format_response(resp)
 end

@@ -15,10 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
-  var Navigation = require('utils/navigation');
+  var Sunstone = require("sunstone");
+  var Notifier = require("utils/notifier");
+  var Locale = require("utils/locale");
+  var Navigation = require("utils/navigation");
 
   /*
     CONSTRUCTOR
@@ -61,7 +61,7 @@ define(function(require) {
         }
       },
       error: Notifier.onError
-    }
+    };
   }
 
   function _show() {
@@ -72,13 +72,13 @@ define(function(require) {
       callback: function(request, response) {
         if(that && that.tabId && Sunstone && Sunstone.getDataTable && Sunstone.getDataTable(that.tabId)){
           Sunstone.getDataTable(that.tabId).updateElement(request, response);
-          if (Sunstone.rightInfoVisible($('#' + that.tabId))) {
+          if (Sunstone.rightInfoVisible($("#" + that.tabId))) {
             Sunstone.insertPanels(that.tabId, response);
           }
         }
       },
       error: Notifier.onError
-    }
+    };
   }
 
   function _refresh() {
@@ -86,7 +86,7 @@ define(function(require) {
     return {
       type: "custom",
       call: function() {
-        var tab = $('#' + that.tabId);
+        var tab = $("#" + that.tabId);
         if (Sunstone.rightInfoVisible(tab)) {
           Sunstone.runAction(that.resourceStr + ".show", Sunstone.rightInfoResourceId(tab));
         } else {
@@ -95,7 +95,7 @@ define(function(require) {
         }
       },
       error: Notifier.onError
-    }
+    };
   }
 
   function _del() {
@@ -104,7 +104,7 @@ define(function(require) {
       type: "multiple",
       call : that.openNebulaResource.del,
       callback : function(request, response) {
-        var tab = $('#' + that.tabId);
+        var tab = $("#" + that.tabId);
 
         if (Sunstone.getTab() == that.tabId) {
           Sunstone.showTab(that.tabId);
@@ -115,7 +115,7 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
-    }
+    };
   }
 
   function _multipleAction(actionStr, notify) {
@@ -135,7 +135,7 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: notify_bool
-    }
+    };
   }
 
   function _singleAction(actionStr) {
@@ -151,7 +151,7 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
-    }
+    };
   }
 
   function _create(formPanelId) {
@@ -177,7 +177,7 @@ define(function(require) {
         Notifier.onError(request, response);
       },
       notify: false
-    }
+    };
   }
 
   function _showCreate(formPanelId) {
@@ -187,7 +187,7 @@ define(function(require) {
       call: function() {
         Sunstone.showFormPanel(that.tabId, formPanelId, "create");
       }
-    }
+    };
   }
 
   function _showUpdate(formPanelId) {
@@ -206,42 +206,42 @@ define(function(require) {
           });
       },
       error: Notifier.onError
-    }
+    };
   }
 
   function _checkAndShowUpdate() {
     var that = this;
     return {
-      type: 'single',
+      type: "single",
       call: function() {
         var selectedNodes = Sunstone.getDataTable(that.tabId).elements();
         if (selectedNodes.length != 1) {
-          Notifier.notifyMessage('Please select one (and just one) resource to update.');
+          Notifier.notifyMessage("Please select one (and just one) resource to update.");
           return false;
         }
 
-        var resourceId = '' + selectedNodes[0];
+        var resourceId = "" + selectedNodes[0];
         window.ServiceId = resourceId;
-        Sunstone.runAction(that.resourceStr + '.show_to_update', resourceId);
+        Sunstone.runAction(that.resourceStr + ".show_to_update", resourceId);
       }
-    }
+    };
   }
 
   function _checkAndShow(action) {
     var that = this;
     return {
-      type: 'single',
+      type: "single",
       call: function() {
         var selectedNodes = Sunstone.getDataTable(that.tabId).elements();
         if (selectedNodes.length != 1) {
-          Notifier.notifyMessage('Please select one (and just one) resource to update.');
+          Notifier.notifyMessage("Please select one (and just one) resource to update.");
           return false;
         }
 
-        var resourceId = '' + selectedNodes[0];
-        Sunstone.runAction(that.resourceStr + '.' + action, resourceId);
+        var resourceId = "" + selectedNodes[0];
+        Sunstone.runAction(that.resourceStr + "." + action, resourceId);
       }
-    }
+    };
   }
 
   function _update() {
@@ -256,7 +256,7 @@ define(function(require) {
         Sunstone.hideFormPanelLoading(that.tabId);
         Notifier.onError(request, response);
       }
-    }
+    };
   }
 
   function _updateTemplate() {
@@ -265,10 +265,10 @@ define(function(require) {
       type: "single",
       call: that.openNebulaResource.update,
       callback: function(request) {
-        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0]);
+        Sunstone.runAction(that.resourceStr + ".show", request.request.data[0]);
       },
       error: Notifier.onError
-    }
+    };
   }
 
   function _appendTemplate() {
@@ -277,9 +277,9 @@ define(function(require) {
       type: "single",
       call: that.openNebulaResource.append,
       callback: function(request) {
-        Sunstone.runAction(that.resourceStr + '.show', request.request.data[0]);
+        Sunstone.runAction(that.resourceStr + ".show", request.request.data[0]);
       },
       error: Notifier.onError
-    }
+    };
   }
 });

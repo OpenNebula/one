@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
+  var Locale = require("utils/locale");
 
   var Buttons = {
     "ServiceTemplate.refresh" : {
@@ -32,7 +32,7 @@ define(function(require) {
     "ServiceTemplate.upload_marketplace_dialog" : {
       type: "action",
       layout: "main",
-      text: '<i class="fas fa-share"/> '+ Locale.tr("MarketPlace")
+      text: "<i class=\"fas fa-share\"/> "+ Locale.tr("MarketPlace")
     },
     "ServiceTemplate.update_dialog" : {
       type: "action",
@@ -63,8 +63,14 @@ define(function(require) {
       layout: "main",
       text: Locale.tr("Clone")
     },
-    "ServiceTemplate.delete" : {
+    /*"ServiceTemplate.delete" : {
       type: "confirm",
+      text: Locale.tr("Delete"),
+      layout: "del",
+      tip: Locale.tr("This will delete the selected templates")
+    },*/
+    "ServiceTemplate.delete_dialog" : {
+      type: "action",
       text: Locale.tr("Delete"),
       layout: "del",
       tip: Locale.tr("This will delete the selected templates")
