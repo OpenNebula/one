@@ -882,14 +882,33 @@ int VirtualNetwork::nic_attribute(
                 inherit_attrs);
     }
 
-    for (const auto& inherited : inherit_attrs)
+    for (const auto& inherit : inherit_attrs)
     {
-        string current_val = nic->vector_value(inherited);
-        PoolObjectSQL::get_template_attribute(inherited, inherit_val);
-
-        if (current_val.empty() && !inherit_val.empty())
+        if (auto va = PoolObjectSQL::get_template_attribute(inherit))
         {
-            nic->replace(inherited, inherit_val);
+            // Vector attribute, inherit all its values
+            const auto& values = va->value();
+
+            for (const auto& val : values)
+            {
+                string current_val = nic->vector_value(val.first);
+
+                if (current_val.empty() && !val.second.empty())
+                {
+                    nic->replace(val.first, val.second);
+                }
+            }
+        }
+        else
+        {
+            // Simple attribute, inherit value
+            string current_val = nic->vector_value(inherit);
+            PoolObjectSQL::get_template_attribute(inherit, inherit_val);
+
+            if (current_val.empty() && !inherit_val.empty())
+            {
+                nic->replace(inherit, inherit_val);
+            }
         }
     }
 
