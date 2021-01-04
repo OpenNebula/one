@@ -4,10 +4,10 @@ plain:
   image: 'AWS.webp'
 
 connection:
-  acces_key: "Encrypted aws access key"
+  access_key: "Encrypted aws access key"
   secret_key: "Encrypted aws secret key"
 
-location_key: 'aws_region'
+location_key: 'region'
 
 locations:
   us-east-1:
