@@ -203,10 +203,15 @@ void Scheduler::start()
     {
         long long    message_size;
         unsigned int timeout;
+        string       proxy;
 
         conf.get("MESSAGE_SIZE", message_size);
 
         conf.get("TIMEOUT", timeout);
+
+        conf.get("HTTP_PROXY", proxy);
+
+        setenv("http_proxy", proxy.c_str(), 1);
 
         Client::initialize("", one_xmlrpc, message_size, timeout);
 
