@@ -154,13 +154,31 @@ void Datastore::disk_attribute(
 
     for (const auto& inherit : inherit_attrs)
     {
-        current_val = disk->vector_value(inherit);
-
-        get_template_attribute(inherit, inherit_val);
-
-        if ( current_val.empty() && !inherit_val.empty() )
+        if (auto va = PoolObjectSQL::get_template_attribute(inherit))
         {
-            disk->replace(inherit, inherit_val);
+            // Vector attribute, inherit all its values
+            const auto& values = va->value();
+
+            for (const auto& val : values)
+            {
+                string current_val = disk->vector_value(val.first);
+
+                if (current_val.empty() && !val.second.empty())
+                {
+                    disk->replace(val.first, val.second);
+                }
+            }
+        }
+        else
+        {
+            // Simple attribute, inherit value
+            string current_val = disk->vector_value(inherit);
+            PoolObjectSQL::get_template_attribute(inherit, inherit_val);
+
+            if (current_val.empty() && !inherit_val.empty())
+            {
+                disk->replace(inherit, inherit_val);
+            }
         }
     }
 
