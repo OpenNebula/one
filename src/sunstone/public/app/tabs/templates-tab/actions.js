@@ -15,24 +15,24 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Actions = require('tabs/templates-tab/actions-common');
+  var Actions = require("tabs/templates-tab/actions-common");
 
-  var TAB_ID = require('tabs/templates-tab/tabId');
-  var CREATE_DIALOG_ID = require('tabs/templates-tab/form-panels/create/formPanelId');
-  var CLONE_DIALOG_ID = require('tabs/templates-tab/dialogs/clone/dialogId');
-  var INSTANTIATE_DIALOG_ID = require('tabs/templates-tab/form-panels/instantiate/formPanelId');
-  var IMPORT_DIALOG_ID = require('tabs/templates-tab/form-panels/import/formPanelId');
-  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
+  var TAB_ID = require("tabs/templates-tab/tabId");
+  var CREATE_DIALOG_ID = require("tabs/templates-tab/form-panels/create/formPanelId");
+  var CLONE_DIALOG_ID = require("tabs/templates-tab/dialogs/clone/dialogId");
+  var INSTANTIATE_DIALOG_ID = require("tabs/templates-tab/form-panels/instantiate/formPanelId");
+  var IMPORT_DIALOG_ID = require("tabs/templates-tab/form-panels/import/formPanelId");
+  var CONFIRM_DIALOG_ID = require("utils/dialogs/generic-confirm/dialogId");
 
-  var RESOURCE = "Template"
+  var RESOURCE = "Template";
 
-  return Actions(TAB_ID, RESOURCE, 
+  return Actions(TAB_ID, RESOURCE,
     {
-      'TAB_ID'  : TAB_ID,
-      'CREATE_DIALOG_ID'  : CREATE_DIALOG_ID,
-      'CLONE_DIALOG_ID' : CLONE_DIALOG_ID,
-      'INSTANTIATE_DIALOG_ID' : INSTANTIATE_DIALOG_ID,
-      'IMPORT_DIALOG_ID'  : IMPORT_DIALOG_ID,
-      'CONFIRM_DIALOG_ID' : CONFIRM_DIALOG_ID,
+      "TAB_ID"  : TAB_ID,
+      "CREATE_DIALOG_ID"  : CREATE_DIALOG_ID,
+      "CLONE_DIALOG_ID" : CLONE_DIALOG_ID,
+      "INSTANTIATE_DIALOG_ID" : INSTANTIATE_DIALOG_ID,
+      "IMPORT_DIALOG_ID"  : IMPORT_DIALOG_ID,
+      "CONFIRM_DIALOG_ID" : CONFIRM_DIALOG_ID,
     });
 });

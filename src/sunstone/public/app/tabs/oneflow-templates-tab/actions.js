@@ -22,21 +22,18 @@ define(function(require) {
   var CommonActions = require("utils/common-actions");
   var OpenNebulaAction = require("opennebula/action");
   var Navigation = require("utils/navigation");
-  var OpenNebula = require('opennebula');
-
-  var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
-  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
-
+  var OpenNebula = require("opennebula");
+  var CREATE_APP_DIALOG_ID = require("tabs/marketplaceapps-tab/form-panels/create/formPanelId");
+  var CONFIRM_DIALOG_ID = require("utils/dialogs/generic-confirm/dialogId");
+  var MARKETPLACEAPPS_TAB_ID = require("tabs/marketplaceapps-tab/tabId");
   var TAB_ID = require("./tabId");
   var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
   var INSTANTIATE_DIALOG_ID = require("./form-panels/instantiate/formPanelId");
   var CLONE_DIALOG_ID = require("./dialogs/clone/dialogId");
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
-
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Service Template created"));
-
   var _actions = {
     "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
     "ServiceTemplate.show" : _commonActions.show(),
@@ -48,8 +45,45 @@ define(function(require) {
     "ServiceTemplate.rename": _commonActions.singleAction("rename"),
     "ServiceTemplate.update" : _commonActions.update(),
     "ServiceTemplate.update_dialog" : _commonActions.checkAndShowUpdate(),
-    
-    "ServiceTemplate.create_dialog" :  {
+    "ServiceTemplate.delete_dialog" : {
+      type: "custom",
+      call: function() {
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          //header :
+          headerTabId: TAB_ID,
+          body : Locale.tr("This will delete the Service.<br/>You can also delete the template or the template and image referenced inside this Service."),
+          //question :
+          buttons : [
+            Locale.tr("Delete Images and VM Templates"),
+            Locale.tr("Delete VM Templates"),
+            Locale.tr("Delete"),
+          ],
+          submit : [
+            function(){
+              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), {"delete_type": "all"});
+              return false;
+            },
+            function(){
+              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), {"delete_type": "templates"});
+              return false;
+            },
+            function(){
+              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), {"delete_type": "none"});
+              return false;
+            }
+          ]
+        });
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+      },
+      callback : function(request, response) {
+        var tab = $("#" + that.tabId);
+        if (Sunstone.getTab() == that.tabId) {
+          Sunstone.showTab(that.tabId);
+        }
+      },
+    },
+    "ServiceTemplate.create_dialog" : {
       type: "custom",
       call: function() {
         Sunstone.runAction("Network.list");
@@ -57,7 +91,7 @@ define(function(require) {
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "create");
       }
     },
-    "ServiceTemplate.show_to_update" :  {
+    "ServiceTemplate.show_to_update" : {
       type: "single",
       call: function(params) {
         Sunstone.runAction("Network.list");
@@ -73,7 +107,6 @@ define(function(require) {
       },
       error: Notifier.onError
     },
-
     "ServiceTemplate.list" : {
       type: "list",
       call: OpenNebulaResource.list,
@@ -85,8 +118,6 @@ define(function(require) {
         Notifier.onError(request, error_json, $(".oneflow_templates_error_message"));
       }
     },
-
-
     "ServiceTemplate.instantiate" : {
       type: "single",
       call: OpenNebulaResource.instantiate,
@@ -107,7 +138,6 @@ define(function(require) {
       },
       notify: false
     },
-
     "ServiceTemplate.instantiate_dialog" : {
       type: "custom",
       call: function() {
@@ -116,9 +146,7 @@ define(function(require) {
           Notifier.notifyMessage("Please select one (and just one) template to instantiate.");
           return false;
         }
-
         var templateId = "" + selected_nodes[0];
-
         Sunstone.resetFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID);
         Sunstone.showFormPanel(TAB_ID, INSTANTIATE_DIALOG_ID, "instantiate",
           function(formPanelInstance, context) {
@@ -126,21 +154,18 @@ define(function(require) {
           });
       }
     },
-
     "ServiceTemplate.clone_dialog" : {
       type: "custom",
       call: function(){
         Sunstone.getDialog(CLONE_DIALOG_ID).show();
       }
     },
-
     "ServiceTemplate.clone" : {
       type: "single",
       call: OpenNebulaResource.clone,
       error: Notifier.onError,
       notify: true
     },
-
     "ServiceTemplate.upload_marketplace_dialog" : {
       type: "custom",
       call: function(params) {
@@ -150,9 +175,7 @@ define(function(require) {
           Notifier.notifyMessage(Locale.tr("Please select one (and just one) Service to export."));
           return false;
         }
-
-        var resourceId = '' + selectedNodes[0];
-
+        var resourceId = "" + selectedNodes[0];
         OpenNebulaResource.show({
           data : {
               id: resourceId
@@ -165,7 +188,7 @@ define(function(require) {
               "export_service",
               function(formPanelInstance, context) {
                 formPanelInstance.setServiceId(resourceId);
-                $('#marketplaceapps-tab-wizardForms #TYPE').val('service_template').change();
+                $("#marketplaceapps-tab-wizardForms #TYPE").val("service_template").change();
               }
             );
           },
@@ -176,6 +199,5 @@ define(function(require) {
       }
     }
   };
-
   return _actions;
 });

@@ -92,15 +92,14 @@ define(function(require) {
       });
     },
 
-    "del": function(params, resource, path) {
+    "del": function(params, resource, path, extra_param) {
       var callback = params.success;
       var callbackError = params.error;
       var id = params.data.id;
       var request = OpenNebulaHelper.request(resource, "delete", id);
       var reqPath = path ? path : resource.toLowerCase();
       var cache_name = params.cache_name ? params.cache_name : resource;
-
-      $.ajax({
+      var ajaxData = {
         url: reqPath + "/" + id,
         type: "DELETE",
         success: function() {
@@ -112,7 +111,13 @@ define(function(require) {
           return callbackError ?
               callbackError(request, OpenNebulaError(response)) : null;
         }
-      });
+      };
+      if(extra_param){
+        ajaxData.data = JSON.stringify(extra_param);
+        ajaxData.dataType = "json";
+        ajaxData.contentType = "application/json; charset=utf-8";
+      }
+      $.ajax(ajaxData);
     },
 
     "cache": function(resource) {
@@ -342,8 +347,8 @@ define(function(require) {
       var callback = params && params.success;
       var callbackError = params && params.error;
       var id = params && params.data && params.data.id;
-      var roleName = params && params.data && params.data.roleName
-      var action = params && params.data && params.data.action
+      var roleName = params && params.data && params.data.roleName;
+      var action = params && params.data && params.data.action;
       var cacheName = params.cacheName ? params.cacheName : resource;
       if(id!==undefined && action && resource){
         $.ajax({
