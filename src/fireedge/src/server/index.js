@@ -15,7 +15,7 @@ import {
 } from 'fs-extra'
 import http from 'http'
 import https from 'https'
-import { 
+import {
   defaultAppName,
   defaultTypeLog,
   defaultPort,
@@ -50,7 +50,7 @@ const unsecureServer = http.createServer
 const secureServer = https.createServer
 
 const app = express()
-const basename = defaultAppName? `/${defaultAppName}`: ''
+const basename = defaultAppName ? `/${defaultAppName}` : ''
 
 let frontPath = 'client'
 

@@ -58,7 +58,7 @@ if (
   defaultOpennebulaZones[0] &&
   defaultOpennebulaZones[0].rpc
 ) {
-  defaultOpennebulaZones[0].rpc = appConfig.xmlrpc
+  defaultOpennebulaZones[0].rpc = appConfig.one_xmlrpc
 }
 
 const router = express.Router()
