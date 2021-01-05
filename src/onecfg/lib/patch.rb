@@ -14,15 +14,18 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require_relative 'patch/apply'
+
+begin
+    require 'ee/patch'
+rescue LoadError
+end
+
 module OneCfg
 
-    # Common module
-    module Common
+    # OneCfg::Patch module
+    module Patch
+
     end
 
 end
-
-require 'common/backup'
-require 'common/helpers/onecfg_helper'
-require 'common/logger/cli_logger'
-require 'common/parser'

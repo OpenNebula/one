@@ -75,7 +75,8 @@ module OneCfg
             #
             # @param msg [String] Message to show
             def self.ddebug(msg)
-                return unless instance.custom_level == :ddebug
+                return unless \
+                    [:ddebug, :dddebug].include?(instance.custom_level)
 
                 instance.logger.debug(msg) # TODO
             end

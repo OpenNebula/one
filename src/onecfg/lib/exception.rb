@@ -59,6 +59,17 @@ module OneCfg
         end
         # rubocop:enable Lint/UselessMethodDefinition
 
+        # OneCfg parser exception on file
+        # rubocop:disable Lint/UselessMethodDefinition
+        class FileParseError < Generic
+
+            def initialize(text)
+                super(text)
+            end
+
+        end
+        # rubocop:enable Lint/UselessMethodDefinition
+
     end
 
 end

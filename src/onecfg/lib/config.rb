@@ -26,6 +26,7 @@ require 'config/type/yaml/strict'
 require 'config/utils'
 require 'config/exception'
 require 'config/fsops'
+require 'config/files'
 
 begin
     require 'ee/config'

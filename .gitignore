@@ -79,3 +79,10 @@ share/esx-fw-vnc/.vagrant*
 share/context/*
 !share/context/download_context.sh
 !share/context/SConstruct
+
+# editors temporary/swap files
+*.swp
+*.swo
+
+# backups
+*.*-

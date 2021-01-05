@@ -311,7 +311,7 @@ module OneCfg::Config::Type
 
             # New variables are easily set with required export status.
             if found.empty?
-                content.set(key, val)
+                content.set(key, val.to_s)
                 export_key(key, exp)
                 ret[:status] = true
 
@@ -324,7 +324,7 @@ module OneCfg::Config::Type
                     content.rm("#{key}[1]")
                 end
 
-                content.set(key, val)
+                content.set(key, val.to_s)
                 export_key(key, exp)
 
                 ret[:status] = true
@@ -335,7 +335,7 @@ module OneCfg::Config::Type
             ret
         end
 
-        # Appply single diff/patch "set" operation.
+        # Apply single diff/patch "set" operation.
         #
         # @param data [Hash]  Single diff operation data
         # @param mode [Array] Patch modes (see patch method)
@@ -358,7 +358,7 @@ module OneCfg::Config::Type
                         content.rm("#{key}[1]")
                     end
 
-                    content.set(key, val)
+                    content.set(key, val.to_s)
 
                     ret[:status] = true
                     ret[:mode] = :replace if found[-1] != old
@@ -381,29 +381,17 @@ module OneCfg::Config::Type
             ret
         end
 
-        # Get value for hintings
-        #
-        # @param data [Hash] Element with diff information
-        #
-        # @return [String] Formatted value
-        def hinting_value(data)
-            ret = nil
-
-            if data.key?('value')
-                ret = data['value'].inspect
-            elsif data.key?('old')
-                ret = data['old'].inspect
-            end
-
-            ret
-        end
-
         # Get extra metadata for hintings
         #
         # @param data [Hash] Element with diff information
         #
         # @return [String] Formatted value
         def hinting_extra(data)
+            return super(data)
+
+            ### This function is disabled for now ###
+            # rubocop:disable Lint/UnreachableCode
+
             return unless data.key?('extra')
 
             ret = ''
@@ -417,6 +405,7 @@ module OneCfg::Config::Type
             end
 
             ret.strip
+            # rubocop:enable Lint/UnreachableCode
         end
 
         # Returns all details from single diff operation metadata

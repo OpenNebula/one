@@ -63,7 +63,7 @@ module OneCfg::Config::Type
         #
         # @param name      [String] File name
         # @param load_path [String] directories for modules
-        def initialize(name = nil, load_path = OneCfg::LENS_DIR)
+        def initialize(name = nil, load_path = nil)
             super(name, 'Oned.lns', load_path)
         end
 
@@ -721,7 +721,7 @@ module OneCfg::Config::Type
             if found.empty?
                 ret[:status] = true
 
-                content.set(path, data['value'])
+                content.set(path, data['value'].to_s)
             else
                 is_m = multiple?([data['path'], data['key']])
 
@@ -733,13 +733,13 @@ module OneCfg::Config::Type
 
                 if is_m
                     unless found.include?(data['value'])
-                        content.set("#{path}[0]", data['value'])
+                        content.set("#{path}[0]", data['value'].to_s)
 
                         ret[:status] = true
                     end
                 elsif found.length == 1
                     if found[0] != data['value'] && mode.include?(:replace)
-                        content.set(path, data['value'])
+                        content.set(path, data['value'].to_s)
 
                         ret[:status] = true
                         ret[:mode] = :replace
@@ -755,7 +755,7 @@ module OneCfg::Config::Type
                             content.rm("#{path}[last()]")
                         end
 
-                        content.set(path, data['value'])
+                        content.set(path, data['value'].to_s)
 
                         ret[:status] = true
                         ret[:mode] = :replace
@@ -773,7 +773,7 @@ module OneCfg::Config::Type
             ret
         end
 
-        # Appply single diff/patch "set" operation.
+        # Apply single diff/patch "set" operation.
         #
         # @param path [String] Augeas path
         # @param data [Hash]   Single diff operation data
@@ -792,9 +792,9 @@ module OneCfg::Config::Type
                     # can be multiple params created wrongly by user. So we
                     # try to test and set only first one. Nothing else
                     # matters anyway...
-                    content.set("#{path}[1]", data['value'])
+                    content.set("#{path}[1]", data['value'].to_s)
                 else
-                    content.set(path, data['value'])
+                    content.set(path, data['value'].to_s)
                 end
 
                 ret[:status] = true
@@ -806,7 +806,7 @@ module OneCfg::Config::Type
                     end
                 end
 
-                content.set(path, data['value'])
+                content.set(path, data['value'].to_s)
 
                 ret[:status] = true
                 ret[:mode] = :replace
@@ -825,6 +825,11 @@ module OneCfg::Config::Type
         #
         # @return [String] Formatted key
         def hinting_key(data)
+            return super(data)
+
+            ### This function is disabled for now ###
+            # rubocop:disable Lint/UnreachableCode
+
             full_path = [data['path'], data['key']].flatten.compact
 
             if full_path.empty?
@@ -843,6 +848,7 @@ module OneCfg::Config::Type
 
                 full_path.join('/')
             end
+            # rubocop:enable Lint/UnreachableCode
         end
 
         # Upcase node names in the Augeas content object to avoid
