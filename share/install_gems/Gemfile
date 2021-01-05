@@ -63,13 +63,24 @@ gem 'nokogiri', nokogiri
 gem 'public_suffix', ps
 
 group :cli do
-    gem 'augeas', '~> 0.6'
     gem 'gnuplot'
     gem 'highline', '~> 1.7'
     gem 'mysql2'
     gem 'pg', pg
     gem 'sqlite3'
     gem 'sequel'
+end
+
+group :onecfg, :cli do
+    gem 'augeas', '~> 0.6'
+end
+
+group :onecfg, :cloud, :oneflow, :sunstone do
+    gem 'json', '>= 2.0'
+end
+
+group :onecfg do
+    gem 'git', '~> 1.5'
 end
 
 group :hybrid do
@@ -94,7 +105,6 @@ end
 
 group :cloud, :oneflow, :sunstone do
     gem 'rack', rack
-    gem 'json'
     gem 'sinatra'
 end
 
@@ -141,9 +151,4 @@ group :vmware do
     else
         gem 'rbvmomi', '~> 2.2.0'
     end
-end
-
-group :onecfg do
-    gem 'git', '~> 1.5'
-    gem 'augeas', '~> 0.6'
 end

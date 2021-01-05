@@ -92,9 +92,11 @@ module OneCfg::Common
                 backup(src, dst)
             end
 
-            # TODO: hmmm
-            versions    = OneCfg::EE::Config::Versions.new
-            cfg_version = versions.cfg_version
+            begin
+                versions    = OneCfg::EE::Config::Versions.new
+                cfg_version = versions.cfg_version
+            rescue NameError
+            end
 
             if cfg_version
                 File.open("#{backup}/version", 'w') do |file|

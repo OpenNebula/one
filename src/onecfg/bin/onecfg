@@ -41,6 +41,10 @@ $LOAD_PATH << LIB_LOCATION      + '/onecfg/lib'
 # Supported patch modes
 SUPPORTED_PATCH_MODES = [:skip, :force, :replace]
 
+# Early load of newer JSON gem, which supports serialization of scalars, e.g.
+# > JSON.generate('string')
+gem 'json', '>= 2.0'
+
 require 'git'
 require 'tmpdir'
 require 'yaml'
@@ -56,11 +60,143 @@ CommandParser::CmdParser.new(ARGV) do
     # onecfg helper
     helper = OneCfgHelper.new
 
-    # public command should go here
+    ########################################################################
+    # Global Options
+    ########################################################################
+
+    UNPRIVILEGED = {
+        :name => 'unprivileged',
+        :large => '--unprivileged',
+        :description => 'Skip privileged operations (e.g., chown)'
+    }
+
+    NO_OPERATION = {
+        :name => 'noop',
+        :short => '-n',
+        :large => '--noop',
+        :description => 'Runs update without changing system state'
+    }
+
+    PREFIX = {
+        :name => 'prefix',
+        :large => '--prefix prefix',
+        :description => 'Root location prefix (default: /)',
+        :format => String
+    }
+
+    ########################################################################
+    # Logging modes
+    ########################################################################
+
+    VERBOSE = {
+        :name => 'verbose',
+        :short => '-d',
+        :large => '--verbose',
+        :description => 'Set verbose logging mode'
+    }
+
+    DEBUG = {
+        :name => 'debug',
+        :large => '--debug',
+        :description => 'Set debug logging mode'
+    }
+
+    DDEBUG = {
+        :name => 'ddebug',
+        :large => '--ddebug',
+        :description => 'Set extra debug logging mode'
+    }
+
+    DDDEBUG = {
+        :name => 'dddebug',
+        :large => '--dddebug',
+        :description => 'Set extra debug logging mode'
+    }
+
+    # logging modes
+    LOG_MODES = [VERBOSE, DEBUG, DDEBUG, DDDEBUG]
+
+    ########################################################################
+    # Command Specific Parameters
+    ########################################################################
+
+    PATCH_ALL = {
+        :name => 'all',
+        :short => '-a',
+        :large => '--all',
+        :description => 'All changes must be applied or patch fails'
+    }
+
+    PATCH_FORMAT = {
+        :name => 'format',
+        :large => '--format format',
+        :description => 'Specify the patch input format. ' \
+                        'Supported values are:' \
+                        ' "line" (single line format),' \
+                        ' "yaml" (YAML format).',
+        :format => String
+    }
+
+    PATCH_FORMATS = %w[line yaml]
 
     begin
         require 'ee'
         OneCfg::EE::Commands.load_commands(self, ARGV, helper)
     rescue LoadError
+        # If we can't load EE, we are running CE only
+    end
+
+    ###########################################################################
+    # Community Edition Commands
+    ###########################################################################
+
+    patch_desc = <<-EOT.unindent
+        Apply changes to configuration files
+    EOT
+
+    command :patch, patch_desc,
+            [:file, nil],
+            :options => [UNPRIVILEGED,
+                         NO_OPERATION,
+                         PREFIX,
+                         PATCH_FORMAT,
+                         PATCH_ALL] +
+                         CommandParser::OPTIONS + LOG_MODES \
+    do
+        OneCfg::LOG.get_logger(options)
+        rc = -1
+
+        begin
+            format = options[:format] unless options[:format].nil?
+
+            if !format.nil? && !PATCH_FORMATS.include?(format)
+                STDERR.puts "Unsupported format '#{format}'. "\
+                            "Available formats - #{PATCH_FORMATS.join(', ')}"
+                exit(-1)
+            end
+
+            patcher = OneCfg::Patch::Apply.new(options)
+
+            if ARGV[0]
+                patcher.read_from_file(ARGV[0], format)
+            elsif !STDIN.tty?
+                Tempfile.open('stdin_patch_content') do |temp_file|
+                    temp_file.write($stdin.read)
+                    temp_file.close
+
+                    patcher.read_from_file(temp_file.path, format)
+                end
+            else
+                STDERR.puts 'No patch file or data on standard input found.'
+                exit(-1)
+            end
+
+            rc = patcher.apply(options.key?(:all))
+        rescue StandardError => e
+            OneCfg::LOG.fatal("FAILED - #{e}")
+            rc = -1
+        end
+
+        exit(rc)
     end
 end

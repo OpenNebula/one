@@ -159,6 +159,17 @@ module OneCfg::Config::Exception
 
     end
 
+    # Exception to indicate that the current patch
+    # operation should be restarted by searching
+    # the place in a tree and reapplication.
+    class PatchRetryOperation < PatchException
+
+        def initialize
+            super('Retrying patch operation')
+        end
+
+    end
+
 end
 # rubocop:enable Style/ClassAndModuleChildren
 # rubocop:enable Lint/UselessMethodDefinition
