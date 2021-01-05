@@ -69,6 +69,9 @@ const defaults = {
       zeromq: `tcp://${defaultIp}:2101`
     }
   ],
+  defaultCommandProvision: 'oneprovision',
+  defaultCommandProvisionTemplate: 'oneprovision-template',
+  defaultCommandProvider: 'oneprovider',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultEndpointWebsocket: `${appName ? '/' + appName : ''}/websocket`,
   defaultConfigFile: `${appName}-server.conf`,

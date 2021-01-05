@@ -32,6 +32,9 @@ const { getConfig } = require('server/utils/yml')
 const { spawnSync, spawn } = require('child_process')
 const { messageTerminal } = require('server/utils/general')
 
+const appConfig = getConfig()
+const prependCommand = appConfig.oneprovision_prepend_command || ''
+
 const eventsEmitter = new events.EventEmitter()
 const defaultError = (err = '', message = 'Error: %s') => ({
   color: 'red',
@@ -197,6 +200,25 @@ const moveToFolder = (path = '', relative = '/../') => {
   return rtn
 }
 
+const addPrependCommand = (command="", resource='') => {
+  const rsc = Array.isArray(resource) ? resource : [resource]
+
+  let newCommand = command
+  let newRsc = rsc
+
+  if(prependCommand){
+    let splitPrepend = prependCommand.split(" ")
+    newCommand = splitPrepend[0]
+    splitPrepend = splitPrepend.splice(1);
+    newRsc = [...splitPrepend, command, ...rsc].filter(el => el !== "")
+  }
+
+  return {
+    cmd: newCommand,
+    rsc: newRsc
+  }
+}
+
 const executeCommandAsync = (
   command = '',
   resource = '',
@@ -210,9 +232,9 @@ const executeCommandAsync = (
   const out = callbacks && callbacks.out && typeof callbacks.out === 'function' ? callbacks.out : () => undefined
   const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : () => undefined
 
-  const rsc = Array.isArray(resource) ? resource : [resource]
+  const {cmd, rsc} = addPrependCommand(command, resource)
 
-  const execute = spawn(command, [...rsc])
+  const execute = spawn(cmd, rsc)
   if (execute) {
     execute.stderr.on('data', (data) => {
       err(data)
@@ -236,9 +258,9 @@ const executeCommandAsync = (
 }
 
 const executeCommand = (command = '', resource = '', options = {}) => {
-  const rsc = Array.isArray(resource) ? resource : [resource]
   let rtn = { success: false, data: null }
-  const execute = spawnSync(command, [...rsc], options)
+  const {cmd, rsc} = addPrependCommand(command, resource)
+  const execute = spawnSync(cmd, rsc, options)
   if (execute) {
     if (execute.stdout) {
       rtn = { success: true, data: execute.stdout.toString() }
@@ -269,7 +291,6 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
 }
 
 const getEndpoint = () => {
-  const appConfig = getConfig()
   let rtn = []
   if (appConfig && appConfig.one_xmlrpc) {
     const parseUrl = parse(appConfig.one_xmlrpc)
