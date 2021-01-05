@@ -107,7 +107,6 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
-          console.log("JORGE: ", executeCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.data) {
             if (executedCommand.success) {
