@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const { tmpPath } = require('server/utils/constants/defaults')
+const { tmpPath, defaultCommandProvisionTemplate } = require('server/utils/constants/defaults')
 
 const {
   ok,
@@ -26,8 +26,6 @@ const { provider } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
-const command = 'oneprovision-template'
-
 const getListProvisionTemplates = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -38,7 +36,7 @@ const getListProvisionTemplates = (res = {}, next = () => undefined, params = {}
     if (params && params.id) {
       paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
     }
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
@@ -67,7 +65,7 @@ const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(command, paramsCommand)
+          const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.success && executedCommand.data) {
             res.locals.httpCode = httpResponse(ok, executedCommand.data)
@@ -98,7 +96,7 @@ const instantiateProvisionTemplate = (res = {}, next = () => undefined, params =
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
     const paramsCommand = ['instantiate', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
@@ -127,7 +125,7 @@ const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(command, paramsCommand)
+          const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.success && executedCommand.data) {
             res.locals.httpCode = httpResponse(ok, executedCommand.data)
@@ -158,7 +156,7 @@ const deleteProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
     const authCommand = ['--user', user, '--password', password]
     const endpoint = getEndpoint()
     const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
