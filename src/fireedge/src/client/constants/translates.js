@@ -24,6 +24,10 @@ module.exports = {
   SelectGroup: 'Select a group',
   SelectRequest: 'Select request',
 
+  /* dashboard */
+  InTotal: 'In Total',
+  Used: 'Used',
+
   /* login */
   Username: 'Username',
   Password: 'Password',

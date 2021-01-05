@@ -1,9 +1,9 @@
-import SimpleCircle from 'client/components/Widgets/SimpleCircle'
 import TotalProviders from 'client/components/Widgets/TotalProviders'
-import TotalProvisions from 'client/components/Widgets/TotalProvisions'
+import TotalProvisionsByState from 'client/components/Widgets/TotalProvisionsByState'
+import TotalProvisionInfrastructures from 'client/components/Widgets/TotalProvisionInfrastructures'
 
 export {
-  SimpleCircle,
   TotalProviders,
-  TotalProvisions
+  TotalProvisionInfrastructures,
+  TotalProvisionsByState
 }

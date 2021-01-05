@@ -1,4 +1,3 @@
-import WidgetCard from 'client/components/Cards/WidgetCard'
 import ClusterCard from 'client/components/Cards/ClusterCard'
 import DatastoreCard from 'client/components/Cards/DatastoreCard'
 import HostCard from 'client/components/Cards/HostCard'
@@ -13,9 +12,9 @@ import PolicyCard from 'client/components/Cards/PolicyCard'
 import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
 import ProvisionCard from 'client/components/Cards/ProvisionCard'
 import LocationCard from 'client/components/Cards/LocationCard'
+import WavesCard from 'client/components/Cards/WavesCard'
 
 export {
-  WidgetCard,
   ClusterCard,
   DatastoreCard,
   HostCard,
@@ -29,5 +28,6 @@ export {
   PolicyCard,
   ProvisionTemplateCard,
   ProvisionCard,
-  LocationCard
+  LocationCard,
+  WavesCard
 }
