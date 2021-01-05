@@ -37,7 +37,7 @@ fi
 
 msg "Rotate log to start with an empty one"
 /usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
-    -f /etc/logrotate.d/opennebula-flow
+    -f /etc/logrotate.d/opennebula-flow || true
 
 msg "Service started!"
 exec /usr/bin/ruby /usr/lib/one/oneflow/oneflow-server.rb
