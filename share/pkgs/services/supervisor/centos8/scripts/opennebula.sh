@@ -65,7 +65,7 @@ fi
 
 msg "Rotate log to start with an empty one"
 /usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
-    -f /etc/logrotate.d/opennebula
+    -f /etc/logrotate.d/opennebula || true
 
 msg "Service started!"
 exec /usr/bin/oned -f

@@ -37,7 +37,7 @@ fi
 
 msg "Rotate log to start with an empty one"
 /usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
-    -f /etc/logrotate.d/opennebula-scheduler
+    -f /etc/logrotate.d/opennebula-scheduler || true
 
 msg "Service started!"
 exec /usr/bin/mm_sched
