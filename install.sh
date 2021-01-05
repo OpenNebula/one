@@ -262,7 +262,6 @@ SHARE_DIRS="$SHARE_LOCATION/examples \
             $SHARE_LOCATION/conf \
             $SHARE_LOCATION/context \
             $SHARE_LOCATION/onecfg
-            $SHARE_LOCATION/onecfg/augeas \
             $SHARE_LOCATION/onecfg/etc"
 
 ETC_DIRS="$ETC_LOCATION/vmm_exec \
@@ -314,7 +313,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/onecfg/lib/config \
           $LIB_LOCATION/onecfg/lib/config/type \
           $LIB_LOCATION/onecfg/lib/config/type/augeas \
-          $LIB_LOCATION/onecfg/lib/config/type/yaml"
+          $LIB_LOCATION/onecfg/lib/config/type/yaml \
+          $LIB_LOCATION/onecfg/lib/patch"
 
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
@@ -760,7 +760,7 @@ INSTALL_ONECFG_FILES=(
     ONECFG_LIB_CONFIG_TYPE_FILES:$LIB_LOCATION/onecfg/lib/config/type
     ONECFG_LIB_CONFIG_TYPE_AUGEAS_FILES:$LIB_LOCATION/onecfg/lib/config/type/augeas
     ONECFG_LIB_CONFIG_TYPE_YAML_FILES:$LIB_LOCATION/onecfg/lib/config/type/yaml
-    ONECFG_SHARE_AUGEAS_FILES:$SHARE_LOCATION/onecfg/augeas
+    ONECFG_LIB_PATCH_FILES:$LIB_LOCATION/onecfg/lib/patch
     ONECFG_SHARE_ETC_FILES:$SHARE_LOCATION/onecfg/etc
 )
 
@@ -2706,11 +2706,15 @@ ONECFG_LIB_FILES="src/onecfg/lib/onecfg.rb
                     src/onecfg/lib/config.rb \
                     src/onecfg/lib/exception.rb \
                     src/onecfg/lib/settings.rb \
+                    src/onecfg/lib/transaction.rb \
+                    src/onecfg/lib/patch.rb \
                     src/onecfg/lib/version.rb"
-ONECFG_LIB_COMMON_FILES="src/onecfg/lib/common/backup.rb"
+ONECFG_LIB_COMMON_FILES="src/onecfg/lib/common/backup.rb \
+                         src/onecfg/lib/common/parser.rb"
 ONECFG_LIB_COMMON_HELPERS_FILES="src/onecfg/lib/common/helpers/onecfg_helper.rb"
 ONECFG_LIB_COMMON_LOGGER_FILES="src/onecfg/lib/common/logger/cli_logger.rb"
 ONECFG_LIB_CONFIG_FILES="src/onecfg/lib/config/exception.rb \
+                                    src/onecfg/lib/config/files.rb \
                                     src/onecfg/lib/config/fsops.rb \
                                     src/onecfg/lib/config/type.rb \
                                     src/onecfg/lib/config/utils.rb"
@@ -2719,11 +2723,10 @@ ONECFG_LIB_CONFIG_TYPE_FILES="src/onecfg/lib/config/type/augeas.rb \
                                         src/onecfg/lib/config/type/simple.rb \
                                         src/onecfg/lib/config/type/yaml.rb"
 ONECFG_LIB_CONFIG_TYPE_AUGEAS_FILES="src/onecfg/lib/config/type/augeas/one.rb \
-                                              src/onecfg/lib/config/type/augeas/shell.rb"
+                                     src/onecfg/lib/config/type/augeas/shell.rb"
 ONECFG_LIB_CONFIG_TYPE_YAML_FILES="src/onecfg/lib/config/type/yaml/strict.rb"
+ONECFG_LIB_PATCH_FILES="src/onecfg/lib/patch/apply.rb"
 
-ONECFG_SHARE_AUGEAS_FILES="src/onecfg/share/augeas/oned.aug \
-                           src/onecfg/share/augeas/test_oned.aug"
 ONECFG_SHARE_ETC_FILES="src/onecfg/share/etc/files.yaml"
 
 

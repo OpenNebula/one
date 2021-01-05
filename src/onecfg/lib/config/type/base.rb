@@ -17,6 +17,11 @@
 require 'fileutils'
 require 'open3'
 
+# Early load of newer JSON gem, which supports serialization of scalars, e.g.
+# > JSON.generate('string')
+gem 'json', '>= 2.0'
+require 'json'
+
 # rubocop:disable Style/ClassAndModuleChildren
 module OneCfg::Config::Type
 
@@ -165,7 +170,7 @@ module OneCfg::Config::Type
         #
         # @param cfg[OneCfg::Config::Base] Configuration to diff with
         #
-        # @return [String, nil] String with diff if files are not
+        # @return [Array, nil] Array with diff if files are not
         #   identical. nil if files are identical. Exception on error.
         def diff(cfg)
             data = file_diff(cfg)
@@ -182,6 +187,71 @@ module OneCfg::Config::Type
                     'extra' => {}
                 }]
             end
+        end
+
+        # Create a diff metadata based based on hintings.
+        #
+        # @param diff     [Array] Array of strings with hintings
+        # @param symbols  [Bool]  If symbol-like strings should be symbolized
+        #
+        # @return [Array] Array with diff.
+        def diff_from_hintings(hintings, symbols = false)
+            # hinting formats:
+            #    - <action> <path> [<value>]
+            parsed = OneCfg::Common::HintingParser.new(hintings).parse
+
+            # path/key value
+            state = parsed[:command]
+            path  = parsed[:path]
+            key   = path.pop
+            value = parsed[:value]
+
+            # symbolize path/key/value back
+            if symbols
+                path  = symbolize(path)
+                key   = symbolize(key)
+                value = symbolize(value)
+            end
+
+            # TODO, check how to manage extras
+            extra = { 'hintings' => true }
+
+            ret = {
+                'state' => state,
+                'path'  => path,
+                'key'   => key,
+                'value' => nil,
+                'old'   => nil,
+                'extra' => extra
+            }
+
+            case state
+            when 'rm'
+                ret['old'] = value
+
+                # Problematic case: on removal of array element, the path
+                # contains whole path to the array, but there is no key,
+                # since it's not a key/valued-hash. We identify array
+                # element removal by presence of value in rm command.
+                #
+                # > rm path/key "value"
+                #
+                # In this case, we put key back into path structure.
+                unless value.nil? || key.nil?
+                    ret['path'] << key
+                    ret['key'] = nil
+                end
+            when 'set'
+                # 'set' changes existing value from old to value. This
+                # workarounds the fact that we don't know old value and
+                # forces the change to happen if target is not on value.
+                ret['value'] = value
+                ret['old']   = value
+            else
+                ret['value'] = value
+            end
+
+            ret
         end
 
         # Patches object based on provided diff data.
@@ -236,6 +306,8 @@ module OneCfg::Config::Type
 
                     ret ||= patch_status[:status]
                     rep << patch_status
+                rescue OneCfg::Config::Exception::PatchRetryOperation
+                    retry
 
                 # TODO: rescue on any exception
                 rescue StandardError => e
@@ -286,18 +358,18 @@ module OneCfg::Config::Type
 
                 case d['state']
                 when 'ins'
-                    ret << "#{r_status}ins #{key} = #{value} #{extra}"
+                    ret << "#{r_status}ins #{key} #{value} #{extra}"
                 when 'set'
                     if value.nil?
                         ret << "#{r_status}set #{key} #{extra}"
                     else
-                        ret << "#{r_status}set #{key} = #{value} #{extra}"
+                        ret << "#{r_status}set #{key} #{value} #{extra}"
                     end
                 when 'rm'
                     if value.nil?
                         ret << "#{r_status}rm  #{key} #{extra}"
                     else
-                        ret << "#{r_status}rm  #{key} = #{value} #{extra}"
+                        ret << "#{r_status}rm  #{key} #{value} #{extra}"
                     end
                 else
                     ret << "unknown operation #{state}"
@@ -398,36 +470,91 @@ module OneCfg::Config::Type
             ret
         end
 
+        # Looks into value and all symbols convers to strings starting with ':'.
+        # Recursively goes deep through the arrays and hashes, where
+        # stringifies both suspicious keys and values.
+        #
+        # @param  value [Any] Value to stringify
+        #
+        # @return [Any] Value with symbols converted to strings starting with :
+        def unsymbolize(value)
+            # rubocop:disable Style/CaseLikeIf
+            if value.is_a?(Symbol)
+                ":#{value}"
+            elsif value.is_a?(Array)
+                value.collect {|v| unsymbolize(v) }
+            elsif value.is_a?(Hash)
+                Hash[value.collect {|k, v| [unsymbolize(k), unsymbolize(v)] }]
+            else
+                value
+            end
+            # rubocop:enable Style/CaseLikeIf
+        end
+
+        # Looks into value and texts which begin with ':' converts to symbols.
+        # Recursively goes deep through the arrays and hashes, where symbolizes
+        # back both suspicious keys and values.
+        #
+        # @param  value [Any] Value to symbolize
+        #
+        # @return [Any] Value with symbolized values where begins with :
+        def symbolize(value)
+            # TODO: don't symbolize value if it contains spaces?
+            if value.is_a?(String) && value.start_with?(':') && value.length > 1
+                value[1..-1].to_sym
+            elsif value.is_a?(Array)
+                value.collect {|v| symbolize(v) }
+            elsif value.is_a?(Hash)
+                Hash[value.collect {|k, v| [symbolize(k), symbolize(v)] }]
+            else
+                value
+            end
+        end
+
         # Get key for hintings
         #
-        # @param diff [Hash] Element with diff information
+        # @param diff    [Hash] Element with diff information
+        # @param symbols [Bool] If symbols in paths should be preserved
         #
         # @return [String] Formatted key
-        def hinting_key(data)
+        def hinting_key(data, symbols = false)
             full_path = [data['path'], data['key']].flatten.compact
 
             if full_path.empty?
-                '(top)'
+                ret = '/'
+            elsif symbols
+                ret = unsymbolize(full_path).join('/')
             else
-                full_path.join('/')
+                ret = full_path.join('/')
             end
+
+            # if there are special characters, better quote
+            # TODO: parser probably doesn't handle correctly \'??
+            ret.index(/[" ]/) ? ret.inspect : ret
         end
 
         # Get value for hintings
         #
-        # @param data [Hash] Element with diff information
+        # @param data    [Hash] Element with diff information
+        # @param symbols [Bool] If symbols in values should be preserved
         #
         # @return [String] Formatted value
-        def hinting_value(data)
-            ret = '??? UNKNOWN ???'
+        def hinting_value(data, symbols = false)
+            ret = nil
 
             if data.key?('value')
-                ret = data['value'].inspect
-            elsif data.key?('old')
-                ret = data['old'].inspect
+                ret = data['value']
+            elsif data.key?('old') && !data['key']
+                ret = data['old']
+            else
+                # Quiet here, just in case we are going to JSONify nil,
+                # as it can be value if set by above cases!!
+                return ''
             end
 
-            ret
+            ret = unsymbolize(ret) if symbols
+
+            JSON.generate(ret)
         end
 
         # Get extra metadata for hintings

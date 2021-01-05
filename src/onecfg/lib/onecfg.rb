@@ -19,24 +19,31 @@ require 'common'
 require 'settings'
 require 'version'
 require 'config'
+require 'transaction'
+require 'patch'
 
 begin
     require 'ee'
 rescue LoadError
+    # If we can't load EE, we are running CE only
 end
 
 # OneCfg main module
 module OneCfg
 
+    LOG = OneCfg::Common::CliLogger
+
     ONE_LOCATION = ENV['ONE_LOCATION']
+    ETC_DIR      = ENV['ONECFG_ETC_DIR'] if ENV.key?('ONECFG_ETC_DIR')
+    BACKUP_DIR   = ENV['ONECFG_BACKUP_DIR'] if ENV.key?('ONECFG_BACKUP_DIR')
 
     # Global directories
     # TODO: improve
     if ONE_LOCATION
         BIN_DIR    = File.join(ONE_LOCATION, 'bin')
-        ETC_DIR    = '/tmp/onescape/etc'
-        BACKUP_DIR = '/tmp/onescape/backups'
         SHARE_DIR  = ONE_LOCATION + '/share/onecfg'
+        ETC_DIR    ||= '/tmp/onescape/etc'
+        BACKUP_DIR ||= '/tmp/onescape/backups'
 
         [ETC_DIR, BACKUP_DIR].each do |d|
             OneCfg::LOG.warn("Using local state in #{d}")
@@ -44,12 +51,10 @@ module OneCfg
         end
     else
         BIN_DIR    = '/usr/bin'
-        ETC_DIR    = '/etc/onescape'
-        BACKUP_DIR = '/var/lib/one/backups/config'
-        SHARE_DIR = '/usr/share/one/onecfg'
+        SHARE_DIR  = '/usr/share/one/onecfg'
+        ETC_DIR    ||= '/etc'
+        BACKUP_DIR ||= '/var/lib/one/backups/config'
     end
-
-    LOG = OneCfg::Common::CliLogger
 
     # Project local directories
     CONF_DIR  = File.join(SHARE_DIR, 'etc')
@@ -58,7 +63,7 @@ module OneCfg
 
     # Individual files
     FILES_CFG  = File.join(CONF_DIR, 'files.yaml')
-    CONFIG_CFG = File.join(ETC_DIR,  'config.yaml')
+    CONFIG_CFG = File.join(ETC_DIR,  'onecfg.conf')
 
     # Configuration management releated constants
     CONFIG_BACKUP_DIRS    = ['/etc/one', '/var/lib/one/remotes']

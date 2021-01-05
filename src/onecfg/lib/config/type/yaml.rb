@@ -85,11 +85,23 @@ module OneCfg::Config::Type
             ret.empty? ? nil : ret
         end
 
+        def diff_from_hintings(hintings)
+            super(hintings, true)
+        end
+
         ##################################################################
         # Private Methods
         ##################################################################
 
         private
+
+        def hinting_key(data)
+            super(data, true)
+        end
+
+        def hinting_value(data)
+            super(data, true)
+        end
 
         # Walks through the tree1 and tree2 data structures
         # starting the provided path, compares them and returns
@@ -476,6 +488,24 @@ module OneCfg::Config::Type
 
             # insert new key into a Hash
             if data['key']
+
+                ### WORKAROUND
+                # Insert action created from hintings can't properly
+                # distinguish between insert into Array and Hash and
+                # set path/key properly. We double check if we don't
+                # try to insert into actual Array and if yes, we
+                # update the diff structure and retry operation.
+                # rubocop:disable Style/SoleNestedConditional
+                if data['extra'] && data['extra']['hintings']
+                    if tree.is_a?(Hash) && tree[data['key']].is_a?(Array)
+                        data['path'] << data['key']
+                        data['key'] = nil
+
+                        raise OneCfg::Config::Exception::PatchRetryOperation
+                    end
+                end
+                # rubocop:enable Style/SoleNestedConditional
+
                 if tree.is_a? Hash
                     if tree.key?(data['key'])
                         dc = OneCfg::Config::Utils.deep_compare(
