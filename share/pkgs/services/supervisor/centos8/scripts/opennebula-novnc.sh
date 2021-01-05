@@ -64,7 +64,7 @@ fi
 
 msg "Rotate log to start with an empty one"
 /usr/sbin/logrotate -s /var/lib/one/.logrotate.status \
-    -f /etc/logrotate.d/opennebula-novnc
+    -f /etc/logrotate.d/opennebula-novnc || true
 
 # now we will stay in a loop monitoring and faking the foreground process...
 while sleep 1 ; do
