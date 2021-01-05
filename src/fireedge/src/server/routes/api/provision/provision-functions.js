@@ -24,7 +24,7 @@ const {
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, parsePostData, existsFile, createFile } = require('server/utils/server')
-const { tmpPath } = require('server/utils/constants/defaults')
+const { tmpPath, defaultCommandProvision } = require('server/utils/constants/defaults')
 const {
   executeCommand,
   executeCommandAsync,
@@ -43,7 +43,6 @@ const { provision } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
-const command = 'oneprovision'
 const logFile = {
   name: 'stdouterr',
   ext: 'log'
@@ -70,7 +69,7 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
     const fillData = (content = '', filePath = '') => {
       try {
         const paramsCommand = ['validate', '--dump', filePath, ...authCommand, ...endpoint]
-        const executedCommand = executeCommand(command, paramsCommand, { cwd: path })
+        const executedCommand = executeCommand(defaultCommandProvision, paramsCommand, { cwd: path })
         if (executedCommand && executedCommand.success) {
           files.push(parse(executedCommand.data))
         }
@@ -109,7 +108,7 @@ const getList = (res = {}, next = () => undefined, params = {}, userData = {}) =
   if (params && params.resource && user && password) {
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const executedCommand = executeCommand(command, [`${params.resource}`.toLowerCase(), 'list', ...authCommand, ...endpoint, '--json'])
+    const executedCommand = executeCommand(defaultCommandProvision, [`${params.resource}`.toLowerCase(), 'list', ...authCommand, ...endpoint, '--json'])
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
@@ -133,7 +132,7 @@ const getListProvisions = (res = {}, next = () => undefined, params = {}, userDa
     if (params && params.id) {
       paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
     }
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       let data = JSON.parse(executedCommand.data)
@@ -163,7 +162,7 @@ const deleteResource = (res = {}, next = () => undefined, params = {}, userData 
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = [`${params.resource}`.toLowerCase(), 'delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       rtn = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
@@ -191,12 +190,12 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
       message.toString().split(/\r|\n/).map(line => {
         if (line) {
           lastLine = line
-          publish(command, { id: params.id, message: lastLine })
+          publish(defaultCommandProvision, { id: params.id, message: lastLine })
         }
       })
     }
     executeCommandAsync(
-      command,
+      defaultCommandProvision,
       paramsCommand,
       {
         err: emit,
@@ -255,7 +254,7 @@ const hostCommand = (res = {}, next = () => undefined, params = {}, userData = {
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
@@ -276,7 +275,7 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['host', `${params.action}`.toLowerCase(), `${params.id}`.toLowerCase(), `${params.command}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, executedCommand.data ? JSON.parse(executedCommand.data) : params.id)
@@ -329,12 +328,12 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                   }
                   lastLine = line
                   stream.write(`${line}\n`)
-                  publish(command, { id: files.name, message: line })
+                  publish(defaultCommandProvision, { id: files.name, message: line })
                 }
               })
             }
             executeCommandAsync(
-              command,
+              defaultCommandProvision,
               paramsCommand,
               {
                 err: emit,
@@ -413,12 +412,12 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
       message.toString().split(/\r|\n/).map(line => {
         if (line) {
           lastLine = line
-          publish(command, { id: params.id, message: lastLine })
+          publish(defaultCommandProvision, { id: params.id, message: lastLine })
         }
       })
     }
     executeCommandAsync(
-      command,
+      defaultCommandProvision,
       paramsCommand,
       {
         err: emit,
@@ -440,7 +439,7 @@ const configureHost = (res = {}, next = () => undefined, params = {}, userData =
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['host', 'configure', `${params.id}`.toLowerCase(), '--debug', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
@@ -469,7 +468,7 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['validate', '--dump', file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(command, paramsCommand)
+          const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
           let response = internalServerError
           if (executedCommand && executedCommand.success) {
             response = ok

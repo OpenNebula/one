@@ -15,7 +15,7 @@
 
 const { parse } = require('yaml')
 const { Validator } = require('jsonschema')
-const { tmpPath } = require('server/utils/constants/defaults')
+const { tmpPath, defaultCommandProvider } = require('server/utils/constants/defaults')
 
 const {
   ok,
@@ -28,8 +28,6 @@ const { provider, providerUpdate } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
-const command = 'oneprovider'
-
 const getListProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -40,7 +38,7 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
     if (params && params.id) {
       paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, '--json']
     }
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
       res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
@@ -108,7 +106,8 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
         const file = createTemporalFile(tmpPath, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
-          const executedCommand = executeCommand(command, paramsCommand)
+          const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
+          console.log("JORGE: ", executeCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.data) {
             if (executedCommand.success) {
@@ -151,7 +150,7 @@ const updateProviders = (res = {}, next = () => undefined, params = {}, userData
       const file = createTemporalFile(tmpPath, 'json', JSON.stringify(resource))
       if (file && file.name && file.path) {
         const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
-        const executedCommand = executeCommand(command, paramsCommand)
+        const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
         res.locals.httpCode = httpResponse(internalServerError)
         if (executedCommand && executedCommand.success) {
           res.locals.httpCode = httpResponse(ok)
@@ -181,7 +180,7 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['delete', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint]
-    const executedCommand = executeCommand(command, paramsCommand)
+    const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
     const data = executedCommand.data || ''
     try {
       if (executedCommand) {
