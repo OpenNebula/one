@@ -25,3 +25,9 @@ networks:
         packet_ip_type: 'public_ipv4'
         ipam_mad: 'aws'
         cidr: "${cluster.0.cidr}"
+
+vntemplates:
+  - name: "${provision}-private"
+    vn_mad: 'vxlan'
+    phydev: 'eth0'
+    automatic_vlan_id: 'yes'

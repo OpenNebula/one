@@ -1,0 +1,26 @@
+!
+!  Node configuration file
+!
+hostname {{ ansible_nodename }}
+!
+log file /var/log/frr/bgpd.log
+!
+router bgp {{ frr_as }}
+  bgp router-id {{ vars['ansible_' + frr_iface].ipv4.address }}
+  no bgp default ipv4-unicast
+  neighbor fabric peer-group
+  neighbor fabric remote-as {{ frr_as }}
+  neighbor fabric capability extended-nexthop
+  ! debug route reflector list: {{ rr_servers }}
+{% for k in rr_servers %}
+{% if k != vars['ansible_' + frr_iface].ipv4.address %}
+  neighbor {{ k }} peer-group fabric
+{% endif %}
+{% endfor %}
+  !
+  address-family l2vpn evpn
+    neighbor fabric activate
+    advertise-all-vni
+  exit-address-family
+  !
+end

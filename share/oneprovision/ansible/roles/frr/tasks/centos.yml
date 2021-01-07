@@ -1,0 +1,49 @@
+---
+
+- name: Add FRR RPM repository
+  yum:
+    name: https://rpm.frrouting.org/repo/{{ frr_frrver }}-repo-1-0.el{{ ansible_distribution_major_version }}.noarch.rpm
+    state: present
+    disable_gpg_check: True
+
+- name: Install FRR
+  package:
+    name: frr
+    state: latest
+  register: pkg_result
+  until: pkg_result is succeeded
+  retries: 3
+  delay: 10
+
+- name: Install FRR Python Tools
+  package:
+    name: frr-pythontools
+    state: latest
+  register: pkg_result
+  until: pkg_result is succeeded
+  retries: 3
+  delay: 10
+
+- name: Configure BGP (RR)
+  template:
+    src: bgpd_rr.conf.j2
+    dest: /etc/frr/bgpd.conf
+  when: vars['ansible_' + frr_iface].ipv4.address in rr_servers
+
+- name: Configure BGP
+  template:
+    src: bgpd.conf.j2
+    dest: /etc/frr/bgpd.conf
+  when: not vars['ansible_' + frr_iface].ipv4.address in rr_servers
+
+- name: Enable BGP daemon
+  replace:
+    path: /etc/frr/daemons
+    regexp: '^bgpd=no'
+    replace: 'bgpd=yes'
+
+- name: Start FRR service
+  service:
+    name: frr
+    state: started
+    enabled: yes
