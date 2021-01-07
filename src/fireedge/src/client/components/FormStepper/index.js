@@ -25,46 +25,76 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
     reset({ ...formData }, { errors: false })
   }, [formData])
 
-  const handleNext = () => {
-    const { id, resolver, optionsValidate } = steps[activeStep]
-    const currentData = watch(id)
+  const validateSchema = step => {
+    const { id, resolver, optionsValidate } = steps[step]
+    const stepData = watch(id)
     const stepSchema = typeof resolver === 'function' ? resolver() : resolver
 
-    stepSchema
-      .validate(currentData, optionsValidate)
-      .then(() => {
-        if (activeStep === lastStep) {
-          onSubmit(schema().cast({ ...formData, [id]: currentData }))
-        } else {
-          setFormData(prev => ({ ...prev, [id]: currentData }))
-          setActiveStep(prevActiveStep => prevActiveStep + 1)
-        }
+    return stepSchema
+      .validate(stepData, optionsValidate)
+      .then(() => ({ id, data: stepData }))
+  }
+
+  const setErrors = ({ inner: errors, ...rest }) => {
+    const errorsByPath = groupBy(errors, 'path') ?? {}
+    const totalErrors = Object.keys(errorsByPath).length
+
+    totalErrors > 0
+      ? setError(id, {
+        type: 'manual',
+        message: `${totalErrors} error(s) occurred`
       })
-      .catch(({ inner, ...err }) => {
-        const errorsByPath = groupBy(inner, 'path') ?? {}
-        const totalErrors = Object.keys(errorsByPath).length
+      : setError(id, rest)
 
-        totalErrors > 0
-          ? setError(id, {
-            type: 'manual',
-            message: `${totalErrors} error(s) occurred`
+    errors?.forEach(({ path, type, message }) =>
+      setError(`${id}.${path}`, { type, message })
+    )
+  }
+
+  const handleStep = stepToAdvance => {
+    const isBackAction = activeStep > stepToAdvance
+
+    isBackAction && handleBack(isBackAction)
+
+    steps
+      .slice(FIRST_STEP, stepToAdvance)
+      .forEach((_, step, stepsToValidate) => {
+        validateSchema(step)
+          .then(({ id, data }) => {
+            activeStep === step &&
+              setFormData(prev => ({ ...prev, [id]: data }))
+
+            step === stepsToValidate.length - 1 &&
+            Number.isInteger(stepToAdvance) &&
+              setActiveStep(stepToAdvance)
           })
-          : setError(id, err)
-
-        inner?.forEach(({ path, type, message }) =>
-          setError(`${id}.${path}`, { type, message })
-        )
+          .catch(setErrors)
       })
   }
 
-  const handleBack = useCallback(() => {
-    if (activeStep <= FIRST_STEP) return
+  const handleNext = () => {
+    validateSchema(activeStep)
+      .then(({ id, data }) => {
+        if (activeStep === lastStep) {
+          onSubmit(schema().cast({ ...formData, [id]: data }))
+        } else {
+          setFormData(prev => ({ ...prev, [id]: data }))
+          setActiveStep(prevActiveStep => prevActiveStep + 1)
+        }
+      })
+      .catch(setErrors)
+  }
+
+  const handleBack = useCallback(stepToBack => {
+    if (activeStep < FIRST_STEP) return
 
     const { id } = steps[activeStep]
-    const currentData = watch(id)
+    const stepData = watch(id)
 
-    setFormData(prev => ({ ...prev, [id]: currentData }))
-    setActiveStep(prevActiveStep => prevActiveStep - 1)
+    setFormData(prev => ({ ...prev, [id]: stepData }))
+    setActiveStep(prevActiveStep =>
+      Number.isInteger(stepToBack) ? stepToBack : (prevActiveStep - 1)
+    )
   }, [activeStep])
 
   const { id, content: Content } = useMemo(() => steps[activeStep], [
@@ -92,6 +122,7 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
           activeStep={activeStep}
           lastStep={lastStep}
           disabledBack={disabledBack}
+          handleStep={handleStep}
           handleNext={handleNext}
           handleBack={handleBack}
           errors={errors}
