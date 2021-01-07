@@ -24,3 +24,9 @@ networks:
         size: '1'
         packet_ip_type: 'public_ipv4'
         ipam_mad: 'packet'
+
+vntemplates:
+  - name: "${provision}-private"
+    vn_mad: 'vxlan'
+    phydev: 'bond0'
+    automatic_vlan_id: 'yes'

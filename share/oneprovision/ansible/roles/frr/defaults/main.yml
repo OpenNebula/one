@@ -1,0 +1,14 @@
+---
+
+# frr-stable will be the latest official stable release
+frr_frrver: 'frr-stable'
+
+# Number of route reflectors in the cluster
+frr_rr_num: 1
+
+# Network interface name to route VXLAN traffic
+frr_iface: 'eth0'
+
+# The AS number used for BGP
+frr_as: 65000
+

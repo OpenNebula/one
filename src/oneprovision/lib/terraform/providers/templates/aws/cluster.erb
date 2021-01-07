@@ -56,3 +56,53 @@ resource "aws_security_group" "device_<%= obj['ID'] %>_ssh" {
   }
 }
 
+resource "aws_security_group" "device_<%= obj['ID'] %>_bgp" {
+  name        = "allow_bgp"
+  description = "Allow BGP inbound traffic"
+  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
+
+  ingress {
+    description = "BGP from 10.0.0.0/16"
+    from_port   = 179
+    to_port     = 179
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "device_<%= obj['ID'] %>_bgp"
+  }
+}
+
+resource "aws_security_group" "device_<%= obj['ID'] %>_vxlan" {
+  name        = "allow_vxlan"
+  description = "Allow VXLAN inbound traffic"
+  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
+
+  ingress {
+    description = "VXLAN from 10.0.0.0/16"
+    from_port   = 8472
+    to_port     = 8472
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "device_<%= obj['ID'] %>_vxlan"
+  }
+}
+

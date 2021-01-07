@@ -52,7 +52,7 @@ VNTemplate::VNTemplate(int id,
 
 int VNTemplate::insert(SqlDB *db, string& error_str)
 {
-    string vn_mad, phydev, bridge, auto_id_str, vlan_id, auto_outer_str, outer_id;
+    string vn_mad, phydev, bridge, vlan_id, outer_id;
     bool auto_id = false, auto_outer = false;
     int rc;
 
@@ -70,20 +70,10 @@ int VNTemplate::insert(SqlDB *db, string& error_str)
 
     get_template_attribute("PHYDEV", phydev);
     get_template_attribute("BRIDGE", bridge);
-    get_template_attribute("AUTOMATIC_VLAN_ID", auto_id_str);
-
-    if (auto_id_str == "YES")
-    {
-        auto_id = true;
-    }
+    get_template_attribute("AUTOMATIC_VLAN_ID", auto_id);
 
     get_template_attribute("VLAN_ID", vlan_id);
-    get_template_attribute("AUTOMATIC_OUTER_VLAN_ID", auto_outer_str);
-
-    if (auto_outer_str == "YES")
-    {
-        auto_outer = true;
-    }
+    get_template_attribute("AUTOMATIC_OUTER_VLAN_ID", auto_outer);
 
     get_template_attribute("OUTER_VLAN_ID", outer_id);
 

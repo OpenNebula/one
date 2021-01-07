@@ -1,0 +1,22 @@
+---
+#
+# Define network facts to generate BGP configuration
+#   - rr_servers (array with route reflectors IPs)
+#   - network_cidr (network address in CIDR format of BGP interface)
+- name: Define cluster RRs
+  set_fact:
+    rr_servers : "{{ rr_servers|default([]) + [ hostvars[item]['ansible_' + frr_iface].ipv4.address ] }}"
+  with_items: "{{ groups['all'][:frr_rr_num] }}"
+
+- name: Define Network Mask
+  vars:
+    net_str: "{{ vars['ansible_' + frr_iface].ipv4.network \
+      + '/' + vars['ansible_' + frr_iface].ipv4.netmask }}"
+  set_fact:
+      network_cidr: "{{ net_str | ipaddr('net') }}"
+
+- include: centos.yml
+  when: ansible_os_family == "RedHat"
+
+# - include: debian.yml
+#   when: ansible_os_family == "Debian"
