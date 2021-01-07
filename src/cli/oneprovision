@@ -161,6 +161,8 @@ CommandParser::CmdParser.new(ARGV) do
     command :list,
             provision_list_desc,
             :options => CLIHelper::OPTIONS + [OpenNebulaHelper::FORMAT] do
+        options[:state] = OneProvision::Provision::DOCUMENT_TYPE
+
         helper.list_pool(options)
     end
 
