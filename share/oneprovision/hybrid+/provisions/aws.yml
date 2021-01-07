@@ -16,23 +16,24 @@
 # ---------------------------------------------------------------------------- #
 
 #-------------------------------------------------------------------------------
-# This is the canonical description file for a cluster build with 'Packet'
+# This is the canonical description file for a cluster build with 'AWS'
 # resources using the KVM hypervisor.
 # ------------------------------------------------------------------------------
 
-name: "packet-cluster"
+name: "aws-cluster"
+provision: "hybrid+"
 
 extends:
     - common.d/defaults.yml
     - common.d/resources.yml
     - common.d/kvm_hosts.yml
-    - packet.d/defaults.yml
-    - packet.d/datastores.yml
-    - packet.d/inputs.yml
-    - packet.d/networks.yml
+    - aws.d/datastores.yml
+    - aws.d/defaults.yml
+    - aws.d/inputs.yml
+    - aws.d/networks.yml
 
 #-------------------------------------------------------------------------------
-# playbook: Ansible playbook used for hosts configuration.The packet playbook
+# playbook: Ansible playbook used for hosts configuration.The aws playbook
 # include the following roles:
 #    - ddc
 #    - opennebula-repository
@@ -43,16 +44,17 @@ extends:
 #    - iptables
 #-------------------------------------------------------------------------------
 playbook:
-  - packet
+  - aws
 
 #-------------------------------------------------------------------------------
 # defaults: Common configuration attributes for provision objects
 #--------------------------------------------------------------------------------
 defaults:
   provision:
-    provider: 'packet'
-    plan: "${input.packet_plan}"
-    os: "${input.packet_os}"
+    provider: 'aws'
+    ami: "${input.aws_ami_image}"
+    instancetype: "${input.aws_instance_type}"
+    cloud_init: true
 
 #-------------------------------------------------------------------------------
 # cluster: Parameters for the OpenNebula cluster. Applies to all the Hosts
@@ -64,6 +66,8 @@ defaults:
 #--------------------------------------------------------------------------------
 cluster:
   name: "${provision}"
-  description: 'Packet cluster'
+  description: 'AWS cluster'
   reserved_cpu: '0'
   reserved_mem: '0'
+  provision:
+      cidr: '10.0.0.0/16'
