@@ -290,7 +290,8 @@ module OneProvision
                     ds.info(d['id'])
                     next unless ds.one['TYPE'] == '1' # only system ds
                     group_vars['sys_ds_ids'] << d['id']
-                end
+                end unless datastores.nil?
+                
                 c = YAML.dump(group_vars)
                 fname = "#{ansible_dir}/group_vars.yml"
                 Driver.write_file_log(fname, c)
