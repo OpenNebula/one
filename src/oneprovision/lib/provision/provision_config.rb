@@ -282,8 +282,10 @@ module OneProvision
         #   Parse it to merge different sections
         #   Check specific attributes
         #   Check all evaluation rules
-        def validate
-            self.load
+        #
+        # @param check_load [Boolean] True to check yaml load operacion
+        def validate(check_load = true)
+            self.load if check_load
 
             @config.delete_if {|_k, v| v.nil? }
 

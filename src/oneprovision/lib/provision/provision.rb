@@ -206,27 +206,27 @@ module OneProvision
             config = config[:config]
 
             cfg = ProvisionConfig.new(config, inputs)
-            cfg.validate
+
+            cfg.load
+
+            # read provider information
+            unless provider
+                provider = Provision.read_provider(cfg)
+                provider = Provider.by_name(@client, provider)
+            end
+
+            return provider if OpenNebula.is_error?(provider)
+
+            unless provider
+                return OpenNebula::Error.new('No provider found')
+            end
+
+            @provider     = provider
+            cfg['inputs'] = cfg['inputs'] | provider.inputs
+
+            cfg.validate(false)
 
             begin
-                # Create configuration object
-                cfg = ProvisionConfig.new(config, inputs)
-                cfg.load
-
-                # read provider information
-                unless provider
-                    provider = Provision.read_provider(cfg)
-                    provider = Provider.by_name(@client, provider)
-                end
-
-                return provider if OpenNebula.is_error?(provider)
-
-                unless provider
-                    return OpenNebula::Error.new('No provider found')
-                end
-
-                @provider = provider
-
                 allocate(cfg, provider)
 
                 info
