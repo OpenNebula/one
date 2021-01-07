@@ -652,7 +652,7 @@ EOT
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
-                rc = pool.get_page(size, 0, false)
+                rc = pool.get_page(size, 0, false, options[:state])
                 ps = ""
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
@@ -680,7 +680,7 @@ EOT
                 options[:no_header] = true
 
                 loop do
-                    rc = pool.get_page(size, current, false)
+                    rc = pool.get_page(size, current, false, options[:state])
 
                     return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -731,7 +731,7 @@ EOT
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
-                rc = pool.get_page(size, 0, extended)
+                rc = pool.get_page(size, 0, extended, options[:state])
                 ps = ""
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
@@ -766,7 +766,7 @@ EOT
                 current = size
 
                 loop do
-                    rc = pool.get_page(size, current, extended)
+                    rc = pool.get_page(size, current, extended, options[:state])
 
                     return -1, rc.message if OpenNebula.is_error?(rc)
 
@@ -815,7 +815,7 @@ EOT
                 size = $stdout.winsize[0] - 1
 
                 # ----------- First page, check if pager is needed -------------
-                rc = pool.get_page(size, 0, extended)
+                rc = pool.get_page(size, 0, extended, options[:state])
                 ps = ""
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
@@ -844,7 +844,7 @@ EOT
                 current = size
 
                 loop do
-                    rc = pool.get_page(size, current, extended)
+                    rc = pool.get_page(size, current, extended, options[:state])
 
                     return -1, rc.message if OpenNebula.is_error?(rc)
 

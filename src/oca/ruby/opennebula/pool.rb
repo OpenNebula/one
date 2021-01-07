@@ -233,7 +233,8 @@ module OpenNebula
         # state state of the objects
         # hash:: return page as a hash
         def get_page(size, current, extended = false, state = -1)
-            rc = nil
+            rc      = nil
+            state ||= -1
 
             if PAGINATED_POOLS.include?(@pool_name)
                 pool_name = @pool_name.delete('_').downcase

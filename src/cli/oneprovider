@@ -150,6 +150,8 @@ CommandParser::CmdParser.new(ARGV) do
             list_desc,
             :options => CLIHelper::OPTIONS + [OpenNebulaHelper::FORMAT] do
         options[:decrypt] = true
+        options[:state]   = OneProvision::Provider::DOCUMENT_TYPE
+
         helper.list_pool(options)
     end
 
