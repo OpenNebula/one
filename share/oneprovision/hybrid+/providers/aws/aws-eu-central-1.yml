@@ -1,0 +1,24 @@
+name: 'aws-frankfurt'
+
+provider: 'aws'
+provision: 'hybrid+'
+description: 'Elastic cluster on AWS in Frakfurt'
+
+plain:
+  image: 'AWS.webp'
+
+connection:
+  access_key: 'Encrypted AWS access key'
+  secret_key: 'Encrypted AWS secret key'
+  region: 'eu-central-1'
+
+inputs:
+   - name: 'aws_ami_image'
+     type: 'list'
+     options:
+       - 'ami-0e342d72b12109f91'
+       - 'ami-0b793c1e0d1dc4d28'
+   - name: 'aws_instance_type'
+     type: 'list'
+     options:
+       - 'i3-metal'

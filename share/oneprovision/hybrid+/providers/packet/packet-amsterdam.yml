@@ -1,0 +1,24 @@
+name: 'packet-amsterdam'
+
+provider: 'packet'
+provision: 'hybrid+'
+description: 'Elastic cluster on Packet in Amsterdam'
+
+plain:
+  image: 'Packet.webp'
+
+connection:
+  token: 'Encrypted Packet token'
+  project: 'Encrypted Packet project'
+  facility: 'ams1'
+
+inputs:
+   - name: 'packet_os'
+     type: 'list'
+     options:
+       - 'centos_7'
+       - 'ubuntu_18_04'
+   - name: 'packet_plan'
+     type: 'list'
+     options:
+       - 'baremetal_0'
