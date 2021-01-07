@@ -105,6 +105,14 @@ module OneProvision
             conn
         end
 
+        # Gets inputs information
+        def inputs
+            # Dummy case
+            return unless @body
+
+            @body['inputs'] || []
+        end
+
         # Gets provider type
         def type
             # Dummy case
@@ -148,11 +156,18 @@ module OneProvision
         # @return [JSON] Document information in JSON format
         def to_json(template)
             document = {}
+            skip     = %w[provider connection registration_time plain]
 
             # Create document JSON
             document['provider']          = template['provider']
             document['connection']        = template['connection']
             document['registration_time'] = Time.now.to_i
+
+            template.each do |key, value|
+                next if skip.include?(key)
+
+                document[key] = value
+            end
 
             document.to_json
         end
