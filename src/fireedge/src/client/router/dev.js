@@ -16,7 +16,7 @@ export const ENDPOINTS = [
     devMode: true,
     sidebar: true,
     icon: BallotIcon,
-    component: TestApi
+    Component: TestApi
   },
   {
     label: 'Webconsole',
@@ -25,6 +25,8 @@ export const ENDPOINTS = [
     devMode: true,
     sidebar: true,
     icon: BallotIcon,
-    component: Webconsole
+    Component: Webconsole
   }
 ]
+
+export default { PATH, ENDPOINTS }

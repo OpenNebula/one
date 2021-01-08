@@ -19,23 +19,25 @@ import PropTypes from 'prop-types'
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { TransitionGroup } from 'react-transition-group'
 
-import * as endpoints from 'client/router/endpoints'
+import devRoutes from 'client/router/dev'
 import { InternalLayout, MainLayout } from 'client/components/HOC'
-import { APPS } from 'client/constants'
 
-const Router = ({ title, routes: { PATH, ENDPOINTS } }) => {
-  /* const { ENDPOINTS, PATH } = useMemo(() => ({
-    ...endpoints[app],
+const Router = ({ title, routes }) => {
+  const { ENDPOINTS, PATH } = useMemo(() => ({
+    ...routes,
     ...(process?.env?.NODE_ENV === 'development' &&
-      { ENDPOINTS: endpoints[app].ENDPOINTS.concat(endpoints.dev.ENDPOINTS) }
+      {
+        PATH: { ...routes.PATH, ...devRoutes.PATH },
+        ENDPOINTS: routes.ENDPOINTS.concat(devRoutes.ENDPOINTS)
+      }
     )
-  }), [app]) */
+  }), [])
 
   const renderRoute = useCallback(({
     label = '',
     path = '',
     authenticated = true,
-    component: Component,
+    Component,
     ...route
   }) => (
     <Route
@@ -55,9 +57,7 @@ const Router = ({ title, routes: { PATH, ENDPOINTS } }) => {
     <MainLayout endpoints={{ ENDPOINTS, PATH }}>
       <TransitionGroup>
         <Switch>
-          {React.useMemo(() => ENDPOINTS?.map(({ routes, ...endpoint }) =>
-            endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
-          ), [])}
+          {React.useMemo(() => ENDPOINTS?.map(renderRoute), [])}
           <Route component={() => <Redirect to={PATH.LOGIN} />} />
         </Switch>
       </TransitionGroup>
@@ -66,11 +66,28 @@ const Router = ({ title, routes: { PATH, ENDPOINTS } }) => {
 }
 
 Router.propTypes = {
-  app: PropTypes.oneOf([undefined, ...APPS])
+  title: PropTypes.string,
+  routes: PropTypes.shape({
+    PATH: PropTypes.object,
+    ENDPOINTS: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string.isRequired,
+        path: PropTypes.string.isRequired,
+        authenticated: PropTypes.bool.isRequired,
+        sidebar: PropTypes.bool,
+        icon: PropTypes.object,
+        Component: PropTypes.func.isRequired
+      })
+    )
+  })
 }
 
 Router.defaultProps = {
-  app: undefined
+  title: undefined,
+  routes: {
+    PATH: {},
+    ENDPOINTS: []
+  }
 }
 
 Router.displayName = 'Router'

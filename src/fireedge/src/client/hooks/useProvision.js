@@ -32,7 +32,7 @@ export default function useProvision () {
   // PROVIDERS TEMPLATES REQUESTS
   // --------------------------------------------
 
-  const getTemplates = useCallback(
+  const getProvidersTemplates = useCallback(
     () =>
       serviceProvision
         .getProvidersTemplates({ filter })
@@ -235,7 +235,7 @@ export default function useProvision () {
 
   return {
     providersTemplates,
-    getTemplates,
+    getProvidersTemplates,
 
     providers,
     getProvider,

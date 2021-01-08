@@ -22,18 +22,9 @@ import { _APPS } from 'client/constants'
 
 const APP_NAME = _APPS.flow.name
 
-const FlowApp = () => {
-  /* if (process?.env?.NODE_ENV === 'development') {
-    import('client/apps/_dev/routes').then(devRoutes => {
-      routes = {
-        PATH: { ...routes.PATH, ...devRoutes.PATH },
-        ENDPOINTS: routes.ENDPOINTS.concat(devRoutes.ENDPOINTS)
-      }
-    })
-  } */
-
-  return <Router title={APP_NAME} routes={routes} />
-}
+const FlowApp = () => (
+  <Router title={APP_NAME} routes={routes} />
+)
 
 FlowApp.displayName = '_FlowApp'
 

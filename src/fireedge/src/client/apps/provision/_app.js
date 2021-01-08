@@ -25,21 +25,11 @@ const APP_NAME = _APPS.provision.name
 
 const ProvisionApp = () => {
   const { isLogged, isLoginInProcess } = useAuth()
-  const { getTemplates } = useProvision()
-  // const { fetchRequest } = useFetch(getTemplates)
-
-  /* if (process?.env?.NODE_ENV === 'development') {
-    import('client/apps/_dev/routes').then(devRoutes => {
-      routes = {
-        PATH: { ...routes.PATH, ...devRoutes.PATH },
-        ENDPOINTS: routes.ENDPOINTS.concat(devRoutes.ENDPOINTS)
-      }
-    })
-  } */
+  const { getProvisionsTemplates } = useProvision()
 
   React.useEffect(() => {
     if (isLogged && !isLoginInProcess) {
-      getTemplates()
+      getProvisionsTemplates()
     }
   }, [isLogged])
 

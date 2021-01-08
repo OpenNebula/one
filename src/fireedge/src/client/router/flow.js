@@ -32,7 +32,7 @@ export const ENDPOINTS = [
     label: 'Login',
     path: PATH.LOGIN,
     authenticated: false,
-    component: Login
+    Component: Login
   },
   {
     label: 'Dashboard',
@@ -40,14 +40,14 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: DashboardIcon,
-    component: Dashboard
+    Component: Dashboard
   },
   {
     label: 'Settings',
     path: PATH.SETTINGS,
     authenticated: true,
     header: true,
-    component: Settings
+    Component: Settings
   },
   {
     label: 'Templates',
@@ -55,19 +55,19 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: TemplatesIcons,
-    component: ApplicationsTemplates
+    Component: ApplicationsTemplates
   },
   {
     label: 'Create Application template',
     path: PATH.APPLICATIONS_TEMPLATES.CREATE,
     authenticated: true,
-    component: ApplicationsTemplatesCreateForm
+    Component: ApplicationsTemplatesCreateForm
   },
   {
     label: 'Edit Application template',
     path: PATH.APPLICATIONS_TEMPLATES.EDIT,
     authenticated: true,
-    component: ApplicationsTemplatesCreateForm
+    Component: ApplicationsTemplatesCreateForm
   },
   {
     label: 'Instances',
@@ -75,7 +75,7 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: InstancesIcons,
-    component: ApplicationsInstances
+    Component: ApplicationsInstances
   }
 ]
 
