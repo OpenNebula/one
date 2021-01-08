@@ -23,13 +23,13 @@ import * as endpoints from 'client/router/endpoints'
 import { InternalLayout, MainLayout } from 'client/components/HOC'
 import { APPS } from 'client/constants'
 
-const Router = ({ app }) => {
-  const { ENDPOINTS, PATH } = useMemo(() => ({
+const Router = ({ title, routes: { PATH, ENDPOINTS } }) => {
+  /* const { ENDPOINTS, PATH } = useMemo(() => ({
     ...endpoints[app],
     ...(process?.env?.NODE_ENV === 'development' &&
       { ENDPOINTS: endpoints[app].ENDPOINTS.concat(endpoints.dev.ENDPOINTS) }
     )
-  }), [app])
+  }), [app]) */
 
   const renderRoute = useCallback(({
     label = '',
@@ -43,21 +43,21 @@ const Router = ({ app }) => {
       exact
       path={path}
       component={() => (
-        <InternalLayout label={app} authRoute={authenticated}>
+        <InternalLayout label={title} authRoute={authenticated}>
           <Component />
         </InternalLayout>
       )}
       {...route}
     />
-  ), [app])
+  ), [title])
 
   return (
     <MainLayout endpoints={{ ENDPOINTS, PATH }}>
       <TransitionGroup>
         <Switch>
-          {ENDPOINTS?.map(({ routes, ...endpoint }) =>
+          {React.useMemo(() => ENDPOINTS?.map(({ routes, ...endpoint }) =>
             endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
-          )}
+          ), [])}
           <Route component={() => <Redirect to={PATH.LOGIN} />} />
         </Switch>
       </TransitionGroup>
@@ -72,5 +72,7 @@ Router.propTypes = {
 Router.defaultProps = {
   app: undefined
 }
+
+Router.displayName = 'Router'
 
 export default Router

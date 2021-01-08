@@ -14,12 +14,27 @@
 /* -------------------------------------------------------------------------- */
 
 import * as React from 'react'
-import { hydrate, render } from 'react-dom'
 
-import store from 'client/store'
-import App from 'client/apps/flow'
+import Router from 'client/router'
+import routes from 'client/router/flow'
 
-const mainDiv = document.getElementById('root')
-const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render
+import { _APPS } from 'client/constants'
 
-renderMethod(<App store={store} />, document.getElementById('root'))
+const APP_NAME = _APPS.flow.name
+
+const FlowApp = () => {
+  /* if (process?.env?.NODE_ENV === 'development') {
+    import('client/apps/_dev/routes').then(devRoutes => {
+      routes = {
+        PATH: { ...routes.PATH, ...devRoutes.PATH },
+        ENDPOINTS: routes.ENDPOINTS.concat(devRoutes.ENDPOINTS)
+      }
+    })
+  } */
+
+  return <Router title={APP_NAME} routes={routes} />
+}
+
+FlowApp.displayName = '_FlowApp'
+
+export default FlowApp

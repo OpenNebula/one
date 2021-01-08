@@ -16,10 +16,12 @@
 const appName = 'fireedge'
 const apps = {
   flow: {
+    name: 'flow',
     theme: 'flow',
     assets: true
   },
   provision: {
+    name: 'provision',
     theme: 'provision'
   }
 }

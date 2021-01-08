@@ -78,3 +78,5 @@ export const ENDPOINTS = [
     component: ApplicationsInstances
   }
 ]
+
+export default { PATH, ENDPOINTS }

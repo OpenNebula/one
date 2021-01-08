@@ -12,7 +12,7 @@ import { enqueueError, enqueueSuccess } from 'client/actions/general'
 
 import * as serviceProvision from 'client/services/provision'
 
-export default function useOpennebula () {
+export default function useProvision () {
   const dispatch = useDispatch()
   const {
     providersTemplates,
@@ -32,7 +32,7 @@ export default function useOpennebula () {
   // PROVIDERS TEMPLATES REQUESTS
   // --------------------------------------------
 
-  const getProvidersTemplates = useCallback(
+  const getTemplates = useCallback(
     () =>
       serviceProvision
         .getProvidersTemplates({ filter })
@@ -235,7 +235,7 @@ export default function useOpennebula () {
 
   return {
     providersTemplates,
-    getProvidersTemplates,
+    getTemplates,
 
     providers,
     getProvider,

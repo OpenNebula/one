@@ -14,12 +14,38 @@
 /* -------------------------------------------------------------------------- */
 
 import * as React from 'react'
-import { hydrate, render } from 'react-dom'
 
-import store from 'client/store'
-import App from 'client/apps/flow'
+import FlowApp from 'client/apps/flow'
+import ProvisionApp from 'client/apps/provision'
 
-const mainDiv = document.getElementById('root')
-const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render
+import { _APPS, APPS } from 'client/constants'
 
-renderMethod(<App store={store} />, document.getElementById('root'))
+const DevelopmentApp = props => {
+  let appName = ''
+
+  if (
+    process?.env?.NODE_ENV === 'development' &&
+    typeof window !== 'undefined'
+  ) {
+    const parseUrl = window.location.pathname
+      .split(/\//gi)
+      .filter(sub => sub?.length > 0)
+
+    parseUrl.forEach(resource => {
+      if (resource && APPS.includes(resource)) {
+        appName = resource
+      }
+    })
+  }
+
+  return (
+    <>
+      {appName === _APPS.provision.name && <ProvisionApp {...props} />}
+      {appName === _APPS.flow.name && <FlowApp {...props} />}
+    </>
+  )
+}
+
+DevelopmentApp.displayName = '_DevelopmentApp'
+
+export default DevelopmentApp

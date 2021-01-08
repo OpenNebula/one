@@ -14,12 +14,38 @@
 /* -------------------------------------------------------------------------- */
 
 import * as React from 'react'
-import { hydrate, render } from 'react-dom'
 
-import store from 'client/store'
-import App from 'client/apps/flow'
+import { useAuth, useProvision } from 'client/hooks'
+import Router from 'client/router'
+import routes from 'client/router/provision'
 
-const mainDiv = document.getElementById('root')
-const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render
+import { _APPS } from 'client/constants'
 
-renderMethod(<App store={store} />, document.getElementById('root'))
+const APP_NAME = _APPS.provision.name
+
+const ProvisionApp = () => {
+  const { isLogged, isLoginInProcess } = useAuth()
+  const { getTemplates } = useProvision()
+  // const { fetchRequest } = useFetch(getTemplates)
+
+  /* if (process?.env?.NODE_ENV === 'development') {
+    import('client/apps/_dev/routes').then(devRoutes => {
+      routes = {
+        PATH: { ...routes.PATH, ...devRoutes.PATH },
+        ENDPOINTS: routes.ENDPOINTS.concat(devRoutes.ENDPOINTS)
+      }
+    })
+  } */
+
+  React.useEffect(() => {
+    if (isLogged && !isLoginInProcess) {
+      getTemplates()
+    }
+  }, [isLogged])
+
+  return <Router title={APP_NAME} routes={routes} />
+}
+
+ProvisionApp.displayName = '_ProvisionApp'
+
+export default ProvisionApp

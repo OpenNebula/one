@@ -94,3 +94,5 @@ export const ENDPOINTS = [
     component: ProvisionCreateForm
   }
 ]
+
+export default { PATH, ENDPOINTS }
