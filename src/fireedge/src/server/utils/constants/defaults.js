@@ -79,6 +79,7 @@ const defaults = {
   defaultWebpackMode: 'development',
   defaultWebpackDevTool: 'inline-source-map',
   defaultLogPath: '/var/log/one',
+  defaultSharePath: '/usr/share/one',
   defaultVarPath: '/var/lib/one',
   defaultEtcPath: '/etc/one',
   defaultLogFilename: `${appName}.log`,

@@ -88,9 +88,7 @@ const routes = {
     },
     defaults: {
       action: getProvisionDefaults,
-      params: {
-        name: { from: fromData.resource, name: 'id', front: true }
-      }
+      params: {}
     }
   },
   [POST]: {

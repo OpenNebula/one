@@ -17,6 +17,7 @@ const { parse } = require('yaml')
 const { Validator } = require('jsonschema')
 const { createWriteStream } = require('fs-extra')
 const { lockSync, checkSync, unlockSync } = require('lockfile')
+const { basename, dirname } = require('path')
 const {
   ok,
   notFound,
@@ -37,6 +38,7 @@ const {
   findRecursiveFolder,
   publish,
   getFiles,
+  getDirectories,
   getEndpoint
 } = require('./functions')
 const { provision } = require('./schemas')
@@ -60,43 +62,98 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
   const extFiles = 'yml'
   const { user, password } = userData
   let rtn = httpInternalError
-  let err = false
-  const files = []
-  const path = `${global.ETC_CPI}/provisions`
+  const files = {}
+  const path = `${global.SHARE_CPI}`
+  const checkEmpty = (obj = {}) =>
+    Object.keys(obj).length === 0 && obj.constructor === Object
+
   const endpoint = getEndpoint()
   if (user && password) {
     const authCommand = ['--user', user, '--password', password]
-    const fillData = (content = '', filePath = '') => {
-      try {
+    const directories = getDirectories(path)
+    let description = ''
+    const providers = {}
+    const provisions = {}
+    const fillDescription = (content = '') => {
+      if (content) {
+        description = content
+      }
+    }
+    const fillProviders = (content = '', name = '') => {
+      if (content && name) {
+        if (!providers[name]) {
+          providers[name] = []
+        }
+        try {
+          providers[name].push(parse(content))
+        } catch (error) {
+        }
+      }
+    }
+    const fillProvisions = (content = '', filePath = '', path = '') => {
+      if (content && filePath && path) {
+        const name = basename(filePath).replace(`.${extFiles}`, '')
         const paramsCommand = ['validate', '--dump', filePath, ...authCommand, ...endpoint]
         const executedCommand = executeCommand(defaultCommandProvision, paramsCommand, { cwd: path })
         if (executedCommand && executedCommand.success) {
-          files.push(parse(executedCommand.data))
-        }
-      } catch (err) {}
-    }
-    try {
-      if (params && params.name) {
-        existsFile(
-          `${path}/${`${params.name}`.toLowerCase()}.${extFiles}`,
-          fillData,
-          () => {
-            err = true
+          if (!provisions[name]) {
+            provisions[name] = []
           }
-        )
-      } else {
-        const files = getFiles(
-          path,
-          extFiles
-        )
-        files.map(file =>
-          existsFile(file, fillData)
-        )
+          try {
+            provisions[name].push(parse(executedCommand.data))
+          } catch (err) {}
+        }
       }
-      rtn = err ? notFound : httpResponse(ok, files)
-    } catch (err) {
-      rtn = httpResponse(internalServerError, '', err)
     }
+
+    directories.forEach((directory = {}) => {
+      if (directory.filename && directory.path) {
+        // description
+        existsFile(
+          `${directory.path}/description.txt`,
+          fillDescription
+        )
+
+        // providers
+        getDirectories(
+          `${directory.path}/providers`
+        ).map((provider = {}) => {
+          if (provider.filename && provider.path) {
+            getFiles(
+              provider.path,
+              extFiles
+            ).map(file => {
+              existsFile(
+                file,
+                (content) => fillProviders(
+                  content,
+                  provider.filename
+                )
+              )
+            })
+          }
+        })
+
+        // provisions
+        getFiles(
+          `${directory.path}/provisions`,
+          extFiles
+        ).map(file => {
+          existsFile(
+            file,
+            (content, filePath) => fillProvisions(content, filePath, dirname(file))
+          )
+        })
+        if (description && !checkEmpty(providers) && !checkEmpty(provisions)) {
+          files[directory.filename] = {
+            description,
+            providers,
+            provisions
+          }
+        }
+      }
+    })
+    rtn = httpResponse(ok, files)
   }
   res.locals.httpCode = rtn
   next()
@@ -135,10 +192,10 @@ const getListProvisions = (res = {}, next = () => undefined, params = {}, userDa
     const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
-      let data = JSON.parse(executedCommand.data)
+      const data = JSON.parse(executedCommand.data)
       if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
         data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(provision => {
-          if(provision && provision.TEMPLATE && provision.TEMPLATE.BODY){
+          if (provision && provision.TEMPLATE && provision.TEMPLATE.BODY) {
             provision.TEMPLATE.BODY = JSON.parse(provision.TEMPLATE.BODY)
           }
           return provision

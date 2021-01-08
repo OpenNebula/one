@@ -21,6 +21,7 @@ const { validateAuth } = require('server/utils/jwt')
 const {
   defaultLogFilename,
   defaultLogPath,
+  defaultSharePath,
   defaultVmrcTokens,
   defaultVarPath,
   defaultKeyFilename,
@@ -159,6 +160,7 @@ const getDataZone = (zone = '0', configuredZones) => {
 const genPathResources = () => {
   const ONE_LOCATION = env && env.ONE_LOCATION
   const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`
+  const SHARE_LOCATION = !ONE_LOCATION ? defaultSharePath : `${ONE_LOCATION}/share`
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
   const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
@@ -178,6 +180,9 @@ const genPathResources = () => {
     }
     if (!global.ETC_CPI) {
       global.ETC_CPI = `${ETC_LOCATION}/fireedge`
+    }
+    if (!global.SHARE_CPI) {
+      global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision`
     }
   }
 }

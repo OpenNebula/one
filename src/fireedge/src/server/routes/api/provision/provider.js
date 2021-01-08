@@ -16,7 +16,6 @@ const { from: fromData } = require('server/utils/constants/defaults')
 const { getParamsForObject } = require('server/utils/server')
 const {
   getListProviders,
-  getProvidersDefaults,
   createProviders,
   updateProviders,
   deleteProvider
@@ -31,12 +30,6 @@ const routes = {
       action: getListProviders,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
-      }
-    },
-    defaults: {
-      action: getProvidersDefaults,
-      params: {
-        name: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },

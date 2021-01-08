@@ -52,45 +52,6 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
   next()
 }
 
-const getProvidersDefaults = (res = {}, next = () => undefined, params = {}) => {
-  const extFiles = 'yml'
-  let rtn = httpInternalError
-  let err = false
-  const files = []
-  const path = `${global.ETC_CPI}/providers`
-
-  const fillData = (content = '') => {
-    try {
-      files.push(parse(content))
-    } catch (error) {
-    }
-  }
-
-  try {
-    if (params && params.name) {
-      existsFile(
-        `${path}/${`${params.name}`.toLowerCase()}.${extFiles}`,
-        fillData,
-        () => {
-          err = true
-        }
-      )
-    } else {
-      getFiles(
-        path,
-        extFiles
-      ).map(file =>
-        existsFile(file, fillData)
-      )
-    }
-    rtn = err ? notFound : httpResponse(ok, files)
-  } catch (error) {
-    rtn = httpResponse(internalServerError, '', error)
-  }
-  res.locals.httpCode = rtn
-  next()
-}
-
 const createProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -199,7 +160,6 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
 
 const providerFunctionsApi = {
   getListProviders,
-  getProvidersDefaults,
   createProviders,
   updateProviders,
   deleteProvider

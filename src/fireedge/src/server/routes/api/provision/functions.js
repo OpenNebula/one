@@ -63,6 +63,26 @@ const subscriber = (eventName = '', callback = () => undefined) => {
   }
 }
 
+const getDirectories = (dir = '', errorCallback = () => undefined) => {
+  const directories = []
+  if (dir) {
+    try {
+      const files = readdirSync(dir)
+      files.forEach(file => {
+        const name = `${dir}/${file}`
+        if (statSync(name).isDirectory()) {
+          directories.push({ filename: file, path: name })
+        }
+      })
+    } catch (error) {
+      const errorMsg = (error && error.message) || ''
+      messageTerminal(defaultError(errorMsg))
+      errorCallback(errorMsg)
+    }
+  }
+  return directories
+}
+
 const getFiles = (dir = '', ext = '', errorCallback = () => undefined) => {
   const pathFiles = []
   if (dir && ext) {
@@ -200,17 +220,17 @@ const moveToFolder = (path = '', relative = '/../') => {
   return rtn
 }
 
-const addPrependCommand = (command="", resource='') => {
+const addPrependCommand = (command = '', resource = '') => {
   const rsc = Array.isArray(resource) ? resource : [resource]
 
   let newCommand = command
   let newRsc = rsc
 
-  if(prependCommand){
-    let splitPrepend = prependCommand.split(" ")
+  if (prependCommand) {
+    let splitPrepend = prependCommand.split(' ')
     newCommand = splitPrepend[0]
-    splitPrepend = splitPrepend.splice(1);
-    newRsc = [...splitPrepend, command, ...rsc].filter(el => el !== "")
+    splitPrepend = splitPrepend.splice(1)
+    newRsc = [...splitPrepend, command, ...rsc].filter(el => el !== '')
   }
 
   return {
@@ -232,7 +252,7 @@ const executeCommandAsync = (
   const out = callbacks && callbacks.out && typeof callbacks.out === 'function' ? callbacks.out : () => undefined
   const close = callbacks && callbacks.close && typeof callbacks.close === 'function' ? callbacks.close : () => undefined
 
-  const {cmd, rsc} = addPrependCommand(command, resource)
+  const { cmd, rsc } = addPrependCommand(command, resource)
 
   const execute = spawn(cmd, rsc)
   if (execute) {
@@ -259,7 +279,7 @@ const executeCommandAsync = (
 
 const executeCommand = (command = '', resource = '', options = {}) => {
   let rtn = { success: false, data: null }
-  const {cmd, rsc} = addPrependCommand(command, resource)
+  const { cmd, rsc } = addPrependCommand(command, resource)
   const execute = spawnSync(cmd, rsc, options)
   if (execute) {
     if (execute.stdout) {
@@ -311,6 +331,7 @@ const functionRoutes = {
   renameFolder,
   moveToFolder,
   getFiles,
+  getDirectories,
   executeCommandAsync,
   findRecursiveFolder,
   publish,
