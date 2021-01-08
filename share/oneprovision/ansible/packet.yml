@@ -22,3 +22,5 @@
     - role: frr
       #bond0_0 is attached to the project private network
       frr_iface: 'bond0_0'
+      # Use /25 for the internal management network address
+      frr_prefix_length: 25

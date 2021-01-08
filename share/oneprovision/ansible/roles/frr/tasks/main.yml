@@ -12,8 +12,10 @@
   vars:
     net_str: "{{ vars['ansible_' + frr_iface].ipv4.network \
       + '/' + vars['ansible_' + frr_iface].ipv4.netmask }}"
+    net_iface: "{{ net_str | ipaddr('net') }}"
+    net_fixed: "{{ vars['ansible_' + frr_iface].ipv4.network + '/' + frr_prefix_length | string }}"
   set_fact:
-      network_cidr: "{{ net_str | ipaddr('net') }}"
+    network_cidr: "{{ net_iface if frr_prefix_length == 0 else net_fixed }}"
 
 - include: centos.yml
   when: ansible_os_family == "RedHat"
