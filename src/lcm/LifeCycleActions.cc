@@ -1094,6 +1094,11 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
             tm->trigger_epilog_delete(vm);
         break;
 
+        case VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED:
+        case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
+            image_id = vm->clear_saveas_disk();
+        break;
+
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
             vm->clear_attach_disk();
@@ -1302,6 +1307,8 @@ void LifeCycleManager::recover(VirtualMachine * vm, bool success,
         case VirtualMachine::HOTPLUG_SAVEAS:
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+        case VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED:
+        case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
             if (success)
             {
                 trigger_saveas_success(vim);
@@ -1699,6 +1706,8 @@ void LifeCycleManager::retry(VirtualMachine * vm)
         case VirtualMachine::HOTPLUG_SAVEAS:
         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+        case VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED:
+        case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
         case VirtualMachine::HOTPLUG_RESIZE:
@@ -1828,6 +1837,8 @@ void LifeCycleManager::trigger_updatesg(int sgid)
                         case VirtualMachine::DISK_SNAPSHOT_DELETE_SUSPENDED:
                         case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
                         case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+                        case VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED:
+                        case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
                         case VirtualMachine::HOTPLUG_PROLOG_POWEROFF:
                         case VirtualMachine::HOTPLUG_EPILOG_POWEROFF:
                             is_tmpl = true;

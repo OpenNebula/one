@@ -103,6 +103,9 @@ GUAC_STATES = [
     # 63, # DISK_RESIZE_POWEROFF
     # 64,  # DISK_RESIZE_UNDEPLOYED
     # 65,  #HOTPLUG_NIC_POWEROFF
+    # 66, # HOTPLUG_RESIZE
+    # 67, # HOTPLUG_SAVEAS_UNDEPLOYED
+    # 68, # HOTPLUG_SAVEAS_STOPPED
 ]
 
 # Class for Guacamole connection configuration

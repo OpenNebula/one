@@ -136,7 +136,9 @@ public:
         DISK_RESIZE_POWEROFF = 63,
         DISK_RESIZE_UNDEPLOYED = 64,
         HOTPLUG_NIC_POWEROFF   = 65,
-        HOTPLUG_RESIZE         = 66
+        HOTPLUG_RESIZE         = 66,
+        HOTPLUG_SAVEAS_UNDEPLOYED = 67,
+        HOTPLUG_SAVEAS_STOPPED    = 68
     };
 
     /**
@@ -1226,8 +1228,11 @@ public:
      */
     int set_saveas_disk(int disk_id, const std::string& source, int img_id)
     {
-        if (lcm_state != HOTPLUG_SAVEAS && lcm_state != HOTPLUG_SAVEAS_SUSPENDED
-            && lcm_state != HOTPLUG_SAVEAS_POWEROFF )
+        if (lcm_state != HOTPLUG_SAVEAS &&
+            lcm_state != HOTPLUG_SAVEAS_SUSPENDED &&
+            lcm_state != HOTPLUG_SAVEAS_POWEROFF &&
+            lcm_state != HOTPLUG_SAVEAS_UNDEPLOYED &&
+            lcm_state != HOTPLUG_SAVEAS_STOPPED)
         {
             return -1;
         }

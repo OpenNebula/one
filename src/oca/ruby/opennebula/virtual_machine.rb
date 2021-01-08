@@ -125,6 +125,8 @@ module OpenNebula
             DISK_RESIZE_UNDEPLOYED
             HOTPLUG_NIC_POWEROFF
             HOTPLUG_RESIZE
+            HOTPLUG_SAVEAS_UNDEPLOYED
+            HOTPLUG_SAVEAS_STOPPED
         }
 
         SHORT_VM_STATES={
@@ -207,7 +209,9 @@ module OpenNebula
             "DISK_RESIZE_POWEROFF"   => "drsz",
             "DISK_RESIZE_UNDEPLOYED" => "drsz",
             "HOTPLUG_NIC_POWEROFF"   => "hotp",
-            "HOTPLUG_RESIZE"         => "hotp"
+            "HOTPLUG_RESIZE"         => "hotp",
+            "HOTPLUG_SAVEAS_UNDEPLOYED"  => "hotp",
+            "HOTPLUG_SAVEAS_STOPPED"     => "hotp"
         }
 
         HISTORY_ACTION=%w{none migrate live-migrate shutdown shutdown-hard
