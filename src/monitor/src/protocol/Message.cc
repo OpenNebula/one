@@ -173,7 +173,7 @@ int zlib_decompress(const std::string& in, std::string& out)
 
         rc = inflate(&zs, Z_FINISH);
 
-        if ( rc != Z_STREAM_END && rc != Z_OK && rc != Z_BUF_ERROR )
+        if ( rc != Z_STREAM_END && rc != Z_OK )
         {
             inflateEnd(&zs);
 
