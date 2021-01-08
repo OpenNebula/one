@@ -240,7 +240,9 @@ module OneProvision
                         match = match.split('.')
 
                         if match.size == 1
-                            index = @config['provision']['index'] if @config['provision']
+                            if @config['provision']
+                                index = @config['provision']['index']
+                            end
 
                             value.gsub!('${provision}', provision.name.to_s)
                             value.gsub!('${provision_id}', provision.id.to_s)
@@ -248,7 +250,6 @@ module OneProvision
                             value.gsub!('${index}', index.to_s) if index
                         else
                             objects = provision.info_objects("#{match[0]}s")
-
                             obj_int = Integer(match[1]) rescue false
 
                             if obj_int
@@ -264,8 +265,8 @@ module OneProvision
                             object  = object[object.keys[0]]
                             replace = object[key]
 
-                            replace = object['TEMPLATE'][key] unless replace
-                            replace = object['TEMPLATE']['PROVISION'][key] unless replace
+                            replace ||= object['TEMPLATE'][key]
+                            replace ||= object['TEMPLATE']['PROVISION'][key]
 
                             value.gsub!("${#{match.join('.')}}", replace)
                         end
@@ -577,7 +578,9 @@ module OneProvision
                 if elem_int
                     elem = elements[elem_int]
                 else
-                    elem = elements.find {|o| o['NAME'] == match[1] }
+                    elem = elements.find do |o|
+                        o['NAME'] == match[1] || o['name'] == match[1]
+                    end
                 end
 
                 return [false, "#{match[0]} #{match[1]} not found"] if elem.nil?

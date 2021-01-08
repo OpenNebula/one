@@ -56,6 +56,16 @@ module OneProvision
 
         FULL_CLUSTER = INFRASTRUCTURE_RESOURCES + %w[hosts clusters]
 
+        # Class constructor
+        #
+        # @param xml    [XML]                XML object representation
+        # @param client [OpenNebula::Client] Client to execute calls
+        def initialize(xml, client)
+            super
+
+            @mutex = Mutex.new
+        end
+
         # Allocates a new document
         #
         # @param template [Hash]      Document information
@@ -126,7 +136,8 @@ module OneProvision
                 return { 'ID' => -1, 'NAME' => 'dummy' }
             end
 
-            Provider.by_name(@client, @body['provider'])
+            @provider ||= Provider.by_name(@client, @body['provider'])
+            @provider
         end
 
         # Returns infrastructure + resource objects
@@ -153,35 +164,48 @@ module OneProvision
 
         # Get OpenNebula information for specific objects
         #
-        # @param object [String] Object to check
+        # @param object [String]  Object to check
         #
         # @return [Array] OpenNebula objects
-        def info_objects(object)
-            rc = info
+        def info_objects(object, update = false)
+            ret = nil
 
-            if OpenNebula.is_error?(rc)
-                raise OneProvisionLoopException, rc.message
-            end
+            @mutex.synchronize do
 
-            if FULL_CLUSTER.include?(object)
-                path = 'infrastructure'
-            else
-                path = 'resource'
-            end
-
-            return [] unless @body['provision'][path][object]
-
-            resource = Resource.object(object)
-            ret      = []
-
-            @body['provision'][path][object].each do |o|
-                rc = resource.info(o['id'])
-
-                if OpenNebula.is_error?(rc)
-                    raise OneProvisionLoopException, rc.message
+                if @cache
+                    ret = @cache[object]
                 end
 
-                ret << resource.one
+                if update || !ret || ret.empty?
+                    rc = info
+
+                    if OpenNebula.is_error?(rc)
+                        raise OneProvisionLoopException, rc.message
+                    end
+
+                    @cache = {} unless @cache
+                    @cache[object] = []
+
+                    if FULL_CLUSTER.include?(object)
+                        path = 'infrastructure'
+                    else
+                        path = 'resource'
+                    end
+
+                    resource = Resource.object(object)
+
+                    @body['provision'][path][object].each do |o|
+                        rc = resource.info(o['id'])
+
+                        if OpenNebula.is_error?(rc)
+                            raise OneProvisionLoopException, rc.message
+                        end
+
+                        @cache[object] << resource.one
+                    end
+
+                    ret = @cache[object]
+                end
             end
 
             ret
@@ -291,7 +315,7 @@ module OneProvision
                 if skip == :none
                     configure
                 else
-                    info_objects('hosts') {|h| h.enable }
+                    info_objects('hosts', true) {|h| h.enable }
                 end
 
                 create_virtual_resources(cfg)
@@ -355,10 +379,6 @@ module OneProvision
                 )
             end
 
-            rc = info
-
-            return rc if OpenNebula.is_error?(rc)
-
             if running_vms? && !cleanup
                 Utils.fail('Provision with running VMs can\'t be deleted')
             end
@@ -403,9 +423,6 @@ module OneProvision
             return rc if OpenNebula.is_error?(rc)
 
             0
-        ensure
-            # If provision does not exist, skip unlock
-            unlock unless OpenNebula.is_error?(info)
         end
 
         # Updates provision objects

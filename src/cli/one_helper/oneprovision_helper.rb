@@ -332,9 +332,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # @return [Array] [rc, information to show]
     def show_resource(_, options)
         # Add body paremter to get resource in hash format
-        options[:body]    = true
-        options[:decrypt] = true
-        info              = super
+        options[:body] = true
+        info           = super
 
         return info if info[0] != 0
 
