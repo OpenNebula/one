@@ -64,7 +64,7 @@ WavesCard.propTypes = {
     PropTypes.number
   ]),
   bgColor: PropTypes.string,
-  icon: PropTypes.element
+  icon: PropTypes.any
 }
 
 WavesCard.defaultProps = {
