@@ -180,7 +180,7 @@ define(function(require) {
           monitoring = "<li class=\"provision-bullet-item\"><span class=\"\"><i class=\"fas fa-fw fa-lg fa-server\"/>" + data.MONITORING.GUEST_IP + "</span></li>";
         }
         var charter = VMsTableUtils.leasesClock(data);
-        var addStyle = charter && charter.length && 'style="padding-left:.5rem;"' 
+        var addStyle = charter && charter.length && 'style="padding-left:.5rem;"'
         $(".provision_vms_ul", context).append("<div class='column'>\
             <ul class='8 provision-pricing-table menu vertical' opennebula_id='"+data.ID+"' datatable_index='"+iDisplayIndexFull+"'>\
               <li class='provision-title'>\
@@ -189,7 +189,7 @@ define(function(require) {
                     <span class='"+ state.color +"-color right' title='"+state.str+"'>\
                       <i class='fas fa-square'/>\
                     </span>"+
-                    data.NAME + 
+                    data.NAME +
                   "</a>\
                   <div class='charter' "+addStyle+">"+charter+"</div> \
                 </div>\
@@ -918,6 +918,8 @@ define(function(require) {
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_UNDEPLOYED:
+          case OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_STOPPED:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_PROLOG_POWEROFF:
           case OpenNebulaVM.LCM_STATES.HOTPLUG_EPILOG_POWEROFF:
             state_color = "deploying";

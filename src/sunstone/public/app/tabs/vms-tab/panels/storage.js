@@ -50,10 +50,10 @@ define(function(require) {
   var XML_ROOT = "VM"
 
   var isFirecracker = function(context){
-    return context && 
-    context.element && 
-    context.element.USER_TEMPLATE && 
-    context.element.USER_TEMPLATE.HYPERVISOR && 
+    return context &&
+    context.element &&
+    context.element.USER_TEMPLATE &&
+    context.element.USER_TEMPLATE.HYPERVISOR &&
     context.element.USER_TEMPLATE.HYPERVISOR === "firecracker"
   }
 
@@ -281,7 +281,9 @@ define(function(require) {
            (
             that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS ||
             that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_POWEROFF ||
-            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED) &&
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_SUSPENDED ||
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_UNDEPLOYED ||
+            that.element.LCM_STATE == OpenNebulaVM.LCM_STATES.HOTPLUG_SAVEAS_STOPPED) &&
            (
             disk.HOTPLUG_SAVE_AS_ACTIVE == "YES")
            ) {
@@ -345,7 +347,7 @@ define(function(require) {
               <i class="fas fa-camera fa-fw" title="Snapshot"></i></a> &emsp;');//+ Locale.tr("Snapshot") +
             }
           }
-          
+
           if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
             if (validateState(that,"VM.disk_resize") && !disk.CONTEXT) {
               actions += ('<a class="disk_resize nowrap" >\
@@ -644,10 +646,10 @@ define(function(require) {
     if (Config.isTabActionEnabled("vms-tab", "VM.disk_resize")) {
       context.off('click', '.disk_resize');
       context.on('click', '.disk_resize', function() {
-        
-        // Error message when try to resize a disk on a 
+
+        // Error message when try to resize a disk on a
         // VM with VCenter hypervisor and snapshots.
-        if (that && that.element && 
+        if (that && that.element &&
             that.element.TEMPLATE && that.element.TEMPLATE.SNAPSHOT &&
             that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR=="vcenter"){
           Notifier.notifyError("'disk-resize' operation not supported for VMs with snapshots");

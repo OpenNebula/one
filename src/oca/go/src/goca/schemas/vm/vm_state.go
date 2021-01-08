@@ -296,6 +296,15 @@ const (
 
 	// HotplugNicPoweroff lcm state
 	HotplugNicPoweroff = 65
+
+	// HotplugResize lcm state
+	HotplugResize = 66
+
+	// HotplugSaveasUndeployed lcm state
+	HotplugSaveasUndeployed = 67
+
+	// HotplugSaveasStopped lcm state
+	HotplugSaveasStopped = 68
 )
 
 func (s LCMState) isValid() bool {
@@ -435,6 +444,12 @@ func (s LCMState) String() string {
 		return "DISK_RESIZE_UNDEPLOYED"
 	case HotplugNicPoweroff:
 		return "HOTPLUG_NIC_POWEROFF"
+	case HotplugrResize:
+		return "HOTPLUG_RESIZE"
+	case HotplugSaveasUndeployed:
+		return "HOTPLUG_SAVEAS_UNDEPLOYED"
+	case HotplugSaveasStopped:
+		return "HOTPLUG_SAVEAS_STOPPED"
 	default:
 		return ""
 	}

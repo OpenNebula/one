@@ -87,6 +87,8 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::HOTPLUG_SAVEAS:
             case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
             case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+            case VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED:
+            case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
                 lcm->trigger_saveas_success(id);
                 break;
 
@@ -156,6 +158,8 @@ void TransferManager::_transfer(unique_ptr<transfer_msg_t> msg)
             case VirtualMachine::HOTPLUG_SAVEAS:
             case VirtualMachine::HOTPLUG_SAVEAS_POWEROFF:
             case VirtualMachine::HOTPLUG_SAVEAS_SUSPENDED:
+            case VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED:
+            case VirtualMachine::HOTPLUG_SAVEAS_STOPPED:
                 lcm->trigger_saveas_failure(id);
                 break;
 

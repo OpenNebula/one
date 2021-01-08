@@ -292,6 +292,10 @@ int VirtualMachine::lcm_state_from_str(string& st, LcmState& state)
         state = HOTPLUG_NIC_POWEROFF;
     } else if ( st == "HOTPLUG_RESIZE" ) {
         state = HOTPLUG_RESIZE;
+    } else if ( st == "HOTPLUG_SAVEAS_UNDEPLOYED" ) {
+        state = HOTPLUG_SAVEAS_UNDEPLOYED;
+    } else if ( st == "HOTPLUG_SAVEAS_STOPPED" ) {
+        state = HOTPLUG_SAVEAS_STOPPED;
     } else {
         return -1;
     }
@@ -433,6 +437,10 @@ string& VirtualMachine::lcm_state_to_str(string& st, LcmState state)
             st = "HOTPLUG_NIC_POWEROFF"; break;
         case HOTPLUG_RESIZE:
             st = "HOTPLUG_RESIZE"; break;
+        case HOTPLUG_SAVEAS_UNDEPLOYED:
+            st = "HOTPLUG_SAVEAS_UNDEPLOYED"; break;
+        case HOTPLUG_SAVEAS_STOPPED:
+            st = "HOTPLUG_SAVEAS_STOPPED"; break;
     }
 
         return st;
@@ -3182,6 +3190,16 @@ int VirtualMachine::set_saveas_state()
             set_state(HOTPLUG_SAVEAS_SUSPENDED);
             break;
 
+        case UNDEPLOYED:
+            set_state(ACTIVE);
+            set_state(HOTPLUG_SAVEAS_UNDEPLOYED);
+            break;
+
+        case STOPPED:
+            set_state(ACTIVE);
+            set_state(HOTPLUG_SAVEAS_STOPPED);
+            break;
+
         default:
             return -1;
     }
@@ -3207,6 +3225,16 @@ int VirtualMachine::clear_saveas_state()
 
         case HOTPLUG_SAVEAS_SUSPENDED:
             set_state(SUSPENDED);
+            set_state(LCM_INIT);
+            break;
+
+        case HOTPLUG_SAVEAS_UNDEPLOYED:
+            set_state(UNDEPLOYED);
+            set_state(LCM_INIT);
+            break;
+
+        case HOTPLUG_SAVEAS_STOPPED:
+            set_state(STOPPED);
             set_state(LCM_INIT);
             break;
 

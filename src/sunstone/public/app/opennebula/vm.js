@@ -137,7 +137,9 @@ define(function(require) {
     "DISK_RESIZE_POWEROFF",
     "DISK_RESIZE_UNDEPLOYED",
     "HOTPLUG_NIC_POWEROFF",
-    "HOTPLUG_RESIZE"
+    "HOTPLUG_RESIZE",
+    "HOTPLUG_SAVEAS_UNDEPLOYED",
+    "HOTPLUG_SAVEAS_STOPPED"
   ];
 
   var LCM_STATES_CLASSES = [
@@ -206,7 +208,10 @@ define(function(require) {
     "info",  // DISK_RESIZE
     "info", // DISK_RESIZE_POWEROFF
     "info", // DISK_RESIZE_UNDEPLOYED
-    "info"  // HOTPLUG_NIC_POWEROFF
+    "info", // HOTPLUG_NIC_POWEROFF
+    "info", // HOTPLUG_RESIZE
+    "info", // HOTPLUG_SAVEAS_UNDEPLOYED
+    "info", // HOTPLUG_SAVEAS_STOPPED
   ];
 
   var LCM_STATES = {
@@ -276,7 +281,9 @@ define(function(require) {
     DISK_RESIZE_POWEROFF            : 63,
     DISK_RESIZE_UNDEPLOYED          : 64,
     HOTPLUG_NIC_POWEROFF            : 65,
-    HOTPLUG_RESIZE                  : 66
+    HOTPLUG_RESIZE                  : 66,
+    HOTPLUG_SAVEAS_UNDEPLOYED       : 67,
+    HOTPLUG_SAVEAS_STOPPED          : 68
   };
 
   var SHORT_LCM_STATES_STR = [
@@ -346,7 +353,9 @@ define(function(require) {
     Locale.tr("DISK_RSZ"),  // DISK_RESIZE_POWEROFF
     Locale.tr("DISK_RSZ"),  // DISK_RESIZE_UNDEPLOYED
     Locale.tr("HOTPLUG"),   // HOTPLUG_NIC_POWEROFF
-    Locale.tr("HOTPLUG")    // HOTPLUG_RESIZE
+    Locale.tr("HOTPLUG"),   // HOTPLUG_RESIZE
+    Locale.tr("HOTPLUG"),   // HOTPLUG_SAVEAS_UNDEPLOYED
+    Locale.tr("HOTPLUG")    // HOTPLUG_SAVEAS_STOPPED
   ];
 
   var VNC_STATES = [
