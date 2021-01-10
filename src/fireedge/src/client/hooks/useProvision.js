@@ -2,10 +2,9 @@ import { useCallback } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
 import {
-  setProvidersTemplates,
   setProviders,
-  setProvisionsTemplates,
-  setProvisions
+  setProvisions,
+  setProvisionsTemplates
 } from 'client/actions/pool'
 
 import { enqueueError, enqueueSuccess } from 'client/actions/general'
@@ -15,7 +14,6 @@ import * as serviceProvision from 'client/services/provision'
 export default function useProvision () {
   const dispatch = useDispatch()
   const {
-    providersTemplates,
     providers,
     provisionsTemplates,
     provisions,
@@ -29,22 +27,22 @@ export default function useProvision () {
   )
 
   // --------------------------------------------
-  // PROVIDERS TEMPLATES REQUESTS
+  // ALL PROVISION TEMPLATES REQUESTS
   // --------------------------------------------
 
-  const getProvidersTemplates = useCallback(
+  const getProvisionsTemplates = useCallback(
     () =>
       serviceProvision
-        .getProvidersTemplates({ filter })
+        .getProvisionsTemplates({ filter })
         .then(doc => {
-          dispatch(setProvidersTemplates(doc))
+          dispatch(setProvisionsTemplates(doc))
           return doc
         })
         .catch(err => {
-          dispatch(enqueueError(err ?? 'Error GET providers templates'))
+          dispatch(enqueueError(err ?? 'Error GET templates'))
           throw err
         }),
-    [dispatch, filter]
+    [dispatch]
   )
 
   // --------------------------------------------
@@ -103,24 +101,6 @@ export default function useProvision () {
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provider')))
     , [dispatch, providers]
-  )
-
-  // --------------------------------------------
-  // PROVISIONS TEMPLATES REQUESTS
-  // --------------------------------------------
-
-  const getProvisionsTemplates = useCallback(
-    ({ end, start } = { end: -1, start: -1 }) =>
-      serviceProvision
-        .getProvisionsTemplates({ filter, end, start })
-        .then(doc => {
-          dispatch(setProvisionsTemplates(doc))
-          return doc
-        })
-        .catch(err => {
-          dispatch(enqueueError(err ?? 'Error GET provisions templates'))
-        }),
-    [dispatch, filter]
   )
 
   // --------------------------------------------
@@ -234,8 +214,8 @@ export default function useProvision () {
   )
 
   return {
-    providersTemplates,
-    getProvidersTemplates,
+    getProvisionsTemplates,
+    provisionsTemplates,
 
     providers,
     getProvider,
@@ -243,9 +223,6 @@ export default function useProvision () {
     createProvider,
     updateProvider,
     deleteProvider,
-
-    provisionsTemplates,
-    getProvisionsTemplates,
 
     provisions,
     getProvision,

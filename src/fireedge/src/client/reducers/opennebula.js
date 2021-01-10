@@ -38,9 +38,8 @@ const initial = {
   groups: [],
   vdc: [],
   acl: [],
-  providersTemplates: [],
-  providers: [],
   provisionsTemplates: [],
+  providers: [],
   provisions: []
 }
 

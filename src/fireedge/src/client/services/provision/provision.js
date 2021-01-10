@@ -6,7 +6,7 @@ import { requestData } from 'client/utils'
 const { GET, POST, PUT, DELETE } = httpMethod
 
 // --------------------------------------------
-// PROVISIONS TEMPLATES REQUESTS
+// ALL PROVISION TEMPLATES REQUESTS
 // --------------------------------------------
 
 export const getProvisionsTemplates = ({ filter }) =>
@@ -137,6 +137,7 @@ export const configureHost = ({ id }) =>
 
 export default {
   getProvisionsTemplates,
+
   getProvision,
   getProvisions,
   createProvision,
