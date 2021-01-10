@@ -21,3 +21,5 @@
     - update-replica
     - role: frr
       frr_iface: 'eth0'
+      # Use /16 for the internal management network address
+      frr_prefix_length: 16
