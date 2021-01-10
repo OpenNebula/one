@@ -5,7 +5,7 @@ provision: 'hybrid+'
 description: 'Elastic cluster on Packet in Amsterdam'
 
 plain:
-  image: 'Packet.webp'
+  image: 'EQUINIX.webp'
 
 connection:
   token: 'Encrypted Packet token'
