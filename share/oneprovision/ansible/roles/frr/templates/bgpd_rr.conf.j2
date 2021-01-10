@@ -13,7 +13,7 @@ router bgp {{ frr_as }}
   neighbor fabric remote-as {{ frr_as }}
   neighbor fabric capability extended-nexthop
   neighbor fabric update-source {{ vars['ansible_' + frr_iface].ipv4.address }}
-  bgp listen range {{ network_cidr }} peer-group fabric
+  bgp listen range {{ vars['ansible_' + frr_iface].ipv4.network + '/' + frr_prefix_length | string }} peer-group fabric
   address-family l2vpn evpn
     neighbor fabric activate
     neighbor fabric route-reflector-client

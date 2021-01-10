@@ -62,11 +62,11 @@ resource "aws_security_group" "device_<%= obj['ID'] %>_bgp" {
   vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
 
   ingress {
-    description = "BGP from 10.0.0.0/16"
+    description = "BGP from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
     from_port   = 179
     to_port     = 179
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
   }
 
   egress {
@@ -87,11 +87,11 @@ resource "aws_security_group" "device_<%= obj['ID'] %>_vxlan" {
   vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
 
   ingress {
-    description = "VXLAN from 10.0.0.0/16"
+    description = "VXLAN from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
     from_port   = 8472
     to_port     = 8472
     protocol    = "udp"
-    cidr_blocks = ["10.0.0.0/16"]
+    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
   }
 
   egress {

@@ -12,7 +12,6 @@ frr_iface: 'eth0'
 # The AS number used for BGP
 frr_as: 65000
 
-# Prefix length for the BGP network, if 0 the interface network address will be
-# used. Otherwise the network address will use the provided length.
-frr_prefix_length: 0
+# Prefix length for the BGP network
+frr_prefix_length: 16
 

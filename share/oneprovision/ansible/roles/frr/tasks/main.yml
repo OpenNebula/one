@@ -8,15 +8,6 @@
     rr_servers : "{{ rr_servers|default([]) + [ hostvars[item]['ansible_' + frr_iface].ipv4.address ] }}"
   with_items: "{{ groups['all'][:frr_rr_num] }}"
 
-- name: Define Network Mask
-  vars:
-    net_str: "{{ vars['ansible_' + frr_iface].ipv4.network \
-      + '/' + vars['ansible_' + frr_iface].ipv4.netmask }}"
-    net_iface: "{{ net_str | ipaddr('net') }}"
-    net_fixed: "{{ vars['ansible_' + frr_iface].ipv4.network + '/' + frr_prefix_length | string }}"
-  set_fact:
-    network_cidr: "{{ net_iface if frr_prefix_length == 0 else net_fixed }}"
-
 - include: centos.yml
   when: ansible_os_family == "RedHat"
 
