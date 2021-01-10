@@ -78,7 +78,7 @@ const Header = ({ title, scrollableContainer }) => {
         </Toolbar>
       </AppBar>
     ),
-    [isFixMenu, fixMenu, isUpLg, isMobile, isOneAdmin]
+    [isFixMenu, fixMenu, isUpLg, isMobile, isOneAdmin, classes]
   )
 }
 

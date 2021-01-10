@@ -46,6 +46,6 @@ const DevelopmentApp = props => {
   )
 }
 
-DevelopmentApp.displayName = '_DevelopmentApp'
+DevelopmentApp.displayName = 'DevelopmentApp'
 
 export default DevelopmentApp

@@ -32,7 +32,7 @@ const TotalProvisionsByState = () => {
         {T.InTotal}
       </Typography>
     </div>
-  ), [totalProvisions])
+  ), [classes, totalProvisions])
 
   return React.useMemo(() => (
     <Paper
@@ -48,7 +48,7 @@ const TotalProvisionsByState = () => {
         />
       </div>
     </Paper>
-  ), [chartData])
+  ), [classes, chartData])
 }
 
 TotalProvisionsByState.displayName = 'TotalProvisionsByState'

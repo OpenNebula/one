@@ -41,7 +41,7 @@ const TotalProviders = () => {
         {T.InTotal}
       </Typography>
     </div>
-  ), [totalProviders])
+  ), [classes, totalProviders])
 
   const legend = React.useMemo(() => (
     <div>
@@ -52,7 +52,7 @@ const TotalProviders = () => {
         {T.Used}
       </Typography>
     </div>
-  ), [usedProviders])
+  ), [classes, usedProviders])
 
   const chart = React.useMemo(() => (
     <PieChart
@@ -73,7 +73,7 @@ const TotalProviders = () => {
       )}
       labelPosition={0}
     />
-  ), [usedPercent])
+  ), [classes, usedPercent])
 
   return (
     <Paper

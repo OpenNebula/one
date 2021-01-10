@@ -22,9 +22,7 @@ import { _APPS } from 'client/constants'
 
 const APP_NAME = _APPS.flow.name
 
-const FlowApp = () => (
-  <Router title={APP_NAME} routes={routes} />
-)
+const FlowApp = () => <Router title={APP_NAME} routes={routes} />
 
 FlowApp.displayName = '_FlowApp'
 

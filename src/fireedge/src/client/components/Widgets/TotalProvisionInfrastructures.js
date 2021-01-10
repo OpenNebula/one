@@ -12,11 +12,8 @@ import { WavesCard } from 'client/components/Cards'
 import { get } from 'client/utils'
 import { T } from 'client/constants'
 
-import useStyles from 'client/components/Widgets/TotalProvisionInfrastructures/styles'
-
 const TotalProvisionInfrastructures = () => {
   const { provisions } = useProvision()
-  const classes = useStyles()
 
   const provisionsByProvider = React.useMemo(() =>
     provisions
@@ -41,7 +38,11 @@ const TotalProvisionInfrastructures = () => {
   return React.useMemo(() => (
     <div
       data-cy='dashboard-widget-total-infrastructures'
-      className={classes.root}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gridGap: '2em'
+      }}
     >
       <WavesCard
         text={T.Clusters}

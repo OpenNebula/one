@@ -7,9 +7,9 @@ const js = {
   loader: 'babel-loader',
   include: path.resolve(__dirname, 'src', 'client')
 }
-const appName = defaultAppName? `/${defaultAppName}` : ''
+const appName = defaultAppName ? `/${defaultAppName}` : ''
 const bundle = () => {
-  const devPathFile = path.resolve(__dirname, 'src', 'client', 'dev.js')
+  const devPathFile = path.resolve(__dirname, 'src', 'client', 'dev', 'index.js')
   const plugins = [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
@@ -21,6 +21,7 @@ const bundle = () => {
   return {
     mode: defaultWebpackMode,
     entry: [
+      'react-hot-loader/patch',
       'webpack-hot-middleware/client',
       devPathFile
     ],

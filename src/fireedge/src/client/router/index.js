@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useCallback, useMemo } from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { Redirect, Route, Switch } from 'react-router-dom'
@@ -22,8 +22,8 @@ import { TransitionGroup } from 'react-transition-group'
 import devRoutes from 'client/router/dev'
 import { InternalLayout, MainLayout } from 'client/components/HOC'
 
-const Router = ({ title, routes }) => {
-  const { ENDPOINTS, PATH } = useMemo(() => ({
+const Router = React.memo(({ title, routes }) => {
+  const { ENDPOINTS, PATH } = React.useMemo(() => ({
     ...routes,
     ...(process?.env?.NODE_ENV === 'development' &&
       {
@@ -33,37 +33,32 @@ const Router = ({ title, routes }) => {
     )
   }), [])
 
-  const renderRoute = useCallback(({
-    label = '',
-    path = '',
-    authenticated = true,
-    Component,
-    ...route
-  }) => (
-    <Route
-      key={`key-${label.replace(' ', '-')}`}
-      exact
-      path={path}
-      component={() => (
-        <InternalLayout label={title} authRoute={authenticated}>
-          <Component />
-        </InternalLayout>
-      )}
-      {...route}
-    />
-  ), [title])
-
   return (
     <MainLayout endpoints={{ ENDPOINTS, PATH }}>
       <TransitionGroup>
         <Switch>
-          {React.useMemo(() => ENDPOINTS?.map(renderRoute), [])}
+          {ENDPOINTS?.map(
+            ({ path = '', authenticated = true, Component, ...route }, index) =>
+              <Route
+                key={index}
+                exact
+                path={path}
+                component={() => (
+                  authenticated ? (
+                    <InternalLayout label={title} authRoute={authenticated}>
+                      <Component />
+                    </InternalLayout>
+                  ) : <Component />
+                )}
+                {...route}
+              />
+          )}
           <Route component={() => <Redirect to={PATH.LOGIN} />} />
         </Switch>
       </TransitionGroup>
     </MainLayout>
   )
-}
+})
 
 Router.propTypes = {
   title: PropTypes.string,

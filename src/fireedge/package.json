@@ -41,7 +41,8 @@
     "eslint-plugin-react": "^7.21.4",
     "eslint-plugin-standard": "^4.0.1",
     "fireedge-genpotfile": "^1.0.0",
-    "fireedge-pojson": "^1.0.2"
+    "fireedge-pojson": "^1.0.2",
+    "react-hot-loader": "^4.13.0"
   },
   "dependencies": {
     "@babel/cli": "^7.10.4",

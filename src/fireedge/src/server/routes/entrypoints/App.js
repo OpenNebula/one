@@ -39,7 +39,7 @@ router.get('*', (req, res) => {
   let chunks = ''
 
   if (env && (!env.NODE_ENV || (env.NODE_ENV && env.NODE_ENV !== defaultWebpackMode))) {
-    const App = require('../../../client/apps/_dev').default
+    const App = require('../../../client/dev/_app.js').default
     const sheets = new ServerStyleSheets()
     const composeEnhancer = (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
     const apps = Object.keys(defaultApps)

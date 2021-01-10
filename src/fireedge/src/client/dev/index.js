@@ -14,12 +14,23 @@
 /* -------------------------------------------------------------------------- */
 
 import * as React from 'react'
-import { hydrate, render } from 'react-dom'
+import { render } from 'react-dom'
 
 import store from 'client/store'
-import App from 'client/apps/_dev'
+import App from 'client/dev/_app'
 
-const mainDiv = document.getElementById('root')
-const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render
+render(
+  <App store={store} />,
+  document.getElementById('root')
+)
 
-renderMethod(<App store={store} />, document.getElementById('root'))
+if (process.env.NODE_ENV === 'development' && module.hot) {
+  module.hot.accept('./_app', () => {
+    const SyncApp = require('./_app').default
+    render(<SyncApp store={store} />, document.getElementById('root'))
+  })
+
+  module.hot.accept('../reducers', () => {
+    store.replaceReducer(require('../reducers').default)
+  })
+}
