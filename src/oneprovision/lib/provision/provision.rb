@@ -112,16 +112,19 @@ module OneProvision
 
         # Get cluster information
         def cluster
+            return nil unless infrastructure_objects
             infrastructure_objects['clusters'][0]
         end
 
         # Returns provision hosts
         def hosts
+            return nil unless infrastructure_objects
             infrastructure_objects['hosts']
         end
 
         # Returns provision datastores
         def datastores
+            return nil unless infrastructure_objects
             infrastructure_objects['datastores']
         end
 
@@ -533,11 +536,19 @@ module OneProvision
 
             OneProvisionLogger.debug(msg)
 
+            datastores = cfg['cluster'].delete("datastores")
+
             obj = Cluster.new(nil, cfg['cluster'])
 
             obj.evaluate_rules(self)
 
             id = obj.create
+
+            datastores.each do |i|
+
+                obj.adddatastore(i)
+
+            end if datastores
 
             infrastructure_objects['clusters'] = []
             infrastructure_objects['clusters'] << { 'id'   => id,
@@ -561,8 +572,9 @@ module OneProvision
                 cfg[r].each do |x|
                     Driver.retry_loop('Failed to create some resources',
                                       self) do
-                        x['provision']['id'] = @id
-                        obj                  = Resource.object(r, nil, x)
+
+                        x['provision'] = {'id' => @id }
+                        obj            = Resource.object(r, nil, x)
 
                         next if obj.nil?
 
@@ -877,6 +889,8 @@ module OneProvision
         # @param resources [Array] Resources names
         # @param objects   [Array] Objects information to delete
         def delete_objects(resources, objects)
+            return unless objects
+
             resources.each do |resource|
                 next unless objects[resource]
 
