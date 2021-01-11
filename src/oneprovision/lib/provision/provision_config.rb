@@ -342,7 +342,13 @@ module OneProvision
                         networks
                         playbook
                         templates
-                        vntemplates]
+                        vntemplates
+                        name
+                        description
+                        state
+                        provider
+                        provision
+                        start_time]
 
             @config.each do |key, value|
                 next if reject.include?(key)
