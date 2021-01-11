@@ -171,7 +171,6 @@ module OneProvision
             ret = nil
 
             @mutex.synchronize do
-
                 if @cache
                     ret = @cache[object]
                 end
@@ -183,8 +182,8 @@ module OneProvision
                         raise OneProvisionLoopException, rc.message
                     end
 
-                    @cache = {} unless @cache
-                    @cache[object] = []
+                    @cache         ||= {}
+                    @cache[object]   = []
 
                     if FULL_CLUSTER.include?(object)
                         path = 'infrastructure'
@@ -257,6 +256,9 @@ module OneProvision
 
                 puts "ID: #{self['ID']}"
 
+                # @id is used for template evaluation
+                @id = self['ID']
+
                 # read provision file
                 cfg.parse(true)
 
@@ -278,9 +280,6 @@ module OneProvision
                 create_hosts(cfg)
 
                 Mode.new_cleanup(true)
-
-                # @id is used for template evaluation
-                @id = self['ID']
 
                 if skip != :all && hosts && !hosts.empty?
                     # ask user to be patient, mandatory for now
@@ -562,7 +561,8 @@ module OneProvision
                 cfg[r].each do |x|
                     Driver.retry_loop('Failed to create some resources',
                                       self) do
-                        obj = Resource.object(r, nil, x)
+                        x['provision']['id'] = @id
+                        obj                  = Resource.object(r, nil, x)
 
                         next if obj.nil?
 
@@ -666,6 +666,7 @@ module OneProvision
 
                         h['provision']['index'] = idx + global_idx
                         h['provision']['count'] = count
+                        h['provision']['id']    = @id
 
                         host = Resource.object('hosts', @provider, h)
 
