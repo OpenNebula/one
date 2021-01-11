@@ -1,10 +1,7 @@
 name: 'aws-frankfurt'
 description: 'Elastic cluster on AWS in Frakfurt'
-<<<<<<< HEAD
 
 provider: 'aws'
-=======
->>>>>>> 9aba518d5 (F #3951: Add provision & provider to plain)
 
 plain:
   provision: 'hybrid+'
