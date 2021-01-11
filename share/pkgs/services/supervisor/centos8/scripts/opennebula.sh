@@ -53,6 +53,43 @@ fi
 
 msg "Database is running - continue"
 
+# upgrade database if needed
+msg "Check database version"
+
+# to avoid script termination on non-zero code from command - we wrap the
+# command in if-else construct
+if onedb version -v ; then
+    _status=0
+else
+    _status=$?
+fi
+
+case "$_status" in
+    0)
+        msg "Database is up-to-date - continue"
+        ;;
+    1)
+        msg "Database was not created yet - continue"
+        ;;
+    2)
+        msg "Upgrading database..."
+        if is_true "${ONED_DB_BACKUP_ENABLED:-yes}" ; then
+            _mysqldump="/var/lib/one/backups/db/opennebula-$(date +%Y-%m-%d-%s).sql"
+            onedb upgrade --backup "${_mysqldump}"
+        else
+            onedb upgrade --no-backup
+        fi
+        ;;
+    3)
+        err "Database is newer than this opennebula version - ABORT"
+        exit 1
+        ;;
+    *)
+        err "Returned unknown error by onedb - ABORT"
+        exit 1
+        ;;
+esac
+
 # TODO: remove this once oned fix this:
 # https://github.com/OpenNebula/one/issues/5189
 #
