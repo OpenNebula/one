@@ -26,6 +26,7 @@ define(function(require) {
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
   var Status = require('utils/status');
+  var Humanize = require('utils/humanize');
 
   /*
     CONSTANTS
@@ -34,8 +35,8 @@ define(function(require) {
   var RESOURCE = "Service";
   var XML_ROOT = "DOCUMENT";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 6;
-  var SEARCH_COLUMN = 7;
+  var LABELS_COLUMN = 7;
+  var SEARCH_COLUMN = 8;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -69,6 +70,7 @@ define(function(require) {
       Locale.tr("Group"),
       Locale.tr("Name"),
       Locale.tr("State"),
+      Locale.tr("Registration time"),
       Locale.tr("Labels"),
       "search_data"
     ];
@@ -122,6 +124,7 @@ define(function(require) {
         element.GNAME,
         element.NAME,
         state,
+        Humanize.prettyTime(element.TEMPLATE.BODY['registration_time']),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
