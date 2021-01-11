@@ -94,7 +94,7 @@ namespace ssl_util
     /**
      *  Buffer length for zlib inflate/deflate
      */
-    #define ZBUFFER 16384
+    #define ZBUFFER 65536
 
     int zlib_decompress(const std::string& in, std::string& out)
     {
