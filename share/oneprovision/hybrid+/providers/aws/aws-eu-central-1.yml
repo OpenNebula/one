@@ -7,6 +7,7 @@ description: 'Elastic cluster on AWS in Frakfurt'
 plain:
   image: 'AWS.webp'
 
+location_key: 'region'
 connection:
   access_key: 'Encrypted AWS access key'
   secret_key: 'Encrypted AWS secret key'

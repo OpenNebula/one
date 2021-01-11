@@ -7,15 +7,20 @@ description: 'Elastic cluster on AWS in North Virginia'
 plain:
   image: 'AWS.webp'
 
+location_key: 'region'
 connection:
   access_key: 'Encrypted AWS access key'
   secret_key: 'Encrypted AWS secret key'
   region: 'us-east-1'
 
 inputs:
-   aws_ami_image:
-     - 'ami-096fda3c22c1c990a'
-     - 'ami-00ddb0e5626798373'
-   aws_instance_type:
-     - 'i3-metal'
-     - 'i3.large'
+   - name: 'aws_ami_image'
+     type: 'list'
+     options:
+       - 'ami-096fda3c22c1c990a'
+       - 'ami-00ddb0e5626798373'
+   - name: 'aws_instance_type'
+     type: 'list'
+     options:
+       - 'i3-metal'
+       - 'i3.large'
