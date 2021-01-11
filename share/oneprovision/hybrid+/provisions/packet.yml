@@ -22,8 +22,6 @@
 
 name: "packet-cluster"
 
-provision: 'hybrid+'
-
 extends:
     - common.d/defaults.yml
     - common.d/resources.yml
@@ -67,5 +65,7 @@ defaults:
 cluster:
   name: "${provision}"
   description: 'Packet cluster'
+  datastores:
+    - 0
   reserved_cpu: '0'
   reserved_mem: '0'

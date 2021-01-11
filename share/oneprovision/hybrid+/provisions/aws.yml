@@ -21,7 +21,6 @@
 # ------------------------------------------------------------------------------
 
 name: "aws-cluster"
-provision: "hybrid+"
 
 extends:
     - common.d/defaults.yml
@@ -69,5 +68,7 @@ cluster:
   description: 'AWS cluster'
   reserved_cpu: '0'
   reserved_mem: '0'
+  datastores:
+    - 0
   provision:
       cidr: '10.0.0.0/16'

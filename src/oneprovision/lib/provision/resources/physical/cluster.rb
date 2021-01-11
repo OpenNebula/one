@@ -57,6 +57,14 @@ module OneProvision
             @one.info(true)
         end
 
+        # Add datastore to cluster (this method needs to be called after info
+        # or create)
+        #
+        # @param id [Integer] datastore ID
+        def adddatastore(id)
+            @one.adddatastore(id)
+        end
+
         # Deletes the cluster
         #
         # @param tf [Hash] Terraform :conf and :state
@@ -69,6 +77,11 @@ module OneProvision
                 terraform   = Terraform.singleton(@provider, tf)
                 state, conf = terraform.destroy_cluster(@one.id)
             end
+
+            # Remove non-provision elements added to the cluster
+            @one.datastore_ids.each { |i| @one.deldatastore(i) }
+            @one.vnet_ids.each { |i| @one.delvnet(i) }
+            @one.host_ids.each { |i| @one.delhost(i) }
 
             Utils.exception(@one.delete)
 
