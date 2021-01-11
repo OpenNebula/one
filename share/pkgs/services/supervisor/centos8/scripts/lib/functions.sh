@@ -147,3 +147,15 @@ wait_for_file()
     return 1
 )
 
+is_true()
+(
+    _value=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+
+    case "$_value" in
+        yes|true|1)
+            return 0
+            ;;
+    esac
+
+    return 1
+)
