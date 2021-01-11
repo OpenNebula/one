@@ -13,17 +13,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { parse } = require('yaml')
 const { Validator } = require('jsonschema')
 const { tmpPath, defaultCommandProvider } = require('server/utils/constants/defaults')
 
 const {
   ok,
-  notFound,
   internalServerError
 } = require('server/utils/constants/http-codes')
-const { httpResponse, existsFile, parsePostData } = require('server/utils/server')
-const { executeCommand, getFiles, createTemporalFile, createYMLContent, removeFile, getEndpoint } = require('./functions')
+const { httpResponse, parsePostData } = require('server/utils/server')
+const { executeCommand, createTemporalFile, createYMLContent, removeFile, getEndpoint } = require('./functions')
 const { provider, providerUpdate } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -42,13 +40,18 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
     try {
       const response = executedCommand.success ? ok : internalServerError
       const data = JSON.parse(executedCommand.data)
+      const parseTemplatePlain = provision => {
+        if (provision && provision.TEMPLATE && provision.TEMPLATE.PLAIN) {
+          provision.TEMPLATE.PLAIN = JSON.parse(provision.TEMPLATE.PLAIN)
+        }
+        return provision
+      }
       if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
-        data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(provision => {
-          if (provision && provision.TEMPLATE && provision.TEMPLATE.PLAIN) {
-            provision.TEMPLATE.PLAIN = JSON.parse(provision.TEMPLATE.PLAIN)
-          }
-          return provision
-        })
+        data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(parseTemplatePlain)
+      }
+      // if exists params.id
+      if (data && data.DOCUMENT) {
+        parseTemplatePlain(data.DOCUMENT)
       }
       res.locals.httpCode = httpResponse(response, data)
       next()
