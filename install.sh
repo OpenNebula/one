@@ -2781,6 +2781,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onevnet.1.gz \
         share/man/onetemplate.1.gz \
         share/man/onegroup.1.gz \
+        share/man/onecfg.1.gz \
         share/man/onedb.1.gz \
         share/man/onedatastore.1.gz \
         share/man/onecluster.1.gz \
