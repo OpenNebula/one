@@ -43,7 +43,7 @@ module VNMMAD
                 @nic = nic
 
                 # Create the bridge.
-                create_bridge
+                create_bridge(@nic)
             end
 
             unlock
