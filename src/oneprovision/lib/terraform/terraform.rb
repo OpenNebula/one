@@ -90,7 +90,7 @@ module OneProvision
             end
 
             keys.each do |k|
-                if !provider['connection'].has_key? k
+                if !provider['connection'].key? k
                     raise  OneProvisionLoopException,
                            "Missing provider connection attribute: '#{k}'"
                 end

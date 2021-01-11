@@ -130,7 +130,7 @@ module OneProvision
             #
             # @return [Boolean] True if the ssh connection works
             def ansible_ssh(ansible_dir)
-                # Note: We want only to check the working SSH connection, but
+                # NOTE: We want only to check the working SSH connection, but
                 # Ansible "ping" module requires also Python to be installed on
                 # the remote side, otherwise fails. So we use only "raw"
                 # module with simple command. Python should be
@@ -281,7 +281,7 @@ module OneProvision
                 Driver.write_file_log("#{ansible_dir}/inventory", c)
 
                 # Generate "group_vars" file
-                group_vars = { 'sys_ds_ids' => [], 'first_host' => ""}
+                group_vars = { 'sys_ds_ids' => [], 'first_host' => '' }
                 group_vars['first_host'] = hosts.first['name'] \
                     unless hosts.empty?
 
@@ -289,9 +289,10 @@ module OneProvision
                     ds = Resource.object('datastores')
                     ds.info(d['id'])
                     next unless ds.one['TYPE'] == '1' # only system ds
+
                     group_vars['sys_ds_ids'] << d['id']
                 end unless datastores.nil?
-                
+
                 c = YAML.dump(group_vars)
                 fname = "#{ansible_dir}/group_vars.yml"
                 Driver.write_file_log(fname, c)

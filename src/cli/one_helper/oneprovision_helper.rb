@@ -453,7 +453,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     # @param options   [Hash]    User CLI options
     # @param args      [Array]   Operation arguments
     def host_operation(host, operation, options, args)
-        p_id = host['TEMPLATE/PROVISION_ID']
+        p_id = host['TEMPLATE/PROVISION/ID']
 
         return OpenNebula::Error.new('No provision ID found') unless p_id
 
@@ -510,9 +510,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 OneProvision::OneProvisionLogger.info(msg)
 
                 if type != 'FLOWTEMPLATES'
-                    p_id = obj['TEMPLATE/PROVISION_ID']
+                    p_id = obj['TEMPLATE/PROVISION/ID']
                 else
-                    p_id = JSON.parse(obj.template)['PROVISION_ID']
+                    p_id = JSON.parse(obj.template)['PROVISION']['ID']
                 end
 
                 unless p_id
