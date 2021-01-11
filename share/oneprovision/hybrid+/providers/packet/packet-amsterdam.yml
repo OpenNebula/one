@@ -7,6 +7,7 @@ description: 'Elastic cluster on Packet in Amsterdam'
 plain:
   image: 'Packet.webp'
 
+location_key: 'facility'
 connection:
   token: 'Encrypted Packet token'
   project: 'Encrypted Packet project'
