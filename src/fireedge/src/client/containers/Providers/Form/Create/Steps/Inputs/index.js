@@ -39,7 +39,6 @@ const Inputs = () => ({
         ?.find(providerSelected => providerSelected.name === name) ?? {}
 
       inputs = providerTemplate?.inputs ?? []
-      console.log('inputs', inputs)
       setFields(FORM_FIELDS(inputs))
 
       // set defaults inputs values when first render
