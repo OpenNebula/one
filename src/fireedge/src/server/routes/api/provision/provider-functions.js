@@ -41,7 +41,16 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
     const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      const data = JSON.parse(executedCommand.data)
+      if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
+        data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(provision => {
+          if (provision && provision.TEMPLATE && provision.TEMPLATE.PLAIN) {
+            provision.TEMPLATE.PLAIN = JSON.parse(provision.TEMPLATE.PLAIN)
+          }
+          return provision
+        })
+      }
+      res.locals.httpCode = httpResponse(response, data)
       next()
       return
     } catch (error) {
