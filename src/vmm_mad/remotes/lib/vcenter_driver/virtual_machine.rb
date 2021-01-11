@@ -463,6 +463,32 @@ module VCenterDriver
         def clone_vm(drv_action)
             vcenter_name = get_vcenter_name
 
+            dc = cluster.get_dc
+
+            vcenter_vm_folder = drv_action['USER_TEMPLATE/VCENTER_VM_FOLDER']
+
+            if !vcenter_vm_folder.nil? && !vcenter_vm_folder.empty?
+                vcenter_vm_folder =
+                    vcenter_folder_name(vcenter_vm_folder, drv_action)
+
+                vcenter_vm_folder_object =
+                    dc.item.find_folder(vcenter_vm_folder)
+
+                if vcenter_vm_folder_object.nil?
+                    begin
+                        dc.item.vmFolder.CreateFolder(
+                            :name => vcenter_vm_folder
+                        )
+                    rescue StandardError => e
+                        error_message = e.message
+			if VCenterDriver::CONFIG[:debug_information]
+			    error_message += " " + e.backtrace
+   			end
+			raise "Cannot create Folder in vCenter: #{error_message}"
+                    end
+                end
+            end
+
             vc_template_ref = drv_action['USER_TEMPLATE/VCENTER_TEMPLATE_REF']
             vc_template = RbVmomi::VIM::VirtualMachine(@vi_client.vim, vc_template_ref)
 
@@ -477,10 +503,6 @@ module VCenterDriver
 
             clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec(spec_hash)
 
-            # Specify vm folder in vSpere's VM and Templates view F#4823
-            vcenter_vm_folder = nil
-            vcenter_vm_folder = drv_action["USER_TEMPLATE/VCENTER_VM_FOLDER"]
-            dc = cluster.get_dc
             vcenter_vm_folder_object = vcenter_folder(vcenter_vm_folder, vc_template, dc)
 
             if ds.instance_of? RbVmomi::VIM::StoragePod
@@ -636,6 +658,17 @@ module VCenterDriver
             end
 
             disk_move_type
+        end
+
+        # @return String vcenter folder name
+        def vcenter_folder_name(vm_folder_name, drv_action)
+            uname = drv_action['UNAME']
+            gname = drv_action['GNAME']
+
+            vm_folder_name.gsub!('$uname', uname)
+            vm_folder_name.gsub!('$gname', gname)
+
+            vm_folder_name
         end
 
         # Get vcenter folder object from the reference
