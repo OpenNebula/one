@@ -121,7 +121,7 @@ frontApps.map(frontApp => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
-app.get('/*', (req, res) => res.send('index'))
+app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/provision`))
 // 404 - public
 app.get('*', entrypoint404)
 
