@@ -9,9 +9,8 @@ import ApplicationTemplateCard from 'client/components/Cards/ApplicationTemplate
 import ApplicationCard from 'client/components/Cards/ApplicationCard'
 import ApplicationNetworkCard from 'client/components/Cards/ApplicationNetworkCard'
 import PolicyCard from 'client/components/Cards/PolicyCard'
-import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
 import ProvisionCard from 'client/components/Cards/ProvisionCard'
-import LocationCard from 'client/components/Cards/LocationCard'
+import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
 import WavesCard from 'client/components/Cards/WavesCard'
 
 export {
@@ -28,6 +27,5 @@ export {
   PolicyCard,
   ProvisionTemplateCard,
   ProvisionCard,
-  LocationCard,
   WavesCard
 }

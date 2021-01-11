@@ -25,12 +25,16 @@ const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
   )
 
   const handleUnselect = useCallback(
-    id =>
+    (id, filter = item => item === id) =>
       setList(prevList => ({
         ...prevList,
-        [key]: prevList[key]?.filter(item => item !== id)
+        [key]: prevList[key]?.filter(filter)
       })),
     [key, list]
+  )
+
+  const handleClear = useCallback(
+    () => setList(prevList => ({ ...prevList, [key]: [] })), [key]
   )
 
   const handleClone = useCallback(
@@ -53,7 +57,7 @@ const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
   )
 
   const handleRemove = useCallback(
-    (id) => {
+    id => {
       const newList = list?.filter(item => item.id !== id)
 
       handleSetList(newList)
@@ -87,6 +91,7 @@ const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
     editingData,
     handleSelect,
     handleUnselect,
+    handleClear,
     handleClone,
     handleRemove,
     handleSetList,

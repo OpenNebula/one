@@ -96,8 +96,9 @@ export default function useProvision () {
       serviceProvision
         .deleteProvider({ id })
         .then(() => {
+          const newList = providers.filter(({ ID }) => ID !== id)
           dispatch(enqueueSuccess(`Provider deleted - ID: ${id}`))
-          dispatch(setProviders(providers.filter(({ ID }) => ID !== id)))
+          dispatch(setProviders(newList))
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provider')))
     , [dispatch, providers]

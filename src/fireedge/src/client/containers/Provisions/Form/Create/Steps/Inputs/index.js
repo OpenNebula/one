@@ -49,7 +49,7 @@ const Inputs = () => ({
     return (fields?.length === 0) ? (
       <EmptyCard title={'✔️ There is not inputs to fill'} />
     ) : (
-      <FormWithSchema cy="form-provider" fields={fields} id={STEP_ID} />
+      <FormWithSchema cy="form-provision" fields={fields} id={STEP_ID} />
     )
   }, [])
 })
