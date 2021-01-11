@@ -515,7 +515,7 @@ void one_util::split_unique(const string& st, char delim, set<string>& res)
 /**
  *  Buffer length for zlib inflate/deflate
  */
-#define ZBUFFER 16384
+#define ZBUFFER 65536
 
 string * one_util::zlib_compress(const string& in, bool base64)
 {
