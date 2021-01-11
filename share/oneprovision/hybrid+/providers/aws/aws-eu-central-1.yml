@@ -1,5 +1,4 @@
 name: 'aws-frankfurt'
-
 description: 'Elastic cluster on AWS in Frakfurt'
 provider: 'aws'
 

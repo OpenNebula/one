@@ -1,5 +1,4 @@
 name: 'packet-amsterdam'
-
 description: 'Elastic cluster on Packet in Amsterdam'
 provider: 'packet'
 
