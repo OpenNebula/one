@@ -1,10 +1,9 @@
 name: 'aws-north-virginia'
-
-provider: 'aws'
-provision: 'hybrid+'
 description: 'Elastic cluster on AWS in North Virginia'
 
 plain:
+  provision: 'hybrid+'
+  provider: 'aws'
   image: 'AWS.webp'
 
 location_key: 'region'

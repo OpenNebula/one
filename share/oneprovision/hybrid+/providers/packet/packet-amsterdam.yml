@@ -1,11 +1,10 @@
 name: 'packet-amsterdam'
-
-provider: 'packet'
-provision: 'hybrid+'
 description: 'Elastic cluster on Packet in Amsterdam'
 
 plain:
-  image: 'Packet.webp'
+  provision: 'hybrid+'
+  provider: 'packet'
+  image: 'EQUINIX.webp'
 
 location_key: 'facility'
 connection:
