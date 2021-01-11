@@ -1,7 +1,10 @@
 name: 'packet-amsterdam'
 description: 'Elastic cluster on Packet in Amsterdam'
+<<<<<<< HEAD
 
 provider: 'packet'
+=======
+>>>>>>> 9aba518d5 (F #3951: Add provision & provider to plain)
 
 plain:
   provision: 'hybrid+'
