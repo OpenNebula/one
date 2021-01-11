@@ -19,6 +19,8 @@ const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const {
+  appName,
+  defaultConfigFile,
   defaultLogFilename,
   defaultLogPath,
   defaultSharePath,
@@ -166,6 +168,9 @@ const genPathResources = () => {
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
 
   if (global) {
+    if (!global.FIREEDGE_CONFIG) {
+      global.FIREEDGE_CONFIG = `${ETC_LOCATION}/${defaultConfigFile}`
+    }
     if (!global.VMRC_TOKENS) {
       global.VMRC_TOKENS = `${VMRC_LOCATION}/${defaultVmrcTokens}`
     }
@@ -176,10 +181,10 @@ const genPathResources = () => {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }
     if (!global.CPI) {
-      global.CPI = `${VAR_LOCATION}/fireedge`
+      global.CPI = `${VAR_LOCATION}/${appName}`
     }
     if (!global.ETC_CPI) {
-      global.ETC_CPI = `${ETC_LOCATION}/fireedge`
+      global.ETC_CPI = `${ETC_LOCATION}/${appName}`
     }
     if (!global.SHARE_CPI) {
       global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision`

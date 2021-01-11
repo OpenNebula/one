@@ -21,18 +21,19 @@ const { messageTerminal } = require('server/utils/general')
 
 const getConfig = () => {
   let rtn = {}
-  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../` : `${__dirname}/`
-  existsFile(path + defaultConfigFile, filedata => {
-    rtn = parse(filedata)
-  }, err => {
-    const config = {
-      color: 'red',
-      message: 'Error: %s',
-      type: err.message || ''
-    }
-    messageTerminal(config)
-  })
-
+  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../${defaultConfigFile}` : global.FIREEDGE_CONFIG
+  if (path) {
+    existsFile(path, filedata => {
+      rtn = parse(filedata)
+    }, err => {
+      const config = {
+        color: 'red',
+        message: 'Error: %s',
+        type: err.message || ''
+      }
+      messageTerminal(config)
+    })
+  }
   return rtn
 }
 
