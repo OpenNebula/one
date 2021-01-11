@@ -544,11 +544,7 @@ module OneProvision
 
             id = obj.create
 
-            datastores.each do |i|
-
-                obj.adddatastore(i)
-
-            end if datastores
+            datastores.each { |i| obj.adddatastore(i) } if datastores
 
             infrastructure_objects['clusters'] = []
             infrastructure_objects['clusters'] << { 'id'   => id,
