@@ -481,10 +481,10 @@ module VCenterDriver
                         )
                     rescue StandardError => e
                         error_message = e.message
-			if VCenterDriver::CONFIG[:debug_information]
-			    error_message += " " + e.backtrace
-   			end
-			raise "Cannot create Folder in vCenter: #{error_message}"
+			            if VCenterDriver::CONFIG[:debug_information]
+			                error_message += " " + e.backtrace
+   			            end
+			            raise "Cannot create Folder in vCenter: #{error_message}"
                     end
                 end
             end
