@@ -49,7 +49,29 @@ module OneProvision
                 return OpenNebula::Error.new(e)
             end
 
+            template['plain']           ||= {}
+            template['plain']['provider'] = template['provider']
+
             super(rc, template['name'], template['plain'])
+        end
+
+        # Replaces the template contents
+        #
+        # @param template_json [String]  New template contents
+        # @param plain         [Boolean] Update plain information
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def update(template_json = nil, plain = false)
+            # Provider is inmutable
+            if plain
+                template_json = JSON.parse(template_json)
+
+                template_json['provider'] = @body['provider']
+                template_json             = template_json.to_json
+            end
+
+            super
         end
 
         # Delete provider
