@@ -60,30 +60,30 @@ const port = appConfig.port || defaultPort
 const userLog = appConfig.log || 'dev'
 
 if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
-  // eslint-disable-next-line global-require
-  const config = require('../../webpack.config.dev.client')
-  const compiler = webpack(config)
-  app.use(
-    // eslint-disable-next-line global-require
-    require('webpack-dev-middleware')(compiler, {
-      noInfo: true,
-      publicPath: config.output.publicPath,
-      stats: {
-        assets: false,
-        colors: true,
-        version: false,
-        hash: false,
-        timings: false,
-        chunks: false,
-        chunkModules: false
-      }
-    })
-  )
-  // eslint-disable-next-line import/no-extraneous-dependencies
-  // eslint-disable-next-line global-require
-  app.use(require('webpack-hot-middleware')(compiler))
+  const webpackHotMiddleware = require('webpack-hot-middleware')
+  const webpackDevMiddleware = require('webpack-dev-middleware')
+
+  const webpackConfig = require('../../webpack.config.dev.client')
+  const compiler = webpack(webpackConfig)
+
+  app.use(webpackDevMiddleware(compiler, {
+    noInfo: true,
+    serverSideRender: true,
+    publicPath: webpackConfig.output.publicPath,
+    stats: {
+      assets: false,
+      colors: true,
+      version: false,
+      hash: false,
+      timings: false,
+      chunks: false,
+      chunkModules: false
+    }
+  })).use(webpackHotMiddleware(compiler))
+
   frontPath = '../client'
 }
+
 let log = morgan('dev')
 if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
   try {
@@ -101,6 +101,7 @@ if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
     messageTerminal(config)
   }
 }
+
 app.use(helmet.hidePoweredBy())
 app.use(compression())
 app.use(`${basename}/client`, express.static(path.resolve(__dirname, frontPath)))
@@ -121,7 +122,7 @@ frontApps.map(frontApp => {
   app.get(`${basename}/${frontApp}`, entrypointApp)
   app.get(`${basename}/${frontApp}/*`, entrypointApp)
 })
-app.get('/*', (req, res) => res.send('index'))
+app.get('/*', (req, res) => res.redirect(`/${defaultAppName}/provision`))
 // 404 - public
 app.get('*', entrypoint404)
 

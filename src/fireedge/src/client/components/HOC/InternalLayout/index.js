@@ -25,12 +25,12 @@ import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
 
-const InternalLayout = ({ authRoute, label, children }) => {
+const InternalLayout = ({ label, children }) => {
   const classes = internalStyles()
   const scroll = React.useRef()
   const { isFixMenu } = useGeneral()
 
-  return authRoute ? (
+  return (
     <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
       <Header title={label} scrollableContainer={scroll?.current} />
       <Box component="main" className={classes.main}>
@@ -56,8 +56,6 @@ const InternalLayout = ({ authRoute, label, children }) => {
       </Box>
       <Footer />
     </Box>
-  ) : (
-    children
   )
 }
 
@@ -68,13 +66,11 @@ InternalLayout.propTypes = {
     PropTypes.node,
     PropTypes.string
   ]),
-  authRoute: PropTypes.bool.isRequired,
   label: PropTypes.string
 }
 
 InternalLayout.defaultProps = {
   children: [],
-  authRoute: false,
   label: null
 }
 

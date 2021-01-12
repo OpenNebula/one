@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -21,18 +21,19 @@ const { messageTerminal } = require('server/utils/general')
 
 const getConfig = () => {
   let rtn = {}
-  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../` : `${__dirname}/`
-  existsFile(path + defaultConfigFile, filedata => {
-    rtn = parse(filedata)
-  }, err => {
-    const config = {
-      color: 'red',
-      message: 'Error: %s',
-      type: err.message || ''
-    }
-    messageTerminal(config)
-  })
-
+  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../${defaultConfigFile}` : global.FIREEDGE_CONFIG
+  if (path) {
+    existsFile(path, filedata => {
+      rtn = parse(filedata)
+    }, err => {
+      const config = {
+        color: 'red',
+        message: 'Error: %s',
+        type: err.message || ''
+      }
+      messageTerminal(config)
+    })
+  }
   return rtn
 }
 

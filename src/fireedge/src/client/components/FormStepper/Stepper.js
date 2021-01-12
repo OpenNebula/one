@@ -7,7 +7,8 @@ import {
   Step,
   StepLabel,
   Box,
-  Typography
+  Typography,
+  StepButton
 } from '@material-ui/core'
 import { makeStyles, fade } from '@material-ui/core/styles'
 
@@ -46,6 +47,7 @@ const CustomStepper = ({
   activeStep,
   lastStep,
   disabledBack,
+  handleStep,
   handleNext,
   handleBack,
   errors,
@@ -55,25 +57,31 @@ const CustomStepper = ({
 
   return (
     <>
-      <Stepper activeStep={activeStep} className={classes.root}>
-        {steps?.map(({ id, label }) => (
+      <Stepper nonLinear activeStep={activeStep} className={classes.root}>
+        {steps?.map(({ id, label }, stepIdx) => (
           <Step key={id}>
-            <StepLabel
-              StepIconProps={{
-                classes: {
-                  root: classes.icon,
-                  completed: classes.completed,
-                  active: classes.active,
-                  error: classes.error
-                }
-              }}
-              {...(Boolean(errors[id]) && { error: true })}
+            <StepButton
+              onClick={() => handleStep(stepIdx)}
+              completed={activeStep > stepIdx}
+              disabled={activeStep + 1 < stepIdx}
               optional={
-                <Typography variant="caption" color="error">
+                <Typography variant='caption' color='error'>
                   {errors[id]?.message}
                 </Typography>
               }
-            >{Tr(label)}</StepLabel>
+            >
+              <StepLabel
+                StepIconProps={{
+                  classes: {
+                    root: classes.icon,
+                    completed: classes.completed,
+                    active: classes.active,
+                    error: classes.error
+                  }
+                }}
+                {...(Boolean(errors[id]) && { error: true })}
+              >{Tr(label)}</StepLabel>
+            </StepButton>
           </Step>
         ))}
       </Stepper>
@@ -83,7 +91,7 @@ const CustomStepper = ({
         </Button>
         <SubmitButton
           color='secondary'
-          data-cy="stepper-next-button"
+          data-cy='stepper-next-button'
           onClick={handleNext}
           isSubmitting={isSubmitting}
           label={activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
@@ -107,6 +115,7 @@ CustomStepper.propTypes = {
   lastStep: PropTypes.number.isRequired,
   disabledBack: PropTypes.bool.isRequired,
   isSubmitting: PropTypes.bool,
+  handleStep: PropTypes.func,
   handleNext: PropTypes.func,
   handleBack: PropTypes.func,
   errors: PropTypes.shape({
@@ -119,6 +128,7 @@ CustomStepper.defaultProps = {
   activeStep: 0,
   lastStep: 0,
   disabledBack: false,
+  handleStep: () => undefined,
   handleNext: () => undefined,
   handleBack: () => undefined,
   errors: undefined,

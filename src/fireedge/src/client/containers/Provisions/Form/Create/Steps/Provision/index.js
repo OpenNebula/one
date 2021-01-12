@@ -18,9 +18,9 @@ const Provision = () => ({
   label: T.ProvisionTemplate,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
-    const { getProvisionsTemplates } = useProvision()
+    const { getTemplates } = useProvision()
     const { data: templates, fetchRequest, loading, error } = useFetch(
-      getProvisionsTemplates
+      getTemplates
     )
 
     const { handleSelect, handleUnselect } = useListForm({

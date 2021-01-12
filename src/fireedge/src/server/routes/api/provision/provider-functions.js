@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,17 +13,15 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { parse } = require('yaml')
 const { Validator } = require('jsonschema')
 const { tmpPath, defaultCommandProvider } = require('server/utils/constants/defaults')
 
 const {
   ok,
-  notFound,
   internalServerError
 } = require('server/utils/constants/http-codes')
-const { httpResponse, existsFile, parsePostData } = require('server/utils/server')
-const { executeCommand, getFiles, createTemporalFile, createYMLContent, removeFile, getEndpoint } = require('./functions')
+const { httpResponse, parsePostData } = require('server/utils/server')
+const { executeCommand, createTemporalFile, createYMLContent, removeFile, getEndpoint } = require('./functions')
 const { provider, providerUpdate } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
@@ -41,51 +39,26 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
     const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
+      const data = JSON.parse(executedCommand.data)
+      const parseTemplatePlain = provision => {
+        if (provision && provision.TEMPLATE && provision.TEMPLATE.PLAIN) {
+          provision.TEMPLATE.PLAIN = JSON.parse(provision.TEMPLATE.PLAIN)
+        }
+        return provision
+      }
+      if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
+        data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(parseTemplatePlain)
+      }
+      // if exists params.id
+      if (data && data.DOCUMENT) {
+        parseTemplatePlain(data.DOCUMENT)
+      }
+      res.locals.httpCode = httpResponse(response, data)
       next()
       return
     } catch (error) {
       rtn = httpResponse(internalServerError, '', executedCommand.data)
     }
-  }
-  res.locals.httpCode = rtn
-  next()
-}
-
-const getProvidersDefaults = (res = {}, next = () => undefined, params = {}) => {
-  const extFiles = 'yml'
-  let rtn = httpInternalError
-  let err = false
-  const files = []
-  const path = `${global.ETC_CPI}/providers`
-
-  const fillData = (content = '') => {
-    try {
-      files.push(parse(content))
-    } catch (error) {
-    }
-  }
-
-  try {
-    if (params && params.name) {
-      existsFile(
-        `${path}/${`${params.name}`.toLowerCase()}.${extFiles}`,
-        fillData,
-        () => {
-          err = true
-        }
-      )
-    } else {
-      getFiles(
-        path,
-        extFiles
-      ).map(file =>
-        existsFile(file, fillData)
-      )
-    }
-    rtn = err ? notFound : httpResponse(ok, files)
-  } catch (error) {
-    rtn = httpResponse(internalServerError, '', error)
   }
   res.locals.httpCode = rtn
   next()
@@ -107,7 +80,6 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
-          console.log("JORGE: ", executeCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.data) {
             if (executedCommand.success) {
@@ -200,7 +172,6 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
 
 const providerFunctionsApi = {
   getListProviders,
-  getProvidersDefaults,
   createProviders,
   updateProviders,
   deleteProvider

@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,10 +16,12 @@
 const appName = 'fireedge'
 const apps = {
   flow: {
+    name: 'flow',
     theme: 'flow',
     assets: true
   },
   provision: {
+    name: 'provision',
     theme: 'provision'
   }
 }
@@ -79,6 +81,7 @@ const defaults = {
   defaultWebpackMode: 'development',
   defaultWebpackDevTool: 'inline-source-map',
   defaultLogPath: '/var/log/one',
+  defaultSharePath: '/usr/share/one',
   defaultVarPath: '/var/lib/one',
   defaultEtcPath: '/etc/one',
   defaultLogFilename: `${appName}.log`,

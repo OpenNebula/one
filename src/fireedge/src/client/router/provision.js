@@ -36,7 +36,7 @@ export const ENDPOINTS = [
     label: 'Login',
     path: PATH.LOGIN,
     authenticated: false,
-    component: Login
+    Component: Login
   },
   {
     label: 'Dashboard',
@@ -44,14 +44,14 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: DashboardIcon,
-    component: Dashboard
+    Component: Dashboard
   },
   {
     label: 'Settings',
     path: PATH.SETTINGS,
     authenticated: true,
     header: true,
-    component: Settings
+    Component: Settings
   },
   {
     label: 'Providers',
@@ -59,19 +59,19 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: ProvidersIcon,
-    component: Providers
+    Component: Providers
   },
   {
     label: 'Create Provider',
     path: PATH.PROVIDERS.CREATE,
     authenticated: true,
-    component: ProvidersCreateForm
+    Component: ProvidersCreateForm
   },
   {
     label: 'Edit Provider template',
     path: PATH.PROVIDERS.EDIT,
     authenticated: true,
-    component: ProvidersCreateForm
+    Component: ProvidersCreateForm
   },
   {
     label: 'Provisions',
@@ -79,18 +79,20 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: ProvisionsIcon,
-    component: Provisions
+    Component: Provisions
   },
   {
     label: 'Create Provision',
     path: PATH.PROVISIONS.CREATE,
     authenticated: true,
-    component: ProvisionCreateForm
+    Component: ProvisionCreateForm
   },
   {
     label: 'Edit Provision template',
     path: PATH.PROVISIONS.EDIT,
     authenticated: true,
-    component: ProvisionCreateForm
+    Component: ProvisionCreateForm
   }
 ]
+
+export default { PATH, ENDPOINTS }

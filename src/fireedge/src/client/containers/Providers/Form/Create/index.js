@@ -8,30 +8,25 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Providers/Form/Create/Steps'
 
+import { useFetch, useProvision, useGeneral } from 'client/hooks'
 import { PATH } from 'client/router/provision'
-import { useFetchAll, useProvision, useGeneral } from 'client/hooks'
+import { mapUserInputs } from 'client/utils'
 
 function ProviderCreateForm () {
   const history = useHistory()
   const { id } = useParams()
   const isUpdate = id !== undefined
-  const { showError } = useGeneral()
-
-  const {
-    steps,
-    defaultValues,
-    resolvers
-  } = Steps({ isUpdate })
 
   const {
     getProvider,
-    getProvidersTemplates,
     createProvider,
     updateProvider,
-    providersTemplates
+    provisionsTemplates
   } = useProvision()
 
-  const { data, fetchRequestAll, loading, error } = useFetchAll()
+  const { data, fetchRequest, loading, error } = useFetch(getProvider)
+  const { steps, defaultValues, resolvers } = Steps({ isUpdate })
+  const { showError } = useGeneral()
 
   const methods = useForm({
     mode: 'onSubmit',
@@ -39,33 +34,44 @@ function ProviderCreateForm () {
     resolver: yupResolver(resolvers())
   })
 
-  const onSubmit = formData => {
-    const { provider, location, connection, registration_time: time } = formData
-    const providerSelected = provider[0]
-    const locationSelected = location[0]
+  const getTemplate = ({ provision, provider, name } = {}) => {
+    const template = provisionsTemplates
+      ?.[provision]
+      ?.providers?.[provider]
+      ?.find(providerSelected => providerSelected.name === name)
 
-    const providerTemplate = providersTemplates
-      .find(({ name }) => name === providerSelected) ?? {}
-
-    if (!providerTemplate) {
+    if (!template) {
       showError({
         message: `
-          Cannot found provider template (${providerSelected}),
+          Cannot found provider template (${provider}),
           ask your cloud administrator`
       })
-      history.push(PATH.PROVISIONS.LIST)
-    }
+      history.push(PATH.PROVIDERS.LIST)
+    } else return template
+  }
 
-    const { plain, location_key: locationKey } = providerTemplate
+  const onSubmit = formData => {
+    const { template, inputs, connection, registration_time: time } = formData
+
+    const templateSelected = template?.[0]
+    const providerTemplate = getTemplate(templateSelected)
+    const parseInputs = mapUserInputs(inputs)
+
+    const {
+      plain,
+      location_key: locationKey,
+      connection: { [locationKey]: connectionFixed }
+    } = providerTemplate
 
     const formatData = {
-      ...(!isUpdate && { name: `${providerSelected}_${locationSelected}` }),
+      ...(!isUpdate && templateSelected),
       ...(plain && { plain }),
-      provider: providerSelected,
       connection: {
         ...connection,
-        [locationKey]: locationSelected
+        [locationKey]: connectionFixed
       },
+      inputs: providerTemplate?.inputs
+        ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` })),
       registration_time: time
     }
 
@@ -79,40 +85,35 @@ function ProviderCreateForm () {
   }
 
   useEffect(() => {
-    isUpdate && fetchRequestAll([
-      getProvider({ id }),
-      getProvidersTemplates()
-    ])
+    isUpdate && fetchRequest({ id })
   }, [isUpdate])
 
   useEffect(() => {
     if (data) {
-      const [provider = {}, templates = []] = data
-
       const {
-        connection, provider: providerName, registration_time: time
-      } = provider?.TEMPLATE?.PROVISION_BODY ?? {}
+        connection,
+        inputs,
+        name,
+        provider,
+        provision,
+        registration_time: time
+      } = data?.TEMPLATE?.PROVISION_BODY ?? {}
 
-      const {
-        location_key: key
-      } = templates?.find(({ name }) => name === providerName) ?? {}
+      const templateSelected = { name, provision, provider }
+      const providerTemplate = getTemplate(templateSelected)
 
-      if (!key) {
-        showError({
-          message: `
-            Cannot found provider template (${providerName}),
-            ask your cloud administrator`
-        })
-        history.push(PATH.PROVIDERS.LIST)
-      }
+      const { location_key: locationKey } = providerTemplate
+      const { [locationKey]: _, ...connectionEditable } = connection
 
-      const { [key]: location, ...connections } = connection
+      const inputsNameValue = inputs?.reduce((res, input) => (
+        { ...res, [input.name]: input.value }
+      ), {})
 
       methods.reset({
-        provider: [providerName],
-        registration_time: time,
-        connection: connections,
-        location: [location]
+        connection: connectionEditable,
+        inputs: inputsNameValue,
+        template: [templateSelected],
+        registration_time: time
       }, { errors: false })
     }
   }, [data])

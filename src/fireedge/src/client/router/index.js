@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -13,64 +13,78 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useCallback, useMemo } from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { Redirect, Route, Switch } from 'react-router-dom'
 import { TransitionGroup } from 'react-transition-group'
 
-import * as endpoints from 'client/router/endpoints'
+import devRoutes from 'client/router/dev'
 import { InternalLayout, MainLayout } from 'client/components/HOC'
-import { APPS } from 'client/constants'
 
-const Router = ({ app }) => {
-  const { ENDPOINTS, PATH } = useMemo(() => ({
-    ...endpoints[app],
+const Router = React.memo(({ title, routes }) => {
+  const { ENDPOINTS, PATH } = React.useMemo(() => ({
+    ...routes,
     ...(process?.env?.NODE_ENV === 'development' &&
-      { ENDPOINTS: endpoints[app].ENDPOINTS.concat(endpoints.dev.ENDPOINTS) }
+      {
+        PATH: { ...routes.PATH, ...devRoutes.PATH },
+        ENDPOINTS: routes.ENDPOINTS.concat(devRoutes.ENDPOINTS)
+      }
     )
-  }), [app])
-
-  const renderRoute = useCallback(({
-    label = '',
-    path = '',
-    authenticated = true,
-    component: Component,
-    ...route
-  }) => (
-    <Route
-      key={`key-${label.replace(' ', '-')}`}
-      exact
-      path={path}
-      component={() => (
-        <InternalLayout label={app} authRoute={authenticated}>
-          <Component />
-        </InternalLayout>
-      )}
-      {...route}
-    />
-  ), [app])
+  }), [])
 
   return (
     <MainLayout endpoints={{ ENDPOINTS, PATH }}>
       <TransitionGroup>
         <Switch>
-          {ENDPOINTS?.map(({ routes, ...endpoint }) =>
-            endpoint.path ? renderRoute(endpoint) : routes?.map(renderRoute)
+          {ENDPOINTS?.map(
+            ({ path = '', authenticated = true, Component, ...route }, index) =>
+              <Route
+                key={index}
+                exact
+                path={path}
+                component={() => (
+                  authenticated ? (
+                    <InternalLayout label={title} authRoute={authenticated}>
+                      <Component />
+                    </InternalLayout>
+                  ) : <Component />
+                )}
+                {...route}
+              />
           )}
           <Route component={() => <Redirect to={PATH.LOGIN} />} />
         </Switch>
       </TransitionGroup>
     </MainLayout>
   )
-}
+})
 
 Router.propTypes = {
-  app: PropTypes.oneOf([undefined, ...APPS])
+  title: PropTypes.string,
+  routes: PropTypes.shape({
+    PATH: PropTypes.object,
+    ENDPOINTS: PropTypes.arrayOf(
+      PropTypes.shape({
+        label: PropTypes.string.isRequired,
+        path: PropTypes.string.isRequired,
+        authenticated: PropTypes.bool.isRequired,
+        sidebar: PropTypes.bool,
+        icon: PropTypes.object,
+        Component: PropTypes.func.isRequired
+      })
+    )
+  })
 }
 
 Router.defaultProps = {
-  app: undefined
+  title: undefined,
+  routes: {
+    PATH: {},
+    ENDPOINTS: []
+  }
 }
+
+Router.displayName = 'Router'
 
 export default Router

@@ -3,7 +3,7 @@ import * as STATES from 'client/constants/states'
 export const PROVISIONS_STATES = [
   {
     name: STATES.PENDING,
-    color: '#4DBBD3',
+    color: '#966615',
     meaning: ''
   },
   {
@@ -18,17 +18,12 @@ export const PROVISIONS_STATES = [
   },
   {
     name: STATES.RUNNING,
-    color: '#3adb76',
+    color: '#318b77',
     meaning: ''
   },
   {
     name: STATES.ERROR,
-    color: '#ec5840',
-    meaning: ''
-  },
-  {
-    name: STATES.DONE,
-    color: '#ec5840',
+    color: '#8c352a',
     meaning: ''
   }
 ]

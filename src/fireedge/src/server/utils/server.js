@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -19,8 +19,11 @@ const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const {
+  appName,
+  defaultConfigFile,
   defaultLogFilename,
   defaultLogPath,
+  defaultSharePath,
   defaultVmrcTokens,
   defaultVarPath,
   defaultKeyFilename,
@@ -159,11 +162,15 @@ const getDataZone = (zone = '0', configuredZones) => {
 const genPathResources = () => {
   const ONE_LOCATION = env && env.ONE_LOCATION
   const LOG_LOCATION = !ONE_LOCATION ? defaultLogPath : `${ONE_LOCATION}/var`
+  const SHARE_LOCATION = !ONE_LOCATION ? defaultSharePath : `${ONE_LOCATION}/share`
   const VAR_LOCATION = !ONE_LOCATION ? defaultVarPath : `${ONE_LOCATION}/var`
   const ETC_LOCATION = !ONE_LOCATION ? defaultEtcPath : `${ONE_LOCATION}/etc`
   const VMRC_LOCATION = !ONE_LOCATION ? defaultVarPath : ONE_LOCATION
 
   if (global) {
+    if (!global.FIREEDGE_CONFIG) {
+      global.FIREEDGE_CONFIG = `${ETC_LOCATION}/${defaultConfigFile}`
+    }
     if (!global.VMRC_TOKENS) {
       global.VMRC_TOKENS = `${VMRC_LOCATION}/${defaultVmrcTokens}`
     }
@@ -174,10 +181,13 @@ const genPathResources = () => {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }
     if (!global.CPI) {
-      global.CPI = `${VAR_LOCATION}/fireedge`
+      global.CPI = `${VAR_LOCATION}/${appName}`
     }
     if (!global.ETC_CPI) {
-      global.ETC_CPI = `${ETC_LOCATION}/fireedge`
+      global.ETC_CPI = `${ETC_LOCATION}/${appName}`
+    }
+    if (!global.SHARE_CPI) {
+      global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision`
     }
   }
 }

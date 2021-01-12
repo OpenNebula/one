@@ -10,6 +10,11 @@ const Actions = {
 
 module.exports = {
   Actions,
+
+  // --------------------------------------------
+  // ONE
+  // --------------------------------------------
+
   setVms: vms => ({
     type: SUCCESS_ONE_REQUEST,
     payload: { vms }
@@ -17,14 +22,6 @@ module.exports = {
   setTemplates: templates => ({
     type: SUCCESS_ONE_REQUEST,
     payload: { templates }
-  }),
-  setApplications: applications => ({
-    type: SUCCESS_ONE_REQUEST,
-    payload: { applications }
-  }),
-  setApplicationsTemplates: applicationsTemplates => ({
-    type: SUCCESS_ONE_REQUEST,
-    payload: { applicationsTemplates }
   }),
   setDatastores: datastores => ({
     type: SUCCESS_ONE_REQUEST,
@@ -94,22 +91,41 @@ module.exports = {
     type: SUCCESS_ONE_REQUEST,
     payload: { acl }
   }),
-  setProvidersTemplates: providersTemplates => ({
+
+  // --------------------------------------------
+  // ONE FLOW
+  // --------------------------------------------
+
+  setApplications: applications => ({
     type: SUCCESS_ONE_REQUEST,
-    payload: { providersTemplates }
+    payload: { applications }
+  }),
+  setApplicationsTemplates: applicationsTemplates => ({
+    type: SUCCESS_ONE_REQUEST,
+    payload: { applicationsTemplates }
+  }),
+
+  // --------------------------------------------
+  // ONE PROVISION
+  // --------------------------------------------
+
+  setProvisionsTemplates: provisionsTemplates => ({
+    type: SUCCESS_ONE_REQUEST,
+    payload: { provisionsTemplates }
   }),
   setProviders: providers => ({
     type: SUCCESS_ONE_REQUEST,
     payload: { providers }
   }),
-  setProvisionsTemplates: provisionsTemplates => ({
-    type: SUCCESS_ONE_REQUEST,
-    payload: { provisionsTemplates }
-  }),
   setProvisions: provisions => ({
     type: SUCCESS_ONE_REQUEST,
     payload: { provisions }
   }),
+
+  // --------------------------------------------
+  // ONE REQUEST
+  // --------------------------------------------
+
   startOneRequest: () => ({
     type: START_ONE_REQUEST
   }),

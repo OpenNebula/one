@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -16,7 +16,6 @@ const { from: fromData } = require('server/utils/constants/defaults')
 const { getParamsForObject } = require('server/utils/server')
 const {
   getListProviders,
-  getProvidersDefaults,
   createProviders,
   updateProviders,
   deleteProvider
@@ -31,12 +30,6 @@ const routes = {
       action: getListProviders,
       params: {
         id: { from: fromData.resource, name: 'id', front: true }
-      }
-    },
-    defaults: {
-      action: getProvidersDefaults,
-      params: {
-        name: { from: fromData.resource, name: 'id', front: true }
       }
     }
   },

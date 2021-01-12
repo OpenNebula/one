@@ -23,6 +23,7 @@ export const BY = {
   url: 'https://opennebula.io/'
 }
 
+export const _APPS = defaultApps
 export const APPS = Object.keys(defaultApps)
 export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
 export const WEBSOCKET_URL = `${APP_URL}/websocket`

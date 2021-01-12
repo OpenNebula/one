@@ -1,7 +1,7 @@
 export default {
   palette: {
     type: 'dark',
-    common: { black: '#000', white: '#fff' },
+    common: { black: '#000000', white: '#ffffff' },
     background: {
       paper: '#2a2d3d',
       default: '#222431'
@@ -10,19 +10,19 @@ export default {
       light: '#2a2d3d',
       main: '#222431',
       dark: '#191924',
-      contrastText: '#fff'
+      contrastText: '#ffffff'
     },
     secondary: {
       light: '#fb8554',
       main: '#fa6c43',
       dark: '#fe5a23',
-      contrastText: '#fff'
+      contrastText: '#ffffff'
     },
     error: {
       light: '#e57373',
       main: '#f44336',
       dark: '#d32f2f',
-      contrastText: '#fff'
+      contrastText: '#ffffff'
     }
   }
 }

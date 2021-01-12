@@ -1,22 +1,22 @@
 import * as yup from 'yup'
 
-import Provider from './Provider'
+import Template from './Template'
 import Connection from './Connection'
-import Locations from './Locations'
+import Inputs from './Inputs'
 
 const Steps = ({ isUpdate }) => {
-  const provider = Provider()
+  const template = Template()
   const connection = Connection()
-  const locations = Locations()
+  const inputs = Inputs()
 
-  const steps = [connection, locations]
-  !isUpdate && steps.unshift(provider)
+  const steps = [connection, inputs]
+  !isUpdate && steps.unshift(template)
 
   const resolvers = () => yup
     .object({
-      [provider.id]: provider.resolver(),
+      [template.id]: template.resolver(),
       [connection.id]: connection.resolver(),
-      [locations.id]: locations.resolver()
+      [inputs.id]: inputs.resolver()
     })
 
   const defaultValues = resolvers().default()

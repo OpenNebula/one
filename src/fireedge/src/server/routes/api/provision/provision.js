@@ -1,4 +1,4 @@
-/* Copyright 2002-2019, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -88,9 +88,7 @@ const routes = {
     },
     defaults: {
       action: getProvisionDefaults,
-      params: {
-        name: { from: fromData.resource, name: 'id', front: true }
-      }
+      params: {}
     }
   },
   [POST]: {

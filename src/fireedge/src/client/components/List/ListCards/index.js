@@ -57,12 +57,12 @@ const ListCards = memo(({
 
             return (
               <CSSTransition
-              // use key to render transition (default: id or ID)
+                // use key to render transition (default: id or ID)
                 key={`card-${key.replace(/\s/g, '')}`}
                 classNames={classes.item}
                 timeout={400}
               >
-                <Grid item {...breakpoints}>
+                <Grid item {...breakpoints} {...value?.breakpoints}>
                   <CardComponent value={value} {...cardsProps({ index, value })} />
                 </Grid>
               </CSSTransition>
