@@ -9,7 +9,8 @@ import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
 
 const ProvisionTemplateCard = React.memo(
   ({ value, isProvider, isSelected, handleClick }) => {
-    const { description, name, plain: { image } = {} } = value
+    const { description, name, plain = {} } = value
+    const { image } = isProvider ? plain : value
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
 
     const imgSource = React.useMemo(() =>
@@ -37,7 +38,7 @@ const ProvisionTemplateCard = React.memo(
 ProvisionTemplateCard.propTypes = {
   value: PropTypes.shape({
     name: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
+    description: PropTypes.string,
     plain: PropTypes.shape({
       image: PropTypes.string
     })

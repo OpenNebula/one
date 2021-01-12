@@ -10,7 +10,7 @@ import Steps from 'client/containers/Providers/Form/Create/Steps'
 
 import { useFetch, useProvision, useGeneral } from 'client/hooks'
 import { PATH } from 'client/router/provision'
-import { mapUserInputs } from 'client/utils'
+import { get, mapUserInputs } from 'client/utils'
 
 function ProviderCreateForm () {
   const history = useHistory()
@@ -34,44 +34,49 @@ function ProviderCreateForm () {
     resolver: yupResolver(resolvers())
   })
 
-  const getTemplate = ({ provision, provider, name } = {}) => {
-    const template = provisionsTemplates
-      ?.[provision]
-      ?.providers?.[provider]
-      ?.find(providerSelected => providerSelected.name === name)
+  const redirectWithError = (name = '') => {
+    showError({
+      message: `
+        Cannot found provider template (${name}),
+        ask your cloud administrator`
+    })
 
-    if (!template) {
-      showError({
-        message: `
-          Cannot found provider template (${provider}),
-          ask your cloud administrator`
-      })
-      history.push(PATH.PROVIDERS.LIST)
-    } else return template
+    history.push(PATH.PROVIDERS.LIST)
   }
+
+  const getProviderTemplateByDir = ({ provision, provider, name }) =>
+    provisionsTemplates
+      ?.[provision]
+      ?.providers
+      ?.[provider]
+      ?.find(providerSelected => providerSelected.name === name)
 
   const onSubmit = formData => {
     const { template, inputs, connection, registration_time: time } = formData
 
     const templateSelected = template?.[0]
-    const providerTemplate = getTemplate(templateSelected)
+    const providerTemplate = getProviderTemplateByDir(templateSelected)
+
+    if (!providerTemplate) return redirectWithError(templateSelected?.name)
+
     const parseInputs = mapUserInputs(inputs)
 
     const {
       plain,
+      name,
+      provider,
       location_key: locationKey,
       connection: { [locationKey]: connectionFixed }
     } = providerTemplate
 
     const formatData = {
-      ...(!isUpdate && templateSelected),
-      ...(plain && { plain }),
-      connection: {
-        ...connection,
-        [locationKey]: connectionFixed
-      },
-      inputs: providerTemplate?.inputs
-        ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` })),
+      ...(!isUpdate && { plain, name, provider }),
+      connection: { ...connection, [locationKey]: connectionFixed },
+      inputs: providerTemplate?.inputs?.map(input => ({
+        ...input,
+        value: `${parseInputs[input?.name]}`,
+        default: `${parseInputs[input?.name]}`
+      })),
       registration_time: time
     }
 
@@ -95,14 +100,17 @@ function ProviderCreateForm () {
         inputs,
         name,
         provider,
-        provision,
         registration_time: time
       } = data?.TEMPLATE?.PROVISION_BODY ?? {}
 
-      const templateSelected = { name, provision, provider }
-      const providerTemplate = getTemplate(templateSelected)
+      const { provision_type: provisionType } = data?.TEMPLATE?.PLAIN ?? {}
 
-      const { location_key: locationKey } = providerTemplate
+      const templateSelected = { name, provision: provisionType, provider }
+      const template = getProviderTemplateByDir(templateSelected)
+
+      if (!template) return redirectWithError(name)
+
+      const { location_key: locationKey } = template
       const { [locationKey]: _, ...connectionEditable } = connection
 
       const inputsNameValue = inputs?.reduce((res, input) => (

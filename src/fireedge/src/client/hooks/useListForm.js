@@ -25,12 +25,12 @@ const useListForm = ({ multiple, key, list, setList, defaultValue }) => {
   )
 
   const handleUnselect = useCallback(
-    (id, filter = item => item === id) =>
+    (id, filter = item => item !== id) =>
       setList(prevList => ({
         ...prevList,
         [key]: prevList[key]?.filter(filter)
       })),
-    [key, list]
+    [key, setList]
   )
 
   const handleClear = useCallback(

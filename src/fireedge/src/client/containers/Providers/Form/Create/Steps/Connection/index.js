@@ -30,7 +30,7 @@ const Connection = () => ({
         [STEP_ID]: currentConnections
       } = watch()
 
-      const { name, provision, provider } = templateSelected?.[0]
+      const { name, provision, provider } = templateSelected?.[0] ?? {}
       const providerTemplate = provisionsTemplates
         ?.[provision]
         ?.providers?.[provider]

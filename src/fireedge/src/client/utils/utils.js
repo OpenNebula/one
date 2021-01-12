@@ -100,7 +100,10 @@ export const requestData = (url = '', data = {}) => {
         type: err.message,
         message: 'Error request: %s'
       }
-      messageTerminal(configErrorParser)
+
+      process?.env?.NODE_ENV === 'development' &&
+        messageTerminal(configErrorParser)
+
       return params.error(err)
     })
 }

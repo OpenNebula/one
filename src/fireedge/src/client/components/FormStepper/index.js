@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 import { useMediaQuery } from '@material-ui/core'
 
+import { useGeneral } from 'client/hooks'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import { groupBy } from 'client/utils'
@@ -13,6 +14,7 @@ const FIRST_STEP = 0
 const FormStepper = ({ steps, schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
   const { watch, reset, errors, setError } = useFormContext()
+  const { isLoading } = useGeneral()
 
   const [formData, setFormData] = useState(() => watch())
   const [activeStep, setActiveStep] = useState(FIRST_STEP)
@@ -54,7 +56,7 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
   const handleStep = stepToAdvance => {
     const isBackAction = activeStep > stepToAdvance
 
-    isBackAction && handleBack(isBackAction)
+    isBackAction && handleBack(stepToAdvance)
 
     steps
       .slice(FIRST_STEP, stepToAdvance)
@@ -112,6 +114,7 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
           activeStep={activeStep}
           lastStep={lastStep}
           disabledBack={disabledBack}
+          isSubmitting={isLoading}
           handleNext={handleNext}
           handleBack={handleBack}
           errors={errors}
@@ -122,12 +125,13 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
           activeStep={activeStep}
           lastStep={lastStep}
           disabledBack={disabledBack}
+          isSubmitting={isLoading}
           handleStep={handleStep}
           handleNext={handleNext}
           handleBack={handleBack}
           errors={errors}
         />
-      ), [isMobile, activeStep, errors[id]])}
+      ), [isLoading, isMobile, activeStep, errors[id]])}
       {/* FORM CONTENT */}
       {Content && <Content data={formData[id]} setFormData={setFormData} />}
     </>

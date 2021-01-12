@@ -57,6 +57,8 @@ const General = (state = initial, action) => {
           notification => notification.key !== action.key
         )
       }
+    case GeneralActions.CHANGE_LOADING:
+      return { ...state, ...action.payload }
     case GeneralActions.CHANGE_ZONE:
       return { ...state, ...action.payload }
     case GeneralActions.TOGGLE_MENU:

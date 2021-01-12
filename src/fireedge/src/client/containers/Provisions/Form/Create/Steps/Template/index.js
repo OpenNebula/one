@@ -7,15 +7,15 @@ import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
 import { T } from 'client/constants'
 
-import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
-import { STEP_ID as INPUTS_ID } from 'client/containers/Providers/Form/Create/Steps/Inputs'
-import { STEP_FORM_SCHEMA } from 'client/containers/Providers/Form/Create/Steps/Template/schema'
+import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/Create/Steps/Provider'
+import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/Create/Steps/Inputs'
+import { STEP_FORM_SCHEMA } from 'client/containers/Provisions/Form/Create/Steps/Template/schema'
 
 export const STEP_ID = 'template'
 
 const Template = () => ({
   id: STEP_ID,
-  label: T.ProviderTemplate,
+  label: T.ProvisionTemplate,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const templateSelected = data?.[0]
@@ -24,9 +24,9 @@ const Template = () => ({
     const [providerSelected, setProvider] = React.useState(templateSelected?.provider)
 
     const { showError } = useGeneral()
-    const { provisionsTemplates } = useProvision()
-    const providersTypes = provisionsTemplates?.[provisionSelected]?.providers ?? []
-    const templatesAvailable = providersTypes?.[providerSelected]
+    const { provisionsTemplates, providers } = useProvision()
+    const providersTypes = provisionsTemplates?.[provisionSelected]?.provisions ?? []
+    const templatesAvailable = providersTypes?.[providerSelected] ?? []
 
     const {
       handleSelect,
@@ -45,14 +45,16 @@ const Template = () => ({
       templateSelected && handleClear()
     }
 
-    const handleClick = ({ name, provider, plain = {} }, isSelected) => {
-      const { provision_type: provisionType } = plain
+    const handleClick = (template, isSelected) => {
+      const { name, provision_type: provisionType, provider, defaults, hosts } = template
 
       if ([name, provisionType, provider].includes(undefined)) {
         showError({ message: 'This template has bad format. Ask your cloud administrator' })
       } else {
         // reset rest of form when change template
-        setFormData({ [INPUTS_ID]: undefined, [CONNECTION_ID]: undefined })
+        const providerName = defaults?.provision?.provider_name ?? hosts?.[0]?.provision.provider_name
+        const { ID } = providers?.find(({ NAME }) => NAME === providerName) ?? {}
+        setFormData({ [INPUTS_ID]: undefined, [PROVIDER_ID]: [ID] })
 
         isSelected
           ? handleUnselect(name, item => item.name === name)
@@ -106,7 +108,6 @@ const Template = () => ({
             )
 
             return {
-              isProvider: true,
               isSelected,
               handleClick: () => handleClick(value, isSelected)
             }

@@ -129,6 +129,9 @@ module.exports = {
   startOneRequest: () => ({
     type: START_ONE_REQUEST
   }),
+  successOneRequest: () => ({
+    type: SUCCESS_ONE_REQUEST
+  }),
   failureOneRequest: error => ({
     type: FAILURE_ONE_REQUEST,
     payload: { error }

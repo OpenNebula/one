@@ -4,7 +4,8 @@ import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 import {
   setProviders,
   setProvisions,
-  setProvisionsTemplates
+  setProvisionsTemplates,
+  successOneRequest
 } from 'client/actions/pool'
 
 import { enqueueError, enqueueSuccess } from 'client/actions/general'
@@ -16,15 +17,8 @@ export default function useProvision () {
   const {
     providers,
     provisionsTemplates,
-    provisions,
-    filterPool: filter
-  } = useSelector(
-    state => ({
-      ...state?.Opennebula,
-      filterPool: state?.Authenticated?.filterPool
-    }),
-    shallowEqual
-  )
+    provisions
+  } = useSelector(({ Opennebula }) => Opennebula, shallowEqual)
 
   // --------------------------------------------
   // ALL PROVISION TEMPLATES REQUESTS
@@ -33,7 +27,7 @@ export default function useProvision () {
   const getProvisionsTemplates = useCallback(
     () =>
       serviceProvision
-        .getProvisionsTemplates({ filter })
+        .getProvisionsTemplates({})
         .then(doc => {
           dispatch(setProvisionsTemplates(doc))
           return doc
@@ -50,18 +44,24 @@ export default function useProvision () {
   // --------------------------------------------
 
   const getProvider = useCallback(
-    ({ id }) =>
-      serviceProvision.getProvider({ id }).catch(err => {
-        dispatch(enqueueError(err ?? `Error GET (${id}) provider`))
-        throw err
-      }),
+    ({ id } = {}) =>
+      serviceProvision
+        .getProvider({ id })
+        .then(doc => {
+          dispatch(successOneRequest())
+          return doc
+        })
+        .catch(err => {
+          dispatch(enqueueError(err ?? `Error GET (${id}) provider`))
+          throw err
+        }),
     [dispatch]
   )
 
   const getProviders = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
       serviceProvision
-        .getProviders({ filter, end, start })
+        .getProviders({ end, start })
         .then(doc => {
           dispatch(setProviders(doc))
           return doc
@@ -70,7 +70,7 @@ export default function useProvision () {
           dispatch(enqueueError(err ?? 'Error GET providers'))
           return err
         }),
-    [dispatch, filter]
+    [dispatch]
   )
 
   const createProvider = useCallback(
@@ -79,7 +79,7 @@ export default function useProvision () {
         .createProvider({ data })
         .then(id => dispatch(enqueueSuccess(`Provider created - ID: ${id}`)))
         .catch(err => dispatch(enqueueError(err ?? 'Error CREATE provider')))
-    , [dispatch, providers]
+    , [dispatch]
   )
 
   const updateProvider = useCallback(
@@ -88,20 +88,17 @@ export default function useProvision () {
         .updateProvider({ id, data })
         .then(() => dispatch(enqueueSuccess(`Provider updated - ID: ${id}`)))
         .catch(err => dispatch(enqueueError(err ?? 'Error UPDATE provider')))
-    , [dispatch, providers]
+    , [dispatch]
   )
 
   const deleteProvider = useCallback(
     ({ id }) =>
       serviceProvision
         .deleteProvider({ id })
-        .then(() => {
-          const newList = providers.filter(({ ID }) => ID !== id)
-          dispatch(enqueueSuccess(`Provider deleted - ID: ${id}`))
-          dispatch(setProviders(newList))
-        })
-        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provider')))
-    , [dispatch, providers]
+        .then(() => dispatch(enqueueSuccess(`Provider deleted - ID: ${id}`)))
+        .then(() => getProviders())
+        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provider'))),
+    [dispatch]
   )
 
   // --------------------------------------------
@@ -119,7 +116,7 @@ export default function useProvision () {
   const getProvisions = useCallback(
     ({ end, start } = { end: -1, start: -1 }) =>
       serviceProvision
-        .getProvisions({ filter, end, start })
+        .getProvisions({ end, start })
         .then(doc => {
           dispatch(setProvisions(doc))
           return doc
@@ -128,7 +125,7 @@ export default function useProvision () {
           dispatch(enqueueError(err?.message ?? 'Error GET provisions'))
           return err
         }),
-    [dispatch, filter]
+    [dispatch]
   )
 
   const createProvision = useCallback(
@@ -142,7 +139,7 @@ export default function useProvision () {
         .catch(err => {
           dispatch(enqueueError(err?.message ?? 'Error CREATE Provision'))
         }),
-    [dispatch, provisions]
+    [dispatch]
   )
 
   const deleteProvision = useCallback(
@@ -151,7 +148,7 @@ export default function useProvision () {
         .deleteProvision({ id })
         .then(() => dispatch(enqueueSuccess(`Provision deleted - ID: ${id}`)))
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provision')))
-    , [dispatch, provisions]
+    , [dispatch]
   )
 
   const getProvisionLog = useCallback(
@@ -175,7 +172,7 @@ export default function useProvision () {
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE datastore')))
-    , [dispatch, provisions]
+    , [dispatch]
   )
 
   const deleteVNetwork = useCallback(
@@ -187,7 +184,7 @@ export default function useProvision () {
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE network')))
-    , [dispatch, provisions]
+    , [dispatch]
   )
 
   const deleteHost = useCallback(
@@ -199,7 +196,7 @@ export default function useProvision () {
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE host')))
-    , [dispatch, provisions]
+    , [dispatch]
   )
 
   const configureHost = useCallback(
@@ -211,7 +208,7 @@ export default function useProvision () {
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE host')))
-    , [dispatch, provisions]
+    , [dispatch]
   )
 
   return {

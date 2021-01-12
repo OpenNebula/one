@@ -13,17 +13,27 @@ const useRequest = request => {
 
   const doFetch = useCallback(
     debounce(payload =>
-      request({ ...payload }).then(response => {
-        if (isMounted.current) {
-          if (response !== undefined) {
-            setData(response)
-            setError(false)
-          } else setError(true)
-
-          setLoading(false)
-          setReloading(false)
-        }
-      })
+      request({ ...payload })
+        .then(response => {
+          if (isMounted.current) {
+            if (response !== undefined) {
+              setData(response)
+              setError(false)
+            } else setError(true)
+          }
+        })
+        .catch(() => {
+          if (isMounted.current) {
+            setData(undefined)
+            setError(true)
+          }
+        })
+        .finally(() => {
+          if (isMounted.current) {
+            setLoading(false)
+            setReloading(false)
+          }
+        })
     ), [isMounted])
 
   const fetchRequest = useCallback((payload, options = {}) => {

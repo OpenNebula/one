@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
-import { useHistory } from 'react-router'
+import React, { useState, useEffect } from 'react'
+import { Redirect, useHistory } from 'react-router'
 
-import { Container } from '@material-ui/core'
+import { Container, LinearProgress } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
-
-import { useGeneral, useProvision, useSocket } from 'client/hooks'
 
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
 import DebugLog from 'client/components/DebugLog'
+
+import { useGeneral, useProvision, useSocket, useFetch } from 'client/hooks'
 import { PATH } from 'client/router/provision'
 import { set, mapUserInputs } from 'client/utils'
 
@@ -18,7 +18,8 @@ function ProvisionCreateForm () {
   const history = useHistory()
   const { showError } = useGeneral()
   const { getProvision } = useSocket()
-  const { createProvision, provisionsTemplates } = useProvision()
+  const { getProviders, createProvision, provisionsTemplates, providers } = useProvision()
+  const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
   const { steps, defaultValues, resolvers } = Steps()
 
@@ -28,24 +29,41 @@ function ProvisionCreateForm () {
     resolver: yupResolver(resolvers())
   })
 
+  const redirectWithError = (name = '') => {
+    showError({
+      message: `
+        Cannot found provision template (${name}),
+        ask your cloud administrator`
+    })
+
+    history.push(PATH.PROVIDERS.LIST)
+  }
+
+  const getProvisionTemplateByDir = ({ provision, provider, name }) =>
+    provisionsTemplates
+      ?.[provision]
+      ?.provisions
+      ?.[provider]
+      ?.find(provisionTemplate => provisionTemplate.name === name)
+
   const onSubmit = formData => {
-    const { provision, provider, inputs } = formData
-    const provisionSelected = provision[0]
-    const providerSelected = provider[0]
+    const { template, provider, inputs } = formData
+    const provisionTemplateSelected = template?.[0] ?? {}
+    const providerIdSelected = provider?.[0]
+    const providerName = providers?.find(({ ID }) => ID === providerIdSelected)?.NAME
 
-    const provisionTemplate = provisionsTemplates
-      .find(({ name }) => name === provisionSelected)
+    const provisionTemplate = getProvisionTemplateByDir(provisionTemplateSelected)
 
-    if (!provisionTemplate) {
-      showError({
-        message: `
-          Cannot found provider template (${provisionSelected}),
-          ask your cloud administrator`
+    if (!provisionTemplate) return redirectWithError(provisionTemplateSelected?.name)
+
+    // update provider name if changed during form
+    if (provisionTemplate.defaults?.provision?.provider_name) {
+      set(provisionTemplate, 'defaults.provision.provider_name', providerName)
+    } else if (provisionTemplate.hosts?.length > 0) {
+      provisionTemplate.hosts.forEach(host => {
+        set(host, 'provision.provider_name', providerName)
       })
-      history.push(PATH.PROVISIONS.LIST)
     }
-
-    set(provisionTemplate, 'defaults.provision.provider', providerSelected)
 
     const parseInputs = mapUserInputs(inputs)
     const formatData = {
@@ -57,11 +75,19 @@ function ProvisionCreateForm () {
     createProvision({ data: formatData }).then(res => res && setUuid(res))
   }
 
+  useEffect(() => { fetchRequest() }, [])
+
   if (uuid) {
     return <DebugLog uuid={uuid} socket={getProvision} />
   }
 
-  return (
+  if (error) {
+    return <Redirect to={PATH.PROVIDERS.LIST} />
+  }
+
+  return (!data) || loading ? (
+    <LinearProgress color='secondary' />
+  ) : (
     <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
       <FormProvider {...methods}>
         <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />

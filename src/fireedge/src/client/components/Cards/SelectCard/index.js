@@ -36,7 +36,7 @@ const SelectCard = memo(({
   return (
     <ConditionalWrap
       condition={!observerOff}
-      wrap={children => <div ref={fromRef}>{children}</div>}>
+      wrap={children => <span ref={fromRef}>{children}</span>}>
       {observerOff || isNearScreen ? (
         <Card
           className={clsx(classes.root, cardProps?.className, {

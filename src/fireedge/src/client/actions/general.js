@@ -1,5 +1,5 @@
 const CHANGE_ZONE = 'CHANGE_ZONE'
-const DISPLAY_LOADING = 'DISPLAY_LOADING'
+const CHANGE_LOADING = 'CHANGE_LOADING'
 const TOGGLE_MENU = 'TOGGLE_MENU'
 const FIX_MENU = 'FIX_MENU'
 
@@ -9,7 +9,7 @@ const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR'
 
 const Actions = {
   CHANGE_ZONE,
-  DISPLAY_LOADING,
+  CHANGE_LOADING,
   TOGGLE_MENU,
   FIX_MENU,
   ENQUEUE_SNACKBAR,
@@ -24,7 +24,7 @@ module.exports = {
     payload: { zone }
   }),
   changeLoading: isLoading => ({
-    type: DISPLAY_LOADING,
+    type: CHANGE_LOADING,
     payload: { isLoading }
   }),
   openMenu: isOpen => ({

@@ -20,17 +20,12 @@ const ProvisionCard = memo(
     const [{ image, ...body }, setBody] = useState({})
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-    const { NAME, TEMPLATE: { PLAIN = '{}', BODY = {} } } = value
+    const { NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
     const stateInfo = PROVISIONS_STATES[body?.state]
 
     useEffect(() => {
-      try {
-        const json = isProvider ? JSON.parse(PLAIN) : BODY
-        setBody({ ...json, image: json.image ?? DEFAULT_IMAGE })
-      } catch {
-        setBody({ image: DEFAULT_IMAGE })
-        console.warn('Image in plain property is not valid')
-      }
+      const json = isProvider ? PLAIN : BODY
+      setBody({ ...json, image: json.image ?? DEFAULT_IMAGE })
     }, [])
 
     const onError = evt => { evt.target.src = DEFAULT_IMAGE }
@@ -70,7 +65,7 @@ ProvisionCard.propTypes = {
     ID: PropTypes.string.isRequired,
     NAME: PropTypes.string.isRequired,
     TEMPLATE: PropTypes.shape({
-      PLAIN: PropTypes.string,
+      PLAIN: PropTypes.object,
       BODY: PropTypes.oneOfType([
         PropTypes.string,
         PropTypes.object
