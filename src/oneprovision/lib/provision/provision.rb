@@ -324,8 +324,6 @@ module OneProvision
 
                 self.state = STATE['RUNNING']
 
-                add_provision_id
-
                 update
 
                 self['ID']
@@ -903,23 +901,6 @@ module OneProvision
                     end
 
                     true
-                end
-            end
-        end
-
-        # Add provision ID into objects template to improve search operations
-        def add_provision_id
-            objects.each do |key, value|
-                value.each do |obj|
-                    resource = Resource.object(key)
-                    resource.info(obj['id'])
-
-                    if key != 'flowtemplates'
-                        resource.one.update("PROVISION_ID=#{self['ID']}", true)
-                    else
-                        resource.one.update("{\"PROVISION_ID\":#{self['ID']}}",
-                                            true)
-                    end
                 end
             end
         end

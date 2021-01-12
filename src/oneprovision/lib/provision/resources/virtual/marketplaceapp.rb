@@ -88,10 +88,14 @@ module OneProvision
 
             # get new created image and update it with provision ID
             @image = Image.new
+            p_id   = @p_template['provision']['id']
 
             @image.info(image_id)
             @image.update_provision_info({ 'wait'         => wait,
-                                           'wait_timeout' => timeout })
+                                           'wait_timeout' => timeout,
+                                           'id'           => p_id })
+
+            @template.update_provision_info({ 'id' => p_id })
 
             # Change permissions and ownership
             @image.template_chown(@p_template)
