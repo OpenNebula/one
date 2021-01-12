@@ -22,6 +22,7 @@
 
 name: 'aws-cluster'
 provision_type: 'hybrid+'
+provider: 'aws'
 
 image: 'OPENNEBULA-AWS.png'
 
@@ -53,7 +54,7 @@ playbook:
 #--------------------------------------------------------------------------------
 defaults:
   provision:
-    provider: 'aws'
+    provider_name: 'aws'
     ami: "${input.aws_ami_image}"
     instancetype: "${input.aws_instance_type}"
     cloud_init: true

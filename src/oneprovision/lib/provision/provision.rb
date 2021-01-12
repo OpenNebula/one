@@ -479,11 +479,11 @@ module OneProvision
             # Provider can be set in provision defaults or in hosts
             # it's the same for all hosts, taking the first one is enough
             if template['defaults'] && template['defaults/provision']
-                provider = template['defaults/provision/provider']
+                provider = template['defaults/provision/provider_name']
             end
 
             if !provider && template['hosts'][0]['provision']
-                provider = template['hosts'][0]['provision']['provider']
+                provider = template['hosts'][0]['provision']['provider_name']
             end
 
             provider

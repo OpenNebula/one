@@ -22,6 +22,7 @@
 
 name: 'packet-cluster'
 provision_type: 'hybrid+'
+provider: 'packet'
 
 image: 'OPENNEBULA-EQUINIX.png'
 
@@ -53,7 +54,7 @@ playbook:
 #--------------------------------------------------------------------------------
 defaults:
   provision:
-    provider: 'packet'
+    provider_name: 'packet'
     plan: "${input.packet_plan}"
     os: "${input.packet_os}"
 
