@@ -19,6 +19,7 @@
           <xs:complexType>
             <xs:all>
               <xs:element name="DRIVER_MANAGED_GROUPS" type="xs:string"/>
+              <xs:element name="DRIVER_MANAGED_GROUP_ADMIN" type="xs:string"/>
               <xs:element name="MAX_TOKEN_TIME" type="xs:integer"/>
               <xs:element name="NAME" type="xs:string"/>
               <xs:element name="PASSWORD_CHANGE" type="xs:string"/>
@@ -164,6 +165,7 @@
         </xs:element>
 
         <xs:element name="HOST_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="DOCUMENT_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="IMAGE_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
         <xs:element name="IM_MAD" minOccurs="0" maxOccurs="unbounded">
