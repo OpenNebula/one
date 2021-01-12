@@ -612,7 +612,8 @@ define(function(require) {
       var callback = params.success;
       var callback_error = params.error;
       var id = params.data.id;
-      var typeConnection = params.data.extra_param;
+      var typeConnection = params.data.extra_param.type;
+      var vm_name = params.data.extra_param.vm_name;
       var resource = RESOURCE;
 
       var request = OpenNebulaHelper.request(resource, null, params.data);
@@ -621,6 +622,7 @@ define(function(require) {
         type: "POST",
         dataType: "json",
         success: function(response) {
+          response.vm_name = vm_name;
           return callback ? callback(request, response) : null;
         },
         error: function(response) {
