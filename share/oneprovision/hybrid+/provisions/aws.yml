@@ -20,7 +20,10 @@
 # resources using the KVM hypervisor.
 # ------------------------------------------------------------------------------
 
-name: "aws-cluster"
+name: 'aws-cluster'
+provision_type: 'hybrid+'
+
+image: 'OPENNEBULA-AWS.png'
 
 extends:
     - common.d/defaults.yml

@@ -1,11 +1,10 @@
 name: 'aws-frankfurt'
-description: 'Elastic cluster on AWS in Frakfurt'
 
+description: 'Elastic cluster on AWS in Frakfurt'
 provider: 'aws'
 
 plain:
-  provision: 'hybrid+'
-  provider: 'aws'
+  provision_type: 'hybrid+'
   image: 'AWS.webp'
 
 location_key: 'region'
