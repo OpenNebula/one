@@ -20,7 +20,10 @@
 # resources using the KVM hypervisor.
 # ------------------------------------------------------------------------------
 
-name: "packet-cluster"
+name: 'packet-cluster'
+provision_type: 'hybrid+'
+
+image: 'OPENNEBULA-EQUINIX.png'
 
 extends:
     - common.d/defaults.yml
