@@ -344,22 +344,21 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         end
+        client = @client
+        vm_pool = VirtualMachinePool.new(client, -1)
+        user_pool = UserPool.new(client)
 
-		client = @client
-		vm_pool = VirtualMachinePool.new(client, -1)
-		user_pool = UserPool.new(client)
+        rc = user_pool.info
+        if OpenNebula.is_error?(rc)
+          puts rc.message
+          exit -1
+        end
 
-		rc = user_pool.info
-		if OpenNebula.is_error?(rc)
-			 puts rc.message
-			 exit -1
-		end
-
-		rc = vm_pool.info
-		if OpenNebula.is_error?(rc)
-			 puts rc.message
-			 exit -1
-		end
+        rc = vm_pool.info
+        if OpenNebula.is_error?(rc)
+          puts rc.message
+          exit -1
+        end
 
         return vmrc.proxy(resource, client)
     end

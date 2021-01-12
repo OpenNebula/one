@@ -16,13 +16,15 @@ const { createProxyMiddleware } = require('http-proxy-middleware')
 const { readFileSync } = require('fs-extra')
 const { getConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
-const { genPathResources } = require('server/utils/server')
-const { endpointVmrc } = require('server/utils/constants/defaults')
+const { genPathResources, validateServerIsSecure } = require('server/utils/server')
+const { endpointVmrc, defaultPort } = require('server/utils/constants/defaults')
 
 genPathResources()
 
 const appConfig = getConfig()
-const url = appConfig.vmrc || ''
+const port = appConfig.port || defaultPort
+const protocol = validateServerIsSecure() ? 'https' : 'http'
+const url = `${protocol}://localhost:${port}`
 const config = {
   color: 'red'
 }
