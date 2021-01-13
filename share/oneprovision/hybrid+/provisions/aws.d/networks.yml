@@ -31,3 +31,4 @@ vntemplates:
     vn_mad: 'vxlan'
     phydev: 'eth0'
     automatic_vlan_id: 'yes'
+    cluster_ids: "${cluster.0.id}"

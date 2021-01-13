@@ -30,3 +30,4 @@ vntemplates:
     vn_mad: 'vxlan'
     phydev: 'bond0'
     automatic_vlan_id: 'yes'
+    cluster_ids: "${cluster.0.id}"
