@@ -76,7 +76,7 @@ define(function (require) {
                     }
                 },
                 error: function(request, response, data) {
-                    Notifier.onError(request, {error:{ message: "Fireedge private endpoint is not working, please contact you cloud administrator"}});
+                    Notifier.onError(request, {error:{ message: "Fireedge private endpoint is not working, please contact your cloud administrator"}});
                     is_fireedge_configured = false;
                     clear_fireedge_token();
                     if (typeof error == "function"){
