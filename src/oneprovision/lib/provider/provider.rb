@@ -85,9 +85,7 @@ module OneProvision
             return rc if OpenNebula.is_error?(rc)
 
             pool.each do |p|
-                next unless p.body['provider'] == body['provider']
-
-                next if p.body['state'] == Provision::STATE['DONE']
+                next unless p.body['provider'] == self['NAME']
 
                 return OpenNebula::Error.new(
                     'Provider can not be deleted, it is used by ' \

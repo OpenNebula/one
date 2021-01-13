@@ -112,19 +112,22 @@ module OneProvision
 
         # Get cluster information
         def cluster
-            return nil unless infrastructure_objects
+            return unless infrastructure_objects
+
             infrastructure_objects['clusters'][0]
         end
 
         # Returns provision hosts
         def hosts
-            return nil unless infrastructure_objects
+            return unless infrastructure_objects
+
             infrastructure_objects['hosts']
         end
 
         # Returns provision datastores
         def datastores
-            return nil unless infrastructure_objects
+            return unless infrastructure_objects
+
             infrastructure_objects['datastores']
         end
 
@@ -247,7 +250,8 @@ module OneProvision
                 return OpenNebula::Error.new('No provider found')
             end
 
-            @provider     = provider
+            @provider = provider
+
             if cfg['inputs'].nil?
                 cfg['inputs'] = provider.inputs
             else
@@ -538,7 +542,7 @@ module OneProvision
 
             OneProvisionLogger.debug(msg)
 
-            datastores = cfg['cluster'].delete("datastores")
+            datastores = cfg['cluster'].delete('datastores')
 
             obj = Cluster.new(nil, cfg['cluster'])
 
@@ -546,7 +550,7 @@ module OneProvision
 
             id = obj.create
 
-            datastores.each { |i| obj.adddatastore(i) } if datastores
+            datastores.each {|i| obj.adddatastore(i) } if datastores
 
             infrastructure_objects['clusters'] = []
             infrastructure_objects['clusters'] << { 'id'   => id,
@@ -570,8 +574,7 @@ module OneProvision
                 cfg[r].each do |x|
                     Driver.retry_loop('Failed to create some resources',
                                       self) do
-
-                        x['provision'] = {'id' => @id }
+                        x['provision'] = { 'id' => @id }
                         obj            = Resource.object(r, nil, x)
 
                         next if obj.nil?
