@@ -44,12 +44,12 @@ class ElasticDriver < VNMMAD::VNMDriver
 
         raise rc if OpenNebula.is_error?(rc)
 
-        unless @host.has_elements?('TEMPLATE/PROVISION_ID')
-            OpenNebula.log_error("No PROVISION_ID for host #{host_id}")
+        unless @host.has_elements?('TEMPLATE/PROVISION/ID')
+            OpenNebula.log_error("No ID in PROVISION for host #{host_id}")
             exit 1
         end
 
-        provision_id = @host['TEMPLATE/PROVISION_ID']
+        provision_id = @host['TEMPLATE/PROVISION/ID']
         provision = OneProvision::Provision.new_with_id(provision_id, client)
         provision.info
 
@@ -161,4 +161,4 @@ class ElasticDriver < VNMMAD::VNMDriver
         commands.run_remote(@ssh)
     end
 end
-# rubocop:enable Naming/FileName
+    # rubocop:enable Naming/FileName
