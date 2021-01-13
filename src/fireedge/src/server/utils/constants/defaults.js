@@ -79,6 +79,7 @@ const defaults = {
   defaultConfigFile: `${appName}-server.conf`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
+  defaultProductionWebpackMode: 'production',
   defaultWebpackDevTool: 'inline-source-map',
   defaultLogPath: '/var/log/one',
   defaultSharePath: '/usr/share/one',

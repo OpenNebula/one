@@ -2,6 +2,8 @@ const path = require('path')
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
 const CopyPlugin = require('copy-webpack-plugin')
+const { defaultProductionWebpackMode } = require('./src/server/utils/constants/defaults')
+
 
 const js = {
   test: /\.js$/,
@@ -10,7 +12,7 @@ const js = {
 }
 
 module.exports = {
-  mode: 'production',
+  mode: defaultProductionWebpackMode,
   entry: path.resolve(__dirname, 'src', 'server'),
   target: 'node',
   node: {
@@ -21,10 +23,13 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'index.js'
   },
+  stats: {
+    warnings: false
+  },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: JSON.stringify('production')
+        NODE_ENV: JSON.stringify(defaultProductionWebpackMode)
       }
     }),
     new CopyPlugin({

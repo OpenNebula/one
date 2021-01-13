@@ -60,27 +60,36 @@ const port = appConfig.port || defaultPort
 const userLog = appConfig.log || 'dev'
 
 if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
-  const webpackHotMiddleware = require('webpack-hot-middleware')
-  const webpackDevMiddleware = require('webpack-dev-middleware')
-
-  const webpackConfig = require('../../webpack.config.dev.client')
-  const compiler = webpack(webpackConfig)
-
-  app.use(webpackDevMiddleware(compiler, {
-    noInfo: true,
-    serverSideRender: true,
-    publicPath: webpackConfig.output.publicPath,
-    stats: {
-      assets: false,
-      colors: true,
-      version: false,
-      hash: false,
-      timings: false,
-      chunks: false,
-      chunkModules: false
+  try {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const webpackHotMiddleware = require('webpack-hot-middleware')
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const webpackDevMiddleware = require('webpack-dev-middleware')
+    const webpackConfig = require('../../webpack.config.dev.client')
+    const compiler = webpack(webpackConfig)
+    app.use(webpackDevMiddleware(compiler, {
+      noInfo: true,
+      serverSideRender: true,
+      publicPath: webpackConfig.output.publicPath,
+      stats: {
+        assets: false,
+        colors: true,
+        version: false,
+        hash: false,
+        timings: false,
+        chunks: false,
+        chunkModules: false
+      }
+    })).use(webpackHotMiddleware(compiler))
+  } catch (error) {
+    if (error) {
+      messageTerminal({
+        color: 'red',
+        type: error,
+        message: '%s'
+      })
     }
-  })).use(webpackHotMiddleware(compiler))
-
+  }
   frontPath = '../client'
 }
 

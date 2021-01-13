@@ -34,6 +34,9 @@ const bundle = ({ assets = false, name = 'flow' }) => {
       filename: `bundle.${name}.js`,
       publicPath: '/client'
     },
+    stats: {
+      warnings: false
+    },
     plugins,
     module: {
       rules: [js]

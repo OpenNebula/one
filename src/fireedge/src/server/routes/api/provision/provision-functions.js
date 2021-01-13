@@ -366,7 +366,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
         const log = find(logFile.name, logFile.ext)
         if (config && log) {
           const create = (filedata = '') => {
-            const paramsCommand = ['create', config.path, '--batch', '--debug', '--skip-provision', ...authCommand, ...endpoint]
+            const paramsCommand = ['create', config.path, '--batch', '--debug', ...authCommand, ...endpoint]
             let lastLine = ''
             var stream = createWriteStream(log.path, { flags: 'a' })
             const emit = message => {

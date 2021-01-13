@@ -42,7 +42,9 @@
     "eslint-plugin-standard": "^4.0.1",
     "fireedge-genpotfile": "^1.0.0",
     "fireedge-pojson": "^1.0.2",
-    "react-hot-loader": "^4.13.0"
+    "react-hot-loader": "^4.13.0",
+    "webpack-dev-middleware": "^3.7.2",
+    "webpack-hot-middleware": "^2.25.0"
   },
   "dependencies": {
     "@babel/cli": "^7.10.4",
@@ -119,8 +121,6 @@
     "uuid": "^8.3.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-middleware": "^3.7.2",
-    "webpack-hot-middleware": "^2.25.0",
     "webpack-node-externals": "^2.5.2",
     "window-or-global": "^1.0.1",
     "xml2js": "^0.4.23",

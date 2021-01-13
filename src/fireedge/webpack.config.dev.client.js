@@ -5,7 +5,11 @@ const { defaultWebpackMode, defaultAppName } = require('./src/server/utils/const
 const js = {
   test: /\.js$/,
   loader: 'babel-loader',
-  include: path.resolve(__dirname, 'src', 'client')
+  include: path.resolve(__dirname, 'src', 'client'),
+  options: {
+    babelrc: true,
+    plugins: ['react-hot-loader/babel']
+  }
 }
 const appName = defaultAppName ? `/${defaultAppName}` : ''
 const bundle = () => {
