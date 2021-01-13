@@ -155,10 +155,12 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
     const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
     const data = executedCommand.data || ''
     try {
-      if (executedCommand) {
-        res.locals.httpCode = httpResponse(ok)
-      } else {
-        res.locals.httpCode = httpResponse(internalServerError, data)
+      if (executedCommand && executedCommand.success) {
+        if(executedCommand.data.length === 0){
+          res.locals.httpCode = httpResponse(ok)
+        } else {
+          res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)
+        }
       }
       next()
       return
