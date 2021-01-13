@@ -30,12 +30,11 @@ is_readonly() {
     local DOMAIN=$1
     local DISK=$2
 
-    READ_ONLY=$(awk 'gsub(/[\0]/, x)' \
-        <( virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \
+    READ_ONLY=$(virsh --connect $LIBVIRT_URI dumpxml $DOMAIN | \
             $XPATH --stdin --subtree \
-            "//domain/devices/disk[source/@file='$DISK']/readonly"))
+            "//domain/devices/disk[source/@file='$DISK']/readonly")
 
-    [ "$READ_ONLY" = '<readonly/>' ]
+    [[ "$READ_ONLY" =~ '<readonly/>' ]]
 }
 
 get_size_and_format_of_disk_img() {
