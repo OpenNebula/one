@@ -248,7 +248,11 @@ module OneProvision
             end
 
             @provider     = provider
-            cfg['inputs'] = cfg['inputs'] | provider.inputs
+            if cfg['inputs'].nil?
+                cfg['inputs'] = provider.inputs
+            else
+                cfg['inputs'] << provider.inputs unless provider.inputs.nil?
+            end
 
             cfg.validate(false)
 
