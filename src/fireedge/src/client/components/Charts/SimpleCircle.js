@@ -1,7 +1,7 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { Box, CircularProgress } from '@material-ui/core'
+import { Box, CircularProgress, Typography } from '@material-ui/core'
 import Count from 'client/components/Count'
 
 const Circle = React.memo(() => {
@@ -35,7 +35,7 @@ Circle.defaultProps = { color: 'primary' }
 Circle.displayName = 'Circle'
 
 // -------------------------------------
-// WIDGET
+// CHART
 // -------------------------------------
 
 const SimpleCircle = React.memo(({ label, onClick }) => (
@@ -49,13 +49,9 @@ const SimpleCircle = React.memo(({ label, onClick }) => (
       alignItems='center'
       justifyContent='center'
     >
-      <Count
-        number={label}
-        variant='h4'
-        component='div'
-        style={{ cursor: 'pointer' }}
-        onClick={onClick}
-      />
+      <Typography variant='h4' component='div' onClick={onClick} style={{ cursor: 'pointer' }}>
+        <Count number={label} />
+      </Typography>
     </Box>
   </Box>
 ), (prev, next) => prev.label === next.label)

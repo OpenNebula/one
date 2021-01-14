@@ -6,6 +6,7 @@ import { Public as ProvidersIcon } from '@material-ui/icons'
 
 import { useProvision } from 'client/hooks'
 import { TypographyWithPoint } from 'client/components/Typography'
+import Count from 'client/components/Count'
 import { get } from 'client/utils'
 import { T } from 'client/constants'
 
@@ -35,7 +36,8 @@ const TotalProviders = () => {
   const title = React.useMemo(() => (
     <div className={classes.title}>
       <Typography className={classes.titlePrimary}>
-        {`${totalProviders} ${T.Providers}`}
+        <Count number={`${totalProviders}`} />
+        <span>{T.Providers}</span>
       </Typography>
       <Typography className={classes.titleSecondary}>
         {T.InTotal}
@@ -45,8 +47,8 @@ const TotalProviders = () => {
 
   const legend = React.useMemo(() => (
     <div>
-      <TypographyWithPoint key={usedProviders} pointColor={usedColor}>
-        {`${usedProviders}`}
+      <TypographyWithPoint pointColor={usedColor}>
+        <Count number={`${usedProviders}`} />
       </TypographyWithPoint>
       <Typography className={classes.legendSecondary}>
         {T.Used}

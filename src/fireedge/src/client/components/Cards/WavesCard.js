@@ -61,7 +61,8 @@ WavesCard.propTypes = {
   text: PropTypes.string,
   value: PropTypes.oneOfType([
     PropTypes.string,
-    PropTypes.number
+    PropTypes.number,
+    PropTypes.element
   ]),
   bgColor: PropTypes.string,
   icon: PropTypes.any

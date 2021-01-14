@@ -4,6 +4,7 @@ import { Paper, Typography } from '@material-ui/core'
 
 import { useProvision } from 'client/hooks'
 import { SingleBar } from 'client/components/Charts'
+import Count from 'client/components/Count'
 import { groupBy } from 'client/utils'
 import { T, PROVISIONS_STATES } from 'client/constants'
 
@@ -26,7 +27,8 @@ const TotalProvisionsByState = () => {
   const title = React.useMemo(() => (
     <div className={classes.title}>
       <Typography className={classes.titlePrimary}>
-        {`${totalProvisions} ${T.Provisions}`}
+        <Count number={`${totalProvisions}`} />
+        <span>{T.Provisions}</span>
       </Typography>
       <Typography className={classes.titleSecondary}>
         {T.InTotal}

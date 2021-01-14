@@ -10,7 +10,10 @@ export default makeStyles(theme => ({
   },
   titlePrimary: {
     fontSize: '2rem',
-    color: theme.palette.text.primary
+    color: theme.palette.text.primary,
+    '& span': {
+      marginLeft: '1rem'
+    }
   },
   titleSecondary: {
     fontSize: '1.4rem',

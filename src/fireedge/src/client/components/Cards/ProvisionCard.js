@@ -28,7 +28,9 @@ const ProvisionCard = memo(
       setBody({ ...json, image: json.image ?? DEFAULT_IMAGE })
     }, [])
 
-    const onError = evt => { evt.target.src = DEFAULT_IMAGE }
+    const onError = evt => {
+      evt.target.src = evt.target.src === DEFAULT_IMAGE ? DEFAULT_IMAGE : ''
+    }
 
     const imgSource = useMemo(() => (
       isExternalURL(image) ? image : `${IMAGES_URL}/${image}`

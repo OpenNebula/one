@@ -8,6 +8,7 @@ import {
 } from '@material-ui/icons'
 
 import { useProvision } from 'client/hooks'
+import Count from 'client/components/Count'
 import { WavesCard } from 'client/components/Cards'
 import { get } from 'client/utils'
 import { T } from 'client/constants'
@@ -46,25 +47,25 @@ const TotalProvisionInfrastructures = () => {
     >
       <WavesCard
         text={T.Clusters}
-        value={totals.clusters}
+        value={<Count number={`${totals.clusters}`} />}
         bgColor='#fa7892'
         icon={ClusterIcon}
       />
       <WavesCard
         text={T.Hosts}
-        value={totals.hosts}
+        value={<Count number={`${totals.hosts}`} />}
         bgColor='#b25aff'
         icon={HostIcon}
       />
       <WavesCard
         text={T.Datastores}
-        value={totals.datastores}
+        value={<Count number={`${totals.datastores}`} />}
         bgColor='#1fbbc6'
         icon={DatastoreIcon}
       />
       <WavesCard
         text={T.Networks}
-        value={totals.networks}
+        value={<Count number={`${totals.networks}`} />}
         bgColor='#f09d42'
         icon={NetworkIcon}
       />

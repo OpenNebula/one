@@ -1,9 +1,7 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { Typography } from '@material-ui/core'
-
-const Count = ({ start, number, duration, ...props }) => {
+const Count = ({ start, number, duration }) => {
   const [count, setCount] = React.useState('0')
 
   React.useEffect(() => {
@@ -23,21 +21,19 @@ const Count = ({ start, number, duration, ...props }) => {
     return () => clearInterval(timer)
   }, [start, number, duration])
 
-  return <Typography {...props}>{count}</Typography>
+  return count
 }
 
 Count.propTypes = {
   start: PropTypes.number,
   number: PropTypes.string,
-  duration: PropTypes.string,
-  component: PropTypes.elementType
+  duration: PropTypes.string
 }
 
 Count.defaultProps = {
   start: 0,
   number: '0',
-  duration: '1',
-  component: 'span'
+  duration: '1'
 }
 
 Count.displayName = 'Count'
