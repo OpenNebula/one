@@ -515,6 +515,20 @@ module VCenterDriver
         # Create and reconfigure VM related methods
         ########################################################################
 
+        # This function permit get a folder by name if exist
+        # or create it if not exist
+        def find_or_create_folder(folder_root, name)
+            folder_root.childEntity.each do |child|
+                if child.instance_of? RbVmomi::VIM::Folder
+                    if child.name == name
+                        return child
+                    end
+                end
+            end
+
+            folder_root.CreateFolder(:name => name)
+        end
+
         # This function creates a new VM from the
         # driver_action XML and returns the
         # VMware ref
@@ -563,9 +577,15 @@ module VCenterDriver
 
                 if vcenter_vm_folder_object.nil?
                     begin
-                        dc.item.vmFolder.CreateFolder(
-                            :name => vcenter_vm_folder
-                        )
+                        vcenter_vm_folder_list = vcenter_vm_folder.split("/")
+                        folder_root = dc.item.vmFolder
+
+                        vcenter_vm_folder_list.each do |folder_name|
+                            folder_root = find_or_create_folder(
+                                folder_root,
+                                folder_name
+                            )
+                        end
                     rescue StandardError => e
                         error_message = e.message
 			            if VCenterDriver::CONFIG[:debug_information]
