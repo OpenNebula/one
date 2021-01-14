@@ -1013,6 +1013,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
 
                 shown_ips << nic['IP'] if nic.key?('IP')
+                shown_ips << nic['EXTERNAL'] if nic.key?('EXTERNAL')
 
                 nic.merge!(nic_default) {|_k, v1, _v2| v1 }
                 array_id += 1
