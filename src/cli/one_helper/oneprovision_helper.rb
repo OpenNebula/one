@@ -246,7 +246,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                       WAIT_READY,
                       WAIT_TIMEOUT,
                       PROVIDER,
-                      USER_INPUTS]
+                      USER_INPUTS] + [OpenNebulaHelper::FORMAT]
 
     ONE_OPTIONS = CommandParser::OPTIONS +
                   CLIHelper::OPTIONS +
