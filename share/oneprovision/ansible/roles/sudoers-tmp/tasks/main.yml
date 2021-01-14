@@ -1,0 +1,11 @@
+- name: Overwrite opennebula sudoers (debian)
+  copy:
+    src: debian-opennebula
+    dest: /etc/sudoers.d/opennebula
+  when: ansible_os_family == "Debian"
+
+- name: Overwrite opennebula sudoers (redhat)
+  copy:
+    src: centos-opennebula
+    dest: /etc/sudoers.d/opennebula
+  when: ansible_os_family == "RedHat"
