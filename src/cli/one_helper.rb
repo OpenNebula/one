@@ -705,7 +705,7 @@ EOT
             else
                 rc = pool.info
 
-                return rc if OpenNebula.is_error?(rc)
+                return -1, rc.message if OpenNebula.is_error?(rc)
 
                 _, hash = print_page(pool, options)
 

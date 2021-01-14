@@ -75,6 +75,7 @@ define(function(require) {
 
     var tunnel = new Guacamole.WebSocketTunnel(wsprotocol + '//' + host + ':' + port + '/fireedge/guacamole')
     var guac = this._client = new Guacamole.Client(tunnel);
+    var vm_name = response.vm_name || "";
 
     // Client display
     this._display = $("#guacamole-display");
@@ -94,19 +95,19 @@ define(function(require) {
     guac.onstatechange = function(state) {
       switch (state) {
         case 0:
-          setStatus("Client IDLE");
+          setStatus("Client IDLE to: " + vm_name);
           setLoading(true);
         break;
         case 1:
-          setStatus("Client CONNECTING");
+          setStatus("Client CONNECTING to: " + vm_name);
           setLoading(true);
           break;
         case 2:
-          setStatus("Client WAITING");
+          setStatus("Client WAITING to: " + vm_name);
           setLoading(true);
           break;
         case 3:
-          setStatus("Client CONNECTED");
+          setStatus("Client CONNECTED to: " + vm_name);
           setLoading(false);
           setTimeout(function() {
             rescale(that);
@@ -114,15 +115,15 @@ define(function(require) {
           }, 100);
           break;
         case 4:
-          setStatus("Client DISCONNECTING");
+          setStatus("Client DISCONNECTING to: " + vm_name);
           setLoading(true);
           break;
         case 5:
-          setStatus("Client DISCONNECTED");
+          setStatus("Client DISCONNECTED to: " + vm_name);
           setLoading(false);
           break;
         default:
-          setStatus("Client ERROR");
+          setStatus("Client ERROR to: " + vm_name);
           setLoading(false);
           break;
       }

@@ -347,7 +347,9 @@ define(function(require) {
       type: "custom",
       call: function() {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          Sunstone.runAction("VM.startguac_action", elem, 'vnc');
+          var vm_name = OpenNebulaVM.getName(elem);
+          var extra_param = {type: 'vnc', 'vm_name': vm_name }
+          Sunstone.runAction("VM.startguac_action", elem, extra_param);
         });
       },
       error: function(req, resp) {
@@ -358,7 +360,9 @@ define(function(require) {
       type: "custom",
       call: function() {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          Sunstone.runAction("VM.startguac_action", elem, 'rdp');
+          var vm_name = OpenNebulaVM.getName(elem);
+          var extra_param = {type: 'rdp', 'vm_name': vm_name }
+          Sunstone.runAction("VM.startguac_action", elem, extra_param);
         });
       },
       error: function(req, resp) {
@@ -369,7 +373,9 @@ define(function(require) {
       type: "custom",
       call: function() {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          Sunstone.runAction("VM.startguac_action", elem, 'ssh');
+          var vm_name = OpenNebulaVM.getName(elem);
+          var extra_param = {type: 'ssh', 'vm_name': vm_name }
+          Sunstone.runAction("VM.startguac_action", elem, extra_param);
         });
       },
       error: function(req, resp) {

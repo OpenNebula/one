@@ -29,13 +29,13 @@ end
 # Logger
 ################################################################################
 $logger = Logger.new(
-            STDERR,
-            level: Logger::INFO,
-            datetime_format: '%Y-%m-%d %H:%M:%S',
-            formatter: proc { |severity, datetime, progname, msg|
-                        "#{datetime} [#{severity}]: #{msg}\n"
-            }
-        )
+    STDERR,
+    :level => Logger::INFO,
+    :datetime_format => '%Y-%m-%d %H:%M:%S',
+    :formatter => proc {|severity, datetime, _progname, msg|
+        "#{datetime} [#{severity}]: #{msg}\n"
+    }
+)
 
 #-------------------------------------------------------------------------------
 #  Set of vcenter clusters each one representing a opennebula host
@@ -48,8 +48,9 @@ $logger = Logger.new(
 #    @last_monitor_vm:   Timer for last monitor VM
 #-------------------------------------------------------------------------------
 class Cluster
+
     #---------------------------------------------------------------------------
-    #Constants
+    # Constants
     #  CLUSTER_PROPERTIES: ESX cluster properties
     #  RP_PROPERTIES: Resource pool properties
     #  VM_STATE_PROPERTIES: Properties for VM state changes
@@ -172,21 +173,21 @@ class Cluster
     def state_vm
         current_vm_states = vcenter_vms_state
 
-        # Check if we need a full sync
+        # Check if we need a full sync
         full_sync = false
         now = Time.now.to_i
-        if @last_sync.nil? or ((now - @last_sync) > VM_SYNC_TIME)
+        if @last_sync.nil? || ((now - @last_sync) > VM_SYNC_TIME)
             full_sync = true
             @last_sync = now
         end
 
-        str_info = ""
+        str_info = ''
         str_info << "SYNC_STATE=yes\nMISSING_STATE=#{VM_MISSING_STATE}\n" if full_sync
 
-        current_vm_states.each do |_,vm|
+        current_vm_states.each do |_, vm|
             vm_ref = vm[:deploy_id]
 
-            if full_sync or need_state_sync?(vm_ref, vm[:state])
+            if full_sync || need_state_sync?(vm_ref, vm[:state])
                 str_info << "VM = [ ID=\"#{vm[:id]}\", "
                 str_info << "DEPLOY_ID=\"#{vm[:deploy_id]}\", STATE=\"#{vm[:state]}\" ]\n"
             end
@@ -202,40 +203,46 @@ class Cluster
         view = @vic.vim
                    .serviceContent
                    .viewManager
-                   .CreateContainerView({
-                        container: @cluster.item,
-                        type:      ['VirtualMachine'],
-                        recursive: true
-                   })
+                   .CreateContainerView(
+                       {
+                           :container => @cluster.item,
+                            :type => ['VirtualMachine'],
+                            :recursive => true
+                       }
+                   )
 
         pc   = @vic.vim.serviceContent.propertyCollector
 
-        result = pc.RetrieveProperties(:specSet => [
-            RbVmomi::VIM.PropertyFilterSpec(
-                :objectSet => [
-                    :obj => view,
-                    :skip => true,
-                    :selectSet => [
-                        RbVmomi::VIM.TraversalSpec(
-                            :name => 'traverseEntities',
-                            :type => 'ContainerView',
-                            :path => 'view',
-                            :skip => false
-                        )
+        result = pc.RetrieveProperties(
+            :specSet => [
+                RbVmomi::VIM.PropertyFilterSpec(
+                    :objectSet => [
+                        :obj => view,
+                        :skip => true,
+                        :selectSet => [
+                            RbVmomi::VIM.TraversalSpec(
+                                :name => 'traverseEntities',
+                                :type => 'ContainerView',
+                                :path => 'view',
+                                :skip => false
+                            )
+                        ]
+                    ],
+                    :propSet => [
+                        {
+                            :type    => 'VirtualMachine',
+                            :pathSet => VM_STATE_PROPERTIES
+                        }
                     ]
-                ],
-
-                :propSet => [{
-                    :type    => 'VirtualMachine',
-                    :pathSet => VM_STATE_PROPERTIES
-                }]
-            )
-        ])
+                )
+            ]
+        )
 
         vms_hash = {}
 
         result.each do |r|
             next unless r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
+
             vms_hash[r.obj._ref] = r.to_hash
         end
 
@@ -251,17 +258,17 @@ class Cluster
             one_id = -1
             ids    = vmpool.retrieve_xmlelements("/VM_POOL/VM[DEPLOY_ID = '#{vm_ref}']")
 
-            ids.select {|vm|
-                hid = vm["HISTORY_RECORDS/HISTORY/HID"]
+            ids.select do |vm|
+                hid = vm['HISTORY_RECORDS/HISTORY/HID']
 
                 if hid
                     hid.to_i == @host_id
                 else
                     false
                 end
-            }
+            end
 
-            one_id = ids[0]["ID"] if ids[0]
+            one_id = ids[0]['ID'] if ids[0]
             next if one_id.to_i == -1
 
             vms[vm_ref] = {
@@ -313,7 +320,7 @@ class Cluster
 
         resource_usage_summary = @cluster.item.GetResourceUsage()
 
-        real_total_cpu     = resource_usage_summary.cpuCapacityMHz.to_f
+        real_total_cpu = resource_usage_summary.cpuCapacityMHz.to_f
         real_used_cpu = resource_usage_summary.cpuUsedMHz.to_f
         total_memory  = resource_usage_summary.memCapacityMB.to_i
         used_mem      = resource_usage_summary.memUsedMB.to_i
@@ -328,11 +335,11 @@ class Cluster
 
         free_cpu = total_cpu - used_cpu
 
-        free_mem  = total_memory - used_mem
+        free_mem = total_memory - used_mem
 
         unindent(<<-EOS)
             HYPERVISOR = vcenter
-            USEDMEMORY = "#{(used_mem * 1024)}"
+            USEDMEMORY = "#{used_mem * 1024}"
             FREEMEMORY = "#{free_mem}"
             USEDCPU    = "#{used_cpu.to_i}"
             FREECPU    = "#{free_cpu.to_i}"
@@ -388,33 +395,38 @@ class Cluster
     def resource_pool_info(mhz_core)
         rp_list = @cluster.get_resource_pool_list
 
-        view = @vic.vim.serviceContent.viewManager.CreateContainerView({
-            container: @cluster.item,
-            type:      ['ResourcePool'],
-            recursive: true
-        })
+        view =
+            @vic.vim.serviceContent.viewManager.CreateContainerView(
+                {
+                    :container => @cluster.item,
+                    :type => ['ResourcePool'],
+                    :recursive => true
+                }
+            )
 
         pc     = @vic.vim.serviceContent.propertyCollector
-        result = pc.RetrieveProperties(:specSet => [
-            RbVmomi::VIM.PropertyFilterSpec(
-                :objectSet => [
-                    :obj       => view,
-                    :skip      => true,
-                    :selectSet => [
-                        RbVmomi::VIM.TraversalSpec(
-                            :name => 'traverseEntities',
-                            :type => 'ContainerView',
-                            :path => 'view',
-                            :skip => false
-                        )
-                    ]
-                ],
-                :propSet => [{
-                    :type    => 'ResourcePool',
-                    :pathSet => RP_PROPERTIES
-                }]
-            )
-        ])
+        result = pc.RetrieveProperties(
+            :specSet => [
+                RbVmomi::VIM.PropertyFilterSpec(
+                    :objectSet => [
+                        :obj       => view,
+                        :skip      => true,
+                        :selectSet => [
+                            RbVmomi::VIM.TraversalSpec(
+                                :name => 'traverseEntities',
+                                :type => 'ContainerView',
+                                :path => 'view',
+                                :skip => false
+                            )
+                        ]
+                    ],
+                    :propSet => [{
+                        :type    => 'ResourcePool',
+                        :pathSet => RP_PROPERTIES
+                    }]
+                )
+            ]
+        )
 
         rps = {}
 
@@ -476,10 +488,10 @@ class Cluster
             mem_shares       = info['config.memoryAllocation.shares.shares']
 
             begin
-                rp_name = rp_list.select { |item|
+                rp_name = rp_list.select do |item|
                     item[:ref] == ref
-                }.first[:name]
-            rescue
+                end.first[:name]
+            rescue StandardError
                 rp_name = 'Resources'
             end
 
@@ -585,9 +597,9 @@ class Cluster
         elist.each do |ext_list|
             case ext_list.key
             when NSXDriver::NSXConstants::NSXV_EXTENSION_LIST
-                parts = ext_list.client[0].url.split("/")
+                parts = ext_list.client[0].url.split('/')
 
-                protocol = parts[0] + "//"
+                protocol = parts[0] + '//'
                 ip_port  = parts[2]
 
                 @nsx_obj['type']    = NSXDriver::NSXConstants::NSXV
@@ -619,12 +631,12 @@ class Cluster
     # Get a list vCenter datastores morefs
     #---------------------------------------------------------------------------
     def datastore_info
-        dc = @cluster.get_dc
+        dc = @cluster.datacenter
         ds = dc.datastore_folder
 
         ds_info = ''
 
-        ds.fetch!.each do |ref, ds|
+        ds.fetch!.each do |ref, _ds|
             ds_info << "VCENTER_DS_REF=\"#{ref}\"\n"
         end
 
@@ -661,9 +673,9 @@ class Cluster
 
         if create_nsx_client
             @nsx_client = NSXDriver::NSXClient.new_child(nsx_manager,
-                                                        nsx_user,
-                                                        nsx_password,
-                                                        nsx_type)
+                                                         nsx_user,
+                                                         nsx_password,
+                                                         nsx_type)
         end
 
         return '' if @nsx_client.nil?
@@ -689,7 +701,7 @@ class Cluster
             end
 
         else
-          raise "Unknown PortGroup type #{nsx_type}"
+            raise "Unknown PortGroup type #{nsx_type}"
         end
 
         nsx_info.chomp!(',')
@@ -713,6 +725,7 @@ end
 #
 #---------------------------------------------------------------------------
 class ClusterSet
+
     #---------------------------------------------------------------------------
     #  Constants
     #    CLUSTER_PROBES: to be executed. Each Cluster needs to respond to this
@@ -758,9 +771,9 @@ class ClusterSet
 
     # Del a host from the @cluster hash
     def del(hid)
-        @mutex.synchronize {
+        @mutex.synchronize do
             @clusters.delete(hid)
-        }
+        end
 
         $logger.info("Unregistered host #{hid}")
     end
@@ -778,7 +791,7 @@ class ClusterSet
         rc    = hpool.info
 
         if OpenNebula.is_error?(rc)
-            # Wait 5 seconds and retry
+            # Wait 5 seconds and retry
             sleep 5
             rc = hpool.info
             if OpenNebula.is_error?(rc)
@@ -786,10 +799,10 @@ class ClusterSet
             end
         end
 
-        $logger.info("Bootstraping list of clusters")
+        $logger.info('Bootstraping list of clusters')
 
         hpool.each do |h|
-            next if h['IM_MAD'] != 'vcenter' || h['STATE'] == '8' #offline
+            next if h['IM_MAD'] != 'vcenter' || h['STATE'] == '8' # offline
 
             $logger.info("Adding host #{h.name} (#{h.id})")
 
@@ -810,7 +823,7 @@ class ClusterSet
                 next if c[:cluster].nil?
 
                 if c[:monitordc].nil?
-                    next if conf[:address].nil? or conf[:port].nil?
+                    next if conf[:address].nil? || conf[:port].nil?
 
                     c[:monitordc] = MonitorClient.new(conf[:address],
                                                       conf[:port],
@@ -827,7 +840,8 @@ class ClusterSet
                         probe_frequency = conf[probe_name].to_i
                         next unless (Time.now.to_i - last_mon) > probe_frequency
 
-                        # Refresh the vCenter connection in the least frequent probe
+                        # Refresh the vCenter connection
+                        # in the least frequent probe
                         if probe_name.eql?(:system_host)
                             c[:cluster].connect_vcenter
                         end
@@ -872,4 +886,5 @@ class ClusterSet
             }
         end
     end
+
 end

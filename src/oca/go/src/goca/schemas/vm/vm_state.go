@@ -444,7 +444,7 @@ func (s LCMState) String() string {
 		return "DISK_RESIZE_UNDEPLOYED"
 	case HotplugNicPoweroff:
 		return "HOTPLUG_NIC_POWEROFF"
-	case HotplugrResize:
+	case HotplugResize:
 		return "HOTPLUG_RESIZE"
 	case HotplugSaveasUndeployed:
 		return "HOTPLUG_SAVEAS_UNDEPLOYED"

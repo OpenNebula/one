@@ -161,7 +161,7 @@ class OpenNebulaVMRC
 
         vm = VCenterDriver::VirtualMachine.new(vi_client, vm_ref, vm_id)
 
-        parameters = vm.get_html_console_parameters
+        parameters = vm.html_console_parameters
 
         data = {
             :host   => parameters[:host],

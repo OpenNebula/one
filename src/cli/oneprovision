@@ -189,7 +189,8 @@ CommandParser::CmdParser.new(ARGV) do
             provision_configure_desc,
             :provisionid,
             :options => [OneProvisionHelper::MODES,
-                         OneProvisionHelper::FORCE] do
+                         OneProvisionHelper::FORCE] +
+                            [OpenNebulaHelper::FORMAT] do
         helper.parse_options(options)
 
         rc = helper.configure(args[0], options.key?(:force))
@@ -214,7 +215,8 @@ CommandParser::CmdParser.new(ARGV) do
             :options => [OneProvisionHelper::MODES,
                          OneProvisionHelper::THREADS,
                          OneProvisionHelper::CLEANUP,
-                         OneProvisionHelper::CLEANUP_TIMEOUT] do
+                         OneProvisionHelper::CLEANUP_TIMEOUT] +
+                            [OpenNebulaHelper::FORMAT] do
         helper.parse_options(options)
 
         if options[:cleanup_timeout].nil?

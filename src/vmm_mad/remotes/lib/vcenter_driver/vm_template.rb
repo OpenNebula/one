@@ -49,9 +49,10 @@ module VCenterDriver
             return unless @locking
 
             @locking_file.close
-            if File.exist?('/tmp/vcenter-importer-lock')
-                File.delete('/tmp/vcenter-importer-lock')
-            end
+
+            return unless File.exist?('/tmp/vcenter-importer-lock')
+
+            File.delete('/tmp/vcenter-importer-lock')
         end
 
         def vm?
@@ -64,7 +65,7 @@ module VCenterDriver
             !@item['guest.net'].empty?
         end
 
-        def get_dc
+        def datacenter
             item = @item
 
             trace = []
@@ -102,28 +103,40 @@ module VCenterDriver
             template_name = "one-#{self['name']}" if template_name.empty?
 
             relocate_spec_params = {}
-            relocate_spec_params[:pool] = rp_get
-            relocate_spec = RbVmomi::VIM.VirtualMachineRelocateSpec(relocate_spec_params)
+            relocate_spec_params[:pool] = resource_pool
+            relocate_spec =
+                RbVmomi::VIM
+                .VirtualMachineRelocateSpec(
+                    relocate_spec_params
+                )
 
-            clone_spec = RbVmomi::VIM.VirtualMachineCloneSpec({
-                                                                  :location => relocate_spec,
-                :powerOn  => false,
-                :template => false
-                                                              })
+            clone_spec =
+                RbVmomi::VIM
+                .VirtualMachineCloneSpec(
+                    {
+                        :location => relocate_spec,
+                        :powerOn  => false,
+                        :template => false
+                    }
+                )
 
-            template = nil
             begin
-                template = @item.CloneVM_Task(:folder => @item.parent,
-                                              :name   => template_name,
-                                              :spec   => clone_spec).wait_for_completion
+                template =
+                    @item
+                    .CloneVM_Task(
+                        :folder => @item.parent,
+                        :name   => template_name,
+                        :spec   => clone_spec
+                    ).wait_for_completion
                 template_ref = template._ref
             rescue StandardError => e
                 if !e.message.start_with?('DuplicateName')
-                    error = "Could not create the template clone. Reason: #{e.message}"
+                    error = 'Could not create the template'\
+                            " clone. Reason: #{e.message}"
                     return error, nil
                 end
 
-                dc = get_dc
+                dc = datacenter
                 vm_folder = dc.vm_folder
                 vm_folder.fetch!
                 vm = vm_folder.items
@@ -133,15 +146,22 @@ module VCenterDriver
                 if vm
                     begin
                         vm.Destroy_Task.wait_for_completion
-                        template = @item.CloneVM_Task(:folder => @item.parent,
-                                                      :name   => template_name,
-                                                      :spec   => clone_spec).wait_for_completion
+                        template =
+                            @item
+                            .CloneVM_Task(
+                                :folder => @item.parent,
+                                :name   => template_name,
+                                :spec   => clone_spec
+                            ).wait_for_completion
                         template_ref = template._ref
                     rescue StandardError
-                        error = "Could not delete the existing template, please remove it manually from vCenter. Reason: #{e.message}"
+                        error = 'Could not delete the existing '\
+                                'template, please remove it manually'\
+                                " from vCenter. Reason: #{e.message}"
                     end
                 else
-                    error = "Could not create the template clone. Reason: #{e.message}"
+                    error = 'Could not create the template '\
+                            "clone. Reason: #{e.message}"
                 end
             end
 
@@ -151,8 +171,12 @@ module VCenterDriver
         # Linked Clone over existing template
         def create_delta_disks
             begin
-                disks = @item['config.hardware.device'].grep(RbVmomi::VIM::VirtualDisk)
-                disk_without_snapshots = disks.select {|x| x.backing.parent.nil? }
+                disks =
+                    @item['config.hardware.device']
+                    .grep(RbVmomi::VIM::VirtualDisk)
+                disk_without_snapshots = disks.select do |x|
+                    x.backing.parent.nil?
+                end
             rescue StandardError
                 error = 'Cannot extract existing disks on template.'
                 use_linked_clones = false
@@ -163,11 +187,16 @@ module VCenterDriver
 
                 begin
                     if self['config.template']
-                        @item.MarkAsVirtualMachine(:pool => rp_get, :host => self['runtime.host'])
+                        @item.MarkAsVirtualMachine(
+                            :pool => resource_pool,
+                            :host => self['runtime.host']
+                        )
                     end
                 rescue StandardError => e
                     @item.MarkAsTemplate()
-                    error = "Cannot mark the template as a VirtualMachine. Not using linked clones. Reason: #{e.message}/#{e.backtrace}"
+                    error = 'Cannot mark the template as a VirtualMachine. '\
+                            'Not using linked clones. '\
+                            "Reason: #{e.message}/#{e.backtrace}"
                     use_linked_clones = false
                     return error, use_linked_clones
                 end
@@ -177,48 +206,71 @@ module VCenterDriver
                     spec[:deviceChange] = []
 
                     disk_without_snapshots.each do |disk|
-                        remove_disk_spec = { :operation => :remove, :device => disk }
+                        remove_disk_spec =
+                            {
+                                :operation => :remove,
+                                :device => disk
+                            }
                         spec[:deviceChange] << remove_disk_spec
 
-                        add_disk_spec = { :operation => :add,
-                                        :fileOperation => :create,
-                                        :device => disk.dup.tap do |x|
-                                            x.backing = x.backing.dup
-                                            x.backing.fileName = "[#{disk.backing.datastore.name}]"
-                                            x.backing.parent = disk.backing
-                                        end }
+                        add_disk_spec =
+                            {
+                                :operation => :add,
+                                :fileOperation => :create,
+                                :device => disk.dup.tap do |x|
+                                    x.backing =
+                                        x.backing.dup
+                                    x.backing.fileName =
+                                        "[#{disk.backing.datastore.name}]"
+                                    x.backing.parent =
+                                        disk.backing
+                                end
+                            }
                         spec[:deviceChange] << add_disk_spec
                     end
 
-                    @item.ReconfigVM_Task(:spec => spec).wait_for_completion unless spec[:deviceChange].empty?
+                    @item
+                        .ReconfigVM_Task(
+                            :spec => spec
+                        ).wait_for_completion unless spec[:deviceChange].empty?
                 rescue StandardError => e
-                    error = "Cannot create the delta disks on top of the template. Reason: #{e.message}."
+                    error = 'Cannot create the delta disks on top '\
+                            "of the template. Reason: #{e.message}."
+
+                    if VCenterDriver::CONFIG[:debug_information]
+                        error += "\n\n#{e.backtrace}"
+                    end
+
                     use_linked_clones = false
                     return error, use_linked_clones
                 end
 
                 begin
                     @item.MarkAsTemplate()
-                rescue StandardError
-                    error = 'Cannot mark the VirtualMachine as a template. Not using linked clones.'
+                rescue StandardError => e
+                    error = 'Cannot mark the VirtualMachine as '\
+                            'a template. Not using linked clones.' \
+                            " Reason: #{e.message}."
+
+                    if VCenterDriver::CONFIG[:debug_information]
+                        error += "\n\n#{e.backtrace}"
+                    end
+
                     use_linked_clones = false
                     return error, use_linked_clones
                 end
-
-                error = nil
-                use_linked_clones = true
-                [error, use_linked_clones]
-            else
-                # Template already has delta disks
-                error = nil
-                use_linked_clones = true
-                [error, use_linked_clones]
             end
+
+            error = nil
+            use_linked_clones = true
+
+            [error, use_linked_clones]
         end
 
         ########################################################################
         # Import vcenter disks
-        # @param type [object] contains the type of the object(:object) and identifier(:id)
+        # @param type [object] contains the type of the object(:object) and
+        # identifier(:id)
         # @return error, template_disks
         ########################################################################
         def import_vcenter_disks(vc_uuid, dpool, ipool, type)
@@ -227,10 +279,10 @@ module VCenterDriver
             images = []
 
             begin
-                lock # Lock import operation, to avoid concurrent creation of images
+                # Lock import operation, to avoid concurrent creation of images
+                lock
 
-                # #ccr_ref = self["runtime.host.parent._ref"]
-                dc = get_dc
+                dc = datacenter
                 dc_ref = dc.item._ref
 
                 # Get disks and info required
@@ -245,14 +297,24 @@ module VCenterDriver
                     begin
                         ds_ref = disk[:datastore]._ref
                     rescue StandardError
-                        raise "The ISO #{disk[:path_wo_ds].name} cannot be found because the datastore was removed or deleted"
+                        raise "The ISO #{disk[:path_wo_ds].name} cannot "\
+                              'be found because the datastore was '\
+                              'removed or deleted'
                     end
-                    datastore_found = VCenterDriver::Storage.get_one_image_ds_by_ref_and_dc(ds_ref,
-                                                                                            dc_ref,
-                                                                                            vc_uuid,
-                                                                                            dpool)
+                    datastore_found =
+                        VCenterDriver::Storage
+                        .get_one_image_ds_by_ref_and_dc(
+                            ds_ref,
+                            dc_ref,
+                            vc_uuid,
+                            dpool
+                        )
+
                     if datastore_found.nil?
-                        error = "\n    ERROR: datastore #{disk[:datastore].name}: has to be imported first as an image datastore!\n"
+                        error = "\n    ERROR: datastore "\
+                                "#{disk[:datastore].name}: "\
+                                'has to be imported first as'\
+                                " an image datastore!\n"
 
                         # Rollback delete disk images
                         allocated_images.each do |i|
@@ -273,13 +335,18 @@ module VCenterDriver
                         :images => images
                     }
 
-                    image_import, image_name = VCenterDriver::Datastore.get_image_import_template(params)
+                    image_import, image_name =
+                        VCenterDriver::Datastore
+                        .get_image_import_template(
+                            params
+                        )
                     # Image is already in the datastore
                     if image_import[:one]
                         # This is the disk info
                         disk_tmp = ''
                         disk_tmp << "DISK=[\n"
-                        disk_tmp << "IMAGE_ID=\"#{image_import[:one]['ID']}\",\n"
+                        disk_tmp <<
+                            "IMAGE_ID=\"#{image_import[:one]['ID']}\",\n"
                         disk_tmp << "OPENNEBULA_MANAGED=\"NO\"\n"
                         disk_tmp << "]\n"
                         disk_info << disk_tmp
@@ -287,12 +354,18 @@ module VCenterDriver
                     elsif !image_import[:template].empty?
 
                         # Then the image is created as it's not in the datastore
-                        one_i = VCenterDriver::VIHelper.new_one_item(OpenNebula::Image)
+                        one_i =
+                            VCenterDriver::VIHelper
+                            .new_one_item(
+                                OpenNebula::Image
+                            )
                         allocated_images << one_i
-                        rc = one_i.allocate(image_import[:template], datastore_found['ID'].to_i, false)
+                        rc = one_i.allocate(image_import[:template],
+                                            datastore_found['ID'].to_i, false)
 
                         if OpenNebula.is_error?(rc)
-                            error = "    Error creating disk from template: #{rc.message}\n"
+                            error = '    Error creating disk from '\
+                                    "template: #{rc.message}\n"
                             break
                         end
 
@@ -300,7 +373,10 @@ module VCenterDriver
                         one_i.info
                         start_time = Time.now
 
-                        while (one_i.state_str != 'READY') && (Time.now - start_time < 300)
+                        first_condition = one_i.state_str != 'READY'
+                        second_condition = Time.now - start_time < 300
+
+                        while first_condition && second_condition
                             sleep 1
                             one_i.info
                         end
@@ -316,7 +392,13 @@ module VCenterDriver
                     end
                 end
             rescue StandardError => e
-                error = "\n    There was an error trying to create an image for disk in vcenter template. Reason: #{e.message}\n#{e.backtrace}"
+                error = "\n    There was an error trying to create an "\
+                        'image for disk in vcenter template. '\
+                        "Reason: #{e.message}"
+
+                if VCenterDriver::CONFIG[:debug_information]
+                    error += "\n\n#{e.backtrace}"
+                end
             ensure
                 unlock
                 if !error.empty? && allocated_images
@@ -330,64 +412,71 @@ module VCenterDriver
             [error, disk_info, allocated_images]
         end
 
+        ########################################################################
+        # Create AR
+        # @param nic [object] contains properties of the nic
+        # @param with_id [Boolean] determine if AR will contains AR_ID
+        # @param ipv4 [string] create the AR with a IPv4 address
+        # @param ipv6 [string] create the AR with a IPv6 address
+        #
+        # * in case of IPv6 we use a standard PREFIX_LENGTH = 64
+        # * if we pass ipv4 we force nic use that IPv4
+        # * if we pass ipv6 we force nic use that IPv6
+        # @return ar_tmp
+        ########################################################################
         def create_ar(nic, with_id = false, ipv4 = nil, ipv6 = nil)
-            ar_tmp = ''
+            ar_tmp = "AR=[\n"
+
+            # if ipv4 and ipv6 are defined create a IPv4 address with a static
+            # IPv6 address
             if ipv4 && ipv6
-                ar_tmp << "AR=[\n"
                 ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
                 ar_tmp << "IP=\"#{ipv4}\",\n"
                 ar_tmp << "IP6=\"#{ipv6}\",\n"
                 ar_tmp << "PREFIX_LENGTH=\"64\",\n"
-                ar_tmp << "SIZE=\"1\"\n"
-                ar_tmp << "]\n"
+            # if just ipv4 is defined create a AR with just a IPv4 address
             elsif ipv4
-                ar_tmp << "AR=[\n"
                 ar_tmp << "TYPE=\"IP4\",\n"
                 ar_tmp << "IP=\"#{ipv4}\",\n"
-                ar_tmp << "SIZE=\"1\"\n"
-                ar_tmp << "]\n"
+            # if just ipv6 is defined create a AR with just a IPv4 address
             elsif ipv6
-                ar_tmp << "AR=[\n"
                 ar_tmp << "TYPE=\"IP6_STATIC\",\n"
                 ar_tmp << "IP6=\"#{ipv6}\",\n"
                 ar_tmp << "PREFIX_LENGTH=\"64\",\n"
-                ar_tmp << "SIZE=\"1\"\n"
-                ar_tmp << "]\n"
+            # in case nic have defined mac, ipv4 and ipv6 create a AR with
+            # this configuration
             elsif nic[:mac] && nic[:ipv4] && nic[:ipv6]
-                ar_tmp << "AR=[\n"
                 ar_tmp << "AR_ID=0,\n" if with_id
                 ar_tmp << "TYPE=\"IP4_6_STATIC\",\n"
                 ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
                 ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
                 ar_tmp << "PREFIX_LENGTH=\"64\",\n"
-                ar_tmp << "SIZE=\"1\"\n"
-                ar_tmp << "]\n"
+            # in case nic have defined mac and ipv6 create a AR with
+            # this configuration
             elsif nic[:mac] && nic[:ipv6]
-                ar_tmp << "AR=[\n"
                 ar_tmp << "AR_ID=0,\n" if with_id
                 ar_tmp << "TYPE=\"IP6_STATIC\",\n"
                 ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
                 ar_tmp << "IP6=\"#{nic[:ipv6]}\",\n"
                 ar_tmp << "PREFIX_LENGTH=\"64\",\n"
-                ar_tmp << "SIZE=\"1\"\n"
-                ar_tmp << "]\n"
+            # in case nic have defined mac and ipv4 create a AR with
+            # this configuration
             elsif nic[:mac] && nic[:ipv4]
-                ar_tmp << "AR=[\n"
                 ar_tmp << "AR_ID=0,\n" if with_id
                 ar_tmp << "TYPE=\"IP4\",\n"
                 ar_tmp << "IP=\"#{nic[:ipv4]}\",\n"
                 ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                ar_tmp << "SIZE=\"1\"\n"
-                ar_tmp << "]\n"
+            # in case nic not have any default configuration create ETHER
             else
-                ar_tmp << "AR=[\n"
                 ar_tmp << "AR_ID=0,\n" if with_id
                 ar_tmp << "TYPE=\"ETHER\",\n"
                 ar_tmp << "MAC=\"#{nic[:mac]}\",\n"
-                ar_tmp << "SIZE=\"1\"\n"
-                ar_tmp << "]\n"
             end
+
+            ar_tmp << "SIZE=\"1\"\n"
+            ar_tmp << "]\n"
+
             ar_tmp
         end
 
@@ -396,20 +485,23 @@ module VCenterDriver
             ars_new = network_found.to_hash['VNET']['AR_POOL']['AR']
             ars_new = [ars_new] if ars_new.class.to_s.eql? 'Hash'
             last_id = ars_new.last['AR_ID']
-            if ar_ids.has_key?(nic[:net_ref])
+            if ar_ids.key?(nic[:net_ref])
                 ref = nic[:net_ref]
                 value = ar_ids[ref.to_s]
-                value.insert(value.length, last_id)
-                ar_ids.store(nic[:net_ref], value)
-            else
-                value.insert(value.length, last_id)
-                ar_ids.store(nic[:net_ref], value)
             end
+
+            value.insert(value.length, last_id)
+            ar_ids.store(nic[:net_ref], value)
 
             last_id
         end
 
-        def find_alias_ips_in_network(network, vm_object, alias_ipv4 = nil, alias_ipv6 = nil)
+        def find_alias_ips_in_network(
+            network,
+            vm_object,
+            alias_ipv4 = nil,
+            alias_ipv6 = nil
+        )
             ipv4 = ipv6 = ''
             return unless vm_object.is_a?(VCenterDriver::VirtualMachine)
 
@@ -436,7 +528,13 @@ module VCenterDriver
             [ipv4, ipv6]
         end
 
-        def find_ips_in_network(network, vm_object, nic, force = false, first_ip = false)
+        def find_ips_in_network(
+            network,
+            vm_object,
+            nic,
+            force = false,
+            first_ip = false
+        )
             ipv4 = ipv6 = ''
             ar_id = -1
             return unless vm_object.is_a?(VCenterDriver::VirtualMachine)
@@ -462,7 +560,8 @@ module VCenterDriver
 
                         ar_array = network.to_hash['VNET']['AR_POOL']['AR']
                         ar_array = [ar_array] if ar_array.is_a?(Hash)
-                        ipv4, ipv6, ar_id = find_ip_in_ar(ip, ar_array) if ar_array
+                        ipv4, ipv6, ar_id = find_ip_in_ar(ip,
+                                                          ar_array) if ar_array
 
                         if first_ip
                             return [ipv4, ipv6, ar_id]
@@ -480,34 +579,46 @@ module VCenterDriver
             ipv4 = ipv6 = ''
             ar_id = -1
             ar_array.each do |ar|
-                next unless ((ar.key?('IP') && ar.key?('IP_END')) || (ar.key?('IP6') && ar.key?('IP6_END')))
+                first_condition = ar.key?('IP') && ar.key?('IP_END')
+                second_condition = ar.key?('IP6') && ar.key?('IP6_END')
 
-                start_ip = IPAddr.new(ar['IP']) if !ar['IP'].nil?
-                end_ip = IPAddr.new(ar['IP_END']) if !ar['IP_END'].nil?
-                start_ip = IPAddr.new(ar['IP6']) if !ar['IP6'].nil?
-                end_ip = IPAddr.new(ar['IP6_END']) if !ar['IP6_END'].nil?
+                next unless first_condition || second_condition
+
+                start_ip = IPAddr.new(ar['IP']) unless ar['IP'].nil?
+                end_ip = IPAddr.new(ar['IP_END']) unless ar['IP_END'].nil?
+                start_ip = IPAddr.new(ar['IP6']) unless ar['IP6'].nil?
+                end_ip = IPAddr.new(ar['IP6_END']) unless ar['IP6_END'].nil?
 
                 next unless ip.family == start_ip.family &&
                             ip.family == end_ip.family
 
-                if ip >= start_ip && ip <= end_ip
-                    ipv4 = ip.to_s if ip.ipv4?
-                    ipv6 = ip.to_s if ip.ipv6?
-                    ar_id = ar['ID']
-                end
+                next unless ip >= start_ip && ip <= end_ip
+
+                ipv4 = ip.to_s if ip.ipv4?
+                ipv6 = ip.to_s if ip.ipv6?
+                ar_id = ar['ID']
             end
             [ipv4, ipv6, ar_id]
         end
 
         def nic_alias_from_nic(id, nic, nic_index, network_found, vm_object)
-            nic_tmp = ""
+            nic_tmp = ''
 
             nic_alias_index = 1
             if nic[:ipv4_additionals]
-                nic[:ipv4_additionals].split(",").each do |ipv4_additional|
-                    ipv4, ipv6 = find_alias_ips_in_network(network_found, vm_object, alias_ipv4 = ipv4_additional)
+                nic[:ipv4_additionals].split(',').each do |ipv4_additional|
+                    ipv4, ipv6 =
+                        find_alias_ips_in_network(
+                            network_found,
+                            vm_object,
+                            ipv4_additional
+                        )
                     if ipv4.empty? && ipv6.empty?
-                        ar_tmp = create_ar(nic, with_id = false, ipv4 = ipv4_additional)
+                        ar_tmp = create_ar(
+                            nic,
+                            false,
+                            ipv4_additional
+                        )
                         network_found.add_ar(ar_tmp)
                     end
                     network_found.info
@@ -515,17 +626,27 @@ module VCenterDriver
                     nic_tmp << "NIC_ALIAS=[\n"
                     nic_tmp << "NETWORK_ID=\"#{id}\",\n"
                     nic_tmp << "IP=\"#{ipv4_additional}\",\n"
-                    nic_tmp << "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
+                    nic_tmp <<
+                        "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
                     nic_tmp << "PARENT=\"NIC#{nic_index}\"\n"
                     nic_tmp << "]\n"
                     nic_alias_index += 1
                 end
             end
             if nic[:ipv6_additionals]
-                nic[:ipv6_additionals].split(",").each do |ipv6_additional|
-                    ipv4, ipv6 = find_alias_ips_in_network(network_found, vm_object, alias_ipv6 = ipv6_additional)
+                nic[:ipv6_additionals].split(',').each do |ipv6_additional|
+                    ipv4, ipv6 = find_alias_ips_in_network(
+                        network_found,
+                        vm_object,
+                        ipv6_additional
+                    )
                     if ipv4.empty? && ipv6.empty?
-                        ar_tmp = create_ar(nic, with_id = false, ipv4 = nil, ipv6 = ipv6_additional)
+                        ar_tmp = create_ar(
+                            nic,
+                            false,
+                            nil,
+                            ipv6_additional
+                        )
                         network_found.add_ar(ar_tmp)
                     end
                     network_found.info
@@ -533,7 +654,8 @@ module VCenterDriver
                     nic_tmp << "NIC_ALIAS=[\n"
                     nic_tmp << "NETWORK_ID=\"#{id}\",\n"
                     nic_tmp << "IP6=\"#{ipv6_additional}\",\n"
-                    nic_tmp << "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
+                    nic_tmp <<
+                        "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
                     nic_tmp << "PARENT=\"NIC#{nic_index}\"\n"
                     nic_tmp << "]\n"
                     nic_alias_index += 1
@@ -543,7 +665,7 @@ module VCenterDriver
             nic_tmp
         end
 
-        def nic_from_network_created(one_vn, nic, nic_index, vm_object, ar_ids)
+        def nic_from_network_created(one_vn, nic, nic_index, vm_object, _ar_ids)
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
             nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
@@ -554,7 +676,8 @@ module VCenterDriver
                 end
                 if nic[:ipv4_additionals]
                     nic_tmp <<
-                        "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n"
+                        'VCENTER_ADDITIONALS_IP4'\
+                        "=\"#{nic[:ipv4_additionals]}\",\n"
                 end
                 if nic[:ipv6]
                     nic_tmp <<
@@ -570,7 +693,8 @@ module VCenterDriver
                 end
                 if nic[:ipv6_additionals]
                     nic_tmp <<
-                        "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n"
+                        'VCENTER_ADDITIONALS_IP6'\
+                        "=\"#{nic[:ipv6_additionals]}\",\n"
                 end
             end
 
@@ -578,24 +702,33 @@ module VCenterDriver
             nic_tmp << "]\n"
 
             if vm?
-                nic_tmp << nic_alias_from_nic(one_vn.id, nic, nic_index, one_vn, vm_object)
+                nic_tmp << nic_alias_from_nic(one_vn.id, nic, nic_index,
+                                              one_vn, vm_object)
             end
 
             nic_tmp
         end
 
-        def nic_from_network_found(network_found, vm_object, nic, ar_ids, nic_index)
+        def nic_from_network_found(
+            network_found,
+            vm_object,
+            nic,
+            _ar_ids,
+            nic_index
+        )
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{network_found['ID']}\",\n"
             nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
 
             if vm?
-                ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic, false, true)
+                ipv4, ipv6 = find_ips_in_network(network_found, vm_object,
+                                                 nic, false, true)
                 if ipv4.empty? && ipv6.empty?
                     ar_tmp = create_ar(nic)
                     network_found.add_ar(ar_tmp)
                 end
-                ipv4, ipv6 = find_ips_in_network(network_found, vm_object, nic, true)
+                ipv4, ipv6 = find_ips_in_network(network_found, vm_object,
+                                                 nic, true)
                 network_found.info
 
                 # This is the existing nic info
@@ -606,7 +739,8 @@ module VCenterDriver
                 nic_tmp << "IP6=\"#{ipv6}\"," unless ipv6.empty?
                 if nic[:ipv4_additionals]
                     nic_tmp <<
-                        "VCENTER_ADDITIONALS_IP4=\"#{nic[:ipv4_additionals]}\",\n"
+                        'VCENTER_ADDITIONALS_IP4'\
+                        "=\"#{nic[:ipv4_additionals]}\",\n"
                 end
                 if nic[:ipv6]
                     nic_tmp << "VCENTER_IP6=\"#{nic[:ipv6]}\",\n"
@@ -622,7 +756,8 @@ module VCenterDriver
 
                 if nic[:ipv6_additionals]
                     nic_tmp <<
-                        "VCENTER_ADDITIONALS_IP6=\"#{nic[:ipv6_additionals]}\",\n"
+                        'VCENTER_ADDITIONALS_IP6'\
+                        "=\"#{nic[:ipv6_additionals]}\",\n"
                 end
             end
 
@@ -630,30 +765,38 @@ module VCenterDriver
             nic_tmp << "]\n"
 
             if vm?
-                nic_tmp << nic_alias_from_nic(network_found['ID'], nic, nic_index, network_found, vm_object)
+                nic_tmp <<
+                    nic_alias_from_nic(
+                        network_found['ID'],
+                        nic,
+                        nic_index,
+                        network_found,
+                        vm_object
+                    )
             end
 
             nic_tmp
         end
-
 
         # Creates an OpenNebula Virtual Network as part of the VM Template
         # import process. This only need to  happen if no VNET in OpenNebula
         # is present that refers to the network where the NIC of the VM Template
         # is hooked to.
         def create_network_for_import(
-            nic,
-            ccr_ref,
-            ccr_name,
-            vc_uuid,
-            vcenter_instance_name,
-            dc_name,
-            template_ref,
-            dc_ref,
-            vm_id,
-            hpool,
-            vi_client
+            opts
         )
+            nic = opts[:nic]
+            ccr_ref = opts[:ccr_ref]
+            ccr_name = opts[:ccr_name]
+            vc_uuid = opts[:vc_uuid]
+            vcenter_instance_name = opts[:vcenter_instance_name]
+            dc_name = opts[:dc_name]
+            template_ref = opts[:template_ref]
+            dc_ref = opts[:dc_ref]
+            vm_id = opts[:vm_id]
+            hpool = opts[:hpool]
+            vi_client = opts[:vi_client]
+
             config = {}
             config[:refs] = nic[:refs]
 
@@ -677,10 +820,10 @@ module VCenterDriver
             end
 
             net = VCenterDriver::Network
-                      .new_from_ref(
-                          nic[:net_ref],
-                          vi_client
-                      )
+                  .new_from_ref(
+                      nic[:net_ref],
+                      vi_client
+                  )
             if net
                 vid = VCenterDriver::Network.retrieve_vlanid(net.item)
             end
@@ -689,9 +832,9 @@ module VCenterDriver
             when VCenterDriver::Network::NETWORK_TYPE_DPG
                 config[:sw_name] =
                     nic[:network]
-                        .config
-                        .distributedVirtualSwitch
-                        .name
+                    .config
+                    .distributedVirtualSwitch
+                    .name
                 # For DistributedVirtualPortgroups
                 # there is networks and uplinks
                 config[:uplink] = false
@@ -699,9 +842,9 @@ module VCenterDriver
             when VCenterDriver::Network::NETWORK_TYPE_NSXV
                 config[:sw_name] =
                     nic[:network]
-                        .config
-                        .distributedVirtualSwitch
-                        .name
+                    .config
+                    .distributedVirtualSwitch
+                    .name
                 # For NSX-V ( is the same as
                 # DistributedVirtualPortgroups )
                 # there is networks and uplinks
@@ -712,9 +855,9 @@ module VCenterDriver
                 begin
                     nsx_client =
                         NSXDriver::NSXClient
-                            .new_from_id(
-                                host_id
-                            )
+                        .new_from_id(
+                            host_id
+                        )
                 rescue StandardError
                     nsx_client = nil
                 end
@@ -722,10 +865,10 @@ module VCenterDriver
                 if !nsx_client.nil?
                     nsx_net =
                         NSXDriver::VirtualWire
-                            .new_from_name(
-                                nsx_client,
-                                nic[:net_name]
-                            )
+                        .new_from_name(
+                            nsx_client,
+                            nic[:net_name]
+                        )
 
                     config[:nsx_id] = nsx_net.ls_id
                     config[:nsx_vni] = nsx_net.ls_vni
@@ -739,13 +882,13 @@ module VCenterDriver
                 config[:uplink] = false
                 config[:sw_name] =
                     VCenterDriver::Network
-                        .virtual_switch(
-                            nic[:network]
-                        )
+                    .virtual_switch(
+                        nic[:network]
+                    )
                 # NSX-T PortGroups
             when VCenterDriver::Network::NETWORK_TYPE_NSXT
                 config[:sw_name] = \
-                                nic[:network].summary.opaqueNetworkType
+                    nic[:network].summary.opaqueNetworkType
                 # There is no uplinks for NSX-T networks,
                 # so all NSX-T networks
                 # are networks and no uplinks
@@ -762,10 +905,10 @@ module VCenterDriver
                 if !nsx_client.nil?
                     nsx_net =
                         NSXDriver::OpaqueNetwork
-                            .new_from_name(
-                                nsx_client,
-                                nic[:net_name]
-                            )
+                        .new_from_name(
+                            nsx_client,
+                            nic[:net_name]
+                        )
 
                     config[:nsx_id] = nsx_net.ls_id
                     config[:nsx_vni] = nsx_net.ls_vni
@@ -834,28 +977,32 @@ module VCenterDriver
             one_vn.info
 
             one_vn
-
-       end
+        end
 
         def import_vcenter_nics(
-            vi_client,
-            vc_uuid,
-            npool,
-            hpool,
-            vcenter_instance_name,
-            template_ref,
-            vm_object,
+            opts,
             vm_id = nil,
             dc_name = nil
         )
+
+            vi_client = opts[:vi_client]
+            vc_uuid = opts[:vc_uuidv]
+            npool = opts[:npool]
+            hpool = opts[:hpool]
+            vcenter_instance_name = opts[:vcenter]
+            template_ref = opts[:template_moref]
+            vm_object = opts[:vm_object]
+
             nic_info = ''
             error = ''
             ar_ids = {}
             begin
-                lock # Lock import operation, to avoid concurrent creation of networks
+                # Lock import operation, to avoid
+                # concurrent creation of networks
+                lock
 
                 if !dc_name
-                    dc = get_dc
+                    dc = datacenter
                     dc_name = dc.item.name
                     dc_ref  = dc.item._ref
                 end
@@ -873,11 +1020,15 @@ module VCenterDriver
 
                 vc_nics.each do |nic|
                     # Check if the network already exists
-                    network_found = VCenterDriver::VIHelper.find_by_ref(OpenNebula::VirtualNetworkPool,
-                                                                        'TEMPLATE/VCENTER_NET_REF',
-                                                                        nic[:net_ref],
-                                                                        vc_uuid,
-                                                                        npool)
+                    network_found =
+                        VCenterDriver::VIHelper
+                        .find_by_ref(
+                            OpenNebula::VirtualNetworkPool,
+                            'TEMPLATE/VCENTER_NET_REF',
+                            nic[:net_ref],
+                            vc_uuid,
+                            npool
+                        )
                     # Network is already in OpenNebula
                     if network_found
                         nic_info << nic_from_network_found(network_found,
@@ -887,17 +1038,23 @@ module VCenterDriver
                                                            nic_index.to_s)
                     # Network not found
                     else
-                        one_vn = create_network_for_import(nic,
-                                                           ccr_ref,
-                                                           ccr_name,
-                                                           vc_uuid,
-                                                           vcenter_instance_name,
-                                                           dc_name,
-                                                           template_ref,
-                                                           dc_ref,
-                                                           vm_id,
-                                                           hpool,
-                                                           vi_client)
+                        opts = {
+                            :nic => nic,
+                            :ccr_ref => ccr_ref,
+                            :ccr_name => ccr_name,
+                            :vc_uuid => vc_uuid,
+                            :vcenter_instance_name => vcenter_instance_name,
+                            :dc_name => dc_name,
+                            :template_ref => template_ref,
+                            :dc_ref => dc_ref,
+                            :vm_id => vm_id,
+                            :hpool => hpool,
+                            :vi_client => vi_client
+                        }
+
+                        one_vn = create_network_for_import(
+                            opts
+                        )
 
                         allocated_networks << one_vn
 
@@ -1011,7 +1168,7 @@ module VCenterDriver
             disks
         end
 
-        def vcenter_nics_get
+        def vcenter_nics_list
             nics = []
             @item.config.hardware.device.each do |device|
                 nics << device if VCenterDriver::Network.nic?(device)
@@ -1120,30 +1277,29 @@ module VCenterDriver
 
                 nic = retrieve_from_device(device)
                 nic[:mac] = device.macAddress rescue nil
-                if vm?
-                    if online?
-                        inets_raw ||=
-                            @item['guest.net']
-                            .map
-                            .with_index {|x, _| [x.macAddress, x] }
-                        inets = parse_live.call(inets_raw) if inets.empty?
 
-                        if !inets[nic[:mac]].nil?
-                            ip_addresses =
-                                inets[nic[:mac]]
-                                .ipConfig
-                                .ipAddress rescue nil
-                        end
+                if vm? && online?
+                    inets_raw ||=
+                        @item['guest.net']
+                        .map
+                        .with_index {|x, _| [x.macAddress, x] }
+                    inets = parse_live.call(inets_raw) if inets.empty?
 
-                        if !ip_addresses.nil? && !ip_addresses.empty?
-                            nic[:ipv4],
-                            nic[:ipv4_additionals] = nil
-                            nic[:ipv6],
-                            nic[:ipv6_ula],
-                            nic[:ipv6_global],
-                            nic[:ipv6_additionals] = nil
-                            fill_nic(ip_addresses, nic)
-                        end
+                    if !inets[nic[:mac]].nil?
+                        ip_addresses =
+                            inets[nic[:mac]]
+                            .ipConfig
+                            .ipAddress rescue nil
+                    end
+
+                    if !ip_addresses.nil? && !ip_addresses.empty?
+                        nic[:ipv4],
+                        nic[:ipv4_additionals] = nil
+                        nic[:ipv6],
+                        nic[:ipv6_ula],
+                        nic[:ipv6_global],
+                        nic[:ipv6_additionals] = nil
+                        fill_nic(ip_addresses, nic)
                     end
                 end
                 nics << nic
@@ -1172,11 +1328,11 @@ module VCenterDriver
                         nic[:ipv6_ula] = ip
                     else
                         if nic[:ipv6]
-                           if nic[:ipv6_additionals]
-                               nic[:ipv6_additionals] += ',' + ip
-                           else
-                               nic[:ipv6_additionals] = ip
-                           end
+                            if nic[:ipv6_additionals]
+                                nic[:ipv6_additionals] += ',' + ip
+                            else
+                                nic[:ipv6_additionals] = ip
+                            end
                         else
                             nic[:ipv6] = ip
                         end
@@ -1186,17 +1342,21 @@ module VCenterDriver
         end
 
         def get_ipv6_prefix(ipv6, prefix_length)
-            ip_slice = ipv6.split(':').map {|elem| elem.hex }.map do |elem|
-                int, dec = elem.divmod(1)
-                bin = int.to_s(2).to_s
+            ip_slice =
+                ipv6
+                .split(':')
+                .map {|elem| elem.hex }
+                .map do |elem|
+                    int, dec = elem.divmod(1)
+                    bin = int.to_s(2).to_s
 
-                while dec > 0
-                    int, dec = (dec * 2).divmod(1)
-                    bin << int.to_s
-                end
+                    while dec > 0
+                        int, dec = (dec * 2).divmod(1)
+                        bin << int.to_s
+                    end
 
-                elem = bin
-            end.map {|elem| elem.rjust(16, '0') }
+                    bin
+                end.map {|elem| elem.rjust(16, '0') } # rubocop:disable Style/MultilineBlockChain
 
             ip_chain = ip_slice.join
             prefix = ip_chain[0, prefix_length]
@@ -1213,10 +1373,8 @@ module VCenterDriver
                 cont+=4
             end
 
-            slices
-                .map do |elem|
-                '%0x' % elem.to_i(2) # rubocop:disable Style/FormatString, Style/FormatStringToken
-            end.join.ljust(4, '0')
+            slices.map {|elem| format('%0x', elem.to_i(2)) }
+                  .join.ljust(4, '0')
         end
 
         #  Checks if a RbVmomi::VIM::VirtualDevice is a disk or a cdrom
@@ -1258,7 +1416,7 @@ module VCenterDriver
         end
 
         # @return RbVmomi::VIM::ResourcePool, first resource pool in cluster
-        def rp_get
+        def resource_pool
             self['runtime.host.parent.resourcePool']
         end
 
@@ -1461,7 +1619,7 @@ module VCenterDriver
 
                 # Get datacenter info
                 if !dc_name
-                    dc = get_dc
+                    dc = datacenter
                     dc_name = dc.item.name
                 end
 
@@ -1503,8 +1661,11 @@ module VCenterDriver
                 folders = []
                 until item.instance_of? RbVmomi::VIM::Datacenter
                     item = item.parent
-                    if !item.instance_of? RbVmomi::VIM::Datacenter
-                        folders << item.name if item.name != 'vm'
+                    unless item.instance_of?(
+                        RbVmomi::VIM::Datacenter &&
+                        item.name != 'vm'
+                    )
+                        folders << item.name
                     end
                     if item.nil?
                         raise 'Could not find the templates parent location'
@@ -1755,16 +1916,20 @@ module VCenterDriver
                     template_moref = selected[:vcenter_ref]
                 end
 
+                opts = {
+                    :vi_client => @vi_client,
+                    :vc_uuid => vc_uuid,
+                    :npool => npool,
+                    :hpool => hpool,
+                    :vcenter => vcenter,
+                    :template_moref => template_moref,
+                    :vm_object => nil
+                }
+
                 error, template_nics, _ar_ids, allocated_nets =
                     template
                     .import_vcenter_nics(
-                        @vi_client,
-                        vc_uuid,
-                        npool,
-                        hpool,
-                        vcenter,
-                        template_moref,
-                        nil,
+                        opts,
                         id,
                         dc
                     )

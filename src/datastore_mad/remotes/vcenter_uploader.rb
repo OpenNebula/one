@@ -19,11 +19,15 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION =
+        '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION =
+        '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
+    RUBY_LIB_LOCATION =
+        ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
+    GEMS_LOCATION =
+        ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -47,7 +51,7 @@ begin
     ds = VCenterDriver::Datastore.new_from_ref(target_ds_ref, vi_client)
 
     # Setting "." as the source will read from the stdin
-    source_path = "." if source_path.nil?
+    source_path = '.' if source_path.nil?
 
     ds.create_directory(File.dirname(target_path))
 
@@ -56,12 +60,13 @@ begin
     end
 
     puts target_path
-
-rescue Exception => e
+rescue StandardError => e
     STDERR.puts "Cannot upload image to datastore #{ds_id} "\
-                "Reason: \"#{e.message}\"\n#{e.backtrace}"
-    exit -1
+                "Reason: \"#{e.message}\""
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{e.backtrace}"
+    end
+    exit(-1)
 ensure
     vi_client.close_connection if vi_client
 end
-

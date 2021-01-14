@@ -63,15 +63,19 @@ module VCenterDriver
 
             template << template_disks
 
+            opts = {
+                :vi_client => @vi_client,
+                :vc_uuid => vc_uuid,
+                :npool => npool,
+                :hpool => hpool,
+                :vcenter => vc_name,
+                :template_moref => vm_ref,
+                :vm_object => vc_vm
+            }
+
             # Create images or get nics information for template
-            error, template_nics, ar_ids = vc_vm
-                                           .import_vcenter_nics(@vi_client,
-                                                                vc_uuid,
-                                                                npool,
-                                                                hpool,
-                                                                vc_name,
-                                                                vm_ref,
-                                                                vc_vm)
+            error, template_nics, ar_ids =
+                vc_vm.import_vcenter_nics(opts)
             opts = { :uuid => vc_uuid, :npool => npool, :error => error }
             Raction.delete_ars(ar_ids, opts) unless error.empty?
 
@@ -79,7 +83,7 @@ module VCenterDriver
             template << "VCENTER_ESX_HOST = #{vc_vm['runtime.host.name']}\n"
 
             # Get DS_ID for the deployment, the wild VM needs a System DS
-            dc_ref = vc_vm.get_dc.item._ref
+            dc_ref = vc_vm.datacenter.item._ref
             ds_ref = template.match(/^VCENTER_DS_REF *= *"(.*)" *$/)[1]
 
             ds_one = dpool.select do |e|

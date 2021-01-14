@@ -45,6 +45,7 @@ require 'nsx_driver'
 
 # Exceptions
 class DeleteNetworkError < StandardError; end
+
 class DeletePortgroupError < StandardError; end
 
 # FUNCTIONS
@@ -74,7 +75,7 @@ end
 
 vnet_xml = arguments_xml.xpath(VNET_XPATH).to_s
 
-template    = OpenNebula::XMLElement.new
+template = OpenNebula::XMLElement.new
 template.initialize_xml(vnet_xml, 'VNET')
 managed  = template['TEMPLATE/OPENNEBULA_MANAGED'] != 'NO'
 imported = template['TEMPLATE/VCENTER_IMPORTED']
@@ -109,7 +110,7 @@ begin
     ccr_ref = one_host['TEMPLATE/VCENTER_CCR_REF']
     cluster = VCenterDriver::ClusterComputeResource
               .new_from_ref(ccr_ref, vi_client)
-    dc = cluster.get_dc
+    dc = cluster.datacenter
 
     # NSX
     ls_id = template['TEMPLATE/NSX_ID']
@@ -148,7 +149,7 @@ begin
         cluster['host'].each do |host|
             # Step 3. Loop through hosts in clusters
             esx_host = VCenterDriver::ESXHost
-                        .new_from_ref(host._ref, vi_client)
+                       .new_from_ref(host._ref, vi_client)
 
             begin
                 esx_host.lock # Exclusive lock for ESX host operation
@@ -179,7 +180,7 @@ begin
         begin
             nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
             logical_switch = NSXDriver::VirtualWire
-                              .new(nsx_client, ls_id, nil, nil)
+                             .new(nsx_client, ls_id, nil, nil)
             logical_switch.delete_logical_switch
         rescue StandardError => e
             err_msg = e.message
@@ -191,14 +192,13 @@ begin
         begin
             nsx_client = NSXDriver::NSXClient.new_from_id(host_id)
             logical_switch = NSXDriver::OpaqueNetwork
-                              .new(nsx_client, ls_id, nil, nil)
+                             .new(nsx_client, ls_id, nil, nil)
             logical_switch.delete_logical_switch
         rescue StandardError => e
             err_msg = e.message
             raise DeletePortgroupError, err_msg
         end
     end
-
 rescue DeleteNetworkError => e
     STDERR.puts e.message
     STDERR.puts e.backtrace if VCenterDriver::CONFIG[:debug_information]

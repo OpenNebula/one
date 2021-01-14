@@ -22,6 +22,7 @@ require 'provision/provision_pool'
 require 'provision/resources'
 require 'provision/utils'
 
+require 'base64'
 require 'logger'
 require 'singleton'
 
@@ -46,7 +47,18 @@ module OneProvision
             format = '%Y-%m-%d %H:%M:%S'
 
             instance.logger.formatter = proc do |severity, datetime, _p, msg|
-                "#{datetime.strftime(format)} #{severity.ljust(5)} : #{msg}\n"
+                if options[:json]
+                    "{ \"timestamp\": \"#{datetime}\", " \
+                    " \"severity\": \"#{severity}\", " \
+                    " \"message\": \"#{Base64.strict_encode64(msg)}\"}\n"
+                elsif options[:xml]
+                    "<TIMESTAMP>#{datetime}</TIMESTAMP>" \
+                    "<SEVERITY>#{severity}</SEVERITY>" \
+                    "<MESSAGE>#{Base64.strict_encode64(msg)}</MESSAGE>\n"
+                else
+                    "#{datetime.strftime(format)} #{severity.ljust(5)} " \
+                    ": #{msg}\n"
+                end
             end
 
             if options.key? :debug

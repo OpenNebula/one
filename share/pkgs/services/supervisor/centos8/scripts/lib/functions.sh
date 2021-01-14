@@ -4,12 +4,12 @@
 
 msg()
 (
-    echo "[SUPERVISOR]: ${SUPERVISOR_PROCESS_NAME}: $*"
+    echo "$(date '+%F %T') [SUPERVISOR]: ${SUPERVISOR_PROCESS_NAME}: $*"
 )
 
 err()
 (
-    echo "[SUPERVISOR] [!] ERROR: ${SUPERVISOR_PROCESS_NAME}: $*"
+    echo "$(date '+%F %T') [SUPERVISOR] [!] ERROR: ${SUPERVISOR_PROCESS_NAME}: $*"
 )
 
 is_running()
