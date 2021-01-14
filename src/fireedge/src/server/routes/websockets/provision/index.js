@@ -26,10 +26,7 @@ const main = (app = {}) => {
         subscriber(
           'oneprovision',
           data => {
-            app.emit(type, {
-              id: data.id,
-              data: data.message
-            })
+            app.emit(type, data)
           }
         )
       })

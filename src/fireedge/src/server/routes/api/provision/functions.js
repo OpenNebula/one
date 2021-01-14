@@ -34,6 +34,7 @@ const { messageTerminal } = require('server/utils/general')
 
 const appConfig = getConfig()
 const prependCommand = appConfig.oneprovision_prepend_command || ''
+const optionalCreateCommand = appConfig.oneprovision_optional_create_command || ''
 
 const eventsEmitter = new events.EventEmitter()
 const defaultError = (err = '', message = 'Error: %s') => ({
@@ -239,6 +240,15 @@ const addPrependCommand = (command = '', resource = '') => {
   }
 }
 
+const addOptionalCreateCommand = () =>{
+  let rtn = []
+  if(optionalCreateCommand){
+    rtn.push(optionalCreateCommand)
+  }
+  return rtn
+}
+
+
 const executeCommandAsync = (
   command = '',
   resource = '',
@@ -335,6 +345,7 @@ const functionRoutes = {
   executeCommandAsync,
   findRecursiveFolder,
   publish,
+  addOptionalCreateCommand,
   subscriber
 }
 

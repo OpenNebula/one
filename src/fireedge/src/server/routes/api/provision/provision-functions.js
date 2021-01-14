@@ -14,6 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const { parse } = require('yaml')
+const { v4 } = require('uuid')
 const { Validator } = require('jsonschema')
 const { createWriteStream } = require('fs-extra')
 const { lockSync, checkSync, unlockSync } = require('lockfile')
@@ -39,7 +40,8 @@ const {
   publish,
   getFiles,
   getDirectories,
-  getEndpoint
+  getEndpoint,
+  addOptionalCreateCommand
 } = require('./functions')
 const { provision } = require('./schemas')
 
@@ -239,15 +241,17 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
   const { user, password } = userData
   const rtn = httpInternalError
   if (params && params.id && user && password) {
+    const command = 'delete'
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['delete', params.id, '--batch', '--debug', ...authCommand, ...endpoint]
+    const paramsCommand = [command, params.id, '--batch', '--debug', '--json', ...authCommand, ...endpoint]
     let lastLine = ''
+    const uuid = v4()
     const emit = message => {
       message.toString().split(/\r|\n/).map(line => {
         if (line) {
           lastLine = line
-          publish(defaultCommandProvision, { id: params.id, message: lastLine })
+          publish(defaultCommandProvision, { id: params.id, message: lastLine, command: command, commandId: uuid })
         }
       })
     }
@@ -355,10 +359,12 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
   const rtn = httpInternalError
   if (params && params.resource && user && password) {
     const authCommand = ['--user', user, '--password', password]
+    const optionalCommand = addOptionalCreateCommand()
     const endpoint = getEndpoint()
     const resource = parsePostData(params.resource)
     const content = createYMLContent(resource)
     if (content) {
+      const command = 'create';
       const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: configFile.name, ext: configFile.ext, content }])
       if (files && files.name && files.files) {
         const find = (val = '', ext = '', arr = files.files) => arr.find(e => e && e.path && e.ext && e.name && e.name === val && e.ext === ext)
@@ -366,9 +372,11 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
         const log = find(logFile.name, logFile.ext)
         if (config && log) {
           const create = (filedata = '') => {
-            const paramsCommand = ['create', config.path, '--batch', '--debug', ...authCommand, ...endpoint]
+            const paramsCommand = [command, config.path, '--batch', '--debug', '--json', ...optionalCommand, ...authCommand, ...endpoint]
+            console.log("-->", paramsCommand)
             let lastLine = ''
             var stream = createWriteStream(log.path, { flags: 'a' })
+            const uuid = v4()
             const emit = message => {
               message.toString().split(/\r|\n/).map(line => {
                 if (line) {
@@ -385,7 +393,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                   }
                   lastLine = line
                   stream.write(`${line}\n`)
-                  publish(defaultCommandProvision, { id: files.name, message: line })
+                  publish(defaultCommandProvision, { id: files.name, message: line, command: command,commandId: uuid })
                 }
               })
             }
@@ -461,15 +469,17 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
   const { user, password } = userData
   const rtn = httpInternalError
   if (params && params.id && user && password) {
+    const command = 'configure'
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['configure', params.id, '--debug', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
+    const paramsCommand = [command, params.id, '--debug', '--json', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
     let lastLine = ''
+    const uuid = v4();
     const emit = message => {
       message.toString().split(/\r|\n/).map(line => {
         if (line) {
           lastLine = line
-          publish(defaultCommandProvision, { id: params.id, message: lastLine })
+          publish(defaultCommandProvision, { id: params.id, message: lastLine, command: command, commandId: uuid })
         }
       })
     }
