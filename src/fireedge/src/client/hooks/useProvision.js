@@ -147,6 +147,7 @@ export default function useProvision () {
       serviceProvision
         .deleteProvision({ id })
         .then(() => dispatch(enqueueSuccess(`Provision deleted - ID: ${id}`)))
+        .then(() => getProvisions())
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provision')))
     , [dispatch]
   )
