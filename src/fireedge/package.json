@@ -76,6 +76,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.2",
     "dagre": "^0.8.5",
+    "dompurify": "^2.2.6",
     "express": "^4.14.0",
     "fs-extra": "^9.0.1",
     "fuse.js": "^6.4.1",

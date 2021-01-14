@@ -1,13 +1,15 @@
 import React, { useCallback } from 'react'
-import { Divider, Select, Breadcrumbs } from '@material-ui/core'
+import { Divider, Select, Breadcrumbs, Link } from '@material-ui/core'
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
 
 import { useProvision, useListForm, useGeneral } from 'client/hooks'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
+import { isExternalURL, sanitize } from 'client/utils'
 import { T } from 'client/constants'
 
 import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/Create/Steps/Provider'
+import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Provisions/Form/Create/Steps/BasicConfiguration'
 import { STEP_ID as INPUTS_ID } from 'client/containers/Provisions/Form/Create/Steps/Inputs'
 import { STEP_FORM_SCHEMA } from 'client/containers/Provisions/Form/Create/Steps/Template/schema'
 
@@ -25,6 +27,7 @@ const Template = () => ({
 
     const { showError } = useGeneral()
     const { provisionsTemplates, providers } = useProvision()
+    const provisionSelectedDescription = provisionsTemplates?.[provisionSelected]?.description
     const providersTypes = provisionsTemplates?.[provisionSelected]?.provisions ?? []
     const templatesAvailable = providersTypes?.[providerSelected] ?? []
 
@@ -46,7 +49,7 @@ const Template = () => ({
     }
 
     const handleClick = (template, isSelected) => {
-      const { name, provision_type: provisionType, provider, defaults, hosts } = template
+      const { name, description, provision_type: provisionType, provider, defaults, hosts } = template
 
       if ([name, provisionType, provider].includes(undefined)) {
         showError({ message: 'This template has bad format. Ask your cloud administrator' })
@@ -54,7 +57,11 @@ const Template = () => ({
         // reset rest of form when change template
         const providerName = defaults?.provision?.provider_name ?? hosts?.[0]?.provision.provider_name
         const { ID } = providers?.find(({ NAME }) => NAME === providerName) ?? {}
-        setFormData({ [INPUTS_ID]: undefined, [PROVIDER_ID]: [ID] })
+        setFormData({
+          [PROVIDER_ID]: [ID],
+          [CONFIGURATION_ID]: { name, description },
+          [INPUTS_ID]: undefined
+        })
 
         isSelected
           ? handleUnselect(name, item => item.name === name)
@@ -66,8 +73,17 @@ const Template = () => ({
       <option key={option} value={option}>{option}</option>
     ))
 
+    const RenderDescription = ({ description = '' }) => (
+      <p>{(sanitize`${description}`)?.split(' ').map((string, idx) =>
+        isExternalURL(string)
+          ? <Link key={`link-${idx}`} color='textPrimary' href={string}>{string}</Link>
+          : ` ${string}`
+      )}</p>
+    )
+
     return (
       <>
+        {/* -- SELECTORS -- */}
         <Breadcrumbs separator={<ArrowIcon color="secondary" />}>
           <Select
             color='secondary'
@@ -94,12 +110,26 @@ const Template = () => ({
             <RenderOptions options={providersTypes} />
           </Select>}
         </Breadcrumbs>
+
+        {/* -- DESCRIPTION -- */}
+        {React.useMemo(() => provisionSelectedDescription && (
+          <RenderDescription description={provisionSelectedDescription} />
+        ), [provisionSelectedDescription])}
+
         <Divider style={{ margin: '1rem 0' }} />
+
+        {/* -- LIST -- */}
         <ListCards
           keyProp='name'
           list={templatesAvailable}
           EmptyComponent={
-            <EmptyCard title={'Your providers templates list is empty'} />
+            <EmptyCard title={
+              !provisionSelected
+                ? 'Please choose your provision type'
+                : !providerSelected
+                  ? 'Please choose your provider type'
+                  : 'Your provisions templates list is empty'
+            } />
           }
           CardComponent={ProvisionTemplateCard}
           cardsProps={({ value = {} }) => {

@@ -47,7 +47,8 @@ function ProvisionCreateForm () {
       ?.find(provisionTemplate => provisionTemplate.name === name)
 
   const onSubmit = formData => {
-    const { template, provider, inputs } = formData
+    const { template, provider, configuration, inputs } = formData
+    const { name, description } = configuration
     const provisionTemplateSelected = template?.[0] ?? {}
     const providerIdSelected = provider?.[0]
     const providerName = providers?.find(({ ID }) => ID === providerIdSelected)?.NAME
@@ -66,8 +67,11 @@ function ProvisionCreateForm () {
     }
 
     const parseInputs = mapUserInputs(inputs)
+
     const formatData = {
       ...provisionTemplate,
+      name,
+      description,
       inputs: provisionTemplate?.inputs
         ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
     }

@@ -43,14 +43,16 @@ module.exports = {
 
   /* steps form */
   /* steps form - flow */
-  ApplicationOverview: 'Application Overview',
+  ApplicationOverview: 'Application overview',
   WhereWillItRun: 'Where will it run?',
-  ConfigureNetworking: 'Configure Networking',
-  TierDefinition: 'Tier Definition',
+  ConfigureNetworking: 'Configure networking',
+  TierDefinition: 'Tier definition',
   ConfigureTiers: 'Configure Tiers',
   ConfigurePolicies: 'Configure policies',
   ConfigureTemplate: 'Configure template',
   /* steps form - provision */
+  ProviderOverview: 'Provider overview',
+  ProvisionOverview: 'Provision overview',
   ConfigureConnection: 'Configure connection',
   Location: 'Location',
   ProviderTemplate: 'Provider template',

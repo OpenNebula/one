@@ -68,7 +68,7 @@ const SelectCard = memo(({
               }}
               title={title}
               titleTypographyProps={{
-                variant: 'body2',
+                variant: 'body1',
                 noWrap: true,
                 className: classes.header,
                 title

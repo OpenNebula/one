@@ -41,7 +41,7 @@ const Connection = () => ({
         connection: { [locationKey]: _, ...connectionEditable } = {}
       } = providerTemplate
 
-      connection = connectionEditable ?? {}
+      connection = connectionEditable
       setFields(FORM_FIELDS(connection))
 
       // set defaults connection values when first render

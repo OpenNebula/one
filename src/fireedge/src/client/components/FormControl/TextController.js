@@ -8,11 +8,12 @@ import { Tr } from 'client/components/HOC'
 import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 
 const TextController = memo(
-  ({ control, cy, type, name, label, error, fieldProps }) => (
+  ({ control, cy, type, multiline, name, label, error, fieldProps }) => (
     <Controller
       render={({ value, ...props }) =>
         <TextField
           fullWidth
+          multiline={multiline}
           color='secondary'
           value={value ?? ''}
           type={type}
@@ -37,6 +38,7 @@ TextController.propTypes = {
   control: PropTypes.object,
   cy: PropTypes.string,
   type: PropTypes.string,
+  multiline: PropTypes.bool,
   name: PropTypes.string.isRequired,
   label: PropTypes.string,
   error: PropTypes.oneOfType([
@@ -50,6 +52,7 @@ TextController.defaultProps = {
   control: {},
   cy: 'cy',
   type: 'text',
+  multiline: false,
   name: '',
   label: '',
   error: false,

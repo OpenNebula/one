@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
   footer: {
-    color: theme.palette.common.white,
+    color: theme.palette.primary.contrastText,
     backgroundColor: theme.palette.primary.light,
     position: 'absolute',
     bottom: 0,
@@ -18,7 +18,7 @@ export default makeStyles(theme => ({
     color: theme.palette.error.dark
   },
   link: {
-    color: theme.palette.common.white,
+    color: theme.palette.primary.contrastText,
     marginLeft: theme.spacing(1)
   }
 }))

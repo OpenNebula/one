@@ -1,6 +1,15 @@
+import DOMPurify from 'dompurify'
+
 export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export const isExternalURL = url => RegExp(/^(http|https):/g).test(url)
+
+export function sanitize (strings, ...values) {
+  const dirty = strings.reduce((prev, next, i) =>
+    `${prev}${next}${values[i] || ''}`, '')
+
+  return DOMPurify.sanitize(dirty)
+}
 
 export const addOpacityToColor = (color, opacity) => {
   const opacityHex = Math.round(opacity * 255).toString(16)

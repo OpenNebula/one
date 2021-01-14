@@ -7,7 +7,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Typography
 } from '@material-ui/core'
 
 import SubmitButton from 'client/components/FormControl/SubmitButton'
@@ -18,6 +19,7 @@ const DialogConfirmation = memo(
   ({
     open,
     title,
+    subheader,
     contentProps,
     handleAccept,
     acceptButtonProps,
@@ -34,7 +36,7 @@ const DialogConfirmation = memo(
         onEntering={handleEntering}
         open={open}
         onClose={handleCancel}
-        maxWidth="lg"
+        maxWidth='lg'
         scroll="paper"
         PaperProps={{
           style: {
@@ -43,7 +45,10 @@ const DialogConfirmation = memo(
           }
         }}
       >
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle disableTypography>
+          <Typography variant='h6'>{title}</Typography>
+          {subheader && <Typography variant='subtitle1'>{subheader}</Typography>}
+        </DialogTitle>
         <DialogContent dividers {...contentProps}>
           {children}
         </DialogContent>
@@ -52,7 +57,7 @@ const DialogConfirmation = memo(
             {handleCancel && (
               <Button
                 onClick={handleCancel}
-                data-cy="dg-cancel-button"
+                data-cy='dg-cancel-button'
                 {...cancelButtonProps}
               >
                 {Tr(T.Cancel)}
@@ -61,7 +66,7 @@ const DialogConfirmation = memo(
             {handleAccept && (
               <SubmitButton
                 color='secondary'
-                data-cy="dg-accept-button"
+                data-cy='dg-accept-button'
                 onClick={handleAccept}
                 label={Tr(T.Accept)}
                 {...acceptButtonProps}
@@ -77,6 +82,7 @@ const DialogConfirmation = memo(
 DialogConfirmation.propTypes = {
   open: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
+  subheader: PropTypes.string,
   contentProps: PropTypes.objectOf(PropTypes.any),
   handleAccept: PropTypes.func,
   acceptButtonProps: PropTypes.objectOf(PropTypes.any),
@@ -92,6 +98,7 @@ DialogConfirmation.propTypes = {
 DialogConfirmation.defaultProps = {
   open: true,
   title: 'Confirmation dialog',
+  subheader: undefined,
   contentProps: undefined,
   handleAccept: undefined,
   acceptButtonProps: undefined,

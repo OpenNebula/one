@@ -20,7 +20,7 @@ const ProvisionCard = memo(
     const [{ image, ...body }, setBody] = useState({})
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-    const { NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
+    const { ID, NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
     const stateInfo = PROVISIONS_STATES[body?.state]
 
     useEffect(() => {
@@ -36,7 +36,7 @@ const ProvisionCard = memo(
 
     return (
       <SelectCard
-        title={NAME}
+        title={`(ID: ${ID}) - ${NAME}`}
         isSelected={isSelected}
         handleClick={handleClick}
         action={actions?.map(action => <Action key={action?.cy} {...action} />)}

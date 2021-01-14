@@ -47,7 +47,7 @@ const Info = memo(({ data }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography>{description}</Typography>
+              <Typography noWrap>{description}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>

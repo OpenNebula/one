@@ -14,6 +14,7 @@ const Info = memo(({ data }) => {
   const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
   const {
     connection,
+    description,
     provider: providerName,
     registration_time: time
   } = TEMPLATE?.PROVISION_BODY
@@ -37,6 +38,10 @@ const Info = memo(({ data }) => {
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
               <Typography>{NAME}</Typography>
+            </ListItem>
+            <ListItem>
+              <Typography >{Tr(T.Description)}</Typography>
+              <Typography noWrap>{description}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>

@@ -34,6 +34,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
           htmlType,
           label,
           values,
+          multiline,
           multiple,
           dependOf,
           tooltip,
@@ -66,6 +67,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
                     name: inputName,
                     label,
                     tooltip,
+                    multiline,
                     multiple,
                     values: typeof values === 'function'
                       ? values(dependValue)
