@@ -82,14 +82,11 @@ AllCops:
     - src/im_mad/remotes/kvm-probes.d/pci.rb
     - src/im_mad/remotes/kvm.d/monitord-client.rb
     - src/im_mad/remotes/lxd.d/monitord-client.rb
-    - src/im_mad/remotes/vcenter.d/poll
     - src/im_mad/remotes/packet.d/poll
     - src/im_mad/remotes/ec2.d/poll
     - src/im_mad/remotes/one.d/poll
     - src/im_mad/remotes/az.d/poll
     - src/im_mad/remotes/lib/vcenter_cluster.rb
-    - src/im_mad/remotes/lib/vcenter_monitor.rb
-    - src/im_mad/remotes/lib/vcenter_monitor_vms.rb
     - src/vnm_mad/remotes/ovswitch/post
     - src/vnm_mad/remotes/ovswitch/clean
     - src/vnm_mad/remotes/ovswitch/pre
@@ -183,8 +180,6 @@ AllCops:
     - src/cli/one
     - share/scons/po2json.rb
     - share/sudoers/sudo_commands.rb
-    - share/hooks/vcenter/delete_vcenter_net.rb
-    - share/hooks/vcenter/create_vcenter_net.rb
     - share/hooks/ft/host_error.rb
     - share/instance_types/ec2-instance-types.rb
     - share/instance_types/az-instance-types.rb
@@ -274,8 +269,6 @@ AllCops:
     - src/sunstone/routes/vcenter.rb
     - src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb
     - src/onegate/onegate-server.rb
-    - src/datastore_mad/remotes/vcenter_downloader.rb
-    - src/datastore_mad/remotes/vcenter_uploader.rb
     - src/datastore_mad/remotes/xpath.rb
     - src/datastore_mad/remotes/url.rb
     - src/datastore_mad/one_datastore.rb
@@ -315,7 +308,6 @@ AllCops:
     - src/cli/one_helper/oneuser_helper.rb
     - src/cli/one_helper/onegroup_helper.rb
     - src/cli/one_helper/onevnet_helper.rb
-    - src/cli/one_helper/onevcenter_helper.rb
     - src/cli/one_helper/onecluster_helper.rb
     - src/cli/one_helper/onevntemplate_helper.rb
     - src/cli/one_helper/onevrouter_helper.rb
@@ -386,8 +378,6 @@ AllCops:
     - src/oca/ruby/deprecated/OpenNebula.rb
     - src/vmm_mad/dummy/one_vmm_dummy.rb
     - src/vmm_mad/remotes/one/opennebula_driver.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/virtual_machine.rb
-    - src/vmm_mad/remotes/lib/vcenter_driver/vm_template.rb
     - src/vmm_mad/remotes/lib/lxd/mapper/qcow2.rb
     - src/vmm_mad/remotes/lib/lxd/mapper/mapper.rb
     - src/vmm_mad/remotes/lib/lxd/mapper/rbd.rb

@@ -19,17 +19,17 @@
 ONE_LOCATION ||= ENV['ONE_LOCATION']
 
 if !ONE_LOCATION
-  RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-  GEMS_LOCATION     ||= '/usr/share/one/gems'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
-  RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-  GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
 
 if File.directory?(GEMS_LOCATION)
-  $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-  require 'rubygems'
-  Gem.use_paths(File.realpath(GEMS_LOCATION))
+    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+    require 'rubygems'
+    Gem.use_paths(File.realpath(GEMS_LOCATION))
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -44,22 +44,22 @@ vm_type = ARGV[1]
 ccr     = ARGV[2]
 
 begin
-  vi_client = VCenterDriver::VIClient.new_from_host(host_id)
+    vi_client = VCenterDriver::VIClient.new_from_host(host_id)
 
-  cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr, vi_client)
+    cluster = VCenterDriver::ClusterComputeResource.new_from_ref(ccr, vi_client)
 
-  str_info , _ltime = cluster.monitor_vms(host_id, vm_type)
+    str_info, _ltime = cluster.monitor_vms(host_id, vm_type)
 
-  puts str_info
+    puts str_info
 rescue StandardError => e
-  message =  "Monitoring of VMs on vCenter cluster #{host_id} " \
-               " failed due to \"#{e.message}\"."
-  OpenNebula.log_error(message)
-  if VCenterDriver::CONFIG[:debug_information]
-    STDERR.puts "#{message} #{e.backtrace}"
-  end
+    message = "Monitoring of VMs on vCenter cluster #{host_id} " \
+                 " failed due to \"#{e.message}\"."
+    OpenNebula.log_error(message)
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{message} #{e.backtrace}"
+    end
 
-  exit(-1)
+    exit(-1)
 ensure
-  vi_client.close_connection if vi_client
+    vi_client.close_connection if vi_client
 end

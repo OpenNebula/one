@@ -47,7 +47,9 @@ require 'nsx_driver'
 
 # Exceptions
 class AllocateNetworkError < StandardError; end
+
 class CreateNetworkError < StandardError; end
+
 class UpdateNetworkError < StandardError; end
 
 # FUNCTIONS
@@ -370,7 +372,7 @@ begin
     ccr_ref  = one_host['TEMPLATE/VCENTER_CCR_REF']
     cluster  = VCenterDriver::ClusterComputeResource.new_from_ref(ccr_ref,
                                                                   vi_client)
-    dc       = cluster.get_dc
+    dc       = cluster.datacenter
 
     # Step 3. Create the port groups based on each type
     if pg_type == VCenterDriver::Network::NETWORK_TYPE_NSXV

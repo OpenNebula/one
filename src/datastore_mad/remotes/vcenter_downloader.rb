@@ -19,13 +19,13 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    RUBY_LIB_LOCATION = '/usr/lib/one/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = '/usr/share/one/gems' unless defined?(GEMS_LOCATION)
-    VAR_LOCATION      = '/var/lib/one' unless defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+    VAR_LOCATION      ||= '/var/lib/one'
 else
-    RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby' unless defined?(RUBY_LIB_LOCATION)
-    GEMS_LOCATION     = ONE_LOCATION + '/share/gems' unless defined?(GEMS_LOCATION)
-    VAR_LOCATION      = ONE_LOCATION + '/var' unless defined?(VAR_LOCATION)
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    VAR_LOCATION      ||= ONE_LOCATION + '/var'
 end
 
 if File.directory?(GEMS_LOCATION)
@@ -46,7 +46,7 @@ require 'addressable'
 vcenter_url     = Addressable::URI.parse(ARGV[0])
 
 params          = CGI.parse(vcenter_url.query)
-ds_id           = params["param_dsid"][0]
+ds_id           = params['param_dsid'][0]
 
 begin
     vi_client = VCenterDriver::VIClient.new_from_datastore(ds_id)
@@ -57,9 +57,13 @@ begin
     ds = VCenterDriver::Datastore.new_from_ref(source_ds_ref, vi_client)
 
     VCenterDriver::FileHelper.dump_vmdk_tar_gz(vcenter_url, ds)
-rescue Exception => e
-    STDERR.puts "Cannot download image #{vcenter_url.path} from datastore #{ds_id} "\
-                "Reason: \"#{e.message}\"\n#{e.backtrace}"
+rescue StandardError => e
+    STDERR.puts "Cannot download image #{vcenter_url.path}"\
+                " from datastore #{ds_id} "\
+                "Reason: \"#{e.message}\"}"
+    if VCenterDriver::CONFIG[:debug_information]
+        STDERR.puts "#{e.backtrace}"
+    end
     exit(-1)
 ensure
     vi_client.close_connection if vi_client

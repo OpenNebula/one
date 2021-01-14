@@ -890,7 +890,7 @@ module VCenterDriver
             text
         end
 
-        def get_dc # rubocop:disable Naming/AccessorMethodName
+        def datacenter # rubocop:disable Naming/AccessorMethodName
             item = @item
 
             until item.instance_of? RbVmomi::VIM::Datacenter
