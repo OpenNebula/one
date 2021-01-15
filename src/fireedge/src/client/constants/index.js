@@ -60,6 +60,13 @@ export const INPUT_TYPES = {
   AUTOCOMPLETE: 'autocomplete'
 }
 
+export const DEBUG_LEVEL = {
+  ERROR: 'ERROR',
+  WARN: 'WARN',
+  INFO: 'INFO',
+  DEBUG: 'DEBUG'
+}
+
 export * as T from 'client/constants/translates'
 export * from 'client/constants/flow'
 export * from 'client/constants/states'

@@ -18,7 +18,7 @@
 inputs:
   - name: 'number_hosts'
     type: text
-    description: 'Number of AWS instances to crearte'
+    description: 'Number of AWS instances to create'
     default: '1'
 
   - name: 'aws_ami_image'

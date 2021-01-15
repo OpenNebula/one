@@ -9,23 +9,37 @@ import DebugLog from 'client/components/DebugLog'
 const Log = React.memo(({ hidden, data: { ID } }) => {
   const { getProvision } = useSocket()
   const { getProvisionLog } = useProvision()
-  const { data: provision, fetchRequest, loading } = useFetch(getProvisionLog)
+  const { data: provisionLog, fetchRequest, loading } = useFetch(getProvisionLog)
 
   React.useEffect(() => {
     !hidden && fetchRequest({ id: ID })
   }, [ID])
 
   React.useEffect(() => {
-    (!provision && !hidden) && fetchRequest({ id: ID })
+    (!provisionLog && !hidden) && fetchRequest({ id: ID })
   }, [hidden])
+
+  const log = provisionLog?.log?.reduce((res, dataLog) => {
+    try {
+      const json = JSON.parse(dataLog)
+      const { data, command, commandId } = json
+
+      return {
+        ...res,
+        [command]: {
+          [commandId]: [...(res?.[command]?.[commandId] ?? []), data]
+        }
+      }
+    } catch { return res }
+  }, {})
 
   return loading ? (
     <LinearProgress color='secondary' style={{ width: '100%' }} />
   ) : (
     <DebugLog
-      uuid={provision?.uuid ?? ID}
+      uuid={provisionLog?.uuid ?? ID}
       socket={getProvision}
-      logDefault={provision?.log}
+      logDefault={log}
     />
   )
 }, (prev, next) =>

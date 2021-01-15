@@ -20,9 +20,12 @@ export default {
     },
     error: {
       light: '#e57373',
-      main: '#f44336',
+      main: '#e04d40',
       dark: '#d32f2f',
       contrastText: '#ffffff'
+    },
+    debug: {
+      main: '#7b7c7e'
     }
   }
 }

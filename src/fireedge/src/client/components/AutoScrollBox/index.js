@@ -11,11 +11,7 @@ const useStyles = makeStyles(theme => ({
     position: 'sticky',
     textAlign: 'center'
   },
-  button: { padding: theme.spacing(0, 2) },
-  svg: {
-    color: '#fff !important',
-    backgroundColor: 'transparent !important'
-  }
+  button: { padding: theme.spacing(0, 2) }
 }))
 
 const baseClass = 'react-auto-scroll'
@@ -94,9 +90,8 @@ const AutoScrollBox = memo(({
         <Slide in={!autoScroll} direction="down" mountOnEnter unmountOnExit>
           <div className={classes.wrapperButton}>
             <Chip
-              avatar={<ArrowBottomIcon />}
-              color="primary"
-              classes={{ avatarColorPrimary: classes.svg }}
+              avatar={<ArrowBottomIcon style={{ backgroundColor: 'transparent' }} />}
+              color='secondary'
               className={classes.button}
               label={autoButtonText}
               onClick={() => setAutoScroll(true)}

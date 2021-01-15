@@ -240,14 +240,7 @@ const addPrependCommand = (command = '', resource = '') => {
   }
 }
 
-const addOptionalCreateCommand = () =>{
-  let rtn = []
-  if(optionalCreateCommand){
-    rtn.push(optionalCreateCommand)
-  }
-  return rtn
-}
-
+const addOptionalCreateCommand = () => [optionalCreateCommand].filter(Boolean)
 
 const executeCommandAsync = (
   command = '',

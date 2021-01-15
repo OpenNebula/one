@@ -1,46 +1,56 @@
 import React, { useEffect, useState, memo } from 'react'
 import PropTypes from 'prop-types'
+import clsx from 'clsx'
 
-import { makeStyles, lighten, Box } from '@material-ui/core'
+import { makeStyles, Box } from '@material-ui/core'
 import AutoScrollBox from 'client/components/AutoScrollBox'
+import { DEBUG_LEVEL } from 'client/constants'
+
+import AnsiHtml from 'client/components/DebugLog/ansiHtml'
 
 const useStyles = makeStyles(theme => ({
-  message: ({ color = '#fafafa' }) => ({
-    color,
+  root: {
+    display: 'flex',
+    marginBottom: '0.3em',
+    padding: '0.5em 0',
     cursor: 'default',
     fontFamily: 'monospace',
-    padding: theme.spacing(0.5, 1),
-    '&:hover': { backgroundColor: lighten('#1d1f21', 0.02) }
-  })
+    '&:hover': {
+      background: '#333537'
+    }
+  },
+  time: {
+    paddingLeft: '0.5em',
+    minWidth: '220px'
+  },
+  message: {
+    color: '#fafafa'
+  },
+  [DEBUG_LEVEL.ERROR]: { borderLeft: `0.3em solid ${theme.palette.error.light}` },
+  [DEBUG_LEVEL.WARN]: { borderLeft: `0.3em solid ${theme.palette.warning.main}` },
+  [DEBUG_LEVEL.INFO]: { borderLeft: `0.3em solid ${theme.palette.info.main}` },
+  [DEBUG_LEVEL.DEBUG]: { borderLeft: `0.3em solid ${theme.palette.debug.main}` }
 }))
 
 // --------------------------------------------
 // MESSAGE COMPONENT
 // --------------------------------------------
 
-const Message = memo(({ log, message, index }) => {
-  const color = () => {
-    const lastMessage = log[index - 1]
-
-    if (message.includes('WARNING')) return 'yellow'
-    else if (message.includes('WARNING')) return 'yellow'
-    else if (
-      message.includes('ERROR') || lastMessage?.includes('ERROR')
-    ) return 'red'
-    else return '#fafafa'
-  }
-
-  const classes = useStyles({ color: color() })
+const Message = memo(({ timestamp = '', severity = DEBUG_LEVEL.DEBUG, message }) => {
+  const classes = useStyles()
+  const sanitize = AnsiHtml(message)
 
   return (
-    <div key={index} className={classes.message}>
-      {message}
+    <div className={clsx([classes.root, classes[severity]])}>
+      <div className={classes.time}>{timestamp}</div>
+      <div className={classes.message}>{sanitize}</div>
     </div>
   )
-}, (prev, next) => prev.index === next.index)
+})
 
 Message.propTypes = {
-  log: PropTypes.array,
+  timestamp: PropTypes.string,
+  severity: PropTypes.string,
   message: PropTypes.string,
   index: PropTypes.oneOfType([
     PropTypes.string,
@@ -59,23 +69,55 @@ const DebugLog = memo(({ uuid, socket, logDefault }) => {
   const [log, setLog] = useState(logDefault)
 
   useEffect(() => {
-    uuid && socket.on(socketData =>
-      socketData?.id === uuid && setLog(prev => [...prev, socketData?.data])
-    )
+    uuid && socket.on((socketData = {}) => {
+      const { id, data, command, commandId } = socketData
+
+      id === uuid && setLog(prev => ({
+        ...prev,
+        [command]: {
+          [commandId]: [...(prev?.[command]?.[commandId] ?? []), data]
+        }
+      }))
+    })
     return () => uuid && socket.off()
   }, [])
 
   return (
-    <Box borderRadius={5} bgcolor={'#1d1f21'} width={1} height={1}>
+    <Box borderRadius={5} bgcolor={'#1d1f21'} width={1} height={1} style={{ fontSize: '1.1em', wordBreak: 'break-word' }}>
       <AutoScrollBox scrollBehavior="auto">
-        {log?.map((message, index) => {
-          const isString = typeof message === 'string'
-          const stringMessage = isString ? message : JSON.stringify(message)
+        {Object.entries(log)?.map(([command, entries]) =>
+          Object.entries(entries)?.map(([commandId, messages]) =>
+            messages?.map((data, index) => {
+              const key = `${index}-${command}-${commandId}`
 
-          return (
-            <Message key={index} log={log} message={stringMessage} index={index} />
+              try {
+                const { timestamp, severity, message } = JSON.parse(data)
+                const decryptMessage = atob(message)
+
+                return (
+                  <Message
+                    key={key}
+                    timestamp={timestamp}
+                    severity={severity}
+                    message={decryptMessage}
+                  />
+                )
+              } catch {
+                const severity = data.includes(DEBUG_LEVEL.ERROR)
+                  ? DEBUG_LEVEL.ERROR
+                  : data.includes(DEBUG_LEVEL.INFO)
+                    ? DEBUG_LEVEL.INFO
+                    : data.includes(DEBUG_LEVEL.WARN)
+                      ? DEBUG_LEVEL.WARN
+                      : DEBUG_LEVEL.DEBUG
+
+                return (
+                  <Message key={key} severity={severity} message={data} />
+                )
+              }
+            })
           )
-        })}
+        )}
       </AutoScrollBox>
     </Box>
   )
@@ -87,7 +129,7 @@ DebugLog.propTypes = {
     on: PropTypes.func.isRequired,
     off: PropTypes.func.isRequired
   }).isRequired,
-  logDefault: PropTypes.array
+  logDefault: PropTypes.object
 }
 
 DebugLog.defaultProps = {
@@ -96,7 +138,7 @@ DebugLog.defaultProps = {
     on: () => undefined,
     off: () => undefined
   },
-  logDefault: []
+  logDefault: {}
 }
 
 DebugLog.displayName = 'DebugLog'
