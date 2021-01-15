@@ -118,7 +118,7 @@ class OneMarket
                 dname = disk.keys.first
 
                 tmpl << <<-EOT.strip
-                  DISK = [ NAME = "#{dname}", APP="#{disk[dname]}]
+                  DISK = [ NAME = "#{dname}", APP="#{disk[dname]}" ]
                 EOT
             end
         end
@@ -140,11 +140,11 @@ class OneMarket
         print_var(tmpl, 'MD5',  app['md5'])
 
         if app['roles']
-            app['roles'].each do |disk|
-                rname = disk.keys.first
+            app['roles'].each do |role|
+                rname = role.keys.first
 
                 tmpl << <<-EOT.strip
-                  ROLE = [ NAME = "#{rname}", APP="#{role[rname]}]
+                  ROLE = [ NAME = "#{rname}", APP="#{role[rname]}" ]
                 EOT
             end
         end
