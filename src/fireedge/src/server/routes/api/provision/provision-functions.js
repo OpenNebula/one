@@ -251,7 +251,7 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
       message.toString().split(/\r|\n/).map(line => {
         if (line) {
           lastLine = line
-          publish(defaultCommandProvision, { id: params.id, message: lastLine, command: command, commandId: uuid })
+          publish(defaultCommandProvision, { id: params.id, data: lastLine, command: command, commandId: uuid })
         }
       })
     }
@@ -364,7 +364,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
     const resource = parsePostData(params.resource)
     const content = createYMLContent(resource)
     if (content) {
-      const command = 'create';
+      const command = 'create'
       const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: configFile.name, ext: configFile.ext, content }])
       if (files && files.name && files.files) {
         const find = (val = '', ext = '', arr = files.files) => arr.find(e => e && e.path && e.ext && e.name && e.name === val && e.ext === ext)
@@ -373,7 +373,6 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
         if (config && log) {
           const create = (filedata = '') => {
             const paramsCommand = [command, config.path, '--batch', '--debug', '--json', ...optionalCommand, ...authCommand, ...endpoint]
-            console.log("-->", paramsCommand)
             let lastLine = ''
             var stream = createWriteStream(log.path, { flags: 'a' })
             const uuid = v4()
@@ -392,8 +391,9 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                     }
                   }
                   lastLine = line
-                  stream.write(`${line}\n`)
-                  publish(defaultCommandProvision, { id: files.name, message: line, command: command,commandId: uuid })
+                  const renderLine = { id: files.name, data: line, command: command, commandId: uuid }
+                  stream.write(`${JSON.stringify(renderLine)}\n`)
+                  publish(defaultCommandProvision)
                 }
               })
             }
@@ -474,12 +474,12 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = [command, params.id, '--debug', '--json', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
     let lastLine = ''
-    const uuid = v4();
+    const uuid = v4()
     const emit = message => {
       message.toString().split(/\r|\n/).map(line => {
         if (line) {
           lastLine = line
-          publish(defaultCommandProvision, { id: params.id, message: lastLine, command: command, commandId: uuid })
+          publish(defaultCommandProvision, { id: params.id, data: lastLine, command: command, commandId: uuid })
         }
       })
     }

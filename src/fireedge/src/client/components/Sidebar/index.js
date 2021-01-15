@@ -83,7 +83,7 @@ const Sidebar = memo(({ endpoints }) => {
       </Box>
       <Divider />
       <Box className={classes.menu}>
-        <List className={classes.list} disablePadding>
+        <List className={classes.list} disablePadding data-cy="main-menu">
           {SidebarEndpoints}
         </List>
       </Box>

@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import { JWT_NAME, FILTER_POOL, ONEADMIN_ID } from 'client/constants'
+import { JWT_NAME, FILTER_POOL, ONEADMIN_ID, TIME_HIDE_LOGO } from 'client/constants'
 import { storage, findStorageData, removeStoreData, fakeDelay } from 'client/utils'
 
 import * as serviceAuth from 'client/services/auth'
@@ -32,7 +32,7 @@ export default function useAuth () {
     const tokenStorage = findStorageData(JWT_NAME)
 
     if ((tokenStorage && jwt && tokenStorage !== jwt) || firstRender) {
-      fakeDelay(1500).then(() => dispatch(successAuth({ jwt: tokenStorage })))
+      fakeDelay(TIME_HIDE_LOGO).then(() => dispatch(successAuth({ jwt: tokenStorage })))
     }
   }, [jwt, firstRender])
 

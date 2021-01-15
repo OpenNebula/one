@@ -19,7 +19,7 @@ const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const {
-  appName,
+  defaultAppName,
   defaultConfigFile,
   defaultLogFilename,
   defaultLogPath,
@@ -181,10 +181,11 @@ const genPathResources = () => {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }
     if (!global.CPI) {
-      global.CPI = `${VAR_LOCATION}/${appName}`
+      console.log('-->', defaultAppName)
+      global.CPI = `${VAR_LOCATION}/${defaultAppName}`
     }
     if (!global.ETC_CPI) {
-      global.ETC_CPI = `${ETC_LOCATION}/${appName}`
+      global.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
     }
     if (!global.SHARE_CPI) {
       global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision`

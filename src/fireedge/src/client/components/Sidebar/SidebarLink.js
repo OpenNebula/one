@@ -25,7 +25,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
     history.push(path)
     !isUpLg && fixMenu(false)
   }
-
+  const labelProps = {'data-cy':"main-menu-item-text"}
   return (
     <ListItem
       button
@@ -34,6 +34,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
       selected={pathname === path}
       className={clsx({ [classes.subItem]: isSubItem })}
       classes={{ selected: classes.itemSelected }}
+      data-cy="main-menu-item"
     >
       {Icon && (
         <ListItemIcon className={classes.itemIcon}>
@@ -41,7 +42,9 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
         </ListItemIcon>
       )}
       <ListItemText
-        primary={devMode ? <DevTypography label={label} /> : label}
+        disableTypography = {devMode}
+        primaryTypographyProps={labelProps}
+        primary={devMode ? <DevTypography label={label} labelProps={labelProps}/> : label}
       />
     </ListItem>
   )
