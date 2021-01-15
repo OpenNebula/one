@@ -605,7 +605,7 @@ void VirtualMachineXML::log(const string &st)
     }
     ostringstream oss;
 
-    oss << one_util::log_time() << " : " << st;
+    oss << one_util::log_time() << ": " << st;
 
     user_template->replace("SCHED_MESSAGE", oss.str());
 }
