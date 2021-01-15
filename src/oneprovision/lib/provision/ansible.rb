@@ -93,7 +93,6 @@ module OneProvision
                         cmd = "ANSIBLE_CONFIG=#{ansible_dir}/ansible.cfg "
                         cmd << "ansible-playbook #{ANSIBLE_ARGS}"
                         cmd << " -i #{ansible_dir}/inventory"
-                        cmd << " -i #{ANSIBLE_LOCATION}/inventories/#{i}"
                         cmd << " -e @#{ansible_dir}/group_vars.yml"
                         cmd << " #{ANSIBLE_LOCATION}/#{i}.yml"
 
