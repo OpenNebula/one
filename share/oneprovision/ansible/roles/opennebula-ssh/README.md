@@ -17,8 +17,3 @@ Requires the oneadmin user to be present.
 
 All of the variables in this role are documented in the [defaults](defaults/main.yml) file.
 
-## Todo list
-
-None
-
-[1]: https://github.com/OpenNebula/infra/wiki/Creating-course-environments
