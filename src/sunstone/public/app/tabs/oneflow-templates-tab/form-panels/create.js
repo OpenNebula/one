@@ -261,6 +261,7 @@ define(function(require) {
     var deployment = $('select[name="deployment"]', context).val();
     var shutdown_action_service = $('select[name="shutdown_action_service"]', context).val();
     var ready_status_gate = $('input[name="ready_status_gate"]', context).prop("checked");
+    var automatic_deletion = $('input[name="automatic_deletion"]', context).prop("checked");
 
     var custom_attrs =  {};
     var network_attrs = {};
@@ -316,6 +317,8 @@ define(function(require) {
     }
 
     json_template['ready_status_gate'] = ready_status_gate;
+
+    json_template['automatic_deletion'] = automatic_deletion;
 
     // add labels
     var currentInfo = Sunstone.getElementRightInfo(TAB_ID)
@@ -381,6 +384,7 @@ define(function(require) {
     $('select[name="deployment"]', context).val(element.TEMPLATE.BODY.deployment);
     $("select[name='shutdown_action_service']", context).val(element.TEMPLATE.BODY.shutdown_action);
     $("input[name='ready_status_gate']", context).prop("checked",element.TEMPLATE.BODY.ready_status_gate || false);
+    $("input[name='automatic_deletion']", context).prop("checked",element.TEMPLATE.BODY.automatic_deletion || false);
 
     $(".service_networks i.remove-tab", context).trigger("click");
 
