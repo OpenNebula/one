@@ -393,7 +393,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                   lastLine = line
                   const renderLine = { id: files.name, data: line, command: command, commandId: uuid }
                   stream.write(`${JSON.stringify(renderLine)}\n`)
-                  publish(defaultCommandProvision)
+                  publish(defaultCommandProvision, renderLine)
                 }
               })
             }
