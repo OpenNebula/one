@@ -1,11 +1,24 @@
-import React, { memo, Children, useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
 import { makeStyles, Chip, Slide } from '@material-ui/core'
 import ArrowBottomIcon from '@material-ui/icons/VerticalAlignBottom'
 
 const useStyles = makeStyles(theme => ({
+  scrollable: {
+    padding: theme.spacing(1),
+    overflowY: 'scroll',
+    '&::-webkit-scrollbar': {
+      width: 14
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundClip: 'content-box',
+      border: '4px solid transparent',
+      borderRadius: 7,
+      boxShadow: 'inset 0 0 0 10px',
+      color: theme.palette.secondary.light
+    }
+  },
   wrapperButton: {
     top: 5,
     position: 'sticky',
@@ -13,8 +26,6 @@ const useStyles = makeStyles(theme => ({
   },
   button: { padding: theme.spacing(0, 2) }
 }))
-
-const baseClass = 'react-auto-scroll'
 
 const AutoScrollBox = memo(({
   children,
@@ -30,9 +41,7 @@ const AutoScrollBox = memo(({
   const containerElement = useRef(null)
 
   const style = {
-    padding: 8,
     height,
-    overflowY: 'scroll',
     scrollBehavior: 'auto',
     pointerEvents: preventInteraction ? 'none' : 'auto'
   }
@@ -74,15 +83,9 @@ const AutoScrollBox = memo(({
   }, [children, containerElement, autoScroll])
 
   return (
-    <div style={{ height }}
-      className={clsx(baseClass, className, {
-        [`${baseClass}--empty`]: Children.count(children) === 0,
-        [`${baseClass}--prevent-interaction`]: preventInteraction,
-        [`${baseClass}--showOption`]: showOption
-      })}
-    >
+    <div style={{ height }} className={className}>
       <div
-        className={`${baseClass}__scroll-container`}
+        className={classes.scrollable}
         onWheel={onWheel}
         ref={containerElement}
         style={style}

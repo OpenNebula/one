@@ -38,10 +38,13 @@ const ProvisionCard = memo(
 
     return (
       <SelectCard
-        title={`(ID: ${ID}) - ${NAME}`}
+        title={NAME}
+        subheader={`#${ID}`}
         isSelected={isSelected}
         handleClick={handleClick}
-        action={actions?.map(action => <Action key={action?.cy} {...action} />)}
+        action={actions?.map(action =>
+          <Action key={action?.cy} {...action} />
+        )}
         icon={
           isProvider ? (
             <ProviderIcon />

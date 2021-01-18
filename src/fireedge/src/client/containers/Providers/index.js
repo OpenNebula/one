@@ -29,6 +29,8 @@ function Providers () {
 
   useEffect(() => { fetchRequest() }, [])
 
+  const handleCancel = () => setShowDialog(false)
+
   return (
     <Container disableGutters>
       <ListHeader
@@ -52,7 +54,8 @@ function Providers () {
               isProvider: true,
               handleClick: () => setShowDialog({
                 id: ID,
-                title: `(ID: ${ID}) ${NAME}`
+                title: NAME,
+                subheader: `#${ID}`
               }),
               actions: [
                 {
@@ -64,7 +67,7 @@ function Providers () {
                 {
                   handleClick: () => setShowDialog({
                     id: ID,
-                    title: `DELETE provider - (ID: ${ID}) ${NAME}`,
+                    title: `DELETE provider - #${ID} - ${NAME}`,
                     handleAccept: () => {
                       deleteProvider({ id: ID })
                       setShowDialog(false)
@@ -82,11 +85,7 @@ function Providers () {
       {showDialog !== false && (
         <DialogRequest
           request={() => getProvider({ id: showDialog.id })}
-          dialogProps={{
-            title: showDialog.title,
-            handleCancel: () => setShowDialog(false),
-            handleAccept: showDialog.handleAccept
-          }}
+          dialogProps={{ handleCancel, ...showDialog }}
         >
           {({ data }) => <Information data={data} />}
         </DialogRequest>

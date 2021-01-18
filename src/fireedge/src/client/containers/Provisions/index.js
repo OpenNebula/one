@@ -52,13 +52,14 @@ function Provisions () {
             cardsProps={({ value: { ID, NAME } }) => ({
               handleClick: () => setShowDialog({
                 id: ID,
-                title: `(ID: ${ID}) ${NAME}`,
+                title: NAME,
+                subheader: `#${ID}`,
                 content: DialogInfo
               }),
               actions: [{
                 handleClick: () => setShowDialog({
                   id: ID,
-                  title: `DELETE provision - (ID: ${ID}) ${NAME}`,
+                  title: `DELETE provision - #${ID} - ${NAME}`,
                   handleAccept: () => {
                     deleteProvision({ id: ID })
                     setShowDialog(false)
@@ -77,11 +78,7 @@ function Provisions () {
         <DialogRequest
           withTabs
           request={() => getProvision({ id: showDialog.id })}
-          dialogProps={{
-            title: showDialog.title,
-            handleCancel,
-            handleAccept: showDialog.handleAccept
-          }}
+          dialogProps={{ handleCancel, ...showDialog }}
         >
           {props => createElement(showDialog.content, props)}
         </DialogRequest>

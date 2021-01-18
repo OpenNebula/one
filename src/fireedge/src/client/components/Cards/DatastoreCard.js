@@ -1,48 +1,43 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Chip, Box, Typography, Avatar } from '@material-ui/core'
+import { makeStyles, Typography } from '@material-ui/core'
+import DatastoreIcon from '@material-ui/icons/FolderOpen'
 
 import SelectCard from 'client/components/Cards/SelectCard'
-import { StatusBadge } from 'client/components/Status'
+import { StatusBadge, StatusChip } from 'client/components/Status'
 import Datastore from 'client/constants/datastore'
 
 const useStyles = makeStyles(theme => ({
-  title: { display: 'flex', gap: '8px' },
-  avatar: {
-    width: '5ch',
-    height: '5ch',
-    color: theme.palette.primary.contrastText
-  },
-  card: { backgroundColor: theme.palette.primary.main }
+  card: { backgroundColor: theme.palette.primary.main },
+  title: { display: 'flex', gap: '0.5rem' }
 }))
-
 const DatastoreCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
+    const classes = useStyles()
+
     const { ID, NAME, TYPE, STATE } = value
     const type = Datastore.TYPES[TYPE]
     const state = Datastore.STATES[STATE]
-    const classes = useStyles()
-
-    const renderChip = ({ label, ...props }) =>
-      <Chip size="small" title={label} label={label} {...props} />
 
     return (
       <SelectCard
         stylesProps={{ minHeight: 160 }}
         cardProps={{ className: classes.card, elevation: 2 }}
         icon={
-          <StatusBadge stateColor={state.color} >
-            <Avatar className={classes.avatar} title={state.name}>{ID}</Avatar>
+          <StatusBadge stateColor={state.color}>
+            <DatastoreIcon />
           </StatusBadge>
         }
-        title={(
-          <Box component="span" className={classes.title}>
-            <Typography noWrap>{NAME}</Typography>
-            {renderChip({ label: type.name })}
-          </Box>
-        )}
-        cardHeaderProps={{ disableTypography: true }}
+        title={
+          <span className={classes.title}>
+            <Typography title={NAME} noWrap component='span'>
+              {NAME}
+            </Typography>
+            <StatusChip stateColor={'#c6c6c6'}>{type.name}</StatusChip>
+          </span>
+        }
+        subheader={`#${ID}`}
         isSelected={isSelected}
         handleClick={handleClick}
         actions={actions}

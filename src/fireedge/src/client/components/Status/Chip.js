@@ -1,21 +1,19 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Typography } from '@material-ui/core'
+import { makeStyles, Typography, lighten } from '@material-ui/core'
 import { addOpacityToColor } from 'client/utils'
 
 const useStyles = makeStyles(theme => ({
-  root: ({ stateColor }) => ({
-    color: stateColor,
-    backgroundColor: addOpacityToColor(stateColor, 0.08),
+  root: ({ stateColor = theme.palette.primary.main }) => ({
+    color: lighten(stateColor, 0.75),
+    backgroundColor: addOpacityToColor(stateColor, 0.2),
     cursor: 'default',
     padding: theme.spacing('0.25rem', '0.5rem'),
-    minWidth: 20,
     borderRadius: 2,
     textTransform: 'uppercase',
     fontSize: theme.typography.overline.fontSize,
-    fontWeight: theme.typography.fontWeightBold,
-    lineHeight: 'normal'
+    fontWeight: theme.typography.fontWeightBold
   })
 }))
 

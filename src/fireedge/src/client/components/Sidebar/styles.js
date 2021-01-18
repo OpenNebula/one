@@ -68,6 +68,7 @@ export default makeStyles(theme => ({
   // HEADER MENU
   // -------------------------------
   header: {
+    userSelect: 'none',
     display: 'flex',
     alignItems: 'center',
     padding: '1rem',

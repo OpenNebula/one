@@ -34,11 +34,12 @@ export default makeStyles(theme => ({
     }
   },
   media: {},
+  headerRoot: { alignItems: 'end' },
+  headerContent: { overflow: 'auto' },
   headerAvatar: {
     display: 'flex',
     color: theme.palette.primary.contrastText
   },
-  headerContent: { overflowX: 'hidden' },
   header: {
     color: theme.palette.primary.contrastText
   },

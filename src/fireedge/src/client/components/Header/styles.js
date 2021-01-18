@@ -9,6 +9,7 @@ export default makeStyles(theme => ({
       : theme.palette.primary.main
   },
   title: {
+    userSelect: 'none',
     flexGrow: 1,
     display: 'inline-flex',
     color: theme.palette.primary.contrastText,

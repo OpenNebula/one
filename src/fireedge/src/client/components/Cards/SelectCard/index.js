@@ -59,29 +59,32 @@ const SelectCard = memo(({
             }
           >
             {/* CARD HEADER */}
-            {(title || subheader || icon || action) && <CardHeader
-              action={action}
-              avatar={icon}
-              classes={{
-                content: classes.headerContent,
-                avatar: classes.headerAvatar
-              }}
-              title={title}
-              titleTypographyProps={{
-                variant: 'body1',
-                noWrap: true,
-                className: classes.header,
-                title
-              }}
-              subheader={subheader}
-              subheaderTypographyProps={{
-                variant: 'body2',
-                noWrap: true,
-                className: classes.subheader,
-                title: subheader
-              }}
-              {...cardHeaderProps}
-            />}
+            {(title || subheader || icon || action) && (
+              <CardHeader
+                action={action}
+                avatar={icon}
+                classes={{
+                  root: classes.headerRoot,
+                  content: classes.headerContent,
+                  avatar: classes.headerAvatar
+                }}
+                title={title}
+                titleTypographyProps={{
+                  variant: 'body1',
+                  noWrap: true,
+                  className: classes.header,
+                  title: typeof title === 'string' ? title : undefined
+                }}
+                subheader={subheader}
+                subheaderTypographyProps={{
+                  variant: 'body2',
+                  noWrap: true,
+                  className: classes.subheader,
+                  title: typeof subheader === 'string' ? subheader : undefined
+                }}
+                {...cardHeaderProps}
+              />
+            )}
 
             {/* CARD CONTENT */}
             {children}
@@ -150,10 +153,7 @@ SelectCard.propTypes = {
     PropTypes.string,
     PropTypes.object
   ]),
-  cardHeaderProps: PropTypes.shape({
-    titleTypographyProps: PropTypes.object,
-    subheaderTypographyProps: PropTypes.object
-  }),
+  cardHeaderProps: PropTypes.object,
   mediaProps: PropTypes.shape({
     classes: PropTypes.object,
     className: PropTypes.string,

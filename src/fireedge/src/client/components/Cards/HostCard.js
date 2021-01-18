@@ -1,32 +1,25 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Avatar, Chip, Box, Typography } from '@material-ui/core'
+import { makeStyles, Chip, Box, Typography } from '@material-ui/core'
+import HostIcon from '@material-ui/icons/VideogameAsset'
 
 import SelectCard from 'client/components/Cards/SelectCard'
-import { StatusBadge } from 'client/components/Status'
+import { StatusBadge, StatusChip } from 'client/components/Status'
 import Host from 'client/constants/host'
 
 const useStyles = makeStyles(theme => ({
-  title: { display: 'flex', gap: '8px' },
-  avatar: {
-    width: '5ch',
-    height: '5ch',
-    color: theme.palette.primary.contrastText
-  },
-  card: { backgroundColor: theme.palette.primary.main }
+  card: { backgroundColor: theme.palette.primary.main },
+  title: { display: 'flex', gap: '0.5rem' }
 }))
 
 const HostCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
+    const classes = useStyles()
+
     const { ID, NAME, STATE, IM_MAD: imMad, VM_MAD: vmMad } = value
     const state = Host.STATES[STATE]
     const mad = imMad === vmMad ? imMad : `${imMad}/${vmMad}`
-
-    const classes = useStyles()
-
-    const renderChip = ({ label, ...props }) =>
-      <Chip size="small" title={label} label={label} {...props} />
 
     return (
       <SelectCard
@@ -34,15 +27,19 @@ const HostCard = memo(
         cardProps={{ className: classes.card, elevation: 2 }}
         icon={
           <StatusBadge stateColor={state.color}>
-            <Avatar className={classes.avatar} title={state.name}>{ID}</Avatar>
+            <HostIcon />
           </StatusBadge>
         }
-        title={(
-          <Box component="span" className={classes.title}>
-            <Typography noWrap>{NAME}</Typography>
-            {renderChip({ label: mad })}
-          </Box>
-        )}
+
+        title={
+          <span className={classes.title}>
+            <Typography title={NAME} noWrap component='span'>
+              {NAME}
+            </Typography>
+            <StatusChip stateColor={'#c6c6c6'}>{mad}</StatusChip>
+          </span>
+        }
+        subheader={`#${ID}`}
         isSelected={isSelected}
         handleClick={handleClick}
         actions={actions}
