@@ -110,6 +110,7 @@ module DriverExecHelper
     #                METHODS FOR LOGS & COMMAND OUTPUT
     #
     # Sends a message to the OpenNebula core through stdout
+    # rubocop:disable Metrics/ParameterLists
     def send_message(action = '-', result = RESULT[:failure],
                      id = '-', info = '-')
 
@@ -118,6 +119,7 @@ module DriverExecHelper
             STDOUT.flush
         end
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
