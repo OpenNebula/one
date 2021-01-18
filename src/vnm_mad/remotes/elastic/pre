@@ -50,7 +50,6 @@ begin
                                          deploy_id)
 
     drv.create_bridges
-
 rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)

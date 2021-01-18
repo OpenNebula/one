@@ -97,10 +97,13 @@ require 'ipaddr'
 
 IP_TYPE = %w[public_ipv4 global_ipv4]
 
+# Add ^ operator to the IPAddr class
 class IPAddr
+
     def ^(other)
-        return self.clone.set(@addr ^ other.to_i)
+        clone.set(@addr ^ other.to_i)
     end
+
 end
 
 begin

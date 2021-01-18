@@ -49,7 +49,7 @@ class PacketProvider
         @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
     end
 
-    def assign(ip, _external, opts = {})
+    def assign(ip, _external, _opts = {})
         @client.assign_cidr_device("#{ip}/32", @deploy_id)
         0
     rescue StandardError => e

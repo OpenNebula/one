@@ -91,7 +91,9 @@ class AWSProvider
         filter = [{ :name => 'public-ip', :values => [external] }]
         aws_ip = @ec2.describe_addresses({ :filters => filter }).addresses[0]
 
-        if aws_ip.nil? || aws_ip.network_interface_id.nil? || aws_ip.private_ip_address.nil?
+        if aws_ip.nil? \
+                || aws_ip.network_interface_id.nil? \
+                || aws_ip.private_ip_address.nil?
             return
         end
 
