@@ -519,10 +519,9 @@ module VCenterDriver
         # or create it if not exist
         def find_or_create_folder(folder_root, name)
             folder_root.childEntity.each do |child|
-                if child.instance_of? RbVmomi::VIM::Folder
-                    if child.name == name
-                        return child
-                    end
+                if child.instance_of?(RbVmomi::VIM::Folder) &&
+                    child.name == name
+                    return child
                 end
             end
 
@@ -577,7 +576,7 @@ module VCenterDriver
 
                 if vcenter_vm_folder_object.nil?
                     begin
-                        vcenter_vm_folder_list = vcenter_vm_folder.split("/")
+                        vcenter_vm_folder_list = vcenter_vm_folder.split('/')
                         folder_root = dc.item.vmFolder
 
                         vcenter_vm_folder_list.each do |folder_name|
@@ -588,10 +587,12 @@ module VCenterDriver
                         end
                     rescue StandardError => e
                         error_message = e.message
-			            if VCenterDriver::CONFIG[:debug_information]
-			                error_message += " " + e.backtrace
-   			            end
-			            raise "Cannot create Folder in vCenter: #{error_message}"
+                        if VCenterDriver::CONFIG[:debug_information]
+                            error_message += ' ' + e.backtrace
+                        end
+
+                        raise 'Cannot create Folder in vCenter: '\
+                              "#{error_message}"
                     end
                 end
             end
