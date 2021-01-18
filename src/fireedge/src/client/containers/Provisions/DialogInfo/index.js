@@ -5,7 +5,7 @@ import { AppBar, Tabs, Tab, Box } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import DatastoreIcon from '@material-ui/icons/FolderOpen'
 import NetworkIcon from '@material-ui/icons/AccountTree'
-import HostIcon from '@material-ui/icons/VideogameAsset'
+import HostIcon from '@material-ui/icons/Computer'
 import LogIcon from '@material-ui/icons/InsertDriveFile'
 
 import InfoTab from 'client/containers/Provisions/DialogInfo/info'

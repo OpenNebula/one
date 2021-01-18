@@ -1,8 +1,8 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Chip, Box, Typography } from '@material-ui/core'
-import HostIcon from '@material-ui/icons/VideogameAsset'
+import { makeStyles, Typography } from '@material-ui/core'
+import { Computer as HostIcon } from '@material-ui/icons'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import { StatusBadge, StatusChip } from 'client/components/Status'

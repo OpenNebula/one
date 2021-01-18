@@ -63,15 +63,15 @@ const Sidebar = memo(({ endpoints }) => {
           [classes.drawerFixed]: isFixMenu
         })
       }}
-      anchor="left"
+      anchor='left'
       open={isFixMenu}
     >
       <Box className={classes.header}>
         <Logo
-          width="100%"
+          width='100%'
           height={100}
           withText
-          viewBox="0 0 640 640"
+          viewBox='0 0 640 640'
           className={classes.svg}
         />
         <IconButton
@@ -83,7 +83,7 @@ const Sidebar = memo(({ endpoints }) => {
       </Box>
       <Divider />
       <Box className={classes.menu}>
-        <List className={classes.list} disablePadding data-cy="main-menu">
+        <List className={classes.list} disablePadding data-cy='main-menu'>
           {SidebarEndpoints}
         </List>
       </Box>

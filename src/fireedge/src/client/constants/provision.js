@@ -27,3 +27,14 @@ export const PROVISIONS_STATES = [
     meaning: ''
   }
 ]
+
+export const PROVIDERS_TYPES = [
+  {
+    name: 'aws',
+    color: '#ef931f'
+  },
+  {
+    name: 'packet',
+    color: '#364562'
+  }
+]

@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import {
   Storage as ClusterIcon,
-  VideogameAsset as HostIcon,
+  Computer as HostIcon,
   FolderOpen as DatastoreIcon,
   AccountTree as NetworkIcon
 } from '@material-ui/icons'

@@ -14,6 +14,8 @@ import { useGeneral } from 'client/hooks'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import { DevTypography } from 'client/components/Typography'
 
+const STATIC_LABEL_PROPS = { 'data-cy': 'main-menu-item-text' }
+
 const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   const classes = sidebarStyles()
   const history = useHistory()
@@ -25,7 +27,6 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
     history.push(path)
     !isUpLg && fixMenu(false)
   }
-  const labelProps = {'data-cy':"main-menu-item-text"}
   return (
     <ListItem
       button
@@ -34,7 +35,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
       selected={pathname === path}
       className={clsx({ [classes.subItem]: isSubItem })}
       classes={{ selected: classes.itemSelected }}
-      data-cy="main-menu-item"
+      data-cy='main-menu-item'
     >
       {Icon && (
         <ListItemIcon className={classes.itemIcon}>
@@ -42,9 +43,9 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
         </ListItemIcon>
       )}
       <ListItemText
-        disableTypography = {devMode}
-        primaryTypographyProps={labelProps}
-        primary={devMode ? <DevTypography label={label} labelProps={labelProps}/> : label}
+        disableTypography={devMode}
+        primaryTypographyProps={STATIC_LABEL_PROPS}
+        primary={devMode ? <DevTypography label={label} labelProps={STATIC_LABEL_PROPS}/> : label}
       />
     </ListItem>
   )

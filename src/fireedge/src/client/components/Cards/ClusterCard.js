@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { makeStyles, Badge, Box, CardContent } from '@material-ui/core'
 import {
   Storage as ClusterIcon,
-  VideogameAsset as HostIcon,
+  Computer as HostIcon,
   AccountTree as NetworkIcon,
   FolderOpen as DatastoreIcon
 } from '@material-ui/icons'

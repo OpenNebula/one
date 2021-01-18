@@ -1,37 +1,33 @@
 import * as React from 'react'
 
 import { PieChart } from 'react-minimal-pie-chart'
-import { Typography, useTheme, lighten, Paper } from '@material-ui/core'
-import { Public as ProvidersIcon } from '@material-ui/icons'
+import { Typography, Paper } from '@material-ui/core'
 
 import { useProvision } from 'client/hooks'
 import { TypographyWithPoint } from 'client/components/Typography'
 import Count from 'client/components/Count'
-import { get } from 'client/utils'
-import { T } from 'client/constants'
+import { groupBy } from 'client/utils'
+import { T, PROVIDERS_TYPES } from 'client/constants'
 
 import useStyles from 'client/components/Widgets/TotalProviders/styles'
 
 const TotalProviders = () => {
-  const { providers, provisions } = useProvision()
+  const { providers } = useProvision()
 
   const classes = useStyles()
-  const theme = useTheme()
-  const usedColor = theme.palette.secondary.main
-  const bgColor = lighten(theme.palette.background.paper, 0.8)
 
-  const totalProviders = React.useMemo(() => providers.length, [providers])
+  const totalProviders = React.useMemo(() => providers.length, [providers.length])
 
-  const usedProviders = React.useMemo(() =>
-    provisions
-      ?.map(provision => get(provision, 'TEMPLATE.BODY.provider'))
-      ?.filter((provision, idx, self) => self.indexOf(provision) === idx)
-      ?.length ?? 0
-  , [provisions])
+  const chartData = React.useMemo(() => {
+    const groups = groupBy(providers, 'TEMPLATE.PLAIN.provider')
 
-  const usedPercent = React.useMemo(() =>
-    totalProviders !== 0 ? (usedProviders * 100) / totalProviders : 0
-  , [totalProviders, usedProviders])
+    console.log({ groups })
+    return PROVIDERS_TYPES?.map(({ name, color }) => ({
+      color,
+      title: name,
+      value: groups[name]?.length ?? 0
+    }))
+  }, [totalProviders])
 
   const title = React.useMemo(() => (
     <div className={classes.title}>
@@ -47,39 +43,33 @@ const TotalProviders = () => {
 
   const legend = React.useMemo(() => (
     <div>
-      <TypographyWithPoint pointColor={usedColor}>
-        <Count number={`${usedProviders}`} />
-      </TypographyWithPoint>
-      <Typography className={classes.legendSecondary}>
-        {T.Used}
-      </Typography>
+      {chartData?.map(({ title: titleLegend, value, color }) =>
+        <div key={titleLegend}>
+          <TypographyWithPoint pointColor={color}>
+            <Count number={`${value}`} />
+            <Typography component='span' className={classes.legendSecondary}>
+              {titleLegend}
+            </Typography>
+          </TypographyWithPoint>
+        </div>
+      )}
     </div>
-  ), [classes, usedProviders])
+  ), [classes, chartData])
 
   const chart = React.useMemo(() => (
     <PieChart
       className={classes.chart}
-      background={bgColor}
-      data={[{ value: 1, key: 1, color: usedColor }]}
-      reveal={usedPercent}
-      lineWidth={20}
-      lengthAngle={270}
+      background={totalProviders === 0 && '#c3c3c3'}
+      data={chartData}
+      lineWidth={18}
       rounded
       animate
-      label={({ dataIndex }) => (
-        <ProvidersIcon
-          key={dataIndex}
-          x={25} y={25} width='50'height='50'
-          style={{ fill: bgColor }}
-        />
-      )}
-      labelPosition={0}
     />
-  ), [classes, usedPercent])
+  ), [classes, chartData])
 
   return (
     <Paper
-      data-cy='dashboard-widget-total-providers-by-state'
+      data-cy='dashboard-widget-total-providers-by-type'
       className={classes.root}
     >
       {title}

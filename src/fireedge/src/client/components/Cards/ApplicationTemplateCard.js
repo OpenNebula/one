@@ -10,7 +10,7 @@ import {
   CardActions
 } from '@material-ui/core'
 import FileIcon from '@material-ui/icons/Description'
-import VideogameAssetIcon from '@material-ui/icons/VideogameAsset'
+import HostIcon from '@material-ui/icons/Computer'
 import AccountTreeIcon from '@material-ui/icons/AccountTree'
 
 import SelectCard from 'client/components/Cards/SelectCard'
@@ -51,7 +51,7 @@ const ApplicationTemplateCard = memo(
               badgeContent={numberOfTiers}
               anchorOrigin={badgePosition}
             >
-              <VideogameAssetIcon />
+              <HostIcon />
             </Badge>
             <Badge
               showZero
