@@ -110,11 +110,13 @@ CommandParser::CmdParser.new(ARGV) do
                 puts xml_str
             end
         else
+            # rubocop:disable Naming/VariableNumber
             order_by = {}
             if !options[:csv]
                 order_by[:order_by_1] = 'YEAR'
                 order_by[:order_by_2] = 'MONTH'
             end
+            # rubocop:enable Naming/VariableNumber
 
             data_hash = pool.showback(filter_flag,
                                       common_opts.merge(order_by))
