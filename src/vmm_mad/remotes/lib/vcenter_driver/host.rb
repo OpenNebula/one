@@ -1047,8 +1047,8 @@ module VCenterDriver
 
         def create_vss(
             name,
+            num_ports,
             pnics = nil,
-            num_ports = 128,
             mtu = 1500,
             pnics_available = nil
         )
@@ -1056,6 +1056,8 @@ module VCenterDriver
             nws = self['configManager.networkSystem']
             hostbridge = nil
             nics = []
+
+            num_ports = 128 if num_ports.nil?
 
             if pnics
                 pnics = pnics.split(',')
