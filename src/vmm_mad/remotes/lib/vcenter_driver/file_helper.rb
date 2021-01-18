@@ -56,7 +56,7 @@ module VCenterDriver
 
         # REMOVE: no need to change...
         def self.get_img_name_from_path(path, vm_id, disk_id)
-            # Note: This will probably fail if the basename contains '.'
+            # NOTE: This will probably fail if the basename contains '.'
             "#{path.split('.').first}-#{vm_id}-#{disk_id}.vmdk"
         end
 
