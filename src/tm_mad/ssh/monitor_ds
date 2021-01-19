@@ -70,7 +70,7 @@ for vm in $vms; do
                 if [ -n "$snap_ts" ] && [ "$rc" = "0" ]; then
                     vm_monitor="${vm_monitor}\nDISK_RECOVERY_SNAPSHOT = [ ID=${disk_id}, TIMESTAMP=${snap_ts}]"
                 else
-                    vm_monitor="${vm_monitor}\nDISK_RECOVERY_SNAPSHOT = [ ID=${disk_id}, MSG=\"ERROR $rc\"]"
+                    vm_monitor="${vm_monitor}\nDISK_RECOVERY_SNAPSHOT = [ ID=${disk_id}, MSG=\"ERROR $rc ${snap_ts}\"]"
                 fi
             fi
         fi

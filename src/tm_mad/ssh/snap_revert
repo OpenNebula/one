@@ -25,15 +25,18 @@ DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
+    SSH_UTILS=/var/lib/one/remotes/tm/ssh/ssh_utils.sh
     DATASTORES=/var/lib/one/datastores
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
+    SSH_UTILS=$ONE_LOCATION/var/remotes/tm/ssh/ssh_utils.sh
     DATASTORES=$ONE_LOCATION/var/datastores
 fi
 
 DRIVER_PATH=$(dirname $0)
 
 . $TMCOMMON
+. $SSH_UTILS
 
 SRC_PATH=$(arg_path $SRC)
 SRC_HOST=$(arg_host $SRC)
@@ -52,11 +55,12 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/RECOVERY_SNAPSHOT_FREQ)
 
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
-
+RECOVERY_SNAPSHOT_FREQ="${XPATH_ELEMENTS[j++]}"
 
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 IMAGE_DS_PATH=$(dirname ${DISK_SRC})
@@ -68,12 +72,27 @@ SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 SNAP_PATH_RELATIVE=$(basename ${SNAP_PATH})
 CURRENT_PATH=${DISK_PATH}
 
-CMD=$(cat <<EOF
-    set -e -o pipefail
-    rm "${CURRENT_PATH}"
-    cp "${SNAP_PATH}" "${CURRENT_PATH}"
+if [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
+    CMD=$(cat <<EOF
+        # this only prints create_base function content
+        $(type create_base| grep -v 'is a function')
+
+        set -e -o pipefail
+        rm "${DISK_PATH}.snap/base"
+        rm "${DISK_PATH}.snap/base.1"
+
+        create_base "$SNAP_PATH" "$DISK_PATH"
 EOF
 )
+
+else
+    CMD=$(cat <<EOF
+        set -e -o pipefail
+        rm "${CURRENT_PATH}"
+        cp "${SNAP_PATH}" "${CURRENT_PATH}"
+EOF
+)
+fi
 
 ssh_exec_and_log "${SRC_HOST}" "${CMD}" \
                  "Error reverting snapshot to ${SNAP_PATH}"
