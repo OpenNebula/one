@@ -181,14 +181,13 @@ const genPathResources = () => {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
     }
     if (!global.CPI) {
-      console.log('-->', defaultAppName)
       global.CPI = `${VAR_LOCATION}/${defaultAppName}`
     }
     if (!global.ETC_CPI) {
       global.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
     }
     if (!global.SHARE_CPI) {
-      global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision`
+      global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision/provisions`
     }
   }
 }
