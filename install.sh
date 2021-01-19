@@ -736,7 +736,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_ONE_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
-    ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
+    ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision/provisions
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
     ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
     ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
@@ -2377,7 +2377,7 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/hybrid+"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/provisions/hybrid+"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"
