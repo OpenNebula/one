@@ -11,7 +11,7 @@ import { EmptyCard } from 'client/components/Cards'
 import FloatingActionButton from 'client/components/Fab'
 import listCardsStyles from 'client/components/List/ListCards/styles'
 
-const ListCards = memo(({
+const ListCards = ({
   list,
   keyProp,
   breakpoints,
@@ -78,7 +78,7 @@ const ListCards = memo(({
       )}
     </Grid>
   )
-})
+}
 
 const gridValues = [false, 'auto', true, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 

@@ -7,8 +7,9 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import { DEBUG_LEVEL } from 'client/constants'
-import AnsiHtml from 'client/components/DebugLog/ansiHtml'
+import AnsiHtml, { _regANSI } from 'client/components/DebugLog/ansiHtml'
 
+const cleanANSI = (text = '') => text.replace(_regANSI, '')
 const MAX_CHARS = 80
 
 const useStyles = makeStyles(theme => ({
@@ -30,6 +31,9 @@ const useStyles = makeStyles(theme => ({
   },
   time: {
     minWidth: '220px'
+  },
+  message: {
+    whiteSpace: 'pre-line'
   },
   [DEBUG_LEVEL.ERROR]: { borderLeft: `0.3em solid ${theme.palette.error.light}` },
   [DEBUG_LEVEL.WARN]: { borderLeft: `0.3em solid ${theme.palette.warning.light}` },
@@ -60,9 +64,12 @@ const Message = memo(({ timestamp, severity, message }) => {
       </div>
       <div className={classes.time}>{timestamp}</div>
       {(isCollapsed && isMoreThanMaxChars) ? (
-        <div>{`${message?.slice(0, MAX_CHARS)}…`}</div>
+        <div className={classes.message}>
+          {`${cleanANSI(message?.slice(0, MAX_CHARS))}…`}
+        </div>
       ) : (
-        <div dangerouslySetInnerHTML={{ __html: AnsiHtml(message) }} />
+        <div className={classes.message}
+          dangerouslySetInnerHTML={{ __html: AnsiHtml(message) }} />
       )}
     </div>
   )
