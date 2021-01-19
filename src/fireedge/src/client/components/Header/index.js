@@ -35,7 +35,8 @@ import headerStyles from 'client/components/Header/styles'
 
 const Header = ({ title, scrollableContainer }) => {
   const { isOneAdmin } = useAuth()
-  const { isFixMenu, fixMenu } = useGeneral()
+  const { theme, isFixMenu, fixMenu } = useGeneral()
+
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
@@ -78,7 +79,7 @@ const Header = ({ title, scrollableContainer }) => {
         </Toolbar>
       </AppBar>
     ),
-    [isFixMenu, fixMenu, isUpLg, isMobile, isOneAdmin, classes]
+    [theme, isFixMenu, fixMenu, isUpLg, isMobile, isOneAdmin, classes]
   )
 }
 

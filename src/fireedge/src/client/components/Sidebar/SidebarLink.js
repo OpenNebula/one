@@ -27,6 +27,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
     history.push(path)
     !isUpLg && fixMenu(false)
   }
+
   return (
     <ListItem
       button
@@ -38,7 +39,7 @@ const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
       data-cy='main-menu-item'
     >
       {Icon && (
-        <ListItemIcon className={classes.itemIcon}>
+        <ListItemIcon>
           <Icon />
         </ListItemIcon>
       )}

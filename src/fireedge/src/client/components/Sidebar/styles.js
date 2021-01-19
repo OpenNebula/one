@@ -6,7 +6,8 @@ export default makeStyles(theme => ({
   // CONTAINER MENU
   // -------------------------------
   drawerPaper: {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: theme.palette.background.paper,
+    border: 'none',
     width: 0,
     visibility: 'hidden',
     whiteSpace: 'nowrap',
@@ -69,6 +70,10 @@ export default makeStyles(theme => ({
   // -------------------------------
   header: {
     userSelect: 'none',
+    backgroundColor: theme.palette.type === 'dark'
+      ? theme.palette.background.paper
+      : theme.palette.primary.main,
+    color: theme.palette.text.primary,
     display: 'flex',
     alignItems: 'center',
     padding: '1rem',
@@ -116,7 +121,7 @@ export default makeStyles(theme => ({
     }
   },
   list: {
-    color: theme.palette.primary.contrastText
+    color: theme.palette.text.primary
   },
   expandIcon: {},
   subItemWrapper: {},
@@ -124,12 +129,11 @@ export default makeStyles(theme => ({
     paddingLeft: theme.spacing(4)
   },
   itemSelected: {
-    color: theme.palette.secondary.main,
+    color: theme.palette.text.primary,
     backgroundColor: theme.palette.primary.light,
-    '&:hover': { backgroundColor: theme.palette.primary.light },
-    '& $itemIcon': { color: theme.palette.secondary.main }
+    '&:hover': { backgroundColor: theme.palette.primary.light }
   },
-  itemIcon: {
+  hamburger: {
     color: theme.palette.primary.contrastText
   }
 }))

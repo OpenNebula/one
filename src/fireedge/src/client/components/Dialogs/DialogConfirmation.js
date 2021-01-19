@@ -8,12 +8,25 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Typography
+  Typography,
+  makeStyles
 } from '@material-ui/core'
 
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    backgroundColor: theme.palette.background.default,
+    width: '80%',
+    height: '80%',
+    [theme.breakpoints.only('xs')]: {
+      width: '100%',
+      height: '100%'
+    }
+  }
+}))
 
 const DialogConfirmation = memo(
   ({
@@ -28,6 +41,7 @@ const DialogConfirmation = memo(
     handleEntering,
     children
   }) => {
+    const classes = useStyles()
     const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
     return (
@@ -37,12 +51,9 @@ const DialogConfirmation = memo(
         open={open}
         onClose={handleCancel}
         maxWidth='lg'
-        scroll="paper"
-        PaperProps={{
-          style: {
-            height: isMobile ? '100%' : '80%',
-            width: isMobile ? '100%' : '80%'
-          }
+        scroll='paper'
+        classes={{
+          paper: classes.root
         }}
       >
         <DialogTitle disableTypography>

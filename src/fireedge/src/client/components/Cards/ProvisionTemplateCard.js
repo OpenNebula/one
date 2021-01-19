@@ -5,13 +5,21 @@ import ProvidersIcon from '@material-ui/icons/Public'
 import SelectCard from 'client/components/Cards/SelectCard'
 
 import { isExternalURL } from 'client/utils'
-import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
+import {
+  PROVIDER_IMAGES_URL,
+  PROVISION_IMAGES_URL,
+  DEFAULT_IMAGE
+} from 'client/constants'
 
 const ProvisionTemplateCard = React.memo(
   ({ value, isProvider, isSelected, handleClick }) => {
     const { description, name, plain = {} } = value
     const { image } = isProvider ? plain : value
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
+
+    const onError = evt => {
+      evt.target.src = evt.target.src === DEFAULT_IMAGE ? DEFAULT_IMAGE : ''
+    }
 
     const imgSource = React.useMemo(() =>
       isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
@@ -27,7 +35,8 @@ const ProvisionTemplateCard = React.memo(
         mediaProps={image && {
           component: 'img',
           image: imgSource,
-          draggable: false
+          draggable: false,
+          onError
         }}
       />
     )

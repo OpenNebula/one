@@ -2,46 +2,51 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
-import { Paper, Typography, makeStyles, lighten } from '@material-ui/core'
+import { Paper, Typography, makeStyles, lighten, darken } from '@material-ui/core'
 import { addOpacityToColor } from 'client/utils'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    padding: '2em',
-    position: 'relative',
-    overflow: 'hidden',
-    backgroundColor: ({ bgColor }) => bgColor
-  },
-  icon: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    fontSize: '10em',
-    fill: addOpacityToColor(theme.palette.common.white, 0.2)
-  },
-  wave: {
-    display: 'block',
-    position: 'absolute',
-    opacity: 0.4,
-    top: '-5%',
-    left: '50%',
-    width: 220,
-    height: 220,
-    borderRadius: '43%'
-  },
-  wave1: {
-    backgroundColor: ({ bgColor }) => lighten(bgColor, 0.4),
-    animation: '$drift 7s infinite linear'
-  },
-  wave2: {
-    backgroundColor: ({ bgColor }) => lighten(bgColor, 0.6),
-    animation: '$drift 5s infinite linear'
-  },
-  '@keyframes drift': {
-    from: { transform: 'rotate(0deg)' },
-    to: { transform: 'rotate(360deg)' }
+const useStyles = makeStyles(theme => {
+  const getBackgroundColor = theme.palette.type === 'dark' ? darken : lighten
+  const getContrastBackgroundColor = theme.palette.type === 'light' ? darken : lighten
+
+  return {
+    root: {
+      padding: '2em',
+      position: 'relative',
+      overflow: 'hidden',
+      backgroundColor: ({ bgColor }) => getBackgroundColor(bgColor, 0.3)
+    },
+    icon: {
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      fontSize: '10em',
+      fill: addOpacityToColor(theme.palette.common.white, 0.2)
+    },
+    wave: {
+      display: 'block',
+      position: 'absolute',
+      opacity: 0.4,
+      top: '-5%',
+      left: '50%',
+      width: 220,
+      height: 220,
+      borderRadius: '43%'
+    },
+    wave1: {
+      backgroundColor: ({ bgColor }) => getContrastBackgroundColor(bgColor, 0.3),
+      animation: '$drift 7s infinite linear'
+    },
+    wave2: {
+      backgroundColor: ({ bgColor }) => getContrastBackgroundColor(bgColor, 0.5),
+      animation: '$drift 5s infinite linear'
+    },
+    '@keyframes drift': {
+      from: { transform: 'rotate(0deg)' },
+      to: { transform: 'rotate(360deg)' }
+    }
   }
-}))
+})
 
 const WavesCard = React.memo(({ text, value, bgColor, icon: Icon }) => {
   const classes = useStyles({ bgColor })

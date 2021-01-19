@@ -30,7 +30,11 @@ const TypographyWithPoint = ({ pointColor, children }) => {
 
 TypographyWithPoint.propTypes = {
   pointColor: PropTypes.string,
-  children: PropTypes.oneOfType([PropTypes.string, PropTypes.element])
+  children: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.array,
+    PropTypes.element
+  ])
 }
 
 TypographyWithPoint.defaultProps = {

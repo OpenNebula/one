@@ -35,9 +35,9 @@ const ResponseForm = ({
   return (
     <>
       <Typography
-        color="textPrimary"
-        component="h2"
-        variant="h2"
+        color='textPrimary'
+        component='h2'
+        variant='h2'
         style={{ padding: '16px 0' }}
       >
         {name || 'Request'}
@@ -45,10 +45,10 @@ const ResponseForm = ({
       <Grid
         container
         spacing={3}
-        justify="flex-start"
-        component="form"
+        justify='flex-start'
+        component='form'
         onSubmit={handleSubmit(onSubmit)}
-        autoComplete="off"
+        autoComplete='off'
       >
         {Object.entries(params)?.map(([nameCommand, { default: value }]) => (
           <Grid item xs={12} key={`param-${nameCommand}`}>
@@ -56,7 +56,7 @@ const ResponseForm = ({
               as={
                 typeof value === 'boolean' ? (
                   <FormControlLabel
-                    control={<Checkbox color="primary" />}
+                    control={<Checkbox color='primary' />}
                     label={nameCommand}
                     labelPlacement={nameCommand}
                   />
@@ -66,7 +66,8 @@ const ResponseForm = ({
                     helperText={errors[name]?.message}
                     fullWidth
                     label={nameCommand}
-                    variant="outlined"
+                    color='secondary'
+                    variant='outlined'
                   />
                 )
               }

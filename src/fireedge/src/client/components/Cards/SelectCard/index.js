@@ -28,7 +28,7 @@ const SelectCard = memo(({
   observerOff,
   children
 }) => {
-  const classes = selectCardStyles(stylesProps)
+  const classes = selectCardStyles({ ...stylesProps, isSelected })
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
@@ -40,8 +40,7 @@ const SelectCard = memo(({
       {observerOff || isNearScreen ? (
         <Card
           className={clsx(classes.root, cardProps?.className, {
-            [classes.actionArea]: !handleClick,
-            [classes.selected]: isSelected
+            [classes.actionArea]: !handleClick
           })}
           {...cardProps}
         >
@@ -50,10 +49,7 @@ const SelectCard = memo(({
           <ConditionalWrap
             condition={handleClick && !action}
             wrap={children =>
-              <CardActionArea
-                className={classes.actionArea}
-                onClick={handleClick}
-              >
+              <CardActionArea className={classes.actionArea} onClick={handleClick}>
                 {children}
               </CardActionArea>
             }

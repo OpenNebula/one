@@ -62,6 +62,9 @@ module.exports = {
   /* sections */
   Dashboard: 'Dashboard',
   Settings: 'Settings',
+  /* sections - settgins */
+  Dark: 'Dark',
+  Light: 'Light',
   /* sections - system */
   User: 'User',
   Users: 'Users',

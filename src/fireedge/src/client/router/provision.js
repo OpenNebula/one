@@ -1,7 +1,8 @@
 import {
   Dashboard as DashboardIcon,
   Public as ProvidersIcon,
-  SettingsSystemDaydream as ProvisionsIcon
+  SettingsSystemDaydream as ProvisionsIcon,
+  Settings as SettingsIcon
 } from '@material-ui/icons'
 
 import Login from 'client/containers/Login'
@@ -47,13 +48,6 @@ export const ENDPOINTS = [
     Component: Dashboard
   },
   {
-    label: 'Settings',
-    path: PATH.SETTINGS,
-    authenticated: true,
-    header: true,
-    Component: Settings
-  },
-  {
     label: 'Providers',
     path: PATH.PROVIDERS.LIST,
     authenticated: true,
@@ -92,6 +86,14 @@ export const ENDPOINTS = [
     path: PATH.PROVISIONS.EDIT,
     authenticated: true,
     Component: ProvisionCreateForm
+  },
+  {
+    label: 'Settings',
+    path: PATH.SETTINGS,
+    authenticated: true,
+    sidebar: true,
+    icon: SettingsIcon,
+    Component: Settings
   }
 ]
 

@@ -75,7 +75,7 @@ const Sidebar = memo(({ endpoints }) => {
           className={classes.svg}
         />
         <IconButton
-          className={classes.itemIcon}
+          className={classes.hamburger}
           onClick={handleSwapMenu}
         >
           {isUpLg ? <MenuIcon /> : <CloseIcon />}

@@ -22,7 +22,8 @@ const initial = {
   notifications: [],
   isLoading: false,
   isOpenMenu: false,
-  isFixMenu: false
+  isFixMenu: false,
+  theme: 'dark'
 }
 
 const General = (state = initial, action) => {
@@ -57,6 +58,8 @@ const General = (state = initial, action) => {
           notification => notification.key !== action.key
         )
       }
+    case GeneralActions.CHANGE_THEME_TYPE:
+      return { ...state, ...action.payload }
     case GeneralActions.CHANGE_LOADING:
       return { ...state, ...action.payload }
     case GeneralActions.CHANGE_ZONE:

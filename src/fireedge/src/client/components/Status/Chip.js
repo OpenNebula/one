@@ -1,21 +1,25 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Typography, lighten } from '@material-ui/core'
+import { makeStyles, Typography, lighten, darken } from '@material-ui/core'
 import { addOpacityToColor } from 'client/utils'
 
-const useStyles = makeStyles(theme => ({
-  root: ({ stateColor = theme.palette.primary.main }) => ({
-    color: lighten(stateColor, 0.75),
-    backgroundColor: addOpacityToColor(stateColor, 0.2),
-    cursor: 'default',
-    padding: theme.spacing('0.25rem', '0.5rem'),
-    borderRadius: 2,
-    textTransform: 'uppercase',
-    fontSize: theme.typography.overline.fontSize,
-    fontWeight: theme.typography.fontWeightBold
-  })
-}))
+const useStyles = makeStyles(theme => {
+  const getBackgroundColor = theme.palette.type === 'dark' ? lighten : darken
+
+  return {
+    root: ({ stateColor = theme.palette.primary.main }) => ({
+      color: getBackgroundColor(stateColor, 0.75),
+      backgroundColor: addOpacityToColor(stateColor, 0.2),
+      cursor: 'default',
+      padding: theme.spacing('0.25rem', '0.5rem'),
+      borderRadius: 2,
+      textTransform: 'uppercase',
+      fontSize: theme.typography.overline.fontSize,
+      fontWeight: theme.typography.fontWeightBold
+    })
+  }
+})
 
 const StatusChip = memo(({ stateColor, children }) => {
   const classes = useStyles({ stateColor })

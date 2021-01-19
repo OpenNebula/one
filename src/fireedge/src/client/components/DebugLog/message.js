@@ -19,6 +19,7 @@ const useStyles = makeStyles(theme => ({
     padding: '0.5em 0',
     cursor: ({ isMoreThanMaxChars }) => isMoreThanMaxChars ? 'pointer' : 'default',
     fontFamily: 'monospace',
+    color: '#fafafa',
     '&:hover': {
       background: '#333537'
     }
@@ -29,9 +30,6 @@ const useStyles = makeStyles(theme => ({
   },
   time: {
     minWidth: '220px'
-  },
-  message: {
-    color: '#fafafa'
   },
   [DEBUG_LEVEL.ERROR]: { borderLeft: `0.3em solid ${theme.palette.error.light}` },
   [DEBUG_LEVEL.WARN]: { borderLeft: `0.3em solid ${theme.palette.warning.light}` },
@@ -62,9 +60,9 @@ const Message = memo(({ timestamp, severity, message }) => {
       </div>
       <div className={classes.time}>{timestamp}</div>
       {(isCollapsed && isMoreThanMaxChars) ? (
-        <div className={classes.message}>{`${message?.slice(0, MAX_CHARS)}…`}</div>
+        <div>{`${message?.slice(0, MAX_CHARS)}…`}</div>
       ) : (
-        <div className={classes.message} dangerouslySetInnerHTML={{ __html: AnsiHtml(message) }} />
+        <div dangerouslySetInnerHTML={{ __html: AnsiHtml(message) }} />
       )}
     </div>
   )

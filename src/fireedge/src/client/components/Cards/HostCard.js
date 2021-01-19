@@ -8,8 +8,7 @@ import SelectCard from 'client/components/Cards/SelectCard'
 import { StatusBadge, StatusChip } from 'client/components/Status'
 import Host from 'client/constants/host'
 
-const useStyles = makeStyles(theme => ({
-  card: { backgroundColor: theme.palette.primary.main },
+const useStyles = makeStyles(() => ({
   title: { display: 'flex', gap: '0.5rem' }
 }))
 
@@ -24,7 +23,6 @@ const HostCard = memo(
     return (
       <SelectCard
         stylesProps={{ minHeight: 160 }}
-        cardProps={{ className: classes.card, elevation: 2 }}
         icon={
           <StatusBadge title={state?.name} stateColor={state.color}>
             <HostIcon />

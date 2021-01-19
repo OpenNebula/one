@@ -16,22 +16,22 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const USER_ALLOCATE = 'user.allocate';
-const USER_DELETE = 'user.delete';
-const USER_PASSWD = 'user.passwd';
-const USER_LOGIN = 'user.login';
-const USER_UPDATE = 'user.update';
-const USER_CHAUTH = 'user.chauth';
-const USER_QUOTA = 'user.quota';
-const USER_CHGRP = 'user.chgrp';
-const USER_ADDGROUP = 'user.addgroup';
-const USER_DELGROUP = 'user.delgroup';
-const USER_INFO = 'user.info';
-const USER_POOL_INFO = 'userpool.info';
-const USER_QUOTA_INFO = 'userquota.info';
-const USER_QUOTA_UPDATE = 'userquota.update';
+const USER_ALLOCATE = 'user.allocate'
+const USER_DELETE = 'user.delete'
+const USER_PASSWD = 'user.passwd'
+const USER_LOGIN = 'user.login'
+const USER_UPDATE = 'user.update'
+const USER_CHAUTH = 'user.chauth'
+const USER_QUOTA = 'user.quota'
+const USER_CHGRP = 'user.chgrp'
+const USER_ADDGROUP = 'user.addgroup'
+const USER_DELGROUP = 'user.delgroup'
+const USER_INFO = 'user.info'
+const USER_POOL_INFO = 'userpool.info'
+const USER_QUOTA_INFO = 'userquota.info'
+const USER_QUOTA_UPDATE = 'userquota.update'
 
 const Actions = {
   USER_ALLOCATE,
@@ -48,7 +48,7 @@ const Actions = {
   USER_POOL_INFO,
   USER_QUOTA_INFO,
   USER_QUOTA_UPDATE
-};
+}
 
 module.exports = {
   Actions,
@@ -123,7 +123,7 @@ module.exports = {
     },
     [USER_UPDATE]: {
       // inspected
-      httpMethod: POST,
+      httpMethod: PUT,
       params: {
         id: {
           from: resource,
@@ -248,4 +248,4 @@ module.exports = {
       }
     }
   }
-};
+}

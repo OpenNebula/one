@@ -1,47 +1,49 @@
 import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
-  root: {
+  root: ({ isSelected }) => ({
     height: '100%',
-    '& $actionArea, & $mediaActionArea, & $media': {
-      transition: theme.transitions.create(
-        ['filter', 'background-color'],
-        { duration: '0.2s' }
-      )
-    }
-  },
-  selected: {
-    color: theme.palette.secondary.contrastText,
-    backgroundColor: theme.palette.secondary.main,
-    '& .badge': {
-      color: theme.palette.secondary.main,
-      backgroundColor: theme.palette.secondary.contrastText
+    transition: theme.transitions.create(
+      ['background-color', 'box-shadow'], { duration: '0.2s' }
+    ),
+    '&:hover': {
+      boxShadow: theme.shadows['5']
     },
-    '& $subheader': { color: 'inherit' }
-  },
+    ...(isSelected && {
+      color: theme.palette.secondary.contrastText,
+      backgroundColor: theme.palette.secondary.main,
+      '& .badge': {
+        color: theme.palette.secondary.main,
+        backgroundColor: theme.palette.secondary.contrastText
+      },
+      '& $subheader': { color: 'inherit' }
+    })
+  }),
   actionArea: {
     height: '100%',
-    minHeight: ({ minHeight = 140 }) => minHeight,
-    '& $media': { filter: 'contrast(0) brightness(2)' }
+    minHeight: ({ minHeight = 140 }) => minHeight
   },
   mediaActionArea: {
     display: 'flex',
     height: ({ mediaHeight = 140 }) => mediaHeight,
-    '& $media': { filter: 'contrast(0) brightness(2)' },
     '&:hover': {
-      backgroundColor: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.secondary.contrastText,
       '& $media': { filter: 'none' }
     }
   },
-  media: {},
+  media: {
+    transition: theme.transitions.create('filter', { duration: '0.2s' }),
+    filter: ({ isSelected }) => (theme.palette.type === 'dark' || isSelected)
+      ? 'contrast(0) brightness(2)'
+      : 'contrast(0) brightness(0.8)'
+  },
   headerRoot: { alignItems: 'end' },
   headerContent: { overflow: 'auto' },
   headerAvatar: {
     display: 'flex',
-    color: theme.palette.primary.contrastText
-  },
-  header: {
-    color: theme.palette.primary.contrastText
+    color: ({ isSelected }) => isSelected
+      ? theme.palette.secondary.contrastText
+      : theme.palette.text.primary
   },
   subheader: {
     overflow: 'hidden',

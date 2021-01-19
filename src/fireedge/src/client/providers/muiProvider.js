@@ -1,25 +1,28 @@
-import React, { useEffect, useState } from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { CssBaseline, ThemeProvider, StylesProvider } from '@material-ui/core'
 import { createTheme, generateClassName } from 'client/theme'
+import { useGeneral } from 'client/hooks'
 
 const MuiProvider = ({ theme: appTheme, children }) => {
-  const [theme, setTheme] = useState(() => createTheme(appTheme))
+  const { theme } = useGeneral()
 
-  useEffect(() => {
+  const changeThemeType = () => createTheme(appTheme(theme))
+
+  const [muitheme, setTheme] = React.useState(changeThemeType)
+
+  React.useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side')
     if (jssStyles) {
       jssStyles.parentElement.removeChild(jssStyles)
     }
   }, [])
 
-  useEffect(() => {
-    appTheme && setTheme(() => createTheme(appTheme))
-  }, [appTheme])
+  React.useEffect(() => { setTheme(changeThemeType) }, [theme])
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muitheme}>
       <CssBaseline />
       <StylesProvider generateClassName={generateClassName}>
         {children}
@@ -29,7 +32,7 @@ const MuiProvider = ({ theme: appTheme, children }) => {
 }
 
 MuiProvider.propTypes = {
-  theme: PropTypes.object,
+  theme: PropTypes.func,
   children: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.arrayOf(PropTypes.node)
@@ -37,7 +40,7 @@ MuiProvider.propTypes = {
 }
 
 MuiProvider.defaultProps = {
-  theme: {},
+  theme: () => {},
   children: undefined
 }
 

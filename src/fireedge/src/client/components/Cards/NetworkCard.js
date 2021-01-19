@@ -1,23 +1,16 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles } from '@material-ui/core'
 import NetworkIcon from '@material-ui/icons/AccountTree'
 import SelectCard from 'client/components/Cards/SelectCard'
-
-const useStyles = makeStyles(theme => ({
-  card: { backgroundColor: theme.palette.primary.main }
-}))
 
 const NetworkCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
     const { ID, NAME } = value
-    const classes = useStyles()
 
     return (
       <SelectCard
         stylesProps={{ minHeight: 120 }}
-        cardProps={{ className: classes.card, elevation: 2 }}
         icon={<NetworkIcon />}
         title={NAME}
         subheader={`#${ID}`}

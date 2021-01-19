@@ -21,7 +21,6 @@ const TotalProviders = () => {
   const chartData = React.useMemo(() => {
     const groups = groupBy(providers, 'TEMPLATE.PLAIN.provider')
 
-    console.log({ groups })
     return PROVIDERS_TYPES?.map(({ name, color }) => ({
       color,
       title: name,

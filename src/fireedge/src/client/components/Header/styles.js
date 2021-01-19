@@ -47,11 +47,14 @@ export default makeStyles(theme => ({
     }
   },
   /* GROUP SWITCHER */
+  modeThemeIcon: {
+    color: theme.palette.primary.contrastText
+  },
+  /* GROUP SWITCHER */
   headerSwitcherLabel: { flexGrow: 1 },
   groupButton: { justifyContent: 'start' },
   groupSelectedIcon: {
     fontSize: '1rem',
     margin: theme.spacing(0, 2)
   }
-}
-))
+}))

@@ -36,12 +36,13 @@ const TestApi = () => {
       disableGutters
       style={{ display: 'flex', flexFlow: 'column', height: '100%' }}
     >
-      <Grid container direction="row" spacing={2} className={classes.root}>
+      <Grid container direction='row' spacing={2} className={classes.root}>
         <Grid item xs={12} md={6}>
           <TextField
             fullWidth
             select
-            variant="outlined"
+            color='secondary'
+            variant='outlined'
             label={Tr(T.SelectRequest)}
             value={name}
             onChange={handleChangeCommand}

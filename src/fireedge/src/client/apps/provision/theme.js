@@ -1,10 +1,15 @@
-export default {
+export default (mode = 'dark') => ({
   palette: {
-    type: 'dark',
-    common: { black: '#000000', white: '#ffffff' },
+    type: mode,
+    common: {
+      black: '#000000',
+      white: '#ffffff'
+    },
     background: {
-      paper: '#2a2d3d',
-      default: '#222431'
+      paper: mode === 'dark' ? '#2e3440' : '#ffffff',
+      // PREV paper: mode === 'dark' ? '#2a2d3d' : '#eceff4',
+      default: mode === 'dark' ? '#242933' : '#f2f4f8'
+      // PREV default: mode === 'dark' ? '#222431' : '#d8dee9'
     },
     primary: {
       light: '#2a2d3d',
@@ -28,4 +33,4 @@ export default {
       main: '#7b7c7e'
     }
   }
-}
+})

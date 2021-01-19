@@ -15,8 +15,9 @@ import {
   logout as logoutRequest
 } from 'client/actions/user'
 import { setGroups } from 'client/actions/pool'
+import { updateTheme, enqueueError, enqueueSuccess } from 'client/actions/general'
 
-export default function useAuth () {
+const useAuth = () => {
   const {
     jwt,
     error,
@@ -79,6 +80,7 @@ export default function useAuth () {
       .then(user => dispatch(successAuth({ user })))
       .then(serviceOne.getGroups)
       .then(groups => dispatch(setGroups(groups)))
+      .then(() => dispatch(updateTheme))
       .catch(err => dispatch(failureAuth({ error: err })))
   }, [dispatch, JWT_NAME, authUser])
 
@@ -105,11 +107,25 @@ export default function useAuth () {
     [dispatch, authUser]
   )
 
+  const updateUser = useCallback(
+    ({ template }) =>
+      serviceOne
+        .updateUser({ id: authUser.ID, template })
+        .then(() => dispatch(enqueueSuccess(`User updated - ID: ${authUser.ID}`)))
+        .then(getAuthInfo)
+        .catch(err => {
+          dispatch(enqueueError(err ?? 'Error update user'))
+          throw err
+        })
+    , [dispatch, authUser]
+  )
+
   return {
     login,
     logout,
     getAuthInfo,
     setPrimaryGroup,
+    updateUser,
     isLogged: !!jwt,
     authUser,
     isOneAdmin: authUser?.ID === ONEADMIN_ID,
@@ -120,3 +136,5 @@ export default function useAuth () {
     filterPool
   }
 }
+
+export default useAuth

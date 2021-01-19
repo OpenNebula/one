@@ -103,7 +103,7 @@ const Tr = (str = '') => {
   return translate(key, valuesTr)
 }
 
-const SelectTranslate = () => {
+const SelectTranslate = props => {
   const context = useContext(TranslateContext)
   const languages = Array.isArray(root?.langs) ? root?.langs : []
 
@@ -120,6 +120,7 @@ const SelectTranslate = () => {
       fullWidth
       onChange={e => handleChange(e, context.changeLang)}
       defaultValue={context.lang}
+      {...props}
     >
       {languages.map(({ key, value }) => (
         <option value={key} key={key}>

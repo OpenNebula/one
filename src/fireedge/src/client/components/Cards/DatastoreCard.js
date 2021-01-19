@@ -8,10 +8,10 @@ import SelectCard from 'client/components/Cards/SelectCard'
 import { StatusBadge, StatusChip } from 'client/components/Status'
 import Datastore from 'client/constants/datastore'
 
-const useStyles = makeStyles(theme => ({
-  card: { backgroundColor: theme.palette.primary.main },
+const useStyles = makeStyles(() => ({
   title: { display: 'flex', gap: '0.5rem' }
 }))
+
 const DatastoreCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
     const classes = useStyles()
@@ -23,7 +23,6 @@ const DatastoreCard = memo(
     return (
       <SelectCard
         stylesProps={{ minHeight: 160 }}
-        cardProps={{ className: classes.card, elevation: 2 }}
         icon={
           <StatusBadge stateColor={state.color}>
             <DatastoreIcon />

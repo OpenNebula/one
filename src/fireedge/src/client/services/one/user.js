@@ -27,6 +27,17 @@ export const changeGroup = values => {
   })
 }
 
+export const updateUser = values => {
+  const name = Actions.USER_UPDATE
+  const { url, options } = requestParams(values, { name, ...Commands[name] })
+
+  return requestData(url, options).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  })
+}
+
 export default {
   changeGroup
 }
