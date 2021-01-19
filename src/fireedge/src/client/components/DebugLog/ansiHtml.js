@@ -96,7 +96,7 @@ ansiHTML.setColors = function (colors) {
 
   var _finalColors = {}
   for (var key in _defColors) {
-    var hex = colors.hasOwnProperty(key) ? colors[key] : null
+    var hex = Object.prototype.hasOwnProperty.call(colors, key) ? colors[key] : null
     if (!hex) {
       _finalColors[key] = _defColors[key]
       continue

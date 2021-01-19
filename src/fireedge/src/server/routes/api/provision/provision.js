@@ -105,13 +105,6 @@ const routes = {
         resource: { from: fromData.postBody, front: true }
       }
     },
-    configure: {
-      action: configureProvision,
-      params: {
-        resource: { from: fromData.resource, name: 'method' }
-      },
-      websocket: true
-    },
     host: {
       poweroff: {
         action: hostCommand,
@@ -210,6 +203,13 @@ const routes = {
     }
   },
   [PUT]: {
+    configure: {
+      action: configureProvision,
+      params: {
+        id: { from: fromData.resource, name: 'id' }
+      },
+      websocket: true
+    },
     host: {
       action: configureHost,
       params: {

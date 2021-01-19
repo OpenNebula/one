@@ -62,6 +62,19 @@ export const createProvision = ({ data = {} }) =>
     return res?.data ?? {}
   })
 
+export const configureProvision = ({ id }) =>
+  requestData(`/api/${PROVISION}/configure/${id}`, {
+    method: PUT,
+    error: err => err?.message
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) {
+      if (res?.id === httpCodes.accepted.id) return res
+      throw res
+    }
+
+    return res?.data ?? {}
+  })
+
 export const deleteProvision = ({ id }) =>
   requestData(`/api/${PROVISION}/delete/${id}`, {
     method: DELETE,

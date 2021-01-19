@@ -4,6 +4,7 @@ import clsx from 'clsx'
 
 import { makeStyles } from '@material-ui/core'
 import ChevronRightIcon from '@material-ui/icons/ChevronRight'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 import { DEBUG_LEVEL } from 'client/constants'
 import AnsiHtml from 'client/components/DebugLog/ansiHtml'
@@ -16,7 +17,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     marginBottom: '0.3em',
     padding: '0.5em 0',
-    cursor: ({ isCollapsed }) => isCollapsed ? 'pointer' : 'default',
+    cursor: ({ isMoreThanMaxChars }) => isMoreThanMaxChars ? 'pointer' : 'default',
     fontFamily: 'monospace',
     '&:hover': {
       background: '#333537'
@@ -43,29 +44,35 @@ const useStyles = makeStyles(theme => ({
 // --------------------------------------------
 
 const Message = memo(({ timestamp, severity, message }) => {
-  const [isCollapsed, setCollapse] = useState(() => message?.length >= MAX_CHARS)
-  const classes = useStyles({ isCollapsed })
-  const sanitize = AnsiHtml(message)
+  const isMoreThanMaxChars = message?.length >= MAX_CHARS
+  const [isCollapsed, setCollapse] = useState(() => isMoreThanMaxChars)
+  const classes = useStyles({ isMoreThanMaxChars })
 
   return (
     <div
       className={clsx(classes.root, classes[severity])}
-      onClick={() => setCollapse(false)}
+      onClick={() => setCollapse(prev => !prev)}
     >
       <div className={classes.arrow}>
-        {isCollapsed && <ChevronRightIcon fontSize='small' />}
+        {isMoreThanMaxChars && (isCollapsed ? (
+          <ChevronRightIcon fontSize='small' />
+        ) : (
+          <ExpandMoreIcon fontSize='small' />
+        ))}
       </div>
       <div className={classes.time}>{timestamp}</div>
-      <div className={classes.message}>
-        {isCollapsed ? `${sanitize.slice(0, MAX_CHARS)}...` : sanitize}
-      </div>
+      {(isCollapsed && isMoreThanMaxChars) ? (
+        <div className={classes.message}>{`${message?.slice(0, MAX_CHARS)}…`}</div>
+      ) : (
+        <div className={classes.message} dangerouslySetInnerHTML={{ __html: AnsiHtml(message) }} />
+      )}
     </div>
   )
 })
 
 Message.propTypes = {
   timestamp: PropTypes.string,
-  severity: PropTypes.oneOf([Object.keys(DEBUG_LEVEL)]),
+  severity: PropTypes.oneOf(Object.keys(DEBUG_LEVEL)),
   message: PropTypes.string
 }
 

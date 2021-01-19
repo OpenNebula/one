@@ -49,7 +49,7 @@ const ProvisionCard = memo(
           isProvider ? (
             <ProviderIcon />
           ) : (
-            <StatusBadge stateColor={stateInfo?.color}>
+            <StatusBadge title={stateInfo?.name} stateColor={stateInfo?.color}>
               <ProvisionIcon />
             </StatusBadge>
           )
@@ -62,7 +62,12 @@ const ProvisionCard = memo(
         }}
       />
     )
-  }, (prev, next) => prev.isSelected === next.isSelected
+  }, (prev, next) => (
+    prev.isSelected === next.isSelected &&
+    !prev.isProvider &&
+    !next.isProvider &&
+    prev.value?.BODY?.state === next.value?.BODY?.state
+  )
 )
 
 ProvisionCard.propTypes = {

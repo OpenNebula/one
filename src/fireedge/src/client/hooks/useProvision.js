@@ -142,6 +142,18 @@ export default function useProvision () {
     [dispatch]
   )
 
+  const configureProvision = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .configureProvision({ id })
+        .then(doc => {
+          dispatch(enqueueSuccess(`Provision configuring - ID: ${id}`))
+          return doc
+        })
+        .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE provision')))
+    , [dispatch]
+  )
+
   const deleteProvision = useCallback(
     ({ id }) =>
       serviceProvision
@@ -227,6 +239,7 @@ export default function useProvision () {
     getProvision,
     getProvisions,
     createProvision,
+    configureProvision,
     deleteProvision,
     getProvisionLog,
 

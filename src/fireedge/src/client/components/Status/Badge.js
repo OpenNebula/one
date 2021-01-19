@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const StatusBadge = memo(({ stateColor, children }) => {
+const StatusBadge = memo(({ stateColor, children, ...props }) => {
   const classes = useStyles({ stateColor })
 
   return (
@@ -41,6 +41,7 @@ const StatusBadge = memo(({ stateColor, children }) => {
       classes={{ badge: classes.badge }}
       overlap="circle"
       variant="dot"
+      {...props}
     >
       {children}
     </Badge>

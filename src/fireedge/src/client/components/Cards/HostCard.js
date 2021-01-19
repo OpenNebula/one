@@ -26,7 +26,7 @@ const HostCard = memo(
         stylesProps={{ minHeight: 160 }}
         cardProps={{ className: classes.card, elevation: 2 }}
         icon={
-          <StatusBadge stateColor={state.color}>
+          <StatusBadge title={state?.name} stateColor={state.color}>
             <HostIcon />
           </StatusBadge>
         }
@@ -46,7 +46,10 @@ const HostCard = memo(
       />
     )
   },
-  (prev, next) => prev.isSelected === next.isSelected
+  (prev, next) => (
+    prev.isSelected === next.isSelected &&
+    prev.value?.STATE === next.value?.STATE
+  )
 )
 
 HostCard.propTypes = {

@@ -44,7 +44,10 @@ const DatastoreCard = memo(
       />
     )
   },
-  (prev, next) => prev.isSelected === next.isSelected
+  (prev, next) => (
+    prev.isSelected === next.isSelected &&
+    prev.value?.STATE === next.value?.STATE
+  )
 )
 
 DatastoreCard.propTypes = {
