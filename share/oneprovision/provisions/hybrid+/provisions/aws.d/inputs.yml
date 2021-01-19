@@ -21,6 +21,11 @@ inputs:
     description: 'Number of AWS instances to create'
     default: '1'
 
+  - name: 'number_public_ips'
+    type: text
+    description: 'Number of public IPs to get'
+    default: '1'
+
   - name: 'aws_ami_image'
     type: text
     description: "AWS ami image used for host deployments"

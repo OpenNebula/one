@@ -400,12 +400,12 @@ void RaftManager::leader()
         heartbeat_manager.replicate();
 
         clock_gettime(CLOCK_REALTIME, &last_heartbeat);
+
+        auto im = nd.get_im();
+        im->raft_status(state);
     }
 
     aclm->reload_rules();
-
-    auto im = nd.get_im();
-    im->raft_status(state);
 
     if ( nd.is_federation_master() )
     {

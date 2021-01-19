@@ -574,8 +574,10 @@ module OneProvision
                 cfg[r].each do |x|
                     Driver.retry_loop('Failed to create some resources',
                                       self) do
-                        x['provision'] = { 'id' => @id }
-                        obj            = Resource.object(r, nil, x)
+                        x['provision'] ||= {}
+                        x['provision'].merge!({ 'id' => @id })
+
+                        obj = Resource.object(r, nil, x)
 
                         next if obj.nil?
 

@@ -110,11 +110,13 @@ REPLICA_STORAGE_IP=$(awk 'gsub(/[\0]/, x)' \
 # ------------------------------------------------------------------------------
 #  Synchronize Image Datastore in the Replica Host. Use a recovery snapshot
 #  if present in the RECOVERY_SNAPS_DIR
+#  (recovery snap existence means recreate is running, VMIDs is reused)
 # ------------------------------------------------------------------------------
 if recovery_snap_exists $REPLICA_HOST $VMID/$DST_FILE; then
+
     # point to [disk].recovery_snaphost files
     SRC_DIR=${REPLICA_RECOVERY_SNAPS_DIR}/$VMID
-    SRC_FILE="${DST_FILE}.recovery_snapshot"
+    SRC_FILE=$DST_FILE
     SRC_PATH="$SRC_DIR/$SRC_FILE"
     RECOVERY="YES"
 else
@@ -132,15 +134,24 @@ log "Cloning $SRC_PATH via replica $REPLICA_HOST in $DST"
 
 # copy locally, we hit the replica
 if [ "$REPLICA_HOST" = "$DST_HOST" ]; then
+    # if recovery snapshot is needed, prepare base <- base.1 qcow2 structure
     CLONE_CMD=$(cat <<EOF
-        cd $SRC_DIR
-        cp $SRC_FILE $DST_PATH
+        # this only prints create_base function content
+        $(type create_base| grep -v 'is a function')
 
-        if [ -d $SRC_PATH.snap ]; then
-            cp -r $SRC_PATH.snap $DST_PATH.snap
+        if [ "$RECOVERY" != "YES" ] && [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
+            create_base "$SRC_PATH" "$DST_PATH"
+        else
+            cd $SRC_DIR
+            cp $SRC_FILE $DST_PATH
+
+            if [ -d $SRC_PATH.snap ]; then
+                cp -r $SRC_PATH.snap $DST_PATH.snap
+            fi
         fi
 EOF
 )
+
 else
     # copy to remote using faster tar|ssh
     CLONE_CMD=$(cat <<EOF
@@ -153,34 +164,44 @@ else
             ssh $REPLICA_SSH_OPTS ${REPLICA_STORAGE_IP:-$DST_HOST} "$TAR xSf - -C $DST_DIR"
 EOF
 )
+
+    # if recovery snapshot is needed, prepare base <- base.1 qcow2 structure
+    if [ "$RECOVERY" != "YES" ] && [ -n "$RECOVERY_SNAPSHOT_FREQ" ]; then
+        MAKE_SNAP_CMD=$(cat <<EOF
+            # this only prints create_base function content
+            $(type create_base| grep -v 'is a function')
+
+            create_base "$DST_PATH" "$DST_PATH" "mv"
+EOF
+)
+    fi
 fi
 
-# Prepare uncopressed base image copy on REPLICA for recovery snapshots
-# to speedup first rsync
+# Prepare base image copy on REPLICA for recovery snapshots
 if [ -n "$RECOVERY_SNAPSHOT_FREQ" ] && [ "$RECOVERY" != "YES" ]; then
     SNAP_DIR="$REPLICA_RECOVERY_SNAPS_DIR/$VMID"
 
-    BASE_CMD=$(cat <<EOF
+    # TODO: Consider multiple subsequent recoveries
+    REPLICA_BASE_CMD=$(cat <<EOF
         set -e -o pipefail
 
-        mkdir -p $SNAP_DIR
-        cd $SNAP_DIR
-
-        if file $SRC_PATH | grep -q QCOW; then
-            qemu-img convert -O qcow2 $SRC_PATH ${DST_FILE}.recovery_snapshot
-        else
-            cp $SRC_PATH ${DST_FILE}.recovery_snapshot
-        fi
+        mkdir -p $SNAP_DIR/$DST_FILE.snap
+        ln -f -s $DST_FILE.snap/base.1 $SNAP_DIR/$DST_FILE
+        cp $SRC_PATH $SNAP_DIR/$DST_FILE.snap/base
 EOF
 )
-    ssh_forward ssh_exec_and_log "$REPLICA_HOST" "$BASE_CMD" \
+
+    ssh_forward ssh_exec_and_log "$REPLICA_HOST" "$REPLICA_BASE_CMD" \
         "Error uploading base image to replica"
 fi
 
-
-
 ssh_forward ssh_exec_and_log $REPLICA_HOST "$CLONE_CMD" \
     "Error copying $SRC to $DST"
+
+if [ -n "$MAKE_SNAP_CMD" ]; then
+   ssh_exec_and_log "$DST_HOST" "$MAKE_SNAP_CMD" \
+       "Error resizing image $DST"
+fi
 
 if [ -n "$RESIZE_CMD" ]; then
    ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \

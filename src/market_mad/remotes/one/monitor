@@ -21,6 +21,7 @@ require 'uri'
 require 'json'
 require 'base64'
 require 'rexml/document'
+require 'securerandom'
 
 # OpenNebula MarketPlace
 class OneMarket
@@ -111,14 +112,12 @@ class OneMarket
 
     def render_vmtemplate(tmpl, app)
         print_var(tmpl, 'SIZE', 0)
-        print_var(tmpl, 'MD5',  app['md5'])
 
         if app['disks']
-            app['disks'].each do |disk|
-                dname = disk.keys.first
-
+            app['disks'].each do |app_name|
                 tmpl << <<-EOT.strip
-                  DISK = [ NAME = "#{dname}", APP="#{disk[dname]}" ]
+                  DISK = [ NAME = "#{SecureRandom.hex[0..9]}",
+                           APP="#{app_name}" ]
                 EOT
             end
         end
@@ -137,14 +136,11 @@ class OneMarket
 
     def render_service_template(tmpl, app)
         print_var(tmpl, 'SIZE', 0)
-        print_var(tmpl, 'MD5',  app['md5'])
 
         if app['roles']
-            app['roles'].each do |role|
-                rname = role.keys.first
-
+            app['roles'].each do |role_name, app_name|
                 tmpl << <<-EOT.strip
-                  ROLE = [ NAME = "#{rname}", APP="#{role[rname]}" ]
+                  ROLE = [ NAME = "#{role_name}", APP="#{app_name}" ]
                 EOT
             end
         end

@@ -63,8 +63,7 @@ class VCenterConf < Hash
             vcenterrc_path = "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
             merge!(YAML.load_file(vcenterrc_path))
         rescue StandardError => e
-            STDERR.puts error_message("Couldn't load vcenterrc. \
-                                       Reason #{e.message}.")
+            STDERR.puts "Couldn't load vcenterrc. Reason #{e.message}."
         end
 
         super

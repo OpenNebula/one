@@ -73,6 +73,8 @@ module OpenNebula::MarketPlaceAppExt
                 when 'IMAGE'
                     export_image(options)
                 when 'VMTEMPLATE'
+                    options[:notemplate] = true
+
                     export_vm_template(options)
                 when 'SERVICE_TEMPLATE'
                     export_service_template(options)
@@ -328,10 +330,12 @@ module OpenNebula::MarketPlaceAppExt
                 tmpl['roles'].each do |role|
                     t_id = roles.find {|_, v| v[:names].include?(role['name']) }
 
-                    next if t_id.nil? || t_id[1].nil? || t_id[1][:vmtemplate]
+                    if t_id.nil? || t_id[1].nil? || t_id[1][:vmtemplate].nil?
+                        next
+                    end
 
                     role['vm_template'] = nil
-                    role['vm_template'] = t_id[1][:vmtemplate]
+                    role['vm_template'] = t_id[1][:vmtemplate][0]
                 end
 
                 # --------------------------------------------------------------
@@ -387,8 +391,9 @@ module OpenNebula::MarketPlaceAppExt
                     obj.extend(MarketPlaceAppExt)
 
                     rc = obj.export(
-                        :dsid => options[:dsid],
-                        :name => "#{options[:name]}-#{idx}"
+                        :dsid       => options[:dsid],
+                        :name       => "#{options[:name]}-#{idx}",
+                        :notemplate => options[:notemplate]
                     )
 
                     image      = rc[:image].first if rc[:image]

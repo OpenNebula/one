@@ -179,7 +179,33 @@ function recovery_snap_exists() {
     local REPLICA_HOST=$1
     local DISK=$2
 
-    SNAP_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.recovery_snapshot"
+    SNAP_PATH="${REPLICA_RECOVERY_SNAPS_DIR}/$DISK.snap"
 
-    ssh "$REPLICA_HOST" "test -f \"$SNAP_PATH\""
+    ssh "$REPLICA_HOST" "test -f \"$SNAP_PATH/base\" && test -f \"$SNAP_PATH/base.1\""
+}
+
+
+# ------------------------------------------------------------------------------
+# Creates base + base.1 overlay qcow2 structure as following:
+#
+# $VM_DIR/disk.0                   symlink -> disk.0.snap/base.1
+# $VM_DIR/disk.0.snap              dir
+# $VM_DIR/disk.0.snap/disk.0.snap  symlink -> . for relative referencing
+# $VM_DIR/disk.0.snap/base         base image (cp/mv from SRC_PATH)
+# $VM_DIR/disk.0.snap/base.1       qcow2 overlay (backing file = base)
+#
+# ------------------------------------------------------------------------------
+function create_base() {
+    local SRC_PATH=$1
+    local DST_PATH=$2
+    local COPY=${3:-cp}
+    DST_FILE=$(basename $DST_PATH)
+
+    mkdir -p $DST_PATH.snap
+    cd $DST_PATH.snap
+    ln -f -s . $DST_FILE.snap
+    $COPY $SRC_PATH base
+    qemu-img create -b $DST_FILE.snap/base -f qcow2 base.1
+    ln -f -s $DST_FILE.snap/base.1 $DST_PATH
+    cd -
 }

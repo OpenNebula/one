@@ -21,6 +21,11 @@ inputs:
     description: "Number of metal servers to create"
     default: '1'
 
+  - name: 'number_public_ips'
+    type: text
+    description: 'Number of public IPs to get'
+    default: '1'
+
   - name: 'packet_plan'
     type: text
     description: "Packet plan (device type)"

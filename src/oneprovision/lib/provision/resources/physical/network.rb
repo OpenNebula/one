@@ -32,6 +32,21 @@ module OneProvision
             @type = 'network'
         end
 
+        # Creates the object in OpenNebula
+        #
+        # @param cluster_id [Integer] Cluster ID
+        #
+        # @return [Integer] Resource ID
+        def create(cluster_id)
+            if @p_template['provision']['count'] && @p_template['ar']
+                (Integer(@p_template['provision']['count']) - 1).times do
+                    @p_template['ar'] << @p_template['ar'][0]
+                end
+            end
+
+            super
+        end
+
         # Info an specific object
         #
         # @param id [String] Object ID

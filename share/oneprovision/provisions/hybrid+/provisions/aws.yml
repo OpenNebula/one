@@ -73,6 +73,6 @@ cluster:
   reserved_cpu: '0'
   reserved_mem: '0'
   datastores:
-    - 0
+    - 1
   provision:
       cidr: '10.0.0.0/16'

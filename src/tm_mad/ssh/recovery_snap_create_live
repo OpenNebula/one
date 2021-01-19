@@ -24,14 +24,13 @@ DISK_PATH=$2
 FREQ=$3
 REPLICA_HOST=$4
 
-
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc
 source ${DRIVER_PATH}/../../etc/tm/ssh/sshrc
 source ${DRIVER_PATH}/../../scripts_common.sh
 
 mkdir -p "${DISK_PATH}.snap"
-SNAP_PATH="${DISK_PATH}.snap/recovery_snapshot"
+SNAP_PATH="${DISK_PATH}.snap/rs_tmp"
 DISK_NAME="$(basename $DISK_PATH)"
 
 if [ -f $SNAP_PATH ]; then
@@ -45,15 +44,45 @@ if [ -f $SNAP_PATH ]; then
     fi
 fi
 
+if [ ! -L $DISK_PATH ]; then
+    echo "$DISK_PATH not a symlink"
+    exit 1
+fi
+
+# Enumerate disks for which we don't create snapshot (all except $DISK_PATH)
+DISKS=$(virsh -c ${LIBVIRT_URI} domblklist one-${VMID} | grep disk | awk '{print $2}')
+OTHER_DISK_STR=""
+for DISK in $DISKS; do
+    [ "$DISK" = "$DISK_PATH" ] && continue
+
+    OTHER_DISK_STR+="--diskspec $DISK,snapshot=no "
+done
+
+# saves disk changes to base.1 moves active snap to rs_tmp
+# paths needs to absolute, otherwise snapshot-create and blockcommit fails
 touch $SNAP_PATH
+SNAP_CMD=$(cat <<EOF
+    virsh -c ${LIBVIRT_URI} snapshot-create-as one-${VMID} recovery_snap \
+    --diskspec $DISK_PATH,file=$SNAP_PATH \
+    $OTHER_DISK_STR \
+    --disk-only --atomic --no-metadata
+EOF
+)
 
-retry_if "active block job" 3 5\
-    virsh -q -c ${LIBVIRT_URI} blockcopy one-${VMID} \
-        --path ${DISK_PATH} --dest $SNAP_PATH --wait --finish
+# try with quiesce first (needs guest agent)
+$SNAP_CMD --quiesce || $SNAP_CMD
 
-ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID"
+# copy base.1 to the replica
+ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID/$DISK_NAME.snap"
+rsync -q $DISK_PATH.snap/base.1 \
+     $REPLICA_HOST:$REPLICA_RECOVERY_SNAPS_DIR/$VMID/$DISK_NAME.snap/ > /dev/null
 
-rsync -q $SNAP_PATH \
-    $REPLICA_HOST:$REPLICA_RECOVERY_SNAPS_DIR/$VMID/${DISK_NAME}.recovery_snapshot > /dev/null
+# reduce the backing-chain using blockcommit
+# base <- base.1 <- rs_tmp is reduced to base <- base.1
+# outdated rs_tmp is deleted next cycle
+virsh -c ${LIBVIRT_URI} blockcommit one-${VMID} $SNAP_PATH \
+    --base $DISK_PATH.snap/base.1 \
+    --top $SNAP_PATH \
+    --active --pivot --wait
 
 stat -c "%Y" $SNAP_PATH

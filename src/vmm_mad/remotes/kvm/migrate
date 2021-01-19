@@ -42,6 +42,13 @@ get_size_and_format_of_disk_img() {
     local PARAM="$2"
 
     if [ -L "$QEMU_IMG_PATH" ]; then
+        TARGET=$(readlink "$QEMU_IMG_PATH")A
+        # symlink to disk.X.snap/base.1
+        if [[ "$TARGET" =~ disk.[0-9]*.snap/base.1  ]]; then
+            echo unknown qcow2-symlink
+            return
+        fi
+
         # symlink, assume network disk
         echo unknown network-disk
         return
@@ -141,6 +148,10 @@ else
 
         elif [ "$FORMAT" = "qcow2" ]; then
             create_target_disk_img "$DEST_HOST" "$DISK_PATH" "$SIZE"
+            MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
+
+        elif [ "$FORMAT" = "qcow2-symlink" ]; then
+            # don't create disk, .snap dir will be copied anyway
             MIGRATE_DISKS+="${MIGRATE_DISKS:+,}${DISK_DEV}"
 
         elif [ "$FORMAT" = "network-disk" ]; then
