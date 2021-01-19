@@ -97,6 +97,8 @@
         <xs:element name="DEFAULT_VDC_HOST_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="DEFAULT_VDC_VNET_ACL" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
+        <xs:element name="DOCUMENT_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
         <xs:element name="DS_MAD_CONF" minOccurs="0" maxOccurs="unbounded">
           <xs:complexType>
             <xs:all>
@@ -165,7 +167,7 @@
         </xs:element>
 
         <xs:element name="HOST_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="DOCUMENT_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+
         <xs:element name="IMAGE_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
         <xs:element name="IM_MAD" minOccurs="0" maxOccurs="unbounded">

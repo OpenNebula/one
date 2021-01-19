@@ -299,12 +299,14 @@ private:
      */
     void log_error(VirtualMachine* vm_id,
                    const std::string& payload,
-                   const char* msg);
+                   const std::string& msg);
 
     /**
      *
      */
-    void log_error(int vm_id, const std::string& payload, const char* msg);
+    void log_error(int vm_id,
+                   const std::string& payload,
+                   const std::string& msg);
 
 
     /**

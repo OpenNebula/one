@@ -202,11 +202,16 @@ void Datastore::disk_attribute(
      *  3. DRIVER in DISK
      *  4. Default set to "raw"
      */
-    if (disk->vector_value("TYPE") != "CDROM" && disk->is_volatile())
+
+    string type = disk->vector_value("TYPE");
+
+    one_util::toupper(type);
+
+    if (type!= "CDROM" && disk->is_volatile())
     {
         string driver = get_ds_driver();
 
-        if (disk->vector_value("TYPE") == "FS") /* Volatile Datablock */
+        if (type == "FS") /* Volatile Datablock */
         {
             if (!driver.empty()) /* DRIVER in TM_MAD_CONF or DS Template */
             {

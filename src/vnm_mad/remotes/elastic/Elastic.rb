@@ -82,9 +82,11 @@ class ElasticDriver < VNMMAD::VNMDriver
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             ip("route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true")
-            ip("neighbour del proxy #{nic[:gateway]} dev #{nic[:bridge]} | true")
+            ip("neighbour del proxy #{nic[:gateway]} dev #{nic[:bridge]} " <<
+               '| true')
 
             next if nic[:conf][:keep_empty_bridge]
+
             ip("link delete #{nic[:bridge]} | true")
         end
 
@@ -102,6 +104,7 @@ class ElasticDriver < VNMMAD::VNMDriver
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
         rc = @vm.each_nic do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
             # pass aws_allocation_id if present
             opts = { :alloc_id => nic[:aws_allocation_id] }
 
@@ -111,7 +114,10 @@ class ElasticDriver < VNMMAD::VNMDriver
             assigned << [nic[:ip], nic[:external]]
         end
 
-        assigned.each {|ip, ext| provider.unassign(ip, ext) } unless rc # rollback
+        # rollback
+        assigned.each do |ip, ext|
+            provider.unassign(ip, ext)
+        end unless rc
 
         !rc
     end
@@ -125,6 +131,7 @@ class ElasticDriver < VNMMAD::VNMDriver
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
         @vm.each_nic do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
             provider.unassign(nic[:ip], nic[:external])
         end
     end
@@ -160,5 +167,6 @@ class ElasticDriver < VNMMAD::VNMDriver
         commands.add :ip, params
         commands.run_remote(@ssh)
     end
+
 end
-    # rubocop:enable Naming/FileName
+# rubocop:enable Naming/FileName

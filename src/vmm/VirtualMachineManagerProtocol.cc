@@ -41,7 +41,7 @@ static void log_message(vm_msg_t* msg)
 
 void VirtualMachineManager::log_error(VirtualMachine* vm,
                                       const string&   payload,
-                                      const char *    msg)
+                                      const string&   msg)
 {
     ostringstream oss;
 
@@ -60,7 +60,7 @@ void VirtualMachineManager::log_error(VirtualMachine* vm,
 
 void VirtualMachineManager::log_error(int           vm_id,
                                       const string& payload,
-                                      const char *  msg)
+                                      const string& msg)
 {
     ostringstream oss;
 
@@ -156,7 +156,7 @@ void VirtualMachineManager::_deploy(unique_ptr<vm_msg_t> msg)
     else
     {
         action = &LifeCycleManager::trigger_deploy_failure;
-        log_error(id, msg->payload(), "Error deploying virtual machine");
+        log_error(id, msg->payload(), vm_msg_t::type_str(VMManagerMessages::DEPLOY));
     }
 
     LifeCycleManager * lcm = Nebula::instance().get_lcm();
@@ -184,7 +184,7 @@ void VirtualMachineManager::_shutdown(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error shutting down VM");
+        log_error(id, msg->payload(), vm_msg_t::type_str(VMManagerMessages::SHUTDOWN));
 
         lcm->trigger_shutdown_failure(msg->oid());
     }
@@ -213,7 +213,7 @@ void VirtualMachineManager::_reset(unique_ptr<vm_msg_t> msg)
     else
     {
         log_error(id, msg->payload(),
-                  "Error rebooting-hard VM, assume it's still running");
+            vm_msg_t::type_str(VMManagerMessages::RESET));
     }
 }
 
@@ -240,7 +240,7 @@ void VirtualMachineManager::_reboot(unique_ptr<vm_msg_t> msg)
     else
     {
         log_error(id, msg->payload(),
-                  "Error rebooting VM, assume it's still running");
+                  vm_msg_t::type_str(VMManagerMessages::REBOOT));
     }
 }
 
@@ -264,7 +264,8 @@ void VirtualMachineManager::_cancel(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(msg->oid(), msg->payload(), "Error canceling VM");
+        log_error(msg->oid(), msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::CANCEL));
 
         lcm->trigger_shutdown_failure(id);
     }
@@ -293,7 +294,8 @@ void VirtualMachineManager::_cleanup(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error cleaning Host");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::CLEANUP));
     }
 
     lcm->trigger_cleanup_callback(id);
@@ -326,7 +328,8 @@ void VirtualMachineManager::_save(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error saving VM state");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::SAVE));
 
         lcm->trigger_save_failure(id);
     }
@@ -352,7 +355,8 @@ void VirtualMachineManager::_restore(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error restoring VM");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::RESTORE));
 
         lcm->trigger_deploy_failure(id);
     }
@@ -378,7 +382,8 @@ void VirtualMachineManager::_migrate(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(msg->oid(), msg->payload(), "Error live migrating VM");
+        log_error(msg->oid(), msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::MIGRATE));
 
         lcm->trigger_deploy_failure(id);
     }
@@ -409,7 +414,8 @@ void VirtualMachineManager::_attachdisk(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error attaching new VM Disk");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::ATTACHDISK));
 
         lcm->trigger_attach_failure(id);
     }
@@ -440,7 +446,8 @@ void VirtualMachineManager::_detachdisk(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error detaching VM Disk");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::DETACHDISK));
 
         lcm->trigger_detach_failure(id);
     }
@@ -471,7 +478,8 @@ void VirtualMachineManager::_attachnic(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error attaching new VM NIC");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::ATTACHNIC));
 
         lcm->trigger_attach_nic_failure(id);
     }
@@ -502,7 +510,8 @@ void VirtualMachineManager::_detachnic(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error detaching VM NIC");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::DETACHNIC));
 
         lcm->trigger_detach_nic_failure(id);
     }
@@ -543,7 +552,8 @@ void VirtualMachineManager::_snapshotcreate(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(msg->oid(), msg->payload(), "Error creating new VM Snapshot");
+        log_error(msg->oid(), msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::SNAPSHOTCREATE));
 
         lcm->trigger_snapshot_create_failure(id);
     }
@@ -574,7 +584,8 @@ void VirtualMachineManager::_snapshotrevert(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error reverting VM Snapshot");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::SNAPSHOTREVERT));
 
         lcm->trigger_snapshot_revert_failure(id);
     }
@@ -605,7 +616,8 @@ void VirtualMachineManager::_snapshotdelete(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error deleting VM Snapshot");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::SNAPSHOTDELETE));
 
         lcm->trigger_snapshot_delete_failure(id);
     }
@@ -636,7 +648,8 @@ void VirtualMachineManager::_disksnapshotcreate(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error creating new disk snapshot");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::DISKSNAPSHOTCREATE));
 
         lcm->trigger_disk_snapshot_failure(id);
     }
@@ -667,7 +680,8 @@ void VirtualMachineManager::_disksnapshotrevert(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error reverting disk snapshot");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::DISKSNAPSHOTREVERT));
 
         lcm->trigger_disk_snapshot_failure(id);
     }
@@ -698,7 +712,8 @@ void VirtualMachineManager::_resizedisk(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error resizing disk");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::RESIZEDISK));
 
         lcm->trigger_disk_resize_failure(id);
     }
@@ -729,7 +744,8 @@ void VirtualMachineManager::_updateconf(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error updating conf for VM");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::UPDATECONF));
 
         lcm->trigger_update_conf_failure(id);
     }
@@ -788,7 +804,8 @@ void VirtualMachineManager::_updatesg(unique_ptr<vm_msg_t> msg)
         }
         else
         {
-            log_error(vm.get(), msg->payload(), "Error updating security groups.");
+            log_error(vm.get(), msg->payload(),
+                vm_msg_t::type_str(VMManagerMessages::UPDATESG));
 
             vmpool->update(vm.get());
         }
@@ -830,7 +847,8 @@ void VirtualMachineManager::_resize(unique_ptr<vm_msg_t> msg)
     }
     else
     {
-        log_error(id, msg->payload(), "Error resizing VM");
+        log_error(id, msg->payload(),
+            vm_msg_t::type_str(VMManagerMessages::RESIZE));
 
         lcm->trigger_resize_failure(id);
     }

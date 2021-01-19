@@ -109,12 +109,14 @@ CommandParser::CmdParser.new(ARGV) do
                 puts xml_str
             end
         else
+            # rubocop:disable Naming/VariableNumber
             order_by = {}
             order_by[:order_by_1] = 'VM/UID'
 
             if options[:split] && !options[:csv]
                 order_by[:order_by_2] = 'VM/ID'
             end
+            # rubocop:enable Naming/VariableNumber
 
             acct_hash = pool.accounting(filter_flag,
                                         common_opts.merge(order_by))

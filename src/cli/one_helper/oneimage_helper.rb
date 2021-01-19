@@ -98,9 +98,9 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             end
         },
         {
-            :name => 'driver',
-            :large => '--driver driver',
-            :description => 'Driver to use image (raw, qcow2, tap:aio:...)',
+            :name => 'format',
+            :large => '--format format',
+            :description => 'Format of the image (raw, qcow2, ...)',
             :format => String
         },
         {

@@ -64,7 +64,7 @@ rescue StandardError => e
     STDERR.puts "Cannot upload image to datastore #{ds_id} "\
                 "Reason: \"#{e.message}\""
     if VCenterDriver::CONFIG[:debug_information]
-        STDERR.puts "#{e.backtrace}"
+        STDERR.puts e.backtrace.to_s
     end
     exit(-1)
 ensure

@@ -141,7 +141,6 @@ module VNMMAD
             @nic[:vlan_dev] = "#{@nic[:phydev]}.#{@nic[:vlan_id]}"
         end
 
-
         def list_interface_vlan(_name)
             nil
         end

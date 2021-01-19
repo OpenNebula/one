@@ -91,16 +91,19 @@ require 'opennebula'
 require 'oneprovision'
 require 'ipaddr'
 
+# Add ^ and < operators to the IPAddr class
 class IPAddr
+
     attr_reader :addr
 
     def ^(other)
-        return self.clone.set(@addr ^ other.to_i)
+        clone.set(@addr ^ other.to_i)
     end
 
     def <(other)
-        return @addr < other.addr
+        @addr < other.addr
     end
+
 end
 
 begin
@@ -126,7 +129,7 @@ begin
 
     cidr = IPAddr.new(cidr_s)
 
-    if ! ['255.255.0.0', '16'].include? mask
+    if !['255.255.0.0', '16'].include? mask
         STDERR.puts 'Elastic CIDR block has to be /16'
         exit(-1)
     end

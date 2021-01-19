@@ -821,5 +821,4 @@ CommandParser::CmdParser.new(ARGV) do
             user.disable
         end
     end
-
 end

@@ -2722,7 +2722,7 @@ void VirtualMachine::set_template_error_message(const string& name,
     SingleAttribute * attr;
     ostringstream     error_value;
 
-    error_value << one_util::log_time() << " : " << message;
+    error_value << one_util::log_time() << ": " << message;
 
     attr = new SingleAttribute(name, error_value.str());
 

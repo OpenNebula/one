@@ -186,8 +186,8 @@ def create_pg(one_vnet, esx_host)
 
             if !vs
                 sw_name = esx_host.create_vss(sw_name,
-                                              pnics,
                                               nports,
+                                              pnics,
                                               mtu,
                                               pnics_available)
             end

@@ -160,6 +160,7 @@ define(function(require) {
     $('select[name="deployment"]', context).val(element.TEMPLATE.BODY.deployment);
     $("select[name='shutdown_action_service']", context).val(element.TEMPLATE.BODY.shutdown_action);
     $("input[name='ready_status_gate']", context).prop("checked",element.TEMPLATE.BODY.ready_status_gate || false);
+    $("input[name='automatic_deletion']", context).prop("checked",element.TEMPLATE.BODY.automatic_deletion || false);
 
     // Remove role tabs
     $("#roles_tabs i.remove-tab", context).trigger("click");
