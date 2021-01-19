@@ -70,6 +70,6 @@ cluster:
   name: "${provision}"
   description: 'Packet cluster'
   datastores:
-    - 0
+    - 1
   reserved_cpu: '0'
   reserved_mem: '0'

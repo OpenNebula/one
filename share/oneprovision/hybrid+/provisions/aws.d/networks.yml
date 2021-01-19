@@ -24,7 +24,6 @@ networks:
     ar:
       - provison_id: "${provision_id}"
         size: '1'
-        packet_ip_type: 'public_ipv4'
         ipam_mad: 'aws'
         cidr: "${cluster.0.cidr}"
 
