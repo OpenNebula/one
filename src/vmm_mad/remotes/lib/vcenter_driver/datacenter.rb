@@ -383,36 +383,42 @@ module VCenterDriver
                        .vim
                        .serviceContent
                        .viewManager
-                       .CreateContainerView({
-                                                :container => dc.item.vmFolder,
-                    :type => ['VirtualMachine'],
-                    :recursive => true
-                                            })
+                       .CreateContainerView(
+                           {
+                               :container => dc.item.vmFolder,
+                               :type => ['VirtualMachine'],
+                               :recursive => true
+                           }
+                       )
 
                 pc = vi_client.vim.serviceContent.propertyCollector
 
                 filter_spec = RbVmomi::VIM.PropertyFilterSpec(
                     :objectSet => [
-                        { :obj => view,
-                        :skip => true,
-                        :selectSet => [
-                            RbVmomi::VIM.TraversalSpec(
-                                :name => 'traverseEntities',
-                                :type => 'ContainerView',
-                                :path => 'view',
-                                :skip => false
-                            )
-                        ] }
+                        {
+                            :obj => view,
+                            :skip => true,
+                            :selectSet => [
+                                RbVmomi::VIM.TraversalSpec(
+                                    :name => 'traverseEntities',
+                                    :type => 'ContainerView',
+                                    :path => 'view',
+                                    :skip => false
+                                )
+                            ]
+                        }
                     ],
                     :propSet => [
                         {
                             :type => 'VirtualMachine',
-                             :pathSet => ['config.template']
+                            :pathSet => ['config.template']
                         }
                     ]
                 )
 
-                result = pc.RetrieveProperties(:specSet => [filter_spec])
+                result = pc.RetrieveProperties(
+                    :specSet => [filter_spec]
+                )
 
                 vms = {}
                 result.each do |r|
@@ -441,7 +447,7 @@ module VCenterDriver
                                    .find_by_ref(
                                        OpenNebula::TemplatePool,
                                        'TEMPLATE/VCENTER_TEMPLATE_REF',
-                                       template['_ref'],
+                                       tref,
                                        vcenter_uuid,
                                        tpool
                                    )
@@ -467,7 +473,9 @@ module VCenterDriver
                 end
             end
 
-            { vcenter_instance_name => template_objects }
+            {
+                vcenter_instance_name => template_objects
+            }
         end
 
         def cluster_networks(one_host)
