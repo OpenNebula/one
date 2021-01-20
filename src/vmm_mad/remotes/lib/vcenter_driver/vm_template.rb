@@ -373,10 +373,8 @@ module VCenterDriver
                         one_i.info
                         start_time = Time.now
 
-                        first_condition = one_i.state_str != 'READY'
-                        second_condition = Time.now - start_time < 300
-
-                        while first_condition && second_condition
+                        while (one_i.state_str != 'READY') &&
+                            (Time.now - start_time < 300)
                             sleep 1
                             one_i.info
                         end
@@ -986,7 +984,7 @@ module VCenterDriver
         )
 
             vi_client = opts[:vi_client]
-            vc_uuid = opts[:vc_uuidv]
+            vc_uuid = opts[:vc_uuid]
             npool = opts[:npool]
             hpool = opts[:hpool]
             vcenter_instance_name = opts[:vcenter]
@@ -1661,10 +1659,10 @@ module VCenterDriver
                 folders = []
                 until item.instance_of? RbVmomi::VIM::Datacenter
                     item = item.parent
-                    unless item.instance_of?(
-                        RbVmomi::VIM::Datacenter &&
-                        item.name != 'vm'
-                    )
+                    first_condition = item.instance_of? RbVmomi::VIM::Datacenter
+                    second_condition = item.name != 'vm'
+
+                    unless first_condition && second_condition
                         folders << item.name
                     end
                     if item.nil?
@@ -1834,8 +1832,8 @@ module VCenterDriver
                             opts[:name]
                         )
                     unless template_copy_ref
-                        raise "There is a problem creating creating \
-                        your copy: #{error}"
+                        raise 'There is a problem creating creating' \
+                              "your copy: #{error}"
                     end
 
                     template =
@@ -1860,8 +1858,8 @@ module VCenterDriver
                             dc
                         )
                     unless one_template
-                        raise "There is a problem obtaining info \
-                        from your template's copy"
+                        raise 'There is a problem obtaining info '\
+                              "from your template's copy"
                     end
 
                     working_template = one_template
@@ -1916,7 +1914,7 @@ module VCenterDriver
                     template_moref = selected[:vcenter_ref]
                 end
 
-                opts = {
+                opts_nics = {
                     :vi_client => @vi_client,
                     :vc_uuid => vc_uuid,
                     :npool => npool,
@@ -1929,7 +1927,7 @@ module VCenterDriver
                 error, template_nics, _ar_ids, allocated_nets =
                     template
                     .import_vcenter_nics(
-                        opts,
+                        opts_nics,
                         id,
                         dc
                     )

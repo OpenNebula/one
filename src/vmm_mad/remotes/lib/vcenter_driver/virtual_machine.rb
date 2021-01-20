@@ -563,7 +563,7 @@ module VCenterDriver
                 end
             end
 
-            dc = cluster.get_dc
+            dc = cluster.datacenter
 
             vcenter_vm_folder = drv_action['USER_TEMPLATE/VCENTER_VM_FOLDER']
 
@@ -826,11 +826,10 @@ module VCenterDriver
             # Default disk move type (Full Clone)
             disk_move_type = :moveAllDiskBackingsAndDisallowSharing
 
-            if ds.instance_of?(
-                RbVmomi::VIM::Datastore &&
-                    use_linked_clones &&
-                    use_linked_clones.downcase == 'yes'
-            )
+            if ds.instance_of?(RbVmomi::VIM::Datastore) &&
+                use_linked_clones &&
+                use_linked_clones.downcase == 'yes'
+
                 # Check if all disks in template has delta disks
                 disks = vc_template.config
                                    .hardware
@@ -1240,8 +1239,11 @@ module VCenterDriver
             unmanaged_disks = one_item.retrieve_xmlelements(xpath)
 
             managed = false
-            extraconfig = reference_disks(template_ref, unmanaged_disks,
-                                          managed)
+            extraconfig = reference_disks(
+                template_ref,
+                unmanaged_disks,
+                managed
+            )
 
             # Add info for existing nics in template in vm xml
             xpath =
@@ -1260,31 +1262,22 @@ module VCenterDriver
                     select_net =lambda {|ref|
                         device = nil
                         nics.each do |nic|
-                            type = nic.backing.class
+                            type = nic.backing.class.to_s
 
                             case type
-                            when NET_CARD
+                            when NET_CARD.to_s
                                 nref = nic.backing.network._ref
-                            when DNET_CARD
+                            when DNET_CARD.to_s
                                 nref = nic.backing.port.portgroupKey
-                            when OPAQUE_CARD
+                            when OPAQUE_CARD.to_s
                                 # Select only Opaque Networks
                                 opaque_networks = @item.network.select do |net|
                                     RbVmomi::VIM::OpaqueNetwork == net.class
                                 end
-                                opaque_network =
-                                    opaque_networks
-                                    .find do |opn|
-                                        first_condition =
-                                            nic
-                                            .backing
-                                            .opaqueNetworkId
-                                        second_condition =
-                                            opn
-                                            .summary
-                                            .opaqueNetworkId
-                                        first_condition == second_condition
-                                    end
+                                opaque_network = opaque_networks.find do |opn|
+                                    nic.backing.opaqueNetworkId ==
+                                        opn.summary.opaqueNetworkId
+                                end
                                 nref = opaque_network._ref
                             else
                                 raise 'Unsupported network card type: '\
@@ -1309,11 +1302,10 @@ module VCenterDriver
                     unmanaged_nics.each do |unic|
                         vnic      = select_net.call(unic['VCENTER_NET_REF'])
                         nic_class = vnic.class if vnic
-                        new_model =
-                            Nic
-                            .nic_model_class(
-                                unic['MODEL']
-                            ) if unic['MODEL']
+
+                        if unic['MODEL']
+                            new_model = Nic.nic_model_class(unic['MODEL'])
+                        end
 
                         # if vnic is nil add a new device
                         if vnic.nil?
@@ -1324,27 +1316,24 @@ module VCenterDriver
                                 :device => vnic,
                                 :operation => :remove
                             }
-                            device_change <<
-                                calculate_add_nic_spec(
-                                    unic,
-                                    vnic.unitNumber
-                                )
-                        # update the actual nic
+                            device_change << calculate_add_nic_spec(
+                                unic,
+                                vnic.unitNumber
+                            )
                         else
                             vnic.macAddress = unic['MAC']
-                            device_change <<
-                                {
-                                    :device => vnic,
-                                    :operation => :edit
-                                }
+                            device_change << {
+                                :device => vnic,
+                                :operation => :edit
+                            }
                         end
                     end
 
                 end
             rescue StandardError => e
-                raise 'There is a problem with your vm NICS,'\
-                       'make sure that they are working properly. '\
-                        "Error: #{e.message}"
+                raise 'There is a problem with your vm NICS, '\
+                      'make sure that they are working properly. '\
+                      "Error: #{e.message}"
             end
 
             # Save in extraconfig the key for unmanaged disks
