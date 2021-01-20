@@ -6,10 +6,8 @@ export default (mode = 'dark') => ({
       white: '#ffffff'
     },
     background: {
-      paper: mode === 'dark' ? '#2e3440' : '#ffffff',
-      // PREV paper: mode === 'dark' ? '#2a2d3d' : '#eceff4',
-      default: mode === 'dark' ? '#242933' : '#f2f4f8'
-      // PREV default: mode === 'dark' ? '#222431' : '#d8dee9'
+      paper: mode === 'dark' ? '#2a2d3d' : '#ffffff',
+      default: mode === 'dark' ? '#222431' : '#f2f4f8'
     },
     primary: {
       light: '#2a2d3d',
