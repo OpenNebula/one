@@ -34,4 +34,7 @@ vntemplates:
     phydev: 'eth0'
     automatic_vlan_id: 'yes'
     netrole: 'private'
+    vxlan_mode: 'evpn'
+    vxlan_tep: 'dev'
+    ip_link_conf: 'nolearning='
     cluster_ids: "${cluster.0.id}"
