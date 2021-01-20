@@ -197,6 +197,8 @@ module OneProvision
                         path = 'resource'
                     end
 
+                    return [] unless @body['provision'][path][object]
+
                     resource = Resource.object(object)
 
                     @body['provision'][path][object].each do |o|

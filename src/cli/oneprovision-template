@@ -23,13 +23,11 @@ if !ONE_LOCATION
     RUBY_LIB_LOCATION = '/usr/lib/one/ruby'
     GEMS_LOCATION     = '/usr/share/one/gems'
     REMOTES_LOCATION  = '/var/lib/one/remotes'
-    ANSIBLE_LOCATION  = '/usr/share/one/oneprovision/ansible'
 else
     LIB_LOCATION      = ONE_LOCATION + '/lib'
     RUBY_LIB_LOCATION = ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     = ONE_LOCATION + '/share/gems'
     REMOTES_LOCATION  = ONE_LOCATION + '/var/remotes'
-    ANSIBLE_LOCATION  = ONE_LOCATION + '/share/oneprovision/ansible'
 end
 
 if File.directory?(GEMS_LOCATION)

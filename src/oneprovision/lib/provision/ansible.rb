@@ -23,6 +23,12 @@ require 'base64'
 require 'erb'
 require 'ostruct'
 
+if !ONE_LOCATION
+    ANSIBLE_LOCATION = '/usr/share/one/oneprovision/ansible'
+else
+    ANSIBLE_LOCATION = ONE_LOCATION + '/share/oneprovision/ansible'
+end
+
 # Default provision parameters
 CONFIG_DEFAULTS = {
     'connection' => {

@@ -19,6 +19,13 @@ require 'ostruct'
 require 'yaml'
 require 'zlib'
 
+if !ONE_LOCATION
+    PROVIDERS_LOCATION = '/usr/lib/one/oneprovision/lib/terraform/providers'
+else
+    PROVIDERS_LOCATION = ONE_LOCATION +
+                         '/lib/oneprovision/lib/terraform/providers'
+end
+
 # Module OneProvision
 module OneProvision
 
