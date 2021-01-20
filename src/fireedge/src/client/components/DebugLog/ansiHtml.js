@@ -1,8 +1,8 @@
 // Reference to https://github.com/sindresorhus/ansi-regex
 // eslint-disable-next-line no-control-regex
-var _regANSI = /(?:(?:\u001b\[)|\u009b)(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-M|f-m])|\u001b[A-M]/
+export const _regANSI = /(?:(?:\u001b\[)|\u009b)(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-M|f-m])|\u001b[A-M]/
 
-var _defColors = {
+const _defColors = {
   reset: ['fff', '000'], // [FOREGROUD_COLOR, BACKGROUND_COLOR]
   black: '000',
   red: 'ff0000',
@@ -14,7 +14,7 @@ var _defColors = {
   lightgrey: 'f0f0f0',
   darkgrey: '888'
 }
-var _styles = {
+const _styles = {
   30: 'black',
   31: 'red',
   32: 'green',
@@ -24,7 +24,7 @@ var _styles = {
   36: 'cyan',
   37: 'lightgrey'
 }
-var _openTags = {
+const _openTags = {
   1: 'font-weight:bold', // bold
   2: 'opacity:0.5', // dim
   3: '<i>', // italic
@@ -32,7 +32,7 @@ var _openTags = {
   8: 'display:none', // hidden
   9: '<del>' // delete
 }
-var _closeTags = {
+const _closeTags = {
   23: '</i>', // reset italic
   24: '</u>', // reset underscore
   29: '</del>' // reset delete
@@ -57,7 +57,7 @@ export default function ansiHTML (text) {
   var ansiCodes = []
   // Replace with markup.
   var ret = text.replace(/\033\[(\d+)*m/g, function (match, seq) {
-    var ot = _openTags[seq]
+    const ot = _openTags[seq]
     if (ot) {
       // If current sequence has been opened, close it.
       if (!!~ansiCodes.indexOf(seq)) { // eslint-disable-line no-extra-boolean-cast
@@ -69,7 +69,7 @@ export default function ansiHTML (text) {
       return ot[0] === '<' ? ot : '<span style="' + ot + ';">'
     }
 
-    var ct = _closeTags[seq]
+    const ct = _closeTags[seq]
     if (ct) {
       // Pop sequence
       ansiCodes.pop()
@@ -95,7 +95,7 @@ ansiHTML.setColors = function (colors) {
   }
 
   var _finalColors = {}
-  for (var key in _defColors) {
+  for (const key in _defColors) {
     var hex = Object.prototype.hasOwnProperty.call(colors, key) ? colors[key] : null
     if (!hex) {
       _finalColors[key] = _defColors[key]
@@ -161,12 +161,11 @@ function _setTags (colors) {
   // dark grey
   _openTags['90'] = 'color:#' + colors.darkgrey
 
-  for (var code in _styles) {
-    var color = _styles[code]
-    var oriColor = colors[color] || '000'
+  for (const code in _styles) {
+    const color = _styles[code]
+    const oriColor = colors[color] || '000'
     _openTags[code] = 'color:#' + oriColor
-    code = parseInt(code)
-    _openTags[(code + 10).toString()] = 'background:#' + oriColor
+    _openTags[(parseInt(code) + 10).toString()] = 'background:#' + oriColor
   }
 }
 

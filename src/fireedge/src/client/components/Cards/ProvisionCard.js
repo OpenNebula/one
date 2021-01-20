@@ -66,7 +66,7 @@ const ProvisionCard = memo(
     prev.isSelected === next.isSelected &&
     !prev.isProvider &&
     !next.isProvider &&
-    prev.value?.BODY?.state === next.value?.BODY?.state
+    prev.value?.TEMPLATE?.BODY?.state === next.value?.TEMPLATE?.BODY?.state
   )
 )
 
