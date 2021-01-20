@@ -214,7 +214,12 @@ module OpenNebula::MarketPlaceAppExt
                     create_vm_template(options, disks)
                 end
 
-                rc[:vmtemplate] = [vmtmpl]
+                rc[:vmtemplate] = [vmtmpl[0]]
+
+                unless OpenNebula.is_error?(vmtmpl[0])
+                    rc[:image] += vmtmpl[1]
+                    rc[:vmtemplate] += vmtmpl[2]
+                end
 
                 rc
             end
@@ -235,7 +240,12 @@ module OpenNebula::MarketPlaceAppExt
                     create_service_template(options, roles)
                 end
 
-                rc[:service_template] = [stmpl]
+                rc[:service_template] = [stmpl[0]]
+
+                unless OpenNebula.is_error?(stmpl[0])
+                    rc[:image] += stmpl[1]
+                    rc[:vmtemplate] += stmpl[2]
+                end
 
                 rc
             end
@@ -371,6 +381,10 @@ module OpenNebula::MarketPlaceAppExt
                 exported = {}
                 idx      = 0
 
+                # Store IDs of created resources
+                images    = []
+                templates = []
+
                 # Iterate over all childs
                 rc = retrieve_xmlelements(xpath).each do |obj|
                     # Get name and app information
@@ -407,6 +421,10 @@ module OpenNebula::MarketPlaceAppExt
                     # Update exported hash with information
                     exported[app] = rc
                     exported[app][:names] = [obj_name]
+
+                    # Add IDs to return object
+                    images << image
+                    templates << vmtemplate
                 end
 
                 if block_given? && !OpenNebula.is_error?(rc)
@@ -419,7 +437,7 @@ module OpenNebula::MarketPlaceAppExt
                     return rc_rbck if OpenNebula.is_error?(rc_rbck)
                 end
 
-                rc
+                [rc, images, templates]
             end
 
             # Delete templates/images in case something went wrong
@@ -438,18 +456,22 @@ module OpenNebula::MarketPlaceAppExt
                         [Template.new_with_id(id, @client),
                          "Error deleting template #{id}"]
                     }
+
+                    delete_method = 'delete(true)'
                 else
                     obj_factory = lambda {|v|
                         id = v[:image].first
                         [Image.new_with_id(id, @client),
                          "Error deleting image #{id}"]
                     }
+
+                    delete_method = 'delete'
                 end
 
                 exported.each do |_, v|
                     obj, err_msg = obj_factory.call(v)
 
-                    next unless OpenNebula.is_error?(obj.delete(true))
+                    next unless OpenNebula.is_error?(obj.send(delete_method))
 
                     ret << err_msg
                 end
