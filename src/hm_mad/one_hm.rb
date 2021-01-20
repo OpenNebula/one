@@ -84,30 +84,38 @@ class HookManagerDriver < OpenNebulaDriver
     end
 
     def action_execute(*arguments)
-        arg_xml = Nokogiri::XML(Base64.decode64(arguments.flatten[0]))
-        type    = arg_xml.xpath('//HOOK_TYPE').text
+        begin
+            arg_xml = Nokogiri::XML(Base64.decode64(arguments.flatten[0]))
+            type    = arg_xml.xpath('//HOOK_TYPE').text
 
-        key(type, arg_xml).each do |key|
-            m_key = "EVENT #{key}"
+            key(type, arg_xml).each do |key|
+                m_key = "EVENT #{key}"
 
-            # Using envelopes for splitting key/val
-            # http://zguide.zeromq.org/page:all#Pub-Sub-Message-Envelopes
-            @publisher.send_string m_key, ZMQ::SNDMORE
-            @publisher.send_string arguments.flatten[0]
+                # Using envelopes for splitting key/val
+                # http://zguide.zeromq.org/page:all#Pub-Sub-Message-Envelopes
+                send_string(@publisher, m_key, ZMQ::SNDMORE)
+                send_string(@publisher, arguments.flatten[0])
+            end
+        rescue StandardError => e
+            log(0, "ERROR: #{e.message}")
         end
     end
 
     def action_retry(*arguments)
-        arguments.flatten!
+        begin
+            arguments.flatten!
 
-        command = arguments[0]
-        params  = arguments[1]
+            command = arguments[0]
+            params  = arguments[1]
 
-        m_key = 'RETRY'
-        m_val = "#{command} #{params}"
+            m_key = 'RETRY'
+            m_val = "#{command} #{params}"
 
-        @publisher.send_string m_key, ZMQ::SNDMORE
-        @publisher.send_string m_val
+            send_string(@publisher, m_key, ZMQ::SNDMORE)
+            send_string(@publisher, m_val)
+        rescue StandardError => e
+            log(0, "ERROR: #{e.message}")
+        end
     end
 
     def receiver_thread
@@ -133,8 +141,9 @@ class HookManagerDriver < OpenNebulaDriver
     end
 
     #---------------------------------------------------------------------------
-    #  Helpers to build key and message values
+    #  Helpers
     #---------------------------------------------------------------------------
+
     def key(type, xml)
         case type.to_sym
         when :API
@@ -159,6 +168,22 @@ class HookManagerDriver < OpenNebulaDriver
         else
             ['']
         end
+    end
+
+    def send_string(socket, content, flag = nil)
+        rc = 0
+
+        if flag.nil?
+            rc = socket.send_string(content)
+        else
+            rc = socket.send_string(content, flag)
+        end
+
+        return unless rc < 0
+
+        msg = "ERROR: failure sending string: #{ZMQ::Util.error_string}" \
+              " (#{ZMQ::Util.errno})"
+        log(0, msg)
     end
 
 end
