@@ -213,6 +213,12 @@ begin
             :path => 'vm/monitor'
         },
 
+        :snapshot_vm_udp => {
+            :period => 60,
+            :elem_name => 'MONITOR_VM',
+            :path => 'vm/snapshot'
+        },
+
         :beacon_host_udp => {
             :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
             :path => 'host/beacon'

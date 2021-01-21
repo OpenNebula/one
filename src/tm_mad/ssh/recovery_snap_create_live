@@ -70,7 +70,7 @@ EOF
 )
 
 # try with quiesce first (needs guest agent)
-$SNAP_CMD --quiesce || $SNAP_CMD
+$SNAP_CMD --quiesce >/dev/null || $SNAP_CMD >/dev/null
 
 # copy base.1 to the replica
 ssh $REPLICA_HOST "mkdir -p $REPLICA_RECOVERY_SNAPS_DIR/$VMID/$DISK_NAME.snap"
@@ -83,6 +83,6 @@ rsync -q $DISK_PATH.snap/base.1 \
 virsh -c ${LIBVIRT_URI} blockcommit one-${VMID} $SNAP_PATH \
     --base $DISK_PATH.snap/base.1 \
     --top $SNAP_PATH \
-    --active --pivot --wait
+    --active --pivot --wait >/dev/null
 
 stat -c "%Y" $SNAP_PATH
