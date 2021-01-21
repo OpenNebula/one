@@ -80,7 +80,7 @@ const Template = () => ({
         <Breadcrumbs separator={<ArrowIcon color="secondary" />}>
           <Select
             color='secondary'
-            data-cy='select-provision-type'
+            inputProps = {{ 'data-cy': 'select-provision-type' }}
             native
             style={{ minWidth: '8em' }}
             onChange={handleChangeProvision}
@@ -92,7 +92,7 @@ const Template = () => ({
           </Select>
           {provisionSelected && <Select
             color='secondary'
-            data-cy='select-provider-type'
+            inputProps = {{ 'data-cy': 'select-provider-type' }}
             native
             style={{ minWidth: '8em' }}
             onChange={handleChangeProvider}
@@ -124,6 +124,7 @@ const Template = () => ({
                   : 'Your providers templates list is empty'
             } />
           }
+          gridProps={{ 'data-cy': 'providers-templates' }}
           CardComponent={ProvisionTemplateCard}
           cardsProps={({ value = {} }) => {
             const isSelected = data?.some(selected =>

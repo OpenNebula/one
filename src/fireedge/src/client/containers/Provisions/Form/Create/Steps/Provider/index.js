@@ -50,6 +50,7 @@ const Provider = () => ({
         list={providersByTypeAndService}
         EmptyComponent={<EmptyCard title={'Your providers list is empty'} />}
         CardComponent={ProvisionCard}
+        gridProps={{ 'data-cy': 'providers' }}
         cardsProps={({ value: { ID } }) => {
           const isSelected = data?.some(selected => selected === ID)
 

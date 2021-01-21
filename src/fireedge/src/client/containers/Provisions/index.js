@@ -45,7 +45,7 @@ function Provisions () {
           onClick: () => fetchRequest(undefined, { reload: true }),
           isSubmitting: Boolean(loading || reloading)
         }}
-        addButtonProps={{ onClick: () => history.push(PATH.PROVISIONS.CREATE) }}
+        addButtonProps={{ 'data-cy': 'create-provision', onClick: () => history.push(PATH.PROVISIONS.CREATE) }}
         searchProps={{ handleChange }}
       />
       <Box p={3}>
@@ -55,6 +55,7 @@ function Provisions () {
           <ListCards
             list={result ?? provisions}
             isLoading={provisions.length === 0 && loading}
+            gridProps={{ 'data-cy': 'provisions' }}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
               handleClick: () => setShowDialog({
@@ -67,7 +68,7 @@ function Provisions () {
                 {
                   handleClick: () => configureProvision({ id: ID }),
                   icon: <EditIcon />,
-                  cy: `provision-configure-${ID}`
+                  cy: 'provision-configure'
                 },
                 {
                   handleClick: () => setShowDialog({
@@ -80,7 +81,7 @@ function Provisions () {
                     content: DialogInfo
                   }),
                   icon: <DeleteIcon color='error' />,
-                  cy: `provision-delete-${ID}`
+                  cy: 'provision-delete'
                 }
               ]
             })}

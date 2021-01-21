@@ -21,7 +21,8 @@ const ListCards = ({
   cardsProps,
   EmptyComponent,
   displayEmpty,
-  isLoading
+  isLoading,
+  gridProps
 }) => {
   const classes = listCardsStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
@@ -31,7 +32,7 @@ const ListCards = ({
   }
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={3} {...gridProps}>
       {/* CREATE CARD COMPONENT */}
       {handleCreate && (ButtonCreateComponent ? (
         <ButtonCreateComponent onClick={handleCreate} />
@@ -110,7 +111,10 @@ ListCards.propTypes = {
     PropTypes.element
   ]),
   displayEmpty: PropTypes.bool,
-  isLoading: PropTypes.bool
+  isLoading: PropTypes.bool,
+  gridProps: PropTypes.shape({
+    'data-cy': PropTypes.string
+  })
 }
 
 ListCards.defaultProps = {
@@ -123,7 +127,8 @@ ListCards.defaultProps = {
   cardsProps: () => undefined,
   EmptyComponent: undefined,
   displayEmpty: false,
-  isLoading: false
+  isLoading: false,
+  gridProps: {}
 }
 
 ListCards.displayName = 'ListCards'
