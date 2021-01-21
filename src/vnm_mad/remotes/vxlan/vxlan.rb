@@ -24,11 +24,11 @@ module VXLAN
     # This function creates and activate a VLAN device
     ############################################################################
     def create_vlan_dev
-        vxlan_mode = @nic[:conf][:vxlan_mode] || 'multicast'
+        vxlan_mode = conf_attribute(@nic, :vxlan_mode, 'multicast')
         group = ""
 
         if vxlan_mode.downcase == 'evpn'
-            vxlan_tep = @nic[:conf][:vxlan_tep] || 'dev'
+            vxlan_tep = conf_attribute(@nic, :vxlan_tep, 'dev')
 
             if vxlan_tep.downcase == 'dev'
                 tep = "dev #{@nic[:phydev]}"
@@ -37,9 +37,9 @@ module VXLAN
             end
         else
             begin
-                ipaddr = IPAddr.new @nic[:conf][:vxlan_mc]
+              ipaddr = IPAddr.new conf_attribute(@nic, :vxlan_mc, '239.0.0.0')
             rescue
-                ipaddr = IPAddr.new "239.0.0.0"
+              ipaddr = IPAddr.new '239.0.0.0'
             end
 
             mc  = ipaddr.to_i + @nic[@attr_vlan_id].to_i
@@ -104,5 +104,11 @@ module VXLAN
             end
         end
         return nil
+    end
+
+    def conf_attribute(nic, name, default)
+        return nic[name] unless nic[name].nil?
+
+        nic[:conf][name] || default
     end
 end

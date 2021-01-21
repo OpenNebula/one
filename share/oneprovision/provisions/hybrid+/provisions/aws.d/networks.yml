@@ -19,6 +19,7 @@ networks:
   - name: "${provision}-public"
     vn_mad: 'elastic'
     bridge: 'br0'
+    netrole: 'public'
     provision:
       count: "${input.number_public_ips}"
     ar:
@@ -32,4 +33,8 @@ vntemplates:
     vn_mad: 'vxlan'
     phydev: 'eth0'
     automatic_vlan_id: 'yes'
+    netrole: 'private'
+    vxlan_mode: 'evpn'
+    vxlan_tep: 'dev'
+    ip_link_conf: 'nolearning='
     cluster_ids: "${cluster.0.id}"

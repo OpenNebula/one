@@ -16,20 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-###############################################################################
-# This script is used to unregister a new IP network in the IPAM.
-#
-# STDIN input:
-#   - Base64 encoded XML with AR request
-#
-# XML format
-#  <IPAM_DRIVER_ACTION_DATA>
-#    <AR>
-#      <DEPLOY_ID>Packet AR ID</DEPLOY_ID>
-#      <PACKET_TOKEN>Packet auth token</PACKET_TOKEN>
-#    </AR>
-#  </IPAM_DRIVER_ACTION_DATA>
-#
-################################################################################
+STDIN=`cat -`
 
 exit 0

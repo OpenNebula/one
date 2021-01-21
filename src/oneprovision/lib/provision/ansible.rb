@@ -23,6 +23,12 @@ require 'base64'
 require 'erb'
 require 'ostruct'
 
+if !ONE_LOCATION
+    ANSIBLE_LOCATION = '/usr/share/one/oneprovision/ansible'
+else
+    ANSIBLE_LOCATION = ONE_LOCATION + '/share/oneprovision/ansible'
+end
+
 # Default provision parameters
 CONFIG_DEFAULTS = {
     'connection' => {
@@ -75,11 +81,12 @@ module OneProvision
             #
             # @param hosts [OpenNebula::Host Array] Hosts to configure
             # @param hosts [OpenNebula::Datastore array] Datastores for vars
+            # @param provision [OpenNebula::Provision] Provision info
             # @param ping  [Boolean]                True to check ping to hosts
-            def configure(hosts, datastores, ping = true)
+            def configure(hosts, datastores, provision = nil, ping = true)
                 return if hosts.nil? || hosts.empty?
 
-                Driver.retry_loop 'Failed to configure hosts' do
+                Driver.retry_loop('Failed to configure hosts', provision) do
                     check_ansible_version
 
                     ansible_dir = generate_ansible_configs(hosts, datastores)
