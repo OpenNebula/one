@@ -450,9 +450,8 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     #
     # @param host      [OpenNebula::Host]
     # @param operation [String]  Operation to perform
-    # @param options   [Hash]    User CLI options
     # @param args      [Array]   Operation arguments
-    def host_operation(host, operation, options, args)
+    def host_operation(host, operation, args)
         p_id = host['TEMPLATE/PROVISION/ID']
 
         return OpenNebula::Error.new('No provision ID found') unless p_id
@@ -471,7 +470,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
         when 'delete'
             provision.update_objects('hosts', :remove, host.one['ID'])
         when 'configure'
-            host.configure((options.key? :force))
+            host.configure
         when 'ssh'
             host.ssh(args)
         end
@@ -503,7 +502,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
 
             case type
             when 'HOSTS'
-                host_operation(obj, operation, options, args[1])
+                host_operation(obj, operation, args[1])
             else
                 msg = "Deleting #{type} #{obj['ID']}"
 

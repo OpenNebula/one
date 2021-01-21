@@ -261,8 +261,7 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :configure],
             host_configure_desc,
             [:range, :hostid_list],
-            :options => [OneProvisionHelper::MODES,
-                         OneProvisionHelper::FORCE] do
+            :options => [OneProvisionHelper::MODES] do
         operation = { :operation => 'configure', :message => 'enabled' }
 
         rc = helper.resources_operation(args, operation, options, 'HOSTS')
