@@ -1,0 +1,27 @@
+{
+  "auth": {
+    "jwtName": "FireedgeToken",
+    "username": "oneadmin",
+    "password": "opennebula"
+  },
+  "endpoints": {
+    "login": "/api/auth/",
+    "userInfo": "/api/user/info"
+  },
+  "provision": {
+    "provision": "hybrid+",
+    "provider": "aws",
+    "nameProvider": "aws-frankfurt",
+    "descriptionProvider": "Elastic cluster on AWS in Frakfurt",
+    "descriptionProviderEdited": "Elastic cluster on AWS in Frakfurt Edited!",
+    "descriptionProvision": "Provision description",
+    "key": "access key",
+    "keyEdited": "access key Edited!",
+    "secretKey": "secret access key",
+    "secretKeyEdited": "secret access key Edited!",
+    "nameProvision": "aws-cluster",
+    "numberInstances": "1",
+    "amiImage": "ami-0b793c1e0d1dc4d28",
+    "instanceType": "i3-metal"
+  }
+}
