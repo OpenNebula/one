@@ -30,7 +30,7 @@ module OneProvision
             'CONFIGURING' => 2,
             'RUNNING'     => 3,
             'ERROR'       => 4,
-            'DONE'        => 5
+            'DELETING'    => 5
         }
 
         STATE_STR = %w[
@@ -39,7 +39,7 @@ module OneProvision
             CONFIGURING
             RUNNING
             ERROR
-            DONE
+            DELETING
         ]
 
         # Available resources that can be created with the provision
@@ -301,15 +301,7 @@ module OneProvision
 
                     OneProvisionLogger.info('Deploying')
 
-                    ips   = nil
-                    ids   = nil
-                    state = nil
-                    conf  = nil
-
-                    Driver.retry_loop('Failed to deploy hosts', self) do
-                        ips, ids, state, conf = Driver.tf_action(self,
-                                                                 'deploy')
-                    end
+                    ips, ids, state, conf = Driver.tf_action(self, 'deploy')
 
                     OneProvisionLogger.info('Monitoring hosts')
 
@@ -340,10 +332,6 @@ module OneProvision
             rescue OneProvisionCleanupException
                 delete(cleanup, timeout)
 
-                self.state = STATE['DONE']
-
-                update
-
                 -1
             end
         end
@@ -353,9 +341,9 @@ module OneProvision
         # @param force [Boolean] Force the configuration although provision
         #   is already configured
         def configure(force = false)
-            if state == STATE['DONE']
+            unless [STATE['RUNNING'], STATE['ERROR']].include?(state)
                 return OpenNebula::Error.new(
-                    'Provision is DONE, can\'t configure it'
+                    "Can't configure provision in #{STATE_STR[state]}"
                 )
             end
 
@@ -367,7 +355,7 @@ module OneProvision
 
             update
 
-            rc = Ansible.configure(hosts, datastores)
+            rc = Ansible.configure(hosts, datastores, self)
 
             if rc == 0
                 self.state = STATE['RUNNING']
@@ -383,12 +371,6 @@ module OneProvision
         # @param cleanup [Boolean] True to delete running VMs and images
         # @param timeout [Integer] Timeout for deleting running VMs
         def delete(cleanup, timeout)
-            if state == STATE['DONE']
-                return OpenNebula::Error.new(
-                    'Provision is DONE, can\'t delete it'
-                )
-            end
-
             if running_vms? && !cleanup
                 Utils.fail('Provision with running VMs can\'t be deleted')
             end
@@ -396,6 +378,10 @@ module OneProvision
             if images? && !cleanup
                 Utils.fail('Provision with images can\'t be deleted')
             end
+
+            self.state = STATE['DELETING']
+
+            update
 
             delete_vms(timeout) if cleanup
 
@@ -780,7 +766,7 @@ module OneProvision
         #
         # @param timeout [Integer] Timeout for deleting running VMs
         def delete_vms(timeout)
-            Driver.retry_loop 'Failed to delete running_vms' do
+            Driver.retry_loop('Failed to delete running_vms', self) do
                 next if hosts.nil?
 
                 d_hosts = []
@@ -813,7 +799,7 @@ module OneProvision
         #
         # @param timeout [Integer] Timeout for deleting running VMs
         def delete_images(timeout)
-            Driver.retry_loop 'Failed to delete images' do
+            Driver.retry_loop('Failed to delete images', self) do
                 d_datastores = []
 
                 next if datastores.nil?
@@ -902,7 +888,7 @@ module OneProvision
                 objects[resource].delete_if do |obj|
                     msg = "#{resource.chomp('s')} #{obj['id']}"
 
-                    Driver.retry_loop "Failed to delete #{msg}" do
+                    Driver.retry_loop("Failed to delete #{msg}", self) do
                         OneProvisionLogger.debug("Deleting OpenNebula #{msg}")
 
                         o = Resource.object(resource)

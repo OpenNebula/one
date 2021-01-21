@@ -134,16 +134,18 @@ module OneProvision
 
         # Deploy infra via Terraform
         #
+        # @param provision [OpenNebula::Provision] Provision information
+        #
         # @return [String, String]
         #   - IPs for each deployed host
         #   - Deploy ID for each host
         #   - Terraform state in base64
         #   - Terraform config in base64
-        def deploy
-            tempdir = init(false, false)
+        def deploy(provision)
+            tempdir = init(provision, false, false)
 
             # Apply
-            Driver.retry_loop "Driver action 'tf deploy' failed" do
+            Driver.retry_loop("Driver action 'tf deploy' failed", provision) do
                 _, e, s = Driver.run(
                     "cd #{tempdir}; terraform apply -auto-approve"
                 )
@@ -176,7 +178,7 @@ module OneProvision
 
             [ips, ids, state, conf]
         ensure
-            FileUtils.rm_r(tempdir) if File.exist?(tempdir)
+            FileUtils.rm_r(tempdir) if tempdir && File.exist?(tempdir)
         end
 
         # Get polling information from a host
@@ -189,21 +191,22 @@ module OneProvision
 
             output(tempdir, "ip_#{id}")
         ensure
-            FileUtils.rm_r(tempdir) if File.exist?(tempdir)
+            FileUtils.rm_r(tempdir) if tempdir && File.exist?(tempdir)
         end
 
         # Destroy infra via Terraform
         #
-        # @param target [String] Target to destroy
+        # @param provision [OpenNebula::Provision] Provision information
+        # @param target    [String]                Target to destroy
         #
         # @return [Array]
         #   - Terraform state in base64
         #   - Terraform config in base64
-        def destroy(target = nil)
-            tempdir = init
+        def destroy(provision, target = nil)
+            tempdir = init(provision)
 
             # Destroy
-            Driver.retry_loop "Driver action 'tf destroy' failed" do
+            Driver.retry_loop("Driver action 'tf destroy' failed", provision) do
                 _, e, s = Driver.run(
                     "cd #{tempdir}; terraform destroy #{target} -auto-approve"
                 )
@@ -221,7 +224,7 @@ module OneProvision
 
             [state, conf]
         ensure
-            FileUtils.rm_r(tempdir) if File.exist?(tempdir)
+            FileUtils.rm_r(tempdir) if tempdir && File.exist?(tempdir)
         end
 
         # Destroys a cluster
@@ -346,9 +349,10 @@ module OneProvision
 
         # Initialize Terraform directory content
         #
-        # @param state   [Boolean] True to copy state, false otherwise
-        # @param decode  [Boolean] True to decode @conf and @state
-        def init(state = true, decode = true)
+        # @param provisino [OpenNebula::Provision] Provision information
+        # @param state     [Boolean] True to copy state, false otherwise
+        # @param decode    [Boolean] True to decode @conf and @state
+        def init(provision = nil, state = true, decode = true)
             tempdir = Dir.mktmpdir('tf')
 
             if decode
@@ -375,7 +379,7 @@ module OneProvision
             upgrade(tempdir)
 
             # Init
-            Driver.retry_loop "Driver action 'tf init' failed" do
+            Driver.retry_loop("Driver action 'tf init' failed", provision) do
                 _, e, s = Driver.run("cd #{tempdir}; terraform init")
 
                 unless s && s.success?

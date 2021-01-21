@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 module OneProvision
 
     # Driver
@@ -75,17 +74,17 @@ module OneProvision
                         end
                     end
 
+                    if provision
+                        provision.state = Provision::STATE['ERROR']
+                        provision.update
+                    end
+
                     case choice
                     when :retry
                         sleep(seconds) if seconds
 
                         retry
                     when :quit
-                        if provision
-                            provision.state = Provision::STATE['ERROR']
-                            provision.update
-                        end
-
                         exit(-1)
                     when :skip
                         return :skip
@@ -93,11 +92,6 @@ module OneProvision
                         raise OneProvisionCleanupException if cleanup
 
                         Utils.fail('Cleanup unsupported for this operation')
-                    end
-
-                    if provision
-                        provision.state = Provision::STATE['ERROR']
-                        provision.update
                     end
 
                     exit(-1)
@@ -209,7 +203,7 @@ module OneProvision
                 terraform = Terraform.singleton(provider, tf)
 
                 terraform.generate_deployment_file(provision)
-                terraform.send(action)
+                terraform.send(action, provision)
             end
 
         end
