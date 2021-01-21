@@ -242,7 +242,7 @@ module OpenNebula::MarketPlaceAppExt
 
                 unless OpenNebula.is_error?(vmtmpl[0])
                     rc[:image] += vmtmpl[1]
-                    rc[:vmtemplate] += vmtmpl[2]
+                    rc[:vmtemplate] += vmtmpl[2] unless options[:notemplate]
                 end
 
                 rc
