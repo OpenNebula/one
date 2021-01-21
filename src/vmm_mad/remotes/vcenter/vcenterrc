@@ -36,3 +36,6 @@
 
 # Cache expiration for monitoring
 :cache_expire: 120
+
+# Default template when import from MarketPlace
+:default_template: -1

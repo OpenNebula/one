@@ -89,12 +89,14 @@ module OpenNebula::MarketPlaceAppExt
             private
 
             # Exports an OpenNebula Image from this marketplace app
-            #   @param optoins to export the image
+            #   @param options to export the image
             #     :vmtemplate_name [String] name of new image and template
             #     :url_args [String] optional URL arguments
             #     :dsid [String] Datastore id to create the image
             #     :f_dsid [String] Files Datastore id
             #     :notemplate [Bool] if true do not create vm_template (if any)
+            #     :template [Integer] Template id to use with image
+            #     :default_template [String] Default template id for vCenter
             #   @return [Hash]
             #     :image [Array] of the new image
             #     :image_type [String] of the new image (CONTEXT, KERNEL, CDROM)
@@ -181,19 +183,41 @@ module OpenNebula::MarketPlaceAppExt
                     return rc_info
                 end
 
-                tmpl = Base64.decode64(self['TEMPLATE/VMTEMPLATE64'])
-                tmpl << <<-EOT
+                if !options[:template].nil?
+                    template_id = options[:template]
 
-                NAME = "#{options[:vmtemplate_name] || options[:name]}"
-                DISK = [ IMAGE_ID = "#{image.id}" ]
-                EOT
+                    template_id = options[:default_template] if template_id == -1
 
-                vmtpl = Template.new(Template.build_xml, @client)
+                    template = Template.new_with_id(template_id, @client)
 
-                rc = vmtpl.allocate(tmpl)
-                rc = vmtpl.id unless OpenNebula.is_error?(rc)
+                    vmtpl_id = template.clone(options[:vmtemplate_name] || options[:name])
 
-                rc_info[:vmtemplate] = [rc]
+                    tmpl << <<-EOT
+
+                    NAME = "#{options[:vmtemplate_name] || options[:name]}"
+                    DISK = [ IMAGE_ID = "#{image.id}" ]
+                    EOT
+
+                    template = Template.new_with_id(vmtpl_id, @client)
+
+                    template.update(tmpl, true)
+
+                    rc_info[:vmtemplate] = [vmtpl_id]
+                else
+                    tmpl = Base64.decode64(self['TEMPLATE/VMTEMPLATE64'])
+                    tmpl << <<-EOT
+
+                    NAME = "#{options[:vmtemplate_name] || options[:name]}"
+                    DISK = [ IMAGE_ID = "#{image.id}" ]
+                    EOT
+
+                    vmtpl = Template.new(Template.build_xml, @client)
+
+                    rc = vmtpl.allocate(tmpl)
+                    rc = vmtpl.id unless OpenNebula.is_error?(rc)
+
+                    rc_info[:vmtemplate] = [rc]
+                end
 
                 rc_info
             end
