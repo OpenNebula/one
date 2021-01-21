@@ -23,3 +23,4 @@ export const DISABLED = 'DISABLED'
 
 export const CONFIGURING = 'CONFIGURING'
 export const ERROR = 'ERROR'
+export const DELETING = 'DELETING'

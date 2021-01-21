@@ -25,6 +25,11 @@ export const PROVISIONS_STATES = [
     name: STATES.ERROR,
     color: '#8c352a',
     meaning: ''
+  },
+  {
+    name: STATES.DELETING,
+    color: '#8c352a',
+    meaning: ''
   }
 ]
 
