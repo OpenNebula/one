@@ -123,7 +123,7 @@ CommandParser::CmdParser.new(ARGV) do
         if OpenNebula.is_error?(rc)
             STDERR.puts rc.message
             exit(-1)
-        elsif rc < 0
+        elsif rc.to_i < 0
             puts "ID: #{rc}"
             rc
         else
