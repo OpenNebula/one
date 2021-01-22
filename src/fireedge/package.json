@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "rimraf dist/ && cross-env NODE_ENV=development babel-node ./src/server/index.js",
     "build-front": "rimraf dist/client && webpack --config ./webpack.config.prod.client.js",
-    "build-server": "rimraf dist/index.js && rimraf dist/fireedge-server.conf && webpack --config ./webpack.config.prod.server.js",
+    "build-server": "rimraf dist/index.js && webpack --config ./webpack.config.prod.server.js",
     "build": "npm run build-front && npm run build-server",
     "start": "cross-env NODE_ENV=production babel-node ./dist/index.js",
     "cypress:open": "cypress open",
