@@ -204,11 +204,8 @@ module OneProvision
         end
 
         # Configures the HOST
-        #
-        # @param force [Boolean] Force the configuration if the HOST
-        #   is already configured
-        def configure(force)
-            Ansible.configure([{ 'id' => @one['ID'] }], force)
+        def configure
+            Ansible.configure([{ 'id' => @one['ID'] }])
         end
 
         # Checks that the HOST is a baremetal HOST

@@ -123,6 +123,9 @@ CommandParser::CmdParser.new(ARGV) do
         if OpenNebula.is_error?(rc)
             STDERR.puts rc.message
             exit(-1)
+        elsif rc < 0
+            puts "ID: #{rc}"
+            rc
         else
             puts "ID: #{rc}"
             0
@@ -261,8 +264,7 @@ CommandParser::CmdParser.new(ARGV) do
     command [:host, :configure],
             host_configure_desc,
             [:range, :hostid_list],
-            :options => [OneProvisionHelper::MODES,
-                         OneProvisionHelper::FORCE] do
+            :options => [OneProvisionHelper::MODES] do
         operation = { :operation => 'configure', :message => 'enabled' }
 
         rc = helper.resources_operation(args, operation, options, 'HOSTS')

@@ -352,12 +352,14 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/lxd-probes.d/host/system \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/lxd-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/firecracker.d \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/host/system \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/beacon \
@@ -2382,7 +2384,7 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/provisions"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/provisions/"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"

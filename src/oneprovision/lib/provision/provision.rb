@@ -317,7 +317,7 @@ module OneProvision
                 end
 
                 if skip == :none
-                    configure
+                    configure_resources
                 else
                     info_objects('hosts', true) {|h| h.enable }
                 end
@@ -351,19 +351,7 @@ module OneProvision
                 return OpenNebula::Error.new('Provision already configured')
             end
 
-            self.state = STATE['CONFIGURING']
-
-            update
-
-            rc = Ansible.configure(hosts, datastores, self)
-
-            if rc == 0
-                self.state = STATE['RUNNING']
-            else
-                self.state = STATE['ERROR']
-            end
-
-            update
+            configure_resources
         end
 
         # Deletes provision objects
@@ -371,6 +359,8 @@ module OneProvision
         # @param cleanup [Boolean] True to delete running VMs and images
         # @param timeout [Integer] Timeout for deleting running VMs
         def delete(cleanup, timeout)
+            exist = true
+
             if running_vms? && !cleanup
                 Utils.fail('Provision with running VMs can\'t be deleted')
             end
@@ -416,9 +406,13 @@ module OneProvision
 
             rc = super()
 
+            exist = false
+
             return rc if OpenNebula.is_error?(rc)
 
             0
+        ensure
+            unlock if exist
         end
 
         # Updates provision objects
@@ -689,6 +683,23 @@ module OneProvision
                     end
                 end
             end
+        end
+
+        # Configures provision resources
+        def configure_resources
+            self.state = STATE['CONFIGURING']
+
+            update
+
+            rc = Ansible.configure(hosts, datastores, self)
+
+            if rc == 0
+                self.state = STATE['RUNNING']
+            else
+                self.state = STATE['ERROR']
+            end
+
+            update
         end
 
         # Updates provision hosts with new name

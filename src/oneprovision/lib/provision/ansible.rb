@@ -83,7 +83,7 @@ module OneProvision
             # @param hosts [OpenNebula::Datastore array] Datastores for vars
             # @param provision [OpenNebula::Provision] Provision info
             # @param ping  [Boolean]                True to check ping to hosts
-            def configure(hosts, datastores, provision = nil, ping = true)
+            def configure(hosts, datastores = nil, provision = nil, ping = true)
                 return if hosts.nil? || hosts.empty?
 
                 Driver.retry_loop('Failed to configure hosts', provision) do

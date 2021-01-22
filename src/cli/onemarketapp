@@ -42,6 +42,9 @@ require 'one_helper/onemarketapp_helper'
 require 'one_helper/onemarket_helper'
 require 'one_helper/onedatastore_helper'
 
+require 'vcenter_driver'
+CONFIG = VCenterConf.new
+
 CommandParser::CmdParser.new(ARGV) do
     usage '`onemarket` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
@@ -101,6 +104,13 @@ CommandParser::CmdParser.new(ARGV) do
         end
     }
 
+    TEMPLATE = {
+        :name => 'template',
+        :large => '--template template_id ',
+        :description => 'Associate with VM template',
+        :format => Integer,
+    }
+
     MARKET = {
         :name => 'market',
         :large => '--market market_id',
@@ -123,7 +133,8 @@ CommandParser::CmdParser.new(ARGV) do
                       OneDatastoreHelper::FILE_DATASTORE,
                       OneMarketPlaceAppHelper::VMNAME,
                       TAG,
-                      NO]
+                      NO,
+                      TEMPLATE]
     IMPORT_OPTIONS = [YES, NO, MARKET, OneMarketPlaceAppHelper::VMNAME]
 
     ########################################################################
@@ -272,7 +283,9 @@ CommandParser::CmdParser.new(ARGV) do
                 :name => args[1],
                 :vmtemplate_name => options[:vmname],
                 :url_args => tag,
-                :notemplate => options[:no] == 'no'
+                :notemplate => options[:no] == 'no',
+                :template => options[:template],
+                :default_template => CONFIG[:default_template],
             )
 
             if OpenNebula.is_error?(rc)
