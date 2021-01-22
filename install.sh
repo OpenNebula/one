@@ -2384,7 +2384,7 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/provisions"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/provisions/"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"
