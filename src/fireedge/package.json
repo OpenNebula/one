@@ -9,8 +9,6 @@
     "build-server": "rimraf dist/index.js && rimraf dist/fireedge-server.conf && webpack --config ./webpack.config.prod.server.js",
     "build": "npm run build-front && npm run build-server",
     "start": "cross-env NODE_ENV=production babel-node ./dist/index.js",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run --headless --browser chrome --spec \"cypress/integration/**/*.spec.js\"",
     "pot": "node potfile.js",
     "po2json": "node po2json.js",
     "lint": "eslint ./src/client/",
@@ -27,7 +25,6 @@
     "opennebula"
   ],
   "devDependencies": {
-    "cypress": "^6.2.1",
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-config-standard": "^14.1.1",

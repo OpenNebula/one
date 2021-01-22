@@ -35,7 +35,7 @@ const ProvisionCard = memo(
     const imgSource = useMemo(() => (
       isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
     ), [image])
-
+    const dataCy = isProvider ? 'provider' : 'provision'
     return (
       <SelectCard
         title={NAME}
@@ -54,6 +54,8 @@ const ProvisionCard = memo(
             </StatusBadge>
           )
         }
+        cardProps={{ 'data-cy': `${dataCy}-card` }}
+        cardHeaderProps={{ titleTypographyProps: { 'data-cy': `${dataCy}-card-title` } }}
         mediaProps={{
           component: 'img',
           image: imgSource,

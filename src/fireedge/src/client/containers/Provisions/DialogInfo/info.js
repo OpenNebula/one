@@ -43,19 +43,19 @@ const Info = memo(({ data }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
-              <Typography>{name}</Typography>
+              <Typography data-cy="provision-name">{name}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography noWrap>{description}</Typography>
+              <Typography data-cy="provision-description" noWrap>{description}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>
-              <Typography>{providerName}</Typography>
+              <Typography data-cy="provider-provider-name">{providerName}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Cluster)}</Typography>
-              <Typography>{`${clusterId} - ${clusterName}`}</Typography>
+              <Typography data-cy="provider-cluster">{`${clusterId} - ${clusterName}`}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.StartTime)}</Typography>

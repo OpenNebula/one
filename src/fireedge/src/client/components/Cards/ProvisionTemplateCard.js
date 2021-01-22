@@ -24,7 +24,7 @@ const ProvisionTemplateCard = React.memo(
     const imgSource = React.useMemo(() =>
       isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
     , [image])
-
+    const dataCy = isProvider ? 'provider' : 'provision'
     return (
       <SelectCard
         title={name}
@@ -38,6 +38,8 @@ const ProvisionTemplateCard = React.memo(
           draggable: false,
           onError
         }}
+        cardProps={{ 'data-cy': `${dataCy}-template-card` }}
+        cardHeaderProps={{ titleTypographyProps: { 'data-cy': `${dataCy}-template-card-title` } }}
       />
     )
   },

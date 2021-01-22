@@ -37,15 +37,15 @@ const Info = memo(({ data }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
-              <Typography>{NAME}</Typography>
+              <Typography data-cy="provider-name">{NAME}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography noWrap>{description}</Typography>
+              <Typography data-cy="provider-description" noWrap>{description}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>
-              <Typography>{providerName}</Typography>
+              <Typography data-cy="provider-type">{providerName}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.RegistrationTime)}</Typography>
@@ -57,7 +57,7 @@ const Info = memo(({ data }) => {
               typeof value === 'string' && (
                 <ListItem key={key}>
                   <Typography>{key}</Typography>
-                  <Typography>{value}</Typography>
+                  <Typography data-cy={`provider-${key}`}>{value}</Typography>
                 </ListItem>
               ))}
           </List>

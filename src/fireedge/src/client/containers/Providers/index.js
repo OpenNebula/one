@@ -39,7 +39,7 @@ function Providers () {
           onClick: () => fetchRequest(undefined, { reload: true }),
           isSubmitting: Boolean(loading || reloading)
         }}
-        addButtonProps={{ onClick: () => history.push(PATH.PROVIDERS.CREATE) }}
+        addButtonProps={{ 'data-cy': 'create-provider', onClick: () => history.push(PATH.PROVIDERS.CREATE) }}
         searchProps={{ handleChange }}
       />
       <Box p={3}>
@@ -49,6 +49,7 @@ function Providers () {
           <ListCards
             list={result ?? providers}
             isLoading={providers.length === 0 && loading}
+            gridProps={{ 'data-cy': 'providers' }}
             CardComponent={ProvisionCard}
             cardsProps={({ value: { ID, NAME } }) => ({
               isProvider: true,
@@ -62,7 +63,7 @@ function Providers () {
                   handleClick: () =>
                     history.push(PATH.PROVIDERS.EDIT.replace(':id', ID)),
                   icon: <EditIcon />,
-                  cy: `provider-edit-${ID}`
+                  cy: 'provider-edit'
                 },
                 {
                   handleClick: () => setShowDialog({
@@ -74,7 +75,7 @@ function Providers () {
                     }
                   }),
                   icon: <DeleteIcon color='error' />,
-                  cy: `provider-delete-${ID}`
+                  cy: 'provider-delete'
                 }
               ]
             })}
