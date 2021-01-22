@@ -76,7 +76,7 @@ const Template = () => ({
     const RenderDescription = ({ description = '' }) => (
       <p>{(sanitize`${description}`)?.split(' ').map((string, idx) =>
         isExternalURL(string)
-          ? <Link key={`link-${idx}`} color='textPrimary' href={string}>{string}</Link>
+          ? <Link key={`link-${idx}`} color='textPrimary' target='_blank' href={string}>{string}</Link>
           : ` ${string}`
       )}</p>
     )
