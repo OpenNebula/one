@@ -2901,7 +2901,7 @@ module VCenterDriver
             end
 
             ide_schema.keys.each do |controller|
-                if ide_schema[controller][:freeUnitNumber].!empty?
+                unless ide_schema[controller][:freeUnitNumber].empty?
                     free_ide_controller = ide_schema[controller]
                     break
                 end
