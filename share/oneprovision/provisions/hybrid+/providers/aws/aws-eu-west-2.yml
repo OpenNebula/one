@@ -21,6 +21,4 @@ inputs:
    - name: 'aws_instance_type'
      type: 'list'
      options:
-       - 't2.micro'
-       - 't2.small'
-       - 't2.medium'
+       - 'i3.metal'

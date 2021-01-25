@@ -58,6 +58,8 @@ defaults:
     ami: "${input.aws_ami_image}"
     instancetype: "${input.aws_instance_type}"
     cloud_init: true
+  connection:
+    remote_user: 'centos'
 
 #-------------------------------------------------------------------------------
 # cluster: Parameters for the OpenNebula cluster. Applies to all the Hosts

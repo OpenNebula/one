@@ -1,6 +1,6 @@
-name: 'aws-london'
+name: 'aws-north-virginia'
 
-description: 'Elastic cluster on AWS in London'
+description: 'Elastic cluster on AWS in North Virginia'
 provider: 'aws'
 
 plain:
@@ -11,13 +11,13 @@ location_key: 'region'
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'
-  region: 'eu-west-2'
+  region: 'us-east-1'
 
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
      options:
-       - 'ami-0bab5c8be0975423b'
+       - 'ami-0d6e9a57f6259ba3a'
    - name: 'aws_instance_type'
      type: 'list'
      options:

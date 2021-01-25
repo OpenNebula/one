@@ -1,26 +1,24 @@
-name: 'aws-london'
+name: 'aws-north-california'
 
-description: 'Elastic cluster on AWS in London'
+description: 'Elastic cluster on AWS in North California'
 provider: 'aws'
 
 plain:
-  provision_type: 'hybrid+_qemu'
+  provision_type: 'hybrid+'
   image: 'AWS.webp'
 
 location_key: 'region'
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'
-  region: 'eu-west-2'
+  region: 'us-west-1'
 
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
      options:
-       - 'ami-0bab5c8be0975423b'
+       - 'ami-08b547f0dcb46c4d3'
    - name: 'aws_instance_type'
      type: 'list'
      options:
-       - 't2.micro'
-       - 't2.small'
-       - 't2.medium'
+       - 'i3.metal'
