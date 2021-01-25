@@ -177,12 +177,12 @@ else
     if [ -n "$RAW_DISKS" ]; then
         if virsh --connect $LIBVIRT_URI domfsfreeze $DEPLOY_ID; then
             # local domfsthaw for the case migration fails
-            trap "virsh --connect $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
+            trap "virsh --connect $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
             FREEZE="yes"
         else
             if virsh --connect $LIBVIRT_URI suspend $DEPLOY_ID; then
                 # local resume for the case migration fails
-                trap "virsh --connect $LIBVIRT_URI resume $DEPLOY_ID" EXIT TERM INT HUP
+                trap "virsh --connect $LIBVIRT_URI resume $DEPLOY_ID" EXIT
                 SUSPEND="yes"
             else
                 error_message "Could not freeze or suspend the domain"

@@ -107,10 +107,10 @@ if ! retry_if "active block job" 3 5 virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_
     set -e -o pipefail
 
     if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
-        trap "virsh -c ${LIBVIRT_URI} domfsthaw ${DEPLOY_ID}" EXIT TERM INT HUP
+        trap "virsh -c ${LIBVIRT_URI} domfsthaw ${DEPLOY_ID}" EXIT
         $CP $SRC_PATH $SRC_TEMP_PATH
     elif virsh -c ${LIBVIRT_URI} suspend ${DEPLOY_ID}; then
-        trap "virsh -c ${LIBVIRT_URI} resume ${DEPLOY_ID}" EXIT TERM INT HUP
+        trap "virsh -c ${LIBVIRT_URI} resume ${DEPLOY_ID}" EXIT
         $CP $SRC_PATH $SRC_TEMP_PATH
     else
         echo "Could not domfsfreeze or suspend domain" >&2

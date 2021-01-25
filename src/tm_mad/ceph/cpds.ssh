@@ -112,9 +112,9 @@ fi
 
 COPY_CMD=$(cat <<EOF
     if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
-        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
+        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
     elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
-        trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT TERM INT HUP
+        trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT
     else
         echo "Could not domfsfreeze or suspend domain" >&2
         exit 1

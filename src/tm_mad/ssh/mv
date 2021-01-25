@@ -78,7 +78,7 @@ MONITOR=$(ssh_monitor_and_log "$SRC_HOST" "$MONITOR_CMD" 'Get .monitor')
 ssh_make_path "$DST_HOST" "$DST_PATH" "$MONITOR"
 
 RANDOM_FILE=$(ssh "$DST_HOST" "mktemp -p \"$DST_DIR\"")
-trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT TERM INT HUP
+trap "ssh $DST_HOST \"rm -f $RANDOM_FILE\"" EXIT
 if ssh "$SRC_HOST" "test -f $RANDOM_FILE"; then
     log "Not moving $SRC to $DST, they are the same path"
     exit 0

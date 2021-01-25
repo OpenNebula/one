@@ -31,7 +31,7 @@ NEW_DISK=$(mktemp "${DISK_SRC}.XXXXXX")
 NEW_DBFS=$(mktemp "${DISK_SRC}.XXXXXX")
 chmod go-rwx "${NEW_EXTR}" "${NEW_DISK}" "${NEW_DBFS}"
 
-trap 'rm -rf "${NEW_EXTR}" "${NEW_DISK}" "${NEW_DBFS}"' EXIT TERM INT HUP
+trap 'rm -rf "${NEW_EXTR}" "${NEW_DISK}" "${NEW_DBFS}"' EXIT
 
 debugfs_do()
 {
