@@ -489,6 +489,9 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
     def resources_operation(args, operation, options, type)
         parse_options(options)
 
+        OneProvision::Utils.print_cmd("#{type} #{operation[:operation]}",
+                                      options)
+
         objects = names_to_ids(args[0], type)
 
         return [-1, objects.message] if OpenNebula.is_error?(objects)
@@ -498,7 +501,7 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                                      operation[:message]) do |obj|
             rc = obj.info
 
-            return rc if OpenNebula.is_error?(rc)
+            return [-1, rc.message] if OpenNebula.is_error?(rc)
 
             case type
             when 'HOSTS'
@@ -515,14 +518,14 @@ class OneProvisionHelper < OpenNebulaHelper::OneHelper
                 end
 
                 unless p_id
-                    return OpenNebula::Error.new('No provision ID found')
+                    return [-1, 'No provision ID found']
                 end
 
                 provision = OneProvision::Provision.new_with_id(p_id, @client)
 
                 rc = provision.info
 
-                return rc if OpenNebula.is_error?(rc)
+                return [-1, rc.message] if OpenNebula.is_error?(rc)
 
                 provision.update_objects(type.downcase, :remove, obj['ID'])
             end

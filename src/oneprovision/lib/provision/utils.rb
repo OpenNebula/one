@@ -49,6 +49,27 @@ module OneProvision
             ERROR_OPEN  = 'ERROR MESSAGE --8<------'
             ERROR_CLOSE = 'ERROR MESSAGE ------>8--'
 
+            # Prints command and options in the debug output
+            #
+            # @param cmd     [String] Command executed
+            # @param options [Hash]   Command optioms
+            def print_cmd(cmd, options)
+                cmd_options = []
+
+                options.each do |key, value|
+                    if value
+                        cmd_options << "[#{key}, #{value}]"
+                    else
+                        cmd_options << key
+                    end
+                end
+
+                cmd_options = cmd_options.join(' ')
+
+                OneProvisionLogger.debug("Executing command: `#{cmd}`")
+                OneProvisionLogger.debug("Command options: #{cmd_options}")
+            end
+
             # Checks if the file can be read
             #
             # @param name [String] Path to file to read

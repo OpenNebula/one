@@ -99,6 +99,8 @@ CommandParser::CmdParser.new(ARGV) do
             :options => OneProvisionHelper::CREATE_OPTIONS do
         helper.parse_options(options)
 
+        OneProvision::Utils.print_cmd('create', options)
+
         if options[:cleanup_timeout].nil?
             timeout = 20
         else
@@ -191,6 +193,8 @@ CommandParser::CmdParser.new(ARGV) do
                             [OpenNebulaHelper::FORMAT] do
         helper.parse_options(options)
 
+        OneProvision::Utils.print_cmd('configure', options)
+
         rc = helper.configure(args[0], options.key?(:force))
 
         if OpenNebula.is_error?(rc)
@@ -216,6 +220,8 @@ CommandParser::CmdParser.new(ARGV) do
                          OneProvisionHelper::CLEANUP_TIMEOUT] +
                             [OpenNebulaHelper::FORMAT] do
         helper.parse_options(options)
+
+        OneProvision::Utils.print_cmd('delete', options)
 
         if options[:cleanup_timeout].nil?
             timeout = 20
@@ -354,14 +360,18 @@ CommandParser::CmdParser.new(ARGV) do
                 :options => [OneProvisionHelper::MODES,
                              OneProvisionHelper::FORCE] do
             rc = helper.resources_operation(args,
-                                            {},
+                                            { :operation => 'delete' },
                                             options,
                                             resource.upcase)
 
-            return 0 if rc[0] == 0
-
-            STDERR.puts rc[1]
-            exit(-1)
+            if rc.is_a?(Array) && rc[0] == 0
+                0
+            elsif rc.is_a?(Array)
+                STDERR.puts rc[1]
+                exit(-1)
+            else
+                0
+            end
         end
     end
 end
