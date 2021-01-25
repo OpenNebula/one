@@ -166,6 +166,15 @@ public:
         }
     }
 
+    /**
+     * Set maximal number of consecutive errors to terminate oned in HA environment
+     * -1 to disable this feature
+     */
+    void set_errors_limit(int limit)
+    {
+        errors_limit = limit;
+    }
+
 protected:
     /**
      *  Performs a DB transaction
@@ -174,17 +183,7 @@ protected:
      *    @param quiet True to log errors with DDEBUG level instead of ERROR
      *    @return 0 on success -1 on failure
      */
-    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet)
-    {
-        int rc = exec_ext(cmd, obj, quiet);
-
-        if (rc != 0)
-        {
-            rc = -1;
-        };
-
-        return rc;
-    }
+    int exec(std::ostringstream& cmd, Callbackable* obj, bool quiet);
 
     /**
      *  This function performs a DB transaction and returns and extended error code
@@ -201,6 +200,18 @@ protected:
         {SqlFeature::FTS, false},
         {SqlFeature::COMPARE_BINARY, false}
     };
+
+private:
+    /**
+     * Actual number of consecutive errors
+     */
+    int consecutive_errors = 0;
+
+    /**
+     * Maximal number of consecutive errors to terminate oned in HA environment
+     * -1 to disable this feature
+     */
+    int errors_limit = -1;
 };
 
 #endif /*SQL_DB_H_*/
