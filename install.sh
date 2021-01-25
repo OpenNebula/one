@@ -346,6 +346,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/system \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/lxd.d \
           $VAR_LOCATION/remotes/im/lxd-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/lxd-probes.d/host/monitor \
@@ -581,6 +582,7 @@ INSTALL_FILES=(
     IM_PROBES_DUMMY_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/system
     IM_PROBES_DUMMY_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor
     IM_PROBES_DUMMY_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/status
+    IM_PROBES_DUMMY_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/vm/snapshot
     IM_PROBES_LXD_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/beacon
     IM_PROBES_LXD_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/monitor
     IM_PROBES_LXD_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/host/system
@@ -1344,7 +1346,8 @@ IM_PROBES_DUMMY_HOST_SYSTEM_FILES="\
 IM_PROBES_DUMMY_VM_MONITOR_FILES="\
      src/im_mad/remotes/dummy-probes.d/vm/monitor/monitor.rb"
 
-IM_PROBES_DUMMY_VM_STATUS_FILES=""
+IM_PROBES_DUMMY_VM_STATUS_FILES="\
+src/im_mad/remotes/dummy-probes.d/vm/snapshot/recovery.rb"
 
 # LXD PROBES
 IM_PROBES_LXD_FILES="\
