@@ -60,6 +60,108 @@ const relName = 'provision-mapping'
 const ext = 'yml'
 const appendError = '.ERROR'
 
+const executeWithEmit = (command = [], actions = {}, id = '') => {
+  let rtn = false
+  if (
+    command &&
+    Array.isArray(command) &&
+    command.length > 0 &&
+    actions
+  ) {
+    const err = actions.err && typeof actions.err === 'function' ? actions.err : () => undefined
+    const out = actions.out && typeof actions.out === 'function' ? actions.out : () => undefined
+    const close = actions.close && typeof actions.close === 'function' ? actions.close : () => undefined
+
+    let lastLine = ''
+    const uuid = v4()
+
+    // send data of command
+    const emit = (message, callback = () => undefined) => {
+      message.toString().split(/\r|\n/).map(line => {
+        if (line) {
+          lastLine = line
+          const resposeData = callback(lastLine, uuid) || { id, data: lastLine, command: command, commandId: uuid }
+          publish(defaultCommandProvision, resposeData)
+        }
+      })
+    }
+
+    executeCommandAsync(
+      defaultCommandProvision,
+      command,
+      {
+        err: message => {
+          emit(message, err)
+        },
+        out: message => {
+          emit(message, out)
+        },
+        close: success => {
+          close(success, lastLine)
+        }
+      }
+    )
+    rtn = true
+  }
+  return rtn
+}
+
+const logData = (id, fullPath = false) => {
+  let rtn = false
+  if (typeof id !== 'undefined') {
+    const basePath = `${global.CPI}/provision`
+    const relFile = `${basePath}/${relName}`
+    const relFileYML = `${relFile}.${ext}`
+    const find = findRecursiveFolder(basePath, id)
+    const rtnNotFound = () => {
+      rtn = false
+    }
+    const rtnFound = (path = '', uuid) => {
+      if (path) {
+        const stringPath = `${path}/${logFile.name}.${logFile.ext}`
+        existsFile(
+          stringPath,
+          filedata => {
+            rtn = { uuid, log: filedata.split(/\r|\n/) }
+            if (fullPath) {
+              rtn.fullPath = stringPath
+            }
+          },
+          rtnNotFound
+        )
+      }
+    }
+
+    if (find) {
+      rtnFound(find)
+    } else {
+      existsFile(
+        relFileYML,
+        filedata => {
+          const fileData = parse(filedata) || {}
+          if (fileData[id]) {
+            const findPending = findRecursiveFolder(basePath, fileData[id])
+            if (findPending) {
+              rtnFound(findPending, fileData[id])
+            } else {
+              const findError = findRecursiveFolder(basePath, fileData[id] + appendError)
+              if (findError) {
+                rtnFound(findError, fileData[id])
+              } else {
+                rtnNotFound()
+              }
+            }
+          } else {
+            rtnNotFound()
+          }
+        },
+        rtnNotFound
+      )
+    }
+  }
+  return rtn
+}
+
 const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const extFiles = 'yml'
   const { user, password } = userData
@@ -245,62 +347,64 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = [command, params.id, '--batch', '--debug', '--json', ...authCommand, ...endpoint]
-    let lastLine = ''
-    const uuid = v4()
-    const emit = message => {
-      message.toString().split(/\r|\n/).map(line => {
-        if (line) {
-          lastLine = line
-          publish(defaultCommandProvision, { id: params.id, data: lastLine, command: command, commandId: uuid })
-        }
-      })
+
+    // get Log file
+    const dataLog = logData(params.id, true)
+
+    // create stream for write into file
+    const stream = dataLog && dataLog.fullPath && createWriteStream(dataLog.fullPath, { flags: 'a' })
+
+    // This function is performed for each command line response
+    const emit = (lastLine, uuid) => {
+      const renderLine = { id: params.id, data: lastLine, command: command, commandId: uuid }
+      stream && stream.write && stream.write(`${JSON.stringify(renderLine)}\n`)
     }
-    executeCommandAsync(
-      defaultCommandProvision,
-      paramsCommand,
-      {
-        err: emit,
-        out: emit,
-        close: success => {
-          if (success) {
-            existsFile(
-              relFileYML,
-              filedata => {
-                let uuid = ''
-                if (!checkSync(relFileLOCK)) {
-                  lockSync(relFileLOCK)
-                  const fileData = parse(filedata) || {}
-                  if (fileData[params.id]) {
-                    uuid = fileData[params.id]
-                    delete fileData[params.id]
-                    createTemporalFile(
-                      basePath,
-                      ext,
-                      createYMLContent(
-                        Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
-                      ),
-                      relName
-                    )
-                  }
-                  unlockSync(relFileLOCK)
-                  if (uuid) {
-                    // provisions in deploy
-                    const findFolder = findRecursiveFolder(`${global.CPI}/provision`, uuid)
-                    findFolder && removeFile(findFolder)
-                    // provisions in error
-                    const findFolderERROR = findRecursiveFolder(`${global.CPI}/provision`, uuid + appendError)
-                    findFolderERROR && removeFile(findFolderERROR)
-                  }
-                }
+
+    // This function is only executed if the command is completed
+    const close = success => {
+      if (success) {
+        stream && stream.end && stream.end()
+        existsFile(
+          relFileYML,
+          filedata => {
+            let uuid = ''
+            if (!checkSync(relFileLOCK)) {
+              lockSync(relFileLOCK)
+              const fileData = parse(filedata) || {}
+              if (fileData[params.id]) {
+                uuid = fileData[params.id]
+                delete fileData[params.id]
+                createTemporalFile(
+                  basePath,
+                  ext,
+                  createYMLContent(
+                    Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
+                  ),
+                  relName
+                )
               }
-            )
-            const findFolder = findRecursiveFolder(`${global.CPI}/provision`, params.id)
-            findFolder && removeFile(findFolder)
+              unlockSync(relFileLOCK)
+              if (uuid) {
+                // provisions in deploy
+                const findFolder = findRecursiveFolder(`${global.CPI}/provision`, uuid)
+                findFolder && removeFile(findFolder)
+                // provisions in error
+                const findFolderERROR = findRecursiveFolder(`${global.CPI}/provision`, uuid + appendError)
+                findFolderERROR && removeFile(findFolderERROR)
+              }
+            }
           }
-        }
+        )
+        const findFolder = findRecursiveFolder(`${global.CPI}/provision`, params.id)
+        findFolder && removeFile(findFolder)
       }
-    )
-    res.locals.httpCode = httpResponse(accepted, params.id)
+    }
+
+    // execute Async Command
+    const executedCommand = executeWithEmit(paramsCommand, { close, out: emit, err: emit }, params.id)
+
+    // response Http
+    res.locals.httpCode = httpResponse(executedCommand ? accepted : internalServerError, params.id)
     next()
     return
   }
@@ -358,13 +462,13 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
   const { user, password, id } = userData
   const rtn = httpInternalError
   if (params && params.resource && user && password) {
-    const authCommand = ['--user', user, '--password', password]
     const optionalCommand = addOptionalCreateCommand()
-    const endpoint = getEndpoint()
     const resource = parsePostData(params.resource)
     const content = createYMLContent(resource)
     if (content) {
       const command = 'create'
+      const authCommand = ['--user', user, '--password', password]
+      const endpoint = getEndpoint()
       const files = createFolderWithFiles(`${global.CPI}/provision/${id}/tmp`, [{ name: logFile.name, ext: logFile.ext }, { name: configFile.name, ext: configFile.ext, content }])
       if (files && files.name && files.files) {
         const find = (val = '', ext = '', arr = files.files) => arr.find(e => e && e.path && e.ext && e.name && e.name === val && e.ext === ext)
@@ -373,72 +477,67 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
         if (config && log) {
           const create = (filedata = '') => {
             const paramsCommand = [command, config.path, '--batch', '--debug', '--json', ...optionalCommand, ...authCommand, ...endpoint]
-            let lastLine = ''
+
+            // stream file log
             var stream = createWriteStream(log.path, { flags: 'a' })
-            const uuid = v4()
-            const emit = message => {
-              message.toString().split(/\r|\n/).map(line => {
-                if (line) {
-                  if (regexp.test(line) && !checkSync(relFileLOCK)) {
-                    const fileData = parse(filedata) || {}
-                    const parseID = line.match('\\d+')
-                    const id = parseID[0]
-                    if (id && !fileData[id]) {
-                      lockSync(relFileLOCK)
-                      fileData[id] = files.name
-                      createTemporalFile(basePath, ext, createYMLContent(fileData), relName)
-                      unlockSync(relFileLOCK)
-                    }
+
+            // This function is performed for each command line response
+            const emit = (lastLine, uuid) => {
+              if (lastLine && uuid) {
+                if (regexp.test(lastLine) && !checkSync(relFileLOCK)) {
+                  const fileData = parse(filedata) || {}
+                  const parseID = lastLine.match('\\d+')
+                  const id = parseID[0]
+                  if (id && !fileData[id]) {
+                    lockSync(relFileLOCK)
+                    fileData[id] = files.name
+                    createTemporalFile(basePath, ext, createYMLContent(fileData), relName)
+                    unlockSync(relFileLOCK)
                   }
-                  lastLine = line
-                  const renderLine = { id: files.name, data: line, command: command, commandId: uuid }
-                  stream.write(`${JSON.stringify(renderLine)}\n`)
-                  publish(defaultCommandProvision, renderLine)
                 }
-              })
+                const renderLine = { id: files.name, data: lastLine, command: command, commandId: uuid }
+                stream.write(`${JSON.stringify(renderLine)}\n`)
+                return renderLine
+              }
             }
-            executeCommandAsync(
-              defaultCommandProvision,
-              paramsCommand,
-              {
-                err: emit,
-                out: emit,
-                close: success => {
-                  stream.end()
-                  if (success && regexp.test(lastLine)) {
-                    const newPath = renameFolder(config.path, lastLine.match('\\d+'))
-                    if (newPath) {
-                      existsFile(
-                        relFileYML,
-                        filedata => {
-                          if (!checkSync(relFileLOCK)) {
-                            lockSync(relFileLOCK)
-                            const fileData = parse(filedata) || {}
-                            const findKey = Object.keys(fileData).find(key => fileData[key] === files.name)
-                            if (findKey) {
-                              delete fileData[findKey]
-                              createTemporalFile(
-                                basePath,
-                                ext,
-                                createYMLContent(
-                                  Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
-                                ),
-                                relName
-                              )
-                            }
-                            unlockSync(relFileLOCK)
-                          }
+
+            // This function is only executed if the command is completed
+            const close = (success, lastLine) => {
+              stream.end()
+              if (success && regexp.test(lastLine)) {
+                const newPath = renameFolder(config.path, lastLine.match('\\d+'))
+                if (newPath) {
+                  existsFile(
+                    relFileYML,
+                    filedata => {
+                      if (!checkSync(relFileLOCK)) {
+                        lockSync(relFileLOCK)
+                        const fileData = parse(filedata) || {}
+                        const findKey = Object.keys(fileData).find(key => fileData[key] === files.name)
+                        if (findKey) {
+                          delete fileData[findKey]
+                          createTemporalFile(
+                            basePath,
+                            ext,
+                            createYMLContent(
+                              Object.keys(fileData).length !== 0 && fileData.constructor === Object && fileData
+                            ),
+                            relName
+                          )
                         }
-                      )
-                      moveToFolder(newPath, '/../../../')
+                        unlockSync(relFileLOCK)
+                      }
                     }
-                  }
-                  if (success === false) {
-                    renameFolder(config.path, appendError, 'append')
-                  }
+                  )
+                  moveToFolder(newPath, '/../../../')
                 }
               }
-            )
+              if (success === false) {
+                renameFolder(config.path, appendError, 'append')
+              }
+            }
+
+            executeWithEmit(paramsCommand, { close, out: emit, err: emit })
           }
 
           existsFile(
@@ -472,26 +571,29 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
     const command = 'configure'
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = [command, params.id, '--debug', '--json', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
-    let lastLine = ''
-    const uuid = v4()
-    const emit = message => {
-      message.toString().split(/\r|\n/).map(line => {
-        if (line) {
-          lastLine = line
-          publish(defaultCommandProvision, { id: params.id, data: lastLine, command: command, commandId: uuid })
-        }
-      })
+    const paramsCommand = [command, params.id, '--debug', '--json', '--force', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
+
+    // get Log file
+    const dataLog = logData(params.id, true)
+
+    // create stream for write into file
+    const stream = dataLog && dataLog.fullPath && createWriteStream(dataLog.fullPath, { flags: 'a' })
+
+    // This function is performed for each command line response
+    const emit = (lastLine, uuid) => {
+      const renderLine = { id: params.id, data: lastLine, command: command, commandId: uuid }
+      stream && stream.write && stream.write(`${JSON.stringify(renderLine)}\n`)
     }
-    executeCommandAsync(
-      defaultCommandProvision,
-      paramsCommand,
-      {
-        err: emit,
-        out: emit
-      }
-    )
-    res.locals.httpCode = httpResponse(accepted, params.id)
+
+    const close = (success, lastLine) => {
+      stream && stream.end && stream.end()
+    }
+
+    // execute Async Command
+    const executedCommand = executeWithEmit(paramsCommand, { close, out: emit, err: emit }, params.id)
+
+    // response Http
+    res.locals.httpCode = httpResponse(executedCommand ? accepted : internalServerError, params.id)
     next()
     return
   }
@@ -506,6 +608,7 @@ const configureHost = (res = {}, next = () => undefined, params = {}, userData =
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = ['host', 'configure', `${params.id}`.toLowerCase(), '--debug', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
+
     const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
     try {
       const response = executedCommand.success ? ok : internalServerError
@@ -561,52 +664,13 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
 }
 
 const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
-  const basePath = `${global.CPI}/provision`
-  const path = `${global.CPI}/provision`
-  const relFile = `${basePath}/${relName}`
-  const relFileYML = `${relFile}.${ext}`
   let rtn = httpInternalError
   if (params && params.id) {
-    const find = findRecursiveFolder(path, params.id)
-    const rtnNotFound = () => {
-      rtn = notFound
-    }
-    const rtnFound = (path = '', uuid) => {
-      if (path) {
-        existsFile(
-          `${path}/${logFile.name}.${logFile.ext}`,
-          filedata => {
-            rtn = httpResponse(ok, { uuid, log: filedata.split(/\r|\n/) })
-          },
-          rtnNotFound
-        )
-      }
-    }
-    if (find) {
-      rtnFound(find)
+    const foundLogs = logData(params.id)
+    if (foundLogs) {
+      rtn = httpResponse(ok, foundLogs)
     } else {
-      existsFile(
-        relFileYML,
-        filedata => {
-          const fileData = parse(filedata) || {}
-          if (fileData[params.id]) {
-            const findPending = findRecursiveFolder(path, fileData[params.id])
-            if (findPending) {
-              rtnFound(findPending, fileData[params.id])
-            } else {
-              const findError = findRecursiveFolder(path, fileData[params.id] + appendError)
-              if (findError) {
-                rtnFound(findError, fileData[params.id])
-              } else {
-                rtnNotFound()
-              }
-            }
-          } else {
-            rtnNotFound()
-          }
-        },
-        rtnNotFound
-      )
+      rtn = notFound
     }
   }
   res.locals.httpCode = rtn
