@@ -257,7 +257,16 @@ module OneProvision
             if cfg['inputs'].nil?
                 cfg['inputs'] = provider.inputs
             else
-                cfg['inputs'] << provider.inputs unless provider.inputs.nil?
+                unless provider.inputs.nil?
+                    provider.inputs.each do |input|
+                        i = cfg['inputs'].find do |v|
+                            v['name'] == input['name']
+                        end
+
+                        cfg['inputs'].delete(i) if i
+                        cfg['inputs'] << input
+                    end
+                end
             end
 
             cfg.validate(false)
