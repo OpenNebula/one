@@ -43,7 +43,7 @@ export VIRSH_RETRIES=3
 # This parameter will set the default cache type for new attached disks. It
 # will be used in case the attached disk does not have an specific cache
 # method set (can be set using templates when attaching a disk).
-#DEFAULT_ATTACH_CACHE=none
+DEFAULT_ATTACH_CACHE=none
 
 # Uncomment this line to set options for the virsh migrate command
 #MIGRATE_OPTIONS=--unsafe
