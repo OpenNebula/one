@@ -167,9 +167,10 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
     std::string ip      = vector_value("IP");
     std::string ip6     = vector_value("IP6");
     std::string ip6_ula = vector_value("IP6_ULA");
-    std::string ip6_link   = vector_value("IP6_LINK");
-    std::string ip6_global = vector_value("IP6_GLOBAL");
 
+    std::string ip6_link    = vector_value("IP6_LINK");
+    std::string ip6_global  = vector_value("IP6_GLOBAL");
+    std::string ip_external = vector_value("EXTERNAL"); /* PROVISION AWS_IPAM */
 
     std::string reqs = vector_value("SCHED_REQUIREMENTS");
     std::string rank = vector_value("SCHED_RANK");
@@ -180,6 +181,11 @@ void VirtualMachineNic::to_xml_short(std::ostringstream& oss) const
     if (!ip.empty())
     {
         oss << "<IP>" << one_util::escape_xml(ip) << "</IP>";
+    }
+
+    if (!ip_external.empty())
+    {
+        oss << "<EXTERNAL>" << one_util::escape_xml(ip_external) << "</EXTERNAL>";
     }
 
     if (!ip6.empty())

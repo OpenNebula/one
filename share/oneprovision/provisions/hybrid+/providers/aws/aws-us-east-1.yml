@@ -9,18 +9,16 @@ plain:
 
 location_key: 'region'
 connection:
-  access_key: 'Encrypted AWS access key'
-  secret_key: 'Encrypted AWS secret key'
+  access_key: 'AWS access key'
+  secret_key: 'AWS secret key'
   region: 'us-east-1'
 
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
      options:
-       - 'ami-096fda3c22c1c990a'
-       - 'ami-00ddb0e5626798373'
+       - 'ami-0d6e9a57f6259ba3a'
    - name: 'aws_instance_type'
      type: 'list'
      options:
-       - 'i3-metal'
-       - 'i3.large'
+       - 'i3.metal'

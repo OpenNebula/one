@@ -4,7 +4,7 @@ description: 'Elastic cluster on AWS in Frankfurt'
 provider: 'aws'
 
 plain:
-  provision_type: 'hybrid+'
+  provision_type: 'hybrid+_qemu'
   image: 'AWS.webp'
 
 location_key: 'region'
@@ -21,4 +21,6 @@ inputs:
    - name: 'aws_instance_type'
      type: 'list'
      options:
-       - 'i3.metal'
+       - 't2.micro'
+       - 't2.small'
+       - 't2.medium'

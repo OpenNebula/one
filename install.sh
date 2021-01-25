@@ -346,6 +346,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/system \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/dummy-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/dummy-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/lxd.d \
           $VAR_LOCATION/remotes/im/lxd-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/lxd-probes.d/host/monitor \
@@ -367,24 +368,28 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/ec2-probes.d/host/system \
           $VAR_LOCATION/remotes/im/ec2-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/ec2-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/ec2-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/az.d \
           $VAR_LOCATION/remotes/im/az-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/az-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/az-probes.d/host/system \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/az-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/az-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/one.d \
           $VAR_LOCATION/remotes/im/one-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/one-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/one-probes.d/host/system \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/one-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/one-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/packet.d \
           $VAR_LOCATION/remotes/im/packet-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/packet-probes.d/host/monitor \
           $VAR_LOCATION/remotes/im/packet-probes.d/host/system \
           $VAR_LOCATION/remotes/im/packet-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/packet-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/packet-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/vmm \
           $VAR_LOCATION/remotes/vmm/lib \
           $VAR_LOCATION/remotes/vmm/kvm \

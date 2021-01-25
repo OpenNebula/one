@@ -257,7 +257,16 @@ module OneProvision
             if cfg['inputs'].nil?
                 cfg['inputs'] = provider.inputs
             else
-                cfg['inputs'] << provider.inputs unless provider.inputs.nil?
+                unless provider.inputs.nil?
+                    provider.inputs.each do |input|
+                        i = cfg['inputs'].find do |v|
+                            v['name'] == input['name']
+                        end
+
+                        cfg['inputs'].delete(i) if i
+                        cfg['inputs'] << input
+                    end
+                end
             end
 
             cfg.validate(false)
@@ -424,7 +433,7 @@ module OneProvision
         def update_objects(object, operation, id, name = nil)
             rc = info
 
-            return rc if OpenNebula.is_error?(rc)
+            return [-1, rc.message] if OpenNebula.is_error?(rc)
 
             if FULL_CLUSTER.include?(object)
                 path = 'infrastructure'
@@ -438,11 +447,11 @@ module OneProvision
                 o  = Resource.object(object, provider)
                 rc = o.info(id)
 
-                return rc if OpenNebula.is_error?(rc)
+                return [-1, rc.message] if OpenNebula.is_error?(rc)
 
                 rc = o.delete(FULL_CLUSTER.include?(object) ? tf : nil)
 
-                return rc if OpenNebula.is_error?(rc)
+                return [-1, rc.message] if OpenNebula.is_error?(rc)
 
                 # If it is an array, a host has been deleted
                 if rc.is_a? Array
@@ -455,7 +464,11 @@ module OneProvision
                 end
             end
 
-            update
+            rc = update
+
+            [-1, rc.message] if OpenNebula.is_error?(rc)
+
+            0
         end
 
         # Reads provider name from template

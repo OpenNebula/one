@@ -1,6 +1,6 @@
-name: 'aws-frankfurt'
+name: 'aws-north-california'
 
-description: 'Elastic cluster on AWS in Frankfurt'
+description: 'Elastic cluster on AWS in North California'
 provider: 'aws'
 
 plain:
@@ -11,13 +11,13 @@ location_key: 'region'
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'
-  region: 'eu-central-1'
+  region: 'us-west-1'
 
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
      options:
-       - 'ami-04c21037b3f953d37'
+       - 'ami-08b547f0dcb46c4d3'
    - name: 'aws_instance_type'
      type: 'list'
      options:

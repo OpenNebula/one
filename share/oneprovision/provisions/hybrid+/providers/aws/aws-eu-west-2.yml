@@ -1,23 +1,23 @@
-name: 'aws-frankfurt'
+name: 'aws-london'
 
-description: 'Elastic cluster on AWS in Frankfurt'
+description: 'Elastic cluster on AWS in London'
 provider: 'aws'
 
 plain:
-  provision_type: 'hybrid+'
+  provision_type: 'hybrid+_qemu'
   image: 'AWS.webp'
 
 location_key: 'region'
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'
-  region: 'eu-central-1'
+  region: 'eu-west-2'
 
 inputs:
    - name: 'aws_ami_image'
      type: 'list'
      options:
-       - 'ami-04c21037b3f953d37'
+       - 'ami-0bab5c8be0975423b'
    - name: 'aws_instance_type'
      type: 'list'
      options:

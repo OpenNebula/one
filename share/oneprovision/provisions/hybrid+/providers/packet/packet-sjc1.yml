@@ -1,6 +1,6 @@
-name: 'packet-amsterdam'
+name: 'packet-sjc1'
 
-description: 'Elastic cluster on Packet in Amsterdam'
+description: 'Elastic cluster on Packet in Sunnyvale, USA, CA'
 provider: 'packet'
 
 plain:
@@ -9,17 +9,18 @@ plain:
 
 location_key: 'facility'
 connection:
-  token: 'Encrypted Packet token'
-  project: 'Encrypted Packet project'
-  facility: 'ams1'
+  token: 'Packet token'
+  project: 'Packet project'
+  facility: 'sjc1'
 
 inputs:
    - name: 'packet_os'
      type: 'list'
      options:
-       - 'centos_7'
-       - 'ubuntu_18_04'
+       - 'centos_8'
    - name: 'packet_plan'
      type: 'list'
      options:
-       - 'baremetal_0'
+       - 't1.small'
+       - 'c1.small'
+       - 'm1.xlarge'
