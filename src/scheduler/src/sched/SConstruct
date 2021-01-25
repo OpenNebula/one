@@ -42,6 +42,8 @@ sched_env.Prepend(LIBS=[
     'nebula_vm',
     'nebula_host',
     'nebula_parsers',
+    'nebula_sql',
+    'nebula_sql_const',
     'crypto',
     'xml2'
 ])

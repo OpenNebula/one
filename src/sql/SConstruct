@@ -20,7 +20,7 @@ Import('env')
 
 lib_name='nebula_sql'
 
-source_files=['LogDB.cc']
+source_files=['LogDB.cc', 'SqlDB.cc']
 
 # Sources to generate the library
 if env['sqlite']=='yes':

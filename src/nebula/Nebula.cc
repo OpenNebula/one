@@ -391,6 +391,7 @@ void Nebula::start(bool bootstrap_only)
         string compare_binary;
         int    timeout;
         int    connections;
+        int    errors_limit;
 
         const VectorAttribute * _db = nebula_configuration->get("DB");
 
@@ -407,6 +408,7 @@ void Nebula::start(bool bootstrap_only)
             _db->vector_value<string>("COMPARE_BINARY", compare_binary, "NO");
             _db->vector_value("TIMEOUT", timeout, 2500);
             _db->vector_value("CONNECTIONS", connections, 25);
+            _db->vector_value("ERRORS_LIMIT", errors_limit, 25);
         }
 
         if ( db_backend_type == "sqlite" )
@@ -456,6 +458,11 @@ void Nebula::start(bool bootstrap_only)
         // Initialize logging and federation database facilities and SystemDB
         // ---------------------------------------------------------------------
         solo = server_id == -1;
+
+        if  (!solo)
+        {
+            db_backend->set_errors_limit(errors_limit);
+        }
 
         if ( (solo && local_bootstrap) || bootstrap_only)
         {
