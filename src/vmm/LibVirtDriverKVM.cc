@@ -614,6 +614,14 @@ int LibVirtDriver::deployment_description_kvm(
 
     file << "\t<title>" << vm->get_name() << "</title>" << endl;
 
+    auto os = vm->get_template_attribute("OS");
+    auto uuid = os->vector_value("UUID");
+
+    if (!uuid.empty())
+    {
+        file << "\t<uuid>" << uuid << "</uuid>" << endl;
+    }
+
     // ------------------------------------------------------------------------
     // CPU & Memory
     // ------------------------------------------------------------------------

@@ -327,6 +327,11 @@ namespace one_util
         return output;
     }
 
+    /**
+     * Generates a new uuid
+     */
+    std::string uuid();
+
 } // namespace one_util
 
 #endif /* _NEBULA_UTIL_H_ */

@@ -187,15 +187,18 @@ int VirtualMachine::parse_os(string& error_str)
 
     if ( num == 0 )
     {
-        return 0;
+        os = new VectorAttribute("OS");
+        obj_template->set(os);
     }
     else if ( num > 1 )
     {
         error_str = "Only one OS attribute can be defined.";
         return -1;
     }
-
-    os = dynamic_cast<VectorAttribute *>(os_attr[0]);
+    else
+    {
+        os = dynamic_cast<VectorAttribute *>(os_attr[0]);
+    }
 
     if ( os == 0 )
     {
@@ -211,6 +214,14 @@ int VirtualMachine::parse_os(string& error_str)
     }
 
     rc = set_os_file(os, "INITRD", Image::RAMDISK, error_str);
+
+    string uuid = os->vector_value("UUID");
+
+    if (uuid.empty())
+    {
+        uuid = one_util::uuid();
+        os->replace("UUID", uuid);
+    }
 
     if ( rc != 0 )
     {

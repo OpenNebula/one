@@ -428,3 +428,25 @@ void one_util::split_unique(const string& st, char delim, set<string>& res)
         res.insert(str);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+string one_util::uuid()
+{
+    // Generate from random numbers to avoid adding a dependency
+    ostringstream oss;
+
+    oss.fill('0');
+    oss << hex
+        << setw(4) << random<short uint>()
+        << setw(4) << random<short uint>()
+        << "-" << setw(4) << random<short uint>()
+        << "-" << setw(4) << ((random<short uint>() & 0x0fff) | 0x4000)
+        << "-" << setw(4) << random<short uint>() % 0x3fff + 0x8000
+        << "-" << setw(4) << random<short uint>()
+        << setw(4) << random<short uint>()
+        << setw(4) << random<short uint>();
+
+    return oss.str();
+}
