@@ -228,10 +228,15 @@ const addPrependCommand = (command = '', resource = '') => {
   let newRsc = rsc
 
   if (prependCommand) {
-    let splitPrepend = prependCommand.split(' ')
+    const splitPrepend = prependCommand.split(' ').filter(el => el !== '')
     newCommand = splitPrepend[0]
-    splitPrepend = splitPrepend.splice(1)
-    newRsc = [...splitPrepend, command, ...rsc].filter(el => el !== '')
+    // remove command
+    splitPrepend.shift()
+
+    // stringify the rest of the parameters
+    const stringifyRestCommand = [command, ...rsc].join(' ')
+
+    newRsc = [...splitPrepend, stringifyRestCommand]
   }
 
   return {
