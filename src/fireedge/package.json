@@ -9,8 +9,6 @@
     "build-server": "rimraf dist/index.js && webpack --config ./webpack.config.prod.server.js",
     "build": "npm run build-front && npm run build-server",
     "start": "cross-env NODE_ENV=production babel-node ./dist/index.js",
-    "cypress:open": "cypress open",
-    "cypress:run": "rimraf cypress/results/* && node cypress/command/index.js",
     "pot": "node potfile.js",
     "po2json": "node po2json.js",
     "lint": "eslint ./src/client/",
@@ -41,9 +39,6 @@
     "eslint-plugin-standard": "^4.0.1",
     "fireedge-genpotfile": "^1.0.0",
     "fireedge-pojson": "^1.0.2",
-    "mochawesome": "^6.2.1",
-    "mochawesome-merge": "^4.2.0",
-    "mochawesome-report-generator": "^5.1.0",
     "react-hot-loader": "^4.13.0",
     "webpack-dev-middleware": "^3.7.2",
     "webpack-hot-middleware": "^2.25.0"
