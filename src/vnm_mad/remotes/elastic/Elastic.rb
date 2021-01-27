@@ -109,9 +109,9 @@ class ElasticDriver < VNMMAD::VNMDriver
             opts = { :alloc_id => nic[:aws_allocation_id] }
 
             break false \
-                unless provider.assign(nic[:ip], nic[:external], opts) == 0
+                unless provider.assign(nic[:ip], nic[:external_ip], opts) == 0
 
-            assigned << [nic[:ip], nic[:external]]
+            assigned << [nic[:ip], nic[:external_ip]]
         end
 
         # rollback
@@ -132,7 +132,7 @@ class ElasticDriver < VNMMAD::VNMDriver
         @vm.each_nic do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-            provider.unassign(nic[:ip], nic[:external])
+            provider.unassign(nic[:ip], nic[:external_ip])
         end
     end
 

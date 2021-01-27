@@ -252,7 +252,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         end
 
         vm_nics.each do |nic|
-            %w[IP EXTERNAL IP6_GLOBAL IP6_ULA IP6
+            %w[IP EXTERNAL_IP IP6_GLOBAL IP6_ULA IP6
                VROUTER_IP VROUTER_IP6_GLOBAL VROUTER_IP6_ULA].each do |attr|
                 if nic.key?(attr)
                     ips.push(nic[attr])
@@ -985,7 +985,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm_nics.each do |nic|
                 next if nic.key?('CLI_DONE')
 
-                %w[EXTERNAL IP6_LINK IP6_ULA IP6_GLOBAL IP6].each do |attr|
+                %w[EXTERNAL_IP IP6_LINK IP6_ULA IP6_GLOBAL IP6].each do |attr|
                     next unless nic.key?(attr)
 
                     shown_ips << nic[attr]
@@ -1013,7 +1013,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 end
 
                 shown_ips << nic['IP'] if nic.key?('IP')
-                shown_ips << nic['EXTERNAL'] if nic.key?('EXTERNAL')
+                shown_ips << nic['EXTERNAL_IP'] if nic.key?('EXTERNAL_IP')
 
                 nic.merge!(nic_default) {|_k, v1, _v2| v1 }
                 array_id += 1

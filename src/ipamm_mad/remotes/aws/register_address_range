@@ -186,9 +186,9 @@ begin
 
     puts <<-EOF
         AR = [
-            TYPE     = "IP4",
-            IP       = "#{ipvm}",
-            EXTERNAL = "#{ip.public_ip}",
+            TYPE = "IP4",
+            IP   = "#{ipvm}",
+            EXTERNAL_IP = "#{ip.public_ip}",
             SIZE     = "1",
             IPAM_MAD = "aws",
             GATEWAY      = "#{ipgw}",
