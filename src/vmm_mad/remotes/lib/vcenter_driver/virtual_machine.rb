@@ -3120,9 +3120,13 @@ module VCenterDriver
 
                 if datastore
                     relocate_spec_params = {
-                        :pool => resourcepool,
+                        :folder => @item.parent,
                         :datastore => datastore
                     }
+
+                    unless config[:same_host]
+                        relocate_spec_params[:pool] = resourcepool
+                    end
 
                     if config[:esx_migration_list].is_a?(String)
                         if config[:esx_migration_list]==''
@@ -3146,9 +3150,16 @@ module VCenterDriver
                         :priority => 'defaultPriority'
                     ).wait_for_completion
                 else
-                    @item.MigrateVM_Task(
-                        :pool=> resourcepool,
+                    migrate_spec_params = {
                         :priority => 'defaultPriority'
+                    }
+
+                    unless config[:same_host]
+                        migrate_spec_params[:pool] = resourcepool
+                    end
+
+                    @item.MigrateVM_Task(
+                        migrate_spec_params
                     ).wait_for_completion
                 end
             rescue StandardError => e
@@ -3344,6 +3355,8 @@ module VCenterDriver
             )
 
             config = { :cluster => vc_host }
+
+            config[:same_host] = src_id == dst_id
 
             config[:datastore] = datastore if datastore
             if hot_ds
