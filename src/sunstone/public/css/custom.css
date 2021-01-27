@@ -218,3 +218,16 @@ meter {
 .dropdown-pane:not(.is-open) {
   left: 0 !important;
 }
+
+/* Error messages for VMs */
+.warning-message {
+  border-color: #daa520;
+}
+
+.warning-message i{
+  color: #daa520;
+}
+
+.warning-message a{
+  color: #0a0a0a;
+}

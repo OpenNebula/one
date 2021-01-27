@@ -28,6 +28,8 @@ define(function(require) {
   var OpenNebula = require("opennebula");
   var Navigation = require("utils/navigation");
   var FireedgeValidator = require("utils/fireedge-validator");
+  var TemplateUtils = require('utils/template-utils');
+  var Sunstone = require('sunstone');
 
   /*
     TEMPLATES
@@ -101,7 +103,7 @@ define(function(require) {
     var unshownValues = {};
 
     $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (key.match(/^SCHED_*/) || key == "USER_INPUTS") {
+      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS") {
         unshownValues[key] = value;
       }
       else if (key.match(/^VCENTER_*/)){
@@ -129,6 +131,23 @@ define(function(require) {
       monitoringTableContentHTML = Humanize.prettyPrintJSON(monitoring);
     }
 
+    var monitoring = $.extend({}, this.element.MONITORING);
+    var errorMessageHTML = ""
+    if (this && 
+        this.element && 
+        this.element.USER_TEMPLATE &&
+        this.element.USER_TEMPLATE.ERROR){
+          errorMessageHTML = "<div class='row'><div class='large-9 columns'>" + 
+            "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable><div class='row'>"+
+            "<div class='columns large-1'>" +
+            "<i class='fas fa-exclamation-circle'></i></div><div class='columns large-9'><p>" +
+            this.element.USER_TEMPLATE.ERROR +
+            "</p></div><div class='columns large-2'>" + 
+            "<a id='close_vm_async_error' data-close>" +
+            "<u>Dismiss</u></a></div></div></div></div>";
+    }
+
+
     return TemplateInfo({
       "element": this.element,
       "renameTrHTML": renameTrHTML,
@@ -147,6 +166,7 @@ define(function(require) {
       "templateTableHTML": templateTableHTML,
       "monitoringTableContentHTML": monitoringTableContentHTML,
       "vrouterHTML": vrouterHTML,
+      "errorMessageHTML": errorMessageHTML, 
     });
   }
 
@@ -158,8 +178,8 @@ define(function(require) {
     var strippedTemplate = {};
     var strippedTemplateVcenter = {};
     var unshownValues = {};
-     $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (key.match(/^SCHED_*/) || key == "USER_INPUTS") {
+    $.each(that.element.USER_TEMPLATE, function(key, value) {
+      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS") {
         unshownValues[key] = value;
       }
       else if (key.match(/^VCENTER_*/)){
@@ -210,5 +230,15 @@ define(function(require) {
 
     FireedgeValidator.validateFireedgeToken(show_buttons, show_noVNC_buttons);
 
+    context.off("click", "#close_vm_async_error");
+    context.on("click", "#close_vm_async_error", function() {
+      var resourceId = that.element.ID;
+      var templateJSON = $.extend({}, that.element.USER_TEMPLATE);
+      delete templateJSON.ERROR;
+      template_str = TemplateUtils.templateToString(templateJSON);
+      console.log({template_str});
+      // 
+      Sunstone.runAction(RESOURCE + ".update_template", resourceId, template_str);
+    });
   }
 });
