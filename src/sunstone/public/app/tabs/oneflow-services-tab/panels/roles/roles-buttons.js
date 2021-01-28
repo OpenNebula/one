@@ -21,72 +21,86 @@ define(function(require) {
     "Role.scale_dialog" : {
       type: "action",
       text: Locale.tr("Scale"),
-      layout: "create"
+      layout: "create",
+      custom_classes : "role-state-dependent"
     },
     "Role.hold" : {
       type: "action",
       text: Locale.tr("Hold"),
-      layout: "vmsplanification_buttons"
+      layout: "vmsplanification_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.release" : {
       type: "action",
       text: Locale.tr("Release"),
-      layout: "vmsplanification_buttons"
+      layout: "vmsplanification_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.suspend" : {
       type: "action",
       text: Locale.tr("Suspend"),
-      layout: "vmspause_buttons"
+      layout: "vmspause_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.resume" : {
       type: "action",
       text: '<i class="fas fa-play"/>',
-      layout: "vmsplay_buttons"
+      layout: "vmsplay_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.stop" : {
       type: "action",
       text: Locale.tr("Stop"),
-      layout: "vmsstop_buttons"
+      layout: "vmsstop_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.reboot" : {
       type: "action",
       text: Locale.tr("Reboot"),
-      layout: "vmsrepeat_buttons"
+      layout: "vmsrepeat_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.reboot_hard" : {
       type: "action",
       text: Locale.tr("Reboot") + ' <span class="label secondary radius">hard</span>',
-      layout: "vmsrepeat_buttons"
+      layout: "vmsrepeat_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.poweroff" : {
       type: "action",
       text: Locale.tr("Power Off"),
-      layout: "vmspause_buttons"
+      layout: "vmspause_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.poweroff_hard" : {
       type: "action",
       text: Locale.tr("Power Off") + ' <span class="label secondary radius">hard</span>',
-      layout: "vmspause_buttons"
+      layout: "vmspause_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.undeploy" : {
       type: "action",
       text: Locale.tr("Undeploy"),
-      layout: "vmsstop_buttons"
+      layout: "vmsstop_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.undeploy_hard" : {
       type: "action",
       text: Locale.tr("Undeploy") + ' <span class="label secondary radius">hard</span>',
-      layout: "vmsstop_buttons"
+      layout: "vmsstop_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.terminate" : {
       type: "action",
       text: Locale.tr("Terminate"),
-      layout: "vmsdelete_buttons"
+      layout: "vmsdelete_buttons",
+      custom_classes : "role-state-dependent"
     },
     "Role.terminate_hard" : {
       type: "action",
       text: Locale.tr("Terminate") + ' <span class="label secondary radius">hard</span>',
-      layout: "vmsdelete_buttons"
+      layout: "vmsdelete_buttons",
+      custom_classes : "role-state-dependent"
     }
   };
 

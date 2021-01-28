@@ -24,14 +24,12 @@ define(function(require) {
   var OpenNebulaRole = require('opennebula/role');
   var roles_buttons = require('./roles/roles-buttons');
   var roles_vm_buttons = require('./roles/roles-vm-buttons');
+  var StateRolesButtons = require('./roles/state-roles-buttons');
   var Sunstone = require('sunstone');
   var DomDataTable = require('utils/dom-datatable');
-  var VMsTableUtils = require('tabs/vms-tab/utils/datatable-common');
-  var SunstoneConfig = require('sunstone-config');
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
-  var OpenNebulaAction = require("opennebula/action");
   var OpenNebulaVM = require("opennebula/vm");
 
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
@@ -61,8 +59,6 @@ define(function(require) {
     this.icon = "fa-wrench";
 
     this.element = info[XML_ROOT];
-
-    this.selected_row_role_id = undefined;
 
     // Controls visibility of buttons only available to OneFlow services. This
     // panel is also used by the OneFlow templates
@@ -142,11 +138,11 @@ define(function(require) {
   function _setState(state, context) {
     var that = this;
 
-    if (this.servicerolesDataTable && state["selectedRole"]){
-      $('.check_item[id="'+state["selectedRole"]+'"]', this.servicerolesDataTable.dataTable).closest('tr').click();
+    if (that.servicerolesDataTable && state["selectedRole"]){
+      $('.check_item[id="'+state["selectedRole"]+'"]', that.servicerolesDataTable.dataTable).closest('tr').click();
     }
 
-    if (this.serviceroleVMsDataTable && state["selectedVMs"]){
+    if (that.serviceroleVMsDataTable && state["selectedVMs"]){
       $.each(state["selectedVMs"], function(){
         $('.check_item[id="'+this+'"]', that.serviceroleVMsDataTable.dataTable).closest('tr').click();
       });
@@ -158,11 +154,11 @@ define(function(require) {
 
     Tips.setup(context);
 
-    that.last_selected_row_role = undefined;
+    var lastRoleIndexSelected = undefined
+    var roles = that.element.TEMPLATE.BODY.roles;
 
-    var roles = this.element.TEMPLATE.BODY.roles;
     if (roles && roles.length) {
-      this.servicerolesDataTable = new DomDataTable(
+      that.servicerolesDataTable = new DomDataTable(
         'datatable_roles_'+this.panelId,
         {
           actions: true,
@@ -170,15 +166,25 @@ define(function(require) {
           oneSelection: true,
           customTabContext: $('#role_actions', context),
           customTrListener: function(tableObj, tr){
-            var aData = tableObj.dataTable.fnGetData(tr);
-            var role_name = $(aData[0]).val();
+            var rowData = tableObj.dataTable.fnGetData(tr);
+            var roleName = $(rowData[0]).data().name
+            
+            var roleIndexSelected = roles.findIndex(function(role) {
+              return role.name === roleName
+            })
 
-            var role_index = tableObj.dataTable.fnGetPosition(tr);
+            if (lastRoleIndexSelected !== roleIndexSelected) {
+              lastRoleIndexSelected = roleIndexSelected
 
-            $("#roles_extended_info", context).fadeOut('slow', function() {
-              $(this).html(that.roleHTML(context, role_index))
-              that.roleSetup($(this), role_index)
-            }).fadeIn('slow');
+              var roleSelected = roles[roleIndexSelected];
+              
+              StateRolesButtons.enableStateActions(roleSelected.state);
+
+              $("#roles_extended_info", context).fadeOut('slow', function() {
+                $(this).html(that.roleHTML(context, roleSelected))
+                that.roleSetup($(this), roleSelected)
+              }).fadeIn('slow');
+            }
 
             // The info listener is triggered instead of
             // the row selection. So we click the check input to select
@@ -197,9 +203,8 @@ define(function(require) {
   }
 
 
-  function _roleHTML(context, role_index) {
+  function _roleHTML(context, role) {
     var that = this;
-    var role = this.element.TEMPLATE.BODY.roles[role_index];
     var ready_status_gate = that.element.TEMPLATE.BODY.ready_status_gate;
     var promises = [];
     var roleVms = [];
@@ -260,8 +265,8 @@ define(function(require) {
 
     return TemplateRoleInfo({
       'role': role,
-      'servicePanel': this.servicePanel,
-      'panelId': this.panelId,
+      'servicePanel': that.servicePanel,
+      'panelId': that.panelId,
       'vmsTableColumns': [
         Locale.tr("ID"),
         Locale.tr("Name"),
@@ -297,12 +302,12 @@ define(function(require) {
     })
   }
 
-  function _roleSetup(context, role_index) {
-    if(this.servicePanel) {
-      var role = this.element.TEMPLATE.BODY.roles[role_index];
+  function _roleSetup(context, role) {
+    var that = this
 
-      this.serviceroleVMsDataTable = new DomDataTable(
-        'datatable_vms_'+this.panelId+'_'+role.name,
+    if(that.servicePanel) {
+      that.serviceroleVMsDataTable = new DomDataTable(
+        'datatable_vms_' + that.panelId + '_' + role.name,
         {
           actions: true,
           info: false,
@@ -317,7 +322,7 @@ define(function(require) {
           }
         });
 
-      this.serviceroleVMsDataTable.initialize();
+        that.serviceroleVMsDataTable.initialize();
       Sunstone.insertButtonsInTab(
         TAB_ID,
         "service_roles_tab",
