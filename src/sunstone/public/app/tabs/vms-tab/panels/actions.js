@@ -35,7 +35,7 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var PANEL_ID = require("./actions/panelId");
   var RESOURCE = "VM";
-  var RESOURCE_SCHED_ACTIONS = 'vms'
+  var RESOURCE_SCHED_ACTIONS = "vms";
   var XML_ROOT = "VM";
   /*
     CONSTRUCTOR
@@ -95,28 +95,8 @@ define(function(require) {
     var CREATE = true;
     var that = this;
     that.formContext = context;
-    Leases.actions(that,'vm','update');
-    var actions = [
-      "terminate", 
-      "terminate-hard", 
-      "hold", 
-      "release", 
-      "stop", 
-      "suspend", 
-      "resume",
-      "reboot", 
-      "reboot-hard", 
-      "poweroff", 
-      "poweroff-hard", 
-      "undeploy", 
-      "undeploy-hard",
-      "snapshot-create",
-      "snapshot-delete", 
-      "snapshot-revert", 
-      "disk-snapshot-create", 
-      "disk-snapshot-delete", 
-      "disk-snapshot-revert"
-    ];
+    Leases.actions(that,"vm","update");
+    var actions = ScheduleActions.defaultActions;
 
     function renderCreateForm(){
       if(CREATE){
@@ -167,7 +147,7 @@ define(function(require) {
               }else{
                 return action;
               }
-            })
+            });
           }
           that.element.USER_TEMPLATE.SCHED_ACTION = sched_actions;
           var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
@@ -249,8 +229,8 @@ define(function(require) {
   function vmsfromJSONtoActionRow(scheduling_action) {
     var done_str    = scheduling_action.DONE ? (Humanize.prettyTime(scheduling_action.DONE)) : "";
     var message_str = scheduling_action.MESSAGE ? scheduling_action.MESSAGE : "";
-    var action_id = scheduling_action.ID || '';
-    var update_sched = '';
+    var action_id = scheduling_action.ID || "";
+    var update_sched = "";
     if(action_id){
       update_sched = "<button id='minus_"+scheduling_action.ID+ "' class='small button btn-warning edit_action_x' data_id='"+action_id+"'><i class='fas fa-edit'></i></button>";
     }

@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /* -------------------------------------------------------------------------- */
 /* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
@@ -51,13 +52,13 @@ define(function (require) {
     var year = d.getFullYear();
     var hour = d.getHours();
     var minutes = d.getMinutes();
-    if (hour.length < 2) 
+    if (hour.length < 2)
         hour = '0' + hour;
-    if (minutes.length < 2) 
+    if (minutes.length < 2)
         minutes = '0' + minutes;
-    if (month.length < 2) 
+    if (month.length < 2)
         month = '0' + month;
-    if (day.length < 2) 
+    if (day.length < 2)
         day = '0' + day;
     var date = [];
     switch (type) {
@@ -100,7 +101,7 @@ define(function (require) {
         e.stopPropagation();
         $(".wickedpicker").hide();
       }).on("keypress",function(e){
-        e.preventDefault(); 
+        e.preventDefault();
         return false;
       }).datepicker(options_date_picker);
 
@@ -134,7 +135,7 @@ define(function (require) {
 
   function _htmlNewAction(actions, context, res) {
     $("tr.periodic.create, tr#no_relative_time_form").remove();
-    this.res = res
+    this.res = res;
     var options = "";
     var that = this;
     $.each(actions, function (key, action) {
@@ -287,12 +288,14 @@ define(function (require) {
       $("#end_value_" + value, context).attr("value", min);
       $("#end_value_" + value, context).prop("disabled", false);
     });
+    try {
+      context.on("focusout", "#time_input", function () {
+        $("#time_input").removeAttr("data-invalid");
+        $("#time_input").removeAttr("class");
+      });
+    } catch (error) {
 
-    context.on("focusout", "#time_input", function () {
-      $("#time_input").removeAttr("data-invalid");
-      $("#time_input").removeAttr("class");
-    });
-
+    }
   }
 
   function _fill(element, context){
@@ -308,7 +311,7 @@ define(function (require) {
           if(key!=='ARGS' && !valuesForRelative.includes(key)){
             relative = false;
           }
-        })
+        });
 
         if(dataJSON.ACTION){
           $("#select_new_action").val(dataJSON.ACTION).change();
@@ -410,7 +413,7 @@ define(function (require) {
                     if(days[dataValue]){
                       $(days[dataValue]).prop("checked", true);
                     }
-                  })
+                  });
                 }
               break;
               case '1':
@@ -480,7 +483,7 @@ define(function (require) {
     $(".non-periodic").removeClass("hide");
     $("#relative_time_form").addClass("hide");
     $("#no_relative_time_form").removeClass("hide");
-    
+
   }
 
   function _resetRepeatValues(){
@@ -654,22 +657,22 @@ define(function (require) {
   function validateScheduleInputsEmpty(action, snap_name, snap_id, disk_id){
     switch (action) {
       case 'snapshot-create':
-        rtn = snap_name.length<=0
+        rtn = snap_name.length<=0;
       break;
       case 'snapshot-revert':
-        rtn = snap_id.length<=0
+        rtn = snap_id.length<=0;
       break;
       case 'snapshot-delete':
-        rtn = snap_id.length<=0
+        rtn = snap_id.length<=0;
       break;
       case 'disk-snapshot-create':
-        rtn = snap_name.length<=0 || disk_id.length<=0
+        rtn = snap_name.length<=0 || disk_id.length<=0;
       break;
       case 'disk-snapshot-revert':
-        rtn = snap_id.length<=0 || disk_id.length<=0
+        rtn = snap_id.length<=0 || disk_id.length<=0;
       break;
       case 'disk-snapshot-delete':
-        rtn = snap_id.length<=0 || disk_id.length<=0
+        rtn = snap_id.length<=0 || disk_id.length<=0;
       break;
       default:
         rtn = false;
@@ -813,6 +816,36 @@ define(function (require) {
     return date_string[2] + "-" + date_string[1] + "-" + date_string[0];
   }
 
+  function parseToRequestString(data){
+    var rtn = "";
+    if(data){
+      rtn = TemplateUtils.templateToString({SCHED_ACTION: data});
+    }
+    return rtn;
+  }
+
+  var defaultActions = [
+    "terminate",
+    "terminate-hard",
+    "hold",
+    "release",
+    "stop",
+    "suspend",
+    "resume",
+    "reboot",
+    "reboot-hard",
+    "poweroff",
+    "poweroff-hard",
+    "undeploy",
+    "undeploy-hard",
+    "snapshot-create",
+    "snapshot-delete",
+    "snapshot-revert",
+    "disk-snapshot-create",
+    "disk-snapshot-delete",
+    "disk-snapshot-revert"
+  ];
+
   return {
     "fromJSONtoActionRow": _fromJSONtoActionRow,
     "fromJSONtoActionsTable": _fromJSONtoActionsTable,
@@ -823,6 +856,8 @@ define(function (require) {
     "retrieve": _retrieve,
     "fill": _fill,
     "parseTime": _time,
-    "reset": _reset
+    "parseToRequestString": parseToRequestString,
+    "reset": _reset,
+    "defaultActions": defaultActions
   };
 });

@@ -18,19 +18,19 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  var Locale = require('utils/locale');
+  var Locale = require("utils/locale");
   var TemplateUtils = require("utils/template-utils");
-  var WizardFields = require('utils/wizard-fields');
-  var Sunstone = require('sunstone');
+  var WizardFields = require("utils/wizard-fields");
+  var Sunstone = require("sunstone");
   var ScheduleActions = require("utils/schedule_action");
   var notifier = require("utils/notifier");
-  
+
   /*
     CONSTANTS
    */
 
-  var classButton = 'small button leases right radius';
-  var idElementSchedActions = '#sched_temp_actions_body, #sched_inst_actions_body';
+  var classButton = "small button leases right radius";
+  var idElementSchedActions = "#sched_temp_actions_body, #sched_inst_actions_body, #sched_service_create_actions_body";
 
   /*
     CONSTRUCTOR
@@ -47,36 +47,42 @@ define(function(require) {
 
   function _html(){
     if(
-      config && 
-      config.system_config && 
-      config.system_config.leases && 
-      (config.system_config.leases.suspense || config.system_config.leases.terminate)
+      config &&
+      config.system_config &&
+      config.system_config.leases &&
+      (config.system_config.leases.suspend || config.system_config.leases.terminate)
     ){
       return $("<button />", {class: classButton, type:"button"}).append(
-        $("<i/>", {class: 'fa fa-clock'})
-      ).prop('outerHTML');
+        $("<i/>", {class: "fa fa-clock"})
+      ).prop("outerHTML");
     }
   }
 
   function parseVarToJqueryClass(constant){
-    return "."+constant.replace(/ /g, '.');
+    return "."+constant.replace(/ /g, ".");
   }
 
-  function _actions(form, res, act){
+  function _actions(form, res, act, callback){
     if(
       form &&
       form.constructor &&
       form.constructor.name &&
-      (form.constructor.name === 'FormPanel' || form.constructor.name === 'Panel') && 
-      config && 
-      config.system_config && 
+      (form.constructor.name === "FormPanel" || form.constructor.name === "Panel") &&
+      config &&
+      config.system_config &&
       config.system_config.leases
     ){
-      form.formContext.off("click", parseVarToJqueryClass(classButton))
+      form.formContext.off("click", parseVarToJqueryClass(classButton));
       form.formContext.on("click", parseVarToJqueryClass(classButton), function(e){
         e.preventDefault();
         var confLeases = config.system_config.leases;
         var confLeasesKeys = Object.keys(confLeases);
+
+        var type = form.constructor.name;
+        var resource = null;
+        var action = null;
+        var template = null;
+        var id = null;
 
         var showLeaseMessage = function(){
           notifier.notifyCustom(Locale.tr("Added scheduled actions"),"");
@@ -94,6 +100,9 @@ define(function(require) {
               };
               last = schedActionTime;
               $(idElementSchedActions).prepend(ScheduleActions.fromJSONtoActionsTable(newAction));
+              if(typeof callback === "function"){
+                callback();
+              }
               pass = true;
             }
           });
@@ -102,29 +111,23 @@ define(function(require) {
           }
         };
 
-        var type = form.constructor.name;
-        var resource = null;
-        var action = null;
-        var template = null;
-        var id = null;
-
         switch (type) {
-          case 'FormPanel':
+          case "FormPanel":
             resource = form.resource || null;
             action = form.action || null;
-            template = ( form.jsonTemplate ? 
-                  form.jsonTemplate 
-                : 
+            template = ( form.jsonTemplate ?
+                  form.jsonTemplate
+                :
                   (
-                    form.wizardElement ? 
-                      WizardFields.retrieve(form.wizardElement) 
-                    : 
+                    form.wizardElement ?
+                      WizardFields.retrieve(form.wizardElement)
+                    :
                       null
                   )
             );
             id = form.resourceId || null;
           break;
-          case 'Panel':
+          case "Panel":
             resource = res || null;
             action = act || null;
             template = (form.element && form.element.USER_TEMPLATE? form.element.USER_TEMPLATE : null );
@@ -145,7 +148,7 @@ define(function(require) {
                 var index = (
                   template && template.SCHED_ACTION ?
                     (Array.isArray(template.SCHED_ACTION)? template.SCHED_ACTION.length : 1)
-                  : 
+                  :
                     0
                 );
                 var last = 0;
@@ -163,10 +166,10 @@ define(function(require) {
                   }
                 });
                 template.SCHED_ACTION = (
-                  template.SCHED_ACTION? 
-                    (Array.isArray(template.SCHED_ACTION)? template.SCHED_ACTION.concat(newSchedActions) : [template.SCHED_ACTION].concat(newSchedActions)) 
-                  : 
-                  newSchedActions 
+                  template.SCHED_ACTION?
+                    (Array.isArray(template.SCHED_ACTION)? template.SCHED_ACTION.concat(newSchedActions) : [template.SCHED_ACTION].concat(newSchedActions))
+                  :
+                  newSchedActions
                 );
                 template = TemplateUtils.templateToString(template);
                 Sunstone.runAction("VM.update_template", id, template);

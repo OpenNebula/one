@@ -23,8 +23,8 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
-  var OpenNebulaAction = require('opennebula/action');
-  var OpenNebula = require('opennebula');
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebula = require("opennebula");
   var UserInputs = require("utils/user-inputs");
   var Notifier = require("utils/notifier");
   /*
@@ -40,7 +40,7 @@ define(function(require) {
   var FORM_PANEL_ID = require("./formPanelId");
   var TAB_ID = require("../../tabId");
   var vm_group = "VM_GROUP";
-  var classButton = 'small button leases right radius';
+  var classButton = "small button leases right radius";
 
   /*
     CONSTRUCTOR
@@ -78,19 +78,19 @@ define(function(require) {
 
   function _html() {
     var values_hbs = {
-      'formPanelId': this.formPanelId,
-      'userInputsHTML': UserInputs.html(),
+      "formPanelId": this.formPanelId,
+      "userInputsHTML": UserInputs.html(),
     };
     if(config && config.system_config && config.system_config.leases){
       values_hbs.userInputsCharters = $("<div/>").append(
         $("<div/>",{style:"display:inline-block;clear:both;width:100%"}).append(
           $("<button />", {class: classButton, id:"addCharters"}).append(
-            $("<i/>", {class: 'fa fa-clock'})
+            $("<i/>", {class: "fa fa-clock"})
           )
         ).add(
           $("<table/>", {class: "service-charters"})
         )
-      ).prop('outerHTML');
+      ).prop("outerHTML");
     }
     return TemplateHTML(values_hbs);
   }
@@ -114,7 +114,7 @@ define(function(require) {
     if (this.action != "update") return;
     var that = this;
 
-    var description = $('#description', context).val();
+    var description = $("#description", context).val();
     var roles = [];
 
     var json_template = {};
@@ -134,20 +134,20 @@ define(function(require) {
           response.DOCUMENT.TEMPLATE.BODY
         ) {
           var body = response.DOCUMENT.TEMPLATE.BODY;
-          
+
           if (body.roles){
-            $('.role_content', context).each(function() {
+            $(".role_content", context).each(function() {
               var role_id = $(this).attr("role_id");
 
               var role_info = that.roleTabObjects[role_id].retrieve($(this));
 
-              role_info['cardinality'] = parseInt(role_info.cardinality, 10);
-              role_info['cooldown'] = parseInt(role_info.cooldown, 10);
-              role_info['vm_template'] = parseInt(role_info.vm_template, 10);
-              role_info['last_vmname'] = body.roles[role_id].last_vmname;
-              role_info['nodes'] = body.roles[role_id].nodes;
-              role_info['state'] = body.roles[role_id].state;
-            
+              role_info["cardinality"] = parseInt(role_info.cardinality, 10);
+              role_info["cooldown"] = parseInt(role_info.cooldown, 10);
+              role_info["vm_template"] = parseInt(role_info.vm_template, 10);
+              role_info["last_vmname"] = body.roles[role_id].last_vmname;
+              role_info["nodes"] = body.roles[role_id].nodes;
+              role_info["state"] = body.roles[role_id].state;
+
               roles.push(role_info);
             });
 
@@ -160,9 +160,9 @@ define(function(require) {
           Object.assign(ret, body, json_template);
           Sunstone.runAction("Service.update",that.resourceId, JSON.stringify(ret));
         }
-      } 
+      }
     });
-    
+
     return false;
   }
 });

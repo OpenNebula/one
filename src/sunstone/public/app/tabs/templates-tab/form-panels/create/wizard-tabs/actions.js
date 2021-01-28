@@ -78,27 +78,7 @@ define(function(require) {
       CREATE = true;
     }
     var that = this;
-    var actions = [
-      "terminate", 
-      "terminate-hard", 
-      "hold", 
-      "release", 
-      "stop", 
-      "suspend", 
-      "resume", 
-      "reboot", 
-      "reboot-hard", 
-      "poweroff", 
-      "poweroff-hard", 
-      "undeploy", 
-      "undeploy-hard", 
-      "snapshot-create",
-      "snapshot-delete", 
-      "snapshot-revert", 
-      "disk-snapshot-create", 
-      "disk-snapshot-delete", 
-      "disk-snapshot-revert"
-    ];
+    var actions = ScheduleActions.defaultActions;
     function renderCreateForm() {
       if(CREATE){
         ScheduleActions.htmlNewAction(actions, context, "temp");

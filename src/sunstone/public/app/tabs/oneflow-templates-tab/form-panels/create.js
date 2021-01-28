@@ -18,31 +18,38 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  var Notifier = require('utils/notifier');
+  var Notifier = require("utils/notifier");
 //  require('foundation.tab');
-  var BaseFormPanel = require('utils/form-panels/form-panel');
-  var Sunstone = require('sunstone');
+  var BaseFormPanel = require("utils/form-panels/form-panel");
+  var Sunstone = require("sunstone");
   var OpenNebulaAction = require("opennebula/action");
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var RoleTab = require('tabs/oneflow-templates-tab/utils/role-tab');
-  var TemplateUtils = require('utils/template-utils');
-  var UserInputs = require('utils/user-inputs');
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var RoleTab = require("tabs/oneflow-templates-tab/utils/role-tab");
+  var TemplateUtils = require("utils/template-utils");
+  var UserInputs = require("utils/user-inputs");
+  var ScheduleActions = require("utils/schedule_action");
+  var Leases = require("utils/leases");
 
   /*
     TEMPLATES
    */
 
-  var TemplateWizardHTML = require('hbs!./create/wizard');
-  var TemplateAdvancedHTML = require('hbs!./create/advanced');
+  var TemplateWizardHTML = require("hbs!./create/wizard");
+  var TemplateAdvancedHTML = require("hbs!./create/advanced");
 
   /*
     CONSTANTS
    */
 
-  var FORM_PANEL_ID = require('./create/formPanelId');
-  var TAB_ID = require('../tabId');
-
+  var FORM_PANEL_ID = require("./create/formPanelId");
+  var TAB_ID = require("../tabId");
+  var RESOURCE = "service_create";
+  var CREATE = true;
+  var actions = ScheduleActions.defaultActions;
+  function clear(){
+    CREATE = true;
+  }
   /*
     CONSTRUCTOR
    */
@@ -51,15 +58,15 @@ define(function(require) {
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
     this.actions = {
-      'create': {
-        'title': Locale.tr("Create Service Template"),
-        'buttonText': Locale.tr("Create"),
-        'resetButton': true
+      "create": {
+        "title": Locale.tr("Create Service Template"),
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       },
-      'update': {
-        'title': Locale.tr("Update Service Template"),
-        'buttonText': Locale.tr("Update"),
-        'resetButton': false
+      "update": {
+        "title": Locale.tr("Update Service Template"),
+        "buttonText": Locale.tr("Update"),
+        "resetButton": false
       }
     };
 
@@ -86,26 +93,110 @@ define(function(require) {
 
   function _htmlWizard() {
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId,
-      'userInputsHTML': UserInputs.html(),
+      "formPanelId": this.formPanelId,
+      "userInputsHTML": UserInputs.html(),
     });
   }
 
   function _htmlAdvanced() {
     return TemplateAdvancedHTML({
-      'formPanelId': this.formPanelId
+      "formPanelId": this.formPanelId
+    });
+  }
+
+  function renderCreateForm(context) {
+    if(CREATE){
+      ScheduleActions.htmlNewAction(actions, context, RESOURCE);
+      ScheduleActions.setup(context);
+      CREATE=false;
+    }
+  }
+
+  function sched_actions_events(context){
+    $(".edit_action_x").off("click").on("click", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length){
+        contextRow = $(this).closest("tr.tr_action");
+        renderCreateForm(context);
+        $("#edit_"+RESOURCE+"_action_json").show().attr("data_id", id);
+        $("#add_"+RESOURCE+"_action_json").hide();
+        ScheduleActions.fill($(this),context);
+        sched_actions_events(context);
+      }
+    });
+
+    $("#add_scheduling_"+RESOURCE+"_action").off("click");
+    $("#add_scheduling_"+RESOURCE+"_action").on("click", function(e){
+      e.preventDefault();
+      renderCreateForm(context);
+      $("#edit_"+RESOURCE+"_action_json").hide();
+      $("#add_"+RESOURCE+"_action_json").show();
+      sched_actions_events(context);
+    });
+
+    $(".remove_action_x").off("click").on("click", function(){
+      $(this).parents("tr").remove();
+      sched_actions_events(context);
+    });
+
+    $("#add_"+RESOURCE+"_action_json").off("click").on("click", function(){
+      var sched_action = ScheduleActions.retrieveNewAction(context);
+      if (sched_action) {
+        $("#no_actions_tr", context).remove();
+        $("#sched_"+RESOURCE+"_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(sched_action));
+      }
+      $("#input_sched_action_form").remove();
+      sched_actions_events(context);
+      clear();
+      return false;
+    });
+
+    $("#edit_"+RESOURCE+"_action_json").off("click").on("click", function(e){
+      e.preventDefault();
+      var id = $(this).attr("data_id");
+      if(id && id.length && contextRow){
+        $(".wickedpicker").hide();
+        var sched_action = ScheduleActions.retrieveNewAction(context);
+        if (sched_action != false) {
+          sched_action.ID = id;
+          contextRow.replaceWith(ScheduleActions.fromJSONtoActionsTable(sched_action));
+          contextRow = undefined;
+          $("#input_sched_action_form").remove();
+        }
+        sched_actions_events(context);
+        clear();
+      }
+      return false;
     });
   }
 
   function _setup(context) {
+    clear();
     this.networksType = [
-      { value: 'template_id', text: 'Create', select: 'vntemplates', extra: true },
-      { value: 'reserve_from', text: 'Reserve', select: 'networks', extra: true },
-      { value: 'id', text: 'Existing', select: 'networks', extra: false },
-    ]
+      { value: "template_id", text: "Create", select: "vntemplates", extra: true },
+      { value: "reserve_from", text: "Reserve", select: "networks", extra: true },
+      { value: "id", text: "Existing", select: "networks", extra: false },
+    ];
     this.roleTabObjects = {};
     this.numberOfNetworks = 0;
     var that = this;
+
+    //this render a schedule action form
+    $(".service_schedule_actions").append(ScheduleActions.htmlTable(RESOURCE, Leases.html()));
+    //this are actions of Leases button
+    var objLeases = $.extend(true, {}, that);
+    objLeases.resource = "template";
+    objLeases.__proto__ = FormPanel.prototype;
+    Leases.actions(objLeases,"","", function(){
+      sched_actions_events(context);
+    });
+
+    //end of render a schedule action form
+
+    // this is a logic to add, remove and edit schedule_action
+    sched_actions_events(context);
+    // end of logic to add, remove and edit schedule_action
 
     $(".add_service_network", context).unbind("click");
     $(".add_service_network", context).bind("click", function() {
@@ -114,34 +205,34 @@ define(function(require) {
 
 
       $(".service_networks tbody").append(
-        '<tr id="network'+nic_index+'">\
+        "<tr id=\"network"+nic_index+"\">\
           <td>\
-            <input checked="" type="checkbox" name="service_network_mandatory'+nic_index+'"\
-              class="switch input service_network_mandatory slaac" id="service_network_mandatory'+nic_index+'" hidden="">\
-            <label class="switch-paddle" for="service_network_mandatory'+nic_index+'" style="cursor: pointer;"></label>\
+            <input checked=\"\" type=\"checkbox\" name=\"service_network_mandatory"+nic_index+"\"\
+              class=\"switch input service_network_mandatory slaac\" id=\"service_network_mandatory"+nic_index+"\" hidden=\"\">\
+            <label class=\"switch-paddle\" for=\"service_network_mandatory"+nic_index+"\" style=\"cursor: pointer;\"></label>\
           </td>\
           <td>\
-            <input class="service_network_name" type="text" data-index="'+nic_index+'" required />\
-            <small class="form-error"><br/>'+Locale.tr("Can only contain alphanumeric and underscore characters, and be unique")+'</small>\
+            <input class=\"service_network_name\" type=\"text\" data-index=\""+nic_index+"\" required />\
+            <small class=\"form-error\"><br/>"+Locale.tr("Can only contain alphanumeric and underscore characters, and be unique")+"</small>\
           </td>\
           <td>\
-            <textarea class="service_network_description" />\
+            <textarea class=\"service_network_description\" />\
           </td>\
           <td>\
-            <select class="service_network_type" required></select>\
+            <select class=\"service_network_type\" required></select>\
           </td>\
           <td>\
-            <select class="service_network_id">\
-              <option value=" "></option>\
+            <select class=\"service_network_id\">\
+              <option value=\" \"></option>\
             </select>\
           </td>\
           <td>\
-            <input disabled class="service_network_extra" type="text" />\
+            <input disabled class=\"service_network_extra\" type=\"text\" />\
           </td>\
-          <td style="text-align: right;">\
-            <a href="#"><i class="fas fa-times-circle remove-tab" data-index="'+nic_index+'"></i></a>\
+          <td style=\"text-align: right;\">\
+            <a href=\"#\"><i class=\"fas fa-times-circle remove-tab\" data-index=\""+nic_index+"\"></i></a>\
           </td>\
-        </tr>');
+        </tr>");
 
         that.networksType.map(function(type) {
           $(".service_network_type", "tr#network"+nic_index).append($("<option/>", {
@@ -155,43 +246,43 @@ define(function(require) {
           var otherNames = $("input.service_network_name").not($(this)).map(function() {
             return $(this).val();
           }).get().join("|");
-    
+
           $(this).attr("pattern", "^(?!(" + otherNames + ")$)(^\\w+$)");
-    
+
           _redo_service_networks_selector(context, that);
         });
 
         $(".service_network_type", "tr#network"+nic_index).unbind("change");
         $(".service_network_type", "tr#network"+nic_index).bind("change", function(){
-          var selectedType = $(this).val()
-          var serviceNetwork = $(this).closest('tr')
+          var selectedType = $(this).val();
+          var serviceNetwork = $(this).closest("tr");
 
-          var data = _get_networks()
+          var data = _get_networks();
 
           // 1. if val = reserve/existing or create
-          $(".service_network_id", serviceNetwork).empty().append($("<option/>").text(""))
-          
+          $(".service_network_id", serviceNetwork).empty().append($("<option/>").text(""));
+
           // 2. create and fill selector
-          var type = that.networksType.find(function(type) { return type.value === selectedType })
-          
+          var type = that.networksType.find(function(type) { return type.value === selectedType; });
+
           // 3. append selector after type
           type && data[type.select].map(function(net) {
             $(".service_network_id", serviceNetwork).append($("<option/>", {
               "value": net.ID
-            }).text(net.NAME))
-          })
-          
+            }).text(net.NAME));
+          });
+
           // 4. append extra after selector if reserve/create
           var disabled = type ? !type.extra : true;
-          !disabled && $(".service_network_extra", serviceNetwork).empty(); 
-          $(".service_network_extra", serviceNetwork).prop('disabled', disabled);
+          !disabled && $(".service_network_extra", serviceNetwork).empty();
+          $(".service_network_extra", serviceNetwork).prop("disabled", disabled);
         });
 
         $("i.remove-tab", "tr#network"+nic_index).unbind("click");
         $("i.remove-tab", "tr#network"+nic_index).bind("click", function(){
-          var tr = $(this).closest('tr');
+          var tr = $(this).closest("tr");
           tr.remove();
-    
+
           _redo_service_networks_selector(context, that, $(this).data("index"));
         });
 
@@ -242,11 +333,11 @@ define(function(require) {
       $(tab_id+" .parent_roles_body", context).html(str);
 
       $.each(selected_parents, function(){
-        $(tab_id+" .parent_roles_body #"+this, context).attr('checked', true);
+        $(tab_id+" .parent_roles_body #"+this, context).attr("checked", true);
       });
     });
 
-    Foundation.reflow(context, 'tabs');
+    Foundation.reflow(context, "tabs");
 
     Tips.setup(context);
     UserInputs.setup(context);
@@ -255,13 +346,13 @@ define(function(require) {
 
   function _submitWizard(context) {
     var that = this;
-
-    var name = $('input[name="service_name"]', context).val();
-    var description = $('#description', context).val();
-    var deployment = $('select[name="deployment"]', context).val();
-    var shutdown_action_service = $('select[name="shutdown_action_service"]', context).val();
-    var ready_status_gate = $('input[name="ready_status_gate"]', context).prop("checked");
-    var automatic_deletion = $('input[name="automatic_deletion"]', context).prop("checked");
+    var scheduleActions = ScheduleActions.retrieve(context);
+    var name = $("input[name=\"service_name\"]", context).val();
+    var description = $("#description", context).val();
+    var deployment = $("select[name=\"deployment\"]", context).val();
+    var shutdown_action_service = $("select[name=\"shutdown_action_service\"]", context).val();
+    var ready_status_gate = $("input[name=\"ready_status_gate\"]", context).prop("checked");
+    var automatic_deletion = $("input[name=\"automatic_deletion\"]", context).prop("checked");
 
     var custom_attrs =  {};
     var network_attrs = {};
@@ -272,12 +363,12 @@ define(function(require) {
       var row = $(this);
       var attr_name = $(".service_network_name", row).val();
       if (attr_name) {
-        var attr_mandatory = $(".service_network_mandatory", row).prop('checked') ? 'M' : 'O';
-        var attr_desc = ($(".service_network_description", row).val() || '');
-        var attr_type = $(".service_network_type", row).val() || '';
-        var attr_id = $(".service_network_id", row).val() || '';
-        var type = that.networksType.find(function(type) { return type.value === attr_type })
-        var attr_extra = type.extra ? (':' + ($(".service_network_extra", row).val() || '')) : '';
+        var attr_mandatory = $(".service_network_mandatory", row).prop("checked") ? "M" : "O";
+        var attr_desc = ($(".service_network_description", row).val() || "");
+        var attr_type = $(".service_network_type", row).val() || "";
+        var attr_id = $(".service_network_id", row).val() || "";
+        var type = that.networksType.find(function(type) { return type.value === attr_type; });
+        var attr_extra = type.extra ? (":" + ($(".service_network_extra", row).val() || "")) : "";
         network_attrs[attr_name] =  attr_mandatory + "|" + attr_network + "|" + attr_desc + "| |" + attr_type + ":" + attr_id + attr_extra;
       }
     });
@@ -285,15 +376,27 @@ define(function(require) {
     var userInputsJSON = UserInputs.retrieve(context);
     $.each(userInputsJSON, function(key, value){
       var name = key.toUpperCase();
-      custom_attrs[name] = value
+      custom_attrs[name] = value;
     });
 
     var roles = [];
-    $('.role_content', context).each(function() {
+    $(".role_content", context).each(function() {
       var role_id = $(this).attr("role_id");
 
       roles.push( that.roleTabObjects[role_id].retrieve($(this)) );
     });
+
+    //this var is for validate if the request is a PUT or POST. PD: check why the update is a POST
+    var post = true;
+
+    //if exist schedule_actions add scheduleAction to each role
+    if(scheduleActions && scheduleActions.length){
+      post = false;
+      roles = roles.map(role => {
+        role.vm_template_contents = ScheduleActions.parseToRequestString(scheduleActions);
+        return role;
+      });
+    }
 
     var json_template = {
       name: name,
@@ -306,32 +409,32 @@ define(function(require) {
 
     //add networks in post body
     if (!$.isEmptyObject(network_attrs)){
-      json_template['networks'] = network_attrs;
+      json_template["networks"] = network_attrs;
     }
 
     //add custom attributes in post body
     if (!$.isEmptyObject(custom_attrs)){
-      json_template['custom_attrs'] = custom_attrs;
+      json_template["custom_attrs"] = custom_attrs;
     }
 
     if (shutdown_action_service){
-      json_template['shutdown_action'] = shutdown_action_service;
+      json_template["shutdown_action"] = shutdown_action_service;
     }
 
     // add labels
-    var currentInfo = Sunstone.getElementRightInfo(TAB_ID)
+    var currentInfo = Sunstone.getElementRightInfo(TAB_ID);
     if (
       currentInfo &&
       currentInfo.TEMPLATE &&
       currentInfo.TEMPLATE.BODY &&
       currentInfo.TEMPLATE.BODY.labels
     ) {
-      json_template['labels'] = currentInfo.TEMPLATE.BODY.labels
+      json_template["labels"] = currentInfo.TEMPLATE.BODY.labels;
     }
 
     var new_template = {};
     $.extend(true, new_template, that.old_template, json_template);
-
+    clear();
     if (this.action == "create") {
       Sunstone.runAction("ServiceTemplate.create", new_template );
       return false;
@@ -343,7 +446,7 @@ define(function(require) {
   }
 
   function _submitAdvanced(context) {
-    var templateStr = $('textarea#template', context).val();
+    var templateStr = $("textarea#template", context).val();
     if (this.action == "create") {
       Sunstone.runAction("ServiceTemplate.create", JSON.parse(templateStr) );
       return false;
@@ -356,7 +459,7 @@ define(function(require) {
   function _onShow(context) {
     var that = this;
 
-    $('.role_content', context).each(function() {
+    $(".role_content", context).each(function() {
       var role_id = $(this).attr("role_id");
       that.roleTabObjects[role_id].onShow();
     });
@@ -375,8 +478,21 @@ define(function(require) {
     this.resourceId = element.ID;
     this.old_template = element.TEMPLATE.BODY;
 
+    //fill schedule actions
+    if(this.old_template && this.old_template.roles && this.old_template.roles[0] && this.old_template.roles[0].vm_template_contents){
+      var vm_template_contents = TemplateUtils.stringToTemplate(this.old_template.roles[0].vm_template_contents);
+      if(vm_template_contents && vm_template_contents.SCHED_ACTION){
+        var arraySchedActions = Array.isArray(vm_template_contents.SCHED_ACTION)? vm_template_contents.SCHED_ACTION : [vm_template_contents.SCHED_ACTION];
+        arraySchedActions.forEach(function(schedAction){
+          $("#no_actions_tr", context).remove();
+          $("#sched_"+RESOURCE+"_actions_body").prepend(ScheduleActions.fromJSONtoActionsTable(schedAction));
+        });
+        sched_actions_events(context);
+      }
+    }
+
     // Populates the Avanced mode Tab
-    $('#template', context).val(JSON.stringify(element.TEMPLATE.BODY, null, "  "));
+    $("#template", context).val(JSON.stringify(element.TEMPLATE.BODY, null, "  "));
 
 
     $("#service_name", context).attr("disabled", "disabled");
@@ -384,7 +500,7 @@ define(function(require) {
 
     $("#description", context).val(element.TEMPLATE.BODY.description);
 
-    $('select[name="deployment"]', context).val(element.TEMPLATE.BODY.deployment);
+    $("select[name=\"deployment\"]", context).val(element.TEMPLATE.BODY.deployment);
     $("select[name='shutdown_action_service']", context).val(element.TEMPLATE.BODY.shutdown_action);
     $("input[name='ready_status_gate']", context).prop("checked",element.TEMPLATE.BODY.ready_status_gate || false);
     $("input[name='automatic_deletion']", context).prop("checked",element.TEMPLATE.BODY.automatic_deletion || false);
@@ -392,28 +508,28 @@ define(function(require) {
     $(".service_networks i.remove-tab", context).trigger("click");
 
     //fill form networks
-    if ( ! $.isEmptyObject( element.TEMPLATE.BODY['networks'] ) ) {
+    if ( ! $.isEmptyObject( element.TEMPLATE.BODY["networks"] ) ) {
       $("div#network_configuration a.accordion_advanced_toggle", context).trigger("click");
-      $.each(element.TEMPLATE.BODY['networks'], function(key, attr){
+      $.each(element.TEMPLATE.BODY["networks"], function(key, attr){
         // 0 mandatory; 1 network; 2 description; 3 empty; 4 info_network;
         var parts = attr.split("|");
         // 0 type; 1 id; 3(optional) extra
         var info = parts.slice(-1)[0].split(":");
         var attrs = {
           "name": key,
-          "mandatory": parts[0] === 'M' ? true : false,
+          "mandatory": parts[0] === "M" ? true : false,
           "network": parts[1],
           "description": parts[2],
           "empty": parts[3],
           "type": info[0],
           "id": info[1],
-          "extra": info.slice(2).join(''),
+          "extra": info.slice(2).join(""),
         };
 
         if (parts[1] === "network") {
           $(".add_service_network", context).trigger("click");
           var tr = $(".service_networks tbody > tr", context).last();
-          $(".service_network_mandatory", tr).prop('checked', attrs.mandatory).change();
+          $(".service_network_mandatory", tr).prop("checked", attrs.mandatory).change();
           $(".service_network_name", tr).val(attrs.name).change();
           $(".service_network_description", tr).val(attrs.description).change();
           $(".service_network_type", tr).val(attrs.type).change();
@@ -424,7 +540,7 @@ define(function(require) {
     }
 
     //fill form custom attributes
-    var custom_attrs = element.TEMPLATE.BODY['custom_attrs']
+    var custom_attrs = element.TEMPLATE.BODY["custom_attrs"];
     if (! $.isEmptyObject(custom_attrs)) {
       $("div#custom_attr_values a.accordion_advanced_toggle", context).trigger("click");
       UserInputs.fill(context, {"USER_INPUTS": custom_attrs});
@@ -447,7 +563,7 @@ define(function(require) {
 
       $("#tf_btn_roles", context).click();
 
-      var role_context = $('.role_content', context).last();
+      var role_context = $(".role_content", context).last();
       var role_id = $(role_context).attr("role_id");
 
       that.roleTabObjects[role_id].fill(role_context, value, network_names);
@@ -456,7 +572,7 @@ define(function(require) {
     //_redo_service_networks_selector(context, that);
 
     $.each(element.TEMPLATE.BODY.roles, function(index, value){
-        var role_context = $('.role_content', context)[index];
+        var role_context = $(".role_content", context)[index];
         var str = "";
 
         $.each(roles_names, function(){
@@ -474,7 +590,7 @@ define(function(require) {
 
         if (value.parents) {
           $.each(value.parents, function(index, value){
-            $(".parent_roles_body #"+this, role_context).attr('checked', true);
+            $(".parent_roles_body #"+this, role_context).attr("checked", true);
           });
         }
     });
@@ -483,7 +599,7 @@ define(function(require) {
   //----------------------------------------------------------------------------
 
   function _redo_service_networks_selector(dialog, template, nicToDelete){
-    $('#roles_tabs_content .role_content', dialog).each(function(){
+    $("#roles_tabs_content .role_content", dialog).each(function(){
       _redo_service_networks_selector_role(dialog, this, template, nicToDelete);
     });
   }
@@ -503,17 +619,17 @@ define(function(require) {
       }
     });
 
-    var role_tab_id = $(role_section).attr('id');
+    var role_tab_id = $(role_section).attr("id");
     var str = "";
     $(".service_networks .service_network_name", dialog).each(function(){
-      var index = $(this).data('index');
+      var index = $(this).data("index");
       var name = $(this).val();
       var regexp = new RegExp($(this).attr("pattern"), "gi");
 
       var checked = checked_networks[index];
-      var wasChecked = checked ? 'checked="checked"' : '';
-      var wasAlias = checked && checked["alias"] ? 'checked="checked"' : '';
-      var canBeAlias = !checked ? 'disabled="disabled"' : '';
+      var wasChecked = checked ? "checked=\"checked\"" : "";
+      var wasAlias = checked && checked["alias"] ? "checked=\"checked\"" : "";
+      var canBeAlias = !checked ? "disabled=\"disabled\"" : "";
 
       // Condition 1: Be unique
       // Condition 2: Can only contain alphanumeric and underscore characters
@@ -565,15 +681,15 @@ define(function(require) {
 
   function _add_role_tab(role_id, dialog) {
     var that = this;
-    var html_role_id  = 'role' + role_id;
+    var html_role_id  = "role" + role_id;
 
     var role_tab = new RoleTab(html_role_id);
     that.roleTabObjects[role_id] = role_tab;
 
     // Append the new div containing the tab and add the tab to the list
-    var role_section = $('<div id="'+html_role_id+'Tab" class="tabs-panel role_content wizard_internal_tab" role_id="'+role_id+'">'+
+    var role_section = $("<div id=\""+html_role_id+"Tab\" class=\"tabs-panel role_content wizard_internal_tab\" role_id=\""+role_id+"\">"+
         role_tab.html() +
-    '</div>').appendTo($("#roles_tabs_content", dialog));
+    "</div>").appendTo($("#roles_tabs_content", dialog));
 
     _redo_service_networks_selector_role(dialog, role_section, that);
 
@@ -596,14 +712,14 @@ define(function(require) {
     // close icon: removing the tab on click
     a.on("click", "i.remove-tab", function() {
       var target = $(this).parent().attr("href");
-      var li = $(this).closest('li');
-      var ul = $(this).closest('ul');
+      var li = $(this).closest("li");
+      var ul = $(this).closest("ul");
       var content = $(target);
       var role_id = content.attr("role_id");
       li.remove();
       content.remove();
-      if (li.hasClass('is-active')) {
-        $('a', ul.children('li').last()).click();
+      if (li.hasClass("is-active")) {
+        $("a", ul.children("li").last()).click();
       }
       delete that.roleTabObjects[role_id];
       _redo_service_networks_selector(dialog, that);
@@ -620,7 +736,7 @@ define(function(require) {
       networks = OpenNebulaAction.cache("VNET");
     }
     networks = networks ? networks.data : [];
-    
+
     var vntemplates = OpenNebulaAction.cache("VNTEMPLATE");
     if (vntemplates === undefined) {
       Sunstone.runAction("VNTemplate.list");
@@ -635,10 +751,10 @@ define(function(require) {
         return ({
           ID: net.VNET.ID,
           NAME: net.VNET.NAME || "vnet-"+net.VNET.ID
-        })
-      })
+        });
+      });
     }
-    
+
     // Get network templates list
     if (vntemplates) {
       var data = Array.isArray(vntemplates) ? vntemplates : [];
@@ -646,10 +762,10 @@ define(function(require) {
         return ({
           ID: temp.VNTEMPLATE.ID,
           NAME: temp.VNTEMPLATE.NAME || "vntemplate-"+template.VNTEMPLATE.ID
-        })
-      })
+        });
+      });
     }
-    return ({ networks: networks, vntemplates: vntemplates })
+    return ({ networks: networks, vntemplates: vntemplates });
   }
 
 });

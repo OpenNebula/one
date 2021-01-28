@@ -51,7 +51,7 @@ define(function(require) {
 
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
-  var RESOURCE = 'inst';
+  var RESOURCE = "inst";
   var CREATE = true;
   var contextRow;
 
@@ -90,7 +90,7 @@ define(function(require) {
   /*
     FUNCTION DEFINITIONS
    */
-  
+
    function _html() {
     return TemplateHTML({
       "formPanelId": this.formPanelId
@@ -101,27 +101,7 @@ define(function(require) {
     if(!CREATE){
       CREATE = true;
     }
-    var actions = [
-      "terminate", 
-      "terminate-hard", 
-      "hold", 
-      "release", 
-      "stop", 
-      "suspend", 
-      "resume", 
-      "reboot", 
-      "reboot-hard", 
-      "poweroff", 
-      "poweroff-hard", 
-      "undeploy", 
-      "undeploy-hard", 
-      "snapshot-create",
-      "snapshot-delete", 
-      "snapshot-revert", 
-      "disk-snapshot-create", 
-      "disk-snapshot-delete", 
-      "disk-snapshot-revert"
-    ];
+    var actions = ScheduleActions.defaultActions;
     var that = this;
     var objLeases = $.extend(true, {}, that);
     objLeases.resource = "template";
@@ -407,7 +387,7 @@ define(function(require) {
       capacityContext = $(".capacityContext"  + template_id, context);
       $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
 
-      var topology = {}
+      var topology = {};
 
       if (tmp_json && tmp_json.CORES){
         topology.CORES = tmp_json["CORES"];
@@ -702,7 +682,7 @@ define(function(require) {
 
     if (hosts_table) {
       var selected_hosts = hosts_table.retrieveResourceTableSelect();
-      
+
       $.each(selected_hosts, function(index, hostId) {
         req_string.push("ID=\"" + hostId + "\"");
       });
