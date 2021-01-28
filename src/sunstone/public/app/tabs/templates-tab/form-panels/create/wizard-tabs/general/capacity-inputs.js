@@ -200,6 +200,15 @@ define(function(require) {
       } 
     }
 
+    $("div.vcpu_input input.visor", context).on("change keyup", function(){
+      var min_value = $("div.vcpu_input input.visor", context).attr("data-min");
+      if (this.value < min_value){
+        this.value = min_value;
+      }
+      $(this).siblings("input").val(this.value);
+      $(this).siblings("input").trigger("input");
+    });
+
     if (element.TEMPLATE.HYPERVISOR == "vcenter"){
       $("div.cores_per_socket_select_wrapper").show();
       $("div.socket_info").show();
