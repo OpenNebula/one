@@ -225,22 +225,30 @@ define(function(require) {
     return html;
   }
 
-  function _ipTr(nic, attr){
-    var v = "--";
-    if(nic && attr){
-      if(!Array.isArray(attr)){
-        attr = [attr];
-      }
-      attr.map(function(attr){
-        if(nic[attr]){
-          v = nic[attr];
-          if (nic["VROUTER_"+attr] != undefined){
-            v += ("<br/>" + nic["VROUTER_"+attr] + Locale.tr(" (VRouter)"));
-          }
-        }
-      });
+  function _ipTr(nic, attributes) {
+    var ips = [];
+    var defaultValue = '--'
+
+    if (!nic || !attributes) return defaultValue
+    
+    if (!Array.isArray(attributes)) {
+      attributes = [attributes];
     }
-    return v;
+
+    attributes.map(function(attribute) {
+      if (nic[attribute]) {
+        // filter attributes with dual value: YES or <IP>
+        if (String(nic[attribute]).toLowerCase() !== 'yes') {
+          ips.push(nic[attribute])
+        }
+
+        if (nic["VROUTER_" + attribute] !== undefined) {
+          ips.push(nic["VROUTER_" + attribute] + Locale.tr(" (VRouter)"));
+        }
+      }
+    });
+
+    return ips.length === 0 ? defaultValue : ips.join('<br/>');
   }
 
   function _setup(context) {
@@ -347,9 +355,9 @@ define(function(require) {
 
         var pci_address = is_pci ? nic.ADDRESS : "";
 
-        var ipStr = "IP";
+        var ipAttribute = "IP";
         if (nic.IP6 !== undefined){
-          ipStr = "IP6";
+          ipAttribute = "IP6";
         }
 
         var nic_alias = [];
@@ -369,7 +377,7 @@ define(function(require) {
         nic_dt_data.push({
           NIC_ID : nic.NIC_ID,
           NETWORK : Navigation.link(nic.NETWORK, "vnets-tab", nic.NETWORK_ID),
-          IP : _ipTr(nic, [ipStr, "IP"]),
+          IP : _ipTr(nic, [ipAttribute, 'EXTERNAL_IP']),
           NIC_ALIAS : nic_alias,
           MAC : nic.MAC,
           PCI_ADDRESS: pci_address,
@@ -429,29 +437,39 @@ define(function(require) {
         if(row.data().NIC_ALIAS.length > 0) {
             var html = "";
 
-            $.each(row.data().NIC_ALIAS, function(index, elem) {
+            $.each(row.data().NIC_ALIAS, function() {
                 var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\">" +
                               "<b>" + "- Alias-" + this.ALIAS_ID + ":" + "</b>";
+
                 if(this.IP !== undefined) {
-                    new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
+                  new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
                 }
+
+                if(String(this.EXTERNAL_IP).toLowerCase() !== 'yes') {
+                  new_div += "&nbsp;&nbsp;&nbsp;" + this.EXTERNAL_IP;
+                }
+
                 if(this.IP6 !== undefined) {
-                    new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
+                  new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
                 }
+
                 new_div += "&nbsp;&nbsp;&nbsp;" + this.MAC;
+
                 if(this.IP6_ULA !== undefined) {
-                    new_div += "&nbsp;&nbsp;&nbsp;<b>ULA</b>&nbsp;" + this.IP6_ULA;
+                  new_div += "&nbsp;&nbsp;&nbsp;<b>ULA</b>&nbsp;" + this.IP6_ULA;
                 }
+
                 if(this.IP6_GLOBAL !== undefined) {
-                    new_div += "&nbsp;&nbsp;&nbsp;<b>Global</b>&nbsp;" + this.IP6_GLOBAL;
+                  new_div += "&nbsp;&nbsp;&nbsp;<b>Global</b>&nbsp;" + this.IP6_GLOBAL;
                 }
+
                 new_div += "&nbsp;&nbsp;&nbsp;" + this.ACTIONS + "</div>";
 
                 html += new_div;
 
                 if (Config.isTabActionEnabled("vms-tab", "VM.detachnic")) {
-                    context.off("click", ".detachnic");
-                    context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
+                  context.off("click", ".detachnic");
+                  context.on("click", ".detachnic", {element_id: that.element.ID}, detach_alias);
                 }
             });
           } else {

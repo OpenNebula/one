@@ -64,13 +64,14 @@ define(function(require) {
       "bSortClasses" : false,
       "bDeferRender": true,
       "aoColumnDefs": [
-          {"sType": "ip-address", "aTargets": [0]},
-          {"sType": "num", "aTargets": [1]},
-          {"sType": "date-euro", "aTargets": [ 10 ]},
-          {"bSortable": false, "aTargets": ["check", 11]},
-          {"sWidth": "35px", "aTargets": [0]},
-          {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']}
+        {"sType": "ip-address", "aTargets": [0]},
+        {"sType": "num", "aTargets": [1]},
+        {"sType": "date-euro", "aTargets": [ 10 ]},
+        {"bSortable": false, "aTargets": ["check", 11]},
+        {"sWidth": "35px", "aTargets": [0]},
+        {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
+        {"bVisible": false, "aTargets": ['_all']},
+        {"sClass": "middle", "aTargets": ['_all']}
       ]
     };
 
