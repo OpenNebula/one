@@ -68,7 +68,7 @@ define(function(require) {
     var rtn = "";
     if(config && config.system_config && config.system_config.support_fs && Array.isArray(config.system_config.support_fs)){
       config.system_config.support_fs.forEach(element => {
-        rtn += "<option>"+element+"</option>";
+        rtn += "<option value='"+element+"'>"+element+"</option>";
       });
     }
     return rtn;
@@ -78,7 +78,7 @@ define(function(require) {
     return TemplateHTML({
       "diskTabId": this.diskTabId,
       "imageTableSelectHTML": this.imageTable.dataTableHTML,
-      "pepe": optionsFilesystem()
+      "optionsFilesystem": optionsFilesystem()
     });
   }
 
