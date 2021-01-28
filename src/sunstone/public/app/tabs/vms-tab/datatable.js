@@ -218,7 +218,7 @@ define(function(require) {
       var data = $(this).data();
 
       (data.hasOwnProperty("id"))
-        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'rdp')
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), { type: 'rdp' })
         : Notifier.notifyError(Locale.tr("RDP - Invalid action"));
 
       return false;
@@ -228,7 +228,7 @@ define(function(require) {
       var data = $(this).data();
 
       (data.hasOwnProperty("id"))
-        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'ssh')
+        ? Sunstone.runAction("VM.startguac_action", String(data.id), { type: 'ssh' })
         : Notifier.notifyError(Locale.tr("SSH - Invalid action"));
 
       return false;
@@ -238,7 +238,7 @@ define(function(require) {
       var data = $(this).data();
 
       (data.hasOwnProperty("id"))
-        ? Sunstone.runAction("VM.startguac_action", String(data.id), 'vnc')
+        ? Sunstone.runAction("VMstartguac_action", String(data.id), { type: 'vnc' })
         : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
 
       return false;
@@ -271,7 +271,7 @@ define(function(require) {
         var data = $(that).data();
 
         (data.hasOwnProperty("id"))
-          ? Sunstone.runAction("VM.startvmrc_action", String(data.id), 'vnc')
+          ? Sunstone.runAction("VM.startvmrc_action", String(data.id), { type: 'vnc' })
           : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
       }
 
@@ -279,7 +279,7 @@ define(function(require) {
         var data = $(that).data();
 
         (data.hasOwnProperty("id"))
-          ? Sunstone.runAction("VM.startguac_action", String(data.id), 'vnc')
+          ? Sunstone.runAction("VM.startguac_action", String(data.id), { type: 'vnc' })
           : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
       }
 
