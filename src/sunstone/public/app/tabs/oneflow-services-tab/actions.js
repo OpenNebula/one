@@ -176,24 +176,6 @@ define(function(require) {
       notify: true
     },
 
-    "Role.hold" : {
-      type: "multiple",
-      call: OpenNebulaRole.hold,
-      callback: roleCallback,
-      elements: roleElements,
-      error: Notifier.onError,
-      notify: true
-    },
-
-    "Role.release" : {
-      type: "multiple",
-      call: OpenNebulaRole.release,
-      callback: roleCallback,
-      elements: roleElements,
-      error: Notifier.onError,
-      notify: true
-    },
-
     "Role.suspend" : {
       type: "multiple",
       call: OpenNebulaRole.suspend,

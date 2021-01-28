@@ -55,20 +55,6 @@ define(function(require) {
       ][state_int]
       return state ? state : state_int;
     },
-    "hold" : function(params) {
-      OpenNebulaAction.simple_action(params,
-                                      RESOURCE,
-                                      "hold",
-                                      generate_batch_action_params(),
-                                      PATH);
-    },
-    "release" : function(params) {
-      OpenNebulaAction.simple_action(params,
-                                      RESOURCE,
-                                      "release",
-                                      generate_batch_action_params(),
-                                      PATH);
-    },
     "suspend" : function(params) {
       OpenNebulaAction.simple_action(params,
                                       RESOURCE,

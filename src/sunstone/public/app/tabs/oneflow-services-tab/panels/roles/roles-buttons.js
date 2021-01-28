@@ -24,18 +24,6 @@ define(function(require) {
       layout: "create",
       custom_classes : "role-state-dependent"
     },
-    "Role.hold" : {
-      type: "action",
-      text: Locale.tr("Hold"),
-      layout: "vmsplanification_buttons",
-      custom_classes : "role-state-dependent"
-    },
-    "Role.release" : {
-      type: "action",
-      text: Locale.tr("Release"),
-      layout: "vmsplanification_buttons",
-      custom_classes : "role-state-dependent"
-    },
     "Role.suspend" : {
       type: "action",
       text: Locale.tr("Suspend"),
