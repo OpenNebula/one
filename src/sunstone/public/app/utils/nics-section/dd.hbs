@@ -26,21 +26,35 @@
         {{#if displayType}}
           <fieldset class="small-12 large-6 columns" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type_section">
             <legend style="margin:0px;">{{tr "Interface type"}}</legend>
-            <div class="switch left">
-              <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type" type="checkbox">
-              <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type">
+            <div style="min-height: 40px;">
+              <div class="switch left">
+                <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type" type="checkbox">
+                <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_interface_type">
+                </label>
+              </div>
+              <label class="left">
+                &nbsp;&nbsp;
+                {{tr "Alias"}}
+                {{{tip (tr "The NIC will be attached as an alias")}}}
+              </label>
+              &nbsp;&nbsp;
+              <span id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_no_alias" class="radius warning label">
+              <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
+              </span>
+              <select id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
+            </div>
+            <div id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_external_wrapper" style="min-height: 40px;">
+              <div class="switch left">
+                <input class="switch-input" id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_external" type="checkbox">
+                <label class="switch-paddle" for="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_external">
+                </label>
+              </div>
+              <label class="left">
+                &nbsp;&nbsp;
+                {{tr "External"}}
+                {{{tip (tr "The NIC will be attached as an external alias of the VM")}}}
               </label>
             </div>
-            <label class="left">
-              &nbsp;&nbsp;
-              {{tr "Alias"}}
-              {{{tip (tr "The NIC will be attached as an alias")}}}
-            </label>
-            &nbsp;&nbsp;
-            <span id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_no_alias" class="radius warning label">
-            <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
-            </span>
-            <select id="provision_accordion_dd_{{provision_nic_accordion_dd_id}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
           </fieldset>
         {{/if}}
         {{#if displaySelection}}

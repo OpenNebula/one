@@ -218,7 +218,6 @@ define(function(require) {
     $("input#" + this.nicTabId + "_interface_type", context).on("change", function(){
         var alias_on = $(this).prop("checked");
         var alias;
-        var found = false;
 
         $.each(that.nics, function(index, value) {
             if (value.ALIAS === ("NIC" + that.nicId)) {
@@ -233,17 +232,20 @@ define(function(require) {
 
         if (that.nics.length == 1 && alias_on) {
             $("#" + that.nicTabId + "_alias_parent", context).hide();
+            $("#" + that.nicTabId + "_alias_external_wrapper", context).hide();
             $(".network_selection", context).hide();
             $("#" + that.nicTabId + "_no_alias", context).html("No NIC available");
             $("#" + that.nicTabId + "_no_alias").show();
         } else {
             if(alias_on && !alias) {
                 $("#" + that.nicTabId + "_alias_parent", context).show();
+                $("#" + that.nicTabId + "_alias_external_wrapper", context).show();
                 $("#" + that.nicTabId + "_alias_parent", context).click();
                 $(".network_selection", context).hide();
                 $("#" + that.nicTabId + "_no_alias").hide();
             } else if (alias_on && alias) {
                 $("#" + that.nicTabId + "_alias_parent", context).hide();
+                $("#" + that.nicTabId + "_alias_external_wrapper", context).hide();
                 $(".network_selection", context).hide();
                 $("#" + that.nicTabId + "_no_alias").show();
             } else {
@@ -257,6 +259,7 @@ define(function(require) {
                 _hide_remove(that.nics);
 
                 $("#" + that.nicTabId + "_alias_parent", context).hide();
+                $("#" + that.nicTabId + "_alias_external_wrapper", context).hide();
                 $(".network_selection", context).show();
                 $("#" + that.nicTabId + "_no_alias").hide();
             }
@@ -302,6 +305,7 @@ define(function(require) {
     });
 
     $("#" + this.nicTabId + "_alias_parent", context).hide();
+    $("#" + that.nicTabId + "_alias_external_wrapper", context).hide();
 
     context.on("change", "input[name='" + that.nicTabId + "_req_select']", function() {
       if ($("input[name='" + that.nicTabId + "_req_select']:checked").val() == "vnet_select") {
@@ -371,6 +375,10 @@ define(function(require) {
         delete nicJSON["PARENT"];
     } else {
       nicJSON["PARENT"] = $("#" + this.nicTabId + "_alias_parent", context).val();
+
+      if ($("#" + this.nicTabId + "_alias_external", context).is(':checked')) {
+        nicJSON["EXTERNAL"] =  'YES';
+      }
     }
 
     if($("input#" + this.nicTabId + "_rdp", context).prop("checked")) {
@@ -519,10 +527,10 @@ define(function(require) {
     $("input#"+this.nicTabId+"_SCHED_REQUIREMENTS", context).val(req_string.join(" | "));
   };
 
-  function _fill_alias(nicname) {
+  function _fill_alias(nicParentName, isExternal) {
     $.each(this.nics, function(index, value) {
         if (value.NAME == ("NIC" + that.nicId)) {
-            value.ALIAS = nicname;
+            value.ALIAS = nicParentName;
         }
     });
 
@@ -530,7 +538,11 @@ define(function(require) {
     $("#" + this.nicTabId + "_alias_parent", this.context).show();
     $("#" + this.nicTabId + "_alias_parent", this.context).click();
     $("#" + this.nicTabId + "_interface_type", this.context).click();
-    $("#" + this.nicTabId + "_alias_parent", this.context).val(nicname);
+    $("#" + this.nicTabId + "_alias_parent", this.context).val(nicParentName);
+    
+    if (isExternal && String(isExternal).toLowerCase() === 'yes') {
+      $("#" + this.nicTabId + "_alias_external", this.context).prop('checked', 'checked');
+    }
   }
 
   function _hide_remove(nics) {

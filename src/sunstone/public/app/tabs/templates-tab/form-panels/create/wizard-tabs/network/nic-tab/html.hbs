@@ -18,21 +18,35 @@
     <div class="row autoContainer">
       <fieldset id="{{nicTabId}}interface_type" class="small-12 large-6 columns">
         <legend style="margin:0px;">{{tr "Interface type"}}</legend>
-        <div class="switch left">
-          <input class="switch-input" id="{{nicTabId}}_interface_type" type="checkbox">
-          <label class="switch-paddle" for="{{nicTabId}}_interface_type">
+        <div style="min-height: 40px;">
+          <div class="switch left">
+            <input class="switch-input" id="{{nicTabId}}_interface_type" type="checkbox">
+            <label class="switch-paddle" for="{{nicTabId}}_interface_type">
+            </label>
+          </div>
+          <label class="left">
+            &nbsp;&nbsp;
+            {{tr "Alias"}}
+            {{{tip (tr "The NIC will be attached as an alias")}}}
+          </label>
+          &nbsp;&nbsp;
+          <span id="{{nicTabId}}_no_alias" class="radius warning label">
+          <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
+          </span>
+          <select id="{{nicTabId}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
+        </div>
+        <div id="{{nicTabId}}_alias_external_wrapper" style="min-height: 40px;">
+          <div class="switch left">
+            <input class="switch-input" id="{{nicTabId}}_alias_external" type="checkbox">
+            <label class="switch-paddle" for="{{nicTabId}}_alias_external">
+            </label>
+          </div>
+          <label class="left">
+            &nbsp;&nbsp;
+            {{tr "External"}}
+            {{{tip (tr "The NIC will be attached as an external alias of the VM")}}}
           </label>
         </div>
-        <label class="left">
-          &nbsp;&nbsp;
-          {{tr "Alias"}}
-          {{{tip (tr "The NIC will be attached as an alias")}}}
-        </label>
-        &nbsp;&nbsp;
-        <span id="{{nicTabId}}_no_alias" class="radius warning label">
-        <i class="fas fa-exclamation-triangle"/> {{tr "NIC has alias"}}
-        </span>
-        <select id="{{nicTabId}}_alias_parent" style="width: 200px; margin-left: 5px"></select>
       </fieldset>
       <fieldset class="small-12 large-6 columns">
         <legend style="margin:0px;">{{tr "Network selection"}}</legend>

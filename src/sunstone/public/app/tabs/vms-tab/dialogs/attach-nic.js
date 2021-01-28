@@ -79,9 +79,11 @@ define(function(require) {
     Tips.setup(context);
 
     $("#parent", context).hide();
+    $(".attach_external", context).hide();
 
     $("#cb_attach_alias", context).change(function() {
       $("#parent", context).toggle(this.checked);
+      $(".attach_external", context).toggle(this.checked);
     });
 
     $("#" + DIALOG_ID + "Form", context).submit(function() {
@@ -95,6 +97,10 @@ define(function(require) {
       if($("#cb_attach_alias", context).prop("checked")) {
         templateJSON.PARENT = $("#parent").val();
 
+        if ($('#cb_external').is(':checked')) {
+          templateJSON.EXTERNAL = 'YES'
+        }
+        
         var obj = {
             "NIC_ALIAS": templateJSON
         };
