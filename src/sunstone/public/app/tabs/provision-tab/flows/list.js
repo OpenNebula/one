@@ -404,37 +404,47 @@ define(function(require) {
       var role = $(this).closest(".provision_role_ul").data("role");
       $(".provision_info_flow", context).data("role_id", role.name);
 
+      var vms = [];
+      var promises = [];
+      
       if (role.nodes && role.nodes.length > 0) {
-        var vms = [];
+        $.each(role.nodes, function(_, node) {
+          if (node.vm_info !== undefined) {
+            function promiseVmInfo(id, success) {
+              return $.ajax({
+                url: "vm/" + id,
+                type: "GET",
+                dataType: "json",
+                success: function (vm_json) {
+                  vms.push(vm_json);
+                }
+              })
+            }
 
-        $.each(role.nodes, function(_, node){
-          if(node.vm_info != undefined){
-            OpenNebulaVm.show({
-              data : { id: node.deploy_id },
-              timeout: true,
-              success: function (_, vm_json) {
-                vms.push(vm_json);
-                ProvisionVmsList.generate(
-                  $(".provision_role_vms_container", context),
-                  {
-                    title: role.name + " " + Locale.tr("VMs"),
-                    active: true,
-                    refresh: false,
-                    create: false,
-                    filter: false,
-                    data: vms
-                  });
-              }
-            });
+            promises.push(promiseVmInfo(node.deploy_id))
           }
         });
       }
+
+      $.when.apply($, promises).then(function() {
+        ProvisionVmsList.generate(
+          $(".provision_role_vms_container", context),
+          {
+            title: role.name + " " + Locale.tr("VMs"),
+            active: true,
+            refresh: true,
+            create: false,
+            filter: false,
+            data: vms
+          });
+      });
     });
+
+    
 
     context.on("click", ".provision_role_cardinality_button", function(){
       var role = $(this).closest(".provision_role_ul").data("role");
-      var role_name = role.name
-      var min_vms = (role.min_vms||1);
+      var min_vms = (role.min_vms||0);
       var max_vms = (role.max_vms||100);
 
 
@@ -465,6 +475,7 @@ define(function(require) {
         $( ".cardinality_slider_div", context).html(RangeSlider.html({
             min: min_vms,
             max: max_vms,
+            max_value: max_vms,
             initial: role.cardinality,
             label: Locale.tr("Number of VMs for Role")+" "+role_name
           }));

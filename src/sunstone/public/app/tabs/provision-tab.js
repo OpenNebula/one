@@ -130,6 +130,7 @@ define(function(require) {
           $( ".cardinality_slider_div", context).html(RangeSlider.html({
               min: min_vms,
               max: max_vms,
+              max_value: max_vms,
               initial: role_template.cardinality,
               label: Locale.tr("Number of VMs for Role")+" "+role_template.name,
               name: "cardinality"

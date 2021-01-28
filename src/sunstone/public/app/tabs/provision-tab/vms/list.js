@@ -1020,7 +1020,12 @@ define(function(require) {
   }
 
   function get_provision_ips(data) {
-    return "<i class=\"fas fa-fw fa-lg fa-globe\"></i> " + OpenNebula.VM.ipsStr(data, ", ");
+    return (
+      "<div style=\"display: flex; gap: 5px;\">" +
+        "<i class=\"fas fa-fw fa-lg fa-globe\"></i>" +
+        "<div>" + OpenNebula.VM.ipsStr(data, ", ") + "</div>" +
+      "</div>"
+    );
   }
 
   // @params
