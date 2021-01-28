@@ -433,8 +433,10 @@ define(function(require) {
 
     context.on("click", ".provision_role_cardinality_button", function(){
       var role = $(this).closest(".provision_role_ul").data("role");
+      var role_name = role.name
       var min_vms = (role.min_vms||1);
       var max_vms = (role.max_vms||100);
+
 
       $(".provision_confirm_action:first", context).html(
         "<div data-closable class=\"callout secondary large\">"+
@@ -445,7 +447,9 @@ define(function(require) {
                 "<div class=\"cardinality_slider_div\">"+
                 "</div>"+
                 "<br>"+
-                "<button href\"#\" class=\"provision_change_cardinality_button success button right\" role_id=\""+role.name+"\">"+Locale.tr("Change Cardinality")+"</button>"+
+                "<button href\"#\" class=\"provision_change_cardinality_button success button right\" role_id=\""+role_name+"\">"+
+                  Locale.tr("Change Cardinality")+
+                "</button>"+
                 "<div class=\"cardinality_no_slider_div\">"+
                   "<span class=\"\">"+Locale.tr("The cardinality for this role cannot be changed")+"</span>"+
                 "</div>"+
@@ -462,7 +466,7 @@ define(function(require) {
             min: min_vms,
             max: max_vms,
             initial: role.cardinality,
-            label: Locale.tr("Number of VMs for Role")+" "+role.name
+            label: Locale.tr("Number of VMs for Role")+" "+role_name
           }));
 
         $( ".cardinality_slider_div", context).show();
@@ -477,15 +481,17 @@ define(function(require) {
       return false;
     });
 
-    context.on("click", ".provision_change_cardinality_button", function(){
+    context.on("click", ".provision_change_cardinality_button", function() {
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
-      var cardinality = $(".uinput-slider-val", context).val();
+      var role_name = $(this).attr("role_id")
 
-      OpenNebula.Role.update({
+      OpenNebula.Role.scale({
         data : {
-          id: flow_id + "/role/" + $(this).attr("role_id"),
+          id: flow_id,
           extra_param: {
-            cardinality: cardinality
+            force: false,
+            cardinality: $(".visor", ".cardinality_slider_div", context).val(),
+            role_name: role_name,
           }
         },
         success: function(request, response){
