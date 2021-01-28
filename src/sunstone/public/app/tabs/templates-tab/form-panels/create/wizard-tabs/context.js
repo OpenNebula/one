@@ -299,9 +299,8 @@ define(function(require) {
       var token_regexp = /^TOKEN$/;
       var report_ready_regexp = /^REPORT_READY$/;
       var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
-
-      var net_flag = false;
-      var files = [];
+      var publickey_regexp = /\$USER\[SSH_PUBLIC_KEY\]/;
+      var yes_value = /^(yes|YES)$/;
 
       var customTagsJSON = {};
       $.each(contextJSON, function(key, value) {
@@ -311,11 +310,11 @@ define(function(require) {
           if (!publickey_regexp.test(value)) {
             WizardFields.fillInput($("#ssh_public_key", context), value);
           }
-        } else if (token_regexp.test(key)) {
+        } else if (token_regexp.test(key) && yes_value.test(value)) {
           $(".token_context", context).prop('checked', 'checked');
-        } else if (report_ready_regexp.test(key)) {
+        } else if (report_ready_regexp.test(key) && yes_value.test(value)) {
           $(".report_ready_context", context).prop('checked', 'checked');
-        } else if (net_regexp.test(key)) {
+        } else if (net_regexp.test(key) && yes_value.test(value)) {
           $(".network_context", context).prop('checked', 'checked');
         } else if ("INIT_SCRIPTS" == key) {
           WizardFields.fillInput($("input.INIT_SCRIPTS", context), value);
