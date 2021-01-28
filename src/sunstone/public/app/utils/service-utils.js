@@ -29,7 +29,7 @@ define(function(require) {
     var networks_json = WizardFields.retrieve($(".network_attrs_class", context));
     var typePrefix = "type_";
 
-    var network_values = Object.keys(networks_json).filter(function(key) {
+    var networks_values = Object.keys(networks_json).filter(function(key) {
       return key.indexOf(typePrefix) == 0; // get all networks names with prefix 'type_'
     }).reduce(function(networks, typeKey) {
       var type = networks_json[typeKey];
@@ -50,7 +50,7 @@ define(function(require) {
     return {
       "merge_template": Object.assign(
         { custom_attrs_values, "roles": [] },
-        show_vnet_instantiate_flow ? { network_values } : null
+        show_vnet_instantiate_flow ? { networks_values } : null
       )
     };
   }
