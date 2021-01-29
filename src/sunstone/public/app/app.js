@@ -43,11 +43,12 @@ var Websocket = require("utils/websocket");
 var FireedgeValidator = require("utils/fireedge-validator")
 
 var _commonDialogs = [
-require('utils/dialogs/confirm'),
-require('utils/dialogs/confirm-with-select'),
-require('utils/dialogs/generic-confirm'),
-require('utils/dialogs/clusters'),
-require('utils/dialogs/overcommit')
+  require('utils/dialogs/confirm'),
+  require('utils/dialogs/confirm-with-select'),
+  require('utils/dialogs/generic-confirm'),
+  require('utils/dialogs/clusters'),
+  require('utils/dialogs/overcommit'),
+  require('utils/dialogs/leases')
 ]
 
 

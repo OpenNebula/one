@@ -24,6 +24,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var ScheduleActions = require("utils/schedule_action");
   var notifier = require("utils/notifier");
+  var CONFIRM_DIALOG_LEASES = require("utils/dialogs/leases/dialogId");
 
   /*
     CONSTANTS
@@ -88,24 +89,116 @@ define(function(require) {
           notifier.notifyCustom(Locale.tr("Added scheduled actions"),"");
         };
 
-        var addInTemplate = function(){
+        var nowEpoch = function(){
+          epochStr = new Date();
+          return parseInt(epochStr.getTime(),10) / 1000;
+        };
+
+        //render leases for modal
+        var renderLeasesForModal = function(template, now) {
+          var rtn = "";
+          var last = 0;
+          if(confLeasesKeys && Array.isArray(confLeasesKeys)){
+            rtn = $("<table/>");
+            confLeasesKeys.forEach(function(schedAction){
+              if(confLeases[schedAction] && confLeases[schedAction].time){
+                var schedActionTime = parseInt(confLeases[schedAction].time,10);
+                var startTime = Math.round(now) + schedActionTime;
+                var time =  "+"+(last === 0? startTime.toString() : startTime+last);
+                console.log(Math.round(now), schedActionTime, startTime, time );
+                var nameAction = schedAction;
+                rtn = rtn.append(
+                  $("<tr/>").append(
+                    $("<td/>").text(nameAction).add(
+                      $("<td/>").text(ScheduleActions.parseTime(time))
+                    )
+                  )
+                );
+                last = schedActionTime;
+              }
+            });
+            rtn = rtn.prop("outerHTML");
+          }
+          return rtn;
+        };
+
+        // confirm modal
+        var displayAlertCreateLeases = function(typeSubmit, template){
+          var now = template && template.STIME? nowEpoch() - parseInt(template.STIME,10) : 0;
+          Sunstone.getDialog(CONFIRM_DIALOG_LEASES).setParams({
+            header: Locale.tr("Scheduled actions to add"),
+            body : renderLeasesForModal(template, now),
+            submit : function(params) {
+              addInTemplate(typeSubmit, template, now);
+              return false;
+            }
+          });
+          Sunstone.getDialog(CONFIRM_DIALOG_LEASES).reset();
+          Sunstone.getDialog(CONFIRM_DIALOG_LEASES).show();
+        };
+
+        var addInTemplate = function(typeSubmit, template, now){
+          var type = typeSubmit? typeSubmit : "add";
           var last = 0;
           var pass = false;
+          var newSchedActions =[];
+          var index = (
+            template && template.SCHED_ACTION ?
+              (Array.isArray(template.SCHED_ACTION)? template.SCHED_ACTION.length : 1)
+            :
+              0
+          );
+
           confLeasesKeys.forEach(function(schedAction){
             if(confLeases[schedAction] && confLeases[schedAction].time){
               var schedActionTime = parseInt(confLeases[schedAction].time,10);
-              var newAction = {
-                TIME: last === 0? confLeases[schedAction].time : "+"+(schedActionTime+last),
-                ACTION: schedAction
-              };
-              last = schedActionTime;
-              $(idElementSchedActions).prepend(ScheduleActions.fromJSONtoActionsTable(newAction));
-              if(typeof callback === "function"){
-                callback();
+              var startTime = Math.round(now) + schedActionTime;
+              switch (type) {
+                case "add":
+                  var newAction = {
+                    TIME: "+"+(last === 0? startTime.toString() : startTime+last),
+                    ACTION: schedAction
+                  };
+                  $(idElementSchedActions).prepend(ScheduleActions.fromJSONtoActionsTable(newAction));
+                break;
+
+                case "submit":
+                  var newAction = {
+                    ACTION: schedAction,
+                    TIME: "+"+(last === 0? startTime.toString() : startTime+last),
+                    ID: (index++).toString()
+                  };
+
+                  newSchedActions.push(
+                    newAction
+                  );
+                break;
+
+                default:
+                break;
               }
+              last = schedActionTime;
               pass = true;
             }
           });
+          if(type==="submit"){
+            template.SCHED_ACTION = (
+              template.SCHED_ACTION?
+                (Array.isArray(template.SCHED_ACTION)?
+                  template.SCHED_ACTION.concat(newSchedActions)
+                :
+                  [template.SCHED_ACTION].concat(newSchedActions))
+              :
+              newSchedActions
+            );
+            template = TemplateUtils.templateToString(template);
+            Sunstone.runAction("VM.update_template", id, template);
+          }
+
+          if(typeof callback === "function"){
+            callback();
+          }
+
           if(pass){
             showLeaseMessage();
           }
@@ -132,6 +225,13 @@ define(function(require) {
             action = act || null;
             template = (form.element && form.element.USER_TEMPLATE? form.element.USER_TEMPLATE : null );
             id = (form.element && form.element.ID? form.element.ID : null);
+            // get history
+            if(form.element &&
+              form.element.HISTORY_RECORDS &&
+              form.element.HISTORY_RECORDS.HISTORY &&
+              form.element.HISTORY_RECORDS.HISTORY.STIME && template){
+              template.STIME = form.element.HISTORY_RECORDS.HISTORY.STIME;
+            }
           break;
           default:
           break;
@@ -140,42 +240,13 @@ define(function(require) {
         if(resource && action && template){
           switch (resource.toLowerCase()) {
             case "template":
-              addInTemplate();
+              displayAlertCreateLeases("add", template);
             break;
             case "vm":
               if(action.toLowerCase() === "update" && id){
-                var newSchedActions = [];
-                var index = (
-                  template && template.SCHED_ACTION ?
-                    (Array.isArray(template.SCHED_ACTION)? template.SCHED_ACTION.length : 1)
-                  :
-                    0
-                );
-                var last = 0;
-                confLeasesKeys.forEach(function(schedAction){
-                  if(confLeases[schedAction] && confLeases[schedAction].time){
-                    var schedActionTime = parseInt(confLeases[schedAction].time,10);
-                    newSchedActions.push(
-                      {
-                        ACTION: schedAction,
-                        TIME: last === 0? confLeases[schedAction].time : "+"+(schedActionTime+last),
-                        ID: (index++).toString()
-                      }
-                    );
-                    last = schedActionTime;
-                  }
-                });
-                template.SCHED_ACTION = (
-                  template.SCHED_ACTION?
-                    (Array.isArray(template.SCHED_ACTION)? template.SCHED_ACTION.concat(newSchedActions) : [template.SCHED_ACTION].concat(newSchedActions))
-                  :
-                  newSchedActions
-                );
-                template = TemplateUtils.templateToString(template);
-                Sunstone.runAction("VM.update_template", id, template);
-                showLeaseMessage();
+                displayAlertCreateLeases("submit", template);
               }else{
-                addInTemplate();
+                displayAlertCreateLeases("add", template);
               }
             break;
             default:

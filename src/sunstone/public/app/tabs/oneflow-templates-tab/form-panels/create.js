@@ -188,7 +188,7 @@ define(function(require) {
     var objLeases = $.extend(true, {}, that);
     objLeases.resource = "template";
     objLeases.__proto__ = FormPanel.prototype;
-    Leases.actions(objLeases,"","", function(){
+    Leases.actions(objLeases, "", "", function(){
       sched_actions_events(context);
     });
 
