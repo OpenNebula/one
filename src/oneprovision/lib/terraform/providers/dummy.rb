@@ -29,7 +29,7 @@ module OneProvision
             @hosts = provision.info_objects('hosts')
         end
 
-        def deploy
+        def deploy(_)
             [@hosts.map do |h|
                 h.to_hash['HOST']['TEMPLATE']['PROVISION']['HOSTNAME']
             end,
