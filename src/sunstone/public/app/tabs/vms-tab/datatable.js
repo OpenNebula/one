@@ -43,8 +43,8 @@ define(function(require) {
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 13;
-  var SEARCH_COLUMN = 14;
+  var LABELS_COLUMN = 11;
+  var SEARCH_COLUMN = 12;
 
 
   /*

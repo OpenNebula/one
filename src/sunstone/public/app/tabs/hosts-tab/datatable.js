@@ -42,8 +42,8 @@ define(function(require) {
   var RESOURCE = "Host";
   var XML_ROOT = "HOST";
   var TAB_NAME = require("./tabId");
-  var LABELS_COLUMN = 13;
-  var SEARCH_COLUMN = 14;
+  var LABELS_COLUMN = 10;
+  var SEARCH_COLUMN = 11;
   var TEMPLATE_ATTR = "TEMPLATE";
 
   /*
@@ -77,14 +77,11 @@ define(function(require) {
       Locale.tr("Name") ,
       Locale.tr("Cluster"),
       Locale.tr("RVMs"),
-      Locale.tr("Real CPU"),
       Locale.tr("Allocated CPU"),
-      Locale.tr("Real MEM"),
       Locale.tr("Allocated MEM"),
       Locale.tr("Status"),
       Locale.tr("IM MAD"),
       Locale.tr("VM MAD"),
-      Locale.tr("Last monitored on"),
       Locale.tr("Labels"),
       "search_data"
     ];
@@ -184,14 +181,11 @@ define(function(require) {
         element.NAME,
         element.CLUSTER_ID.length ? element.CLUSTER_ID : "-",
         element.HOST_SHARE.RUNNING_VMS, //rvm
-        cpuBars.real||"",
         cpuBars.allocated||"",
-        memoryBars.real||"",
         memoryBars.allocated||"",
         state,
         element.IM_MAD,
         element.VM_MAD,
-        Humanize.prettyTime(element.LAST_MON_TIME),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];

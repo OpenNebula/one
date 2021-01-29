@@ -366,16 +366,14 @@ tabs:
             #- 3       # Owner
             - 4        # Group
             - 5        # Status
-            #- 6       # Used CPU
-            #- 7       # Used Memory
-            #- 8       # Host
-            - 9        # IPs
-            #- 10      # Start Time
-            - 11       # VNC
-            #- 12      # Hidden Template
-            #- 13      # Labels
-            - 14      # Search data
-            #- 15      # Clock leases
+            #- 6       # Host
+            - 7        # IPs
+            #- 8      # Start Time
+            - 9       # VNC
+            #- 10      # Hidden Template
+            #- 11      # Labels
+            #- 12      # Search data
+            #- 13      # Clock leases
         actions:
             VM.refresh: true
             VM.create_dialog: true
@@ -560,16 +558,13 @@ tabs:
             - 2         # Name
             - 3         # Cluster
             - 4         # RVMs
-            #- 5        # Real CPU
-            - 6         # Allocated CPU
-            #- 7        # Real MEM
-            - 8         # Allocated MEM
-            - 9         # Status
-            #- 10       # IM MAD
-            #- 11       # VM MAD
-            #- 12       # Last monitored on
-            #- 13       # Labels
-            #- 14       # Search data
+            - 5         # Allocated CPU
+            - 6         # Allocated MEM
+            - 7         # Status
+            #- 8       # IM MAD
+            #- 9       # VM MAD
+            #- 10       # Labels
+            #- 11       # Search data
         actions:
             Host.refresh: true
             Host.create_dialog: true
