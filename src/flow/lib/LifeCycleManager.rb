@@ -478,9 +478,17 @@ class ServiceLCM
     # Callbacks
     ############################################################################
 
-    def deploy_cb(client, service_id, role_name)
+    def deploy_cb(client, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, client) do |service|
             service.roles[role_name].set_state(Role::STATE['RUNNING'])
+
+            service.roles[role_name].nodes.delete_if do |node|
+                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                    service.roles[role_name].cardinality -= 1
+                end
+
+                nodes[node]
+            end
 
             if service.all_roles_running?
                 service.set_state(Service::STATE['RUNNING'])
@@ -573,8 +581,16 @@ class ServiceLCM
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
     end
 
-    def scaleup_cb(client, service_id, role_name)
+    def scaleup_cb(client, service_id, role_name, nodes)
         rc = @srv_pool.get(service_id, client) do |service|
+            service.roles[role_name].nodes.delete_if do |node|
+                if nodes[node] && service.roles[role_name].cardinalitty > 0
+                    service.roles[role_name].cardinality -= 1
+                end
+
+                nodes[node]
+            end
+
             service.set_state(Service::STATE['COOLDOWN'])
             service.roles[role_name].set_state(Role::STATE['COOLDOWN'])
 
