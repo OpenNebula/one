@@ -331,7 +331,7 @@ lxd://*)
     file_type="application/octet-stream"
     command="$VAR_LOCATION/remotes/datastore/lxd_downloader.sh \"$FROM\""
     ;;
-docker://*)
+docker://*|dockerfile://*)
     file_type="application/octet-stream"
     command="$VAR_LOCATION/remotes/datastore/docker_downloader.sh \"$FROM\""
     ;;

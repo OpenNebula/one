@@ -251,8 +251,13 @@ function fs_size {
     if [ -d "${SRC}" ]; then
         SIZE=`set -o pipefail; du -sb "${SRC}" | cut -f1`
         error=$?
-    elif (echo "${SRC}" | grep -qe '^docker\?://'); then
-        url=`echo ${SRC} | grep -oP "^"docker://"\K.*"`
+    elif (echo "${SRC}" | grep -qe '^docker\?://\|^dockerfile\?://'); then
+        if [[ $SRC == dockerfile* ]]; then
+            url=`echo ${SRC} | grep -oP "^"dockerfile://"\K.*"`
+        elif [[ $SRC == docker* ]]; then
+            url=$(echo $MARKET_URL | grep -oP "^"docker://"\K.*")
+        fi
+
         arguments=`echo $url | cut -d '?' -f 2`
 
         for p in ${arguments//&/ }; do
