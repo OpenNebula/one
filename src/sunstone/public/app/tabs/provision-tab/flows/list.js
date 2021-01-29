@@ -457,7 +457,7 @@ define(function(require) {
                 "<div class=\"cardinality_slider_div\">"+
                 "</div>"+
                 "<br>"+
-                "<button href\"#\" class=\"provision_change_cardinality_button success button right\" role_id=\""+role_name+"\">"+
+                "<button href\"#\" class=\"provision_change_cardinality_button success button right\" role_id=\""+role.name+"\">"+
                   Locale.tr("Change Cardinality")+
                 "</button>"+
                 "<div class=\"cardinality_no_slider_div\">"+
@@ -477,7 +477,7 @@ define(function(require) {
             max: max_vms,
             max_value: max_vms,
             initial: role.cardinality,
-            label: Locale.tr("Number of VMs for Role")+" "+role_name
+            label: Locale.tr("Number of VMs for Role")+" "+role.name
           }));
 
         $( ".cardinality_slider_div", context).show();
