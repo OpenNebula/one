@@ -1261,7 +1261,8 @@ define(function(require) {
         (propUpperCase === "PASSWORD") && (password = context[prop]);
       }
     }
-   var button = "<button class=\"rdp remote_vm\" data-name=\"" + vm.NAME + "\" data-ip=\"" + ip + "\"";
+
+    var button = "<button class=\"rdp remote_vm\" data-name=\"" + vm.NAME + "\" data-ip=\"" + ip + "\"";
     username && (button += " data-username=\"" + username + "\"");
     password && (button += " data-password=\"" + password + "\"");
     button += "><i class=\"fab fa-windows\"></i></button>";

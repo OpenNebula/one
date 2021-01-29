@@ -276,7 +276,7 @@ define(function(require) {
       hostname,
       OpenNebulaVM.ipsDropdown(element),
       Humanize.prettyTimeDatatable(element.STIME),
-      actions && "<div style='display: flex; align-items: end;'>"+actions+"</div>",
+      actions && "<div style='display: flex; align-items: end; gap:5px'>"+actions+"</div>",
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search)))),
