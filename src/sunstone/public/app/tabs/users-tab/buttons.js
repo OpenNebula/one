@@ -34,6 +34,16 @@ define(function(require) {
       select: "Group",
       tip: Locale.tr("This will change the primary group of the selected users. Select the new group")
     },
+    "User.enable" : {
+      type: "action",
+      text: Locale.tr("Enable"),
+      layout: "main"
+    },
+    "User.disable" : {
+      type: "action",
+      text: Locale.tr("Disable"),
+      layout: "main"
+    },
     "User.delete" : {
       type: "confirm",
       text: Locale.tr("Delete"),

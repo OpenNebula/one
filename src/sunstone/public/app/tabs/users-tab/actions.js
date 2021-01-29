@@ -48,6 +48,8 @@ define(function(require) {
     "User.addgroup": _commonActions.multipleAction("addgroup"),
     "User.delgroup": _commonActions.multipleAction("delgroup"),
     "User.groups_dialog" : _commonActions.checkAndShow("groups"),
+    "User.enable" : _commonActions.multipleAction("enable"),
+    "User.disable": _commonActions.multipleAction("disable"),
 
     "User.groups" : {
       type: "single",

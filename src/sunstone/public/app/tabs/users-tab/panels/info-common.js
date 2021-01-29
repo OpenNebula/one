@@ -79,6 +79,7 @@ define(function(require) {
     //====
     render =  TemplateInfo({
       "element": this.element,
+      "enabled": (this.element.ENABLED == 1 ? Locale.tr("Yes") : Locale.tr("No")),
       "sunstone_template": this.element.TEMPLATE.SUNSTONE || {},
       "templateTableHTML": templateTableHTML,
       "tabId": this.tabId,

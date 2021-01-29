@@ -46,6 +46,8 @@ module OpenNebulaJSON
             end
 
             rc = case action_hash['perform']
+                 when "enable"  then self.enable
+                 when "disable" then self.disable
                  when "passwd"                  then self.passwd(action_hash['params'])
                  when "chgrp"                   then self.chgrp(action_hash['params'])
                  when "chauth"                  then self.chauth(action_hash['params'])

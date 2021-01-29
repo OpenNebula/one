@@ -37,8 +37,8 @@ define(function(require) {
   var RESOURCE = "User";
   var XML_ROOT = "USER";
   var TAB_NAME = require('./tabId');
-  var LABELS_COLUMN = 11;
-  var SEARCH_COLUMN = 12;
+  var LABELS_COLUMN = 12;
+  var SEARCH_COLUMN = 13;
   var TEMPLATE_ATTR = 'TEMPLATE';
 
   /*
@@ -71,6 +71,7 @@ define(function(require) {
       Locale.tr("ID"),
       Locale.tr("Name"),
       Locale.tr("Group"),
+      Locale.tr("Enabled"),
       Locale.tr("Auth driver"),
       Locale.tr("Password"),
       Locale.tr("VMs"),
@@ -161,6 +162,7 @@ define(function(require) {
       element.ID,
       element.NAME,
       element.GNAME,
+      (element.ENABLED == 1 ? Locale.tr("Yes") : Locale.tr("No")),
       element.AUTH_DRIVER,
       element.PASSWORD,
       vms,

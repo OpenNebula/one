@@ -140,15 +140,16 @@ tabs:
             - 1         # ID
             - 2         # Name
             - 3         # Group
-            - 4         # Auth driver
-            #- 5        # Password
-            - 6         # VMs
-            - 7         # Memory
-            - 8         # CPU
-            #- 9        # Group ID
-            #- 10       # Hidden User Data
-            #- 11       # Labels
-            #- 12       # Search data
+            - 4          # Enabled
+            - 5         # Auth driver
+            #- 6         # Password
+            - 7         # VMs
+            - 8         # Memory
+            - 9         # CPU
+            #- 10         # Group ID
+            #- 11        # Hidden User Data
+            #- 12        # Labels
+            #- 13        # Search data
         actions:
             User.refresh: true
             User.create_dialog: true
@@ -162,6 +163,8 @@ tabs:
             User.delete: true
             User.edit_labels: true
             User.menu_labels: true
+            User.enable: true
+            User.disable: true
     groups-tab:
         panel_tabs:
             group_info_tab: true
