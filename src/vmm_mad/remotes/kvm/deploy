@@ -29,7 +29,7 @@ DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 
 if [ "x$?" = "x0" ]; then
 
-    DOMAIN_ID=$(echo $DATA | sed 's/Domain //' | sed 's/ created from .*$//')
+    DOMAIN_ID=$(echo $DATA | sed 's/Domain //' | sed 's/ created from .*$//' | tr -d "'")
     UUID=$(virsh --connect $LIBVIRT_URI dominfo $DOMAIN_ID | grep UUID: | awk '{print $2}')
     echo $UUID
 
