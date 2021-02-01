@@ -572,16 +572,6 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
     const paramsCommand = [command, params.id, '--debug', '--json', '--fail_cleanup', '--batch', '--force', ...authCommand, ...endpoint]
-    let lastLine = ''
-    const uuid = v4()
-    const emit = message => {
-      message.toString().split(/\r|\n/).map(line => {
-        if (line) {
-          lastLine = line
-          publish(defaultCommandProvision, { id: params.id, data: lastLine, command: command, commandId: uuid })
-        }
-      })
-    const paramsCommand = [command, params.id, '--debug', '--json', '--force', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
 
     // get Log file
     const dataLog = logData(params.id, true)
