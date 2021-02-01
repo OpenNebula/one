@@ -175,11 +175,14 @@ module OpenNebulaJSON
             dsid = params['dsid'] ? params['dsid'].to_i : params['dsid']
             name = params['name']
             vmtemplate_name = params['vmtemplate_name']
+            notemplate =  [true, 'true'].include?(params['notemplate'])
+
             tag ="tag=#{params['tag']}" if params['tag'] && !params['tag'].empty?
             rc = export({
                 :dsid => dsid,
                 :name => name,
                 :vmtemplate_name => vmtemplate_name,
+                :notemplate => notemplate,
                 :url_args => tag
             })
 

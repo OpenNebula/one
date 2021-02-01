@@ -181,7 +181,8 @@ define(function(require) {
     var marketPlaceAppObj = {
       "name" : $("#NAME", context).val(),
       "vmtemplate_name" : $("#VMNAME", context).val(),
-      "dsid" : this.datastoresTable.idInput().val()
+      "dsid" : this.datastoresTable.idInput().val(),
+      "notemplate" : $("#NOTEMPLATE", context).is(':checked')
     };
 
     if (this.dockertagsTable) {

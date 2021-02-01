@@ -36,6 +36,14 @@
       <input id="VMNAME" type="text" wizard_field="VMNAME"/>
     </div>
   </div>
+  <div class="row">
+    <div class="medium-6 columns">
+      <label for="NOTEMPLATE">
+        <input id="NOTEMPLATE" type="checkbox" wizard_field="NOTEMPLATE"/>
+        {{tr "Do not import/export associated VM templates/images"}}
+      </label>
+    </div>
+  </div>
   <fieldset id="placeDatatableDatastore">
     <legend>{{tr "Select the Datastore to store the resource"}}</legend>
     {{{ datastoresTableHTML }}}
