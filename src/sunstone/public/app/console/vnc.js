@@ -19,6 +19,7 @@ define(function(require) {
   var Config = require("sunstone-config");
   var _rfb;
   var _is_encrypted = "";
+  var _vm_name;
 
   function setStatus(message="", status=""){
     $(".NOVNC_message").text(message);
@@ -26,12 +27,12 @@ define(function(require) {
   }
 
   function connected(){
-    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
   }
 
   function disconnectedFromServer(e){
     if (e.detail.clean) {
-      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
     } else {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
@@ -39,7 +40,7 @@ define(function(require) {
 
   function desktopNameChange(e) {
     if (e.detail.name) {
-      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + e.detail.name);
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || e.detail.name));
     }
   }
 
@@ -132,6 +133,7 @@ define(function(require) {
   var proxy_port = Config.vncProxyPort;
   var token = getQueryVariable("token");
   var password = getQueryVariable("password");
+  _vm_name = getQueryVariable("title") || undefined;
 
   var rfbConfig = password? { "credentials": { "password": password } } : {};
 

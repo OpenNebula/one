@@ -22,6 +22,7 @@ define(function(require) {
   var _message = "";
   var _status = "Loading";
   var _is_encrypted = "";
+  var _vm_name;
 
   return {
     "lockStatus": lockStatus,
@@ -52,12 +53,12 @@ define(function(require) {
   }
 
   function connected(){
-    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
   }
 
   function disconnectedFromServer(e){
     if (e.detail.clean) {
-      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
     } else {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
@@ -79,7 +80,7 @@ define(function(require) {
     var proxy_port = Config.vncProxyPort;
     var pw = response["password"];
     var token = response["token"];
-    var vm_name = response["vm_name"];
+    var vm_name = _vm_name = response["vm_name"];
     var protocol = window.location.protocol;
     var hostname = window.location.hostname;
     var port = window.location.port;
