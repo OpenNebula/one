@@ -745,7 +745,7 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_ONE_LIB_FILES:$LIB_LOCATION/ruby/cli/one_helper
     ONEPROVISION_CONF_FILES:$ETC_LOCATION/cli
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
-    ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision/provisions
+    ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
     ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
     ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
@@ -791,7 +791,6 @@ INSTALL_SUNSTONE_FILES=(
 
 INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
   SUNSTONE_PUBLIC_JS_FILES:$SUNSTONE_LOCATION/public/dist
-  SUNSTONE_PUBLIC_JS_GUAC_FILES:$SUNSTONE_LOCATION/guac/dist
   SUNSTONE_PUBLIC_JS_CONSOLE_FILES:$SUNSTONE_LOCATION/public/dist/console
   SUNSTONE_PUBLIC_FONT_AWSOME:$SUNSTONE_LOCATION/public/bower_components/fontawesome/web-fonts-with-css/webfonts
   SUNSTONE_PUBLIC_CSS_FILES:$SUNSTONE_LOCATION/public/css
@@ -820,7 +819,6 @@ INSTALL_SUNSTONE_PUBLIC_MINIFIED_FILES=(
 
 INSTALL_SUNSTONE_PUBLIC_DEV_DIR=(
   SUNSTONE_PUBLIC_DEV_DIR:$SUNSTONE_LOCATION
-  SUNSTONE_GUAC_DEV_DIR:$SUNSTONE_LOCATION
 )
 
 INSTALL_SUNSTONE_ETC_FILES=(
@@ -833,8 +831,11 @@ INSTALL_SUNSTONE_ETC_FILES=(
 INSTALL_FIREEDGE_FILES=(
   FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
   FIREEDGE_BIN_FILES:$BIN_LOCATION
-  FIREEDGE_ETC_FILES:$ETC_LOCATION
 )
+
+INSTALL_FIREEDGE_ETC_FILES=(
+  FIREEDGE_ETC_FILES:$ETC_LOCATION
+ )
 
 INSTALL_FIREEDGE_DEV_DIRS=(
   FIREEDGE_DEV_FILES:$FIREEDGE_LOCATION
@@ -2520,8 +2521,6 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/dist/login.js \
 
 SUNSTONE_PUBLIC_JS_GUAC_FILES="src/sunstone/guac/dist/guac.js"
 
-SUNSTONE_GUAC_DEV_DIR="src/sunstone/guac"
-
 SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/vnc.js.map \
                         src/sunstone/public/dist/console/spice.js \
@@ -3009,6 +3008,8 @@ done
 if [ "$INSTALL_ETC" = "yes" ] ; then
     if [ "$SUNSTONE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_SUNSTONE_ETC_FILES[@]}"
+    elif [ "$FIREEDGE" = "yes" ]; then
+        INSTALL_ETC_SET="${INSTALL_FIREDGE_ETC_FILES[@]}"
     elif [ "$ONEGATE" = "yes" ]; then
         INSTALL_ETC_SET="${INSTALL_ONEGATE_ETC_FILES[@]}"
     elif [ "$ONEFLOW" = "yes" ]; then
@@ -3016,6 +3017,7 @@ if [ "$INSTALL_ETC" = "yes" ] ; then
     else
         INSTALL_ETC_SET="${INSTALL_ETC_FILES[@]} \
                          ${INSTALL_SUNSTONE_ETC_FILES[@]} \
+                         ${INSTALL_FIREEDGE_ETC_FILES[@]} \
                          ${INSTALL_ONEGATE_ETC_FILES[@]} \
                          ${INSTALL_ONEHEM_ETC_FILES[@]} \
                          ${INSTALL_ONEFLOW_ETC_FILES[@]}"
