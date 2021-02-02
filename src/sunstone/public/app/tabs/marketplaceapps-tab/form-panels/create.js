@@ -27,6 +27,7 @@ define(function(require) {
   var ImagesTable = require("tabs/images-tab/datatable");
   var TemplatesTable = require("tabs/templates-tab/datatable");
   var ServicesTable = require("tabs/oneflow-templates-tab/datatable");
+  var VMsTable = require("tabs/vms-tab/datatable");
   var MarketPlacesTable = require("tabs/marketplaces-tab/datatable");
   var Config = require("sunstone-config");
   var WizardFields = require("utils/wizard-fields");
@@ -73,6 +74,11 @@ define(function(require) {
         "title": Locale.tr("Create MarketPlace App from Service"),
         "buttonText": Locale.tr("Create"),
         "resetButton": true
+      },
+      "export_vm": {
+        "title": Locale.tr("Create MarketPlace App from VM"),
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       }
     };
 
@@ -92,6 +98,10 @@ define(function(require) {
 
     this.servicesTable = new ServicesTable(
       FORM_PANEL_ID + "servicesTable",
+      { "select": true });
+
+    this.vmsTable = new VMsTable(
+      FORM_PANEL_ID + "vmsTable",
       { "select": true });
 
     this.marketPlacesTable = new MarketPlacesTable(
@@ -147,6 +157,7 @@ define(function(require) {
   FormPanel.prototype.setImageId = _setImageId;
   FormPanel.prototype.setTemplateId = _setTemplateId;
   FormPanel.prototype.setServiceId = _setServiceId;
+  FormPanel.prototype.setVMId = _setVMId;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
 
@@ -162,6 +173,7 @@ define(function(require) {
       "imagesTableHTML": this.imagesTable.dataTableHTML,
       "templatesTableHTML": this.templatesTable.dataTableHTML,
       "servicesTableHTML": this.servicesTable.dataTableHTML,
+      "vmsTableHTML": this.vmsTable.dataTableHTML,
       "marketPlacesImagesTableHTML": this.marketPlacesTable.dataTableHTML,
       "marketPlacesServicesTableHTML": this.marketPlacesServiceTable.dataTableHTML
     });
@@ -178,6 +190,7 @@ define(function(require) {
     this.imagesTable.resetResourceTableSelect();
     this.servicesTable.resetResourceTableSelect();
     this.templatesTable.resetResourceTableSelect();
+    this.vmsTable.resetResourceTableSelect();
     this.marketPlacesTable.resetResourceTableSelect();
     this.marketPlacesServiceTable.resetResourceTableSelect();
     this.marketPlacesTableAdvanced.resetResourceTableSelect();
@@ -212,6 +225,13 @@ define(function(require) {
     this.servicesTable.selectResourceTableSelect(selectedResources);
   }
 
+  function _setVMId(serviceId) {
+    var selectedResources = {
+      ids : serviceId
+    };
+
+    this.vmsTable.selectResourceTableSelect(selectedResources);
+  }
 
   // Set up the create datastore context
   function _setup(context) {
@@ -221,16 +241,13 @@ define(function(require) {
     this.imagesTable.initialize();
     this.templatesTable.initialize();
     this.servicesTable.initialize();
+    this.vmsTable.initialize();
     this.marketPlacesServiceTable.initialize();
     this.marketPlacesTable.initialize();
     this.marketPlacesTableAdvanced.initialize();
 
     this.marketPlacesTable.idInput().attr("required", "");
     this.marketPlacesTableAdvanced.idInput().attr("required", "");
-    this.servicesTable.idInput().attr("required", "");
-    // this.templatesTable.idInput().attr("required", "");
-    
-    // this.marketPlacesServiceTable.idInput().attr("required", "");
 
     $('#IMPORT_ALL', context).on('change', function(){
       if (
@@ -258,16 +275,45 @@ define(function(require) {
           that.servicesTable.idInput().
             removeAttr("required").
             removeAttr("wizard_field");
+          that.vmsTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
           
           $('#importAllCheckBox',context).hide();
 
           $('#servicesTableHTML', context).hide();
           $('#templatesTableHTML', context).hide();
           $('#imagesTableHTML', context).show();
+          $('#vmsTableHTML', context).hide();
 
           $('#serviceMarketPlaceHTML', context).hide();
           $('#appMarketPlaceHTML', context).show();
           $('#templatesForApp',context).show();
+          break;
+        case 'vm':
+          that.imagesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+          that.templatesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+          that.servicesTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
+          that.vmsTable.idInput().
+            attr("required", "").
+            attr("wizard_field", "ORIGIN_ID");
+          
+          $('#importAllCheckBox',context).show();
+
+          $('#servicesTableHTML', context).hide();
+          $('#templatesTableHTML', context).hide();
+          $('#imagesTableHTML', context).hide();
+          $('#vmsTableHTML', context).show();
+
+          $('#serviceMarketPlaceHTML', context).hide();
+          $('#appMarketPlaceHTML', context).show();
+          $('#templatesForApp',context).hide();
           break;
         case 'vmtemplate':
           that.templatesTable.idInput().
@@ -279,12 +325,16 @@ define(function(require) {
           that.servicesTable.idInput().
             removeAttr("required").
             removeAttr("wizard_field");
+          that.vmsTable.idInput().
+            removeAttr("required").
+            removeAttr("wizard_field");
 
           $('#importAllCheckBox',context).show();
           
           $('#servicesTableHTML', context).hide();
           $('#templatesTableHTML', context).show();
           $('#imagesTableHTML', context).hide();
+          $('#vmsTableHTML', context).hide();
 
           $('#serviceMarketPlaceHTML', context).hide();
           $('#appMarketPlaceHTML', context).show();
@@ -306,6 +356,7 @@ define(function(require) {
           $('#servicesTableHTML', context).show();
           $('#templatesTableHTML', context).hide();
           $('#imagesTableHTML', context).hide();
+          $('#vmsTableHTML', context).hide();
 
           $('#serviceMarketPlaceHTML', context).hide();
           $('#appMarketPlaceHTML', context).show();
@@ -334,6 +385,7 @@ define(function(require) {
     
         Sunstone.runAction("MarketPlaceApp.create", marketPlaceAppObj);
         break;
+      case 'vm':
       case 'vmtemplate':
         var marketPlaceJSON = {};
         $.extend(marketPlaceJSON, WizardFields.retrieve(context));

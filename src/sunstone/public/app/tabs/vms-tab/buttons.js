@@ -34,6 +34,11 @@ define(function(require) {
       layout: "create",
       alwaysActive: true
     },
+    "VM.upload_marketplace_dialog" : {
+      type: "action",
+      text: '<i class="fas fa-shopping-cart"/>',
+      custom_classes : "state-dependent"
+    },
     "VM.chown" : {
       type: "confirm_with_select",
       text: Locale.tr("Change owner"),
@@ -57,25 +62,25 @@ define(function(require) {
     "VM.migrate" : {
       type: "action",
       text: Locale.tr("Migrate"),
-      layout: "vmsmigration_buttons",
+      layout: "vmsplanification_buttons",
       custom_classes : "state-dependent"
     },
     "VM.migrate_poff" : {
       type: "action",
       text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("Poweroff") + '</span>',
-      layout: "vmsmigration_buttons",
+      layout: "vmsplanification_buttons",
       custom_classes : "state-dependent"
     },
     "VM.migrate_poff_hard" : {
       type: "action",
       text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("Poweroff-hard") + '</span>',
-      layout: "vmsmigration_buttons",
+      layout: "vmsplanification_buttons",
       custom_classes : "state-dependent"
     },
     "VM.migrate_live" : {
       type: "action",
       text: Locale.tr("Migrate") + ' <span class="label secondary radius">' + Locale.tr("live") + '</span>',
-      layout: "vmsmigration_buttons",
+      layout: "vmsplanification_buttons",
       custom_classes : "state-dependent not_firecracker"
     },
     "VM.hold" : {

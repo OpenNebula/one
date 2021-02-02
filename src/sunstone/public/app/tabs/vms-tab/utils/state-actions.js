@@ -44,7 +44,7 @@ define(function(require) {
     [];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.POWEROFF] =
-    ["VM.resched", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete"];
+    ["VM.resched", "VM.resume", "VM.resize", "VM.attachdisk", "VM.detachdisk", "VM.attachnic", "VM.detachnic", "VM.disk_saveas", "VM.disk_snapshot_create", "VM.disk_snapshot_revert", "VM.disk_snapshot_delete", "VM.migrate", "VM.undeploy", "VM.undeploy_hard", "VM.save_as_template", "VM.updateconf", "VM.terminate_hard", "VM.recover", "VM.disk_resize", "VM.snapshot_delete", "VM.upload_marketplace_dialog"];
 
   STATE_ACTIONS[OpenNebulaVM.STATES.UNDEPLOYED] =
     ["VM.resume", "VM.resize", "VM.deploy", "VM.updateconf", "VM.terminate_hard", "VM.recover"];

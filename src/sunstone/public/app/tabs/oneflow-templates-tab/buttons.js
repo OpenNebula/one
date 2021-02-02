@@ -32,7 +32,7 @@ define(function(require) {
     "ServiceTemplate.upload_marketplace_dialog" : {
       type: "action",
       layout: "main",
-      text: "<i class=\"fas fa-share\"/> "+ Locale.tr("MarketPlace")
+      text: "<i class=\"fas fa-shopping-cart\"/>"
     },
     "ServiceTemplate.update_dialog" : {
       type: "action",

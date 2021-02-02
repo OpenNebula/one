@@ -40,7 +40,7 @@ define(function(require) {
     "Template.upload_marketplace_dialog" : {
       type: "action",
       layout: "main",
-      text: '<i class="fas fa-share"/> '+ Locale.tr("MarketPlace")
+      text: '<i class="fas fa-shopping-cart"/>'
     },
     "Template.update_dialog" : {
       type: "action",

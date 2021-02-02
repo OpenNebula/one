@@ -36,6 +36,8 @@ define(function(require) {
   var GUAC_DIALOG_ID            = require('./dialogs/guac/dialogId');
   var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
   var UPDATECONF_FORM_ID         = require('./form-panels/updateconf/formPanelId');
+  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
+  var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
 
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -423,7 +425,42 @@ define(function(require) {
         Notifier.onError(request, response);
       },
       notify: false
+    },
+    "VM.upload_marketplace_dialog" : {
+      type: "custom",
+      call: function(params) {
+        var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
+
+        if (selectedNodes.length !== 1) {
+          Notifier.notifyMessage(Locale.tr("Please select one (and just one) VM to export."));
+          return false;
+        }
+
+        var resourceId = '' + selectedNodes[0];
+
+        OpenNebulaVM.show({
+          data : {
+              id: resourceId
+          },
+          success: function(){
+            Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+            Sunstone.showFormPanel(
+              MARKETPLACEAPPS_TAB_ID,
+              CREATE_APP_DIALOG_ID,
+              "export_vm",
+              function(formPanelInstance, context) {
+                formPanelInstance.setVMId(resourceId);
+                $("#marketplaceapps-tab-wizardForms #TYPE").val("vm").change();
+              }
+            );
+          },
+          error: function(error){
+            Notifier.onError("VM: " +error);
+          }
+        });
+      }
     }
+
   };
 
   return _actions;

@@ -32,7 +32,7 @@ define(function(require) {
     },
     "Image.upload_marketplace_dialog" : {
       type: "action",
-      text: '<i class="fas fa-share"/> '+ Locale.tr("MarketPlace")
+      text: '<i class="fas fa-shopping-cart"/>'
     },
     "Image.import_dialog" : {
       type: "create_dialog",

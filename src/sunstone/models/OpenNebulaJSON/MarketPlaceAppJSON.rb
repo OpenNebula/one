@@ -59,6 +59,7 @@ module OpenNebulaJSON
                  when "enable"                  then self.enable
                  when "lock"                    then self.lock(action_hash['params'])
                  when "unlock"                  then self.unlock(action_hash['params'])
+                 when "vm.import"               then self.app_vm_import(action_hash['params'])
                  when "vm-template.import"      then self.app_vm_import(action_hash['params'])
                  when "service_template.import" then self.app_service_import(action_hash['params'])
                  else

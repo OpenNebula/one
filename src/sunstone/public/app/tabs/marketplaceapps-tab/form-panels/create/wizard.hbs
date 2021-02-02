@@ -25,6 +25,7 @@
       <label for="TYPE">{{tr "Type"}}</label>
       <select id="TYPE" wizard_field="TYPE" required>
         <option value="image">{{tr "Image"}}</option>
+        <option value="vm">{{tr "VM"}}</option>
         <option value="vmtemplate">{{tr "VM Template"}}</option>
         <option value="service_template">{{tr "Service Template"}}</option>
       </select>
@@ -56,26 +57,53 @@
       </label>
     </div>
   </div>
-  <fieldset id="servicesTableHTML">
-    <legend>{{tr "Select the Service to create the App"}}</legend>
-    {{{servicesTableHTML}}}
-  </fieldset>
+
+  <!-- START IMAGES/SERVICES/VMTEMPLATES/VM TABLES -->
+
+  <div>
+    <div class="row">
+      <fieldset id="servicesTableHTML">
+        <legend>{{tr "Select the Service to create the App"}}</legend>
+        {{{servicesTableHTML}}}
+      </fieldset>
+    </div>
+    <div id="serviceMarketPlaceError" class="row oneflow_templates_error_message" hidden>
+      <div class="small-6 columns small-centered text-center">
+          <div class="label alert radius">{{tr "Cannot connect to OneFlow server"}}</div>
+      </div>
+    </div>
+  </div>
+  
   <fieldset id="templatesTableHTML">
     <legend>{{tr "Select the VM Template to create the App"}}</legend>
     {{{templatesTableHTML}}}
   </fieldset>
+  
   <fieldset id="imagesTableHTML">
     <legend>{{tr "Select the Image to create the App"}}</legend>
     {{{imagesTableHTML}}}
   </fieldset>
+
+  <fieldset id="vmsTableHTML">
+    <legend>{{tr "Select the VM to create the App"}}</legend>
+    {{{vmsTableHTML}}}
+  </fieldset>
+
+  <!-- END IMAGES/SERVICES/VMTEMPLATES/VM TABLES -->
+
+  <!-- START MARKETPLACES TABLES -->
   <fieldset id="serviceMarketPlaceHTML">
     <legend>{{tr "Select the Marketplace where the Images will be created"}}</legend>
     {{{marketPlacesServicesTableHTML}}}
   </fieldset>
+  
   <fieldset id="appMarketPlaceHTML">
     <legend>{{tr "Select the Marketplace where where the App will be created"}}</legend>
     {{{marketPlacesImagesTableHTML}}}
   </fieldset>
+
+  <!-- END MARKETPLACES TABLES -->
+  
   <fieldset id="templatesForApp">
   <legend>{{tr "Templates for the App"}}</legend>
   <div class="row">
