@@ -19,14 +19,14 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require('utils/tab-datatable');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var OpenNebulaService = require('opennebula/service');
-  var LabelsUtils = require('utils/labels/utils');
-  var SearchDropdown = require('hbs!./datatable/search');
-  var Status = require('utils/status');
-  var Humanize = require('utils/humanize');
+  var TabDataTable = require("utils/tab-datatable");
+  var SunstoneConfig = require("sunstone-config");
+  var Locale = require("utils/locale");
+  var OpenNebulaService = require("opennebula/service");
+  var LabelsUtils = require("utils/labels/utils");
+  var SearchDropdown = require("hbs!./datatable/search");
+  var Status = require("utils/status");
+  var Humanize = require("utils/humanize");
 
   /*
     CONSTANTS
@@ -34,10 +34,10 @@ define(function(require) {
 
   var RESOURCE = "Service";
   var XML_ROOT = "DOCUMENT";
-  var TAB_NAME = require('./tabId');
+  var TAB_NAME = require("./tabId");
   var LABELS_COLUMN = 7;
   var SEARCH_COLUMN = 8;
-  var TEMPLATE_ATTR = 'TEMPLATE';
+  var TEMPLATE_ATTR = "TEMPLATE";
 
   /*
     CONSTRUCTOR
@@ -59,7 +59,7 @@ define(function(require) {
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
           {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-          {"bVisible": false, "aTargets": ['_all']},
+          {"bVisible": false, "aTargets": ["_all"]},
           {"sType": "num", "aTargets": [1]}
       ]
     };
@@ -70,7 +70,7 @@ define(function(require) {
       Locale.tr("Group"),
       Locale.tr("Name"),
       Locale.tr("State"),
-      Locale.tr("Registration time"),
+      Locale.tr("Start time"),
       Locale.tr("Labels"),
       "search_data"
     ];
@@ -110,22 +110,22 @@ define(function(require) {
       UNAME: element.UNAME,
       GNAME: element.GNAME,
       STATE: state
-    }
+    };
 
     var color_html = Status.state_lock_to_color("SERVICE",state, element_json[XML_ROOT]["LOCK"]);
 
     return [
-      '<input class="check_item" type="checkbox" '+
-                          'style="vertical-align: inherit;" id="'+this.resource.toLowerCase()+'_' +
-                           element.ID + '" name="selected_items" value="' +
-                           element.ID + '"/>'+color_html,
+      "<input class=\"check_item\" type=\"checkbox\" "+
+                          "style=\"vertical-align: inherit;\" id=\""+this.resource.toLowerCase()+"_" +
+                           element.ID + "\" name=\"selected_items\" value=\"" +
+                           element.ID + "\"/>"+color_html,
         element.ID,
         element.UNAME,
         element.GNAME,
         element.NAME,
         state,
-        Humanize.prettyTime(element.TEMPLATE.BODY['registration_time']),
-        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+        Humanize.prettyTime(element.TEMPLATE.BODY["registration_time"]),
+        (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
