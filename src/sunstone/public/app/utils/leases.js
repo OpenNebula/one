@@ -105,7 +105,6 @@ define(function(require) {
                 var schedActionTime = parseInt(confLeases[schedAction].time,10);
                 var startTime = Math.round(now) + schedActionTime;
                 var time =  "+"+(last === 0? startTime.toString() : startTime+last);
-                console.log(Math.round(now), schedActionTime, startTime, time );
                 var nameAction = schedAction;
                 rtn = rtn.append(
                   $("<tr/>").append(

@@ -23,20 +23,22 @@ define(function(require) {
   var Locale = require("utils/locale");
   var Actions = require("opennebula/action");
   var Notifier = require("utils/notifier");
+  var ScheduleActions = require("utils/schedule_action");
+  var TemplateUtils = require("utils/template-utils");
 
   /*
     TEMPLATES
    */
 
   var TemplateHTML = require("hbs!./sched-actions/html");
-  
+
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./sched-actions/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./sched-actions/panelId");
   var RESOURCE = "Service";
 
   /*
@@ -49,24 +51,24 @@ define(function(require) {
     this.id = (info && info.DOCUMENT && info.DOCUMENT.ID) || "0";
     this.data = (info && info.DOCUMENT && info.DOCUMENT.TEMPLATE && info.DOCUMENT.TEMPLATE.BODY && info.DOCUMENT.TEMPLATE.BODY.roles) || [];
     this.actions = [
-      "terminate", 
-      "terminate-hard", 
-      "hold", 
-      "release", 
-      "stop", 
-      "suspend", 
-      "resume", 
-      "reboot", 
-      "reboot-hard", 
-      "poweroff", 
-      "poweroff-hard", 
-      "undeploy", 
-      "undeploy-hard", 
+      "terminate",
+      "terminate-hard",
+      "hold",
+      "release",
+      "stop",
+      "suspend",
+      "resume",
+      "reboot",
+      "reboot-hard",
+      "poweroff",
+      "poweroff-hard",
+      "undeploy",
+      "undeploy-hard",
       "snapshot-create",
-      "snapshot-delete", 
-      "snapshot-revert", 
-      "disk-snapshot-create", 
-      "disk-snapshot-delete", 
+      "snapshot-delete",
+      "snapshot-revert",
+      "disk-snapshot-create",
+      "disk-snapshot-delete",
       "disk-snapshot-revert"
     ];
     return this;
@@ -83,6 +85,7 @@ define(function(require) {
    */
 
   function _html() {
+    var sched_actions_table = "";
     var optionsActions = this.actions.map(function(ac){
       return "<option value='"+ac+"'>"+ac+"</option>";
     }).join("");
@@ -94,7 +97,36 @@ define(function(require) {
     });
     optionsRoles.unshift("<option value=''>"+Locale.tr("All Roles")+"</option>");
     optionsRoles = optionsRoles.join("");
+    if(this.data && Array.isArray(this.data) && this.data[0] && this.data[0].vm_template_contents){
+      var parseData = TemplateUtils.stringToTemplate(this.data[0].vm_template_contents);
+      if(parseData && parseData.SCHED_ACTION){
+        var sched_actions = Array.isArray(parseData.SCHED_ACTION)? parseData.SCHED_ACTION : [parseData.SCHED_ACTION];
+        sched_actions_table = $("<table/>");
+        sched_actions.forEach(function(schedAction){
+          if(schedAction && schedAction.TIME && schedAction.ACTION){
+            if(schedAction.TIME.startsWith("+")){
+              time = ScheduleActions.parseTime(schedAction.TIME);
+            }else{
+              timeWithMiliSeconds = parseInt(schedAction.TIME,10) * 1000;
+              timeDate = new Date(timeWithMiliSeconds);
+              time = "on "+timeDate.getHours()+":"+timeDate.getMinutes()+":"+timeDate.getSeconds()+" "+timeDate.getDate() +"/"+(timeDate.getMonth()+1)+"/"+timeDate.getFullYear();
+            }
+            var nameAction = schedAction.ACTION;
+            sched_actions_table = sched_actions_table.append(
+              $("<tr/>").append(
+                $("<td/>").text(nameAction).add(
+                  $("<td/>").text(time)
+                )
+              )
+            );
+          }
+        });
+        sched_actions_table = sched_actions_table.prop("outerHTML");
+        console.log("-->", sched_actions_table);
+      }
+    }
     return TemplateHTML({
+      sched_actions_table: sched_actions_table,
       actions: optionsActions,
       res: RESOURCE,
       roles: optionsRoles
@@ -172,7 +204,7 @@ define(function(require) {
             actionJSON.data.action.params.args = args;
           }
         }
-        if(role!=='' && role!==undefined){
+        if(role!=="" && role!==undefined){
           actionJSON.data.roleName = role;
         }
         Actions.addFlowAction(actionJSON,RESOURCE);
