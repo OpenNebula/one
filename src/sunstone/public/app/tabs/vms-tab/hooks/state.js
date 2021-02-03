@@ -66,7 +66,6 @@ define(function(require) {
     else if (isSPICESupported) {
       $(".spice-sunstone-info").show();
       $(".vnc-sunstone-info").hide();
-
     }
     else {
       $(".spice-sunstone-info").hide();

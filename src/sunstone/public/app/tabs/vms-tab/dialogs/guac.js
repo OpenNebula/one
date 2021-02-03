@@ -72,14 +72,14 @@ define(function(require) {
     return false;
   }
 
-  function _onShow(context) {
+  function _onShow() {
     this.gClient.connect(this.element);
     this.gClient.mouse(true);
     this.gClient.keyboard(true);
     return false;
   }
 
-  function _onClose(context) {
+  function _onClose() {
     this.gClient.disconnect();
     this.gClient.mouse(false);
     this.gClient.keyboard(false);

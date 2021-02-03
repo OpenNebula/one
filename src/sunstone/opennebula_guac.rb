@@ -167,7 +167,7 @@ class OpenNebulaGuac
                         'security' =>  'any',
                         'ignore-cert' =>  'true',
                         'enable-drive' =>  'true',
-                        'enable-audio' =>  'true',
+                        #'enable-audio' =>  'true',
                         'create-drive-path' =>  'true'
                     }.merge!(settings)
                 }

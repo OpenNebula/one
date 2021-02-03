@@ -27,10 +27,11 @@ define(function(require) {
   var StateRolesButtons = require('./roles/state-roles-buttons');
   var Sunstone = require('sunstone');
   var DomDataTable = require('utils/dom-datatable');
-  var Vnc = require('utils/vnc');
-  var Spice = require('utils/spice');
-  var Notifier = require('utils/notifier');
+  var VMRemoteActions = require('utils/remote-actions');
   var OpenNebulaVM = require("opennebula/vm");
+
+  var FireedgeValidator = require('utils/fireedge-validator');
+  var Websocket = require("utils/websocket");
 
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
 
@@ -76,7 +77,6 @@ define(function(require) {
   Panel.prototype.setState = _setState;
   Panel.prototype.roleHTML = _roleHTML;
   Panel.prototype.roleSetup = _roleSetup;
-  Panel.prototype.remoteButtonSetup = _remoteButtonSetup;
 
   return Panel;
 
@@ -229,23 +229,9 @@ define(function(require) {
                 : '<span class="has-tip" title="'+
                   Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock"/></span>'
             }
-            ips = OpenNebulaVM.ipsStr(data.VM);
+            ips = OpenNebulaVM.ipsStr(data.VM, { forceGroup: true });
 
-            if (OpenNebulaVM.isVNCSupported(data.VM)) {
-              actions += OpenNebulaVM.buttonVnc(id);
-            }
-            else if (OpenNebulaVM.isSPICESupported(data.VM)) {
-              actions += OpenNebulaVM.buttonSpice(id);
-            }
-
-            var wFile = OpenNebulaVM.isWFileSupported(data.VM);
-            actions += wFile ? OpenNebulaVM.buttonWFile(id, wFile) : "";
-
-            var rdp = OpenNebulaVM.isConnectionSupported(data.VM, 'rdp');
-            actions += rdp ? OpenNebulaVM.dropdownRDP(id, rdp.ID, data.VM) : "";
-
-            var ssh = OpenNebulaVM.isConnectionSupported(data.VM, 'ssh');
-            actions += ssh ? OpenNebulaVM.buttonSSH(id) : "";
+            actions = VMRemoteActions.renderActionsHtml(data.VM);
           }
 
           roleVms[index] = rowInfoRoleVm(ready, id, name, uname, gname, ips, actions);
@@ -256,11 +242,14 @@ define(function(require) {
     }
 
     $.when.apply($, promises).then(function() {
-      if (that.serviceroleVMsDataTable) {
-        that.serviceroleVMsDataTable.updateView(null, roleVms, true);
-      }
-      that.remoteButtonSetup(context);
-    });
+        if (that.serviceroleVMsDataTable) {
+          that.serviceroleVMsDataTable.updateView(null, roleVms, true);
+          $("#rdp-buttons", context).foundation();
+          VMRemoteActions.bindActionsToContext(context)
+        }
+        
+        Tips.setup(context);
+      });
 
 
     return TemplateRoleInfo({
@@ -330,63 +319,5 @@ define(function(require) {
         $('div#role_vms_actions', context)
       );
     }
-  }
-
-  function _remoteButtonSetup(context) {
-    $(".spice", context).off("click");
-    $(".spice", context).on("click", function() {
-      var data = $(this).data();
-
-      if (!Spice.lockStatus() && data.hasOwnProperty("id")) {
-        Spice.lock();
-        Sunstone.runAction("VM.startspice_action", String(data.id));
-      } else {
-        Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
-      }
-
-      return false;
-    });
-
-    $(".w_file", context).off("click");
-    $(".w_file", context).on("click", function() {
-      var data = $(this).data();
-
-      (data.hasOwnProperty("id") && data.hasOwnProperty("hostname") && data.hasOwnProperty("type") && data.hasOwnProperty("port"))
-        ? Sunstone.runAction(
-          "VM.save_virt_viewer_action",
-          String(data.id),
-          { hostname: data.hostname, type: data.type, port: data.port }
-        )
-        : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
-
-        return false;
-    });
-
-    $(".vnc", context).off("click");
-    $(".vnc", context).on("click", function() {
-      var data = $(this).data();
-
-      if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
-        Vnc.lock();
-        Sunstone.runAction("VM.startvnc_action", String(data.id));
-      } else {
-        Notifier.notifyError(Locale.tr("VNC Connection in progress"));
-      }
-
-      return false;
-    });
-
-    $(".rdp", context).off("click");
-    $(".rdp", context).on("click", function() {
-      var data = $(this).data();
-
-      (data.hasOwnProperty("ip") && data.hasOwnProperty("name"))
-        ? Sunstone.runAction("VM.save_rdp", data)
-        : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
-
-        return false;
-    });
-
-    Tips.setup(context);
   }
 });

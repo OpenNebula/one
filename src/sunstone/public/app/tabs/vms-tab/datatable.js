@@ -22,19 +22,15 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var VMsTableUtils = require('./utils/datatable-common');
   var OpenNebulaVM = require('opennebula/vm');
-  var OpenNebulaAction = require("opennebula/action");
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var StateActions = require('./utils/state-actions');
   var Sunstone = require('sunstone');
-  var Vnc = require('utils/vnc');
-  var Spice = require('utils/spice');
-  var Notifier = require('utils/notifier');
   var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
-  var TemplateUtils = require('utils/template-utils');
   var FireedgeValidator = require('utils/fireedge-validator');
   var Websocket = require("utils/websocket");
+  var VMRemoteActions = require('utils/remote-actions');
 
   /*
     CONSTANTS
@@ -173,14 +169,11 @@ define(function(require) {
 
     $("#rdp-buttons").foundation();
 
-    var create_socket = function(token){
-      if (Websocket.disconnected()){
+    FireedgeValidator.validateFireedgeToken(function(token) {
+      if (Websocket.disconnected()) {
         Websocket.start(token);
       }
-    }
-
-   FireedgeValidator.validateFireedgeToken(create_socket);
-
+    });
   }
 
   function _initialize(opts) {
@@ -188,138 +181,7 @@ define(function(require) {
 
     TabDataTable.prototype.initialize.call(this, opts);
 
-    //download virt-viewer file
-    $('#' + this.dataTableId).on("click", '.w-file', function(){
-      var data = $(this).data();
-
-      (data.hasOwnProperty("id") && data.hasOwnProperty("hostname") && data.hasOwnProperty("type") && data.hasOwnProperty("port"))
-        ? Sunstone.runAction(
-          "VM.save_virt_viewer_action",
-          String(data.id),
-          { hostname: data.hostname, type: data.type, port: data.port }
-        )
-        : Notifier.notifyError(Locale.tr("Data for virt-viewer file isn't correct"));
-
-        return false;
-    });
-
-    //download RDP file
-    $('#' + this.dataTableId).on("click", '.save-rdp', function() {
-      var data = $(this).data();
-
-      (data.hasOwnProperty("ip") && data.hasOwnProperty("name"))
-        ? Sunstone.runAction("VM.save_rdp", data)
-        : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
-
-      return false;
-    });
-
-    $('#' + this.dataTableId).on("click", ".rdp", function() {
-      var data = $(this).data();
-
-      (data.hasOwnProperty("id"))
-        ? Sunstone.runAction("VM.startguac_action", String(data.id), { type: 'rdp' })
-        : Notifier.notifyError(Locale.tr("RDP - Invalid action"));
-
-      return false;
-    });
-
-    $('#' + this.dataTableId).on("click", ".ssh", function() {
-      var data = $(this).data();
-
-      (data.hasOwnProperty("id"))
-        ? Sunstone.runAction("VM.startguac_action", String(data.id), { type: 'ssh' })
-        : Notifier.notifyError(Locale.tr("SSH - Invalid action"));
-
-      return false;
-    });
-
-    $('#' + this.dataTableId).on("click", ".guac-vnc", function() {
-      var data = $(this).data();
-
-      (data.hasOwnProperty("id"))
-        ? Sunstone.runAction("VMstartguac_action", String(data.id), { type: 'vnc' })
-        : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
-
-      return false;
-    });
-
-    $('#' + this.dataTableId).on("click", '.vnc', function() {
-      var that = this;
-
-      function promiseVmInfo(id, success) {
-        return $.ajax({
-          url: "vm/" + id,
-          type: "GET",
-          dataType: "json",
-          success: success
-        })
-      }
-
-      function callVNC() {
-        var data = $(that).data();
-
-        if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
-          Vnc.lock();
-          Sunstone.runAction("VM.startvnc_action", String(data.id));
-        } else {
-          Notifier.notifyError(Locale.tr("VNC Connection in progress"));
-        }
-      }
-
-      function callVMRC(){
-        var data = $(that).data();
-
-        (data.hasOwnProperty("id"))
-          ? Sunstone.runAction("VM.startvmrc_action", String(data.id), { type: 'vnc' })
-          : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
-      }
-
-      function callGuac(){
-        var data = $(that).data();
-
-        (data.hasOwnProperty("id"))
-          ? Sunstone.runAction("VM.startguac_action", String(data.id), { type: 'vnc' })
-          : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
-      }
-
-      var remote_connections = function(fireedgeToken){
-        if (fireedgeToken != ""){
-          var data = $(that).data();
-          // Get VM info
-          if (data.hasOwnProperty('id')){
-            promiseVmInfo(data['id'], function(data){
-              if (data && data.VM && data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.HYPERVISOR == 'vcenter'){
-                callVMRC();
-              }
-              else{
-                callGuac();
-              }
-            });
-          }
-        }
-        else{
-          callVNC();
-        }
-      }
-
-      FireedgeValidator.validateFireedgeToken(remote_connections, callVNC);
-
-      return false;
-    });
-
-    $('#' + this.dataTableId).on("click", '.spice', function() {
-      var data = $(this).data();
-
-      if (!Spice.lockStatus() && data.hasOwnProperty("id")) {
-        Spice.lock();
-        Sunstone.runAction("VM.startspice_action", String(data.id));
-      } else {
-        Notifier.notifyError(Locale.tr("SPICE Connection in progress"))
-      }
-
-      return false;
-    });
+    VMRemoteActions.bindActionsToContext('#' + this.dataTableId)
 
     $('#' + this.dataTableId).on("change", 'tbody input.check_item', function() {
       if ($(this).is(":checked")){
@@ -330,16 +192,12 @@ define(function(require) {
 
         // Enable actions available to any of the selected VMs
         var nodes = $('tr', that.dataTable); //visible nodes only
-        $.each($('input.check_item:checked', nodes), function(){
+        $.each($('input.check_item:checked', nodes), function() {
           StateActions.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
         });
-
       }
 
       return true;
     });
-
   }
-
-
 });

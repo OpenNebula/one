@@ -23,6 +23,7 @@ define(function(require) {
   var LabelsUtils = require('utils/labels/utils');
   var Status = require('utils/status');
   var ScheduleActions = require("utils/schedule_action");
+  var VMRemoteActions = require('utils/remote-actions');
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
@@ -192,38 +193,7 @@ define(function(require) {
       ? OpenNebulaVM.shortLcmStateStr(element.LCM_STATE)
       : OpenNebulaVM.stateStr(element.STATE);
 
-    var actions = "";
-
-    // VNC/SPICE icon
-    if (OpenNebulaVM.isVNCSupported(element)) {
-      actions += OpenNebulaVM.buttonVnc(element.ID);
-    }
-    else if (OpenNebulaVM.isSPICESupported(element)) {
-      actions += OpenNebulaVM.buttonSpice(element.ID);
-    }
-    
-    // virt-viewer file icon
-    wFile = OpenNebulaVM.isWFileSupported(element);
-    wFile && (actions += OpenNebulaVM.buttonWFile(element.ID, wFile));
-
-    if(config && 
-      config["system_config"] && 
-      config["system_config"]["allow_vnc_federation"] && 
-      config["system_config"]["allow_vnc_federation"] === 'no' &&
-      config["id_own_federation"] && 
-      config["zone_id"] && 
-      config["id_own_federation"] !== config["zone_id"])
-    {
-      actions = '';
-    }
-
-    // RDP icons
-    var rdp = OpenNebulaVM.isConnectionSupported(element, 'rdp');
-    rdp && (actions += OpenNebulaVM.dropdownRDP(element.ID, rdp.IP, element));
-
-    // SSH icon
-    var ssh = OpenNebulaVM.isConnectionSupported(element, 'ssh');
-    ssh && (actions += OpenNebulaVM.buttonSSH(element.ID));
+    var actions = VMRemoteActions.renderActionsHtml(element);
 
     var cpuMonitoring = 0, memoryMonitoring = 0;
     if (element.MONITORING) {
@@ -276,7 +246,7 @@ define(function(require) {
       hostname,
       OpenNebulaVM.ipsDropdown(element),
       Humanize.prettyTimeDatatable(element.STIME),
-      actions && "<div style='display: flex; align-items: end; gap:5px'>"+actions+"</div>",
+      actions,
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
       btoa(unescape(encodeURIComponent(JSON.stringify(search)))),

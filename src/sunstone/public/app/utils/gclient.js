@@ -63,7 +63,6 @@ define(function(require) {
     }
     else setLoading(true);
 
-
     var endpoint = Config.publicFireedgeEndpoint.split("//");
     var fireedge_protocol = endpoint[0];
     var fireedge_host = endpoint[1].split(":")[0];
@@ -90,6 +89,9 @@ define(function(require) {
     tunnel.onerror = function() {
       disconnect();
       Notifier.notifyError(that._clientErrorText)
+
+      setStatus("Guacamole tunnel ERROR");
+      setLoading(false);
     };
 
     guac.onstatechange = function(state) {

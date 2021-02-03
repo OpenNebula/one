@@ -79,13 +79,7 @@ define(function(require) {
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
     var vrouterHTML = "--";
 
-    var IP = OpenNebula.VM.ipsStr(this.element);
-
-    var alias = (
-      config.system_config &&
-      config.system_config.get_extended_vm_info &&
-      config.system_config.get_extended_vm_info === "true"
-    ) ? null : OpenNebula.VM.aliasStr(this.element);
+    var IP = OpenNebula.VM.ipsStr(this.element, { forceGroup: true });
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
@@ -159,7 +153,6 @@ define(function(require) {
       "prettyStartTime": prettyStartTime,
       "deployId": deployId,
       "IP": IP,
-      "alias": alias,
       "resched": resched,
       "permissionsTableHTML": permissionsTableHTML,
       "templateTableVcenterHTML": templateTableVcenterHTML,

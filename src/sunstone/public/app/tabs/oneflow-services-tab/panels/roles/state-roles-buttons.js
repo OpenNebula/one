@@ -83,6 +83,8 @@ define(function(require) {
     var state = parseInt(state);
     var actionsAvailable = STATE_ACTIONS[state]
 
+    if (actionsAvailable === undefined) return;
+
     $.each(ALL_ACTION_BUTTONS, function(_, action) {
       const isDisabled = actionsAvailable.indexOf(action) !== -1
 
