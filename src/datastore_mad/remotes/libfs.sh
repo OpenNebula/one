@@ -255,7 +255,7 @@ function fs_size {
         if [[ $SRC == dockerfile* ]]; then
             url=`echo ${SRC} | grep -oP "^"dockerfile://"\K.*"`
         elif [[ $SRC == docker* ]]; then
-            url=$(echo $MARKET_URL | grep -oP "^"docker://"\K.*")
+            url=`echo ${SRC} | grep -oP "^"docker://"\K.*"`
         fi
 
         arguments=`echo $url | cut -d '?' -f 2`
