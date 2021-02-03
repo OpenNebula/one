@@ -79,22 +79,6 @@ wait_for_memcached()
     return 1
 )
 
-wait_for_ssh_agent()
-(
-    TIMEOUT="${TIMEOUT:-120}"
-
-    while [ "$TIMEOUT" -gt 0 ] ; do
-        if [ -e ${SSH_AUTH_SOCK} ] ; then
-            return 0
-        fi
-
-        TIMEOUT=$(( TIMEOUT - 1 ))
-        sleep 1
-    done
-
-    return 1
-)
-
 wait_for_mysqld()
 (
     TIMEOUT="${TIMEOUT:-120}"

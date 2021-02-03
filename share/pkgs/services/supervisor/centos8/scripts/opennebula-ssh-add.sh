@@ -33,7 +33,7 @@ export SSH_AUTH_SOCK
 
 # wait for ssh-agent socket
 msg "Wait for ssh-agent (${SSH_AUTH_SOCK})..."
-if ! wait_for_ssh_agent ; then
+if ! wait_for_file "${SSH_AUTH_SOCK}" ; then
     err "Timeout!"
     exit 1
 fi
