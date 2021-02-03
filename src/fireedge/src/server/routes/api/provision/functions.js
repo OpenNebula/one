@@ -32,10 +32,6 @@ const { getConfig } = require('server/utils/yml')
 const { spawnSync, spawn } = require('child_process')
 const { messageTerminal } = require('server/utils/general')
 
-const appConfig = getConfig()
-const prependCommand = appConfig.oneprovision_prepend_command || ''
-const optionalCreateCommand = appConfig.oneprovision_optional_create_command || ''
-
 const eventsEmitter = new events.EventEmitter()
 const defaultError = (err = '', message = 'Error: %s') => ({
   color: 'red',
@@ -222,8 +218,10 @@ const moveToFolder = (path = '', relative = '/../') => {
 }
 
 const addPrependCommand = (command = '', resource = '') => {
-  const rsc = Array.isArray(resource) ? resource : [resource]
+  const appConfig = getConfig()
+  const prependCommand = appConfig.oneprovision_prepend_command || ''
 
+  const rsc = Array.isArray(resource) ? resource : [resource]
   let newCommand = command
   let newRsc = rsc
 
@@ -245,7 +243,11 @@ const addPrependCommand = (command = '', resource = '') => {
   }
 }
 
-const addOptionalCreateCommand = () => [optionalCreateCommand].filter(Boolean)
+const addOptionalCreateCommand = () => {
+  const appConfig = getConfig()
+  const optionalCreateCommand = appConfig.oneprovision_optional_create_command || ''
+  return [optionalCreateCommand].filter(Boolean)
+}
 
 const executeCommandAsync = (
   command = '',
@@ -320,6 +322,7 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
 
 const getEndpoint = () => {
   let rtn = []
+  const appConfig = getConfig()
   if (appConfig && appConfig.one_xmlrpc) {
     const parseUrl = parse(appConfig.one_xmlrpc)
     const protocol = parseUrl.protocol || ''
