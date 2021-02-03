@@ -70,7 +70,7 @@ begin
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
-        deploy[:boot] = drv_action['TEMPLATE/OS']
+        deploy[:boot] = drv_action['TEMPLATE/OS/BOOT']
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)

@@ -1094,12 +1094,12 @@ module VCenterDriver
             vc_nics.each do |d|
                 backing = d.backing
 
-                case backing.class
-                when NET_CARD
+                case backing.class.to_s
+                when NET_CARD.to_s
                     key = backing.network._ref
-                when DNET_CARD
+                when DNET_CARD.to_s
                     key = backing.port.portgroupKey
-                when OPAQUE_CARD
+                when OPAQUE_CARD.to_s
                     # Select only Opaque Networks
                     opaque_networks = @item.network.select do |net|
                         RbVmomi::VIM::OpaqueNetwork == net.class
@@ -1192,7 +1192,7 @@ module VCenterDriver
             end
         end
 
-        # Queries for a certain nic
+        # Queries for a certain disk
         #
         # @param index [String | Integer] the id of the disk
         # @param opts [hash (symbol=>boolean)]
@@ -1605,6 +1605,7 @@ module VCenterDriver
                 spl = device_str.scan(/^(nic|disk)(\d+$)/).flatten
                 raise "#{device_str} is not supported" if spl.empty?
 
+                device = nil
                 sync = "sync_#{spl[0]}s"
                 (0..1).each do |_i|
                     device = send(spl[0], spl[1])
