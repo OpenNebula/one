@@ -554,7 +554,9 @@ module VCenterDriver
             full_process = !args[:short]
 
             vc_network_ref = vc_network._ref
-            vc_network_name = vc_network.name
+            vc_network_name = VCenterDriver::FileHelper.sanitize(
+                vc_network.name
+            )
             vc_network_host = vc_network['host']
             vc_network_tag = vc_network['tag']
 

@@ -118,17 +118,6 @@ class OpenNebulaVMRC
         @logger = logger
     end
 
-    def sanitize(ticket)
-        # Bad as defined by wikipedia: https://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words
-        # Also have to escape the backslash
-        bad_chars = ['/', '\\', '?', '%', '*', ':',
-                     '|', '"', '<', '>', '.', ' ']
-        bad_chars.each do |bad_char|
-            ticket.gsub!(bad_char, '_')
-        end
-        ticket
-    end
-
     def proxy(vm_resource, client = nil)
         # Check configurations and VM attributes
         unless VMRC_STATES.include?(vm_resource['LCM_STATE'])
@@ -169,7 +158,7 @@ class OpenNebulaVMRC
             :ticket => parameters[:ticket]
         }
 
-        file = File.open(VMRC_TICKETS + sanitize(data[:ticket]), 'w')
+        file = File.open(VMRC_TICKETS + VCenterDriver::FileHelper.sanitize(data[:ticket]), 'w')
         file.write('https://' + data[:host] + ':' + data[:port].to_s)
         file.close
 

@@ -27,6 +27,19 @@ module VCenterDriver
     ##########################################################################
     class FileHelper
 
+        def self.sanitize(text)
+            # Bad as defined by wikipedia:
+            # https://en.wikipedia.org/wiki/Filename in
+            # Reserved_characters_and_words
+            # Also have to escape the backslash
+            bad_chars = ['/', '\\', '?', '%', '*', ':',
+                         '|', '"', '<', '>', '.', ' ']
+            bad_chars.each do |bad_char|
+                text.gsub!(bad_char, '_')
+            end
+            text
+        end
+
         def self.get_img_name(
             disk,
             vm_id,
