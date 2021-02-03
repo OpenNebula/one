@@ -30,7 +30,7 @@
           {{tr "Pin Policy"}}
           {{{tip (tr "vCPU pinning preference: CORE, THREAD, SHARED, NONE")}}}
         </label>
-        <select id="numa-pin-policy" class="disabled_firecracker">
+        <select id="numa-pin-policy">
           <option value="NONE">{{tr "none"}}</option>
           <option value="THREAD">{{tr "thread"}}</option>
           <option value="SHARED">{{tr "shared"}}</option>
@@ -49,7 +49,10 @@
           {{tr "Cores"}}
           {{{tip (tr "Number of cores per node")}}}
         </label>
-        <input type="number" id="numa-cores">
+        <input type="number" id="numa-cores" class="not_vcenter">
+        <div class="only_vcenter" hidden>
+          <select id="CORES_PER_SOCKET"/>
+        </div>
       </div>
       <div class="small-6 columns">
         <label for="numa-threads">
@@ -58,14 +61,14 @@
         </label>
         <input type="number" id="numa-threads" min="1">
       </div>
-      <div class="small-6 columns not_firecracker">
+      <div class="small-6 columns not_vcenter not_firecracker">
         <label for="numa-hugepages">
           {{tr "Hugepages Size"}}
           {{{tip (tr "Size of the hugepages (MB). If not defined no hugepages will be used")}}}
         </label>
         <select id="numa-hugepages"></select>
       </div>
-      <div class="small-6 columns not_firecracker">
+      <div class="small-6 columns not_vcenter not_firecracker">
         <label for="numa-memory">
           {{tr "Memory Access"}}
           {{{tip (tr "Control if the memory is to be mapped shared or private")}}}
@@ -75,6 +78,13 @@
           <option value="shared">{{tr "Shared"}}</option>
           <option value="private">{{tr "Private"}}</option>
         </select>
+      </div>
+      <div class="small-6 columns">
+        <label for="selectedVCPU">
+          {{tr "Virtual CPU selected"}}
+          {{{tip (tr "Number of virtual cpus. This value is optional, the default hypervisor behavior is used, usually one virtual CPU.")}}}
+        </label>
+        <input type="number" id="selectedVCPU">
       </div>
     </div>
   </div>

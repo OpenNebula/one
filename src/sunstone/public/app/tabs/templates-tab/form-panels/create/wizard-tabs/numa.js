@@ -26,6 +26,7 @@ define(function(require) {
   var FilesTable = require("tabs/files-tab/datatable");
   var UniqueId = require("utils/unique-id");
   var OpenNebulaAction = require('opennebula/action');
+  var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
 
   /*
     TEMPLATES
@@ -51,6 +52,7 @@ define(function(require) {
   }
 
   var numaStatus = null;
+  var VCPU_SELECTOR = '#VCPU';
   /*
     CONSTRUCTOR
    */
@@ -168,6 +170,15 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     Foundation.reflow(context, "tabs");
+
+    $("#CORES_PER_SOCKET", context).on("change", function (){
+      CoresPerSocket.calculateSockets(VCPU_SELECTOR);
+      $('#numa-cores').val(this.value);
+    });
+
+    $('#selectedVCPU',context).on('change', function (){
+      $('#VCPU').val(this.value).change();
+    });
   }
 
   function _retrieve(context) {

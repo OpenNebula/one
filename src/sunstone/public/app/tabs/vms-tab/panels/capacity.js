@@ -29,6 +29,7 @@ define(function(require) {
   var OpenNebulaAction = require("opennebula/action");
   var Humanize = require("utils/humanize");
   var ProgressBar = require("utils/progress-bar");
+  var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket")
   /*
     TEMPLATES
    */
@@ -44,6 +45,7 @@ define(function(require) {
   var RESIZE_DIALOG_ID = require("../dialogs/resize/dialogId");
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
+  var VCPU_SELECTOR = 'div.vcpu_input input';
 
   /*
     CONSTRUCTOR
@@ -90,32 +92,6 @@ define(function(require) {
       "cpuCost": cpuCost,
       "memoryCost": memoryCost
     });
-  }
-
-  function _calculateSockets(context){
-    var vcpu = $("div.vcpu_input input", context).val();
-    var cores_per_socket = $("#CORES_PER_SOCKET").val();
-
-    if ((vcpu != "") && (cores_per_socket != "")){
-      $("div.socket_info").show();
-      $("#number_sockets").text(vcpu/cores_per_socket);
-    }
-    else{
-      $("div.socket_info").hide();
-    }
-
-  }
-
-  function _generateCores(context){
-    $("#CORES_PER_SOCKET", context).find("option").remove();
-    $("#CORES_PER_SOCKET", context).append($("<option>").val("").text(""));
-    var vcpuValue = $("div.vcpu_input input").val();
-    for (var i = 1; i <= vcpuValue; i++){
-      if (vcpuValue%i === 0){
-        $("#CORES_PER_SOCKET", context).append($("<option>").val(i).text((i).toString()));
-      }
-    }
-    $("#CORES_PER_SOCKET option[value=\"\"]").prop("selected", true);
   }
 
   function _setup(context) {
@@ -173,30 +149,24 @@ define(function(require) {
         }
 
         if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
-          $("div.cores_per_socket_select_wrapper", dialogContext).attr("style", "");
-          $("div.socket_info", dialogContext).show();
-
           var vcpuValue = $("div.vcpu_input input").val();
           if (vcpuValue !== "" && that && that.element && that.element.TEMPLATE && that.element.TEMPLATE.TOPOLOGY && that.element.TEMPLATE.TOPOLOGY.CORES) {
-            _generateCores(dialogContext);
-            $("#CORES_PER_SOCKET option[value=\"" + that.element.TEMPLATE.TOPOLOGY.CORES + "\"]").prop("selected", true);
+            CoresPerSocket.generateCores(VCPU_SELECTOR);
+            CoresPerSocket.selectOption(that.element.TEMPLATE.TOPOLOGY.CORES);
           }
 
           $("div.vcpu_input input", dialogContext).on("change", function(){
-            _generateCores(dialogContext);
-            _calculateSockets(dialogContext);
+            CoresPerSocket.generateCores(VCPU_SELECTOR);
+            CoresPerSocket.calculateSockets(VCPU_SELECTOR);
           });
 
           $("#CORES_PER_SOCKET", dialogContext).on("change", function(){
-            _calculateSockets(dialogContext);
+            CoresPerSocket.calculateSockets(VCPU_SELECTOR);
           });
 
-          _calculateSockets(dialogContext);
+          CoresPerSocket.calculateSockets(VCPU_SELECTOR);
         }
-        else{
-          $("div.cores_per_socket_select_wrapper", dialogContext).hide();
-          $("div.socket_info", dialogContext).hide();
-        }
+
         return false;
       });
     }

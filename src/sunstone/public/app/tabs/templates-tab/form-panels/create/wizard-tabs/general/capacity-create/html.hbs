@@ -61,7 +61,7 @@
     </div>
   </div>
   <div class="medium-2 small-12 columns">
-    <div class="row" id="memory_max_group">
+    <div class="row" id="memory_max_group" hidden>
       <div class="small-12 columns">
         <label class="">
           {{tr "Max memory"}}
@@ -210,7 +210,7 @@
     </div>
   </div>
   <div class="medium-2 small-12 columns">
-    <div class="row" id="vcpu_max_group">
+    <div class="row" id="vcpu_max_group" hidden>
       <div class="small-12 columns">
         <label class="">
           {{tr "Max VCPU"}}
@@ -247,30 +247,6 @@
           </div>
         </div>
         <input type=text class="vcpu_modify_opt list" placeholder="4,8,16"/>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="row">
-  <div class="medium-6 small-12 columns hypervisor only_vcenter" style="display: none;">
-    <div class="row">
-      <div class="small-12 columns">
-        <label class="" for="CORES_PER_SOCKET">
-          {{tr " Virtual Cores per Socket"}} 
-          {{{tip (tr "Number of cores per socket. The number of sockets is automatically calculated dividing the VCPU value by the number of cores per socket value.")}}}
-        </label>
-        <div class="cores_per_socket_select">
-          <select wizard_field="CORES" id="CORES_PER_SOCKET"/>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="medium-6 small-12 columns hypervisor only_vcenter socket_info" style="display: none;">
-    <div class="row">
-      <div class="small-12 columns">
-        <label>
-          {{tr "Sockets"}}: <span id="number_sockets"></span> 
-        </label>
       </div>
     </div>
   </div>

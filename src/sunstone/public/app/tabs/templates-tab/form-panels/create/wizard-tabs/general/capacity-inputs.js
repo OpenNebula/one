@@ -26,12 +26,19 @@ define(function(require) {
   var UserInputs = require('utils/user-inputs');
   var Config = require('sunstone-config');
   var Notifier = require("utils/notifier");
+  var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
 
   /*
     TEMPLATES
    */
 
   var TemplateHTML = require('hbs!./capacity-inputs/html');
+
+  /*
+    CONSTANTS
+   */
+
+  var VCPU_SELECTOR = 'div.vcpu_input input, div.vcpu_input select';
 
   /*
     CONSTRUCTOR
@@ -60,34 +67,6 @@ define(function(require) {
     }
 
     Tips.setup(context);
-  }
-
-  function _calculateSockets(context){
-    var vcpu = $("div.vcpu_input input, div.vcpu_input select", context).val();
-    var cores_per_socket = $("#CORES_PER_SOCKET").val();
-
-    if ((vcpu != "") && (cores_per_socket != "")){
-      $("div.socket_info").show();
-      $("#number_sockets").text(parseInt(vcpu, 10)/parseInt(cores_per_socket, 10));
-    }
-    else{
-      $("div.socket_info").hide();
-    }
-  }
-
-  function _generateCores(context){
-    $("#CORES_PER_SOCKET", context).find('option').remove();
-    $("#CORES_PER_SOCKET", context).append($('<option>').val("").text(""));
-    var visor = $("div.vcpu_input input.visor")
-    var slider = $("div.vcpu_input input");
-    var select = $("div.vcpu_input select");
-    var from = visor.length? visor : slider.length ? slider : select;
-    var vcpuValue = from.val();
-    for (var i = 1; i <= vcpuValue; i++){
-      if (vcpuValue%i === 0){
-        $("#CORES_PER_SOCKET", context).append($('<option>').val(i).text((i).toString()));
-      }
-    }
   }
 
   /**
@@ -209,15 +188,12 @@ define(function(require) {
       $(this).siblings("input").trigger("input");
     });
 
-    if (element.TEMPLATE.HYPERVISOR == "vcenter"){
-      $("div.cores_per_socket_select_wrapper").show();
-      $("div.socket_info").show();
-      
+    if (element.TEMPLATE.HYPERVISOR == "vcenter"){      
       var vcpuValue = $("div.vcpu_input input", context).val();
       if (vcpuValue !== "") {
-        _generateCores(context);
-        if(element.TEMPLATE.TOPOLOGY) {
-          $('#CORES_PER_SOCKET').val(element.TEMPLATE.TOPOLOGY.CORES).change()
+        CoresPerSocket.generateCores(VCPU_SELECTOR);
+        if(element && element.TEMPLATE && element.TEMPLATE.TOPOLOGY && element.TEMPLATE.TOPOOGY.CORES) {
+          CoresPerSocket.selectOption(element.TEMPLATE.TOPOLOGY.CORES);
         }
       }
 
@@ -228,33 +204,28 @@ define(function(require) {
           max = element.attr("max");
           if(parseInt(element.val(),10) >= parseInt(min,10) && parseInt(element.val(),10)<= parseInt(max,10)){
             $("div.vcpu_input input", context).val(element.val());
-            _generateCores(context);
-            $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
-            _calculateSockets(context);
+            CoresPerSocket.generateCores(VCPU_SELECTOR);
+            CoresPerSocket.selectOption("");
+            CoresPerSocket.calculateSockets(VCPU_SELECTOR);
           } else{
             element.val(max);
             $("div.vcpu_input input", context).val(max).change();
             Notifier.notifyError(Locale.tr("The value goes out of the allowed limits"));
           }
         } else{
-          _generateCores(context);
-          $('#CORES_PER_SOCKET option[value=""]').prop('selected', true);
-          _calculateSockets(context);
+          CoresPerSocket.generateCores(VCPU_SELECTOR);
+          CoresPerSocket.selectOption("");
+          CoresPerSocket.calculateSockets(VCPU_SELECTOR);
         }
         
       });
 
       $("#CORES_PER_SOCKET", context).on("change", function(){
-        _calculateSockets(context);
+        CoresPerSocket.calculateSockets(VCPU_SELECTOR);
       })
 
-      _calculateSockets(context);
+      CoresPerSocket.calculateSockets(VCPU_SELECTOR);
     }
-    else{
-      $("div.cores_per_socket_select_wrapper").hide();
-      $("div.socket_info").hide();
-    }
-
 
     if (userInputs != undefined && userInputs.MEMORY != undefined){
       attr = UserInputs.parse("MEMORY", userInputs.MEMORY);

@@ -48,22 +48,4 @@
     <div class="vcpu_input">
     </div>
   </div>
-  <div class="cores_per_socket_select_wrapper small-12 columns end">
-    <label class="" for="CORES_PER_SOCKET">
-      {{tr "Virtual Cores per Socket"}}
-      {{{tip (tr "Number of cores per socket. The number of sockets is automatically calculated dividing the VCPU value by the number of cores per socket value")}}}
-    </label>
-    <div class="cores_per_socket_select">
-      <select wizard_field="CORES" id="CORES_PER_SOCKET"/>
-    </div>
-  </div>
-  <div class="small-12 columns socket_info">
-    <div class="row">
-      <div class="small-12 columns">
-        <label>
-          {{tr "Sockets"}}: <span id="number_sockets"></span> 
-        </label>
-      </div>
-    </div>
-  </div>
 </div>

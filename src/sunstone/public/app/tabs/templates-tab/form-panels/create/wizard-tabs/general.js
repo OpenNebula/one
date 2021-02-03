@@ -30,6 +30,7 @@ define(function(require) {
   var UsersTable = require("tabs/users-tab/datatable");
   var GroupTable = require("tabs/groups-tab/datatable");
   var OpenNebulaHost = require("opennebula/host");
+  var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
 
   /*
     TEMPLATES
@@ -42,6 +43,7 @@ define(function(require) {
    */
 
   var WIZARD_TAB_ID = require('./general/wizardTabId');
+  var VCPU_SELECTOR = '#VCPU';
 
   /*
     CONSTRUCTOR
@@ -244,17 +246,55 @@ define(function(require) {
         
         $('.disabled_firecracker', formContext).prop("disabled", true);
         $('.not_firecracker', formContext).hide();
+        $('.not_vcenter', formContext).show();
+        $('.only_vcenter', formContext).hide();
+      }
+      else if (this.value == "vcenter"){
+        // [GENERAL]
+        $(".cpu_input > input", formContext).val("");
+
+        // [NUMA]
+        $("#numa-pin-policy", formContext)
+          .prop("disabled", false)
+          .val("NONE")
+          .prop("disabled", true);
+        
+        $("#numa-sockets", formContext)
+          .val("");
+
+        $("#numa-threads", formContext)
+          .prop("disabled", false)
+          .removeAttr("max")
+          .val("1")
+          .prop("disabled", true);
+
+          
+        $('.disabled_firecracker', formContext).removeAttr("disabled");
+        $('.not_firecracker', formContext).show();
+        $('.not_vcenter', formContext).hide();
+        $('.only_vcenter', formContext).show();
+
+        CoresPerSocket.calculateSockets(VCPU_SELECTOR);
       }
       else {
         // [GENERAL]
         $(".cpu_input > input", formContext).val("");
         // [NUMA]
-        $("#numa-pin-policy", formContext).val("NONE");
+        $("#numa-pin-policy", formContext)
+          .prop("disabled", false)
+          .val("NONE");
+        
         $("#numa-sockets", formContext).val("");
-        $("#numa-threads", formContext).removeAttr("max").val("");
+        
+        $("#numa-threads", formContext)
+          .prop("disabled", false)
+          .removeAttr("max")
+          .val("");
 
         $('.disabled_firecracker', formContext).removeAttr("disabled");
         $('.not_firecracker', formContext).show();
+        $('.not_vcenter', formContext).show();
+        $('.only_vcenter', formContext).hide();
       }
     });
 
