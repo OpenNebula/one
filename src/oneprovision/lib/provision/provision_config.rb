@@ -12,6 +12,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'pathname'
+
 module OneProvision
 
     # Provision configuration class
@@ -377,6 +379,10 @@ module OneProvision
                 yaml['extends'] = [yaml['extends']].flatten
 
                 yaml['extends'].reverse.each do |f|
+                    unless Pathname.new(f).absolute?
+                        f = "#{File.expand_path('..', name)}/#{f}"
+                    end
+
                     base = partial_load(f)
 
                     yaml.delete('extends')
