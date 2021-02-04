@@ -751,6 +751,8 @@ class ClusterSet
 
     # Add a host by id, it access OpenNebula to get connection parameters
     def add(hid, conf)
+        return if @mutex.synchronize { @clusters.key?(hid) }
+
         begin
             cluster = Cluster.new(hid, @client)
             error   = ''
