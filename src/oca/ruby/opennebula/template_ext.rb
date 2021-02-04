@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'securerandom'
+
 # Module to decorate Template class with additional helpers not directly
 # exposed through the OpenNebula XMLRPC API. The extensions include
 #   - mp_import helper that imports a template into a marketplace
@@ -159,7 +161,7 @@ module OpenNebula::TemplateExt
                 NAME      ="#{name}"
                 ORIGIN_ID ="-1\"
                 TYPE      ="VMTEMPLATE"
-                VERSION   ="#{VERSION}"
+                VERSION   ="#{OpenNebula::VERSION}"
 
                 APPTEMPLATE64 ="#{Base64.strict_encode64(template_str)}"
                 EOT
@@ -203,9 +205,9 @@ module OpenNebula::TemplateExt
             def create_mp_app_template(id, name, idx = 0)
                 # Find image information, from ID or NAME
                 if id
-                    image = Image.new_with_id(id, @client)
+                    image = OpenNebula::Image.new_with_id(id, @client)
                 else
-                    image_pool = ImagePool.new(@client)
+                    image_pool = OpenNebula::ImagePool.new(@client)
                     image_pool.info
                     name.gsub!('"', '')
 
@@ -227,7 +229,7 @@ module OpenNebula::TemplateExt
                 NAME      ="#{app_name}"
                 ORIGIN_ID ="#{image['ID']}"
                 TYPE      ="IMAGE"
-                VERSION   ="#{VERSION}"
+                VERSION   ="#{OpenNebula::VERSION}"
 
                 APPTEMPLATE64 = "#{Base64.strict_encode64(template64)}"
                 EOT
