@@ -97,6 +97,7 @@ begin
         spec_hash = {}
         spec_hash[:cpuHotAddEnabled] = vm.cpu_hot_add_enabled?
         spec_hash[:memoryHotAddEnabled] = vm.memory_hot_add_enabled?
+        spec_hash[:uuid] = drv_action['TEMPLATE/OS/UUID'] unless drv_action['TEMPLATE/OS/UUID'].nil?
 
         spec = RbVmomi::VIM.VirtualMachineConfigSpec(
             spec_hash
