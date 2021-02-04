@@ -2603,14 +2603,23 @@ module VCenterDriver
         def destroy_disk(disk)
             one_vm = one_item
 
+            # Check if we can detach and delete the non persistent disk:
+            # - VM is terminated
+            # - The disk is managed by OpenNebula
             detachable= !(one_vm['LCM_STATE'].to_i == 11 && !disk.managed?)
             detachable &&= disk.exists?
-
+            
             return unless detachable
 
             detach_disk(disk)
-            disk.destroy
 
+            # Check if we want to keep the non persistent disk
+            keep_non_persistent_disks =
+                VCenterDriver::CONFIG[:keep_non_persistent_disks]  
+            
+            return if keep_non_persistent_disks == true
+
+            disk.destroy
             @disks.delete(disk.id.to_s)
         end
 
