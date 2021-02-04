@@ -352,8 +352,15 @@ class ServiceLCM
 
             rc               = nil
             cardinality_diff = cardinality - role.cardinality
+            rc               = set_cardinality(role, cardinality, force)
 
-            set_cardinality(role, cardinality, force)
+            if OpenNebula.is_error?(rc)
+                @wd.add_service(service)
+
+                break OpenNebula::Error.new(
+                    "Can't scale service #{service_id}: #{rc.message}"
+                )
+            end
 
             if cardinality_diff > 0
                 # change client to have right ownership
