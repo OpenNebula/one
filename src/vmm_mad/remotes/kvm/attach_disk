@@ -76,6 +76,7 @@ READ_IOPS_SEC_MAX=${READ_IOPS_SEC_MAX:-${DEFAULT_ATTACH_READ_IOPS_SEC_MAX}}
 WRITE_IOPS_SEC=${WRITE_IOPS_SEC:-${DEFAULT_ATTACH_WRITE_IOPS_SEC}}
 WRITE_IOPS_SEC_MAX_LENGTH=${WRITE_IOPS_SEC_MAX_LENGTH:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX_LENGTH}}
 WRITE_IOPS_SEC_MAX=${WRITE_IOPS_SEC_MAX:-${DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX}}
+SIZE_IOPS_SEC=${SIZE_IOPS_SEC:-${DEFAULT_ATTACH_SIZE_IOPS_SEC}}
 
 # disk XML
 XML=''
@@ -116,7 +117,7 @@ then
             "${WRITE_BYTES_SEC_MAX_LENGTH}"
     fi
 
-    if [ -n "${TOTAL_BYTES_SEC}${TOTAL_BYTES_SEC_MAX}" ]; then
+    if [ -n "${TOTAL_IOPS_SEC}${TOTAL_IOPS_SEC_MAX}" ]; then
         insert_sec "total_iops" "${TOTAL_IOPS_SEC}" "${TOTAL_IOPS_SEC_MAX}" \
             "${TOTAL_IOPS_SEC_MAX_LENGTH}"
     else
@@ -125,6 +126,12 @@ then
 
         insert_sec "write_iops" "${WRITE_IOPS_SEC}" "${WRITE_IOPS_SEC_MAX}" \
             "${WRITE_IOPS_SEC_MAX_LENGTH}"
+    fi
+
+    if [ -n "${SIZE_IOPS_SEC}" ] && \
+       [ -n "${TOTAL_IOPS_SEC}${READ_IOPS_SEC}${WRITE_IOPS_SEC}" ];
+    then
+        insert_sec "size_iops" "${SIZE_IOPS_SEC}" "" ""
     fi
 
     XML+="</iotune>"

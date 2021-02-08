@@ -477,6 +477,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  write_iops_sec             = "";
     string  write_iops_sec_max_length  = "";
     string  write_iops_sec_max         = "";
+    string  size_iops_sec;
 
     string  default_total_bytes_sec            = "";
     string  default_total_bytes_sec_max_length = "";
@@ -496,6 +497,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  default_write_iops_sec             = "";
     string  default_write_iops_sec_max_length  = "";
     string  default_write_iops_sec_max         = "";
+    string  default_size_iops_sec;
 
     int     disk_id;
     int     order;
@@ -615,11 +617,13 @@ int LibVirtDriver::deployment_description_kvm(
     file << "\t<title>" << vm->get_name() << "</title>" << endl;
 
     auto os = vm->get_template_attribute("OS");
-    auto uuid = os->vector_value("UUID");
-
-    if (!uuid.empty())
+    if (os)
     {
-        file << "\t<uuid>" << uuid << "</uuid>" << endl;
+        auto uuid = os->vector_value("UUID");
+        if (!uuid.empty())
+        {
+            file << "\t<uuid>" << uuid << "</uuid>" << endl;
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -860,6 +864,8 @@ int LibVirtDriver::deployment_description_kvm(
     get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC_MAX", default_write_iops_sec_max);
     get_attribute(nullptr, host, cluster, "DISK", "WRITE_IOPS_SEC_MAX_LENGTH", default_write_iops_sec_max_length);
 
+    get_attribute(nullptr, host, cluster, "DISK", "SIZE_IOPS_SEC", default_size_iops_sec);
+
     // ------------------------------------------------------------------------
 
     num = vm->get_template_attribute("DISK", disk);
@@ -917,6 +923,8 @@ int LibVirtDriver::deployment_description_kvm(
         write_iops_sec_max         = disk[i]->vector_value("WRITE_IOPS_SEC_MAX");
         write_iops_sec_max_length  = disk[i]->vector_value("WRITE_IOPS_SEC_MAX_LENGTH");
 
+        size_iops_sec              = disk[i]->vector_value("SIZE_IOPS_SEC");
+
         set_sec_default(read_bytes_sec, default_read_bytes_sec);
         set_sec_default(read_bytes_sec_max, default_read_bytes_sec_max);
         set_sec_default(read_bytes_sec_max_length, default_read_bytes_sec_max_length);
@@ -940,6 +948,8 @@ int LibVirtDriver::deployment_description_kvm(
         set_sec_default(total_iops_sec, default_total_iops_sec);
         set_sec_default(total_iops_sec_max, default_total_iops_sec_max);
         set_sec_default(total_iops_sec_max_length, default_total_iops_sec_max_length);
+
+        set_sec_default(size_iops_sec, default_size_iops_sec);
 
         disk[i]->vector_value_str("DISK_ID", disk_id);
 
@@ -1250,6 +1260,12 @@ int LibVirtDriver::deployment_description_kvm(
             {
                 insert_sec(file, "total_iops", total_iops_sec ,
                         total_iops_sec_max , total_iops_sec_max_length);
+            }
+
+            if ( !size_iops_sec.empty() && !(total_iops_sec.empty()
+                 && read_iops_sec.empty() && write_iops_sec.empty()))
+            {
+                insert_sec(file, "size_iops", size_iops_sec, "", "");
             }
 
             file << "\t\t\t</iotune>" << endl;

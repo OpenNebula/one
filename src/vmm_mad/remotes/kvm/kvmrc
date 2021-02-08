@@ -79,6 +79,7 @@ DEFAULT_ATTACH_DISCARD=unmap
 #DEFAULT_ATTACH_WRITE_IOPS_SEC=
 #DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX=
 #DEFAULT_ATTACH_WRITE_IOPS_SEC_MAX_LENGTH=
+#DEFAULT_SIZE_IOPS_SEC=
 
 # This parameters will set the default NIC model and filter for
 # the hot-attached interfaces.
