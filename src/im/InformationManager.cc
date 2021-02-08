@@ -533,6 +533,8 @@ void InformationManager::_vm_state(unique_ptr<Message<OpenNebulaMessages>> msg)
 
     host->update_zombies(zombies);
 
+    hpool->update(host);
+
     host->unlock();
 
     for (auto& it : missing)
