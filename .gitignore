@@ -45,13 +45,6 @@ src/sunstone/public/css/app.min.css
 src/sunstone/public/dist/
 src/sunstone/public/locale/languages/*.js
 src/sunstone/public/package-lock.json
-src/sunstone/guac/node_modules
-src/sunstone/guac/dist
-src/sunstone/guac/package-lock.json
-src/sunstone/vmrc/node_modules
-src/sunstone/vmrc/dist
-src/sunstone/vmrc/package-lock.json
-src/sunstone/vmrc/v8-compile-cache-0/
 .tx/config
 
 src/fireedge/node_modules

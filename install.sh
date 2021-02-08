@@ -2521,12 +2521,12 @@ SUNSTONE_PUBLIC_JS_FILES="src/sunstone/public/dist/login.js \
                         src/sunstone/public/dist/main.js.map \
                         src/sunstone/public/dist/main-dist.js"
 
-SUNSTONE_PUBLIC_JS_GUAC_FILES="src/sunstone/guac/dist/guac.js"
-
 SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/vnc.js.map \
                         src/sunstone/public/dist/console/spice.js \
-                        src/sunstone/public/dist/console/spice.js.map"
+                        src/sunstone/public/dist/console/spice.js.map \
+                        src/sunstone/public/dist/console/vmrc.js \
+                        src/sunstone/public/dist/console/vmrc.js.map"
 
 SUNSTONE_PUBLIC_DEV_DIR="src/sunstone/public"
 

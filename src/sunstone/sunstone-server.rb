@@ -260,10 +260,10 @@ end
 #start VNC proxy
 $vnc = SunstoneVNC.new($conf, logger)
 
-#init Guacamole server
+#init Guacamole proxy
 $guac = SunstoneGuac.new(logger)
 
-#init VMRC server
+#init VMRC proxy
 $vmrc = SunstoneVMRC.new(logger)
 
 configure do
