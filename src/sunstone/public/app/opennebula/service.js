@@ -147,9 +147,47 @@ define(function(require) {
     },
     "STATES": STATES,
     "filterDoneServices": _filterDoneServices,
+    "getService": _getService,
     "getName": function(id){
       return OpenNebulaAction.getName(id, CACHE_NAME);
     }
+  }
+
+  function _promiseGetService({ id, success, async = true } = {}) {
+    return $.ajax({
+      url: 'service/' + id,
+      type: 'GET',
+      success: success,
+      async: async
+    });
+  }
+
+  function _getServiceById({ services, id } = {}) {
+    return Array.isArray(services) &&
+      services.find(function(service) {
+        return service && service[RESOURCE] && service[RESOURCE].ID === id
+      });
+  }
+
+  function _getService(id) {
+    if (!id) return undefined;
+
+    var service = undefined;
+    var cache = OpenNebulaAction.cache(CACHE_NAME);
+    
+    if (cache && cache.data) {
+      service = _getServiceById({ services: cache.data, id: id })
+    }
+
+    if (!service || service.length === 0) {
+      _promiseGetService({
+        id: id,
+        async: false,
+        success: function(res) { service = res }
+      })
+    }
+
+    return service ? service[RESOURCE] : undefined
   }
 
   function _filterDoneServices(services) {

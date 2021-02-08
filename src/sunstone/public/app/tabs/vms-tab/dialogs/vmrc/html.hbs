@@ -20,17 +20,20 @@
       <h5 class="subheader" id="vmrc_dialog">
         <span id="VMRC_status"></span>
         <span id="VMRC_buttons" class="right">
-          <button class="button alert" value="Send CtrlAltDel"
-            id="sendCtrlAltDelButton">{{tr "Send CtrlAltDel"}}</button>
-          <a class="button" id="open_in_a_new_window" href="" target="_blank" title="{{tr "Open in a new window"}}">
+          <button class="button alert" id="sendCtrlAltDelButton">
+            {{tr "Send CtrlAltDel"}}
+          </button>
+          <a class="button" id="open_in_a_new_window" href="#" target="_blank" title="{{tr "Open in a new window"}}">
             <i class="fas fa-external-link-alt detach-vmrc-icon" />
           </a>
-          <button class="button secondary" data-close aria-label="{{tr "Close modal"}}" type="button"
-            title="Close VMRC">
+          <button class="button secondary" data-close aria-label="{{tr "Close modal"}}" title="{{tr "Close VMRC"}}">
             <i class="fas fa-times-circle"></i>
           </button>
         </span>
       </h5>
+    </div>
+    <div class="large-12 columns">
+      <div class="VMRC_info"></div>
     </div>
   </div>
   <div class="reveal-body text-center" style="width:100%; overflow-x:auto">

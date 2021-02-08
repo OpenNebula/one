@@ -8,13 +8,18 @@ body
 
 * { margin: 0; }
 
-#spice-area
-{
+main {
     height: 100%;
-    padding: 0;
-    margin-left: auto;
-    margin-right: auto;
+    display: grid;
+    grid-template-rows: auto 1fr;
 }
+
+#spice-area {
+    display: flex;
+    background-color: rgb(40, 40, 40);
+    align-items: center;
+}
+
 .spice-screen
 {
     min-height: 600px;

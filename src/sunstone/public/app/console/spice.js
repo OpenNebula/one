@@ -17,7 +17,8 @@
 define(function(require) {
   require('spice-main');
 
-  var host = null, port = null;
+  var UtilsConnection = require("utils/info-connection/utils");
+
   var sc;
 
   function spice_set_cookie(name, value, days) {
@@ -41,10 +42,16 @@ define(function(require) {
   }
 
   function connect() {
-    var host, port, password, scheme = "ws://", uri;
+    var info = spice_query_var('info', undefined);
+    var info_decode = UtilsConnection.decodeInfoConnection(info);
+    UtilsConnection.printInfoConnection($('.SPICE_info'), info_decode)
+
+    if (info_decode && info_decode.name) {
+      document.title = info_decode.name
+    }
 
     // By default, use the host and port of server that served this file
-    host = spice_query_var('host', window.location.hostname);
+    var host = spice_query_var('host', window.location.hostname);
 
     // Note that using the web server port only makes sense
     //  if your web server has a reverse proxy to relay the WebSocket
@@ -57,20 +64,21 @@ define(function(require) {
         default_port = 443;
       }
     }
-    port = spice_query_var('port', default_port);
+    
+    var scheme = "ws://"
     if (window.location.protocol == 'https:') {
       scheme = "wss://";
     }
 
     // If a token variable is passed in, set the parameter in a cookie.
     // This is used by nova-spiceproxy.
-    token = spice_query_var('token', null);
+    var token = spice_query_var('token', null);
     if (token) {
       spice_set_cookie('token', token, 1)
     }
 
-    password = spice_query_var('password', '');
-    path = spice_query_var('path', 'websockify');
+    var password = spice_query_var('password', '');
+    var port = spice_query_var('port', default_port);
 
     if ((!host) || (!port)) {
       console.log("must specify host and port in URL");
@@ -81,7 +89,7 @@ define(function(require) {
       sc.stop();
     }
 
-    uri = scheme + host + ":" + port + "?token=" + token;
+    var uri = scheme + host + ":" + port + "?token=" + token;
 
     try {
       sc = new SpiceMainConn({uri: uri, screen_id: "spice-screen", dump_id: "debug-div",
@@ -91,7 +99,6 @@ define(function(require) {
       alert(e.toString());
       disconnect();
     }
-
   }
 
   function disconnect() {

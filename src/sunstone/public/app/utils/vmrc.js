@@ -17,6 +17,8 @@
 define(function (require) {
   var WMKS = require("wmks");
   var Config = require("sunstone-config");
+  var UtilsConnection = require("utils/info-connection/utils");
+
   var _lock = false;
   var _wmks;
   var _is_encrypted = "";
@@ -59,19 +61,7 @@ define(function (require) {
     }
   }
 
-  function desktopNameChange(e) {
-    if (e.detail.name) {
-      setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " /*+ e.detail.name*/);
-    }
-  }
-
-  function credentialsRequired(e) {
-    setStatus("Something went wrong, more credentials must be given to continue", "Failed");
-  }
-
   function render(ticket, host_vmrc, port_vmrc, response){
-    var URL = "";
-      
     var hostname = window.location.hostname;
     var port = window.location.port;
     var protocol = window.location.protocol;
@@ -79,14 +69,19 @@ define(function (require) {
     var fireedge_host = fireedge_endpoint.split(":")[0];
     var fireedge_port = fireedge_endpoint.split(":")[1];
 
+    var info = response.info;
+    var info_decode = UtilsConnection.decodeInfoConnection(info);
+    UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode)
+
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
 
     // Content of response.data
-    var ticket = ticket ? ticket : urlParams.get('ticket');
-    var host_vmrc = host_vmrc ?  host_vmrc : urlParams.get('host');
-    var port_vmrc = port_vmrc ? port_vmrc : urlParams.get('port');
+    var ticket = ticket || urlParams.get('ticket');
+    var host_vmrc = host_vmrc || urlParams.get('host');
+    var port_vmrc = port_vmrc || urlParams.get('port');
 
+    var URL = "";
     if (protocol === "https:") {
       URL = "wss";
       _is_encrypted ="encrypted";
@@ -97,20 +92,21 @@ define(function (require) {
 
     URL += "://" + fireedge_endpoint + "/";
     
-    var re = new RegExp("^(ws|wss):\\/\\/[\\w\\D]*?\\/", "gi");
-    var link = URL.replace(re, protocol + "//" + hostname + ":" + port + "fireedge/vmrc?");
+    var regex = new RegExp("^(ws|wss):\\/\\/[\\w\\D]*?\\/", "gi");
+    var link = URL.replace(regex, protocol + "//" + hostname + ":" + port + "fireedge/vmrc?");
 
     URL += "fireedge/vmrc/" + ticket;
     link += "host=" + fireedge_host;
     link += "&port=" + fireedge_port;
     link += "&ticket=" + ticket;
+    link += "&info=" + info;
 
     try {
-      _wmks = WMKS.createWMKS("wmksContainer", {})
+      _wmks = WMKS.createWMKS('wmksContainer', {})
         .register(WMKS.CONST.Events.CONNECTION_STATE_CHANGE,
-          function (event, data) {
-            if (typeof cons !== 'undefined' && data.state == cons.ConnectionState.CONNECTED) {
-              console.log("connection	state	change	:	connected");
+          function (_, data) {
+            if (data.state === WMKS.CONST.ConnectionState.CONNECTED) {
+              console.log("connection	state	change: connected");
             }
           }
         );
@@ -119,9 +115,9 @@ define(function (require) {
         _wmks.eventHandlers["disconnect"] = disconnectedFromServer;
         
         _wmks.connect(URL);
-        _wmks["vm_name"] = response.vm_name ? response.vm_name:"";
-        link += "&name=" + _wmks["vm_name"];
+
         $("#VMRC_buttons #open_in_a_new_window").attr("href",link);
+
     } catch (err) {
       setStatus("Something went wrong, connection is closed", "Failed");
       console.log("error start VMRC ", err);
@@ -129,14 +125,13 @@ define(function (require) {
   }
 
   function vmrcCallback(response) {
-    if (response.data){
-
-      render(response.data.ticket,
+    if (response.data) {
+      render(
+        response.data.ticket,
         response.data.host,
         response.data.port,
-        response);
-
-      
+        response
+      );
     }
   }
 

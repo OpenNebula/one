@@ -26,36 +26,81 @@
 
 <!doctype html>
 <html>
-    <head>
+<head>
+	<!-- Stylesheets -->
+	<link rel="stylesheet" type="text/css" href="css/app.css" title="plain">
+	<link rel="stylesheet" type="text/css" href="css/spice-custom.css" />
+</head>
 
-        <title><%= params['title']%></title>
-        <link rel="stylesheet" type="text/css" href="css/spice-custom.css" />
-        <script src="dist/console/spice.js?v=<%= OpenNebula::VERSION %>"></script> 
-    </head>
-
-    <body>
-
-
-    <div style="background: #f7f7f7; border-bottom: 1px solid #dfdfdf; padding: 10px 0px 15px 0px">
-            <div id="noVNC_status_bar" class="noVNC_status_bar" style="margin-top: 0px;">
-                <table border=0 width="100%"><tr>
-                    <td width="1%" >
-                        <img src="images/one_small_logo.png" style="height:40px; vertical-align:top; margin-left: 30px">
-                    </td>
-                    <td><div id="message-div" class="spice-message"></div></td>
-                </tr></table>
-            </div>
+<body>
+  <main>
+    <div style="background: #f7f7f7; padding: 1.5em 1.5em 0.8em;">
+      <div style="max-width: 1250px; margin: 0 auto;">
+        <div id="noVNC_status_bar" class="noVNC_status_bar" style="display: flex; align-items: center;">
+          <img src="images/one_small_logo.png" style="height:40px;">
+          <h5 id="message-div" class="spice-message"></h5>
+        </div>
+        <div class="SPICE_info"></div>
+      </div>
     </div>
 
-        <div id="spice-area">
-            <div id="spice-screen" class="spice-screen"></div>
-        </div>
+    <div id="spice-area">
+      <div id="spice-screen" class="spice-screen"></div>
+    </div>
 
-        
+    <div id="debug-div">
+    <!-- If DUMPXXX is turned on, dumped images will go here -->
+    </div>
+	</main>
 
-        <div id="debug-div">
-        <!-- If DUMPXXX is turned on, dumped images will go here -->
-        </div>
-
-    </body>
+	<script src="dist/console/spice.js?v=<%= OpenNebula::VERSION %>"></script>
+  <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
+	<script type="text/javascript">
+      var csrftoken = '<%= session[:csrftoken] %>';
+      var view = JSON.parse('<%= view.to_json %>')
+      var available_views = JSON.parse('["<%=
+          $views_config.available_views(session[:user], session[:user_gname]).join('","')
+        %>"]')
+      var all_labels = JSON.parse('["<%=
+          $views_config.get_all_labels(session[:user_gname]).join('","')
+        %>"]')
+      var all_views = JSON.parse('["<%=
+          $views_config.get_all_views.join('","')
+        %>"]')
+      if ('<%= $conf[:addons] %>'){
+        var addons = JSON.parse('<%= $conf[:addons].to_json %>');
+      }
+      var config = {
+        'user_config' : {
+            'lang' : '<%= session[:lang] %>',
+            'vnc_wss' : '<%= session[:vnc_wss] %>',
+            'table_order' : '<%= session[:table_order] %>',
+            'default_view' : '<%= session[:default_view] %>',
+            'page_length' : '<%= session[:page_length] %>'
+        },
+        'system_config' : {
+            'marketplace_url' : '<%= $conf[:marketplace_url] %>',
+            'vnc_request_password' : <%= $conf[:vnc_request_password] || false %>,
+            'vnc_proxy_port' : '<%= $vnc.proxy_port %>',
+            'vnc_client_port' : '<%= $conf[:vnc_client_port] %>',
+            'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>
+        },
+        'view' : view,
+        'available_views' : available_views,
+        'all_labels' : all_labels,
+        'all_views' : all_views,
+        'user_id' : '<%= session[:user_id] %>',
+        'user_gid' : '<%= session[:user_gid] %>',
+        'display_name' : '<%= session[:display_name] %>',
+        'zone_name' : '<%= session[:zone_name] %>',
+        'zone_id' : '<%= session[:zone_id] %>',
+        'federation_mode' : '<%= session[:federation_mode] %>',
+        'vm_logos' : <%= logos_conf.to_json %>,
+        'oned_conf' : <%= oned_conf.to_json %>,
+        'support' : <%= support.to_json %>,
+        'upgrade' : <%= upgrade.to_json %>,
+        'mode' : '<%= session[:mode] %>'
+      };
+  </script>
+</body>
 </html>

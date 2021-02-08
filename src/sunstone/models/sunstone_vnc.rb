@@ -103,7 +103,7 @@ VNC_STATES = [
         #68, #HOTPLUG_SAVEAS_STOPPED
 ]
 
-class OpenNebulaVNC
+class SunstoneVNC
 
     attr_reader :proxy_port
 
@@ -243,10 +243,13 @@ class OpenNebulaVNC
             return error(500, "Cannot create VNC proxy token")
         end
 
+        info = SunstoneVMHelper.get_remote_info(vm_resource)
+        encode_info = Base64.encode64(info.to_json)
+
         info   = {
             :password => vnc_pw,
             :token => random_str,
-            :vm_name => vm_resource['NAME']
+            :info => encode_info
         }
 
         return [200, info.to_json]

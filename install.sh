@@ -951,9 +951,6 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/mad/ruby/ssh_stream.rb \
                 src/vnm_mad/one_vnm.rb \
                 src/oca/ruby/opennebula.rb \
-                src/sunstone/OpenNebulaVNC.rb \
-                src/sunstone/opennebula_guac.rb \
-                src/sunstone/opennebula_vmrc.rb \
                 src/sunstone/OpenNebulaAddons.rb \
                 src/vmm_mad/remotes/vcenter/vcenter_driver.rb \
                 src/vmm_mad/remotes/nsx/nsx_driver.rb \
@@ -2477,12 +2474,16 @@ SUNSTONE_ETC_VIEW_MIXED="src/sunstone/etc/sunstone-views/mixed/admin.yaml \
                     src/sunstone/etc/sunstone-views/mixed/groupadmin.yaml"
 
 SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
-                       src/sunstone/models/SunstoneServer.rb \
-                       src/sunstone/models/SunstoneViews.rb \
-                       src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb \
-                       src/sunstone/models/OpenNebula2FA/sunstone_qr_code.rb \
-                       src/sunstone/models/OpenNebula2FA/sunstone_optp.rb \
-                       src/sunstone/models/OpenNebula2FA/sunstone_2f_auth.rb"
+                    src/sunstone/models/SunstoneServer.rb \
+                    src/sunstone/models/SunstoneViews.rb \
+                    src/sunstone/models/sunstone_vm_helper.rb \
+                    src/sunstone/models/sunstone_vnc.rb \
+                    src/sunstone/models/sunstone_guac.rb \
+                    src/sunstone/models/sunstone_vmrc.rb \
+                    src/sunstone/models/OpenNebula2FA/SunstoneWebAuthn.rb \
+                    src/sunstone/models/OpenNebula2FA/sunstone_qr_code.rb \
+                    src/sunstone/models/OpenNebula2FA/sunstone_optp.rb \
+                    src/sunstone/models/OpenNebula2FA/sunstone_2f_auth.rb"
 
 SUNSTONE_MODELS_JSON_FILES="src/sunstone/models/OpenNebulaJSON/HostJSON.rb \
                     src/sunstone/models/OpenNebulaJSON/ImageJSON.rb \

@@ -109,7 +109,7 @@ GUAC_STATES = [
 ]
 
 # Class for Guacamole connection configuration
-class OpenNebulaGuac
+class SunstoneGuac
 
     attr_reader :proxy_port
 
@@ -159,6 +159,9 @@ class OpenNebulaGuac
             return error(400, 'Fireedge_key is not available')
         end
 
+        info = SunstoneVMHelper.get_remote_info(vm_resource)
+        encode_info = Base64.encode64(info.to_json)
+
         data = encrypt_data(
             {
                 'connection' => {
@@ -174,7 +177,7 @@ class OpenNebulaGuac
             }
         )
 
-        [200, { :token => data }.to_json]
+        [200, { :token => data, :info => encode_info }.to_json]
     end
 
     private

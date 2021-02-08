@@ -19,19 +19,24 @@
     <div class="large-12 columns">
       <h3 class="subheader" id="spice_dialog">
         {{tr "SPICE"}}
-        <span id="vnc_buttons">
-          <a id="open_in_a_new_window_spice" href="" target="_blank" title="{{tr "Open in a new window"}}"> <i class="fas fa-external-link-alt detach-spice-icon"/></a>
+        <span id="vnc_buttons" class="right">
+          <a class="button" id="open_in_a_new_window_spice" href="#" target="_blank" title="{{tr "Open in a new window"}}">
+            <i class="fas fa-external-link-alt detach-spice-icon"/>
+          </a>
+          <button class="button secondary" data-close aria-label="{{tr "Close modal"}}" aria-label="{{tr "Close modal"}}">
+            <i class="fas fa-times-circle"></i>
+          </button>
         </span>
       </h3>
     </div>
+    <div class="large-12 columns">
+      <div class="SPICE_info"></div>
+    </div>
   </div>
   <div class="reveal-body" style="width:100%; overflow-x:auto">
-    <div id="spice-area">
+    <div id="spice-area" style="text-align: center; background: rgb(40, 40, 40);">
       <div id="spice-screen" class="spice-screen"></div>
     </div>
   </div>
   <div id="message-div" class="spice-message" hidden></div>
-  <button class="close-button" data-close aria-label="{{tr "Close modal"}}" type="button">
-    <span aria-hidden="true">&times;</span>
-  </button>
 </div>

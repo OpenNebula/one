@@ -19,9 +19,10 @@ require 'CloudServer'
 require 'OpenNebulaJSON'
 include OpenNebulaJSON
 
-require 'OpenNebulaVNC'
-require 'opennebula_guac'
-require 'opennebula_vmrc'
+require 'sunstone_vnc'
+require 'sunstone_guac'
+require 'sunstone_vmrc'
+require 'sunstone_vm_helper'
 require 'OpenNebulaAddons'
 require 'OpenNebulaJSON/JSONUtils'
 #include JSONUtils

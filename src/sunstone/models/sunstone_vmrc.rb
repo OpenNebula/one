@@ -107,7 +107,7 @@ VMRC_STATES = [
 ]
 
 # Class for necessary VMRC ticket creation
-class OpenNebulaVMRC
+class SunstoneVMRC
 
     attr_reader :proxy_port
 

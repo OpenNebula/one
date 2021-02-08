@@ -16,8 +16,9 @@
 
 define(function(require) {
   require('spice-main');
+  
   var Config = require('sunstone-config');
-  var Notifier = require('utils/notifier');
+  var UtilsConnection = require("utils/info-connection/utils");
 
   var _lock = false;
   var _sc;
@@ -42,14 +43,16 @@ define(function(require) {
     _lock = false;
   }
 
-  function spice_error(e) {
+  function spice_error() {
     disconnect();
   }
 
   function disconnect() {
-    if (_sc) {
-      _sc.stop();
-    }
+    try {
+      if (_sc) {
+        _sc.stop();
+      }
+    } catch (e) {}
   }
 
   function agent_connected(sc) {
@@ -60,26 +63,26 @@ define(function(require) {
   }
 
   function spiceCallback(response) {
-    var host, port, password, scheme = "ws://", uri, token, vm_name;
-
+    var scheme = "ws://";
     if (Config.vncWSS == "yes") {
       scheme = "wss://";
     }
 
-    host = window.location.hostname;
-    port = Config.vncProxyPort;
-    password = response["password"];
-    token = response["token"];
-    vm_name = response["vm_name"];
+    var host = window.location.hostname;
+    var port = Config.vncProxyPort;
+    var password = response["password"];
+    var token = response["token"];
+    
+    var info = response.info;
+    var info_decode = UtilsConnection.decodeInfoConnection(info);
+    UtilsConnection.printInfoConnection($('.SPICE_info'), info_decode)
 
     if ((!host) || (!port)) {
       console.log("must specify host and port in URL");
       return;
     }
 
-    if (_sc) {
-      _sc.stop();
-    }
+    disconnect()
 
     uri = scheme + host + ":" + port + "?token=" + token;
 
@@ -88,7 +91,7 @@ define(function(require) {
                   message_id: "message-div", password: password, onerror: spice_error, onagent: agent_connected});
     }
     catch (e) {
-      spice_error(e)
+      disconnect()
     }
 
     var url = "spice?";
@@ -97,7 +100,7 @@ define(function(require) {
     url += "&token=" + token;
     url += "&password=" + password;
     url += "&encrypt=" + config['user_config']['vnc_wss'];
-    url += "&title=" + vm_name;
+    url += "&info=" + info;
 
     $("#open_in_a_new_window_spice").attr('href', url);
   }

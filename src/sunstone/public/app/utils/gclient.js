@@ -22,6 +22,7 @@ define(function(require) {
   var Config = require("sunstone-config");
   var Notifier = require("utils/notifier");
   var Locale = require("utils/locale");
+  var UtilsConnection = require("utils/info-connection/utils");
 
   /**
    * CONSTRUCTOR
@@ -74,7 +75,9 @@ define(function(require) {
 
     var tunnel = new Guacamole.WebSocketTunnel(wsprotocol + '//' + host + ':' + port + '/fireedge/guacamole')
     var guac = this._client = new Guacamole.Client(tunnel);
-    var vm_name = response.vm_name || "";
+
+    var info_decode = UtilsConnection.decodeInfoConnection(response.info);
+    UtilsConnection.printInfoConnection($('.guac_info'), info_decode)
 
     // Client display
     this._display = $("#guacamole-display");
@@ -97,19 +100,19 @@ define(function(require) {
     guac.onstatechange = function(state) {
       switch (state) {
         case 0:
-          setStatus("Client IDLE to: " + vm_name);
+          setStatus('Client IDLE');
           setLoading(true);
         break;
         case 1:
-          setStatus("Client CONNECTING to: " + vm_name);
+          setStatus('Client CONNECTING');
           setLoading(true);
           break;
         case 2:
-          setStatus("Client WAITING to: " + vm_name);
+          setStatus('Client WAITING');
           setLoading(true);
           break;
         case 3:
-          setStatus("Client CONNECTED to: " + vm_name);
+          setStatus('Client CONNECTED');
           setLoading(false);
           setTimeout(function() {
             rescale(that);
@@ -117,15 +120,15 @@ define(function(require) {
           }, 100);
           break;
         case 4:
-          setStatus("Client DISCONNECTING to: " + vm_name);
+          setStatus('Client DISCONNECTING');
           setLoading(true);
           break;
         case 5:
-          setStatus("Client DISCONNECTED to: " + vm_name);
+          setStatus('Client DISCONNECTED');
           setLoading(false);
           break;
         default:
-          setStatus("Client ERROR to: " + vm_name);
+          setStatus('Client ERROR');
           setLoading(false);
           break;
       }

@@ -15,14 +15,15 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var RFB = require("vnc-rfb").default;
   var Config = require("sunstone-config");
+  var UtilsConnection = require("utils/info-connection/utils");
+
+  var RFB = require("vnc-rfb").default;
   var _lock = false;
   var _rfb;
   var _message = "";
   var _status = "Loading";
   var _is_encrypted = "";
-  var _vm_name;
 
   return {
     "lockStatus": lockStatus,
@@ -51,14 +52,14 @@ define(function(require) {
     $(".NOVNC_message").text(_message);
     $("#VNC_status").text(_status);
   }
-
+  
   function connected(){
-    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
   }
 
   function disconnectedFromServer(e){
     if (e.detail.clean) {
-      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
     } else {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
@@ -76,15 +77,20 @@ define(function(require) {
 
   function vncCallback(response) {
     var URL = "";
-    var proxy_host = window.location.hostname;
     var proxy_port = Config.vncProxyPort;
-    var pw = response["password"];
-    var token = response["token"];
-    var vm_name = _vm_name = response["vm_name"];
+
+    var pw = response.password;
+    var token = response.token;
+
+    var info_decode = UtilsConnection.decodeInfoConnection(response.info);
+    UtilsConnection.printInfoConnection($('.NOVNC_info'), info_decode)
+
+    var proxy_host = window.location.hostname;
     var protocol = window.location.protocol;
     var hostname = window.location.hostname;
     var port = window.location.port;
-    var rfbConfig = pw? { "credentials": { "password": pw } } : {};
+
+    var rfbConfig = pw ? { "credentials": { "password": pw } } : {};
 
     if (protocol === "https:") {
       URL = "wss";
@@ -99,7 +105,7 @@ define(function(require) {
     URL += "&port=" + proxy_port;
     URL += "&token=" + token;
     URL += "&encrypt=" + Config.vncWSS;
-    URL += "&title=" + vm_name;
+    URL += "&info=" + response.info;
 
     if (!Config.requestVNCPassword) {
       URL += "&password=" + pw;

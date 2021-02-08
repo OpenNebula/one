@@ -258,13 +258,13 @@ if $conf[:webauthn_avail]
 end
 
 #start VNC proxy
-$vnc = OpenNebulaVNC.new($conf, logger)
+$vnc = SunstoneVNC.new($conf, logger)
 
 #init Guacamole server
-$guac = OpenNebulaGuac.new(logger)
+$guac = SunstoneGuac.new(logger)
 
 #init VMRC server
-$vmrc = OpenNebulaVMRC.new(logger)
+$vmrc = SunstoneVMRC.new(logger)
 
 configure do
     set :run, false
@@ -709,10 +709,10 @@ get '/vnc' do
         erb :login
     else
         erb :vnc, :locals =>  {
-          :logos_conf => $conf[:locals][:logos_conf],
-          :oned_conf  => $conf[:locals][:oned_conf],
-          :support    => $conf[:locals][:support],
-          :upgrade    => $conf[:locals][:upgrade]
+            :logos_conf => $conf[:locals][:logos_conf],
+            :oned_conf  => $conf[:locals][:oned_conf],
+            :support    => $conf[:locals][:support],
+            :upgrade    => $conf[:locals][:upgrade]
         }
     end
 end
@@ -723,10 +723,10 @@ get '/vmrc' do
         erb :login
     else
         erb :vmrc, :locals =>  {
-          :logos_conf => $conf[:locals][:logos_conf],
-          :oned_conf  => $conf[:locals][:oned_conf],
-          :support    => $conf[:locals][:support],
-          :upgrade    => $conf[:locals][:upgrade]
+            :logos_conf => $conf[:locals][:logos_conf],
+            :oned_conf  => $conf[:locals][:oned_conf],
+            :support    => $conf[:locals][:support],
+            :upgrade    => $conf[:locals][:upgrade]
         }
     end
 end
@@ -736,8 +736,12 @@ get '/spice' do
     if !authorized?
         erb :login
     else
-        params[:title] = CGI::escape(params[:title])
-        erb :spice
+        erb :spice, :locals =>  {
+            :logos_conf => $conf[:locals][:logos_conf],
+            :oned_conf  => $conf[:locals][:oned_conf],
+            :support    => $conf[:locals][:support],
+            :upgrade    => $conf[:locals][:upgrade]
+        }
     end
 end
 

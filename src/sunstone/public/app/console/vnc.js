@@ -15,11 +15,12 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var RFB = require("vnc-rfb").default;
   var Config = require("sunstone-config");
+  var UtilsConnection = require("utils/info-connection/utils");
+
+  var RFB = require("vnc-rfb").default;
   var _rfb;
   var _is_encrypted = "";
-  var _vm_name;
 
   function setStatus(message="", status=""){
     $(".NOVNC_message").text(message);
@@ -27,12 +28,12 @@ define(function(require) {
   }
 
   function connected(){
-    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
+    setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
   }
 
   function disconnectedFromServer(e){
     if (e.detail.clean) {
-      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || _rfb._fb_name));
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + _rfb._fb_name);
     } else {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
@@ -40,7 +41,7 @@ define(function(require) {
 
   function desktopNameChange(e) {
     if (e.detail.name) {
-      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + (_vm_name || e.detail.name));
+      setStatus(null, "VNC " + _rfb._rfb_connection_state + " (" + _is_encrypted + ") to: " + e.detail.name);
     }
   }
 
@@ -127,13 +128,20 @@ define(function(require) {
          }
          return(false);
   }
-  token = window.token;
+
   var URL = "";
   var proxy_host = window.location.hostname;
   var proxy_port = Config.vncProxyPort;
   var token = getQueryVariable("token");
   var password = getQueryVariable("password");
-  _vm_name = getQueryVariable("title") || undefined;
+  
+  var info = getQueryVariable('info') || undefined;
+  var info_decode = UtilsConnection.decodeInfoConnection(info);
+  UtilsConnection.printInfoConnection($('.NOVNC_info'), info_decode)
+
+  if (info_decode && info_decode.name) {
+    document.title = info_decode.name
+  }
 
   var rfbConfig = password? { "credentials": { "password": password } } : {};
 

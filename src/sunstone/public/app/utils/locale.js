@@ -44,6 +44,8 @@ define(function(require) {
         tr("November"), tr("December"));
 
   function tr(str) {
+    if (typeof locale === 'undefined') return str;
+
     var tmp = locale[str];
     if (tmp == null || tmp == "") {
       tmp = str;

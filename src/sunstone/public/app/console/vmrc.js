@@ -17,8 +17,10 @@
 define(function(require) {
   require("jquery");
   require("jquery-ui");
+
   var WMKS = require("wmks");
-  var Config = require("sunstone-config");
+  var UtilsConnection = require("utils/info-connection/utils");
+
   var _wmks;
   var _is_encrypted = "";
 
@@ -37,16 +39,6 @@ define(function(require) {
     } else {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
-  }
-
-  function desktopNameChange(name) {
-    if (e.detail.name) {
-      setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " + name);
-    }
-  }
-
-  function credentialsRequired(e) {
-    setStatus("Something went wrong, more credentials must be given to continue", "Failed");
   }
   
   function sendCtrlAltDel() {
@@ -95,7 +87,14 @@ define(function(require) {
   var host = getQueryVariable("host");
   var port = getQueryVariable("port");
   var ticket = getQueryVariable("ticket");
-  var vm_name = getQueryVariable("name");
+
+  var info = spice_query_var('info', undefined);
+  var info_decode = UtilsConnection.decodeInfoConnection(info);
+  UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode)
+
+  if (info_decode && info_decode.name) {
+    document.title = info_decode.name
+  }
 
   if (window.location.protocol === "https:") {
     URL = "wss";
@@ -120,7 +119,7 @@ define(function(require) {
   try{
     _wmks = WMKS.createWMKS("wmksContainer", {})
       .register(WMKS.CONST.Events.CONNECTION_STATE_CHANGE,
-        function (event, data) {
+        function (_, data) {
           if (typeof cons !== 'undefined' && data.state == cons.ConnectionState.CONNECTED) {
             console.log("connection	state	change	:	connected");
           }
@@ -129,9 +128,9 @@ define(function(require) {
     
     _wmks.eventHandlers["connectionstatechange"].push(connected);
     _wmks.eventHandlers["disconnect"] = disconnectedFromServer;
+    _wmks.vm_name = info_decode && info_decode.name;
     
     _wmks.connect(URL);
-    _wmks["vm_name"] = vm_name;
   }catch(err){
     setStatus("Something went wrong, connection is closed", "Failed");
     console.log("error start VMRC ", err);
