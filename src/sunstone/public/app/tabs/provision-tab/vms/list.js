@@ -1017,56 +1017,11 @@ define(function(require) {
   }
 
   function get_provision_ips(data) {
-    return "<i class=\"fas fa-fw fa-lg fa-globe\"></i> " + OpenNebula.VM.ipsStr(data, ", ");
-  }
-
-  // @params
-  //    data: and IMAGE object
-  //      Example: data.ID
-  // @returns and object containing the following properties
-  //    color: css class for this state.
-  //      color + '-color' font color class
-  //      color + '-bg' background class
-  //    str: user friendly state string
-  function get_provision_image_state(data) {
-    var state = OpenNebula.Image.stateStr(data.STATE);
-    var state_color;
-    var state_str;
-
-    switch (state) {
-      case "READY":
-      case "USED":
-        state_color = "running";
-        state_str = Locale.tr("READY");
-        break;
-      case "DISABLED":
-      case "USED_PERS":
-        state_color = "off";
-        state_str = Locale.tr("OFF");
-        break;
-      case "LOCKED":
-      case "CLONE":
-      case "INIT":
-        state_color = "deploying";
-        state_str = Locale.tr("DEPLOYING") + " (1/3)";
-        break;
-      case "ERROR":
-        state_color = "error";
-        state_str = Locale.tr("ERROR");
-        break;
-      case "DELETE":
-        state_color = "error";
-        state_str = Locale.tr("DELETING");
-        break;
-      default:
-        state_color = "powering_off";
-        state_str = Locale.tr("UNKNOWN");
-        break;
-    }
-
-    return {
-      color: state_color,
-      str: state_str
-    };
+    return (
+      "<div style=\"display: flex; gap: 5px;\">" +
+        "<i class=\"fas fa-fw fa-lg fa-globe\"></i>" +
+        "<div>" + OpenNebula.VM.ipsStr(data, { divider: ", " }) + "</div>" +
+      "</div>"
+    );
   }
 });

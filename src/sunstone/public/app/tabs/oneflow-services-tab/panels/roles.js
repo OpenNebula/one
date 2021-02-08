@@ -26,12 +26,9 @@ define(function(require) {
   var roles_vm_buttons = require('./roles/roles-vm-buttons');
   var Sunstone = require('sunstone');
   var DomDataTable = require('utils/dom-datatable');
-  var VMsTableUtils = require('tabs/vms-tab/utils/datatable-common');
-  var SunstoneConfig = require('sunstone-config');
   var Vnc = require('utils/vnc');
   var Spice = require('utils/spice');
   var Notifier = require('utils/notifier');
-  var OpenNebulaAction = require("opennebula/action");
   var OpenNebulaVM = require("opennebula/vm");
 
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
@@ -224,7 +221,7 @@ define(function(require) {
                 : '<span class="has-tip" title="'+
                   Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock"/></span>'
             }
-            ips = OpenNebulaVM.ipsStr(data.VM);
+            ips = OpenNebulaVM.ipsStr(data.VM, { forceGroup: true });
 
             if (OpenNebulaVM.isVNCSupported(data.VM)) {
               actions += OpenNebulaVM.buttonVnc(id);
@@ -251,7 +248,9 @@ define(function(require) {
       if (that.serviceroleVMsDataTable) {
         that.serviceroleVMsDataTable.updateView(null, roleVms, true);
       }
+      
       that.remoteButtonSetup(context);
+      Tips.setup(context);
     });
 
 

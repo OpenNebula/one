@@ -22,7 +22,6 @@ define(function(require) {
   var TabDataTable = require('utils/tab-datatable');
   var VMsTableUtils = require('./utils/datatable-common');
   var OpenNebulaVM = require('opennebula/vm');
-  var OpenNebulaAction = require("opennebula/action");
   var SunstoneConfig = require('sunstone-config');
   var Locale = require('utils/locale');
   var StateActions = require('./utils/state-actions');
@@ -32,7 +31,6 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var DashboardUtils = require('utils/dashboard');
   var SearchDropdown = require('hbs!./datatable/search');
-  var TemplateUtils = require('utils/template-utils');
 
   /*
     CONSTANTS
@@ -235,16 +233,12 @@ define(function(require) {
 
         // Enable actions available to any of the selected VMs
         var nodes = $('tr', that.dataTable); //visible nodes only
-        $.each($('input.check_item:checked', nodes), function(){
+        $.each($('input.check_item:checked', nodes), function() {
           StateActions.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
         });
-
       }
 
       return true;
     });
-
   }
-
-
 });
