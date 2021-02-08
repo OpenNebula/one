@@ -364,7 +364,7 @@ define(function(require) {
     VCENTER_CCR_REF: {edit: false, delete: false},
     VCENTER_HOST: {edit: false, delete: false},
     VCENTER_INSTANCE_ID: {edit: false, delete: false},
-    VCENTER_PASSWORD: {edit: false, delete: false},
+    VCENTER_PASSWORD: {edit: true, delete: false},
     VCENTER_USER: {edit: false, delete: false},
     VCENTER_VERSION: {edit: false, delete: false}
   }
