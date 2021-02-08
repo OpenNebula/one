@@ -390,10 +390,23 @@ define(function(require) {
     var post = true;
 
     //if exist schedule_actions add scheduleAction to each role
-    if(scheduleActions && scheduleActions.length){
+    if(scheduleActions){
       post = false;
       roles = roles.map(role => {
-        role.vm_template_contents = ScheduleActions.parseToRequestString(scheduleActions);
+        var data = "";
+        if(role.vm_template_contents){
+          var template_contents = TemplateUtils.stringToTemplate(role.vm_template_contents);
+          var new_vm_template_contents = "";
+          Object.keys(template_contents).forEach(element => {
+            if(element !== "SCHED_ACTION"){
+              new_vm_template_contents += TemplateUtils.templateToString({[element]: template_contents[element]});
+            }
+          });
+          new_vm_template_contents += " "+ ScheduleActions.parseToRequestString(scheduleActions);
+          role.vm_template_contents = new_vm_template_contents;
+        }else{
+          role.vm_template_contents = ScheduleActions.parseToRequestString(scheduleActions);
+        }
         return role;
       });
     }
