@@ -512,6 +512,8 @@ void InformationManager::_vm_state(unique_ptr<im_msg_t> msg)
 
     host->update_zombies(zombies);
 
+    hpool->update(host.get());
+
     host.reset();
 
     for (auto& it : missing)
