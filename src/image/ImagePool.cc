@@ -26,6 +26,8 @@
 #include "ImageManager.h"
 #include "VirtualMachineDisk.h"
 #include "DatastorePool.h"
+#include "HookStateImage.h"
+#include "HookManager.h"
 
 using namespace std;
 
@@ -238,6 +240,31 @@ error_common:
 
     return *oid;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int ImagePool::update(PoolObjectSQL * objsql)
+{
+    Image * image = dynamic_cast<Image *>(objsql);
+
+    if ( image == nullptr )
+    {
+        return -1;
+    }
+
+    if ( HookStateImage::trigger(image) )
+    {
+        std::string event = HookStateImage::format_message(image);
+
+        Nebula::instance().get_hm()->trigger_send_event(event);
+    }
+
+    image->set_prev_state();
+
+    return image->update(db);
+}
+ 
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

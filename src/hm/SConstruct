@@ -27,6 +27,7 @@ source_files=[
     'HookAPI.cc',
     'HookStateVM.cc',
     'HookStateHost.cc',
+    'HookStateImage.cc',
     'HookManager.cc',
     'HookManagerProtocol.cc',
     'ExecuteHook.cc',

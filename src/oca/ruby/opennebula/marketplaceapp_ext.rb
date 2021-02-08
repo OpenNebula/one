@@ -186,11 +186,15 @@ module OpenNebula::MarketPlaceAppExt
                 if !options[:template].nil?
                     template_id = options[:template]
 
-                    template_id = options[:default_template] if template_id == -1
+                    if template_id == -1
+                        template_id = options[:default_template]
+                    end
 
                     template = Template.new_with_id(template_id, @client)
 
-                    vmtpl_id = template.clone(options[:vmtemplate_name] || options[:name])
+                    vmtpl_id = template.clone(
+                        options[:vmtemplate_name] || options[:name]
+                    )
 
                     tmpl << <<-EOT
 
@@ -309,7 +313,7 @@ module OpenNebula::MarketPlaceAppExt
                     id = disk[:image]
 
                     case disk[:image_type]
-                    when 'IMAGE', 'OS'
+                    when 'IMAGE', 'OS', 'DATABLOCK'
                         vmtpl.add_element('TEMPLATE',
                                           'DISK' => { 'IMAGE_ID' => id.first })
                     when 'CONTEXT'

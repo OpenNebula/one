@@ -51,6 +51,7 @@ Image::Image(int             _uid,
         fs(""),
         size_mb(0),
         state(INIT),
+        prev_state(INIT),
         running_vms(0),
         cloning_ops(0),
         cloning_id(-1),
@@ -387,6 +388,7 @@ string& Image::to_xml(string& xml) const
             "<FS>"             << one_util::escape_xml(fs)     << "</FS>"     <<
             "<SIZE>"           << size_mb         << "</SIZE>"        <<
             "<STATE>"          << state           << "</STATE>"       <<
+            "<PREV_STATE>"     << prev_state      << "</PREV_STATE>"  <<
             "<RUNNING_VMS>"    << running_vms     << "</RUNNING_VMS>" <<
             "<CLONING_OPS>"    << cloning_ops     << "</CLONING_OPS>" <<
             "<CLONING_ID>"     << cloning_id      << "</CLONING_ID>"  <<
@@ -412,6 +414,7 @@ int Image::from_xml(const string& xml)
 {
     vector<xmlNodePtr> content;
     int int_state;
+    int int_pstate;
     int int_type;
     int int_disk_type;
 
@@ -440,6 +443,7 @@ int Image::from_xml(const string& xml)
 
     rc += xpath(source,     "/IMAGE/SOURCE",     "not_found");
     rc += xpath(int_state,  "/IMAGE/STATE",      0);
+    rc += xpath(int_pstate, "/IMAGE/PREV_STATE", 0);
     rc += xpath(running_vms,"/IMAGE/RUNNING_VMS",-1);
     rc += xpath(cloning_ops,"/IMAGE/CLONING_OPS",-1);
     rc += xpath(cloning_id, "/IMAGE/CLONING_ID", -1);
@@ -460,6 +464,7 @@ int Image::from_xml(const string& xml)
     type      = static_cast<ImageType>(int_type);
     disk_type = static_cast<DiskType>(int_disk_type);
     state     = static_cast<ImageState>(int_state);
+    prev_state= static_cast<ImageState>(int_pstate);
 
     // Get associated classes
     ObjectXML::get_nodes("/IMAGE/TEMPLATE", content);
@@ -827,6 +832,63 @@ Image::ImageType Image::str_to_type(string& str_type)
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 
+Image::ImageState Image::str_to_state(string& str_state)
+{
+    Image::ImageState st = INIT;
+
+    one_util::toupper(str_state);
+
+    if ( str_state == "INIT" )
+    {
+        st = INIT;
+    }
+    else if ( str_state == "READY" )
+    {
+        st = READY;
+    }
+    else if ( str_state == "USED" )
+    {
+        st = USED;
+    }
+    else if ( str_state == "DISABLED" )
+    {
+        st = DISABLED;
+    }
+    else if ( str_state == "LOCKED" )
+    {
+        st = LOCKED;
+    }
+    else if ( str_state == "ERROR" )
+    {
+        st = ERROR;
+    }
+    else if ( str_state == "CLONE" )
+    {
+        st = CLONE;
+    }
+    else if ( str_state == "DELETE" )
+    {
+        st = DELETE;
+    }
+    else if ( str_state == "USED_PERS" )
+    {
+        st = USED_PERS;
+    }
+    else if ( str_state == "LOCKED_USED" )
+    {
+        st = LOCKED_USED;
+    }
+    else if ( str_state == "LOCKED_USED_PERS" )
+    {
+        st = LOCKED_USED_PERS;
+    }
+
+    return st;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
 Image::DiskType Image::str_to_disk_type(string& s_disk_type)
 {
     Image::DiskType type = NONE;
@@ -896,6 +958,7 @@ void Image::set_state(ImageState _state)
     {
         lock_db(-1,-1, PoolObjectSQL::LockStates::ST_USE);
     }
+
     if (_state != LOCKED )
     {
         unlock_db(-1,-1);

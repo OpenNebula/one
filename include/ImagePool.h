@@ -87,6 +87,15 @@ public:
         std::string&             error_str);
 
     /**
+     *  Updates an Image in the data base. It also updates the previous state 
+     *  after executing the hooks.
+     *    @param objsql a pointer to the VM
+     *
+     *    @return 0 on success.
+     */
+    int update(PoolObjectSQL * objsql) override;
+
+    /**
      *  Gets an object from the pool (if needed the object is loaded from the
      *  database). The object is locked, other threads can't access the same
      *  object. The lock is released by destructor.

@@ -96,8 +96,6 @@ module OpenNebula
             LockableExt.make_lockable(self, IMAGE_METHODS)
 
             super(xml,client)
-
-            @client = client
         end
 
         #######################################################################

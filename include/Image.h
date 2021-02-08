@@ -160,6 +160,8 @@ public:
         }
     };
 
+    static ImageState str_to_state(std::string& str_state);
+
     // *************************************************************************
     // Image Public Methods
     // *************************************************************************
@@ -293,6 +295,23 @@ public:
      *     @param state of image
      */
     void set_state(ImageState _state);
+
+    /**
+     *  Sets the previous state
+     */
+    void set_prev_state()
+    {
+        prev_state = state;
+    }
+
+    /**
+     *  Test if the Image has changed state since last time prev state was set
+     *    @return true if state changed
+     */
+    bool has_changed_state() const
+    {
+        return prev_state != state;
+    }
 
     /**
      * Moves the image from the locked* states to ready, used, used_persistent
@@ -525,7 +544,7 @@ public:
      * @param new_name Value for the NAME attribute
      * @return Pointer to the new tempalte 0 in case of success
      */
-    std::unique_ptr<ImageTemplate> clone_template(const std::string& new_name) const;
+    std::unique_ptr<ImageTemplate> clone_template(const std::string& nn) const;
 
     /* ---------------------------------------------------------------------- */
     /* Snapshots functions                                                    */
@@ -642,6 +661,8 @@ private:
       *  Image state
       */
     ImageState   state;
+
+    ImageState   prev_state;
 
     /**
      * Number of VMs using the image

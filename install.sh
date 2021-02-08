@@ -2127,6 +2127,7 @@ RUBY_OPENNEBULA_LIB_FILES="src/oca/ruby/opennebula/acl_pool.rb \
                             src/oca/ruby/opennebula/image_pool.rb \
                             src/oca/ruby/opennebula/image.rb \
                             src/oca/ruby/opennebula/lockable_ext.rb \
+                            src/oca/ruby/opennebula/wait_ext.rb \
                             src/oca/ruby/opennebula/oneflow_client.rb \
                             src/oca/ruby/opennebula/pool_element.rb \
                             src/oca/ruby/opennebula/pool.rb \

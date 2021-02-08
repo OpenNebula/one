@@ -181,7 +181,7 @@ public:
     virtual int update(
         PoolObjectSQL * objsql)
     {
-        return objsql->update(db);;
+        return objsql->update(db);
     };
 
     /**

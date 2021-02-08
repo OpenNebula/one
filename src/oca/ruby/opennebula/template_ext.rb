@@ -15,6 +15,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'securerandom'
+require 'opennebula/wait_ext'
 
 # Module to decorate Template class with additional helpers not directly
 # exposed through the OpenNebula XMLRPC API. The extensions include
@@ -29,6 +30,9 @@ module OpenNebula::TemplateExt
         end
 
         class << obj
+
+            # Timeout in seconds to wait until images are READY
+            TIMEOUT = 300
 
             ####################################################################
             # Public extended interface
@@ -55,13 +59,21 @@ module OpenNebula::TemplateExt
                     template, main = create_mp_app_template(disk['IMAGE_ID'],
                                                             disk['IMAGE'],
                                                             idx)
+                    if OpenNebula.is_error?(template)
+                        rollback(ids)
+                        return [rc.message, ids]
+                    end
+
                     main_template << main
 
                     next if import_all == 'no'
 
                     rc = create_mp_app(template, market)
 
-                    return [rc.message, ids] if OpenNebula.is_error?(rc)
+                    if OpenNebula.is_error?(rc)
+                        rollback(ids)
+                        return [rc.message, ids]
+                    end
 
                     ids << rc
                 end
@@ -77,12 +89,20 @@ module OpenNebula::TemplateExt
 
                     template, main = create_mp_app_template(image_id, nil)
 
+                    if OpenNebula.is_error?(template)
+                        rollback(ids)
+                        return [rc.message, ids]
+                    end
+
                     main_template << main
 
                     if import_all == 'yes'
                         rc = create_mp_app(template, market)
 
-                        return [rc.message, ids] if OpenNebula.is_error?(rc)
+                        if OpenNebula.is_error?(rc)
+                            rollback(ids)
+                            return [rc.message, ids]
+                        end
 
                         ids << rc
                     end
@@ -101,13 +121,22 @@ module OpenNebula::TemplateExt
                 if files
                     files.each_with_index do |file, idx|
                         template, main = create_mp_app_template(file, nil, idx)
+
+                        if OpenNebula.is_error?(template)
+                            rollback(ids)
+                            return [rc.message, ids]
+                        end
+
                         main_template << main
 
                         next unless import_all == 'yes'
 
                         rc = create_mp_app(template, market)
 
-                        return [rc.message, ids] if OpenNebula.is_error?(rc)
+                        if OpenNebula.is_error?(rc)
+                            rollback(ids)
+                            return [rc.message, ids]
+                        end
 
                         ids << rc
                     end
@@ -127,9 +156,12 @@ module OpenNebula::TemplateExt
                 retrieve_xmlelements(nic_xpath).each do |nic|
                     if nic['NETWORK']
                         net = "[NETWORK=\"#{nic['NETWORK']}\"]"
-                    else
+                    elsif nic['NETWORK_ID']
                         net = "[NETWORK_ID=\"#{nic['NETWORK_ID']}\"]"
                     end
+
+                    # NIC can be already in auto mode
+                    next unless net
 
                     # If there are ALIAS the NIC can't be auto,
                     # because this combination isn't supported by the core
@@ -215,6 +247,14 @@ module OpenNebula::TemplateExt
                 end
 
                 image.info
+
+                if Integer(image['STATE']) != 1
+                    image.extend(OpenNebula::WaitExt)
+
+                    # Wait until the image is READY to safe copy it to the
+                    # marketplace
+                    image.wait('READY')
+                end
 
                 # Rename to avoid clashing names
                 app_name = "#{image['NAME']}-#{SecureRandom.hex[0..9]}"

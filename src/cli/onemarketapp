@@ -108,7 +108,7 @@ CommandParser::CmdParser.new(ARGV) do
         :name => 'template',
         :large => '--template template_id ',
         :description => 'Associate with VM template',
-        :format => Integer,
+        :format => Integer
     }
 
     MARKET = {
@@ -285,7 +285,7 @@ CommandParser::CmdParser.new(ARGV) do
                 :url_args => tag,
                 :notemplate => options[:no] == 'no',
                 :template => options[:template],
-                :default_template => CONFIG[:default_template],
+                :default_template => CONFIG[:default_template]
             )
 
             if OpenNebula.is_error?(rc)
