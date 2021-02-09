@@ -1159,6 +1159,12 @@ function send_to_monitor {
         msg_result="FAILURE"
     fi
 
+    if [ $msg_oid = "-1" ]; then
+        msg_ts=0
+    else
+        msg_ts=$(date +%s)
+    fi
+
     # Read monitord config
     if [ -z "${ONE_LOCATION}" ]; then
         mon_conf=/etc/one/monitord.conf
@@ -1208,6 +1214,6 @@ function send_to_monitor {
     fi
 
     # Send message
-    echo "$msg_type $msg_result $msg_oid $payload_b64" |
+    echo "$msg_type $msg_result $msg_oid $msg_ts $payload_b64" |
         nc -u -w1 $mon_address $mon_port
 }

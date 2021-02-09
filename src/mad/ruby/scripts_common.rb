@@ -163,7 +163,13 @@ module OpenNebula
                 result = "FAILURE"
             end
 
-            msg = "#{msg_type} #{result} #{oid} #{data64}"
+            if Integer(oid) == -1
+                ts = 0
+            else
+                ts = Time.now.to_i
+            end
+
+            msg = "#{msg_type} #{result} #{oid} #{ts} #{data64}"
 
             socket_udp = UDPSocket.new()
             socket_udp.send(msg, 0, mon_address, mon_port)
