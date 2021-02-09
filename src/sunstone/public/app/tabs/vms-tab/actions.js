@@ -348,10 +348,8 @@ define(function(require) {
     "VM.guac_vnc" : {
       type: "custom",
       call: function() {
-        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          var vm_name = OpenNebulaVM.getName(elem);
-          var extra_param = {type: 'vnc', 'vm_name': vm_name }
-          Sunstone.runAction("VM.startguac_action", elem, extra_param);
+        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(_, elem) {
+          Sunstone.runAction("VM.startguac_action", elem, 'vnc');
         });
       },
       error: function(req, resp) {
@@ -361,10 +359,8 @@ define(function(require) {
     "VM.guac_rdp" : {
       type: "custom",
       call: function() {
-        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          var vm_name = OpenNebulaVM.getName(elem);
-          var extra_param = {type: 'rdp', 'vm_name': vm_name }
-          Sunstone.runAction("VM.startguac_action", elem, extra_param);
+        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(_, elem) {
+          Sunstone.runAction("VM.startguac_action", elem, 'rdp');
         });
       },
       error: function(req, resp) {
@@ -374,10 +370,8 @@ define(function(require) {
     "VM.guac_ssh" : {
       type: "custom",
       call: function() {
-        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          var vm_name = OpenNebulaVM.getName(elem);
-          var extra_param = {type: 'ssh', 'vm_name': vm_name }
-          Sunstone.runAction("VM.startguac_action", elem, extra_param);
+        $.each(Sunstone.getDataTable(TAB_ID).elements(), function(_, elem) {
+          Sunstone.runAction("VM.startguac_action", elem, 'ssh');
         });
       },
       error: function(req, resp) {
@@ -387,7 +381,7 @@ define(function(require) {
     "VM.startguac_action" : {
       type: "single",
       call: OpenNebulaVM.guac,
-      callback: function(request, response) {
+      callback: function(_, response) {
        var dialog = Sunstone.getDialog(GUAC_DIALOG_ID);
        dialog.setElement(response);
        dialog.show();

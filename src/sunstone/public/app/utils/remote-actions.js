@@ -79,19 +79,19 @@ define(function(require) {
   
   function _callGuacVNC(data) {
     (data.hasOwnProperty('id'))
-      ? Sunstone.runAction('VM.startguac_action', String(data.id), { type: 'vnc' })
+      ? Sunstone.runAction('VM.startguac_action', String(data.id), 'vnc')
       : Notifier.notifyError(Locale.tr('VNC - Invalid action'));
   }
 
   function _callGuacRDP(data) {
     (data.hasOwnProperty('id'))
-      ? Sunstone.runAction('VM.startguac_action', String(data.id), { type: 'rdp' })
+      ? Sunstone.runAction('VM.startguac_action', String(data.id), 'rdp')
       : Notifier.notifyError(Locale.tr('RDP - Invalid action'));
   }
   
   function _callGuacSSH(data) {
     (data.hasOwnProperty('id'))
-      ? Sunstone.runAction('VM.startguac_action', String(data.id), { type: 'ssh' })
+      ? Sunstone.runAction('VM.startguac_action', String(data.id), 'ssh')
       : Notifier.notifyError(Locale.tr('SSH - Invalid action'));
   }
 
@@ -105,18 +105,6 @@ define(function(require) {
     var button = $('<button>', {
       title: 'vnc',
       class: 'vnc remote-vm',
-      'data-id': id
-    })
-
-    return $('<div>').append(button.append(icon)).html()
-  }
-
-  function buttonVmrc(id = '') {
-    var icon = $('<i>', { class: 'fas fa-desktop' })
-
-    var button = $('<button>', {
-      title: 'vmrc',
-      class: 'vmrc remote-vm',
       'data-id': id
     })
 
@@ -232,9 +220,6 @@ define(function(require) {
     if (OpenNebulaVM.isVNCSupported(vm)) {
       actions += buttonVnc(vm.ID);
     }
-    else if (OpenNebulaVM.isVMRCSupported(vm)) {
-      actions += buttonVmrc(vm.ID);
-    }
     else if (OpenNebulaVM.isSPICESupported(vm)) {
       actions += buttonSpice(vm.ID);
     }
@@ -299,31 +284,27 @@ define(function(require) {
         evt.preventDefault();
         var data = $(this).data();
 
-        FireedgeValidator.validateFireedgeToken(
-          function(fireedgeToken) {
-            fireedgeToken !== '' ? _callGuacVNC(data) : _callVNC(data)
-          },
-          function() {
-            _callVNC(data)
+        // Get VM show info to get USER_TEMPLATE.HYPERVISOR
+        OpenNebulaVM.promiseGetVm({
+          id: data.id,
+          success: function(response) {
+            FireedgeValidator.validateFireedgeToken(
+              function(fireedgeToken) {
+                if (fireedgeToken !== '') {
+                  OpenNebulaVM.isVMRCSupported(response) ? _callVMRC(data) : _callGuacVNC(data)
+                } else {
+                  _callVNC(data)
+                }
+              },
+              function() {
+                _callVNC(data)
+              }
+            );
           }
-        );
+        });
 
         evt.stopPropagation();
       })
-      .off("click", '.vmrc')
-      .on("click", '.vmrc', function(evt) {
-        evt.preventDefault();
-        var data = $(this).data();
-
-        FireedgeValidator.validateFireedgeToken(
-          function(fireedgeToken) {
-            fireedgeToken !== '' ? _callVMRC(data) : _callVNC(data)
-          },
-          function() { _callVNC(data) }
-        );
-
-        evt.stopPropagation();
-      });
   }
 
   return {

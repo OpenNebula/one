@@ -162,7 +162,10 @@ class SunstoneVMRC
         file.write('https://' + data[:host] + ':' + data[:port].to_s)
         file.close
 
-        [200, { :data => data }.to_json]
+        info = SunstoneVMHelper.get_remote_info(vm_resource)
+        encode_info = Base64.encode64(info.to_json)
+
+        [200, { :data => data, :info => encode_info }.to_json]
     end
 
     private

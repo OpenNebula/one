@@ -613,8 +613,7 @@ define(function(require) {
       var callback = params.success;
       var callback_error = params.error;
       var id = params.data.id;
-      var typeConnection = params.data.extra_param.type;
-      var vm_name = params.data.extra_param.vm_name;
+      var typeConnection = params.data.extra_param;
       var resource = RESOURCE;
 
       var request = OpenNebulaHelper.request(resource, null, params.data);
@@ -623,7 +622,6 @@ define(function(require) {
         type: "POST",
         dataType: "json",
         success: function(response) {
-          response.vm_name = vm_name;
           return callback ? callback(request, response) : null;
         },
         error: function(response) {
@@ -816,10 +814,25 @@ define(function(require) {
     "isSPICESupported": isSPICESupported,
     "isWFileSupported": isWFileSupported,
     "hasConnection": hasConnection,
+    "promiseGetVm" : _promiseGetVm,
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     }
   };
+
+  function _promiseGetVm({ id, success, async = true } = {}) {
+    return $.ajax({
+      url: 'vm/' + id,
+      type: 'GET',
+      success: function(response) {
+        if (typeof success === 'function') {
+          var vm =  response ? response[RESOURCE] : undefined;
+          success(vm);
+        }
+      },
+      async: async
+    });
+  }
 
   function retrieveLastHistoryRecord(element) {
     if (element.HISTORY_RECORDS && element.HISTORY_RECORDS.HISTORY) {
@@ -1095,10 +1108,11 @@ define(function(require) {
 
   function isVMRCSupported(element = {}) {
     var actionEnabled = Config.isTabActionEnabled('vms-tab', 'VM.startvmrc')
-    var vmrcSupported = graphicSupported(element, 'vrmc')
-    var isVCenter =
+    var vmrcSupported = graphicSupported(element, 'vnc')
+    var isVCenter = Boolean(
       element.USER_TEMPLATE &&
       String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === 'vcenter'
+    )
 
     return actionEnabled && vmrcSupported && isVCenter
   }

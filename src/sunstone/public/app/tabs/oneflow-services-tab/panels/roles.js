@@ -220,24 +220,24 @@ define(function(require) {
         var ips = "", actions = "";
 
         function successCallback (data) {
-          if (data.VM && data.VM.ID === id) {
+          if (data && data.ID === id) {
             var ready = ""
             if (ready_status_gate) {
-              ready = (data.VM.USER_TEMPLATE && data.VM.USER_TEMPLATE.READY == "YES")
+              ready = (data.USER_TEMPLATE && data.USER_TEMPLATE.READY == "YES")
                 ? '<span class="has-tip" title="'+
                   Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>'
                 : '<span class="has-tip" title="'+
                   Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock"/></span>'
             }
-            ips = OpenNebulaVM.ipsStr(data.VM, { forceGroup: true });
+            ips = OpenNebulaVM.ipsStr(data, { forceGroup: true });
 
-            actions = VMRemoteActions.renderActionsHtml(data.VM);
+            actions = VMRemoteActions.renderActionsHtml(data);
           }
 
           roleVms[index] = rowInfoRoleVm(ready, id, name, uname, gname, ips, actions);
         }
 
-        promises.push(promiseVmInfo(id, successCallback))
+        promises.push(OpenNebulaVM.promiseGetVm({ id, success: successCallback }))
       })
     }
 
@@ -280,15 +280,6 @@ define(function(require) {
       ips,
       actions
     ];
-  }
-
-  function promiseVmInfo(id, success) {
-    return $.ajax({
-      url: "vm/" + id,
-      type: "GET",
-      dataType: "json",
-      success: success
-    })
   }
 
   function _roleSetup(context, role) {

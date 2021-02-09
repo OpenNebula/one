@@ -63,8 +63,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var that = this;
-
     $("#open_in_a_new_window", context).on("click", function() {
        var dialog = Sunstone.getDialog(DIALOG_ID);
        dialog.hide();

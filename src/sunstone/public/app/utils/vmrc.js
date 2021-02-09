@@ -22,6 +22,7 @@ define(function (require) {
   var _lock = false;
   var _wmks;
   var _is_encrypted = "";
+  var vm_name = ""
 
   return {
     "lockStatus": lockStatus,
@@ -50,12 +51,12 @@ define(function (require) {
   }
 
   function connected() {
-    setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " + _wmks.vm_name);
+    setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " + vm_name);
   }
 
   function disconnectedFromServer(e) {
     if (e.detail.clean) {
-      setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " + _wmks.vm_name);
+      setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " + vm_name);
     } else {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
@@ -72,6 +73,9 @@ define(function (require) {
     var info = response.info;
     var info_decode = UtilsConnection.decodeInfoConnection(info);
     UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode)
+
+    // set vm name on title
+    vm_name = (info_decode && info_decode.name) ? info_decode.name : ""
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
