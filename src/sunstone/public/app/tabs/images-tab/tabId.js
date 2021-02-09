@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'images-tab';
-})
+  return "images-tab";
+});

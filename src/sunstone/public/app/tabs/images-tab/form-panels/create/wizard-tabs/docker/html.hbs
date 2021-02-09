@@ -1,0 +1,37 @@
+<form data-abide novalidate id="{{formPanelId}}Docker" class="custom creation">
+  <div class="row">
+    <div class="columns large-6">
+      <label for="{{prepend}}_name">{{tr "Name"}}</label>
+      <input required type="text" name="{{prepend}}_name" id="{{prepend}}_name" />
+    </div>
+    <div class="columns large-6">
+      <label for="{{prepend}}_datastore">{{tr "Datastore"}}</label>
+      <div id="{{prepend}}_datastore" name="{{prepend}}_datastore"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns">
+      <label for="{{prepend}}_context">{{tr "Context"}}</label>
+      <select id="{{prepend}}_context">
+        <option value="yes"> {{tr "YES"}}</option>
+        <option value="no"> {{tr "NO"}}</option>
+      </select>
+    </div>
+    <div class="columns large-6">
+      <label for="{{prepend}}_size">{{tr "Size"}}</label>
+      <div style="display:flex;">
+        <input required type="text" name="{{prepend}}_size" id="{{prepend}}_size" />
+        <select id="{{prepend}}_size_units" style="max-width: 60px;">
+          <option value="1"> {{tr "MB"}}</option>
+          <option value="1024"> {{tr "GB"}}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-12 columns">
+      <p>{{tr "Write the Dockerfile template here"}}</p>
+      <div id="{{prepend}}_template" class="monospace" style="height: 500px; width: 100%"> </div>
+    </div>
+  </div>
+</form>

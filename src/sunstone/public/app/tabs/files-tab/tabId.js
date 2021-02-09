@@ -15,5 +15,5 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require){
-  return 'files-tab';
-})
+  return "files-tab";
+});

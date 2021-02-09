@@ -22,7 +22,8 @@
     "guacamole-common-js": "https://github.com/OpenNebula/sunstone-deps.git#1633556e63",
     "webauthn-json": "https://registry.npmjs.org/@github/webauthn-json/-/webauthn-json-0.4.1.tgz",
     "wmks": "https://github.com/OpenNebula/sunstone-deps.git#cb0251c",
-    "socket.io-client": "~2.3.0"
+    "socket.io-client": "~2.3.0",
+    "ace-builds": "https://github.com/OpenNebula/sunstone-deps.git#01ae12a" 
   },
   "authors": [
     "Daniel Molina <dmolina@opennebula.org>",

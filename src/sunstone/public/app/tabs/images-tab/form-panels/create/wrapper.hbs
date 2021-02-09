@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -13,22 +13,31 @@
 {{! See the License for the specific language governing permissions and        }}
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
+<div class="small-12 columns">
+  {{#if advanced}}
+    <span class="internal-form-tabs">
+      <ul id="{{formPanelId}}InternalTabs" class="tabs wizard_tabs show" data-tabs style="display: flex;justify-content: flex-end;border-bottom: 0px;">
+        <li class="tabs-title is-active">
+          <a href="#{{formPanelId}}Wizard" class="changeTypeSender" data-typesender="wizard">
+            {{tr "Wizard"}}
+          </a>
+        </li>
+        <li id="advanced_mode" class="tabs-title">
+          <a href="#{{formPanelId}}Advanced" class="changeTypeSender" data-typesender="advanced">
+            {{tr "Advanced"}}
+          </a>
+        </li>
+      </ul>
+    </span>
+  {{/if}}
+  <div class="tabs-content" data-tabs-content="{{formPanelId}}InternalTabs">
+    {{#if form}}
+      {{{form}}}
+    {{/if}}
 
-<form data-abide novalidate id="{{formPanelId}}Advanced" class="custom creation">
-  <div class="row">
-    <div class="columns large-12">
-      <label for="img_datastores_raw">{{tr "Datastore"}}</label>
-      <div id="img_datastore_raw" name="img_datastore_raw"></div>
-    </div>
+    {{#if advanced}}
+      {{{advanced}}}
+    {{/if}}
   </div>
-  <div class="row">
-    <div class="large-12 columns">
-      <p>{{tr "Write the Image template here"}}</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="large-12 columns">
-      <textarea id="template" class="monospace" rows="15" required></textarea>
-    </div>
-  </div>
-</form>
+</div>
+

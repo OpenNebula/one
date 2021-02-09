@@ -19,18 +19,18 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var ImageCommonDataTable = require('tabs/images-tab/datatable-common');
+  var ImageCommonDataTable = require("tabs/images-tab/datatable-common");
 
-  var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
-  var OpenNebulaImage = require('opennebula/image');
+  var Locale = require("utils/locale");
+  var Humanize = require("utils/humanize");
+  var OpenNebulaImage = require("opennebula/image");
 
   /*
     CONSTANTS
    */
 
   var RESOURCE = "File";
-  var TAB_NAME = require('./tabId');
+  var TAB_NAME = require("./tabId");
 
   /*
     CONSTRUCTOR

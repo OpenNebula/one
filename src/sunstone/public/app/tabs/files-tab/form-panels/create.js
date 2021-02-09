@@ -19,15 +19,15 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseFormPanel = require('tabs/images-tab/form-panels/create-common');
+  var BaseFormPanel = require("tabs/files-tab/form-panels/create-common");
 
   /*
     CONSTANTS
    */
 
   var RESOURCE = "File";
-  var FORM_PANEL_ID = require('./create/formPanelId');
-  var TAB_ID = require('../tabId');
+  var FORM_PANEL_ID = require("./create/formPanelId");
+  var TAB_ID = require("../tabId");
 
   /*
     CONSTRUCTOR

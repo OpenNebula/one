@@ -15,7 +15,7 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var ImageButtons = require('tabs/images-tab/buttons');
+  var ImageButtons = require("tabs/images-tab/buttons");
 
   var Buttons = {
     "File.refresh" : ImageButtons["Image.refresh"],

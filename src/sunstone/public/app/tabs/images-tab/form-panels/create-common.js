@@ -20,40 +20,43 @@ define(function(require) {
    */
 
   var BaseFormPanel = require("utils/form-panels/form-panel");
-  var Resumable = require("resumable");
   var Sunstone = require("sunstone");
   var OpenNebulaError = require("opennebula/error");
   var Notifier = require("utils/notifier");
   var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
-  var OpenNebulaDatastore = require("opennebula/datastore");
-  var ResourceSelect = require("utils/resource-select");
-  var CustomTagsTable = require("utils/custom-tags-table");
-  var BrowserInfo = require("utils/browser-info");
-  var Config = require("sunstone-config");
   var WizardFields = require("utils/wizard-fields");
-  var ProgressBar = require("utils/progress-bar");
-  var Humanize = require("utils/humanize");
-
-  var TemplateWizardHTML = require("hbs!./create/wizard");
-  var TemplateAdvancedHTML = require("hbs!./create/advanced");
+  var TemplateTabsHTML = require("hbs!./create/tabs");
+  var CustomTagsTable = require("utils/custom-tags-table");
 
   /*
     CONSTANTS
    */
-
+  var WIZARD_TABS = [
+    require("./create/wizard-tabs/image"),
+    require("./create/wizard-tabs/docker"),
+  ];
+  var IMAGES_TAB_ID = require("tabs/images-tab/tabId");
+  var typeSender = "wizard";
   /*
     CONSTRUCTOR
    */
-
   function FormPanel() {
-    var title;
+    var title = Locale.tr("Create Image");
+    var that = this;
+    var tabId = IMAGES_TAB_ID;
+    var formPanelId = (that && that.formPanelId)||"";
+    that.wizardTabs = [];
+    var wizardTabCreate;
 
-    if (this.resource == "Image"){
-      title = Locale.tr("Create Image");
-    } else {
-      title = Locale.tr("Create File");
-    }
+    $.each(WIZARD_TABS, function(index, wizardTab) {
+      try {
+        wizardTabCreate = new wizardTab({formPanelId: formPanelId, tabId: tabId});
+        wizardTabCreate.contentHTML = wizardTabCreate.html();
+        that.wizardTabs.push(wizardTabCreate);
+      } catch (err) {
+        console.log(err);
+      }
+    });
 
     this.actions = {
       "create": {
@@ -63,17 +66,98 @@ define(function(require) {
       }
     };
 
-    BaseFormPanel.call(this);
+    // BaseFormPanel.call(this);
+  }
+
+  function _reInit(context){
+    var that = this;
+    //this clear events into forms ""
+    $("#"+that.formPanelId+"Wizard, #"+that.formPanelId+"Advanced")
+    .off("forminvalid.zf.abide")
+    .off("formvalid.zf.abide")
+    .off("submit")
+    .on("submit", function(ev){
+      that.submitWizard(context);
+      ev.preventDefault();
+      return false;
+    });
+  }
+
+  function errorSubmit(element, tabId, context){
+    if(element && tabId){
+      $(element).off("forminvalid.zf.abide").on("forminvalid.zf.abide", function(ev, frm) {
+        Notifier.notifyError(Locale.tr("One or more required fields are missing or malformed."),ev.target,context);
+        Sunstone.hideFormPanelLoading(tabId);
+      });
+    }
+  }
+
+  function successSubmit(element, callback, that){
+    if(element && callback && typeof callback === "function"){
+      $(element).off("formvalid.zf.abide").on("formvalid.zf.abide", function(ev, frm){
+        callback(that, frm);
+      });
+    }
+  }
+
+  function resetOtherForms (form, formPanelId) {
+    if(form && formPanelId){
+      var forms = ["Docker","Advanced","Wizard"];
+      forms.forEach(element => {
+        if(form !== element){
+          try {
+            $("#"+formPanelId+element).foundation("resetForm");
+          } catch (error) {}
+        }
+      });
+    }
+  }
+
+  function _submit(context){
+    var that = this;
+    switch (typeSender) {
+      case "docker":
+        var element = "#"+that.formPanelId+"Docker";
+
+        //reset other forms
+        resetOtherForms("Docker",that.formPanelId);
+
+        errorSubmit(element, that.tabId, context);
+        successSubmit(element, _submitDocker, that);
+        $(element).foundation("validateForm");
+      break;
+
+      case "advanced":
+        var element = "#"+that.formPanelId+"Advanced";
+
+        //reset other forms
+        resetOtherForms("Advanced", that.formPanelId);
+
+        errorSubmit(element, that.tabId, context);
+        successSubmit(element, _submitAdvanced, that);
+        $(element).foundation("validateForm");
+      break;
+
+      default:
+        var element = "#"+that.formPanelId+"Wizard";
+
+        //reset other forms
+        resetOtherForms("Wizard", that.formPanelId);
+
+        errorSubmit(element, that.tabId, context);
+        successSubmit(element, _submitWizard, that);
+        $(element).foundation("validateForm");
+      break;
+    }
   }
 
   FormPanel.prototype = Object.create(BaseFormPanel.prototype);
   FormPanel.prototype.constructor = FormPanel;
   FormPanel.prototype.htmlWizard = _htmlWizard;
-  FormPanel.prototype.htmlAdvanced = _htmlAdvanced;
-  FormPanel.prototype.submitWizard = _submitWizard;
-  FormPanel.prototype.submitAdvanced = _submitAdvanced;
+  FormPanel.prototype.submitWizard = _submit;
   FormPanel.prototype.onShow = _onShow;
   FormPanel.prototype.setup = _setup;
+  FormPanel.prototype.reInit = _reInit;
 
   return FormPanel;
 
@@ -82,306 +166,49 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
+  function changeTypeSender(attr){
+    if(attr){
+      typeSender = attr;
+    }
+  }
+
   function _htmlWizard() {
-    return TemplateWizardHTML({
+    return TemplateTabsHTML({
       "formPanelId": this.formPanelId,
-      "customTagsHTML": CustomTagsTable.html(),
-      "images": (this.resource == "Image")
+      "wizardTabs": this.wizardTabs
     });
   }
 
-  function _htmlAdvanced() {
-    return TemplateAdvancedHTML({formPanelId: this.formPanelId});
-  }
-
   function _onShow(context) {
-    $("#img_driver").val("");
-    $("#img_name", context).focus();
+    var that = this;
+    //click on image tag
+    $("a[href=\"#"+ that.wizardTabs[0].wizardTabId +"\"]", context).trigger("click");
+    //click on wizard sub tab
+    $("a[href=\"#createImageFormWizard\"]", context).trigger("click");
 
-    var ds_id = $("#img_datastore .resource_list_select", context).val();
-    var ds_id_raw = $("#img_datastore_raw .resource_list_select", context).val();
-
-    var filterValue;
-
-    if (this.resource == "Image"){
-      filterValue = "" + OpenNebulaDatastore.TYPES.IMAGE_DS;
-    } else {
-      filterValue = "" + OpenNebulaDatastore.TYPES.FILE_DS;
-    }
-
-    ResourceSelect.insert({
-        context: $("#img_datastore", context),
-        resourceName: "Datastore",
-        initValue: ds_id,
-        filterKey: "TYPE",
-        filterValue: filterValue,
-        triggerChange: true
-      });
-
-    ResourceSelect.insert({
-        context: $("#img_datastore_raw", context),
-        resourceName: "Datastore",
-        initValue: ds_id_raw,
-        filterKey: "TYPE",
-        filterValue: filterValue,
-        triggerChange: true
-      });
-
-    return false;
+    $.each(that.wizardTabs, function(index, wizardTab) {
+      wizardTab.onShow($("#" + wizardTab.wizardTabId, context), that);
+    });
+    $(".changeTypeSender").each(function(){
+      var attr = $(this).attr("data-typesender");
+      if (typeof attr !== typeof undefined && attr !== false){
+        $(this).on("click", function(){
+          changeTypeSender(attr);
+        });
+      }
+    });
   }
 
 
   function _setup(context) {
-    var that = this;
-    Tips.setup(context);
-
-    $("select#img_type", context).change(function() {
-      var value = $(this).val();
-      switch (value){
-      case "DATABLOCK":
-      case "OS":
-        $("#datablock_img", context).removeAttr("disabled");
-        break;
-      default:
-        $("#datablock_img", context).attr("disabled", "disabled");
-        $("#path_image", context).click();
-      }
+    $.each(this.wizardTabs, function(index, wizardTab) {
+      wizardTab.setup($("#" + wizardTab.wizardTabId, context));
     });
-    if(config["federation_mode"] == "SLAVE"){
-      $("#upload_image").attr("disabled", "disabled");
-    }
-
-    $("#img_datastore", context).off("change", ".resource_list_select");
-    $("#img_datastore", context).on("change", ".resource_list_select", function() {
-      var ds_id = $(this).val();
-      OpenNebulaDatastore.show({
-        data : {
-          id: ds_id
-        },
-        timeout: true,
-        success: function(request, ds){
-          var mad    = ds["DATASTORE"]["DS_MAD"];
-          var tm_mad = ds["DATASTORE"]["TM_MAD"];
-
-          var pers_forced = false;
-
-          // Set the persistency
-          if (Config.onedConf.DS_MAD_CONF !== undefined) {
-            $.each(Config.onedConf.DS_MAD_CONF, function(i,e){
-                if (e["NAME"] == mad && !$.isEmptyObject(e["PERSISTENT_ONLY"])) {
-                  if (e["PERSISTENT_ONLY"] != undefined &&
-                      e["PERSISTENT_ONLY"].toLowerCase() == "yes") {
-                      $("#img_persistent", context).prop("disabled", true);
-                      $("#img_persistent", context).val("YES");
-                      pers_forced = true;
-                      return false;
-                  }
-                }
-              }
-            );
-          }
-
-          if (!pers_forced) {
-            $("#img_persistent", context).prop("disabled", false);
-          }
-
-          // Display adequate values in the dialog.
-          switch (mad) {
-          case "vcenter":
-            $(".only_vcenter").show();
-            $(".not_vcenter").hide();
-            break;
-          default:
-            $(".only_vcenter").hide();
-            $(".not_vcenter").show();
-          }
-
-          // Fill in the default driver
-          if (tm_mad == "qcow2"){
-            $("select#img_driver",context).val("qcow2");
-          } else {
-            //$("select#img_driver",context).val("raw");
-          }
-        },
-        error: function(request, error_json, container){
-          Notifier.onError(request, error_json, container);
-        }
-      });
-    });
-
-    // Custom Adapter Type
-    var custom_attrs = [
-      "vcenter_adapter_type",
-      "vcenter_disk_type",
-      "img_dev_prefix",
-      "img_driver"
-    ];
-
-    $(custom_attrs).each(function(_, field) {
-      $("input[name=\"custom_"+field+"\"]",context).parent().hide();
-
-      $("select#"+field, context).on("change", function() {
-        var field = $(this).attr("name");
-
-        if ($(this).val() == "custom"){
-          $("input[name=\"custom_"+field+"\"]",context).parent().show();
-          $("input[name=\"custom_"+field+"\"]",context).attr("required", "");
-        } else {
-          $("input[name=\"custom_"+field+"\"]",context).parent().hide();
-          $("input[name=\"custom_"+field+"\"]",context).removeAttr("required");
-        }
-      });
-    });
-
-    $("#img_path,#img_size,#file-uploader", context).closest(".row").hide();
-    $("input[name='src_path']", context).change(function() {
-      var value = $(this).val();
-      switch (value){
-      case "path":
-        $("#img_size,#file-uploader", context).closest(".row").hide();
-        $("#img_path", context).closest(".row").show();
-        $("#img_path", context).attr("required", "");
-        $("#img_size", context).removeAttr("required");
-        $(".datablock-input, .upload-input").addClass("hide");
-        $(".path-input").removeClass("hide");
-        $("#img_driver").val("");
-        break;
-      case "datablock":
-        $("#img_path,#file-uploader", context).closest(".row").hide();
-        $("#img_size", context).closest(".row").show();
-        $("#img_path", context).removeAttr("required");
-        $("#img_size", context).attr("required", "");
-        $(".path-input, .upload-input").addClass("hide");
-        $(".datablock-input").removeClass("hide");
-        break;
-      case "upload":
-        $("#img_path,#img_size", context).closest(".row").hide();
-        $("#file-uploader", context).closest(".row").show();
-        $("#img_path", context).removeAttr("required");
-        $("#img_size", context).removeAttr("required");
-        $(".path-input, .datablock-input").addClass("hide");
-        $(".upload-input").removeClass("hide");
-        $("#img_driver").val("");
-        break;
-      }
-    });
-
-     $("#img_type", context).change(function() {
-      var value = $(this).val();
-      if(value == "CDROM")
-        $("#img_persistent", context).closest(".row").hide();
-      else
-        $("#img_persistent", context).closest(".row").show();
-    });
-
-    $("#path_image", context).click();
-
-    CustomTagsTable.setup(context);
-
-    if (BrowserInfo.getInternetExplorerVersion() > -1) {
-      $("#upload_image").attr("disabled", "disabled");
-    } else {
-      that.uploader = new Resumable({
-        target: "upload_chunk",
-        chunkSize: 10 * 1024 * 1024,
-        maxFiles: 1,
-        maxFileSize: config["system_config"]["max_upload_file_size"],
-        testChunks: false,
-        query: {
-          csrftoken: csrftoken
-        }
-      });
-
-      that.uploader.assignBrowse($("#file-uploader-input", context));
-
-      var fileName = "";
-      var file_input = false;
-
-      that.uploader.on("fileAdded", function(file) {
-        fileName = file.fileName;
-        file_input = fileName;
-
-        $("#file-uploader-input", context).hide();
-        $("#file-uploader-label", context).html(file.fileName);
-        $("#file-uploader-label", context).show();
-        $("#close_image", context).show();
-      });
-
-      $("#close_image", context).on("click", function(){
-          $("#file-uploader-label", context).hide();
-          $("#close_image", context).hide();
-          $("#file-uploader-input", context).show();
-          fileName= "";
-          that.uploader.files.length = 0;
-      });
-      var last_time = 0;
-      var old_size = 0;
-
-      that.uploader.on("uploadStart", function() {
-        last_time = new Date().getTime();
-        old_size = 0;
-        var myThis = this;
-          if(!(myThis.progress() > 0)){
-          var element = $("#upload_progress_bars").append(
-            "<div id=\"" + fileName + "progressBar\" class=\"row\" style=\"margin-bottom:10px\">\
-              <div id=\"" + fileName + "-info\" class=\"medium-2 columns\">\
-                " + Locale.tr("Uploading...") + "\
-              </div>\
-              <div class=\"medium-10 columns\">\
-                <div class=\"progressbar\">"+
-                  ProgressBar.html(0, 1, fileName) + "\
-                </div>\
-                <div>\
-                  <button id=\"close_upload_image\" class=\"fas fa-times-circle fas fa-lg close_upload_image\">   </button>\
-                  <button id=\"pause_upload_image\" class=\"fas fa-pause fas fa-lg pause_upload_image\">   </button>\
-                  <button id=\"play_upload_image\" class=\"fas fa-play fas fa-lg play_upload_image\" hidden=\"true\">   </button>\
-                </div>\
-              </div>\
-              <div class=\"medium-2 columns\">\
-                <div id=\"speed\">speed: </div>\
-                <div id=\"percent_progress\">Completed: </div>\
-                </div>\
-            </div>");
-          }
-          $(".close_upload_image").on("click", function(){
-            myThis.cancel();
-            show=0;
-            if(element)
-              element.remove();
-          });
-          $(".pause_upload_image").on("click", function(){
-            myThis.pause();
-            $(".pause_upload_image").hide();
-            $(".play_upload_image").show();
-          });
-          $(".play_upload_image").on("click", function(){
-            myThis.upload();
-            $(".play_upload_image").hide();
-            $(".pause_upload_image").show();
-          });
-      });
-
-      that.uploader.on("progress", function() {
-        var time = new Date().getTime();
-        var size = this.getSize() * this.progress();
-        if(time - last_time > 2000){
-          size = size - old_size;
-          var speed = size / ((time - last_time));
-          document.getElementById( "speed" ).textContent = "speed: " + Humanize.size(speed) +"s";
-          last_time = time;
-          old_size = size;
-        }
-        document.getElementById( "percent_progress" ).textContent = "Completed: " + (this.progress().toFixed(3)*100).toFixed(1) +"%";
-        $("div.progressbar", $("div[id=\"" + fileName + "progressBar\"]")).html(
-                              ProgressBar.html(this.progress(), 1, fileName) );
-      });
-    }
-
-    return false;
+    Foundation.reflow(context, "tabs");
+    Foundation.reflow(context, "tooltip");
   }
 
- function _submitWizard(context) {
-    var that = this;
+  function _submitWizard(that, context) {
     var upload = false;
 
     var ds_id = $("#img_datastore .resource_list_select", context).val();
@@ -515,9 +342,54 @@ define(function(require) {
     return false;
   }
 
-  function _submitAdvanced(context) {
+  function _submitDocker(that, context){
+    var name = $("#docker_name", context).val();
+    var ds_id = $("#docker_datastore .resource_list_select", context).val();
+    var cntext = $("#docker_context", context).val();
+    var size = parseInt($("#docker_size", context).val(), 10) || 0;
+    var template = "";
+    var sizeUnit = parseInt($("#docker_size_units", context).val(),10) || 1;
+
+    size = size * sizeUnit;
+
+    // that.wizardTabs[1] is tab docker see line 34 of this file
+    if (that.wizardTabs && that.wizardTabs[1] && that.wizardTabs[1].getValueEditor && typeof that.wizardTabs[1].getValueEditor === "function") {
+      template = that.wizardTabs[1].getValueEditor().trim();
+    }
+
+    if (!ds_id) {
+      Sunstone.hideFormPanelLoading(that.tabId);
+      Notifier.notifyError(Locale.tr("Please select a datastore"));
+      return false;
+    }
+
+    if(!template){
+      Sunstone.hideFormPanelLoading(that.tabId);
+      Notifier.notifyError(Locale.tr("Please insert a dockerfile template"));
+      return false;
+    }else{
+      template = btoa(template);
+    }
+
+    if (!size) {
+      Sunstone.hideFormPanelLoading(that.tabId);
+      Notifier.notifyError(Locale.tr("Please select a size"));
+      return false;
+    }
+    var img_obj = {
+      "image" : {
+        "NAME" : name,
+        "PATH" : "dockerfile://?fileb64="+template+"&context="+cntext+"&size="+size.toString()
+      },
+      "ds_id" : ds_id
+    };
+    Sunstone.runAction(that.resource+".create", img_obj);
+    return false;
+  }
+
+  function _submitAdvanced(that, context) {
     var template = $("#template", context).val();
-    var ds_id = $("#img_datastore_raw .resource_list_select", context).val();
+    var ds_id = $("#img_datastore_raw_advanced .resource_list_select", context).val();
 
     if (!ds_id) {
       Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
@@ -531,7 +403,7 @@ define(function(require) {
       "ds_id" : ds_id
     };
 
-    Sunstone.runAction(this.resource+".create", img_obj);
+    Sunstone.runAction(that.resource+".create", img_obj);
 
     return false;
   }

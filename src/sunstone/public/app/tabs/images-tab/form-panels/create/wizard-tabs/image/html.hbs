@@ -1,5 +1,5 @@
 {{! -------------------------------------------------------------------------- }}
-{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{! Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                }}
 {{!                                                                            }}
 {{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
 {{! not use this file except in compliance with the License. You may obtain    }}
@@ -14,46 +14,39 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
+<form data-abide novalidate id="{{formPanelId}}Wizard" class="tabs-panel is-active custom creation">
   <div class="row">
     <div class="medium-4 columns">
-      <label for="img_name">
+      <label for="{{prepend}}_name">
         {{tr "Name"}}
       </label>
-      <input required type="text" name="img_name" id="img_name" />
+      <input required type="text" name="{{prepend}}_name" id="{{prepend}}_name" />
     </div>
     <div class="medium-8 columns">
-      <label for="img_desc">
+      <label for="{{prepend}}_desc">
         {{tr "Description"}}
       </label>
-      <textarea name="img_desc" id="img_desc" rows="4"></textarea>
+      <textarea name="{{prepend}}_desc" id="{{prepend}}_desc" rows="4"></textarea>
     </div>
   </div>
   <div class="row">
     <div class="medium-4 columns">
-      <label for="img_type">
+      <label for="{{prepend}}_type">
           {{tr "Type"}}
       </label>
-      <select name="img_type" id="img_type">
-        {{#if images}}
+      <select name="{{prepend}}_type" id="{{prepend}}_type">
         <option value="OS">{{tr "Operating System image"}}</option>
         <option value="CDROM">{{tr "Readonly CD-ROM"}}</option>
         <option value="DATABLOCK">{{tr "Generic storage datablock"}}</option>
-        {{else}}
-        <option value="CONTEXT">{{tr "Context"}}</option>
-        <option value="KERNEL">{{tr "Kernel"}}</option>
-        <option value="RAMDISK">{{tr "Ramdisk"}}</option>
-        {{/if}}
       </select>
     </div>
     <div class="medium-8 columns">
-      <label for="img_datastore">
+      <label for="{{prepend}}_datastore">
         {{tr "Datastore"}}
       </label>
-      <div id="img_datastore" name="img_datastore"></div>
+      <div id="{{prepend}}_datastore" name="{{prepend}}_datastore"></div>
     </div>
   </div>
-  {{#if images}}
   {{#isTabActionEnabled "images-tab" "Image.persistent"}}
     <div class="row">
       <div class="large-4 columns">
@@ -64,7 +57,7 @@
             </label>
           </div>
           <div class="large-4 columns">
-            <select id="img_persistent">
+            <select id="{{prepend}}_persistent">
               <option value=""></option>
               <option value="YES"> {{tr "YES"}}</option>
               <option value="NO"> {{tr "NO"}}</option>
@@ -74,7 +67,6 @@
       </div>
     </div>
   {{/isTabActionEnabled}}
-  {{/if}}
   <br>
   <fieldset>
     <legend>{{tr "Image location"}}</legend>
@@ -84,19 +76,17 @@
         <label for="path_image">{{tr "Path/URL"}}</label>
         <input type="radio" name="src_path" id="upload_image" value="upload">
         <label for="upload_image">{{tr "Upload"}}</label>
-        {{#if images}}
         <input type="radio" name="src_path" id="datablock_img" value="datablock">
         <label for="datablock_img">{{tr "Empty disk image"}}</label>
-        {{/if}}
       </div>
     </div>
     <br>
     <div class="row">
       <div class="large-12 columns">
-        <label for="img_path">
+        <label for="{{prepend}}_path">
           {{tr "Path in OpenNebula server or URL"}}
         </label>
-        <input type="text" name="img_path" id="img_path" />
+        <input type="text" name="{{prepend}}_path" id="{{prepend}}_path" />
       </div>
     </div>
     <div class="row">
@@ -106,14 +96,14 @@
         <input id="file-uploader-input" type="file"/>
       </div>
     </div>
-    <div class="img_size row">
+    <div class="{{prepend}}_size row">
       <div class="medium-6 columns">
-        <label for="img_size">
+        <label for="{{prepend}}_size">
           {{tr "Size"}}
         </label>
         <div class="input-group mb_input_wrapper">
           <div class="input-group-field">
-            <input type="text" name="img_size" id="img_size" />
+            <input type="text" name="{{prepend}}_size" id="{{prepend}}_size" />
           </div>
           <div class="input-group-button">
             <select class="mb_input_unit">
@@ -140,7 +130,6 @@
       </div>
     </div>
   </fieldset>
-  {{#if images}}
   {{#advancedSection (tr "Advanced Options") }}
     <div class="row">
       <div class="medium-6 columns">
@@ -163,10 +152,10 @@
         </div>
         <div class="row not_vcenter">
           <div class="large-12 columns">
-            <label for="img_dev_prefix">
+            <label for="{{prepend}}_dev_prefix">
               {{tr "BUS"}}
             </label>
-            <select name="img_dev_prefix" id="img_dev_prefix">
+            <select name="{{prepend}}_dev_prefix" id="{{prepend}}_dev_prefix">
               <option value="" selected="selected"></option>
               <option value="vd">Virtio</option>
               <option value="sd">SCSI/SATA</option>
@@ -174,23 +163,23 @@
               <option value="custom">custom</option>
             </select>
             <div>
-              <input type="text" id="custom_img_dev_prefix" name="custom_img_dev_prefix" />
+              <input type="text" id="custom_{{prepend}}_dev_prefix" name="custom_{{prepend}}_dev_prefix" />
             </div>
           </div>
         </div>
         <div class="row not_vcenter">
           <div class="large-12 columns datablock-input">
-            <label for="img_driver">
+            <label for="{{prepend}}_driver">
               {{tr "Format"}}
             </label>
-            <select name="img_driver" id="img_driver">
+            <select name="{{prepend}}_driver" id="{{prepend}}_driver">
               <option value="" selected="selected">--</option>
               <option value="raw">raw</option>
               <option value="qcow2">qcow2</option>
               <option value="custom">custom</option>
             </select>
             <div>
-              <input type="text" id="custom_img_driver" name="custom_img_driver" />
+              <input type="text" id="custom_{{prepend}}_driver" name="custom_{{prepend}}_driver" />
             </div>
           </div>
         </div>
@@ -198,10 +187,10 @@
       <div class="medium-6 columns">
         <div class="row not_vcenter">
           <div class="large-12 columns">
-            <label for="img_target">
+            <label for="{{prepend}}_target">
               {{tr "Target device"}}
             </label>
-            <input type="text" name="img_target" id="img_target" />
+            <input type="text" name="{{prepend}}_target" id="{{prepend}}_target" />
           </div>
         </div>
       </div>
@@ -216,5 +205,4 @@
       {{{customTagsHTML}}}
     </fieldset>
   {{/advancedSection}}
-  {{/if}}
 </form>

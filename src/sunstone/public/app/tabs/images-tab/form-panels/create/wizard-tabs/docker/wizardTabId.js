@@ -1,5 +1,6 @@
+
 /* -------------------------------------------------------------------------- */
-/* Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                */
+/* Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                */
 /*                                                                            */
 /* Licensed under the Apache License, Version 2.0 (the "License"); you may    */
 /* not use this file except in compliance with the License. You may obtain    */
@@ -14,36 +15,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-define(function(require) {
-  /*
-    DEPENDENCIES
-   */
-
-  var BaseFormPanel = require("tabs/images-tab/form-panels/create-common");
-
-  /*
-    CONSTANTS
-   */
-
-  var RESOURCE = "Image";
-  var FORM_PANEL_ID = require("./create/formPanelId");
-  var TAB_ID = require("../tabId");
-
-  /*
-    CONSTRUCTOR
-   */
-
-  function FormPanel() {
-    this.formPanelId = FORM_PANEL_ID;
-    this.tabId = TAB_ID;
-    this.resource = RESOURCE;
-
-    BaseFormPanel.call(this);
-  }
-
-  FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
-  FormPanel.prototype = Object.create(BaseFormPanel.prototype);
-  FormPanel.prototype.constructor = FormPanel;
-
-  return FormPanel;
+define(function(require){
+  return "dockerImageCreateTab";
 });
+

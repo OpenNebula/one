@@ -1,0 +1,111 @@
+{{! -------------------------------------------------------------------------- }}
+{{! Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                }}
+{{!                                                                            }}
+{{! Licensed under the Apache License, Version 2.0 (the "License"); you may    }}
+{{! not use this file except in compliance with the License. You may obtain    }}
+{{! a copy of the License at                                                   }}
+{{!                                                                            }}
+{{! http://www.apache.org/licenses/LICENSE-2.0                                 }}
+{{!                                                                            }}
+{{! Unless required by applicable law or agreed to in writing, software        }}
+{{! distributed under the License is distributed on an "AS IS" BASIS,          }}
+{{! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   }}
+{{! See the License for the specific language governing permissions and        }}
+{{! limitations under the License.                                             }}
+{{! -------------------------------------------------------------------------- }}
+
+<form data-abide novalidate id="{{formPanelId}}Wizard" class="custom creation">
+  <div class="row">
+    <div class="medium-4 columns">
+      <label for="{{prepend}}_name">
+        {{tr "Name"}}
+      </label>
+      <input required type="text" name="{{prepend}}_name" id="{{prepend}}_name" />
+    </div>
+    <div class="medium-8 columns">
+      <label for="{{prepend}}_desc">
+        {{tr "Description"}}
+      </label>
+      <textarea name="{{prepend}}_desc" id="{{prepend}}_desc" rows="4"></textarea>
+    </div>
+  </div>
+  <div class="row">
+    <div class="medium-4 columns">
+      <label for="{{prepend}}_type">
+          {{tr "Type"}}
+      </label>
+      <select name="{{prepend}}_type" id="{{prepend}}_type">
+        <option value="CONTEXT">{{tr "Context"}}</option>
+        <option value="KERNEL">{{tr "Kernel"}}</option>
+        <option value="RAMDISK">{{tr "Ramdisk"}}</option>
+      </select>
+    </div>
+    <div class="medium-8 columns">
+      <label for="{{prepend}}_datastore">
+        {{tr "Datastore"}}
+      </label>
+      <div id="{{prepend}}_datastore" name="{{prepend}}_datastore"></div>
+    </div>
+  </div>
+  <br>
+  <fieldset>
+    <legend>{{tr "Image location"}}</legend>
+    <div class="row" id="src_path_select">
+      <div class="large-12 columns text-center">
+        <input type="radio" name="src_path" id="path_image" value="path">
+        <label for="path_image">{{tr "Path/URL"}}</label>
+        <input type="radio" name="src_path" id="upload_image" value="upload">
+        <label for="upload_image">{{tr "Upload"}}</label>
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <div class="large-12 columns">
+        <label for="img_path">
+          {{tr "Path in OpenNebula server or URL"}}
+        </label>
+        <input type="text" name="{{prepend}}_path" id="{{prepend}}_path" />
+      </div>
+    </div>
+    <div class="row">
+      <div id="file-uploader" class="large-12 columns text-center">
+        <label id="file-uploader-label" for="file-uploader-input"></label>
+        <i id="close_image" class="fas fa-times-circle fas fa-lg close_image" hidden="true"></i>
+        <input id="file-uploader-input" type="file"/>
+      </div>
+    </div>
+    <div class="{{prepend}}_size row">
+      <div class="medium-6 columns">
+        <label for="{{prepend}}_size">
+          {{tr "Size"}}
+        </label>
+        <div class="input-group mb_input_wrapper">
+          <div class="input-group-field">
+            <input type="text" name="{{prepend}}_size" id="{{prepend}}_size" />
+          </div>
+          <div class="input-group-button">
+            <select class="mb_input_unit">
+              <option value="MB">{{tr "MB"}}</option>
+              <option value="GB" selected>{{tr "GB"}}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="medium-6 columns only_vcenter">
+        <label for="vcenter_disk_type">
+          {{tr "Disk provisioning type"}}
+        </label>
+        <select name="vcenter_disk_type" id="vcenter_disk_type">
+          <option value="" selected="selected"></option>
+          <option value="thin">Thin</option>
+          <option value="thick">Thick</option>
+          <option value="eagerZeroedThick">Eager Zeroed Thick</option>
+          <option value="custom">custom</option>
+        </select>
+        <div>
+          <input type="text" id="custom_vcenter_disk_type" name="custom_vcenter_disk_type" />
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>
