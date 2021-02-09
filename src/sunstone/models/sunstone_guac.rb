@@ -25,12 +25,8 @@ require 'base64'
 require 'openssl'
 
 if !ONE_LOCATION
-    GUAC_LOCK_FILE = '/var/lock/one/.guac.lock'
-    GUACD_PID_FILE = '/var/run/one/guacd.pid'
     VAR_LOCATION = '/var/lib/one/'
 else
-    GUAC_LOCK_FILE= ONE_LOCATION + '/var/.guac.lock'
-    GUACD_PID_FILE= ONE_LOCATION + '/var/guacd.pid'
     VAR_LOCATION = ONE_LOCATION + '/var/'
 end
 
@@ -116,9 +112,6 @@ class SunstoneGuac
     def initialize(logger, options = {})
         opts={ :json_errors => true }.merge(options)
 
-        @lock_file = GUAC_LOCK_FILE
-        @guacd_pid_file = GUACD_PID_FILE
-
         @options = opts
         @logger = logger
     end
@@ -170,7 +163,7 @@ class SunstoneGuac
                         'security' =>  'any',
                         'ignore-cert' =>  'true',
                         'enable-drive' =>  'true',
-                        #'enable-audio' =>  'true',
+                        # 'enable-audio' =>  'true',
                         'create-drive-path' =>  'true'
                     }.merge!(settings)
                 }
@@ -183,29 +176,10 @@ class SunstoneGuac
     private
 
     def error(code, msg)
-        unless @options[:json_error]
-            return [code, msg]
-        end
+        @logger.error(msg)
+        return [code, msg] unless @options[:json_error]
 
         [code, OpenNebula::Error.new(msg).to_json]
-    end
-
-    if RUBY_VERSION<'1.9'
-        def spawn(*args)
-            fork do
-                command=args[0..-2]
-
-                # Close stdin and point out and err to log file
-                $stdout.reopen(GUACAMOLE_LOG, 'a')
-                $stderr.reopen(GUACAMOLE_LOG, 'a')
-                $stdin.close
-
-                # Detach process from the parent
-                Process.setsid
-
-                exec(*command)
-            end
-        end
     end
 
     def get_config_vnc(vm_resource)

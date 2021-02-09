@@ -241,7 +241,6 @@ AllCops:
     - src/sunstone/test/spec/user_spec.rb
     - src/sunstone/OpenNebulaAddons.rb
     - src/sunstone/models/sunstone_vnc.rb
-    - src/sunstone/models/sunstone_guac.rb
     - src/sunstone/models/sunstone_vmrc.rb
     - src/sunstone/models/sunstone_vm_helper.rb
     - src/sunstone/models/OpenNebulaJSON.rb
