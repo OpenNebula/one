@@ -122,7 +122,6 @@ define(function(require) {
           }
         });
         sched_actions_table = sched_actions_table.prop("outerHTML");
-        console.log("-->", sched_actions_table);
       }
     }
     return TemplateHTML({
