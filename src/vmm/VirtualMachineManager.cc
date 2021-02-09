@@ -190,6 +190,14 @@ int VirtualMachineManager::validate_raw(const Template * vmt, string& error_str)
         return 0;
     }
 
+    bool validate;
+    raw->vector_value("VALIDATE", validate, true);
+
+    if (!validate)
+    {
+        return 0;
+    }
+
     string value = raw->vector_value("TYPE");
     one_util::tolower(value);
 
@@ -203,9 +211,8 @@ int VirtualMachineManager::validate_raw(const Template * vmt, string& error_str)
 
     value = raw->vector_value("DATA");
 
-    return vmd->validate_raw(value, error_str);
 
-    return 0;
+    return vmd->validate_raw(value, error_str);
 }
 
 /* -------------------------------------------------------------------------- */
