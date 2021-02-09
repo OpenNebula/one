@@ -313,7 +313,7 @@ module OpenNebula::MarketPlaceAppExt
                     id = disk[:image]
 
                     case disk[:image_type]
-                    when 'IMAGE', 'OS', 'DATABLOCK'
+                    when 'IMAGE', 'OS', 'DATABLOCK', 'CDROM'
                         vmtpl.add_element('TEMPLATE',
                                           'DISK' => { 'IMAGE_ID' => id.first })
                     when 'CONTEXT'
