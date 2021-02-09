@@ -92,6 +92,8 @@ define(function(require) {
       if (rawType != undefined) {
         rawJSON['TYPE'] = rawType;
       }
+
+      rawJSON['VALIDATE'] = $("#raw_validate", context).is(":checked") ? 'YES' : 'NO';
     }
 
     if (!$.isEmptyObject(rawJSON)) { templateJSON['RAW'] = rawJSON; };
@@ -104,7 +106,12 @@ define(function(require) {
     if (rawJSON) {
       $('.raw_type', context).val(rawJSON['TYPE']);
       $('.raw_type', context).change();
+
       WizardFields.fillInput($('.raw_data', context), rawJSON['DATA']);
+
+      if (['yes', 'YES'].includes(rawJSON['VALIDATE'])) {
+        $("#raw_validate", context).prop('checked', 'checked');
+      }
 
       delete templateJSON.RAW;
     }

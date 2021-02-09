@@ -29,11 +29,19 @@
           </label>
         </div>
         <div class="medium-8 columns">
-          <label>
-            {{tr "Data"}}
-            {{{tip (tr "Raw data to be passed directly to the hypervisor")}}}
-            <textarea rows="2" type="text" class="raw_data"/>
-          </label>
+          <div class="row">
+            <div class="large-12 columns">
+              <label>
+                {{tr "Data"}}
+                {{{tip (tr "Raw data to be passed directly to the hypervisor")}}}
+                <textarea rows="2" type="text" class="raw_data"/>
+              </label>
+            </div>
+            <div class="large-12 columns">
+              <input type="checkbox" id="raw_validate" name="raw_validate">
+              <label for="raw_validate">{{tr "Validate"}}</label>
+            </div>
+          </div>
         </div>
       </div>
     </fieldset>
