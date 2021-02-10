@@ -476,7 +476,8 @@ tabs:
             - 5         # State
             - 6         # Registration time
             #- 7        # Labels
-            #- 8        # Search data
+            - 8        # Leases
+            #- 9        # Search data
         actions:
             Service.refresh: true
             Service.create_dialog: true

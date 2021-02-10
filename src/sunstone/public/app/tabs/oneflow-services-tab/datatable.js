@@ -27,6 +27,8 @@ define(function(require) {
   var SearchDropdown = require("hbs!./datatable/search");
   var Status = require("utils/status");
   var Humanize = require("utils/humanize");
+  var TemplateUtils = require("utils/template-utils");
+  var ScheduleActions = require("utils/schedule_action");
 
   /*
     CONSTANTS
@@ -72,6 +74,7 @@ define(function(require) {
       Locale.tr("State"),
       Locale.tr("Start time"),
       Locale.tr("Labels"),
+      Locale.tr("Charters"),
       "search_data"
     ];
 
@@ -93,8 +96,135 @@ define(function(require) {
   Table.prototype = Object.create(TabDataTable.prototype);
   Table.prototype.constructor = Table;
   Table.prototype.elementArray = _elementArray;
+  Table.prototype.postUpdateView = _postUpdateView;
 
   return Table;
+
+  function _postUpdateView() {
+    var classInfo = "charterInfo";
+    var styleTips = {
+      "position":"absolute",
+      "background":"#d7d0d0",
+      "padding":"8px",
+      "z-index":"1",
+      "min-width":"8rem",
+      "font-family": "\"Lato\",\"Helvetica Neue\",Helvetica,Roboto,Arial,sans-serif",
+      "font-weight": "100",
+      "color":"#000",
+      "font-weight": "bold"
+    };
+    $(".describeCharter").off("mouseenter").on("mouseenter",function(e){
+      $(this).find(".charterInfo").remove();
+      var start = $(this).attr("data_start");
+      var add = $(this).attr("data_add");
+      var action = $(this).attr("data_action");
+      if((start && start.length) && (add && add.length) && (action && action.length)){
+        var date = checkTime(start, add, undefined, true);
+        if(typeof date === "number"){
+          $(this).append(
+            $("<div/>",{"class":classInfo}).css(styleTips).append(
+              $("<div/>").css({"display":"inline"}).text(action).add(
+                $("<div/>").css({"display":"inline"}).text(
+                  " "+Locale.tr("will run in")+" "+ScheduleActions.parseTime(date)
+                )
+              )
+            )
+          );
+        }
+      }
+    });
+    $(".describeCharter").on("mouseleave").on("mouseleave", function(e){
+      $(this).find("."+classInfo).remove();
+    });
+  }
+
+  function checkTime(startTime, addedEndTime, warningTime, rtnTime){
+    var rtn = false;
+    if(startTime && addedEndTime){
+      var regexNumber = new RegExp("[0-9]*$","gm");
+      var date = parseInt(startTime,10);
+      var added = parseInt(addedEndTime.match(regexNumber)[0],10);
+      if(!isNaN(date) && !isNaN(added)){
+        var operator = addedEndTime.replace(regexNumber, "");
+        var finalTime = date;
+        switch (operator) {
+          case "-":
+            finalTime = date - added;
+          break;
+          default:
+            finalTime = date + added;
+          break;
+        }
+        now = new Date();
+        var nowGetTime = parseInt(now.getTime(),10);
+        var nowInSeconds = Math.round(nowGetTime / 1000);
+        if(finalTime >= nowInSeconds && warningTime === undefined){
+          rtn = rtnTime? finalTime - nowInSeconds : true;
+        }else if(!!warningTime){
+          var warning = parseInt(warningTime.match(regexNumber)[0],10);
+          if(!isNaN(warning)){
+            operator = warningTime.replace(regexNumber, "");
+            var wtime = date;
+            switch (operator) {
+              case "-":
+                wtime = finalTime - warning;
+              break;
+              default:
+                wtime = finalTime + warning;
+              break;
+            }
+            if(finalTime >= nowInSeconds && wtime <= nowInSeconds){
+              rtn = true;
+            }
+          }
+        }
+      }
+    }
+    return rtn;
+  }
+
+  function leasesClock(element){
+    var rtn = "";
+    if(element && element.TEMPLATE && element.TEMPLATE.BODY && element.TEMPLATE.BODY.start_time && element.TEMPLATE.BODY.roles){
+      var startTime = element.TEMPLATE.BODY.start_time;
+      var roles = Array.isArray(element.TEMPLATE.BODY.roles)? element.TEMPLATE.BODY.roles: [element.TEMPLATE.BODY.roles];
+      if(roles[0] && roles[0].vm_template_contents){
+        var objTemplate = TemplateUtils.stringToTemplate(roles[0].vm_template_contents);
+        if(objTemplate.SCHED_ACTION){
+          var sched_actions = Array.isArray(objTemplate.SCHED_ACTION)? objTemplate.SCHED_ACTION : [objTemplate.SCHED_ACTION];
+          var leases = config.system_config.leases;
+          sched_actions.some(function(action){
+            if(
+              action &&
+              action.ACTION &&
+              action.TIME &&
+              leases &&
+              leases[action.ACTION] &&
+              leases[action.ACTION].time &&
+              !isNaN(parseInt(leases[action.ACTION].time)) &&
+              leases[action.ACTION].color
+            ){
+              if(checkTime(startTime, action.TIME)){
+                rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:startTime, data_add:action.TIME, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
+                if(
+                  leases[action.ACTION].warning &&
+                  leases[action.ACTION].warning.time &&
+                  leases[action.ACTION].warning.color
+                ){
+                  if(checkTime(startTime, action.TIME, leases[action.ACTION].warning.time)){
+                    rtn.css("color", leases[action.ACTION].warning.color);
+                  }
+                }
+                rtn = rtn.prop("outerHTML");
+                return true;
+              }
+            }
+          });
+        }
+      }
+    }
+    return rtn;
+  }
 
   /*
     FUNCTION DEFINITIONS
@@ -126,6 +256,7 @@ define(function(require) {
         state,
         Humanize.prettyTime(element.TEMPLATE.BODY["registration_time"]),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
+        leasesClock(element),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
     ];
   }
