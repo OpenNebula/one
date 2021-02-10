@@ -120,6 +120,7 @@
   </div>
   {{/advancedImportationSection}}
   {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "show_sched_actions_instantiate"}}
   {{#advancedImportationSection "<i class=\"fas fa-calendar-alt\"></i>" (tr "Schedule Actions for VM") }}
   <div class="row">
     <div class="large-12 columns actionContext{{element.ID}}">
@@ -129,6 +130,7 @@
     </div>
   </div>
   {{/advancedImportationSection}}
+  {{/isFeatureEnabled}}
   {{#isFeatureEnabled "show_vmgroup_instantiate"}}
   {{#advancedImportationSection "<i class=\"fas fa-folder-open\"></i>" (tr "Associate VM to a VM Group") }}
   <div class="row">

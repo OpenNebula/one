@@ -99,6 +99,9 @@ features:
     
     # True to show the network configuration to instantiate Service template
     show_vnet_instantiate_flow: true
+
+    # True to show schedule actions to instantiate a VM 
+    show_sched_actions_instantiate: true
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings
