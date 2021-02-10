@@ -61,14 +61,7 @@ public:
      */
     AuthRequest::Operation get_vm_auth_op(VMActions::Action action) const
     {
-        AuthRequest::Operation aop = vm_actions.get_auth_op(action);
-
-        if (aop == AuthRequest::NONE)
-        {
-            aop = AuthRequest::MANAGE;
-        }
-
-        return aop;
+        return vm_actions.get_auth_op(action);
     }
 
 private:
