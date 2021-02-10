@@ -60,14 +60,14 @@
 
   <!-- START IMAGES/SERVICES/VMTEMPLATES/VM TABLES -->
 
-  <div>
+  <div id="servicesTableHTML">
     <div class="row">
-      <fieldset id="servicesTableHTML">
+      <fieldset>
         <legend>{{tr "Select the Service to create the App"}}</legend>
         {{{servicesTableHTML}}}
       </fieldset>
     </div>
-    <div id="serviceMarketPlaceError" class="row oneflow_templates_error_message" hidden>
+    <div id="serviceMarketPlaceError" class="row oneflow_templates_error_message" style="padding-bottom: 2em; display: none;">
       <div class="small-6 columns small-centered text-center">
           <div class="label alert radius">{{tr "Cannot connect to OneFlow server"}}</div>
       </div>

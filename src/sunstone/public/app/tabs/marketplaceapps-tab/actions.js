@@ -99,9 +99,22 @@ define(function(require) {
           });
         };
 
+        if (response['SERVICE_TEMPLATE'] !== undefined) {
+          $.each(response['SERVICE_TEMPLATE'], function(i, serviceTemplate) {
+            if (serviceTemplate.error != undefined) {
+              Notifier.notifyError(serviceTemplate.error.message);
+            } else if (serviceTemplate.ID != -1) {
+              Notifier.notifyCustom(Locale.tr("Service Template created"),
+                Navigation.link(" ID: " + serviceTemplate.ID, "oneflow-templates-tab", serviceTemplate.ID),
+                false);
+            }
+          });
+        };
+
         Sunstone.hideFormPanel(TAB_ID);
         OpenNebulaAction.clear_cache("IMAGE");
         OpenNebulaAction.clear_cache("VMTEMPLATE");
+        OpenNebulaAction.clear_cache("SERVICE_TEMPLATE");
       },
       elements: function(opts) {
         return Sunstone.getDataTable(TAB_ID).elements(opts);

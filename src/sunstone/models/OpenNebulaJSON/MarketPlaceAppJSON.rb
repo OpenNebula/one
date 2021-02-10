@@ -145,9 +145,6 @@ module OpenNebulaJSON
             if error_code == -1
                 if (params['IMPORT_ALL'] == 'yes')
                     ids_images.each do |id|
-
-                        puts id
-                        
                         app = MarketPlaceApp.new_with_id(id, @client)
     
                         app.info
@@ -212,6 +209,13 @@ module OpenNebulaJSON
                             vmtemplate = TemplateJSON.new_with_id(vmtemplate_id, @client)
                             response['VMTEMPLATE'] << vmtemplate.to_hash['VMTEMPLATE']
                         end
+                    }
+                end
+
+                if rc[:service_template]
+                    response['SERVICE_TEMPLATE'] = []
+                    rc[:service_template].each { |servicetemplate_id|
+                        response['SERVICE_TEMPLATE'] << {:ID => servicetemplate_id}
                     }
                 end
 

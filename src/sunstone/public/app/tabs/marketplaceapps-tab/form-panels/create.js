@@ -32,6 +32,7 @@ define(function(require) {
   var Config = require("sunstone-config");
   var WizardFields = require("utils/wizard-fields");
   var OpenNebula = require("opennebula");
+  var OpenNebulaAction = require("opennebula/action");
 
   /*
     TEMPLATES
@@ -188,7 +189,6 @@ define(function(require) {
 
   function _onShow(context) {
     this.imagesTable.resetResourceTableSelect();
-    this.servicesTable.resetResourceTableSelect();
     this.templatesTable.resetResourceTableSelect();
     this.vmsTable.resetResourceTableSelect();
     this.marketPlacesTable.resetResourceTableSelect();
@@ -350,6 +350,16 @@ define(function(require) {
           that.imagesTable.idInput().
             removeAttr("required").
             removeAttr("wizard_field");
+
+          var success_func = function (){
+            $("#serviceMarketPlaceError").hide();
+          };
+
+          var error_func = function (){
+            $("#serviceMarketPlaceError").show();
+          };
+
+          OpenNebulaAction.list({options: undefined, success: success_func, error: error_func}, "DOCUMENT", "service_template");
 
           $('#importAllCheckBox',context).show();
 
