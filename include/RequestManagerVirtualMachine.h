@@ -221,7 +221,6 @@ public:
                            "Attaches a new disk to the virtual machine",
                            "A:sis")
     {
-        auth_op   = AuthRequest::USE_NO_LCK;
         vm_action = VMActions::DISK_ATTACH_ACTION;
     }
 
@@ -254,7 +253,6 @@ public:
                            "Detaches a disk from a virtual machine",
                            "A:sii")
     {
-        auth_op   = AuthRequest::USE_NO_LCK;
         vm_action = VMActions::DISK_DETACH_ACTION;
     }
 
