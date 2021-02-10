@@ -368,39 +368,39 @@ int ImagePool::acquire_disk(int               vm_id,
 
         if (has_size && img->is_persistent() && size != img->get_size())
         {
-            img.reset();
-
-            imagem->release_image(vm_id, iid, false);
-
             oss << "SIZE attribute is not supported for persistent image ["
                 << img->get_oid() << "].";
             error_str = oss.str();
+
+            img.reset();
+
+            imagem->release_image(vm_id, iid, false);
 
             return -1;
         }
 
         if (has_size && img->get_type() == Image::CDROM && size != img->get_size())
         {
-            img.reset();
-
-            imagem->release_image(vm_id, iid, false);
-
             oss << "SIZE attribute is not supported for CDROM image ["
                 << img->get_oid() << "].";
             error_str = oss.str();
+
+            img.reset();
+
+            imagem->release_image(vm_id, iid, false);
 
             return -1;
         }
 
         if (has_size && size < img->get_size())
         {
-            img.reset();
-
-            imagem->release_image(vm_id, iid, false);
-
             oss << "SIZE of " << size << "MB is less than the image ["
                 << img->get_oid() << "] size of " << img->get_size() << "MB.";
             error_str = oss.str();
+
+            img.reset();
+
+            imagem->release_image(vm_id, iid, false);
 
             return -1;
         }
