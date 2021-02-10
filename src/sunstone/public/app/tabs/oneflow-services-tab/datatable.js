@@ -185,6 +185,8 @@ define(function(require) {
 
   function leasesClock(element){
     var rtn = "";
+    // The charter info is pulled from the schedule action of the first VM of the first role 
+    // (element.TEMPLATE.BODY.roles[0].vm_template_contents.SCHED_ACTION)
     if(element && element.TEMPLATE && element.TEMPLATE.BODY && element.TEMPLATE.BODY.start_time && element.TEMPLATE.BODY.roles){
       var startTime = element.TEMPLATE.BODY.start_time;
       var roles = Array.isArray(element.TEMPLATE.BODY.roles)? element.TEMPLATE.BODY.roles: [element.TEMPLATE.BODY.roles];
