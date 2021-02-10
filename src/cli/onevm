@@ -1274,7 +1274,7 @@ CommandParser::CmdParser.new(ARGV) do
     lock_desc = <<-EOT.unindent
         Locks a VM with differents levels for lock any actions with this VM, show and
         monitoring never will be locked.
-        Aalid states are: All.
+        Valid states are: All.
     EOT
 
     command :lock, lock_desc, :vmid,
