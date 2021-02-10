@@ -224,6 +224,21 @@ define(function(require) {
     });
   }
 
+  function diffValues(finder, inElement){
+    var diff = [];
+    if(finder && inElement){
+      var Template = Array.isArray(inElement)? inElement: [inElement];
+      var Finder = Array.isArray(finder)? finder: [finder];
+      var x = Template.map(function(internalTemplate){return JSON.stringify(internalTemplate);});
+      Finder.forEach(fnd => {
+        if($.inArray(JSON.stringify(fnd),x) === -1){
+          diff.push(fnd);
+        }
+      });
+    }
+    return diff;
+  }
+
   function _submitWizard(context) {
     var that = this;
 
@@ -253,6 +268,8 @@ define(function(require) {
     }
 
     $.each(this.selected_nodes, function(index, template_id) {
+      var original_tmpl = that.template_objects[index].VMTEMPLATE;
+
       var extra_info = {
         "hold": hold
       };
@@ -267,10 +284,8 @@ define(function(require) {
 
       var disks = DisksResize.retrieve($(".disksContext"  + template_id, context));
       if (disks.length > 0) {
-        tmp_json.DISK = disks;
+        tmp_json.DISK = diffValues(disks, original_tmpl.TEMPLATE.DISK);
       }
-
-      var networks = NicsSection.retrieve($(".nicsContext"  + template_id, context));
 
       var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id, context));
       if (vmgroup){
@@ -318,6 +333,8 @@ define(function(require) {
         tmp_json.AS_GID = as_gid;
       }
 
+      var networks = NicsSection.retrieve($(".nicsContext"  + template_id, context));
+
       var nics = [];
       var pcis = [];
       var alias = [];
@@ -341,7 +358,6 @@ define(function(require) {
       tmp_json.NIC_ALIAS = alias;
 
       // Replace PCIs of type nic only
-      var original_tmpl = that.template_objects[index].VMTEMPLATE;
 
       var regular_pcis = [];
 
@@ -384,8 +400,20 @@ define(function(require) {
         delete tmp_json["SCHED_ACTION"];
       }
 
+      //this set MEMORY and CPU
       capacityContext = $(".capacityContext"  + template_id, context);
-      $.extend(tmp_json, CapacityInputs.retrieveChanges(capacityContext));
+      capacityRetrieveValues = CapacityInputs.retrieveChanges(capacityContext);
+      for (const key in capacityRetrieveValues) {
+        if (capacityRetrieveValues.hasOwnProperty(key)) {
+          var diff = diffValues(
+            {[key]: capacityRetrieveValues[key]},
+            {[key]:original_tmpl.TEMPLATE[key]}
+          );
+          if(diff && diff[0] && typeof diff[0] === "object"){
+            $.extend(tmp_json, diff[0]);
+          }
+        }
+      }
 
       var topology = {};
 
