@@ -631,6 +631,11 @@ define(function(require) {
       }
       e.preventDefault();
     });
+
+    // Reload foundation ips dropdown when change page on datatables
+    $(document).on("click", ".paginate_button", function() {
+      $('.ips-dropdown').foundation();
+    });
   };
 
   var _setupTabs = function() {

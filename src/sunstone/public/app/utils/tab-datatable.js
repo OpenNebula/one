@@ -214,7 +214,7 @@ define(function(require) {
 
     $('#' + this.dataTableId + 'Search').on('input', function() {
       that.dataTable.fnFilter($(this).val());
-      $("ul.ips-dropdown").foundation();
+      $(".ips-dropdown").foundation();
       return false;
     });
 
@@ -695,7 +695,7 @@ define(function(require) {
 
     if (that.postUpdateView) {
       that.postUpdateView();
-      $("ul.ips-dropdown").foundation();
+      $(".ips-dropdown").foundation();
     }
 
     if(that.conf.searchDropdownHTML != undefined){
@@ -737,7 +737,7 @@ define(function(require) {
       }
     });
 
-    $("ul.ips-dropdown").foundation();
+    $(".ips-dropdown").foundation();
   }
 
   function _getElementData(id, resource_tag) {
