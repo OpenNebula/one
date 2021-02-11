@@ -44,9 +44,11 @@ wait_for_oned()
 (
     TIMEOUT="${TIMEOUT:-120}"
 
+    _oned_endpoint="${1:-http://${ONED_HOST:-localhost}:${ONED_INTERNAL_PORT:-2633}/RPC2}"
+
     while [ "$TIMEOUT" -gt 0 ] ; do
         if oneuser list -x \
-           --endpoint "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2" \
+           --endpoint "${_oned_endpoint}" \
            > /dev/null 2>&1 \
            ;
         then
@@ -65,7 +67,7 @@ wait_for_memcached()
     TIMEOUT="${TIMEOUT:-120}"
 
     while [ "$TIMEOUT" -gt 0 ] ; do
-        if echo stats | nc "${MEMCACHED_HOST}" "${MEMCACHED_INTERNAL_PORT}" \
+        if echo stats | nc "${MEMCACHED_HOST:-localhost}" "${MEMCACHED_INTERNAL_PORT:-11211}" \
            > /dev/null 2>&1 \
            ;
         then

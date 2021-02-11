@@ -22,6 +22,13 @@ do
     fi
 done
 
+# wait for ssh-agent to start
+msg "Wait for ssh-agent (/var/run/one/ssh-agent.env)..."
+if ! wait_for_file "/var/run/one/ssh-agent.env" ; then
+    err "Timeout!"
+    exit 1
+fi
+
 #
 # run service
 #
