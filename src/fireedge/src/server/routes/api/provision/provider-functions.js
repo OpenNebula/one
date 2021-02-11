@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const { tmpPath, defaultCommandProvider } = require('server/utils/constants/defaults')
+const { defaultFolderTmpProvision, defaultCommandProvider } = require('server/utils/constants/defaults')
 
 const {
   ok,
@@ -76,7 +76,7 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(tmpPath, 'yaml', content)
+        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
@@ -86,11 +86,11 @@ const createProviders = (res = {}, next = () => undefined, params = {}, userData
               const data = executedCommand.data
               const dataInternal = data && Array.isArray(data.match('\\d+')) ? data.match('\\d+').join() : data
               res.locals.httpCode = httpResponse(ok, dataInternal)
-              removeFile(file.path)
             } else {
               res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)
             }
           }
+          removeFile(file.path)
           next()
           return
         }
@@ -119,15 +119,15 @@ const updateProviders = (res = {}, next = () => undefined, params = {}, userData
     const resource = parsePostData(params.resource)
     const valSchema = schemaValidator.validate(resource, providerUpdate)
     if (valSchema.valid) {
-      const file = createTemporalFile(tmpPath, 'json', JSON.stringify(resource))
+      const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'json', JSON.stringify(resource))
       if (file && file.name && file.path) {
         const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
         const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
         res.locals.httpCode = httpResponse(internalServerError)
         if (executedCommand && executedCommand.success) {
           res.locals.httpCode = httpResponse(ok)
-          removeFile(file.path)
         }
+        removeFile(file.path)
         next()
         return
       }
@@ -156,7 +156,7 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
     const data = executedCommand.data || ''
     try {
       if (executedCommand && executedCommand.success) {
-        if(executedCommand.data.length === 0){
+        if (executedCommand.data.length === 0) {
           res.locals.httpCode = httpResponse(ok)
         } else {
           res.locals.httpCode = httpResponse(internalServerError, '', executedCommand.data)

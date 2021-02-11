@@ -26,7 +26,7 @@ const {
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, parsePostData, existsFile, createFile } = require('server/utils/server')
-const { tmpPath, defaultCommandProvision } = require('server/utils/constants/defaults')
+const { defaultFolderTmpProvision, defaultCommandProvision } = require('server/utils/constants/defaults')
 const {
   executeCommand,
   executeCommandAsync,
@@ -176,8 +176,8 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
     const authCommand = ['--user', user, '--password', password]
     const directories = getDirectories(path)
     let description = ''
-    const providers = {}
-    const provisions = {}
+    let providers = {}
+    let provisions = {}
     const fillDescription = (content = '') => {
       if (content) {
         description = content
@@ -248,12 +248,17 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
             (content, filePath) => fillProvisions(content, filePath, dirname(file))
           )
         })
+
         if (description && !checkEmpty(providers) && !checkEmpty(provisions)) {
           files[directory.filename] = {
             description,
             providers,
             provisions
           }
+          // clear
+          description = ''
+          providers = {}
+          provisions = {}
         }
       }
     })
@@ -603,21 +608,36 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
 
 const configureHost = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
-  let rtn = httpInternalError
+  const rtn = httpInternalError
   if (params && params.id && user && password) {
+    const command = 'configure'
     const endpoint = getEndpoint()
     const authCommand = ['--user', user, '--password', password]
-    const paramsCommand = ['host', 'configure', `${params.id}`.toLowerCase(), '--debug', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
+    const paramsCommand = ['host', command, `${params.id}`.toLowerCase(), '--debug', '--fail_cleanup', '--batch', ...authCommand, ...endpoint]
 
-    const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
-    try {
-      const response = executedCommand.success ? ok : internalServerError
-      res.locals.httpCode = httpResponse(response, JSON.parse(executedCommand.data))
-      next()
-      return
-    } catch (error) {
-      rtn = httpResponse(internalServerError, '', executedCommand.data)
+    // get Log file
+    const dataLog = logData(params.id, true)
+
+    // create stream for write into file
+    const stream = dataLog && dataLog.fullPath && createWriteStream(dataLog.fullPath, { flags: 'a' })
+
+    // This function is performed for each command line response
+    const emit = (lastLine, uuid) => {
+      const renderLine = { id: params.id, data: lastLine, command: `host ${command}`, commandId: uuid }
+      stream && stream.write && stream.write(`${JSON.stringify(renderLine)}\n`)
     }
+
+    const close = (success, lastLine) => {
+      stream && stream.end && stream.end()
+    }
+
+    // execute Async Command
+    const executedCommand = executeWithEmit(paramsCommand, { close, out: emit, err: emit }, params.id)
+
+    // response Http
+    res.locals.httpCode = httpResponse(executedCommand ? accepted : internalServerError, params.id)
+    next()
+    return
   }
   res.locals.httpCode = rtn
   next()
@@ -635,15 +655,15 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(tmpPath, 'yaml', content)
+        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['validate', '--dump', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvision, paramsCommand)
           let response = internalServerError
           if (executedCommand && executedCommand.success) {
             response = ok
-            removeFile(file)
           }
+          removeFile(file)
           res.locals.httpCode = httpResponse(response)
           next()
           return

@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const { tmpPath, defaultCommandProvisionTemplate } = require('server/utils/constants/defaults')
+const { defaultFolderTmpProvision, defaultCommandProvisionTemplate } = require('server/utils/constants/defaults')
 
 const {
   ok,
@@ -62,15 +62,15 @@ const createProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(tmpPath, 'yaml', content)
+        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['create', file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.success && executedCommand.data) {
             res.locals.httpCode = httpResponse(ok, executedCommand.data)
-            removeFile(file.path)
           }
+          removeFile(file.path)
           next()
           return
         }
@@ -122,15 +122,15 @@ const updateProvisionTemplate = (res = {}, next = () => undefined, params = {}, 
     if (valSchema.valid) {
       const content = createYMLContent(resource)
       if (content) {
-        const file = createTemporalFile(tmpPath, 'yaml', content)
+        const file = createTemporalFile(`${global.CPI}/${defaultFolderTmpProvision}`, 'yaml', content)
         if (file && file.name && file.path) {
           const paramsCommand = ['update', params.id, file.path, ...authCommand, ...endpoint]
           const executedCommand = executeCommand(defaultCommandProvisionTemplate, paramsCommand)
           res.locals.httpCode = httpResponse(internalServerError)
           if (executedCommand && executedCommand.success && executedCommand.data) {
             res.locals.httpCode = httpResponse(ok, executedCommand.data)
-            removeFile(file.path)
           }
+          removeFile(file.path)
           next()
           return
         }

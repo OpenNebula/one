@@ -26,7 +26,7 @@ const apps = {
   }
 }
 const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
-const defaultIp = '127.0.0.1'
+const defaultIp = 'localhost'
 const protocol = 'http'
 const defaults = {
   defaultLimit: {
@@ -74,6 +74,7 @@ const defaults = {
   defaultCommandProvision: 'oneprovision',
   defaultCommandProvisionTemplate: 'oneprovision-template',
   defaultCommandProvider: 'oneprovider',
+  defaultFolderTmpProvision: 'tmp',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultEndpointWebsocket: `${appName ? '/' + appName : ''}/websocket`,
   defaultConfigFile: `${appName}-server.conf`,
@@ -89,7 +90,6 @@ const defaults = {
   defaultKeyFilename: `${appName}_key`,
   defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
-  tmpPath: '/var/tmp',
   endpointVmrc: `${appName ? '/' + appName : ''}/vmrc`,
   endpointGuacamole: `${appName ? '/' + appName : ''}/guacamole`,
   defaultNamespace: 'one.',

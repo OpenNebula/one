@@ -305,17 +305,21 @@ const executeCommand = (command = '', resource = '', options = {}) => {
 
 const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
   if (path && finder) {
-    const dirs = readdirSync(path)
-    dirs.forEach(dir => {
-      const name = `${path}/${dir}`
-      if (statSync(name).isDirectory()) {
-        if (basename(name) === finder) {
-          rtn = name
-        } else {
-          rtn = findRecursiveFolder(name, finder, rtn)
+    try {
+      const dirs = readdirSync(path)
+      dirs.forEach(dir => {
+        const name = `${path}/${dir}`
+        if (statSync(name).isDirectory()) {
+          if (basename(name) === finder) {
+            rtn = name
+          } else {
+            rtn = findRecursiveFolder(name, finder, rtn)
+          }
         }
-      }
-    })
+      })
+    } catch (error) {
+      messageTerminal(defaultError((error && error.message) || '', 'Error: %s'))
+    }
   }
   return rtn
 }

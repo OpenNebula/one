@@ -17,8 +17,6 @@ const express = require('express')
 const { defaults, httpCodes, params } = require('server/utils/constants')
 const { getConfig } = require('server/utils/yml')
 
-const appConfig = getConfig()
-
 const {
   opennebulaConnect,
   checkIfIsARouteFunction,
@@ -50,17 +48,6 @@ const {
   defaultOpennebulaZones
 } = defaults
 
-const defaultZones = defaultOpennebulaZones
-if (
-  appConfig &&
-  appConfig.one_xmlrpc &&
-  Array.isArray(defaultOpennebulaZones) &&
-  defaultOpennebulaZones[0] &&
-  defaultOpennebulaZones[0].rpc
-) {
-  defaultOpennebulaZones[0].rpc = appConfig.one_xmlrpc
-}
-
 const router = express.Router()
 
 express()
@@ -79,7 +66,17 @@ router.all(
     const { method: httpMethod } = req
     res.locals.httpCode = httpResponse(internalServerError)
     const { zone } = getQueriesState()
-    const zoneData = getDataZone(zone, defaultZones)
+    // get data zones by config file
+    const appConfig = getConfig()
+    if (
+      appConfig.one_xmlrpc &&
+      Array.isArray(defaultOpennebulaZones) &&
+      defaultOpennebulaZones[0] &&
+      defaultOpennebulaZones[0].rpc
+    ) {
+      defaultOpennebulaZones[0].rpc = appConfig.one_xmlrpc
+    }
+    const zoneData = getDataZone(zone, defaultOpennebulaZones)
     if (zoneData) {
       const { rpc } = zoneData
       const connectOpennebula = (
