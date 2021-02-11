@@ -478,6 +478,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  write_iops_sec_max_length  = "";
     string  write_iops_sec_max         = "";
     string  size_iops_sec;
+    string  iothreadid;
 
     string  default_total_bytes_sec            = "";
     string  default_total_bytes_sec_max_length = "";
@@ -561,6 +562,8 @@ int LibVirtDriver::deployment_description_kvm(
     bool guest_agent        = false;
     int  virtio_scsi_queues = 0;
     int  scsi_targets_num   = 0;
+    int  iothreads          = 0;
+    int  iothread_actual    = 1;
 
     string hyperv_options = "";
 
@@ -806,6 +809,13 @@ int LibVirtDriver::deployment_description_kvm(
         file << mbacking;
     }
 
+    get_attribute(vm, host, cluster, "FEATURES", "IOTHREADS", iothreads);
+
+    if ( iothreads > 0 )
+    {
+        file << "\t<iothreads>" << iothreads << "</iothreads>" << endl;
+    }
+
     // ------------------------------------------------------------------------
     // DEVICES SECTION
     // ------------------------------------------------------------------------
@@ -924,6 +934,7 @@ int LibVirtDriver::deployment_description_kvm(
         write_iops_sec_max_length  = disk[i]->vector_value("WRITE_IOPS_SEC_MAX_LENGTH");
 
         size_iops_sec              = disk[i]->vector_value("SIZE_IOPS_SEC");
+        iothreadid                 = disk[i]->vector_value("IOTHREAD");
 
         set_sec_default(read_bytes_sec, default_read_bytes_sec);
         set_sec_default(read_bytes_sec_max, default_read_bytes_sec_max);
@@ -1210,6 +1221,21 @@ int LibVirtDriver::deployment_description_kvm(
         else if ( !default_driver_discard.empty() )
         {
             file << " discard=" << one_util::escape_xml_attr(default_driver_discard);
+        }
+
+        if ( iothreads > 0 && disk_bus == "virtio" )
+        {
+            int iothreadid_i = to_i(iothreadid);
+            if (iothreadid_i > 0 && iothreadid_i <= iothreads)
+            {
+                file << " iothread=" << one_util::escape_xml_attr(iothreadid_i);
+            }
+            else
+            {
+                file << " iothread=" << one_util::escape_xml_attr(iothread_actual);
+
+                iothread_actual = (iothread_actual % iothreads) + 1;
+            }
         }
 
         file << "/>" << endl;
@@ -1725,10 +1751,21 @@ int LibVirtDriver::deployment_description_kvm(
              << "\t\t<controller type='scsi' index='0' model='virtio-scsi'>"
              << endl;
 
+        file << "\t\t\t<driver";
+
         if ( virtio_scsi_queues > 0 )
         {
-            file << "\t\t\t<driver queues='" << virtio_scsi_queues << "'/>" << endl;
+            file << " queues=" << one_util::escape_xml_attr(virtio_scsi_queues);
         }
+
+        if ( iothreads > 0 )
+        {
+            file << " iothread=" << one_util::escape_xml_attr(iothread_actual);
+
+            iothread_actual = (iothread_actual % iothreads) + 1;
+        }
+
+        file << "/>" << endl;
 
         file << "\t\t</controller>" << endl
              << "\t</devices>" << endl;

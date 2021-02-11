@@ -836,6 +836,7 @@ function get_source_xml {
 # * WRITE_IOPS_SEC_MAX
 # * WRITE_IOPS_SEC_MAX_LENGTH
 # * SIZE_IOPS_SEC
+# * IOTHREAD
 # * TYPE_SOURCE: libvirt xml source name. $TYPE_SOURCE=$SOURCE => file=/my/path
 # * SOURCE: disk source, can be path, ceph pool/image, device...
 # * TYPE_XML
@@ -900,7 +901,8 @@ function get_disk_information {
                         $DISK_XPATH/WRITE_IOPS_SEC \
                         $DISK_XPATH/WRITE_IOPS_SEC_MAX \
                         $DISK_XPATH/WRITE_IOPS_SEC_MAX_LENGTH \
-                        $DISK_XPATH/SIZE_IOPS_SEC )
+                        $DISK_XPATH/SIZE_IOPS_SEC \
+                        $DISK_XPATH/IOTHREAD )
 
     VMID="${XPATH_ELEMENTS[j++]}"
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
@@ -944,6 +946,7 @@ function get_disk_information {
     WRITE_IOPS_SEC_MAX="${XPATH_ELEMENTS[j++]}"
     WRITE_IOPS_SEC_MAX_LENGTH="${XPATH_ELEMENTS[j++]}"
     SIZE_IOPS_SEC="${XPATH_ELEMENTS[j++]}"
+    IOTHREAD="${XPATH_ELEMENTS[j++]}"
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
     READONLY=$(echo "$READONLY"|tr A-Z a-z)

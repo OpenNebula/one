@@ -1231,8 +1231,8 @@ CommandParser::CmdParser.new(ARGV) do
         This command accepts a template file or opens an editor, the full list of
         configuration attributes are:
 
-        OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT"]
-        FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT"]
+        OS        = ["ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "UUID"]
+        FEATURES  = ["ACPI", "PAE", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT", "IOTHREADS"]
         INPUT     = ["TYPE", "BUS"]
         GRAPHICS  = ["TYPE", "LISTEN", "PASSWD", "KEYMAP" ]
         RAW       = ["DATA", "DATA_VMX", "TYPE"]

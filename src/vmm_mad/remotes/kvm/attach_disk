@@ -87,6 +87,7 @@ XML+="<driver name='qemu' type='$(xml_esc "${DRIVER}")'"
 [ -n "${CACHE}" ] && XML+=" cache='$(xml_esc "${CACHE}")'"
 [ -n "${DISK_IO}" ] && XML+=" io='$(xml_esc "${DISK_IO}")'"
 [ -n "${DISCARD}" ] && XML+=" discard='$(xml_esc "${DISCARD}")'"
+[ -n "${IOTHREAD}" ] && XML+=" iothread='$(xml_esc "${IOTHREAD}")'"
 XML+="/>"
 
 XML+="<source ${TYPE_SOURCE}='$(xml_esc "${SOURCE}")' ${SOURCE_ARGS}>"
