@@ -47,6 +47,11 @@ define(function(require) {
 
   var _actions = {
     "VM.list":    _commonActions.list(),
+    "VM.pool_monitor": {
+      type: "single",
+      call: OpenNebulaVM.pool_monitor,
+      error: Notifier.onError
+    },
     "VM.show": {
       type: "single",
       call: OpenNebulaVM.show,

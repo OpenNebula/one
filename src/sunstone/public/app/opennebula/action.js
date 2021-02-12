@@ -169,7 +169,7 @@ define(function(require) {
         });
       }
     },
-    "list": function(params, resource, path, process) {
+    "list": function(params, resource, path, process, extra_params = {}, async = true) {
       var callback = params.success;
       var callbackError = params.error;
       var timeout = params.timeout || false;
@@ -187,14 +187,12 @@ define(function(require) {
         _clearCache(cache_name);
       }
 
-      if (!force &&
-          listCache[cache_name] &&
-          listCache[cache_name]["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
-
-        //console.log(cache_name+" list. Cache used");
-
-        return callback ?
-            callback(request, listCache[cache_name]["data"]) : null;
+      if (
+        !force &&
+        listCache[cache_name] &&
+        listCache[cache_name]["timestamp"] + CACHE_EXPIRE > new Date().getTime()
+      ) {
+        return callback ? callback(request, listCache[cache_name]["data"]) : null;
       }
 
       // TODO: Because callbacks are queued, we may need to force a
@@ -209,19 +207,20 @@ define(function(require) {
         error : callbackError
       });
 
-      //console.log(cache_name+" list. Callback queued");
-
       if (listWaiting[cache_name]) {
         return;
       }
 
       listWaiting[cache_name] = true;
       var pool_filter = Config.isChangedFilter()?-4:-2;
-      //console.log(cache_name+" list. NO cache, calling ajax");
+
+      let data = $.extend(extra_params, { timeout: timeout, pool_filter: pool_filter })
+
       $.ajax({
         url: reqPath,
         type: "GET",
-        data: {timeout: timeout, pool_filter: pool_filter},
+        data: data,
+        async: async,
         dataType: "json",
         success: function(response) {
           var list;

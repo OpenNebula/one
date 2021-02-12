@@ -202,6 +202,10 @@ module OpenNebula
             return super(VM_POOL_METHODS[:monitoring], xpaths, filter_flag)
         end
 
+        def monitoring_last(filter_flag=INFO_ALL)
+            return super(VM_POOL_METHODS[:monitoring], filter_flag, 0)
+        end
+
         # Retrieves the monitoring data for all the VMs in the pool, in XML
         #
         # @param [Integer] filter_flag Optional filter flag to retrieve all or

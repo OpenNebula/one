@@ -179,6 +179,10 @@ define(function(require) {
       "high":_config["user_config"]["threshold_high"]
     },
     "isExtendedVmInfo": _config["system_config"] && _config["system_config"]["get_extended_vm_info"] && _config["system_config"]["get_extended_vm_info"] === "true",
+    "isExtendedVmMonitoring":
+      _config["system_config"] &&
+      _config["system_config"]["get_extended_vm_monitoring"] &&
+      _config["system_config"]["get_extended_vm_monitoring"] === "true",
     "isLogEnabled": _config["zone_id"] === _config["id_own_federation"] ? true : false,
     "publicFireedgeEndpoint": _config["system_config"]["public_fireedge_endpoint"],
   };

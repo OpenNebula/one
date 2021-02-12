@@ -35,14 +35,14 @@
       }
       var config = {
         'user_config' : {
-            'lang' : '<%= session[:lang] %>',
-            'vnc_wss' : '<%= session[:vnc_wss] %>',
-            'table_order' : '<%= session[:table_order] %>',
-            'default_view' : '<%= session[:default_view] %>',
-            'page_length' : '<%= session[:page_length] %>',
-            'threshold_min' : '<%= $conf[:threshold_min] %>',
-            'threshold_low' : '<%= $conf[:threshold_low] %>',
-            'threshold_high' : '<%= $conf[:threshold_high] %>',
+          'lang' : '<%= session[:lang] %>',
+          'vnc_wss' : '<%= session[:vnc_wss] %>',
+          'table_order' : '<%= session[:table_order] %>',
+          'default_view' : '<%= session[:default_view] %>',
+          'page_length' : '<%= session[:page_length] %>',
+          'threshold_min' : '<%= $conf[:threshold_min] %>',
+          'threshold_low' : '<%= $conf[:threshold_low] %>',
+          'threshold_high' : '<%= $conf[:threshold_high] %>',
         },
         'system_config' : {
           'support_fs': JSON.parse('<%= $conf[:support_fs] %>'),
@@ -56,6 +56,7 @@
           'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>,
           'mapped_ips' : '<%= $conf[:mapped_ips] ? $conf[:mapped_ips] : false %>',
           'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>',
+          'get_extended_vm_monitoring': '<%= $conf[:get_extended_vm_monitoring] ? $conf[:get_extended_vm_monitoring] : false %>'
           'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint] %>',
         },
         'view' : view,
