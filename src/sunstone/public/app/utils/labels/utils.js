@@ -296,10 +296,12 @@ define(function (require) {
       var key = ev.keyCode;
       var labelName = $(this).val().trim();
 
-      if (key == 13 && !ev.altKey && labelName != '') {
-        var labelsArray, labelIndex;
-        var selectedItems = tabTable.elements();
-        $.each(selectedItems, function (index, resourceId) {
+      if (key == 13 && !ev.altKey && labelName !== '') {
+        var labelsArray;
+        var labelClean = transformLabelToCleanFormat(labelName)
+        var selectedItems = tabTable.elements()
+
+        $.each(selectedItems, function (_, resourceId) {
           labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
           if (labelsStr != '') {
             labelsArray = labelsStr.split(',');
@@ -307,8 +309,8 @@ define(function (require) {
             labelsArray = [];
           }
 
-          if (!existInArrInsensitive(labelName, labelsArray)) {
-            labelsArray.push(labelName);
+          if (!existInArrInsensitive(labelClean, labelsArray)) {
+            labelsArray.push(labelClean);
             _updateResouceLabels(tabName, resourceId, labelsArray);
           }
         });
@@ -405,6 +407,7 @@ define(function (require) {
     };
 
     var keys = Object.keys(indexedLabels).sort();
+
     for (var i = 0; i < keys.length; i++) {
       var folderName = keys[i];
       var childs = indexedLabels[folderName];
@@ -551,5 +554,49 @@ define(function (require) {
       var aData = dataTable.fnGetData(tr);
       return aData[labelsColumn];
     }
+  }
+
+  /**
+   * Returns the label with a clean format
+   * @param {string} label
+   * 
+   * Eg: ubuntu linux/alpine => Ubuntu Linux/Alpine
+   */
+  function transformLabelToCleanFormat(label) {
+    let SEPARATOR_SUB_TREE = '/'
+
+    return $.map(label.split(SEPARATOR_SUB_TREE), function(tree) {
+      return firstLetterToUppercase(tree);
+    }).join(SEPARATOR_SUB_TREE)
+  }
+
+  /**
+   * Returns the same string but with first letter in uppercase 
+   * @param {string} phrase
+   */
+  function firstLetterToUppercase(phrase) {
+    let words = splitPhraseWithSpaces(phrase)
+    
+    return $.map(words, function(word) {
+      return capitalize(word.toLowerCase());
+    }).join(' ')
+  }
+
+  /**
+   * Separate words from phrase using regex to split with white spaces
+   * @param {string} [phrase] - Phrase
+   */
+  function splitPhraseWithSpaces(phrase = '') {
+    let validRegex = /[^ ]+/g
+
+    return String(phrase).match(validRegex)
+  }
+
+  /**
+   * Convert first letter to upper case
+   * @param {string} string 
+   */
+  function capitalize(string) {
+    return string[0].toUpperCase() + string.slice(1)
   }
 });
