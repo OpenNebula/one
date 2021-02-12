@@ -35,12 +35,10 @@ define(function(require) {
       var json = atob(info_encode)
       var info = JSON.parse(json)
 
-      // state class
       var stateId = OpenNebulaVM.STATES[info.state]
       var lcmStateId = OpenNebulaVM.LCM_STATES[info.state]
       var stateClass = OpenNebulaVM.stateClass(stateId) || OpenNebulaVM.lcmStateClass(lcmStateId)
 
-      // get service from cache or sync
       var service = OpenNebulaService.getService(info.service_id)
 
       return $.extend(info, { stateClass, service })

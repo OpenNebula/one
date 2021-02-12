@@ -39,7 +39,7 @@
 
     {{!-- SERVICE --}}
     {{#if service }}
-      <span>(Part of: {{ service.NAME }})</span>
+    <span>(Part of: {{ service.NAME }})</span>
     {{/if}}
   </div>
 
@@ -66,12 +66,21 @@
         </a>
         <ul class="menu" style="
               max-height: 10em;
-              max-width: 12em;
+              max-width: 15em;
               overflow-y: auto;
+              padding: 0.5em;
             ">
           {{#each networks}}
           <li>
-            <a style="color:gray">{{ this }}</a>
+            <p title="{{this}}" style="
+              margin:0;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              {{#contains this '*'}} padding-left:1em; {{/contains}}
+            ">
+              {{ this }}
+            </p>
           </li>
           {{/each}}
         </ul>

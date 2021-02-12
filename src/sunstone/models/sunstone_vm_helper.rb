@@ -18,71 +18,90 @@ module SunstoneVMHelper
 
     class << self
 
-      def state_to_str(id, lcm_id)
-        id = id.to_i
-        state_str = VirtualMachine::VM_STATE[id]
+        NIC_ATTRS = %w[
+            IP
+            EXTERNAL_IP
+            IP6
+            IP6_GLOBAL
+            IP6_ULA
+            VROUTER_IP
+            VROUTER_IP6_GLOBAL
+            VROUTER_IP6_ULA
+        ]
 
-        if state_str == 'ACTIVE'
-          lcm_id = lcm_id.to_i
-          return VirtualMachine::LCM_STATE[lcm_id]
+        def state_to_str(id, lcm_id)
+            id = id.to_i
+            state_str = VirtualMachine::VM_STATE[id]
+
+            if state_str == 'ACTIVE'
+                lcm_id = lcm_id.to_i
+                return VirtualMachine::LCM_STATE[lcm_id]
+            end
+
+            state_str
         end
 
-        return state_str
-      end
+        def get_ips(vm_resource)
+            vm = vm_resource.to_hash['VM']
+            ips = []
+            vm_nics = []
 
-      def get_ips(vm)
-        ips = []
+            template_nic = vm['TEMPLATE']['NIC']
+            template_pci = vm['TEMPLATE']['PCI']
 
-        vm_nics = []
+            vm_nics = [template_nic].flatten unless template_nic.nil?
 
-        if !vm['TEMPLATE']['NIC'].nil?
-            vm_nics = [vm['TEMPLATE']['NIC']].flatten
-        end
+            vm_nics = [vm_nics, template_pci].flatten unless template_pci.nil?
 
-        if !vm['TEMPLATE']['PCI'].nil?
-            vm_nics = [vm_nics, vm['TEMPLATE']['PCI']].flatten
-        end
+            vm_nics.each do |nic|
+                NIC_ATTRS.each do |attr|
+                    next unless nic.key?(attr)
 
-        vm_nics.each do |nic|
-            %w[IP EXTERNAL_IP IP6_GLOBAL IP6_ULA IP6
-               VROUTER_IP VROUTER_IP6_GLOBAL VROUTER_IP6_ULA].each do |attr|
-                if nic.key?(attr)
                     ips.push(nic[attr])
                 end
+
+                next if nic['ALIAS_IDS'].nil?
+
+                nic['ALIAS_IDS'].split(',').each do |alias_id|
+                    NIC_ATTRS.each do |attr|
+                        alias_ip = vm_resource["/VM/TEMPLATE
+							/NIC_ALIAS[NIC_ID='#{alias_id}']/#{attr}"]
+
+                        next if alias_ip.nil?
+
+                        ips.push("* #{alias_ip}")
+                    end
+                end
             end
-        end
 
-        VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
-            external_ip = vm['MONITORING'][attr]
+            VirtualMachine::EXTERNAL_IP_ATTRS.each do |attr|
+                external_ip = vm['MONITORING'][attr]
 
-            if !external_ip.nil? && !ips.include?(external_ip)
+                next unless external_ip.nil? && ips.include?(external_ip)
+
                 ips.push(external_ip)
             end
+
+            ips
         end
 
-        return ips
-      end
+        def get_remote_info(vm_resource)
+            info = {
+                :id => vm_resource['/VM/ID'],
+              :name => vm_resource['/VM/NAME'],
+              :state => state_to_str(vm_resource['/VM/STATE'],
+                                     vm_resource['/VM/LCM_STATE']),
+              :start_time => vm_resource['/VM/STIME'],
+              :networks => get_ips(vm_resource)
+            }
 
+            service_id = vm_resource['/VM/USER_TEMPLATE/SERVICE_ID']
 
-      def get_remote_info(vm_resource)
-        vm = vm_resource.to_hash['VM']
+            info[:service_id] = service_id if service_id
 
-        service_id = vm['USER_TEMPLATE']['SERVICE_ID']
+            info
+        end
 
-        info = {
-            :id => vm['ID'],
-            :name => vm['NAME'],
-            :state => state_to_str(vm['STATE'], vm['LCM_STATE']),
-            :start_time => vm['STIME'],
-            :networks => get_ips(vm)
-        }
-
-        info[:service_id] = service_id if service_id
-
-        return info
-      end
-
-    end
+  end
 
 end
-  
