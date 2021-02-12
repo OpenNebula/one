@@ -173,7 +173,7 @@ const removeFile = (path = '') => {
   }
 }
 
-const renameFolder = (path = '', name = '', type = 'replace') => {
+const renameFolder = (path = '', name = '', type = 'replace', callback) => {
   let rtn = false
   if (path) {
     let internalPath = path
@@ -193,6 +193,9 @@ const renameFolder = (path = '', name = '', type = 'replace') => {
             break
           default:
             break
+        }
+        if (callback && typeof callback === 'function') {
+          callback(path)
         }
         renameSync(internalPath, newPath)
         rtn = newPath
