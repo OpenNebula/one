@@ -24,6 +24,7 @@ define(function(require) {
     Navigation = require("utils/navigation");
 
   var RESOURCE = "VM";
+  var VM_MONITORING_CACHE_NAME = 'VM.MONITORING';
 
   var STATES_STR = [
     "INIT",
@@ -541,7 +542,19 @@ define(function(require) {
       OpenNebulaAction.monitor(params, RESOURCE, false);
     },
     "pool_monitor" : function(params) {
-      OpenNebulaAction.monitor(params, RESOURCE, true);
+      if (!Config.isExtendedVmMonitoring) return;
+
+      let process = function(response) {
+        let monitoringPool = response && response["MONITORING_DATA"] && response["MONITORING_DATA"]["MONITORING"];
+
+        return Array.isArray(monitoringPool)
+          ? monitoringPool.reduce(function(result, monitoringVM) {
+            return $.extend(result, { [monitoringVM.ID]: monitoringVM })
+          }, {})
+          : {}
+      }
+
+      OpenNebulaAction.list(params, VM_MONITORING_CACHE_NAME, 'vm/monitor', process, undefined, false);
     },
     "resize" : function(params) {
       var action_obj = params.data.extra_param;
@@ -691,6 +704,25 @@ define(function(require) {
     }
   };
 
+  function _getMonitoringPool() {
+    var monitoring = undefined;
+    var cache = OpenNebulaAction.cache(VM_MONITORING_CACHE_NAME);
+    
+    if (cache && cache.data) {
+      monitoring = cache.data
+    }
+
+    if (!monitoring || $.isEmptyObject(monitoring)) {
+      VM.pool_monitor({
+        success: function(response) {
+          monitoring = response
+        }
+      })
+    }
+
+    return monitoring || {}
+  }
+
   function retrieveLastHistoryRecord(element) {
     if (element.HISTORY_RECORDS && element.HISTORY_RECORDS.HISTORY) {
       var history = element.HISTORY_RECORDS.HISTORY;
@@ -787,6 +819,29 @@ define(function(require) {
     return nics;
   }
 
+  function getNicsFromMonitoring(element = {}) {
+    let monitoringPool = _getMonitoringPool()
+    let monitoringVM = monitoringPool[element.ID]
+
+    if (!monitoringPool || $.isEmptyObject(monitoringPool) || !monitoringVM) return [];
+
+    return EXTERNAL_IP_ATTRS.reduce(function(externalNics, attr) {
+      let monitoringValues = monitoringVM[attr]
+
+      if (monitoringValues) {
+        $.each(monitoringValues.split(','), function(_, ip) {
+          let exists = externalNics.some(function(nic) { return nic.IP === ip })
+
+          if (!exists) {
+            externalNics.push({ NIC_ID: '_', IP: ip });
+          }
+        });
+      }
+
+      return externalNics;
+    }, [])
+  }
+
    // Return the IP or several IPs of a VM
   function ipsStr(element, options) {
     options = $.extend({
@@ -797,38 +852,21 @@ define(function(require) {
     }, options)
     
     var nics = getNICs(element);
-    var monitoring = element && element.MONITORING;
-    var ips = [];
 
-    if (monitoring) {
-      var externalIP;
-      $.each(EXTERNAL_IP_ATTRS, function(index, IPAttr) {
-        externalIP = monitoring[IPAttr];
-        if (externalIP) {
-          var splitArr = externalIP.split(",");
-          $.each(splitArr, function(i,ip){
-            if (ip && ($.inArray(ip, ips) == -1)) {
-              ips.push(ip);
-            }
-          });
-        }
-      });
-    }
+    var nicsFromMonitoring = getNicsFromMonitoring(element)
+
+    nics = nics.concat(nicsFromMonitoring)
 
     // infoextended: alias will be group by nic
     if (Config.isExtendedVmInfo || options.forceGroup) {
       return options.groupStrFunction(element, nics)
     }
 
-    return (ips.length === 0 && nics && nics.length > 0) ? (
-      $.map(nics, function(nic) {
-        return $.map(NIC_ALIAS_IP_ATTRS, function(attribute) {
-          return nic[attribute]
-        })
-      }).join(options.divider)
-    ) : (
-      options.defaultValue
-    )
+    return $.map(nics, function(nic) {
+      return $.map(NIC_ALIAS_IP_ATTRS, function(attribute) {
+        return nic[attribute]
+      })
+    }).join(options.divider) || options.defaultValue
   };
 
   // Return a dropdown with all the
@@ -859,7 +897,7 @@ define(function(require) {
 
     // Format the other IPs inside a dropdown
     if (ips.length){
-      html += "<ul class=\"dropdown menu ips-dropdown\" style=\" text-align:left;\" data-dropdown-menu><li><a style=\"padding-top:0em;padding-bottom:0em;padding-left:0em;color:gray\">"+insideHtml+"</a><ul class=\"menu\" style=\"max-height: 50em; overflow: scroll; width:250px;\">";
+      html += "<ul class=\"dropdown menu ips-dropdown\" style=\"white-space: nowrap;text-align:left;\" data-dropdown-menu><li><a style=\"padding-top:0em;padding-bottom:0em;padding-left:0em;color:gray\">"+insideHtml+"</a><ul class=\"menu\" style=\"max-height: 50em; overflow: scroll; width:250px;\">";
       $.each(ips, function(index, value){
         html+="<li><a style=\"color:gray\">" + value + "</a></li>";
       });
@@ -878,26 +916,34 @@ define(function(require) {
     copy_nics.unshift(first_nic);
 
     return copy_nics.reduce(function(column, nic) {
-      identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
-      var ip = (nic.IP) ? nic.IP : nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
-      var nicSection = nic.NIC_ID ? $("<li/>").append($("<a/>").css("color", "gray").html(nic.NIC_ID + ": " + ip)) : $("<li/>").append("<li>").html("-") ;
+      if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+        var identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
+        var ip = (nic.IP) ? nic.IP : nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+        var nicSection = nic.NIC_ID
+          ? $("<li/>").append($("<a/>").css("color", "gray").html(nic.NIC_ID + ": " + ip))
+          : $("<li/>").append("<li>").html("-") ;
 
-      if (nic.ALIAS_IDS) {
-        nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
-          var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
-            ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
-          var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId; });
+        column.append(nicSection)
 
-          if (alias) {
-            var alias_ip = alias.IP ? alias.IP : alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
-            nicSection.append($("<li/>").append($("<a/>").css({
-              "color": "gray",
-              "font-style": "italic",
-            }).html(identation + "> " + alias_ip))); }
-        });
+        if (nic.ALIAS_IDS) {
+          nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
+            var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
+              ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
+
+            var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId; });
+
+            if (alias) {
+              var alias_ip = alias.IP ? alias.IP : alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
+              column.append($("<li/>").append($("<a/>").css({
+                "color": "gray",
+                "font-style": "italic",
+              }).html(identation + "> " + alias_ip)));
+            }
+          });
+        }
       }
 
-      return column.append(nicSection);
+      return column;
     }, $("<div/>")).html();
   };
 
@@ -905,27 +951,30 @@ define(function(require) {
     var identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
 
     return nics.reduce(function(column, nic) {
-      var ip = nic.IP || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL
+      if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+        var ip = nic.IP || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL
 
-      column.append($("<p/>").css("margin-bottom", 0).html(nic.NIC_ID + ": " + ip))
+        column.append($("<p/>").css("margin-bottom", 0).html(nic.NIC_ID + ": " + ip))
 
-      if (nic.ALIAS_IDS) {
+        if (nic.ALIAS_IDS) {
+          nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
+            var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
+              ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
 
-        nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
-          var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
-            ? element.TEMPLATE.NIC_ALIAS : [element.TEMPLATE.NIC_ALIAS];
-          var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId; });
+            var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId; });
 
-          if (alias) {
-            var alias_ip = alias.IP
-              ? identation + "> " + alias.IP
-              : alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
+            if (alias) {
+              var alias_ip = alias.IP
+                ? identation + "> " + alias.IP
+                : alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
 
-            column.append($("<p/>").css({
-              "margin-bottom": 0,
-              "font-style": "italic",
-            }).html(alias_ip)); }
-        });
+              column.append($("<p/>").css({
+                "margin-bottom": 0,
+                "font-style": "italic",
+              }).html(alias_ip));
+            }
+          });
+        }
       }
 
       return column;

@@ -142,6 +142,8 @@ define(function(require) {
       StateActions.disableAllStateActions();
     }
 
+    Sunstone.runAction('VM.pool_monitor')
+
     this.totalVms = 0;
     this.activeVms = 0;
     this.pendingVms = 0;

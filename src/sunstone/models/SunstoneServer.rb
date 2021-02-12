@@ -309,7 +309,7 @@ class SunstoneServer < CloudServer
     ########################################################################
     # Accounting & Monitoring
     ########################################################################
-    def get_pool_monitoring(resource, meters)
+    def get_pool_monitoring(resource)
         #pool_element
         pool = case resource
             when "vm", "VM"
@@ -321,9 +321,7 @@ class SunstoneServer < CloudServer
                 return [200, error.to_json]
             end
 
-        meters_a = meters.split(',')
-
-        rc = pool.monitoring(meters_a)
+        rc = pool.monitoring_last
 
         if OpenNebula.is_error?(rc)
             error = Error.new(rc.message)

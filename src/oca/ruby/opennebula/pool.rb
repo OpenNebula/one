@@ -127,6 +127,19 @@ module OpenNebula
             return hash
         end
 
+        def monitoring_last(xml_method, *args)
+            rc = @client.call(xml_method, *args)
+
+            if OpenNebula.is_error?(rc)
+                return rc
+            end
+
+            xmldoc = XMLElement.new
+            xmldoc.initialize_xml(rc, 'MONITORING_DATA')
+
+            xmldoc.to_hash
+        end
+
     private
         # Calls to the corresponding info method to retreive the pool
         # representation in XML format

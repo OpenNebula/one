@@ -52,7 +52,8 @@
             'max_upload_file_size' : <%= $conf[:max_upload_file_size] ? $conf[:max_upload_file_size] : "undefined" %>,
             'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>,
             'mapped_ips' : '<%= $conf[:mapped_ips] ? $conf[:mapped_ips] : false %>',
-            'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>'
+            'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>',
+            'get_extended_vm_monitoring': '<%= $conf[:get_extended_vm_monitoring] ? $conf[:get_extended_vm_monitoring] : false %>'
         },
         'view' : view,
         'available_views' : available_views,

@@ -823,9 +823,7 @@ end
 ##############################################################################
 
 get '/:resource/monitor' do
-    @SunstoneServer.get_pool_monitoring(
-        params[:resource],
-        params[:monitor_resources])
+    @SunstoneServer.get_pool_monitoring(params[:resource])
 end
 
 get '/user/:id/monitor' do
