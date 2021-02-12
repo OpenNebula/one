@@ -46,7 +46,9 @@ type Image struct {
 	RegTime        int                 `xml:"REGTIME,omitempty"`
 	Source         string              `xml:"SOURCE,omitempty"`
 	Path           string              `xml:"PATH,omitempty"`
-	FsType         string              `xml:"FSTYPE,omitempty"`
+	Fs             string              `xml:"FS,omitempty"`
+	Driver         string              `xml:"DRIVER,omitempty"`
+	Format         string              `xml:"FORMAT,omitempty"`
 	Size           int                 `xml:"SIZE,omitempty"`
 	StateRaw       int                 `xml:"STATE,omitempty"`
 	RunningVMs     int                 `xml:"RUNNING_VMS,omitempty"`
