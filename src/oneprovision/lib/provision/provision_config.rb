@@ -701,7 +701,7 @@ module OneProvision
                 print "Text `#{input['name']}` (default=#{input['default']}): "
 
                 answer = STDIN.readline.chop
-                answer = input['default'] if answer.empty?
+                answer = input['default'] if !answer || answer.empty?
 
                 if input['type'] == 'text64'
                     answer = Base64.encode64(answer).strip.delete("\n")
@@ -712,10 +712,10 @@ module OneProvision
                           "(default=#{input['default']}): "
 
                     answer = STDIN.readline.chop
-                    answer = input['default'] if answer.empty?
+                    answer = input['default'] if !answer || answer.empty?
 
                     # Add default in case no default value is given
-                    answer = 'NO' if answer.empty?
+                    answer = 'NO' if !answer || answer.empty?
 
                     unless %w[YES NO].include?(answer)
                         puts "Invalid boolean #{answer} " \
@@ -728,7 +728,7 @@ module OneProvision
                 STDIN.noecho {|io| answer = io.gets }
 
                 answer = answer.chop! if answer
-                answer = input['default'] if answer.empty?
+                answer = input['default'] if !answer || answer.empty?
             when 'number', 'number-float'
                 valid = false
 
@@ -737,7 +737,7 @@ module OneProvision
                           "(default=#{input['default']}): "
 
                     answer = STDIN.readline.chop
-                    answer = input['default'] if answer.empty?
+                    answer = input['default'] if !answer || answer.empty?
 
                     # Add default in case no default value is given
                     answer ||= 0
@@ -765,7 +765,7 @@ module OneProvision
                           "(default=#{input['default']}): "
 
                     answer = STDIN.readline.chop
-                    answer = input['default'] if answer.empty?
+                    answer = input['default'] if !answer || answer.empty?
 
                     # Add default in case no default value is given
                     answer ||= input['min_value']
@@ -800,10 +800,10 @@ module OneProvision
                           "(default=#{input['default']}): "
 
                     answer = STDIN.readline.chop
-                    answer = input['default'] if answer.empty?
+                    answer = input['default'] if !answer || answer.empty?
 
                     # Add default in case no default value is given
-                    answer = input['options'][0] if answer.empty?
+                    answer = input['options'][0] if !answer || answer.empty?
                 end
             when 'array'
                 answer = ''
@@ -813,7 +813,7 @@ module OneProvision
                           "(default=#{input['default']}): "
 
                     answer = STDIN.readline.chop
-                    answer = input['default'] if answer.empty?
+                    answer = input['default'] if !answer || answer.empty?
                 end
             when 'fixed'
                 answer = input['default']
