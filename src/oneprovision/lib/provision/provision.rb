@@ -263,7 +263,13 @@ module OneProvision
                             v['name'] == input['name']
                         end
 
-                        cfg['inputs'].delete(i) if i
+                        if i
+                            # Respect value that comes from the user
+                            input['value'] = i['value']
+
+                            cfg['inputs'].delete(i)
+                        end
+
                         cfg['inputs'] << input
                     end
                 end
