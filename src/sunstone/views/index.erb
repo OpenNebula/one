@@ -56,7 +56,7 @@
           'leases' : <%= $conf[:leases] ? $conf[:leases].to_json : "null" %>,
           'mapped_ips' : '<%= $conf[:mapped_ips] ? $conf[:mapped_ips] : false %>',
           'get_extended_vm_info': '<%= $conf[:get_extended_vm_info] ? $conf[:get_extended_vm_info] : false %>',
-          'get_extended_vm_monitoring': '<%= $conf[:get_extended_vm_monitoring] ? $conf[:get_extended_vm_monitoring] : false %>'
+          'get_extended_vm_monitoring': '<%= $conf[:get_extended_vm_monitoring] ? $conf[:get_extended_vm_monitoring] : false %>',
           'public_fireedge_endpoint': '<%= $conf[:public_fireedge_endpoint] %>',
         },
         'view' : view,
