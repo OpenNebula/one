@@ -20,7 +20,8 @@ define(function(require) {
    */
 
   var OpenNebulaVM = require('opennebula/vm');
-  var StateActions = require('../utils/state-actions');
+  var StateActions = require('tabs/vms-tab/utils/state-actions');
+  var FireedgeValidator = require('utils/fireedge-validator');
 
   /*
     CONSTANTS
@@ -43,6 +44,7 @@ define(function(require) {
 
     var isVNCSupported = Boolean(OpenNebulaVM.isVNCSupported(element)),
       isSPICESupported = Boolean(OpenNebulaVM.isSPICESupported(element)),
+      isWMRCSupported = Boolean(OpenNebulaVM.isVMRCSupported(element)),
       isWFileSupported = Boolean(OpenNebulaVM.isWFileSupported(element)),
       isRDPSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'rdp')),
       isSSHSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'ssh'));
@@ -51,10 +53,29 @@ define(function(require) {
     var allDisabled = (
       !isVNCSupported &&
       !isSPICESupported &&
+      !isWMRCSupported &&
       !isWFileSupported &&
       !isRDPSupported &&
       !isSSHSupported
     );
+
+    var vncAndSpiceController = function() {
+      if (isVNCSupported) {
+        $(".vnc-sunstone-info").show();
+        $(".spice-sunstone-info").hide();
+  
+      }
+      else if (isSPICESupported) {
+        $(".spice-sunstone-info").show();
+        $(".vnc-sunstone-info").hide();
+      }
+      else {
+        $(".spice-sunstone-info").hide();
+        $(".vnc-sunstone-info").hide();
+      }
+    }
+
+    vncAndSpiceController();
     
     $("#vmsremote_buttons").toggle(!allDisabled);
 
@@ -91,8 +112,32 @@ define(function(require) {
     {
       $(".vnc-sunstone-info").hide();
     }
+
+    var show_noVNC_buttons = function() {
+      vncAndSpiceController();
+      $(".guac-button").hide();
+      $(".vmrc-button").hide();
+    }
+
+    var show_fireedge_buttons = function() {
+      $(".vnc-button").hide();
+      $(".vmrc-button").toggle(isWMRCSupported);
+      $(".guac-button").toggle(!isWMRCSupported);
+    }
+
+    var show_buttons = function(fireedgeToken) {
+      if (fireedgeToken != "") {
+        show_fireedge_buttons();
+      }
+      else{
+        show_noVNC_buttons();
+      }
+    }
+
+    FireedgeValidator.validateFireedgeToken(show_buttons, show_noVNC_buttons);
   }
 
+  
   function _post(info, contextTabId) {
   }
 

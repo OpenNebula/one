@@ -233,13 +233,13 @@ define(function(require) {
       type: "action",
       text: Locale.tr("GUAC SSH"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info ssh-sunstone-info"
+      custom_classes: "only-sunstone-info ssh-sunstone-info guac-button"
     },
     "VM.guac_rdp" : {
       type: "action",
       text: Locale.tr("GUAC RDP"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info rdp-sunstone-info"
+      custom_classes: "only-sunstone-info rdp-sunstone-info guac-button"
     },
     "VM.save_rdp" : {
       type: "action",

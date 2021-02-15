@@ -27,7 +27,6 @@ define(function(require) {
   var TemplateTableVcenter = require("utils/panel/template-table");
   var OpenNebula = require("opennebula");
   var Navigation = require("utils/navigation");
-  var FireedgeValidator = require("utils/fireedge-validator");
   var TemplateUtils = require('utils/template-utils');
   var Sunstone = require('sunstone');
 
@@ -187,41 +186,6 @@ define(function(require) {
     }
     TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
     TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
-
-   var show_noVNC_buttons = function(){
-      $(".vnc-button").show();
-      $(".guac-button").hide();
-      $(".vmrc-button").hide();
-    }
-
-    var show_fireedge_buttons = function(){
-      $(".vnc-button").hide();
-      if(that && that.element && that.element.USER_TEMPLATE && that.element.USER_TEMPLATE.HYPERVISOR){
-        if (that.element.USER_TEMPLATE.HYPERVISOR == "vcenter"){
-          $(".vmrc-button").show();
-          $(".guac-button").hide();
-        }
-        else{
-          $(".guac-button").show();
-          $(".vmrc-button").hide();
-        }
-      }
-      else{
-        $(".guac-button").show();
-        $(".vmrc-button").hide();
-      }
-    }
-
-    var show_buttons = function(fireedgeToken){
-      if (fireedgeToken != ""){
-        show_fireedge_buttons();
-      }
-      else{
-        show_noVNC_buttons();
-      }
-    }
-
-    FireedgeValidator.validateFireedgeToken(show_buttons, show_noVNC_buttons);
 
     context.off("click", "#close_vm_async_error");
     context.on("click", "#close_vm_async_error", function() {
