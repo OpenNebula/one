@@ -51,6 +51,11 @@ define(function(require) {
     var TemplateDashboardGroupVms = require("hbs!./provision-tab/dashboard/group-vms");
     var TAB_ID = require("./provision-tab/tabId");
     var FLOW_TEMPLATE_LABELS_COLUMN = 2;
+
+    var distinct = function(value, index, self){
+      return self.indexOf(value)===index;
+    };
+
     var povision_actions = {
       "Provision.Flow.instantiate" : {
         type: "single",
@@ -632,6 +637,7 @@ define(function(require) {
       $("#provision_create_vm .provision_add_vmgroup").show();
       $("#provision_create_vm .provision_vmgroup").hide();
       $("#provision_create_vm .provision_ds").hide();
+      $("#provision_create_vm .provision_boot").hide();
       $("#provision_create_vm .provision_custom_attributes_selector").html("");
       $("#provision_create_vm li:not(.is-active) a[href='#provision_dd_template']").trigger("click");
       $("#provision_create_vm .total_cost_div").hide();
@@ -851,6 +857,153 @@ define(function(require) {
             }
             return true;
           }
+
+          //----------------------------------------------------------------------------
+          // Boot order
+          //----------------------------------------------------------------------------
+
+          function _retrieveBootValue(context) {
+            return $("table.boot-order-instantiate-provision", context).attr("value");
+          }
+
+          function _fillBootValue(context, value) {
+            return $("table.boot-order-instantiate-provision", context).attr("value", value);
+          }
+
+          function _refreshBootValue(context) {
+            var table = $("table.boot-order-instantiate-provision", context);
+
+            var devices = [];
+
+            $.each($("tr", table), function(){
+              if ($("input", this).is(":checked")){
+                devices.push( $(this).attr("value") );
+              }
+            });
+
+            table.attr("value", devices.join(","));
+          }
+
+          function _addBootRow(context, value, label) {
+            $("table.boot-order-instantiate-provision tbody", context).append(
+              "<tr value=\""+value+"\">"+
+                "<td><input type=\"checkbox\"/></td>"+
+                "<td>"+value+"</td>"+
+                "<td><label>"+label+"</label></td>"+
+                "<td>"+
+                  "<button class=\"boot-order-instantiate-provision-up button radius tiny secondary\"><i class=\"fas fa-lg fa-arrow-up\" aria-hidden=\"true\"></i></button>"+
+                  "<button class=\"boot-order-instantiate-provision-down button radius tiny secondary\"><i class=\"fas fa-lg fa-arrow-down\" aria-hidden=\"true\"></i></button>"+
+                "</td>"+
+              "</tr>");
+          }
+
+          function _loadBootOrder(context, templateJSON) {
+            var table = $("table.boot-order-instantiate-provision", context);
+            var prev_value = $(table).attr("value");
+
+            $("table.boot-order-instantiate-provision tbody", context).html("");
+
+            if (templateJSON.DISK !== undefined){
+              var disks = templateJSON.DISK;
+
+              if (!$.isArray(disks)){
+                disks = [disks];
+              }
+              disks = disks.filter(distinct);
+
+              $.each(disks, function(i,disk){
+                var label = "<i class=\"fas fa-fw fa-lg fa-server\"></i> ";
+                    var disk_name = "disk";
+
+                if (disk.IMAGE !== undefined){
+                  label += disk.IMAGE;
+                } else if (disk.IMAGE_ID !== undefined){
+                  label += Locale.tr("Image ID") + " " + disk.IMAGE_ID;
+                } else {
+                  label += Locale.tr("Volatile");
+                }
+
+                if (disk.DISK_ID === undefined){
+                  disk_name += i;
+                } else {
+                  disk_name += disk.DISK_ID;
+                }
+
+                _addBootRow(context, disk_name, label);
+              });
+            }
+
+            if (templateJSON.NIC !== undefined){
+              var nics = templateJSON.NIC;
+
+              if (!$.isArray(nics)){
+                nics = [nics];
+              }
+              nics = nics.filter(distinct);
+              nics.map(function(nic,i){
+                var label = "<i class=\"fas fa-fw fa-lg fa-globe\"></i> ";
+                if (nic && nic.NETWORK && nic.NETWORK !== undefined){
+                  label += nic.NETWORK;
+                } else if (nic.NETWORK_ID !== undefined){
+                  label += Locale.tr("Network ID") + " " + nic.NETWORK_ID;
+                } else {
+                  label += Locale.tr("Manual settings");
+                }
+                _addBootRow(context, "nic"+i, label);
+              });
+            }
+
+            if (templateJSON.DISK === undefined && templateJSON.NIC === undefined){
+              $("table.boot-order-instantiate-provision tbody", context).append(
+                "<tr>\
+                  <td>" + Locale.tr("Disks and NICs will appear here") + "</td>\
+                </tr>");
+            }
+
+            if (prev_value.length > 0){
+              var pos = 0;
+
+              $.each(prev_value.split(","), function(i,device){
+                var tr = $("tr[value=\"" + device + "\"]", table);
+
+                if(tr.length > 0){
+                  $($("tr", table)[pos]).before(tr);
+                  $("input", tr).click();
+
+                  pos += 1;
+                }
+              });
+
+              _refreshBootValue(context);
+            }
+          }
+
+          tab.on("click", "button.boot-order-instantiate-provision-up", function(){
+            var tr = $(this).closest("tr");
+            tr.prev().before(tr);
+
+            _refreshBootValue(tab);
+
+            return false;
+          });
+
+          tab.on("click", "button.boot-order-instantiate-provision-down", function(){
+            var tr = $(this).closest("tr");
+            tr.next().after(tr);
+
+            _refreshBootValue(tab);
+
+            return false;
+          });
+
+          $("table.boot-order-instantiate-provision tbody", tab).on("change", "input", function(){
+            _refreshBootValue(tab);
+          });
+
+          //----------------------------------------------------------------------------
+          // End Boot order
+          //----------------------------------------------------------------------------
+
           provision_vm_instantiate_templates_datatable = $("#provision_vm_instantiate_templates_table").dataTable({
             "iDisplayLength": 6,
             "bAutoWidth": false,
@@ -965,6 +1118,7 @@ define(function(require) {
 
               $("#provision_create_vm .provision_vmgroup").show();
               $("#provision_create_vm .provision_ds").show();
+              $("#provision_create_vm .provision_boot").show();
 
               OpenNebula.Template.show({
                 data : {
@@ -974,6 +1128,7 @@ define(function(require) {
                 timeout: true,
                 success: function (request, template_json) {
                   that.template_base_json= template_json;
+                  tab.template_base_json = template_json;
                 }
               });
 
@@ -1077,6 +1232,15 @@ define(function(require) {
                     $(".provision_custom_attributes_selector", create_vm_context).html("");
                   }
 
+                  // boot order
+                  
+                  var osJSON = template_json.VMTEMPLATE.TEMPLATE.OS;
+                  if (osJSON && osJSON["BOOT"]) {
+                    _fillBootValue(create_vm_context, osJSON["BOOT"]);
+                  }
+
+                  _loadBootOrder(create_vm_context, template_json.VMTEMPLATE.TEMPLATE)
+
                 },
                 error: function(request, error_json, container) {
                   Notifier.onError(request, error_json, container);
@@ -1166,6 +1330,16 @@ define(function(require) {
       
             if (!$.isEmptyObject(topology)){
               extra_info.template.TOPOLOGY = topology;
+            }
+
+            var boot = _retrieveBootValue(context);
+            var os = tab.template_base_json.VMTEMPLATE.TEMPLATE.OS ? tab.template_base_json.VMTEMPLATE.TEMPLATE.OS : {};
+
+            if (boot && boot.length > 0) {
+              os.BOOT = boot
+              extra_info.template.OS = os;
+            } else {
+              extra_info.template.OS = os;
             }
 
             var action;

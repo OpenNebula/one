@@ -102,6 +102,9 @@ features:
 
     # True to show schedule actions section to instantiate VM 
     show_sched_actions_instantiate: true
+
+    # True to show boot order section to instantiate VM
+    show_boot_order: true
 tabs:
     dashboard-tab:
         # The following widgets can be used inside any of the '_per_row' settings
@@ -252,7 +255,7 @@ tabs:
             Template.refresh: true
             Template.create_dialog: false
             Template.import_dialog: false
-            Template.update_dialog: false
+            Template.update_dialog: true
             Template.instantiate_vms: true
             Template.rename: true
             Template.chown: true

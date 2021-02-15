@@ -44,6 +44,9 @@ features:
     
     # True to show schedule actions section to instantiate VM 
     show_sched_actions_instantiate: true
+
+    # True to show boot order section to instantiate VM
+    show_boot_order: true
 tabs:
     provision-tab:
         panel_tabs:

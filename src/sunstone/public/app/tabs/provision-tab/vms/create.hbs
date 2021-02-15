@@ -150,4 +150,25 @@
       </fieldset>
     </div>
   </div>
+  {{#isFeatureEnabled "show_boot_order"}}
+  <div class="row provision_boot" hidden="true">
+    <div class="small-12 columns bootContext{{element.ID}}">
+      <fieldset>
+        <legend>
+          <i class="fas fa-power-off"></i> {{tr "OS Booting"}}
+        </legend>
+        <div class="provision_boot_selector" data-tab-content>
+          <label>
+            {{tr "Boot order"}}
+            {{{tip (tr "Select the devices to boot from, and their order")}}}
+          </label>
+          <table class="boot-order-instantiate-provision dataTable" value="">
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  {{/isFeatureEnabled}}
 </form>

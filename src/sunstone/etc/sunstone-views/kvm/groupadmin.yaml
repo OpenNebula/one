@@ -252,7 +252,7 @@ tabs:
             Template.refresh: true
             Template.create_dialog: false
             Template.import_dialog: false
-            Template.update_dialog: false
+            Template.update_dialog: true
             Template.instantiate_vms: true
             Template.rename: true
             Template.chown: true

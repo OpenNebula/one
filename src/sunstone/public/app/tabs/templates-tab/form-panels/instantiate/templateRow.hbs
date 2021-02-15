@@ -158,5 +158,21 @@
   </div>
   {{/advancedImportationSection}}
   {{/isFeatureEnabled}}
+  {{#isFeatureEnabled "show_boot_order"}}
+  {{#advancedImportationSection "<i class=\"fas fa-power-off\"></i>" (tr "OS Booting")}}
+  <div class="row">
+    <div class="medium-8 columns">
+      <label>
+        {{tr "Boot order"}}
+        {{{tip (tr "Select the devices to boot from, and their order")}}}
+      </label>
+      <table class="boot-order-instantiate dataTable" value="">
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{/advancedImportationSection}}
+  {{/isFeatureEnabled}}
 </div>
 <br>
