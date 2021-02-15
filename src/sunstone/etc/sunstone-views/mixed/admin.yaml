@@ -804,7 +804,6 @@ tabs:
             Network.instantiate_dialog: true
             Network.import_dialog: true
             Network.update_dialog: true
-            Network.instantiate_dialog: true
             Network.reserve_dialog: true
             Network.addtocluster: true
             Network.rename: true

@@ -145,7 +145,6 @@ tabs:
             Settings.login_token: true
             # Edit button in settings_quotas_tab
             User.quotas_dialog: false
-            User.two_factor_auth: true
     vms-tab:
         actions: *provisionactions
     images-tab:

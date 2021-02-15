@@ -921,7 +921,6 @@ tabs:
             Settings.ssh_key: true
             Settings.login_token: true
             # Edit button in settings_quotas_tab
-            User.two_factor_auth: true
             User.quotas_dialog: false
     vmgroup-tab:
         panel_tabs:
