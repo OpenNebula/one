@@ -509,9 +509,6 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
             // This function is only executed if the command is completed
             const close = (success, lastLine) => {
               stream.end()
-              const removeConfigFile = (file) => {
-                removeFile(file)
-              }
               if (success && regexp.test(lastLine)) {
                 const newPath = renameFolder(config.path, lastLine.match('\\d+'), 'replace', removeConfigFile)
                 if (newPath) {
@@ -541,7 +538,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                 }
               }
               if (success === false) {
-                renameFolder(config.path, appendError, 'append', removeConfigFile)
+                renameFolder(config.path, appendError, 'append')
               }
             }
 

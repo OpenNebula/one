@@ -18,11 +18,21 @@ const { messageTerminal } = require('server/utils/general')
 const { subscriber } = require('server/routes/api/provision/functions')
 const type = 'provision'
 const main = (app = {}) => {
+  const configErrorProvision = (error = '') => {
+    return {
+      color: 'red',
+      type: error,
+      message: '%s'
+    }
+  }
+
   try {
     app
       .use(authWebsocket)
       .on('connection', (server = {}) => {
-        server.on('disconnect', () => { console.log('disconnect') })
+        server.on('disconnect', () => {
+          messageTerminal(configErrorProvision('disconnect'))
+        })
         subscriber(
           'oneprovision',
           data => {
@@ -31,12 +41,7 @@ const main = (app = {}) => {
         )
       })
   } catch (error) {
-    const configErrorProvision = {
-      color: 'red',
-      type: error,
-      message: '%s'
-    }
-    messageTerminal(configErrorProvision)
+    messageTerminal(configErrorProvision(error))
   }
 }
 

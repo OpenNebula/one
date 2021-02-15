@@ -24,6 +24,7 @@ const {
 // user config
 
 const websockets = (appServer = {}) => {
+  const sockets = []
   if (
     appServer &&
     appServer.constructor &&
@@ -31,11 +32,12 @@ const websockets = (appServer = {}) => {
     appServer.constructor.name === 'Server'
   ) {
     const io = socketIO({ path: defaultEndpointWebsocket }).listen(appServer)
-    defaultFilesWebsockets.map(file => {
+    defaultFilesWebsockets.forEach(file => {
       try {
         // eslint-disable-next-line global-require
         const fileInfo = require(`./${file}`)
         if (fileInfo.main && typeof fileInfo.main === 'function') {
+          sockets.push(io)
           fileInfo.main(io)
         }
       } catch (error) {
@@ -47,6 +49,7 @@ const websockets = (appServer = {}) => {
       }
     })
   }
+  return sockets
 }
 
 module.exports = {

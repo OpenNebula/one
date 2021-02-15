@@ -145,7 +145,7 @@ const appServer = validateServerIsSecure()
   )
   : unsecureServer(app)
 
-websockets(appServer)
+const sockets = websockets(appServer) || []
 
 let config = {
   color: 'red',
@@ -164,3 +164,23 @@ appServer.listen(port, '0.0.0.0', err => {
 })
 vmrcUpgrade(appServer)
 guacamole(appServer)
+
+function handleBreak (code) {
+  if (appServer && appServer.close && typeof appServer.close === 'function') {
+    appServer.close(() => {
+      // this close sockets
+      sockets.forEach((socket) => {
+        if (socket && socket.close && typeof socket.close === 'function') {
+          socket.close()
+        }
+      })
+      process.exit(0)
+    })
+  }
+}
+const eventProcess = ['SIGINT', 'SIGTERM']
+eventProcess.forEach((nameEvent = '') => {
+  if (nameEvent) {
+    process.on(nameEvent, handleBreak)
+  }
+})
