@@ -267,6 +267,13 @@
               </select>
             </label>
           </div>
+          <div class="medium-6 columns">
+            <label>
+              {{tr "Iothread"}}
+              {{{tip (tr "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS>0.")}}}
+              <input type="number" wizard_field="IOTHREAD">
+            </label>
+          </div>
         </div>
       </div>
       <div class="wizard_internal_tab tabs-panel cpuTab" id="cpuTab{{uniqueId}}">
