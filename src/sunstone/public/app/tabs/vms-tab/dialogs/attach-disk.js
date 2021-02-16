@@ -94,6 +94,13 @@ define(function(require) {
 
     this.diskTab.onShow(context);
 
+    if (this && this.element && this.element.TEMPLATE && this.element.TEMPLATE.TM_MAD_SYSTEM && this.element.TEMPLATE.TM_MAD_SYSTEM === 'ssh'){
+      $('.hybrid_plus_section').hide();
+    }
+    else{
+      $('.hybrid_plus_section').show();
+    }
+
     return false;
   }
 
