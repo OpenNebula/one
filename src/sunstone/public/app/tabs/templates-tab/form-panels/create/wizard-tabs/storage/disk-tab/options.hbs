@@ -232,6 +232,17 @@
       </div>
     </div>
   </div>
+  <div class="row vm_param">
+    <div class="medium-6 columns hypervisor only_kvm">
+      <fieldset>
+        <legend> {{tr "IOPS Size"}}</legend>
+        <label for="SIZE_IOPS_SEC">
+          {{tr "Size of IOPS per second"}}
+        </label>
+        <input wizard_field="SIZE_IOPS_SEC" type="number" min="0" id="SIZE_IOPS_SEC" name="SIZE_IOPS_SEC" />
+      </fieldset>
+    </div>
+  </div>
 </fieldset>
 <fieldset class="not_firecracker hybrid_plus_section">
   <legend>{{tr "Hybrid+"}}</legend>
