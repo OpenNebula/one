@@ -211,7 +211,7 @@ module OpenNebulaJSON
 
             vm_new.extend(VirtualMachineExt)
 
-            vm_new.save_as_template(params['name'],params['description'], params['persistent'])
+            vm_new.save_as_template(params['name'],params['description'], persistent => params['persistent'])
         end
     end
 end

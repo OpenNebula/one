@@ -307,6 +307,16 @@ module OpenNebula
             end
         end
 
+        def wait_state(state, timeout=120)
+            extend OpenNebula::WaitExt
+
+            rc = wait(state, timeout)
+
+            return Error.new("Timeout expired for state #{state}.") unless rc
+
+            true
+        end
+
     private
 
         def set_enabled(enabled)

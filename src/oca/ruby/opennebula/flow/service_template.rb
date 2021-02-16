@@ -18,7 +18,7 @@ require 'parse-cron'
 
 module OpenNebula
 
-    # Service Tempalte
+    # Service Template
     class ServiceTemplate < DocumentJSON
 
         ROLE_SCHEMA = {

@@ -34,6 +34,7 @@ module OpenNebula
 
         attr_reader :message, :errno
 
+
         # +message+ Description of the error
         # +errno+   OpenNebula code error
         def initialize(message=nil, errno=0x1111)
@@ -44,6 +45,8 @@ module OpenNebula
         def to_str()
             @message
         end
+
+        alias inspect to_str
 
         def is_exml_rpc_call?()
             @errno == EXML_RPC_CALL

@@ -28,9 +28,77 @@ module OpenNebula::WaitExt
 
     # Wait classes and the name published in ZMQ
     WAIT = {
-        OpenNebula::Host  => { :name => 'HOST', :states => 'HOST_STATES' },
-        OpenNebula::Image => { :name => 'IMAGE', :states => 'IMAGE_STATES' },
-        OpenNebula::VirtualMachine => { :name => 'VM', :states => 'VM_STATE' }
+        OpenNebula::Host  => {
+            :event => lambda {|o, s1, _s2|
+                "EVENT STATE HOST/#{s1}//#{o['ID']}"
+            },
+
+            :in_state => lambda {|o, s1, _s2|
+                obj_s = Integer(o['STATE'])
+                inx_s = OpenNebula::Host::HOST_STATES.index(s1)
+
+                obj_s == inx_s
+            },
+
+            :in_state_e => lambda {|s1, _s2, content|
+                xml   = Nokogiri::XML(Base64.decode64(content))
+
+                obj_s = Integer(xml.xpath('//HOST/STATE').text)
+                inx_s = OpenNebula::Host::HOST_STATES.index(s1)
+
+                obj_s == inx_s
+            }
+        },
+
+        OpenNebula::Image  => {
+            :event => lambda {|o, s1, _s2|
+                "EVENT STATE IMAGE/#{s1}//#{o['ID']}"
+            },
+
+            :in_state => lambda {|o, s1, _s2|
+                obj_s = Integer(o['STATE'])
+                inx_s = OpenNebula::Image::IMAGE_STATES.index(s1)
+
+                obj_s == inx_s
+            },
+
+            :in_state_e => lambda {|s1, _s2, content|
+                xml   = Nokogiri::XML(Base64.decode64(content))
+
+                obj_s = Integer(xml.xpath('//IMAGE/STATE').text)
+                inx_s = OpenNebula::Image::IMAGE_STATES.index(s1)
+
+                obj_s == inx_s
+            }
+        },
+
+        OpenNebula::VirtualMachine => {
+            :event => lambda {|o, s1, s2|
+                "EVENT STATE VM/#{s1}/#{s2}/#{o['ID']}"
+            },
+
+            :in_state => lambda {|o, s1, s2|
+                obj_s1 = Integer(o['STATE'])
+                inx_s1 = OpenNebula::VirtualMachine::VM_STATE.index(s1)
+
+                obj_s2 = Integer(o['LCM_STATE'])
+                inx_s2 = OpenNebula::VirtualMachine::LCM_STATE.index(s2)
+
+                obj_s1 == inx_s1 && obj_s2 == inx_s2
+            },
+
+            :in_state_e => lambda {|s1, s2, content|
+                xml = Nokogiri::XML(Base64.decode64(content))
+
+                obj_s1 = Integer(xml.xpath('//VM/STATE').text)
+                inx_s1 = OpenNebula::VirtualMachine::VM_STATE.index(s1)
+
+                obj_s2 = Integer(xml.xpath('//VM/LCM_STATE').text)
+                inx_s2 = OpenNebula::VirtualMachine::LCM_STATE.index(s2)
+
+                obj_s1 == inx_s1 && obj_s2 == inx_s2
+            }
+        }
     }
 
     def self.extend_object(obj)
@@ -47,10 +115,11 @@ module OpenNebula::WaitExt
             #                            object status is checked in OpenNebula.
             #                            Use -1 (default) to wait forever.
             def wait(state_str, timeout = 60, cycles = -1)
-                # Read element name and states
-                ename  = WAIT[self.class][:name]
-                states = self.class.const_get(WAIT[self.class][:states])
-                state  = states.index(state_str)
+                wait2(state_str, '', timeout, cycles)
+            end
+
+            def wait2(sstr1, sstr2, timeout = 60, cycles = -1)
+                wfun = WAIT[self.class]
 
                 # Create subscriber
                 subscriber = ZMQ::Context.new(1).socket(ZMQ::SUB)
@@ -66,18 +135,19 @@ module OpenNebula::WaitExt
                 #   - element_name: is the element name to find in the message
                 #   - self.ID: returns element ID to find in the message
                 begin
-                    subscriber.setsockopt(ZMQ::RCVTIMEO, timeout)
-                    subscriber.connect('tcp://localhost:2101')
+                    subscriber.setsockopt(ZMQ::RCVTIMEO, timeout * 1000)
                     subscriber.setsockopt(
                         ZMQ::SUBSCRIBE,
-                        "EVENT STATE #{ename}/#{state_str}//#{self['ID']}"
+                        wfun[:event].call(self, sstr1, sstr2)
                     )
+
+                    subscriber.connect('tcp://localhost:2101')
 
                     rco = info
 
                     return false if OpenNebula.is_error?(rco)
 
-                    in_state = Integer(self['STATE']) == state
+                    in_state = wfun[:in_state].call(self, sstr1, sstr2)
                     recvs    = 0
 
                     until in_state || (cycles != -1 && recvs >= cycles)
@@ -91,21 +161,20 @@ module OpenNebula::WaitExt
 
                             return false if OpenNebula.is_error?(rco)
 
-                            c_state = self['STATE']
+                            in_state = wfun[:in_state].call(self, sstr1, sstr2)
                         else
-                            xml     = Nokogiri::XML(Base64.decode64(content))
-                            c_state = xml.xpath("//#{ename}/STATE").text
+                            in_state = wfun[:in_state_e].call(sstr1, sstr2,
+                                                              content)
                         end
 
-                        in_state = Integer(c_state) == state
-                        recvs   += 1
+                        recvs += 1
                     end
 
                     in_state
                 ensure
                     subscriber.setsockopt(
                         ZMQ::UNSUBSCRIBE,
-                        "EVENT STATE #{ename}/#{state_str}//#{self['ID']}"
+                        wfun[:event].call(self, sstr1, sstr2)
                     )
 
                     subscriber.close

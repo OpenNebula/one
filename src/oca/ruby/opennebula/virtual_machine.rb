@@ -710,9 +710,9 @@ module OpenNebula
             end
         end
 
-		#  Changes the attributes of a VM in power off, failure and undeploy
-		#  states
-		#  @param new_conf, string describing the new attributes. Each attribute
+        #  Changes the attributes of a VM in power off, failure and undeploy
+        #  states
+        #  @param new_conf, string describing the new attributes. Each attribute
         #  will replace the existing ones or delete it if empty. Attributes that
         #  can be updated are: INPUT/{TYPE, BUS}; RAW/{TYPE, DATA, DATA_VMX},
         #  OS/{BOOT, BOOTLOADER, ARCH, MACHINE, KERNEL, INITRD},
@@ -720,7 +720,7 @@ module OpenNebula
         #  and GRAPHICS/{TYPE, LISTEN, PASSWD, KEYMAP}
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
-		def updateconf(new_conf)
+        def updateconf(new_conf)
             return call(VM_METHODS[:updateconf], @pe_id, new_conf)
         end
 
@@ -770,26 +770,24 @@ module OpenNebula
             self['DEPLOY_ID']
         end
 
-        def wait_state(state, timeout=10)
-            vm_state = ""
-            lcm_state = ""
+        def wait_state(state, timeout=120)
+            extend OpenNebula::WaitExt
 
-            timeout.times do
-                rc = info()
-                return rc if OpenNebula.is_error?(rc)
+            rc = wait2(state, 'LCM_INIT', timeout)
 
-                vm_state = state_str()
-                lcm_state = lcm_state_str()
+            return Error.new("Timeout expired for state #{state}.") unless rc
 
-                if vm_state == state
-                    return true
-                end
+            true
+        end
 
-                sleep 1
-            end
+        def wait_state2(state, lcm_state, timeout=120)
+            extend OpenNebula::WaitExt
 
-            return Error.new("Timeout expired for state #{state}. "<<
-                "VM is in state #{vm_state}, #{lcm_state}")
+            rc = wait2(state, lcm_state, timeout)
+
+            return Error.new("Timeout expired for state #{state}.") unless rc
+
+            true
         end
 
     private

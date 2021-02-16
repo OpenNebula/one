@@ -21,6 +21,8 @@
 # rubocop:disable Style/ClassAndModuleChildren
 module OpenNebula::MarketPlaceAppExt
 
+    include OpenNebula
+
     def self.extend_object(obj)
         if !obj.is_a?(OpenNebula::MarketPlaceApp)
             raise StandardError, "Cannot extended #{obj.class} " \

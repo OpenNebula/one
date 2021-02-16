@@ -37,6 +37,7 @@ $LOAD_PATH << RUBY_LIB_LOCATION + '/cli'
 
 require 'command_parser'
 require 'one_helper/onevm_helper'
+require 'one_helper/onedatastore_helper'
 require 'opennebula/virtual_machine_ext'
 
 CommandParser::CmdParser.new(ARGV) do
@@ -175,6 +176,32 @@ CommandParser::CmdParser.new(ARGV) do
         :name => 'all',
         :large => '--all',
         :description => 'lock all actions'
+    }
+
+    LOGGER = {
+        :name   => 'logger',
+        :large  => '--logger logger',
+        :format => String,
+        :description => 'Set logger to STDOUT or FILE'
+    }
+
+    KEEP = {
+        :name  => 'keep',
+        :large => '--keep-backup',
+        :description => 'Keep previous backup when creating a new one'
+    }
+
+    ONESHOT = {
+        :name  => 'oneshot',
+        :large => '--oneshot',
+        :description => 'Take an snapshot of the VM without saving backup info'
+    }
+
+    MARKET = {
+        :name   => 'market',
+        :large  => '--market market_id',
+        :format => Integer,
+        :description => 'Market to save oneshot'
     }
 
     ########################################################################
@@ -1213,7 +1240,8 @@ CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0], options, 'Saving VM') do |vm|
             vm.extend(VirtualMachineExt)
 
-            res = vm.save_as_template(args[1], options[:persistent])
+            res = vm.save_as_template(args[1],
+                                      persistent => options[:persistent])
 
             if !OpenNebula.is_error?(res)
                 puts "Template ID: #{res}"
@@ -1385,6 +1413,95 @@ CommandParser::CmdParser.new(ARGV) do
         helper.update_schedule_action(args[0], args[1], args[2])
 
         0
+    end
+
+    backup_vm_desc = <<-EOT.unindent
+        Creates a VM backup and stores it in the marketplace
+    EOT
+
+    command :backup,
+            backup_vm_desc,
+            :vmid,
+            :options => [LOGGER, KEEP, ONESHOT, MARKET] do
+        require 'logger'
+
+        if options.key?(:oneshot) && !options.key?(:market)
+            STDERR.puts 'ERROR: no market given'
+            exit(-1)
+        end
+
+        helper.perform_action(args[0], options, 'Backup') do |vm|
+            vm.extend(OpenNebula::VirtualMachineExt)
+
+            # If logger is specified use it, if not use STDOUT
+            options[:logger].nil? ? log_to = STDOUT : log_to = options[:logger]
+
+            # Read user options
+            keep   = options.key?(:keep)
+            logger = Logger.new(log_to)
+
+            if options.key?(:oneshot)
+                binfo        = {}
+                binfo[:name] = "VM #{vm.id} BACKUP - " \
+                               "#{Time.now.strftime('%Y%m%d_%k%M')}"
+                binfo[:freq]   = 1
+                binfo[:last]   = Time.now.to_i - 100
+                binfo[:market] = options[:market]
+            end
+
+            begin
+                rc = vm.backup(keep, logger, binfo)
+
+                if OpenNebula.is_error?(rc)
+                    STDERR.puts rc.message
+                    exit(-1)
+                else
+                    0
+                end
+            rescue StandardError => e
+                STDERR.puts e
+                exit(-1)
+            end
+        end
+    end
+
+    restore_vm_desc = <<-EOT.unindent
+        Restores a VM from a previous backup
+    EOT
+
+    command :restore,
+            restore_vm_desc,
+            :vmid,
+            :options => [OneDatastoreHelper::DATASTORE, LOGGER] do
+        require 'logger'
+
+        unless options[:datastore]
+            STDERR.puts 'ERROR: no datastore given'
+            exit(-1)
+        end
+
+        helper.perform_action(args[0], options, 'Restore') do |vm|
+            vm.extend(OpenNebula::VirtualMachineExt)
+
+            # If logger is specified use it, if not use STDOUT
+            options[:logger].nil? ? log_to = STDOUT : log_to = options[:logger]
+            logger = Logger.new(log_to)
+
+            begin
+                rc = vm.restore(options[:datastore], logger)
+
+                if OpenNebula.is_error?(rc)
+                    STDERR.puts rc.message
+                    exit(-1)
+                else
+                    puts "ID: #{rc}"
+                    0
+                end
+            rescue StandardError => e
+                STDERR.puts e
+                exit(-1)
+            end
+        end
     end
 
     # Deprecated commands

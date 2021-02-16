@@ -31,123 +31,87 @@ module OpenNebula::TemplateExt
 
         class << obj
 
-            # Timeout in seconds to wait until images are READY
-            TIMEOUT = 300
-
             ####################################################################
             # Public extended interface
             ####################################################################
+
+            # ------------------------------------------------------------------
             # Imports template into marketplace
             #
-            # @param market        [Integer] Market to import the Template
-            # @param import_all    [String]  yes to import images too,
-            #                                no otherwise
-            # @param template_name [String]  Virtual Machine Template app name
+            # @param market [Integer] Market to import the Template
+            # @param import_all [Bool] true to import images too,
+            # @param template_name [String] Virtual Machine Template app name
             #
             # @return [String, Array]
             #   - Error message in case of any or random generated template name
             #   - Objects IDs
-            def mp_import(market, import_all, template_name = nil)
-                ids           = []
+            # ------------------------------------------------------------------
+            def mp_import(market, import_all, template_name = nil, opts = {})
+                opts = {
+                    :wait => false,
+                    :logger => nil
+                }.merge(opts)
+
+                ids    = []
+                images = []
+                logger = opts[:logger]
+
                 main_template = ''
 
                 #---------------------------------------------------------------
                 # Import all disks as IMAGE
                 #---------------------------------------------------------------
+                logger.info 'Processing VM disks' if logger
+
                 retrieve_xmlelements('TEMPLATE/DISK').each_with_index do
                     |disk, idx|
-                    template, main = create_mp_app_template(disk['IMAGE_ID'],
-                                                            disk['IMAGE'],
-                                                            idx)
-                    if OpenNebula.is_error?(template)
+
+                    image = image_lookup(disk)
+
+                    if OpenNebula.is_error?(image)
+                        logger.fatal image.message if logger
+
                         rollback(ids)
-                        return [rc.message, ids]
+                        return [image, ids]
+                    end
+
+                    logger.info "Adding disk with image #{image.id}" if logger
+
+                    tmpl, main = create_app_template(image, idx)
+
+                    if OpenNebula.is_error?(tmpl)
+                        logger.fatal tmpl.message if logger
+
+                        rollback(ids)
+                        return [tmpl, ids]
                     end
 
                     main_template << main
 
-                    next if import_all == 'no'
+                    next unless import_all
 
-                    rc = create_mp_app(template, market)
+                    logger.info 'Importing image to market place' if logger
+
+                    rc = create_app(tmpl, market)
 
                     if OpenNebula.is_error?(rc)
+                        logger.fatal rc.message if logger
+
                         rollback(ids)
-                        return [rc.message, ids]
+                        return [rc, ids]
                     end
+
+                    images << image
 
                     ids << rc
                 end
 
-                #---------------------------------------------------------------
-                # Check if VM template has kernel
-                #---------------------------------------------------------------
-                kernel = self['TEMPLATE/OS/KERNEL_DS']
-
-                if kernel
-                    image_id = kernel.match(/\d+/)
-                    image_id = image_id[0] if image_id
-
-                    template, main = create_mp_app_template(image_id, nil)
-
-                    if OpenNebula.is_error?(template)
-                        rollback(ids)
-                        return [rc.message, ids]
-                    end
-
-                    main_template << main
-
-                    if import_all == 'yes'
-                        rc = create_mp_app(template, market)
-
-                        if OpenNebula.is_error?(rc)
-                            rollback(ids)
-                            return [rc.message, ids]
-                        end
-
-                        ids << rc
-                    end
-                end
-
-                #---------------------------------------------------------------
-                # Check if VM template have files
-                #---------------------------------------------------------------
-                files = self['TEMPLATE/CONTEXT/FILES_DS']
-
-                if files
-                    files = files.scan(/IMAGE="([^"]*)"/).flatten +
-                            files.scan(/IMAGE_ID="([^"]*)"/).flatten
-                end
-
-                if files
-                    files.each_with_index do |file, idx|
-                        template, main = create_mp_app_template(file, nil, idx)
-
-                        if OpenNebula.is_error?(template)
-                            rollback(ids)
-                            return [rc.message, ids]
-                        end
-
-                        main_template << main
-
-                        next unless import_all == 'yes'
-
-                        rc = create_mp_app(template, market)
-
-                        if OpenNebula.is_error?(rc)
-                            rollback(ids)
-                            return [rc.message, ids]
-                        end
-
-                        ids << rc
-                    end
-                end
-
-                #---------------------------------------------------------------
-                # Finally import VM template
-                #---------------------------------------------------------------
                 delete_element('TEMPLATE/DISK')
-                delete_element('TEMPLATE/OS/KERNEL_DS')
-                delete_element('TEMPLATE/CONTEXT/FILES_DS')
+
+                #---------------------------------------------------------------
+                # Import VM template
+                #---------------------------------------------------------------
+                logger.info 'Processing VM NICs' if logger
 
                 # Replace all nics by auto nics
                 nic_xpath   = '/VMTEMPLATE/TEMPLATE/NIC'
@@ -198,12 +162,20 @@ module OpenNebula::TemplateExt
                 APPTEMPLATE64 ="#{Base64.strict_encode64(template_str)}"
                 EOT
 
-                rc = create_mp_app(main_template, market)
+                logger.info 'Creating VM app' if logger
+
+                rc = create_app(main_template, market)
 
                 if OpenNebula.is_error?(rc)
+                    logger.fatal rc.message if logger
+
                     rollback(ids)
-                    return [rc.message, ids]
+                    return [rc, ids]
                 end
+
+                logger.info 'Waiting for image upload' if logger && opts[:wait]
+
+                images.each {|i| i.wait('READY') } if opts[:wait]
 
                 ids << rc
 
@@ -215,46 +187,30 @@ module OpenNebula::TemplateExt
             ####################################################################
             private
 
+            #-------------------------------------------------------------------
             # NIC and NIC Alias attributes to delete when importing template
             # into marketplace.
             #   @param nic [XMLElement] to delete attributes from
+            #-------------------------------------------------------------------
             def delete_nic_attributes(nic)
                 %w[NETWORK NETWORK_ID NETWORK_UNAME SECURITY_GROUPS].each do |a|
                     nic.delete_element(a)
                 end
             end
 
+            #-------------------------------------------------------------------
             # Create application template
             #
-            # @param id   [Integer] Image ID
-            # @param name [String]  Image name
-            # @param type [String]  Image type (image/file/kernel)
+            # @param id   [Image] OpenNebula Image
             # @param idx  [Integer] Image ID in VM template
             #
             # @return [String, String]
             #   - app template
             #   - content for VM template
-            def create_mp_app_template(id, name, idx = 0)
-                # Find image information, from ID or NAME
-                if id
-                    image = OpenNebula::Image.new_with_id(id, @client)
-                else
-                    image_pool = OpenNebula::ImagePool.new(@client)
-                    image_pool.info
-                    name.gsub!('"', '')
-
-                    image = image_pool.find {|v| v['NAME'] == name }
-                end
-
-                image.info
-
-                if Integer(image['STATE']) != 1
-                    image.extend(OpenNebula::WaitExt)
-
-                    # Wait until the image is READY to safe copy it to the
-                    # marketplace
-                    image.wait('READY')
-                end
+            #-------------------------------------------------------------------
+            def create_app_template(image, idx = 0)
+                # Wait until the image is READY to safe copy it to the MP
+                image.wait('READY') if Integer(image['STATE']) != 1
 
                 # Rename to avoid clashing names
                 app_name = "#{image['NAME']}-#{SecureRandom.hex[0..9]}"
@@ -281,20 +237,21 @@ module OpenNebula::TemplateExt
                 ]
                 EOT
 
-                # Template is the image app template
-                # Main template is content to be added to VM template app
                 [template, main_template]
             end
 
+            #-------------------------------------------------------------------
             # Create application in marketplace
             #
             # @param template  [String]  APP template
             # @param market_id [Integer] Marketplace to import it
             #
             # @return [Integer] APP ID
-            def create_mp_app(template, market_id)
+            #-------------------------------------------------------------------
+            def create_app(template, market_id)
                 xml = OpenNebula::MarketPlaceApp.build_xml
                 app = OpenNebula::MarketPlaceApp.new(xml, @client)
+
                 rc  = app.allocate(template, market_id)
 
                 return rc if OpenNebula.is_error?(rc)
@@ -302,29 +259,63 @@ module OpenNebula::TemplateExt
                 app.id
             end
 
+            #-------------------------------------------------------------------
             # Delete IDS apps
             #
             # @param ids [Array] Apps IDs to delete
+            #-------------------------------------------------------------------
             def rollback(ids)
-                puts
-                STDERR.puts "ERROR: rolling back apps: #{ids.join(', ')}"
-                puts
-
                 ids.each do |id|
                     app = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
 
-                    app.info
-
-                    # Ready state
-                    if app.state != 1
-                        STDERR.puts "App `#{app['NAME']}` delete operation " \
-                                    'might fail, check servers logs'
-                    end
-
                     app.delete
                 end
+            end
 
-                puts
+            #-------------------------------------------------------------------
+            # Lookup OpenNebula Images by name or id. Lookup is made on a cached
+            # image pool.
+            #
+            # @param id [Integer, nil] Image id
+            # @param name [String] Image name
+            #
+            # @return [Image]
+            #-------------------------------------------------------------------
+            def image_lookup(disk)
+                # Image pool cache for image id lookup
+                if @image_lookup_cache.nil?
+                    @image_lookup_cache = OpenNebula::ImagePool.new(@client)
+                    @image_lookup_cache.info
+                end
+
+                # Find image information, from ID or NAME. NAME uses the
+                # specified user or template owner namespaces
+                image = nil
+
+                image_id = disk['IMAGE_ID']
+
+                if image_id
+                    image = OpenNebula::Image.new_with_id(image_id, @client)
+                else
+                    name  = disk['IMAGE']
+                    uname = disk['IMAGE_UNAME']
+                    uname ||= self['UNAME']
+
+                    name.gsub!('"', '')
+                    image = @image_lookup_cache.find do |v|
+                        v['NAME'] == name && v['UNAME'] == uname
+                    end
+
+                    return Error.new("Image #{image} not found") if image.nil?
+                end
+
+                rc = image.info
+
+                return rc if OpenNebula.is_error? rc
+
+                image.extend(OpenNebula::WaitExt)
+
+                image
             end
 
         end
