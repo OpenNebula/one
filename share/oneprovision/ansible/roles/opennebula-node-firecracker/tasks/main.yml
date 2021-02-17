@@ -9,3 +9,31 @@
 - name: "create datastore for ONE_LOCATION"
   file: path={{ one_location }}/var/datastores owner=oneadmin group=oneadmin state=directory
   when: one_location is defined
+
+- name: 'Stat /var/lib/one/remotes'
+  local_action: stat path=/var/lib/one/remotes
+  register: remotes_st
+
+- name: 'Create hook subfolders into network driver folders'
+  local_action:
+    module: file
+    path: /var/lib/one/remotes/vnm/{{ item[0] }}/{{ item[1] }}.d
+    state: directory
+    owner: '{{ remotes_st.stat.pw_name }}'
+    group: '{{ remotes_st.stat.gr_name }}'
+    mode: '0750'
+  with_nested:
+    - '{{ opennebula_node_firecracker_network_drivers }}'
+    - '{{ opennebula_node_firecracker_network_hook_types }}'
+
+- name: 'Install firecracker hooks'
+  local_action:
+    module: file
+    src: /var/lib/one/remotes/vnm/hooks/{{ item[1] }}/firecracker
+    dest: /var/lib/one/remotes/vnm/{{ item[0] }}/{{ item[1] }}.d/firecracker
+    owner: '{{ remotes_st.stat.pw_name }}'
+    group: '{{ remotes_st.stat.gr_name }}'
+    state: link
+  with_nested:
+    - '{{ opennebula_node_firecracker_network_drivers }}'
+    - '{{ opennebula_node_firecracker_network_hook_types }}'
