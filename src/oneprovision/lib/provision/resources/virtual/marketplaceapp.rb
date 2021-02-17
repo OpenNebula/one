@@ -54,6 +54,7 @@ module OneProvision
             rc = app.info
 
             Utils.exception(rc)
+
             app.extend(MarketPlaceAppExt)
 
             url_args = "tag=#{@p_template['tag']}" if @p_template['tag']
@@ -67,44 +68,52 @@ module OneProvision
                 :vmtemplate_name => @p_template['vmname'],
                 :url_args => url_args
             )
+
             Utils.exception(rc[:image].first) if rc[:image]
             Utils.exception(rc[:vmtemplate].first) if rc[:vmtemplate]
 
             # get new IDs
             image_id    = rc[:image].first
             template_id = rc[:vmtemplate].first
-
-            OneProvisionLogger.debug(
-                "Image created with ID: #{image_id}"
-            )
-
-            OneProvisionLogger.debug(
-                "Template created with ID: #{template_id}"
-            )
-            # get new created template and update it with provision ID
-            @template = Template.new
-
-            @template.info(template_id)
+            p_id        = @p_template['provision']['id']
+            ret         = {}
 
             # get new created image and update it with provision ID
-            @image = Image.new
-            p_id   = @p_template['provision']['id']
+            if image_id
+                OneProvisionLogger.debug(
+                    "Image created with ID: #{image_id}"
+                )
 
-            @image.info(image_id)
-            @image.update_provision_info({ 'wait'         => wait,
-                                           'wait_timeout' => timeout,
-                                           'id'           => p_id })
+                @image = Image.new
 
-            @template.update_provision_info({ 'id' => p_id })
+                @image.info(image_id)
+                @image.update_provision_info({ 'wait'         => wait,
+                                            'wait_timeout' => timeout,
+                                            'id'           => p_id })
 
-            # Change permissions and ownership
-            @image.template_chown(@p_template)
-            @image.template_chmod(@p_template)
-            @template.template_chown(@p_template)
-            @template.template_chmod(@p_template)
+                @image.template_chown(@p_template)
+                @image.template_chmod(@p_template)
 
-            ret = [{ 'id' => image_id, 'name' => @image.one['NAME'] },
-                   { 'id' => template_id, 'name' => @template.one['NAME'] }]
+                ret[:image] = { 'id'   => image_id,
+                                'name' => @image.one['NAME'] }
+            end
+
+            # get new created template and update it with provision ID
+            if template_id
+                OneProvisionLogger.debug(
+                    "Template created with ID: #{template_id}"
+                )
+
+                @template = Template.new
+
+                @template.info(template_id)
+                @template.update_provision_info({ 'id' => p_id })
+                @template.template_chown(@p_template)
+                @template.template_chmod(@p_template)
+
+                ret[:template] = { 'id'   => template_id,
+                                   'name' => @template.one['NAME'] }
+            end
 
             return ret unless wait
 

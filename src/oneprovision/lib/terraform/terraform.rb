@@ -151,6 +151,12 @@ module OneProvision
                 )
 
                 unless s && s.success?
+                    @state = File.read("#{tempdir}/terraform.tfstate")
+                    conf   = Base64.encode64(Zlib::Deflate.deflate(@conf))
+                    state  = Base64.encode64(Zlib::Deflate.deflate(@state))
+
+                    provision.add_tf(state, conf)
+
                     STDERR.puts '[ERROR] Hosts provision failed!!! ' \
                                 'Please log in to your console to delete ' \
                                 'left resources'

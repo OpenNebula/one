@@ -168,6 +168,15 @@ module OneProvision
             { :state => tf_state, :conf => tf_conf }
         end
 
+        # Adds Terraform information to the provision
+        def add_tf(state, conf)
+            @body['tf']          = {} unless @body['tf']
+            @body['tf']['state'] = state
+            @body['tf']['conf']  = conf
+
+            update
+        end
+
         # Get OpenNebula information for specific objects
         #
         # @param object [String]  Object to check
@@ -322,11 +331,7 @@ module OneProvision
 
                     update_hosts(ips, ids)
 
-                    if state && conf
-                        @body['tf']          = {}
-                        @body['tf']['state'] = state
-                        @body['tf']['conf']  = conf
-                    end
+                    add_tf(state, conf) if state && conf
 
                     update
                 end
@@ -460,10 +465,7 @@ module OneProvision
                 return [-1, rc.message] if OpenNebula.is_error?(rc)
 
                 # If it is an array, a host has been deleted
-                if rc.is_a? Array
-                    @body['tf']['state'] = rc[0]
-                    @body['tf']['conf']  = rc[1]
-                end
+                add_tf(rc[0], rc[1]) if rc.is_a? Array
 
                 @body['provision'][path][object].delete_if do |obj|
                     true if obj['id'].to_s == id.to_s
@@ -623,7 +625,7 @@ module OneProvision
                 ret                 = obj.create
                 resource_objects[r] = [] unless resource_objects[r]
 
-                if ret.is_a? Array
+                if ret.is_a? Hash
                     # Marketplace app
                     unless resource_objects['images']
                         resource_objects['images'] = []
@@ -633,8 +635,11 @@ module OneProvision
                         resource_objects['templates'] = []
                     end
 
-                    resource_objects['images'] << ret[0]
-                    resource_objects['templates'] << ret[1]
+                    resource_objects['images'] << ret[:image] if ret[:image]
+
+                    if ret[:template]
+                        resource_objects['templates'] << ret[:template]
+                    end
                 else
                     resource_objects[r] << { 'id'   => ret,
                                              'name' => obj.one['NAME'] }
