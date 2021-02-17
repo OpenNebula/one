@@ -29,7 +29,7 @@ inputs:
   - name: 'packet_plan'
     type: text
     description: "Packet plan (device type)"
-    default: 't1.small'
+    default: 'baremetal_0'
 
   - name: 'packet_os'
     type: text
