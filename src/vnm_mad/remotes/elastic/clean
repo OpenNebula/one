@@ -49,7 +49,7 @@ begin
 
     drv.unassign
 
-    drv.deactivate
+    drv.run_hooks(ARGV, template64) if drv.deactivate == 0
 rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)

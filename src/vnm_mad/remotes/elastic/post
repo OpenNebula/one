@@ -52,7 +52,7 @@ begin
     exit 1 if drv.assign
 
     begin
-        drv.activate
+        drv.run_hooks(ARGV, template64) if drv.activate == 0
     rescue StandardError => e
         drv.unassign # rollback assign
         raise e
