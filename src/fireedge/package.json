@@ -89,6 +89,7 @@
     "jwt-simple": "^0.5.6",
     "lockfile": "^1.0.4",
     "luxon": "^1.25.0",
+    "marked": "2.0.0",
     "morgan": "^1.10.0",
     "node-pre-gyp": "^0.15.0",
     "notistack": "^1.0.1",

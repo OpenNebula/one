@@ -214,7 +214,7 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
       if (directory.filename && directory.path) {
         // description
         existsFile(
-          `${directory.path}/description.txt`,
+          `${directory.path}/description.md`,
           fillDescription
         )
 

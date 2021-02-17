@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react'
-import { Divider, Select, Breadcrumbs, Link } from '@material-ui/core'
+import { Divider, Select, Breadcrumbs } from '@material-ui/core'
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
+import Marked from 'marked'
 
 import { useProvision, useListForm } from 'client/hooks'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
-import { isExternalURL, sanitize } from 'client/utils'
+import { sanitize } from 'client/utils'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 import { T } from 'client/constants'
 
@@ -65,13 +66,17 @@ const Template = () => ({
         <option key={option} value={option}>{option}</option>
       ))
 
-      const RenderDescription = ({ description = '' }) => (
-        <p>{(sanitize`${description}`)?.split(' ').map((string, idx) =>
-          isExternalURL(string)
-            ? <Link key={`link-${idx}`} color='textPrimary' target='_blank' href={string}>{string}</Link>
-            : ` ${string}`
-        )}</p>
-      )
+      const RenderDescription = ({ description = '' }) => {
+        const renderer = new Marked.Renderer()
+
+        renderer.link = (href, title, text) => (
+          `<a class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorSecondary"
+            target="_blank" rel="nofollow" title='${title}' href='${href}' >${text}</a>`
+        )
+
+        const html = Marked(sanitize`${description}`, { renderer })
+        return <div dangerouslySetInnerHTML={{ __html: html }} />
+      }
 
       return (
         <>
