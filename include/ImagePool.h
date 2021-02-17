@@ -41,7 +41,8 @@ public:
             const std::string&                    __default_dev_prefix,
             const std::string&                    __default_cdrom_dev_prefix,
             std::vector<const SingleAttribute *>& restricted_attrs,
-            const std::vector<const SingleAttribute *>& _inherit_image_attrs);
+            std::vector<const SingleAttribute *>& encrypted_attrs,
+            const std::vector<const SingleAttribute *>& inherit_attrs);
 
     ~ImagePool(){};
 

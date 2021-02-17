@@ -46,6 +46,7 @@ ImagePool::ImagePool(
         const string&                    __default_dev_prefix,
         const string&                    __default_cdrom_dev_prefix,
         vector<const SingleAttribute *>& restricted_attrs,
+        vector<const SingleAttribute *>& encrypted_attrs,
         const vector<const SingleAttribute *>& _inherit_attrs)
     : PoolSQL(db, one_db::image_table)
 {
@@ -71,6 +72,8 @@ ImagePool::ImagePool(
     }
 
     ImageTemplate::parse_restricted(restricted_attrs);
+
+    ImageTemplate::parse_encrypted(encrypted_attrs);
 }
 
 /* -------------------------------------------------------------------------- */

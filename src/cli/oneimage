@@ -408,7 +408,8 @@ CommandParser::CmdParser.new(ARGV) do
         Shows information for the given Image
     EOT
 
-    command :show, show_desc, :imageid, :options => OpenNebulaHelper::FORMAT do
+    command :show, show_desc, :imageid,
+            :options => [OpenNebulaHelper::FORMAT, OpenNebulaHelper::DECRYPT] do
         helper.show_resource(args[0], options)
     end
 

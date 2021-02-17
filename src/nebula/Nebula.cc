@@ -750,9 +750,12 @@ void Nebula::start(bool bootstrap_only)
         string  cd_dev_prefix;
 
         vector<const SingleAttribute *> img_restricted_attrs;
-        vector<const SingleAttribute *> inherit_image_attrs;
-        vector<const SingleAttribute *> inherit_ds_attrs;
+
+        vector<const SingleAttribute *> img_inherit_attrs;
+        vector<const SingleAttribute *> ds_inherit_attrs;
+
         vector<const SingleAttribute *> ds_encrypted_attrs;
+        vector<const SingleAttribute *> img_encrypted_attrs;
 
         nebula_configuration->get("DEFAULT_IMAGE_TYPE", image_type);
         nebula_configuration->get("DEFAULT_DEVICE_PREFIX", device_prefix);
@@ -760,16 +763,16 @@ void Nebula::start(bool bootstrap_only)
 
         nebula_configuration->get("IMAGE_RESTRICTED_ATTR", img_restricted_attrs);
 
-        nebula_configuration->get("INHERIT_IMAGE_ATTR", inherit_image_attrs);
-
-        ipool = new ImagePool(logdb, image_type, device_prefix, cd_dev_prefix,
-            img_restricted_attrs, inherit_image_attrs);
-
-        nebula_configuration->get("INHERIT_DATASTORE_ATTR", inherit_ds_attrs);
+        nebula_configuration->get("INHERIT_IMAGE_ATTR", img_inherit_attrs);
+        nebula_configuration->get("INHERIT_DATASTORE_ATTR", ds_inherit_attrs);
 
         nebula_configuration->get("DATASTORE_ENCRYPTED_ATTR", ds_encrypted_attrs);
+        nebula_configuration->get("IMAGE_ENCRYPTED_ATTR", img_encrypted_attrs);
 
-        dspool = new DatastorePool(logdb, inherit_ds_attrs, ds_encrypted_attrs);
+        ipool = new ImagePool(logdb, image_type, device_prefix, cd_dev_prefix,
+            img_restricted_attrs, img_encrypted_attrs, img_inherit_attrs);
+
+        dspool = new DatastorePool(logdb, ds_inherit_attrs, ds_encrypted_attrs);
 
         /* ----- Document, Zone, VDC, VMTemplate, SG and Makerket Pools ----- */
         vector<const SingleAttribute *> doc_encrypted_attrs;

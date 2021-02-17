@@ -63,11 +63,34 @@ public:
         Template::parse_restricted(ra, restricted);
     }
 
+    // -------------------------------------------------------------------------
+    // Encrypted attributes interface implementation
+    // -------------------------------------------------------------------------
+    virtual void encrypt(const std::string& one_key)
+    {
+        Template::encrypt(one_key, encrypted);
+    }
+
+    virtual void decrypt(const std::string& one_key)
+    {
+        Template::decrypt(one_key, encrypted);
+    }
+
+    static void parse_encrypted(std::vector<const SingleAttribute *>& ea)
+    {
+        Template::parse_encrypted(ea, encrypted);
+    }
+
 private:
     /**
      *  Restricted attribute list for ImageTemplates
      */
     static std::map<std::string, std::set<std::string> > restricted;
+
+    /**
+     *  Encrypted attribute list for ImageTemplates
+     */
+    static std::map<std::string, std::set<std::string> > encrypted;
 };
 
 /* -------------------------------------------------------------------------- */
