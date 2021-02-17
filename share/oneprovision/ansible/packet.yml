@@ -9,7 +9,8 @@
   roles:
     - ddc
     - opennebula-repository
-    - opennebula-node-kvm
+    - { role: opennebula-node-kvm, when: oneprovision_hypervisor == 'kvm' }
+    - { role: opennebula-node-firecracker, when: oneprovision_hypervisor == 'firecracker' }
     - opennebula-ssh
     - role: iptables
       iptables_base_rules_services:

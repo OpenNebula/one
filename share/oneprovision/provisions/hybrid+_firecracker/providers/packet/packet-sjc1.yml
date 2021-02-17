@@ -1,0 +1,26 @@
+name: 'packet-sjc1'
+
+description: 'Elastic cluster on Packet in Sunnyvale, USA, CA'
+provider: 'packet'
+
+plain:
+  provision_type: 'hybrid+'
+  image: 'EQUINIX.webp'
+
+location_key: 'facility'
+connection:
+  token: 'Packet token'
+  project: 'Packet project'
+  facility: 'sjc1'
+
+inputs:
+   - name: 'packet_os'
+     type: 'list'
+     options:
+       - 'centos_8'
+   - name: 'packet_plan'
+     type: 'list'
+     options:
+       - 't1.small'
+       - 'c1.small'
+       - 'm1.xlarge'
