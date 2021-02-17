@@ -15,7 +15,7 @@
 
 const { createReadStream, generateFile } = require('fireedge-pojson')
 
-const testFolder = './src/public/assets/languages'
+const testFolder = './src/client/assets/languages'
 
 createReadStream(testFolder, { exportPath: testFolder })
 
