@@ -1439,6 +1439,11 @@ CommandParser::CmdParser.new(ARGV) do
             # Read user options
             keep   = options.key?(:keep)
             logger = Logger.new(log_to)
+            format = '%Y-%m-%d %H:%M:%S'
+
+            logger.formatter = proc do |severity, datetime, _p, msg|
+                "#{datetime.strftime(format)} #{severity.ljust(5)} : #{msg}\n"
+            end
 
             if options.key?(:oneshot)
                 binfo        = {}
@@ -1486,6 +1491,11 @@ CommandParser::CmdParser.new(ARGV) do
             # If logger is specified use it, if not use STDOUT
             options[:logger].nil? ? log_to = STDOUT : log_to = options[:logger]
             logger = Logger.new(log_to)
+            format = '%Y-%m-%d %H:%M:%S'
+
+            logger.formatter = proc do |severity, datetime, _p, msg|
+                "#{datetime.strftime(format)} #{severity.ljust(5)} : #{msg}\n"
+            end
 
             begin
                 rc = vm.restore(options[:datastore], logger)
