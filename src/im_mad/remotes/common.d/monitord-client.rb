@@ -216,11 +216,13 @@ begin
         :snapshot_vm_udp => {
             :period => 60,
             :elem_name => 'MONITOR_VM',
+            :method_name => :monitor_vm_udp,
             :path => 'vm/snapshot'
         },
 
         :beacon_host_udp => {
             :period => config.elements['PROBES_PERIOD/BEACON_HOST'].text.to_s,
+            :elem_name => 'BEACON_HOST',
             :path => 'host/beacon'
         }
     }
@@ -282,7 +284,9 @@ probes.each do |msg_type, conf|
             da.strip!
             next if da.empty?
 
-            client.send(msg_type, result == 0, da)
+            smethod = conf[:method_name] ? conf[:method_name] : msg_type
+                                     
+            client.send(smethod, result == 0, da)
         end
     end
 end
