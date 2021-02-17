@@ -157,6 +157,8 @@ module OneProvision
 
                     provision.add_tf(state, conf)
 
+                    provision.update
+
                     STDERR.puts '[ERROR] Hosts provision failed!!! ' \
                                 'Please log in to your console to delete ' \
                                 'left resources'

@@ -173,8 +173,6 @@ module OneProvision
             @body['tf']          = {} unless @body['tf']
             @body['tf']['state'] = state
             @body['tf']['conf']  = conf
-
-            update
         end
 
         # Get OpenNebula information for specific objects
