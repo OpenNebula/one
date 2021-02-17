@@ -21,10 +21,6 @@
 # ------------------------------------------------------------------------------
 
 name: 'packet-cluster'
-provision_type: 'hybrid+_firecracker'
-provider: 'packet'
-
-image: 'OPENNEBULA-EQUINIX.png'
 
 extends:
     - common.d/defaults.yml
@@ -32,6 +28,7 @@ extends:
     - common.d/firecracker_hosts.yml
     - packet.d/defaults.yml
     - packet.d/datastores.yml
+    - packet.d/fireedge.yml
     - packet.d/inputs.yml
     - packet.d/networks.yml
 
