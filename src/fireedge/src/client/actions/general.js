@@ -73,6 +73,14 @@ module.exports = {
       options: { variant: 'success' }
     }
   }),
+  enqueueInfo: message => ({
+    type: ENQUEUE_SNACKBAR,
+    notification: {
+      key: new Date().getTime() + Math.random(),
+      message,
+      options: { variant: 'info' }
+    }
+  }),
   closeSnackbar: key => ({
     type: CLOSE_SNACKBAR,
     dismissAll: !key, // dismiss all if no key has been defined

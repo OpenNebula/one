@@ -8,7 +8,7 @@ import {
   successOneRequest
 } from 'client/actions/pool'
 
-import { enqueueError, enqueueSuccess } from 'client/actions/general'
+import { enqueueError, enqueueSuccess, enqueueInfo } from 'client/actions/general'
 
 import * as serviceProvision from 'client/services/provision'
 
@@ -153,11 +153,11 @@ export default function useProvision () {
       serviceProvision
         .createProvision({ data })
         .then(doc => {
-          dispatch(enqueueSuccess('Provision created'))
+          dispatch(enqueueInfo('Creating provision'))
           return doc.data
         })
         .catch(err => {
-          dispatch(enqueueError(err?.message ?? 'Error CREATE Provision'))
+          dispatch(enqueueError(err?.message ?? 'Error creating provision'))
         }),
     [dispatch]
   )
@@ -167,10 +167,10 @@ export default function useProvision () {
       serviceProvision
         .configureProvision({ id })
         .then(doc => {
-          dispatch(enqueueSuccess(`Provision configuring - ID: ${id}`))
+          dispatch(enqueueInfo(`Configuring provision - ID: ${id}`))
           return doc
         })
-        .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE provision')))
+        .catch(err => dispatch(enqueueError(err ?? 'Error configuring provision')))
     , [dispatch]
   )
 
@@ -178,9 +178,9 @@ export default function useProvision () {
     ({ id }) =>
       serviceProvision
         .deleteProvision({ id })
-        .then(() => dispatch(enqueueSuccess(`Provision deleted - ID: ${id}`)))
+        .then(() => dispatch(enqueueInfo(`Deleting provision - ID: ${id}`)))
         .then(() => getProvisions())
-        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provision')))
+        .catch(err => dispatch(enqueueError(err ?? 'Error deleting provision')))
     , [dispatch]
   )
 
@@ -201,7 +201,7 @@ export default function useProvision () {
       serviceProvision
         .deleteDatastore({ id })
         .then(doc => {
-          dispatch(enqueueSuccess(`Datastore deleted - ID: ${doc}`))
+          dispatch(enqueueSuccess(`Datastore deleted - ID: ${id}`))
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE datastore')))
@@ -237,7 +237,7 @@ export default function useProvision () {
       serviceProvision
         .configureHost({ id })
         .then(doc => {
-          dispatch(enqueueSuccess(`Host configuring - ID: ${id}`))
+          dispatch(enqueueInfo(`Configuring host - ID: ${id}`))
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE host')))

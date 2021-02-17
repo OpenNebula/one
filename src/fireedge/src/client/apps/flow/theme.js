@@ -1,3 +1,5 @@
+import Color from 'client/constants/color'
+
 export default {
   palette: {
     type: 'dark',
@@ -18,11 +20,6 @@ export default {
       dark: 'rgba(0, 152, 195, 1)',
       contrastText: '#fff'
     },
-    error: {
-      light: '#e57373',
-      main: '#f44336',
-      dark: '#d32f2f',
-      contrastText: '#fff'
-    }
+    ...Color
   }
 }

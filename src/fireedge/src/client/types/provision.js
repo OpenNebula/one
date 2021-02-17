@@ -104,7 +104,10 @@ export const Provider = PropTypes.shape({
         provider: ProviderType,
         connection: PropTypes.objectOf(PropTypes.string),
         registration_time: PropTypes.number,
-        description: PropTypes.string,
+        description: PropTypes.oneOfType([
+          PropTypes.string,
+          PropTypes.number
+        ]),
         inputs: PropTypes.arrayOf(UserInput)
       }).isRequired
     ])
@@ -138,7 +141,10 @@ export const Provision = PropTypes.shape({
   TEMPLATE: PropTypes.shape({
     BODY: PropTypes.shape({
       name: PropTypes.string,
-      description: PropTypes.string,
+      description: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number
+      ]),
       start_time: PropTypes.number,
       state: PropTypes.number,
       provider: PropTypes.string,

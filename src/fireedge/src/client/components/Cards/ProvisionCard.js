@@ -19,16 +19,13 @@ import {
 
 const ProvisionCard = memo(
   ({ value, isSelected, handleClick, isProvider, actions }) => {
-    const [{ image, ...body }, setBody] = useState({})
+    const { ID, NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-    const { ID, NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
-    const stateInfo = PROVISIONS_STATES[body?.state]
+    const bodyData = isProvider ? PLAIN : BODY
 
-    useEffect(() => {
-      const json = isProvider ? PLAIN : BODY
-      setBody({ ...json, image: json.image ?? DEFAULT_IMAGE })
-    }, [])
+    const stateInfo = PROVISIONS_STATES[bodyData?.state]
+    const image = bodyData?.image ?? DEFAULT_IMAGE
 
     const isExternalImage = isExternalURL(image)
 
@@ -84,8 +81,6 @@ const ProvisionCard = memo(
     )
   }, (prev, next) => (
     prev.isSelected === next.isSelected &&
-    !prev.isProvider &&
-    !next.isProvider &&
     prev.value?.TEMPLATE?.BODY?.state === next.value?.TEMPLATE?.BODY?.state
   )
 )

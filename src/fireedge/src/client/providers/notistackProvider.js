@@ -6,16 +6,20 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(({ palette }) => ({
   variantSuccess: {
-    backgroundColor: `${palette.success.main} !important`
+    backgroundColor: `${palette.success.main} !important`,
+    color: palette.success.contrastText
   },
   variantError: {
-    backgroundColor: `${palette.error.main} !important`
+    backgroundColor: `${palette.error.main} !important`,
+    color: palette.error.contrastText
   },
   variantInfo: {
-    backgroundColor: `${palette.info.main} !important`
+    backgroundColor: `${palette.debug.main} !important`,
+    color: palette.debug.contrastText
   },
   variantWarning: {
-    backgroundColor: `${palette.warning.main} !important`
+    backgroundColor: `${palette.warning.main} !important`,
+    color: palette.warning.contrastText
   }
 }))
 

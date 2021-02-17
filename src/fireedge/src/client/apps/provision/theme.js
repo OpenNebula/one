@@ -1,3 +1,5 @@
+import Color from 'client/constants/color'
+
 export default (mode = 'dark') => ({
   palette: {
     type: mode,
@@ -21,14 +23,6 @@ export default (mode = 'dark') => ({
       dark: '#fe5a23',
       contrastText: '#ffffff'
     },
-    error: {
-      light: '#e57373',
-      main: '#e04d40',
-      dark: '#d32f2f',
-      contrastText: '#ffffff'
-    },
-    debug: {
-      main: '#7b7c7e'
-    }
+    ...Color
   }
 })
