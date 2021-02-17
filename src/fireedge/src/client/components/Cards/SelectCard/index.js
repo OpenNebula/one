@@ -13,22 +13,25 @@ import Action from 'client/components/Cards/SelectCard/Action'
 import selectCardStyles from 'client/components/Cards/SelectCard/styles'
 
 const SelectCard = memo(({
-  stylesProps,
   action,
   actions,
   cardActionsProps,
-  icon,
-  title,
-  subheader,
   cardHeaderProps,
-  mediaProps,
-  isSelected,
-  handleClick,
   cardProps,
+  cardActionAreaProps,
+  children,
+  dataCy,
+  disableFilterImage,
+  handleClick,
+  icon,
+  isSelected,
+  mediaProps,
   observerOff,
-  children
+  stylesProps,
+  subheader,
+  title
 }) => {
-  const classes = selectCardStyles({ ...stylesProps, isSelected })
+  const classes = selectCardStyles({ ...stylesProps, isSelected, disableFilterImage })
   const { isNearScreen, fromRef } = useNearScreen({
     distance: '100px'
   })
@@ -39,17 +42,22 @@ const SelectCard = memo(({
       wrap={children => <span ref={fromRef}>{children}</span>}>
       {observerOff || isNearScreen ? (
         <Card
+          {...cardProps}
           className={clsx(classes.root, cardProps?.className, {
             [classes.actionArea]: !handleClick
           })}
-          {...cardProps}
+          data-cy={dataCy ? `${dataCy}-card` : undefined}
         >
 
           {/* CARD ACTION AREA */}
           <ConditionalWrap
             condition={handleClick && !action}
             wrap={children =>
-              <CardActionArea className={classes.actionArea} onClick={handleClick}>
+              <CardActionArea
+                {...cardActionAreaProps}
+                className={clsx(classes.actionArea, cardActionAreaProps?.className)}
+                onClick={handleClick}
+              >
                 {children}
               </CardActionArea>
             }
@@ -57,6 +65,7 @@ const SelectCard = memo(({
             {/* CARD HEADER */}
             {(title || subheader || icon || action) && (
               <CardHeader
+                {...cardHeaderProps}
                 action={action}
                 avatar={icon}
                 classes={{
@@ -69,14 +78,16 @@ const SelectCard = memo(({
                   variant: 'body1',
                   noWrap: true,
                   className: classes.header,
-                  title: typeof title === 'string' ? title : undefined
+                  title: typeof title === 'string' ? title : undefined,
+                  ...(dataCy) && { 'data-cy': `${dataCy}-card-title` }
                 }}
                 subheader={subheader}
                 subheaderTypographyProps={{
                   variant: 'body2',
                   noWrap: true,
                   className: classes.subheader,
-                  title: typeof subheader === 'string' ? subheader : undefined
+                  title: typeof subheader === 'string' ? subheader : undefined,
+                  ...(dataCy) && { 'data-cy': `${dataCy}-card-subheader` }
                 }}
                 {...cardHeaderProps}
               />
@@ -161,29 +172,35 @@ SelectCard.propTypes = {
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   cardProps: PropTypes.object,
+  cardActionAreaProps: PropTypes.object,
   observerOff: PropTypes.bool,
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
     PropTypes.string
-  ])
+  ]),
+  dataCy: PropTypes.string,
+  disableFilterImage: PropTypes.bool
 }
 
 SelectCard.defaultProps = {
-  stylesProps: undefined,
   action: undefined,
   actions: undefined,
   cardActionsProps: undefined,
-  icon: undefined,
-  title: undefined,
-  subheader: undefined,
   cardHeaderProps: undefined,
-  mediaProps: undefined,
-  isSelected: false,
-  handleClick: undefined,
   cardProps: {},
+  cardActionAreaProps: {},
+  children: undefined,
+  dataCy: undefined,
+  disableFilterImage: false,
+  handleClick: undefined,
+  icon: undefined,
+  isSelected: false,
+  mediaProps: undefined,
   observerOff: false,
-  children: undefined
+  stylesProps: undefined,
+  subheader: undefined,
+  title: undefined
 }
 
 SelectCard.displayName = 'SelectCard'

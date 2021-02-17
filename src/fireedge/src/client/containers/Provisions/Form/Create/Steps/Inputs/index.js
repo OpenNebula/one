@@ -26,23 +26,16 @@ const Inputs = () => ({
   content: useCallback(() => {
     const [fields, setFields] = useState(undefined)
     const { changeLoading } = useGeneral()
-    const { provisionsTemplates, getProvider } = useProvision()
+    const { getProvider } = useProvision()
     const { data: fetchData, fetchRequest, loading } = useFetch(getProvider)
     const { watch, reset } = useFormContext()
 
-    const getProvisionTemplateByDir = ({ provision, provider, name }) =>
-      provisionsTemplates
-        ?.[provision]
-        ?.provisions
-        ?.[provider]
-        ?.find(provisionTemplate => provisionTemplate.name === name)
-
     useEffect(() => {
-      const { [PROVIDER_ID]: providerSelected, [STEP_ID]: currentInputs } = watch()
+      const { [PROVIDER_ID]: providerSelected = [], [STEP_ID]: currentInputs } = watch()
 
       if (!currentInputs) {
         changeLoading(true) // disable finish button until provider is fetched
-        fetchRequest({ id: providerSelected[0] })
+        fetchRequest({ id: providerSelected[0]?.ID })
       } else {
         setFields(FORM_FIELDS(inputs))
       }
@@ -53,7 +46,7 @@ const Inputs = () => ({
         const { [TEMPLATE_ID]: provisionTemplateSelected = [] } = watch()
         const { TEMPLATE: { PROVISION_BODY } = {} } = fetchData
 
-        const provisionTemplate = getProvisionTemplateByDir(provisionTemplateSelected?.[0])
+        const provisionTemplate = provisionTemplateSelected?.[0]
 
         // MERGE INPUTS provision template + PROVISION_BODY.inputs (provider fetch)
         inputs = provisionTemplate.inputs.map(templateInput =>

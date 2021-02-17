@@ -1,5 +1,4 @@
 import React, { memo } from 'react'
-import PropTypes from 'prop-types'
 
 import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
 import { CheckBox, CheckBoxOutlineBlank } from '@material-ui/icons'
@@ -8,6 +7,7 @@ import clsx from 'clsx'
 import useStyles from 'client/containers/Provisions/DialogInfo/styles'
 import { StatusChip } from 'client/components/Status'
 import { Tr } from 'client/components/HOC'
+import * as Types from 'client/types/provision'
 import { T, PROVISIONS_STATES } from 'client/constants'
 
 const Info = memo(({ data }) => {
@@ -124,7 +124,7 @@ const Info = memo(({ data }) => {
 })
 
 Info.propTypes = {
-  data: PropTypes.object.isRequired
+  data: Types.Provision.isRequired
 }
 
 Info.defaultProps = {

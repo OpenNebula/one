@@ -34,6 +34,7 @@ export const IMAGES_URL = `${STATIC_FILES_URL}/images`
 export const PROVIDER_IMAGES_URL = `${IMAGES_URL}/providers`
 export const PROVISION_IMAGES_URL = `${IMAGES_URL}/provisions`
 export const DEFAULT_IMAGE = `${IMAGES_URL}/default.webp`
+export const IMAGE_FORMATS = ['webp', 'png', 'jpg']
 
 export const FONTS_URL = `${STATIC_FILES_URL}/fonts`
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`

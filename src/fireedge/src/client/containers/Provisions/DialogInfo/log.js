@@ -5,6 +5,7 @@ import { LinearProgress } from '@material-ui/core'
 
 import { useProvision, useFetch, useSocket } from 'client/hooks'
 import DebugLog from 'client/components/DebugLog'
+import * as Types from 'client/types/provision'
 
 const Log = React.memo(({ hidden, data: { ID } }) => {
   const { getProvision } = useSocket()
@@ -46,7 +47,7 @@ const Log = React.memo(({ hidden, data: { ID } }) => {
   prev.hidden === next.hidden && prev.data === next.data)
 
 Log.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: Types.Provision.isRequired,
   hidden: PropTypes.bool,
   fetchRequest: PropTypes.func
 }

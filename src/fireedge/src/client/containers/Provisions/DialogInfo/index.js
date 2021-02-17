@@ -14,6 +14,8 @@ import NetworksTab from 'client/containers/Provisions/DialogInfo/networks'
 import HostsTab from 'client/containers/Provisions/DialogInfo/hosts'
 import LogTab from 'client/containers/Provisions/DialogInfo/log'
 
+import * as Types from 'client/types/provision'
+
 const TABS = [
   { name: 'info', icon: InfoIcon, content: InfoTab },
   { name: 'datastores', icon: DatastoreIcon, content: DatastoresTab },
@@ -69,7 +71,7 @@ const DialogInfo = ({ data, ...methods }) => {
 }
 
 DialogInfo.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: Types.Provision.isRequired,
   fetchRequest: PropTypes.func
 }
 

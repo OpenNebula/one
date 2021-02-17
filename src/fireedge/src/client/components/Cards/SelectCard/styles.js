@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
-  root: ({ isSelected }) => ({
+  root: ({ isSelected, disableFilterImage }) => ({
     height: '100%',
     transition: theme.transitions.create(
       ['background-color', 'box-shadow'], { duration: '0.2s' }
@@ -21,7 +21,12 @@ export default makeStyles(theme => ({
   }),
   actionArea: {
     height: '100%',
-    minHeight: ({ minHeight = 140 }) => minHeight
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: ({ minHeight = 140 }) => minHeight,
+    '&:disabled': {
+      filter: 'brightness(0.5)'
+    }
   },
   mediaActionArea: {
     display: 'flex',
@@ -32,12 +37,25 @@ export default makeStyles(theme => ({
     }
   },
   media: {
+    '& img': {
+      width: '100%',
+      objectFit: 'cover',
+      maxHeight: ({ mediaHeight = 140 }) => mediaHeight
+    },
+    flexGrow: 1,
     transition: theme.transitions.create('filter', { duration: '0.2s' }),
-    filter: ({ isSelected }) => (theme.palette.type === 'dark' || isSelected)
-      ? 'contrast(0) brightness(2)'
-      : 'contrast(0) brightness(0.8)'
+    filter: ({ isSelected, disableFilterImage }) => {
+      return disableFilterImage
+        ? 'none'
+        : (theme.palette.type === 'dark' || isSelected)
+          ? 'contrast(0) brightness(2)'
+          : 'contrast(0) brightness(0.8)'
+    }
   },
-  headerRoot: { alignItems: 'end' },
+  headerRoot: {
+    alignItems: 'end',
+    alignSelf: 'stretch'
+  },
   headerContent: { overflow: 'auto' },
   headerAvatar: {
     display: 'flex',

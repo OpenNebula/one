@@ -1,17 +1,17 @@
 import * as yup from 'yup'
 import { INPUT_TYPES } from 'client/constants'
-import { getValidationFromFields } from 'client/utils'
+import { capitalize, getValidationFromFields } from 'client/utils'
 
 export const FORM_FIELDS = connection =>
-  Object.entries(connection)?.map(([name, label]) => ({
+  Object.entries(connection)?.map(([name, value]) => ({
     name,
-    label,
+    label: capitalize(name),
     type: INPUT_TYPES.TEXT,
     validation: yup
       .string()
       .trim()
-      .required(`${label} field is required`)
-      .default('')
+      .required(`${name} field is required`)
+      .default(value)
   }))
 
 export const STEP_FORM_SCHEMA = connection => yup.object(

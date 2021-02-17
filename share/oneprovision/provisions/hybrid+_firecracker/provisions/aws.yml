@@ -21,10 +21,6 @@
 # ------------------------------------------------------------------------------
 
 name: 'aws-cluster'
-provision_type: 'hybrid+_firecracker'
-provider: 'aws'
-
-image: 'OPENNEBULA-AWS.png'
 
 extends:
     - common.d/defaults.yml
@@ -32,6 +28,7 @@ extends:
     - common.d/firecracker_hosts.yml
     - aws.d/datastores.yml
     - aws.d/defaults.yml
+    - aws.d/fireedge.yml
     - aws.d/inputs.yml
     - aws.d/networks.yml
 

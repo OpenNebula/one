@@ -4,10 +4,10 @@ description: 'Elastic cluster on AWS in Frankfurt'
 provider: 'aws'
 
 plain:
+  image: 'AWS'
+  location_key: 'region'
   provision_type: 'hybrid+'
-  image: 'AWS.webp'
 
-location_key: 'region'
 connection:
   access_key: 'AWS access key'
   secret_key: 'AWS secret key'

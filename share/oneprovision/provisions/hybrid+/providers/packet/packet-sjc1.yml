@@ -4,10 +4,10 @@ description: 'Elastic cluster on Packet in Sunnyvale, USA, CA'
 provider: 'packet'
 
 plain:
+  image: 'EQUINIX'
+  location_key: 'facility'
   provision_type: 'hybrid+'
-  image: 'EQUINIX.webp'
 
-location_key: 'facility'
 connection:
   token: 'Packet token'
   project: 'Packet project'

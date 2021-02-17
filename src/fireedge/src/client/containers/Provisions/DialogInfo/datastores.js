@@ -6,6 +6,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import { useProvision, useOpennebula, useFetchAll } from 'client/hooks'
 import { ListCards } from 'client/components/List'
 import { DatastoreCard } from 'client/components/Cards'
+import * as Types from 'client/types/provision'
 
 const Datastores = memo(({ hidden, data, fetchRequest }) => {
   const {
@@ -51,7 +52,7 @@ const Datastores = memo(({ hidden, data, fetchRequest }) => {
   prev.hidden === next.hidden && prev.data === next.data)
 
 Datastores.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: Types.Provision.isRequired,
   hidden: PropTypes.bool,
   fetchRequest: PropTypes.func
 }

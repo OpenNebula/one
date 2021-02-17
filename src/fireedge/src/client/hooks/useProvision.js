@@ -35,8 +35,28 @@ export default function useProvision () {
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET templates'))
           throw err
-        }),
-    [dispatch]
+        })
+    , [dispatch]
+  )
+
+  const getProviderTemplateByDir = useCallback(
+    ({ provision, provider, name } = {}) =>
+      provisionsTemplates
+        ?.[provision]
+        ?.providers
+        ?.[provider]
+        ?.find(provider => provider.name === name)
+    , [provisionsTemplates]
+  )
+
+  const getProvisionTemplateByDir = useCallback(
+    ({ provision, provider, name } = {}) =>
+      provisionsTemplates
+        ?.[provision]
+        ?.provisions
+        ?.[provider]
+        ?.find(provisionTemplate => provisionTemplate.name === name)
+    , [provisionsTemplates]
   )
 
   // --------------------------------------------
@@ -54,8 +74,8 @@ export default function useProvision () {
         .catch(err => {
           dispatch(enqueueError(err ?? `Error GET (${id}) provider`))
           throw err
-        }),
-    [dispatch]
+        })
+    , [dispatch]
   )
 
   const getProviders = useCallback(
@@ -69,8 +89,8 @@ export default function useProvision () {
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET providers'))
           return err
-        }),
-    [dispatch]
+        })
+    , [dispatch]
   )
 
   const createProvider = useCallback(
@@ -226,6 +246,8 @@ export default function useProvision () {
 
   return {
     getProvisionsTemplates,
+    getProviderTemplateByDir,
+    getProvisionTemplateByDir,
     provisionsTemplates,
 
     providers,

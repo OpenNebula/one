@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Redirect, useHistory } from 'react-router'
+import { Redirect } from 'react-router'
 
 import { Container, LinearProgress } from '@material-ui/core'
 import { useForm, FormProvider } from 'react-hook-form'
@@ -9,16 +9,16 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
 import DebugLog from 'client/components/DebugLog'
 
-import { useGeneral, useProvision, useSocket, useFetch } from 'client/hooks'
+import { useProvision, useSocket, useFetch } from 'client/hooks'
 import { PATH } from 'client/router/provision'
 import { set, mapUserInputs } from 'client/utils'
 
 function ProvisionCreateForm () {
   const [uuid, setUuid] = useState(undefined)
-  const history = useHistory()
-  const { showError } = useGeneral()
   const { getProvision } = useSocket()
-  const { getProviders, createProvision, provisionsTemplates, providers } = useProvision()
+
+  const { getProviders, createProvision, providers } = useProvision()
+
   const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
   const { steps, defaultValues, resolvers } = Steps()
@@ -29,39 +29,17 @@ function ProvisionCreateForm () {
     resolver: yupResolver(resolvers())
   })
 
-  const redirectWithError = (name = '') => {
-    showError({
-      message: `
-        Cannot found provision template (${name}),
-        ask your cloud administrator`
-    })
-
-    history.push(PATH.PROVIDERS.LIST)
-  }
-
-  const getProvisionTemplateByDir = ({ provision, provider, name }) =>
-    provisionsTemplates
-      ?.[provision]
-      ?.provisions
-      ?.[provider]
-      ?.find(provisionTemplate => provisionTemplate.name === name)
-
   const onSubmit = formData => {
     const { template, provider, configuration, inputs } = formData
     const { name, description } = configuration
     const provisionTemplateSelected = template?.[0] ?? {}
-    const providerIdSelected = provider?.[0]
-    const providerName = providers?.find(({ ID }) => ID === providerIdSelected)?.NAME
-
-    const provisionTemplate = getProvisionTemplateByDir(provisionTemplateSelected)
-
-    if (!provisionTemplate) return redirectWithError(provisionTemplateSelected?.name)
+    const providerName = provider?.[0]?.NAME
 
     // update provider name if changed during form
-    if (provisionTemplate.defaults?.provision?.provider_name) {
-      set(provisionTemplate, 'defaults.provision.provider_name', providerName)
-    } else if (provisionTemplate.hosts?.length > 0) {
-      provisionTemplate.hosts.forEach(host => {
+    if (provisionTemplateSelected.defaults?.provision?.provider_name) {
+      set(provisionTemplateSelected, 'defaults.provision.provider_name', providerName)
+    } else if (provisionTemplateSelected.hosts?.length > 0) {
+      provisionTemplateSelected.hosts.forEach(host => {
         set(host, 'provision.provider_name', providerName)
       })
     }
@@ -69,10 +47,10 @@ function ProvisionCreateForm () {
     const parseInputs = mapUserInputs(inputs)
 
     const formatData = {
-      ...provisionTemplate,
+      ...provisionTemplateSelected,
       name,
       description,
-      inputs: provisionTemplate?.inputs
+      inputs: provisionTemplateSelected?.inputs
         ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
     }
 
