@@ -15,15 +15,26 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-#-------------------------------------------------------------------------------
-# defaults: Common configuration attributes for provision objects
-#--------------------------------------------------------------------------------
+networks:
+  - name: "${provision}-public"
+    vn_mad: 'elastic'
+    bridge: 'br0'
+    netrole: 'public'
+    provision:
+      count: "${input.number_public_ips}"
+    ar:
+      - provison_id: "${provision_id}"
+        size: '1'
+        ipam_mad: 'aws'
+        cidr: "${cluster.0.cidr}"
 
-defaults:
-  configuration:
-    oneprovision_hypervisor: 'kvm'
-
-    opennebula_node_kvm_use_ev: true
-
-    # required for copying recovery VM snaphosts to the replica host
-    opennebula_ssh_deploy_private_key: true
+vntemplates:
+  - name: "${provision}-private"
+    vn_mad: 'vxlan'
+    phydev: 'eth0'
+    automatic_vlan_id: 'yes'
+    netrole: 'private'
+    vxlan_mode: 'evpn'
+    vxlan_tep: 'dev'
+    ip_link_conf: 'nolearning='
+    cluster_ids: "${cluster.0.id}"

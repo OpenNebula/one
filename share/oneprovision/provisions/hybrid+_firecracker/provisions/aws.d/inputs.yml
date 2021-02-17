@@ -15,15 +15,24 @@
 # limitations under the License.                                               #
 # ---------------------------------------------------------------------------- #
 
-#-------------------------------------------------------------------------------
-# defaults: Common configuration attributes for provision objects
-#--------------------------------------------------------------------------------
+inputs:
+  - name: 'number_hosts'
+    type: text
+    description: 'Number of AWS instances to create'
+    default: '1'
 
-defaults:
-  configuration:
-    oneprovision_hypervisor: 'kvm'
+  - name: 'number_public_ips'
+    type: text
+    description: 'Number of public IPs to get'
+    default: '1'
 
-    opennebula_node_kvm_use_ev: true
+  - name: 'aws_ami_image'
+    type: text
+    description: "AWS ami image used for host deployments"
+    default: ''
 
-    # required for copying recovery VM snaphosts to the replica host
-    opennebula_ssh_deploy_private_key: true
+  - name: 'aws_instance_type'
+    type: text
+    description: "AWS instance type, use bare-metal instances"
+    default: ''
+...

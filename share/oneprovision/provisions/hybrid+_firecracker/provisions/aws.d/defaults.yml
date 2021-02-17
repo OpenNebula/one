@@ -18,12 +18,9 @@
 #-------------------------------------------------------------------------------
 # defaults: Common configuration attributes for provision objects
 #--------------------------------------------------------------------------------
+# configuration: Ansible role parameters.
+#--------------------------------------------------------------------------------
+#   Check defaults/main.yml in each role for the available variables
+#-------------------------------------------------------------------------------
 
-defaults:
-  configuration:
-    oneprovision_hypervisor: 'kvm'
-
-    opennebula_node_kvm_use_ev: true
-
-    # required for copying recovery VM snaphosts to the replica host
-    opennebula_ssh_deploy_private_key: true
+...

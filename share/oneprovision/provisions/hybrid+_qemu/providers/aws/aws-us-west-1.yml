@@ -17,7 +17,7 @@ inputs:
    - name: 'aws_ami_image'
      type: 'list'
      options:
-       - 'ami-08b547f0dcb46c4d3'
+       - 'ami-00008506813cea27a'
    - name: 'aws_instance_type'
      type: 'list'
      options:

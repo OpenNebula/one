@@ -16,14 +16,31 @@
 # ---------------------------------------------------------------------------- #
 
 #-------------------------------------------------------------------------------
-# defaults: Common configuration attributes for provision objects
-#--------------------------------------------------------------------------------
+# datastores: Defines the storage area for the cluster using the SSH replication
+# drivers. It creates the following datastores, using Replica driver:
+#   1. Image datastore, ${cluster_name}-image
+#   2. System datastore, ${cluster_name}-system
+#   3. File datastore, ${cluster_name}-files
+#
+# Configuration/Input attributes:
+#   - replica_host: The host that will hold the cluster replicas and snapshots.
+#-------------------------------------------------------------------------------
+datastores:
 
-defaults:
-  configuration:
-    oneprovision_hypervisor: 'kvm'
+  - name: "${provision}-image"
+    type: 'image_ds'
+    ds_mad: 'fs'
+    tm_mad: 'ssh'
+    safe_dirs: "/var/tmp /tmp"
 
-    opennebula_node_kvm_use_ev: true
+  - name: "${provision}-system"
+    type: 'system_ds'
+    tm_mad: 'ssh'
+    safe_dirs: "/var/tmp /tmp"
+    replica_host: "use-first-host"
 
-    # required for copying recovery VM snaphosts to the replica host
-    opennebula_ssh_deploy_private_key: true
+  - name: "${provision}-files"
+    type: 'file_ds'
+    ds_mad: 'fs'
+    tm_mad: 'ssh'
+    safe_dirs: "/var/tmp /tmp"
