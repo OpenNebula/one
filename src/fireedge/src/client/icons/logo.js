@@ -12,7 +12,7 @@ const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
     child5: { from: '#bfe6f2', to: '#ffffff' }
   }
   const textColor = {
-    top: theme.palette.primary.contrastText,
+    top: theme.palette.text.primary,
     bottom: '#0098c3'
   }
   return (

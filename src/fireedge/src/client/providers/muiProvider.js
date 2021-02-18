@@ -1,14 +1,23 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { CssBaseline, ThemeProvider, StylesProvider } from '@material-ui/core'
+import { CssBaseline, ThemeProvider, StylesProvider, useMediaQuery } from '@material-ui/core'
 import { createTheme, generateClassName } from 'client/theme'
 import { useGeneral } from 'client/hooks'
+import { Setting } from 'client/constants'
+
+const { SCHEMES: { DARK, LIGHT, SYSTEM } } = Setting
 
 const MuiProvider = ({ theme: appTheme, children }) => {
-  const { theme } = useGeneral()
+  const { scheme } = useGeneral()
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
-  const changeThemeType = () => createTheme(appTheme(theme))
+  const changeThemeType = () => {
+    const prefersScheme = prefersDarkMode ? DARK : LIGHT
+    const userScheme = scheme === SYSTEM ? prefersScheme : scheme
+
+    return createTheme(appTheme(userScheme))
+  }
 
   const [muitheme, setTheme] = React.useState(changeThemeType)
 
@@ -19,7 +28,7 @@ const MuiProvider = ({ theme: appTheme, children }) => {
     }
   }, [])
 
-  React.useEffect(() => { setTheme(changeThemeType) }, [theme])
+  React.useEffect(() => setTheme(changeThemeType), [scheme, prefersDarkMode])
 
   return (
     <ThemeProvider theme={muitheme}>

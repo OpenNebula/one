@@ -82,7 +82,7 @@ const translate = (str = '', values) => {
     key = context.hash[key]
   }
 
-  if (Array.isArray(values)) {
+  if (key && Array.isArray(values)) {
     key = sprintf(key, ...values)
   }
 

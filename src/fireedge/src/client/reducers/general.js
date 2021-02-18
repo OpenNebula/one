@@ -16,6 +16,7 @@
 const { Actions: PoolActions } = require('../actions/pool')
 const { Actions: UserActions } = require('../actions/user')
 const { Actions: GeneralActions } = require('../actions/general')
+const { Setting: { SCHEMES } } = require('client/constants')
 
 const initial = {
   zone: 0,
@@ -23,7 +24,7 @@ const initial = {
   isLoading: false,
   isOpenMenu: false,
   isFixMenu: false,
-  theme: 'dark'
+  scheme: SCHEMES.DARK
 }
 
 const General = (state = initial, action) => {
@@ -58,7 +59,7 @@ const General = (state = initial, action) => {
           notification => notification.key !== action.key
         )
       }
-    case GeneralActions.CHANGE_THEME_TYPE:
+    case GeneralActions.CHANGE_SCHEME:
       return { ...state, ...action.payload }
     case GeneralActions.CHANGE_LOADING:
       return { ...state, ...action.payload }

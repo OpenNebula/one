@@ -15,7 +15,7 @@ import {
   logout as logoutRequest
 } from 'client/actions/user'
 import { setGroups } from 'client/actions/pool'
-import { updateTheme, enqueueError, enqueueSuccess } from 'client/actions/general'
+import { updateScheme, enqueueError, enqueueSuccess } from 'client/actions/general'
 
 const useAuth = () => {
   const {
@@ -80,7 +80,7 @@ const useAuth = () => {
       .then(user => dispatch(successAuth({ user })))
       .then(serviceOne.getGroups)
       .then(groups => dispatch(setGroups(groups)))
-      .then(() => dispatch(updateTheme))
+      .then(() => dispatch(updateScheme))
       .catch(err => dispatch(failureAuth({ error: err })))
   }, [dispatch, JWT_NAME, authUser])
 

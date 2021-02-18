@@ -25,7 +25,7 @@ import {
 
 import { useAuth, useGeneral } from 'client/hooks'
 import { Tr, TranslateContext } from 'client/components/HOC'
-import { T } from 'client/constants'
+import { T, Setting } from 'client/constants'
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 
 const useStyles = makeStyles(theme => ({
@@ -56,11 +56,11 @@ const Settings = () => {
   const context = React.useContext(TranslateContext)
   // const langAvailables = Array.isArray(window?.langs) ? window?.langs : []
 
-  const { theme: currentTheme } = useGeneral()
+  const { scheme: currentScheme } = useGeneral()
   const { updateUser } = useAuth()
 
-  const [{ theme, lang }, setSettings] = React.useState({
-    theme: currentTheme,
+  const [settings, setSettings] = React.useState({
+    scheme: currentScheme,
     lang: context.lang
   })
 
@@ -77,8 +77,13 @@ const Settings = () => {
   const handleSubmit = evt => {
     evt.preventDefault()
 
+    const values = Object.entries(settings)
+      .map(([key, value]) => `\n ${String(key).toUpperCase()} = "${value}"`)
+
+    console.log({values})
+
     updateUser({
-      template: `FIREEDGE = [\n THEME = "${theme}",\n LANG = "${lang}" ]\n`
+      template: `FIREEDGE = [\n SCHEME = "${scheme}",\n LANG = "${lang}" ]\n`
     }).then(() => context.changeLang(lang))
   }
 
@@ -97,21 +102,22 @@ const Settings = () => {
           {`${Tr(T.Configuration)} UI`}
         </Typography>
         <TextField
-          id='select-theme-type'
+          id='select-scheme-type'
           select
           fullWidth
-          name='theme'
+          name='scheme'
           color='secondary'
-          label='Theme'
-          value={theme}
+          label='Scheme'
+          value={settings.scheme}
           onChange={handleChange}
           SelectProps={{
             native: true
           }}
           variant='outlined'
         >
-          <option value='light'>{T.Light}</option>
-          <option value='dark'>{T.Dark}</option>
+          <option value={Setting.SCHEMES.LIGHT}>{T.Light}</option>
+          <option value={Setting.SCHEMES.DARK}>{T.Dark}</option>
+          <option value={Setting.SCHEMES.SYSTEM}>{T.System}</option>
         </TextField>
 
         {/* is not operative yet */}

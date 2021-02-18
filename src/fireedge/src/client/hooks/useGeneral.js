@@ -9,7 +9,7 @@ export default function useGeneral () {
     isLoading,
     isOpenMenu,
     isFixMenu,
-    theme
+    scheme
   } = useSelector(state => state?.General, shallowEqual)
   const dispatch = useDispatch()
 
@@ -41,7 +41,7 @@ export default function useGeneral () {
   )
 
   return {
-    theme,
+    scheme,
     isFixMenu,
     isLoading,
     isOpenMenu,

@@ -69,6 +69,7 @@ export const DEBUG_LEVEL = {
 }
 
 export * as T from 'client/constants/translates'
+export * as Setting from 'client/constants/setting'
 export * from 'client/constants/flow'
 export * from 'client/constants/states'
 export * from 'client/constants/provision'
