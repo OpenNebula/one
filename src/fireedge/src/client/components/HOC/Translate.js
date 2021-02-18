@@ -78,7 +78,7 @@ const translate = (str = '', values) => {
   const context = useContext(TranslateContext)
   let key = str
 
-  if (context?.hash[key]) {
+  if (context?.hash?.[key]) {
     key = context.hash[key]
   }
 

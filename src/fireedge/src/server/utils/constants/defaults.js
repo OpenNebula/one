@@ -116,7 +116,7 @@ const defaults = {
     de_CH: 'German (Switzerland)',
     de: 'German',
     el_GR: 'Greek (Greece)',
-    en_US: 'English',
+    en: 'English',
     es_ES: 'Spanish',
     et_EE: 'Estonian',
     fa_IR: 'Persian (Iran)',

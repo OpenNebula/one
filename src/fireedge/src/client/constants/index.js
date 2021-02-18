@@ -16,7 +16,7 @@
 import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
 
 export const JWT_NAME = 'FireedgeToken'
-export const DEFAULT_LANGUAGE = 'en_US'
+export const DEFAULT_LANGUAGE = 'en'
 
 export const BY = {
   text: 'OpenNebula',
