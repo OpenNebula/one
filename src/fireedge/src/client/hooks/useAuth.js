@@ -15,7 +15,7 @@ import {
   logout as logoutRequest
 } from 'client/actions/user'
 import { setGroups } from 'client/actions/pool'
-import { updateScheme, enqueueError, enqueueSuccess } from 'client/actions/general'
+import { updateScheme, enqueueError, enqueueSuccess, closeSnackbar } from 'client/actions/general'
 
 const useAuth = () => {
   const {
@@ -46,6 +46,7 @@ const useAuth = () => {
         .then(data => {
           const { id, token } = data
           dispatch(successAuth())
+          dispatch(closeSnackbar())
 
           if (token) {
             storage(JWT_NAME, token, remember)

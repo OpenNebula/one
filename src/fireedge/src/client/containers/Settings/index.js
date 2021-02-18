@@ -79,12 +79,10 @@ const Settings = () => {
 
     const values = Object.entries(settings)
       .map(([key, value]) => `\n ${String(key).toUpperCase()} = "${value}"`)
+      .join(',')
 
-    console.log({values})
-
-    updateUser({
-      template: `FIREEDGE = [\n SCHEME = "${scheme}",\n LANG = "${lang}" ]\n`
-    }).then(() => context.changeLang(lang))
+    updateUser({ template: `FIREEDGE = [${values}]\n` })
+      .then(() => context.changeLang(settings.lang))
   }
 
   return (
