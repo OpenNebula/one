@@ -42,7 +42,7 @@ $LOAD_PATH << File.dirname(__FILE__)
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'Elastic'
+require 'elastic'
 
 template64 = STDIN.read
 

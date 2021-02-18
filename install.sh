@@ -1596,7 +1596,7 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/clean \
                        src/vnm_mad/remotes/vcenter/update_sg"
 
-NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/Elastic.rb \
+NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/clean \
                        src/vnm_mad/remotes/elastic/post \
                        src/vnm_mad/remotes/elastic/pre \

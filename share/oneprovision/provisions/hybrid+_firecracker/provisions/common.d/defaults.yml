@@ -22,3 +22,6 @@
 defaults:
   configuration:
     oneprovision_hypervisor: 'firecracker'
+
+    # required for copying recovery VM snaphosts to the replica host
+    opennebula_ssh_deploy_private_key: true

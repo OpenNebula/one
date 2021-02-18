@@ -42,7 +42,8 @@ $LOAD_PATH << File.dirname(__FILE__)
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'Elastic'
+require 'elastic'
+require 'CommandManager'
 
 template64 = STDIN.read
 hostname   = ARGV[0]
@@ -52,7 +53,7 @@ begin
 
     drv.unassign
 
-    drv.run_hooks(ARGV, template64) if drv.deactivate == 0
+    drv.run_hooks_remote(ARGV, template64) if drv.deactivate == 0
 rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
