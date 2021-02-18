@@ -30,7 +30,8 @@ end
 ################################################################################
 $logger = Logger.new(
     STDERR,
-    :level => Logger::INFO,
+    :level =>
+        VCenterDriver::CONFIG[:debug_information] ? Logger::DEBUG : Logger::INFO,
     :datetime_format => '%Y-%m-%d %H:%M:%S',
     :formatter => proc {|severity, datetime, _progname, msg|
         "#{datetime} [#{severity}]: #{msg}\n"
