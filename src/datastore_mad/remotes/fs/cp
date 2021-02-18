@@ -167,4 +167,6 @@ else
     FORMAT=$($QEMU_IMG info $DST | grep "^file format:" | awk '{print $3}' || :)
 fi
 
+[[ "$FORMAT" = "luks" ]] && FORMAT="raw"
+
 echo "$DST $FORMAT"
