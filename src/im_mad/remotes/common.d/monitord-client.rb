@@ -284,8 +284,8 @@ probes.each do |msg_type, conf|
             da.strip!
             next if da.empty?
 
-            smethod = conf[:method_name] ? conf[:method_name] : msg_type
-                                     
+            smethod = conf[:method_name] || msg_type
+
             client.send(smethod, result == 0, da)
         end
     end
