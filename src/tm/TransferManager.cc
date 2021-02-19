@@ -890,7 +890,7 @@ void TransferManager::prolog_resume_action(int vid)
 
     VirtualMachineDisks& disks = vm->get_disks();
 
-    if (!vm->hasHistory())
+    if (!vm->hasHistory() || !vm->hasPreviousHistory())
     {
         goto error_history;
     }
@@ -935,6 +935,7 @@ void TransferManager::prolog_resume_action(int vid)
         }
 
         string tsys = (*disk)->vector_value("TM_MAD_SYSTEM");
+
         if (!tsys.empty())
         {
             tm_mad_system = "." + tsys;
@@ -942,10 +943,10 @@ void TransferManager::prolog_resume_action(int vid)
 
         //MV(.tm_mad_system) tm_mad fe:system_dir/disk.i host:remote_system_dir/disk.i vmid dsid(image)
         xfr << "MV"
-			<< tm_mad_system
+            << tm_mad_system
             << " " << tm_mad << " "
             << nd.get_nebula_hostname() << ":"
-            << vm->get_system_dir() << "/disk." << disk_id << " "
+            << vm->get_previous_system_dir() << "/disk." << disk_id << " "
             << vm->get_hostname() << ":"
             << vm->get_system_dir() << "/disk." << disk_id << " "
             << vm->get_oid() << " "
@@ -955,7 +956,7 @@ void TransferManager::prolog_resume_action(int vid)
     //MV tm_mad fe:system_dir host:remote_system_dir vmid dsid(system)
     xfr << "MV "
         << vm_tm_mad << " "
-        << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
+        << nd.get_nebula_hostname() << ":"<< vm->get_previous_system_dir() << " "
         << vm->get_hostname() << ":" << vm->get_system_dir()<< " "
         << vm->get_oid() << " "
         << vm->get_ds_id() << endl;

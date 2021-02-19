@@ -878,7 +878,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
          vm->get_action() == VMActions::UNDEPLOY_ACTION ||
          vm->get_action() == VMActions::UNDEPLOY_HARD_ACTION))
     {
-        ds_id = vm->get_ds_id();
+        if (ds_id == -1)
+        {
+            ds_id = vm->get_ds_id();
+        }
 
         check_nic_auto = false;
     }
