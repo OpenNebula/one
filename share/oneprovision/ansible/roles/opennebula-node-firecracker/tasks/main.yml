@@ -23,10 +23,10 @@
 - name: 'Install firecracker hooks'
   become: no
   local_action:
-    module: file
+    module: copy
     src: /var/lib/one/remotes/vnm/hooks/{{ item[1] }}/firecracker
     dest: /var/lib/one/remotes/vnm/{{ item[0] }}/{{ item[1] }}.d/firecracker
-    state: link
+    mode: 'u+x,g+x'
   with_nested:
     - '{{ opennebula_node_firecracker_network_drivers }}'
     - '{{ opennebula_node_firecracker_network_hook_types }}'
