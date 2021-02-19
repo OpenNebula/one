@@ -21,6 +21,6 @@ inputs:
    - name: 'aws_instance_type'
      type: 'list'
      options:
-       - 'c5.metal'
+       - 'c5n.metal'
        - 'i3.metal'
        - 'm5.metal'
