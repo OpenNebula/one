@@ -346,13 +346,6 @@ private:
     };
 
     /**
-     *  The action function executed when an action is triggered.
-     *    @param action the name of the action
-     *    @param arg arguments for the action function
-     */
-    void do_action(const std::string& action, void * arg);
-
-    /**
      *  Acquires an image updating its state.
      *    @param image pointer to image, it should be locked
      *    @param attach true if attaching the image to a VM
