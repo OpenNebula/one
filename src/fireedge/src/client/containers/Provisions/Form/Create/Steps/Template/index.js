@@ -53,10 +53,10 @@ const Template = () => ({
 
       // reset rest of form when change template
       const providerName = defaults?.provision?.provider_name ?? hosts?.[0]?.provision.provider_name
-      const providerFromProvisionTemplate = providers?.find(({ NAME }) => NAME === providerName) ?? {}
+      const providerFromProvisionTemplate = providers?.filter(({ NAME }) => NAME === providerName) ?? []
 
       setFormData({
-        [PROVIDER_ID]: [providerFromProvisionTemplate],
+        [PROVIDER_ID]: providerFromProvisionTemplate,
         [CONFIGURATION_ID]: { name, description },
         [INPUTS_ID]: undefined
       })
