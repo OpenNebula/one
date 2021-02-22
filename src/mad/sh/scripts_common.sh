@@ -66,7 +66,7 @@ else
 fi
 
 # Used for log messages
-SCRIPT_NAME=`basename $0`
+SCRIPT_NAME=`basename -- $0`
 
 # ------------------------------------------------------------------------------
 # Path manipulation functions

@@ -309,7 +309,7 @@ function fs_size {
         # raw images requires special handling, as there is no image header
         # with size available and we can't predict image virtual size just
         # from a part of the file
-        if [ "${TYPE}" = 'raw' ] || "${TYPE}" = 'luks' ]; then
+        if [ "${TYPE}" = 'raw' ] || [ "${TYPE}" = 'luks' ]; then
             $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp -c "${HEAD_SIZE}" "${SRC}" - >"${IMAGE}" 2>/dev/null
             error=$?
             if [ $error -ne 0 ]; then
