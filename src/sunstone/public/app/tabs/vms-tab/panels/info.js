@@ -96,7 +96,7 @@ define(function(require) {
     var unshownValues = {};
 
     $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS") {
+      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS" || key == "BACKUP") {
         unshownValues[key] = value;
       }
       else if (key.match(/^VCENTER_*/)){

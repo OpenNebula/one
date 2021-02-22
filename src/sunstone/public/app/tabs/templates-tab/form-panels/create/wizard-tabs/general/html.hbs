@@ -213,6 +213,27 @@
     </fieldset>
   </div>
 </div>
+<div class="row">
+  <div class="medium-12 columns">
+    <fieldset>
+      <legend>
+        {{tr "Backups"}}
+      </legend>
+      <div class="medium-6 columns">
+        <label  for="FREQUENCY_SECONDS">
+          {{tr "Backup Frequency in Seconds"}}
+        </label>
+        <input type="number" step="any" min="0" wizard_field="FREQUENCY_SECONDS" id="FREQUENCY_SECONDS"/>
+      </div>
+      <div class="medium-6 columns">
+        <label  for="MARKETPLACE_ID">
+          {{tr "Marketplace ID"}}
+        </label>
+        <select wizard_field="MARKETPLACE_ID" id="MARKETPLACE_ID"/>
+      </div>
+    </fieldset>
+  </div>
+</div>
 {{/isFeatureEnabled}}
 <div class="row">
   <div class="large-6 columns">

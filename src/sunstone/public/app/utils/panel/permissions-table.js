@@ -24,7 +24,9 @@ define(function(require) {
   var TemplatePermissions = require('hbs!./permissions-table/permissions');
   var TemplateOwner = require('hbs!./permissions-table/owner');
   var TemplateGroup = require('hbs!./permissions-table/group');
+  var TemplateBackup = require('hbs!./permissions-table/backup');
   var ResourceSelect = require('utils/resource-select');
+  var Humanize = require("utils/humanize");
   var Sunstone = require('sunstone');
   var Config = require('sunstone-config');
 
@@ -53,11 +55,28 @@ define(function(require) {
       'element': element
     })
 
+    var backupHTML = '';
+    // The backup information is only available for VMs 
+    // but it could be extended to another resources
+    if (resourceType == "VM") {
+      var last_backup;
+      if (element.USER_TEMPLATE &&
+        element.USER_TEMPLATE.BACKUP &&
+        element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME){
+          last_backup = Humanize.prettyTime(element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME);
+        }
+      backupHTML = TemplateBackup({
+        'element': element,
+        'last_backup': last_backup
+      })
+    }
+
     var permissionsTableHTML = TemplatePermissionsTable({
       'resourceType': resourceType.toLowerCase(),
       'permissionsHTML': permissionsHTML,
       'ownerHTML': ownerHTML,
-      'groupHTML': groupHTML
+      'groupHTML': groupHTML,
+      'backupHTML': backupHTML
     })
 
     return permissionsTableHTML;

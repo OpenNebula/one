@@ -31,6 +31,8 @@ define(function(require) {
   var GroupTable = require("tabs/groups-tab/datatable");
   var OpenNebulaHost = require("opennebula/host");
   var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
+  var OpenNebulaMarketplace = require('opennebula/marketplace');
+  var Notifier = require('utils/notifier');
 
   /*
     TEMPLATES
@@ -328,6 +330,34 @@ define(function(require) {
     }
 
     fillLXDProfiles(context)
+
+    fillMarketplaces();
+  }
+
+  function fillMarketplaces(){
+    var fillMP = function(_, marketplaces){
+      // EMPTY
+      $('#MARKETPLACE_ID').empty();
+      $('#MARKETPLACE_ID').append('<option value="">-</option>');
+  
+      $.each(marketplaces, function(index, marketplace){
+        var id = marketplace.MARKETPLACE.ID;
+        var text = id + ' - ' + marketplace.MARKETPLACE.NAME;
+        var type = marketplace.MARKETPLACE.MARKET_MAD;
+  
+        if (type == "http" || type == "s3"){
+          $('#MARKETPLACE_ID').append('<option value="' + id + '">'+ text + "</option>")
+        }
+        
+      });
+    }
+    
+    OpenNebulaMarketplace.list({
+      success: fillMP, 
+      error: Notifier.onError, 
+      options: {force: true} // Do not use cache
+    });
+
   }
 
   function fillLXDProfiles(context){
@@ -436,6 +466,13 @@ define(function(require) {
     }
     delete templateJSON.CPU_HOT_ADD_ENABLED;
     delete templateJSON.MEMORY_HOT_ADD_ENABLED;
+
+    templateJSON.BACKUP = {
+      'FREQUENCY_SECONDS': templateJSON['FREQUENCY_SECONDS'],
+      'MARKETPLACE_ID': templateJSON['MARKETPLACE_ID'],
+    }
+    delete templateJSON.FREQUENCY_SECONDS;
+    delete templateJSON.MARKETPLACE_ID;
 
     return templateJSON;
   }
@@ -561,6 +598,17 @@ define(function(require) {
         WizardFields.fillInput($('#CPU_HOT_ADD_ENABLED',context), templateJSON.HOT_RESIZE['CPU_HOT_ADD_ENABLED']);
       }
       delete templateJSON['HOT_RESIZE'];
+    }
+
+    // Fill backup attributes
+    if (templateJSON['BACKUP']){
+      if (templateJSON.BACKUP['FREQUENCY_SECONDS']){
+        WizardFields.fillInput($('#FREQUENCY_SECONDS',context), templateJSON.BACKUP['FREQUENCY_SECONDS']);
+      }
+      if (templateJSON.BACKUP['MARKETPLACE_ID']){
+        WizardFields.fillInput($('#MARKETPLACE_ID',context), templateJSON.BACKUP['MARKETPLACE_ID']);
+      }
+      delete templateJSON['BACKUP'];
     }
 
     WizardFields.fill(context, templateJSON);

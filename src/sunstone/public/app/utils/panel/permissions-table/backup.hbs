@@ -14,14 +14,30 @@
 {{! limitations under the License.                                             }}
 {{! -------------------------------------------------------------------------- }}
 
-<table  class="{{resourceType}}_permissions_table dataTable test">
-  {{{permissionsHTML}}}
-  <thead>
-    <tr>
-      <th colspan="4" style="width:130px">{{tr "Ownership"}}</th>
-    </tr>
-  </thead>
-  {{{ownerHTML}}}
-  {{{groupHTML}}}
-  {{{backupHTML}}}
-</table>
+<thead>
+  <tr>
+    <th colspan="4" style="width:130px">{{tr "Backups"}}</th>
+  </tr>
+</thead>
+<tr>
+  <td class="key_td">{{tr "Frequency"}}</td>
+  <td colspan="3" id="value_td_backup_frequency">{{valOrDefault element.USER_TEMPLATE.BACKUP.FREQUENCY_SECONDS "-"}}</td>
+</tr>
+<tr>
+  <td class="key_td">{{tr "Marketplace ID"}}</td>
+  <td colspan="3" id="value_td_backup_frequency">
+    {{#if element.USER_TEMPLATE.BACKUP.MARKETPLACE_ID}}
+      {{navigate element.USER_TEMPLATE.BACKUP.MARKETPLACE_ID 'marketplaces-tab' element.USER_TEMPLATE.BACKUP.MARKETPLACE_ID}}
+    {{else}}
+      -
+    {{/if}}
+  </td>
+</tr>
+<tr>
+  <td class="key_td">{{tr "Backup last copy time"}}</td>
+  <td colspan="3" id="value_td_backup_last">{{valOrDefault last_backup "-"}}</td>
+</tr>
+<tr>
+  <td class="key_td">{{tr "Backup marketplace app IDs"}}</td>
+  <td colspan="3" id="value_td_backup_mpapp">{{valOrDefault element.USER_TEMPLATE.BACKUP.MARKETPLACE_APP_IDS "-"}}</td>
+</tr>
