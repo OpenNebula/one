@@ -16,15 +16,13 @@
 const { Actions: PoolActions } = require('../actions/pool')
 const { Actions: UserActions } = require('../actions/user')
 const { Actions: GeneralActions } = require('../actions/general')
-const { Setting: { SCHEMES } } = require('client/constants')
 
 const initial = {
   zone: 0,
   notifications: [],
   isLoading: false,
   isOpenMenu: false,
-  isFixMenu: false,
-  scheme: SCHEMES.DARK
+  isFixMenu: false
 }
 
 const General = (state = initial, action) => {
@@ -59,8 +57,6 @@ const General = (state = initial, action) => {
           notification => notification.key !== action.key
         )
       }
-    case GeneralActions.CHANGE_SCHEME:
-      return { ...state, ...action.payload }
     case GeneralActions.CHANGE_LOADING:
       return { ...state, ...action.payload }
     case GeneralActions.CHANGE_ZONE:

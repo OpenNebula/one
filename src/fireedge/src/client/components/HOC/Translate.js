@@ -16,8 +16,9 @@
 import React, { useContext, useState, useEffect, createContext } from 'react'
 import PropTypes from 'prop-types'
 import root from 'window-or-global'
-import { Select } from '@material-ui/core'
 import { sprintf } from 'sprintf-js'
+
+import { useAuth } from 'client/hooks'
 import { DEFAULT_LANGUAGE, LANGUAGES_URL } from 'client/constants'
 
 const TranslateContext = createContext()
@@ -25,7 +26,6 @@ let languageScript = root.document?.createElement('script')
 
 const GenerateScript = (
   language = DEFAULT_LANGUAGE,
-  setLang = () => undefined,
   setHash = () => undefined
 ) => {
   try {
@@ -33,7 +33,6 @@ const GenerateScript = (
     script.src = `${LANGUAGES_URL}/${language}.js`
     script.async = true
     script.onload = () => {
-      setLang(language)
       setHash(root.locale)
     }
     root.document.body.appendChild(script)
@@ -48,17 +47,17 @@ const RemoveScript = () => {
 }
 
 const TranslateProvider = ({ children }) => {
-  const [lang, setLang] = useState(DEFAULT_LANGUAGE)
   const [hash, setHash] = useState({})
+  const { settings: { lang } = {} } = useAuth()
 
   useEffect(() => {
-    GenerateScript(lang, setLang, setHash)
+    GenerateScript(lang, setHash)
     return () => { RemoveScript() }
-  }, [])
+  }, [lang])
 
   const changeLang = (language = DEFAULT_LANGUAGE) => {
     RemoveScript()
-    GenerateScript(language, setLang, setHash)
+    GenerateScript(language, setHash)
   }
 
   const value = {
@@ -103,34 +102,6 @@ const Tr = (str = '') => {
   return translate(key, valuesTr)
 }
 
-const SelectTranslate = props => {
-  const context = useContext(TranslateContext)
-  const languages = Array.isArray(root?.langs) ? root?.langs : []
-
-  const handleChange = (e, changeLang) => {
-    if (e?.target?.value && typeof changeLang === 'function') {
-      changeLang(e.target.value)
-    }
-  }
-
-  return (
-    <Select
-      native
-      type="select"
-      fullWidth
-      onChange={e => handleChange(e, context.changeLang)}
-      defaultValue={context.lang}
-      {...props}
-    >
-      {languages.map(({ key, value }) => (
-        <option value={key} key={key}>
-          {value}
-        </option>
-      ))}
-    </Select>
-  )
-}
-
 const Translate = ({ word = '', values }) => {
   const valuesTr = !Array.isArray(values) ? [values] : values
   return translate(word, valuesTr)
@@ -157,4 +128,4 @@ Translate.defaultProps = {
   values: ''
 }
 
-export { TranslateContext, TranslateProvider, SelectTranslate, Translate, Tr }
+export { TranslateContext, TranslateProvider, Translate, Tr }

@@ -3,20 +3,20 @@ import PropTypes from 'prop-types'
 
 import { CssBaseline, ThemeProvider, StylesProvider, useMediaQuery } from '@material-ui/core'
 import { createTheme, generateClassName } from 'client/theme'
-import { useGeneral } from 'client/hooks'
-import { Setting } from 'client/constants'
+import { useAuth } from 'client/hooks'
+import { SCHEMES } from 'client/constants'
 
-const { SCHEMES: { DARK, LIGHT, SYSTEM } } = Setting
+const { DARK, LIGHT, SYSTEM } = SCHEMES
 
 const MuiProvider = ({ theme: appTheme, children }) => {
-  const { scheme } = useGeneral()
+  const { settings: { scheme } = {} } = useAuth()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
   const changeThemeType = () => {
     const prefersScheme = prefersDarkMode ? DARK : LIGHT
-    const userScheme = scheme === SYSTEM ? prefersScheme : scheme
+    const newScheme = scheme === SYSTEM ? prefersScheme : scheme
 
-    return createTheme(appTheme(userScheme))
+    return createTheme(appTheme(newScheme))
   }
 
   const [muitheme, setTheme] = React.useState(changeThemeType)

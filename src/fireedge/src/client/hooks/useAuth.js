@@ -10,12 +10,13 @@ import * as serviceOne from 'client/services/one'
 import {
   startAuth,
   selectFilterGroup,
+  updateSetting,
   successAuth,
   failureAuth,
   logout as logoutRequest
 } from 'client/actions/user'
 import { setGroups } from 'client/actions/pool'
-import { updateScheme, enqueueError, enqueueSuccess, closeSnackbar } from 'client/actions/general'
+import { enqueueError, enqueueSuccess, closeSnackbar } from 'client/actions/general'
 
 const useAuth = () => {
   const {
@@ -25,7 +26,8 @@ const useAuth = () => {
     isLoading,
     firstRender,
     filterPool,
-    user: authUser
+    user: authUser,
+    settings
   } = useSelector(state => state?.Authenticated, shallowEqual)
   const dispatch = useDispatch()
 
@@ -79,9 +81,9 @@ const useAuth = () => {
     return serviceAuth
       .getUser()
       .then(user => dispatch(successAuth({ user })))
-      .then(serviceOne.getGroups)
+      .then(() => dispatch(updateSetting))
+      .then(() => serviceOne.getGroups())
       .then(groups => dispatch(setGroups(groups)))
-      .then(() => dispatch(updateScheme))
       .catch(err => dispatch(failureAuth({ error: err })))
   }, [dispatch, JWT_NAME, authUser])
 
@@ -129,6 +131,7 @@ const useAuth = () => {
     updateUser,
     isLogged: !!jwt,
     authUser,
+    settings,
     isOneAdmin: authUser?.ID === ONEADMIN_ID,
     isLoginInProcess,
     isLoading,

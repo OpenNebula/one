@@ -13,22 +13,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import InternalLayout from 'client/components/HOC/InternalLayout'
-import MainLayout from 'client/components/HOC/MainLayout'
-import {
-  TranslateContext,
-  TranslateProvider,
-  Translate,
-  Tr,
-  SelectTranslate
-} from 'client/components/HOC/Translate'
-
-export {
-  InternalLayout,
-  MainLayout,
-  TranslateContext,
-  TranslateProvider,
-  Translate,
-  Tr,
-  SelectTranslate
-}
+export { default as InternalLayout } from 'client/components/HOC/InternalLayout'
+export { default as MainLayout } from 'client/components/HOC/MainLayout'
+export * from 'client/components/HOC/Translate'

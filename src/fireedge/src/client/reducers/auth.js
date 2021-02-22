@@ -14,7 +14,12 @@
 /* -------------------------------------------------------------------------- */
 
 const { Actions: UserActions } = require('../actions/user')
-const { JWT_NAME, FILTER_POOL } = require('client/constants')
+const {
+  JWT_NAME,
+  FILTER_POOL,
+  DEFAULT_LANGUAGE,
+  DEFAULT_SCHEME
+} = require('client/constants')
 
 const jwt =
   typeof window !== 'undefined'
@@ -29,6 +34,10 @@ const initial = {
   group: null,
   error: null,
   filterPool: FILTER_POOL.ALL_RESOURCES,
+  settings: {
+    scheme: DEFAULT_SCHEME,
+    lang: DEFAULT_LANGUAGE
+  },
   isLoginInProcess: false,
   isLoading: false,
   firstRender: true
@@ -57,6 +66,11 @@ const authentication = (state = initial, action) => {
         isLoading: false,
         isLoginInProcess: false,
         ...action.payload
+      }
+    case UserActions.CHANGE_SETTINGS:
+      return {
+        ...state,
+        settings: action.payload
       }
     case UserActions.FAILURE_AUTH:
       return {

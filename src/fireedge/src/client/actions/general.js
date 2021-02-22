@@ -1,7 +1,4 @@
-const { Setting: { SCHEMES } } = require('client/constants')
-
 const CHANGE_ZONE = 'CHANGE_ZONE'
-const CHANGE_SCHEME = 'CHANGE_SCHEME'
 const CHANGE_LOADING = 'CHANGE_LOADING'
 const TOGGLE_MENU = 'TOGGLE_MENU'
 const FIX_MENU = 'FIX_MENU'
@@ -12,7 +9,6 @@ const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR'
 
 const Actions = {
   CHANGE_ZONE,
-  CHANGE_SCHEME,
   CHANGE_LOADING,
   TOGGLE_MENU,
   FIX_MENU,
@@ -27,15 +23,6 @@ module.exports = {
     type: CHANGE_ZONE,
     payload: { zone }
   }),
-  updateScheme: (dispatch, getState) => {
-    const current = getState()
-    const currentTheme = current.Authenticated?.theme
-    const userScheme = current.Authenticated?.user?.TEMPLATE?.FIREEDGE?.SCHEME
-
-    if (Object.values(SCHEMES).includes(userScheme) && currentTheme !== userScheme) {
-      dispatch(({ type: CHANGE_SCHEME, payload: { scheme: userScheme } }))
-    }
-  },
   changeLoading: isLoading => ({
     type: CHANGE_LOADING,
     payload: { isLoading }

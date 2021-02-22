@@ -8,8 +8,7 @@ export default function useGeneral () {
     zone,
     isLoading,
     isOpenMenu,
-    isFixMenu,
-    scheme
+    isFixMenu
   } = useSelector(state => state?.General, shallowEqual)
   const dispatch = useDispatch()
 
@@ -41,7 +40,6 @@ export default function useGeneral () {
   )
 
   return {
-    scheme,
     isFixMenu,
     isLoading,
     isOpenMenu,

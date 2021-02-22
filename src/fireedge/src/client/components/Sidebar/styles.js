@@ -73,7 +73,7 @@ export default makeStyles(theme => ({
     backgroundColor: theme.palette.type === 'dark'
       ? theme.palette.background.paper
       : theme.palette.primary.main,
-    color: theme.palette.text.primary,
+    color: theme.palette.primary.contrastText,
     display: 'flex',
     alignItems: 'center',
     padding: '1rem',

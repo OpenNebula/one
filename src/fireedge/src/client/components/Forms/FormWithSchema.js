@@ -28,19 +28,7 @@ const FormWithSchema = ({ id, cy, fields }) => {
   return (
     <Grid container spacing={1}>
       {fields?.map(
-        ({
-          name,
-          type,
-          htmlType,
-          label,
-          values,
-          multiline,
-          multiple,
-          dependOf,
-          tooltip,
-          grid,
-          fieldProps
-        }) => {
+        ({ name, type, htmlType, values, dependOf, grid, ...restOfProps }) => {
           const dataCy = `${cy}-${name}`
           const inputName = id ? `${id}.${name}` : name
 
@@ -65,15 +53,11 @@ const FormWithSchema = ({ id, cy, fields }) => {
                     cy: dataCy,
                     type: htmlTypeValue,
                     name: inputName,
-                    label,
-                    tooltip,
-                    multiline,
-                    multiple,
                     values: typeof values === 'function'
                       ? values(dependValue)
                       : values,
                     error: inputError,
-                    fieldProps
+                    ...restOfProps
                   })}
                 </Grid>
               </HiddenInput>
