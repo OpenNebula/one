@@ -30,7 +30,7 @@ require 'terraform/terraform'
 module OneProvision
 
     PING_TIMEOUT_DEFAULT  = 20
-    PING_RETRIES_DEFAULT  = 10
+    PING_RETRIES_DEFAULT  = 30
     MAX_RETRIES_DEFAULT   = 3
     RUN_MODE_DEFAULT      = :interactive
     FAIL_CHOICE_DEFAULT   = :quit
