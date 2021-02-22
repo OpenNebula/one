@@ -17,7 +17,7 @@ function ProvisionCreateForm () {
   const [uuid, setUuid] = useState(undefined)
   const { getProvision } = useSocket()
 
-  const { getProviders, createProvision, providers } = useProvision()
+  const { getProviders, createProvision } = useProvision()
 
   const { data, fetchRequest, loading, error } = useFetch(getProviders)
 

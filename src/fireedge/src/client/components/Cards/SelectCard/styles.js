@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
-  root: ({ isSelected, disableFilterImage }) => ({
+  root: ({ isSelected }) => ({
     height: '100%',
     transition: theme.transitions.create(
       ['background-color', 'box-shadow'], { duration: '0.2s' }
@@ -15,8 +15,7 @@ export default makeStyles(theme => ({
       '& .badge': {
         color: theme.palette.secondary.main,
         backgroundColor: theme.palette.secondary.contrastText
-      },
-      '& $subheader': { color: 'inherit' }
+      }
     })
   }),
   actionArea: {
@@ -64,6 +63,8 @@ export default makeStyles(theme => ({
       : theme.palette.text.primary
   },
   subheader: {
+    color: ({ isSelected }) =>
+      isSelected ? 'inherit' : theme.palette.text.secondary,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'initial',

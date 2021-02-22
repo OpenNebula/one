@@ -1,4 +1,4 @@
-import React, { memo, useState, useEffect, useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import ProviderIcon from '@material-ui/icons/Public'

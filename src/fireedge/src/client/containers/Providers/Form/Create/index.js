@@ -104,7 +104,7 @@ function ProviderCreateForm () {
       const {
         PLAIN: { location_key: locationKey } = {},
         PROVISION_BODY: {
-          connection: { [locationKey]: connectionEditable },
+          connection: { [locationKey]: _, ...connectionEditable },
           description,
           name
         }
