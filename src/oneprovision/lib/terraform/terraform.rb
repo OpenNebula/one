@@ -151,9 +151,13 @@ module OneProvision
                 )
 
                 unless s && s.success?
-                    @state = File.read("#{tempdir}/terraform.tfstate")
-                    conf   = Base64.encode64(Zlib::Deflate.deflate(@conf))
-                    state  = Base64.encode64(Zlib::Deflate.deflate(@state))
+                    conf  = Base64.encode64(Zlib::Deflate.deflate(@conf))
+                    state = ''
+
+                    if File.exist?("#{tempdir}/terraform.tfstate")
+                        @state = File.read("#{tempdir}/terraform.tfstate")
+                        state  = Base64.encode64(Zlib::Deflate.deflate(@state))
+                    end
 
                     provision.add_tf(state, conf)
 
