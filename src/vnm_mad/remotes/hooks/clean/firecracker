@@ -39,7 +39,9 @@ def command(cmd)
     cmd_str
 end
 
-XPATH_NICS = '//TEMPLATE/NIC'
+vnmad = File.basename(File.expand_path('..', File.dirname(__FILE__)))
+
+XPATH_NICS = "//TEMPLATE/NIC[VN_MAD='#{vnmad}']"
 XPATH_HV   = '//HISTORY/VM_MAD'
 #----------------------------------------------------------------------------
 
