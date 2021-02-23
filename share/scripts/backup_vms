@@ -1,0 +1,9 @@
+#!/bin/bash
+
+read -r -d '' VMS < <( onevm list --extended -x | \
+    /var/lib/one/remotes/datastore/xpath.rb --stdin \
+    %m%/VM_POOL/VM/USER_TEMPLATE/BACKUP/../../ID )
+
+for VM in $VMS; do
+    onevm backup $VM
+done

@@ -700,6 +700,7 @@ INSTALL_FILES=(
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
+    BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
     HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
@@ -2095,6 +2096,8 @@ INSTALL_GEMS_SHARE_FILES="share/install_gems/install_gems \
 ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
+
+BACKUP_VMS_SHARE_FILE="share/scripts/backup_vms"
 
 #-------------------------------------------------------------------------------
 # Start script files, to be installed under $SHARE_LOCATION/start-scripts
