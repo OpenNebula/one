@@ -8,14 +8,14 @@ import ErrorHelper from 'client/components/FormControl/ErrorHelper'
 import { Tr } from 'client/components/HOC/Translate'
 
 const SelectController = memo(
-  ({ control, cy, name, label, multiple, native, values, error, fieldProps }) => (
-    <Controller
-      render={({ value: renderValue, onChange, onBlur }) => {
-        const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
+  ({ control, cy, name, label, multiple, native, values, error, fieldProps }) => {
+    const defaultValue = multiple ? [values?.[0]?.value] : values?.[0]?.value
 
-        return (
+    return (
+      <Controller
+        render={({ value: optionSelected, onChange, onBlur }) => (
           <TextField
-            value={renderValue ?? defaultValue}
+            value={optionSelected ?? defaultValue}
             onBlur={onBlur}
             onChange={onChange}
             color='secondary'
@@ -35,12 +35,12 @@ const SelectController = memo(
               text
             ))}
           </TextField>
-        )
-      }}
-      name={name}
-      control={control}
-    />
-  ),
+        )}
+        name={name}
+        control={control}
+      />
+    )
+  },
   (prevProps, nextProps) => prevProps.error === nextProps.error
 )
 

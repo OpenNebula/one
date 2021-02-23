@@ -40,7 +40,7 @@ const Provider = () => ({
       setFormData(prev => ({ ...prev, [INPUTS_ID]: undefined }))
 
       isSelected
-        ? handleUnselect(ID, item => item.ID === ID)
+        ? handleUnselect(ID, item => item.ID !== ID)
         : handleSelect(provider)
     }
 

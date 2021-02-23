@@ -61,7 +61,7 @@ const Settings = () => {
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
     defaultValues: settings,
-    resolver: yupResolver(FORM_SCHEMA)
+    resolver: () => yupResolver(FORM_SCHEMA)
   })
 
   React.useEffect(() => {
@@ -70,7 +70,7 @@ const Settings = () => {
       FORM_SCHEMA.cast(settings),
       { isSubmitted: false, error: false }
     )
-  }, [])
+  }, [settings])
 
   const onSubmit = dataForm => {
     const inputs = mapUserInputs(dataForm)

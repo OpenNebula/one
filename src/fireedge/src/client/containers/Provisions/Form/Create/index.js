@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react'
-import { Redirect } from 'react-router'
+import { Redirect, useHistory } from 'react-router'
 
-import { Container, LinearProgress } from '@material-ui/core'
+import { Container, IconButton, LinearProgress } from '@material-ui/core'
+import ArrowBackIcon from '@material-ui/icons/ChevronLeftRounded'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
+import FormCreateStyles from 'client/containers/Provisions/Form/Create/styles'
 import DebugLog from 'client/components/DebugLog'
 
 import { useProvision, useSocket, useFetch } from 'client/hooks'
 import { PATH } from 'client/router/provision'
 import { set, mapUserInputs } from 'client/utils'
 
+import { Tr, Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
+
 function ProvisionCreateForm () {
+  const classes = FormCreateStyles()
+  const history = useHistory()
+
   const [uuid, setUuid] = useState(undefined)
   const { getProvision } = useSocket()
 
@@ -60,17 +68,31 @@ function ProvisionCreateForm () {
   useEffect(() => { fetchRequest() }, [])
 
   if (uuid) {
-    return <DebugLog uuid={uuid} socket={getProvision} />
+    return (
+      <div className={classes.rootLog}>
+        <div className={classes.titleWrapper}>
+          <IconButton aria-label='back-to-list' size='medium'
+            onClick={() => history.push(PATH.PROVISIONS.LIST)}
+          >
+            <ArrowBackIcon fontSize='large' />
+          </IconButton>
+          <span className={classes.titleText}>
+            <Translate word={T.BackToList} values={T.Provisions} />
+          </span>
+        </div>
+        <DebugLog uuid={uuid} socket={getProvision} />
+      </div>
+    )
   }
 
   if (error) {
-    return <Redirect to={PATH.PROVIDERS.LIST} />
+    return <Redirect to={PATH.PROVISIONS.LIST} />
   }
 
   return (!data) || loading ? (
     <LinearProgress color='secondary' />
   ) : (
-    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
+    <Container className={classes.root} disableGutters>
       <FormProvider {...methods}>
         <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
       </FormProvider>

@@ -23,6 +23,7 @@ module.exports = {
   Select: 'Select',
   SelectGroup: 'Select a group',
   SelectRequest: 'Select request',
+  BackToList: 'Back to %s list',
 
   /* dashboard */
   InTotal: 'In Total',
