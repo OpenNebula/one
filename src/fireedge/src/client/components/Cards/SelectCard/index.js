@@ -57,6 +57,7 @@ const SelectCard = memo(({
                 {...cardActionAreaProps}
                 className={clsx(classes.actionArea, cardActionAreaProps?.className)}
                 onClick={handleClick}
+                data-cy={(dataCy && isSelected) && `${dataCy}-card-selected`}
               >
                 {children}
               </CardActionArea>

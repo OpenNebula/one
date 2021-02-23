@@ -61,7 +61,7 @@ const Settings = () => {
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
     defaultValues: settings,
-    resolver: () => yupResolver(FORM_SCHEMA)
+    resolver: yupResolver(FORM_SCHEMA)
   })
 
   React.useEffect(() => {
