@@ -1,15 +1,15 @@
 import Color from 'client/constants/color'
 
-export default (mode = 'dark') => ({
+export default (scheme = 'dark') => ({
   palette: {
-    type: mode,
+    type: scheme,
     common: {
       black: '#000000',
       white: '#ffffff'
     },
     background: {
-      paper: mode === 'dark' ? '#2a2d3d' : '#ffffff',
-      default: mode === 'dark' ? '#222431' : '#f2f4f8'
+      paper: scheme === 'dark' ? '#2a2d3d' : '#ffffff',
+      default: scheme === 'dark' ? '#222431' : '#f2f4f8'
     },
     primary: {
       light: '#2a2d3d',

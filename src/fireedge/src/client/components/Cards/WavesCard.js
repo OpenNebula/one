@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
 import { Paper, Typography, makeStyles, lighten, darken } from '@material-ui/core'
+
 import { addOpacityToColor } from 'client/utils'
 
 const useStyles = makeStyles(theme => {
@@ -55,8 +56,8 @@ const WavesCard = React.memo(({ text, value, bgColor, icon: Icon }) => {
     <Paper className={classes.root}>
       <Typography variant='h6'>{text}</Typography>
       <Typography variant='h4'>{value}</Typography>
-      <span className={clsx(classes.wave, classes.wave1)}></span>
-      <span className={clsx(classes.wave, classes.wave2)}></span>
+      <span className={clsx(classes.wave, classes.wave1)} />
+      <span className={clsx(classes.wave, classes.wave2)} />
       {Icon && <Icon className={classes.icon} />}
     </Paper>
   )

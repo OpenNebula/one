@@ -15,7 +15,7 @@ import { Tr } from 'client/components/HOC/Translate'
 const CheckboxController = memo(
   ({ control, cy, name, label, tooltip, error, fieldProps }) => (
     <Controller
-      render={({ onChange, value }) => (
+      render={({ onChange, value = false }) => (
         <Tooltip title={Tr(tooltip) ?? ''}>
           <FormControl error={Boolean(error)}>
             <FormControlLabel
@@ -23,7 +23,7 @@ const CheckboxController = memo(
                 <Checkbox
                   onChange={e => onChange(e.target.checked)}
                   name={name}
-                  checked={value}
+                  checked={Boolean(value)}
                   color="secondary"
                   inputProps={{ 'data-cy': cy }}
                   {...fieldProps}

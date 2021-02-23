@@ -12,14 +12,14 @@ const MuiProvider = ({ theme: appTheme, children }) => {
   const { settings: { scheme } = {} } = useAuth()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
-  const changeThemeType = () => {
+  const changeScheme = () => {
     const prefersScheme = prefersDarkMode ? DARK : LIGHT
     const newScheme = scheme === SYSTEM ? prefersScheme : scheme
 
     return createTheme(appTheme(newScheme))
   }
 
-  const [muitheme, setTheme] = React.useState(changeThemeType)
+  const [muitheme, setTheme] = React.useState(changeScheme)
 
   React.useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side')
@@ -28,7 +28,9 @@ const MuiProvider = ({ theme: appTheme, children }) => {
     }
   }, [])
 
-  React.useEffect(() => setTheme(changeThemeType), [scheme, prefersDarkMode])
+  React.useEffect(() => {
+    setTheme(changeScheme)
+  }, [scheme, prefersDarkMode])
 
   return (
     <ThemeProvider theme={muitheme}>

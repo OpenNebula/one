@@ -22,15 +22,18 @@ module.exports = {
   updateSetting: (dispatch, getState) => {
     const current = getState()
 
-    const userScheme = current.Authenticated?.user?.TEMPLATE?.FIREEDGE?.SCHEME
-    const userLang = current.Authenticated?.user?.TEMPLATE?.FIREEDGE?.LANG
+    const userSetting = current.Authenticated?.user?.TEMPLATE?.FIREEDGE
+
+    if (!userSetting) return
+
+    const mapSetting = Object.entries(userSetting)
+      .reduce((res, [key, value]) =>
+        ({ ...res, [String(key).toLowerCase()]: value })
+      , {})
 
     dispatch(({
       type: CHANGE_SETTINGS,
-      payload: {
-        scheme: userScheme,
-        lang: userLang
-      }
+      payload: mapSetting
     }))
   },
   selectFilterGroup: payload => ({

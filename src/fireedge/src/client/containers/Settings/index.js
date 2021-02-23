@@ -28,6 +28,7 @@ import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 import { FORM_FIELDS, FORM_SCHEMA } from 'client/containers/Settings/schema'
+import { mapUserInputs } from 'client/utils'
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -55,7 +56,7 @@ const useStyles = makeStyles(theme => ({
 const Settings = () => {
   const classes = useStyles()
 
-  const { updateUser, settings } = useAuth()
+  const { updateUser, settings = {} } = useAuth()
 
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
@@ -65,16 +66,20 @@ const Settings = () => {
 
   React.useEffect(() => {
     // set user settings values
-    reset(settings, { isSubmitted: false, error: false })
-  }, [settings])
+    reset(
+      FORM_SCHEMA.cast(settings),
+      { isSubmitted: false, error: false }
+    )
+  }, [])
 
   const onSubmit = dataForm => {
-    const values = Object.entries(dataForm)
+    const inputs = mapUserInputs(dataForm)
+
+    const values = Object.entries(inputs)
       .map(([key, value]) => `\n ${String(key).toUpperCase()} = "${value}"`)
       .join(',')
 
     return updateUser({ template: `FIREEDGE = [${values}]\n` })
-    // .then(() => context.changeLang(dataForm.lang))
   }
 
   return (

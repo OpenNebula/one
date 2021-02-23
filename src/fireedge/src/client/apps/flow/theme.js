@@ -1,18 +1,21 @@
 import Color from 'client/constants/color'
 
-export default {
+export default (scheme = 'dark') => ({
   palette: {
-    type: 'dark',
-    common: { black: '#000', white: '#ffffff' },
+    type: scheme,
+    common: {
+      black: '#000000',
+      white: '#ffffff'
+    },
     background: {
-      paper: '#2a2d3d',
-      default: '#222431'
+      paper: scheme === 'dark' ? '#2a2d3d' : '#ffffff',
+      default: scheme === 'dark' ? '#222431' : '#f2f4f8'
     },
     primary: {
       light: '#2a2d3d',
       main: '#222431',
       dark: '#191924',
-      contrastText: '#fff'
+      contrastText: '#ffffff'
     },
     secondary: {
       light: 'rgba(191, 230, 242, 1)',
@@ -22,4 +25,4 @@ export default {
     },
     ...Color
   }
-}
+})

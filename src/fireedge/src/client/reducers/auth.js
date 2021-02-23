@@ -36,7 +36,8 @@ const initial = {
   filterPool: FILTER_POOL.ALL_RESOURCES,
   settings: {
     scheme: DEFAULT_SCHEME,
-    lang: DEFAULT_LANGUAGE
+    lang: DEFAULT_LANGUAGE,
+    disableanimations: 'YES'
   },
   isLoginInProcess: false,
   isLoading: false,
@@ -70,7 +71,10 @@ const authentication = (state = initial, action) => {
     case UserActions.CHANGE_SETTINGS:
       return {
         ...state,
-        settings: action.payload
+        settings: {
+          ...initial.settings,
+          ...action.payload
+        }
       }
     case UserActions.FAILURE_AUTH:
       return {
