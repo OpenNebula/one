@@ -445,14 +445,14 @@ define(function(require) {
       json_template["labels"] = currentInfo.TEMPLATE.BODY.labels;
     }
 
-    var new_template = {};
-    $.extend(true, new_template, that.old_template, json_template);
+    json_template['registration_time'] = that.old_template.registration_time;
+
     clear();
     if (this.action == "create") {
-      Sunstone.runAction("ServiceTemplate.create", new_template );
+      Sunstone.runAction("ServiceTemplate.create", json_template );
       return false;
     } else if (this.action == "update") {
-      var templateStr = JSON.stringify(new_template);
+      var templateStr = JSON.stringify(json_template);
       Sunstone.runAction("ServiceTemplate.update", this.resourceId, templateStr);
       return false;
     }
