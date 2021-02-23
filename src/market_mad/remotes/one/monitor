@@ -113,7 +113,7 @@ class OneMarket
                 size = 0
 
                 if file['size'].to_i != 0
-                    size = file['size'].to_i / (2**20)
+                    size = (file['size'].to_f / (2**20)).ceil
                 end
 
                 print_var(tmpl, 'SIZE', size)
