@@ -85,7 +85,7 @@ class OneMarket
         file = app['files'][0]
         size = 0
 
-        size = file['size'].to_i / (2**20) if file['size'].to_i != 0
+        size = (file['size'].to_f / (2**20)).ceil if file['size'].to_i != 0
 
         print_var(tmpl, 'SIZE', size)
         print_var(tmpl, 'MD5', file['md5'])
