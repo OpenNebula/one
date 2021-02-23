@@ -847,9 +847,14 @@ class ClusterSet
 
                     $logger.debug("\tResult(#{success})\n#{probe_result}\n")
 
-                    c[:monitordc].send("#{probe_name}_tcp".to_sym,
-                                       success,
-                                       probe_result)
+                    begin
+                        c[:monitordc].send("#{probe_name}_tcp".to_sym,
+                                        success,
+                                        probe_result)
+                    rescue Errno::ECONNREFUSED => e
+                        $logger.error("Error sending probe result: #{e.message}")
+                        exit(-1)
+                    end
 
                     c["last_#{probe_name}".to_sym] = Time.now.to_i
                 end
