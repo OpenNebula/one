@@ -33,6 +33,7 @@ define(function(require) {
   var WizardFields = require("utils/wizard-fields");
   var OpenNebula = require("opennebula");
   var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaVM = require('opennebula/vm');
 
   /*
     TEMPLATES
@@ -103,7 +104,13 @@ define(function(require) {
 
     this.vmsTable = new VMsTable(
       FORM_PANEL_ID + "vmsTable",
-      { "select": true });
+      { "select": true,
+        "selectOptions": {
+          "filter_fn": function(vm) {
+            return String(OpenNebulaVM.STATES.POWEROFF) === vm.STATE;
+          }
+        } 
+      });
 
     this.marketPlacesTable = new MarketPlacesTable(
       FORM_PANEL_ID + "marketPlacesTable",
