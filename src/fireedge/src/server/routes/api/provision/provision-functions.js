@@ -510,7 +510,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
             const close = (success, lastLine) => {
               stream.end()
               if (success && regexp.test(lastLine)) {
-                const newPath = renameFolder(config.path, lastLine.match('\\d+'), 'replace', removeConfigFile)
+                const newPath = renameFolder(config.path, lastLine.match('\\d+'), 'replace')
                 if (newPath) {
                   existsFile(
                     relFileYML,
