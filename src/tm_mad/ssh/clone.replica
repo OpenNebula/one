@@ -143,10 +143,12 @@ if [ "$REPLICA_HOST" = "$DST_HOST" ]; then
             create_base "$SRC_PATH" "$DST_PATH"
         else
             cd $SRC_DIR
-            cp $SRC_FILE $DST_PATH
+
+            cp -P $SRC_FILE $DST_PATH
 
             if [ -d $SRC_PATH.snap ]; then
                 cp -r $SRC_PATH.snap $DST_PATH.snap
+                ( cd $DST_PATH.snap; ln -s . $DST_FILE.snap )
             fi
         fi
 EOF
