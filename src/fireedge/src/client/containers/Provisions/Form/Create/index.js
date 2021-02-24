@@ -8,18 +8,18 @@ import { yupResolver } from '@hookform/resolvers'
 
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
-import FormCreateStyles from 'client/containers/Provisions/Form/Create/styles'
+import formCreateStyles from 'client/containers/Provisions/Form/Create/styles'
 import DebugLog from 'client/components/DebugLog'
 
 import { useProvision, useSocket, useFetch } from 'client/hooks'
 import { PATH } from 'client/router/provision'
 import { set, mapUserInputs } from 'client/utils'
 
-import { Tr, Translate } from 'client/components/HOC'
+import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 function ProvisionCreateForm () {
-  const classes = FormCreateStyles()
+  const classes = formCreateStyles()
   const history = useHistory()
 
   const [uuid, setUuid] = useState(undefined)
@@ -71,19 +71,22 @@ function ProvisionCreateForm () {
 
   if (uuid) {
     return (
-      <div className={classes.rootLog}>
-        <div className={classes.titleWrapper}>
-          <IconButton aria-label='back-to-list' size='medium'
-            onClick={() => history.push(PATH.PROVISIONS.LIST)}
-          >
-            <ArrowBackIcon fontSize='large' />
-          </IconButton>
-          <span className={classes.titleText}>
-            <Translate word={T.BackToList} values={T.Provisions} />
-          </span>
-        </div>
-        <DebugLog uuid={uuid} socket={getProvision} />
-      </div>
+      <DebugLog
+        uuid={uuid}
+        socket={getProvision}
+        title={(
+          <div className={classes.titleWrapper}>
+            <IconButton aria-label='back-to-list' size='medium'
+              onClick={() => history.push(PATH.PROVISIONS.LIST)}
+            >
+              <ArrowBackIcon fontSize='large' />
+            </IconButton>
+            <span className={classes.titleText}>
+              <Translate word={T.BackToList} values={T.Provisions} />
+            </span>
+          </div>
+        )}
+      />
     )
   }
 

@@ -35,11 +35,13 @@ export default makeStyles(theme => ({
     overflow: 'hidden',
     position: 'relative',
     '& img': {
+      top: 0,
+      left: 0,
       width: '100%',
+      height: '100%',
+      objectFit: 'cover',
       position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)'
+      userSelect: 'none'
     },
     transition: theme.transitions.create('filter', { duration: '0.2s' }),
     filter: ({ isSelected, disableFilterImage }) => {
