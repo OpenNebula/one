@@ -987,15 +987,23 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Disk type and source for the image ----
 
-        if ( type == "BLOCK" )
+        if ( type == "BLOCK" || type == "BLOCK_CDROM" )
         {
             ostringstream dev;
 
             dev << vm->get_system_dir() << "/disk." << disk_id;
 
-            file << "\t\t<disk type='block' device='disk'>\n"
-                 << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev.str())
-                 << "/>\n";
+            if (type == "BLOCK_CDROM")
+            {
+                file << "\t\t<disk type='block' device='cdrom'>" << endl;
+            }
+            else
+            {
+                file << "\t\t<disk type='block' device='disk'>" << endl;
+            }
+
+            file << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev.str())
+                 << "/>" << endl;
         }
         else if ( type == "ISCSI" )
         {
