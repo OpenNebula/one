@@ -68,7 +68,7 @@ function Login () {
       {isLoading && <LinearProgress color='secondary' className={classes.loading} />}
       <Paper variant="outlined" className={classes.paper}>
         {useMemo(() => (
-          <Logo width="100%" height={100} withText viewBox="140 140 380 360" data-cy="opennebula-logo" />
+          <Logo width='100%' height={100} withText data-cy='opennebula-logo' />
         ), [])}
         <Box className={classes.wrapperForm}>
           {step === STEPS.USER_FORM && <Form

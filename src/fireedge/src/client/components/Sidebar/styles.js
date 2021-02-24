@@ -27,13 +27,13 @@ export default makeStyles(theme => ({
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.enteringScreen
         }),
-        '& #logo__text__top, & #logo__text__bottom': {
+        '& #logo__text': {
           visibility: 'visible'
         }
       },
       // CONTAINER ONLY WHEN MINIFIED
       '&:not(:hover)': {
-        '& #logo__text__top, & #logo__text__bottom': {
+        '& #logo__text': {
           visibility: 'hidden'
         },
         '& $menu': {
@@ -57,7 +57,7 @@ export default makeStyles(theme => ({
     },
     [theme.breakpoints.up('lg')]: {
       width: sidebar.fixed,
-      '& #logo__text__top, & #logo__text__bottom': {
+      '& #logo__text': {
         visibility: 'visible !important'
       },
       '& $expandIcon, & $subItemWrapper': {
