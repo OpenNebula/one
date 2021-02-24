@@ -59,7 +59,6 @@ const Provider = () => ({
             handleClick: () => handleClick(value, isSelected)
           }
         }}
-        breakpoints={{ xs: 12, sm: 6, md: 4 }}
       />
     )
   }, [])

@@ -120,7 +120,7 @@ ListCards.propTypes = {
 ListCards.defaultProps = {
   list: [],
   keyProp: 'id',
-  breakpoints: { xs: 12, sm: 4, md: 3, lg: 2 },
+  breakpoints: { xs: 12, sm: 6, md: 4, lg: 2 },
   handleCreate: undefined,
   ButtonCreateComponent: undefined,
   CardComponent: null,

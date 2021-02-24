@@ -19,29 +19,28 @@ export default makeStyles(theme => ({
     })
   }),
   actionArea: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: ({ minHeight = 140 }) => minHeight,
     '&:disabled': {
       filter: 'brightness(0.5)'
     }
   },
   mediaActionArea: {
-    display: 'flex',
-    height: ({ mediaHeight = 140 }) => mediaHeight,
     '&:hover': {
       backgroundColor: theme.palette.secondary.contrastText,
       '& $media': { filter: 'none' }
     }
   },
   media: {
+    width: '100%',
+    paddingTop: '38.85%',
+    overflow: 'hidden',
+    position: 'relative',
     '& img': {
       width: '100%',
-      objectFit: 'cover',
-      maxHeight: ({ mediaHeight = 140 }) => mediaHeight
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)'
     },
-    flexGrow: 1,
     transition: theme.transitions.create('filter', { duration: '0.2s' }),
     filter: ({ isSelected, disableFilterImage }) => {
       return disableFilterImage
@@ -52,8 +51,8 @@ export default makeStyles(theme => ({
     }
   },
   headerRoot: {
-    alignItems: 'end',
-    alignSelf: 'stretch'
+    // align header icon to top
+    alignItems: 'end'
   },
   headerContent: { overflow: 'auto' },
   headerAvatar: {

@@ -40,8 +40,10 @@ function ProvisionCreateForm () {
   const onSubmit = formData => {
     const { template, provider, configuration, inputs } = formData
     const { name, description } = configuration
-    const provisionTemplateSelected = template?.[0] ?? {}
     const providerName = provider?.[0]?.NAME
+
+    // clone object from redux store
+    const provisionTemplateSelected = JSON.parse(JSON.stringify(template?.[0] ?? {}))
 
     // update provider name if changed during form
     if (provisionTemplateSelected.defaults?.provision?.provider_name) {
