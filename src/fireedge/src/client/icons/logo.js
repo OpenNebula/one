@@ -17,9 +17,9 @@ const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
 
   return (
     <svg viewBox={viewBox} width={width} height={height} {...props}>
-      <defs>
-        {spinner &&
-          Object.entries(cloudColor)?.map(([key, color]) => (
+      {spinner && (
+        <defs>
+          {Object.entries(cloudColor)?.map(([key, color]) => (
             <linearGradient
               key={`gradient-${key}`}
               id={`gradient__${key}`}
@@ -36,7 +36,8 @@ const Logo = memo(({ width, height, spinner, withText, viewBox, ...props }) => {
               />
             </linearGradient>
           ))}
-      </defs>
+        </defs>
+      )}
       {/*  --------------- CLOUD ------------------ */}
       <path
         fill={spinner ? 'url(#gradient__child1)' : cloudColor.child1.from}
