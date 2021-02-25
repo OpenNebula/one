@@ -181,13 +181,13 @@ void HostSharePCI::add(vector<VectorAttribute *> &devs, int vmid)
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/
 
-void HostSharePCI::del(const vector<VectorAttribute *> &devs)
+void HostSharePCI::del(const vector<VectorAttribute *> &devs, int vmid)
 {
     for (auto device : devs)
     {
         auto pci_it = pci_devices.find(device->vector_value("PREV_ADDRESS"));
 
-        if (pci_it != pci_devices.end())
+        if (pci_it != pci_devices.end() && pci_it->second->vmid == vmid)
         {
             pci_it->second->vmid = -1;
             pci_it->second->attrs->replace("VMID",-1);
@@ -199,7 +199,7 @@ void HostSharePCI::del(const vector<VectorAttribute *> &devs)
 
         pci_it = pci_devices.find(device->vector_value("ADDRESS"));
 
-        if (pci_it != pci_devices.end())
+        if (pci_it != pci_devices.end() && pci_it->second->vmid == vmid)
         {
             pci_it->second->vmid = -1;
             pci_it->second->attrs->replace("VMID",-1);
@@ -209,6 +209,44 @@ void HostSharePCI::del(const vector<VectorAttribute *> &devs)
         }
     }
 };
+
+/* ------------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------*/
+
+void HostSharePCI::revert(vector<VectorAttribute *> &devs)
+{
+    string address;
+
+    for (auto device : devs)
+    {
+        device->vector_value("PREV_ADDRESS", address);
+
+        if (!address.empty())
+        {
+            auto dev = pci_devices[address];
+
+            if (!dev)
+            {
+                continue;
+            }
+
+            device->replace("DOMAIN", dev->attrs->vector_value("DOMAIN"));
+            device->replace("BUS", dev->attrs->vector_value("BUS"));
+            device->replace("SLOT", dev->attrs->vector_value("SLOT"));
+            device->replace("FUNCTION",dev->attrs->vector_value("FUNCTION"));
+            device->replace("ADDRESS", address);
+            device->remove("PREV_ADDRESS");
+
+            int node = -1;
+            if (dev->attrs->vector_value("NUMA_NODE", node)==0 && node !=-1)
+            {
+                device->replace("NUMA_NODE", node);
+            }
+
+            break;
+        }
+    }
+}
 
 /* ------------------------------------------------------------------------*/
 /* ------------------------------------------------------------------------*/

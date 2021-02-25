@@ -84,7 +84,12 @@ public:
     /**
      *  Remove the VM assignment from the PCI device list
      */
-    void del(const std::vector<VectorAttribute *> &devs);
+    void del(const std::vector<VectorAttribute *> &devs, int vmid);
+
+    /**
+     *  Revert the VM assignment from the PCI device list
+     */
+    void revert(std::vector<VectorAttribute *> &devs);
 
     /**
      *  Updates the PCI list with monitor data, it will create or

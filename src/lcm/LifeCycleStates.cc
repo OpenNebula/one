@@ -98,6 +98,15 @@ void LifeCycleManager::revert_migrate_after_failure(VirtualMachine* vm)
     {
         hpool->del_capacity(vm->get_hid(), sr);
 
+        if (!sr.pci.empty())
+        {
+            if (auto host = hpool->get(vm->get_previous_hid()))
+            {
+                // Revert PCI assignment in sr
+                host->revert_pci(sr);
+            }
+        }
+
         vm->rollback_previous_vnc_port();
     }
 

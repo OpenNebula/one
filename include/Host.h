@@ -272,6 +272,15 @@ public:
     };
 
     /**
+     *  Revert changes in PCI Devices after migrate failure
+     *    @param sr host share capacity info
+     */
+    void revert_pci(HostShareCapacity& sr)
+    {
+        host_share.revert_pci(sr);
+    }
+
+    /**
      *  Tests whether a VM device capacity can be allocated in the host
      *    @param sr capacity requested by the VM
      *    @param error returns the error reason, if any
