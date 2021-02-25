@@ -7,14 +7,14 @@ import ProvisionIcon from '@material-ui/icons/Cloud'
 import SelectCard from 'client/components/Cards/SelectCard'
 import Action from 'client/components/Cards/SelectCard/Action'
 import { StatusBadge } from 'client/components/Status'
+import Image from 'client/components/Image'
 import { isExternalURL } from 'client/utils'
 import * as Types from 'client/types/provision'
 import {
   PROVISIONS_STATES,
   PROVIDER_IMAGES_URL,
   PROVISION_IMAGES_URL,
-  DEFAULT_IMAGE,
-  IMAGE_FORMATS
+  DEFAULT_IMAGE
 } from 'client/constants'
 
 const ProvisionCard = memo(
@@ -27,34 +27,12 @@ const ProvisionCard = memo(
     const stateInfo = PROVISIONS_STATES[bodyData?.state]
     const image = bodyData?.image ?? DEFAULT_IMAGE
 
-    const isExternalImage = isExternalURL(image)
+    const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
-    const mediaProps = useMemo(() => {
-      const src = isExternalImage ? image : `${IMAGES_URL}/${image}`
-      const onError = evt => { evt.target.src = DEFAULT_IMAGE }
-
-      return {
-        component: 'picture',
-        children: (
-          <>
-            {(image && !isExternalImage) && IMAGE_FORMATS.map(format => (
-              <source
-                key={format}
-                srcSet={`${src}.${format}`}
-                type={`image/${format}`}
-              />
-            ))}
-            <img
-              decoding='async'
-              draggable={false}
-              loading='lazy'
-              src={src}
-              onError={onError}
-            />
-          </>
-        )
-      }
-    }, [image, isExternalImage])
+    const imageUrl = useMemo(
+      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
+      [isExternalImage]
+    )
 
     return (
       <SelectCard
@@ -73,7 +51,10 @@ const ProvisionCard = memo(
           )
         }
         isSelected={isSelected}
-        mediaProps={mediaProps}
+        mediaProps={{
+          component: 'div',
+          children: <Image src={imageUrl} withSources={image && !isExternalImage} />
+        }}
         subheader={`#${ID}`}
         title={NAME}
         disableFilterImage={isExternalImage}

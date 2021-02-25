@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React, { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import * as Types from 'client/types/provision'
@@ -6,48 +6,23 @@ import * as Types from 'client/types/provision'
 import ProvidersIcon from '@material-ui/icons/Public'
 import SelectCard from 'client/components/Cards/SelectCard'
 
+import Image from 'client/components/Image'
 import { isExternalURL } from 'client/utils'
-import {
-  PROVIDER_IMAGES_URL,
-  PROVISION_IMAGES_URL,
-  DEFAULT_IMAGE,
-  IMAGE_FORMATS
-} from 'client/constants'
+import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
 
-const ProvisionTemplateCard = React.memo(
+const ProvisionTemplateCard = memo(
   ({ value, isProvider, isSelected, isValid, handleClick }) => {
     const { description, name, plain = {} } = value
     const { image = '' } = isProvider ? plain : value
 
-    const isExternalImage = isExternalURL(image)
+    const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
 
-    const mediaProps = React.useMemo(() => {
-      const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-      const src = isExternalImage ? image : `${IMAGES_URL}/${image}`
-      const onError = evt => { evt.target.src = DEFAULT_IMAGE }
+    const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
-      return {
-        component: 'picture',
-        children: (
-          <>
-            {(image && !isExternalImage) && IMAGE_FORMATS.map(format => (
-              <source
-                key={format}
-                srcSet={`${IMAGES_URL}/${image}.${format}`}
-                type={`image/${format}`}
-              />
-            ))}
-            <img
-              decoding='async'
-              draggable={false}
-              loading='lazy'
-              src={src}
-              onError={onError}
-            />
-          </>
-        )
-      }
-    }, [image, isProvider])
+    const imageUrl = useMemo(
+      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
+      [isExternalImage]
+    )
 
     return (
       <SelectCard
@@ -57,7 +32,10 @@ const ProvisionTemplateCard = React.memo(
         icon={<ProvidersIcon />}
         cardActionAreaProps={{ disabled: !isValid }}
         isSelected={isSelected}
-        mediaProps={mediaProps}
+        mediaProps={{
+          component: 'div',
+          children: <Image src={imageUrl} withSources={image && !isExternalImage} />
+        }}
         subheader={description}
         title={name}
       />
