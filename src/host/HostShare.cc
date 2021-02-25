@@ -370,11 +370,18 @@ void HostShare::del(HostShareCapacity &sr)
 
     ds.del(sr);
 
-    pci.del(sr.pci);
+    pci.del(sr.pci, sr.vmid);
 
     numa.del(sr);
 
     running_vms--;
+}
+
+/* -------------------------------------------------------------------------- */
+
+void HostShare::revert_pci(HostShareCapacity &sr)
+{
+    pci.revert(sr.pci);
 }
 
 /* -------------------------------------------------------------------------- */
