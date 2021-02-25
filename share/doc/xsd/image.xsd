@@ -58,6 +58,7 @@
           LOCKED_USED_PERS = 10 FS operation in progress, VMs waiting. Persistent
         -->
         <xs:element name="STATE" type="xs:integer"/>
+        <xs:element name="PREV_STATE" type="xs:integer"/>
         <xs:element name="RUNNING_VMS" type="xs:integer"/>
         <xs:element name="CLONING_OPS" type="xs:integer"/>
         <xs:element name="CLONING_ID" type="xs:integer"/>
