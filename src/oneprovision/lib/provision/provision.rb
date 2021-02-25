@@ -13,6 +13,7 @@
 #--------------------------------------------------------------------------- #
 
 require 'opennebula/document_json'
+require 'opennebula/wait_ext'
 
 module OneProvision
 
