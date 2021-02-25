@@ -1245,7 +1245,7 @@ CommandParser::CmdParser.new(ARGV) do
 
             res = vm.save_as_template(args[1],
                                       '',
-                                      persistent => options[:persistent])
+                                      :persistent => options[:persistent])
 
             if !OpenNebula.is_error?(res)
                 puts "Template ID: #{res}"
