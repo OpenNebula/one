@@ -1244,6 +1244,7 @@ CommandParser::CmdParser.new(ARGV) do
             vm.extend(VirtualMachineExt)
 
             res = vm.save_as_template(args[1],
+                                      '',
                                       persistent => options[:persistent])
 
             if !OpenNebula.is_error?(res)
