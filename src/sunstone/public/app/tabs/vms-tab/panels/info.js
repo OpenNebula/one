@@ -124,20 +124,30 @@ define(function(require) {
       monitoringTableContentHTML = Humanize.prettyPrintJSON(monitoring);
     }
 
-    var monitoring = $.extend({}, this.element.MONITORING);
     var errorMessageHTML = ""
-    if (this && 
-        this.element && 
+    if (this.element && 
         this.element.USER_TEMPLATE &&
         this.element.USER_TEMPLATE.ERROR){
-          errorMessageHTML = "<div class='row'><div class='large-9 columns'>" + 
-            "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable><div class='row'>"+
-            "<div class='columns large-1'>" +
-            "<i class='fas fa-exclamation-circle'></i></div><div class='columns large-9'><p>" +
-            this.element.USER_TEMPLATE.ERROR +
-            "</p></div><div class='columns large-2'>" + 
-            "<a id='close_vm_async_error' data-close>" +
-            "<u>Dismiss</u></a></div></div></div></div>";
+          errorMessageHTML = 
+            "<div class='row'>" + 
+              "<div class='large-9 columns'>" + 
+                "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable>" + 
+                  "<div class='row'>"+
+                    "<div class='columns large-1'>" +
+                      "<i class='fas fa-exclamation-circle'></i>"+
+                    "</div>"+
+                    "<div class='columns large-9'>"+
+                      "<p>" + this.element.USER_TEMPLATE.ERROR + "</p>" +
+                    "</div>"+
+                    "<div class='columns large-2'>" + 
+                        "<a id='close_vm_async_error' data-close>" +
+                          "<u>Dismiss</u>"+
+                        "</a>" +
+                    "</div>" +
+                  "</div>" +
+                "</div>" +
+              "</div>" +
+            "</div>";
     }
 
 
