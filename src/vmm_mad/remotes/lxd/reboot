@@ -49,3 +49,4 @@ force = false
 force = true if ARGV[-1] == '-f'
 
 container.reboot(force)
+container.allow_monitoring
