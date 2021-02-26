@@ -32,6 +32,7 @@ else
     GUACD_PID=$ONE_LOCATION/var/guacd.pid
 fi
 
+PATH=$PATH:/usr/share/one/guacd/sbin
 GUACD_BIN=guacd
 
 get_pid()
