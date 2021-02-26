@@ -49,6 +49,12 @@ if [ ! -L $DISK_PATH ]; then
     exit 1
 fi
 
+# skip if VM is not running
+if [ "$(virsh -c ${LIBVIRT_URI} domstate one-${VMID} >/dev/null)" != "running" ]; then
+    echo "VM ${VMID} is not running"
+    exit 1
+fi
+
 # Enumerate disks for which we don't create snapshot (all except $DISK_PATH)
 DISKS=$(virsh -c ${LIBVIRT_URI} domblklist one-${VMID} | grep disk | awk '{print $2}')
 OTHER_DISK_STR=""
