@@ -1180,6 +1180,8 @@ void Nebula::start(bool bootstrap_only)
 
     rm->finalize();
 
+    raftm->finalize();
+
     if (!cache)
     {
         vmm->finalize();
@@ -1206,7 +1208,6 @@ void Nebula::start(bool bootstrap_only)
         ipamm->join_thread();
     }
 
-    raftm->finalize();
     aclm->finalize();
 
     authm->finalize();

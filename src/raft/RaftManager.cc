@@ -128,9 +128,9 @@ RaftManager::RaftManager(int id, const VectorAttribute * leader_hook_mad,
     set_timeout(bcast, broadcast_timeout);
     set_timeout(elect, election_timeout);
 
-    // 5 seconds warm-up to start election
+    // 15 seconds warm-up to start election
     clock_gettime(CLOCK_REALTIME, &last_heartbeat);
-    last_heartbeat.tv_sec += 5;
+    last_heartbeat.tv_sec += 15;
 
     // -------------------------------------------------------------------------
     // Initialize Hooks
@@ -688,7 +688,7 @@ void RaftManager::timer_action()
 {
     Nebula& nd = Nebula::instance();
 
-    if ( nd.is_cache() )
+    if ( nd.is_cache() || server_id < 0)
     {
         return;
     }
