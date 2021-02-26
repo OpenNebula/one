@@ -129,8 +129,7 @@ class Container
     # Create a container without a base image
     def create(wait: true, timeout: '')
         @lxc['source'] = { 'type' => 'none' }
-
-        transition_start # not ready to report status yet
+        @lxc['config']['user.one_status'] = '0' # not ready to report status yet
 
         wait?(@client.post(CONTAINERS, @lxc), wait, timeout)
 
@@ -253,16 +252,10 @@ class Container
 
     # Extended reboot required for OpenNebula execution flow
     def reboot(force)
-        if transient?
-            start
-
-            transition_end # container reached the final state of rebooting
-            update
-        else
-            transition_start # container will be started later
-            update
-
+        if check_status == 'Running'
             check_stop(force)
+        else
+            start
         end
     end
 
@@ -476,14 +469,16 @@ class Container
     end
 
     # Flags a container indicating current status not definitive
-    # Stalls monitoring status query. Requires updating the container
-    def transition_start
+    # Stalls monitoring status query.
+    def avoid_monitoring
         @lxc['config']['user.one_status'] = '0'
+        update
     end
 
-    # Removes transient state flag. Requires updating the container.
-    def transition_end
+    # Removes transient state flag.
+    def allow_monitoring
         @lxc['config'].delete('user.one_status')
+        update
     end
 
     # Helper method for querying transition phase
@@ -533,6 +528,8 @@ class Container
     # Accepts optional args
     def change_state(action, options)
         options.update(:action => action)
+
+        avoid_monitoring
 
         response = @client.put("#{CONTAINERS}/#{name}/state", options)
         status = wait?(response, options[:wait], options[:timeout])
