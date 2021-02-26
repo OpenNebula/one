@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const GuacamoleLite = require('guacamole-lite')
+const GuacamoleOpennebula = require('guacamole-opennebula')
 const { getConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { genFireedgeKey } = require('server/utils/server')
@@ -65,13 +65,13 @@ const guacamole = appServer => {
     appServer.constructor.name &&
     appServer.constructor.name === 'Server'
   ) {
-    const guacamole = new GuacamoleLite(
+    const guacamoleServer = new GuacamoleOpennebula(
       { server: appServer, path: endpointGuacamole },
       { host: guacdHost, port: guacdPort },
       clientOptions,
       clientCallbacks
     )
-    guacamole.on('error', (clientConnection, error) => {
+    guacamoleServer.on('error', (clientConnection, error) => {
       messageTerminal(configError(error))
     })
   }

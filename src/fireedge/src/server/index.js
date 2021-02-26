@@ -114,7 +114,7 @@ if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
 app.use(helmet.hidePoweredBy())
 app.use(compression())
 app.use(`${basename}/client`, express.static(path.resolve(__dirname, frontPath)))
-
+app.use(`${basename}/client/*`, express.static(path.resolve(__dirname, frontPath)))
 // log request
 app.use(log)
 // cors
