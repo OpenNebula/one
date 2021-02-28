@@ -478,6 +478,7 @@ ssh_forward()
 }
 
 #This function executes $2 at $1 host and report error $3 but does not exit
+#Accept $4 as alternative correct return code
 function ssh_exec_and_log_no_error
 {
     SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
@@ -487,7 +488,7 @@ $2
 EOF`
     SSH_EXEC_RC=$?
 
-    if [ $SSH_EXEC_RC -ne 0 ]; then
+    if [ $SSH_EXEC_RC -ne 0 ] && [ $SSH_EXEC_RC != "$4" ]; then
         log_error "Command \"$2\" failed: $SSH_EXEC_ERR"
 
         if [ -n "$3" ]; then
@@ -496,10 +497,9 @@ EOF`
             error_message "Error executing $2: $SSH_EXEC_ERR"
         fi
 
-        return $SSH_EXEC_RC
     fi
 
-    return 0
+    return $SSH_EXEC_RC
 }
 
 #This function executes $2 at $1 host and report error $3
