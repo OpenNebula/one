@@ -65,7 +65,7 @@ define(function(require) {
    */
 
   function optionsFilesystem(){
-    var rtn = "";
+    var rtn = "<option value=''>-</option>";
     if(config && config.system_config && config.system_config.support_fs && Array.isArray(config.system_config.support_fs)){
       config.system_config.support_fs.forEach(element => {
         rtn += "<option value='"+element+"'>"+element+"</option>";
@@ -134,10 +134,13 @@ define(function(require) {
           if($("select#FORMAT_KVM", volatileContext).val() === "qcow2"){
             $("select#DRIVER", volatileContext).val("qcow2");
           }
+          $("select#FS_KVM", volatileContext).parent().show();
           break;
         case "swap":
           $("select#FORMAT_KVM", volatileContext).parent().hide();
           $("select#DRIVER", volatileContext).val("");
+          $("select#FS_KVM", volatileContext).val("");
+          $("select#FS_KVM", volatileContext).parent().hide();
           break;
       }
     });

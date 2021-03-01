@@ -73,6 +73,16 @@ define(function(require) {
 
   return WizardTab;
 
+  function optionsFilesystem(){
+    var rtn = "<option value=''>--</option>";
+    if(config && config.system_config && config.system_config.support_fs && Array.isArray(config.system_config.support_fs)){
+      config.system_config.support_fs.forEach(element => {
+        rtn += "<option value='"+element+"'>"+element+"</option>";
+      });
+    }
+    return rtn;
+  };
+
   /*
     FUNCTION DEFINITIONS
    */
@@ -87,6 +97,7 @@ define(function(require) {
         "prepend": prepend,
         "formPanelId": this.formPanelId,
         "customTagsHTML": CustomTagsTable.html(),
+        "optionsFilesystem": optionsFilesystem(),
       }),
       "advanced": TemplateAdvancedHTML({
         "prepend": prepend,
@@ -382,4 +393,3 @@ define(function(require) {
   }
 
 });
-

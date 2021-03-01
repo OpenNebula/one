@@ -61,7 +61,7 @@ define(function(require) {
     var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, this.resource, Locale.tr("Attributes"));
     var permissionsTableHTML = PermissionsTable.html(this.tabId, this.resource, this.element);
     var prettyRegTime = Humanize.prettyTime(this.element.REGTIME);
-    var fsTypeStr = this.element.FS_TYPE != undefined ? this.element.FS_TYPE : '-';
+    var fsTypeStr = this.element.FS != undefined ? this.element.FS : '-';
     var sizeStr = Humanize.sizeFromMB(this.element.SIZE);
     var persistentStr = parseInt(this.element.PERSISTENT) ? Locale.tr("yes") : Locale.tr("no");
 

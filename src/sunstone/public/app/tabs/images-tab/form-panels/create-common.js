@@ -252,6 +252,11 @@ define(function(require) {
         img_json["FORMAT"] = driver;
     }
 
+    var filesystem = WizardFields.retrieveInput($("#img_fs", context));
+    if (filesystem != undefined && filesystem.length) {
+        img_json["FS"] = filesystem;
+    }
+
     var target = WizardFields.retrieveInput($("#img_target", context));
     if (target)
         img_json["TARGET"] = target;
