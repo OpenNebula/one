@@ -509,7 +509,7 @@ define(function(require) {
 
   function _submitAdvanced(context) {
     var template = $("#template", context).val();
-    var ds_id = $("#img_datastore_raw .resource_list_select", context).val();
+    var ds_id = $("#"+prepend+"_datastore_raw .resource_list_select", context).val();
 
     if (!ds_id) {
       Notifier.notifyError(Locale.tr("Please select a datastore for this image"));
