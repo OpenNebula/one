@@ -44,7 +44,16 @@ module OneDBFsck
 
             # DATA: VNets used by this VM
             nics = vm_doc.root.xpath("TEMPLATE/NIC")
+
+            # Nic Alias used by this VM
             vm_doc.root.xpath("TEMPLATE/NIC_ALIAS").each do |nic|
+                nics << nic
+            end
+
+            # NIC PCI used by this VM
+            vm_doc.root.xpath('TEMPLATE/PCI').each do |nic|
+                next unless nic.xpath('NETWORK_ID')
+
                 nics << nic
             end
 
@@ -59,6 +68,7 @@ module OneDBFsck
                         log_error("VM #{row[:oid]} is using VNet #{net_id}, "<<
                             "but it does not exist", false)
                     else
+
                         mac = nic.at_xpath("MAC").nil? ? nil : nic.at_xpath("MAC").text
 
                         ar_id_e = nic.at_xpath('AR_ID')
