@@ -37,7 +37,7 @@ const initial = {
   settings: {
     scheme: DEFAULT_SCHEME,
     lang: DEFAULT_LANGUAGE,
-    disableanimations: 'NO'
+    disableanimations: 'YES'
   },
   isLoginInProcess: false,
   isLoading: false,

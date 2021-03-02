@@ -92,7 +92,7 @@ router.get('*', (req, res) => {
     </body>
     </html>
   `
-  res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
+  res.send(html)
 })
 
 module.exports = router

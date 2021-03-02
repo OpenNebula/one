@@ -61,24 +61,26 @@ const userLog = appConfig.log || 'dev'
 
 if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
   try {
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const webpackHotMiddleware = require('webpack-hot-middleware')
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const webpackDevMiddleware = require('webpack-dev-middleware')
     const webpackConfig = require('../../webpack.config.dev.client')
     const compiler = webpack(webpackConfig)
-
-    app.use(
-      // eslint-disable-next-line import/no-extraneous-dependencies
-      require('webpack-dev-middleware')(compiler, {
-        publicPath: webpackConfig.output.publicPath
-      })
-    )
-
-    app.use(
-      // eslint-disable-next-line import/no-extraneous-dependencies
-      require('webpack-hot-middleware')(compiler, {
-        log: false,
-        path: '/__webpack_hmr',
-        heartbeat: 10 * 1000
-      })
-    )
+    app.use(webpackDevMiddleware(compiler, {
+      noInfo: true,
+      serverSideRender: true,
+      publicPath: webpackConfig.output.publicPath,
+      stats: {
+        assets: false,
+        colors: true,
+        version: false,
+        hash: false,
+        timings: false,
+        chunks: false,
+        chunkModules: false
+      }
+    })).use(webpackHotMiddleware(compiler))
   } catch (error) {
     if (error) {
       messageTerminal({
