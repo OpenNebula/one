@@ -19,18 +19,4 @@ import { render } from 'react-dom'
 import store from 'client/store'
 import App from 'client/dev/_app'
 
-render(
-  <App store={store} />,
-  document.getElementById('root')
-)
-
-if (process.env.NODE_ENV === 'development' && module.hot) {
-  module.hot.accept('./_app', () => {
-    const SyncApp = require('./_app').default
-    render(<SyncApp store={store} />, document.getElementById('root'))
-  })
-
-  module.hot.accept('../reducers', () => {
-    store.replaceReducer(require('../reducers').default)
-  })
-}
+render(<App store={store} />, document.getElementById('root'))
