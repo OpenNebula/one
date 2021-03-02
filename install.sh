@@ -268,7 +268,6 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/auth/certificates \
-          $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/sunstone-views \
           $ETC_LOCATION/cli \
           $ETC_LOCATION/sunstone-views/kvm \
@@ -279,8 +278,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
           $LIB_LOCATION/ruby/opennebula/flow \
           $LIB_LOCATION/ruby/cloud/ \
-          $LIB_LOCATION/ruby/cloud/econe \
-          $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/ruby/onedb/shared \
@@ -507,11 +504,6 @@ ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/strategy \
               $ONEFLOW_LOCATION/lib/models"
 
-LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula \
-                 $LIB_LOCATION/ruby/cloud/ \
-                 $LIB_LOCATION/ruby/cloud/econe"
-
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula"
 
@@ -521,7 +513,7 @@ LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
 CONF_CLI_DIRS="$ETC_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS \
+    MAKE_DIRS="$MAKE_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION"
 elif [ "$ONEGATE" = "yes" ]; then
@@ -707,9 +699,6 @@ INSTALL_FILES=(
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
-    ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
-    ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
-    ECO_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
     DOCS_FILES:$DOCS_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
@@ -728,8 +717,6 @@ INSTALL_FILES=(
 
 INSTALL_CLIENT_FILES=(
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
-    ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe
-    ECO_BIN_CLIENT_FILES:$BIN_LOCATION
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
@@ -885,8 +872,6 @@ INSTALL_ETC_FILES=(
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
-    ECO_ETC_FILES:$ETC_LOCATION
-    ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
     CLI_CONF_FILES:$ETC_LOCATION/cli
 )
 
@@ -2188,108 +2173,10 @@ COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
 CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/SunstoneCloudAuth.rb \
-                      src/cloud/common/CloudAuth/EC2CloudAuth.rb \
                       src/cloud/common/CloudAuth/X509CloudAuth.rb \
                       src/cloud/common/CloudAuth/RemoteCloudAuth.rb \
                       src/cloud/common/CloudAuth/OneGateCloudAuth.rb \
                       src/cloud/common/CloudAuth/OpenNebulaCloudAuth.rb"
-
-#-------------------------------------------------------------------------------
-# EC2 Query for OpenNebula
-#-------------------------------------------------------------------------------
-
-ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
-               src/cloud/ec2/lib/EC2QueryServer.rb \
-               src/cloud/ec2/lib/ImageEC2.rb \
-               src/cloud/ec2/lib/elastic_ip.rb \
-               src/cloud/ec2/lib/ebs.rb \
-               src/cloud/ec2/lib/tags.rb \
-               src/cloud/ec2/lib/instance.rb \
-               src/cloud/ec2/lib/keypair.rb \
-               src/cloud/ec2/lib/net_ssh_replacement.rb \
-               src/cloud/ec2/lib/econe_application.rb \
-               src/cloud/ec2/lib/econe-server.rb"
-
-ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"
-
-ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
-                    src/cloud/ec2/lib/views/describe_instances.erb \
-                    src/cloud/ec2/lib/views/describe_regions.erb \
-                    src/cloud/ec2/lib/views/describe_availability_zones.erb \
-                    src/cloud/ec2/lib/views/create_tags.erb \
-                    src/cloud/ec2/lib/views/delete_tags.erb \
-                    src/cloud/ec2/lib/views/describe_tags.erb \
-                    src/cloud/ec2/lib/views/create_volume.erb \
-                    src/cloud/ec2/lib/views/create_snapshot.erb \
-                    src/cloud/ec2/lib/views/delete_snapshot.erb \
-                    src/cloud/ec2/lib/views/describe_snapshots.erb \
-                    src/cloud/ec2/lib/views/create_image.erb \
-                    src/cloud/ec2/lib/views/describe_volumes.erb \
-                    src/cloud/ec2/lib/views/attach_volume.erb \
-                    src/cloud/ec2/lib/views/detach_volume.erb \
-                    src/cloud/ec2/lib/views/delete_volume.erb \
-                    src/cloud/ec2/lib/views/register_image.erb \
-                    src/cloud/ec2/lib/views/run_instances.erb \
-                    src/cloud/ec2/lib/views/allocate_address.erb \
-                    src/cloud/ec2/lib/views/associate_address.erb \
-                    src/cloud/ec2/lib/views/disassociate_address.erb \
-                    src/cloud/ec2/lib/views/describe_addresses.erb \
-                    src/cloud/ec2/lib/views/release_address.erb \
-                    src/cloud/ec2/lib/views/create_keypair.erb \
-                    src/cloud/ec2/lib/views/delete_keypair.erb \
-                    src/cloud/ec2/lib/views/describe_keypairs.erb \
-                    src/cloud/ec2/lib/views/terminate_instances.erb \
-                    src/cloud/ec2/lib/views/stop_instances.erb \
-                    src/cloud/ec2/lib/views/reboot_instances.erb \
-                    src/cloud/ec2/lib/views/start_instances.erb"
-
-ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
-               src/cloud/ec2/bin/econe-describe-images \
-               src/cloud/ec2/bin/econe-describe-volumes \
-               src/cloud/ec2/bin/econe-describe-instances \
-               src/cloud/ec2/bin/econe-describe-keypairs \
-               src/cloud/ec2/bin/econe-register \
-               src/cloud/ec2/bin/econe-attach-volume \
-               src/cloud/ec2/bin/econe-detach-volume \
-               src/cloud/ec2/bin/econe-delete-volume \
-               src/cloud/ec2/bin/econe-delete-keypair \
-               src/cloud/ec2/bin/econe-create-volume \
-               src/cloud/ec2/bin/econe-create-keypair \
-               src/cloud/ec2/bin/econe-run-instances \
-               src/cloud/ec2/bin/econe-terminate-instances \
-               src/cloud/ec2/bin/econe-start-instances \
-               src/cloud/ec2/bin/econe-stop-instances \
-               src/cloud/ec2/bin/econe-reboot-instances \
-               src/cloud/ec2/bin/econe-describe-addresses \
-               src/cloud/ec2/bin/econe-allocate-address \
-               src/cloud/ec2/bin/econe-release-address \
-               src/cloud/ec2/bin/econe-associate-address \
-               src/cloud/ec2/bin/econe-disassociate-address \
-               src/cloud/ec2/bin/econe-upload"
-
-ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
-               src/cloud/ec2/bin/econe-describe-instances \
-               src/cloud/ec2/bin/econe-describe-volumes \
-               src/cloud/ec2/bin/econe-register \
-               src/cloud/ec2/bin/econe-attach-volume \
-               src/cloud/ec2/bin/econe-detach-volume \
-               src/cloud/ec2/bin/econe-delete-volume \
-               src/cloud/ec2/bin/econe-create-volume \
-               src/cloud/ec2/bin/econe-run-instances \
-               src/cloud/ec2/bin/econe-terminate-instances \
-               src/cloud/ec2/bin/econe-start-instances \
-               src/cloud/ec2/bin/econe-stop-instances \
-               src/cloud/ec2/bin/econe-reboot-instances \
-               src/cloud/ec2/bin/econe-describe-addresses \
-               src/cloud/ec2/bin/econe-allocate-address \
-               src/cloud/ec2/bin/econe-release-address \
-               src/cloud/ec2/bin/econe-associate-address \
-               src/cloud/ec2/bin/econe-disassociate-address \
-               src/cloud/ec2/bin/econe-upload"
-
-ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
-
-ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
 
 #-----------------------------------------------------------------------------
 # CLI files
@@ -2813,29 +2700,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onemarket.1.gz \
         share/man/onemarketapp.1.gz \
         share/man/onevmgroup.1.gz \
-        share/man/onevntemplate.1.gz \
-        share/man/econe-allocate-address.1.gz \
-        share/man/econe-associate-address.1.gz \
-        share/man/econe-attach-volume.1.gz \
-        share/man/econe-create-keypair.1.gz \
-        share/man/econe-create-volume.1.gz \
-        share/man/econe-delete-keypair.1.gz \
-        share/man/econe-delete-volume.1.gz \
-        share/man/econe-describe-addresses.1.gz \
-        share/man/econe-describe-images.1.gz \
-        share/man/econe-describe-instances.1.gz \
-        share/man/econe-describe-keypairs.1.gz \
-        share/man/econe-describe-volumes.1.gz \
-        share/man/econe-detach-volume.1.gz \
-        share/man/econe-disassociate-address.1.gz \
-        share/man/econe-reboot-instances.1.gz \
-        share/man/econe-register.1.gz \
-        share/man/econe-release-address.1.gz \
-        share/man/econe-run-instances.1.gz \
-        share/man/econe-start-instances.1.gz \
-        share/man/econe-stop-instances.1.gz \
-        share/man/econe-terminate-instances.1.gz \
-        share/man/econe-upload.1.gz"
+        share/man/onevntemplate.1.gz"
 
 #-----------------------------------------------------------------------------
 # Docs Files

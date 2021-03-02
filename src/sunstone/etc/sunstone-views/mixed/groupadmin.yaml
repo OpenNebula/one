@@ -96,11 +96,11 @@ features:
     deploy_enforce: false
 
     migrate_enforce: false
-    
+
     # True to show the network configuration to instantiate Service template
     show_vnet_instantiate_flow: true
 
-    # True to show schedule actions section to instantiate VM 
+    # True to show schedule actions section to instantiate VM
     show_sched_actions_instantiate: true
 
     # True to show boot order section to instantiate VM
@@ -280,7 +280,7 @@ tabs:
             context: true
             actions: true
             scheduling: true
-            hybrid: true
+            hybrid: false
             vmgroup: true
             other: true
             numa: true
@@ -348,7 +348,7 @@ tabs:
             input_output: true
             context: true
             scheduling: true
-            hybrid: true
+            hybrid: false
             other: true
     instances-top-tab:
         panel_tabs:

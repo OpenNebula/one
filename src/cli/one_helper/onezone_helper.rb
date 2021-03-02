@@ -38,8 +38,6 @@ class Replicator
           :service => 'opennebula' },
         { :name    => 'monitord.conf',
           :service => 'opennebula' },
-        { :name    => 'econe.conf',
-          :service => 'opennebula-econe' },
         { :name    => 'oneflow-server.conf',
           :service => 'opennebula-flow' },
         { :name    => 'onegate-server.conf',
@@ -57,7 +55,6 @@ class Replicator
     FOLDERS = [
         { :name => 'sunstone-views', :service => 'opennebula-sunstone' },
         { :name => 'auth', :service => 'opennebula' },
-        { :name => 'ec2query_templates', :service => 'opennebula' },
         { :name => 'hm', :service => 'opennebula' },
         { :name => 'sunstone-views', :service => 'opennebula' },
         { :name => 'vmm_exec', :service => 'opennebula' }
@@ -99,8 +96,7 @@ class Replicator
         @opennebula_services = { 'opennebula'          => false,
                                  'opennebula-sunstone' => false,
                                  'opennebula-gate'     => false,
-                                 'opennebula-flow'     => false,
-                                 'opennebula-econe'    => false }
+                                 'opennebula-flow'     => false }
     end
 
     # Process files and folders

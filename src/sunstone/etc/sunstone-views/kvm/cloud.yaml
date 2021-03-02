@@ -38,11 +38,11 @@ features:
     show_attach_disk_advanced: true
 
     show_attach_nic_advanced: true
-    
+
     # True to show the network configuration to instantiate Service template
     show_vnet_instantiate_flow: true
 
-    # True to show schedule actions section to instantiate VM 
+    # True to show schedule actions section to instantiate VM
     show_sched_actions_instantiate: true
 
     # True to show boot order section to instantiate VM

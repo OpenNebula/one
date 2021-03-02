@@ -110,7 +110,6 @@ end
 
 group :cloud do
     gem 'thin'
-    gem 'amazon-ec2'
     gem 'uuidtools'
     gem 'curb'
 end
