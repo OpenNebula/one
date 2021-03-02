@@ -54,14 +54,12 @@ const basename = defaultAppName ? `/${defaultAppName}` : ''
 
 let frontPath = 'client'
 
-const isDevelopment = () => process.env.NODE_ENV === 'development'
-
 // settings
 const appConfig = getConfig()
 const port = appConfig.port || defaultPort
 const userLog = appConfig.log || 'dev'
 
-if (isDevelopment()) {
+if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
   try {
     const webpackConfig = require('../../webpack.config.dev.client')
     const compiler = webpack(webpackConfig)
