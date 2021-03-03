@@ -18,8 +18,6 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  var Notifier = require("utils/notifier");
-//  require('foundation.tab');
   var BaseFormPanel = require("utils/form-panels/form-panel");
   var Sunstone = require("sunstone");
   var OpenNebulaAction = require("opennebula/action");
@@ -178,8 +176,12 @@ define(function(require) {
       { value: "reserve_from", text: "Reserve", select: "networks", extra: true },
       { value: "id", text: "Existing", select: "networks", extra: false },
     ];
+
+    // reset global variables on form
     this.roleTabObjects = {};
-    this.numberOfNetworks = 0;
+    var numberOfNetworks = 0;
+    var roles_index = 0;
+
     var that = this;
 
     //this render a schedule action form
@@ -200,8 +202,8 @@ define(function(require) {
 
     $(".add_service_network", context).unbind("click");
     $(".add_service_network", context).bind("click", function() {
-      var nic_index = that.numberOfNetworks;
-      that.numberOfNetworks++;
+      var nic_index = numberOfNetworks;
+      numberOfNetworks++;
 
 
       $(".service_networks tbody").append(
@@ -290,11 +292,10 @@ define(function(require) {
         $(".service_network_type", "tr#network"+nic_index).val(that.networksType[0].value).change();
     });
 
-    that.roles_index = 0;
     //$("#tf_btn_roles", context).unbind("click");
     $("#tf_btn_roles", context).bind("click", function(){
-      that.addRoleTab(that.roles_index, context);
-      that.roles_index++;
+      that.addRoleTab(roles_index, context);
+      roles_index++;
     });
 
     // Fill parents table
@@ -341,6 +342,10 @@ define(function(require) {
 
     Tips.setup(context);
     UserInputs.setup(context);
+
+    // Add first role
+    $("#tf_btn_roles", context).click();
+
     return false;
   }
 
@@ -393,7 +398,6 @@ define(function(require) {
     if(scheduleActions){
       post = false;
       roles = roles.map(role => {
-        var data = "";
         if(role.vm_template_contents){
           var template_contents = TemplateUtils.stringToTemplate(role.vm_template_contents);
           var new_vm_template_contents = "";
@@ -475,11 +479,6 @@ define(function(require) {
       var role_id = $(this).attr("role_id");
       that.roleTabObjects[role_id].onShow();
     });
-
-    // Remove role tabs
-    $("#roles_tabs i.remove-tab", context).trigger("click");
-    // Add first role
-    $("#tf_btn_roles", context).click();
   }
 
   function _fill(context, element) {
@@ -580,8 +579,6 @@ define(function(require) {
 
       that.roleTabObjects[role_id].fill(role_context, value, network_names);
     });
-
-    //_redo_service_networks_selector(context, that);
 
     $.each(element.TEMPLATE.BODY.roles, function(index, value){
         var role_context = $(".role_content", context)[index];

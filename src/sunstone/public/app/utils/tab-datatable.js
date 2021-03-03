@@ -1239,6 +1239,7 @@ define(function(require) {
     var pool_filter = SunstoneConfig.isChangedFilter()? -4 : -2;
     if (that.selectOptions.zone_id == undefined) {
       OpenNebula[that.resource].list({
+        options: { force: that.conf.force_refresh || false },
         data : {pool_filter : pool_filter},
         timeout: true,
         success: success_func,
@@ -1246,6 +1247,7 @@ define(function(require) {
       });
     } else {
       OpenNebula[that.resource].list_in_zone({
+        options: { force: that.conf.force_refresh || false },
         data: {zone_id: that.selectOptions.zone_id, pool_filter : pool_filter},
         timeout: true,
         success: success_func,

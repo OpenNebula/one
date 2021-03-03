@@ -16,7 +16,6 @@
 
 define(function(require) {
   // Dependencies
-  var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var TemplatesTable = require('tabs/templates-tab/datatable');
   var TemplateUtils = require('utils/template-utils');
@@ -50,7 +49,8 @@ define(function(require) {
   function _role_tab_content(){
     var opts = {
       info: false,
-      select: true
+      select: true,
+      force_refresh: true
     };
 
     this.templatesTable = new TemplatesTable("roleTabTemplates"+this.html_role_id, opts);

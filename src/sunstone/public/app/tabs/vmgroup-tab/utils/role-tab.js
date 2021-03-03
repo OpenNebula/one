@@ -46,10 +46,6 @@ define(function(require) {
   return RoleTab;
 
   function _role_tab_content(){
-    var opts = {
-      info: false,
-      select: true
-    };
     var optsTable = {
       info: false,
       select: true,
@@ -129,7 +125,6 @@ define(function(require) {
       }
       $(".btn_group_host_vm_roles").on("click", "i.remove_host_affinity", function() {
         var affinity = $(this.parentElement.parentElement).attr('typeAffinity');
-        var value = $(this.parentElement).attr('value');
         $(this.parentElement.parentElement).remove();
         var index = -1;
         if(affinity == "AFFINED"){
