@@ -180,6 +180,10 @@ module OneProvision
             info = info.split("\n")
             info.map! {|ip| ip.split('=')[1] }
 
+            # rubocop:disable Style/StringLiterals
+            info.map! {|val| val.gsub("\"", '') }
+            # rubocop:enable Style/StringLiterals
+
             # From 0 to (size / 2) - 1 -> deploy IDS
             # From (size / 2) until the end -> IPs
             ids = info[0..(info.size / 2) - 1]
