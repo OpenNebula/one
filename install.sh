@@ -320,6 +320,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/datastore/fs \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/etc/im/qemu-probes.d \
           $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
           $VAR_LOCATION/remotes/etc/im/firecracker-probes.d \
           $VAR_LOCATION/remotes/etc/market/http \
@@ -581,13 +582,13 @@ INSTALL_FILES=(
     IM_PROBES_KVM_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/status
     IM_PROBES_KVM_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot
     IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
-    IM_PROBES_QEMU_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
-    IM_PROBES_QEMU_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor
-    IM_PROBES_QEMU_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
-    IM_PROBES_QEMU_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor
-    IM_PROBES_QEMU_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/status
-    IM_PROBES_QEMU_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot
-    IM_PROBES_ETC_QEMU_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
+    IM_PROBES_QEMU_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/host/beacon
+    IM_PROBES_QEMU_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/host/monitor
+    IM_PROBES_QEMU_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/host/system
+    IM_PROBES_QEMU_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/vm/monitor
+    IM_PROBES_QEMU_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/vm/status
+    IM_PROBES_QEMU_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/vm/snapshot
+    IM_PROBES_ETC_QEMU_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/qemu-probes.d
     IM_PROBES_DUMMY_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon
     IM_PROBES_DUMMY_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/monitor
     IM_PROBES_DUMMY_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/system

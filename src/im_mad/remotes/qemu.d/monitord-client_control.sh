@@ -1,1 +1,0 @@
-../common.d/monitord-client_control.sh

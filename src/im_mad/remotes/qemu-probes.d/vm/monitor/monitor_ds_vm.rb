@@ -1,1 +1,0 @@
-../../../node-probes.d/monitor_ds_vm.rb

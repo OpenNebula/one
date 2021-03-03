@@ -1,1 +1,0 @@
-../../../node-probes.d/cpu.sh
