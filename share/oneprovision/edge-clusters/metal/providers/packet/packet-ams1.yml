@@ -1,0 +1,24 @@
+name: 'packet-amsterdam'
+
+description: 'Edge cluster in Equinix Amsterdam'
+provider: 'packet'
+
+plain:
+  image: 'EQUINIX'
+  location_key: 'facility'
+  provision_type: 'metal'
+
+connection:
+  token: 'Packet token'
+  project: 'Packet project'
+  facility: 'ams1'
+
+inputs:
+   - name: 'packet_os'
+     type: 'list'
+     options:
+       - 'centos_8'
+   - name: 'packet_plan'
+     type: 'list'
+     options:
+       - 'baremetal_0'

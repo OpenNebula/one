@@ -1,0 +1,27 @@
+name: 'aws-north-virginia'
+
+description: 'Edge cluster in AWS North Virginia'
+provider: 'aws'
+
+plain:
+  image: 'AWS'
+  location_key: 'region'
+  provision_type: 'metal'
+
+connection:
+  access_key: 'AWS access key'
+  secret_key: 'AWS secret key'
+  region: 'us-east-1'
+
+inputs:
+   - name: 'aws_ami_image'
+     type: 'list'
+     options:
+       - 'ami-0d6e9a57f6259ba3a'
+   - name: 'aws_instance_type'
+     type: 'list'
+     options:
+       - 'c5.metal'
+       - 'i3.metal'
+       - 'm5.metal'
+       - 'r5.metal'

@@ -337,6 +337,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot \
+          $VAR_LOCATION/remotes/im/qemu.d \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/dummy.d \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/monitor \
@@ -558,6 +565,7 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
+    IM_PROBES_QEMU_FILES:$VAR_LOCATION/remotes/im/qemu.d
     IM_PROBES_FIRECRACKER_FILES:$VAR_LOCATION/remotes/im/firecracker.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
@@ -573,6 +581,13 @@ INSTALL_FILES=(
     IM_PROBES_KVM_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/status
     IM_PROBES_KVM_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot
     IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
+    IM_PROBES_QEMU_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
+    IM_PROBES_QEMU_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/monitor
+    IM_PROBES_QEMU_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/system
+    IM_PROBES_QEMU_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor
+    IM_PROBES_QEMU_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/status
+    IM_PROBES_QEMU_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot
+    IM_PROBES_ETC_QEMU_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
     IM_PROBES_DUMMY_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon
     IM_PROBES_DUMMY_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/monitor
     IM_PROBES_DUMMY_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/system
@@ -1312,6 +1327,44 @@ IM_PROBES_KVM_VM_SNAPSHOT_FILES="\
 
 IM_PROBES_ETC_KVM_PROBES_FILES="\
     src/im_mad/remotes/kvm-probes.d/pci.conf \
+    src/im_mad/remotes/lib/probe_db.conf"
+
+IM_PROBES_QEMU_FILES="\
+    src/im_mad/remotes/qemu.d/monitord-client_control.sh \
+    src/im_mad/remotes/qemu.d/monitord-client.rb"
+
+IM_PROBES_QEMU_HOST_BEACON_FILES="\
+     src/im_mad/remotes/qemu-probes.d/host/beacon/monitord-client-shepherd.sh \
+     src/im_mad/remotes/qemu-probes.d/host/beacon/date.sh"
+
+IM_PROBES_QEMU_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/qemu-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/qemu-probes.d/host/monitor/numa_usage.rb"
+
+IM_PROBES_QEMU_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/qemu-probes.d/host/system/architecture.sh \
+     src/im_mad/remotes/qemu-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/qemu-probes.d/host/system/linux_host.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/machines_models.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/monitor_ds.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/name.sh \
+     src/im_mad/remotes/qemu-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/wild_vm.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/pci.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/version.sh"
+
+IM_PROBES_QEMU_VM_MONITOR_FILES="\
+     src/im_mad/remotes/qemu-probes.d/vm/monitor/poll.rb \
+     src/im_mad/remotes/qemu-probes.d/vm/monitor/monitor_ds_vm.rb"
+
+IM_PROBES_QEMU_VM_STATUS_FILES="\
+     src/im_mad/remotes/qemu-probes.d/vm/status/state.rb"
+
+IM_PROBES_QEMU_VM_SNAPSHOT_FILES="\
+     src/im_mad/remotes/qemu-probes.d/vm/snapshot/recovery.rb"
+
+IM_PROBES_ETC_QEMU_PROBES_FILES="\
+    src/im_mad/remotes/qemu-probes.d/pci.conf \
     src/im_mad/remotes/lib/probe_db.conf"
 
 # DUMMY PROBES
@@ -2277,7 +2330,7 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/provisions/"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"
