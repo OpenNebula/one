@@ -64,27 +64,6 @@ module OneProvision
 
         protected
 
-        # Wait until object reaches state
-        #
-        # @param state   [String]  State to wait
-        # @param timeout [Integer] Timeout to wait
-        def wait_state(state, timeout)
-            t_start   = Time.now
-            timeout ||= DEFAULT_TIMEOUT
-
-            OneProvisionLogger.debug(
-                "Waiting #{@type} #{@one.id} to be #{state}"
-            )
-
-            while Time.now - t_start < timeout
-                @one.info
-
-                break if @one.state_str == state
-
-                sleep 1
-            end
-        end
-
         # Check wait mode
         #
         # @param wait [Boolean] Wait mode

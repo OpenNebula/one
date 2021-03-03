@@ -29,7 +29,6 @@ class ServiceWD
     LOG_COMP = 'WD'
 
     DEFAULT_CONF = {
-        :subscriber_endpoint  => 'tcp://localhost:2101',
         :concurrency => 10,
         :cloud_auth  => nil
     }
@@ -48,10 +47,11 @@ class ServiceWD
     def initialize(options)
         @conf = DEFAULT_CONF.merge(options)
 
-        @lcm          = options[:lcm]
-        @context      = ZMQ::Context.new(1)
-        @cloud_auth   = @conf[:cloud_auth]
-        @wait_timeout = @cloud_auth.conf[:wait_timeout]
+        @lcm                 = options[:lcm]
+        @context             = ZMQ::Context.new(1)
+        @cloud_auth          = @conf[:cloud_auth]
+        @wait_timeout        = @cloud_auth.conf[:wait_timeout]
+        @subscriber_endpoint = @cloud_auth.conf[:subscriber_endpoint]
 
         # Array of running services to watch
         @mutex    = Mutex.new
@@ -169,7 +169,7 @@ class ServiceWD
 
         # Set timeout (TODO add option for customize timeout)
         subscriber.setsockopt(ZMQ::RCVTIMEO, @wait_timeout * 10**3)
-        subscriber.connect(@conf[:subscriber_endpoint])
+        subscriber.connect(@subscriber_endpoint)
 
         subscriber
     end

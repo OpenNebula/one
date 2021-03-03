@@ -127,7 +127,7 @@ module OpenNebula::WaitExt
 
                 subscriber.setsockopt(ZMQ::RCVTIMEO, timeout * 1000)
                 subscriber.setsockopt(ZMQ::SUBSCRIBE, event)
-                subscriber.connect('tcp://localhost:2101')
+                subscriber.connect(@client.one_zmq)
 
                 rc = subscriber.recv_string(key)
                 rc = subscriber.recv_string(content) if rc != -1

@@ -117,7 +117,7 @@ module OneProvision
 
             return ret unless wait
 
-            @image.wait_state('READY', timeout)
+            @image.ready?
 
             ret
         end

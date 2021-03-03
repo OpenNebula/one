@@ -71,27 +71,22 @@ module OneProvision
             @one.info
         end
 
-        private
-
-        # Create new object
-        def new_object
-            @one = OpenNebula::Image.new(OpenNebula::Image.build_xml, @client)
-        end
-
         # Wait until the image is ready, retry if fail
         #
         # @return [Integer] Resource ID
         def ready?
+            OneProvisionLogger.debug(
+                "Waiting #{@type} #{@one.id} to be READY"
+            )
+
             Driver.retry_loop 'Fail to create image' do
-                wait_state('READY', @p_template['timeout'])
+                @one.wait_state('READY',
+                                (@p_template && @p_template['timeout']) || 60)
 
                 # check state after existing wait loop
                 @one.info
 
                 case @one.state_str
-                when 'LOCKED'
-                    # if locked, keep waiting
-                    ready?
                 when 'ERROR'
                     # if error, delete the image and try to create it again
                     raise OneProvisionLoopException
@@ -100,6 +95,13 @@ module OneProvision
                     Integer(@one.id)
                 end
             end
+        end
+
+        private
+
+        # Create new object
+        def new_object
+            @one = OpenNebula::Image.new(OpenNebula::Image.build_xml, @client)
         end
 
     end
