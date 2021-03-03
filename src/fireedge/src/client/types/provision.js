@@ -30,8 +30,9 @@ export const UserInput = PropTypes.shape({
 export const ProviderType = PropTypes.oneOf(['aws', 'packet'])
 
 export const ProvisionType = PropTypes.oneOf([
-  'metal',
-  'virtual'
+  'hybrid+',
+  'hybrid+_qemu',
+  'hybrid+_firecracker'
 ])
 
 export const ProvisionHost = PropTypes.shape({

@@ -187,7 +187,7 @@ const genPathResources = () => {
       global.ETC_CPI = `${ETC_LOCATION}/${defaultAppName}`
     }
     if (!global.SHARE_CPI) {
-      global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision/edge-clusters`
+      global.SHARE_CPI = `${SHARE_LOCATION}/oneprovision/provisions`
     }
   }
 }
