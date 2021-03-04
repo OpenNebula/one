@@ -36,7 +36,6 @@ enabled_tabs:
     #- vdcs-tab
     #- acls-tab
     - settings-tab
-    #- support-tab
     - vmgroup-tab
 features:
     # True to show showback monthly reports, and VM cost
@@ -892,18 +891,6 @@ tabs:
             SecurityGroup.delete: false
             SecurityGroup.edit_labels: true
             SecurityGroup.menu_labels: true
-    support-tab:
-        panel_tabs:
-            support_info_tab: true
-        table_columns:
-            #- 0        # Checkbox
-            - 1         # ID
-            - 2         # Subject
-            - 3         # Created at
-            - 4         # Status
-        actions:
-            Support.refresh: true
-            Support.create_dialog: true
     settings-tab:
         panel_tabs:
             settings_info_tab: true

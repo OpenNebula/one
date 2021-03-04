@@ -135,9 +135,6 @@ define(function(require) {
     $.each(Config.allTabs(), function(i, tabName){
       _addAction(i, tabName);
     });
-
-    //add actions official support
-    _addAction(null, "official-support-tab");
   };
 
   var _addDialogs = function(dialogs) {
@@ -190,30 +187,6 @@ define(function(require) {
         });
       }
     }
-    var support_tab = "support-tab";
-    var official_support_tab = "official-support-tab";
-    if(SunstoneCfg &&
-      SunstoneCfg.tabs &&
-      !SunstoneCfg.tabs[support_tab]
-    ){
-      SunstoneCfg.tabs[support_tab] = {
-        actions: {
-          "Support.create_dialog": true,
-          "Support.refresh": true
-        },
-        panels_tabs:{
-          "support_info_tab": true
-        },
-        table_columns: [1,2,3,4]
-      };
-      _addMainTab(support_tab);
-      _insertTab(support_tab);
-      _setupDataTable(support_tab);
-    }
-
-    //Separate the logic be supported with the banner
-    _addMainTab(official_support_tab);
-    _insertTab(official_support_tab);
 
     _setupTabs();
   };
@@ -262,14 +235,13 @@ define(function(require) {
       } else {
         liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
         $("div#menu ul#navigation").append(liItem);
-        if(config && config.user_config){
-          if(tabName === "support-tab" && config.user_config.default_view === "cloud"){
-            _addAction(null, "official-support-tab");
+        if (config && config.user_config && tabName === "support-tab") {
+          if (config.user_config.default_view === "cloud") {
             $(".sunstone-header").addClass("support_place").append(title);
-            $("#support-tab").remove();
           }
-          if(config.user_config.default_view !== "admin"){
-            $("#support-tab").remove();
+
+          if (config.user_config.default_view !== "admin") {
+            $("#support-tab, #official-support-tab").remove();
           }
         }
       }

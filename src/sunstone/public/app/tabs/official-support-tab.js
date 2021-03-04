@@ -16,10 +16,7 @@
 
 define(function(require) {
   var Actions = require("./official-support-tab/actions");
-  var Notifier = require("utils/notifier");
   var SupportUtils = require("./official-support-tab/utils/common");
-  var Sunstone = require("sunstone");
-  var Locale = require("utils/locale");
   var TAB_ID = require("./official-support-tab/tabId");
 
   var Tab = {
@@ -31,7 +28,7 @@ define(function(require) {
 
   return Tab;
 
-  function _setup(context) {
+  function _setup() {
     SupportUtils.checkValidateOfficialSupport();
     SupportUtils.checkLastVersionSupport();
     $(".support_not_connected > button").on("click", function(e){

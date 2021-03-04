@@ -23,8 +23,6 @@ define(function(require) {
 
   var TAB_ID = require("../../support-tab/tabId");
 
-  var support_interval_function;
-
   function _show_support_connect() {
     $(".support_info").hide();
     $("#"+Sunstone.getDataTable(TAB_ID).dataTableId+"Container", "#"+TAB_ID).hide();

@@ -18,10 +18,24 @@ define(function(require) {
   require("jquery");
   // Clone the local config object in a private var
   var _config = $.extend(true, {}, config);
+
+  var inmutableTabs = ['official-support-tab', 'support-tab']
+
+  function enabledTabs () {
+    return _config["view"]["enabled_tabs"].concat(inmutableTabs)
+  }
+
+  function allTabs () {
+    return Object.keys(_config["view"]["tabs"]).concat(inmutableTabs)
+  }
+
+  function isInmutableTab (tabName) {
+    return inmutableTabs.indexOf(tabName) !== -1
+  }
+
   var Config = {
     "isTabEnabled": function(tabName) {
-      var enabled = _config["view"]["enabled_tabs"].indexOf(tabName) != -1;
-      return enabled;
+      return enabledTabs().indexOf(tabName) !== -1
     },
 
     "changeFilter": function(bool) {
@@ -33,6 +47,9 @@ define(function(require) {
     },
 
     "isTabActionEnabled": function(tabName, actionName, panelName) {
+      // exception with inmutable tabs
+      if (isInmutableTab(tabName)) { return true }
+
       var enabled = false;
       var configTab = _config["view"]["tabs"][tabName];
 
@@ -48,6 +65,9 @@ define(function(require) {
     },
 
     "isTabPanelEnabled": function(tabName, panelTabName) {
+      // exception with inmutable tabs
+      if (isInmutableTab(tabName)) { return true }
+
       if (_config["view"]["tabs"][tabName]) {
         var enabled = _config["view"]["tabs"][tabName]["panel_tabs"][panelTabName];
         return enabled;
@@ -163,16 +183,14 @@ define(function(require) {
     "link_logo": (_config["view"]["link_logo"] || false),
     "text_link_logo": (_config["view"]["text_link_logo"] || false),
     "vmLogos": (_config["vm_logos"]),
-    "enabledTabs": _config["view"]["enabled_tabs"],
+    "enabledTabs": enabledTabs(),
     "onedConf": _config["oned_conf"],
     "confirmVMActions": _config["view"]["confirm_vms"],
     "scaleFactor": _config["view"]["features"]["instantiate_cpu_factor"],
     "filterView": _config["view"]["filter-view"],
     "doCountAnimation": _config["view"]["do_count_animation"],
 
-    "allTabs": function() {
-      return Object.keys(_config["view"]["tabs"]);
-    },
+    "allTabs": allTabs,
     "thresholds":{
       "min":_config["user_config"]["threshold_min"],
       "low":_config["user_config"]["threshold_low"],

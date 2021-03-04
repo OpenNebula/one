@@ -89,6 +89,7 @@ define(function(require) {
           url: "support/credentials",
           type: "POST",
           data: JSON.stringify(data),
+          contentType: false,
           success: function(){
             $(".submit_support_credentials_button", context).removeAttr("disabled");
             $(".submit_support_credentials_button", context).html(Locale.tr("Sign in"));
