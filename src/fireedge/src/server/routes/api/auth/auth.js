@@ -59,16 +59,14 @@ const auth = (req, res, next, connect) => {
         (req &&
           from.postBody &&
           req[from.postBody] &&
-          req[from.postBody].user &&
-          req[from.postBody].user.toLowerCase()) ||
+          req[from.postBody].user) ||
           ''
       )
       setPass(
         (req &&
           from.postBody &&
           req[from.postBody] &&
-          req[from.postBody].token &&
-          req[from.postBody].token.toLowerCase()) ||
+          req[from.postBody].token) ||
           ''
       )
       setType(
