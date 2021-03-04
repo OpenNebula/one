@@ -18,6 +18,7 @@ import https from 'https'
 import {
   defaultAppName,
   defaultTypeLog,
+  defaultHost,
   defaultPort,
   defaultWebpackMode,
   defaultApps
@@ -56,6 +57,7 @@ let frontPath = 'client'
 
 // settings
 const appConfig = getConfig()
+const host = appConfig.host || defaultHost
 const port = appConfig.port || defaultPort
 const userLog = appConfig.log || 'dev'
 
@@ -152,12 +154,12 @@ let config = {
   message: 'Server no start'
 }
 
-appServer.listen(port, '0.0.0.0', err => {
+appServer.listen(port, host, err => {
   if (!err) {
     config = {
       color: 'green',
-      type: port,
-      message: 'Server listen in port %s'
+      type: `${host}:${port}`,
+      message: 'Server listen in %s'
     }
   }
   messageTerminal(config)

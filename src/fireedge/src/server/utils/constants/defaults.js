@@ -106,6 +106,7 @@ const defaults = {
   defaultMethodUserInfo: 'user.info',
   defaultIP: defaultIp,
   defaultProtocolHotReload: 'http',
+  defaultHost: '0.0.0.0',
   defaultPort: 2616,
   availableLanguages: {
     bg_BG: 'Bulgarian (Bulgaria)',
