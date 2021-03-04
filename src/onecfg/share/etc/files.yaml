@@ -236,6 +236,18 @@
   group: oneadmin
   mode: '0640'
 
+- name: /var/lib/one/remotes/etc/im/qemu-probes.d/pci.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/im/qemu-probes.d/probe_db.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
 - name: /var/lib/one/remotes/etc/im/lxd-probes.d/pci.conf
   class: Yaml
   owner: oneadmin
