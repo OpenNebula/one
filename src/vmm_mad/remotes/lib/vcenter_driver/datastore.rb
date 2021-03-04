@@ -653,8 +653,8 @@ module VCenterDriver
 
             wout.close
             size = rout.readlines.select do |l|
-                l.start_with?('Content-Length')
-            end[0].sub('Content-Length: ', '')
+                l.downcase.start_with?('content-length')
+            end[0].downcase.sub('content-length: ', '')
             rout.close
             size.chomp.to_i < 4096 # If <4k, then is a descriptor
         end
