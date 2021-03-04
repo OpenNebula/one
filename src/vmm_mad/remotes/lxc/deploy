@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,38 +14,41 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-# -------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
-# Utilities for LXD based marketplaces
-module LXDMarket
+$LOAD_PATH.unshift File.dirname(__FILE__)
 
-    class << self
+require 'container'
 
-        # TODO: Make configurable
-        def template
-            unindent(<<-EOS)
-        SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
-        CPU = \"1\"
-        MEMORY = \"768\"
-        LXD_SECURITY_PRIVILEGED = \"true\"
-        GRAPHICS = [
-            LISTEN  =\"0.0.0.0\",
-            TYPE  =\"vnc\"
-        ]
-        CONTEXT = [
-            NETWORK  =\"YES\",
-            SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
-            SET_HOSTNAME  =\"$NAME\"
-        ]"
-            EOS
-        end
+vm_id = ARGV[2]
 
-        def unindent(str)
-            m = str.match(/^(\s*)/)
-            spaces = m[1].size
-            str.gsub!(/^ {#{spaces}}/, '')
-        end
+xml = STDIN.read
 
-    end
+client    = LXCClient.new
+container = Container.new_from_xml(xml, client)
 
+# Clean before starting the container
+container.clean(true)
+
+# Create the LXC container (lxc-create)
+rc = container.create
+
+if !rc
+    STDERR.puts 'There was an error creating the containter. Check oned.log.'
+    exit(-1)
 end
+
+# Start the LXC container (lxc-start). It will wait for the container to be
+# RUNNING or fails if timeout is reached.
+rc = container.start
+
+if !rc
+    STDERR.puts 'There was an error starting the containter. Check oned.log.'
+    exit(-1)
+end
+
+# Start VNC (only started if necessary)
+container.vnc('start')
+
+# Set deploy_id
+puts "one-#{vm_id}"

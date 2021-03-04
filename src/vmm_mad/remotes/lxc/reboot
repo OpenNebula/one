@@ -14,38 +14,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-# -------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
-# Utilities for LXD based marketplaces
-module LXDMarket
+$LOAD_PATH.unshift File.dirname(__FILE__)
 
-    class << self
+require 'container'
 
-        # TODO: Make configurable
-        def template
-            unindent(<<-EOS)
-        SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
-        CPU = \"1\"
-        MEMORY = \"768\"
-        LXD_SECURITY_PRIVILEGED = \"true\"
-        GRAPHICS = [
-            LISTEN  =\"0.0.0.0\",
-            TYPE  =\"vnc\"
-        ]
-        CONTEXT = [
-            NETWORK  =\"YES\",
-            SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
-            SET_HOSTNAME  =\"$NAME\"
-        ]"
-            EOS
-        end
+require_relative '../../scripts_common'
 
-        def unindent(str)
-            m = str.match(/^(\s*)/)
-            spaces = m[1].size
-            str.gsub!(/^ {#{spaces}}/, '')
-        end
+xml = STDIN.read # VMM_DRIVER_ACTION_DATA
 
-    end
+client    = LXCClient.new
+container = Container.new_from_xml(xml, client)
 
-end
+# Stop VNC before reboot
+container.vnc('stop')
+
+exit(-1) unless container.reboot
+
+# Restart VNC
+container.vnc('start')
+
+exit 0

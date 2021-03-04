@@ -37,9 +37,6 @@ microvm = MicroVM.new_from_xml(xml, nil)
 # Clean in case the microVM was shutdown from inside
 microvm.clean
 
-microvm.gen_deployment_file
-microvm.gen_logs_files
-
 # Create microVM
 rc = microvm.create
 

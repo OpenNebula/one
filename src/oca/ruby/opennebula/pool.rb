@@ -322,5 +322,7 @@ module OpenNebula
         def is_paginated?
             PAGINATED_POOLS.include?(@pool_name)
         end
+
     end
+
 end

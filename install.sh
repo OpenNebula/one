@@ -322,10 +322,12 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
           $VAR_LOCATION/remotes/etc/im/qemu-probes.d \
           $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
+          $VAR_LOCATION/remotes/etc/im/lxc-probes.d \
           $VAR_LOCATION/remotes/etc/im/firecracker-probes.d \
           $VAR_LOCATION/remotes/etc/market/http \
           $VAR_LOCATION/remotes/etc/vmm/kvm \
           $VAR_LOCATION/remotes/etc/vmm/lxd \
+          $VAR_LOCATION/remotes/etc/vmm/lxc \
           $VAR_LOCATION/remotes/etc/vmm/firecracker \
           $VAR_LOCATION/remotes/etc/vmm/vcenter \
           $VAR_LOCATION/remotes/etc/vnm \
@@ -359,6 +361,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/snapshot \
+          $VAR_LOCATION/remotes/im/lxc.d \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/firecracker.d \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor \
@@ -403,6 +412,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vmm/one \
           $VAR_LOCATION/remotes/vmm/lxd \
+          $VAR_LOCATION/remotes/vmm/lxc \
           $VAR_LOCATION/remotes/vmm/packet \
           $VAR_LOCATION/remotes/vmm/firecracker \
           $VAR_LOCATION/remotes/vnm \
@@ -570,6 +580,7 @@ INSTALL_FILES=(
     IM_PROBES_FIRECRACKER_FILES:$VAR_LOCATION/remotes/im/firecracker.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
+    IM_PROBES_LXC_FILES:$VAR_LOCATION/remotes/im/lxc.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
@@ -601,6 +612,13 @@ INSTALL_FILES=(
     IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
     IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
     IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
+    IM_PROBES_LXC_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon
+    IM_PROBES_LXC_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/monitor
+    IM_PROBES_LXC_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/system
+    IM_PROBES_LXC_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/vm/monitor
+    IM_PROBES_LXC_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/vm/status
+    IM_PROBES_LXC_PROBES_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d
+    IM_PROBES_ETC_LXC_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxc-probes.d
     IM_PROBES_AZ_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/beacon
     IM_PROBES_AZ_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/monitor
     IM_PROBES_AZ_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/system
@@ -641,10 +659,13 @@ INSTALL_FILES=(
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
+    VMM_EXEC_LXC_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxc
+    VMM_EXEC_LXC_LIB:$VAR_LOCATION/remotes/vmm/lxc
     VMM_EXEC_FIRECRACKER_SCRIPTS:$VAR_LOCATION/remotes/vmm/firecracker
     VMM_EXEC_FIRECRACKER_LIB:$VAR_LOCATION/remotes/vmm/firecracker
     VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
     VMM_EXEC_ETC_LXD_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxd
+    VMM_EXEC_ETC_LXC_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxc
     VMM_EXEC_ETC_FIRECRACKER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/firecracker
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_ETC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/vcenter
@@ -1016,7 +1037,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
 #-------------------------------------------------------------------------------
 # Common library files for VMM drivers
 #-------------------------------------------------------------------------------
-VMM_EXEC_LIB="src/vmm_mad/remotes/lib/command.rb"
+VMM_EXEC_LIB="src/vmm_mad/remotes/lib/command.rb \
+              src/vmm_mad/remotes/lib/xmlparser.rb \
+              src/vmm_mad/remotes/lib/opennebula_vm.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib vcenter files, used by the vCenter Driver to be installed in
@@ -1103,6 +1126,41 @@ VMM_EXEC_LXD_LIB="src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb \
                 src/vmm_mad/remotes/lib/lxd/container.rb"
 
 #-------------------------------------------------------------------------------
+# VMM SH Driver LXC scripts, to be installed under $REMOTES_LOCATION/vmm/lxc
+#-------------------------------------------------------------------------------
+VMM_EXEC_LXC_SCRIPTS="
+                    src/vmm_mad/remotes/lxc/attach_disk \
+                    src/vmm_mad/remotes/lxc/deploy \
+                    src/vmm_mad/remotes/lxc/prereconfigure \
+                    src/vmm_mad/remotes/lxc/reset \
+                    src/vmm_mad/remotes/lxc/restore \
+                    src/vmm_mad/remotes/lxc/snapshot_create \
+                    src/vmm_mad/remotes/lxc/attach_nic \
+                    src/vmm_mad/remotes/lxc/detach_disk \
+                    src/vmm_mad/remotes/lxc/migrate \
+                    src/vmm_mad/remotes/lxc/reboot \
+                    src/vmm_mad/remotes/lxc/resize \
+                    src/vmm_mad/remotes/lxc/save \
+                    src/vmm_mad/remotes/lxc/snapshot_delete \
+                    src/vmm_mad/remotes/lxc/cancel \
+                    src/vmm_mad/remotes/lxc/detach_nic \
+                    src/vmm_mad/remotes/lxc/migrate_local \
+                    src/vmm_mad/remotes/lxc/reconfigure \
+                    src/vmm_mad/remotes/lxc/resize_disk \
+                    src/vmm_mad/remotes/lxc/shutdown \
+                    src/vmm_mad/remotes/lxc/snapshot_revert"
+
+
+VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
+                src/vmm_mad/remotes/lib/lxc/client.rb \
+                src/vmm_mad/remotes/lib/lxc/command.rb \
+                src/vmm_mad/remotes/lib/lxc/container.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/qcow2.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/raw.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/rbd.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/storageutils.rb"
+
+#-------------------------------------------------------------------------------
 # VMM SH Driver Firecracker scripts, to be installed under $REMOTES_LOCATION/vmm/firecracker
 #-------------------------------------------------------------------------------
 VMM_EXEC_FIRECRACKER_SCRIPTS="src/vmm_mad/remotes/firecracker/deploy \
@@ -1119,6 +1177,12 @@ VMM_EXEC_FIRECRACKER_LIB="src/vmm_mad/remotes/lib/firecracker/opennebula_vm.rb \
 #-------------------------------------------------------------------------------
 
 VMM_EXEC_ETC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/lxdrc"
+
+#-------------------------------------------------------------------------------
+# VMM configuration LXD scripts, to be installed under $REMOTES_LOCATION/etc/vmm/lxd
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_ETC_LXC_SCRIPTS="src/vmm_mad/remotes/lxc/lxcrc"
 
 #-------------------------------------------------------------------------------
 # VMM configuration Firecracker scripts, to be installed under $REMOTES_LOCATION/etc/vmm/firecracker
@@ -1280,6 +1344,7 @@ IM_PROBES_FILES="\
 IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/kvm.rb \
     src/im_mad/remotes/lib/lxd.rb \
+    src/im_mad/remotes/lib/lxc.rb \
     src/im_mad/remotes/lib/linux.rb \
     src/im_mad/remotes/lib/firecracker.rb\
     src/im_mad/remotes/lib/numa_common.rb \
@@ -1422,6 +1487,38 @@ IM_PROBES_LXD_VM_STATUS_FILES="\
 
 IM_PROBES_ETC_LXD_PROBES_FILES="\
     src/im_mad/remotes/lxd-probes.d/pci.conf \
+    src/im_mad/remotes/lib/probe_db.conf"
+
+# LXC PROBES
+IM_PROBES_LXC_FILES="\
+    src/im_mad/remotes/lxc.d/monitord-client_control.sh \
+    src/im_mad/remotes/lxc.d/monitord-client.rb"
+
+IM_PROBES_LXC_HOST_BEACON_FILES="\
+     src/im_mad/remotes/lxc-probes.d/host/beacon/monitord-client-shepherd.sh \
+     src/im_mad/remotes/lxc-probes.d/host/beacon/date.sh"
+
+IM_PROBES_LXC_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/lxc-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/lxc-probes.d/host/monitor/numa_usage.rb"
+
+IM_PROBES_LXC_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/lxc-probes.d/host/system/architecture.sh \
+     src/im_mad/remotes/lxc-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/lxc-probes.d/host/system/linux_host.rb \
+     src/im_mad/remotes/lxc-probes.d/host/system/monitor_ds.rb \
+     src/im_mad/remotes/lxc-probes.d/host/system/name.sh \
+     src/im_mad/remotes/lxc-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/lxc-probes.d/host/system/version.sh"
+
+IM_PROBES_LXC_VM_MONITOR_FILES="\
+     src/im_mad/remotes/lxc-probes.d/vm/monitor/poll.rb \
+     src/im_mad/remotes/lxc-probes.d/vm/monitor/monitor_ds_vm.rb"
+
+IM_PROBES_LXC_VM_STATUS_FILES="\
+     src/im_mad/remotes/lxc-probes.d/vm/status/state.rb"
+
+IM_PROBES_ETC_LXC_PROBES_FILES="\
     src/im_mad/remotes/lib/probe_db.conf"
 
 # Firecracker PROBES

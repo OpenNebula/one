@@ -66,7 +66,12 @@ class Sudoers
                           #{lib_location}/sh/create_docker_image.sh  ],
             :FIRECRACKER => %w[/usr/bin/jailer
                                /usr/sbin/one-clean-firecracker-domain
-                               /usr/sbin/one-prepare-firecracker-domain]
+                               /usr/sbin/one-prepare-firecracker-domain],
+            :LXC => %w[
+                mount umount bindfs losetup qemu-nbd lxc-attach lxc-config
+                lxc-create lxc-destroy lxc-info lxc-ls lxc-start lxc-stop
+                lxc-console e2fsck resize2fs xfs_growfs rbd-nbd
+            ]
         }
     end
 

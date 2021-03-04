@@ -13,11 +13,14 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-require 'rexml/document'
 require 'yaml'
 require 'command'
 
-# This class reads and holds configuration attributes for the LXD driver
+require_relative '../lib/xmlparser'
+require_relative '../lib/opennebula_vm'
+require_relative '../../scripts_common'
+
+# This class reads and holds configuration attributes for the Firecracker driver
 class FirecrackerConfiguration < Hash
 
     DEFAULT_CONFIGURATION = {
@@ -53,84 +56,89 @@ class FirecrackerConfiguration < Hash
 end
 
 # This class parses and wraps the information in the Driver action data
-class OpenNebulaVM
+class FirecrackerVM < OpenNebulaVM
 
     # rubocop:disable Naming/PredicateName
     # rubocop:disable Naming/AccessorMethodName
 
-    attr_reader :xml, :vm_id, :vm_name, :sysds_path, :rootfs_id, :fcrc
+    attr_reader :fcrc
 
     #---------------------------------------------------------------------------
     # Class Constructor
     #---------------------------------------------------------------------------
     def initialize(xml)
-        @xml = XMLElement.new_s(xml)
-        @xml = @xml.element('//VM')
-
-        @vm_id    = Integer(@xml['//TEMPLATE/VMID'])
-        @vm_name  = @xml['//DEPLOY_ID']
-        @vm_name  = "one-#{@vm_id}" if @vm_name.empty?
-
         # Load Driver configuration
         @fcrc = FirecrackerConfiguration.new
 
-        sysds_id = @xml['//HISTORY_RECORDS/HISTORY/DS_ID']
-        @sysds_path = "#{@fcrc[:datastore_location]}/#{sysds_id}"
+        super(xml, @fcrc)
 
         return if wild?
 
-        # Sets the DISK ID of the root filesystem
-        disk = @xml.element('//TEMPLATE/DISK')
-
-        return unless disk
-
-        @rootfs_id = disk['DISK_ID']
-        boot_order = @xml['//TEMPLATE/OS/BOOT']
-        @rootfs_id = boot_order.split(',')[0][-1] unless boot_order.empty?
-        @boot_args = @xml['//TEMPLATE/OS/KERNEL_CMD']
         @uid = @fcrc[:uid]
         @gid = @fcrc[:gid]
         @exec_file = @fcrc[:firecracker_location]
     end
 
-    def has_context?
-        !@xml['//TEMPLATE/CONTEXT/DISK_ID'].empty?
-    end
-
-    def wild?
-        @vm_name && !@vm_name.include?('one-')
-    end
-
-    def get_cpu
-        Float(@xml['//TEMPLATE/CPU'])
-    end
-
-    # Returns a Hash representing the LXC configuration for this OpenNebulaVM
+    # Returns a Hash representing the Firecracker configuration for this OpenNebulaVM
     def to_fc
         fc = {}
 
-        fc['name'] = @vm_name
-
-        fc['deployment-file'] = {}
-        fc['deployment-file']['boot-source'] = {}
-        fc['deployment-file']['drives'] = []
-        fc['deployment-file']['machine-config'] = {}
-        fc['deployment-file']['network-interfaces'] = []
-        fc['command-params'] = {}
+        fc['boot-source'] = {}
+        fc['drives'] = []
+        fc['machine-config'] = {}
+        fc['network-interfaces'] = []
 
         # Set logger info
-        fc['deployment-file']['logger'] = {}
-        fc['deployment-file']['logger']['log_fifo'] = 'logs.fifo'
-        fc['deployment-file']['logger']['metrics_fifo'] = 'metrics.fifo'
+        fc['logger'] = {}
+        fc['logger']['log_fifo'] = LOG_FILE
+        fc['logger']['metrics_fifo'] = METRICS_FILE
 
-        boot_source(fc['deployment-file']['boot-source'])
-        drives(fc['deployment-file']['drives'])
-        machine_config(fc['deployment-file']['machine-config'])
-        nic(fc['deployment-file']['network-interfaces'])
-        command_params(fc['command-params'])
+        boot_source(fc['boot-source'])
+        drives(fc['drives'])
+        machine_config(fc['machine-config'])
+        nic(fc['network-interfaces'])
 
-        fc
+        fc.to_json
     end
+
+    def command_params
+        hash = {}
+        hash['jailer'] = {}
+        hash['firecracker'] = {}
+
+        jailer_params(hash['jailer'])
+        firecracker_params(hash['firecracker'])
+
+        hash
+    end
+
+    def context(hash)
+        cid = @xml['//TEMPLATE/CONTEXT/DISK_ID']
+
+        return if cid.empty?
+
+        source = disk_location(cid)
+
+        hash['context'] = {
+            'type'    => 'disk',
+            'source'  => source,
+            'path'    => '/context',
+            'disk_id' => cid
+        }
+    end
+
+    def log_path
+        "#{location}/#{LOG_FILE}"
+    end
+
+    def metrics_path
+        "#{location}/#{METRICS_FILE}"
+    end
+
+    private
+
+    LOG_FILE = 'logs.fifo'
+    METRICS_FILE = 'metrics.fifo'
 
     #---------------------------------------------------------------------------
     # MicroVM Attribute Mapping
@@ -155,14 +163,6 @@ class OpenNebulaVM
         hash['ht_enabled'] = !(ht.nil? || ht.empty? || Integer(ht.to_s) <= 1)
     end
 
-    def command_params(hash)
-        hash['jailer'] = {}
-        hash['firecracker'] = {}
-
-        jailer_params(hash['jailer'])
-        firecracker_params(hash['firecracker'])
-    end
-
     def jailer_params(hash)
         hash['id'] = "one-#{vm_id}"
         hash['node'] = get_numa_node
@@ -179,10 +179,6 @@ class OpenNebulaVM
     #---------------------------------------------------------------------------
     # MicroVM Device Mapping: Networking
     #---------------------------------------------------------------------------
-
-    def get_nics
-        @xml.elements('//TEMPLATE/NIC')
-    end
 
     def nic(array)
         get_nics.each do |n|
@@ -229,31 +225,6 @@ class OpenNebulaVM
         array << drive
     end
 
-    def get_disks
-        @xml.elements('//TEMPLATE/DISK')
-    end
-
-    def context(hash)
-        cid = @xml['//TEMPLATE/CONTEXT/DISK_ID']
-
-        return if cid.empty?
-
-        source = disk_location(cid)
-
-        hash['context'] = {
-            'type'    => 'disk',
-            'source'  => source,
-            'path'    => '/context',
-            'disk_id' => cid
-        }
-    end
-
-    def disk_location(disk_id)
-        datastore = @sysds_path
-        datastore = File.readlink(@sysds_path) if File.symlink?(@sysds_path)
-        "#{datastore}/#{@vm_id}/disk.#{disk_id}"
-    end
-
     #---------------------------------------------------------------------------
     # MicroVM Device Mapping: NUMA
     #---------------------------------------------------------------------------
@@ -283,82 +254,8 @@ class OpenNebulaVM
     def random_policy(nodes)
         Integer(nodes.sample.gsub('node', ''))
     end
-    #---------------------------------------------------------------------------
-    # Container Mapping: Extra Configuration & Profiles
-    #---------------------------------------------------------------------------
-
-    # Creates microVM vnc connection
-    # Creates or closes a connection to a microVM rfb port depending on signal
-    def vnc_command(signal, vnc_command)
-        data = @xml.element('//TEMPLATE/GRAPHICS')
-        return unless data && data['TYPE'].casecmp('vnc').zero?
-
-        pass = data['PASSWD']
-        pass = '-' if pass.empty?
-
-        case signal
-        when 'start'
-            "#{data['PORT']} #{pass} #{vnc_command} #{@vm_name}\n"
-        when 'stop'
-            "-#{data['PORT']}\n"
-        end
-    end
-
-    def vnc?
-        data = @xml.element('//TEMPLATE/GRAPHICS')
-        data && data['TYPE'].casecmp('vnc').zero?
-    end
 
     # rubocop:enable Naming/PredicateName
     # rubocop:enable Naming/AccessorMethodName
-
-end
-
-# This class abstracts the access to XML elements. It provides basic methods
-# to get elements by their xpath
-class XMLElement
-
-    def initialize(xml)
-        @xml = xml
-    end
-
-    # Create a new XMLElement using a xml document in a string
-    def self.new_s(xml_s)
-        xml = nil
-        xml = REXML::Document.new(xml_s).root unless xml_s.empty?
-
-        new(xml)
-    end
-
-    # Gets the text associated to a th element. The element is select by
-    # its xpath. If not found an empty string is returned
-    def [](key)
-        element = @xml.elements[key.to_s]
-
-        return '' if (element && !element.has_text?) || !element
-
-        element.text
-    end
-
-    # Return an XMLElement for the given xpath
-    def element(key)
-        e = @xml.elements[key.to_s]
-
-        element = nil
-        element = XMLElement.new(e) if e
-
-        element
-    end
-
-    # Get elements by xpath. This function returns an Array of XMLElements
-    def elements(key)
-        collection = []
-
-        @xml.elements.each(key) do |pelem|
-            collection << XMLElement.new(pelem)
-        end
-
-        collection
-    end
 
 end

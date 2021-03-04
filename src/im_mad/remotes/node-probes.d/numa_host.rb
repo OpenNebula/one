@@ -18,7 +18,7 @@
 
 require_relative '../../../lib/numa_common'
 
-# This module extracts NUMA information from a host for firecracker
+# This module extracts NUMA information from a host
 module NUMA
 
     def self.node_to_template(node, nid)

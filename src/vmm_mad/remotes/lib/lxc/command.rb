@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,38 +14,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-# -------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
-# Utilities for LXD based marketplaces
-module LXDMarket
+require_relative '../lib/command'
 
-    class << self
+# This module can be used to execute commands. It wraps popen3 and provides
+# locking capabilites using flock
+module Command
 
-        # TODO: Make configurable
-        def template
-            unindent(<<-EOS)
-        SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
-        CPU = \"1\"
-        MEMORY = \"768\"
-        LXD_SECURITY_PRIVILEGED = \"true\"
-        GRAPHICS = [
-            LISTEN  =\"0.0.0.0\",
-            TYPE  =\"vnc\"
-        ]
-        CONTEXT = [
-            NETWORK  =\"YES\",
-            SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
-            SET_HOSTNAME  =\"$NAME\"
-        ]"
-            EOS
-        end
-
-        def unindent(str)
-            m = str.match(/^(\s*)/)
-            spaces = m[1].size
-            str.gsub!(/^ {#{spaces}}/, '')
-        end
-
-    end
+    LOCK_FILE = '/tmp/onelxc-lock'
 
 end

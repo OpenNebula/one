@@ -1,7 +1,7 @@
-#!/usr/bin/ruby
+#!/bin/bash
 
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+# Copyright 2002-2020, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may    #
 # not use this file except in compliance with the License. You may obtain    #
@@ -14,38 +14,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-# -------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
-# Utilities for LXD based marketplaces
-module LXDMarket
+(
+[ -f /tmp/one-monitord-client.pid ] || exit 0
+running_pid=$(cat /tmp/one-monitord-client.pid)
+pids=$(ps axuwww | grep -e "/monitord-client.rb lxc" | grep -v grep | awk '{ print $2 }' | grep -v "^${running_pid}$")
 
-    class << self
+if [ -n "$pids" ]; then
+    kill -6 $pids
+fi
 
-        # TODO: Make configurable
-        def template
-            unindent(<<-EOS)
-        SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
-        CPU = \"1\"
-        MEMORY = \"768\"
-        LXD_SECURITY_PRIVILEGED = \"true\"
-        GRAPHICS = [
-            LISTEN  =\"0.0.0.0\",
-            TYPE  =\"vnc\"
-        ]
-        CONTEXT = [
-            NETWORK  =\"YES\",
-            SSH_PUBLIC_KEY  =\"$USER[SSH_PUBLIC_KEY]\",
-            SET_HOSTNAME  =\"$NAME\"
-        ]"
-            EOS
-        end
+) > /dev/null
 
-        def unindent(str)
-            m = str.match(/^(\s*)/)
-            spaces = m[1].size
-            str.gsub!(/^ {#{spaces}}/, '')
-        end
-
-    end
-
-end
