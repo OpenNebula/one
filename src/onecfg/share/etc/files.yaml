@@ -248,6 +248,12 @@
   group: oneadmin
   mode: '0640'
 
+- name: /var/lib/one/remotes/etc/im/lxc-probes.d/probe_db.conf
+  class: Yaml
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
 - name: /var/lib/one/remotes/etc/im/lxd-probes.d/pci.conf
   class: Yaml
   owner: oneadmin
@@ -286,6 +292,12 @@
 
 - name: /var/lib/one/remotes/etc/vmm/kvm/kvmrc
   class: Augeas::Shell
+  owner: oneadmin
+  group: oneadmin
+  mode: '0640'
+
+- name: /var/lib/one/remotes/etc/vmm/lxc/lxcrc
+  class: Yaml
   owner: oneadmin
   group: oneadmin
   mode: '0640'
