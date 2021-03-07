@@ -123,7 +123,8 @@ class LXCVM < OpenNebulaVM
                             "g 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}"]
         # rubocop:enable Layout/LineLength
 
-        hash_to_lxc(lxc)
+        # hash_to_lxc values should prevail over raw section values
+        hash_to_lxc(parse_raw.merge(lxc))
     end
 
     # Returns an Array of Disk objects, each one represents an OpenNebula DISK
@@ -169,6 +170,37 @@ class LXCVM < OpenNebulaVM
         end
 
         lxc
+    end
+
+    def parse_raw
+        raw_map = {}
+
+        begin
+            return raw_map if @xml['//RAW/TYPE'].downcase != 'lxc'
+
+            # only add valid lxc configuration statements
+            regex = /^(lxc\.(?:[a-zA-Z0-9]+\.)*[a-zA-Z0-9]+\s*)=(.*)$/
+
+            @xml['//RAW/DATA'].each_line do |l|
+                l.strip!
+
+                match = l.match(regex)
+
+                next if match.nil?
+
+                key = match[1].strip
+                value = match[2].strip
+
+                if !raw_map[key].nil?
+                    raw_map[key] = value
+                else
+                    raw_map[key] = Array(raw_map[key]) << value
+                end
+            end
+        rescue StandardError
+        end
+
+        raw_map
     end
 
 end
