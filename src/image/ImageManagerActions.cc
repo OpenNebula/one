@@ -93,7 +93,7 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
     string persistent_type;
 
     ostringstream oss;
-    
+
     switch(img->get_type())
     {
         case Image::OS:
@@ -111,11 +111,11 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
             error = oss.str();
             return -1;
     }
-    
+
     img->get_template_attribute("PERSISTENT_TYPE", persistent_type);
-        
+
     shareable = one_util::toupper(persistent_type) == "SHAREABLE";
-    
+
     switch (img->get_state())
     {
         case Image::READY:
@@ -250,33 +250,37 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
     switch (img->get_state())
     {
         case Image::USED_PERS:
-            int num_vms = img->dec_running(vm_id);
-
-            if (failed)
             {
-                img->set_state(Image::ERROR);
-            }
-            else if (num_vms == 0)
-            {
-                img->set_state(Image::READY);
-            }
+                int num_vms = img->dec_running(vm_id);
 
-            ipool->update(img.get());
+                if (failed)
+                {
+                    img->set_state(Image::ERROR);
+                }
+                else if (num_vms == 0)
+                {
+                    img->set_state(Image::READY);
+                }
+
+                ipool->update(img.get());
+            }
         break;
 
         case Image::LOCKED_USED_PERS:
-            int num_vms = img->dec_running(vm_id);
-
-            if (failed)
             {
-                img->set_state(Image::ERROR);
-            }
-            else if (num_vms == 0)
-            {
-                img->set_state(Image::LOCKED);
-            }
+                int num_vms = img->dec_running(vm_id);
 
-            ipool->update(img.get());
+                if (failed)
+                {
+                    img->set_state(Image::ERROR);
+                }
+                else if (num_vms == 0)
+                {
+                    img->set_state(Image::LOCKED);
+                }
+
+                ipool->update(img.get());
+            }
         break;
 
         case Image::USED:
