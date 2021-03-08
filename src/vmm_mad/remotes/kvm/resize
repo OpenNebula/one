@@ -48,6 +48,11 @@ source $(dirname $0)/../../scripts_common.sh
 
 # Resize mem
 if [ ! -z "$MEM" -a "$MEM" -ne "$MEM_OLD" ]; then
+    # Compact memory
+    if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
+        sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
+    fi
+
     # Extract node id from virsh dumpxml
     XML_INFO=$(virsh --connect ${LIBVIRT_URI} dumpxml ${DOMAIN})
     IFS= read -r -d '' NODE_ID < <(echo "$XML_INFO" | $XPATH --subtree /domain/cpu/numa/cell/@id)
@@ -75,6 +80,11 @@ if [ ! -z "$MEM" -a "$MEM" -ne "$MEM_OLD" ]; then
 
     # Cleanup
     rm $TMPFILE
+
+    # Compact memory
+    if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
+        sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
+    fi
 fi
 
 # Resize VCPU

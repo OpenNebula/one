@@ -39,3 +39,8 @@ if [ "x$?" != "x0" ]; then
     error_message "Could not destroy $deploy_id"
     exit 1
 fi
+
+# Compact memory
+if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
+    sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
+fi

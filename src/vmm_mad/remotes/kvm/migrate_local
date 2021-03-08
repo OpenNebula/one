@@ -34,6 +34,12 @@ for snap in $snaps; do
         "Failed to delete snapshot $snap from $deploy_id"
 done
 
+# Compact memory on dest host
+if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
+    ssh_exec_and_log "$dest_host" "sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null" \
+        "Failed compact memory on $dest_host"
+fi
+
 # do live migration, but cleanup target host in case of error
 virsh --connect $QEMU_PROTOCOL://$src_host/system \
     migrate --live $deploy_id $MIGRATE_OPTIONS $QEMU_PROTOCOL://$dest_host/system
@@ -56,4 +62,10 @@ if [ "$SYNC_TIME" = "yes" ]; then
             [ "$i" -gt 1 ] && sleep 6
         done
     ) &> /dev/null &
+fi
+
+# Compact memory on src host
+if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
+    ssh_exec_and_log "$src_host" "sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &" \
+        "Failed compact memory on $src_host"
 fi

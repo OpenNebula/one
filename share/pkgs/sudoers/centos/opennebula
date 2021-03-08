@@ -9,7 +9,8 @@ Cmnd_Alias ONE_LXC = /usr/bin/mount, /usr/bin/umount, /usr/bin/bindfs, /usr/sbin
 Cmnd_Alias ONE_MARKET = /usr/lib/one/sh/create_container_image.sh, /usr/lib/one/sh/create_docker_image.sh
 Cmnd_Alias ONE_NET = /usr/sbin/ebtables, /usr/sbin/iptables, /usr/sbin/ip6tables, /usr/sbin/ipset, /usr/sbin/ip link *, /usr/sbin/ip tuntap *, /usr/sbin/ip route *, /usr/sbin/ip neighbour *
 Cmnd_Alias ONE_OVS = /usr/bin/ovs-ofctl, /usr/bin/ovs-vsctl
+Cmnd_Alias ONE_MEM = /usr/sbin/sysctl vm.drop_caches=3 vm.compact_memory=1
 
 ## Command aliases are enabled individually in dedicated
 ## sudoers files by each OpenNebula component (server, node).
-# oneadmin ALL=(ALL) NOPASSWD: ONE_CEPH, ONE_FIRECRACKER, ONE_HA, ONE_LVM, ONE_LXC, ONE_MARKET, ONE_NET, ONE_OVS
+# oneadmin ALL=(ALL) NOPASSWD: ONE_CEPH, ONE_FIRECRACKER, ONE_HA, ONE_LVM, ONE_LXC, ONE_MARKET, ONE_NET, ONE_OVS, ONE_MEM

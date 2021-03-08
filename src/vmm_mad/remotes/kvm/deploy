@@ -25,6 +25,11 @@ DEP_FILE_LOCATION=$(dirname $DEP_FILE)
 mkdir -p $DEP_FILE_LOCATION
 cat > $DEP_FILE
 
+# Compact memory
+if [ "x$CLEANUP_MEMORY_ON_START" = "xyes" ]; then
+    sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 >/dev/null
+fi
+
 DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 
 if [ "x$?" = "x0" ]; then
