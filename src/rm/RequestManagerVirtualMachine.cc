@@ -529,6 +529,7 @@ void VirtualMachineAction::request_execute(xmlrpc_c::paramList const& paramList,
 
     if (vm_authorization(id, 0, 0, att, 0, 0, 0) == false)
     {
+        vm->unlock();
         return;
     }
 

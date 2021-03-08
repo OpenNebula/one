@@ -58,6 +58,7 @@ error_name:
     error_str = oss.str();
 
 error_common:
+    delete tmpl;
     oid = -1;
 
     return oid;

@@ -1520,7 +1520,7 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
     const string& mac_s)
 {
     string error_msg;
-    unsigned int mac_i[2];
+    unsigned int mac_i[2] = {};
 
     mac_to_i(mac_s, mac_i);
 

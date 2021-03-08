@@ -801,10 +801,10 @@ void HostShareNUMA::set_monitorization(Template &ht, unsigned int _vt)
 
     for (auto it = pages.begin(); it != pages.end(); ++it)
     {
-        unsigned int pages;
-        unsigned int free;
+        unsigned int pages = 0;
+        unsigned int free = 0;
 
-        unsigned long size;
+        unsigned long size = 0;
 
         if ( (*it)->vector_value("NODE_ID", node_id) == -1 )
         {

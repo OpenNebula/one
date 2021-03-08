@@ -127,6 +127,8 @@ int PoolSQL::allocate(PoolObjectSQL *objsql, string& error_str)
     {
         unlock();
 
+        delete objsql;
+
         return -1;
     }
 
@@ -274,7 +276,7 @@ PoolObjectSQL * PoolSQL::get_ro(const string& name, int uid)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int PoolSQL::dump(string& oss, const string& elem_name, const string& column, 
+int PoolSQL::dump(string& oss, const string& elem_name, const string& column,
         const char* table, const string& where, int sid, int eid, bool desc)
 {
     ostringstream   cmd;

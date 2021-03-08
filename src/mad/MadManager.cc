@@ -138,6 +138,8 @@ void MadManager::stop()
         delete mads[i];
     }
 
+    mads.clear();
+
     unlock();
 }
 

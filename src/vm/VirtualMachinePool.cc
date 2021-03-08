@@ -1131,6 +1131,8 @@ void VirtualMachinePool::delete_attach_nic(int vid)
 
     tmpl.set(nic->vector_attribute());
 
+    delete nic;
+
     Quotas::quota_del(Quotas::NETWORK, uid, gid, &tmpl);
 }
 

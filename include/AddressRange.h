@@ -418,7 +418,15 @@ protected:
      *  Base constructor it cannot be called directly but from the
      *  AddressRange factory constructor.
      */
-    AddressRange(unsigned int _id):id(_id){};
+    AddressRange(unsigned int _id)
+        : id(_id)
+        , size(0)
+        , ip(0)
+        , mac{}
+        , global6{}
+        , ula6{}
+        , ip6{}
+    {}
 
     /* ---------------------------------------------------------------------- */
     /* Address/AR helper functions to build/parse driver messages             */

@@ -296,8 +296,8 @@ protected:
     string    method_name;
 
     // Configuration for authentication level of the API call
-    PoolObjectSQL::ObjectType auth_object;
-    AuthRequest::Operation    auth_op;
+    PoolObjectSQL::ObjectType auth_object = PoolObjectSQL::ObjectType::NONE;
+    AuthRequest::Operation    auth_op = AuthRequest::Operation::NONE;
 
     VMActions::Action vm_action;
 

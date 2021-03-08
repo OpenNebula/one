@@ -1386,6 +1386,8 @@ Request::ErrorCode HookAllocate::pool_allocate(
         oss << "Invalid Hook type: " << hk_type;
         att.resp_msg = oss.str();
 
+        delete tmpl;
+
         return Request::INTERNAL;
     }
 
