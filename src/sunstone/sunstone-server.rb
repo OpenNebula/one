@@ -916,7 +916,7 @@ get '/vm/showback' do
 end
 
 ##############################################################################
-# GET Fireedge token
+# GET FireEdge token
 ##############################################################################
 get '/fireedge' do
     begin
@@ -934,7 +934,7 @@ get '/fireedge' do
         response = {:token => fireedge_token}
        [200,  response.to_json]
     rescue StandardError => error
-        logger.info("Fireedge server is not running. Error: #{error}")
+        logger.info("FireEdge server is not running. Error: #{error}")
         response = {:token => ""}
         [400,  response.to_json]
     end
