@@ -613,6 +613,12 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
             disk->replace("PERSISTENT", "YES");
             disk->replace("CLONE", "NO");
             disk->replace("SAVE", "YES");
+          
+            if (template_ptype == "SHAREABLE" &&
+                one_util::tolower(format) == "raw")
+            {
+                disk->replace("SHAREABLE", "YES");
+            }
         }
         else
         {

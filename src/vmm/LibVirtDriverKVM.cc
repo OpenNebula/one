@@ -447,6 +447,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  discard         = "";
     string  source          = "";
     string  clone           = "";
+    string  shareable       = "";
     string  ceph_host       = "";
     string  ceph_secret     = "";
     string  ceph_user       = "";
@@ -893,6 +894,7 @@ int LibVirtDriver::deployment_description_kvm(
         discard   = disk[i]->vector_value("DISCARD");
         source    = disk[i]->vector_value("SOURCE");
         clone     = disk[i]->vector_value("CLONE");
+        shareable = disk[i]->vector_value("SHAREABLE");
 
         ceph_host   = disk[i]->vector_value("CEPH_HOST");
         ceph_secret = disk[i]->vector_value("CEPH_SECRET");
@@ -1194,6 +1196,13 @@ int LibVirtDriver::deployment_description_kvm(
         if (readonly)
         {
             file << "\t\t\t<readonly/>" << endl;
+        }
+
+        // ---- shareable attribute for the disk ----
+
+        if (shareable == "YES")
+        {
+            file << "\t\t\t<shareable/>" << endl;
         }
 
         // ---- Image Format using qemu driver ----

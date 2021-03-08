@@ -89,8 +89,11 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
 {
     int rc = 0;
 
-    ostringstream oss;
+    bool   shareable;
+    string persistent_type;
 
+    ostringstream oss;
+    
     switch(img->get_type())
     {
         case Image::OS:
@@ -108,7 +111,11 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
             error = oss.str();
             return -1;
     }
-
+    
+    img->get_template_attribute("PERSISTENT_TYPE", persistent_type);
+        
+    shareable = one_util::toupper(persistent_type) == "SHAREABLE";
+    
     switch (img->get_state())
     {
         case Image::READY:
@@ -153,19 +160,32 @@ int ImageManager::acquire_image(int vm_id, Image *img, bool attach, string& erro
         break;
 
         case Image::USED_PERS:
-        case Image::LOCKED_USED_PERS:
-            oss << "Cannot acquire image " << img->get_oid()
-                << ", it is persistent and already in use";
+            if (!shareable)
+            {
+                oss << "Cannot acquire image " << img->get_oid()
+                    << ", it is persistent and already in use";
 
-            error = oss.str();
-            rc    = -1;
-        break;
-
+                error = oss.str();
+                rc    = -1;
+                break;
+            }
+            // Fallthrough
         case Image::USED:
             img->inc_running(vm_id);
             ipool->update(img);
         break;
 
+        case Image::LOCKED_USED_PERS:
+            if (!shareable)
+            {
+                oss << "Cannot acquire image " << img->get_oid()
+                    << ", it is persistent and already in use";
+
+                error = oss.str();
+                rc    = -1;
+                break;
+            }
+            // Fallthrough
         case Image::LOCKED_USED:
             if (attach)
             {
@@ -230,13 +250,13 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
     switch (img->get_state())
     {
         case Image::USED_PERS:
-            img->dec_running(vm_id);
+            int num_vms = img->dec_running(vm_id);
 
-            if (failed == true)
+            if (failed)
             {
                 img->set_state(Image::ERROR);
             }
-            else
+            else if (num_vms == 0)
             {
                 img->set_state(Image::READY);
             }
@@ -245,13 +265,13 @@ void ImageManager::release_image(int vm_id, int iid, bool failed)
         break;
 
         case Image::LOCKED_USED_PERS:
-            img->dec_running(vm_id);
+            int num_vms = img->dec_running(vm_id);
 
-            if (failed == true)
+            if (failed)
             {
                 img->set_state(Image::ERROR);
             }
-            else
+            else if (num_vms == 0)
             {
                 img->set_state(Image::LOCKED);
             }
