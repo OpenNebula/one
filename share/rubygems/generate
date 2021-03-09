@@ -100,7 +100,6 @@ GEM_DESCRIPTION={
             'json',
             'rbvmomi',
             'xmlrpc',
-            'ffi-rzmq',
             'treetop',    # oneflow
             'ipaddress',  # oneflow
             'parse-cron'  # oneflow
