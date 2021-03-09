@@ -575,6 +575,8 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     // Force FORMAT and DRIVER from image
     if (!format.empty())
     {
+        one_util::tolower(format);
+
         disk->replace("DRIVER", format);
         disk->replace("FORMAT", format);
     }
@@ -583,6 +585,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         disk->remove("DRIVER");
         disk->remove("FORMAT");
     }
+
     disk->replace("IMAGE_STATE", state);
 
     //--------------------------------------------------------------------------
@@ -613,9 +616,8 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
             disk->replace("PERSISTENT", "YES");
             disk->replace("CLONE", "NO");
             disk->replace("SAVE", "YES");
-          
-            if (template_ptype == "SHAREABLE" &&
-                one_util::tolower(format) == "raw")
+
+            if (template_ptype == "SHAREABLE" && format == "raw")
             {
                 disk->replace("SHAREABLE", "YES");
             }
