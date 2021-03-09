@@ -323,20 +323,15 @@ class Disk
         sys_parts = Storage.lsblk('')
         device    = ''
 
-        real_path    = @mountpoint
-        is_shared_ds = File.symlink?(@sysds_path)
-
-        real_path = File.realpath(real_path) if !@is_rootfs && is_shared_ds
-
         sys_parts.each do |d|
-            if d['mountpoint'] == real_path
+            if d['mountpoint'] == @mountpoint
                 device = d['path']
                 break
             end
 
             if d['children']
                 d['children'].each do |c|
-                    next unless c['mountpoint'] == real_path
+                    next unless c['mountpoint'] == @mountpoint
 
                     device = d['path']
                     break
@@ -347,7 +342,7 @@ class Disk
         end
 
         if device.empty?
-            OpenNebula.log_error("Cannot detect block device from #{real_path}")
+            OpenNebula.log_error("Cannot detect block device from #{@mountpoint}")
         end
 
         device
