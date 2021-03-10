@@ -85,7 +85,7 @@ module OpenNebulaJSON
 
             return [rc.message, ids] if OpenNebula.is_error?(rc)
 
-            rc
+            [rc, ids]
         end
 
         def app_service_import(params=Hash.new)

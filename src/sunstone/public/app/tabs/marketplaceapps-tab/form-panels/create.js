@@ -387,66 +387,69 @@ define(function(require) {
   }
 
   function _submitWizard(context) {
-
     var type = $('#TYPE', context)[0].value;
+    var marketplaceIdSelected = this.marketPlacesTable.idInput().val()
 
     switch (type) {
       case 'image':
-        var marketPlaceJSON = {};
-        $.extend(marketPlaceJSON, WizardFields.retrieve(context));
+        var marketPlaceJSON = $.extend({}, WizardFields.retrieve(context));
     
-        var marketPlaceAppObj = {
+        var data = {
           "marketplaceapp" : marketPlaceJSON,
-          "mp_id" : this.marketPlacesTable.idInput().val()
+          "mp_id" : marketplaceIdSelected
         };
     
-        Sunstone.runAction("MarketPlaceApp.create", marketPlaceAppObj);
+        Sunstone.runAction("MarketPlaceApp.create", data);
         break;
       case 'vm':
-      case 'vmtemplate':
-        var marketPlaceJSON = {};
-        $.extend(marketPlaceJSON, WizardFields.retrieve(context));
+        var marketPlaceJSON = $.extend({}, WizardFields.retrieve(context));
 
-        if (marketPlaceJSON['IMPORT_ALL'] && marketPlaceJSON['IMPORT_ALL'] == "on" ){
-          marketPlaceJSON['IMPORT_ALL'] = 'yes';
+        marketPlaceJSON['IMPORT_ALL'] = marketPlaceJSON['IMPORT_ALL'] === 'on'
+        marketPlaceJSON['MARKETPLACE_ID'] = marketplaceIdSelected;
+
+        var template = {
+          id: marketPlaceJSON['ORIGIN_ID'],
+          extra_param: { name : marketPlaceJSON.NAME }
         }
-        else{
-          marketPlaceJSON['IMPORT_ALL'] = 'no';
-        }
-        marketPlaceJSON['MARKETPLACE_ID'] = this.marketPlacesTable.idInput().val();
+
+        OpenNebula.VM.save_as_template({
+          data: template,
+          success: function(_, templateId) {
+            Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + marketPlaceJSON.NAME + ' ' + Locale.tr("saved successfully"))
+
+            var newTemplate = $.extend(marketPlaceJSON, { ORIGIN_ID: String(templateId) })
+
+            Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, newTemplate);
+          },
+          error: function(request, response) {
+            Sunstone.hideFormPanelLoading(TAB_ID)
+            Notifier.onError(request, response);
+          }
+        })
+        break;
+
+      case 'vmtemplate':
+        var marketPlaceJSON = $.extend({}, WizardFields.retrieve(context));
+
+        marketPlaceJSON['IMPORT_ALL'] = marketPlaceJSON['IMPORT_ALL'] === 'on'
+        marketPlaceJSON['MARKETPLACE_ID'] = marketplaceIdSelected;
     
-        Sunstone.runAction(
-          "MarketPlaceApp.import_vm_template",
-          this.marketPlacesTable.idInput().val(),
-          marketPlaceJSON
-        );
+        Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, marketPlaceJSON);
 
         break;
       
       case 'service_template':
-        var marketPlaceJSON = {};
-        $.extend(marketPlaceJSON, WizardFields.retrieve(context));
+        var marketPlaceJSON = $.extend({}, WizardFields.retrieve(context));
 
-        if (marketPlaceJSON['IMPORT_ALL'] && marketPlaceJSON['IMPORT_ALL'] == "on" ){
-          marketPlaceJSON['IMPORT_ALL'] = 'yes';
-        }
-        else{
-          marketPlaceJSON['IMPORT_ALL'] = 'no';
-        }
-
-        marketPlaceJSON['MARKETPLACE_ID'] = this.marketPlacesTable.idInput().val();
+        marketPlaceJSON['IMPORT_ALL'] = marketPlaceJSON['IMPORT_ALL'] === 'on'
+        marketPlaceJSON['MARKETPLACE_ID'] = marketplaceIdSelected;
         marketPlaceJSON['MARKETPLACE_SERVICE_ID'] = this.marketPlacesServiceTable.idInput().val();
     
-        Sunstone.runAction(
-          "MarketPlaceApp.import_service_template",
-          this.marketPlacesTable.idInput().val(),
-          marketPlaceJSON
-        );
+        Sunstone.runAction("MarketPlaceApp.import_service_template", marketplaceIdSelected, marketPlaceJSON);
         
         break;
     
-      default:
-        break;
+      default: break;
     }
     return false;
   }
