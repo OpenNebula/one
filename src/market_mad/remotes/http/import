@@ -56,7 +56,9 @@ done < <($XPATH     /MARKET_DRIVER_ACTION_DATA/IMPORT_SOURCE \
                     /MARKET_DRIVER_ACTION_DATA/MD5 \
                     /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BASE_URL \
                     /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/BRIDGE_LIST \
-                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/PUBLIC_DIR)
+                    /MARKET_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/PUBLIC_DIR \
+                    /MARKET_DRIVER_ACTION_DATA/DATASTORE/DS_MAD \
+                    /MARKET_DRIVER_ACTION_DATA/IMAGE/ID)
 unset i
 
 IMPORT_SOURCE="${XPATH_ELEMENTS[i++]}"
@@ -67,6 +69,8 @@ MD5="${XPATH_ELEMENTS[i++]}"
 BASE_URL="${XPATH_ELEMENTS[i++]}"
 BRIDGE_LIST="${XPATH_ELEMENTS[i++]}"
 PUBLIC_DIR="${XPATH_ELEMENTS[i++]}"
+DS_MAD="${XPATH_ELEMENTS[i++]}"
+IMG_ID="${XPATH_ELEMENTS[i++]}"
 
 # -------- Copy source to public folder an generate App data ------------
 
@@ -82,18 +86,26 @@ if [ -n "$BRIDGE_LIST" ]; then
                  "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"
 
     ssh_exec_and_log "$DST_HOST" "fallocate -d $DST_PATH" "Error running: fallocate -d $DST_PATH"
-
-    #if [ "${DISPOSE}" = "YES" ]; then
-    #TODO This should call a ds operation
-    #fi
 else
     CP_CMD="$UTILS_PATH/downloader.sh -n ${IMPORT_SOURCE} ${DST_PATH}"
     exec_and_log "$CP_CMD" "Error copying ${IMPORT_SOURCE} to ${DST_PATH}"
+fi
 
-    if [ "${DISPOSE}" = "YES" ]; then
-        #TODO This should call a ds operation
-        exec_and_log "$RM ${IMPORT_SOURCE}" "Error removing ${IMPORT_SOURCE}"
-    fi
+if [ "$DISPOSE" = "YES" ]; then
+    IMAGE_XML=$($XPATH --subtree /MARKET_DRIVER_ACTION_DATA/IMAGE)
+    DATASTORE_XML=$($XPATH --subtree /MARKET_DRIVER_ACTION_DATA/DATASTORE)
+
+    RM_XML=$(cat <<EOF | base64 -w 0
+<DS_DRIVER_ACTION_DATA>
+  <DISPOSE>YES</DISPOSE>
+  $IMAGE_XML
+  $DATASTORE_XML
+</DS_DRIVER_ACTION_DATA>
+EOF
+)
+
+    RM_PATH="${DRIVER_PATH}/../../datastore/$DS_MAD/rm"
+    $RM_PATH $RM_XML $IMG_ID
 fi
 
 cat << EOF
