@@ -177,7 +177,7 @@ CommandParser::CmdParser.new(ARGV) do
                         OneMarketPlaceAppHelper::TEMPLATE_OPTIONS do
         if options[:marketplace].nil?
             STDERR.puts 'Marketplace to save the app is mandatory: '
-            STDERR.puts '\t -m marketplace_id'
+            STDERR.puts "\t -m marketplace_id"
             exit(-1)
         end
 

@@ -171,8 +171,8 @@ CommandParser::CmdParser.new(ARGV) do
             [:file, nil], :options => CREAT_OPTIONS do
         if options[:im].nil? || options[:vm].nil?
             STDERR.puts 'Drivers are mandatory to create a host:'
-            STDERR.puts '\t -i information driver'
-            STDERR.puts '\t -v hypervisor driver'
+            STDERR.puts "\t -i information driver"
+            STDERR.puts "\t -v hypervisor driver"
             exit(-1)
         end
 
