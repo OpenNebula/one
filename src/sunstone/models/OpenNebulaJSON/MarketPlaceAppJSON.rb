@@ -104,7 +104,7 @@ module OpenNebulaJSON
 
             ids_images = []
 
-            if (params['IMPORT_ALL'] == 'yes')
+            if params['IMPORT_ALL']
                 vm_templates_ids.each { |id|
                     template = Template.new_with_id(id, @client)
                     template.info
@@ -141,7 +141,7 @@ module OpenNebulaJSON
             error_code, rc = s_template.mp_import(templates, market_id, template_name)
 
             if error_code == -1
-                if (params['IMPORT_ALL'] == 'yes')
+                if params['IMPORT_ALL']
                     ids_images.each do |id|
                         app = MarketPlaceApp.new_with_id(id, @client)
 
