@@ -152,7 +152,9 @@ module OpenNebula
 
             @async = !options[:sync]
 
-            if ENV["ONE_ZMQ"]
+            if options[:subscriber_endpoint]
+                @one_zmq = options[:subscriber_endpoint]
+            elsif ENV["ONE_ZMQ"]
                 @one_zmq = ENV["ONE_ZMQ"]
             else
                 @one_zmq = 'tcp://localhost:2101'
