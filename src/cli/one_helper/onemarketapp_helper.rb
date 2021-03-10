@@ -198,6 +198,9 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
             end
         end
 
+        # Turn import all into a boolean
+        import_all == 'yes' ? import_all = true : import_all = false
+
         main_market = options[:market]
 
         # Read marketplace where import the service template
@@ -232,7 +235,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         ids = []
 
         # Create roles apps
-        if import_all == 'yes'
+        if import_all
             rc  = create_apps(markets, import_all)
             ids = rc[1]
 
@@ -281,6 +284,9 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
                 import_all = 'yes'
             end
         end
+
+        # Turn import all into a boolean
+        import_all == 'yes' ? import_all = true : import_all = false
 
         main_market = options[:market]
 
@@ -510,7 +516,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
 
     # Get roles information when importing a service template into marketplace
     #
-    # @param import_all [String]  yes to import VM templates too, no otherwise
+    # @param import_all [Boolean] true to import VM templates too
     # @param body       [Hash]    Sevice Template information
     # @param pool       [Array]   Marketplace pool
     # @param market     [Integer] Marketplace to import
@@ -525,7 +531,7 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
         markets = {}
         default_mp = pool.first['ID'].to_i
 
-        if import_all == 'yes'
+        if import_all
             # Read marketplace where import each different VM template
             # It can only be a private marketplace
             unless market
@@ -592,9 +598,9 @@ class OneMarketPlaceAppHelper < OpenNebulaHelper::OneHelper
 
     # Create applications in Marketplace
     #
-    # @param markets       [Hash]   Marketplaces and templates information
-    # @param import_all    [String] yes to import images too, no otherwise
-    # @param template_name [String] Virtual Machine Template app name
+    # @param markets       [Hash]    Marketplaces and templates information
+    # @param import_all    [Boolean] true to import images too
+    # @param template_name [String]  Virtual Machine Template app name
     #
     # @return [String] Error message in case of any
     def create_apps(markets, import_all, template_name = nil)
