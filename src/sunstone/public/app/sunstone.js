@@ -461,7 +461,6 @@ define(function(require) {
       }//for each button in tab
       //$('.top_button',actionBlock).button();
       //$('.top_button',actionBlock).addClass("secondary small button")
-      console.log({buttonContext});
       actionBlock.append(buttonsRow);
       //actionBlock.foundation();
       Foundation.reflow(actionBlock, "dropdown");
