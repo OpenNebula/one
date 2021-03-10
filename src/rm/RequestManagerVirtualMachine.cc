@@ -3199,10 +3199,20 @@ void VirtualMachineDiskResize::request_execute(
 
         if ( disk->has_snapshots() )
         {
-            att.resp_msg = "Cannot resize a disk with snapshots";
-            failure_response(ACTION, att);
+            string st;
+            int ds_id = vm->get_ds_id();
+            Datastore * ds = nd.get_dspool()->get_ro(ds_id);
 
-            return;
+            ds->get_template_attribute("ALLOW_DISK_RESIZE_WITH_SNAPSHOT", st);
+
+            if ((st.empty() || st == "NO" || st == "no") ||
+                (st != "YES" && st != "yes"))
+            {
+                att.resp_msg = "Driver does not support resizing a disk with snapshots";
+                failure_response(ACTION, att);
+                vm->unlock();
+                return;
+            }
         }
 
         /* ------------- Get information about the disk and image --------------- */
