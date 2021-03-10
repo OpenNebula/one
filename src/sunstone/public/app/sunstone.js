@@ -424,6 +424,12 @@ define(function(require) {
           text = button.text;
           buttonCode = "<li><a class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</a></li>";
           break;
+        case "purge":
+          buttonContext = $("#" + customId + "labels_buttons", buttonsRow);
+          text = "<i class=\" fas fa-broom\"/>";
+          strClass.push("secondary", "button");
+          buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
+          break;
         case "del":
           buttonContext = $("#" + customId + "delete_buttons", buttonsRow);
           text = "<i class=\" fas fa-trash-alt\"/> ";
@@ -455,7 +461,7 @@ define(function(require) {
       }//for each button in tab
       //$('.top_button',actionBlock).button();
       //$('.top_button',actionBlock).addClass("secondary small button")
-
+      console.log({buttonContext});
       actionBlock.append(buttonsRow);
       //actionBlock.foundation();
       Foundation.reflow(actionBlock, "dropdown");

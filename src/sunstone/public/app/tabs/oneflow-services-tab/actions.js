@@ -134,6 +134,20 @@ define(function(require) {
       error: Notifier.onError
     },
 
+    "Service.purge_done" : {
+      type: 'single',
+      call: function(params){
+        params['data']['id'] = "purge";
+        OpenNebulaResource.purgeDone(params);
+      },
+      callback: function(request, response) {
+        Notifier.notifyCustom(Locale.tr("Purge DONE services"),
+          Locale.tr("All DONE services has been purged"),
+          false);
+      },
+      error: Notifier.onError
+    },
+
     //--------------------------------------------------------------------------
 
     "Role.scale_dialog" : {

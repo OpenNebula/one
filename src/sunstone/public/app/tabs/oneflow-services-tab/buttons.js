@@ -71,6 +71,13 @@ define(function(require) {
     },
     "Service.edit_labels" : {
       layout: "labels",
+    },
+    "Service.purge_done" : {
+      type: "action",
+      text: Locale.tr("Purge done"),
+      alwaysActive: true,
+      tip: Locale.tr("This will delete all services in DONE state to free some space in your database"),
+      layout: "purge",
     }
   };
 
