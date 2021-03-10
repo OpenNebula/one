@@ -269,9 +269,9 @@
           </div>
           <div class="medium-6 columns">
             <label>
-              {{tr "Iothread"}}
-              {{{tip (tr "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS>0.")}}}
-              <input type="number" wizard_field="IOTHREAD">
+              {{tr "Iothreads"}}
+              {{{tip (tr "Number of iothreads for virtio disks. By default threads will be assign to disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD attribute")}}}
+              <input type="number" wizard_field="IOTHREADS">
             </label>
           </div>
         </div>
