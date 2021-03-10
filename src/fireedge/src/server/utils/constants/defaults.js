@@ -58,6 +58,7 @@ const defaults = {
     PUT: 'PUT',
     DELETE: 'DELETE'
   },
+  defaultFileStats: '-stats.json',
   from: {
     resource: 'RESOURCE',
     query: 'QUERY',
