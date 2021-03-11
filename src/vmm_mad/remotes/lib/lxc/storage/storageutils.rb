@@ -47,7 +47,14 @@ module Storage
     def self.setup_disk(device, mountpoint, bindpoint, options)
         begin
             # Get device filesystem (e.g ext4, xfs, ...)
+            retries = 3
             device_fs = device_fs(device)
+
+            while retries > 0 && device_fs.empty?
+                sleep 0.2
+                retries -= 1
+                device_fs = device_fs(device)
+            end
 
             # Resize device if extX like filesystem is used
             if device_fs.match?(/^ext([2-4])$/)

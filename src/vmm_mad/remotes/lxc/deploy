@@ -34,7 +34,7 @@ container.clean(true)
 rc = container.create
 
 if !rc
-    STDERR.puts 'There was an error creating the containter. Check oned.log.'
+    STDERR.puts 'There was an error creating the containter.'
     exit(-1)
 end
 
@@ -43,7 +43,7 @@ end
 rc = container.start
 
 if !rc
-    STDERR.puts 'There was an error starting the containter. Check oned.log.'
+    STDERR.puts 'There was an error starting the containter.'
     exit(-1)
 end
 
