@@ -111,10 +111,12 @@ define(function(require) {
       call: OpenNebulaResource.list,
       callback: function(request, response) {
         $(".oneflow_services_error_message").hide();
+        $(".oneflow_purge_button").removeClass("disabled");
         var undoneServices = OpenNebulaResource.filterDoneServices(response);
         Sunstone.getDataTable(TAB_ID).updateView(request, undoneServices);
       },
       error: function(request, error_json) {
+        $(".oneflow_purge_button").addClass("disabled");
         Notifier.onError(request, error_json, $(".oneflow_services_error_message"));
       }
     },

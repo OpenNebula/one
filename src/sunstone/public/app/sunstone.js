@@ -428,6 +428,7 @@ define(function(require) {
           buttonContext = $("#" + customId + "labels_buttons", buttonsRow);
           text = "<i class=\" fas fa-broom\"/>";
           strClass.push("secondary", "button");
+          strClass.push("oneflow_purge_button", "button");
           buttonCode = "<button class=\"" + strClass.join(" ") + "\" href=\"" + buttonName + "\">" + text + "</button>";
           break;
         case "del":
