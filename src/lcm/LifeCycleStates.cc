@@ -2430,11 +2430,12 @@ void LifeCycleManager::trigger_resize_failure(int vid)
 {
     trigger([this, vid] {
         Template deltas;
-        HostShareCapacity sr, sr_orig;
-        int vm_uid, vm_gid, hid;
+        int vm_uid, vm_gid;
 
         if ( auto vm = vmpool->get(vid) )
         {
+            HostShareCapacity sr, sr_orig;
+
             VirtualMachine::LcmState state = vm->get_lcm_state();
 
             if (state == VirtualMachine::HOTPLUG_RESIZE)
@@ -2449,8 +2450,6 @@ void LifeCycleManager::trigger_resize_failure(int vid)
                         "hotplug resize fails, VM in a wrong state");
                 return;
             }
-
-            hid = vm->get_hid();
 
             vm->get_capacity(sr);
 
@@ -2491,20 +2490,20 @@ void LifeCycleManager::trigger_resize_failure(int vid)
             vm->reset_resize();
 
             vmpool->update(vm.get());
+
+            // Revert host capacity
+            if (auto host = hpool->get(vm->get_hid()))
+            {
+                host->del_capacity(sr);
+
+                host->add_capacity(sr_orig);
+
+                hpool->update(host.get());
+            }
         }
         else
         {
             return;
-        }
-
-        // Revert host capacity
-        if (auto host = hpool->get(hid))
-        {
-            host->del_capacity(sr);
-
-            host->add_capacity(sr_orig);
-
-            hpool->update(host.get());
         }
 
         // Quota rollback
