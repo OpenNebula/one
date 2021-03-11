@@ -789,6 +789,7 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
     /* ---------------------------------------------------------------------- */
     long long    memory;
     unsigned int vcpu = 0;
+    unsigned int vcpu_max = 0;
 
     if (!tmpl->get("MEMORY", memory))
     {
@@ -805,6 +806,12 @@ int VirtualMachine::parse_topology(Template * tmpl, std::string &error)
     if ( pp != HostShare::PP_NONE )
     {
         tmpl->replace("CPU", vcpu);
+    }
+
+    if (tmpl->get("VCPU_MAX", vcpu_max))
+    {
+        error = "VM with TOPOLOGY does not support CPU hotplug (VCPU_MAX)";
+        return -1;
     }
 
     /* ---------------------------------------------------------------------- */
