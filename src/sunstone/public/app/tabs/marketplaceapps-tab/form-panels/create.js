@@ -198,6 +198,7 @@ define(function(require) {
     this.imagesTable.resetResourceTableSelect();
     this.templatesTable.resetResourceTableSelect();
     this.vmsTable.resetResourceTableSelect();
+    this.servicesTable.resetResourceTableSelect();
     this.marketPlacesTable.resetResourceTableSelect();
     this.marketPlacesServiceTable.resetResourceTableSelect();
     this.marketPlacesTableAdvanced.resetResourceTableSelect();
