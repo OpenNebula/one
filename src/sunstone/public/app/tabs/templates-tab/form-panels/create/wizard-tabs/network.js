@@ -257,7 +257,7 @@ define(function(require) {
   function _addNicTab(context) {
     var that = this;
 
-    if (!that.nics.find(nic => nic.NAME === ("NIC" + that.numberOfNics))) {
+    if (!that.nics.find(function(nic){ return nic.NAME === ("NIC" + that.numberOfNics) })) {
         that.nics.push({"NAME": "NIC" + that.numberOfNics,
                         "ALIAS": false,
                         "ID": that.numberOfNics,
@@ -294,7 +294,9 @@ define(function(require) {
       var ul = $(this).closest('ul');
       var content = $(target);
       var nicId = content.attr("nicId");
-      var index = that.nics.findIndex(nic => nic.NAME === ("NIC" + (nicId - 1)));
+      var index = that.nics.findIndex(function(nic) {
+        return nic.NAME === ("NIC" + (nicId - 1));
+      })
 
       that.nics.splice(index, 1);
 
@@ -317,7 +319,7 @@ define(function(require) {
     $("#" + LINKS_CONTAINER_ID + " li", context).each(function(index) {
       $("a", this).html(Locale.tr("NIC") + ' ' + index + " <i id='update_remove_nic_" + index + "'class='fa fa-times-circle remove-tab'></i>");
 
-      if (that.nics.find(nic => nic.ALIAS === ("NIC" + index))) {
+      if (that.nics.find(function(nic) { return nic.ALIAS === ("NIC" + index) })) {
         $("#update_remove_nic_" + index).hide();
       } else {
         $("#update_remove_nic_" + index).show();

@@ -89,7 +89,6 @@ define(function(require) {
   }
 
   function successCallback(request, opts, infohost){
-    //console.log("CACHE ", OpenNebulaAction.get_all_cache());
     var selector = $(idsElements.hugepages);
     selector.empty();
     if(infohost && infohost.HOST_POOL && infohost.HOST_POOL.HOST){
@@ -140,8 +139,8 @@ define(function(require) {
     return numaStatus;
   }
 
-  function errorCallback(error, error1){
-    console.log("error->", error, error1);
+  function errorCallback(error){
+    console.log(error);
   }
 
   function _onShow(context, panelForm) {

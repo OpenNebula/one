@@ -587,7 +587,7 @@ define(function(require) {
         }
       },
       error: function(error){
-        console.log("ERROR", error);
+        console.log(error);
       }
     };
     OpenNebulaAction.list(hostActions,actionHost);

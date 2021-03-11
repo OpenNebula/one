@@ -75,7 +75,7 @@ define(function(require) {
 
     var groups = this.element.GROUPS.ID;
 
-    if (!$.isArray(groups)){
+    if (!Array.isArray(groups)){
       groups = [groups];
     }
 

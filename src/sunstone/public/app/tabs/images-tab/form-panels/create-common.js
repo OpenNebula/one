@@ -103,7 +103,7 @@ define(function(require) {
   function resetOtherForms (form, formPanelId) {
     if(form && formPanelId){
       var forms = ["Docker","Advanced","Wizard"];
-      forms.forEach(element => {
+      forms.forEach(function(element) {
         if(form !== element){
           try {
             $("#"+formPanelId+element).foundation("resetForm");

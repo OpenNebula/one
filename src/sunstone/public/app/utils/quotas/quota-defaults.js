@@ -108,7 +108,7 @@ define(function(require) {
 
     var ds_quotas = [];
 
-    if ($.isArray(default_quotas.DATASTORE_QUOTA.DATASTORE))
+    if (Array.isArray(default_quotas.DATASTORE_QUOTA.DATASTORE))
       ds_quotas = default_quotas.DATASTORE_QUOTA.DATASTORE;
     else if (default_quotas.DATASTORE_QUOTA.DATASTORE)
       ds_quotas = [default_quotas.DATASTORE_QUOTA.DATASTORE];
@@ -125,7 +125,7 @@ define(function(require) {
 
     var img_quotas = [];
 
-    if ($.isArray(default_quotas.IMAGE_QUOTA.IMAGE))
+    if (Array.isArray(default_quotas.IMAGE_QUOTA.IMAGE))
       img_quotas = default_quotas.IMAGE_QUOTA.IMAGE;
     else if (default_quotas.IMAGE_QUOTA.IMAGE)
       img_quotas = [default_quotas.IMAGE_QUOTA.IMAGE];
@@ -142,7 +142,7 @@ define(function(require) {
 
     var net_quotas = [];
 
-    if ($.isArray(default_quotas.NETWORK_QUOTA.NETWORK))
+    if (Array.isArray(default_quotas.NETWORK_QUOTA.NETWORK))
       net_quotas = default_quotas.NETWORK_QUOTA.NETWORK;
     else if (default_quotas.NETWORK_QUOTA.NETWORK)
       net_quotas = [default_quotas.NETWORK_QUOTA.NETWORK];

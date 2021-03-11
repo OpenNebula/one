@@ -260,7 +260,7 @@ define(function(require) {
       var Template = Array.isArray(inElement)? inElement: [inElement];
       var Finder = Array.isArray(finder)? finder: [finder];
       var x = Template.map(function(internalTemplate){return JSON.stringify(internalTemplate);});
-      Finder.forEach(fnd => {
+      Finder.forEach(function(fnd) {
         if($.inArray(JSON.stringify(fnd),x) === -1){
           diff.push(fnd);
         }
@@ -394,7 +394,7 @@ define(function(require) {
       if(original_tmpl.TEMPLATE.PCI != undefined){
         var original_pcis;
 
-        if ($.isArray(original_tmpl.TEMPLATE.PCI)){
+        if (Array.isArray(original_tmpl.TEMPLATE.PCI)){
           original_pcis = original_tmpl.TEMPLATE.PCI;
         } else if (!$.isEmptyObject(original_tmpl.TEMPLATE.PCI)){
           original_pcis = [original_tmpl.TEMPLATE.PCI];
@@ -822,7 +822,7 @@ define(function(require) {
     if (templateJSON.DISK !== undefined){
       var disks = templateJSON.DISK;
 
-      if (!$.isArray(disks)){
+      if (!Array.isArray(disks)){
         disks = [disks];
       }
       disks = disks.filter(distinct);
@@ -852,7 +852,7 @@ define(function(require) {
     if (templateJSON.NIC !== undefined){
       var nics = templateJSON.NIC;
 
-      if (!$.isArray(nics)){
+      if (!Array.isArray(nics)){
         nics = [nics];
       }
       nics = nics.filter(distinct);

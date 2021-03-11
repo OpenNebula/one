@@ -946,11 +946,11 @@ define(function(require) {
     if (nics == undefined || nics == false){
       nics = [];
     }
-    if (!$.isArray(nics)) {
+    if (!Array.isArray(nics)) {
       nics = [nics];
     }
     if (pci != undefined || pci != false) {
-      if (!$.isArray(pci)) {
+      if (!Array.isArray(pci)) {
         pci = [pci];
       }
       $.each(pci, function(){

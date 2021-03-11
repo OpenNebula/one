@@ -34,7 +34,7 @@ define(function(require){
     var canImportWilds = false;
     if (element.TEMPLATE.VM) {
       var vms = element.TEMPLATE.VM;
-      if (!$.isArray(vms)) { // If only 1 VM convert to array
+      if (!Array.isArray(vms)) { // If only 1 VM convert to array
         vms = [vms];
       }
       $.each(vms, function() {

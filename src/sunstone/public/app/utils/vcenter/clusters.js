@@ -194,7 +194,7 @@ define(function(require) {
         function successClusterList(request, obj_list){
           if (cluster_name && obj_list) {
             let r = null;
-            obj_list.map(cluster => {
+            obj_list.forEach(function(cluster) {
               if (cluster && cluster.CLUSTER && cluster.CLUSTER.NAME) {
                 if (cluster.CLUSTER.NAME === cluster_name){
                   r = cluster.CLUSTER;
@@ -275,8 +275,8 @@ define(function(require) {
           OpenNebulaCluster.list({
             timeout: true,
             success: successClusterList,
-            error: error => {
-              console.log("ERROR", error);
+            error: function(error) {
+              console.log(error);
             }
           });
         } else {

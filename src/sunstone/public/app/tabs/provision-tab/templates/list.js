@@ -415,7 +415,7 @@ define(function(require) {
 
   function get_provision_disk_image(data) {
     var disks = [];
-    if ($.isArray(data.TEMPLATE.DISK))
+    if (Array.isArray(data.TEMPLATE.DISK))
         disks = data.TEMPLATE.DISK;
     else if (!$.isEmptyObject(data.TEMPLATE.DISK))
         disks = [data.TEMPLATE.DISK];

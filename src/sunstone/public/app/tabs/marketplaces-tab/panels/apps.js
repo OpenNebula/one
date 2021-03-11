@@ -59,7 +59,7 @@ define(function(require){
     if (this.element.MARKETPLACEAPPS.ID != undefined){
       marketPlaceApps = this.element.MARKETPLACEAPPS.ID;
 
-      if (!$.isArray(marketPlaceApps)){
+      if (!Array.isArray(marketPlaceApps)){
         marketPlaceApps = [marketPlaceApps];
       }
     }

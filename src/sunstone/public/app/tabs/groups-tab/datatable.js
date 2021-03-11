@@ -108,7 +108,7 @@ define(function(require) {
     var users_str = "0";
 
     if (element.USERS.ID){
-      if ($.isArray(element.USERS.ID)){
+      if (Array.isArray(element.USERS.ID)){
         users_str = element.USERS.ID.length;
       } else {
         users_str = "1";

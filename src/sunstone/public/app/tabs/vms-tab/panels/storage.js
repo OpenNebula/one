@@ -181,7 +181,7 @@ define(function(require) {
     var that = this;
 
     var snapshots = [];
-    if ($.isArray(this.element.SNAPSHOTS)){
+    if (Array.isArray(this.element.SNAPSHOTS)){
       snapshots = this.element.SNAPSHOTS;
     } else if (!$.isEmptyObject(this.element.SNAPSHOTS)) {
       snapshots = [this.element.SNAPSHOTS];
@@ -189,7 +189,7 @@ define(function(require) {
 
     var snapshotsSize = {};
     var monitoringSnapshots = [];
-    if ($.isArray(that.element.MONITORING.SNAPSHOT_SIZE))
+    if (Array.isArray(that.element.MONITORING.SNAPSHOT_SIZE))
       monitoringSnapshots = that.element.MONITORING.SNAPSHOT_SIZE;
     else if (!$.isEmptyObject(that.element.MONITORING.SNAPSHOT_SIZE))
       monitoringSnapshots = [that.element.MONITORING.SNAPSHOT_SIZE];
@@ -208,7 +208,7 @@ define(function(require) {
       var diskId = this.DISK_ID;
       var diskSnapshots = this.SNAPSHOT;
 
-      if (!$.isArray(diskSnapshots)){
+      if (!Array.isArray(diskSnapshots)){
         diskSnapshots = [diskSnapshots];
       }
 
@@ -244,7 +244,7 @@ define(function(require) {
     });
 
     var disks = [];
-    if ($.isArray(that.element.TEMPLATE.DISK))
+    if (Array.isArray(that.element.TEMPLATE.DISK))
       disks = that.element.TEMPLATE.DISK.slice(0); // clone
     else if (!$.isEmptyObject(that.element.TEMPLATE.DISK))
       disks = [that.element.TEMPLATE.DISK];
@@ -260,7 +260,7 @@ define(function(require) {
 
     var disksSize = {};
     var monitoringDisks = [];
-    if ($.isArray(that.element.MONITORING.DISK_SIZE))
+    if (Array.isArray(that.element.MONITORING.DISK_SIZE))
       monitoringDisks = that.element.MONITORING.DISK_SIZE;
     else if (!$.isEmptyObject(that.element.MONITORING.DISK_SIZE))
       monitoringDisks = [that.element.MONITORING.DISK_SIZE];

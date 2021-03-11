@@ -81,7 +81,6 @@ define(function(require) {
     var port = spice_query_var('port', default_port);
 
     if ((!host) || (!port)) {
-      console.log("must specify host and port in URL");
       return;
     }
 
@@ -126,8 +125,6 @@ define(function(require) {
       spice_xfer_area.setAttribute('id', 'spice-xfer-area');
       document.getElementById('spice-area').addEventListener('dragover', handle_file_dragover, false);
       document.getElementById('spice-area').addEventListener('drop', handle_file_drop, false);
-    } else {
-      console.log("File API is not supported");
     }
   }
 

@@ -67,7 +67,7 @@ define(function(require) {
   function optionsFilesystem(){
     var rtn = "<option value=''>-</option>";
     if(config && config.system_config && config.system_config.support_fs && Array.isArray(config.system_config.support_fs)){
-      config.system_config.support_fs.forEach(element => {
+      config.system_config.support_fs.forEach(function(element) {
         rtn += "<option value='"+element+"'>"+element+"</option>";
       });
     }

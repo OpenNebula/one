@@ -60,7 +60,7 @@ define(function(require) {
     if (this.element.VROUTERS.ID != undefined){
       vrs = this.element.VROUTERS.ID;
 
-      if (!$.isArray(vrs)){
+      if (!Array.isArray(vrs)){
         vrs = [vrs];
       }
     }

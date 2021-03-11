@@ -160,7 +160,7 @@ var create_socket = function(token){
               <i class='fas fa-fw fa-check'></i>" + Locale.tr("All") + "</a></li>";
           }
 
-          if (!$.isArray(groups)){
+          if (!Array.isArray(groups)){
             groups = groups.toString();
             groups = [groups];
           }
@@ -278,7 +278,6 @@ var create_socket = function(token){
     });
 
     $(".user-zone-info a.configuration").click(function() {
-      //$(document).foundation('dropdown', 'closeall');
       Sunstone.showTab(SETTINGS_TAB_ID);
     });
   }

@@ -397,11 +397,11 @@ define(function(require) {
     //if exist schedule_actions add scheduleAction to each role
     if(scheduleActions){
       post = false;
-      roles = roles.map(role => {
+      roles = roles.map(function(role) {
         if(role.vm_template_contents){
           var template_contents = TemplateUtils.stringToTemplate(role.vm_template_contents);
           var new_vm_template_contents = "";
-          Object.keys(template_contents).forEach(element => {
+          Object.keys(template_contents).forEach(function(element) {
             if(element !== "SCHED_ACTION"){
               new_vm_template_contents += TemplateUtils.templateToString({[element]: template_contents[element]});
             }

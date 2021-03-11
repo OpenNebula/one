@@ -213,7 +213,7 @@ define(function(require) {
             nics = $.merge(alias, nics)
           }
 
-          var nic = nics.find(n => n.RDP && String(n.RDP).toUpperCase() === "YES");
+          var nic = nics.find(function(n) { return n.RDP && String(n.RDP).toUpperCase() === "YES" });
           var ip = nic && nic.IP ? nic.IP : '';
           var credentials = {};
 

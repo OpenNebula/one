@@ -60,7 +60,7 @@ define(function(require) {
     if (this.element.GROUPS.ID != undefined){
       groups = this.element.GROUPS.ID;
 
-      if (!$.isArray(groups)){
+      if (!Array.isArray(groups)){
         groups = [groups];
       }
     }

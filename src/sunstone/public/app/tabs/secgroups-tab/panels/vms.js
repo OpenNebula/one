@@ -98,7 +98,7 @@ define(function(require){
     if (attr != undefined){
       ids = attr;
 
-      if (!$.isArray(ids)){
+      if (!Array.isArray(ids)){
         ids = [ids];
       }
     }

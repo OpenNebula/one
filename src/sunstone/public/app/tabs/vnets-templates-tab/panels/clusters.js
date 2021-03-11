@@ -60,7 +60,7 @@ define(function(require){
     if (this.element.TEMPLATE.CLUSTERS != undefined){
       clusters = this.element.TEMPLATE.CLUSTER_IDS.split(",");
 
-      if (!$.isArray(clusters)){
+      if (!Array.isArray(clusters)){
         clusters = [clusters];
       }
     }

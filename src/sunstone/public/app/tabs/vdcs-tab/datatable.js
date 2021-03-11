@@ -108,7 +108,7 @@ define(function(require) {
     var groupColumn = 0;
 
     var gIds = element.GROUPS.ID;
-    if ($.isArray(gIds)){
+    if (Array.isArray(gIds)){
       groupColumn = gIds.length;
     } else if (!$.isEmptyObject(gIds)){
       groupColumn = 1;
@@ -134,7 +134,7 @@ define(function(require) {
 
   function _lengthOf(ids, res_name){
     var l = 0;
-    if ($.isArray(ids)){
+    if (Array.isArray(ids)){
       l = ids.length;
     } else if (!$.isEmptyObject(ids)){
       if (ids[res_name+"_ID"] == VDC_ALL_RESOURCES){

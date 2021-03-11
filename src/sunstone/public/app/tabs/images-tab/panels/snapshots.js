@@ -68,7 +68,7 @@ define(function(require){
     if (!$.isEmptyObject(this.element.SNAPSHOTS)){
       var snapshots = this.element.SNAPSHOTS.SNAPSHOT;
 
-      if (!$.isArray(snapshots)){
+      if (!Array.isArray(snapshots)){
         snapshots = [snapshots];
       }
 

@@ -111,7 +111,7 @@ define(function(require) {
     this.element = params.element;
 
     if (this.element.GROUPS !== undefined && this.element.GROUPS.ID !== undefined) {
-      if ($.isArray(this.element.GROUPS.ID)) {
+      if (Array.isArray(this.element.GROUPS.ID)) {
         this.originalGroupIds = this.element.GROUPS.ID;
       } else {
         this.originalGroupIds = [this.element.GROUPS.ID];

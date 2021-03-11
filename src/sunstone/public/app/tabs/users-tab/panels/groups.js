@@ -67,7 +67,7 @@ define(function(require) {
     var groups;
     var groupTrHTML = TemplateChgrpTr({"element": this.element});
     if (this.element.GROUPS !== undefined && this.element.GROUPS.ID !== undefined) {
-      if ($.isArray(this.element.GROUPS.ID)) {
+      if (Array.isArray(this.element.GROUPS.ID)) {
         groups = this.element.GROUPS.ID;
       } else {
         groups = [this.element.GROUPS.ID];

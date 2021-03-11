@@ -121,7 +121,6 @@ define(function(require) {
       _rfb.addEventListener("credentialsrequired", credentialsRequired);
     }catch(err){
       setStatus("Something went wrong, connection is closed", "Failed");
-      console.log("error start NOVNC ", err);
     }
 
     $("#open_in_a_new_window").attr("href", link);

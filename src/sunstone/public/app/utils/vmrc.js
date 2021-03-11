@@ -125,7 +125,6 @@ define(function (require) {
 
     } catch (err) {
       setStatus("Something went wrong, connection is closed", "Failed");
-      console.log("error start VMRC ", err);
     }
   }
 

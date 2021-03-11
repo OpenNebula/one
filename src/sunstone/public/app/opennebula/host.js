@@ -32,7 +32,6 @@ define(function(require) {
 
   var _clearCache = function() {
     infrastructureCache = null;
-    //console.log("Host.pciDevices. Cache cleaned");
   };
 
   var RESOURCE = "HOST";
@@ -145,19 +144,13 @@ define(function(require) {
 
       if (infrastructureCache &&
           infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
-
-        //console.log("Host.pciDevices. Cache used");
-
-        return callback ?
-            callback(request, infrastructureCache["pcis"]) : null;
+        return callback ? callback(request, infrastructureCache["pcis"]) : null;
       }
 
       pcisCallbacks.push({
         success : callback,
         error : callbackError
       });
-
-      //console.log("Host.pciDevices. Callback queued");
 
       _infrastructure();
     },
@@ -168,19 +161,13 @@ define(function(require) {
 
       if (infrastructureCache &&
           infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
-
-        //console.log("Host.vcenterCustomizations. Cache used");
-
-        return callback ?
-            callback(request, infrastructureCache["customizations"]) : null;
+        return callback ? callback(request, infrastructureCache["customizations"]) : null;
       }
 
       customizationsCallbacks.push({
         success : callback,
         error : callbackError
       });
-
-      //console.log("Host.vcenterCustomizations. Callback queued");
 
       _infrastructure();
     },
@@ -192,8 +179,7 @@ define(function(require) {
       if (infrastructureCache &&
           infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
 
-        return callback ?
-            callback(request, infrastructureCache["lxd_profiles"]) : null;
+        return callback ? callback(request, infrastructureCache["lxd_profiles"]) : null;
       }
 
       lxdProfilesInfoCallbacks.push({
@@ -233,8 +219,6 @@ define(function(require) {
 
     infrastructureWaiting = true;
 
-    //console.log("Host.infrastructure. NO cache, calling ajax");
-
     $.ajax({
       url: "infrastructure",
       type: "GET",
@@ -246,7 +230,7 @@ define(function(require) {
           pcis = [];
         }
 
-        if (!$.isArray(pcis)){ // If only 1 convert to array
+        if (!Array.isArray(pcis)){ // If only 1 convert to array
           pcis = [pcis];
         }
 
@@ -256,7 +240,7 @@ define(function(require) {
           customizations = [];
         }
 
-        if (!$.isArray(customizations)){ // If only 1 convert to array
+        if (!Array.isArray(customizations)){ // If only 1 convert to array
           customizations = [customizations];
         }
 
@@ -266,7 +250,7 @@ define(function(require) {
           lxd_profiles = [];
         }
 
-        if (!$.isArray(lxd_profiles)){ // If only 1 convert to array
+        if (!Array.isArray(lxd_profiles)){ // If only 1 convert to array
           lxd_profiles = [lxd_profiles];
         }
 
@@ -276,7 +260,7 @@ define(function(require) {
           kvm_info = [];
         }
 
-        if (!$.isArray(kvm_info)){ // If only 1 convert to array
+        if (!Array.isArray(kvm_info)){ // If only 1 convert to array
           kvm_info = [kvm_info];
         }
 
@@ -294,7 +278,6 @@ define(function(require) {
           var callback = pcisCallbacks[i].success;
 
           if (callback) {
-            //console.log("Host.pciDevices. Callback called");
             callback(request, pcis);
           }
         }
@@ -305,7 +288,6 @@ define(function(require) {
           var callback = customizationsCallbacks[i].success;
 
           if (callback) {
-            //console.log("Host.vcenterCustomizations. Callback called");
             callback(request, customizations);
           }
         }
@@ -342,7 +324,6 @@ define(function(require) {
           var callback = pcisCallbacks[i].error;
 
           if (callback) {
-            //console.log("Host.pciDevices. ERROR Callback called");
             callback(request, OpenNebulaError(response));
           }
         }
@@ -353,7 +334,6 @@ define(function(require) {
           var callback = customizationsCallbacks[i].error;
 
           if (callback) {
-            //console.log("Host.vcenterCustomizations. ERROR Callback called");
             callback(request, OpenNebulaError(response));
           }
         }

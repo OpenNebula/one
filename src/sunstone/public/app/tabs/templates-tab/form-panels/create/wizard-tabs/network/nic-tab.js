@@ -547,7 +547,7 @@ define(function(require) {
 
   function _hide_remove(nics) {
     $.each(nics, function(index, value) {
-        if (that.nics.find(nic => nic.ALIAS === value.NAME)) {
+        if (that.nics.find(function(nic) { return nic.ALIAS === value.NAME })) {
             $("#update_remove_nic_" + value.ID).hide();
         } else {
             $("#update_remove_nic_" + value.ID).show();

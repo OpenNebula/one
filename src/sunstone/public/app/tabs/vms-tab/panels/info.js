@@ -203,8 +203,7 @@ define(function(require) {
       var templateJSON = $.extend({}, that.element.USER_TEMPLATE);
       delete templateJSON.ERROR;
       template_str = TemplateUtils.templateToString(templateJSON);
-      console.log({template_str});
-      // 
+
       Sunstone.runAction(RESOURCE + ".update_template", resourceId, template_str);
     });
   }

@@ -513,7 +513,7 @@ define(function(require) {
       var publicClouds = templateJSON["PUBLIC_CLOUD"];
 
       if (publicClouds != undefined) {
-        if (!$.isArray(publicClouds)){
+        if (!Array.isArray(publicClouds)){
           publicClouds = [publicClouds];
         }
 

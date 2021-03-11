@@ -80,7 +80,7 @@ define(function(require) {
 
     var history = [];
     if (that.element.HISTORY_RECORDS.HISTORY) {
-      if ($.isArray(that.element.HISTORY_RECORDS.HISTORY))
+      if (Array.isArray(that.element.HISTORY_RECORDS.HISTORY))
           history = that.element.HISTORY_RECORDS.HISTORY;
       else if (that.element.HISTORY_RECORDS.HISTORY.SEQ)
           history = [that.element.HISTORY_RECORDS.HISTORY];

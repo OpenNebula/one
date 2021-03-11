@@ -60,7 +60,7 @@ define(function(require) {
     if (this.element.DATASTORES.ID != undefined){
       datastores = this.element.DATASTORES.ID;
 
-      if (!$.isArray(datastores)){
+      if (!Array.isArray(datastores)){
         datastores = [datastores];
       }
     }
