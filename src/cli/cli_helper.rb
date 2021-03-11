@@ -357,13 +357,13 @@ module CLIHelper
         # @param options [Hash] Object with CLI user options
         # @param top     [Boolean]     True to not update columns again
         def show(data, options = {}, top = false)
+            update_columns(options) unless top
+
             if options[:list]
                 @cli_columns = options[:list].collect {|o| o.upcase.to_sym }
             else
                 @cli_columns = @default_columns
             end
-
-            update_columns(options) unless top
 
             if data.is_a? Hash
                 @data = data
