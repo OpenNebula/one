@@ -19,10 +19,10 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var InstantiateTemplateFormPanel = require('tabs/templates-tab/form-panels/instantiate');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var TemplatesTable = require('tabs/templates-tab/datatable');
+  var InstantiateTemplateFormPanel = require("tabs/templates-tab/form-panels/instantiate");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var TemplatesTable = require("tabs/templates-tab/datatable");
   var Leases = require("utils/leases");
   var OpenNebulaAction = require("opennebula/action");
 
@@ -30,8 +30,8 @@ define(function(require) {
     CONSTANTS
    */
 
-  var FORM_PANEL_ID = require('./create/formPanelId');
-  var TAB_ID = require('../tabId');
+  var FORM_PANEL_ID = require("./create/formPanelId");
+  var TAB_ID = require("../tabId");
 
   /*
     CONSTRUCTOR
@@ -43,14 +43,14 @@ define(function(require) {
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
     this.actions = {
-      'create': {
-        'title': Locale.tr("Create Virtual Machine"),
-        'buttonText': Locale.tr("Create"),
-        'resetButton': true
+      "create": {
+        "title": Locale.tr("Create Virtual Machine"),
+        "buttonText": Locale.tr("Create"),
+        "resetButton": true
       }
     };
 
-    this.templatesTable = new TemplatesTable('vm_create', {'select': true});
+    this.templatesTable = new TemplatesTable("vm_create", {"select": true});
   }
 
   FormPanel.FORM_PANEL_ID = FORM_PANEL_ID;
@@ -67,7 +67,7 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     InstantiateTemplateFormPanel.prototype.setup.call(this, context);
-    $(".selectTemplateTable", context).html('<br/>' + this.templatesTable.dataTableHTML + '<br/>');
+    $(".selectTemplateTable", context).html("<br/>" + this.templatesTable.dataTableHTML + "<br/>");
     this.templatesTable.initialize();
     this.templatesTable.idInput().on("change", function(){
       var template_id = $(this).val();
@@ -89,16 +89,29 @@ define(function(require) {
         Object.assign(leasesThat, that);
         leasesThat.resource = "vm";
         leasesThat.resourceId = template_id;
+
         if(
-          OpenNebulaAction && 
-          OpenNebulaAction.cache && 
+          OpenNebulaAction &&
+          OpenNebulaAction.cache &&
           OpenNebulaAction.cache("VMTEMPLATE") &&
-          OpenNebulaAction.cache("VMTEMPLATE").data && 
-          OpenNebulaAction.cache("VMTEMPLATE").data[template_id] &&
-          OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE && 
-          OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE.TEMPLATE
+          OpenNebulaAction.cache("VMTEMPLATE").data &&
+          Array.isArray(OpenNebulaAction.cache("VMTEMPLATE").data)
         ){
-          leasesThat.jsonTemplate = OpenNebulaAction.cache("VMTEMPLATE").data[template_id].VMTEMPLATE.TEMPLATE;
+          var vmTemplate = OpenNebulaAction.cache("VMTEMPLATE").data.find(
+            function(ele){
+              return ele && ele.VMTEMPLATE && ele.VMTEMPLATE.ID && ele.VMTEMPLATE.ID === template_id;
+            }
+          );
+          if(vmTemplate && vmTemplate.VMTEMPLATE && vmTemplate.VMTEMPLATE.TEMPLATE){
+            var vmtemplate = vmTemplate.VMTEMPLATE.TEMPLATE;
+            var persistent = false;
+            if(vmtemplate.DEFAULT_VM_PERSISTENT && vmtemplate.DEFAULT_VM_PERSISTENT.toLowerCase() === "yes"){
+              persistent = true;
+            }
+            $("input.instantiate_pers", context).prop("checked", persistent);
+            $("input.instantiate_pers", context).trigger("change");
+            leasesThat.jsonTemplate = vmtemplate;
+          }
         }
         leasesThat.__proto__ = FormPanel.prototype;
         Leases.actions(leasesThat);

@@ -462,7 +462,7 @@ define(function(require) {
       var os = original_tmpl.TEMPLATE.OS ? original_tmpl.TEMPLATE.OS : {};
 
       if (boot && boot.length > 0) {
-        os.BOOT = boot
+        os.BOOT = boot;
         tmp_json.OS = os;
       } else {
         tmp_json.OS = os;
@@ -719,13 +719,13 @@ define(function(require) {
           if (idsLength == idsDone){
             Sunstone.enableFormPanelSubmit(that.tabId);
           }
-          
+
           var osJSON = template_json.VMTEMPLATE.TEMPLATE.OS;
           if (osJSON && osJSON["BOOT"]) {
             _fillBootValue(context, osJSON["BOOT"]);
           }
 
-          _loadBootOrder(context, template_json.VMTEMPLATE.TEMPLATE)
+          _loadBootOrder(context, template_json.VMTEMPLATE.TEMPLATE);
         },
         error: function(request, error_json, container) {
           Notifier.onError(request, error_json, container);
