@@ -136,7 +136,7 @@ define(function(require) {
     }
 
     var show_buttons = function(fireedgeToken) {
-      if (fireedgeToken != "") {
+      if ((fireedgeToken && fireedgeToken != "") || is_fireedge_configured) {
         show_fireedge_buttons();
       }
       else{
@@ -144,7 +144,7 @@ define(function(require) {
       }
     }
 
-    FireedgeValidator.validateFireedgeToken(show_buttons, show_noVNC_buttons);
+    FireedgeValidator.validateFireedgeToken(show_buttons, show_buttons);
   }
 
   

@@ -289,12 +289,8 @@ define(function(require) {
           id: data.id,
           success: function(response) {
             FireedgeValidator.validateFireedgeToken(
-              function(fireedgeToken) {
-                if (fireedgeToken !== '') {
+              function() {
                   OpenNebulaVM.isVMRCSupported(response) ? _callVMRC(data) : _callGuacVNC(data)
-                } else {
-                  _callVNC(data)
-                }
               },
               function() {
                 _callVNC(data)

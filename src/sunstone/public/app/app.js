@@ -56,33 +56,33 @@ var _commonDialogs = [
 //   $('#loading').hide();
 //});
 
-$(document).ready(function() {
-Sunstone.addDialogs(_commonDialogs);
-Sunstone.addMainTabs();
-Sunstone.insertTabs();
+  $(document).ready(function() {
+    Sunstone.addDialogs(_commonDialogs);
+    Sunstone.addMainTabs();
+    Sunstone.insertTabs();
 
-if (Config.isTabEnabled(PROVISION_TAB_ID)){
-  Menu.insertProvision();
-}else{
-  Menu.insert();
-  Sunstone.setupNavigoRoutes();
-}
+    if (Config.isTabEnabled(PROVISION_TAB_ID)){
+      Menu.insertProvision();
+    }else{
+      Menu.insert();
+      Sunstone.setupNavigoRoutes();
+    }
 
-_setupAccordion();
-_setupCloseDropdownsOnClick();
-_insertUserAndZoneSelector();
+    _setupAccordion();
+    _setupCloseDropdownsOnClick();
+    _insertUserAndZoneSelector();
 
-if (Config.isTabEnabled(PROVISION_TAB_ID)) {
-  Sunstone.showTab(PROVISION_TAB_ID);
-}
+    if (Config.isTabEnabled(PROVISION_TAB_ID)) {
+      Sunstone.showTab(PROVISION_TAB_ID);
+    }
 
-var create_socket = function(token){
-  if (Websocket.disconnected()){
-    Websocket.start(token);
-  }
-}
+    var create_socket = function(token){
+      if (Websocket.disconnected()){
+        Websocket.start(token);
+      }
+    }
 
-   FireedgeValidator.checkFireedgePublicURL(FireedgeValidator.validateFireedgeToken, create_socket);
+    FireedgeValidator.checkFireedgePublicURL(FireedgeValidator.validateFireedgeToken, create_socket);
 
     $('#loading').hide();
   });

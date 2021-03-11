@@ -22,26 +22,6 @@ define(function (require) {
     // user config
     const fireedge_endpoint = Config.publicFireedgeEndpoint;
 
-    const STATUS = {
-        DISCONNECTED: 0,
-        CONNECTED: 1,
-        PROCESSING: 2
-    };
-
-    var connection = STATUS.DISCONNECTED;
-
-    var _connected = function(){
-        return connection == STATUS.CONNECTED;
-    };
-
-    var _disconnected = function(){
-        return connection == STATUS.DISCONNECTED;
-    };
-
-    var _processing = function(){
-        return connection == STATUS.PROCESSING;
-    };
-
     /**
      * Aux function to change the fireedge_token value.
      *
@@ -65,7 +45,12 @@ define(function (require) {
      * be "".
      */
     var _validate_fireedge_token = function(success, error) {
-        if (is_fireedge_configured && fireedge_token == "" && fireedge_endpoint){
+        /*
+         * sunstone_fireedge_active is a variable to control if we already did
+         * validations. If that variable is true, that means that fireedge
+         * endpoint was working last time we checked it.
+         */
+        if (sunstone_fireedge_active && fireedge_token == "" && fireedge_endpoint){
             $.ajax({
                 url: "/fireedge",
                 type: "GET",
@@ -77,7 +62,7 @@ define(function (require) {
                 },
                 error: function(request, response, data) {
                     Notifier.onError(request, {error:{ message: "FireEdge private endpoint is not working, please contact your cloud administrator"}});
-                    is_fireedge_configured = false;
+                    sunstone_fireedge_active = false;
                     clear_fireedge_token();
                     if (typeof error === "function"){
                         error();
@@ -85,11 +70,17 @@ define(function (require) {
                 }
             });
         }
-        else if (is_fireedge_configured){
+        /**
+         * is_fireedge_configured is a variable to control if fireedge
+         * configurations are available on sunstone-server.conf.
+         * If they are available then we must use fireedge for everything.
+        */
+        else if (sunstone_fireedge_active || is_fireedge_configured){
             if (typeof success === "function"){
                 success(fireedge_token);
             }
         }
+        // If fireedge it is not available and not configured then we dont use it
         else{
             if (typeof error === "function"){
                 error();
@@ -103,14 +94,14 @@ define(function (require) {
                 url: fireedge_endpoint,
                 type: "GET",
                 success: function() {
-                    is_fireedge_configured = true;
+                    sunstone_fireedge_active = true;
                     if (typeof success === "function" && typeof aux === "function"){
                         success(aux);
                     }
                 },
                 error: function(request, response, data) {
                     Notifier.onError(request, {error:{ message: "FireEdge public endpoint is not working, please contact your cloud administrator"}});
-                    is_fireedge_configured = false;
+                    sunstone_fireedge_active = false;
                     if (typeof error === "function"){
                         error();
                     }
@@ -118,7 +109,7 @@ define(function (require) {
             });
         }
         else {
-            is_fireedge_configured = false;
+            sunstone_fireedge_active = false;
             if (typeof error === "function"){
                 error();
             }
