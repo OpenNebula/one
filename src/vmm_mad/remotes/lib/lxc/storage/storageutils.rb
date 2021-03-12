@@ -34,15 +34,14 @@ module Storage
         :umount => "#{PRE}umount",
         :lsblk      => 'lsblk',
         :mkdir      => 'mkdir -p',
-        :su_mkdir   => "#{PRE}mkdir -p",
-        :cat        => 'cat',
-        :file       => 'file -L -s',
-        :blkid      => "#{PRE}blkid",
         :e2fsck     => "#{PRE}e2fsck",
         :resize2fs  => "#{PRE}resize2fs",
         :xfs_growfs => "#{PRE}xfs_growfs",
         :bind       => "#{PRE} bindfs" # TODO, allow customize offset
     }
+
+    private_constant :COMMANDS
+    private_constant :PRE
 
     def self.setup_disk(device, mountpoint, bindpoint, options)
         begin
