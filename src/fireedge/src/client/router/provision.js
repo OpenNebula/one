@@ -4,7 +4,19 @@ import {
   SettingsSystemDaydream as ProvisionsIcon,
   Settings as SettingsIcon
 } from '@material-ui/icons'
+
 import loadable from '@loadable/component'
+
+const Login = loadable(() => import('client/containers/Login'), { ssr: false })
+const Dashboard = loadable(() => import('client/containers/Dashboard/Provision'), { ssr: false })
+
+const Providers = loadable(() => import('client/containers/Providers'), { ssr: false })
+const ProvidersFormCreate = loadable(() => import('client/containers/Providers/Form/Create'), { ssr: false })
+
+const Provisions = loadable(() => import('client/containers/Provisions'), { ssr: false })
+const ProvisionsFormCreate = loadable(() => import('client/containers/Provisions/Form/Create'), { ssr: false })
+
+const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
 
 export const PATH = {
   LOGIN: '/',
@@ -28,7 +40,7 @@ export const ENDPOINTS = [
     label: 'Login',
     path: PATH.LOGIN,
     authenticated: false,
-    Component: loadable(() => import('client/containers/Login'))
+    Component: Login
   },
   {
     label: 'Dashboard',
@@ -36,7 +48,7 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: DashboardIcon,
-    Component: loadable(() => import('client/containers/Dashboard/Provision'))
+    Component: Dashboard
   },
   {
     label: 'Providers',
@@ -44,19 +56,19 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: ProvidersIcon,
-    Component: loadable(() => import('client/containers/Providers'), { ssr: false })
+    Component: Providers
   },
   {
     label: 'Create Provider',
     path: PATH.PROVIDERS.CREATE,
     authenticated: true,
-    Component: loadable(() => import('client/containers/Providers/Form/Create'), { ssr: false })
+    Component: ProvidersFormCreate
   },
   {
     label: 'Edit Provider template',
     path: PATH.PROVIDERS.EDIT,
     authenticated: true,
-    Component: loadable(() => import('client/containers/Providers/Form/Create'), { ssr: false })
+    Component: ProvidersFormCreate
   },
   {
     label: 'Provisions',
@@ -64,19 +76,19 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: ProvisionsIcon,
-    Component: loadable(() => import('client/containers/Provisions'), { ssr: false })
+    Component: Provisions
   },
   {
     label: 'Create Provision',
     path: PATH.PROVISIONS.CREATE,
     authenticated: true,
-    Component: loadable(() => import('client/containers/Provisions/Form/Create'), { ssr: false })
+    Component: ProvisionsFormCreate
   },
   {
     label: 'Edit Provision template',
     path: PATH.PROVISIONS.EDIT,
     authenticated: true,
-    Component: loadable(() => import('client/containers/Provisions/Form/Create'), { ssr: false })
+    Component: ProvisionsFormCreate
   },
   {
     label: 'Settings',
@@ -84,7 +96,7 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: SettingsIcon,
-    Component: loadable(() => import('client/containers/Settings'), { ssr: false })
+    Component: Settings
   }
 ]
 

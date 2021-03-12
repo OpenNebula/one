@@ -3,7 +3,20 @@ import {
   FormatListBulleted as TemplatesIcons,
   Apps as InstancesIcons
 } from '@material-ui/icons'
+
 import loadable from '@loadable/component'
+
+const Login = loadable(() => import('client/containers/Login'), { ssr: false })
+
+const Dashboard = loadable(() => import('client/containers/Dashboard'), { ssr: false })
+const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
+const ApplicationsTemplates = loadable(() => import('client/containers/ApplicationsTemplates'), { ssr: false })
+const ApplicationsInstances = loadable(() => import('client/containers/ApplicationsInstances'), { ssr: false })
+
+const ApplicationsTemplatesFormCreate = loadable(
+  () => import('client/containers/ApplicationsTemplates/Form/Create'),
+  { ssr: false }
+)
 
 export const PATH = {
   LOGIN: '/',
@@ -24,7 +37,7 @@ export const ENDPOINTS = [
     label: 'Login',
     path: PATH.LOGIN,
     authenticated: false,
-    Component: loadable(() => import('client/containers/Login'))
+    Component: Login
   },
   {
     label: 'Dashboard',
@@ -32,14 +45,14 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: DashboardIcon,
-    Component: loadable(() => import('client/containers/Dashboard'))
+    Component: Dashboard
   },
   {
     label: 'Settings',
     path: PATH.SETTINGS,
     authenticated: true,
     header: true,
-    Component: loadable(() => import('client/containers/Settings'), { ssr: false })
+    Component: Settings
   },
   {
     label: 'Templates',
@@ -47,19 +60,19 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: TemplatesIcons,
-    Component: loadable(() => import('client/containers/ApplicationsTemplates'), { ssr: false })
+    Component: ApplicationsTemplates
   },
   {
     label: 'Create Application template',
     path: PATH.APPLICATIONS_TEMPLATES.CREATE,
     authenticated: true,
-    Component: loadable(() => import('client/containers/ApplicationsTemplates/Form/Create'), { ssr: false })
+    Component: ApplicationsTemplatesFormCreate
   },
   {
     label: 'Edit Application template',
     path: PATH.APPLICATIONS_TEMPLATES.EDIT,
     authenticated: true,
-    Component: loadable(() => import('client/containers/ApplicationsTemplates/Form/Create'), { ssr: false })
+    Component: ApplicationsTemplatesFormCreate
   },
   {
     label: 'Instances',
@@ -67,7 +80,7 @@ export const ENDPOINTS = [
     authenticated: true,
     sidebar: true,
     icon: InstancesIcons,
-    Component: loadable(() => import('client/containers/ApplicationsInstances'), { ssr: false })
+    Component: ApplicationsInstances
   }
 ]
 

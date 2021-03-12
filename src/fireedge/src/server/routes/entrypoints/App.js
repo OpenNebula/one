@@ -32,7 +32,7 @@ const router = Router()
 
 router.get('*', (req, res) => {
   let app = 'dev'
-  let title = 'fireedge'
+  let title = 'FireEdge'
   const context = {}
   let store = ''
   let component = ''

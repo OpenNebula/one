@@ -11,6 +11,28 @@ export function sanitize (strings, ...values) {
   return DOMPurify.sanitize(dirty)
 }
 
+/**
+ * Converts a long string of units into a readable format e.g KB, MB, GB, TB, YB
+ *
+ * @param {Int} value The quantity of units.
+ * @param {String} unit The unit of value.
+ * @param {Int} fractionDigits — Number of digits after the decimal point. Must be in the range 0 - 20, inclusive
+ */
+export const prettyBytes = (value, unit = 'KB', fractionDigits = 0) => {
+  const UNITS = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+
+  if (Math.abs(value) === 0) return `${value} ${UNITS[0]}`
+
+  let idxUnit = UNITS.indexOf(unit)
+
+  while (value > 1024) {
+    value /= 1024
+    idxUnit += 1
+  }
+
+  return `${value.toFixed(fractionDigits)} ${UNITS[idxUnit]}`
+}
+
 export const addOpacityToColor = (color, opacity) => {
   const opacityHex = Math.round(opacity * 255).toString(16)
   return `${color}${opacityHex}`
