@@ -55,13 +55,18 @@ if [ $RC -ne 0 ]; then
     exit $RC
 fi
 
+# Synchronize VM time on background
 if [ "$SYNC_TIME" = "yes" ]; then
     (
-        for i in $(seq 3); do
-            virsh --connect $QEMU_PROTOCOL://$dest_host/system domtime --sync $deploy_id && break
-            [ "$i" -gt 1 ] && sleep 6
+        for I in $(seq 4 -1 1); do
+            if virsh --connect $QEMU_PROTOCOL://$dest_host/system --readonly dominfo $deploy_id; then
+                virsh --connect $QEMU_PROTOCOL://$dest_host/system domtime --sync $deploy_id && exit
+                [ "$I" -gt 1 ] && sleep 5
+            else
+                exit
+            fi
         done
-    ) &> /dev/null &
+    ) &>/dev/null &
 fi
 
 # Compact memory on src host

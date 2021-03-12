@@ -98,13 +98,18 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Synchronize VM time on background
 if [ "$SYNC_TIME" = "yes" ]; then
     (
-        for i in $(seq 3); do
-            virsh --connect $LIBVIRT_URI domtime --sync $DEPLOY_ID && break
-            [ "$i" -gt 1 ] && sleep 6
+        for I in $(seq 4 -1 1); do
+            if virsh --connect $LIBVIRT_URI --readonly dominfo $DEPLOY_ID; then
+                virsh --connect $LIBVIRT_URI domtime --sync $DEPLOY_ID && exit
+                [ "$I" -gt 1 ] && sleep 5
+            else
+                exit
+            fi
         done
-    ) &> /dev/null &
+    ) &>/dev/null &
 fi
 
 rm "$FILE"
