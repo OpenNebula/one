@@ -478,31 +478,47 @@ helpers do
     end
 
     # Escape data from user
-    def scape_attr(attr)
+    def escape_attr(attr)
         ret  = ''
         attr = attr.split('')
+
+        # Boolean to indicate that section is being escaped
+        escape = false
 
         # KEY=value with spaces -> KEY=\"value with spaces\"
         # KEY=[KEY2=value with spaces] -> KEY=[KEY2=\"value with spaces\"]
         attr.each_with_index do |s, idx|
+            if s == '=' && escape
+                ret << s
+                next
+            end
+
             if s == '=' && attr[idx + 1] != '[' && attr[idx + 1] != "\""
                 ret << "=\""
+
+                escape = true
             elsif s == ',' && attr[idx - 1] != "\""
                 ret << "\","
             elsif s == '[' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
                 ret << "\"["
             elsif s == ']' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
                 ret << "\"]"
+
+                escape = false
             elsif s == '\\' && attr[idx - 1] != "\""
                 ret << "\"\\"
+
+                escape = false
             elsif s == "\n" && attr[idx - 1] != "\""
                 ret << "\"\n"
+
+                escape = false
             else
                 ret << s
             end
         end
 
-        # Replace scaped \n by no scaped one
+        # Replace escaped \n by no scaped one
         ret.gsub!("\\n", "\n")
 
         ret.insert(ret.size, "\"") if ret[-1] != ']' && ret[-1] != "\""
@@ -528,7 +544,7 @@ helpers do
 
         # Escape attr
         # ###########
-        attr = scape_attr(attr)
+        attr = escape_attr(attr)
 
         if type == 1
             error = "cannot be modified"
