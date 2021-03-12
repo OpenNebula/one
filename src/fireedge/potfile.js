@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-genpotfile')
+const { createReadStream, generateFile } = require('opennebula-generatepotfile')
 const clientConstants = require('./src/client/constants/translates')
 
 const clientCode = './src/client'

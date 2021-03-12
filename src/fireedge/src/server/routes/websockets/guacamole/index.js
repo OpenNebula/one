@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const GuacamoleOpennebula = require('guacamole-opennebula')
+const GuacamoleOpennebula = require('opennebula-guacamole')
 const { getConfig } = require('server/utils/yml')
 const { messageTerminal } = require('server/utils/general')
 const { genFireedgeKey } = require('server/utils/server')

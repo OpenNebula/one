@@ -76,6 +76,8 @@ const defaults = {
   defaultCommandProvisionTemplate: 'oneprovision-template',
   defaultCommandProvider: 'oneprovider',
   defaultFolderTmpProvision: 'tmp',
+  defaultHideCredentials: true,
+  defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultEndpointWebsocket: `${appName ? '/' + appName : ''}/websocket`,
   defaultConfigFile: `${appName}-server.conf`,
