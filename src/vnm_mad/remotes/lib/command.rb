@@ -22,9 +22,9 @@ module VNMMAD
         # to local installations. Any modification requires to sync the hosts
         # with onehost sync command.
         COMMANDS = {
-            :ebtables => 'sudo -n ebtables',
-            :iptables => 'sudo -n iptables',
-            :ip6tables=> 'sudo -n ip6tables',
+            :ebtables => 'sudo -n ebtables --concurrent',
+            :iptables => 'sudo -n iptables -w 3 -W 20000',
+            :ip6tables=> 'sudo -n ip6tables -w 3 -W 20000',
             :ip       => 'sudo -n ip',
             :ip_unpriv=> 'ip',
             :virsh    => 'virsh -c qemu:///system',
