@@ -121,6 +121,17 @@ export default function useProvision () {
     [dispatch]
   )
 
+  const getProviderConnection = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .getProviderConnection({ id })
+        .catch(err => {
+          dispatch(enqueueError(err ?? `Error GET (${id}) provider connection`))
+          throw err
+        })
+    , [dispatch]
+  )
+
   // --------------------------------------------
   // PROVISIONS REQUESTS
   // --------------------------------------------
@@ -256,6 +267,7 @@ export default function useProvision () {
     createProvider,
     updateProvider,
     deleteProvider,
+    getProviderConnection,
 
     provisions,
     getProvision,

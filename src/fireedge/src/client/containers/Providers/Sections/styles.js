@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core'
 
 export default makeStyles(theme => ({
-  permissions: {
+  marginBottom: {
     marginBottom: theme.spacing(2)
   },
   list: {
@@ -10,16 +10,23 @@ export default makeStyles(theme => ({
       overflow: 'hidden',
       textOverflow: 'ellipsis'
     },
-    '&.w-50 p': {
-      width: '50%'
+    '&.w-50 > *': {
+      '& > p, & > span': {
+        width: '50%'
+      }
     },
-    '&.w-25 p': {
-      width: '25%'
+    '&.w-25 > *': {
+      '& > p, & > span': {
+        width: '25%'
+      }
     }
   },
   title: {
     '& p.bold': {
       fontWeight: theme.typography.fontWeightBold
     }
+  },
+  alignToRight: {
+    textAlign: 'right'
   }
 }))

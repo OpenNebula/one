@@ -34,6 +34,7 @@ module.exports = {
   Password: 'Password',
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
+  Credentials: 'Credentials',
 
   /* errors */
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
