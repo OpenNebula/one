@@ -16,13 +16,14 @@
 import React, { useState, useMemo } from 'react'
 import { Container, TextField, Grid, MenuItem } from '@material-ui/core'
 
-import Commands from 'server/utils/constants/commands'
-import InputCode from 'client/components/FormControl/InputCode'
 import ResponseForm from 'client/containers/TestApi/ResponseForm'
+import { InputCode } from 'client/components/FormControl'
 
-import testapiStyles from 'client/containers/TestApi/styles'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
+import Commands from 'server/utils/constants/commands'
+
+import testapiStyles from 'client/containers/TestApi/styles'
 
 const TestApi = () => {
   const classes = testapiStyles()

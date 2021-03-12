@@ -6,7 +6,7 @@ export const FORM_FIELDS = connection =>
   Object.entries(connection)?.map(([name, value]) => ({
     name,
     label: capitalize(name),
-    type: INPUT_TYPES.TEXT,
+    type: INPUT_TYPES.PASSWORD,
     validation: yup
       .string()
       .trim()

@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import useFetch from 'client/hooks/useFetch'
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+import { SubmitButton } from 'client/components/FormControl'
 
 const Action = memo(({ handleClick, icon, cy, ...props }) => {
   const { fetchRequest, loading } = useFetch(

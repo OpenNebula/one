@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { TextField, MenuItem } from '@material-ui/core'
 import { Controller } from 'react-hook-form'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import { ErrorHelper } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC/Translate'
 
 const SelectController = memo(

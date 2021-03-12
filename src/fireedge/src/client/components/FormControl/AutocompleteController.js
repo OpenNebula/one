@@ -5,7 +5,7 @@ import { TextField, Chip } from '@material-ui/core'
 import { Autocomplete } from '@material-ui/lab'
 import { Controller } from 'react-hook-form'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import { ErrorHelper } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC/Translate'
 
 const AutocompleteController = memo(

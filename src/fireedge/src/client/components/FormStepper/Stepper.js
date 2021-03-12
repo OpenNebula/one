@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles, fade } from '@material-ui/core/styles'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 

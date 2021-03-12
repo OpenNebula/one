@@ -6,9 +6,10 @@ import SearchIcon from '@material-ui/icons/Search'
 import RefreshIcon from '@material-ui/icons/Autorenew'
 import AddIcon from '@material-ui/icons/AddCircle'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
-import listHeaderStyles from 'client/components/List/ListHeader/styles'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
+
+import listHeaderStyles from 'client/components/List/ListHeader/styles'
 
 const ListHeader = memo(({
   title,

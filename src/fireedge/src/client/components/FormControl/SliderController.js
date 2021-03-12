@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { Typography, TextField, Slider, FormHelperText, Grid } from '@material-ui/core'
 import { Controller } from 'react-hook-form'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import { ErrorHelper } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC/Translate'
 
 const SliderController = memo(

@@ -5,7 +5,7 @@ import { TextField } from '@material-ui/core'
 import { Controller } from 'react-hook-form'
 import { Tr } from 'client/components/HOC'
 
-import ErrorHelper from 'client/components/FormControl/ErrorHelper'
+import { ErrorHelper } from 'client/components/FormControl'
 
 const TextController = memo(
   ({ control, cy, type, multiline, name, label, error, fieldProps }) => (

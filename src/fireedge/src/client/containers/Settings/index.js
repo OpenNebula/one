@@ -21,7 +21,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+import { SubmitButton } from 'client/components/FormControl'
 
 import { useAuth } from 'client/hooks'
 import { Tr } from 'client/components/HOC'

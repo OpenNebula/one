@@ -4,20 +4,17 @@ import PropTypes from 'prop-types'
 import { Box, Grid } from '@material-ui/core'
 import { useFormContext, useWatch } from 'react-hook-form'
 
+import * as FC from 'client/components/FormControl'
 import { INPUT_TYPES } from 'client/constants'
-import TextController from 'client/components/FormControl/TextController'
-import SelectController from 'client/components/FormControl/SelectController'
-import SliderController from 'client/components/FormControl/SliderController'
-import CheckboxController from 'client/components/FormControl/CheckboxController'
-import AutocompleteController from 'client/components/FormControl/AutocompleteController'
 import { get } from 'client/utils'
 
 const InputController = {
-  [INPUT_TYPES.TEXT]: TextController,
-  [INPUT_TYPES.SELECT]: SelectController,
-  [INPUT_TYPES.SLIDER]: SliderController,
-  [INPUT_TYPES.CHECKBOX]: CheckboxController,
-  [INPUT_TYPES.AUTOCOMPLETE]: AutocompleteController
+  [INPUT_TYPES.TEXT]: FC.TextController,
+  [INPUT_TYPES.PASSWORD]: FC.PasswordController,
+  [INPUT_TYPES.SELECT]: FC.SelectController,
+  [INPUT_TYPES.SLIDER]: FC.SliderController,
+  [INPUT_TYPES.CHECKBOX]: FC.CheckboxController,
+  [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController
 }
 const HiddenInput = ({ isHidden, children }) =>
   isHidden ? <Box display="none">{children}</Box> : children

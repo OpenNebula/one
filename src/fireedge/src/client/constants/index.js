@@ -60,6 +60,7 @@ export const FILTER_POOL = {
 
 export const INPUT_TYPES = {
   TEXT: 'text',
+  PASSWORD: 'password',
   HIDDEN: 'hidden',
   SELECT: 'select',
   CHECKBOX: 'checkbox',

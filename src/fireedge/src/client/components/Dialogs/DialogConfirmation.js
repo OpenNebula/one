@@ -12,7 +12,7 @@ import {
   makeStyles
 } from '@material-ui/core'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 

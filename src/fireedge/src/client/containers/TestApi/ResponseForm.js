@@ -10,7 +10,7 @@ import {
   Checkbox
 } from '@material-ui/core'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+import { SubmitButton } from 'client/components/FormControl'
 import { requestData, requestParams } from 'client/utils'
 
 const ResponseForm = ({
