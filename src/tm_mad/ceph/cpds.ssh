@@ -97,6 +97,12 @@ if [ "${LCM_STATE}" = '26' -a "${VM_MAD}" != "kvm" ]; then
     exit 1
 fi
 
+# Undeployed, or stopped VM state
+if [ "$LCM_STATE" = '67' ] || [ "$LCM_STATE" = '68' ]; then
+    error_message "cpds.ssh: Operation not supported on undeployed/stopped"
+    exit 1
+fi
+
 if [ "$SNAP_ID" != "-1" ]; then
     error_message "cpds.ssh: Operation not supported on disk type ${TYPE} with snapshots"
     exit 1

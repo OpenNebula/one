@@ -85,6 +85,17 @@ ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 # Copy Image back to the datastore
 #-------------------------------------------------------------------------------
 
+if [ "${LCM_STATE}" = '26' -a "${VM_MAD}" != "kvm" ]; then
+    error_message "mvds.ssh: Live operation not supported on ${VM_MAD}"
+    exit 1
+fi
+
+# Undeployed, or stopped VM state
+if [ "$LCM_STATE" = '67' ] || [ "$LCM_STATE" = '68' ]; then
+    error_message "mvds.ssh: Operation not supported on undeployed/stopped"
+    exit 1
+fi
+
 QEMU_OPTS=''
 
 if [ -n "$CEPH_USER" ]; then
