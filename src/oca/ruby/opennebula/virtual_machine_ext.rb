@@ -324,7 +324,7 @@ module OpenNebula::VirtualMachineExt
                 tmp.delete(true)
 
                 binfo[:apps].each do |id|
-                    log "Deleting applicance #{id}" if logger
+                    logger.info "Deleting applicance #{id}" if logger
 
                     papp = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
 

@@ -64,6 +64,7 @@ xml = REXML::Document.new(Base64::decode64(ARGV[0])).root
 import_source = xpath(xml, 'IMPORT_SOURCE')
 format        = xpath(xml, 'FORMAT')
 dispose       = xpath(xml, 'DISPOSE')
+dispose_cmd   = xpath(xml, 'DISPOSE_CMD')
 size          = xpath(xml, 'SIZE')
 md5           = xpath(xml, 'MD5')
 
@@ -147,6 +148,17 @@ Open3.popen3(cmd) do |_, o, e, _|
 
             exit 1
         end
+    end
+end
+
+# Dispose
+
+if dispose == 'YES' && !dispose_cmd.empty?
+    _, stderr_str, status = Open3.capture3(dispose_cmd)
+
+    unless status.success?
+        STDERR.puts("Dispose of #{import_source} failed. "\
+                    "Error: #{stderr_str}")
     end
 end
 

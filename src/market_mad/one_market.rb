@@ -171,7 +171,8 @@ class MarketPlaceDriver < OpenNebulaDriver
                         'MD5'           => "#{info_doc['MD5']}",
                         'SIZE'          => "#{info_doc['SIZE']}",
                         'FORMAT'        => "#{info_doc['FORMAT']}",
-                        'DISPOSE'       => "#{info_doc['DISPOSE']}")
+                        'DISPOSE'       => "#{info_doc['DISPOSE']}",
+                        'DISPOSE_CMD'   => "#{info_doc['DISPOSE_CMD']}")
 
         mp_msg64 = Base64::strict_encode64(xml.to_xml)
 
