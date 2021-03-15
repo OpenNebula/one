@@ -145,9 +145,6 @@ define(function(require) {
         $(".migrate_vm_ds_selection", context).hide();
       }
     }
-    else {
-      $(".migrate_vm_ds_selection", context).hide();
-    }
 
     $.each(Sunstone.getDataTable(TAB_ID).elements(), function() {
       var vm_id = "" + this;
