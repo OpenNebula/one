@@ -20,6 +20,7 @@
 #include "Template.h"
 
 #include <string>
+#include <memory>
 
 /**
  *  Virtual Machine Template class, it represents a VM configuration file.
@@ -85,9 +86,9 @@ public:
     }
 
     // -------------------------------------------------------------------------
-    std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS;
+    static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS;
 
-    unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
+    std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
 
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation

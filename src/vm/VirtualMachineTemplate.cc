@@ -197,12 +197,12 @@ std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECON
 /**
  * returns a copy the values of a vector value
  */
-static void copy_vector_values(Template *old_tmpl, Template *new_tmpl,
+static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
         const char * name)
 {
     string value;
 
-    VectorAttribute * old_attr = old_tmpl->get(name);
+    const VectorAttribute * old_attr = old_tmpl->get(name);
 
     if ( old_attr == 0 )
     {
@@ -211,7 +211,7 @@ static void copy_vector_values(Template *old_tmpl, Template *new_tmpl,
 
     VectorAttribute * new_vattr = new VectorAttribute(name);
 
-    std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
+    std::vector<std::string> vnames = VirtualMachineTemplate::UPDATECONF_ATTRS[name];
 
     for (const auto& vname : vnames)
     {
@@ -237,17 +237,17 @@ unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_templa
 {
     auto conf_tmpl = make_unique<VirtualMachineTemplate>();
 
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "OS");
+    copy_vector_values(this, conf_tmpl.get(), "OS");
 
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "FEATURES");
+    copy_vector_values(this, conf_tmpl.get(), "FEATURES");
 
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "INPUT");
+    copy_vector_values(this, conf_tmpl.get(), "INPUT");
 
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "GRAPHICS");
+    copy_vector_values(this, conf_tmpl.get(), "GRAPHICS");
 
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "RAW");
+    copy_vector_values(this, conf_tmpl.get(), "RAW");
 
-    VectorAttribute * context = obj_template->get("CONTEXT");
+    const VectorAttribute * context = get("CONTEXT");
 
     if ( context != 0 )
     {

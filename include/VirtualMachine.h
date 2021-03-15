@@ -1201,7 +1201,7 @@ public:
      */
     std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const
     {
-        return obj_template->get_updateconf_template();
+        return static_cast<VirtualMachineTemplate*>(obj_template.get())->get_updateconf_template();
     }
 
     // -------------------------------------------------------------------------
