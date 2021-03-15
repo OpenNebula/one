@@ -126,13 +126,15 @@ fi
 
 
 COPY_CMD=$(cat <<EOF
-    if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
-        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
-    elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
-        trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT
-    else
-        echo "Could not domfsfreeze or suspend domain" >&2
-        exit 1
+    if [ "${LCM_STATE}" = '26' ]; then
+        if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+            trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
+        elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
+            trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT
+        else
+            echo "Could not domfsfreeze or suspend domain" >&2
+            exit 1
+        fi
     fi
 
     $RBD import $FORMAT_OPT $SRC_PATH $DST
