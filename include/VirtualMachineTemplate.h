@@ -86,8 +86,16 @@ public:
     }
 
     // -------------------------------------------------------------------------
+    // UpdateConf attributes
+    // -------------------------------------------------------------------------
     static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS;
 
+    /**
+     *  Returns a new template that contains only the attribues vaild in an
+     *  update conf operation
+     *
+     *  @return pointer to new VM template
+     */
     std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
 
     // -------------------------------------------------------------------------

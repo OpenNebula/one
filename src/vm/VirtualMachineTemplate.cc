@@ -185,15 +185,50 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
 // -----------------------------------------------------------------------------
 
 std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECONF_ATTRS = {
-    {"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT", "SD_DISK_BUS", "UUID"} },
-    {"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT",
-         "VIRTIO_SCSI_QUEUES", "IOTHREADS"} },
-    {"INPUT", {"TYPE", "BUS"} },
-    {"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"} },
-    {"RAW", {"TYPE", "DATA", "DATA_VMX"} },
-    {"CPU_MODEL", {"MODEL"} }
+    { "OS",
+        { "ARCH",
+          "MACHINE",
+          "KERNEL",
+          "INITRD",
+          "BOOTLOADER",
+          "BOOT",
+          "KERNEL_CMD",
+          "ROOT",
+          "SD_DISK_BUS",
+          "UUID"}
+    },
+    { "FEATURES",
+        { "PAE",
+          "ACPI",
+          "APIC",
+          "LOCALTIME",
+          "HYPERV",
+          "GUEST_AGENT",
+          "VIRTIO_SCSI_QUEUES",
+          "IOTHREADS"}
+    },
+    { "INPUT",
+        { "TYPE",
+          "BUS"}
+    },
+    {"GRAPHICS",
+        { "TYPE",
+          "LISTEN",
+          "PASSWD",
+          "KEYMAP",
+          "COMMAND"}
+    },
+    {"RAW",
+        { "TYPE",
+          "DATA",
+          "DATA_VMX"}
+    },
+    {"CPU_MODEL",
+        { "MODEL" }
+    }
 };
 
+// -----------------------------------------------------------------------------
 /**
  * returns a copy the values of a vector value
  */
@@ -233,6 +268,8 @@ static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
     }
 }
 
+// -----------------------------------------------------------------------------
+
 unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_template() const
 {
     auto conf_tmpl = make_unique<VirtualMachineTemplate>();
@@ -256,5 +293,4 @@ unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_templa
 
     return conf_tmpl;
 }
-
 

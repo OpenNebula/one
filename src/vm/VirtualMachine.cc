@@ -2807,7 +2807,7 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
+int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err)
 {
     switch (state)
     {
@@ -2867,7 +2867,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Validates RAW data section
     // -------------------------------------------------------------------------
-    if (Nebula::instance().get_vmm()->validate_raw(&tmpl, err) != 0)
+    if (Nebula::instance().get_vmm()->validate_raw(tmpl, err) != 0)
     {
         return -1;
     }
@@ -2875,28 +2875,28 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
-    replace_vector_values(obj_template.get(), &tmpl, "OS");
+    replace_vector_values(obj_template.get(), tmpl, "OS");
 
     if ( set_boot_order(obj_template.get(), err) != 0 )
     {
         return -1;
     }
 
-    replace_vector_values(obj_template.get(), &tmpl, "FEATURES");
+    replace_vector_values(obj_template.get(), tmpl, "FEATURES");
 
-    replace_vector_values(obj_template.get(), &tmpl, "INPUT");
+    replace_vector_values(obj_template.get(), tmpl, "INPUT");
 
-    replace_vector_values(obj_template.get(), &tmpl, "GRAPHICS");
+    replace_vector_values(obj_template.get(), tmpl, "GRAPHICS");
 
-    replace_vector_values(obj_template.get(), &tmpl, "RAW");
+    replace_vector_values(obj_template.get(), tmpl, "RAW");
 
-    replace_vector_values(obj_template.get(), &tmpl, "CPU_MODEL");
+    replace_vector_values(obj_template.get(), tmpl, "CPU_MODEL");
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
     // -------------------------------------------------------------------------
     VectorAttribute * context_bck = obj_template->get("CONTEXT");
-    VectorAttribute * context_new = tmpl.get("CONTEXT");
+    VectorAttribute * context_new = tmpl->get("CONTEXT");
 
     if ( context_bck == 0 && context_new != 0 )
     {

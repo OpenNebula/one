@@ -1192,7 +1192,7 @@ public:
      *
      *    @return 0 on success
      */
-    int updateconf(VirtualMachineTemplate& tmpl, std::string &err);
+    int updateconf(VirtualMachineTemplate* tmpl, std::string &err);
 
     /**
      *  Get the configuration attributes used in an updateconf API call.

@@ -3083,7 +3083,7 @@ void VirtualMachineUpdateConf::request_execute(
         }
     }
 
-    if ( vm->updateconf(*uc_tmpl, att.resp_msg) != 0 )
+    if ( vm->updateconf(uc_tmpl.get(), att.resp_msg) != 0 )
     {
         failure_response(INTERNAL, att);
 
