@@ -107,6 +107,14 @@ public:
         return live_resize;
     }
 
+    /**
+     *  @return true if shareable disks are supported
+     */
+    bool support_shareable() const
+    {
+        return support_shareable_;
+    }
+
 protected:
     /**
      *  Gets a configuration attr from driver configuration file (single
@@ -275,6 +283,11 @@ private:
     * Set to true if hypervisor supports hotplug vcpu and memory
     */
     bool live_resize;
+
+    /**
+    * Set to true if hypervisor supports shareable disks
+    */
+    bool support_shareable_;
 
     /**
      *  Sends a deploy request to the MAD: "DEPLOY ID XML_DRV_MSG"

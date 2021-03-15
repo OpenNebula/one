@@ -1008,12 +1008,7 @@ public:
      *    @param error_str Returns the error reason, if any
      *    @return 0 on success
      */
-    int automatic_requirements(std::set<int>& cluster_ids, std::string& error_str)
-    {
-        std::set<int> datastore_ids;
-
-        return automatic_requirements(cluster_ids, datastore_ids, error_str);
-    }
+    int automatic_requirements(std::set<int>& cluster_ids, std::string& error_str);
 
     /**
      *  Resize the VM capacity
@@ -1674,6 +1669,12 @@ public:
      */
     int check_tm_mad_disks(const std::string& tm_mad, std::string& error);
 
+    /**
+     *  Check if VM has shareable disks and vmm_mad supports them
+     *  @param vmm_mad is the tm_mad for system datastore chosen
+     */
+    int check_shareable_disks(const std::string& vmm_mad, std::string& error);
+
 private:
 
     // -------------------------------------------------------------------------
@@ -2093,17 +2094,6 @@ private:
      *  @return 0 if success
      */
     int get_vmgroup(std::string& error);
-
-    /**
-     * Adds automatic placement requirements: Datastore and Cluster
-     *    @param cluster_ids set of viable clusters for this VM
-     *    @param ds_ids set of viable datastores for this VM
-     *    @param error_str Returns the error reason, if any
-     *    @return 0 on success
-     */
-    int automatic_requirements(std::set<int>& cluster_ids,
-                               std::set<int>& ds_ids,
-                               std::string& error_str);
 
     // ------------------------------------------------------------------------
     // Public cloud templates related functions

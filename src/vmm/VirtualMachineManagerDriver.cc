@@ -43,7 +43,8 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
         keep_snapshots(false),
         ds_live_migration(false),
         cold_nic_attach(false),
-        live_resize(false)
+        live_resize(false),
+        support_shareable_(false)
 {
     char *          error_msg = nullptr;
     const char *    cfile;
@@ -113,6 +114,8 @@ VirtualMachineManagerDriver::VirtualMachineManagerDriver(
     driver_conf.get("COLD_NIC_ATTACH", cold_nic_attach);
 
     driver_conf.get("LIVE_RESIZE", live_resize);
+
+    driver_conf.get("SUPPORT_SHAREABLE", support_shareable_);
 
     // -------------------------------------------------------------------------
     // Parse IMPORTED_VMS_ACTIONS string and init the action set

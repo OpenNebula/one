@@ -998,6 +998,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
         return;
     }
 
+    if ( vm->check_shareable_disks(vmm_mad, att.resp_msg) != 0)
+    {
+        failure_response(ACTION, att);
+        return;
+    }
+
     static_cast<VirtualMachinePool *>(pool)->update(vm.get());
 
     // ------------------------------------------------------------------------

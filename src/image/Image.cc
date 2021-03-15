@@ -1088,6 +1088,14 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
 
     image_template->replace("PERSISTENT", persistent);
 
+    string persistent_type;
+    if (!persistent &&
+        image_template->get("PERSISTENT_TYPE", persistent_type) &&
+        one_util::toupper(persistent_type) == "SHAREABLE" )
+    {
+        image_template->erase("PERSISTENT_TYPE");
+    }
+
     return persistent;
 }
 

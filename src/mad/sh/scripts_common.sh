@@ -799,6 +799,7 @@ function get_source_xml {
 # * DRIVER
 # * TYPE
 # * READONLY
+# * SHAREABLE
 # * CACHE
 # * DISCARD
 # * IMG_SRC
@@ -865,6 +866,7 @@ function get_disk_information {
                         $DISK_XPATH/DRIVER \
                         $DISK_XPATH/TYPE \
                         $DISK_XPATH/READONLY \
+                        $DISK_XPATH/SHAREABLE \
                         $DISK_XPATH/CACHE \
                         $DISK_XPATH/DISCARD \
                         $DISK_XPATH/SOURCE \
@@ -910,6 +912,7 @@ function get_disk_information {
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
     TYPE="${XPATH_ELEMENTS[j++]}"
     READONLY="${XPATH_ELEMENTS[j++]}"
+    SHAREABLE="${XPATH_ELEMENTS[j++]}"
     CACHE="${XPATH_ELEMENTS[j++]}"
     DISCARD="${XPATH_ELEMENTS[j++]}"
     IMG_SRC="${XPATH_ELEMENTS[j++]}"
@@ -953,6 +956,7 @@ function get_disk_information {
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
     READONLY=$(echo "$READONLY"|tr A-Z a-z)
+    SHAREABLE=$(echo "$SHAREABLE"|tr A-Z a-z)
 
     NAME="$SOURCE"
 

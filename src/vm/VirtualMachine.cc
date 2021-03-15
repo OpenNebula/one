@@ -755,7 +755,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     long int memory;
     float fvalue;
     set<int> cluster_ids;
-    set<int> datastore_ids;
     vector<Template *> quotas;
     ostringstream oss;
 
@@ -1030,7 +1029,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    rc = automatic_requirements(cluster_ids, datastore_ids, error_str);
+    rc = automatic_requirements(cluster_ids, error_str);
 
     if ( rc != 0 )
     {
@@ -1498,12 +1497,13 @@ error_common:
  * @return 0 on success
  */
 static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
-        string& error_str)
+        bool& shareable, string& error_str)
 {
     ostringstream oss;
 
     vector<VectorAttribute*> vatts;
     set<int> csystem_ds;
+    shareable = false;
 
     DatastorePool * ds_pool = Nebula::instance().get_dspool();
 
@@ -1514,6 +1514,10 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
 
     for (int i=0; i<num_vatts; i++, csystem_ds.clear())
     {
+        bool is_shareable;
+        vatts[i]->vector_value("SHAREABLE", is_shareable);
+        shareable = shareable || is_shareable;
+
         int val;
 
         if (vatts[i]->vector_value("DATASTORE_ID", val) != 0)
@@ -1521,7 +1525,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
             continue;
         }
 
-        if (auto ds = ds_pool->get(val))
+        if (auto ds = ds_pool->get_ro(val))
         {
             ds->get_compatible_system_ds(csystem_ds);
 
@@ -1552,11 +1556,13 @@ error_disk:
 /* ------------------------------------------------------------------------ */
 
 int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
-        set<int>& datastore_ids, string& error_str)
+                                           string& error_str)
 {
     string tm_mad_system;
     ostringstream   oss;
     set<string>     clouds;
+    bool            shareable = false;
+    set<int>        datastore_ids;
 
     obj_template->erase("AUTOMATIC_REQUIREMENTS");
     obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
@@ -1569,7 +1575,8 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
         return -1;
     }
 
-    rc = get_datastore_requirements(obj_template.get(), datastore_ids, error_str);
+    rc = get_datastore_requirements(obj_template.get(), datastore_ids,
+                                    shareable, error_str);
 
     if (rc == -1)
     {
@@ -1669,7 +1676,20 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
         {
             oss << " & (TM_MAD = \"" << one_util::trim(tm_mad_system) << "\")";
         }
+    }
 
+    if (shareable)
+    {
+        if (!oss.str().empty())
+        {
+            oss << " & ";
+        }
+
+        oss << "(SHARED = \"YES\")";
+    }
+
+    if (!oss.str().empty())
+    {
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
     }
 
@@ -3556,6 +3576,43 @@ int VirtualMachine::check_tm_mad_disks(const string& tm_mad, string& error)
     }
 
     obj_template->add("TM_MAD_SYSTEM", tm_mad);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::check_shareable_disks(const string& vmm_mad, string& error)
+{
+    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+    const VirtualMachineManagerDriver * vmmd = vmm->get(vmm_mad);
+
+    if ( vmmd == nullptr )
+    {
+        error = "Cannot find vmm driver: " + vmm_mad;
+
+        return -1;
+    }
+
+    if ( vmmd->support_shareable() )
+    {
+        return 0;
+    }
+
+    for (const auto disk : disks)
+    {
+        bool shareable;
+        disk->vector_value("SHAREABLE", shareable);
+
+        if (shareable)
+        {
+            error = "VM has shareable disk, but vmm driver: '"
+                + vmm_mad + "' doesn't support shareable disks";
+
+            return -1;
+        }
+    }
 
     return 0;
 }

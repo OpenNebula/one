@@ -99,6 +99,7 @@ XML+="</source>"
 XML+="<target dev='$(xml_esc "${TARGET}")'/>"
 [ -n "${ORDER}" ] && XML+=" <boot order='$(xml_esc "${ORDER}")'/>"
 [ "${READONLY}" = 'yes' ] && XML+="<readonly/>"
+[ "${SHAREABLE}" = 'yes' ] && XML+="<shareable/>"
 [ -n "${LUKS}" ] && XML+="${LUKS}"
 
 if [ -n "${TOTAL_BYTES_SEC}${READ_BYTES_SEC}${WRITE_BYTES_SEC}" ] || \
