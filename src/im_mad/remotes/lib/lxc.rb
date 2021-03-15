@@ -165,6 +165,9 @@ class Domain < BaseDomain
 
         @vm[:state] = state
 
+        # Ignore VM if it's in transient state to avoid monitoring interference
+        @vm[:ignore] = true if @vm[:state] == STATE_MAP['STOPPED']
+
         io_stats(hash)
     end
 
@@ -184,7 +187,7 @@ class Domain < BaseDomain
         'STARTING'    => 'RUNNING',
         'RUNNING'     => 'RUNNING',
         'ABORTING'    => 'FAILURE',
-        'STOPPING'    => 'RUNNING'  # Transitory state to POWEROFF
+        'STOPPING'    => 'RUNNING'   # Transitory state to POWEROFF
     }
 
     # Get the I/O stats of the domain as provided by Libvirt command domstats

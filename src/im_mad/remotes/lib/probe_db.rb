@@ -57,7 +57,7 @@ class VirtualMachineDB
         :obsolete      => 720,
         :base_path       => "#{__dir__}/../",
         :sync          => 180,
-        :missing_state => "POWEROFF"
+        :missing_state => 'POWEROFF'
     }
 
     # States table columns
@@ -112,12 +112,14 @@ class VirtualMachineDB
         status_str  = ''
         monitor_ids = []
 
-        vms  = DomainList.state_info(@host, @host_id)
+        vms = DomainList.state_info(@host, @host_id)
 
         # ----------------------------------------------------------------------
         # report state changes in vms
         # ----------------------------------------------------------------------
         vms.each do |uuid, vm|
+            next if vm[:ignore] == true
+
             if vm[:id] == -1
                 filter = "WHERE uuid = '#{uuid}'"
             else
@@ -128,8 +130,6 @@ class VirtualMachineDB
             vm_db = @db.execute("SELECT * FROM #{@dataset} #{filter}").first
 
             monitor_ids << uuid
-
-            next if vm[:ignore] == true
 
             if vm_db.nil?
                 @db.execute(
@@ -152,7 +152,7 @@ class VirtualMachineDB
             @db.execute(
                 "UPDATE #{@dataset} SET " \
                 "state = '#{vm[:state]}', " \
-                "missing = 0, " \
+                'missing = 0, ' \
                 "timestamp = #{time}, " \
                 "uuid = '#{uuid}', " \
                 "deploy_id = '#{vm[:deploy_id]}' "\
@@ -242,8 +242,7 @@ class VirtualMachineDB
 
     def vm_db_to_status(vm, state = vm[col_name_to_idx('state')])
         id = col_name_to_idx('id')
-        deploy_id  = col_name_to_idx('deploy_id')
-
+        deploy_id = col_name_to_idx('deploy_id')
 
         "VM = [ ID=\"#{vm[id]}\", DEPLOY_ID=\"#{vm[deploy_id]}\", " \
         " STATE=\"#{state}\" ]\n"
