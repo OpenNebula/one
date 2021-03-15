@@ -602,7 +602,7 @@ module VCenterDriver
         def nic_alias_from_nic(id, nic, nic_index, network_found, vm_object)
             nic_tmp = ''
 
-            nic_alias_index = 1
+            nic_alias_index = 0
             if nic[:ipv4_additionals]
                 nic[:ipv4_additionals].split(',').each do |ipv4_additional|
                     ipv4, ipv6 =
@@ -1014,7 +1014,7 @@ module VCenterDriver
                 # Track allocated networks for rollback
                 allocated_networks = []
 
-                nic_index = 1
+                nic_index = 0
 
                 vc_nics.each do |nic|
                     # Check if the network already exists
