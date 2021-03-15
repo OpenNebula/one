@@ -19,6 +19,7 @@ define(function(require) {
     OpenNebulaHelper = require("./helper"),
     OpenNebulaError  = require("./error");
     OpenNebulaCluster = require("./cluster"),
+    OpenNebulaDS = require("./datastore"),
     Locale = require("utils/locale"),
     Config = require("sunstone-config"),
     Navigation = require("utils/navigation");
@@ -809,6 +810,18 @@ define(function(require) {
       };
 
       return OpenNebulaCluster.getName(cluster);
+    },
+    "datastoreStr": function(element) {
+      var state = element.STATE;
+      var datastore = "--";
+      if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
+        var history = retrieveLastHistoryRecord(element);
+        if (history) {
+          datastore = history.DS_ID;
+        };
+      };
+
+      return OpenNebulaDS.getName(datastore);
     },
     "migrateActionStr": function(stateId) {
       return MIGRATE_ACTION_STR[stateId];
