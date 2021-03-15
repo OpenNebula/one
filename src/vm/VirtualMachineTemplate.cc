@@ -181,3 +181,80 @@ string& VirtualMachineTemplate::to_xml_short(string& xml) const
     return xml;
 }
 
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+
+std::map<std::string,std::vector<std::string>> VirtualMachineTemplate::UPDATECONF_ATTRS = {
+    {"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT", "SD_DISK_BUS", "UUID"} },
+    {"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT",
+         "VIRTIO_SCSI_QUEUES", "IOTHREADS"} },
+    {"INPUT", {"TYPE", "BUS"} },
+    {"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"} },
+    {"RAW", {"TYPE", "DATA", "DATA_VMX"} },
+    {"CPU_MODEL", {"MODEL"} }
+};
+
+/**
+ * returns a copy the values of a vector value
+ */
+static void copy_vector_values(Template *old_tmpl, Template *new_tmpl,
+        const char * name)
+{
+    string value;
+
+    VectorAttribute * old_attr = old_tmpl->get(name);
+
+    if ( old_attr == 0 )
+    {
+        return;
+    }
+
+    VectorAttribute * new_vattr = new VectorAttribute(name);
+
+    std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
+
+    for (const auto& vname : vnames)
+    {
+        std::string vval = old_attr->vector_value(vname);
+
+        if (!vval.empty())
+        {
+            new_vattr->replace(vname, vval);
+        }
+    }
+
+    if ( new_vattr->empty() )
+    {
+        delete new_vattr;
+    }
+    else
+    {
+        new_tmpl->set(new_vattr);
+    }
+}
+
+unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_template() const
+{
+    auto conf_tmpl = make_unique<VirtualMachineTemplate>();
+
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "OS");
+
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "FEATURES");
+
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "INPUT");
+
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "GRAPHICS");
+
+    copy_vector_values(obj_template.get(), conf_tmpl.get(), "RAW");
+
+    VectorAttribute * context = obj_template->get("CONTEXT");
+
+    if ( context != 0 )
+    {
+        conf_tmpl->set(context->clone());
+    }
+
+    return conf_tmpl;
+}
+
+

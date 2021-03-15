@@ -3044,6 +3044,8 @@ void VirtualMachineUpdateConf::request_execute(
         return;
     }
 
+    auto uc_tmpl = tmpl.get_updateconf_template();
+
     /* ---------------------------------------------------------------------- */
     /*  Authorize the operation & restricted attributes                       */
     /* ---------------------------------------------------------------------- */
@@ -3070,7 +3072,7 @@ void VirtualMachineUpdateConf::request_execute(
 
         auto conf_tmpl = vm->get_updateconf_template();
 
-        bool has_restricted = tmpl.check_restricted(aname, conf_tmpl.get());
+        bool has_restricted = uc_tmpl->check_restricted(aname, conf_tmpl.get());
 
         if (has_restricted)
         {
@@ -3081,7 +3083,7 @@ void VirtualMachineUpdateConf::request_execute(
         }
     }
 
-    if ( vm->updateconf(tmpl, att.resp_msg) != 0 )
+    if ( vm->updateconf(*uc_tmpl, att.resp_msg) != 0 )
     {
         failure_response(INTERNAL, att);
 

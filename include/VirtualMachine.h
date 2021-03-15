@@ -1199,7 +1199,10 @@ public:
      *    @param err description if any
      *    @return template with the attributes
      */
-    std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
+    std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const
+    {
+        return obj_template->get_updateconf_template();
+    }
 
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)

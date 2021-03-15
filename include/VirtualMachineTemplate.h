@@ -85,6 +85,11 @@ public:
     }
 
     // -------------------------------------------------------------------------
+    std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS;
+
+    unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
+
+    // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation
     // -------------------------------------------------------------------------
     virtual void encrypt(const std::string& one_key)
