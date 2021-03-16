@@ -110,7 +110,7 @@ stop()
 
   # Kill the fireedge-server daemon
 
-  kill -9 `cat $FIREEDGE_PID` > /dev/null 2>&1
+  kill `cat $FIREEDGE_PID` > /dev/null 2>&1
 
   # Remove pid files
   rm -f $FIREEDGE_PID > /dev/null 2>&1
