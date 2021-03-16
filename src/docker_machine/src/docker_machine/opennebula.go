@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"strconv"
 	"time"
 
@@ -46,7 +47,6 @@ type Driver struct {
 }
 
 const (
-	defaultTimeout      = 1 * time.Second
 	defaultSSHUser      = "docker"
 	defaultCPU          = "1"
 	defaultVCPU         = "1"
@@ -356,14 +356,6 @@ func (d *Driver) GetSSHHostname() (string, error) {
 	return d.GetIP()
 }
 
-func (d *Driver) GetSSHUsername() string {
-	return d.SSHUser
-}
-
-func (d *Driver) PreCreateCheck() error {
-	return nil
-}
-
 func (d *Driver) Create() error {
 	var err error
 
@@ -372,7 +364,7 @@ func (d *Driver) Create() error {
 	// build config and set the xmlrpc client
 	controller := d.getController()
 
-	log.Infof("Creating SSH key..")
+	log.Infof("Creating SSH key...")
 	if err := ssh.GenerateSSHKey(d.GetSSHKeyPath()); err != nil {
 		return err
 	}
@@ -469,7 +461,7 @@ func (d *Driver) Create() error {
 	template.AddB64Ctx(keys.StartScriptB64, contextScript)
 
 	// Instantiate
-	log.Infof("Starting	 VM..")
+	log.Infof("Starting	 VM...")
 
 	// Template has been specified
 	if d.TemplateName != "" || d.TemplateID != "" {
@@ -501,33 +493,43 @@ func (d *Driver) Create() error {
 
 	d.MachineId = instanceID
 
-	if d.IPAddress, err = d.GetIP(); err != nil {
-		return err
-	}
-
 	return d.Start()
 }
 
 func (d *Driver) GetURL() (string, error) {
+	if err := drivers.MustBeRunning(d); err != nil {
+		return "", err
+	}
+
 	ip, err := d.GetIP()
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("tcp://%s:2376", ip), nil
+	if ip == "" {
+		return "", nil
+	}
+
+	return fmt.Sprintf("tcp://%s", net.JoinHostPort(ip, "2376")), nil
 }
 
 func (d *Driver) GetIP() (string, error) {
+	if d.IPAddress != "" {
+		return d.IPAddress, nil
+	}
+
+	log.Debug("Looking for the IP address...")
+
 	controller := d.getController()
 
 	var err2 error
-	var vm_id int
+	var vmId int
 
 	if d.MachineId == 0 {
-		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		vmId, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
 			return "", err2
 		}
-		d.MachineId = vm_id
+		d.MachineId = vmId
 	}
 
 	vm, err := controller.VM(d.MachineId).Info(false)
@@ -554,14 +556,14 @@ func (d *Driver) GetState() (state.State, error) {
 	controller := d.getController()
 
 	var err2 error
-	var vm_id int
+	var vmId int
 
 	if d.MachineId == 0 {
-		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		vmId, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
 			return state.None, err2
 		}
-		d.MachineId = vm_id
+		d.MachineId = vmId
 	}
 
 	vm, err := controller.VM(d.MachineId).Info(false)
@@ -676,22 +678,25 @@ func (d *Driver) GetState() (state.State, error) {
 }
 
 func (d *Driver) Start() error {
-	controller := d.getController()
-
 	var err error
-	var vm_id int
 
-	if d.MachineId == 0 {
-		vm_id, err = controller.VMs().ByName(d.MachineName)
-		if err != nil {
-			return err
+	if drivers.MachineInState(d, state.Stopped)() {
+		controller := d.getController()
+
+		var vmId int
+
+		if d.MachineId == 0 {
+			vmId, err = controller.VMs().ByName(d.MachineName)
+			if err != nil {
+				return err
+			}
+			d.MachineId = vmId
 		}
-		d.MachineId = vm_id
+
+		vm := controller.VM(d.MachineId)
+		vm.Resume()
 	}
-
-	vm := controller.VM(d.MachineId)
-	vm.Resume()
-
+	
 	s := state.None
 	retries, _ := strconv.Atoi(d.StartRetries)
 	for retry := 0; retry < retries && s != state.Running; retry++ {
@@ -714,7 +719,7 @@ func (d *Driver) Start() error {
 		}
 	}
 
-	log.Infof("Waiting for SSH..")
+	log.Infof("Waiting for SSH...")
 
 	// Wait for SSH over NAT to be available before returning to user
 	return drivers.WaitForSSH(d)
@@ -724,14 +729,14 @@ func (d *Driver) Stop() error {
 	controller := d.getController()
 
 	var err2 error
-	var vm_id int
+	var vmId int
 
 	if d.MachineId == 0 {
-		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		vmId, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
 			return err2
 		}
-		d.MachineId = vm_id
+		d.MachineId = vmId
 	}
 
 	vm := controller.VM(d.MachineId)
@@ -747,14 +752,14 @@ func (d *Driver) Remove() error {
 	controller := d.getController()
 
 	var err2 error
-	var vm_id int
+	var vmId int
 
 	if d.MachineId == 0 {
-		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		vmId, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
 			return err2
 		}
-		d.MachineId = vm_id
+		d.MachineId = vmId
 	}
 
 	vm := controller.VM(d.MachineId)
@@ -770,14 +775,14 @@ func (d *Driver) Restart() error {
 	controller := d.getController()
 
 	var err2 error
-	var vm_id int
+	var vmId int
 
 	if d.MachineId == 0 {
-		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		vmId, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
 			return err2
 		}
-		d.MachineId = vm_id
+		d.MachineId = vmId
 	}
 
 	vm := controller.VM(d.MachineId)
@@ -793,14 +798,14 @@ func (d *Driver) Kill() error {
 	controller := d.getController()
 
 	var err2 error
-	var vm_id int
+	var vmId int
 
 	if d.MachineId == 0 {
-		vm_id, err2 = controller.VMs().ByName(d.MachineName)
+		vmId, err2 = controller.VMs().ByName(d.MachineName)
 		if err2 != nil {
 			return err2
 		}
-		d.MachineId = vm_id
+		d.MachineId = vmId
 	}
 
 	vm := controller.VM(d.MachineId)

@@ -14,7 +14,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b840a9bf57916f264fe100c8875f9c331656e758bddd3c6ea55116e7274eaadd"
+  digest = "1:159c6f296acc53e6aa6892335c9105fd7956de28940a0035365fad48f75748f9"
   name = "github.com/OpenNebula/one"
   packages = [
     "src/oca/go/src/goca",
@@ -23,21 +23,35 @@
     "src/oca/go/src/goca/parameters",
     "src/oca/go/src/goca/schemas/acl",
     "src/oca/go/src/goca/schemas/cluster",
+    "src/oca/go/src/goca/schemas/cluster/keys",
     "src/oca/go/src/goca/schemas/datastore",
+    "src/oca/go/src/goca/schemas/datastore/keys",
     "src/oca/go/src/goca/schemas/document",
     "src/oca/go/src/goca/schemas/group",
+    "src/oca/go/src/goca/schemas/hook",
+    "src/oca/go/src/goca/schemas/hook/keys",
     "src/oca/go/src/goca/schemas/host",
+    "src/oca/go/src/goca/schemas/host/keys",
     "src/oca/go/src/goca/schemas/image",
+    "src/oca/go/src/goca/schemas/image/keys",
     "src/oca/go/src/goca/schemas/marketplace",
+    "src/oca/go/src/goca/schemas/marketplace/keys",
     "src/oca/go/src/goca/schemas/marketplaceapp",
+    "src/oca/go/src/goca/schemas/marketplaceapp/keys",
     "src/oca/go/src/goca/schemas/securitygroup",
+    "src/oca/go/src/goca/schemas/securitygroup/keys",
+    "src/oca/go/src/goca/schemas/service",
+    "src/oca/go/src/goca/schemas/service_template",
     "src/oca/go/src/goca/schemas/shared",
     "src/oca/go/src/goca/schemas/template",
     "src/oca/go/src/goca/schemas/user",
     "src/oca/go/src/goca/schemas/vdc",
     "src/oca/go/src/goca/schemas/virtualnetwork",
+    "src/oca/go/src/goca/schemas/virtualnetwork/keys",
     "src/oca/go/src/goca/schemas/virtualrouter",
+    "src/oca/go/src/goca/schemas/virtualrouter/keys",
     "src/oca/go/src/goca/schemas/vm",
+    "src/oca/go/src/goca/schemas/vm/keys",
     "src/oca/go/src/goca/schemas/vmgroup",
     "src/oca/go/src/goca/schemas/vntemplate",
     "src/oca/go/src/goca/schemas/zone",
@@ -88,7 +102,7 @@
   branch = "master"
   digest = "1:07c2b6d639ff6288a4c1ee3f8525d8330571588464a22e3173e6f26dc6f1278c"
   name = "github.com/kolo/xmlrpc"
-  packages = []
+  packages = ["."]
   pruneopts = "T"
   revision = "07c4ee3fd1817e1a90254d5b80f215b36b78f800"
 
@@ -151,7 +165,9 @@
   analyzer-version = 1
   input-imports = [
     "github.com/OpenNebula/one/src/oca/go/src/goca",
-    "github.com/OpenNebula/one/src/oca/go/src/goca/dynamic",
+    "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared",
+    "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm",
+    "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys",
     "github.com/docker/machine/libmachine/drivers",
     "github.com/docker/machine/libmachine/drivers/plugin",
     "github.com/docker/machine/libmachine/log",
