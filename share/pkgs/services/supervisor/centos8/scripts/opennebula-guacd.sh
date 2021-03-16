@@ -26,5 +26,8 @@ do
     fi
 done
 
+LD_LIBRARY_PATH=/usr/share/one/guacd/lib
+export LD_LIBRARY_PATH
+
 msg "Service started!"
 exec /usr/share/one/guacd/sbin/guacd -f $OPTS

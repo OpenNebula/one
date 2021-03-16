@@ -5,6 +5,7 @@ After=network.target
 [Service]
 EnvironmentFile=-/etc/one/guacd
 Environment=HOME=/var/lib/one
+Environment=LD_LIBRARY_PATH=/usr/share/one/guacd/lib
 ExecStart=/usr/share/one/guacd/sbin/guacd -f $OPTS
 StartLimitInterval=60
 StartLimitBurst=3
