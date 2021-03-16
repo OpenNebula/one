@@ -284,6 +284,8 @@ unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_templa
 
     copy_vector_values(this, conf_tmpl.get(), "RAW");
 
+    copy_vector_values(this, conf_tmpl.get(), "CPU_MODEL");
+
     const VectorAttribute * context = get("CONTEXT");
 
     if ( context != 0 )
