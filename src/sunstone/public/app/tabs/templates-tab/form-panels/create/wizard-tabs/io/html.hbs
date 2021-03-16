@@ -27,10 +27,10 @@
             <span class="hypervisor only_vcenter vmrc_inout_option">&nbsp;/&nbsp;VMRC</span>
             <span class="hypervisor only_kvm guac_inout_option">&nbsp;/&nbsp;GUAC</span>
           </label>
-          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm not_lxd" >
-          <label class="hypervisor only_kvm not_lxd"  for="radioSdlType{{uniqueId}}">SDL</label>
-          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSpiceType{{uniqueId}}" value="SPICE" class="hypervisor only_kvm not_lxd" >
-          <label  class="hypervisor only_kvm not_lxd" for="radioSpiceType{{uniqueId}}">SPICE</label>
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSdlType{{uniqueId}}" value="SDL" class="hypervisor only_kvm not_lxc" >
+          <label class="hypervisor only_kvm not_lxc"  for="radioSdlType{{uniqueId}}">SDL</label>
+          <input type="radio" wizard_field="TYPE" name="graphics_type" ID="radioSpiceType{{uniqueId}}" value="SPICE" class="hypervisor only_kvm not_lxc" >
+          <label  class="hypervisor only_kvm not_lxc" for="radioSpiceType{{uniqueId}}">SPICE</label>
         </div>
       </div>
       <br>
@@ -73,7 +73,7 @@
           </label>
         </div>
       </div>
-      <div class="hypervisor only_lxd">
+      <div class="hypervisor not_lxc">
         <div class="columns large-12">
           <label>
             {{tr "Command"}}

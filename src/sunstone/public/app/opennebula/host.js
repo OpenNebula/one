@@ -15,10 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var OpenNebulaAction = require('./action');
-  var Locale = require('utils/locale');
-  var OpenNebulaError = require('./error');
-  var OpenNebulaHelper = require('./helper');
+  var OpenNebulaAction = require("./action");
+  var Locale = require("utils/locale");
+  var OpenNebulaError = require("./error");
+  var OpenNebulaHelper = require("./helper");
 
 
   var infrastructureCache;
@@ -26,7 +26,6 @@ define(function(require) {
   var pcisCallbacks = [];
   var customizationsCallbacks = [];
   var kvmInfoCallbacks = [];
-  var lxdProfilesInfoCallbacks = [];
 
   var CACHE_EXPIRE = 300000; //ms
 
@@ -171,24 +170,6 @@ define(function(require) {
 
       _infrastructure();
     },
-    "lxdProfilesInfo": function(params){
-      var callback = params.success;
-      var callbackError = params.error;
-      var request = OpenNebulaHelper.request(RESOURCE, "infrastructure");
-
-      if (infrastructureCache &&
-          infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
-
-        return callback ? callback(request, infrastructureCache["lxd_profiles"]) : null;
-      }
-
-      lxdProfilesInfoCallbacks.push({
-        success : callback,
-        error : callbackError
-      });
-
-      _infrastructure();
-    },
     "kvmInfo": function(params){
       var callback = params.success;
       var callbackError = params.error;
@@ -244,16 +225,6 @@ define(function(require) {
           customizations = [customizations];
         }
 
-        var lxd_profiles = response.lxd_profiles;
-
-        if (lxd_profiles == undefined){
-          lxd_profiles = [];
-        }
-
-        if (!Array.isArray(lxd_profiles)){ // If only 1 convert to array
-          lxd_profiles = [lxd_profiles];
-        }
-
         var kvm_info = response.kvm_info;
 
         if (kvm_info == undefined){
@@ -268,8 +239,7 @@ define(function(require) {
           timestamp       : new Date().getTime(),
           pcis            : pcis,
           customizations  : customizations,
-          kvm_info        : kvm_info,
-          lxd_profiles    : lxd_profiles
+          kvm_info        : kvm_info
         };
 
         infrastructureWaiting = false;
@@ -304,17 +274,6 @@ define(function(require) {
 
         kvmInfoCallbacks = [];
 
-
-        for (var i = 0; i < lxdProfilesInfoCallbacks.length; i++) {
-          var callback = lxdProfilesInfoCallbacks[i].success;
-
-          if (callback) {
-            callback(request, lxd_profiles);
-          }
-        }
-
-        lxdProfilesInfoCallbacks = [];
-
         return;
       },
       error: function(response) {
@@ -346,4 +305,4 @@ define(function(require) {
   }
 
   return Host;
-})
+});
