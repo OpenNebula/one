@@ -625,8 +625,8 @@ module VCenterDriver
                     nic_tmp << "NETWORK_ID=\"#{id}\",\n"
                     nic_tmp << "IP=\"#{ipv4_additional}\",\n"
                     nic_tmp <<
-                        "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
-                    nic_tmp << "PARENT=\"NIC#{nic_index}\"\n"
+                        "NAME=\"VC_NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
+                    nic_tmp << "PARENT=\"VC_NIC#{nic_index}\"\n"
                     nic_tmp << "]\n"
                     nic_alias_index += 1
                 end
@@ -653,8 +653,8 @@ module VCenterDriver
                     nic_tmp << "NETWORK_ID=\"#{id}\",\n"
                     nic_tmp << "IP6=\"#{ipv6_additional}\",\n"
                     nic_tmp <<
-                        "NAME=\"NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
-                    nic_tmp << "PARENT=\"NIC#{nic_index}\"\n"
+                        "NAME=\"VC_NIC#{nic_index}_ALIAS#{nic_alias_index}\",\n"
+                    nic_tmp << "PARENT=\"VC_NIC#{nic_index}\"\n"
                     nic_tmp << "]\n"
                     nic_alias_index += 1
                 end
@@ -666,7 +666,7 @@ module VCenterDriver
         def nic_from_network_created(one_vn, nic, nic_index, vm_object, _ar_ids)
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{one_vn.id}\",\n"
-            nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
+            nic_tmp << "NAME =\"VC_NIC#{nic_index}\",\n"
 
             if vm?
                 if nic[:mac]
@@ -716,7 +716,7 @@ module VCenterDriver
         )
             nic_tmp = "NIC=[\n"
             nic_tmp << "NETWORK_ID=\"#{network_found['ID']}\",\n"
-            nic_tmp << "NAME =\"NIC#{nic_index}\",\n"
+            nic_tmp << "NAME =\"VC_NIC#{nic_index}\",\n"
 
             if vm?
                 ipv4, ipv6 = find_ips_in_network(network_found, vm_object,
