@@ -57,7 +57,7 @@ CommandParser::CmdParser.new(ARGV) do
     }
 
     DATABASE = {
-        :name  => 'database',
+        :name  => 'db',
         :large => '--db',
         :description => 'Also sync database'
     }
