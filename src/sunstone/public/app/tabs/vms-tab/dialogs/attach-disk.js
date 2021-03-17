@@ -25,6 +25,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
   var DiskTab = require('tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab');
+  var IothreadsConf = require('tabs/templates-tab/form-panels/create/wizard-tabs/utils/iothreads');
   var WizardFields = require('utils/wizard-fields');
 
   /*
@@ -99,6 +100,10 @@ define(function(require) {
     }
     else{
       $('.hybrid_plus_section').show();
+    }
+
+    if (this && this.element && this.element.TEMPLATE){
+      IothreadsConf.setupAttachDisk(this.element.TEMPLATE);
     }
 
     return false;

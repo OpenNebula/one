@@ -256,3 +256,17 @@
     </div>
   </div>
 </fieldset>
+<fieldset class="not_firecracker">
+  <legend>{{tr "IOTHREADS"}}</legend>
+  <div class="row vm_param">
+    <div class="medium-6 columns">
+      <fieldset>
+        <label for="IOTHREAD">
+          {{tr "IOTHREAD id"}}
+          {{{tip (tr "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS value on OS & CPU -> Features.")}}}
+        </label>
+        <input wizard_field="IOTHREAD" type="number" min="0" id="IOTHREAD" name="IOTHREAD" />
+      </fieldset>
+    </div>
+  </div>
+</fieldset>

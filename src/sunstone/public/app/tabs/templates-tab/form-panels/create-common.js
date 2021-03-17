@@ -18,15 +18,14 @@ define(function(require) {
   /*
     DEPENDENCIES
   */
-  var Notifier = require("utils/notifier");
   var BaseFormPanel = require("utils/form-panels/form-panel");
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
   var TemplateUtils = require("utils/template-utils");
   var WizardFields = require("utils/wizard-fields");
   var OpenNebulaAction = require("opennebula/action");
   var OpenNebulaTemplate = require("opennebula/template");
+  var IothreadsConf = require("./create/wizard-tabs/utils/iothreads");
   /*
     TEMPLATES
    */
@@ -71,6 +70,9 @@ define(function(require) {
       create_title = Locale.tr("Create Virtual Router VM Template");
       update_title = Locale.tr("Update Virtual Router VM Template");
     }
+
+    this.create_title = create_title;
+    this.update_title = update_title;
 
     this.actions = {
       "create": {
@@ -274,6 +276,14 @@ define(function(require) {
         }
       }
     }
+
+    if (!IothreadsConf.setupVMTemplate(
+          templateJSON,
+          this.action,
+          this.create_title,
+          this.update_title)
+        ) return false;
+    
     if (this.action == "create") {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
       return false;
