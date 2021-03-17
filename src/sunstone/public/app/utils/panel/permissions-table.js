@@ -58,17 +58,19 @@ define(function(require) {
     var backupHTML = '';
     // The backup information is only available for VMs 
     // but it could be extended to another resources
-    if (resourceType == "VM") {
-      var last_backup;
-      if (element.USER_TEMPLATE &&
-        element.USER_TEMPLATE.BACKUP &&
-        element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME){
-          last_backup = Humanize.prettyTime(element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME);
-        }
-      backupHTML = TemplateBackup({
-        'element': element,
-        'last_backup': last_backup
-      })
+    if (resourceType == "VM" && 
+      element.USER_TEMPLATE && 
+      element.USER_TEMPLATE.HYPERVISOR && 
+      element.USER_TEMPLATE.HYPERVISOR != "vcenter") {
+        var last_backup;
+        if (element.USER_TEMPLATE.BACKUP &&
+          element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME){
+            last_backup = Humanize.prettyTime(element.USER_TEMPLATE.BACKUP.LAST_BACKUP_TIME);
+          }
+        backupHTML = TemplateBackup({
+          'element': element,
+          'last_backup': last_backup
+        })
     }
 
     var permissionsTableHTML = TemplatePermissionsTable({
