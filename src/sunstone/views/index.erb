@@ -19,7 +19,12 @@
     <script type="text/javascript">
       var csrftoken = '<%= session[:csrftoken] %>';
       var fireedge_token = '<%= session[:fireedge_token] %>';
-      var is_fireedge_configured = <%= !$conf[:public_fireedge_endpoint].nil? && !$conf[:private_fireedge_endpoint].nil? %>
+      var is_fireedge_configured = <%=
+        !$conf[:public_fireedge_endpoint].nil? &&
+        !$conf[:private_fireedge_endpoint].nil? &&
+        !$conf[:public_fireedge_endpoint].empty? &&
+        !$conf[:private_fireedge_endpoint].empty?
+      %>
       var sunstone_fireedge_active = is_fireedge_configured;
       var view = JSON.parse('<%= view.to_json %>')
       var available_views = JSON.parse('["<%=
