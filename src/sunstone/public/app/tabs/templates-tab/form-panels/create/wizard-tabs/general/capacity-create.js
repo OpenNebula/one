@@ -174,8 +174,10 @@ define(function(require) {
     });
 
     context.on("change", "#VCPU", function(){
-      CoresPerSocket.generateCores(VCPU_SELECTOR);
-      CoresPerSocket.calculateSockets(VCPU_SELECTOR);
+      if ($('#vcenterRadio').is(':checked')){
+        CoresPerSocket.generateCores(VCPU_SELECTOR);
+        CoresPerSocket.calculateSockets(VCPU_SELECTOR);
+      }
       $("#selectedVCPU").val(this.value);
     });
 
