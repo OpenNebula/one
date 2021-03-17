@@ -238,13 +238,22 @@ define(function(require) {
         // [GENERAL]
         cpu_input = "1";
         // [NUMA]
-        $("#numa-pin-policy", formContext).val("SHARED");
+        $("#numa-pin-policy", formContext)
+          .prop('disabled', false)
+          .val("SHARED")
+          .prop('disabled', true);
         $("#numa-sockets", formContext).val("1");
         $("#numa-threads", formContext)
+          .prop('disabled', false)
           .prop("max", NUMA_THREADS_MAX)
-          .val(function(_, value) {
-            return (value > NUMA_THREADS_MAX) ? NUMA_THREADS_MAX : NUMA_THREADS_MIN;
+          .val(NUMA_THREADS_MIN)
+          .keyup(function(){
+            if (this.value > NUMA_THREADS_MAX)
+              this.value = NUMA_THREADS_MAX;
+            else if (this.value < NUMA_THREADS_MIN)
+              this.value = NUMA_THREADS_MIN;
           });
+          
 
         $(".disabled_firecracker", formContext).prop("disabled", true);
         $(".not_firecracker", formContext).hide();
