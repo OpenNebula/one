@@ -239,7 +239,7 @@ CommandParser::CmdParser.new(ARGV) do
                     " this input: #{args.first}"
             end
 
-            importer.process_import(indexes) do |object_info|
+            importer.process_import(indexes, options) do |object_info|
                 helper.cli_dialogue(object_info)
             end
 
@@ -260,10 +260,8 @@ CommandParser::CmdParser.new(ARGV) do
             importer = VCenterDriver::VcImporter.new_child(helper.client,
                                                            vi_client,
                                                            options[:object])
-            importer.retrieve_resources(helper.parse_opts(options))
-            indexes = importer.get_indexes(args.first)
 
-            importer.process_import(indexes)
+            importer.process_import(args.first, options)
 
             importer.stdout
         rescue StandardError => e
