@@ -224,7 +224,8 @@ module OneProvision
             # Destroy
             Driver.retry_loop("Driver action 'tf destroy' failed", provision) do
                 _, e, s = Driver.run(
-                    "cd #{tempdir}; terraform destroy #{target} -auto-approve"
+                    "cd #{tempdir}; terraform refresh; " \
+                    "terraform destroy #{target} -auto-approve"
                 )
 
                 unless s && s.success?
