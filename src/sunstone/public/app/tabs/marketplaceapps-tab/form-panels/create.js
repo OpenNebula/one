@@ -198,7 +198,10 @@ define(function(require) {
     this.imagesTable.resetResourceTableSelect();
     this.templatesTable.resetResourceTableSelect();
     this.vmsTable.resetResourceTableSelect();
-    this.servicesTable.resetResourceTableSelect();
+    // Only try to refresh the servicesTable when oneflow running
+    if ($('#serviceMarketPlaceError').attr("oneflow_running") === "true"){
+      this.servicesTable.resetResourceTableSelect();
+    }
     this.marketPlacesTable.resetResourceTableSelect();
     this.marketPlacesServiceTable.resetResourceTableSelect();
     this.marketPlacesTableAdvanced.resetResourceTableSelect();
@@ -361,10 +364,12 @@ define(function(require) {
 
           var success_func = function (){
             $("#serviceMarketPlaceError").hide();
+            $("#serviceMarketPlaceError").attr("oneflow_running", true);
           };
 
           var error_func = function (){
             $("#serviceMarketPlaceError").show();
+            $("#serviceMarketPlaceError").attr("oneflow_running", false);
           };
 
           OpenNebulaAction.list({options: undefined, success: success_func, error: error_func}, "DOCUMENT", "service_template");
@@ -413,20 +418,46 @@ define(function(require) {
           extra_param: { name : marketPlaceJSON.NAME }
         }
 
-        OpenNebula.VM.save_as_template({
-          data: template,
-          success: function(_, templateId) {
-            Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + marketPlaceJSON.NAME + ' ' + Locale.tr("saved successfully"))
+        OpenNebula.VM.show({
+          data : {
+            id: marketPlaceJSON['ORIGIN_ID']
+          },
+          timeout: true,
+          success: function (_, vmTemplate) {
+            if (vmTemplate && 
+              vmTemplate.VM && 
+              vmTemplate.VM.USER_TEMPLATE && 
+              vmTemplate.VM.USER_TEMPLATE.HYPERVISOR && 
+              vmTemplate.VM.USER_TEMPLATE.HYPERVISOR !== "vcenter"){
+            
+                OpenNebula.VM.save_as_template({
+                  data: template,
+                  success: function(_, templateId) {
+                    Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + marketPlaceJSON.NAME + ' ' + Locale.tr("saved successfully"));
+        
+                    var newTemplate = $.extend(marketPlaceJSON, { ORIGIN_ID: String(templateId) });
+        
+                    Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, newTemplate);
+                  },
+                  error: function(request, response) {
+                    Sunstone.hideFormPanelLoading(TAB_ID);
+                    Notifier.onError(request, response);
+                  }
+                });
+            
+            }
+            else
+              Notifier.notifyError(
+                Locale.tr("Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates.")
+                );
 
-            var newTemplate = $.extend(marketPlaceJSON, { ORIGIN_ID: String(templateId) })
-
-            Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, newTemplate);
           },
           error: function(request, response) {
-            Sunstone.hideFormPanelLoading(TAB_ID)
+            Sunstone.hideFormPanelLoading(TAB_ID);
             Notifier.onError(request, response);
           }
-        })
+        });
+
         break;
 
       case 'vmtemplate':

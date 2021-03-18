@@ -206,5 +206,13 @@ define(function(require) {
 
       Sunstone.runAction(RESOURCE + ".update_template", resourceId, template_str);
     });
+
+    if (this.element &&
+        this.element.USER_TEMPLATE &&
+        this.element.USER_TEMPLATE.HYPERVISOR &&
+        this.element.USER_TEMPLATE.HYPERVISOR === "vcenter")
+      $('button[href="VM.upload_marketplace_dialog"]').attr('disabled','disabled');
+    else
+      $('button[href="VM.upload_marketplace_dialog"]').removeAttr('disabled');
   }
 });

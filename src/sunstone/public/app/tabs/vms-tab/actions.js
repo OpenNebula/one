@@ -441,17 +441,27 @@ define(function(require) {
           data : {
               id: resourceId
           },
-          success: function(){
-            Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
-            Sunstone.showFormPanel(
-              MARKETPLACEAPPS_TAB_ID,
-              CREATE_APP_DIALOG_ID,
-              "export_vm",
-              function(formPanelInstance, context) {
-                formPanelInstance.setVMId(resourceId);
-                $("#marketplaceapps-tab-wizardForms #TYPE").val("vm").change();
-              }
-            );
+          success: function(_, vmTemplate){
+            if (vmTemplate && 
+                vmTemplate.VM && 
+                vmTemplate.VM.USER_TEMPLATE && 
+                vmTemplate.VM.USER_TEMPLATE.HYPERVISOR && 
+                vmTemplate.VM.USER_TEMPLATE.HYPERVISOR !== "vcenter"){
+              Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
+              Sunstone.showFormPanel(
+                MARKETPLACEAPPS_TAB_ID,
+                CREATE_APP_DIALOG_ID,
+                "export_vm",
+                function(formPanelInstance, context) {
+                  formPanelInstance.setVMId(resourceId);
+                  $("#marketplaceapps-tab-wizardForms #TYPE").val("vm").change();
+                }
+              );
+            }
+            else
+              Notifier.notifyError(
+                Locale.tr("Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates.")
+                );
           },
           error: function(error){
             Notifier.onError("VM: " +error);
