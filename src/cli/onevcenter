@@ -261,7 +261,10 @@ CommandParser::CmdParser.new(ARGV) do
                                                            vi_client,
                                                            options[:object])
 
-            importer.process_import(args.first, options)
+            importer.retrieve_resources(helper.parse_opts(options))
+            indexes = importer.get_indexes(args.first)
+
+            importer.process_import(indexes, options)
 
             importer.stdout
         rescue StandardError => e
