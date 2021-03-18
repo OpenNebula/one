@@ -110,7 +110,7 @@ define(function(require) {
       var name = $(this).val();
 
       if (this.checked) {
-        that.nics_template[index] = { "NAME": "NIC"+index, "NETWORK_ID": "$"+name };
+        that.nics_template[index] = { "NAME": "_NIC"+index, "NETWORK_ID": "$"+name };
         $("#alias_"+this.id, role_section).prop("disabled", false);
         $("td.parent_selector select:visible", role_section).each(function() {
           updateOptionsParents(this, that.nics_template, that.alias_template);
@@ -158,7 +158,7 @@ define(function(require) {
       toogleNicUsedAsAlias(role_section, this, prevIndexParent, indexParent)
       
       if (that.nics_template[indexParent] && that.alias_template[index]) {
-        that.alias_template[index]["PARENT"] = "NIC"+indexParent;
+        that.alias_template[index]["PARENT"] = "_NIC"+indexParent;
       }
     });
 
@@ -267,7 +267,7 @@ define(function(require) {
       var nicTemplate = nic[1];
 
       if (nicTemplate["PARENT"]) {
-        var indexParent = nicTemplate["PARENT"].replace("NIC", "");
+        var indexParent = nicTemplate["PARENT"].replace("_NIC", "");
         select.val(indexParent).change();
       }
     });
@@ -377,7 +377,7 @@ define(function(require) {
         $.each(network_names, function(index, name) {
           $.each(nics, function(_, nic) {
             if (nic["NETWORK_ID"] === "$"+name){
-              nic["NAME"] = "NIC"+index;
+              nic["NAME"] = "_NIC"+index;
 
               $(".service_network_checkbox[data-index='"+index+"']", context).attr('checked', true).change();
               that.nics_template[String(index)] = nic;
@@ -393,7 +393,7 @@ define(function(require) {
         $.each(network_names, function(index, name) {
           $.each(alias, function(_, nic) {
             if (nic["NETWORK_ID"] === "$"+name){
-              nic["NAME"] = "NIC"+index;
+              nic["NAME"] = "_NIC"+index;
             
               $(".service_network_checkbox[data-index='"+index+"']", context).attr('checked', true).change();
               $(".alias_network_checkbox[data-index='"+index+"']", context).attr('checked', true).change();
@@ -479,11 +479,11 @@ define(function(require) {
       $.each(checkedNetworks, function(index, nic) {
         if (nic && that.nics_template[index]) {
           if (that.nics_template[index]) {
-            that.nics_template[index]["NAME"] = "NIC"+index;
+            that.nics_template[index]["NAME"] = "_NIC"+index;
             that.nics_template[index]["NETWORK_ID"] = "$"+nic.name;
           }
           else if (nic && that.alias_template[index]) {
-            that.alias_template[index]["NAME"] = "NIC"+index;
+            that.alias_template[index]["NAME"] = "_NIC"+index;
             that.alias_template[index]["NETWORK_ID"] = "$"+nic.name;
           }
         }
