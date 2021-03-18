@@ -42,7 +42,6 @@ class LXCConfiguration < Hash
             :timeout => '300',
             :command => 'sudo lxc-console'
         },
-        :filesystem => 'ext4',
         :datastore_location => '/var/lib/one/datastores',
         :default_lxc_config => '/usr/share/lxc/config/common.conf',
         :id_map => 600100001, # First id for mapping

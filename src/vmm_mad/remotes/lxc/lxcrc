@@ -29,14 +29,6 @@
   :height: 600
   :timeout: 300
 
-##############################################################################
-# Mapper Options
-##############################################################################
-#
-# Default filesystem format for LXD-driver formatted disks. Value should be
-# the same as would be in mkfs -t $filesystem $device
-:filesystem: ext4
-
 ################################################################################
 # OpenNebula Configuration Options
 ################################################################################
