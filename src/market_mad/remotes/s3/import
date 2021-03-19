@@ -115,13 +115,14 @@ end
 
 cmd = "#{UTILS_PATH}/downloader.sh #{import_source} -"
 
-Open3.popen3(cmd) do |_, o, e, _|
+Open3.popen3(cmd) do |_, o, e, wt|
     body = o.read(read_length)
 
     if o.eof?
+        exit_status = wt.value
         error = Thread.new { e.read }.value
 
-        unless error.empty?
+        unless exit_status.success?
             STDERR.puts error
             exit 1
         end
