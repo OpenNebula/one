@@ -1029,9 +1029,16 @@ define(function(require) {
     var ipsHtml = this.ipsStr(element, { divider, groupStrFunction: groupByIpsDropdown, forceGroup: true });
     var ips = [];
 
-    $.each($.parseHTML(ipsHtml), function() {
-      ips.push($( this ).text());
+    $.each($.parseHTML(ipsHtml), function(index, element) {
+      if (!ips.includes($( this ).text()) && $( this ).text() !== "")
+        ips.push($( this ).text());
     });
+
+    if (ips.length === 0)
+      return "<p style=\"margin-bottom:0;\">--</p>";
+    else if (ips.length === 1)
+      return "<p style=\"margin-bottom:0;\">"+ips[0]+"</p>"
+    
     var firstIP = ipsHtml.split("<end_first_ip>")[0]
     ipsHtml = ipsHtml.split("<end_first_ip>")[1]
     ipsHtml = 
