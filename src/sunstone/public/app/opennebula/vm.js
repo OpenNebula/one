@@ -843,7 +843,8 @@ define(function(require) {
     "promiseGetVm" : _promiseGetVm,
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
-    }
+    },
+    "isvCenterVM": isVCenterVM,
   };
 
   function _promiseGetVm({ id, success, async = true } = {}) {
@@ -1165,15 +1166,16 @@ define(function(require) {
     return actionEnabled && vncSupported
   }
 
+  function isVCenterVM(element = {}){
+    return Boolean(element.USER_TEMPLATE &&
+      String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === 'vcenter');
+  }
+
   function isVMRCSupported(element = {}) {
     var actionEnabled = Config.isTabActionEnabled('vms-tab', 'VM.startvmrc')
     var vmrcSupported = graphicSupported(element, 'vnc')
-    var isVCenter = Boolean(
-      element.USER_TEMPLATE &&
-      String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === 'vcenter'
-    )
 
-    return actionEnabled && vmrcSupported && isVCenter
+    return actionEnabled && vmrcSupported && isVCenterVM(element);
   }
 
   function isSPICESupported(element = {}) {

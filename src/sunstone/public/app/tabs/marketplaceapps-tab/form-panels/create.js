@@ -33,7 +33,6 @@ define(function(require) {
   var WizardFields = require("utils/wizard-fields");
   var OpenNebula = require("opennebula");
   var OpenNebulaAction = require("opennebula/action");
-  var OpenNebulaVM = require('opennebula/vm');
 
   /*
     TEMPLATES
@@ -107,7 +106,7 @@ define(function(require) {
       { "select": true,
         "selectOptions": {
           "filter_fn": function(vm) {
-            return String(OpenNebulaVM.STATES.POWEROFF) === vm.STATE;
+            return String(OpenNebula.VM.STATES.POWEROFF) === vm.STATE;
           }
         } 
       });
@@ -424,32 +423,27 @@ define(function(require) {
           },
           timeout: true,
           success: function (_, vmTemplate) {
-            if (vmTemplate && 
-              vmTemplate.VM && 
-              vmTemplate.VM.USER_TEMPLATE && 
-              vmTemplate.VM.USER_TEMPLATE.HYPERVISOR && 
-              vmTemplate.VM.USER_TEMPLATE.HYPERVISOR !== "vcenter"){
-            
-                OpenNebula.VM.save_as_template({
-                  data: template,
-                  success: function(_, templateId) {
-                    Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + marketPlaceJSON.NAME + ' ' + Locale.tr("saved successfully"));
-        
-                    var newTemplate = $.extend(marketPlaceJSON, { ORIGIN_ID: String(templateId) });
-        
-                    Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, newTemplate);
-                  },
-                  error: function(request, response) {
-                    Sunstone.hideFormPanelLoading(TAB_ID);
-                    Notifier.onError(request, response);
-                  }
-                });
-            
+            if ( OpenNebula.VM.isvCenterVM(vmTemplate.VM)){
+                Notifier.notifyError(
+                  Locale.tr("Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates.")
+                  );           
             }
-            else
-              Notifier.notifyError(
-                Locale.tr("Import error: Can't import vCenter VMs to a marketplace, only vCenter VM templates.")
-                );
+            else{
+              OpenNebula.VM.save_as_template({
+                data: template,
+                success: function(_, templateId) {
+                  Notifier.notifyMessage(Locale.tr("VM Template") + ' ' + marketPlaceJSON.NAME + ' ' + Locale.tr("saved successfully"));
+      
+                  var newTemplate = $.extend(marketPlaceJSON, { ORIGIN_ID: String(templateId) });
+      
+                  Sunstone.runAction("MarketPlaceApp.import_vm_template", marketplaceIdSelected, newTemplate);
+                },
+                error: function(request, response) {
+                  Sunstone.hideFormPanelLoading(TAB_ID);
+                  Notifier.onError(request, response);
+                }
+              });
+            }
 
           },
           error: function(request, response) {
