@@ -23,6 +23,7 @@
     <xs:include schemaLocation="marketplaceapp.xsd"/>
     <xs:include schemaLocation="marketplace_pool.xsd"/>
     <xs:include schemaLocation="marketplace.xsd"/>
+    <xs:include schemaLocation="monitoring_data.xsd"/>
     <xs:include schemaLocation="opennebula_configuration.xsd"/>
     <xs:include schemaLocation="raftstatus.xsd"/>
     <xs:include schemaLocation="security_group_pool.xsd"/>
