@@ -364,6 +364,7 @@ define(function(require) {
           var success_func = function (){
             $("#serviceMarketPlaceError").hide();
             $("#serviceMarketPlaceError").attr("oneflow_running", true);
+            that.servicesTable.resetResourceTableSelect();
           };
 
           var error_func = function (){
