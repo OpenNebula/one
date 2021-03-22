@@ -142,10 +142,6 @@ int DispatchManager::import(unique_ptr<VirtualMachine> vm, const RequestAttribut
     {
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
-
-        //Close this History Record
-        vm->set_etime(the_time);
-        vm->set_running_etime(the_time);
     }
     else
     {
