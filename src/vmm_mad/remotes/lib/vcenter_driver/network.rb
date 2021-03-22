@@ -500,17 +500,26 @@ module VCenterDriver
             one_client = OpenNebula::Client.new
             one_host = OpenNebula::Host.new_with_id(opts[:host], one_client)
 
+            rc = one_host.info
+            raise rc.message if OpenNebula.is_error? rc
+
+            # Get all networks in vcenter cluster (one_host)
+            vc_cluster_networks = dc_folder.cluster_networks(one_host)
+
+            vc_cluster_networks_map_ref = {}
+
+            # Iterate over vcenter networks
+            vc_cluster_networks.each do |vc_cluster_network|
+                vc_cluster_networks_map_ref[vc_cluster_network._ref] =
+                    vc_cluster_network
+            end
+
             indexes.each do |index|
                 begin
                     @rollback = []
                     @info[index] = {}
 
-                    vc_cluster_network = VCenterDriver::Network.new_from_ref(
-                        index,
-                        @vi_client
-                    )
-
-                    vc_cluster_network = vc_cluster_network.item
+                    vc_cluster_network = vc_cluster_networks_map_ref[index]
 
                     if hpool.respond_to?(:message)
                         raise 'Could not get OpenNebula HostPool: ' \
@@ -526,7 +535,6 @@ module VCenterDriver
                     params[:_hpool] = hpool
                     params[:one_host] = one_host
                     params[:args] = opts
-                    params[:short] = !opts[:short]
 
                     selected = dc_folder.process_network(params)
 
@@ -561,8 +569,8 @@ module VCenterDriver
                         false
                     )
             if npool.respond_to?(:message)
-                raise "Could not get \
-                OpenNebula VirtualNetworkPool: #{npool.message}"
+                raise 'Could not get ' \
+                "OpenNebula VirtualNetworkPool: #{npool.message}"
             end
 
             # Get OpenNebula's host pool

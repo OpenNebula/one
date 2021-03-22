@@ -584,6 +584,7 @@ module VCenterDriver
                     vc_network_name
                 )
             network[vc_network_ref][:network_type] = network_type
+            network[vc_network_ref][:type] = network_type
             # end
 
             # Determine if the network must be excluded

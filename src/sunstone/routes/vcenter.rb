@@ -28,6 +28,7 @@ MAX_VCENTER_PASSWORD_LENGTH = 22 #This is the maximum length for a vCenter passw
 require 'vcenter_driver'
 
 $importer = nil
+$host_id = nil
 
 helpers do
     def one_client(client=nil, conf={})
@@ -199,6 +200,7 @@ end
 get '/vcenter/networks' do
     begin
         client = one_client
+        $host_id = params["host"]
         new_vcenter_importer("networks", client)
         opts = {
             :host => params["host"],
@@ -216,7 +218,13 @@ end
 
 post '/vcenter/networks' do
     begin
-        $importer.process_import(params["networks"], params["opts"])
+        opts = params["opts"]
+        opts[:host] = $host_id
+
+        $importer.process_import(
+            params["networks"],
+            opts
+        )
 
         [200, $importer.output.to_json]
     rescue Exception => e
