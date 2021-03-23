@@ -26,6 +26,11 @@ inputs:
     description: 'Number of public IPs to get'
     default: '1'
 
+  - name: 'dns'
+    type: text
+    description: 'Comma separated list of DNS servers for public network'
+    default: '1.1.1.1'
+
   - name: 'packet_plan'
     type: text
     description: "Packet plan (device type)"

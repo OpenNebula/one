@@ -26,6 +26,11 @@ inputs:
     description: 'Number of public IPs to get'
     default: '1'
 
+  - name: 'dns'
+    type: text
+    description: 'Comma separated list of DNS servers for public network'
+    default: '1.1.1.1'
+
   - name: 'aws_ami_image'
     type: text
     description: "AWS ami image used for host deployments"

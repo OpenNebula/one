@@ -20,6 +20,7 @@ networks:
     vn_mad: 'elastic'
     bridge: 'br0'
     netrole: 'public'
+    dns: "${input.dns}"
     provision:
       count: "${input.number_public_ips}"
     ar:
