@@ -129,9 +129,11 @@ CommandParser::CmdParser.new(ARGV) do
             STDERR.puts rc.message
             exit(-1)
         elsif rc.to_i < 0
+            puts CLIHelper.green('Provision successfully created')
             puts "ID: #{rc}"
             rc
         else
+            puts CLIHelper.green('Provision successfully created')
             puts "ID: #{rc}"
             0
         end

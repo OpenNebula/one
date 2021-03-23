@@ -147,7 +147,9 @@ module OneProvision
             # Apply
             Driver.retry_loop("Driver action 'tf deploy' failed", provision) do
                 _, e, s = Driver.run(
-                    "cd #{tempdir}; terraform apply -auto-approve"
+                    "cd #{tempdir}; " \
+                    "export TF_LOG=#{OneProvisionLogger.tf_log}; " \
+                    'terraform apply -auto-approve'
                 )
 
                 unless s && s.success?
@@ -224,7 +226,9 @@ module OneProvision
             # Destroy
             Driver.retry_loop("Driver action 'tf destroy' failed", provision) do
                 _, e, s = Driver.run(
-                    "cd #{tempdir}; terraform refresh; " \
+                    "cd #{tempdir}; " \
+                    "export TF_LOG=#{OneProvisionLogger.tf_log}; " \
+                    'terraform refresh; ' \
                     "terraform destroy #{target} -auto-approve"
                 )
 

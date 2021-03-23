@@ -211,6 +211,17 @@ module CLIHelper
         end
     end
 
+    # Get text in green colour
+    #
+    # @param text [String] String to print
+    def self.green(text)
+        if $stdout.tty?
+            ANSI_GREEN + text + ANSI_RESET
+        else
+            state
+        end
+    end
+
     # Print header
     #
     # @param str       [String]  String with header content
