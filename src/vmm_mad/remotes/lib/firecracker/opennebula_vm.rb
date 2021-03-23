@@ -147,7 +147,7 @@ class FirecrackerVM < OpenNebulaVM
 
     def boot_source(hash)
         hash['kernel_image_path'] = 'kernel'
-        hash['boot_args'] = @boot_args
+        hash['boot_args'] = @xml['//TEMPLATE/OS/KERNEL_CMD']
     end
 
     def machine_config(hash)
