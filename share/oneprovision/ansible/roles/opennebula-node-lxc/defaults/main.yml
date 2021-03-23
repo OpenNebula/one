@@ -1,0 +1,8 @@
+---
+###############################################################################
+# Valid defaults
+###############################################################################
+
+# SELinux booleans to configure
+opennebula_node_selinux_booleans:
+  - { name: 'virt_use_nfs', state: 'yes' }
