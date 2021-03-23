@@ -109,3 +109,5 @@ export const groupBy = (array, key) =>
 
     return objectsByKeyValue
   }, {})
+
+export const cloneObject = obj => JSON.parse(JSON.stringify(obj))

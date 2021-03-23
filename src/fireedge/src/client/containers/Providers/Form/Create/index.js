@@ -25,7 +25,7 @@ function ProviderCreateForm () {
 
   const { data, fetchRequest, loading, error } = useFetch(getProvider)
   const { steps, defaultValues, resolvers } = Steps({ isUpdate })
-  const { showError } = useGeneral()
+  const { showError, changeLoading } = useGeneral()
 
   const methods = useForm({
     mode: 'onSubmit',
@@ -92,6 +92,7 @@ function ProviderCreateForm () {
   }
 
   const onSubmit = formData => {
+    changeLoading(true)
     isUpdate ? callUpdateProvider(formData) : callCreateProvider(formData)
   }
 

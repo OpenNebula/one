@@ -13,7 +13,7 @@ import DebugLog from 'client/components/DebugLog'
 
 import { useProvision, useSocket, useFetch } from 'client/hooks'
 import { PATH } from 'client/router/provision'
-import { set, mapUserInputs } from 'client/utils'
+import { set, cloneObject, mapUserInputs } from 'client/utils'
 
 import { Translate } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -43,7 +43,7 @@ function ProvisionCreateForm () {
     const providerName = provider?.[0]?.NAME
 
     // clone object from redux store
-    const provisionTemplateSelected = JSON.parse(JSON.stringify(template?.[0] ?? {}))
+    const provisionTemplateSelected = cloneObject(template?.[0] ?? {})
 
     // update provider name if changed during form
     if (provisionTemplateSelected.defaults?.provision?.provider_name) {
