@@ -170,7 +170,8 @@ define(function(require) {
       $("#time_input").removeAttr("class");
     });
 
-    context.off("click" , "#edit_inst_action_json").on("click" , "#edit_inst_action_json", function(e){
+    context.off("click" , "#edit_inst_action_json")
+    context.on("click" , "#edit_inst_action_json", function(e){
       e.preventDefault();
       var id = $(this).attr("data_id");
       if(id && id.length && contextRow){
@@ -209,6 +210,12 @@ define(function(require) {
     // Boot order
     //----------------------------------------------------------------------------
 
+    context.off("change", "input.boot-order-instantiate-cb")
+    context.on("change", "input.boot-order-instantiate-cb", function() {
+      _refreshBootValue(context);
+    })
+
+    context.off("click", "button.boot-order-instantiate-up")
     context.on("click", "button.boot-order-instantiate-up", function(){
       var tr = $(this).closest("tr");
       tr.prev().before(tr);
@@ -218,6 +225,7 @@ define(function(require) {
       return false;
     });
 
+    context.off("click", "button.boot-order-instantiate-down")
     context.on("click", "button.boot-order-instantiate-down", function(){
       var tr = $(this).closest("tr");
       tr.next().after(tr);
@@ -225,10 +233,6 @@ define(function(require) {
       _refreshBootValue(context);
 
       return false;
-    });
-
-    $("table.boot-order-instantiate tbody", context).on("change", "input", function(){
-      _refreshBootValue(context);
     });
   }
 
@@ -803,7 +807,7 @@ define(function(require) {
   function _addBootRow(context, value, label) {
     $("table.boot-order-instantiate tbody", context).append(
       "<tr value=\""+value+"\">"+
-        "<td><input type=\"checkbox\"/></td>"+
+        "<td><input class=\"boot-order-instantiate-cb\" type=\"checkbox\"/></td>"+
         "<td>"+value+"</td>"+
         "<td><label>"+label+"</label></td>"+
         "<td>"+
