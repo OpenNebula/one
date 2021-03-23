@@ -1060,11 +1060,13 @@ define(function(require) {
     var external_nics = [];
     var non_external_nics = [];
 
-    nics.forEach(function(nic){
-      if (nic.EXTERNAL_IP && nic.EXTERNAL_IP.toLowerCase() === "yes")
+    nics.forEach(function(nic, index){
+      var copy_nic = Object.assign({}, nic);
+      if (nic.EXTERNAL_IP)
         external_nics.push(nic);
-      else
-        non_external_nics.push(nic);
+
+      delete copy_nic.EXTERNAL_IP;
+      non_external_nics.push(copy_nic);
     });
 
     return external_nics.concat(non_external_nics);
@@ -1093,13 +1095,19 @@ define(function(require) {
       }
       else{
         if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
-          var ip = nic.IP || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+          var ip;
           
-          var nicSection = $("<a/>").css("color", "gray").html(nic.NIC_ID + ": " + ip);
-  
-          if (nic.EXTERNAL_IP &&  String(nic.EXTERNAL_IP).toLowerCase() === 'yes') {
+          var nicSection = $("<a/>").css("color", "gray")
+          
+          if (nic.EXTERNAL_IP) {
+            ip = nic.EXTERNAL_IP;
             nicSection.css("font-weight", "bold");
           }
+          else{
+            ip = nic.IP || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+          }
+
+          nicSection.html(nic.NIC_ID + ": " + ip);
   
           column.append($("<li/>").append(nicSection));
   
@@ -1138,16 +1146,21 @@ define(function(require) {
 
     return all_nics.reduce(function(column, nic) {
       if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
-        var ip = nic.IP || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL
+        var ip;
 
         var nicSection = $("<p/>")
-          .css("color", "gray")
-          .css("margin-bottom", 0)
-          .html(nic.NIC_ID + ": " + ip);
+          .css("color", "#0a0a0a")
+          .css("margin-bottom", 0);
 
-        if (nic.EXTERNAL_IP && String(nic.EXTERNAL_IP).toLowerCase() === 'yes'){
+        if (nic.EXTERNAL_IP){
+          ip = nic.EXTERNAL_IP;
           nicSection.css("font-weight","bold");
         }
+        else {
+          ip = nic.IP || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL
+        }
+
+        nicSection.html(nic.NIC_ID + ": " + ip);
 
         column.append(nicSection);
         
