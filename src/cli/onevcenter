@@ -261,8 +261,12 @@ CommandParser::CmdParser.new(ARGV) do
                                                            vi_client,
                                                            options[:object])
 
-            importer.retrieve_resources(helper.parse_opts(options))
-            indexes = importer.get_indexes(args.first)
+            if options[:object] == "networks" && !args.first.nil?
+                indexes = args.first
+            else
+                importer.retrieve_resources(helper.parse_opts(options))
+                indexes = importer.get_indexes(args.first)
+            end
 
             importer.process_import(indexes, options)
 

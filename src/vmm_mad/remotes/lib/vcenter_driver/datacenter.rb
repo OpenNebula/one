@@ -576,7 +576,6 @@ module VCenterDriver
             # Initialize opts hash used to inject data into one template
             opts = {}
 
-            # if full_process
             # Add network type to network hash
             network_type = \
                 VCenterDriver::Network.get_network_type(
@@ -585,7 +584,6 @@ module VCenterDriver
                 )
             network[vc_network_ref][:network_type] = network_type
             network[vc_network_ref][:type] = network_type
-            # end
 
             # Determine if the network must be excluded
             network[vc_network_ref][:excluded] = exclude_network?(
