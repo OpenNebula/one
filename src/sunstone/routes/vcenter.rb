@@ -28,6 +28,7 @@ MAX_VCENTER_PASSWORD_LENGTH = 22 #This is the maximum length for a vCenter passw
 require 'vcenter_driver'
 
 $importer = nil
+$opts = nil
 
 helpers do
     def vcenter_client
@@ -192,8 +193,12 @@ get '/vcenter/networks' do
     begin
         client = OpenNebula::Client.new(nil, $conf[:one_xmlrpc])
         new_vcenter_importer("networks", client)
-        opts = {:host => params["host"], :filter => true}
-        [200, $importer.retrieve_resources(opts).to_json]
+        $opts = {
+            :host => params["host"],
+            :filter => true,
+            :short => true
+        }
+        [200, $importer.retrieve_resources($opts).to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)
         error = Error.new(e.message)
@@ -203,8 +208,11 @@ end
 
 post '/vcenter/networks' do
     begin
-        $importer.process_import(params["networks"], params["opts"])
-
+        $opts[:short] = false
+        $importer.process_import(
+            params["networks"],
+            $opts
+        )
         [200, $importer.output.to_json]
     rescue Exception => e
         logger.error("[vCenter] " + e.message)

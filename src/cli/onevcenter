@@ -257,10 +257,21 @@ CommandParser::CmdParser.new(ARGV) do
             importer = VCenterDriver::VcImporter.new_child(helper.client,
                                                            vi_client,
                                                            options[:object])
-            importer.retrieve_resources(helper.parse_opts(options))
-            indexes = importer.get_indexes(args.first)
 
-            importer.process_import(indexes)
+            if options[:object] == "networks" && !args.first.nil?
+                indexes = args.first
+            else
+                importer.retrieve_resources(helper.parse_opts(options))
+                indexes = importer.get_indexes(args.first)
+            end
+
+            if indexes.nil?
+                raise "Could not get any unimported #{options[:object]}"\
+                    " resources info in host: #{options[:host]} with"\
+                    " this input: #{args.first}"
+            end
+
+            importer.process_import(indexes, options)
 
             importer.stdout
         rescue StandardError => e

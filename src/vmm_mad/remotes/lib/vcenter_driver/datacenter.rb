@@ -373,8 +373,6 @@ class DatacenterFolder
 
     # Determine if a network must be excluded from the list
     def exclude_network?(vc_network, one_host, args, vc_network_hash)
-
-        vc_network_ref = vc_network_hash[:vc_network_ref]
         vc_network_name = vc_network_hash[:vc_network_name]
         vc_network_host = vc_network_hash[:vc_network_host]
         vc_network_tag = vc_network_hash[:vc_network_tag]
@@ -406,7 +404,7 @@ class DatacenterFolder
             end
             return false
         end
-        return false
+        false
     end
 
     # Proccess each network
@@ -440,11 +438,10 @@ class DatacenterFolder
         # Initialize opts hash used to inject data into one template
         opts = {}
 
-        if full_process
-            # Add network type to network hash
-            network_type = VCenterDriver::Network.get_network_type(vc_network, vc_network_name)
-            network[vc_network_ref][:network_type] = network_type
-        end
+        # Add network type to network hash
+        network_type = VCenterDriver::Network.get_network_type(vc_network, vc_network_name)
+        network[vc_network_ref][:network_type] = network_type
+        network[vc_network_ref][:type] = network_type
 
         # Determine if the network must be excluded
         network[vc_network_ref][:excluded] =  exclude_network?(vc_network,

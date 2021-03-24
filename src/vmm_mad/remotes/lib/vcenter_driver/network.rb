@@ -382,6 +382,72 @@ class NetImporter < VCenterDriver::VcImporter
         @defaults = { size: "255", type: "ether" }
     end
 
+    def process_import(indexes, opts = {}, &block)
+
+        indexes = indexes.gsub(/\s*\,\s*/, ',').strip.split(',')
+
+        dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
+        vcenter_instance_name = @vi_client.vc_name
+        vcenter_uuid = @vi_client.vim.serviceContent.about.instanceUuid
+        hpool = VCenterDriver::VIHelper.one_pool(
+            OpenNebula::HostPool,
+            false
+        )
+
+        one_client = OpenNebula::Client.new
+        one_host = OpenNebula::Host.new_with_id(opts[:host], one_client)
+
+        rc = one_host.info
+        raise rc.message if OpenNebula.is_error? rc
+
+        # Get all networks in vcenter cluster (one_host)
+        vc_cluster_networks = dc_folder.cluster_networks(one_host)
+
+        vc_cluster_networks_map_ref = {}
+
+        # Iterate over vcenter networks
+        vc_cluster_networks.each do |vc_cluster_network|
+            vc_cluster_networks_map_ref[vc_cluster_network._ref] =
+                vc_cluster_network
+        end
+
+        indexes.each do |index|
+            begin
+                @rollback = []
+                @info[index] = {}
+
+                vc_cluster_network = vc_cluster_networks_map_ref[index]
+
+                if hpool.respond_to?(:message)
+                    raise 'Could not get OpenNebula HostPool: ' \
+                              "#{hpool.message}"
+                end
+
+                opts = {}
+
+                selected = dc_folder.process_network(vc_cluster_network, vcenter_instance_name, vcenter_uuid, hpool, one_host, opts)
+
+                selected = selected[index]
+
+                if block_given?
+                    @info[index][:opts] = block.call(selected)
+                elsif opts[index]
+                    @info[index][:opts] = opts[index]
+                else
+                    @info[index][:opts] = defaults
+                end
+
+                # import the object
+                @info[:success] << import(selected)
+            rescue StandardError => e
+                @info[:error] << { index => e.message }
+                @info[index][:e] = e
+
+                apply_rollback
+            end
+        end
+    end
+
     def get_list(args = {})
         dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
 
@@ -398,7 +464,7 @@ class NetImporter < VCenterDriver::VcImporter
         end
 
         rs = dc_folder.get_unimported_networks(npool, @vi_client.vc_name,hpool, args)
-		@list = rs
+        @list = rs
     end
 
     def add_cluster(cid, eid)
