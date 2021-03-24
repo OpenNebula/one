@@ -64,31 +64,46 @@ class ElasticDriver < VNMMAD::VNMDriver
 
     #  Create route and arp proxy
     def activate
+        cmds     = VNMMAD::VNMNetwork::Commands.new
+        provider = ElasticDriver.provider(@provider, @host)
+
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+
         process do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-            ip("route add #{nic[:ip]}/32 dev #{nic[:bridge]}")
-            ip("neighbour add proxy #{nic[:gateway]} dev #{nic[:bridge]}")
+            cmds.add :ip, "route add #{nic[:ip]}/32 dev #{nic[:bridge]}"
+            cmds.add :ip, "neighbour add proxy #{nic[:gateway]} dev #{nic[:bridge]}"
+
+            provider.activate(cmds, nic) if provider.respond_to? :activate
         end
+
+        cmds.run_remote(@ssh)
 
         0
     end
 
     #  Remove route and arp proxy
     def deactivate
+        cmds     = VNMMAD::VNMNetwork::Commands.new
+        provider = ElasticDriver.provider(@provider, @host)
+
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+
         process do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-            ip("route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true")
-            ip("neighbour del proxy #{nic[:gateway]} dev #{nic[:bridge]} " <<
-               '| true')
+            cmds.add :ip, "route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true"
+            cmds.add :ip, "neigh del proxy #{nic[:gateway]} dev #{nic[:bridge]} | true"
+
+            provider.deactivate(cmds, nic) if provider.respond_to? :deactivate
 
             next if nic[:conf][:keep_empty_bridge]
 
-            ip("link delete #{nic[:bridge]} | true")
+            cmds.add :ip, "link delete #{nic[:bridge]} | true"
         end
+
+        cmds.run_remote(@ssh)
 
         0
     end
@@ -158,15 +173,6 @@ class ElasticDriver < VNMMAD::VNMDriver
     end
 
     private
-
-    # Run ip command with given params on @ssh stream
-    #   @param params [String]
-    #   @return [String] command stdout
-    def ip(params)
-        commands = VNMMAD::VNMNetwork::Commands.new
-        commands.add :ip, params
-        commands.run_remote(@ssh)
-    end
 
 end
 # rubocop:enable Naming/FileName

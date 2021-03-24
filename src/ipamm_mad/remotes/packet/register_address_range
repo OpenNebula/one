@@ -100,6 +100,8 @@ require 'ipaddr'
 
 IP_TYPE = %w[public_ipv4 global_ipv4]
 
+DEFAULT_PRIVATE_CIDR = "172.0.0.0/8"
+
 # Add ^ operator to the IPAddr class
 class IPAddr
 
@@ -141,6 +143,12 @@ begin
     # --------------------------------------------------------------------------
     # Connect to Packet and allocate a new IP
     # --------------------------------------------------------------------------
+    private_cidr = data.xpath('//AR/PRIVATE_CIDR').text
+
+    if private_cidr.empty?
+        private_cidr = DEFAULT_PRIVATE_CIDR
+    end
+
     packet            = Packet::Client.new
     packet.auth_token = pk_token
 
@@ -165,15 +173,21 @@ begin
 
     packet.create_ip(ip)
 
-    ipgw = IPAddr.new(ip.address) ^ 1
+    cidr  = IPAddr.new(private_cidr)
+    ipmd5 = Digest::MD5.hexdigest("#{ip.address}").to_i(16) & 0x0FFFFFF
+    eip   = IPAddr.new(ipmd5, Socket::AF_INET)
+
+    ipvm = (eip & 0x00FFFFFF) | cidr.mask(8)
+    ipgw = ipvm ^ 1
 
     puts <<-EOF
         AR = [
             TYPE     = "IP4",
-            IP       = "#{ip.address}",
+            IP       = "#{ipvm}",
             SIZE     = "#{ip.quantity}",
             IPAM_MAD = "packet",
             GATEWAY  = "#{ipgw}",
+            EXTERNAL_IP  = "#{ip.address}",
             NETWORK_MASK = "255.255.255.254",
             PACKET_IP_ID = "#{ip.id}",
             PROVISION_ID = "#{provision_id}"
