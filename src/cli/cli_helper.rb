@@ -218,7 +218,7 @@ module CLIHelper
         if $stdout.tty?
             ANSI_GREEN + text + ANSI_RESET
         else
-            state
+            text
         end
     end
 
