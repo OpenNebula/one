@@ -10,12 +10,12 @@ msgstr ""
 "POT-Creation-Date: 2021-02-12 12:01+0100\n"
 "PO-Revision-Date: 2021-02-12 11:11+0000\n"
 "Last-Translator: Jorge Lobo <jlobo@opennebula.systems>\n"
-"Language-Team: Persian (http://www.transifex.com/opennebula/one/language/fa/)\n"
-"Language: fa\n"
+"Language-Team: Tatar (http://www.transifex.com/opennebula/one/language/tt/)\n"
+"Language: tt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../app/app.js:157 ../app/app.js:160 ../app/tabs/acls-tab/datatable.js:225
 #: ../app/tabs/acls-tab/datatable.js:243 ../app/tabs/acls-tab/datatable.js:270

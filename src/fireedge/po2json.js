@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('openebula-potojson')
+const { createReadStream, generateFile } = require('opennebula-potojson')
 
 const testFolder = './src/client/assets/languages'
 
