@@ -169,7 +169,7 @@ define(function(require) {
 
     VMsTableUtils.tooltipCharters();
 
-    $("#rdp-buttons").foundation();
+    $(".rdp-buttons").foundation();
 
     FireedgeValidator.validateFireedgeToken(function(token) {
       if (Websocket.disconnected()) {

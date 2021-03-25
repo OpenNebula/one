@@ -156,8 +156,7 @@ define(function(require) {
     var dropdownButton = $('<button>', { title:'RDP menu', class: 'remote-vm' })
 
     var dropdownMenu = $('<ul>', {
-      class: 'dropdown menu',
-      id: 'rdp-buttons',
+      class: 'dropdown menu rdp-buttons',
       'data-dropdown-menu': ''
     })
 
