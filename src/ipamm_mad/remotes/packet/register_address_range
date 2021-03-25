@@ -97,10 +97,11 @@ require 'nokogiri'
 require 'opennebula'
 require 'oneprovision'
 require 'ipaddr'
+require 'digest'
 
 IP_TYPE = %w[public_ipv4 global_ipv4]
 
-DEFAULT_PRIVATE_CIDR = "172.0.0.0/8"
+DEFAULT_PRIVATE_CIDR = "172.16.0.0/12"
 
 # Add ^ operator to the IPAddr class
 class IPAddr
@@ -149,6 +150,9 @@ begin
         private_cidr = DEFAULT_PRIVATE_CIDR
     end
 
+    cidr = IPAddr.new(private_cidr)
+    mask = 0x0FFFFFFFF >> cidr.prefix
+
     packet            = Packet::Client.new
     packet.auth_token = pk_token
 
@@ -173,11 +177,10 @@ begin
 
     packet.create_ip(ip)
 
-    cidr  = IPAddr.new(private_cidr)
-    ipmd5 = Digest::MD5.hexdigest("#{ip.address}").to_i(16) & 0x0FFFFFF
+    ipmd5 = Digest::MD5.hexdigest("#{ip.address}").to_i(16) & mask
     eip   = IPAddr.new(ipmd5, Socket::AF_INET)
 
-    ipvm = (eip & 0x00FFFFFF) | cidr.mask(8)
+    ipvm = (eip & mask) | cidr
     ipgw = ipvm ^ 1
 
     puts <<-EOF
