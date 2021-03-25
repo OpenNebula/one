@@ -140,6 +140,8 @@ group :oca do
 end
 
 group :vmware do
+    gem 'addressable'
+
     if ruby_version >= Gem::Version.new('2.3.0')
         gem 'vsphere-automation-cis', '~> 0.4.6'
         gem 'vsphere-automation-vcenter', '~> 0.4.6'
