@@ -1088,7 +1088,7 @@ define(function(require) {
     return copy_nics.reduce(function(column, nic) {
       if (first){
         if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
-          var ip = nic.IP || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+          var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
           column.append(nic.NIC_ID + ": " + ip + "<end_first_ip>");
         }
         first=false;
