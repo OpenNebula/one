@@ -24,8 +24,7 @@ define(function(require) {
   var DATATABLE_ID = "dataTableGroups";
 
   var _dialogs = [
-    require('./groups-tab/dialogs/quotas'),
-    require('./groups-tab/dialogs/image')
+    require('./groups-tab/dialogs/quotas')
   ];
 
   var _panels = [

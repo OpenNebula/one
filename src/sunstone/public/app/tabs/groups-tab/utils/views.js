@@ -20,23 +20,15 @@ define(function(require) {
   var _view_types = {
     advanced : {
       name: 'Advanced Layout',
-      description : Locale.tr("Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource."),
-      preview: "advanced_layout.png"
+      description : Locale.tr("Exposes a complete view of the cloud, allowing administrators and advanced users full control of any physical or virtual resource.")
     },
     cloud : {
       name: 'Cloud Layout',
-      description : Locale.tr("Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource."),
-      preview: "cloud_layout.png"
-    },
-    vcenter : {
-      name: 'vCenter Layout',
-      description : Locale.tr("Set of views to present valid operations over a vCenter infrastructure"),
-      preview: "vcenter_layout.png"
+      description : Locale.tr("Simplified version of the cloud allowing group admins and cloud end-users to manage any virtual resource.")
     },
     other : {
       name: 'Other Layouts',
-      description : '',
-      preview: null
+      description : ''
     }
   };
 
@@ -64,24 +56,6 @@ define(function(require) {
       name: "Cloud",
       description: Locale.tr("Simplified view mainly where users can provision new Virtual Machines easily from pre-defined Templates."),
       type: "cloud"
-    },
-    admin_vcenter : {
-      id: 'admin_vcenter',
-      name: "Admin vCenter",
-      description: Locale.tr("View designed to present the valid operations over a vCenter infrastructure to a cloud administrator"),
-      type: "vcenter"
-    },
-    groupadmin_vcenter : {
-      id: 'groupadmin_vcenter',
-      name: "Group Admin vCenter",
-      description: Locale.tr("View designed to present the valid operations over a vCenter infrastructure to a group administrator"),
-      type: "vcenter"
-    },
-    cloud_vcenter : {
-      id: 'cloud_vcenter',
-      name: "Cloud vCenter",
-      description: Locale.tr("View designed to present the valid operations over a vCenter infrastructure to a cloud consumer"),
-      type: "vcenter"
     }
   };
 
