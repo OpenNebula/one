@@ -27,7 +27,6 @@ networks:
       - provison_id: "${provision_id}"
         size: '1'
         ipam_mad: 'aws'
-        cidr: "${cluster.0.cidr}"
 
 vntemplates:
   - name: "${provision}-private"

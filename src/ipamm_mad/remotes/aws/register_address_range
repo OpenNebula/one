@@ -122,11 +122,27 @@ begin
         exit(-1)
     end
 
-    cidr_s = data.xpath('//AR/CIDR').text
+    one       = OpenNebula::Client.new
+    provision = OneProvision::Provision.new_with_id(provision_id, one)
+    rc        = provision.info
+
+    if OpenNebula.is_error?(rc)
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
+    aws_conf = provision.body['aws_configuration']
+
+    if aws_conf
+        cidr_s = aws_conf['cidr']
+    else
+        cidr_s = data.xpath('//AR/CIDR').text
+    end
+
     mask = cidr_s.split('/')[1]
 
     if cidr_s.empty?
-        STDERR.puts 'Missing CIDR block in address range'
+        STDERR.puts 'Missing CIDR block in aws_configuration or AR'
         exit(-1)
     end
 
@@ -134,15 +150,6 @@ begin
 
     if !['255.255.0.0', '16'].include? mask
         STDERR.puts 'Elastic CIDR block has to be /16'
-        exit(-1)
-    end
-
-    one       = OpenNebula::Client.new
-    provision = OneProvision::Provision.new_with_id(provision_id, one)
-    rc        = provision.info
-
-    if OpenNebula.is_error?(rc)
-        STDERR.puts rc.message
         exit(-1)
     end
 

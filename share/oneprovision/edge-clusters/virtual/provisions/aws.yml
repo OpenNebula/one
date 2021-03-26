@@ -68,3 +68,16 @@ cluster:
     - 2
   provision:
       cidr: '10.0.0.0/16'
+
+#-------------------------------------------------------------------------------
+# AWS provision parameters.
+#-------------------------------------------------------------------------------
+# This section is used by provision drivers. DO NOT MODIFY IT
+#
+#   CIDR: Private IP block for the cluster. This value HAS TO MATCH that on
+#   cluster.
+#-------------------------------------------------------------------------------
+aws_configuration:
+    cidr: '10.0.0.0/16'
+
+...
