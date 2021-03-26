@@ -88,8 +88,21 @@ define(function (require) {
         }
     };
 
+    var error_function = function(error, request=null, notify=true){
+        if (notify)
+            Notifier.onError(request, {error:{ message: "FireEdge public endpoint is not working, please contact your cloud administrator"}});
+        
+        sunstone_fireedge_active = false;
+
+        if (typeof error === "function")
+            error();
+    }
+
     var _check_fireedge_public_url = function (success, aux, error) {
-        if (fireedge_endpoint){
+        var regex = /^(http(s)?:\/\/)(www\.)?[a-z,0-9]+([\-\.]{1}[a-z,0-9]+)*(:[0-9]{1,5})?(\/.*)?$/gm
+        var valid_endpoint = Boolean(fireedge_endpoint.match(regex))
+
+        if (fireedge_endpoint && valid_endpoint){
             $.ajax({
                 url: fireedge_endpoint,
                 type: "GET",
@@ -100,19 +113,12 @@ define(function (require) {
                     }
                 },
                 error: function(request, response, data) {
-                    Notifier.onError(request, {error:{ message: "FireEdge public endpoint is not working, please contact your cloud administrator"}});
-                    sunstone_fireedge_active = false;
-                    if (typeof error === "function"){
-                        error();
-                    }
+                    error_function(error, request);
                 }
             });
         }
-        else {
-            sunstone_fireedge_active = false;
-            if (typeof error === "function"){
-                error();
-            }
+        else{
+            error_function(error, null, is_fireedge_configured && !valid_endpoint);
         }
     };
 
