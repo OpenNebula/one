@@ -19,4 +19,4 @@ RUN rc-update add sshd default && \
     rc-update add udev default && \
     rc-update add networking default
 
-RUN echo 'rc_sys=""' >> /etc/rc.conf
+RUN sed -i '/rc_sys/s/^/#/' /etc/rc.conf
