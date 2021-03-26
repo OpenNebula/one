@@ -70,12 +70,10 @@ export default makeStyles(theme => ({
   // -------------------------------
   header: {
     userSelect: 'none',
-    backgroundColor: theme.palette.type === 'dark'
-      ? theme.palette.background.paper
-      : theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.background.paper,
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'space-between',
     padding: '1rem',
     overflow: 'hidden',
     height: toolbar.regular,
@@ -132,8 +130,5 @@ export default makeStyles(theme => ({
     color: theme.palette.text.primary,
     backgroundColor: theme.palette.primary.light,
     '&:hover': { backgroundColor: theme.palette.primary.light }
-  },
-  hamburger: {
-    color: theme.palette.primary.contrastText
   }
 }))
