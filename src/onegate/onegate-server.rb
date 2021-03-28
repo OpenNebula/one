@@ -981,9 +981,16 @@ put '/service/role/:role' do
 
     check_vm_in_service(source_vm['ID'], service_id, client)
 
-    action_response = flow_client(client).put(
-        "/service/" + service_id + "/role/" + params[:role],
-        request.body.read)
+    cardinality = JSON.parse(request.body.read)["cardinality"]
+    body_json = {
+          :cardinality => cardinality,
+          :role_name => params[:role],
+          :force => false
+    }.to_json
+
+    action_response = flow_client(client).post(
+        "/service/" + service_id + "/scale",
+        body_json)
 
     if CloudClient::is_error?(action_response)
         error_msg = "Error performing action on service #{service_id} role #{params[:role]}"
