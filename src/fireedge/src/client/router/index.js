@@ -71,7 +71,10 @@ Router.propTypes = {
         authenticated: PropTypes.bool.isRequired,
         sidebar: PropTypes.bool,
         icon: PropTypes.object,
-        Component: PropTypes.func.isRequired
+        Component: PropTypes.oneOfType([
+          PropTypes.func,
+          PropTypes.object
+        ]).isRequired
       })
     )
   })

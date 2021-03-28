@@ -127,7 +127,7 @@ define(function(require) {
 
     var clusters = '-';
     if (element.CLUSTERS.ID != undefined){
-      clusters = $.isArray(element.CLUSTERS.ID) ? element.CLUSTERS.ID.join(",") : element.CLUSTERS.ID;
+      clusters = Array.isArray(element.CLUSTERS.ID) ? element.CLUSTERS.ID.join(",") : element.CLUSTERS.ID;
     }
 
     var parent_net = "";

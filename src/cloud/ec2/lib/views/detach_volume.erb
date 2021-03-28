@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<DetachVolumeResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
-   <requestId><%= @request_id %></requestId>
-  <volumeId>vol-<%= sprintf('%08i', image_id) %></volumeId>
-  <%= render_instance_id(vm) %>
-  <device><%= target %></device>
-  <status>detaching</status>
-  <attachTime/>
-</DetachVolumeResponse>

@@ -29,7 +29,6 @@ define(function(require) {
 
   var _clearCache = function(cache_name) {
     listCache[cache_name] = null;
-    //console.log(cache_name+" cache cleaned");
   };
 
   //Example: Simple action: publish. Simple action with action obj: deploy
@@ -264,7 +263,6 @@ define(function(require) {
             var callback = listCallbacks[cache_name][i].error;
 
             if (callback) {
-              //console.log(cache_name+" list. ERROR Callback called");
               callback(request, OpenNebulaError(response));
             }
           }

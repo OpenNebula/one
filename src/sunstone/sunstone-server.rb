@@ -46,17 +46,20 @@ LOGOS_CONFIGURATION_FILE  = ETC_LOCATION + '/sunstone-logos.yaml'
 SUNSTONE_ROOT_DIR = File.dirname(__FILE__)
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
 
-    # for some platforms, we redistribute newer base Ruby gems which
-    # should be loaded instead of default ones in the distributions
-    %w[openssl json].each do |name|
-        begin
-            gem name
-        rescue LoadError
-            # ignore
+        # for some platforms, we redistribute newer base Ruby gems which
+        # should be loaded instead of default ones in the distributions
+        %w[openssl json].each do |name|
+            begin
+                gem name
+            rescue LoadError
+                # ignore
+            end
         end
     end
 end
@@ -286,7 +289,7 @@ SUPPORT = {
     :author_name => "OpenNebula Support Team",
     :support_subscription => "https://opennebula.io/support/",
     :account => "https://opennebula.io/buy-support",
-    :docs => "https://docs.opennebula.io/5.13/",
+    :docs => "https://docs.opennebula.io/6.0/",
     :community => "https://opennebula.io/usec",
     :project => "OpenNebula"
 }
@@ -913,7 +916,7 @@ get '/vm/showback' do
 end
 
 ##############################################################################
-# GET Fireedge token
+# GET FireEdge token
 ##############################################################################
 get '/fireedge' do
     begin
@@ -931,7 +934,7 @@ get '/fireedge' do
         response = {:token => fireedge_token}
        [200,  response.to_json]
     rescue StandardError => error
-        logger.info("Fireedge server is not running. Error: #{error}")
+        logger.info("FireEdge server is not running. Error: #{error}")
         response = {:token => ""}
         [400,  response.to_json]
     end

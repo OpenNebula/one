@@ -47,16 +47,18 @@ define(function(require) {
    */
 
   function _html(){
+    var rtn = "";
     if(
       config &&
       config.system_config &&
       config.system_config.leases &&
       (config.system_config.leases.suspend || config.system_config.leases.terminate)
     ){
-      return $("<button />", {class: classButton, type:"button"}).append(
+      rtn = $("<button />", {class: classButton, type:"button"}).append(
         $("<i/>", {class: "fa fa-clock"})
       ).prop("outerHTML");
     }
+    return rtn;
   }
 
   function parseVarToJqueryClass(constant){

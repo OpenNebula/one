@@ -1,5 +1,4 @@
 const CHANGE_ZONE = 'CHANGE_ZONE'
-const CHANGE_THEME_TYPE = 'CHANGE_THEME_TYPE'
 const CHANGE_LOADING = 'CHANGE_LOADING'
 const TOGGLE_MENU = 'TOGGLE_MENU'
 const FIX_MENU = 'FIX_MENU'
@@ -10,7 +9,6 @@ const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR'
 
 const Actions = {
   CHANGE_ZONE,
-  CHANGE_THEME_TYPE,
   CHANGE_LOADING,
   TOGGLE_MENU,
   FIX_MENU,
@@ -25,15 +23,6 @@ module.exports = {
     type: CHANGE_ZONE,
     payload: { zone }
   }),
-  updateTheme: (dispatch, getState) => {
-    const current = getState()
-    const currentTheme = current.Authenticated?.theme
-    const userTheme = current.Authenticated?.user?.TEMPLATE?.FIREEDGE?.THEME ?? 'dark'
-
-    if (['dark', 'light'].includes(userTheme) && currentTheme !== userTheme) {
-      dispatch(({ type: CHANGE_THEME_TYPE, payload: { theme: userTheme } }))
-    }
-  },
   changeLoading: isLoading => ({
     type: CHANGE_LOADING,
     payload: { isLoading }
@@ -71,6 +60,14 @@ module.exports = {
       key: new Date().getTime() + Math.random(),
       message,
       options: { variant: 'success' }
+    }
+  }),
+  enqueueInfo: message => ({
+    type: ENQUEUE_SNACKBAR,
+    notification: {
+      key: new Date().getTime() + Math.random(),
+      message,
+      options: { variant: 'info' }
     }
   }),
   closeSnackbar: key => ({

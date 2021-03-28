@@ -67,7 +67,7 @@ define(function(require) {
         }
         $("#webauthn_login_btn").click(function () {
           WebAuthnJSON.get({ "publicKey": response }).then(authenticate)
-          .catch((e) => {
+          .catch(function(e) {
             $("#error_message").text(e.message);
             $("#error_box").fadeIn("slow");
             $("#login_spinner").hide();
@@ -119,7 +119,7 @@ define(function(require) {
       error_callback = auth_error
     } else {
       two_factor_auth_token = JSON.stringify(publicKeyCredential);
-      error_callback = (req, error) => {
+      error_callback = function(req, error) {
         auth_error(req, error);
         prepareWebAuthn(uid);
       }

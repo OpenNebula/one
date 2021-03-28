@@ -9,6 +9,7 @@ import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Providers/Form/Create/Steps'
 
 import { useFetch, useProvision, useGeneral } from 'client/hooks'
+import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 import { PATH } from 'client/router/provision'
 
 function ProviderCreateForm () {
@@ -19,13 +20,12 @@ function ProviderCreateForm () {
   const {
     getProvider,
     createProvider,
-    updateProvider,
-    provisionsTemplates
+    updateProvider
   } = useProvision()
 
   const { data, fetchRequest, loading, error } = useFetch(getProvider)
   const { steps, defaultValues, resolvers } = Steps({ isUpdate })
-  const { showError } = useGeneral()
+  const { showError, changeLoading } = useGeneral()
 
   const methods = useForm({
     mode: 'onSubmit',
@@ -33,61 +33,67 @@ function ProviderCreateForm () {
     resolver: yupResolver(resolvers())
   })
 
-  const redirectWithError = (name = '') => {
-    showError({
-      message: `
-        Cannot found provider template (${name}),
-        ask your cloud administrator`
-    })
-
+  const redirectWithError = (message = 'Error') => {
+    showError({ message })
     history.push(PATH.PROVIDERS.LIST)
   }
 
-  const getProviderTemplateByDir = ({ provision, provider, name }) =>
-    provisionsTemplates
-      ?.[provision]
-      ?.providers
-      ?.[provider]
-      ?.find(providerSelected => providerSelected.name === name)
-
-  const onSubmit = formData => {
-    const { template, configuration, connection, registration_time: time } = formData
-    const { name, description } = configuration
+  const callCreateProvider = formData => {
+    const { template, configuration, connection } = formData
 
     const templateSelected = template?.[0]
-    const providerTemplate = getProviderTemplateByDir(templateSelected)
+    const { name, description } = configuration
 
-    if (!providerTemplate) return redirectWithError(templateSelected?.name)
+    const isValid = ProviderTemplateModel.isValidProviderTemplate(templateSelected)
 
-    const {
-      inputs,
-      name: templateName,
-      plain,
-      provider,
-      location_key: locationKey,
-      connection: { [locationKey]: connectionFixed }
-    } = providerTemplate
+    !isValid && redirectWithError(`
+      The template selected has a bad format.
+      Ask your cloud administrator`
+    )
+
+    const { inputs, plain, provider } = templateSelected
+    const { location_key: locationKey } = plain
+
+    const { [locationKey]: connectionFixed } = templateSelected.connection
 
     const formatData = {
-      ...(!isUpdate && {
-        name,
-        plain,
-        provider,
-        inputs,
-        template: templateName
-      }),
-      description,
       connection: { ...connection, [locationKey]: connectionFixed },
-      registration_time: time
+      description,
+      inputs,
+      name,
+      plain,
+      provider
     }
 
-    if (isUpdate) {
-      updateProvider({ id, data: formatData })
-        .then(() => history.push(PATH.PROVIDERS.LIST))
-    } else {
-      createProvider({ data: formatData })
-        .then(() => history.push(PATH.PROVIDERS.LIST))
+    createProvider({ data: formatData })
+      .then(() => history.push(PATH.PROVIDERS.LIST))
+  }
+
+  const callUpdateProvider = formData => {
+    const { configuration, connection: connectionEditable } = formData
+    const { description } = configuration
+
+    const {
+      PLAIN: { location_key: locationKey } = {},
+      PROVISION_BODY: {
+        connection: { [locationKey]: connectionFixed },
+        registration_time: registrationTime
+      }
+    } = data?.TEMPLATE
+
+    const formatData = {
+      description,
+      connection: { ...connectionEditable, [locationKey]: connectionFixed },
+      registration_time: registrationTime
     }
+
+    updateProvider({ id, data: formatData })
+      .then(() => history.push(PATH.PROVIDERS.LIST))
+  }
+
+  const onSubmit = formData => {
+    changeLoading(true)
+    isUpdate ? callUpdateProvider(formData) : callCreateProvider(formData)
   }
 
   useEffect(() => {
@@ -97,29 +103,17 @@ function ProviderCreateForm () {
   useEffect(() => {
     if (data) {
       const {
-        connection,
-        description,
-        name,
-        provider,
-        template: templateName,
-        registration_time: time
-      } = data?.TEMPLATE?.PROVISION_BODY ?? {}
-
-      const { provision_type: provisionType } = data?.TEMPLATE?.PLAIN ?? {}
-
-      const templateSelected = { name: templateName, provision: provisionType, provider }
-      const template = getProviderTemplateByDir(templateSelected)
-
-      if (!template) return redirectWithError(templateName)
-
-      const { location_key: locationKey } = template
-      const { [locationKey]: _, ...connectionEditable } = connection
+        PLAIN: { location_key: locationKey } = {},
+        PROVISION_BODY: {
+          connection: { [locationKey]: _, ...connectionEditable },
+          description,
+          name
+        }
+      } = data?.TEMPLATE
 
       methods.reset({
         connection: connectionEditable,
-        configuration: { name, description },
-        template: [templateSelected],
-        registration_time: time
+        configuration: { name, description }
       }, { errors: false })
     }
   }, [data])

@@ -13,33 +13,43 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-genpotfile')
-const constants = require('./src/server/utils/constants')
+const { createReadStream, generateFile } = require('opennebula-generatepotfile')
 const clientConstants = require('./src/client/constants/translates')
 
-const testFolder = './src/public'
-const exportFile = './src/public/assets/languages/messages.pot'
-const definitions = { ...constants, ...clientConstants }
+const clientCode = './src/client'
+const exportFile = `${clientCode}/assets/languages/messages.pot`
+
+/**
+  if the constants have an object indicator. where are the definitions you must place it
+
+  example:
+  - indicator: T.Cluster
+  - definition: {T: {Cluster: "Cluster"}} (e)
+*/
+
+const definitions = { T: { ...clientConstants } }
 
 // function Tr()
 const optsFunc = {
-  regex: /Tr(\("|\('|\()[a-zA-Z0-9_ ]*("\)|'\)|\))/g,
+  regex: /Tr(\("|\('|\()[a-zA-Z0-9_. ]*("\)|'\)|\))/g,
   removeStart: /Tr(\()/g,
   removeEnd: /(\))/g,
   regexTextCaptureIndex: 0,
-  definitions
+  definitions,
+  split: '.'
 }
 
 // React component <Translate word="word"/>
 const optsComponent = {
-  regex: /<Translate word=('|"|{|{'|{")[a-zA-Z0-9_ ]*('|"|}|'}|"}) \/>/g,
+  regex: /<Translate word=('|"|{|{'|{")[a-zA-Z0-9_. ]*('|"|}|'}|"}) \/>/g,
   removeStart: /<Translate word=('|"|{|{'|{")/g,
   removeEnd: /('|"|}|'}|"}) \/>/g,
   regexTextCaptureIndex: 0,
-  definitions
+  definitions,
+  split: '.'
 }
 
-createReadStream(testFolder, optsFunc)
-createReadStream(testFolder, optsComponent)
+createReadStream(clientCode, optsFunc)
+createReadStream(clientCode, optsComponent)
 
 generateFile(exportFile)

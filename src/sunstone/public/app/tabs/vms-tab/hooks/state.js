@@ -44,7 +44,7 @@ define(function(require) {
 
     var isVNCSupported = Boolean(OpenNebulaVM.isVNCSupported(element)),
       isSPICESupported = Boolean(OpenNebulaVM.isSPICESupported(element)),
-      isWMRCSupported = Boolean(OpenNebulaVM.isVMRCSupported(element)),
+      isVMRCSupported = Boolean(OpenNebulaVM.isVMRCSupported(element)),
       isWFileSupported = Boolean(OpenNebulaVM.isWFileSupported(element)),
       isRDPSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'rdp')),
       isSSHSupported = Boolean(OpenNebulaVM.isConnectionSupported(element, 'ssh'));
@@ -53,7 +53,7 @@ define(function(require) {
     var allDisabled = (
       !isVNCSupported &&
       !isSPICESupported &&
-      !isWMRCSupported &&
+      !isVMRCSupported &&
       !isWFileSupported &&
       !isRDPSupported &&
       !isSSHSupported
@@ -78,6 +78,16 @@ define(function(require) {
     vncAndSpiceController();
     
     $("#vmsremote_buttons").toggle(!allDisabled);
+    
+    if (element && element.TEMPLATE && element.TEMPLATE.TM_MAD_SYSTEM && element.TEMPLATE.TM_MAD_SYSTEM === "vcenter"){
+      var monitored = element.MONITORING && element.MONITORING.VCENTER_ESX_HOST;
+      if (monitored && !allDisabled) {
+        $("#vmsremote_buttons").show();
+      }
+      else{
+        $("#vmsremote_buttons").hide();
+      }
+    }
 
     if (isVNCSupported) {
       $(".vnc-sunstone-info").show();
@@ -121,12 +131,12 @@ define(function(require) {
 
     var show_fireedge_buttons = function() {
       $(".vnc-button").hide();
-      $(".vmrc-button").toggle(isWMRCSupported);
-      $(".guac-button").toggle(!isWMRCSupported);
+      $(".vmrc-button").toggle(isVMRCSupported);
+      $(".guac-button").toggle(!isVMRCSupported);
     }
 
     var show_buttons = function(fireedgeToken) {
-      if (fireedgeToken != "") {
+      if ((fireedgeToken && fireedgeToken != "") || is_fireedge_configured) {
         show_fireedge_buttons();
       }
       else{
@@ -134,7 +144,7 @@ define(function(require) {
       }
     }
 
-    FireedgeValidator.validateFireedgeToken(show_buttons, show_noVNC_buttons);
+    FireedgeValidator.validateFireedgeToken(show_buttons, show_buttons);
   }
 
   

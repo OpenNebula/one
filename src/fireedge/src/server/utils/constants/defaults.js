@@ -58,6 +58,7 @@ const defaults = {
     PUT: 'PUT',
     DELETE: 'DELETE'
   },
+  defaultFileStats: '-stats.json',
   from: {
     resource: 'RESOURCE',
     query: 'QUERY',
@@ -75,6 +76,8 @@ const defaults = {
   defaultCommandProvisionTemplate: 'oneprovision-template',
   defaultCommandProvider: 'oneprovider',
   defaultFolderTmpProvision: 'tmp',
+  defaultHideCredentials: true,
+  defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultEndpointWebsocket: `${appName ? '/' + appName : ''}/websocket`,
   defaultConfigFile: `${appName}-server.conf`,
@@ -106,6 +109,7 @@ const defaults = {
   defaultMethodUserInfo: 'user.info',
   defaultIP: defaultIp,
   defaultProtocolHotReload: 'http',
+  defaultHost: '0.0.0.0',
   defaultPort: 2616,
   availableLanguages: {
     bg_BG: 'Bulgarian (Bulgaria)',
@@ -116,7 +120,7 @@ const defaults = {
     de_CH: 'German (Switzerland)',
     de: 'German',
     el_GR: 'Greek (Greece)',
-    en_US: 'English',
+    en: 'English',
     es_ES: 'Spanish',
     et_EE: 'Estonian',
     fa_IR: 'Persian (Iran)',

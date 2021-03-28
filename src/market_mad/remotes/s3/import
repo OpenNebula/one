@@ -35,9 +35,12 @@ end
 UTILS_PATH = File.join(File.dirname(__FILE__), '../../datastore')
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -61,6 +64,7 @@ xml = REXML::Document.new(Base64::decode64(ARGV[0])).root
 import_source = xpath(xml, 'IMPORT_SOURCE')
 format        = xpath(xml, 'FORMAT')
 dispose       = xpath(xml, 'DISPOSE')
+dispose_cmd   = xpath(xml, 'DISPOSE_CMD')
 size          = xpath(xml, 'SIZE')
 md5           = xpath(xml, 'MD5')
 
@@ -111,13 +115,14 @@ end
 
 cmd = "#{UTILS_PATH}/downloader.sh #{import_source} -"
 
-Open3.popen3(cmd) do |_, o, e, _|
+Open3.popen3(cmd) do |_, o, e, wt|
     body = o.read(read_length)
 
     if o.eof?
+        exit_status = wt.value
         error = Thread.new { e.read }.value
 
-        unless error.empty?
+        unless exit_status.success?
             STDERR.puts error
             exit 1
         end
@@ -144,6 +149,17 @@ Open3.popen3(cmd) do |_, o, e, _|
 
             exit 1
         end
+    end
+end
+
+# Dispose
+
+if dispose == 'YES' && !dispose_cmd.empty?
+    _, stderr_str, status = Open3.capture3(dispose_cmd)
+
+    unless status.success?
+        STDERR.puts("Dispose of #{import_source} failed. "\
+                    "Error: #{stderr_str}")
     end
 end
 

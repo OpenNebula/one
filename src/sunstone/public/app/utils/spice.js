@@ -78,7 +78,6 @@ define(function(require) {
     UtilsConnection.printInfoConnection($('.SPICE_info'), info_decode)
 
     if ((!host) || (!port)) {
-      console.log("must specify host and port in URL");
       return;
     }
 

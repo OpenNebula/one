@@ -130,7 +130,7 @@ CONVERT_CMD=$(cat <<EOF
     FORMAT=\$($QEMU_IMG info $DST | grep "^file format:" | awk '{print \$3}' || :)
 
     if [ "x$DRIVER" = 'xqcow2' ] || [ "x$DRIVER" = 'xraw' ]; then
-        if [ -n "\$FORMAT" ] && [ "x\$FORMAT" != "x$DRIVER" ]; then
+        if [ -n "\$FORMAT" ] && [ "\$FORMAT" != "$DRIVER" ] && [ "\$FORMAT" != "luks" ]; then
             $QEMU_IMG convert -O $DRIVER $DST $DST.tmp
             mv $DST.tmp $DST
         fi
@@ -166,5 +166,7 @@ else
 
     FORMAT=$($QEMU_IMG info $DST | grep "^file format:" | awk '{print $3}' || :)
 fi
+
+[[ "$FORMAT" = "luks" ]] && FORMAT="raw"
 
 echo "$DST $FORMAT"

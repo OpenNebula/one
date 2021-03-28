@@ -1,34 +1,35 @@
 import * as STATES from 'client/constants/states'
+import COLOR from 'client/constants/color'
 
 export const PROVISIONS_STATES = [
   {
     name: STATES.PENDING,
-    color: '#966615',
+    color: COLOR.warning.main,
     meaning: ''
   },
   {
     name: STATES.DEPLOYING,
-    color: '#4DBBD3',
+    color: COLOR.info.main,
     meaning: ''
   },
   {
     name: STATES.CONFIGURING,
-    color: '#4DBBD3',
+    color: COLOR.info.main,
     meaning: ''
   },
   {
     name: STATES.RUNNING,
-    color: '#318b77',
+    color: COLOR.success.main,
     meaning: ''
   },
   {
     name: STATES.ERROR,
-    color: '#8c352a',
+    color: COLOR.error.dark,
     meaning: ''
   },
   {
     name: STATES.DELETING,
-    color: '#8c352a',
+    color: COLOR.error.light,
     meaning: ''
   }
 ]

@@ -4,25 +4,43 @@ import PropTypes from 'prop-types'
 import { makeStyles, Typography } from '@material-ui/core'
 import DatastoreIcon from '@material-ui/icons/FolderOpen'
 
-import SelectCard from 'client/components/Cards/SelectCard'
-import { StatusBadge, StatusChip } from 'client/components/Status'
+import SelectCard, { Action } from 'client/components/Cards/SelectCard'
+import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
+
+import { prettyBytes } from 'client/utils'
 import Datastore from 'client/constants/datastore'
 
-const useStyles = makeStyles(() => ({
-  title: { display: 'flex', gap: '0.5rem' }
+const useStyles = makeStyles(({
+  title: {
+    display: 'flex',
+    gap: '0.5rem'
+  },
+  content: {
+    padding: '2em',
+    display: 'flex',
+    flexFlow: 'column',
+    gap: '1em'
+  }
 }))
 
 const DatastoreCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
     const classes = useStyles()
 
-    const { ID, NAME, TYPE, STATE } = value
+    const { ID, NAME, TYPE, STATE, TOTAL_MB, USED_MB } = value
     const type = Datastore.TYPES[TYPE]
     const state = Datastore.STATES[STATE]
 
+    const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0
+    const usedBytes = prettyBytes(+USED_MB, 'MB')
+    const totalBytes = prettyBytes(+TOTAL_MB, 'MB')
+    const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(percentOfUsed)}%)`
+
     return (
       <SelectCard
-        stylesProps={{ minHeight: 160 }}
+        action={actions?.map(action =>
+          <Action key={action?.cy} {...action} />
+        )}
         icon={
           <StatusBadge stateColor={state.color}>
             <DatastoreIcon />
@@ -39,8 +57,11 @@ const DatastoreCard = memo(
         subheader={`#${ID}`}
         isSelected={isSelected}
         handleClick={handleClick}
-        actions={actions}
-      />
+      >
+        <div className={classes.content}>
+          <LinearProgressWithLabel value={percentOfUsed} label={percentLabel} />
+        </div>
+      </SelectCard>
     )
   },
   (prev, next) => (
@@ -54,7 +75,10 @@ DatastoreCard.propTypes = {
     ID: PropTypes.string.isRequired,
     NAME: PropTypes.string.isRequired,
     TYPE: PropTypes.string,
-    STATE: PropTypes.string
+    STATE: PropTypes.string,
+    TOTAL_MB: PropTypes.string,
+    FREE_MB: PropTypes.string,
+    USED_MB: PropTypes.string
   }),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,

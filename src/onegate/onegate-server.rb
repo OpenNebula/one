@@ -38,9 +38,12 @@ ONEGATE_LOG        = LOG_LOCATION + "/onegate.log"
 CONFIGURATION_FILE = ETC_LOCATION + "/onegate-server.conf"
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -475,31 +478,47 @@ helpers do
     end
 
     # Escape data from user
-    def scape_attr(attr)
+    def escape_attr(attr)
         ret  = ''
         attr = attr.split('')
+
+        # Boolean to indicate that section is being escaped
+        escape = false
 
         # KEY=value with spaces -> KEY=\"value with spaces\"
         # KEY=[KEY2=value with spaces] -> KEY=[KEY2=\"value with spaces\"]
         attr.each_with_index do |s, idx|
+            if s == '=' && escape
+                ret << s
+                next
+            end
+
             if s == '=' && attr[idx + 1] != '[' && attr[idx + 1] != "\""
                 ret << "=\""
+
+                escape = true
             elsif s == ',' && attr[idx - 1] != "\""
                 ret << "\","
             elsif s == '[' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
                 ret << "\"["
             elsif s == ']' && attr[idx - 1] != '=' && attr[idx - 1] != "\""
                 ret << "\"]"
+
+                escape = false
             elsif s == '\\' && attr[idx - 1] != "\""
                 ret << "\"\\"
+
+                escape = false
             elsif s == "\n" && attr[idx - 1] != "\""
                 ret << "\"\n"
+
+                escape = false
             else
                 ret << s
             end
         end
 
-        # Replace scaped \n by no scaped one
+        # Replace escaped \n by no scaped one
         ret.gsub!("\\n", "\n")
 
         ret.insert(ret.size, "\"") if ret[-1] != ']' && ret[-1] != "\""
@@ -525,7 +544,7 @@ helpers do
 
         # Escape attr
         # ###########
-        attr = scape_attr(attr)
+        attr = escape_attr(attr)
 
         if type == 1
             error = "cannot be modified"
@@ -568,7 +587,7 @@ helpers do
     end
 end
 
-NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC NAME PARENT EXTERNAL)
+NIC_VALID_KEYS = %w(IP IP6_LINK IP6_SITE IP6_GLOBAL NETWORK MAC NAME PARENT EXTERNAL EXTERNAL_IP)
 USER_TEMPLATE_INVALID_KEYS = %w(SCHED_MESSAGE)
 
 def build_vm_hash(vm_hash)

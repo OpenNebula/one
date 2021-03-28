@@ -19,16 +19,16 @@
       <li class="tabs-title is-active">
         <a href="#bootTab{{uniqueId}}">{{tr "Boot"}}</a>
       </li>
-      <li class="tabs-title vm_updateconf_hide only_kvm not_lxd">
+      <li class="tabs-title vm_updateconf_hide only_kvm not_lxc">
         <a href="#kernelTab{{uniqueId}}">{{tr "Kernel"}}</a>
       </li>
-      <li class="tabs-title vm_updateconf_hide only_kvm not_lxd not_firecracker">
+      <li class="tabs-title vm_updateconf_hide only_kvm not_lxc not_firecracker">
         <a href="#ramdiskTab{{uniqueId}}">{{tr "Ramdisk"}}</a>
       </li>
-      <li class="tabs-title only_kvm not_lxd not_firecracker">
+      <li class="tabs-title only_kvm not_lxc not_firecracker">
         <a href="#featuresTab{{uniqueId}}">{{tr "Features"}}</a>
       </li>
-      <li class="tabs-title only_kvm not_lxd not_firecracker">
+      <li class="tabs-title only_kvm not_lxc not_firecracker">
         <a href="#cpuTab{{uniqueId}}">{{tr "CPU Model"}}</a>
       </li>
     </ul>
@@ -37,7 +37,7 @@
     <div class="tabs-content vertical" data-tabs-content="osTabs">
       <div class="wizard_internal_tab is-active tabs-panel bootTab" id="bootTab{{uniqueId}}">
         <div class="row">
-          <div class="medium-4 columns only_kvm not_lxd not_firecracker">
+          <div class="medium-4 columns only_kvm not_lxc not_firecracker">
             <label>
               {{tr "CPU Architecture"}}
               <select wizard_field="ARCH">
@@ -47,12 +47,12 @@
               </select>
             </label>
           </div>
-          <div class="medium-4 columns hypervisor only_kvm not_lxd not_firecracker">
+          <div class="medium-4 columns hypervisor only_kvm not_lxc not_firecracker">
             <label id="sd-disk-bus-info">
               {{tr "Bus for SD disks"}}
             </label>
           </div>
-          <div class="medium-4 columns hypervisor only_kvm not_lxd not_firecracker">
+          <div class="medium-4 columns hypervisor only_kvm not_lxc not_firecracker">
             <label id="kvm-info">
               {{tr "Machine type"}}
             </label>
@@ -60,7 +60,7 @@
         </div>
         <hr class="not_firecracker">
         <div class="row">
-          <div class="medium-4 columns only_kvm not_lxd">
+          <div class="medium-4 columns only_kvm not_lxc">
             <label>
               {{tr "Root device"}}
               <input type="text" wizard_field="ROOT" placeholder="sda1"/>
@@ -81,7 +81,7 @@
         </div>
         <br/>
         <div class="row">
-          <div class="large-12 columns only_kvm not_lxd">
+          <div class="large-12 columns only_kvm not_lxc">
             <label>
               {{tr "Kernel boot parameters"}}
               <input type="text" wizard_field="KERNEL_CMD" placeholder="ro console=tty1"/>
@@ -89,7 +89,7 @@
           </div>
         </div>
         <div class="row not_firecracker">
-          <div class="large-12 columns only_kvm not_lxd">
+          <div class="large-12 columns only_kvm not_lxc">
             <label>
               {{tr "Path to the bootloader executable"}}
               <input type="text" wizard_field="BOOTLOADER"/>
@@ -97,7 +97,7 @@
           </div>
         </div>
         <div class="row not_firecracker">
-          <div class="large-12 columns not_lxd">
+          <div class="large-12 columns not_lxc">
             <label>
               {{tr "Unique ID of the VM"}}
               {{{tip (tr "It’s referenced as machine ID inside the VM. Could be used to force ID for licensing purposes")}}}
@@ -268,10 +268,10 @@
             </label>
           </div>
           <div class="medium-6 columns">
-            <label>
-              {{tr "Iothread"}}
-              {{{tip (tr "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS>0.")}}}
-              <input type="number" wizard_field="IOTHREAD">
+            <label class="features_iothreads">
+              {{tr "Iothreads"}}
+              {{{tip (tr "Number of iothreads for virtio disks. By default threads will be assign to disk by round robin algorithm. Disk thread id can be forced by disk IOTHREAD attribute.")}}}
+              <input type="number" wizard_field="IOTHREADS">
             </label>
           </div>
         </div>

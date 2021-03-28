@@ -18,8 +18,13 @@ import React, { useState, useEffect, memo } from 'react'
 import { Button, makeStyles } from '@material-ui/core'
 import { useSocket } from 'client/hooks'
 
-const useStyles = makeStyles(() => ({
-  sticky: { position: 'sticky', top: 0, backgroundColor: '#fafafa' },
+const useStyles = makeStyles(theme => ({
+  sticky: {
+    position: 'sticky',
+    top: 0,
+    padding: '1em',
+    backgroundColor: theme.palette.background.paper
+  },
   loading: {
     '&::after': {
       overflow: 'hidden',

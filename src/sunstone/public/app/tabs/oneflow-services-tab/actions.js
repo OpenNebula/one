@@ -111,10 +111,12 @@ define(function(require) {
       call: OpenNebulaResource.list,
       callback: function(request, response) {
         $(".oneflow_services_error_message").hide();
+        $(".oneflow_purge_button").removeClass("disabled");
         var undoneServices = OpenNebulaResource.filterDoneServices(response);
         Sunstone.getDataTable(TAB_ID).updateView(request, undoneServices);
       },
       error: function(request, error_json) {
+        $(".oneflow_purge_button").addClass("disabled");
         Notifier.onError(request, error_json, $(".oneflow_services_error_message"));
       }
     },
@@ -130,6 +132,20 @@ define(function(require) {
             formPanelInstance.fill(context, response[XML_ROOT]);
           }
         );
+      },
+      error: Notifier.onError
+    },
+
+    "Service.purge_done" : {
+      type: 'single',
+      call: function(params){
+        params['data']['id'] = "purge";
+        OpenNebulaResource.purgeDone(params);
+      },
+      callback: function(request, response) {
+        Notifier.notifyCustom(Locale.tr("Purge DONE services"),
+          Locale.tr("All DONE services has been purged"),
+          false);
       },
       error: Notifier.onError
     },

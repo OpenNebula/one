@@ -1,0 +1,27 @@
+name: 'aws-london'
+
+description: 'Edge cluster in AWS London'
+provider: 'aws'
+
+plain:
+  image: 'AWS'
+  location_key: 'region'
+  provision_type: 'metal'
+
+connection:
+  access_key: 'AWS access key'
+  secret_key: 'AWS secret key'
+  region: 'eu-west-2'
+
+inputs:
+   - name: 'aws_ami_image'
+     type: 'list'
+     options:
+       - 'ami-08095fbc7037048f3'
+   - name: 'aws_instance_type'
+     type: 'list'
+     options:
+       - 'c5.metal'
+       - 'i3.metal'
+       - 'm5.metal'
+       - 'r5.metal'

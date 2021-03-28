@@ -66,7 +66,7 @@ else
 fi
 
 # Used for log messages
-SCRIPT_NAME=`basename $0`
+SCRIPT_NAME=`basename -- $0`
 
 # ------------------------------------------------------------------------------
 # Path manipulation functions
@@ -478,6 +478,7 @@ ssh_forward()
 }
 
 #This function executes $2 at $1 host and report error $3 but does not exit
+#Accept $4 as alternative correct return code
 function ssh_exec_and_log_no_error
 {
     SSH_EXEC_ERR=`$SSH $1 bash -s 2>&1 1>/dev/null <<EOF
@@ -487,7 +488,7 @@ $2
 EOF`
     SSH_EXEC_RC=$?
 
-    if [ $SSH_EXEC_RC -ne 0 ]; then
+    if [ $SSH_EXEC_RC -ne 0 ] && [ $SSH_EXEC_RC != "$4" ]; then
         log_error "Command \"$2\" failed: $SSH_EXEC_ERR"
 
         if [ -n "$3" ]; then
@@ -496,10 +497,9 @@ EOF`
             error_message "Error executing $2: $SSH_EXEC_ERR"
         fi
 
-        return $SSH_EXEC_RC
     fi
 
-    return 0
+    return $SSH_EXEC_RC
 }
 
 #This function executes $2 at $1 host and report error $3
@@ -799,6 +799,7 @@ function get_source_xml {
 # * DRIVER
 # * TYPE
 # * READONLY
+# * SHAREABLE
 # * CACHE
 # * DISCARD
 # * IMG_SRC
@@ -807,6 +808,7 @@ function get_source_xml {
 # * CEPH_HOST
 # * CEPH_SECRET
 # * CEPH_USER
+# * LUKS_SECRET
 # * ISCSI_HOST
 # * ISCSI_USAGE
 # * ISCSI_USER
@@ -864,6 +866,7 @@ function get_disk_information {
                         $DISK_XPATH/DRIVER \
                         $DISK_XPATH/TYPE \
                         $DISK_XPATH/READONLY \
+                        $DISK_XPATH/SHAREABLE \
                         $DISK_XPATH/CACHE \
                         $DISK_XPATH/DISCARD \
                         $DISK_XPATH/SOURCE \
@@ -872,6 +875,7 @@ function get_disk_information {
                         $DISK_XPATH/CEPH_HOST \
                         $DISK_XPATH/CEPH_SECRET \
                         $DISK_XPATH/CEPH_USER \
+                        $DISK_XPATH/LUKS_SECRET \
                         $DISK_XPATH/ISCSI_HOST \
                         $DISK_XPATH/ISCSI_USAGE \
                         $DISK_XPATH/ISCSI_USER \
@@ -908,6 +912,7 @@ function get_disk_information {
     DRIVER="${XPATH_ELEMENTS[j++]:-$DEFAULT_TYPE}"
     TYPE="${XPATH_ELEMENTS[j++]}"
     READONLY="${XPATH_ELEMENTS[j++]}"
+    SHAREABLE="${XPATH_ELEMENTS[j++]}"
     CACHE="${XPATH_ELEMENTS[j++]}"
     DISCARD="${XPATH_ELEMENTS[j++]}"
     IMG_SRC="${XPATH_ELEMENTS[j++]}"
@@ -916,6 +921,7 @@ function get_disk_information {
     CEPH_HOST="${XPATH_ELEMENTS[j++]}"
     CEPH_SECRET="${XPATH_ELEMENTS[j++]}"
     CEPH_USER="${XPATH_ELEMENTS[j++]}"
+    LUKS_SECRET="${XPATH_ELEMENTS[j++]}"
     ISCSI_HOST="${XPATH_ELEMENTS[j++]}"
     ISCSI_USAGE="${XPATH_ELEMENTS[j++]}"
     ISCSI_USER="${XPATH_ELEMENTS[j++]}"
@@ -950,8 +956,15 @@ function get_disk_information {
 
     TYPE=$(echo "$TYPE"|tr A-Z a-z)
     READONLY=$(echo "$READONLY"|tr A-Z a-z)
+    SHAREABLE=$(echo "$SHAREABLE"|tr A-Z a-z)
 
     NAME="$SOURCE"
+
+    if [ -n "$LUKS_SECRET" ]; then
+        LUKS="<encryption format='luks'>
+                <secret type='passphrase' uuid='$LUKS_SECRET'/>\
+              </encryption>"
+    fi
 
     case "$TYPE" in
     block)

@@ -96,7 +96,7 @@ define(function(require) {
     var unshownValues = {};
 
     $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS") {
+      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS" || key == "BACKUP") {
         unshownValues[key] = value;
       }
       else if (key.match(/^VCENTER_*/)){
@@ -124,20 +124,30 @@ define(function(require) {
       monitoringTableContentHTML = Humanize.prettyPrintJSON(monitoring);
     }
 
-    var monitoring = $.extend({}, this.element.MONITORING);
     var errorMessageHTML = ""
-    if (this && 
-        this.element && 
+    if (this.element && 
         this.element.USER_TEMPLATE &&
         this.element.USER_TEMPLATE.ERROR){
-          errorMessageHTML = "<div class='row'><div class='large-9 columns'>" + 
-            "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable><div class='row'>"+
-            "<div class='columns large-1'>" +
-            "<i class='fas fa-exclamation-circle'></i></div><div class='columns large-9'><p>" +
-            this.element.USER_TEMPLATE.ERROR +
-            "</p></div><div class='columns large-2'>" + 
-            "<a id='close_vm_async_error' data-close>" +
-            "<u>Dismiss</u></a></div></div></div></div>";
+          errorMessageHTML = 
+            "<div class='row'>" + 
+              "<div class='large-9 columns'>" + 
+                "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable>" + 
+                  "<div class='row'>"+
+                    "<div class='columns large-1'>" +
+                      "<i class='fas fa-exclamation-circle'></i>"+
+                    "</div>"+
+                    "<div class='columns large-9'>"+
+                      "<p>" + this.element.USER_TEMPLATE.ERROR + "</p>" +
+                    "</div>"+
+                    "<div class='columns large-2'>" + 
+                        "<a id='close_vm_async_error' data-close>" +
+                          "<u>Dismiss</u>"+
+                        "</a>" +
+                    "</div>" +
+                  "</div>" +
+                "</div>" +
+              "</div>" +
+            "</div>";
     }
 
 
@@ -193,9 +203,16 @@ define(function(require) {
       var templateJSON = $.extend({}, that.element.USER_TEMPLATE);
       delete templateJSON.ERROR;
       template_str = TemplateUtils.templateToString(templateJSON);
-      console.log({template_str});
-      // 
+
       Sunstone.runAction(RESOURCE + ".update_template", resourceId, template_str);
     });
+
+    if (this.element &&
+        this.element.USER_TEMPLATE &&
+        this.element.USER_TEMPLATE.HYPERVISOR &&
+        this.element.USER_TEMPLATE.HYPERVISOR === "vcenter")
+      $('button[href="VM.upload_marketplace_dialog"]').attr('disabled','disabled');
+    else
+      $('button[href="VM.upload_marketplace_dialog"]').removeAttr('disabled');
   }
 });

@@ -50,10 +50,15 @@ module OneCfg::Config::Type
             VNET_RESTRICTED_ATTR
             USER_RESTRICTED_ATTR
             GROUP_RESTRICTED_ATTR
+
+            DOCUMENT_ENCRYPTED_ATTR
             HOST_ENCRYPTED_ATTR
+            IMAGE_ENCRYPTED_ATTR
+            VM_ENCRYPTED_ATTR
             VNET_ENCRYPTED_ATTR
             DATASTORE_ENCRYPTED_ATTR
             CLUSTER_ENCRYPTED_ATTR
+
             INHERIT_DATASTORE_ATTR
             INHERIT_IMAGE_ATTR
             INHERIT_VNET_ATTR

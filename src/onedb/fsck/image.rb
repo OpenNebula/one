@@ -129,7 +129,7 @@ module OneDBFsck
                         log_error("Marketplace App #{id} is missing from Image #{oid} APP_CLONES id list")
                     end
 
-                    h_e = doc.create_element('ID')
+                    i_e = doc.create_element('ID')
                     clones_new_elem.add_child(i_e).content = id.to_s
                 end
 

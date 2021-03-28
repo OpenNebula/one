@@ -29,9 +29,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -236,7 +239,7 @@ CommandParser::CmdParser.new(ARGV) do
                     " this input: #{args.first}"
             end
 
-            importer.process_import(indexes) do |object_info|
+            importer.process_import(indexes, options) do |object_info|
                 helper.cli_dialogue(object_info)
             end
 
@@ -257,10 +260,15 @@ CommandParser::CmdParser.new(ARGV) do
             importer = VCenterDriver::VcImporter.new_child(helper.client,
                                                            vi_client,
                                                            options[:object])
-            importer.retrieve_resources(helper.parse_opts(options))
-            indexes = importer.get_indexes(args.first)
 
-            importer.process_import(indexes)
+            if options[:object] == "networks" && !args.first.nil?
+                indexes = args.first
+            else
+                importer.retrieve_resources(helper.parse_opts(options))
+                indexes = importer.get_indexes(args.first)
+            end
+
+            importer.process_import(indexes, options)
 
             importer.stdout
         rescue StandardError => e

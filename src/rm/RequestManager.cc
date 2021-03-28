@@ -712,7 +712,7 @@ void RequestManager::register_xml_methods()
         user_del_group_pt       = new RequestManagerProxy("one.user.delgroup");
         user_change_auth_pt     = new RequestManagerProxy("one.user.chauth");
         user_login_pt           = new RequestManagerProxy("one.user.login");
-        user_login_pt           = new RequestManagerProxy("one.user.enable");
+        user_enable_pt          = new RequestManagerProxy("one.user.enable");
 
         static_cast<RequestManagerProxy*>(user_allocate_pt)->hide_argument(2);
         static_cast<RequestManagerProxy*>(user_change_password_pt)->hide_argument(2);

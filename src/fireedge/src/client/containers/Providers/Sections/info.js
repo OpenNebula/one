@@ -1,16 +1,23 @@
-import React, { memo } from 'react'
+import React, { memo, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
-import { CheckBox, CheckBoxOutlineBlank } from '@material-ui/icons'
+import { CheckBox, CheckBoxOutlineBlank, Visibility } from '@material-ui/icons'
 import clsx from 'clsx'
 
-import useStyles from 'client/containers/Providers/Sections/styles'
+import { useProvision } from 'client/hooks'
+import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
+import useStyles from 'client/containers/Providers/Sections/styles'
+
 const Info = memo(({ data }) => {
   const classes = useStyles()
+  const { getProviderConnection } = useProvision()
+
+  const [showConnection, setShowConnection] = useState(undefined)
+
   const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
   const {
     connection,
@@ -22,10 +29,19 @@ const Info = memo(({ data }) => {
   const isChecked = checked =>
     checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
 
+  const ConnectionButton = () => (
+    <Action
+      icon={<Visibility />}
+      cy='provider-connection'
+      handleClick={() => getProviderConnection({ id: ID })
+        .then(connection => setShowConnection(connection))}
+    />
+  )
+
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
-        <Paper variant="outlined">
+        <Paper variant="outlined" className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Information)}</Typography>
@@ -53,18 +69,31 @@ const Info = memo(({ data }) => {
                 {new Date(time * 1000).toLocaleString()}
               </Typography>
             </ListItem>
+          </List>
+        </Paper>
+        <Paper variant="outlined">
+          <List className={clsx(classes.list, 'w-50')}>
+            <ListItem className={classes.title}>
+              <Typography>{Tr(T.Credentials)}</Typography>
+              <span className={classes.alignToRight}>
+                {!showConnection && <ConnectionButton />}
+              </span>
+            </ListItem>
+            <Divider />
             {Object.entries(connection)?.map(([key, value]) =>
               typeof value === 'string' && (
                 <ListItem key={key}>
                   <Typography>{key}</Typography>
-                  <Typography data-cy={`provider-${key}`}>{value}</Typography>
+                  <Typography data-cy={`provider-${key}`}>
+                    {showConnection?.[key] ?? value}
+                  </Typography>
                 </ListItem>
               ))}
           </List>
         </Paper>
       </Grid>
       <Grid item xs={12} md={6}>
-        <Paper variant="outlined" className={classes.permissions}>
+        <Paper variant="outlined" className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Permissions)}</Typography>

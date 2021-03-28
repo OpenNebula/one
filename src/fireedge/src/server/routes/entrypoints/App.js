@@ -3,13 +3,15 @@ const { Router } = require('express')
 const { env } = require('process')
 const { renderToString } = require('react-dom/server')
 const root = require('window-or-global')
+const path = require('path')
 const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@material-ui/core/styles')
+const { ChunkExtractor } = require('@loadable/server')
 const rootReducer = require('client/reducers')
 const { getConfig } = require('server/utils/yml')
 const {
-  availableLanguages, defaultWebpackMode, defaultApps
+  availableLanguages, defaultWebpackMode, defaultApps, defaultFileStats
 } = require('server/utils/constants/defaults')
 const { APP_URL, STATIC_FILES_URL } = require('client/constants')
 const { capitalize } = require('client/utils')
@@ -30,14 +32,14 @@ const router = Router()
 
 router.get('*', (req, res) => {
   let app = 'dev'
-  let title = 'fireedge'
+  let title = 'FireEdge'
   const context = {}
   let store = ''
   let component = ''
   let css = ''
   let storeRender = ''
-  let chunks = ''
 
+  // production
   if (env && (!env.NODE_ENV || (env.NODE_ENV && env.NODE_ENV !== defaultWebpackMode))) {
     const App = require('../../../client/dev/_app.js').default
     const sheets = new ServerStyleSheets()
@@ -52,17 +54,21 @@ router.get('*', (req, res) => {
       }
     })
 
-    chunks = `<script src='${APP_URL}/client/1.bundle.${app}.js'></script>`
+    // loadable
+    const statsFile = path.resolve(__dirname, 'client', app + defaultFileStats)
+    const extractor = new ChunkExtractor({ statsFile })
 
+    // SSR redux store
     store = createStore(rootReducer(), composeEnhancer(applyMiddleware(thunk)))
-
     storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${
       JSON.stringify(store.getState()).replace(/</g, '\\u003c')
     }</script>`
 
     component = renderToString(
-      sheets.collect(
-        <App location={req.url} context={context} store={store} />
+      extractor.collectChunks(
+        sheets.collect(
+          <App location={req.url} context={context} store={store} />
+        )
       )
     )
 
@@ -88,11 +94,10 @@ router.get('*', (req, res) => {
       ${storeRender}
       <script>${`langs = ${JSON.stringify(scriptLanguages)}`}</script>
       <script src='${APP_URL}/client/bundle.${app}.js'></script>
-      ${chunks}
     </body>
     </html>
   `
-  res.send(html)
+  res.status(200).set({ 'Content-Type': 'text/html' }).end(html)
 })
 
 module.exports = router

@@ -31,16 +31,15 @@ resource "aws_route" "device_<%= obj['ID'] %>" {
     gateway_id             = aws_internet_gateway.device_<%= obj['ID'] %>.id
 }
 
-resource "aws_security_group" "device_<%= obj['ID'] %>_ssh" {
-  name        = "allow_ssh"
-  description = "Allow SSH inbound traffic"
+resource "aws_security_group" "device_<%= obj['ID'] %>_all" {
+  name        = "allow_all"
+  description = "Allow all traffic"
   vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
 
   ingress {
-    description = "TLS from all"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -52,57 +51,86 @@ resource "aws_security_group" "device_<%= obj['ID'] %>_ssh" {
   }
 
   tags = {
-    Name = "device_<%= obj['ID'] %>_ssh"
+    Name = "device_<%= obj['ID'] %>_all"
   }
 }
 
-resource "aws_security_group" "device_<%= obj['ID'] %>_bgp" {
-  name        = "allow_bgp"
-  description = "Allow BGP inbound traffic"
-  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
-
-  ingress {
-    description = "BGP from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
-    from_port   = 179
-    to_port     = 179
-    protocol    = "tcp"
-    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "device_<%= obj['ID'] %>_bgp"
-  }
-}
-
-resource "aws_security_group" "device_<%= obj['ID'] %>_vxlan" {
-  name        = "allow_vxlan"
-  description = "Allow VXLAN inbound traffic"
-  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
-
-  ingress {
-    description = "VXLAN from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
-    from_port   = 8472
-    to_port     = 8472
-    protocol    = "udp"
-    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "device_<%= obj['ID'] %>_vxlan"
-  }
-}
+#
+# Find below how to provision Security Groups on AWS
+# (see host.rb how to apply them to instances)
+#
+#resource "aws_security_group" "device_<%= obj['ID'] %>_ssh" {
+#  name        = "allow_ssh"
+#  description = "Allow SSH inbound traffic"
+#  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
+#
+#  ingress {
+#    description = "SSH from all"
+#    from_port   = 22
+#    to_port     = 22
+#    protocol    = "tcp"
+#    cidr_blocks = ["0.0.0.0/0"]
+#  }
+#
+#  egress {
+#    from_port   = 0
+#    to_port     = 0
+#    protocol    = "-1"
+#    cidr_blocks = ["0.0.0.0/0"]
+#  }
+#
+#  tags = {
+#    Name = "device_<%= obj['ID'] %>_ssh"
+#  }
+#}
+#
+#resource "aws_security_group" "device_<%= obj['ID'] %>_bgp" {
+#  name        = "allow_bgp"
+#  description = "Allow BGP inbound traffic"
+#  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
+#
+#  ingress {
+#    description = "BGP from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
+#    from_port   = 179
+#    to_port     = 179
+#    protocol    = "tcp"
+#    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
+#  }
+#
+#  egress {
+#    from_port   = 0
+#    to_port     = 0
+#    protocol    = "-1"
+#    cidr_blocks = ["0.0.0.0/0"]
+#  }
+#
+#  tags = {
+#    Name = "device_<%= obj['ID'] %>_bgp"
+#  }
+#}
+#
+#resource "aws_security_group" "device_<%= obj['ID'] %>_vxlan" {
+#  name        = "allow_vxlan"
+#  description = "Allow VXLAN inbound traffic"
+#  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
+#
+#  ingress {
+#    description = "VXLAN from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
+#    from_port   = 8472
+#    to_port     = 8472
+#    protocol    = "udp"
+#    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
+#  }
+#
+#  egress {
+#    from_port   = 0
+#    to_port     = 0
+#    protocol    = "-1"
+#    cidr_blocks = ["0.0.0.0/0"]
+#  }
+#
+#  tags = {
+#    Name = "device_<%= obj['ID'] %>_vxlan"
+#  }
+#}
 

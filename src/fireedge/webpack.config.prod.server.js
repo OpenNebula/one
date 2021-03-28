@@ -1,7 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
 const nodeExternals = require('webpack-node-externals')
-const CopyPlugin = require('copy-webpack-plugin')
 const { defaultProductionWebpackMode } = require('./src/server/utils/constants/defaults')
 
 const js = {
@@ -30,6 +29,9 @@ module.exports = {
       'process.env': {
         NODE_ENV: JSON.stringify(defaultProductionWebpackMode)
       }
+    }),
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1
     })
   ],
   module: {

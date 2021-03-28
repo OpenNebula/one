@@ -94,7 +94,7 @@ define(function(require) {
            <tbody>';
 
     var snapshots = []
-    if ($.isArray(that.element.TEMPLATE.SNAPSHOT))
+    if (Array.isArray(that.element.TEMPLATE.SNAPSHOT))
         snapshots = that.element.TEMPLATE.SNAPSHOT
     else if (!$.isEmptyObject(that.element.TEMPLATE.SNAPSHOT))
         snapshots = [that.element.TEMPLATE.SNAPSHOT]

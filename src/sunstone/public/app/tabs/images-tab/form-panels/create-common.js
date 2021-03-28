@@ -103,7 +103,7 @@ define(function(require) {
   function resetOtherForms (form, formPanelId) {
     if(form && formPanelId){
       var forms = ["Docker","Advanced","Wizard"];
-      forms.forEach(element => {
+      forms.forEach(function(element) {
         if(form !== element){
           try {
             $("#"+formPanelId+element).foundation("resetForm");
@@ -201,8 +201,12 @@ define(function(require) {
 
 
   function _setup(context) {
+    var that = this;
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.setup($("#" + wizardTab.wizardTabId, context));
+      if(wizardTab.title === "Image"){
+        that.uploader = wizardTab.uploader;
+      }
     });
     Foundation.reflow(context, "tabs");
     Foundation.reflow(context, "tooltip");
@@ -250,6 +254,11 @@ define(function(require) {
           driver = WizardFields.retrieveInput($("#custom_img_driver", context));
         }
         img_json["FORMAT"] = driver;
+    }
+
+    var filesystem = WizardFields.retrieveInput($("#img_fs", context));
+    if (filesystem != undefined && filesystem.length) {
+        img_json["FS"] = filesystem;
     }
 
     var target = WizardFields.retrieveInput($("#img_target", context));
@@ -302,39 +311,40 @@ define(function(require) {
     //this is an image upload we trigger FileUploader
     //to start the upload
     if (upload) {
-      if (that.uploader.files.length == 0) {
-        Sunstone.hideFormPanelLoading(that.tabId);
-        Notifier.notifyError(Locale.tr("Please select a file to upload"));
-        return false;
-      }
-
-      Sunstone.resetFormPanel(that.tabId, that.formPanelId);
-      Sunstone.hideFormPanel(that.tabId);
-
-      that.uploader.on("fileSuccess", function(file) {
-        $("div[id=\"" + file.fileName + "-info\"]").text(Locale.tr("Registering in OpenNebula"));
-        $.ajax({
-          url: "upload",
-          type: "POST",
-          data: {
-            csrftoken: csrftoken,
-            img : JSON.stringify(img_obj),
-            file: file.fileName,
-            tempfile: file.uniqueIdentifier
-          },
-          success: function() {
-            Notifier.notifyMessage("Image uploaded correctly");
-            $("div[id=\"" + file.fileName + "progressBar\"]").remove();
-            Sunstone.runAction(that.resource+".refresh");
-          },
-          error: function(response) {
-            Notifier.onError({}, OpenNebulaError(response));
-            $("div[id=\"" + file.fileName + "progressBar\"]").remove();
-          }
+      if(that.uploader){
+        if (that.uploader.files && that.uploader.files.length == 0) {
+          Sunstone.hideFormPanelLoading(that.tabId);
+          Notifier.notifyError(Locale.tr("Please select a file to upload"));
+          return false;
+        }
+        Sunstone.resetFormPanel(that.tabId, that.formPanelId);
+        Sunstone.hideFormPanel(that.tabId);
+        that.uploader.on("fileSuccess", function(file) {
+          $("div[id=\"" + file.fileName + "-info\"]").text(Locale.tr("Registering in OpenNebula"));
+          $.ajax({
+            url: "upload",
+            type: "POST",
+            data: {
+              csrftoken: csrftoken,
+              img : JSON.stringify(img_obj),
+              file: file.fileName,
+              tempfile: file.uniqueIdentifier
+            },
+            success: function() {
+              Notifier.notifyMessage("Image uploaded correctly");
+              $("div[id=\"" + file.fileName + "progressBar\"]").remove();
+              Sunstone.runAction(that.resource+".refresh");
+            },
+            error: function(response) {
+              Notifier.onError({}, OpenNebulaError(response));
+              $("div[id=\"" + file.fileName + "progressBar\"]").remove();
+            }
+          });
         });
-      });
-
-      that.uploader.upload();
+        that.uploader.upload();
+      }else{
+        Notifier.notifyError(Locale.tr("you don't have a valid uploader"));
+      }
     } else {
       Sunstone.runAction(that.resource+".create", img_obj);
     }

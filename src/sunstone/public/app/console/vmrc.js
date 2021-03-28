@@ -121,7 +121,7 @@ define(function(require) {
       .register(WMKS.CONST.Events.CONNECTION_STATE_CHANGE,
         function (_, data) {
           if (typeof cons !== 'undefined' && data.state == cons.ConnectionState.CONNECTED) {
-            console.log("connection	state	change	:	connected");
+            console.log("connection	state	change: connected");
           }
         }
       );
@@ -133,6 +133,5 @@ define(function(require) {
     _wmks.connect(URL);
   }catch(err){
     setStatus("Something went wrong, connection is closed", "Failed");
-    console.log("error start VMRC ", err);
   }
 });

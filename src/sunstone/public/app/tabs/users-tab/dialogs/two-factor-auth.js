@@ -139,7 +139,7 @@ define(function(require) {
             return;
           }
           context.on("click", "#add_btn", function () {
-            WebAuthnJSON.create({ "publicKey": response }).then(publicKeyCredential => {
+            WebAuthnJSON.create({ "publicKey": response }).then(function(publicKeyCredential) {
               var nickname = $("#nickname", context).val();
               Sunstone.runAction(
                 "User.enable_sunstone_security_key",
@@ -147,7 +147,7 @@ define(function(require) {
                 { nickname: nickname, publicKeyCredential: publicKeyCredential, current_sunstone_setting: that.sunstone_setting }
               );
             })
-            .catch((e) => {
+            .catch(function(e) {
               Notifier.onError(null, { error: { message: e.message } });
             });              
           });
@@ -166,7 +166,7 @@ define(function(require) {
 
   function randomBase32() {
     const items = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ234567');
-    const result = Array(16).fill(0).map(() => items[Math.floor(Math.random()*items.length)]);
+    const result = Array(16).fill(0).map(function() { return items[Math.floor(Math.random()*items.length)] });
     return result.join('');
   };
 

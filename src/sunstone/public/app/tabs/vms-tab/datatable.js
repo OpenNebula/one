@@ -19,18 +19,18 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require('utils/tab-datatable');
-  var VMsTableUtils = require('./utils/datatable-common');
-  var OpenNebulaVM = require('opennebula/vm');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var StateActions = require('./utils/state-actions');
-  var Sunstone = require('sunstone');
-  var DashboardUtils = require('utils/dashboard');
-  var SearchDropdown = require('hbs!./datatable/search');
-  var FireedgeValidator = require('utils/fireedge-validator');
+  var TabDataTable = require("utils/tab-datatable");
+  var VMsTableUtils = require("./utils/datatable-common");
+  var OpenNebulaVM = require("opennebula/vm");
+  var SunstoneConfig = require("sunstone-config");
+  var Locale = require("utils/locale");
+  var StateActions = require("./utils/state-actions");
+  var Sunstone = require("sunstone");
+  var DashboardUtils = require("utils/dashboard");
+  var SearchDropdown = require("hbs!./datatable/search");
+  var FireedgeValidator = require("utils/fireedge-validator");
   var Websocket = require("utils/websocket");
-  var VMRemoteActions = require('utils/remote-actions');
+  var VMRemoteActions = require("utils/remote-actions");
 
   /*
     CONSTANTS
@@ -38,7 +38,7 @@ define(function(require) {
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
-  var TAB_NAME = require('./tabId');
+  var TAB_NAME = require("./tabId");
   var LABELS_COLUMN = 11;
   var SEARCH_COLUMN = 12;
 
@@ -66,8 +66,8 @@ define(function(require) {
         {"bSortable": false, "aTargets": ["check", 11]},
         {"sWidth": "35px", "aTargets": [0]},
         {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
-        {"bVisible": false, "aTargets": ['_all']},
-        {"sClass": "middle", "aTargets": ['_all']}
+        {"bVisible": false, "aTargets": ["_all"]},
+        {"sClass": "middle", "aTargets": ["_all"]}
       ]
     };
 
@@ -138,12 +138,12 @@ define(function(require) {
   }
 
   function _preUpdateView() {
-    var tab = $('#' + TAB_NAME);
+    var tab = $("#" + TAB_NAME);
     if (!Sunstone.rightInfoVisible(tab)){
       StateActions.disableAllStateActions();
     }
 
-    Sunstone.runAction('VM.pool_monitor')
+    Sunstone.runAction("VM.pool_monitor");
 
     this.totalVms = 0;
     this.activeVms = 0;
@@ -167,9 +167,9 @@ define(function(require) {
 
     $(".off_vms").text(this.offVms);
 
-    VMsTableUtils.tooltipCharters()
+    VMsTableUtils.tooltipCharters();
 
-    $("#rdp-buttons").foundation();
+    $(".rdp-buttons").foundation();
 
     FireedgeValidator.validateFireedgeToken(function(token) {
       if (Websocket.disconnected()) {
@@ -183,9 +183,9 @@ define(function(require) {
 
     TabDataTable.prototype.initialize.call(this, opts);
 
-    VMRemoteActions.bindActionsToContext('#' + this.dataTableId)
+    VMRemoteActions.bindActionsToContext("#" + this.dataTableId);
 
-    $('#' + this.dataTableId).on("change", 'tbody input.check_item', function() {
+    $("#" + this.dataTableId).on("change", "tbody input.check_item", function() {
       if ($(this).is(":checked")){
         StateActions.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
       } else {
@@ -193,8 +193,8 @@ define(function(require) {
         StateActions.disableAllStateActions();
 
         // Enable actions available to any of the selected VMs
-        var nodes = $('tr', that.dataTable); //visible nodes only
-        $.each($('input.check_item:checked', nodes), function() {
+        var nodes = $("tr", that.dataTable); //visible nodes only
+        $.each($("input.check_item:checked", nodes), function() {
           StateActions.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
         });
       }

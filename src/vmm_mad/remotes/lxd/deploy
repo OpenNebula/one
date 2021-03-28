@@ -84,9 +84,6 @@ end
 # Updates container configuration with the OpenNebulaVM description
 # ------------------------------------------------------------------------------
 container.save_xml(xml)
-container.transition_end unless container.wild?
-container.update
-
 container.vnc('start')
-
 puts container.name
+container.allow_monitoring

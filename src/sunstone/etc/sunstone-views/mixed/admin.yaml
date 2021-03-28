@@ -36,7 +36,6 @@ enabled_tabs:
     - vdcs-tab
     - acls-tab
     - settings-tab
-    - support-tab
     - vmgroup-tab
 features:
     # True to show showback monthly reports, and VM cost
@@ -96,11 +95,11 @@ features:
     deploy_enforce: false
 
     migrate_enforce: false
-    
+
     # True to show the network configuration to instantiate Service template
     show_vnet_instantiate_flow: true
 
-    # True to show schedule actions to instantiate a VM 
+    # True to show schedule actions to instantiate a VM
     show_sched_actions_instantiate: true
 
     # True to show boot order section to instantiate VM
@@ -281,7 +280,7 @@ tabs:
             context: true
             actions: true
             scheduling: true
-            hybrid: true
+            hybrid: false
             vmgroup: true
             other: true
             numa: true
@@ -349,7 +348,7 @@ tabs:
             input_output: true
             context: true
             scheduling: true
-            hybrid: true
+            hybrid: false
             other: true
     instances-top-tab:
         panel_tabs:
@@ -893,18 +892,6 @@ tabs:
             SecurityGroup.delete: true
             SecurityGroup.edit_labels: true
             SecurityGroup.menu_labels: true
-    support-tab:
-        panel_tabs:
-            support_info_tab: true
-        table_columns:
-            #- 0        # Checkbox
-            - 1         # ID
-            - 2         # Subject
-            - 3         # Created at
-            - 4         # Status
-        actions:
-            Support.refresh: true
-            Support.create_dialog: true
     settings-tab:
         panel_tabs:
             settings_info_tab: true

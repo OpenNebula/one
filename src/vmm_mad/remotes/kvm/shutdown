@@ -70,5 +70,10 @@ retry $TIMEOUT monitor
 force_shutdown "$deploy_id" \
     "virsh --connect $LIBVIRT_URI destroy $deploy_id"
 
+# Compact memory
+if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
+    sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
+fi
+
 sleep 4
 

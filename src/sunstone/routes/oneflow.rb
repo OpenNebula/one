@@ -113,6 +113,14 @@ put '/service/:id/role/:role_name' do
     af_format_response(resp)
 end
 
+post '/service/purge' do
+    client = af_build_client
+
+    resp = client.post('/service_pool/purge_done', @request_body)
+
+    af_format_response(resp)
+end
+
 ##############################################################################
 # Service Template
 ##############################################################################

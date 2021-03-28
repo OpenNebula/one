@@ -53,29 +53,6 @@ COMMANDS=(
 
     'oneflow'           'Manage oneFlow Services'
     'oneflow-template'  'Manage oneFlow Templates'
-
-    'econe-allocate-address'     'Allocates a new elastic IP address for the user'
-    'econe-associate-address'    'Associates a publicIP of the user with a given instance'
-    'econe-attach-volume'        'Attaches a DATABLOCK to an instance'
-    'econe-create-keypair'       'Creates the named keypair'
-    'econe-create-volume'        'Creates a new DATABLOCK in OpenNebula'
-    'econe-delete-keypair'       'Deletes the named keypair, removes the associated keys'
-    'econe-delete-volume'        'Deletes an existing DATABLOCK'
-    'econe-describe-addresses'   'Lists elastic IP addresses'
-    'econe-describe-images'      'Lists all registered images belonging to one particular user'
-    'econe-describe-instances'   'Outputs a list of launched images belonging to one particular user'
-    'econe-describe-keypairs'    'List and describe the key pairs available to the user'
-    'econe-describe-volumes'     'Describe all available DATABLOCKs for this user'
-    'econe-detach-volume'        'Detaches a DATABLOCK from an instance'
-    'econe-disassociate-address' 'Disasociate a publicIP of the user currently associated with an instance'
-    'econe-reboot-instances'     'Reboots a set of virtual machines'
-    'econe-register'             'Registers an image'
-    'econe-release-address'      'Releases a publicIP of the user'
-    'econe-run-instances'        'Runs an instance of a particular image (that needs to be referenced)'
-    'econe-start-instances'      'Starts a set of virtual machines'
-    'econe-stop-instances'       'Stops a set of virtual machines'
-    'econe-terminate-instances'  'Shutdowns a set of virtual machines (or cancel, depending on its state)'
-    'econe-upload'               'Uploads an image to OpenNebula'
 )
 
 DIR_BUILD=$(mktemp -d)

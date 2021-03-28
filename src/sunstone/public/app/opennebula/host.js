@@ -15,10 +15,10 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var OpenNebulaAction = require('./action');
-  var Locale = require('utils/locale');
-  var OpenNebulaError = require('./error');
-  var OpenNebulaHelper = require('./helper');
+  var OpenNebulaAction = require("./action");
+  var Locale = require("utils/locale");
+  var OpenNebulaError = require("./error");
+  var OpenNebulaHelper = require("./helper");
 
 
   var infrastructureCache;
@@ -26,13 +26,11 @@ define(function(require) {
   var pcisCallbacks = [];
   var customizationsCallbacks = [];
   var kvmInfoCallbacks = [];
-  var lxdProfilesInfoCallbacks = [];
 
   var CACHE_EXPIRE = 300000; //ms
 
   var _clearCache = function() {
     infrastructureCache = null;
-    //console.log("Host.pciDevices. Cache cleaned");
   };
 
   var RESOURCE = "HOST";
@@ -145,19 +143,13 @@ define(function(require) {
 
       if (infrastructureCache &&
           infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
-
-        //console.log("Host.pciDevices. Cache used");
-
-        return callback ?
-            callback(request, infrastructureCache["pcis"]) : null;
+        return callback ? callback(request, infrastructureCache["pcis"]) : null;
       }
 
       pcisCallbacks.push({
         success : callback,
         error : callbackError
       });
-
-      //console.log("Host.pciDevices. Callback queued");
 
       _infrastructure();
     },
@@ -168,35 +160,10 @@ define(function(require) {
 
       if (infrastructureCache &&
           infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
-
-        //console.log("Host.vcenterCustomizations. Cache used");
-
-        return callback ?
-            callback(request, infrastructureCache["customizations"]) : null;
+        return callback ? callback(request, infrastructureCache["customizations"]) : null;
       }
 
       customizationsCallbacks.push({
-        success : callback,
-        error : callbackError
-      });
-
-      //console.log("Host.vcenterCustomizations. Callback queued");
-
-      _infrastructure();
-    },
-    "lxdProfilesInfo": function(params){
-      var callback = params.success;
-      var callbackError = params.error;
-      var request = OpenNebulaHelper.request(RESOURCE, "infrastructure");
-
-      if (infrastructureCache &&
-          infrastructureCache["timestamp"] + CACHE_EXPIRE > new Date().getTime()) {
-
-        return callback ?
-            callback(request, infrastructureCache["lxd_profiles"]) : null;
-      }
-
-      lxdProfilesInfoCallbacks.push({
         success : callback,
         error : callbackError
       });
@@ -233,8 +200,6 @@ define(function(require) {
 
     infrastructureWaiting = true;
 
-    //console.log("Host.infrastructure. NO cache, calling ajax");
-
     $.ajax({
       url: "infrastructure",
       type: "GET",
@@ -246,7 +211,7 @@ define(function(require) {
           pcis = [];
         }
 
-        if (!$.isArray(pcis)){ // If only 1 convert to array
+        if (!Array.isArray(pcis)){ // If only 1 convert to array
           pcis = [pcis];
         }
 
@@ -256,18 +221,8 @@ define(function(require) {
           customizations = [];
         }
 
-        if (!$.isArray(customizations)){ // If only 1 convert to array
+        if (!Array.isArray(customizations)){ // If only 1 convert to array
           customizations = [customizations];
-        }
-
-        var lxd_profiles = response.lxd_profiles;
-
-        if (lxd_profiles == undefined){
-          lxd_profiles = [];
-        }
-
-        if (!$.isArray(lxd_profiles)){ // If only 1 convert to array
-          lxd_profiles = [lxd_profiles];
         }
 
         var kvm_info = response.kvm_info;
@@ -276,7 +231,7 @@ define(function(require) {
           kvm_info = [];
         }
 
-        if (!$.isArray(kvm_info)){ // If only 1 convert to array
+        if (!Array.isArray(kvm_info)){ // If only 1 convert to array
           kvm_info = [kvm_info];
         }
 
@@ -284,8 +239,7 @@ define(function(require) {
           timestamp       : new Date().getTime(),
           pcis            : pcis,
           customizations  : customizations,
-          kvm_info        : kvm_info,
-          lxd_profiles    : lxd_profiles
+          kvm_info        : kvm_info
         };
 
         infrastructureWaiting = false;
@@ -294,7 +248,6 @@ define(function(require) {
           var callback = pcisCallbacks[i].success;
 
           if (callback) {
-            //console.log("Host.pciDevices. Callback called");
             callback(request, pcis);
           }
         }
@@ -305,7 +258,6 @@ define(function(require) {
           var callback = customizationsCallbacks[i].success;
 
           if (callback) {
-            //console.log("Host.vcenterCustomizations. Callback called");
             callback(request, customizations);
           }
         }
@@ -322,17 +274,6 @@ define(function(require) {
 
         kvmInfoCallbacks = [];
 
-
-        for (var i = 0; i < lxdProfilesInfoCallbacks.length; i++) {
-          var callback = lxdProfilesInfoCallbacks[i].success;
-
-          if (callback) {
-            callback(request, lxd_profiles);
-          }
-        }
-
-        lxdProfilesInfoCallbacks = [];
-
         return;
       },
       error: function(response) {
@@ -342,7 +283,6 @@ define(function(require) {
           var callback = pcisCallbacks[i].error;
 
           if (callback) {
-            //console.log("Host.pciDevices. ERROR Callback called");
             callback(request, OpenNebulaError(response));
           }
         }
@@ -353,7 +293,6 @@ define(function(require) {
           var callback = customizationsCallbacks[i].error;
 
           if (callback) {
-            //console.log("Host.vcenterCustomizations. ERROR Callback called");
             callback(request, OpenNebulaError(response));
           }
         }
@@ -366,4 +305,4 @@ define(function(require) {
   }
 
   return Host;
-})
+});

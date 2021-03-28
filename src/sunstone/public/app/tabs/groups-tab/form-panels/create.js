@@ -40,7 +40,6 @@ define(function(require) {
 
   var FORM_PANEL_ID = require('./create/formPanelId');
   var TAB_ID = require('../tabId');
-  var IMAGE_DIALOG_ID = require('../dialogs/image/dialogId');
 
   /*
     CONSTRUCTOR
@@ -86,7 +85,6 @@ define(function(require) {
     var filtered_views = {
       cloud : [],
       advanced : [],
-      vcenter : [],
       other : []
     };
 
@@ -100,9 +98,6 @@ define(function(require) {
             break;
           case 'cloud':
             filtered_views.cloud.push(view_info);
-            break;
-          case 'vcenter':
-            filtered_views.vcenter.push(view_info);
             break;
           default:
             filtered_views.other.push({
@@ -127,17 +122,12 @@ define(function(require) {
 
     $.each(filtered_views, function(view_type, views){
       if (views.length > 0) {
-        var link = "";
-        if(Views.types[view_type].preview){
-          link = Views.types[view_type].preview.split(".")[0]
-        }
         viewTypes.push(
           {
             'name': Views.types[view_type].name,
             'description': Views.types[view_type].description,
             'preview': Views.types[view_type].preview,
-            'views': views,
-            'link': link
+            'views': views
           });
       }
     });
@@ -199,23 +189,6 @@ define(function(require) {
       _generateViewsSelect(context, "admin", "groupadmin");
       _generateViewsSelect(context, "user", "cloud");
     }
-
-    $.each(this.filtered_views, function(view_type, views){
-      if (views.length > 0) {
-        if(Views.types[view_type].preview){
-          $("#link_"+Views.types[view_type].preview.split(".")[0], context).on("click", function(){
-            Sunstone.getDialog(IMAGE_DIALOG_ID).setParams({element: {
-                                                            "preview":Views.types[view_type].preview, 
-                                                            "name": Views.types[view_type].name}});
-            Sunstone.getDialog(IMAGE_DIALOG_ID).reset();
-            Sunstone.getDialog(IMAGE_DIALOG_ID).show();
-          });
-        }
-        else{
-          $("#link_", context).hide();
-        }
-      }
-    });
   }
 
   function _submitWizard(context) {

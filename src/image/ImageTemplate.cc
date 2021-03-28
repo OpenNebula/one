@@ -21,5 +21,6 @@
 
 std::map<std::string, std::set<std::string> > ImageTemplate::restricted;
 
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
+
+std::map<std::string, std::set<std::string> > ImageTemplate::encrypted;
+

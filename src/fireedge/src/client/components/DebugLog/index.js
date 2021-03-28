@@ -1,13 +1,24 @@
 import React, { useEffect, useState, memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Box } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import AutoScrollBox from 'client/components/AutoScrollBox'
-import Message from 'client/components/DebugLog/message'
-import { DEBUG_LEVEL } from 'client/constants'
+import MessageList from 'client/components/DebugLog/messagelist'
+import Filters from 'client/components/DebugLog/filters'
+import * as LogUtils from 'client/components/DebugLog/utils'
 
 const debugLogStyles = makeStyles(theme => ({
   root: {
+    display: 'flex',
+    flexFlow: 'column',
+    height: '100%'
+  },
+  containerScroll: {
+    width: '100%',
+    flexGrow: 1,
+    overflow: 'auto',
+    borderRadius: 5,
+    backgroundColor: '#1d1f21',
     fontSize: '1.1em',
     wordBreak: 'break-word',
     '&::-webkit-scrollbar': {
@@ -23,62 +34,36 @@ const debugLogStyles = makeStyles(theme => ({
   }
 }))
 
-const DebugLog = memo(({ uuid, socket, logDefault }) => {
+const DebugLog = memo(({ uuid, socket, logDefault, title }) => {
   const classes = debugLogStyles()
+
   const [log, setLog] = useState(logDefault)
 
-  useEffect(() => {
-    uuid && socket.on((socketData = {}) => {
-      const { id, data, command, commandId } = socketData
+  const [filters, setFilters] = useState(() => ({
+    command: undefined,
+    severity: undefined
+  }))
 
-      id === uuid && setLog(prev => ({
-        ...prev,
-        [command]: {
-          [commandId]: [...(prev?.[command]?.[commandId] ?? []), data]
-        }
-      }))
+  useEffect(() => {
+    uuid && socket?.on((socketData = {}) => {
+      socketData.id === uuid &&
+        setLog(prevLog => LogUtils.concatNewMessageToLog(prevLog, socketData))
     })
-    return () => uuid && socket.off()
+    return () => uuid && socket?.off()
   }, [])
 
   return (
-    <Box borderRadius={5} bgcolor={'#1d1f21'} width={1} height={1} className={classes.root}>
-      <AutoScrollBox scrollBehavior="auto">
-        {Object.entries(log)?.map(([command, entries]) =>
-          Object.entries(entries)?.map(([commandId, messages]) =>
-            messages?.map((data, index) => {
-              const key = `${index}-${command}-${commandId}`
+    <div className={classes.root}>
+      {title}
 
-              try {
-                const { timestamp, severity, message } = JSON.parse(data)
-                const decryptMessage = atob(message)
+      <Filters log={log} filters={filters} setFilters={setFilters} />
 
-                return (
-                  <Message
-                    key={key}
-                    timestamp={timestamp}
-                    severity={severity}
-                    message={decryptMessage}
-                  />
-                )
-              } catch {
-                const severity = data.includes(DEBUG_LEVEL.ERROR)
-                  ? DEBUG_LEVEL.ERROR
-                  : data.includes(DEBUG_LEVEL.INFO)
-                    ? DEBUG_LEVEL.INFO
-                    : data.includes(DEBUG_LEVEL.WARN)
-                      ? DEBUG_LEVEL.WARN
-                      : DEBUG_LEVEL.DEBUG
-
-                return (
-                  <Message key={key} severity={severity} message={data} />
-                )
-              }
-            })
-          )
-        )}
-      </AutoScrollBox>
-    </Box>
+      <div className={classes.containerScroll}>
+        <AutoScrollBox scrollBehavior="auto">
+          <MessageList log={log} filters={filters} />
+        </AutoScrollBox>
+      </div>
+    </div>
   )
 }, (prev, next) => prev.uuid === next.uuid)
 
@@ -88,7 +73,11 @@ DebugLog.propTypes = {
     on: PropTypes.func.isRequired,
     off: PropTypes.func.isRequired
   }).isRequired,
-  logDefault: PropTypes.object
+  logDefault: PropTypes.object,
+  title: PropTypes.oneOfType([
+    PropTypes.element,
+    PropTypes.string
+  ])
 }
 
 DebugLog.defaultProps = {
@@ -97,9 +86,12 @@ DebugLog.defaultProps = {
     on: () => undefined,
     off: () => undefined
   },
-  logDefault: {}
+  logDefault: {},
+  title: null
 }
 
 DebugLog.displayName = 'DebugLog'
 
 export default DebugLog
+
+export { LogUtils }

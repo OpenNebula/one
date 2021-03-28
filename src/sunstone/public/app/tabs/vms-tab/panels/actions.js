@@ -200,7 +200,7 @@ define(function(require) {
       return empty;
     }
 
-    if (!$.isArray(actions_array)) {
+    if (!Array.isArray(actions_array)) {
       var tmp_array = new Array();
       tmp_array[0]  = actions_array;
       actions_array = tmp_array;

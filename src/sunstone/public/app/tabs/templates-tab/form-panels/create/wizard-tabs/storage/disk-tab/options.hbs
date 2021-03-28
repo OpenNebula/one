@@ -1,9 +1,8 @@
 <div class="row">
-  <div class="medium-6 columns hypervisor only_kvm not_firecracker">
+  <div class="medium-6 columns hypervisor only_kvm not_firecracker not_lxc">
     <label for="TARGET">
       <span class="hypervisor only_kvm"> {{tr "Target device"}} </span>
-      <span class="hypervisor only_lxd"> {{tr "Mountpoint"}} </span>
-      {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping. In LXD this setting specifies a disk mount point like /mnt.")}}}
+      {{{tip (tr "Device to map image disk. If set, it will overwrite the default device mapping.")}}}
     </label>
     <input type="text" wizard_field="TARGET" id="TARGET" name="target" placeholder="sdc"/>
   </div>
@@ -17,7 +16,7 @@
       <option value="no">{{tr "no"}}</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
+  <div class="medium-6 columns hypervisor only_kvm not_lxc not_firecracker">
     <label>
       {{tr "BUS"}}
       <select id="disk_dev_prefix" name="disk_dev_prefix">
@@ -58,7 +57,7 @@
   </div>
 </div>
 <div class="row vm_param">
-  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
+  <div class="medium-6 columns hypervisor only_kvm not_lxc not_firecracker">
     <label for="CACHE">
       {{tr "Cache"}}
     </label>
@@ -72,7 +71,7 @@
       <option value="unsafe">unsafe</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
+  <div class="medium-6 columns hypervisor only_kvm not_lxc not_firecracker">
     <label for="IO">
       {{tr "IO policy"}}
     </label>
@@ -82,7 +81,7 @@
       <option value="native">native</option>
     </select>
   </div>
-  <div class="medium-6 columns hypervisor only_kvm not_lxd not_firecracker">
+  <div class="medium-6 columns hypervisor only_kvm not_lxc not_firecracker">
     <label for="DISCARD">
       {{tr "Discard"}}
     </label>
@@ -245,7 +244,7 @@
   </div>
 </fieldset>
 <fieldset class="not_firecracker hybrid_plus_section">
-  <legend>{{tr "Hybrid+"}}</legend>
+  <legend>{{tr "Edge Cluster"}}</legend>
   <div class="row vm_param">
     <div class="medium-6 columns hypervisor only_kvm">
       <fieldset>
@@ -253,6 +252,20 @@
           {{tr "Snapshot Frequency in Seconds"}}
         </label>
         <input wizard_field="RECOVERY_SNAPSHOT_FREQ" type="number" min="0" id="RECOVERY_SNAPSHOT_FREQ" name="RECOVERY_SNAPSHOT_FREQ" />
+      </fieldset>
+    </div>
+  </div>
+</fieldset>
+<fieldset class="not_firecracker">
+  <legend>{{tr "IOTHREADS"}}</legend>
+  <div class="row vm_param">
+    <div class="medium-6 columns">
+      <fieldset>
+        <label for="IOTHREAD">
+          {{tr "IOTHREAD id"}}
+          {{{tip (tr "Iothread id used by this disk. Default is round robin. Can be used only if IOTHREADS > 0.  If this input is disabled please first configure IOTHREADS value on OS & CPU -> Features.")}}}
+        </label>
+        <input wizard_field="IOTHREAD" type="number" min="0" id="IOTHREAD" name="IOTHREAD" />
       </fieldset>
     </div>
   </div>

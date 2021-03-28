@@ -2,9 +2,14 @@ resource "aws_instance" "device_<%= obj['ID'] %>" {
     ami                    = "<%= provision['AMI'] %>"
     instance_type          = "<%= provision['INSTANCETYPE'] %>"
 
-    vpc_security_group_ids = [aws_security_group.device_<%= c['ID'] %>_ssh.id,
-                              aws_security_group.device_<%= c['ID'] %>_bgp.id,
-                              aws_security_group.device_<%= c['ID'] %>_vxlan.id]
+    vpc_security_group_ids = [ aws_security_group.device_<%= c['ID'] %>_all.id ]
+
+    #
+    # Find below how to apply on instances the SGs provisioned in host.rb
+    #
+    #vpc_security_group_ids = [aws_security_group.device_<%= c['ID'] %>_ssh.id,
+    #                          aws_security_group.device_<%= c['ID'] %>_bgp.id,
+    #                          aws_security_group.device_<%= c['ID'] %>_vxlan.id]
 
     subnet_id              = aws_subnet.device_<%= c['ID'] %>.id
 

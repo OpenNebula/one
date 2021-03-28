@@ -211,6 +211,17 @@ module CLIHelper
         end
     end
 
+    # Get text in green colour
+    #
+    # @param text [String] String to print
+    def self.green(text)
+        if $stdout.tty?
+            ANSI_GREEN + text + ANSI_RESET
+        else
+            text
+        end
+    end
+
     # Print header
     #
     # @param str       [String]  String with header content
@@ -357,13 +368,13 @@ module CLIHelper
         # @param options [Hash] Object with CLI user options
         # @param top     [Boolean]     True to not update columns again
         def show(data, options = {}, top = false)
+            update_columns(options) unless top
+
             if options[:list]
                 @cli_columns = options[:list].collect {|o| o.upcase.to_sym }
             else
                 @cli_columns = @default_columns
             end
-
-            update_columns(options) unless top
 
             if data.is_a? Hash
                 @data = data

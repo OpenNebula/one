@@ -224,7 +224,7 @@ define(function(require) {
       pcis = [];
     }
 
-    if (!$.isArray(pcis)){ // If only 1 convert to array
+    if (!Array.isArray(pcis)){ // If only 1 convert to array
       pcis = [pcis];
     }
 

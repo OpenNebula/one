@@ -205,7 +205,8 @@ image_id=$(docker images -q one"$sid")
 #-------------------------------------------------------------------------------
 # Flatten container image
 #-------------------------------------------------------------------------------
-container_id=$(docker run -d "$image_id" /bin/true)
+# rm -f /.dockerenv to avoid external tools to autodetect as docker images
+container_id=$(docker run -d "$image_id" rm -f /.dockerenv)
 
 docker export -o "$tarball" "$container_id" > /dev/null 2>&1
 

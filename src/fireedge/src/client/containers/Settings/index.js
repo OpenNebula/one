@@ -15,18 +15,20 @@
 
 import * as React from 'react'
 
-import {
-  makeStyles,
-  Container,
-  Paper,
-  Typography,
-  TextField
-} from '@material-ui/core'
+import { makeStyles, Container, Paper, Box, Typography } from '@material-ui/core'
 
-import { useAuth, useGeneral } from 'client/hooks'
-import { Tr, TranslateContext } from 'client/components/HOC'
+import { useForm, FormProvider } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers'
+
+import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { SubmitButton } from 'client/components/FormControl'
+
+import { useAuth } from 'client/hooks'
+import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+
+import { FORM_FIELDS, FORM_SCHEMA } from 'client/containers/Settings/schema'
+import { mapUserInputs } from 'client/utils'
 
 const useStyles = makeStyles(theme => ({
   header: {
@@ -53,33 +55,31 @@ const useStyles = makeStyles(theme => ({
 
 const Settings = () => {
   const classes = useStyles()
-  const context = React.useContext(TranslateContext)
-  // const langAvailables = Array.isArray(window?.langs) ? window?.langs : []
 
-  const { theme: currentTheme } = useGeneral()
-  const { updateUser } = useAuth()
+  const { updateUser, settings = {} } = useAuth()
 
-  const [{ theme, lang }, setSettings] = React.useState({
-    theme: currentTheme,
-    lang: context.lang
+  const { handleSubmit, setError, reset, formState, ...methods } = useForm({
+    reValidateMode: 'onSubmit',
+    defaultValues: settings,
+    resolver: yupResolver(FORM_SCHEMA)
   })
 
-  const handleChange = evt => {
-    evt.preventDefault()
-    evt.persist()
+  React.useEffect(() => {
+    // set user settings values
+    reset(
+      FORM_SCHEMA.cast(settings),
+      { isSubmitted: false, error: false }
+    )
+  }, [settings])
 
-    setSettings(prev => ({
-      ...prev,
-      [evt.target.name]: evt.target.value
-    }))
-  }
+  const onSubmit = dataForm => {
+    const inputs = mapUserInputs(dataForm)
 
-  const handleSubmit = evt => {
-    evt.preventDefault()
+    const values = Object.entries(inputs)
+      .map(([key, value]) => `\n ${String(key).toUpperCase()} = "${value}"`)
+      .join(',')
 
-    updateUser({
-      template: `FIREEDGE = [\n THEME = "${theme}",\n LANG = "${lang}" ]\n`
-    }).then(() => context.changeLang(lang))
+    return updateUser({ template: `FIREEDGE = [${values}]\n` })
   }
 
   return (
@@ -96,52 +96,20 @@ const Settings = () => {
         <Typography variant='overline' component='div' className={classes.subheader}>
           {`${Tr(T.Configuration)} UI`}
         </Typography>
-        <TextField
-          id='select-theme-type'
-          select
-          fullWidth
-          name='theme'
-          color='secondary'
-          label='Theme'
-          value={theme}
-          onChange={handleChange}
-          SelectProps={{
-            native: true
-          }}
-          variant='outlined'
-        >
-          <option value='light'>{T.Light}</option>
-          <option value='dark'>{T.Dark}</option>
-        </TextField>
-
-        {/* is not operative yet */}
-        {/* <Select
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+          <FormProvider {...methods}>
+            <FormWithSchema cy='settings' fields={FORM_FIELDS} />
+          </FormProvider>
+          <div className={classes.actions}>
+            <SubmitButton
               color='secondary'
-              inputProps={{
-                name: 'lang',
-                id: 'select-lang',
-                'data-cy': 'select-lang'
-              }}
-              onChange={handleChange}
-              fullWidth
-              native
-              value={lang}
-              variant='outlined'
-            >
-              {langAvailables.map(({ key, value }) => (
-                <option value={key} key={key}>
-                  {value}
-                </option>
-              ))}
-            </Select> */}
-        <div className={classes.actions}>
-          <SubmitButton
-            color='secondary'
-            data-cy='settings-submit-button'
-            label={Tr(T.Save)}
-            onClick={handleSubmit}
-          />
-        </div>
+              data-cy='settings-submit-button'
+              label={Tr(T.Save)}
+              onClick={handleSubmit}
+              isSubmitting={formState.isSubmitting}
+            />
+          </div>
+        </Box>
       </Paper>
     </Container>
   )

@@ -72,6 +72,12 @@ public:
     void del(HostShareCapacity &sr);
 
     /**
+     *  Revert changes in PCI Devices
+     *    @param sr capacity info by the VM
+     */
+    void revert_pci(HostShareCapacity &sr);
+
+    /**
      *  Check if this share can host a VM.
      *    @param cpu requested by the VM
      *    @param mem requested by the VM

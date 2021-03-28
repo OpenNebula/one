@@ -19,9 +19,7 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
   var Sunstone = require('sunstone');
-
   var TemplateInfo = require('hbs!./info/html');
 
   /*

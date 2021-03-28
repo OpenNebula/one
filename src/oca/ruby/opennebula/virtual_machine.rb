@@ -771,6 +771,8 @@ module OpenNebula
         end
 
         def wait_state(state, timeout=120)
+            require 'opennebula/wait_ext'
+
             extend OpenNebula::WaitExt
 
             rc = wait2(state, 'LCM_INIT', timeout)

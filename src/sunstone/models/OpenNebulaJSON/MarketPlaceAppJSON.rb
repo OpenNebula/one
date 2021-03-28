@@ -72,7 +72,7 @@ module OpenNebulaJSON
         def app_vm_import(params=Hash.new)
             template = Template.new_with_id(params['ORIGIN_ID'], @client)
             rc = template.info
-            
+
             return rc if OpenNebula.is_error?(rc)
 
             template.extend(TemplateExt)
@@ -80,14 +80,12 @@ module OpenNebulaJSON
             market_id = params['MARKETPLACE_ID'].to_i
             import_all = params['IMPORT_ALL']
             template_name = params['NAME']
-            
-            rc = template.mp_import(market_id, import_all, template_name)
 
-            if OpenNebula.is_error?(rc)
-                return OpenNebula::Error.new(rc[0])
-            end
+            rc, ids = template.mp_import(market_id, import_all, template_name)
 
-            return rc
+            return [rc.message, ids] if OpenNebula.is_error?(rc)
+
+            [rc, ids]
         end
 
         def app_service_import(params=Hash.new)
@@ -100,13 +98,13 @@ module OpenNebulaJSON
             return rc if OpenNebula.is_error?(rc)
 
             s_template.extend(ServiceTemplateExt)
-            
+
             vm_templates_ids = s_template.vm_template_ids
             templates = {}
 
             ids_images = []
 
-            if (params['IMPORT_ALL'] == 'yes')
+            if params['IMPORT_ALL']
                 vm_templates_ids.each { |id|
                     template = Template.new_with_id(id, @client)
                     template.info
@@ -136,17 +134,17 @@ module OpenNebulaJSON
                     ids_images.append(ids)
                 end
             end
-            
+
             market_id = params['MARKETPLACE_ID'].to_i
             template_name = params['NAME']
 
             error_code, rc = s_template.mp_import(templates, market_id, template_name)
 
             if error_code == -1
-                if (params['IMPORT_ALL'] == 'yes')
+                if params['IMPORT_ALL']
                     ids_images.each do |id|
                         app = MarketPlaceApp.new_with_id(id, @client)
-    
+
                         app.info
 
                         app.delete

@@ -1,0 +1,27 @@
+name: 'aws-frankfurt'
+
+description: 'Edge cluster in AWS Frankfurt'
+provider: 'aws'
+
+plain:
+  image: 'AWS'
+  location_key: 'region'
+  provision_type: 'metal'
+
+connection:
+  access_key: 'AWS access key'
+  secret_key: 'AWS secret key'
+  region: 'eu-central-1'
+
+inputs:
+   - name: 'aws_ami_image'
+     type: 'list'
+     options:
+       - 'ami-04c21037b3f953d37'
+   - name: 'aws_instance_type'
+     type: 'list'
+     options:
+       - 'c5.metal'
+       - 'i3.metal'
+       - 'm5.metal'
+       - 'r5.metal'

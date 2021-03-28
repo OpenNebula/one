@@ -494,13 +494,13 @@ define(function(require) {
           // --- DISK ---
 
           var disks = [];
-          if ($.isArray(template.DISK))
+          if (Array.isArray(template.DISK))
             disks = template.DISK;
           else if (!$.isEmptyObject(template.DISK))
             disks = [template.DISK];
 
           var snapshots = [];
-          if ($.isArray(template.SNAPSHOTS)){
+          if (Array.isArray(template.SNAPSHOTS)){
             snapshots = template.SNAPSHOTS;
           } else if (!$.isEmptyObject(template.SNAPSHOTS)) {
             snapshots = [template.SNAPSHOTS];
@@ -514,7 +514,7 @@ define(function(require) {
           // snapshots is an array that contains the snapshots for each DISK
           $.each(snapshots, function(index, snapshotForDisk){
             var diskSnapshots = []
-            if (!$.isArray(snapshotForDisk.SNAPSHOT)){
+            if (!Array.isArray(snapshotForDisk.SNAPSHOT)){
               diskSnapshots = [snapshotForDisk.SNAPSHOT];
             }
 

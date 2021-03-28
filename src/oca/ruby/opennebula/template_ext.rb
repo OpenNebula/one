@@ -75,6 +75,17 @@ module OpenNebula::TemplateExt
                         return [image, ids]
                     end
 
+                    i_state = OpenNebula::Image::IMAGE_STATES[
+                        image['STATE'].to_i
+                    ]
+
+                    unless %w[LOCKED READY USED].include?(i_state)
+                        logger.fatal "Wrong image state #{i_state}" if logger
+
+                        rollback(ids)
+                        return [image, ids]
+                    end
+
                     logger.info "Adding disk with image #{image.id}" if logger
 
                     tmpl, main = create_app_template(image, idx)
@@ -209,8 +220,14 @@ module OpenNebula::TemplateExt
             #   - content for VM template
             #-------------------------------------------------------------------
             def create_app_template(image, idx = 0)
-                # Wait until the image is READY to safe copy it to the MP
-                image.wait('READY') if Integer(image['STATE']) != 1
+                i_state = OpenNebula::Image::IMAGE_STATES[image['STATE'].to_i]
+
+                # If the image is used, there is no need to wait until it is
+                # ready because the image is already ready to be copied
+                if i_state != 'USED' && Integer(image['STATE']) != 1
+                    # Wait until the image is READY to safe copy it to the MP
+                    image.wait('READY')
+                end
 
                 # Rename to avoid clashing names
                 app_name = "#{image['NAME']}-#{SecureRandom.hex[0..9]}"

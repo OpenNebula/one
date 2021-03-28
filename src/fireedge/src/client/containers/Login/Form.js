@@ -8,8 +8,8 @@ import { yupResolver } from '@hookform/resolvers'
 
 import loginStyles from 'client/containers/Login/styles'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 

@@ -28,30 +28,22 @@ class MicroVM
     # rubocop:disable Layout/LineLength
 
     #---------------------------------------------------------------------------
-    #   List of commands executed by the driver.
-    #---------------------------------------------------------------------------
-    COMMANDS = {
-        :clean          => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
-        :map_context    => '/var/tmp/one/vmm/firecracker/map_context',
-        :prepare_domain => 'sudo -n /usr/sbin/one-prepare-firecracker-domain'
-    }
-
-    #---------------------------------------------------------------------------
     # Class constructors & static methods
     #---------------------------------------------------------------------------
     # Creates the microVM object in memory.
     # Can be later created in Firecracker using create method
-    def initialize(fc, one, client)
+    #
+    # @param [FirecrackerVM] object containing ONE VM information (XML)
+    # @param [FirecrackerClient] client to interact with Firecracker API
+    def initialize(one, client)
+        @one    = one
         @client = client
-
-        @fc = fc
-        @one = one
 
         @jailer_command = 'sudo -n jailer'
         @vnc_command    = 'screen -x'
 
         # Location for maping the context
-        @map_location = "#{@one.sysds_path}/#{@one.vm_id}/map_context"
+        @map_location = "#{@one.location}/map_context"
 
         return if @one.nil?
 
@@ -63,156 +55,11 @@ class MicroVM
 
         # Creates microVM from a OpenNebula VM xml description
         def new_from_xml(one_xml, client)
-            one = OpenNebulaVM.new(one_xml)
+            one = FirecrackerVM.new(one_xml)
 
-            MicroVM.new(one.to_fc, one, client)
+            MicroVM.new(one, client)
         end
 
-    end
-
-    #---------------------------------------------------------------------------
-    # Utils
-    #---------------------------------------------------------------------------
-
-    def gen_deployment_file
-        File.open("#{vm_location}/deployment.file", 'w+') do |file|
-            file.write(@fc['deployment-file'].to_json)
-        end
-    end
-
-    def gen_logs_files
-        path_log = "#{vm_location}/#{@fc['deployment-file']['logger']['log_fifo']}"
-        path_metrics = "#{vm_location}/#{@fc['deployment-file']['logger']['metrics_fifo']}"
-
-        File.open(path_log, 'w')
-        File.open(path_metrics, 'w')
-    end
-
-    def vm_location
-        "#{@one.sysds_path}/#{@one.vm_id}"
-    end
-
-    def get_pid
-        rc, stdout, = Command.execute('ps auxwww | grep ' \
-            "\"^.*firecracker.*--id['\\\"=[[:space:]]]*#{@one.vm_name}\" " \
-            '| grep -v grep', false)
-
-        if !rc.zero? || stdout.nil?
-            return -1
-        end
-
-        Integer(stdout.split[1])
-    end
-
-    def map_context
-        context = {}
-
-        # retrieve context information
-        @one.context(context)
-
-        return 0 unless context['context'] # return if there is no context
-
-        context_location = context['context']['source']
-
-        params = " #{context_location} #{context_location}"
-
-        cmd = "#{COMMANDS[:map_context]} #{params}"
-
-        Command.execute_rc_log(cmd, false)
-    end
-
-    def wait_shutdown
-        t_start = Time.now
-        timeout = @one.fcrc[:shutdown_timeout]
-
-        next while (Time.now - t_start < timeout) && (get_pid > 0)
-
-        get_pid < 0
-    end
-
-    def wait_deploy
-        t_start = Time.now
-        timeout = 5
-
-        next while (Time.now - t_start < timeout) && (get_pid < 0)
-
-        get_pid > 0
-    end
-
-    # rubocop:disable Lint/RedundantCopDisableDirective
-    # rubocop:disable Lint/SuppressedException
-    def wait_cgroup(path)
-        t_start = Time.now
-        timeout = @one.fcrc[:cgroup_delete_timeout]
-
-        next while !File.read(path).empty? && (Time.now - t_start < timeout)
-
-        File.read(path).empty?
-    rescue Errno::ENOENT
-    end
-    # rubocop:enable Lint/SuppressedException
-    # rubocop:enable Lint/RedundantCopDisableDirective
-
-    def cpu_shares(cpu)
-        # default value for cpu.shares
-        default_value = 1024
-        shares_enabled = @one.fcrc[:cgroup_cpu_shares] == true
-
-        return default_value if !shares_enabled || cpu.nil? || cpu == ''
-
-        shares_val = (cpu * default_value).round
-
-        # The value specified in the cpu.shares file must be 2 or higher.
-        shares_val = 2 if shares_val < 2
-
-        shares_val
-    end
-
-    def prepare_domain
-        cgroup_path = @one.fcrc[:cgroup_location]
-        cpu_val = cpu_shares(@one.get_cpu)
-
-        params = "-c #{cgroup_path} -p #{cpu_val} -s #{@one.sysds_path}"\
-                 " -v #{@one.vm_id}"
-
-        cmd = "#{COMMANDS[:prepare_domain]} #{params}"
-
-        Command.execute_rc_log(cmd)
-    end
-
-    #---------------------------------------------------------------------------
-    # VNC
-    #---------------------------------------------------------------------------
-
-    # Start the svncterm server if it is down.
-    def vnc(signal)
-        command = @one.vnc_command(signal, @vnc_command)
-        return if command.nil?
-
-        w = @one.fcrc[:vnc][:width]
-        h = @one.fcrc[:vnc][:height]
-        t = @one.fcrc[:vnc][:timeout]
-
-        vnc_args = "-w #{w} -h #{h} -t #{t}"
-
-        pipe = '/tmp/svncterm_server_pipe'
-        bin  = 'svncterm_server'
-        server = "#{bin} #{vnc_args}"
-
-        rc, _o, e = Command.execute_once(server, true)
-
-        unless [nil, 0].include?(rc)
-            OpenNebula.log_error("#{__method__}: #{e}\nFailed to start vnc")
-            return
-        end
-
-        lfd = Command.lock
-
-        File.open(pipe, 'a') do |f|
-            f.write command
-        end
-    ensure
-        Command.unlock(lfd) if lfd
     end
 
     #---------------------------------------------------------------------------
@@ -222,6 +69,7 @@ class MicroVM
     # Create a microVM
     def create
         cmd = ''
+        cmd_params = @one.command_params
 
         # TODO: make screen oprions configurable to support different versions
         # TODO: make screen configurable to enable use of tmux etc..
@@ -232,15 +80,23 @@ class MicroVM
         # Build jailer command params
         cmd << @jailer_command
 
-        @fc['command-params']['jailer'].each do |key, val|
+        cmd_params['jailer'].each do |key, val|
             cmd << " --#{key} #{val}"
         end
 
         # Build firecracker params
         cmd << ' --'
-        @fc['command-params']['firecracker'].each do |key, val|
+        cmd_params['firecracker'].each do |key, val|
             cmd << " --#{key} #{val}"
         end
+
+        # Generate files required for the microVM
+        File.open("#{@one.location}/deployment.file", 'w+') do |file|
+            file.write(@one.to_fc)
+        end
+
+        File.open(@one.log_path, 'w') {}
+        File.open(@one.metrics_path, 'w') {}
 
         return false unless prepare_domain
 
@@ -280,6 +136,110 @@ class MicroVM
         cmd = "#{COMMANDS[:clean]} #{params}"
 
         Command.execute_rc_log(cmd, false)
+    end
+
+    #---------------------------------------------------------------------------
+    # VNC
+    #---------------------------------------------------------------------------
+
+    def vnc(signal)
+        @one.vnc(signal, @vnc_command, @one.fcrc[:vnc])
+    end
+
+    #---------------------------------------------------------------------------
+    # Utils
+    #---------------------------------------------------------------------------
+
+    def wait_shutdown
+        t_start = Time.now
+        timeout = @one.fcrc[:shutdown_timeout]
+
+        next while (Time.now - t_start < timeout) && (get_pid > 0)
+
+        get_pid < 0
+    end
+
+    def wait_deploy
+        t_start = Time.now
+        timeout = 5
+
+        next while (Time.now - t_start < timeout) && (get_pid < 0)
+
+        get_pid > 0
+    end
+
+    private
+
+    #---------------------------------------------------------------------------
+    #   List of commands executed by the driver.
+    #---------------------------------------------------------------------------
+    COMMANDS = {
+        :clean          => 'sudo -n /usr/sbin/one-clean-firecracker-domain',
+        :map_context    => '/var/tmp/one/vmm/firecracker/map_context',
+        :prepare_domain => 'sudo -n /usr/sbin/one-prepare-firecracker-domain'
+    }
+
+    #---------------------------------------------------------------------------
+    # Helpers
+    #---------------------------------------------------------------------------
+    def get_pid
+        rc, stdout, = Command.execute('ps auxwww | grep ' \
+            "\"^.*firecracker.*--id['\\\"=[[:space:]]]*#{@one.vm_name}\" " \
+            '| grep -v grep', false)
+
+        if !rc.zero? || stdout.nil?
+            return -1
+        end
+
+        Integer(stdout.split[1])
+    end
+
+    def map_context
+        context = {}
+
+        # retrieve context information
+        @one.context(context)
+
+        return 0 unless context['context'] # return if there is no context
+
+        context_location = context['context']['source']
+
+        params = " #{context_location} #{context_location}"
+
+        cmd = "#{COMMANDS[:map_context]} #{params}"
+
+        Command.execute_rc_log(cmd, false)
+    end
+
+    # rubocop:disable Lint/RedundantCopDisableDirective
+    # rubocop:disable Lint/SuppressedException
+    def wait_cgroup(path)
+        t_start = Time.now
+        timeout = @one.fcrc[:cgroup_delete_timeout]
+
+        next while !File.read(path).empty? && (Time.now - t_start < timeout)
+
+        File.read(path).empty?
+    rescue Errno::ENOENT
+    end
+    # rubocop:enable Lint/SuppressedException
+    # rubocop:enable Lint/RedundantCopDisableDirective
+
+    def prepare_domain
+        cgroup_path = @one.fcrc[:cgroup_location]
+
+        if @one.fcrc[:cgroup_cpu_shares] == true
+            cpu_val = @one.cpu_shares
+        else
+            cpu_val = OpenNebulaVM::CGROUP_DEFAULT_SHARES
+        end
+
+        params = "-c #{cgroup_path} -p #{cpu_val} -s #{@one.sysds_path}"\
+                 " -v #{@one.vm_id}"
+
+        cmd = "#{COMMANDS[:prepare_domain]} #{params}"
+
+        Command.execute_rc_log(cmd)
     end
 
     # rubocop:enable Naming/AccessorMethodName

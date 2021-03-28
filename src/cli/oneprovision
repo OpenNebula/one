@@ -31,9 +31,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -126,9 +129,11 @@ CommandParser::CmdParser.new(ARGV) do
             STDERR.puts rc.message
             exit(-1)
         elsif rc.to_i < 0
+            puts CLIHelper.green('Provision successfully created')
             puts "ID: #{rc}"
             rc
         else
+            puts CLIHelper.green('Provision successfully created')
             puts "ID: #{rc}"
             0
         end

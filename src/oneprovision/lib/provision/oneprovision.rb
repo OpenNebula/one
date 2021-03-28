@@ -98,6 +98,15 @@ module OneProvision
             instance.logger.warn(msg)
         end
 
+        # Gets Terraform log level
+        def self.tf_log
+            if instance.logger.level == 0
+                'DEBUG'
+            else
+                'INFO'
+            end
+        end
+
     end
 
     # Singleton running mode

@@ -77,9 +77,13 @@ function image_size_required {
 
     OUT=$($QEMU_IMG info "${1}" 2>&1)
     if [ $? -ne 0 ]; then
-        REQUIRED=$(echo "${OUT}" | \
-            grep 'expecting at least [0-9]* bytes' | \
-            sed -e 's/.*expecting at least \([0-9]*\) bytes.*/\1/')
+        if file "${1}" | grep -q 'LUKS encrypted file'; then
+            REQUIRED="$(du -sb ${2} | cut -f1)"
+        else
+            REQUIRED=$(echo "${OUT}" | \
+                grep 'expecting at least [0-9]* bytes' | \
+                sed -e 's/.*expecting at least \([0-9]*\) bytes.*/\1/')
+        fi
     fi
 
     echo "${REQUIRED:-65536}"
@@ -292,7 +296,7 @@ function fs_size {
                 # if unknown image type, maybe we haven't downloaded
                 # enough bytes; check if qemu-img info doesn't complain
                 # on least than expected bytes and redownload more bytes
-                NEW_HEAD_SIZE=$(image_size_required "${IMAGE}")
+                NEW_HEAD_SIZE=$(image_size_required "${IMAGE}" "${SRC}")
                 if [ -n "${NEW_HEAD_SIZE}" ] && [ "${NEW_HEAD_SIZE}" != "${HEAD_SIZE}" ]; then
                     continue  # redownload more bytes
                 else
@@ -305,7 +309,7 @@ function fs_size {
         # raw images requires special handling, as there is no image header
         # with size available and we can't predict image virtual size just
         # from a part of the file
-        if [ "${TYPE}" = 'raw' ]; then
+        if [ "${TYPE}" = 'raw' ] || [ "${TYPE}" = 'luks' ]; then
             $UTILS_PATH/downloader.sh ${DOWNLOADER_ARGS} --nodecomp -c "${HEAD_SIZE}" "${SRC}" - >"${IMAGE}" 2>/dev/null
             error=$?
             if [ $error -ne 0 ]; then

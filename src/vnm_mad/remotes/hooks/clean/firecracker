@@ -39,24 +39,21 @@ def command(cmd)
     cmd_str
 end
 
-XPATH_NICS = '//TEMPLATE/NIC'
+vnmad = File.basename(File.expand_path('..', File.dirname(__FILE__)))
+
+XPATH_NICS = "//TEMPLATE/NIC[VN_MAD='#{vnmad}']"
 XPATH_HV   = '//HISTORY/VM_MAD'
 #----------------------------------------------------------------------------
 
 template64 = STDIN.read
-deploy_id  = ARGV[0]
-
 template = REXML::Document.new(Base64.decode64(template64))
 
 hypervisor = template.elements[XPATH_HV].text
 
 exit 0 if hypervisor != 'firecracker'
 
-if deploy_id.nil? || deploy_id.empty?
-    vm_id     = template.elements['/VM/ID'].text
-    deploy_id = "one-#{vm_id}"
-end
-
+vm_id     = template.elements['/VM/ID'].text
+deploy_id = "one-#{vm_id}"
 rc    = nil
 e     = nil
 error = false

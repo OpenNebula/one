@@ -23,6 +23,7 @@ module.exports = {
   Select: 'Select',
   SelectGroup: 'Select a group',
   SelectRequest: 'Select request',
+  BackToList: 'Back to %s list',
 
   /* dashboard */
   InTotal: 'In Total',
@@ -33,6 +34,7 @@ module.exports = {
   Password: 'Password',
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
+  Credentials: 'Credentials',
 
   /* errors */
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
@@ -50,6 +52,7 @@ module.exports = {
   ConfigureTiers: 'Configure Tiers',
   ConfigurePolicies: 'Configure policies',
   ConfigureTemplate: 'Configure template',
+
   /* steps form - provision */
   ProviderOverview: 'Provider overview',
   ProvisionOverview: 'Provision overview',
@@ -61,10 +64,16 @@ module.exports = {
 
   /* sections */
   Dashboard: 'Dashboard',
+
+  /* sections - settings */
   Settings: 'Settings',
-  /* sections - settgins */
+  Schema: 'Schema',
   Dark: 'Dark',
   Light: 'Light',
+  System: 'System',
+  Language: 'Language',
+  DisableDashboardAnimations: 'Disable dashboard animations',
+
   /* sections - system */
   User: 'User',
   Users: 'Users',
@@ -74,6 +83,7 @@ module.exports = {
   VDCs: 'VDCs',
   ACL: 'ACL',
   ACLs: 'ACLs',
+
   /* sections - infrastructure */
   Zone: 'Zone',
   Zones: 'Zones',
@@ -81,6 +91,7 @@ module.exports = {
   Clusters: 'Clusters',
   Host: 'Host',
   Hosts: 'Hosts',
+
   /* sections - network */
   Network: 'Network',
   Networks: 'Networks',
@@ -88,6 +99,7 @@ module.exports = {
   VirtualsNetworks: 'Virtuals networks',
   NetworkTopology: 'Network topology',
   NetworksTopologies: 'Networks topologies',
+
   /* sections - storage */
   Datastore: 'Datastore',
   Datastores: 'Datastores',
@@ -99,6 +111,7 @@ module.exports = {
   Marketplaces: 'Marketplaces',
   App: 'App',
   Apps: 'Apps',
+
   /* sections - templates & instances */
   VM: 'VM',
   VMs: 'VMs',
@@ -106,11 +119,13 @@ module.exports = {
   VirtualRouters: 'VirtualRouters',
   VMGroup: 'VMGroup',
   VMGroups: 'VMGroups',
+
   /* sections - flow */
   ApplicationsTemplates: 'Applications templates',
   ApplicationsInstances: 'Applications instances',
   Tier: 'Tier',
   Tiers: 'Tiers',
+
   /* sections - provision */
   Provider: 'Provider',
   Providers: 'Providers',
@@ -141,8 +156,5 @@ module.exports = {
   /* ownership */
   Ownership: 'Ownership',
   Owner: 'Owner',
-  Other: 'Other',
-
-  Language: 'Language',
-  Response: 'Response'
+  Other: 'Other'
 }

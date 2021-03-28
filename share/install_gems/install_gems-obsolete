@@ -49,7 +49,7 @@ GROUPS={
     :sunstone   => [RACK, 'sinatra', 'thin', 'memcache-client',
                     'rotp', 'rqrcode', 'dalli', 'ipaddress',
                     ZENDESK_API, SQLITE],
-    :cloud      => %w{amazon-ec2 sinatra thin uuidtools curb} << RACK,
+    :cloud      => %w{sinatra thin uuidtools curb} << RACK,
     :hybrid     => %w{configparser azure},
     :auth_ldap  => LDAP,
     :vmware     => VMWARE,

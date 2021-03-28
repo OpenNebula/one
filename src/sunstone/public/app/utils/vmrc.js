@@ -30,7 +30,8 @@ define(function (require) {
     "unlock": unlock,
     "vmrcCallback": vmrcCallback,
     "disconnect": disconnect,
-    "sendCtrlAltDel": sendCtrlAltDel
+    "sendCtrlAltDel": sendCtrlAltDel,
+    "updateScreen": updateScreen
   };
 
   function lockStatus() {
@@ -124,7 +125,6 @@ define(function (require) {
 
     } catch (err) {
       setStatus("Something went wrong, connection is closed", "Failed");
-      console.log("error start VMRC ", err);
     }
   }
 
@@ -145,5 +145,9 @@ define(function (require) {
 
   function sendCtrlAltDel() {
     if (_wmks) { _wmks.sendCAD(); }
+  }
+
+  function updateScreen() {    
+    _wmks.updateScreen();
   }
 });

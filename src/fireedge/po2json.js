@@ -13,9 +13,9 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { createReadStream, generateFile } = require('fireedge-pojson')
+const { createReadStream, generateFile } = require('opennebula-potojson')
 
-const testFolder = './src/public/assets/languages'
+const testFolder = './src/client/assets/languages'
 
 createReadStream(testFolder, { exportPath: testFolder })
 

@@ -1,13 +1,15 @@
-export default (mode = 'dark') => ({
+import Color from 'client/constants/color'
+
+export default (scheme = 'dark') => ({
   palette: {
-    type: mode,
+    type: scheme,
     common: {
       black: '#000000',
       white: '#ffffff'
     },
     background: {
-      paper: mode === 'dark' ? '#2a2d3d' : '#ffffff',
-      default: mode === 'dark' ? '#222431' : '#f2f4f8'
+      paper: scheme === 'dark' ? '#2a2d3d' : '#ffffff',
+      default: scheme === 'dark' ? '#222431' : '#f2f4f8'
     },
     primary: {
       light: '#2a2d3d',
@@ -21,14 +23,6 @@ export default (mode = 'dark') => ({
       dark: '#fe5a23',
       contrastText: '#ffffff'
     },
-    error: {
-      light: '#e57373',
-      main: '#e04d40',
-      dark: '#d32f2f',
-      contrastText: '#ffffff'
-    },
-    debug: {
-      main: '#7b7c7e'
-    }
+    ...Color
   }
 })

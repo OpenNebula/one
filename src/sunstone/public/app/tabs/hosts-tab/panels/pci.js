@@ -76,7 +76,7 @@ define(function(require) {
 
       pcis = this.element.HOST_SHARE.PCI_DEVICES.PCI;
 
-      if (!$.isArray(pcis)){ // If only 1 convert to array
+      if (!Array.isArray(pcis)){ // If only 1 convert to array
         pcis = [pcis];
       }
 

@@ -43,7 +43,7 @@ define(function(require) {
     if (vdc.CLUSTERS.CLUSTER){
       clusters_array = vdc.CLUSTERS.CLUSTER;
 
-      if (!$.isArray(clusters_array)){
+      if (!Array.isArray(clusters_array)){
         clusters_array = [clusters_array];
       }
     }
@@ -51,7 +51,7 @@ define(function(require) {
     if (vdc.HOSTS.HOST){
       hosts_array = vdc.HOSTS.HOST;
 
-      if (!$.isArray(hosts_array)){
+      if (!Array.isArray(hosts_array)){
         hosts_array = [hosts_array];
       }
     }
@@ -59,7 +59,7 @@ define(function(require) {
     if (vdc.VNETS.VNET){
       vnets_array = vdc.VNETS.VNET;
 
-      if (!$.isArray(vnets_array)){
+      if (!Array.isArray(vnets_array)){
         vnets_array = [vnets_array];
       }
     }
@@ -67,7 +67,7 @@ define(function(require) {
     if (vdc.DATASTORES.DATASTORE){
       datastores_array = vdc.DATASTORES.DATASTORE;
 
-      if (!$.isArray(datastores_array)){
+      if (!Array.isArray(datastores_array)){
         datastores_array = [datastores_array];
       }
     }

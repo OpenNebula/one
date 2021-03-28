@@ -103,12 +103,14 @@ class CloudAuth
             @token_expiration_time
         }
 
-        token = @server_auth.login_token(expiration_time,username)
+        token = @server_auth.login_token(expiration_time, username)
 
-        if endpoint and endpoint != "-"
-            return OpenNebula::Client.new(token,endpoint)
+        options = { :subscriber_endpoint => @conf[:subscriber_endpoint] }
+
+        if endpoint && endpoint != '-'
+            return OpenNebula::Client.new(token, endpoint, options)
         else
-            return OpenNebula::Client.new(token,@conf[:one_xmlrpc])
+            return OpenNebula::Client.new(token, @conf[:one_xmlrpc], options)
         end
     end
 

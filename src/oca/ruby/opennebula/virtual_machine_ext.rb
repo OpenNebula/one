@@ -73,17 +73,17 @@ module OpenNebula::VirtualMachineExt
 
                 rc = info
 
-                raise Error, rc.message if OpenNebula.is_error?(rc)
+                raise rc.message if OpenNebula.is_error?(rc)
 
                 tid = self['TEMPLATE/TEMPLATE_ID']
 
-                raise Error, 'VM has no associated template' unless valid?(tid)
+                raise 'VM has no associated template' unless valid?(tid)
 
                 # --------------------------------------------------------------
                 # Check VM state and poweroff it if needed
                 # --------------------------------------------------------------
                 if state_str != 'POWEROFF'
-                    raise Error, 'VM must be POWEROFF' unless opts[:poweroff]
+                    raise 'VM must be POWEROFF' unless opts[:poweroff]
 
                     logger.info 'Powering off VM' if logger
 
@@ -91,7 +91,7 @@ module OpenNebula::VirtualMachineExt
 
                     rc = poweroff
 
-                    raise Error, rc.message if OpenNebula.is_error?(rc)
+                    raise rc.message if OpenNebula.is_error?(rc)
                 end
 
                 # --------------------------------------------------------------
@@ -101,7 +101,7 @@ module OpenNebula::VirtualMachineExt
 
                 ntid = vm_template.clone(name)
 
-                raise Error, ntid.message if OpenNebula.is_error?(ntid)
+                raise ntid.message if OpenNebula.is_error?(ntid)
 
                 # --------------------------------------------------------------
                 # Replace the original template's capacity with VM values
@@ -125,7 +125,7 @@ module OpenNebula::VirtualMachineExt
                     # Wait for any pending operation
                     rc = wait_state2('POWEROFF', 'LCM_INIT')
 
-                    raise Error, rc.message if OpenNebula.is_error?(rc)
+                    raise rc.message if OpenNebula.is_error?(rc)
 
                     disk_id  = disk['DISK_ID']
                     image_id = disk['IMAGE_ID']
@@ -133,7 +133,7 @@ module OpenNebula::VirtualMachineExt
                     omng = disk['OPENNEBULA_MANAGED']
                     type = disk['TYPE']
 
-                    raise Error, 'Missing DISK_ID' unless valid?(disk_id)
+                    raise 'Missing DISK_ID' unless valid?(disk_id)
 
                     REMOVE_IMAGE_ATTRS.each do |attr|
                         disk.delete_element(attr)
@@ -172,7 +172,7 @@ module OpenNebula::VirtualMachineExt
 
                     rc = disk_saveas(disk_id.to_i, ndisk_name, '', -1)
 
-                    raise Error, rc.message if OpenNebula.is_error?(rc)
+                    raise rc.message if OpenNebula.is_error?(rc)
 
                     if opts[:persistent]
                         logger.info 'Making disk persistent' if logger
@@ -198,7 +198,7 @@ module OpenNebula::VirtualMachineExt
                 each('TEMPLATE/NIC') do |nic|
                     nic_id = nic['NIC_ID']
 
-                    raise Error, 'Missing NIC_ID' unless valid?(nic_id)
+                    raise 'Missing NIC_ID' unless valid?(nic_id)
 
                     REMOVE_VNET_ATTRS.each do |attr|
                         nic.delete_element(attr)
@@ -220,7 +220,7 @@ module OpenNebula::VirtualMachineExt
 
                 rc = new_tmpl.update(replace, true)
 
-                raise Error, rc.message if OpenNebula.is_error?(rc)
+                raise rc.message if OpenNebula.is_error?(rc)
 
                 # --------------------------------------------------------------
                 # Resume VM if needed
@@ -230,13 +230,13 @@ module OpenNebula::VirtualMachineExt
 
                     rc = wait_state2('POWEROFF', 'LCM_INIT')
 
-                    raise Error, rc.message if OpenNebula.is_error?(rc)
+                    raise rc.message if OpenNebula.is_error?(rc)
 
                     resume
 
                     rc = wait_state2('ACTIVE', 'RUNNING')
 
-                    raise Error, rc.message if OpenNebula.is_error?(rc)
+                    raise rc.message if OpenNebula.is_error?(rc)
                 end
 
                 ntid
@@ -269,14 +269,14 @@ module OpenNebula::VirtualMachineExt
                 # --------------------------------------------------------------
                 unless binfo
                     rc = info
-                    raise Error, rc.message if OpenNebula.is_error?(rc)
+                    raise rc.message if OpenNebula.is_error?(rc)
 
                     binfo = backup_info
                 end
 
-                raise Error, 'No backup information' if binfo.nil?
+                raise 'No backup information' if binfo.nil?
 
-                raise Error, 'No frequency defined' unless valid?(binfo[:freq])
+                raise 'No frequency defined' unless valid?(binfo[:freq])
 
                 return if Time.now.to_i - binfo[:last].to_i < binfo[:freq].to_i
 
@@ -292,7 +292,7 @@ module OpenNebula::VirtualMachineExt
                 tmp = OpenNebula::Template.new_with_id(tid, @client)
                 rc  = tmp.info
 
-                raise Error, rc.message if OpenNebula.is_error?(rc)
+                raise rc.message if OpenNebula.is_error?(rc)
 
                 # --------------------------------------------------------------
                 # Import template into Marketplace & update VM info
@@ -305,14 +305,14 @@ module OpenNebula::VirtualMachineExt
                 rc, ids = tmp.mp_import(binfo[:market], true, binfo[:name],
                                         :wait => true, :logger => logger)
 
-                raise Error, rc.message if OpenNebula.is_error?(rc)
+                raise rc.message if OpenNebula.is_error?(rc)
 
                 logger.info "Imported app ids: #{ids.join(',')}" if logger
 
                 rc = update(backup_attr(binfo, ids), true)
 
                 if OpenNebula.is_error?(rc)
-                    raise Error, 'Could not update the backup reference: '\
+                    raise 'Could not update the backup reference: ' \
                       " #{rc.message}. New backup ids are #{ids.join(',')}."
                 end
 
@@ -324,7 +324,7 @@ module OpenNebula::VirtualMachineExt
                 tmp.delete(true)
 
                 binfo[:apps].each do |id|
-                    log "Deleting applicance #{id}" if logger
+                    logger.info "Deleting applicance #{id}" if logger
 
                     papp = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
 
@@ -347,7 +347,7 @@ module OpenNebula::VirtualMachineExt
                 rc = info
 
                 if OpenNebula.is_error?(rc)
-                    raise Error, "Error getting VM: #{rc.message}"
+                    raise "Error getting VM: #{rc.message}"
                 end
 
                 logger.info 'Reading backup information' if logger
@@ -361,8 +361,7 @@ module OpenNebula::VirtualMachineExt
                 rc  = app.info
 
                 if OpenNebula.is_error?(rc)
-                    raise Error,
-                          "Can not find appliance #{app_id}: #{rc.message}."
+                    raise "Can not find appliance #{app_id}: #{rc.message}."
                 end
 
                 if logger
@@ -376,21 +375,20 @@ module OpenNebula::VirtualMachineExt
                                  :name => "#{self['NAME']} - RESTORED")
 
                 if OpenNebula.is_error?(exp)
-                    raise Error, "Can not restore app: #{exp.message}."
+                    raise "Can not restore app: #{exp.message}."
                 end
 
                 # Check possible errors when exporting apps
                 exp[:image].each do |image|
                     next unless OpenNebula.is_error?(image)
 
-                    raise Error, "Error restoring image: #{image.message}."
+                    raise "Error restoring image: #{image.message}."
                 end
 
                 template = exp[:vmtemplate].first
 
                 if OpenNebula.is_error?(template)
-                    raise Error,
-                          "Error restoring template: #{template.message}."
+                    raise "Error restoring template: #{template.message}."
                 end
 
                 if logger
@@ -408,8 +406,7 @@ module OpenNebula::VirtualMachineExt
                 rc   = tmpl.instantiate
 
                 if OpenNebula.is_error?(rc)
-                    raise Error,
-                          "Can not instantiate the template: #{rc.message}."
+                    raise "Can not instantiate the template: #{rc.message}."
                 end
 
                 rc
@@ -428,6 +425,8 @@ module OpenNebula::VirtualMachineExt
             # Check an attribute is defined and valid
             # --------------------------------------------------------------
             def valid?(att)
+                return false if att.nil?
+
                 return !att.nil? && !att.empty? if att.is_a? String
 
                 !att.nil?
@@ -446,7 +445,7 @@ module OpenNebula::VirtualMachineExt
                                " - #{Time.now.strftime('%Y%m%d_%k%M')}"
 
                 binfo[:freq]   = self["#{base}/FREQUENCY_SECONDS"]
-                binfo[:last]   = self["#{base}/LAST_COPY_TIME"]
+                binfo[:last]   = self["#{base}/LAST_BACKUP_TIME"]
                 binfo[:market] = Integer(self["#{base}/MARKETPLACE_ID"])
                 binfo[:apps]   = app_ids.split(',')
 
@@ -459,7 +458,7 @@ module OpenNebula::VirtualMachineExt
                 'BACKUP=[' \
                 "  MARKETPLACE_APP_IDS = \"#{ids.join(',')}\"," \
                 "  FREQUENCY_SECONDS   = \"#{binfo[:freq]}\"," \
-                "  LAST_COPY_TIME      = \"#{Time.now.to_i}\"," \
+                "  LAST_BACKUP_TIME    = \"#{Time.now.to_i}\"," \
                 "  MARKETPLACE_ID      = \"#{binfo[:market]}\" ]"
             end
 

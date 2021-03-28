@@ -8,7 +8,7 @@ import {
   successOneRequest
 } from 'client/actions/pool'
 
-import { enqueueError, enqueueSuccess } from 'client/actions/general'
+import { enqueueError, enqueueSuccess, enqueueInfo } from 'client/actions/general'
 
 import * as serviceProvision from 'client/services/provision'
 
@@ -35,8 +35,28 @@ export default function useProvision () {
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET templates'))
           throw err
-        }),
-    [dispatch]
+        })
+    , [dispatch]
+  )
+
+  const getProviderTemplateByDir = useCallback(
+    ({ provision, provider, name } = {}) =>
+      provisionsTemplates
+        ?.[provision]
+        ?.providers
+        ?.[provider]
+        ?.find(provider => provider.name === name)
+    , [provisionsTemplates]
+  )
+
+  const getProvisionTemplateByDir = useCallback(
+    ({ provision, provider, name } = {}) =>
+      provisionsTemplates
+        ?.[provision]
+        ?.provisions
+        ?.[provider]
+        ?.find(provisionTemplate => provisionTemplate.name === name)
+    , [provisionsTemplates]
   )
 
   // --------------------------------------------
@@ -54,8 +74,8 @@ export default function useProvision () {
         .catch(err => {
           dispatch(enqueueError(err ?? `Error GET (${id}) provider`))
           throw err
-        }),
-    [dispatch]
+        })
+    , [dispatch]
   )
 
   const getProviders = useCallback(
@@ -69,8 +89,8 @@ export default function useProvision () {
         .catch(err => {
           dispatch(enqueueError(err ?? 'Error GET providers'))
           return err
-        }),
-    [dispatch]
+        })
+    , [dispatch]
   )
 
   const createProvider = useCallback(
@@ -99,6 +119,17 @@ export default function useProvision () {
         .then(() => getProviders())
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provider'))),
     [dispatch]
+  )
+
+  const getProviderConnection = useCallback(
+    ({ id }) =>
+      serviceProvision
+        .getProviderConnection({ id })
+        .catch(err => {
+          dispatch(enqueueError(err ?? `Error GET (${id}) provider connection`))
+          throw err
+        })
+    , [dispatch]
   )
 
   // --------------------------------------------
@@ -133,11 +164,11 @@ export default function useProvision () {
       serviceProvision
         .createProvision({ data })
         .then(doc => {
-          dispatch(enqueueSuccess('Provision created'))
+          dispatch(enqueueInfo('Creating provision'))
           return doc.data
         })
         .catch(err => {
-          dispatch(enqueueError(err?.message ?? 'Error CREATE Provision'))
+          dispatch(enqueueError(err?.message ?? 'Error creating provision'))
         }),
     [dispatch]
   )
@@ -147,10 +178,10 @@ export default function useProvision () {
       serviceProvision
         .configureProvision({ id })
         .then(doc => {
-          dispatch(enqueueSuccess(`Provision configuring - ID: ${id}`))
+          dispatch(enqueueInfo(`Configuring provision - ID: ${id}`))
           return doc
         })
-        .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE provision')))
+        .catch(err => dispatch(enqueueError(err ?? 'Error configuring provision')))
     , [dispatch]
   )
 
@@ -158,9 +189,9 @@ export default function useProvision () {
     ({ id }) =>
       serviceProvision
         .deleteProvision({ id })
-        .then(() => dispatch(enqueueSuccess(`Provision deleted - ID: ${id}`)))
+        .then(() => dispatch(enqueueInfo(`Deleting provision - ID: ${id}`)))
         .then(() => getProvisions())
-        .catch(err => dispatch(enqueueError(err ?? 'Error DELETE provision')))
+        .catch(err => dispatch(enqueueError(err ?? 'Error deleting provision')))
     , [dispatch]
   )
 
@@ -181,7 +212,7 @@ export default function useProvision () {
       serviceProvision
         .deleteDatastore({ id })
         .then(doc => {
-          dispatch(enqueueSuccess(`Datastore deleted - ID: ${doc}`))
+          dispatch(enqueueSuccess(`Datastore deleted - ID: ${id}`))
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error DELETE datastore')))
@@ -217,7 +248,7 @@ export default function useProvision () {
       serviceProvision
         .configureHost({ id })
         .then(doc => {
-          dispatch(enqueueSuccess(`Host configuring - ID: ${id}`))
+          dispatch(enqueueInfo(`Configuring host - ID: ${id}`))
           return doc
         })
         .catch(err => dispatch(enqueueError(err ?? 'Error CONFIGURE host')))
@@ -226,6 +257,8 @@ export default function useProvision () {
 
   return {
     getProvisionsTemplates,
+    getProviderTemplateByDir,
+    getProvisionTemplateByDir,
     provisionsTemplates,
 
     providers,
@@ -234,6 +267,7 @@ export default function useProvision () {
     createProvider,
     updateProvider,
     deleteProvider,
+    getProviderConnection,
 
     provisions,
     getProvision,

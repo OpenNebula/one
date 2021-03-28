@@ -73,6 +73,8 @@ define(function(require) {
       return false;
     });
 
+    $(window).resize(Vmrc.updateScreen);
+
     return false;
   }
 

@@ -76,7 +76,7 @@ define(function(require) {
 
     var nics = [];
 
-    if ($.isArray(this.element.TEMPLATE.NIC)){
+    if (Array.isArray(this.element.TEMPLATE.NIC)){
       nics = this.element.TEMPLATE.NIC;
     } else if (!$.isEmptyObject(this.element.TEMPLATE.NIC)){
       nics = [this.element.TEMPLATE.NIC];

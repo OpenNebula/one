@@ -575,6 +575,8 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
     // Force FORMAT and DRIVER from image
     if (!format.empty())
     {
+        one_util::tolower(format);
+
         disk->replace("DRIVER", format);
         disk->replace("FORMAT", format);
     }
@@ -583,6 +585,7 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
         disk->remove("DRIVER");
         disk->remove("FORMAT");
     }
+
     disk->replace("IMAGE_STATE", state);
 
     //--------------------------------------------------------------------------
@@ -613,6 +616,11 @@ void Image::disk_attribute(VirtualMachineDisk *    disk,
             disk->replace("PERSISTENT", "YES");
             disk->replace("CLONE", "NO");
             disk->replace("SAVE", "YES");
+
+            if (template_ptype == "SHAREABLE" && format == "raw")
+            {
+                disk->replace("SHAREABLE", "YES");
+            }
         }
         else
         {
@@ -1079,6 +1087,14 @@ bool Image::test_set_persistent(Template * image_template, int uid, int gid,
     }
 
     image_template->replace("PERSISTENT", persistent);
+
+    string persistent_type;
+    if (!persistent &&
+        image_template->get("PERSISTENT_TYPE", persistent_type) &&
+        one_util::toupper(persistent_type) == "SHAREABLE" )
+    {
+        image_template->erase("PERSISTENT_TYPE");
+    }
 
     return persistent;
 }

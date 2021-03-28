@@ -65,7 +65,7 @@ define(function(require){
     if (this.element.IMAGES.ID != undefined){
       imgs = this.element.IMAGES.ID;
 
-      if (!$.isArray(imgs)){
+      if (!Array.isArray(imgs)){
         imgs = [imgs];
       }
     }

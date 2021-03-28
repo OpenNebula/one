@@ -11,7 +11,7 @@ import VNetTemplate from 'server/utils/constants/commands/vntemplate'
 import httpCodes from 'server/utils/constants/http-codes'
 import { requestData, requestParams } from 'client/utils'
 
-export const getUsers = ({ filter }) => {
+export const getUsers = ({ filter } = {}) => {
   const name = User.Actions.USER_POOL_INFO
   const { url, options } = requestParams(
     { filter },
@@ -25,7 +25,7 @@ export const getUsers = ({ filter }) => {
   })
 }
 
-export const getGroups = ({ filter }) => {
+export const getGroups = ({ filter } = {}) => {
   const name = Group.Actions.GROUP_POOL_INFO
   const { url, options } = requestParams(
     { filter },
@@ -39,7 +39,7 @@ export const getGroups = ({ filter }) => {
   })
 }
 
-export const getVNetworks = ({ filter }) => {
+export const getVNetworks = ({ filter } = {}) => {
   const name = VNet.Actions.VN_POOL_INFO
   const { url, options } = requestParams(
     { filter },
@@ -53,7 +53,7 @@ export const getVNetworks = ({ filter }) => {
   })
 }
 
-export const getVNetworksTemplates = ({ filter }) => {
+export const getVNetworksTemplates = ({ filter } = {}) => {
   const name = VNetTemplate.Actions.VNTEMPLATE_POOL_INFO
   const { url, options } = requestParams(
     { filter },
@@ -67,7 +67,7 @@ export const getVNetworksTemplates = ({ filter }) => {
   })
 }
 
-export const getTemplates = ({ filter, end, start }) => {
+export const getTemplates = ({ filter, end, start } = {}) => {
   const name = Template.Actions.TEMPLATE_POOL_INFO
   const { url, options } = requestParams(
     { filter, end, start },
@@ -81,7 +81,7 @@ export const getTemplates = ({ filter, end, start }) => {
   })
 }
 
-export const getMarketApps = ({ filter, end, start }) => {
+export const getMarketApps = ({ filter, end, start } = {}) => {
   const name = MarketApp.Actions.MARKETAPP_POOL_INFO
   const { url, options } = requestParams(
     { filter, end, start },
@@ -95,7 +95,7 @@ export const getMarketApps = ({ filter, end, start }) => {
   })
 }
 
-export const getClusters = ({ filter }) => {
+export const getClusters = ({ filter } = {}) => {
   const name = Cluster.Actions.CLUSTER_POOL_INFO
   const { url, options } = requestParams(
     { filter },
@@ -109,7 +109,7 @@ export const getClusters = ({ filter }) => {
   })
 }
 
-export const getDatastores = ({ filter }) => {
+export const getDatastores = ({ filter } = {}) => {
   const name = Datastore.Actions.DATASTORE_POOL_INFO
   const { url, options } = requestParams(
     { filter },
@@ -123,7 +123,7 @@ export const getDatastores = ({ filter }) => {
   })
 }
 
-export const getHosts = ({ filter }) => {
+export const getHosts = ({ filter } = {}) => {
   const name = Host.Actions.HOST_POOL_INFO
   const { url, options } = requestParams(
     { filter },

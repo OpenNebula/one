@@ -835,7 +835,10 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
             vm->get_action() == VMActions::UNDEPLOY_ACTION ||
             vm->get_action() == VMActions::UNDEPLOY_HARD_ACTION))
         {
-            ds_id = vm->get_ds_id();
+            if (ds_id == -1)
+            {
+                ds_id = vm->get_ds_id();
+            }
 
             check_nic_auto = false;
         }
@@ -990,6 +993,12 @@ void VirtualMachineDeploy::request_execute(xmlrpc_c::paramList const& paramList,
     }
 
     if ( vm->check_tm_mad_disks(tm_mad, att.resp_msg) != 0)
+    {
+        failure_response(ACTION, att);
+        return;
+    }
+
+    if ( vm->check_shareable_disks(vmm_mad, att.resp_msg) != 0)
     {
         failure_response(ACTION, att);
         return;
@@ -3041,6 +3050,8 @@ void VirtualMachineUpdateConf::request_execute(
         return;
     }
 
+    auto uc_tmpl = tmpl.get_updateconf_template();
+
     /* ---------------------------------------------------------------------- */
     /*  Authorize the operation & restricted attributes                       */
     /* ---------------------------------------------------------------------- */
@@ -3067,7 +3078,7 @@ void VirtualMachineUpdateConf::request_execute(
 
         auto conf_tmpl = vm->get_updateconf_template();
 
-        bool has_restricted = tmpl.check_restricted(aname, conf_tmpl.get());
+        bool has_restricted = uc_tmpl->check_restricted(aname, conf_tmpl.get());
 
         if (has_restricted)
         {
@@ -3078,7 +3089,7 @@ void VirtualMachineUpdateConf::request_execute(
         }
     }
 
-    if ( vm->updateconf(tmpl, att.resp_msg) != 0 )
+    if ( vm->updateconf(uc_tmpl.get(), att.resp_msg) != 0 )
     {
         failure_response(INTERNAL, att);
 

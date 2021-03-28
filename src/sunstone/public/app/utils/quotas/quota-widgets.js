@@ -430,7 +430,7 @@ define(function(require) {
     var img_quotas = [];
 
     if (!empty_quotas){
-      if ($.isArray(info.IMAGE_QUOTA.IMAGE))
+      if (Array.isArray(info.IMAGE_QUOTA.IMAGE))
         img_quotas = info.IMAGE_QUOTA.IMAGE;
       else if (info.IMAGE_QUOTA.IMAGE.ID)
         img_quotas = [info.IMAGE_QUOTA.IMAGE];
@@ -573,7 +573,7 @@ define(function(require) {
     var ds_quotas = [];
 
     if (!empty_quotas){
-      if ($.isArray(info.DATASTORE_QUOTA.DATASTORE))
+      if (Array.isArray(info.DATASTORE_QUOTA.DATASTORE))
         ds_quotas = info.DATASTORE_QUOTA.DATASTORE;
       else if (info.DATASTORE_QUOTA.DATASTORE.ID)
         ds_quotas = [info.DATASTORE_QUOTA.DATASTORE];
@@ -740,7 +740,7 @@ define(function(require) {
     var net_quotas = [];
 
     if (!empty_quotas){
-      if ($.isArray(info.NETWORK_QUOTA.NETWORK))
+      if (Array.isArray(info.NETWORK_QUOTA.NETWORK))
         net_quotas = info.NETWORK_QUOTA.NETWORK;
       else if (info.NETWORK_QUOTA.NETWORK.ID)
         net_quotas = [info.NETWORK_QUOTA.NETWORK];

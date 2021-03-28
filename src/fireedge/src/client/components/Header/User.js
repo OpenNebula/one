@@ -1,12 +1,12 @@
 import * as React from 'react'
 
-import { MenuItem, MenuList, Divider, Link } from '@material-ui/core'
+import { MenuItem, MenuList, Link } from '@material-ui/core'
 import AccountCircleIcon from '@material-ui/icons/AccountCircle'
 
 import { useAuth } from 'client/hooks'
 import HeaderPopover from 'client/components/Header/Popover'
 import { DevTypography } from 'client/components/Typography'
-import { Tr, SelectTranslate } from 'client/components/HOC'
+import { Tr } from 'client/components/HOC'
 import { T, APPS, APP_URL } from 'client/constants'
 
 const User = React.memo(() => {
@@ -24,10 +24,6 @@ const User = React.memo(() => {
     >
       {() => (
         <MenuList>
-          <MenuItem>
-            <SelectTranslate />
-          </MenuItem>
-          <Divider />
           <MenuItem onClick={handleLogout} data-cy="header-logout-button">
             {Tr(T.SignOut)}
           </MenuItem>

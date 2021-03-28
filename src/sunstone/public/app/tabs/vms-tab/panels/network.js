@@ -261,14 +261,14 @@ define(function(require) {
       return self.indexOf(value)===index;
     };
 
-    if ($.isArray(that.element.TEMPLATE.NIC)){
+    if (Array.isArray(that.element.TEMPLATE.NIC)){
       nics = that.element.TEMPLATE.NIC;
     } else if (!$.isEmptyObject(that.element.TEMPLATE.NIC)){
       nics = [that.element.TEMPLATE.NIC];
     }
 
 
-    if ($.isArray(that.element.TEMPLATE.NIC_ALIAS)){
+    if (Array.isArray(that.element.TEMPLATE.NIC_ALIAS)){
       alias = that.element.TEMPLATE.NIC_ALIAS;
     } else if (!$.isEmptyObject(that.element.TEMPLATE.NIC_ALIAS)){
       alias = [that.element.TEMPLATE.NIC_ALIAS];
@@ -276,7 +276,7 @@ define(function(require) {
 
     var pcis = [];
 
-    if ($.isArray(that.element.TEMPLATE.PCI)){
+    if (Array.isArray(that.element.TEMPLATE.PCI)){
       pcis = that.element.TEMPLATE.PCI;
     } else if (!$.isEmptyObject(that.element.TEMPLATE.PCI)){
       pcis = [that.element.TEMPLATE.PCI];
@@ -342,7 +342,7 @@ define(function(require) {
         var rules = that.element.TEMPLATE.SECURITY_GROUP_RULE;
 
         if (rules != undefined) {
-          if (!$.isArray(rules)) {
+          if (!Array.isArray(rules)) {
             rules = [rules];
           }
 

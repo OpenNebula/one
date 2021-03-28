@@ -43,7 +43,7 @@ define(function(require){
     var hostShare = element.HOST_SHARE;
 
     var datastores = []
-    if ($.isArray(hostShare.DATASTORES.DS))
+    if (Array.isArray(hostShare.DATASTORES.DS))
       datastores = hostShare.DATASTORES.DS
     else if (!$.isEmptyObject(hostShare.DATASTORES.DS))
       datastores = [hostShare.DATASTORES.DS]

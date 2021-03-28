@@ -41,12 +41,22 @@ module Command
         execute(cmd, lock) unless running?(cmd.split[0])
     end
 
+    # Returns true/false if status is 0/!=0 and logs error if needed
     def self.execute_rc_log(cmd, lock = false)
         rc, _stdout, stderr = execute(cmd, lock)
 
         STDERR.puts stderr unless rc.zero?
 
         rc.zero?
+    end
+
+    # Execute cmd and logs error if needed
+    def self.execute_log(cmd, lock = false)
+        rc = execute(cmd, lock)
+
+        STDERR.puts rc[2] unless rc[0].zero?
+
+        rc
     end
 
     def self.execute_detach(cmd)

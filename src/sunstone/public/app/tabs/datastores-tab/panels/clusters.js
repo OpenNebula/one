@@ -59,7 +59,7 @@ define(function(require){
     if (this.element.CLUSTERS.ID != undefined){
       clusters = this.element.CLUSTERS.ID;
 
-      if (!$.isArray(clusters)){
+      if (!Array.isArray(clusters)){
         clusters = [clusters];
       }
     }

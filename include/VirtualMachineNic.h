@@ -118,6 +118,15 @@ public:
 
         if (!name.empty())
         {
+            if (one_util::regex_match("^NIC[[:digit:]]+(_ALIAS[[:digit:]]+)?$",
+                                      name.c_str()) == 0)
+            {
+                // Name collide with internal naming convention
+                name = '_' + name;
+
+                replace("NAME", name);
+            }
+
             return name;
         }
 
@@ -141,6 +150,15 @@ public:
 
         if (!name.empty())
         {
+            if (one_util::regex_match("^NIC[[:digit:]]+(_ALIAS[[:digit:]]+)?$",
+                                      name.c_str()) == 0)
+            {
+                // Name collide with internal naming convention
+                name = '_' + name;
+
+                replace("NAME", name);
+            }
+
             return name;
         }
 

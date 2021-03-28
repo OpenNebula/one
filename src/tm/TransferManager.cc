@@ -118,15 +118,10 @@ int TransferManager::prolog_transfer_command(
         size   = disk->vector_value("SIZE");
         format = disk->vector_value("FORMAT");
 
-        if (format.empty())
+        if ( size.empty() || format.empty() )
         {
-            format = "raw";
-        }
-
-        if ( size.empty() )
-        {
-            os << "No size in FS";
-            vm->log("TrM", Log::WARNING, "No size in FS, skipping");
+            os << "No size or format in FS";
+            vm->log("TrM", Log::WARNING, "No size or format in FS, skipping");
             return 0;
         }
 
@@ -701,7 +696,7 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
 
         VirtualMachineDisks& disks = vm->get_disks();
 
-        if (!vm->hasHistory())
+        if (!vm->hasHistory() || !vm->hasPreviousHistory())
         {
             goto error_history;
         }
@@ -756,7 +751,7 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
                 << tm_mad_system
                 << " " << tm_mad << " "
                 << nd.get_nebula_hostname() << ":"
-                << vm->get_system_dir() << "/disk." << disk_id << " "
+                << vm->get_previous_system_dir() << "/disk." << disk_id << " "
                 << vm->get_hostname() << ":"
                 << vm->get_system_dir() << "/disk." << disk_id << " "
                 << vm->get_oid() << " "
@@ -766,7 +761,7 @@ void TransferManager::trigger_prolog_resume(VirtualMachine * vm)
         //MV tm_mad fe:system_dir host:remote_system_dir vmid dsid(system)
         xfr << "MV "
             << vm_tm_mad << " "
-            << nd.get_nebula_hostname() << ":"<< vm->get_system_dir() << " "
+            << nd.get_nebula_hostname() << ":"<< vm->get_previous_system_dir() << " "
             << vm->get_hostname() << ":" << vm->get_system_dir()<< " "
             << vm->get_oid() << " "
             << vm->get_ds_id() << endl;
@@ -1842,6 +1837,7 @@ void TransferManager::trigger_saveas_hot(int vid)
         string ds_id;
         string tsys;
         string tm_mad_system;
+        string hostname;
 
         ostringstream os;
 
@@ -1899,10 +1895,20 @@ void TransferManager::trigger_saveas_hot(int vid)
             }
         }
 
+        if (vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_STOPPED ||
+            vm->get_lcm_state() == VirtualMachine::HOTPLUG_SAVEAS_UNDEPLOYED)
+        {
+            hostname = nd.get_nebula_hostname();
+        }
+        else
+        {
+            hostname = vm->get_hostname();
+        }
+
         //CPDS tm_mad hostname:remote_system_dir/disk.0 source snapid vmid dsid
         xfr << "CPDS" << tm_mad_system
             << " " << tm_mad << " "
-            << vm->get_hostname() << ":"
+            << hostname << ":"
             << vm->get_system_dir() << "/disk." << disk_id << " "
             << src << " "
             << snap_id << " "

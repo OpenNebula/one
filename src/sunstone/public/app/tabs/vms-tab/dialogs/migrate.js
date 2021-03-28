@@ -125,6 +125,7 @@ define(function(require) {
     this.datastoresTable.resetResourceTableSelect();
     this.hostsTable.resetResourceTableSelect();
     var vmTemplate = Sunstone.getElementRightInfo(TAB_ID);
+    var migrateWithDsSelection = true
 
     if (
       this.live &&
@@ -142,11 +143,9 @@ define(function(require) {
         !hypervisor[0].DS_LIVE_MIGRATION ||
         hypervisor[0].DS_LIVE_MIGRATION !== "yes"
       ) {
+        migrateWithDsSelection = false
         $(".migrate_vm_ds_selection", context).hide();
       }
-    }
-    else {
-      $(".migrate_vm_ds_selection", context).hide();
     }
 
     $.each(Sunstone.getDataTable(TAB_ID).elements(), function() {
@@ -157,16 +156,24 @@ define(function(require) {
           id: vm_id
         },
         timeout: true,
-        success: function (request, vm_json) {
+        success: function (_, vm_json) {
           var element = vm_json.VM;
           var hostname = OpenNebulaVM.hostnameStr(element);
+          var datastore = OpenNebulaVM.datastoreStr(element);
 
-          $('.confirm-resources-header', context).append(
-              '<span class="radius secondary label">' +
-              Locale.tr("VM") + ' ' + element.ID + ' '+ element.NAME +' ' +
-              Locale.tr("is currently running on Host") +
-              ' ' + hostname + '</span><br>'
-          );
+          var hostnameHtml = $('<span/>').css('font-weight', '600').text(hostname)
+          var datastoreHtml = $('<span/>').css('font-weight', '600').text(datastore)
+
+          var label = $('<span>', { class: 'radius secondary label' })
+            .append(Locale.tr("VM") + ' ' + element.ID + ' ' + element.NAME + ' ' +
+                    Locale.tr("is currently running on Host") + ' ')
+            .append(hostnameHtml)
+
+          migrateWithDsSelection && label
+            .append(' ' + Locale.tr("and Datastore") + ' ')
+            .append(datastoreHtml)
+
+          $('.confirm-resources-header', context).append(label)
         }
       });
     });

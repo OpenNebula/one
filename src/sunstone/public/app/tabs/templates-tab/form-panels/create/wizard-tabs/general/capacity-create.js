@@ -36,7 +36,7 @@ define(function(require) {
     CONSTANTS
    */
 
-  var VCPU_SELECTOR = '#VCPU';
+  var VCPU_SELECTOR = "#VCPU";
 
   /*
     CONSTRUCTOR
@@ -132,9 +132,9 @@ define(function(require) {
       totalMemory.textContent = convertCostNumber(memory);
     }
 
-    if (memory_cost != "")
+    if (memory_cost != ""){
       $(".total_memory_cost", context).show();
-
+    }
     _totalCost();
   }
 
@@ -142,13 +142,17 @@ define(function(require) {
     var cpu_cost = $("#CPU_COST").val() || 0;
     var cpu      = $("#CPU").val() || 0;
     var totalValueCpu = document.getElementById("real_cpu_cost");
+    var totalCPU = document.getElementById("total_value_cpu");
     cpu = cpu * cpu_cost * 24 * 30;
-    document.getElementById("real_cpu_cost").value = cpu;
+    totalValueCpu.value = cpu;
     if(totalValueCpu){
-      totalValueCpu.textContent = convertCostNumber(cpu);
+      var convValue = convertCostNumber(cpu);
+      totalCPU.textContent = convValue;
+      totalValueCpu.textContent = convValue;
     }
-    if (cpu_cost != "")
+    if (cpu_cost != ""){
       $(".total_cpu_cost", context).show();
+    }
     _totalCost();
   }
 
@@ -170,9 +174,11 @@ define(function(require) {
     });
 
     context.on("change", "#VCPU", function(){
-      CoresPerSocket.generateCores(VCPU_SELECTOR);
-      CoresPerSocket.calculateSockets(VCPU_SELECTOR);
-      $('#selectedVCPU').val(this.value);
+      if ($('#vcenterRadio').is(':checked')){
+        CoresPerSocket.generateCores(VCPU_SELECTOR);
+        CoresPerSocket.calculateSockets(VCPU_SELECTOR);
+      }
+      $("#selectedVCPU").val(this.value);
     });
 
     context.on("change", "#CORES_PER_SOCKET", function(){
@@ -247,21 +253,21 @@ define(function(require) {
 
     $("#memory_unit", context).change();
 
-    $('#MEMORY_HOT_ADD_ENABLED', context).on('change', function(){
-      if (this.value == 'NO'){
-        $('#memory_max_group', context).hide();
+    $("#MEMORY_HOT_ADD_ENABLED", context).on("change", function(){
+      if (this.value == "NO"){
+        $("#memory_max_group", context).hide();
       }
       else{
-        $('#memory_max_group', context).show();
+        $("#memory_max_group", context).show();
       }
     });
 
-    $('#CPU_HOT_ADD_ENABLED', context).on('change', function(){
-      if (this.value == 'NO'){
-        $('#vcpu_max_group', context).hide();
+    $("#CPU_HOT_ADD_ENABLED", context).on("change", function(){
+      if (this.value == "NO"){
+        $("#vcpu_max_group", context).hide();
       }
       else{
-        $('#vcpu_max_group', context).show();
+        $("#vcpu_max_group", context).show();
       }
     });
 

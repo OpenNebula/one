@@ -24,26 +24,7 @@ define(function(require) {
   var TAB_ID = require("./tabId");
   var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
   var UPLOAD_DIALOG_ID = require("./dialogs/upload/dialogId");
-  var majorVersion = function(version){
-    var r = 0;
-    if(version && version.length){
-      var major = version.substring(0, version.lastIndexOf("."));
-      if(major && major.length){
-        r = parseFloat(major);
-      }
-    }
-    return r;
-  };
-  var minorVersion = function(version){
-    var r = 0;
-    if(version && version.length){
-      var minor = version.substring(version.lastIndexOf(".")+1);
-      if(minor && minor.length){
-        r = parseFloat(minor);
-      }
-    }
-    return r;
-  };
+
   var _actions = {
     "Support.list" : {
       type: "list",
@@ -76,7 +57,7 @@ define(function(require) {
           Sunstone.runAction(RESOURCE+".list", {force: true});
         }
       },
-      error: function(request, error_json) {
+      error: function() {
         SupportUtils.showSupportConnect();
       }
     },
@@ -89,14 +70,14 @@ define(function(require) {
           Sunstone.insertPanels(TAB_ID, response);
         }
       },
-      error: function(request, error_json) {
+      error: function() {
         SupportUtils.showSupportConnect();
       }
     },
     "Support.create" : {
       type: "create",
       call: OpenNebulaSupport.create,
-      callback: function(request, response){
+      callback: function(){
         Sunstone.resetFormPanel(TAB_ID, CREATE_DIALOG_ID);
         Sunstone.hideFormPanel(TAB_ID);
         Sunstone.runAction("Support.refresh");
@@ -120,13 +101,12 @@ define(function(require) {
     "Support.update" : {
       type: "single",
       call: OpenNebulaSupport.update,
-      callback: function(request, response){
+      callback: function(){
         Sunstone.runAction("Support.refresh");
         Notifier.notifyMessage("Comment added correctly");
       },
-      error: function(request, response){
+      error: function(){
         Sunstone.runAction("Support.refresh");
-        //Notifier.onError(request, response);
         Notifier.notifyError("Comment failed to be added");
       }
     },
@@ -142,7 +122,7 @@ define(function(require) {
             Sunstone.runAction("Support.refresh");
           },
           error: function(response){
-            if (response.status=="401") {
+            if (response.status === "401") {
               Notifier.notifyError("Support credentials are incorrect");
             } else {
               Notifier.notifyError(response.responseText);

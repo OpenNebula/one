@@ -206,12 +206,18 @@ module OpenNebulaJSON
         end
 
         def save_as_template(params=Hash.new)
-            vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id),
-                                        @client)
+            begin
+                vm_new = VirtualMachine.new(VirtualMachine.build_xml(@pe_id), @client)
+                
+                vm_new.extend(VirtualMachineExt)
+                
+                vm_new.save_as_template(params['name'],
+                                        params['description'],
+                                        :persistent => params['persistent'])
 
-            vm_new.extend(VirtualMachineExt)
-
-            vm_new.save_as_template(params['name'],params['description'], persistent => params['persistent'])
+            rescue Exception => e
+                OpenNebula::Error.new(e.message)
+            end
         end
     end
 end

@@ -168,6 +168,7 @@
 
         <xs:element name="HOST_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
+        <xs:element name="IMAGE_ENCRYPTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="IMAGE_RESTRICTED_ATTR" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 
         <xs:element name="IM_MAD" minOccurs="0" maxOccurs="unbounded">

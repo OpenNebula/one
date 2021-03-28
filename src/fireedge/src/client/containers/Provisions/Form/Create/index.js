@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
-import { Container, LinearProgress } from '@material-ui/core'
+import { Container, IconButton, LinearProgress } from '@material-ui/core'
+import ArrowBackIcon from '@material-ui/icons/ChevronLeftRounded'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Provisions/Form/Create/Steps'
+import formCreateStyles from 'client/containers/Provisions/Form/Create/styles'
 import DebugLog from 'client/components/DebugLog'
 
-import { useGeneral, useProvision, useSocket, useFetch } from 'client/hooks'
+import { useProvision, useSocket, useFetch } from 'client/hooks'
 import { PATH } from 'client/router/provision'
-import { set, mapUserInputs } from 'client/utils'
+import { set, cloneObject, mapUserInputs } from 'client/utils'
+
+import { Translate } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 function ProvisionCreateForm () {
-  const [uuid, setUuid] = useState(undefined)
+  const classes = formCreateStyles()
   const history = useHistory()
-  const { showError } = useGeneral()
+
+  const [uuid, setUuid] = useState(undefined)
   const { getProvision } = useSocket()
-  const { getProviders, createProvision, provisionsTemplates, providers } = useProvision()
+
+  const { getProviders, createProvision } = useProvision()
+
   const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
   const { steps, defaultValues, resolvers } = Steps()
@@ -29,39 +37,19 @@ function ProvisionCreateForm () {
     resolver: yupResolver(resolvers())
   })
 
-  const redirectWithError = (name = '') => {
-    showError({
-      message: `
-        Cannot found provision template (${name}),
-        ask your cloud administrator`
-    })
-
-    history.push(PATH.PROVIDERS.LIST)
-  }
-
-  const getProvisionTemplateByDir = ({ provision, provider, name }) =>
-    provisionsTemplates
-      ?.[provision]
-      ?.provisions
-      ?.[provider]
-      ?.find(provisionTemplate => provisionTemplate.name === name)
-
   const onSubmit = formData => {
     const { template, provider, configuration, inputs } = formData
     const { name, description } = configuration
-    const provisionTemplateSelected = template?.[0] ?? {}
-    const providerIdSelected = provider?.[0]
-    const providerName = providers?.find(({ ID }) => ID === providerIdSelected)?.NAME
+    const providerName = provider?.[0]?.NAME
 
-    const provisionTemplate = getProvisionTemplateByDir(provisionTemplateSelected)
-
-    if (!provisionTemplate) return redirectWithError(provisionTemplateSelected?.name)
+    // clone object from redux store
+    const provisionTemplateSelected = cloneObject(template?.[0] ?? {})
 
     // update provider name if changed during form
-    if (provisionTemplate.defaults?.provision?.provider_name) {
-      set(provisionTemplate, 'defaults.provision.provider_name', providerName)
-    } else if (provisionTemplate.hosts?.length > 0) {
-      provisionTemplate.hosts.forEach(host => {
+    if (provisionTemplateSelected.defaults?.provision?.provider_name) {
+      set(provisionTemplateSelected, 'defaults.provision.provider_name', providerName)
+    } else if (provisionTemplateSelected.hosts?.length > 0) {
+      provisionTemplateSelected.hosts.forEach(host => {
         set(host, 'provision.provider_name', providerName)
       })
     }
@@ -69,10 +57,10 @@ function ProvisionCreateForm () {
     const parseInputs = mapUserInputs(inputs)
 
     const formatData = {
-      ...provisionTemplate,
+      ...provisionTemplateSelected,
       name,
       description,
-      inputs: provisionTemplate?.inputs
+      inputs: provisionTemplateSelected?.inputs
         ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
     }
 
@@ -82,17 +70,34 @@ function ProvisionCreateForm () {
   useEffect(() => { fetchRequest() }, [])
 
   if (uuid) {
-    return <DebugLog uuid={uuid} socket={getProvision} />
+    return (
+      <DebugLog
+        uuid={uuid}
+        socket={getProvision}
+        title={(
+          <div className={classes.titleWrapper}>
+            <IconButton aria-label='back-to-list' size='medium'
+              onClick={() => history.push(PATH.PROVISIONS.LIST)}
+            >
+              <ArrowBackIcon fontSize='large' />
+            </IconButton>
+            <span className={classes.titleText}>
+              <Translate word={T.BackToList} values={T.Provisions} />
+            </span>
+          </div>
+        )}
+      />
+    )
   }
 
   if (error) {
-    return <Redirect to={PATH.PROVIDERS.LIST} />
+    return <Redirect to={PATH.PROVISIONS.LIST} />
   }
 
   return (!data) || loading ? (
     <LinearProgress color='secondary' />
   ) : (
-    <Container style={{ display: 'flex', flexFlow: 'column' }} disableGutters>
+    <Container className={classes.root} disableGutters>
       <FormProvider {...methods}>
         <FormStepper steps={steps} schema={resolvers} onSubmit={onSubmit} />
       </FormProvider>

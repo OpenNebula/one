@@ -7,6 +7,7 @@ import ConfigureIcon from '@material-ui/icons/Settings'
 import { useProvision, useOpennebula, useFetchAll } from 'client/hooks'
 import { ListCards } from 'client/components/List'
 import { HostCard } from 'client/components/Cards'
+import * as Types from 'client/types/provision'
 
 const Hosts = memo(({ hidden, data, fetchRequest }) => {
   const {
@@ -59,7 +60,7 @@ const Hosts = memo(({ hidden, data, fetchRequest }) => {
   prev.hidden === next.hidden && prev.data === next.data)
 
 Hosts.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: Types.Provision.isRequired,
   hidden: PropTypes.bool,
   fetchRequest: PropTypes.func
 }

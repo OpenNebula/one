@@ -1,11 +1,13 @@
 import React, { useCallback } from 'react'
-import { Divider, Select, Breadcrumbs, Link } from '@material-ui/core'
+import { Divider, Select, Breadcrumbs } from '@material-ui/core'
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
+import Marked from 'marked'
 
-import { useProvision, useListForm, useGeneral } from 'client/hooks'
+import { useProvision, useListForm } from 'client/hooks'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
-import { isExternalURL, sanitize } from 'client/utils'
+import { sanitize } from 'client/utils'
+import * as ProvisionTemplateModel from 'client/models/ProvisionTemplate'
 import { T } from 'client/constants'
 
 import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/Create/Steps/Provider'
@@ -22,10 +24,9 @@ const Template = () => ({
   content: useCallback(({ data, setFormData }) => {
     const templateSelected = data?.[0]
 
-    const [provisionSelected, setProvision] = React.useState(templateSelected?.provision)
+    const [provisionSelected, setProvision] = React.useState(templateSelected?.provision_type)
     const [providerSelected, setProvider] = React.useState(templateSelected?.provider)
 
-    const { showError } = useGeneral()
     const { provisionsTemplates, providers } = useProvision()
     const provisionSelectedDescription = provisionsTemplates?.[provisionSelected]?.description
     const providersTypes = provisionsTemplates?.[provisionSelected]?.provisions ?? []
@@ -49,37 +50,38 @@ const Template = () => ({
     }
 
     const handleClick = (template, isSelected) => {
-      const { name, description, provision_type: provisionType, provider, defaults, hosts } = template
+      const { name, description, defaults, hosts } = template
 
-      if ([name, provisionType, provider].includes(undefined)) {
-        showError({ message: 'This template has bad format. Ask your cloud administrator' })
-      } else {
-        // reset rest of form when change template
-        const providerName = defaults?.provision?.provider_name ?? hosts?.[0]?.provision.provider_name
-        const { ID } = providers?.find(({ NAME }) => NAME === providerName) ?? {}
-        setFormData({
-          [PROVIDER_ID]: [ID],
-          [CONFIGURATION_ID]: { name, description },
-          [INPUTS_ID]: undefined
-        })
+      // reset rest of form when change template
+      const providerName = defaults?.provision?.provider_name ?? hosts?.[0]?.provision.provider_name
+      const providerFromProvisionTemplate = providers?.filter(({ NAME }) => NAME === providerName) ?? []
 
-        isSelected
-          ? handleUnselect(name, item => item.name === name)
-          : handleSelect({ name, provider, provision: provisionType })
-      }
+      setFormData({
+        [PROVIDER_ID]: providerFromProvisionTemplate,
+        [CONFIGURATION_ID]: { name, description },
+        [INPUTS_ID]: undefined
+      })
+
+      isSelected
+        ? handleUnselect(name, item => item.name === name)
+        : handleSelect(template)
     }
 
     const RenderOptions = ({ options = {} }) => Object.keys(options)?.map(option => (
       <option key={option} value={option}>{option}</option>
     ))
 
-    const RenderDescription = ({ description = '' }) => (
-      <p>{(sanitize`${description}`)?.split(' ').map((string, idx) =>
-        isExternalURL(string)
-          ? <Link key={`link-${idx}`} color='textPrimary' target='_blank' href={string}>{string}</Link>
-          : ` ${string}`
-      )}</p>
-    )
+    const RenderDescription = ({ description = '' }) => {
+      const renderer = new Marked.Renderer()
+
+      renderer.link = (href, title, text) => (
+        `<a class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorSecondary"
+          target="_blank" rel="nofollow" title='${title}' href='${href}' >${text}</a>`
+      )
+
+      const html = Marked(sanitize`${description}`, { renderer })
+      return <div dangerouslySetInnerHTML={{ __html: html }} />
+    }
 
     return (
       <>
@@ -134,12 +136,13 @@ const Template = () => ({
           gridProps={{ 'data-cy': 'provisions-templates' }}
           CardComponent={ProvisionTemplateCard}
           cardsProps={({ value = {} }) => {
-            const isSelected = data?.some(selected =>
-              selected.name === value.name
-            )
+            const isSelected = data?.some(selected => selected.name === value.name)
+
+            const isValid = ProvisionTemplateModel.isValidProvisionTemplate(value)
 
             return {
               isSelected,
+              isValid,
               handleClick: () => handleClick(value, isSelected)
             }
           }}

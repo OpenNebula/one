@@ -268,7 +268,6 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/hm \
           $ETC_LOCATION/auth \
           $ETC_LOCATION/auth/certificates \
-          $ETC_LOCATION/ec2query_templates \
           $ETC_LOCATION/sunstone-views \
           $ETC_LOCATION/cli \
           $ETC_LOCATION/sunstone-views/kvm \
@@ -279,8 +278,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
           $LIB_LOCATION/ruby/opennebula/flow \
           $LIB_LOCATION/ruby/cloud/ \
-          $LIB_LOCATION/ruby/cloud/econe \
-          $LIB_LOCATION/ruby/cloud/econe/views \
           $LIB_LOCATION/ruby/cloud/CloudAuth \
           $LIB_LOCATION/ruby/onedb \
           $LIB_LOCATION/ruby/onedb/shared \
@@ -323,11 +320,14 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc/datastore/fs \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
           $VAR_LOCATION/remotes/etc/im/kvm-probes.d \
+          $VAR_LOCATION/remotes/etc/im/qemu-probes.d \
           $VAR_LOCATION/remotes/etc/im/lxd-probes.d \
+          $VAR_LOCATION/remotes/etc/im/lxc-probes.d \
           $VAR_LOCATION/remotes/etc/im/firecracker-probes.d \
           $VAR_LOCATION/remotes/etc/market/http \
           $VAR_LOCATION/remotes/etc/vmm/kvm \
           $VAR_LOCATION/remotes/etc/vmm/lxd \
+          $VAR_LOCATION/remotes/etc/vmm/lxc \
           $VAR_LOCATION/remotes/etc/vmm/firecracker \
           $VAR_LOCATION/remotes/etc/vmm/vcenter \
           $VAR_LOCATION/remotes/etc/vnm \
@@ -340,6 +340,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot \
+          $VAR_LOCATION/remotes/im/qemu.d \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/qemu-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/dummy.d \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/dummy-probes.d/host/monitor \
@@ -354,6 +361,13 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/snapshot \
+          $VAR_LOCATION/remotes/im/lxc.d \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/lxc-probes.d/vm/snapshot \
           $VAR_LOCATION/remotes/im/firecracker.d \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon \
           $VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor \
@@ -398,6 +412,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vmm/az \
           $VAR_LOCATION/remotes/vmm/one \
           $VAR_LOCATION/remotes/vmm/lxd \
+          $VAR_LOCATION/remotes/vmm/lxc \
           $VAR_LOCATION/remotes/vmm/packet \
           $VAR_LOCATION/remotes/vmm/firecracker \
           $VAR_LOCATION/remotes/vnm \
@@ -507,11 +522,6 @@ ONEFLOW_DIRS="$ONEFLOW_LOCATION/lib \
               $ONEFLOW_LOCATION/lib/strategy \
               $ONEFLOW_LOCATION/lib/models"
 
-LIB_ECO_CLIENT_DIRS="$LIB_LOCATION/ruby \
-                 $LIB_LOCATION/ruby/opennebula \
-                 $LIB_LOCATION/ruby/cloud/ \
-                 $LIB_LOCATION/ruby/cloud/econe"
-
 LIB_OCA_CLIENT_DIRS="$LIB_LOCATION/ruby \
                  $LIB_LOCATION/ruby/opennebula"
 
@@ -521,7 +531,7 @@ LIB_CLI_CLIENT_DIRS="$LIB_LOCATION/ruby/cli \
 CONF_CLI_DIRS="$ETC_LOCATION/cli"
 
 if [ "$CLIENT" = "yes" ]; then
-    MAKE_DIRS="$MAKE_DIRS $LIB_ECO_CLIENT_DIRS \
+    MAKE_DIRS="$MAKE_DIRS \
                $LIB_OCA_CLIENT_DIRS $LIB_CLI_CLIENT_DIRS $CONF_CLI_DIRS \
                $ETC_LOCATION"
 elif [ "$ONEGATE" = "yes" ]; then
@@ -566,9 +576,11 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
+    IM_PROBES_QEMU_FILES:$VAR_LOCATION/remotes/im/qemu.d
     IM_PROBES_FIRECRACKER_FILES:$VAR_LOCATION/remotes/im/firecracker.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
+    IM_PROBES_LXC_FILES:$VAR_LOCATION/remotes/im/lxc.d
     IM_PROBES_VCENTER_FILES:$VAR_LOCATION/remotes/im/vcenter.d
     IM_PROBES_EC2_FILES:$VAR_LOCATION/remotes/im/ec2.d
     IM_PROBES_AZ_FILES:$VAR_LOCATION/remotes/im/az.d
@@ -581,6 +593,13 @@ INSTALL_FILES=(
     IM_PROBES_KVM_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/status
     IM_PROBES_KVM_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/vm/snapshot
     IM_PROBES_ETC_KVM_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/kvm-probes.d
+    IM_PROBES_QEMU_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/host/beacon
+    IM_PROBES_QEMU_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/host/monitor
+    IM_PROBES_QEMU_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/host/system
+    IM_PROBES_QEMU_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/vm/monitor
+    IM_PROBES_QEMU_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/vm/status
+    IM_PROBES_QEMU_VM_SNAPSHOT_FILES:$VAR_LOCATION/remotes/im/qemu-probes.d/vm/snapshot
+    IM_PROBES_ETC_QEMU_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/qemu-probes.d
     IM_PROBES_DUMMY_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/beacon
     IM_PROBES_DUMMY_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/monitor
     IM_PROBES_DUMMY_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/dummy-probes.d/host/system
@@ -593,6 +612,13 @@ INSTALL_FILES=(
     IM_PROBES_LXD_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d/vm/status
     IM_PROBES_LXD_PROBES_FILES:$VAR_LOCATION/remotes/im/lxd-probes.d
     IM_PROBES_ETC_LXD_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxd-probes.d
+    IM_PROBES_LXC_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/beacon
+    IM_PROBES_LXC_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/monitor
+    IM_PROBES_LXC_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/host/system
+    IM_PROBES_LXC_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/vm/monitor
+    IM_PROBES_LXC_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d/vm/status
+    IM_PROBES_LXC_PROBES_FILES:$VAR_LOCATION/remotes/im/lxc-probes.d
+    IM_PROBES_ETC_LXC_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/lxc-probes.d
     IM_PROBES_AZ_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/beacon
     IM_PROBES_AZ_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/monitor
     IM_PROBES_AZ_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/az-probes.d/host/system
@@ -633,10 +659,13 @@ INSTALL_FILES=(
     VMM_EXEC_KVM_SCRIPTS:$VAR_LOCATION/remotes/vmm/kvm
     VMM_EXEC_LXD_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxd
     VMM_EXEC_LXD_LIB:$VAR_LOCATION/remotes/vmm/lxd
+    VMM_EXEC_LXC_SCRIPTS:$VAR_LOCATION/remotes/vmm/lxc
+    VMM_EXEC_LXC_LIB:$VAR_LOCATION/remotes/vmm/lxc
     VMM_EXEC_FIRECRACKER_SCRIPTS:$VAR_LOCATION/remotes/vmm/firecracker
     VMM_EXEC_FIRECRACKER_LIB:$VAR_LOCATION/remotes/vmm/firecracker
     VMM_EXEC_ETC_KVM_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/kvm
     VMM_EXEC_ETC_LXD_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxd
+    VMM_EXEC_ETC_LXC_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/lxc
     VMM_EXEC_ETC_FIRECRACKER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/firecracker
     VMM_EXEC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/vmm/vcenter
     VMM_EXEC_ETC_VCENTER_SCRIPTS:$VAR_LOCATION/remotes/etc/vmm/vcenter
@@ -700,15 +729,13 @@ INSTALL_FILES=(
     INSTALL_GEMS_SHARE_FILES:$SHARE_LOCATION
     ONETOKEN_SHARE_FILE:$SHARE_LOCATION
     FOLLOWER_CLEANUP_SHARE_FILE:$SHARE_LOCATION
+    BACKUP_VMS_SHARE_FILE:$SHARE_LOCATION
     HOOK_FT_FILES:$VAR_LOCATION/remotes/hooks/ft
     HOOK_VCENTER_FILES:$VAR_LOCATION/remotes/hooks/vcenter
     HOOK_VCENTER_TMPLS:$VAR_LOCATION/remotes/hooks/vcenter/templates
     HOOK_RAFT_FILES:$VAR_LOCATION/remotes/hooks/raft
     COMMON_CLOUD_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLOUD_AUTH_LIB_FILES:$LIB_LOCATION/ruby/cloud/CloudAuth
-    ECO_LIB_FILES:$LIB_LOCATION/ruby/cloud/econe
-    ECO_LIB_VIEW_FILES:$LIB_LOCATION/ruby/cloud/econe/views
-    ECO_BIN_FILES:$BIN_LOCATION
     MAN_FILES:$MAN_LOCATION
     DOCS_FILES:$DOCS_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
@@ -727,8 +754,6 @@ INSTALL_FILES=(
 
 INSTALL_CLIENT_FILES=(
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
-    ECO_LIB_CLIENT_FILES:$LIB_LOCATION/ruby/cloud/econe
-    ECO_BIN_CLIENT_FILES:$BIN_LOCATION
     COMMON_CLOUD_CLIENT_LIB_FILES:$LIB_LOCATION/ruby/cloud
     CLI_BIN_FILES:$BIN_LOCATION
     CLI_LIB_FILES:$LIB_LOCATION/ruby/cli
@@ -884,8 +909,6 @@ INSTALL_ETC_FILES=(
     VMM_EXEC_ETC_FILES:$ETC_LOCATION/vmm_exec
     HM_ETC_FILES:$ETC_LOCATION/hm
     AUTH_ETC_FILES:$ETC_LOCATION/auth
-    ECO_ETC_FILES:$ETC_LOCATION
-    ECO_ETC_TEMPLATE_FILES:$ETC_LOCATION/ec2query_templates
     CLI_CONF_FILES:$ETC_LOCATION/cli
 )
 
@@ -1014,7 +1037,9 @@ MADS_LIB_FILES="src/mad/sh/madcommon.sh \
 #-------------------------------------------------------------------------------
 # Common library files for VMM drivers
 #-------------------------------------------------------------------------------
-VMM_EXEC_LIB="src/vmm_mad/remotes/lib/command.rb"
+VMM_EXEC_LIB="src/vmm_mad/remotes/lib/command.rb \
+              src/vmm_mad/remotes/lib/xmlparser.rb \
+              src/vmm_mad/remotes/lib/opennebula_vm.rb"
 
 #-------------------------------------------------------------------------------
 # VMM Lib vcenter files, used by the vCenter Driver to be installed in
@@ -1101,6 +1126,41 @@ VMM_EXEC_LXD_LIB="src/vmm_mad/remotes/lib/lxd/opennebula_vm.rb \
                 src/vmm_mad/remotes/lib/lxd/container.rb"
 
 #-------------------------------------------------------------------------------
+# VMM SH Driver LXC scripts, to be installed under $REMOTES_LOCATION/vmm/lxc
+#-------------------------------------------------------------------------------
+VMM_EXEC_LXC_SCRIPTS="
+                    src/vmm_mad/remotes/lxc/attach_disk \
+                    src/vmm_mad/remotes/lxc/deploy \
+                    src/vmm_mad/remotes/lxc/prereconfigure \
+                    src/vmm_mad/remotes/lxc/reset \
+                    src/vmm_mad/remotes/lxc/restore \
+                    src/vmm_mad/remotes/lxc/snapshot_create \
+                    src/vmm_mad/remotes/lxc/attach_nic \
+                    src/vmm_mad/remotes/lxc/detach_disk \
+                    src/vmm_mad/remotes/lxc/migrate \
+                    src/vmm_mad/remotes/lxc/reboot \
+                    src/vmm_mad/remotes/lxc/resize \
+                    src/vmm_mad/remotes/lxc/save \
+                    src/vmm_mad/remotes/lxc/snapshot_delete \
+                    src/vmm_mad/remotes/lxc/cancel \
+                    src/vmm_mad/remotes/lxc/detach_nic \
+                    src/vmm_mad/remotes/lxc/migrate_local \
+                    src/vmm_mad/remotes/lxc/reconfigure \
+                    src/vmm_mad/remotes/lxc/resize_disk \
+                    src/vmm_mad/remotes/lxc/shutdown \
+                    src/vmm_mad/remotes/lxc/snapshot_revert"
+
+
+VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
+                src/vmm_mad/remotes/lib/lxc/client.rb \
+                src/vmm_mad/remotes/lib/lxc/command.rb \
+                src/vmm_mad/remotes/lib/lxc/container.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/qcow2.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/raw.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/rbd.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/storageutils.rb"
+
+#-------------------------------------------------------------------------------
 # VMM SH Driver Firecracker scripts, to be installed under $REMOTES_LOCATION/vmm/firecracker
 #-------------------------------------------------------------------------------
 VMM_EXEC_FIRECRACKER_SCRIPTS="src/vmm_mad/remotes/firecracker/deploy \
@@ -1117,6 +1177,12 @@ VMM_EXEC_FIRECRACKER_LIB="src/vmm_mad/remotes/lib/firecracker/opennebula_vm.rb \
 #-------------------------------------------------------------------------------
 
 VMM_EXEC_ETC_LXD_SCRIPTS="src/vmm_mad/remotes/lxd/lxdrc"
+
+#-------------------------------------------------------------------------------
+# VMM configuration LXD scripts, to be installed under $REMOTES_LOCATION/etc/vmm/lxd
+#-------------------------------------------------------------------------------
+
+VMM_EXEC_ETC_LXC_SCRIPTS="src/vmm_mad/remotes/lxc/lxcrc"
 
 #-------------------------------------------------------------------------------
 # VMM configuration Firecracker scripts, to be installed under $REMOTES_LOCATION/etc/vmm/firecracker
@@ -1177,7 +1243,6 @@ VMM_EXEC_VCENTER_SCRIPTS="src/vmm_mad/remotes/vcenter/cancel \
                          src/vmm_mad/remotes/vcenter/save \
                          src/vmm_mad/remotes/vcenter/resize_disk \
                          src/vmm_mad/remotes/vcenter/resize \
-                         src/vmm_mad/remotes/vcenter/poll \
                          src/vmm_mad/remotes/vcenter/shutdown \
                          src/vmm_mad/remotes/vcenter/reconfigure \
                          src/vmm_mad/remotes/vcenter/preconfigure \
@@ -1279,6 +1344,7 @@ IM_PROBES_FILES="\
 IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/kvm.rb \
     src/im_mad/remotes/lib/lxd.rb \
+    src/im_mad/remotes/lib/lxc.rb \
     src/im_mad/remotes/lib/linux.rb \
     src/im_mad/remotes/lib/firecracker.rb\
     src/im_mad/remotes/lib/numa_common.rb \
@@ -1327,6 +1393,44 @@ IM_PROBES_KVM_VM_SNAPSHOT_FILES="\
 
 IM_PROBES_ETC_KVM_PROBES_FILES="\
     src/im_mad/remotes/kvm-probes.d/pci.conf \
+    src/im_mad/remotes/lib/probe_db.conf"
+
+IM_PROBES_QEMU_FILES="\
+    src/im_mad/remotes/qemu.d/monitord-client_control.sh \
+    src/im_mad/remotes/qemu.d/monitord-client.rb"
+
+IM_PROBES_QEMU_HOST_BEACON_FILES="\
+     src/im_mad/remotes/qemu-probes.d/host/beacon/monitord-client-shepherd.sh \
+     src/im_mad/remotes/qemu-probes.d/host/beacon/date.sh"
+
+IM_PROBES_QEMU_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/qemu-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/qemu-probes.d/host/monitor/numa_usage.rb"
+
+IM_PROBES_QEMU_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/qemu-probes.d/host/system/architecture.sh \
+     src/im_mad/remotes/qemu-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/qemu-probes.d/host/system/linux_host.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/machines_models.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/monitor_ds.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/name.sh \
+     src/im_mad/remotes/qemu-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/wild_vm.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/pci.rb \
+     src/im_mad/remotes/qemu-probes.d/host/system/version.sh"
+
+IM_PROBES_QEMU_VM_MONITOR_FILES="\
+     src/im_mad/remotes/qemu-probes.d/vm/monitor/poll.rb \
+     src/im_mad/remotes/qemu-probes.d/vm/monitor/monitor_ds_vm.rb"
+
+IM_PROBES_QEMU_VM_STATUS_FILES="\
+     src/im_mad/remotes/qemu-probes.d/vm/status/state.rb"
+
+IM_PROBES_QEMU_VM_SNAPSHOT_FILES="\
+     src/im_mad/remotes/qemu-probes.d/vm/snapshot/recovery.rb"
+
+IM_PROBES_ETC_QEMU_PROBES_FILES="\
+    src/im_mad/remotes/qemu-probes.d/pci.conf \
     src/im_mad/remotes/lib/probe_db.conf"
 
 # DUMMY PROBES
@@ -1383,6 +1487,38 @@ IM_PROBES_LXD_VM_STATUS_FILES="\
 
 IM_PROBES_ETC_LXD_PROBES_FILES="\
     src/im_mad/remotes/lxd-probes.d/pci.conf \
+    src/im_mad/remotes/lib/probe_db.conf"
+
+# LXC PROBES
+IM_PROBES_LXC_FILES="\
+    src/im_mad/remotes/lxc.d/monitord-client_control.sh \
+    src/im_mad/remotes/lxc.d/monitord-client.rb"
+
+IM_PROBES_LXC_HOST_BEACON_FILES="\
+     src/im_mad/remotes/lxc-probes.d/host/beacon/monitord-client-shepherd.sh \
+     src/im_mad/remotes/lxc-probes.d/host/beacon/date.sh"
+
+IM_PROBES_LXC_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/lxc-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/lxc-probes.d/host/monitor/numa_usage.rb"
+
+IM_PROBES_LXC_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/lxc-probes.d/host/system/architecture.sh \
+     src/im_mad/remotes/lxc-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/lxc-probes.d/host/system/linux_host.rb \
+     src/im_mad/remotes/lxc-probes.d/host/system/monitor_ds.rb \
+     src/im_mad/remotes/lxc-probes.d/host/system/name.sh \
+     src/im_mad/remotes/lxc-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/lxc-probes.d/host/system/version.sh"
+
+IM_PROBES_LXC_VM_MONITOR_FILES="\
+     src/im_mad/remotes/lxc-probes.d/vm/monitor/poll.rb \
+     src/im_mad/remotes/lxc-probes.d/vm/monitor/monitor_ds_vm.rb"
+
+IM_PROBES_LXC_VM_STATUS_FILES="\
+     src/im_mad/remotes/lxc-probes.d/vm/status/state.rb"
+
+IM_PROBES_ETC_LXC_PROBES_FILES="\
     src/im_mad/remotes/lib/probe_db.conf"
 
 # Firecracker PROBES
@@ -1596,7 +1732,7 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
                        src/vnm_mad/remotes/vcenter/clean \
                        src/vnm_mad/remotes/vcenter/update_sg"
 
-NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/Elastic.rb \
+NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/clean \
                        src/vnm_mad/remotes/elastic/post \
                        src/vnm_mad/remotes/elastic/pre \
@@ -2096,6 +2232,8 @@ ONETOKEN_SHARE_FILE="share/onetoken/onetoken.sh"
 
 FOLLOWER_CLEANUP_SHARE_FILE="share/hooks/raft/follower_cleanup"
 
+BACKUP_VMS_SHARE_FILE="share/scripts/backup_vms"
+
 #-------------------------------------------------------------------------------
 # Start script files, to be installed under $SHARE_LOCATION/start-scripts
 #-------------------------------------------------------------------------------
@@ -2186,108 +2324,10 @@ COMMON_CLOUD_LIB_FILES="src/cloud/common/CloudServer.rb \
 COMMON_CLOUD_CLIENT_LIB_FILES="src/cloud/common/CloudClient.rb"
 
 CLOUD_AUTH_LIB_FILES="src/cloud/common/CloudAuth/SunstoneCloudAuth.rb \
-                      src/cloud/common/CloudAuth/EC2CloudAuth.rb \
                       src/cloud/common/CloudAuth/X509CloudAuth.rb \
                       src/cloud/common/CloudAuth/RemoteCloudAuth.rb \
                       src/cloud/common/CloudAuth/OneGateCloudAuth.rb \
                       src/cloud/common/CloudAuth/OpenNebulaCloudAuth.rb"
-
-#-------------------------------------------------------------------------------
-# EC2 Query for OpenNebula
-#-------------------------------------------------------------------------------
-
-ECO_LIB_FILES="src/cloud/ec2/lib/EC2QueryClient.rb \
-               src/cloud/ec2/lib/EC2QueryServer.rb \
-               src/cloud/ec2/lib/ImageEC2.rb \
-               src/cloud/ec2/lib/elastic_ip.rb \
-               src/cloud/ec2/lib/ebs.rb \
-               src/cloud/ec2/lib/tags.rb \
-               src/cloud/ec2/lib/instance.rb \
-               src/cloud/ec2/lib/keypair.rb \
-               src/cloud/ec2/lib/net_ssh_replacement.rb \
-               src/cloud/ec2/lib/econe_application.rb \
-               src/cloud/ec2/lib/econe-server.rb"
-
-ECO_LIB_CLIENT_FILES="src/cloud/ec2/lib/EC2QueryClient.rb"
-
-ECO_LIB_VIEW_FILES="src/cloud/ec2/lib/views/describe_images.erb \
-                    src/cloud/ec2/lib/views/describe_instances.erb \
-                    src/cloud/ec2/lib/views/describe_regions.erb \
-                    src/cloud/ec2/lib/views/describe_availability_zones.erb \
-                    src/cloud/ec2/lib/views/create_tags.erb \
-                    src/cloud/ec2/lib/views/delete_tags.erb \
-                    src/cloud/ec2/lib/views/describe_tags.erb \
-                    src/cloud/ec2/lib/views/create_volume.erb \
-                    src/cloud/ec2/lib/views/create_snapshot.erb \
-                    src/cloud/ec2/lib/views/delete_snapshot.erb \
-                    src/cloud/ec2/lib/views/describe_snapshots.erb \
-                    src/cloud/ec2/lib/views/create_image.erb \
-                    src/cloud/ec2/lib/views/describe_volumes.erb \
-                    src/cloud/ec2/lib/views/attach_volume.erb \
-                    src/cloud/ec2/lib/views/detach_volume.erb \
-                    src/cloud/ec2/lib/views/delete_volume.erb \
-                    src/cloud/ec2/lib/views/register_image.erb \
-                    src/cloud/ec2/lib/views/run_instances.erb \
-                    src/cloud/ec2/lib/views/allocate_address.erb \
-                    src/cloud/ec2/lib/views/associate_address.erb \
-                    src/cloud/ec2/lib/views/disassociate_address.erb \
-                    src/cloud/ec2/lib/views/describe_addresses.erb \
-                    src/cloud/ec2/lib/views/release_address.erb \
-                    src/cloud/ec2/lib/views/create_keypair.erb \
-                    src/cloud/ec2/lib/views/delete_keypair.erb \
-                    src/cloud/ec2/lib/views/describe_keypairs.erb \
-                    src/cloud/ec2/lib/views/terminate_instances.erb \
-                    src/cloud/ec2/lib/views/stop_instances.erb \
-                    src/cloud/ec2/lib/views/reboot_instances.erb \
-                    src/cloud/ec2/lib/views/start_instances.erb"
-
-ECO_BIN_FILES="src/cloud/ec2/bin/econe-server \
-               src/cloud/ec2/bin/econe-describe-images \
-               src/cloud/ec2/bin/econe-describe-volumes \
-               src/cloud/ec2/bin/econe-describe-instances \
-               src/cloud/ec2/bin/econe-describe-keypairs \
-               src/cloud/ec2/bin/econe-register \
-               src/cloud/ec2/bin/econe-attach-volume \
-               src/cloud/ec2/bin/econe-detach-volume \
-               src/cloud/ec2/bin/econe-delete-volume \
-               src/cloud/ec2/bin/econe-delete-keypair \
-               src/cloud/ec2/bin/econe-create-volume \
-               src/cloud/ec2/bin/econe-create-keypair \
-               src/cloud/ec2/bin/econe-run-instances \
-               src/cloud/ec2/bin/econe-terminate-instances \
-               src/cloud/ec2/bin/econe-start-instances \
-               src/cloud/ec2/bin/econe-stop-instances \
-               src/cloud/ec2/bin/econe-reboot-instances \
-               src/cloud/ec2/bin/econe-describe-addresses \
-               src/cloud/ec2/bin/econe-allocate-address \
-               src/cloud/ec2/bin/econe-release-address \
-               src/cloud/ec2/bin/econe-associate-address \
-               src/cloud/ec2/bin/econe-disassociate-address \
-               src/cloud/ec2/bin/econe-upload"
-
-ECO_BIN_CLIENT_FILES="src/cloud/ec2/bin/econe-describe-images \
-               src/cloud/ec2/bin/econe-describe-instances \
-               src/cloud/ec2/bin/econe-describe-volumes \
-               src/cloud/ec2/bin/econe-register \
-               src/cloud/ec2/bin/econe-attach-volume \
-               src/cloud/ec2/bin/econe-detach-volume \
-               src/cloud/ec2/bin/econe-delete-volume \
-               src/cloud/ec2/bin/econe-create-volume \
-               src/cloud/ec2/bin/econe-run-instances \
-               src/cloud/ec2/bin/econe-terminate-instances \
-               src/cloud/ec2/bin/econe-start-instances \
-               src/cloud/ec2/bin/econe-stop-instances \
-               src/cloud/ec2/bin/econe-reboot-instances \
-               src/cloud/ec2/bin/econe-describe-addresses \
-               src/cloud/ec2/bin/econe-allocate-address \
-               src/cloud/ec2/bin/econe-release-address \
-               src/cloud/ec2/bin/econe-associate-address \
-               src/cloud/ec2/bin/econe-disassociate-address \
-               src/cloud/ec2/bin/econe-upload"
-
-ECO_ETC_FILES="src/cloud/ec2/etc/econe.conf"
-
-ECO_ETC_TEMPLATE_FILES="src/cloud/ec2/etc/templates/m1.small.erb"
 
 #-----------------------------------------------------------------------------
 # CLI files
@@ -2388,7 +2428,7 @@ ONEPROVISION_CONF_FILES="src/cli/etc/oneprovision.yaml \
 
 ONEPROVISION_ANSIBLE_FILES="share/oneprovision/ansible"
 
-ONEPROVISION_TEMPLATES_FILES="share/oneprovision/provisions/"
+ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/"
 
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"
@@ -2811,29 +2851,7 @@ MAN_FILES="share/man/oneacct.1.gz \
         share/man/onemarket.1.gz \
         share/man/onemarketapp.1.gz \
         share/man/onevmgroup.1.gz \
-        share/man/onevntemplate.1.gz \
-        share/man/econe-allocate-address.1.gz \
-        share/man/econe-associate-address.1.gz \
-        share/man/econe-attach-volume.1.gz \
-        share/man/econe-create-keypair.1.gz \
-        share/man/econe-create-volume.1.gz \
-        share/man/econe-delete-keypair.1.gz \
-        share/man/econe-delete-volume.1.gz \
-        share/man/econe-describe-addresses.1.gz \
-        share/man/econe-describe-images.1.gz \
-        share/man/econe-describe-instances.1.gz \
-        share/man/econe-describe-keypairs.1.gz \
-        share/man/econe-describe-volumes.1.gz \
-        share/man/econe-detach-volume.1.gz \
-        share/man/econe-disassociate-address.1.gz \
-        share/man/econe-reboot-instances.1.gz \
-        share/man/econe-register.1.gz \
-        share/man/econe-release-address.1.gz \
-        share/man/econe-run-instances.1.gz \
-        share/man/econe-start-instances.1.gz \
-        share/man/econe-stop-instances.1.gz \
-        share/man/econe-terminate-instances.1.gz \
-        share/man/econe-upload.1.gz"
+        share/man/onevntemplate.1.gz"
 
 #-----------------------------------------------------------------------------
 # Docs Files

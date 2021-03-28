@@ -9,7 +9,9 @@
   roles:
     - ddc
     - opennebula-repository
-    - opennebula-node-kvm
+    - { role: opennebula-node-kvm, when: oneprovision_hypervisor == 'kvm' }
+    - { role: opennebula-node-firecracker, when: oneprovision_hypervisor == 'firecracker' }
+    - { role: opennebula-node-lxc, when: oneprovision_hypervisor == 'lxc' }
     - opennebula-ssh
     - role: iptables
       iptables_base_rules_services:
@@ -24,4 +26,3 @@
       frr_iface: 'bond0_0'
       # Use /25 for the internal management network address
       frr_prefix_length: 25
-    - sudoers-tmp

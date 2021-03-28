@@ -71,7 +71,7 @@ define(function(require) {
     var tokens = [];
 
     if (this.element != undefined && this.element.LOGIN_TOKEN != undefined){
-      if ($.isArray(this.element.LOGIN_TOKEN)){
+      if (Array.isArray(this.element.LOGIN_TOKEN)){
         tokens = this.element.LOGIN_TOKEN;
       } else {
         tokens = [this.element.LOGIN_TOKEN];

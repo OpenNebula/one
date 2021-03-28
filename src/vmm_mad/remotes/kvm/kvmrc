@@ -36,6 +36,12 @@ export FORCE_DESTROY=yes
 # currently used in detach-interface, restore
 export VIRSH_RETRIES=3
 
+# Compact memory before running the VM
+#CLEANUP_MEMORY_ON_START=yes
+
+# Compact memory after VM stops
+CLEANUP_MEMORY_ON_STOP=yes
+
 # Uncomment this line to force VM's without ACPI enabled to be destroyed
 # on shutdown
 #CANCEL_NO_ACPI=yes

@@ -183,7 +183,7 @@ define(function(require) {
       if (vr.VMS.ID != undefined){
         vms = vr.VMS.ID;
 
-        if (!$.isArray(vms)){
+        if (!Array.isArray(vms)){
           vms = [vms];
         }
       }
@@ -231,7 +231,7 @@ define(function(require) {
       if (vnet.VROUTERS.ID != undefined){
         vrs = vnet.VROUTERS.ID;
 
-        if (!$.isArray(vrs)){
+        if (!Array.isArray(vrs)){
           vrs = [vrs];
         }
       }
@@ -535,7 +535,7 @@ define(function(require) {
     if (vr.VMS.ID != undefined){
       vms = vr.VMS.ID;
 
-      if (!$.isArray(vms)){
+      if (!Array.isArray(vms)){
         vms = [vms];
       }
     }

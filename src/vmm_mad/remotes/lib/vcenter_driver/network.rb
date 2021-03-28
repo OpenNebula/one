@@ -486,6 +486,79 @@ module VCenterDriver
             @defaults = { :size => '255', :type => 'ether' }
         end
 
+        def process_import(indexes, opts = {}, &block)
+            indexes = indexes.gsub(/\s*\,\s*/, ',').strip.split(',')
+
+            dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
+            vcenter_instance_name = @vi_client.vc_name
+            vcenter_uuid = @vi_client.vim.serviceContent.about.instanceUuid
+            hpool = VCenterDriver::VIHelper.one_pool(
+                OpenNebula::HostPool,
+                false
+            )
+
+            one_client = OpenNebula::Client.new
+            one_host = OpenNebula::Host.new_with_id(opts[:host], one_client)
+
+            rc = one_host.info
+            raise rc.message if OpenNebula.is_error? rc
+
+            # Get all networks in vcenter cluster (one_host)
+            vc_cluster_networks = dc_folder.cluster_networks(one_host)
+
+            vc_cluster_networks_map_ref = {}
+
+            # Iterate over vcenter networks
+            vc_cluster_networks.each do |vc_cluster_network|
+                vc_cluster_networks_map_ref[vc_cluster_network._ref] =
+                    vc_cluster_network
+            end
+
+            indexes.each do |index|
+                begin
+                    @rollback = []
+                    @info[index] = {}
+
+                    vc_cluster_network = vc_cluster_networks_map_ref[index]
+
+                    if hpool.respond_to?(:message)
+                        raise 'Could not get OpenNebula HostPool: ' \
+                              "#{hpool.message}"
+                    end
+
+                    opts = {}
+
+                    params = {}
+                    params[:vc_network] = vc_cluster_network
+                    params[:vcenter_instance_name] = vcenter_instance_name
+                    params[:vcenter_uuid] = vcenter_uuid
+                    params[:_hpool] = hpool
+                    params[:one_host] = one_host
+                    params[:args] = opts
+
+                    selected = dc_folder.process_network(params)
+
+                    selected = selected[index]
+
+                    if block_given?
+                        @info[index][:opts] = block.call(selected)
+                    elsif opts[index]
+                        @info[index][:opts] = opts[index]
+                    else
+                        @info[index][:opts] = defaults
+                    end
+
+                    # import the object
+                    @info[:success] << import(selected)
+                rescue StandardError => e
+                    @info[:error] << { index => e.message }
+                    @info[index][:e] = e
+
+                    apply_rollback
+                end
+            end
+        end
+
         def get_list(args = {})
             dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
 
@@ -496,8 +569,8 @@ module VCenterDriver
                         false
                     )
             if npool.respond_to?(:message)
-                raise "Could not get \
-                OpenNebula VirtualNetworkPool: #{npool.message}"
+                raise 'Could not get ' \
+                "OpenNebula VirtualNetworkPool: #{npool.message}"
             end
 
             # Get OpenNebula's host pool

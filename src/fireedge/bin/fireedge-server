@@ -32,6 +32,7 @@ else
     GUACD_PID=$ONE_LOCATION/var/guacd.pid
 fi
 
+PATH=$PATH:/usr/share/one/guacd/sbin
 GUACD_BIN=guacd
 
 get_pid()
@@ -109,7 +110,7 @@ stop()
 
   # Kill the fireedge-server daemon
 
-  kill -9 `cat $FIREEDGE_PID` > /dev/null 2>&1
+  kill `cat $FIREEDGE_PID` > /dev/null 2>&1
 
   # Remove pid files
   rm -f $FIREEDGE_PID > /dev/null 2>&1

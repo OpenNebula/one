@@ -24,8 +24,7 @@ module LXDMarket
         # TODO: Make configurable
         def template
             unindent(<<-EOS)
-        HYPERVISOR = \"lxd\"
-        SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lxd\\\"\"
+        SCHED_REQUIREMENTS = \"HYPERVISOR=\\\"lx*\\\"\"
         CPU = \"1\"
         MEMORY = \"768\"
         LXD_SECURITY_PRIVILEGED = \"true\"

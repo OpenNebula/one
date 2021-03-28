@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<AttachVolumeResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>/">
-   <requestId><%= @request_id %></requestId>
-  <volumeId>vol-<%= sprintf('%08i', image_id) %></volumeId>
-  <%= render_instance_id(vm) %>
-  <device>/dev/<%= vm["TEMPLATE/DISK[IMAGE_ID=#{image_id.to_i}]/TARGET"] %></device>
-  <status>attaching</status>
-  <attachTime><%= Time.at(attach_time).xmlschema %></attachTime>
-</AttachVolumeResponse>

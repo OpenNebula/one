@@ -3,16 +3,17 @@ import PropTypes from 'prop-types'
 
 import {
   useMediaQuery,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Typography,
+  IconButton,
   makeStyles
 } from '@material-ui/core'
+import { Close as CloseIcon } from '@material-ui/icons'
 
-import SubmitButton from 'client/components/FormControl/SubmitButton'
+import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -25,6 +26,11 @@ const useStyles = makeStyles(theme => ({
       width: '100%',
       height: '100%'
     }
+  },
+  closeButton: {
+    position: 'absolute',
+    right: '0.5em',
+    top: '0.5em'
   }
 }))
 
@@ -59,30 +65,30 @@ const DialogConfirmation = memo(
         <DialogTitle disableTypography>
           <Typography variant='h6'>{title}</Typography>
           {subheader && <Typography variant='subtitle1'>{subheader}</Typography>}
+          {handleCancel && (
+            <IconButton
+              aria-label="close"
+              className={classes.closeButton}
+              onClick={handleCancel}
+              data-cy='dg-cancel-button'
+              {...cancelButtonProps}
+            >
+              <CloseIcon />
+            </IconButton>
+          )}
         </DialogTitle>
         <DialogContent dividers {...contentProps}>
           {children}
         </DialogContent>
-        {(handleCancel || handleAccept) && (
+        {handleAccept && (
           <DialogActions>
-            {handleCancel && (
-              <Button
-                onClick={handleCancel}
-                data-cy='dg-cancel-button'
-                {...cancelButtonProps}
-              >
-                {Tr(T.Cancel)}
-              </Button>
-            )}
-            {handleAccept && (
-              <SubmitButton
-                color='secondary'
-                data-cy='dg-accept-button'
-                onClick={handleAccept}
-                label={Tr(T.Accept)}
-                {...acceptButtonProps}
-              />
-            )}
+            <SubmitButton
+              color='secondary'
+              data-cy='dg-accept-button'
+              onClick={handleAccept}
+              label={Tr(T.Accept)}
+              {...acceptButtonProps}
+            />
           </DialogActions>
         )}
       </Dialog>

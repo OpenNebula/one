@@ -60,7 +60,7 @@ define(function(require){
     if (this.element.VMS.ID != undefined){
       vms = this.element.VMS.ID;
 
-      if (!$.isArray(vms)){
+      if (!Array.isArray(vms)){
         vms = [vms];
       }
     }

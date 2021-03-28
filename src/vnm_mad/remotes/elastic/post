@@ -29,9 +29,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -39,7 +42,7 @@ $LOAD_PATH << File.dirname(__FILE__)
 $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 $LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'Elastic'
+require 'elastic'
 
 template64 = STDIN.read
 
@@ -52,7 +55,7 @@ begin
     exit 1 if drv.assign
 
     begin
-        drv.activate
+        drv.run_hooks(ARGV, template64) if drv.activate == 0
     rescue StandardError => e
         drv.unassign # rollback assign
         raise e

@@ -244,7 +244,7 @@ define(function(require) {
     $.when.apply($, promises).then(function() {
         if (that.serviceroleVMsDataTable) {
           that.serviceroleVMsDataTable.updateView(null, roleVms, true);
-          $("#rdp-buttons", context).foundation();
+          $(".rdp-buttons", context).foundation();
           VMRemoteActions.bindActionsToContext(context)
         }
         

@@ -14,7 +14,12 @@
 /* -------------------------------------------------------------------------- */
 
 const { Validator } = require('jsonschema')
-const { defaultFolderTmpProvision, defaultCommandProvider } = require('server/utils/constants/defaults')
+const {
+  defaultFolderTmpProvision,
+  defaultCommandProvider,
+  defaultHideCredentials,
+  defaultHideCredentialReplacer
+} = require('server/utils/constants/defaults')
 
 const {
   ok,
@@ -26,6 +31,38 @@ const { provider, providerUpdate } = require('./schemas')
 
 const httpInternalError = httpResponse(internalServerError, '', '')
 
+const getConnectionProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+  const { user, password } = userData
+  let rtn = httpInternalError
+  if (user && password) {
+    const endpoint = getEndpoint()
+    const authCommand = ['--user', user, '--password', password]
+    if (params && params.id) {
+      const paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
+      const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
+      try {
+        const response = executedCommand.success ? ok : internalServerError
+        const data = JSON.parse(executedCommand.data)
+        if (
+          data &&
+          data.DOCUMENT &&
+          data.DOCUMENT.TEMPLATE &&
+          data.DOCUMENT.TEMPLATE.PROVISION_BODY &&
+          data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection
+        ) {
+          res.locals.httpCode = httpResponse(response, data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection)
+          next()
+          return
+        }
+      } catch (error) {
+        rtn = httpResponse(internalServerError, '', executedCommand.data)
+      }
+    }
+  }
+  res.locals.httpCode = rtn
+  next()
+}
+
 const getListProviders = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
@@ -34,7 +71,7 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
     const authCommand = ['--user', user, '--password', password]
     let paramsCommand = ['list', ...authCommand, ...endpoint, '--json']
     if (params && params.id) {
-      paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, '--json']
+      paramsCommand = ['show', `${params.id}`.toLowerCase(), ...authCommand, ...endpoint, '--json']
     }
     const executedCommand = executeCommand(defaultCommandProvider, paramsCommand)
     try {
@@ -49,6 +86,24 @@ const getListProviders = (res = {}, next = () => undefined, params = {}, userDat
       if (data && data.DOCUMENT_POOL && data.DOCUMENT_POOL.DOCUMENT && Array.isArray(data.DOCUMENT_POOL.DOCUMENT)) {
         data.DOCUMENT_POOL.DOCUMENT = data.DOCUMENT_POOL.DOCUMENT.map(parseTemplatePlain)
       }
+      // hide connections
+      if (
+        params &&
+        params.id &&
+        defaultHideCredentials &&
+        data &&
+        data.DOCUMENT &&
+        data.DOCUMENT.TEMPLATE &&
+        data.DOCUMENT.TEMPLATE.PROVISION_BODY &&
+        data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection
+      ) {
+        const encryptedData = {}
+        for (const key of Object.keys(data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection)) {
+          encryptedData[key] = defaultHideCredentialReplacer
+        }
+        data.DOCUMENT.TEMPLATE.PROVISION_BODY.connection = encryptedData
+      }
+
       // if exists params.id
       if (data && data.DOCUMENT) {
         parseTemplatePlain(data.DOCUMENT)
@@ -173,6 +228,7 @@ const deleteProvider = (res = {}, next = () => undefined, params = {}, userData 
 }
 
 const providerFunctionsApi = {
+  getConnectionProviders,
   getListProviders,
   createProviders,
   updateProviders,

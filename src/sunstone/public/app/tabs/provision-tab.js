@@ -906,7 +906,7 @@ define(function(require) {
             if (templateJSON.DISK !== undefined){
               var disks = templateJSON.DISK;
 
-              if (!$.isArray(disks)){
+              if (!Array.isArray(disks)){
                 disks = [disks];
               }
               disks = disks.filter(distinct);
@@ -936,7 +936,7 @@ define(function(require) {
             if (templateJSON.NIC !== undefined){
               var nics = templateJSON.NIC;
 
-              if (!$.isArray(nics)){
+              if (!Array.isArray(nics)){
                 nics = [nics];
               }
               nics = nics.filter(distinct);

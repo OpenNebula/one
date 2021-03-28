@@ -29,9 +29,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -49,26 +52,39 @@ class PacketProvider
         @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
     end
 
-    def assign(ip, _external, _opts = {})
-        @client.assign_cidr_device("#{ip}/32", @deploy_id)
+    def assign(_ip, external, _opts = {})
+        @client.assign_cidr_device("#{external}/32", @deploy_id)
         0
     rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{ip}:#{e.message}")
+        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
         1
     end
 
-    def unassign(ip, _external)
+    def unassign(_ip, external)
         dev = @client.get_device(@deploy_id)
 
         ip = dev.ip_addresses.select do |i|
-            i['address'] == ip &&
+            i['address'] == external &&
             i['cidr'] == 32 &&
             i['address_family'] == 4
         end
 
         @client.delete_ip(ip[0]['id'])
     rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{ip}:#{e.message}")
+        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
     end
 
+    def activate(cmds, nic)
+        cmds.add :iptables, "-t nat -A POSTROUTING -s #{nic[:ip]} -j SNAT"\
+                        " --to-source #{nic[:external_ip]}"
+        cmds.add :iptables, "-t nat -A PREROUTING -d #{nic[:external_ip]} -j DNAT"\
+                        " --to-destination #{nic[:ip]}"
+    end
+
+    def deactivate(cmds, nic)
+        cmds.add :iptables, "-t nat -D POSTROUTING -s #{nic[:ip]} -j SNAT"\
+                        " --to-source #{nic[:external_ip]}"
+        cmds.add :iptables, "-t nat -D PREROUTING -d #{nic[:external_ip]} -j DNAT"\
+                        " --to-destination #{nic[:ip]}"
+    end
 end

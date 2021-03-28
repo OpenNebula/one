@@ -58,10 +58,20 @@ export const deleteProvider = ({ id }) =>
     return res?.data ?? {}
   })
 
+export const getProviderConnection = ({ id }) =>
+  requestData(`/api/${PROVIDER}/connection/${id}`, {
+    error: err => err?.message
+  }).then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  })
+
 export default {
   getProvider,
   getProviders,
   createProvider,
   updateProvider,
-  deleteProvider
+  deleteProvider,
+  getProviderConnection
 }

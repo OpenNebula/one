@@ -20,8 +20,6 @@ define(function(require) {
    */
 
   var TabDataTable = require('utils/tab-datatable');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
 
   /*
     CONSTANTS
@@ -49,16 +47,17 @@ define(function(require) {
       "aoColumnDefs": [
           {"bSortable": false, "aTargets": ["check"]},
           {"sWidth": "35px", "aTargets": [0]},
-          {"bVisible": true, "aTargets": SunstoneConfig.tabTableColumns(TAB_NAME)},
+          {"bVisible": true, "aTargets": [1, 2, 3, 4]},
           {"bVisible": false, "aTargets": ['_all']}
       ]
     };
 
     this.columns = [
-      "ID",
-      "Subject",
-      "Requested",
-      "Status"
+      // Checkbox // 0
+      "ID",       // 1
+      "Subject",  // 2
+      "Requested",// 3
+      "Status"    // 4
     ];
 
 

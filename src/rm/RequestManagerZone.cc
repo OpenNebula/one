@@ -459,7 +459,7 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
     RaftManager * raftm = nd.get_raftm();
 
     unsigned int candidate_term  = xmlrpc_c::value_int(paramList.getInt(1));
-    unsigned int candidate_id    = xmlrpc_c::value_int(paramList.getInt(2));
+    int candidate_id = xmlrpc_c::value_int(paramList.getInt(2));
 
     uint64_t candidate_log_index = xmlrpc_c::value_i8(paramList.getI8(3));
     unsigned int candidate_log_term  = xmlrpc_c::value_int(paramList.getInt(4));
@@ -470,6 +470,14 @@ void ZoneVoteRequest::request_execute(xmlrpc_c::paramList const& paramList,
     uint64_t log_index;
 
     logdb->get_last_record_index(log_index, log_term);
+
+    if (candidate_id < 0)
+    {
+        att.resp_id  = current_term;
+
+        failure_response(INTERNAL, att);
+        return;
+    }
 
     if (!att.is_oneadmin())
     {

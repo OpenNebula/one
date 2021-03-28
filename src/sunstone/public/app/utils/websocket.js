@@ -47,7 +47,7 @@ define(function (require) {
   var _start = function (fireedgeToken="") {
     connection = STATUS.PROCESSING;
 
-    if (fireedgeToken != "" ){
+    if (sunstone_fireedge_active && fireedgeToken != "" ){
       const socket = io(Config.publicFireedgeEndpoint, {
         path: "/fireedge/websocket",
         query: {

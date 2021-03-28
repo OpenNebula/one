@@ -447,6 +447,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  discard         = "";
     string  source          = "";
     string  clone           = "";
+    string  shareable       = "";
     string  ceph_host       = "";
     string  ceph_secret     = "";
     string  ceph_user       = "";
@@ -458,6 +459,7 @@ int LibVirtDriver::deployment_description_kvm(
     string  sheepdog_host   = "";
     string  gluster_host    = "";
     string  gluster_volume  = "";
+    string  luks_secret     = "";
 
     string  total_bytes_sec            = "";
     string  total_bytes_sec_max_length = "";
@@ -892,6 +894,7 @@ int LibVirtDriver::deployment_description_kvm(
         discard   = disk[i]->vector_value("DISCARD");
         source    = disk[i]->vector_value("SOURCE");
         clone     = disk[i]->vector_value("CLONE");
+        shareable = disk[i]->vector_value("SHAREABLE");
 
         ceph_host   = disk[i]->vector_value("CEPH_HOST");
         ceph_secret = disk[i]->vector_value("CEPH_SECRET");
@@ -905,6 +908,8 @@ int LibVirtDriver::deployment_description_kvm(
 
         gluster_host   = disk[i]->vector_value("GLUSTER_HOST");
         gluster_volume = disk[i]->vector_value("GLUSTER_VOLUME");
+
+        luks_secret = disk[i]->vector_value("LUKS_SECRET");
 
         sheepdog_host   = disk[i]->vector_value("SHEEPDOG_HOST");
         total_bytes_sec = disk[i]->vector_value("TOTAL_BYTES_SEC");
@@ -984,15 +989,23 @@ int LibVirtDriver::deployment_description_kvm(
 
         // ---- Disk type and source for the image ----
 
-        if ( type == "BLOCK" )
+        if ( type == "BLOCK" || type == "BLOCK_CDROM" )
         {
             ostringstream dev;
 
             dev << vm->get_system_dir() << "/disk." << disk_id;
 
-            file << "\t\t<disk type='block' device='disk'>\n"
-                 << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev.str())
-                 << "/>\n";
+            if (type == "BLOCK_CDROM")
+            {
+                file << "\t\t<disk type='block' device='cdrom'>" << endl;
+            }
+            else
+            {
+                file << "\t\t<disk type='block' device='disk'>" << endl;
+            }
+
+            file << "\t\t\t<source dev=" << one_util::escape_xml_attr(dev.str())
+                 << "/>" << endl;
         }
         else if ( type == "ISCSI" )
         {
@@ -1161,6 +1174,14 @@ int LibVirtDriver::deployment_description_kvm(
 
         file <<"/>\n";
 
+        // ---- luks secret for target ----
+        if ( !luks_secret.empty())
+        {
+            file << "\t\t\t<encryption format='luks'>\n"
+                 << "\t\t\t\t<secret type='passphrase' uuid="
+                 << one_util::escape_xml_attr(luks_secret) <<"/>\n"
+                 << "\t\t\t</encryption>\n";
+        }
 
         // ---- boot order for this device ----
 
@@ -1175,6 +1196,13 @@ int LibVirtDriver::deployment_description_kvm(
         if (readonly)
         {
             file << "\t\t\t<readonly/>" << endl;
+        }
+
+        // ---- shareable attribute for the disk ----
+
+        if (shareable == "YES")
+        {
+            file << "\t\t\t<shareable/>" << endl;
         }
 
         // ---- Image Format using qemu driver ----

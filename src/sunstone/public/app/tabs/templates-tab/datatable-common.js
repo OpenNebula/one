@@ -21,11 +21,8 @@ define(function(require) {
 
   var TabDataTable = require('utils/tab-datatable');
   var SunstoneConfig = require('sunstone-config');
-  var Sunstone = require('sunstone');
-  var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
-  var Notifier = require('utils/notifier');
   var LabelsUtils = require('utils/labels/utils');
   var SearchDropdown = require('hbs!./datatable/search');
   var Status = require('utils/status');

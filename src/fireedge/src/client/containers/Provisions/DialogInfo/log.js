@@ -4,49 +4,45 @@ import PropTypes from 'prop-types'
 import { LinearProgress } from '@material-ui/core'
 
 import { useProvision, useFetch, useSocket } from 'client/hooks'
-import DebugLog from 'client/components/DebugLog'
+import DebugLog, { LogUtils } from 'client/components/DebugLog'
+import * as Types from 'client/types/provision'
 
-const Log = React.memo(({ hidden, data: { ID } }) => {
+const Log = React.memo(({ hidden, data: { ID: id } }) => {
   const { getProvision } = useSocket()
   const { getProvisionLog } = useProvision()
-  const { data: provisionLog, fetchRequest, loading } = useFetch(getProvisionLog)
+
+  const {
+    data: { uuid = id, log } = {},
+    fetchRequest,
+    loading
+  } = useFetch(getProvisionLog)
 
   React.useEffect(() => {
-    !hidden && fetchRequest({ id: ID })
-  }, [ID])
+    !hidden && fetchRequest({ id })
+  }, [id])
 
   React.useEffect(() => {
-    (!provisionLog && !hidden) && fetchRequest({ id: ID })
+    (!log && !hidden) && fetchRequest({ id })
   }, [hidden])
 
-  const log = provisionLog?.log?.reduce((res, dataLog) => {
-    try {
-      const json = JSON.parse(dataLog)
-      const { data, command, commandId } = json
-
-      return {
-        ...res,
-        [command]: {
-          [commandId]: [...(res?.[command]?.[commandId] ?? []), data]
-        }
-      }
-    } catch { return res }
-  }, {})
+  const parsedLog = React.useMemo(() =>
+    log
+      ?.map(entry => {
+        try { return JSON.parse(entry) } catch { return entry }
+      })
+      ?.reduce(LogUtils.concatNewMessageToLog, {})
+  , [loading])
 
   return loading ? (
     <LinearProgress color='secondary' style={{ width: '100%' }} />
   ) : (
-    <DebugLog
-      uuid={provisionLog?.uuid ?? ID}
-      socket={getProvision}
-      logDefault={log}
-    />
+    <DebugLog uuid={uuid} socket={getProvision} logDefault={parsedLog} />
   )
 }, (prev, next) =>
   prev.hidden === next.hidden && prev.data === next.data)
 
 Log.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: Types.Provision.isRequired,
   hidden: PropTypes.bool,
   fetchRequest: PropTypes.func
 }

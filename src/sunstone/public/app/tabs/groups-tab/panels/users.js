@@ -67,7 +67,7 @@ define(function(require) {
     if (this.element.USERS.ID != undefined){
       this.users = this.element.USERS.ID;
 
-      if (!$.isArray(this.users)){
+      if (!Array.isArray(this.users)){
         this.users = [this.users];
       }
     }
@@ -77,7 +77,7 @@ define(function(require) {
     if (this.element.ADMINS.ID != undefined){
       this.admins = this.element.ADMINS.ID;
 
-      if (!$.isArray(this.admins)){
+      if (!Array.isArray(this.admins)){
         this.admins = [this.admins];
       }
     }

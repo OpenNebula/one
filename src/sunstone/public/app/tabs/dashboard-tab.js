@@ -18,9 +18,6 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaVM = require('opennebula/vm');
-  var Accounting = require('utils/accounting');
   var OpenNebula = require('opennebula');
   var QuotaWidgets = require('utils/quotas/quota-widgets');
   var QuotaDefaults = require('utils/quotas/quota-defaults');

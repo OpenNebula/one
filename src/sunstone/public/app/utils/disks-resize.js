@@ -73,7 +73,7 @@ define(function(require){
 
     var template_disk = opts.template_json.VMTEMPLATE.TEMPLATE.DISK;
     var disks = [];
-    if ($.isArray(template_disk)) {
+    if (Array.isArray(template_disk)) {
       disks = template_disk;
     } else if (!$.isEmptyObject(template_disk)) {
       disks = [template_disk];
@@ -82,7 +82,7 @@ define(function(require){
     if (opts.template_base_json && opts.template_base_json.VMTEMPLATE) {
       var template_base_disk = opts.template_base_json.VMTEMPLATE.TEMPLATE.DISK;
       var disks_base = [];
-      if ($.isArray(template_base_disk)) {
+      if (Array.isArray(template_base_disk)) {
         disks_base = template_base_disk;
       } else if (!$.isEmptyObject(template_base_disk)) {
         disks_base = [template_base_disk];

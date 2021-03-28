@@ -29,9 +29,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -174,7 +177,7 @@ CommandParser::CmdParser.new(ARGV) do
                         OneMarketPlaceAppHelper::TEMPLATE_OPTIONS do
         if options[:marketplace].nil?
             STDERR.puts 'Marketplace to save the app is mandatory: '
-            STDERR.puts '\t -m marketplace_id'
+            STDERR.puts "\t -m marketplace_id"
             exit(-1)
         end
 

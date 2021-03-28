@@ -1,45 +1,43 @@
-import * as React from 'react'
+import React, { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
+
+import * as Types from 'client/types/provision'
 
 import ProvidersIcon from '@material-ui/icons/Public'
 import SelectCard from 'client/components/Cards/SelectCard'
 
+import Image from 'client/components/Image'
 import { isExternalURL } from 'client/utils'
-import {
-  PROVIDER_IMAGES_URL,
-  PROVISION_IMAGES_URL,
-  DEFAULT_IMAGE
-} from 'client/constants'
+import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
 
-const ProvisionTemplateCard = React.memo(
-  ({ value, isProvider, isSelected, handleClick }) => {
+const ProvisionTemplateCard = memo(
+  ({ value, isProvider, isSelected, isValid, handleClick }) => {
     const { description, name, plain = {} } = value
-    const { image } = isProvider ? plain : value
+    const { image = '' } = isProvider ? plain : value
+
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
 
-    const onError = evt => {
-      evt.target.src = evt.target.src === DEFAULT_IMAGE ? DEFAULT_IMAGE : ''
-    }
+    const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
-    const imgSource = React.useMemo(() =>
-      isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
-    , [image])
-    const dataCy = isProvider ? 'provider' : 'provision'
+    const imageUrl = useMemo(
+      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
+      [isExternalImage]
+    )
+
     return (
       <SelectCard
-        title={name}
-        subheader={description}
-        icon={<ProvidersIcon />}
-        isSelected={isSelected}
+        dataCy={isProvider ? 'provider' : 'provision'}
+        disableFilterImage={isExternalImage}
         handleClick={handleClick}
-        mediaProps={image && {
-          component: 'img',
-          image: imgSource,
-          draggable: false,
-          onError
+        icon={<ProvidersIcon />}
+        cardActionAreaProps={{ disabled: !isValid }}
+        isSelected={isSelected}
+        mediaProps={{
+          component: 'div',
+          children: <Image src={imageUrl} withSources={image && !isExternalImage} />
         }}
-        cardProps={{ 'data-cy': `${dataCy}-template-card` }}
-        cardHeaderProps={{ titleTypographyProps: { 'data-cy': `${dataCy}-template-card-title` } }}
+        subheader={description}
+        title={name}
       />
     )
   },
@@ -47,23 +45,22 @@ const ProvisionTemplateCard = React.memo(
 )
 
 ProvisionTemplateCard.propTypes = {
-  value: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    description: PropTypes.string,
-    plain: PropTypes.shape({
-      image: PropTypes.string
-    })
-  }),
+  handleClick: PropTypes.func,
   isProvider: PropTypes.bool,
   isSelected: PropTypes.bool,
-  handleClick: PropTypes.func
+  isValid: PropTypes.bool,
+  value: PropTypes.oneOfType([
+    Types.ProviderTemplate,
+    Types.ProvisionTemplate
+  ])
 }
 
 ProvisionTemplateCard.defaultProps = {
-  value: { name: '', description: '' },
+  handleClick: undefined,
   isProvider: undefined,
   isSelected: false,
-  handleClick: undefined
+  isValid: true,
+  value: { name: '', description: '' }
 }
 
 ProvisionTemplateCard.displayName = 'ProvisionTemplateCard'

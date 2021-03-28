@@ -1,4 +1,5 @@
 import * as STATES from 'client/constants/states'
+import COLOR from 'client/constants/color'
 
 const DATASTORE_TYPES = [
   {
@@ -19,12 +20,12 @@ const DATASTORE_STATES = [
   {
     name: STATES.READY,
     shortName: 'on',
-    color: '#3adb76'
+    color: COLOR.success.main
   },
   {
     name: STATES.DISABLED,
     shortName: 'off',
-    color: '#ec5840'
+    color: COLOR.error.dark
   }
 ]
 

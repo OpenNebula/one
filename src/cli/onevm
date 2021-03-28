@@ -27,9 +27,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -1241,7 +1244,8 @@ CommandParser::CmdParser.new(ARGV) do
             vm.extend(VirtualMachineExt)
 
             res = vm.save_as_template(args[1],
-                                      persistent => options[:persistent])
+                                      '',
+                                      :persistent => options[:persistent])
 
             if !OpenNebula.is_error?(res)
                 puts "Template ID: #{res}"
@@ -1439,6 +1443,11 @@ CommandParser::CmdParser.new(ARGV) do
             # Read user options
             keep   = options.key?(:keep)
             logger = Logger.new(log_to)
+            format = '%Y-%m-%d %H:%M:%S'
+
+            logger.formatter = proc do |severity, datetime, _p, msg|
+                "#{datetime.strftime(format)} #{severity.ljust(5)} : #{msg}\n"
+            end
 
             if options.key?(:oneshot)
                 binfo        = {}
@@ -1486,6 +1495,11 @@ CommandParser::CmdParser.new(ARGV) do
             # If logger is specified use it, if not use STDOUT
             options[:logger].nil? ? log_to = STDOUT : log_to = options[:logger]
             logger = Logger.new(log_to)
+            format = '%Y-%m-%d %H:%M:%S'
+
+            logger.formatter = proc do |severity, datetime, _p, msg|
+                "#{datetime.strftime(format)} #{severity.ljust(5)} : #{msg}\n"
+            end
 
             begin
                 rc = vm.restore(options[:datastore], logger)

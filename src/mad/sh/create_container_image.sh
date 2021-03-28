@@ -49,8 +49,8 @@ esac
 
 # try first to mount with the fuse2fs command and if that fails fallback to the
 # regular mount
-if ! fuse2fs -o noexec,nodev,nosuid $tmp_dir/$id.raw $tmp_dir/$id >/dev/null 2>&1 ; then
-    mount -o noexec,nodev,nosuid $tmp_dir/$id.raw $tmp_dir/$id
+if ! fuse2fs -o nosuid $tmp_dir/$id.raw $tmp_dir/$id >/dev/null 2>&1 ; then
+    mount -o nosuid $tmp_dir/$id.raw $tmp_dir/$id
 fi
 
 chown $USER:$GROUP $tmp_dir/$id

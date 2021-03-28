@@ -342,10 +342,10 @@ void ImageManager::_mkfs(unique_ptr<image_msg_t> msg)
     if (image = ipool->get(msg->oid()))
     {
         image->set_format(format);
-        
+
         ipool->update(image.get());
     }
-    
+
     image.reset();
 
     monitor_datastore(ds_id);

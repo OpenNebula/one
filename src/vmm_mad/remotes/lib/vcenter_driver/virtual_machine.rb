@@ -34,9 +34,12 @@ module VCenterDriver
     end
 
     if File.directory?(GEMS_LOCATION)
-        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-        require 'rubygems'
-        Gem.use_paths(File.realpath(GEMS_LOCATION))
+        real_gems_path = File.realpath(GEMS_LOCATION)
+        if !defined?(Gem) || Gem.path != [real_gems_path]
+            $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        end
     end
 
     $LOAD_PATH << RUBY_LIB_LOCATION
@@ -1958,7 +1961,7 @@ module VCenterDriver
             end
 
             card_spec = {
-                :key => 0,
+                :key => Time.now.utc.strftime('%Y%m%d%M%S%L').to_i,
                 :deviceInfo => {
                     :label => 'net' + card_num.to_s,
                     :summary => pg_name
@@ -2104,7 +2107,7 @@ module VCenterDriver
             end
 
             card_spec = {
-                :key => 0,
+                :key => Time.now.utc.strftime('%Y%m%d%M%S%L').to_i,
                 :deviceInfo => {
                     :label => 'net' + card_num.to_s,
                     :summary => pg_name
@@ -3029,7 +3032,7 @@ module VCenterDriver
         # Create a snapshot for the VM
         def create_snapshot(snap_id, snap_name)
             memory_dumps = true
-            memory_dumps = CONFIG[:memory_dumps] if CONFIG[:memory_dumps]
+            memory_dumps = CONFIG[:memory_dumps] unless CONFIG[:memory_dumps].nil?
 
             snapshot_hash = {
                 :name        => snap_id,

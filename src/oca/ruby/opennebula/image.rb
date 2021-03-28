@@ -103,8 +103,8 @@ module OpenNebula
         #######################################################################
 
         # Retrieves the information of the given Image.
-        def info()
-            super(IMAGE_METHODS[:info], 'IMAGE')
+        def info(decrypt = false)
+            super(IMAGE_METHODS[:info], 'IMAGE', decrypt)
         end
 
         alias_method :info!, :info
@@ -308,6 +308,8 @@ module OpenNebula
         end
 
         def wait_state(state, timeout=120)
+            require 'opennebula/wait_ext'
+
             extend OpenNebula::WaitExt
 
             rc = wait(state, timeout)

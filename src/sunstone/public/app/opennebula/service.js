@@ -19,6 +19,7 @@ define(function(require) {
   var OpenNebulaHelper = require("./helper");
   var OpenNebulaError  = require("./error");
   var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
 
   var RESOURCE = "DOCUMENT";
   var PATH = 'service';
@@ -140,6 +141,21 @@ define(function(require) {
           return callbackError ?
               callbackError(request, OpenNebulaError(response)) : null;
         }
+      });
+    },
+    "purgeDone": function(params){
+      var reqPath = PATH ? PATH : RESOURCE.toLowerCase();
+      $.ajax({
+        url: reqPath + '/purge',
+        type: "POST",
+        data: {
+          csrftoken: csrftoken
+        },
+        success: function(response) {
+          Notifier.notifyCustom(Locale.tr("Purge Services"),Locale.tr("Services on DONE state has been deleted from database"));
+          return null;
+        },
+        error: Notifier.onError
       });
     },
     "stateStr" : function(stateId) {

@@ -147,10 +147,24 @@ module OneProvision
             # Apply
             Driver.retry_loop("Driver action 'tf deploy' failed", provision) do
                 _, e, s = Driver.run(
-                    "cd #{tempdir}; terraform apply -auto-approve"
+                    "cd #{tempdir}; " \
+                    "export TF_LOG=#{OneProvisionLogger.tf_log}; " \
+                    'terraform apply -auto-approve'
                 )
 
                 unless s && s.success?
+                    conf  = Base64.encode64(Zlib::Deflate.deflate(@conf))
+                    state = ''
+
+                    if File.exist?("#{tempdir}/terraform.tfstate")
+                        @state = File.read("#{tempdir}/terraform.tfstate")
+                        state  = Base64.encode64(Zlib::Deflate.deflate(@state))
+                    end
+
+                    provision.add_tf(state, conf)
+
+                    provision.update
+
                     STDERR.puts '[ERROR] Hosts provision failed!!! ' \
                                 'Please log in to your console to delete ' \
                                 'left resources'
@@ -167,6 +181,10 @@ module OneProvision
             info.gsub!(' ', '')
             info = info.split("\n")
             info.map! {|ip| ip.split('=')[1] }
+
+            # rubocop:disable Style/StringLiterals
+            info.map! {|val| val.gsub("\"", '') }
+            # rubocop:enable Style/StringLiterals
 
             # From 0 to (size / 2) - 1 -> deploy IDS
             # From (size / 2) until the end -> IPs
@@ -208,7 +226,10 @@ module OneProvision
             # Destroy
             Driver.retry_loop("Driver action 'tf destroy' failed", provision) do
                 _, e, s = Driver.run(
-                    "cd #{tempdir}; terraform destroy #{target} -auto-approve"
+                    "cd #{tempdir}; " \
+                    "export TF_LOG=#{OneProvisionLogger.tf_log}; " \
+                    'terraform refresh; ' \
+                    "terraform destroy #{target} -auto-approve"
                 )
 
                 unless s && s.success?

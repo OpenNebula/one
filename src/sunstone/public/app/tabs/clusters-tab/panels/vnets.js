@@ -60,7 +60,7 @@ define(function(require) {
     if (this.element.VNETS.ID != undefined){
       vnets = this.element.VNETS.ID;
 
-      if (!$.isArray(vnets)){
+      if (!Array.isArray(vnets)){
         vnets = [vnets];
       }
     }

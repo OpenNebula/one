@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+set -e -o pipefail
+
+if [ "$1" == '--help' ]; then
+    cat - >&2 <<EOF
+Usage: $(basename "$0") [distro1 [distro2 ...]]
+
+SYNOPSIS
+  Regenerates Gemfile.locks for each distribution/version, distribution
+  identificator corresponds to the directory name. When started without
+  any parameter, refreshes all targets. To limit functionality only
+  on specific targets, pass the distribution identificators as arguments
+  on the command line.
+
+  IMPORTANT: Requires working Docker or Podman (with podman-docker wrapper)!
+
+EXAMPLES
+  $(basename "$0")                       - updates all distributions
+  $(basename "$0") CentOS8 Ubuntu2004    - updates only specified ones
+EOF
+
+    exit 1
+fi
+
+if ! docker image ls &>/dev/null; then
+    echo 'ERROR: Requires working Docker (Podman)' >&2
+    exit 1
+fi
+
+# Whole current repository will be passed into build
+GIT_DIR=$(readlink -f "$(dirname "$0")/../../")
+cd "${GIT_DIR}/share/install_gems/"
+
+# Specify targets as argument or take all
+DIRS=$*
+DIRS=${DIRS:-$(ls -d */)}
+
+for DIR in $DIRS; do
+    TARGET=${DIR%%/}
+    TARGET=${TARGET,,}
+
+    # guess container image and tag
+    DOCKER_IMAGE=${TARGET%%[0-9]*}
+    DOCKER_TAG=${TARGET##${DOCKER_IMAGE}}
+
+    case "${DOCKER_IMAGE}" in
+        ubuntu)
+            DOCKER_TAG=$(echo "${DOCKER_TAG}" | sed -e 's/^\([0-9][0-9]\)/\1./')
+            ;;
+    esac
+
+    echo "--- Platform ${TARGET} (${DOCKER_IMAGE}:${DOCKER_TAG})"
+
+    cat - <<EOF | docker run --rm -it -v "${GIT_DIR}:/git:z" "${DOCKER_IMAGE}:${DOCKER_TAG}" bash -c "eval $(cat -)"
+set -xe -o pipefail
+
+export LC_ALL=C
+
+# install/remove essential packages
+if command -v dpkg >/dev/null; then
+    apt-get update -qq
+    apt-get install -y ruby >/dev/null
+    dpkg -r ruby-bundler
+
+elif command -v rpm >/dev/null; then
+    if command -v dnf >/dev/null; then
+        dnf -q -y install 'dnf-command(config-manager)'
+        dnf config-manager --set-enabled powertools || /bin/true
+    fi
+
+    yum -q -y install rubygems findutils
+    yum -q -y remove  rubygem-bundler
+fi
+
+# install Bundler 1.x
+find /usr -name 'bundler*.gemspec' -delete
+export PATH=\$PATH:/usr/local/bin
+gem install bundler -v '<2' --no-document --quiet
+
+# install OpenNebula
+mkdir -p /run/lock
+cd /git
+if ! ./install.sh &>/tmp/install.out; then
+    cat /tmp/install.out
+    exit 1
+fi
+
+# install gems, check version in lock and copy back
+/usr/share/one/install_gems
+
+VERSION=\$(tail -1 /usr/share/one/Gemfile.lock | sed -e 's/\s*//')
+if ! [[ "\$VERSION" =~ ^1\. ]]; then
+    echo "ERROR: Generated with wrong Bundler version \$VERSION" >&2
+    exit 1
+fi
+
+mkdir -p /git/share/install_gems/${DIR}/
+\\cp -f /usr/share/one/Gemfile.lock /git/share/install_gems/${DIR}/
+exit 0
+EOF
+
+    echo
+done

@@ -66,7 +66,7 @@ define(function(require) {
 
         var nics = [];
 
-        if ($.isArray(template_nic)){
+        if (Array.isArray(template_nic)){
           nics = template_nic;
         } else if (!$.isEmptyObject(template_nic)){
           nics = [template_nic];
@@ -78,7 +78,7 @@ define(function(require) {
 
         var pcis = [];
 
-        if ($.isArray(template_json.VMTEMPLATE.TEMPLATE.PCI)){
+        if (Array.isArray(template_json.VMTEMPLATE.TEMPLATE.PCI)){
           pcis = template_json.VMTEMPLATE.TEMPLATE.PCI;
         } else if (!$.isEmptyObject(template_json.VMTEMPLATE.TEMPLATE.PCI)){
           pcis = [template_json.VMTEMPLATE.TEMPLATE.PCI];
@@ -93,7 +93,7 @@ define(function(require) {
         var template_alias = template_json.VMTEMPLATE.TEMPLATE.NIC_ALIAS;
         var alias = [];
 
-        if ($.isArray(template_alias)){
+        if (Array.isArray(template_alias)){
           alias = template_alias;
         } else if (!$.isEmptyObject(template_alias)){
           alias = [template_alias];
@@ -115,7 +115,7 @@ define(function(require) {
 
           opt.pci = (nic.TYPE == "NIC");
 
-          if (!_nics.find(nic => nic.NAME === ("NIC" + nicId))) {
+          if (!_nics.find(function(nic) { return nic.NAME === ("NIC" + nicId) })) {
               _nics.push({"NAME": "NIC" + nicId, "ALIAS": false, "DD_ID": provision_nic_accordion_dd_id});
           }
 
@@ -612,7 +612,9 @@ define(function(require) {
     dd_context.on("click", ".provision_remove_nic" , function() {
       dd_context.remove();
 
-      var index = _nics.findIndex(nic => nic.NAME === ("NIC" + dd_context["nic_id"]));
+      var index = _nics.findIndex(function(nic) {
+        return nic.NAME === ("NIC" + dd_context["nic_id"])
+      });
       
       _nics.splice(index, 1);
       
@@ -664,7 +666,7 @@ define(function(require) {
     Foundation.reflow(context, "accordion");
 
     $(".provision_add_network_interface", context).on("click", function() {
-      if (!_nics.find(nic => nic.NAME === ("NIC" + nicId))) {
+      if (!_nics.find(function(nic) { return nic.NAME === ("NIC" + nicId) })) {
           _nics.push({"NAME": "NIC" + nicId, "ALIAS": false, "DD_ID": provision_nic_accordion_dd_id});
       }
 
@@ -737,7 +739,7 @@ define(function(require) {
 
   function _hide_remove() {
     $.each(_nics, function(index, value) {
-        if (_nics.find(nic => nic.ALIAS === value.NAME)) {
+        if (_nics.find(function(nic) { return nic.ALIAS === value.NAME })) {
             $("#remove_nic_" + value.DD_ID).hide();
         } else {
             $("#remove_nic_" + value.DD_ID).show();

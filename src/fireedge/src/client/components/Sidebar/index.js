@@ -69,15 +69,11 @@ const Sidebar = memo(({ endpoints }) => {
       <Box className={classes.header}>
         <Logo
           width='100%'
-          height={100}
+          height={50}
           withText
-          viewBox='0 0 640 640'
           className={classes.svg}
         />
-        <IconButton
-          className={classes.hamburger}
-          onClick={handleSwapMenu}
-        >
+        <IconButton onClick={handleSwapMenu}>
           {isUpLg ? <MenuIcon /> : <CloseIcon />}
         </IconButton>
       </Box>

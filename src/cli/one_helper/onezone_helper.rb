@@ -38,8 +38,6 @@ class Replicator
           :service => 'opennebula' },
         { :name    => 'monitord.conf',
           :service => 'opennebula' },
-        { :name    => 'econe.conf',
-          :service => 'opennebula-econe' },
         { :name    => 'oneflow-server.conf',
           :service => 'opennebula-flow' },
         { :name    => 'onegate-server.conf',
@@ -57,7 +55,6 @@ class Replicator
     FOLDERS = [
         { :name => 'sunstone-views', :service => 'opennebula-sunstone' },
         { :name => 'auth', :service => 'opennebula' },
-        { :name => 'ec2query_templates', :service => 'opennebula' },
         { :name => 'hm', :service => 'opennebula' },
         { :name => 'sunstone-views', :service => 'opennebula' },
         { :name => 'vmm_exec', :service => 'opennebula' }
@@ -99,14 +96,13 @@ class Replicator
         @opennebula_services = { 'opennebula'          => false,
                                  'opennebula-sunstone' => false,
                                  'opennebula-gate'     => false,
-                                 'opennebula-flow'     => false,
-                                 'opennebula-econe'    => false }
+                                 'opennebula-flow'     => false }
     end
 
     # Process files and folders
     #
-    # @param sync_db [Boolean] True to sync database
-    def process_files(sync_db)
+    # @param sync_database [Boolean] True to sync database
+    def process_files(sync_database)
         # Files to be copied
         copy_onedconf
 
@@ -122,7 +118,7 @@ class Replicator
         restart_services
 
         # Sync database
-        sync_db
+        sync_db if sync_database
     end
 
     private
@@ -131,14 +127,14 @@ class Replicator
     #
     # @param configs [Object] Configuration
     def fetch_db_config(configs)
-        configs.store(:backend, configs[:raw]['/TEMPLATE/DB/BACKEND'])
+        configs.store(:backend, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/BACKEND'])
 
         if configs[:backend] == 'mysql'
-            configs.store(:server, configs[:raw]['/TEMPLATE/DB/SERVER'])
-            configs.store(:user, configs[:raw]['/TEMPLATE/DB/USER'])
-            configs.store(:password, configs[:raw]['/TEMPLATE/DB/PASSWD'])
-            configs.store(:dbname, configs[:raw]['/TEMPLATE/DB/DB_NAME'])
-            configs.store(:port, configs[:raw]['/TEMPLATE/DB/PORT'])
+            configs.store(:server, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/SERVER'])
+            configs.store(:user, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/USER'])
+            configs.store(:password, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/PASSWD'])
+            configs.store(:dbname, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/DB_NAME'])
+            configs.store(:port, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/PORT'])
             configs[:port] = '3306' if configs[:port] == '0'
         else
             STDERR.puts 'No mysql backend configuration found'
@@ -151,9 +147,9 @@ class Replicator
     # @param configs [Object] Configuration
     def fetch_fed_config(configs)
         configs.store(:server_id,
-                      configs[:raw]['/TEMPLATE/FEDERATION/SERVER_ID'])
+                      configs[:raw]['/OPENNEBULA_CONFIGURATION/FEDERATION/SERVER_ID'])
         configs.store(:zone_id,
-                      configs[:raw]['/TEMPLATE/FEDERATION/ZONE_ID'])
+                      configs[:raw]['/OPENNEBULA_CONFIGURATION/FEDERATION/ZONE_ID'])
     end
 
     # Replaces a file with the version located on a remote server

@@ -1,6 +1,0 @@
-<CreateKeyPairResponse xmlns="http://ec2.amazonaws.com/doc/<%=erb_version%>">
-   <requestId><%= @request_id %></requestId>
-  <keyName><%= erb_keyname %></keyName>
-  <keyFingerprint><%= erb_key_fingerprint %></keyFingerprint>
-  <keyMaterial><%= erb_private_key.to_pem.gsub("\n", "\r\n") %></keyMaterial>
-</CreateKeyPairResponse>

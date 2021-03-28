@@ -137,7 +137,7 @@ define(function(require) {
       clusters = this.element.CLUSTERS;
 
       if (clusters !== undefined && clusters.ID !== undefined) {
-        if ($.isArray(clusters.ID)) {
+        if (Array.isArray(clusters.ID)) {
           this.originalClusterIds = clusters.ID;
         } else {
           this.originalClusterIds = [clusters.ID];
@@ -151,7 +151,7 @@ define(function(require) {
 
       if (clusters !== undefined ) {
         clusters = clusters.split(",");
-        if ($.isArray(clusters)) {
+        if (Array.isArray(clusters)) {
           this.originalClusterIds = clusters;
         } else {
           this.originalClusterIds = [clusters];

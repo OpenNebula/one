@@ -159,7 +159,7 @@ define(function(require) {
 
   function _lengthOf(ids){
     var l = 0;
-    if ($.isArray(ids))
+    if (Array.isArray(ids))
       l = ids.length;
     else if (!$.isEmptyObject(ids))
       l = 1;

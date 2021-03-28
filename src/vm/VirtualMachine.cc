@@ -755,7 +755,6 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
     long int memory;
     float fvalue;
     set<int> cluster_ids;
-    set<int> datastore_ids;
     vector<Template *> quotas;
     ostringstream oss;
 
@@ -1030,7 +1029,7 @@ int VirtualMachine::insert(SqlDB * db, string& error_str)
         goto error_requirements;
     }
 
-    rc = automatic_requirements(cluster_ids, datastore_ids, error_str);
+    rc = automatic_requirements(cluster_ids, error_str);
 
     if ( rc != 0 )
     {
@@ -1498,12 +1497,13 @@ error_common:
  * @return 0 on success
  */
 static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
-        string& error_str)
+        bool& shareable, string& error_str)
 {
     ostringstream oss;
 
     vector<VectorAttribute*> vatts;
     set<int> csystem_ds;
+    shareable = false;
 
     DatastorePool * ds_pool = Nebula::instance().get_dspool();
 
@@ -1514,6 +1514,10 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
 
     for (int i=0; i<num_vatts; i++, csystem_ds.clear())
     {
+        bool is_shareable;
+        vatts[i]->vector_value("SHAREABLE", is_shareable);
+        shareable = shareable || is_shareable;
+
         int val;
 
         if (vatts[i]->vector_value("DATASTORE_ID", val) != 0)
@@ -1521,7 +1525,7 @@ static int get_datastore_requirements(Template *tmpl, set<int>& ds_ids,
             continue;
         }
 
-        if (auto ds = ds_pool->get(val))
+        if (auto ds = ds_pool->get_ro(val))
         {
             ds->get_compatible_system_ds(csystem_ds);
 
@@ -1552,11 +1556,13 @@ error_disk:
 /* ------------------------------------------------------------------------ */
 
 int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
-        set<int>& datastore_ids, string& error_str)
+                                           string& error_str)
 {
     string tm_mad_system;
     ostringstream   oss;
     set<string>     clouds;
+    bool            shareable = false;
+    set<int>        datastore_ids;
 
     obj_template->erase("AUTOMATIC_REQUIREMENTS");
     obj_template->erase("AUTOMATIC_DS_REQUIREMENTS");
@@ -1569,7 +1575,8 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
         return -1;
     }
 
-    rc = get_datastore_requirements(obj_template.get(), datastore_ids, error_str);
+    rc = get_datastore_requirements(obj_template.get(), datastore_ids,
+                                    shareable, error_str);
 
     if (rc == -1)
     {
@@ -1669,7 +1676,20 @@ int VirtualMachine::automatic_requirements(set<int>& cluster_ids,
         {
             oss << " & (TM_MAD = \"" << one_util::trim(tm_mad_system) << "\")";
         }
+    }
 
+    if (shareable)
+    {
+        if (!oss.str().empty())
+        {
+            oss << " & ";
+        }
+
+        oss << "(SHARED = \"YES\")";
+    }
+
+    if (!oss.str().empty())
+    {
         obj_template->add("AUTOMATIC_DS_REQUIREMENTS", oss.str());
     }
 
@@ -2749,7 +2769,7 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
 
     if ( !attrs.empty() && pname == "EC2" )
     {
-	    clouds.insert("ec2");
+        clouds.insert("ec2");
     }
 
     for (auto vattr : attrs)
@@ -2766,15 +2786,6 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS = {
-    {"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT", "SD_DISK_BUS", "UUID"} },
-    {"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT",
-         "VIRTIO_SCSI_QUEUES", "IOTHREADS"} },
-    {"INPUT", {"TYPE", "BUS"} },
-    {"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"} },
-    {"RAW", {"TYPE", "DATA", "DATA_VMX"} },
-    {"CPU_MODEL", {"MODEL"} }
-	};
 
 /**
  * Replaces the values of a vector value, preserving the existing ones
@@ -2797,7 +2808,7 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
     }
     else
     {
-		std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
+        std::vector<std::string> vnames = VirtualMachineTemplate::UPDATECONF_ATTRS[name];
 
         for (const auto& vname : vnames)
         {
@@ -2813,49 +2824,10 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
     }
 };
 
-/**
- * returns a copy the values of a vector value
- */
-static void copy_vector_values(Template *old_tmpl, Template *new_tmpl,
-        const char * name)
-{
-    string value;
-
-    VectorAttribute * old_attr = old_tmpl->get(name);
-
-    if ( old_attr == 0 )
-    {
-        return;
-    }
-
-    VectorAttribute * new_vattr = new VectorAttribute(name);
-
-    std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
-
-    for (const auto& vname : vnames)
-    {
-        std::string vval = old_attr->vector_value(vname);
-
-        if (!vval.empty())
-        {
-            new_vattr->replace(vname, vval);
-        }
-    }
-
-    if ( new_vattr->empty() )
-    {
-        delete new_vattr;
-    }
-    else
-    {
-        new_tmpl->set(new_vattr);
-    }
-}
-
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
+int VirtualMachine::updateconf(VirtualMachineTemplate* tmpl, string &err)
 {
     switch (state)
     {
@@ -2915,7 +2887,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Validates RAW data section
     // -------------------------------------------------------------------------
-    if (Nebula::instance().get_vmm()->validate_raw(&tmpl, err) != 0)
+    if (Nebula::instance().get_vmm()->validate_raw(tmpl, err) != 0)
     {
         return -1;
     }
@@ -2923,28 +2895,28 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     // -------------------------------------------------------------------------
     // Update OS, FEATURES, INPUT, GRAPHICS, RAW, CPU_MODEL
     // -------------------------------------------------------------------------
-    replace_vector_values(obj_template.get(), &tmpl, "OS");
+    replace_vector_values(obj_template.get(), tmpl, "OS");
 
     if ( set_boot_order(obj_template.get(), err) != 0 )
     {
         return -1;
     }
 
-    replace_vector_values(obj_template.get(), &tmpl, "FEATURES");
+    replace_vector_values(obj_template.get(), tmpl, "FEATURES");
 
-    replace_vector_values(obj_template.get(), &tmpl, "INPUT");
+    replace_vector_values(obj_template.get(), tmpl, "INPUT");
 
-    replace_vector_values(obj_template.get(), &tmpl, "GRAPHICS");
+    replace_vector_values(obj_template.get(), tmpl, "GRAPHICS");
 
-    replace_vector_values(obj_template.get(), &tmpl, "RAW");
+    replace_vector_values(obj_template.get(), tmpl, "RAW");
 
-    replace_vector_values(obj_template.get(), &tmpl, "CPU_MODEL");
+    replace_vector_values(obj_template.get(), tmpl, "CPU_MODEL");
 
     // -------------------------------------------------------------------------
     // Update CONTEXT: any value
     // -------------------------------------------------------------------------
     VectorAttribute * context_bck = obj_template->get("CONTEXT");
-    VectorAttribute * context_new = tmpl.get("CONTEXT");
+    VectorAttribute * context_new = tmpl->get("CONTEXT");
 
     if ( context_bck == 0 && context_new != 0 )
     {
@@ -2994,33 +2966,6 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-unique_ptr<VirtualMachineTemplate> VirtualMachine::get_updateconf_template() const
-{
-    auto conf_tmpl = make_unique<VirtualMachineTemplate>();
-
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "OS");
-
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "FEATURES");
-
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "INPUT");
-
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "GRAPHICS");
-
-    copy_vector_values(obj_template.get(), conf_tmpl.get(), "RAW");
-
-	VectorAttribute * context = obj_template->get("CONTEXT");
-
-	if ( context != 0 )
-	{
-		conf_tmpl->set(context->clone());
-	}
-
-    return conf_tmpl;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -3631,6 +3576,43 @@ int VirtualMachine::check_tm_mad_disks(const string& tm_mad, string& error)
     }
 
     obj_template->add("TM_MAD_SYSTEM", tm_mad);
+
+    return 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* ------------------------------------------------------------------------ */
+
+int VirtualMachine::check_shareable_disks(const string& vmm_mad, string& error)
+{
+    VirtualMachineManager * vmm = Nebula::instance().get_vmm();
+    const VirtualMachineManagerDriver * vmmd = vmm->get(vmm_mad);
+
+    if ( vmmd == nullptr )
+    {
+        error = "Cannot find vmm driver: " + vmm_mad;
+
+        return -1;
+    }
+
+    if ( vmmd->support_shareable() )
+    {
+        return 0;
+    }
+
+    for (const auto disk : disks)
+    {
+        bool shareable;
+        disk->vector_value("SHAREABLE", shareable);
+
+        if (shareable)
+        {
+            error = "VM has shareable disk, but vmm driver: '"
+                + vmm_mad + "' doesn't support shareable disks";
+
+            return -1;
+        }
+    }
 
     return 0;
 }

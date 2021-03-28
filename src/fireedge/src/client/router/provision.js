@@ -5,15 +5,18 @@ import {
   Settings as SettingsIcon
 } from '@material-ui/icons'
 
-import Login from 'client/containers/Login'
-import Dashboard from 'client/containers/Dashboard/Provision'
-import Settings from 'client/containers/Settings'
+import loadable from '@loadable/component'
 
-import Providers from 'client/containers/Providers'
-import ProvidersCreateForm from 'client/containers/Providers/Form/Create'
+const Login = loadable(() => import('client/containers/Login'), { ssr: false })
+const Dashboard = loadable(() => import('client/containers/Dashboard/Provision'), { ssr: false })
 
-import Provisions from 'client/containers/Provisions'
-import ProvisionCreateForm from 'client/containers/Provisions/Form/Create'
+const Providers = loadable(() => import('client/containers/Providers'), { ssr: false })
+const ProvidersFormCreate = loadable(() => import('client/containers/Providers/Form/Create'), { ssr: false })
+
+const Provisions = loadable(() => import('client/containers/Provisions'), { ssr: false })
+const ProvisionsFormCreate = loadable(() => import('client/containers/Provisions/Form/Create'), { ssr: false })
+
+const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
 
 export const PATH = {
   LOGIN: '/',
@@ -59,13 +62,13 @@ export const ENDPOINTS = [
     label: 'Create Provider',
     path: PATH.PROVIDERS.CREATE,
     authenticated: true,
-    Component: ProvidersCreateForm
+    Component: ProvidersFormCreate
   },
   {
     label: 'Edit Provider template',
     path: PATH.PROVIDERS.EDIT,
     authenticated: true,
-    Component: ProvidersCreateForm
+    Component: ProvidersFormCreate
   },
   {
     label: 'Provisions',
@@ -79,13 +82,13 @@ export const ENDPOINTS = [
     label: 'Create Provision',
     path: PATH.PROVISIONS.CREATE,
     authenticated: true,
-    Component: ProvisionCreateForm
+    Component: ProvisionsFormCreate
   },
   {
     label: 'Edit Provision template',
     path: PATH.PROVISIONS.EDIT,
     authenticated: true,
-    Component: ProvisionCreateForm
+    Component: ProvisionsFormCreate
   },
   {
     label: 'Settings',

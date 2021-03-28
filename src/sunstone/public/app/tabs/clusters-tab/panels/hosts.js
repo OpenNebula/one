@@ -60,7 +60,7 @@ define(function(require) {
     if (this.element.HOSTS.ID != undefined){
       hosts = this.element.HOSTS.ID;
 
-      if (!$.isArray(hosts)){
+      if (!Array.isArray(hosts)){
         hosts = [hosts];
       }
     }

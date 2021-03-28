@@ -316,6 +316,16 @@ module VNMMAD
             0
         end
 
+        def run_hooks_remote(args, stdin)
+            hostname = args[0]
+
+            cmd = "run-parts #{$PROGRAM_NAME}.d".gsub('/var/lib/one/remotes',
+                                                      '/var/tmp/one')
+            args.each {|arg| cmd << " --arg=\"#{arg}\"" }
+
+            SSHCommand.run(cmd, hostname, nil, stdin, 60)
+        end
+
         private
 
         # returns files sorted alphabetically

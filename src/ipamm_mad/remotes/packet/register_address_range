@@ -79,9 +79,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << PACKET_LOCATION
@@ -94,8 +97,11 @@ require 'nokogiri'
 require 'opennebula'
 require 'oneprovision'
 require 'ipaddr'
+require 'digest'
 
 IP_TYPE = %w[public_ipv4 global_ipv4]
+
+DEFAULT_PRIVATE_CIDR = "172.16.0.0/12"
 
 # Add ^ operator to the IPAddr class
 class IPAddr
@@ -138,6 +144,15 @@ begin
     # --------------------------------------------------------------------------
     # Connect to Packet and allocate a new IP
     # --------------------------------------------------------------------------
+    private_cidr = data.xpath('//AR/PRIVATE_CIDR').text
+
+    if private_cidr.empty?
+        private_cidr = DEFAULT_PRIVATE_CIDR
+    end
+
+    cidr = IPAddr.new(private_cidr)
+    mask = 0x0FFFFFFFF >> cidr.prefix
+
     packet            = Packet::Client.new
     packet.auth_token = pk_token
 
@@ -162,15 +177,20 @@ begin
 
     packet.create_ip(ip)
 
-    ipgw = IPAddr.new(ip.address) ^ 1
+    ipmd5 = Digest::MD5.hexdigest("#{ip.address}").to_i(16) & mask
+    eip   = IPAddr.new(ipmd5, Socket::AF_INET)
+
+    ipvm = (eip & mask) | cidr
+    ipgw = ipvm ^ 1
 
     puts <<-EOF
         AR = [
             TYPE     = "IP4",
-            IP       = "#{ip.address}",
+            IP       = "#{ipvm}",
             SIZE     = "#{ip.quantity}",
             IPAM_MAD = "packet",
             GATEWAY  = "#{ipgw}",
+            EXTERNAL_IP  = "#{ip.address}",
             NETWORK_MASK = "255.255.255.254",
             PACKET_IP_ID = "#{ip.id}",
             PROVISION_ID = "#{provision_id}"

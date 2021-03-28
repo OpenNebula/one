@@ -60,6 +60,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
     }
     case 'list': {
       const values = getOptionsFromList(options)
+      const firstOption = values?.[0]?.value ?? undefined
 
       return {
         values,
@@ -68,7 +69,7 @@ export const schemaUserInput = ({ mandatory, name, type, options, defaultValue }
           .trim()
           .concat(requiredSchema(mandatory, name, yup.string()))
           .oneOf(values.map(({ value }) => value))
-          .default(defaultValue ?? undefined)
+          .default(defaultValue ?? firstOption)
       }
     }
     case 'array': {

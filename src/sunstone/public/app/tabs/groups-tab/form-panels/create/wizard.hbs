@@ -17,7 +17,7 @@
   <div class="row collapse" id="default_vdc_warning">
     <div class="large-12 columns">
       <span class="radius warning label">
-        <i class="fas fa-exclamation-triangle"/> {{tr "New Groups are automatically added to the default VDC"}}
+        <i class="fas fa-exclamation-triangle" /> {{tr "New Groups are automatically added to the default VDC"}}
       </span>
     </div>
   </div>
@@ -56,7 +56,7 @@
           <label>
             {{tr "Name"}}
             <input required type="text" name="name" id="name" />
-            </label>
+          </label>
         </div>
       </div>
     </div>
@@ -65,7 +65,7 @@
         <div class="large-12 columns">
           <p class="subheader">
             {{tr "Allow users in this group to use the following Sunstone views"}}
-          &emsp;
+            &emsp;
             <span class="tip">
               {{tr "Not required. Defaults to the one set in sunstone-views.yaml"}}
             </span>
@@ -90,10 +90,9 @@
             <div class="large-7 columns">
               <h6>
                 {{name}}
-              {{#if description}}
+                {{#if description}}
                 <span class="tip">{{description}}</span>
                 {{/if}}
-                <a id="link_{{link}}">{{tr "Image"}}</a>
               </h6>
               <table class="dataTable">
                 <tr>
@@ -105,26 +104,23 @@
                 <tr>
                   <td>
                     {{name}} {{tr "View"}}
-                  {{#if description}}
+                    {{#if description}}
                     <span class="tip">{{description}}</span>
                     {{/if}}
                   </td>
                   <td>
-                    <input class="user_view_input" type="checkbox"
-                  id="group_view_{{id}}"
-                  value="{{id}}"/>
+                    <input class="user_view_input" type="checkbox" id="group_view_{{id}}" value="{{id}}" />
                   </td>
                   <td>
-                    <input class="admin_view_input" type="checkbox"
-                  id="group_admin_view_{{id}}"
-                  value="{{id}}"/>
+                    <input class="admin_view_input" type="checkbox" id="group_admin_view_{{id}}" value="{{id}}" />
                   </td>
                 </tr>
                 {{/each}}
               </table>
             </div>
           </div>
-          <br>{{/each}}</div>
+          <br>{{/each}}
+        </div>
       </div>
     </div>
     <div id="administrators" class="tabs-panel">
@@ -146,41 +142,42 @@
       </div>
     </div>
     <div id="system" class="tabs-panel">
-        <fieldset>
-          <legend>
-            {{tr "Image & Datastore"}}
-          </legend>
-          <div class="row">
-            <div class="large-6 columns">
-              {{tr "Make new images persistent by default"}}
-              <span class="tip">
-                {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."}}
-              </span>
-            </div>
-            <div class="large-4 columns">
-              <select id="default_image_persistent_new">
-                <option value=""></option>
-                <option value="YES"> {{tr "YES"}}</option>
-                <option value="NO"> {{tr "NO"}}</option>
-              </select>
-            </div>
+      <fieldset>
+        <legend>
+          {{tr "Image & Datastore"}}
+        </legend>
+        <div class="row">
+          <div class="large-6 columns">
+            {{tr "Make new images persistent by default"}}
+            <span class="tip">
+              {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage create)."}}
+            </span>
           </div>
-          <div class="row">
-            <div class="large-6 columns">
-              {{tr "Make save-as and clone images persistent by default"}}
-              <span class="tip">
-                {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage clone, onevm disk-saveas). If blank images will inherit the persistent attribute from the base image."}}
-              </span>
-            </div>
-            <div class="large-4 columns">
-              <select id="default_image_persistent">
-                <option value=""></option>
-                <option value="YES"> {{tr "YES"}}</option>
-                <option value="NO"> {{tr "NO"}}</option>
-              </select>
-            </div>
+          <div class="large-4 columns">
+            <select id="default_image_persistent_new">
+              <option value=""></option>
+              <option value="YES"> {{tr "YES"}}</option>
+              <option value="NO"> {{tr "NO"}}</option>
+            </select>
           </div>
-        </fieldset>
+        </div>
+        <div class="row">
+          <div class="large-6 columns">
+            {{tr "Make save-as and clone images persistent by default"}}
+            <span class="tip">
+              {{tr "Control the default value for the PERSISTENT attribute on image creation (oneimage clone, onevm
+              disk-saveas). If blank images will inherit the persistent attribute from the base image."}}
+            </span>
+          </div>
+          <div class="large-4 columns">
+            <select id="default_image_persistent">
+              <option value=""></option>
+              <option value="YES"> {{tr "YES"}}</option>
+              <option value="NO"> {{tr "NO"}}</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
     </div>
     <div id="resource_creation" class="tabs-panel">
       <div class="row">
@@ -189,7 +186,8 @@
             <input type="checkbox" id="shared_resources" name="shared_resources" value="YES" />
             {{tr "Allow users to view the VMs and Services of other users in the same group"}}
             <span class="tip">
-              {{tr "An ACL Rule will be created to give users in this group access to all the resources in the same group."}}
+              {{tr "An ACL Rule will be created to give users in this group access to all the resources in the same
+              group."}}
             </span>
           </label>
         </div>
@@ -198,9 +196,10 @@
         <div class="large-12 columns">
           <p class="subheader">
             {{tr "Allow users in this group to create the following resources"}}
-          &emsp;
+            &emsp;
             <span class="tip">
-              {{tr "This will create new ACL Rules to define which virtual resources this group's users will be able to create."}}
+              {{tr "This will create new ACL Rules to define which virtual resources this group's users will be able to
+              create."}}
             </span>
           </p>
         </div>
@@ -219,7 +218,8 @@
                 <th>
                   {{tr "Documents"}}
                   <span class="tip">
-                    {{tr "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to enable users of this group to use service composition via OneFlow, let it checked."}}
+                    {{tr "Documents are a special tool used for general purposes, mainly by OneFlow. If you want to
+                    enable users of this group to use service composition via OneFlow, let it checked."}}
                   </span>
                 </th>
               </tr>
@@ -227,27 +227,30 @@
             <tbody>
               <tr>
                 <td>
-                  <input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM"/>
+                  <input type="checkbox" id="group_res_vm" name="group_res_vm" class="resource_cb" value="VM" />
                 </td>
                 <td>
-                  <input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET"/>
+                  <input type="checkbox" id="group_res_net" name="group_res_net" class="resource_cb" value="NET" />
                 </td>
                 <td>
-                  <input type="checkbox" id="group_res_sg" name="group_res_sg" class="resource_cb" value="SECGROUP"/>
+                  <input type="checkbox" id="group_res_sg" name="group_res_sg" class="resource_cb" value="SECGROUP" />
                 </td>
                 <td>
-                  <input type="checkbox" id="group_res_vr" name="group_res_vr" class="resource_cb" value="VROUTER"/>
+                  <input type="checkbox" id="group_res_vr" name="group_res_vr" class="resource_cb" value="VROUTER" />
                 </td>
                 <td>
-                  <input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb" value="IMAGE"/>
+                  <input type="checkbox" id="group_res_image" name="group_res_image" class="resource_cb"
+                    value="IMAGE" />
                 </td>
                 <td>
-                  <input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb" value="TEMPLATE"/>
+                  <input type="checkbox" id="group_res_template" name="group_res_template" class="resource_cb"
+                    value="TEMPLATE" />
                 </td>
                 <td>
-                  <input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb" value="DOCUMENT"/>
+                  <input type="checkbox" id="group_res_document" name="group_res_document" class="resource_cb"
+                    value="DOCUMENT" />
                 </td>
-                <td/>
+                <td />
               </tr>
             </tbody>
           </table>

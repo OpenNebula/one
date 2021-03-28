@@ -286,7 +286,7 @@ class SunstoneVNC
             if is_running?
                 message="VNC server is still running"
                 STDERR.puts message
-                logger.error message
+                @logger.error message
                 return false
             end
 

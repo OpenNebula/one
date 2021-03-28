@@ -19,7 +19,7 @@
 require 'fileutils'
 require 'tmpdir'
 
-VERSION = "5.13.80"
+VERSION = "6.0.0"
 
 def version
     v = VERSION
@@ -68,7 +68,11 @@ GEM_DESCRIPTION={
             ['src/oca/ruby/opennebula.rb', '/lib'],
 
             # Needed for onevcenter
+            # TODO: respect source dir. hierarchy, this is terrible mess!
             ['src/vmm_mad/remotes/vcenter/vcenter_driver.rb', '/lib'],
+            ['src/vmm_mad/remotes/lib/vcenter_driver/**/*.rb', '/lib'],
+            ['src/vmm_mad/remotes/nsx/nsx_driver.rb', '/lib'],
+            ['src/vmm_mad/remotes/lib/nsx_driver/*.rb', '/lib'],
 
             # vcenter_driver.rb dependencies
             ['src/mad/ruby/VirtualMachineDriver.rb', '/lib'],
@@ -76,8 +80,14 @@ GEM_DESCRIPTION={
             ['src/mad/ruby/CommandManager.rb', '/lib'],
             ['src/mad/ruby/ActionManager.rb', '/lib'],
             ['src/mad/ruby/DriverExecHelper.rb', '/lib'],
+            ['src/mad/ruby/scripts_common.rb', '/lib'],
+
+            # other depenencies
+            ['src/flow/lib/models.rb', '/lib'],
+            ['src/flow/lib/models/*.rb', '/lib/models'],
 
             ['src/oca/ruby/opennebula/*.rb', '/lib/opennebula'],
+            ['src/oca/ruby/opennebula/flow/*.rb', '/lib/opennebula/flow'],
             ['src/authm_mad/remotes/**/*.rb', '/lib/opennebula'],
             ['src/cloud/common/CloudClient.rb', '/lib/cloud'],
             ['NOTICE', ''],
@@ -88,7 +98,11 @@ GEM_DESCRIPTION={
         :dependencies => [
             'nokogiri',
             'json',
-            'rbvmomi'
+            'rbvmomi',
+            'xmlrpc',
+            'treetop',    # oneflow
+            'ipaddress',  # oneflow
+            'parse-cron'  # oneflow
         ]
     },
 
@@ -98,9 +112,9 @@ GEM_DESCRIPTION={
             # Needed for JSON and YAML outputs
             ['share/doc/xsd/*.xsd', '/share/schemas/xsd'],
 
-            ['src/cli/one[a-z]*', '/bin', 'oneprovision'],
+            ['src/cli/one[a-z]*', '/bin', 'one(provider|provision)'],
             ['src/cli/*.rb', '/lib'],
-            ['src/cli/one_helper/*.rb', '/lib/one_helper'],
+            ['src/cli/one_helper/*.rb', '/lib/one_helper', 'one(provider|provision)'],
             ['NOTICE', ''],
             ['LICENSE', '']
         ],

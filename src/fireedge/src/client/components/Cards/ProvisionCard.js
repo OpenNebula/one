@@ -1,13 +1,14 @@
-import React, { memo, useState, useEffect, useMemo } from 'react'
+import React, { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import ProviderIcon from '@material-ui/icons/Public'
 import ProvisionIcon from '@material-ui/icons/Cloud'
 
-import SelectCard from 'client/components/Cards/SelectCard'
-import Action from 'client/components/Cards/SelectCard/Action'
+import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { StatusBadge } from 'client/components/Status'
+import Image from 'client/components/Image'
 import { isExternalURL } from 'client/utils'
+import * as Types from 'client/types/provision'
 import {
   PROVISIONS_STATES,
   PROVIDER_IMAGES_URL,
@@ -17,34 +18,28 @@ import {
 
 const ProvisionCard = memo(
   ({ value, isSelected, handleClick, isProvider, actions }) => {
-    const [{ image, ...body }, setBody] = useState({})
+    const { ID, NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
 
     const IMAGES_URL = isProvider ? PROVIDER_IMAGES_URL : PROVISION_IMAGES_URL
-    const { ID, NAME, TEMPLATE: { PLAIN = {}, BODY = {} } } = value
-    const stateInfo = PROVISIONS_STATES[body?.state]
+    const bodyData = isProvider ? PLAIN : BODY
 
-    useEffect(() => {
-      const json = isProvider ? PLAIN : BODY
-      setBody({ ...json, image: json.image ?? DEFAULT_IMAGE })
-    }, [])
+    const stateInfo = PROVISIONS_STATES[bodyData?.state]
+    const image = bodyData?.image ?? DEFAULT_IMAGE
 
-    const onError = evt => {
-      evt.target.src = evt.target.src === DEFAULT_IMAGE ? DEFAULT_IMAGE : ''
-    }
+    const isExternalImage = useMemo(() => isExternalURL(image), [image])
 
-    const imgSource = useMemo(() => (
-      isExternalURL(image) ? image : `${IMAGES_URL}/${image}`
-    ), [image])
-    const dataCy = isProvider ? 'provider' : 'provision'
+    const imageUrl = useMemo(
+      () => isExternalImage ? image : `${IMAGES_URL}/${image}`,
+      [isExternalImage]
+    )
+
     return (
       <SelectCard
-        title={NAME}
-        subheader={`#${ID}`}
-        isSelected={isSelected}
-        handleClick={handleClick}
         action={actions?.map(action =>
           <Action key={action?.cy} {...action} />
         )}
+        dataCy={isProvider ? 'provider' : 'provision'}
+        handleClick={handleClick}
         icon={
           isProvider ? (
             <ProviderIcon />
@@ -54,36 +49,27 @@ const ProvisionCard = memo(
             </StatusBadge>
           )
         }
-        cardProps={{ 'data-cy': `${dataCy}-card` }}
-        cardHeaderProps={{ titleTypographyProps: { 'data-cy': `${dataCy}-card-title` } }}
+        isSelected={isSelected}
         mediaProps={{
-          component: 'img',
-          image: imgSource,
-          draggable: false,
-          onError
+          component: 'div',
+          children: <Image src={imageUrl} withSources={image && !isExternalImage} />
         }}
+        subheader={`#${ID}`}
+        title={NAME}
+        disableFilterImage={isExternalImage}
       />
     )
   }, (prev, next) => (
     prev.isSelected === next.isSelected &&
-    !prev.isProvider &&
-    !next.isProvider &&
     prev.value?.TEMPLATE?.BODY?.state === next.value?.TEMPLATE?.BODY?.state
   )
 )
 
 ProvisionCard.propTypes = {
-  value: PropTypes.shape({
-    ID: PropTypes.string.isRequired,
-    NAME: PropTypes.string.isRequired,
-    TEMPLATE: PropTypes.shape({
-      PLAIN: PropTypes.object,
-      BODY: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.object
-      ])
-    })
-  }),
+  value: PropTypes.oneOfType([
+    Types.Provider,
+    Types.Provision
+  ]),
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   isProvider: PropTypes.bool,
@@ -97,11 +83,11 @@ ProvisionCard.propTypes = {
 }
 
 ProvisionCard.defaultProps = {
-  value: {},
-  isSelected: undefined,
+  actions: undefined,
   handleClick: undefined,
   isProvider: false,
-  actions: undefined
+  isSelected: undefined,
+  value: {}
 }
 
 ProvisionCard.displayName = 'ProvisionCard'

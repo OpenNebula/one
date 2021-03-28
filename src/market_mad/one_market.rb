@@ -32,9 +32,12 @@ else
 end
 
 if File.directory?(GEMS_LOCATION)
-    $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-    require 'rubygems'
-    Gem.use_paths(File.realpath(GEMS_LOCATION))
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+        require 'rubygems'
+        Gem.use_paths(real_gems_path)
+    end
 end
 
 $LOAD_PATH << RUBY_LIB_LOCATION
@@ -168,7 +171,8 @@ class MarketPlaceDriver < OpenNebulaDriver
                         'MD5'           => "#{info_doc['MD5']}",
                         'SIZE'          => "#{info_doc['SIZE']}",
                         'FORMAT'        => "#{info_doc['FORMAT']}",
-                        'DISPOSE'       => "#{info_doc['DISPOSE']}")
+                        'DISPOSE'       => "#{info_doc['DISPOSE']}",
+                        'DISPOSE_CMD'   => "#{info_doc['DISPOSE_CMD']}")
 
         mp_msg64 = Base64::strict_encode64(xml.to_xml)
 

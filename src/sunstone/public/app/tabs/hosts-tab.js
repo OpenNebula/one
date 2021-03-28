@@ -23,11 +23,6 @@ define(function(require) {
   var TAB_ID = require('./hosts-tab/tabId');
   var DATATABLE_ID = "dataTableHosts";
 
-  //var _dialogs = [
-  //  require('./hosts-tab/dialogs/create'),
-  //  require('./hosts-tab/dialogs/clone')
-  //];
-
   var _panels = [
     require('./hosts-tab/panels/info'),
     require('./hosts-tab/panels/monitor'),

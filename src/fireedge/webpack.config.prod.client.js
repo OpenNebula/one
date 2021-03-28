@@ -1,7 +1,8 @@
 const path = require('path')
 const webpack = require('webpack')
 const CopyPlugin = require('copy-webpack-plugin')
-const { defaultApps } = require('./src/server/utils/constants/defaults')
+const LoadablePlugin = require('@loadable/webpack-plugin')
+const { defaultApps, defaultFileStats, defaultAppName } = require('./src/server/utils/constants/defaults')
 
 const js = {
   test: /\.js$/,
@@ -10,11 +11,14 @@ const js = {
 }
 
 const bundle = ({ assets = false, name = 'flow' }) => {
-  const plugins = [new webpack.DefinePlugin({
-    'process.env': {
-      NODE_ENV: JSON.stringify('production')
-    }
-  })]
+  const plugins = [
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('production')
+      }
+    }),
+    new LoadablePlugin({ filename: name + defaultFileStats })
+  ]
   if (assets) {
     plugins.push(new CopyPlugin({
       patterns: [
@@ -32,7 +36,7 @@ const bundle = ({ assets = false, name = 'flow' }) => {
     output: {
       path: path.resolve(__dirname, 'dist', 'client'),
       filename: `bundle.${name}.js`,
-      publicPath: '/client'
+      publicPath: `/${defaultAppName}/client/`
     },
     stats: {
       warnings: false

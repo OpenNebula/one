@@ -80,11 +80,11 @@ datastores.each do |ds|
             if s.exitstatus == 0
                 disk_data << \
                     'DISK_RECOVERY_SNAPSHOT = ' \
-                    "[ ID=#{disk_id}, TIMESTAMP=#{o}]"
+                    "[ ID=#{disk_id}, TIMESTAMP=\"#{o}\" ]"
             else
                 disk_data << \
                     'DISK_RECOVERY_SNAPSHOT = ' \
-                    "[ ID=#{disk_id}, MSG=\"ERROR #{o}\"]"
+                    "[ ID=#{disk_id}, MSG=\"ERROR #{o}\" ]"
             end
         end
 
@@ -92,7 +92,7 @@ datastores.each do |ds|
 
         enc_data = Base64.strict_encode64(disk_data.join("\n"))
         monitor_data << \
-            "VM = [ ID=\"#{vm_id}\" MONITOR = \"#{enc_data}\" ]"
+            "VM = [ ID=\"#{vm_id}\", MONITOR=\"#{enc_data}\" ]"
     end
 end
 

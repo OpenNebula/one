@@ -88,7 +88,7 @@ module OpenNebula
         NO_ONE_AUTH_ERROR = "ONE_AUTH file not present"
 
         attr_accessor :one_auth
-        attr_reader   :one_endpoint
+        attr_reader   :one_endpoint, :one_zmq
 
         begin
             require 'xmlparser'
@@ -151,6 +151,14 @@ module OpenNebula
             @one_endpoint= @one_endpoint.rstrip
 
             @async = !options[:sync]
+
+            if options[:subscriber_endpoint]
+                @one_zmq = options[:subscriber_endpoint]
+            elsif ENV["ONE_ZMQ"]
+                @one_zmq = ENV["ONE_ZMQ"]
+            else
+                @one_zmq = 'tcp://localhost:2101'
+            end
 
             timeout=nil
             if options[:timeout]

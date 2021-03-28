@@ -31,8 +31,8 @@
     <label for="kvmRadio">{{tr "KVM"}}</label>
     <input type="radio" wizard_field="HYPERVISOR" name="hypervisor" value="vcenter" id="vcenterRadio">
     <label for="vcenterRadio">{{tr "vCenter"}}</label>
-    <input type="radio" wizard_field="HYPERVISOR" name="hypervisor" value="lxd" id="lxdRadio">
-    <label for="lxdRadio">{{tr "LXD"}}</label>
+    <input type="radio" wizard_field="HYPERVISOR" name="hypervisor" value="lxc" id="lxcRadio">
+    <label for="lxcRadio">{{tr "LXC"}}</label>
     <input type="radio" wizard_field="HYPERVISOR" name="hypervisor" value="firecracker" id="firecrackerRadio">
     <label for="firecrackerRadio">{{tr "Firecracker"}}</label>
   </div>
@@ -121,38 +121,6 @@
     </div>
   </div>
 </fieldset>
-<fieldset class="hypervisor only_lxd" style="display: none;">
-  <legend>{{tr "LXD"}}</legend>
-  <div class="row hypervisor only_lxd" style="display: none;">
-    <div class="medium-6 columns">
-      <label  for="lxd_security_privileged">
-        {{tr "Security Privileged"}}
-      </label>
-      <select id="lxd_security_privileged">
-         <option value="yes">Yes</option>
-         <option selected="selected" value="no">No</option>
-      </select>
-    </div>
-  </div>
-  <div class="row hypervisor only_lxd" style="display: none;">
-    <div class="medium-6 columns">
-      <label  for="lxd_security_nesting">
-        {{tr "Security Nesting"}}
-      </label>
-      <select id="lxd_security_nesting">
-         <option value="yes">Yes</option>
-         <option selected="selected" value="no">No</option>
-      </select>
-    </div>
-  </div>
-  <div class="row hypervisor only_lxd" style="display: none;">
-    <div class="medium-6 columns">
-      <label id="lxd_profile_label">
-        {{tr "Profile"}}
-      </label>
-    </div>
-  </div>
-</fieldset>
 {{#isFeatureEnabled "showback"}}
 <div class="row">
   <div class="medium-12 columns">
@@ -209,6 +177,27 @@
           <label class="total_disk_cost" style="font-size:200%;" id="total_value_disk" hidden="true"></label>
           <label class="total_disk_cost" hidden="true">/{{tr "month"}}</label>
         </div>
+      </div>
+    </fieldset>
+  </div>
+</div>
+<div class="row hypervisor not_vcenter">
+  <div class="medium-12 columns">
+    <fieldset>
+      <legend>
+        {{tr "Backups"}}
+      </legend>
+      <div class="medium-6 columns">
+        <label  for="FREQUENCY_SECONDS">
+          {{tr "Backup Frequency in Seconds"}}
+        </label>
+        <input type="number" step="any" min="0" wizard_field="FREQUENCY_SECONDS" id="FREQUENCY_SECONDS"/>
+      </div>
+      <div class="medium-6 columns">
+        <label  for="MARKETPLACE_ID">
+          {{tr "Marketplace ID"}}
+        </label>
+        <select wizard_field="MARKETPLACE_ID" id="MARKETPLACE_ID"/>
       </div>
     </fieldset>
   </div>

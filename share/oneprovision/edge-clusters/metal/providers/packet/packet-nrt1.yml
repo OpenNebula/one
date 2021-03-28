@@ -1,0 +1,26 @@
+name: 'packet-nrt1'
+
+description: 'Edge cluster in Equinix Tokyo, Japan'
+provider: 'packet'
+
+plain:
+  image: 'EQUINIX'
+  location_key: 'facility'
+  provision_type: 'metal'
+
+connection:
+  token: 'Packet token'
+  project: 'Packet project'
+  facility: 'nrt1'
+
+inputs:
+   - name: 'packet_os'
+     type: 'list'
+     options:
+       - 'centos_8'
+   - name: 'packet_plan'
+     type: 'list'
+     options:
+       - 't1.small'
+       - 'c1.small'
+       - 'm1.xlarge'

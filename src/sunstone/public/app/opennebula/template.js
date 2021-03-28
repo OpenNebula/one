@@ -148,7 +148,7 @@ define(function(require) {
       if (diskCost != 0) {
         var template_disk = capacity.DISK;
         var disks = [];
-        if ($.isArray(template_disk)) {
+        if (Array.isArray(template_disk)) {
           disks = template_disk;
         } else if (!$.isEmptyObject(template_disk)) {
           disks = [template_disk];

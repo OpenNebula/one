@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { useWatch } from 'react-hook-form'
 
 import { useProvision, useListForm } from 'client/hooks'
@@ -18,31 +18,30 @@ const Provider = () => ({
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { providers } = useProvision()
-    const template = useWatch({ name: TEMPLATE_ID })
-    const templateSelected = template?.[0] ?? {}
+    const provisionTemplate = useWatch({ name: TEMPLATE_ID })
+    const provisionTemplateSelected = provisionTemplate?.[0] ?? {}
 
     const providersByTypeAndService = React.useMemo(() =>
       providers.filter(({ TEMPLATE: { PLAIN = {} } = {} }) =>
-        PLAIN.provider === templateSelected.provider &&
-        PLAIN.provision_type === templateSelected.provision
+        PLAIN.provider === provisionTemplateSelected.provider &&
+        PLAIN.provision_type === provisionTemplateSelected.provision_type
       )
-    , [providers])
+    , [])
 
     const {
       handleSelect,
       handleUnselect
     } = useListForm({ key: STEP_ID, setList: setFormData })
 
-    useEffect(() => {
-      // delete provider selected at template if not exists
-      const existsProvider = providers?.some(({ ID }) => ID === data?.[0])
-      !existsProvider && handleUnselect(data?.[0])
-    }, [])
+    const handleClick = (provider, isSelected) => {
+      const { ID } = provider
 
-    const handleClick = (id, isSelected) => {
-      // reset inputs when change provider
+      // reset inputs when selected provider changes
       setFormData(prev => ({ ...prev, [INPUTS_ID]: undefined }))
-      isSelected ? handleUnselect(id) : handleSelect(id)
+
+      isSelected
+        ? handleUnselect(ID, item => item.ID !== ID)
+        : handleSelect(provider)
     }
 
     return (
@@ -51,16 +50,15 @@ const Provider = () => ({
         EmptyComponent={<EmptyCard title={'Your providers list is empty'} />}
         CardComponent={ProvisionCard}
         gridProps={{ 'data-cy': 'providers' }}
-        cardsProps={({ value: { ID } }) => {
-          const isSelected = data?.some(selected => selected === ID)
+        cardsProps={({ value = {} }) => {
+          const isSelected = data?.some(selected => selected.ID === value.ID)
 
           return {
             isProvider: true,
             isSelected,
-            handleClick: () => handleClick(ID, isSelected)
+            handleClick: () => handleClick(value, isSelected)
           }
         }}
-        breakpoints={{ xs: 12, sm: 6, md: 4 }}
       />
     )
   }, [])

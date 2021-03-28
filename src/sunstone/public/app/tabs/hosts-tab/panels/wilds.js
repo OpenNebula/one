@@ -91,7 +91,7 @@ define(function(require) {
 
     if (that.element.TEMPLATE.VM) {
       var wilds = that.element.TEMPLATE.VM;
-      if (!$.isArray(wilds)) { // If only 1 VM convert to array
+      if (!Array.isArray(wilds)) { // If only 1 VM convert to array
         wilds = [wilds];
       }
 

@@ -18,8 +18,6 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-
-  //  require('foundation.tab');
   var BaseFormPanel = require("utils/form-panels/form-panel");
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
@@ -28,8 +26,6 @@ define(function(require) {
   var RoleTab = require("tabs/vmgroup-tab/utils/role-tab");
   var AffinityRoleTab = require("tabs/vmgroup-tab/utils/affinity-role-tab");
   var Notifier = require("utils/notifier");
-
-  var Utils = require("../utils/common");
 
   /*
     TEMPLATES
@@ -88,12 +84,6 @@ define(function(require) {
    */
 
   function _htmlWizard() {
-
-    var opts = {
-      info: false,
-      select: true
-    };
-
     return TemplateWizardHTML({
       "affinity-role-tab": this.affinity_role_tab.html(),
       "formPanelId": this.formPanelId

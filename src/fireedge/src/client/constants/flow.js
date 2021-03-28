@@ -1,63 +1,64 @@
 import * as STATES from 'client/constants/states'
+import COLOR from 'client/constants/color'
 
 export const APPLICATION_STATES = [
   {
     name: STATES.PENDING,
-    color: '#4DBBD3',
+    color: COLOR.info.main,
     meaning: `
       The Application starts in this state, and will stay in
       it until the LCM decides to deploy it`
   },
   {
     name: STATES.DEPLOYING,
-    color: '#4DBBD3',
+    color: COLOR.info.main,
     meaning: 'Some Tiers are being deployed'
   },
   {
     name: STATES.RUNNING,
-    color: '#3adb76',
+    color: COLOR.success.main,
     meaning: 'All Tiers are deployed successfully'
   },
   {
     name: STATES.UNDEPLOYING,
-    color: '#ffa07a',
+    color: COLOR.error.light,
     meaning: 'Some Tiers are being undeployed'
   },
   {
     name: STATES.WARNING,
-    color: '#ffa07a',
+    color: COLOR.error.light,
     meaning: 'A VM was found in a failure state'
   },
   {
     name: STATES.DONE,
-    color: '#ec5840',
+    color: COLOR.error.dark,
     meaning: `
       The Applications will stay in this state after
       a successful undeployment. It can be deleted`
   },
   {
     name: STATES.FAILED_UNDEPLOYING,
-    color: '#ec5840',
+    color: COLOR.error.dark,
     meaning: 'An error occurred while undeploying the Application'
   },
   {
     name: STATES.FAILED_DEPLOYING,
-    color: '#ec5840',
+    color: COLOR.error.dark,
     meaning: 'An error occurred while deploying the Application'
   },
   {
     name: STATES.SCALING,
-    color: '#ffa07a',
+    color: COLOR.error.light,
     meaning: 'A Tier is scaling up or down'
   },
   {
     name: STATES.FAILED_SCALING,
-    color: '#ec5840',
+    color: COLOR.error.dark,
     meaning: 'An error occurred while scaling the Application'
   },
   {
     name: STATES.COOLDOWN,
-    color: '#ffa07a',
+    color: COLOR.error.light,
     meaning: 'A Tier is in the cooldown period after a scaling operation'
   }
 ]

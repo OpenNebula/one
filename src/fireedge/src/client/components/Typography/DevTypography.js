@@ -1,39 +1,47 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { withStyles, Badge, Typography } from '@material-ui/core'
+import { makeStyles, Typography, Chip } from '@material-ui/core'
 
-const StyledBadge = withStyles(() => ({
-  badge: {
-    right: -25,
-    top: 13,
-    fontSize: '0.7rem'
+const useStyles = makeStyles(() => ({
+  root: {
+    display: 'inline-flex',
+    gap: '1em',
+    width: '100%'
+  },
+  label: {
+    flexGrow: 1
   }
-}))(Badge)
+}))
 
-const DevTypography = memo(({ label, labelProps, color, badgeProps }) => {
+const DevTypography = memo(({ label, labelProps, color, chipProps }) => {
+  const classes = useStyles()
+
   return (
-    <StyledBadge badgeContent="DEV" color={color} {...badgeProps}>
-      <Typography {...labelProps}>{label}</Typography>
-    </StyledBadge>
+    <span className={classes.root}>
+      <Typography {...labelProps} className={classes.label}>
+        {label}
+      </Typography>
+      <Chip size='small' label='DEV' color={color} {...chipProps} />
+    </span>
   )
 })
 
 DevTypography.propTypes = {
+  chipProps: PropTypes.object,
+  color: PropTypes.string,
   label: PropTypes.oneOfType([
     PropTypes.object,
     PropTypes.string.isRequired
   ]),
-  labelProps: PropTypes.object,
-  color: PropTypes.string,
-  badgeProps: PropTypes.object
+  labelProps: PropTypes.object
 }
 
 DevTypography.defaultProps = {
-  label: '',
-  labelProps: undefined,
+  chipProps: undefined,
   color: 'secondary',
-  badgeProps: undefined
+  label: '',
+  labelProps: undefined
 }
 
 DevTypography.displayName = 'DevTypography'

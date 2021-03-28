@@ -15,29 +15,47 @@ export default makeStyles(theme => ({
       '& .badge': {
         color: theme.palette.secondary.main,
         backgroundColor: theme.palette.secondary.contrastText
-      },
-      '& $subheader': { color: 'inherit' }
+      }
     })
   }),
   actionArea: {
-    height: '100%',
-    minHeight: ({ minHeight = 140 }) => minHeight
+    '&:disabled': {
+      filter: 'brightness(0.5)'
+    }
   },
   mediaActionArea: {
-    display: 'flex',
-    height: ({ mediaHeight = 140 }) => mediaHeight,
     '&:hover': {
       backgroundColor: theme.palette.secondary.contrastText,
       '& $media': { filter: 'none' }
     }
   },
   media: {
+    width: '100%',
+    paddingTop: '38.85%',
+    overflow: 'hidden',
+    position: 'relative',
+    '& img': {
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover',
+      position: 'absolute',
+      userSelect: 'none'
+    },
     transition: theme.transitions.create('filter', { duration: '0.2s' }),
-    filter: ({ isSelected }) => (theme.palette.type === 'dark' || isSelected)
-      ? 'contrast(0) brightness(2)'
-      : 'contrast(0) brightness(0.8)'
+    filter: ({ isSelected, disableFilterImage }) => {
+      return disableFilterImage
+        ? 'none'
+        : (theme.palette.type === 'dark' || isSelected)
+          ? 'contrast(0) brightness(2)'
+          : 'contrast(0) brightness(0.8)'
+    }
   },
-  headerRoot: { alignItems: 'end' },
+  headerRoot: {
+    // align header icon to top
+    alignItems: 'end'
+  },
   headerContent: { overflow: 'auto' },
   headerAvatar: {
     display: 'flex',
@@ -46,6 +64,8 @@ export default makeStyles(theme => ({
       : theme.palette.text.primary
   },
   subheader: {
+    color: ({ isSelected }) =>
+      isSelected ? 'inherit' : theme.palette.text.secondary,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'initial',

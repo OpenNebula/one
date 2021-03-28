@@ -170,7 +170,8 @@ define(function(require) {
       $("#time_input").removeAttr("class");
     });
 
-    context.off("click" , "#edit_inst_action_json").on("click" , "#edit_inst_action_json", function(e){
+    context.off("click" , "#edit_inst_action_json")
+    context.on("click" , "#edit_inst_action_json", function(e){
       e.preventDefault();
       var id = $(this).attr("data_id");
       if(id && id.length && contextRow){
@@ -209,6 +210,12 @@ define(function(require) {
     // Boot order
     //----------------------------------------------------------------------------
 
+    context.off("change", "input.boot-order-instantiate-cb")
+    context.on("change", "input.boot-order-instantiate-cb", function() {
+      _refreshBootValue(context);
+    })
+
+    context.off("click", "button.boot-order-instantiate-up")
     context.on("click", "button.boot-order-instantiate-up", function(){
       var tr = $(this).closest("tr");
       tr.prev().before(tr);
@@ -218,6 +225,7 @@ define(function(require) {
       return false;
     });
 
+    context.off("click", "button.boot-order-instantiate-down")
     context.on("click", "button.boot-order-instantiate-down", function(){
       var tr = $(this).closest("tr");
       tr.next().after(tr);
@@ -225,10 +233,6 @@ define(function(require) {
       _refreshBootValue(context);
 
       return false;
-    });
-
-    $("table.boot-order-instantiate tbody", context).on("change", "input", function(){
-      _refreshBootValue(context);
     });
   }
 
@@ -260,7 +264,7 @@ define(function(require) {
       var Template = Array.isArray(inElement)? inElement: [inElement];
       var Finder = Array.isArray(finder)? finder: [finder];
       var x = Template.map(function(internalTemplate){return JSON.stringify(internalTemplate);});
-      Finder.forEach(fnd => {
+      Finder.forEach(function(fnd) {
         if($.inArray(JSON.stringify(fnd),x) === -1){
           diff.push(fnd);
         }
@@ -394,7 +398,7 @@ define(function(require) {
       if(original_tmpl.TEMPLATE.PCI != undefined){
         var original_pcis;
 
-        if ($.isArray(original_tmpl.TEMPLATE.PCI)){
+        if (Array.isArray(original_tmpl.TEMPLATE.PCI)){
           original_pcis = original_tmpl.TEMPLATE.PCI;
         } else if (!$.isEmptyObject(original_tmpl.TEMPLATE.PCI)){
           original_pcis = [original_tmpl.TEMPLATE.PCI];
@@ -462,7 +466,7 @@ define(function(require) {
       var os = original_tmpl.TEMPLATE.OS ? original_tmpl.TEMPLATE.OS : {};
 
       if (boot && boot.length > 0) {
-        os.BOOT = boot
+        os.BOOT = boot;
         tmp_json.OS = os;
       } else {
         tmp_json.OS = os;
@@ -719,13 +723,13 @@ define(function(require) {
           if (idsLength == idsDone){
             Sunstone.enableFormPanelSubmit(that.tabId);
           }
-          
+
           var osJSON = template_json.VMTEMPLATE.TEMPLATE.OS;
           if (osJSON && osJSON["BOOT"]) {
             _fillBootValue(context, osJSON["BOOT"]);
           }
 
-          _loadBootOrder(context, template_json.VMTEMPLATE.TEMPLATE)
+          _loadBootOrder(context, template_json.VMTEMPLATE.TEMPLATE);
         },
         error: function(request, error_json, container) {
           Notifier.onError(request, error_json, container);
@@ -803,7 +807,7 @@ define(function(require) {
   function _addBootRow(context, value, label) {
     $("table.boot-order-instantiate tbody", context).append(
       "<tr value=\""+value+"\">"+
-        "<td><input type=\"checkbox\"/></td>"+
+        "<td><input class=\"boot-order-instantiate-cb\" type=\"checkbox\"/></td>"+
         "<td>"+value+"</td>"+
         "<td><label>"+label+"</label></td>"+
         "<td>"+
@@ -822,7 +826,7 @@ define(function(require) {
     if (templateJSON.DISK !== undefined){
       var disks = templateJSON.DISK;
 
-      if (!$.isArray(disks)){
+      if (!Array.isArray(disks)){
         disks = [disks];
       }
       disks = disks.filter(distinct);
@@ -852,7 +856,7 @@ define(function(require) {
     if (templateJSON.NIC !== undefined){
       var nics = templateJSON.NIC;
 
-      if (!$.isArray(nics)){
+      if (!Array.isArray(nics)){
         nics = [nics];
       }
       nics = nics.filter(distinct);

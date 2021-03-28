@@ -66,7 +66,7 @@ define(function(require) {
       } else {
         var values;
 
-        if ($.isArray(value)){
+        if (Array.isArray(value)){
           values = value;
         }else{
           values = [value];

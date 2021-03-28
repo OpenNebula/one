@@ -1,20 +1,30 @@
 import * as React from 'react'
 
+import clsx from 'clsx'
 import { Container, Box, Grid } from '@material-ui/core'
 
-import { useFetchAll, useProvision } from 'client/hooks'
+import { useAuth, useFetchAll, useProvision } from 'client/hooks'
 import * as Widgets from 'client/components/Widgets'
+import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
 
 function Dashboard () {
+  const { settings: { disableanimations } = {} } = useAuth()
   const { getProviders, getProvisions } = useProvision()
   const { fetchRequestAll } = useFetchAll()
+
+  const classes = dashboardStyles({ disableanimations })
 
   React.useEffect(() => {
     fetchRequestAll([getProviders(), getProvisions()])
   }, [])
 
+  const withoutAnimations = String(disableanimations).toUpperCase() === 'YES'
+
   return (
-    <Container disableGutters>
+    <Container
+      disableGutters
+      className={clsx({ [classes.withoutAnimations]: withoutAnimations })}
+    >
       <Box py={3}>
         <Grid container spacing={3}>
           <Grid item xs={12}>

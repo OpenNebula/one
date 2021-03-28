@@ -13,10 +13,10 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import { defaultApps, defaultAppName } from 'server/utils/constants/defaults'
+import { defaultApps, defaultAppName, availableLanguages } from 'server/utils/constants/defaults'
+import * as Setting from 'client/constants/setting'
 
 export const JWT_NAME = 'FireedgeToken'
-export const DEFAULT_LANGUAGE = 'en_US'
 
 export const BY = {
   text: 'OpenNebula',
@@ -34,8 +34,15 @@ export const IMAGES_URL = `${STATIC_FILES_URL}/images`
 export const PROVIDER_IMAGES_URL = `${IMAGES_URL}/providers`
 export const PROVISION_IMAGES_URL = `${IMAGES_URL}/provisions`
 export const DEFAULT_IMAGE = `${IMAGES_URL}/default.webp`
+export const IMAGE_FORMATS = ['webp', 'png', 'jpg']
 
 export const FONTS_URL = `${STATIC_FILES_URL}/fonts`
+
+export const SCHEMES = Setting.SCHEMES
+export const DEFAULT_SCHEME = Setting.SCHEMES.SYSTEM
+
+export const LANGUAGES = availableLanguages
+export const DEFAULT_LANGUAGE = 'en'
 export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 
 export const ONEADMIN_ID = '0'
@@ -53,6 +60,7 @@ export const FILTER_POOL = {
 
 export const INPUT_TYPES = {
   TEXT: 'text',
+  PASSWORD: 'password',
   HIDDEN: 'hidden',
   SELECT: 'select',
   CHECKBOX: 'checkbox',

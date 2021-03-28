@@ -20,6 +20,7 @@
 #include "Template.h"
 
 #include <string>
+#include <memory>
 
 /**
  *  Virtual Machine Template class, it represents a VM configuration file.
@@ -83,6 +84,19 @@ public:
     {
         Template::parse_restricted(ra, restricted);
     }
+
+    // -------------------------------------------------------------------------
+    // UpdateConf attributes
+    // -------------------------------------------------------------------------
+    static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS;
+
+    /**
+     *  Returns a new template that contains only the attribues vaild in an
+     *  update conf operation
+     *
+     *  @return pointer to new VM template
+     */
+    std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
 
     // -------------------------------------------------------------------------
     // Encrypted attributes interface implementation

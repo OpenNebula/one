@@ -42,6 +42,7 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
+source ${DRIVER_PATH}/../../datastore/libfs.sh
 source ${DRIVER_PATH}/../../etc/datastore/ceph/ceph.conf
 source ${DRIVER_PATH}/../../etc/vmm/kvm/kvmrc
 
@@ -71,13 +72,15 @@ done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
+                    /VM/LCM_STATE)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
+LCM_STATE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Get Datastore information
@@ -88,9 +91,11 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
         XPATH_ELEMENTS[i++]="$element"
 done < <(onedatastore show -x $DS_ID | $XPATH \
-                    /DATASTORE/TEMPLATE/EC_POOL_NAME)
+                    /DATASTORE/TEMPLATE/EC_POOL_NAME \
+                    /DATASTORE/TEMPLATE/BRIDGE_LIST)
 
 EC_POOL_NAME="${XPATH_ELEMENTS[j++]}"
+BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Copy Image back to the datastore
@@ -117,6 +122,14 @@ fi
 if [ -n "$EC_POOL_NAME" ]; then
     EC_POOL_OPT="--data-pool ${EC_POOL_NAME}"
 fi
+
+# Undeployed VM state, do not use front-end, choose host from bridge_list
+if [ "$LCM_STATE" = '67' ] || [ "$LCM_STATE" = '68' ]; then
+    if [ -n "$BRIDGE_LIST" ]; then
+        SRC_HOST=`get_destination_host`
+    fi
+fi
+
 
 COPY_CMD=$(cat <<EOF
     RBD="${RBD}"

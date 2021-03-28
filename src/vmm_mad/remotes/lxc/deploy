@@ -1,0 +1,54 @@
+#!/usr/bin/ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+$LOAD_PATH.unshift File.dirname(__FILE__)
+
+require 'container'
+
+vm_id = ARGV[2]
+
+xml = STDIN.read
+
+client    = LXCClient.new
+container = Container.new_from_xml(xml, client)
+
+# Clean before starting the container
+container.clean(true)
+
+# Create the LXC container (lxc-create)
+rc = container.create
+
+if !rc
+    STDERR.puts 'There was an error creating the containter.'
+    exit(-1)
+end
+
+# Start the LXC container (lxc-start). It will wait for the container to be
+# RUNNING or fails if timeout is reached.
+rc = container.start
+
+if !rc
+    STDERR.puts 'There was an error starting the containter.'
+    exit(-1)
+end
+
+# Start VNC (only started if necessary)
+container.vnc('start')
+
+# Set deploy_id
+puts "one-#{vm_id}"

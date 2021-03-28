@@ -71,11 +71,13 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/DEPLOY_ID \
                     /VM/LCM_STATE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD)
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
 LCM_STATE="${XPATH_ELEMENTS[j++]}"
 DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+VM_MAD="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Set src path
@@ -95,8 +97,12 @@ SRC_TEMP_PATH="$(mktemp -u "${SRC_PATH}.XXXXXXXX")"
 # For current image of the running VMs, don't touch the image directly,
 # but export the content via blockcopy. If that's not possible (old QEMU),
 # domfsfreeze or suspend the domain before.
+if [ "${LCM_STATE}" = '26' -a "${VM_MAD}" != "kvm" ]; then
+    error_message "cpds: Live operation not supported on ${VM_MAD}"
+    exit 1
+fi
 
-if [ "${LCM_STATE}" = '26' ] && [ "${SNAP_ID}" = '-1' ]; then
+if [ "${LCM_STATE}" = '26' -a "${SNAP_ID}" = '-1' ]; then
     log "VM is running, trying blockcopy, fsfreeze, suspend"
 
     CPDS_CMD_EXPORT=$(cat <<EOF
@@ -124,7 +130,7 @@ EOF
     CPDS_CMD_ERR="Error creating export for domain ${DEPLOY_ID} of disk ${DISK_TARGET} at ${SRC_TEMP_PATH}"
 
     # Always try delete temp export
-    trap "ssh_exec_and_log $SRC_HOST \"$RM ${SRC_TEMP_PATH}\"" EXIT TERM INT HUP
+    trap "ssh_exec_and_log $SRC_HOST \"$RM ${SRC_TEMP_PATH}\"" EXIT
 
     if ssh_exec_and_log_no_error $SRC_HOST "$CPDS_CMD_EXPORT" "$CPDS_CMD_ERR"; then
         # Export creation succeeded, point SRC there
@@ -132,6 +138,33 @@ EOF
         set_src_dst_vars
     else
         log_error "Exporting failed"
+        exit 1
+    fi
+else
+    # if SRC is qcow2 with backing chain, convert it to tmp path
+    CPDS_CMD_EXPORT=$(cat <<EOF
+        set -e -o pipefail
+        if [ -L $SRC_PATH ] && file -L $SRC_PATH | grep -q 'has backing file'; then
+            $QEMU_IMG convert -O qcow2 $SRC_PATH $SRC_TEMP_PATH;
+            exit 42;
+        fi
+EOF
+)
+
+    ssh_exec_and_log_no_error $SRC_HOST "$CPDS_CMD_EXPORT" "$CPDS_CMD_ERR" "100"
+    RC=$?
+    if [ $RC = 0 ]; then
+        # no export needed
+        true
+    elif [ $RC = 42 ]; then
+        # qcow2 detected and exported, re-point SRC and other vars
+        SRC="${SRC_HOST}:${SRC_TEMP_PATH}"
+        set_src_dst_vars
+
+        # Always try delete temp export
+        trap "ssh_exec_and_log $SRC_HOST \"$RM ${SRC_TEMP_PATH}\"" EXIT
+    else
+        error_message "cpds: Can not convert qcow2 chain $SRC_PATH"
         exit 1
     fi
 fi

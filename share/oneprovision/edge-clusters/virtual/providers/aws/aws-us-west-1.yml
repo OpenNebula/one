@@ -1,0 +1,29 @@
+name: 'aws-north-california'
+
+description: 'Elastic cluster in AWS North California'
+provider: 'aws'
+
+plain:
+  image: 'AWS'
+  location_key: 'region'
+  provision_type: 'virtual'
+
+connection:
+  access_key: 'AWS access key'
+  secret_key: 'AWS secret key'
+  region: 'us-west-1'
+
+inputs:
+   - name: 'aws_ami_image'
+     type: 'list'
+     options:
+       - 'ami-08b547f0dcb46c4d3'
+   - name: 'aws_instance_type'
+     type: 'list'
+     options:
+       - 't2.micro'
+       - 't2.small'
+       - 't2.medium'
+       - 't2.large'
+       - 't2.xlarge'
+       - 't2.2xlarge'

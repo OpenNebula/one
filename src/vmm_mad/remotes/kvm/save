@@ -42,6 +42,11 @@ retry_if "active block job" 3 5 \
     exec_and_log "virsh --connect $LIBVIRT_URI save $DEPLOY_ID $FILE" \
     "Could not save $DEPLOY_ID to $FILE"
 
+# Compact memory
+if [ "x$CLEANUP_MEMORY_ON_STOP" = "xyes" ]; then
+    sudo -n sysctl vm.drop_caches=3 vm.compact_memory=1 &>/dev/null &
+fi
+
 #-------------------------------------------------------------------------------
 # Handle DRV_MESSAGE coming from stdin
 #-------------------------------------------------------------------------------
@@ -64,3 +69,5 @@ SAVE_TM_FILE="${DRIVER_PATH}/save.${TM_MAD}"
 if [ -x "$SAVE_TM_FILE" ]; then
     echo "$DRV_MESSAGE" | $SAVE_TM_FILE $@
 fi
+
+

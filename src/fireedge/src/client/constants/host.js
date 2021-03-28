@@ -1,50 +1,51 @@
 import * as STATES from 'client/constants/states'
+import COLOR from 'client/constants/color'
 
 const HOST_STATES = [
   {
     name: STATES.INIT,
     shortName: 'init',
-    color: '#4DBBD3'
+    color: COLOR.info.main
   },
   {
     name: STATES.MONITORING_MONITORED,
     shortName: 'update',
-    color: '#4DBBD3'
+    color: COLOR.info.main
   },
   {
     name: STATES.MONITORED,
     shortName: 'on',
-    color: '#3adb76'
+    color: COLOR.success.main
   },
   {
     name: STATES.ERROR,
     shortName: 'err',
-    color: '#ec5840'
+    color: COLOR.error.dark
   },
   {
     name: STATES.DISABLED,
     shortName: 'dsbl',
-    color: '#ffa07a'
+    color: COLOR.error.light
   },
   {
     name: STATES.MONITORING_ERROR,
     shortName: 'retry',
-    color: '#ec5840'
+    color: COLOR.error.dark
   },
   {
     name: STATES.MONITORING_INIT,
     shortName: 'init',
-    color: '#4DBBD3'
+    color: COLOR.info.main
   },
   {
     name: STATES.MONITORING_DISABLED,
     shortName: 'dsbl',
-    color: '#ffa07a'
+    color: COLOR.error.light
   },
   {
     name: STATES.OFFLINE,
     shortName: 'off',
-    color: '#ec5840'
+    color: COLOR.error.dark
   }
 ]
 

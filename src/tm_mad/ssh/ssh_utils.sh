@@ -203,7 +203,7 @@ function create_base() {
 
     mkdir -p $DST_PATH.snap
     cd $DST_PATH.snap
-    ln -f -s . $DST_FILE.snap
+    ln -f -s . $DST_FILE.snap ||:
     $COPY $SRC_PATH base
     qemu-img create -b $DST_FILE.snap/base -f qcow2 base.1
     ln -f -s $DST_FILE.snap/base.1 $DST_PATH
