@@ -77,12 +77,13 @@ bucket            = xpath(xml, 'MARKETPLACE/TEMPLATE/BUCKET')
 region            = xpath(xml, 'MARKETPLACE/TEMPLATE/REGION')
 
 # optional
+app_prefix        = xpath(xml, 'MARKETPLACE/TEMPLATE/APP_PREFIX')        || 'marketapp'
 signature_version = xpath(xml, 'MARKETPLACE/TEMPLATE/SIGNATURE_VERSION')
 endpoint          = xpath(xml, 'MARKETPLACE/TEMPLATE/ENDPOINT')
 force_path_style  = xpath(xml, 'MARKETPLACE/TEMPLATE/FORCE_PATH_STYLE')
 read_length       = xpath(xml, 'MARKETPLACE/TEMPLATE/READx_LENGTH')
 
-name   = "marketapp-#{id}"
+name   = "#{app_prefix}-#{id}"
 source = "s3://#{bucket}/#{name}"
 
 s3_config = {
