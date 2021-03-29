@@ -473,20 +473,24 @@ define(function(require) {
 
       if (max_vms > min_vms) {
         $( ".cardinality_slider_div", context).html(RangeSlider.html({
-            min: min_vms,
-            max: max_vms,
-            max_value: max_vms,
-            initial: role.cardinality,
-            label: Locale.tr("Number of VMs for Role")+" "+role.name
-          }));
+          min: min_vms,
+          max: max_vms,
+          max_value: max_vms,
+          initial: role.cardinality,
+          label: Locale.tr("Number of VMs for Role")+" "+role.name
+        }));
 
-        $( ".cardinality_slider_div", context).show();
+        $(".cardinality_slider_div input.visor", context).off().on('input', function() {
+          $("input[type=range]", $(this).closest('.uinput-slider-container')).val( this.value );
+        });
+
+        $(".cardinality_slider_div", context).show();
         $(".provision_change_cardinality_button").show();
-        $( ".cardinality_no_slider_div", context).hide();
+        $(".cardinality_no_slider_div", context).hide();
       } else {
-        $( ".cardinality_slider_div", context).hide();
+        $(".cardinality_slider_div", context).hide();
         $(".provision_change_cardinality_button").hide();
-        $( ".cardinality_no_slider_div", context).show();
+        $(".cardinality_no_slider_div", context).show();
       }
 
       return false;
@@ -495,13 +499,14 @@ define(function(require) {
     context.on("click", ".provision_change_cardinality_button", function() {
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
       var role_name = $(this).attr("role_id")
+      var cardinality = $(".cardinality_slider_div", context).val()
 
       OpenNebula.Role.scale({
         data : {
           id: flow_id,
           extra_param: {
             force: false,
-            cardinality: $(".visor", ".cardinality_slider_div", context).val(),
+            cardinality: cardinality,
             role_name: role_name,
           }
         },
