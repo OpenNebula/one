@@ -155,6 +155,31 @@ module OpenNebula::MarketPlaceAppExt
                 is_vcenter = !OpenNebula.is_error?(rc) &&
                              (ds['TEMPLATE/DRIVER'] == 'vcenter')
 
+                if is_vcenter && options[:template].nil?
+                    vcenterrc_path =
+                        "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
+
+                    if File.file?(vcenterrc_path)
+                        config_vcenter = YAML.load_file(vcenterrc_path)
+
+                        if config_vcenter.key?(:default_template)
+                            options[:template] =
+                                config_vcenter[:default_template]
+                        else
+                            raise "Couldn't find default_template " \
+                                  'configuration in vcenterrc conf ' \
+                                  'file. Please use the --template ' \
+                                  'file to define a VM Template ID if ' \
+                                  'needed or add default_template to' \
+                                  ' vcenterrc conf file'
+                        end
+                    else
+                        raise "Couldn't find vcenterrc conf file. " \
+                              ' Please use the --template file to define' \
+                              ' a VM Template ID if needed.'
+                    end
+                end
+
                 #---------------------------------------------------------------
                 # Allocate the image in OpenNebula
                 #---------------------------------------------------------------
@@ -188,8 +213,8 @@ module OpenNebula::MarketPlaceAppExt
                 if !options[:template].nil?
                     template_id = options[:template]
 
-                    if template_id == -1
-                        template_id = options[:default_template]
+                    if template_id < 0
+                        raise 'Invalid option, template_id must be a valid ID'
                     end
 
                     template = Template.new_with_id(template_id, @client)

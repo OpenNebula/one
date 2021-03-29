@@ -45,9 +45,6 @@ require 'one_helper/onemarketapp_helper'
 require 'one_helper/onemarket_helper'
 require 'one_helper/onedatastore_helper'
 
-require 'vcenter_driver'
-CONFIG = VCenterConf.new
-
 CommandParser::CmdParser.new(ARGV) do
     usage '`onemarket` <command> [<args>] [<options>]'
     version OpenNebulaHelper::ONE_VERSION
@@ -287,8 +284,7 @@ CommandParser::CmdParser.new(ARGV) do
                 :vmtemplate_name => options[:vmname],
                 :url_args => tag,
                 :notemplate => options[:no] == 'no',
-                :template => options[:template],
-                :default_template => CONFIG[:default_template]
+                :template => options[:template]
             )
 
             if OpenNebula.is_error?(rc)
