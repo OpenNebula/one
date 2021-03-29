@@ -464,6 +464,10 @@ define(function(require) {
 
       var boot = _retrieveBootValue(context);
       var os = original_tmpl.TEMPLATE.OS ? original_tmpl.TEMPLATE.OS : {};
+      
+      for ([key, value] of Object.entries(os)) {
+        os[key] = value.replaceAll('"', '\\"');
+      }
 
       if (boot && boot.length > 0) {
         os.BOOT = boot;
@@ -472,10 +476,11 @@ define(function(require) {
         tmp_json.OS = os;
       }
 
+
+
       extra_info["template"] = tmp_json;
       for (var i = 0; i < n_times_int; i++) {
         extra_info["vm_name"] = vm_name.replace(/%i/gi, i); // replace wildcard
-
         Sunstone.runAction("Template."+action, [template_id], extra_info);
       }
     });
