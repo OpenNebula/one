@@ -153,3 +153,7 @@ group :vmware do
         gem 'rbvmomi', '~> 2.2.0'
     end
 end
+
+group :oneprovision do
+    gem 'ipaddr', '>= 1.2.2'
+end

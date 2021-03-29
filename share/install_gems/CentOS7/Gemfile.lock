@@ -10,7 +10,7 @@ GEM
       public_suffix (>= 2.0.2, < 5.0)
     augeas (0.6.4)
     aws-eventstream (1.1.1)
-    aws-partitions (1.434.0)
+    aws-partitions (1.436.0)
     aws-sdk-cloudwatch (1.50.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
@@ -73,6 +73,7 @@ GEM
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     inflection (1.0.0)
+    ipaddr (1.2.2)
     ipaddress (0.8.3)
     jmespath (1.4.0)
     json (2.5.1)
@@ -169,6 +170,7 @@ DEPENDENCIES
   gnuplot
   highline (~> 1.7)
   i18n (~> 0.9)
+  ipaddr (>= 1.2.2)
   ipaddress (~> 0.8.3)
   json (>= 2.0)
   memcache-client
