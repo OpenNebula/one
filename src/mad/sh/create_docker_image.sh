@@ -19,9 +19,13 @@
 # exit when any command fails
 set -e
 
+function is_mounted {
+    grep -qs "$1" /proc/mounts
+}
+
 function clean {
-    if  grep -qs "$dockerdir/mnt" /proc/mounts; then
-        umount $dockerdir/mnt
+    if is_mounted "${dockerdir}/mnt"; then
+        umount "${dockerdir}/mnt"
     fi
 }
 
@@ -52,7 +56,7 @@ fi
 
 # Check dockerdir is different than / and the directory name is an uuid
 regex_uuid="^\{?[0-9]+-[0-9]+-[0-9]+-[0-9]+-[0-9]+\}?$"
-if [ ! -d $dockerdir ] || [[ ! $(basename $dockerdir) =~ $regex_uuid ]]; then
+if [ ! -d "$dockerdir" ] || [[ ! $(basename "$dockerdir") =~ $regex_uuid ]]; then
     exit -1
 fi
 
@@ -62,14 +66,19 @@ trap clean EXIT
 
 # try first to mount with the fuse2fs command and if that fails fallback to the
 # regular mount
-if ! fuse2fs -o noexec,nodev,nosuid $img_raw $dockerdir/mnt >/dev/null 2>&1 ; then
-    mount -o noexec,nodev,nosuid $img_raw $dockerdir/mnt
+# NOTE: fuse2fs returns zero even when actual mount fails
+_fuse_failed=''
+if ! fuse2fs -o noexec,nodev,nosuid "$img_raw" "${dockerdir}/mnt" >/dev/null 2>&1 ; then
+    _fuse_failed=yes
 fi
 
-chmod o+w $dockerdir/mnt
-tar xpf $tarball -C $dockerdir/mnt > /dev/null 2>&1
+if [ "$_fuse_failed" = "yes" ] || ! is_mounted "${dockerdir}/mnt" ; then
+    mount -o noexec,nodev,nosuid "$img_raw" "${dockerdir}/mnt"
+fi
+
+chmod o+w "${dockerdir}/mnt"
+tar xpf "$tarball" -C "${dockerdir}/mnt" > /dev/null 2>&1
 
 sync
 
 exit 0
-
