@@ -15,42 +15,15 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation')
-
-  var OpenNebulaVM = require('opennebula/vm');
-  var OpenNebulaService = require('opennebula/service');
-  var UtilsFoundation = require("utils/foundation/utils");
-
-  var TemplateInfo = require('hbs!./info');
-  
-  function printInfoConnection(context, info) {
-    context.empty()
-    info && context.append(TemplateInfo(info))
-    UtilsFoundation.update(context);
-  }
-
-  function decodeInfoConnection(info_encode) {
-    if (!info_encode) return undefined
-
-    try {
-      var json = atob(info_encode)
-      var info = JSON.parse(json)
-
-      var stateId = OpenNebulaVM.STATES[info.state]
-      var lcmStateId = OpenNebulaVM.LCM_STATES[info.state]
-      var stateClass = OpenNebulaVM.stateClass(stateId) || OpenNebulaVM.lcmStateClass(lcmStateId)
-
-      var service = OpenNebulaService.getService(info.service_id)
-
-      return $.extend(info, { stateClass, service })
-
-    } catch (err) {
-      console.log(err)
+    require('foundation')
+    
+    function _update(context) {
+      $('.ips-dropdown', context).foundation();
+      $('.rdp-buttons', context).foundation();
     }
-  }
+  
+    return {
+        'update': _update
+    }
 
-  return {
-    'printInfoConnection': printInfoConnection,
-    'decodeInfoConnection': decodeInfoConnection
-  }
-});
+  });

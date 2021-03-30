@@ -26,6 +26,7 @@ define(function(require) {
   var Menu = require("utils/menu");
   var Tips = require("utils/tips");
   var Navigo = require("Navigo");
+  var UtilsFoundation = require("utils/foundation/utils");
 
   var router;
 
@@ -612,7 +613,7 @@ define(function(require) {
 
     // Reload foundation ips dropdown when change page on datatables
     $(document).on("click", ".paginate_button", function() {
-      $('.ips-dropdown').foundation();
+      UtilsFoundation.update(null);
     });
   };
 

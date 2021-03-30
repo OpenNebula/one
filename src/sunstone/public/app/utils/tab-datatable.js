@@ -30,6 +30,7 @@ define(function(require) {
   var Notifier = require('utils/notifier');
   var OpenNebulaUser = require('opennebula/user');
   var LabelsUtils = require('utils/labels/utils');
+  var UtilsFoundation = require("utils/foundation/utils");
 
   /*
     TEMPLATES
@@ -214,7 +215,7 @@ define(function(require) {
 
     $('#' + this.dataTableId + 'Search').on('input', function() {
       that.dataTable.fnFilter($(this).val());
-      $(".ips-dropdown").foundation();
+      UtilsFoundation.update(null);
       return false;
     });
 
@@ -699,7 +700,7 @@ define(function(require) {
 
     if (that.postUpdateView) {
       that.postUpdateView();
-      $(".ips-dropdown").foundation();
+      UtilsFoundation.update(null);
     }
 
     if(that.conf.searchDropdownHTML != undefined){
@@ -741,7 +742,7 @@ define(function(require) {
       }
     });
 
-    $(".ips-dropdown").foundation();
+    UtilsFoundation.update(null);
   }
 
   function _getElementData(id, resource_tag) {

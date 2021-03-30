@@ -33,6 +33,8 @@ define(function(require) {
   var FireedgeValidator = require('utils/fireedge-validator');
   var Websocket = require("utils/websocket");
 
+  var UtilsFoundation = require("utils/foundation/utils");
+
   var VMS_TAB_ID = require('tabs/vms-tab/tabId');
 
   /*
@@ -244,7 +246,7 @@ define(function(require) {
     $.when.apply($, promises).then(function() {
         if (that.serviceroleVMsDataTable) {
           that.serviceroleVMsDataTable.updateView(null, roleVms, true);
-          $(".rdp-buttons", context).foundation();
+          UtilsFoundation.update(context);
           VMRemoteActions.bindActionsToContext(context)
         }
         

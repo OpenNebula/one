@@ -24,6 +24,7 @@ define(function (require) {
   var Notifier = require('utils/notifier');
   var TemplateUtils = require('utils/template-utils');
   var OpenNebulaUser = require('opennebula/user');
+  var UtilsFoundation = require("utils/foundation/utils");
 
   var LABELS_ATTR = 'LABELS';
 
@@ -492,6 +493,7 @@ define(function (require) {
 
     dataTable.data("sunstone-label-filter", label);
     dataTable.fnFilter(regExp, labelsColumn, true, false);
+    UtilsFoundation.update(null);
   }
 
   function _clearLabelsFilter(dataTable, labelsColumn) {
