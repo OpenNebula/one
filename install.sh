@@ -1734,9 +1734,12 @@ NETWORK_VCENTER_FILES="src/vnm_mad/remotes/vcenter/pre \
 
 NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/clean \
+                       src/vnm_mad/remotes/elastic/remote_clean \
                        src/vnm_mad/remotes/elastic/post \
+                       src/vnm_mad/remotes/elastic/remote_post \
                        src/vnm_mad/remotes/elastic/pre \
-                       src/vnm_mad/remotes/elastic/update_sg "
+                       src/vnm_mad/remotes/elastic/update_sg \
+                       src/vnm_mad/remotes/elastic/remote_update_sg "
 
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm

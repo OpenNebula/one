@@ -16,51 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
-if !ONE_LOCATION
-    LIB_LOCATION      ||= '/usr/lib/one'
-    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-    GEMS_LOCATION     ||= '/usr/share/one/gems'
-else
-    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-end
+require 'vnmmad'
 
-if File.directory?(GEMS_LOCATION)
-    real_gems_path = File.realpath(GEMS_LOCATION)
-    if !defined?(Gem) || Gem.path != [real_gems_path]
-        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-        require 'rubygems'
-        Gem.use_paths(real_gems_path)
-    end
-end
-
-$LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << File.dirname(__FILE__)
-$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
-$LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
-
-require 'elastic'
-require 'CommandManager'
-
-template64 = STDIN.read
-hostname   = ARGV[0]
-
-remote_clean ="/var/tmp/one/vnm/elastic/remote_clean #{hostname}"
+template64   = STDIN.read
+deploy_id    = ARGV[0]
+xpath_filter = "TEMPLATE/NIC[VN_MAD='elastic']"
 
 begin
-    drv = ElasticDriver.from_base64(template64, hostname)
-
-    drv.unassign
-
-    rc = SSHCommand.run(remote_clean, hostname, nil, template64)
-
-    raise rc.stderr unless rc.code == 0
-
-    drv.run_hooks_remote(ARGV, template64) if drv.deactivate == 0
-rescue StandardError => e
+    filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
+                                                    xpath_filter,
+                                                    deploy_id,
+                                                    false)
+    filter_driver.activate
+rescue Exception => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
     exit 1

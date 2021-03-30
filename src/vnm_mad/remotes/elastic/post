@@ -49,12 +49,18 @@ template64 = STDIN.read
 deploy_id = ARGV[0]
 hostname  = ARGV[1]
 
+remote_post ="/var/tmp/one/vnm/elastic/remote_post #{deploy_id} #{hostname}"
+
 begin
     drv = ElasticDriver.from_base64(template64, hostname, deploy_id)
 
     exit 1 if drv.assign
 
     begin
+        rc = SSHCommand.run(remote_post, hostname, nil, template64)
+
+        raise StandardError.new rc.stderr unless rc.code == 0
+
         drv.run_hooks(ARGV, template64) if drv.activate == 0
     rescue StandardError => e
         drv.unassign # rollback assign

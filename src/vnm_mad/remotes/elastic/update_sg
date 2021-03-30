@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
@@ -16,4 +16,25 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-exit 0
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+
+require 'vnmmad'
+
+template64 = STDIN.read
+
+deploy_id = ARGV[0]
+hostname  = ARGV[1]
+
+update_sg ="/var/tmp/one/vnm/elastic/remote_update_sg #{deploy_id} #{hostname}"
+
+begin
+    rc = SSHCommand.run(update_sg, hostname, nil, template64)
+
+    raise rc.stderr unless rc.code == 0
+
+rescue StandardError => e
+    OpenNebula.log_error(e.message)
+    OpenNebula.log_error(e.backtrace)
+    exit 1
+end

@@ -287,22 +287,27 @@ module SGIPTables
     #   1.- Creates the GLOBAL_CHAIN chain
     #   2.- Forwards the bridge traffic to the GLOBAL_CHAIN
     #   3.- By default ACCEPT all traffic
-    def self.global_bootstrap
+    #
+    # If inbound packets are routed (not bridged) by the hypervisor OpenNebula 
+    # process all forwarding traffic.
+    def self.global_bootstrap(bridged)
         info = SGIPTables.info
 
         commands = VNMNetwork::Commands.new
 
+        rrule  = '-A FORWARD'
+        rrule << ' -m physdev --physdev-is-bridged' if bridged
+        rrule << " -j #{GLOBAL_CHAIN}"
+
         if !info[:iptables_s].split("\n").include?("-N #{GLOBAL_CHAIN}")
             commands.add :iptables, "-N #{GLOBAL_CHAIN}"
-            commands.add :iptables, "-A FORWARD -m physdev "\
-                "--physdev-is-bridged -j #{GLOBAL_CHAIN}"
+            commands.add :iptables, rrule
             commands.add :iptables, "-A #{GLOBAL_CHAIN} -j ACCEPT"
         end
 
         if !info[:ip6tables_s].split("\n").include?("-N #{GLOBAL_CHAIN}")
             commands.add :ip6tables, "-N #{GLOBAL_CHAIN}"
-            commands.add :ip6tables, "-A FORWARD -m physdev "\
-                "--physdev-is-bridged -j #{GLOBAL_CHAIN}"
+            commands.add :ip6tables, rrule
             commands.add :ip6tables, "-A #{GLOBAL_CHAIN} -j ACCEPT"
         end
 
@@ -343,6 +348,9 @@ module SGIPTables
     #
     #  This method also sets mac_spoofing, and ip_spoofing rules
     #
+    #  If incoming traffic is routed to the VM (not bridged) SG is apply by
+    #  dst IP. Note that outbound traffic is always bridged. Only IPv4 traffic
+    #
     #  Example, for VM 3 and NIC 0
     #   iptables -N one-3-0-i
     #   iptables -N one-3-0-o
@@ -358,7 +366,7 @@ module SGIPTables
     #
     #   IP spoofing
     #   iptables -A one-3-0-o ! --source 10.0.0.1 -j DROP
-    def self.nic_pre(vm, nic)
+    def self.nic_pre(bridged, vm, nic)
         commands = VNMNetwork::Commands.new
 
         vars = SGIPTables.vars(vm, nic)
@@ -373,15 +381,22 @@ module SGIPTables
         commands.add :ip6tables, "-N #{chain_out}" # outbound
 
         # Send traffic to the NIC chains
-        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev "\
-            "--physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
-        commands.add :iptables, "-I #{GLOBAL_CHAIN} -m physdev "\
-            "--physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
 
-        commands.add :ip6tables, "-I #{GLOBAL_CHAIN} -m physdev "\
-            "--physdev-out #{nic[:tap]} --physdev-is-bridged -j #{chain_in}"
-        commands.add :ip6tables, "-I #{GLOBAL_CHAIN} -m physdev "\
-            "--physdev-in  #{nic[:tap]} --physdev-is-bridged -j #{chain_out}"
+        base_br = "-I #{GLOBAL_CHAIN} -m physdev --physdev-is-bridged "
+        nro     = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
+
+        if bridged
+            nri = "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
+        else
+            nri = "-I #{GLOBAL_CHAIN} -d #{nic[:ip]} -j #{chain_in}"
+        end
+
+        #TODO routed traffic is only filtered for IPv4 addressing
+        commands.add :iptables, nri
+        commands.add :iptables, nro
+
+        commands.add :ip6tables, nri if bridged
+        commands.add :ip6tables, nro
 
         # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
         ## Allow routers to send router advertisements

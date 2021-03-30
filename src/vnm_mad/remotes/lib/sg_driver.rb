@@ -41,8 +41,10 @@ module VNMMAD
         # @param [String] hypervisor ID for the VM
         # @param [String] hypervisor (e.g. 'kvm' ...)
         # @param [String] Xpath for the NICs using the SG driver
-        def initialize(vm_64, xpath_filter = nil, deploy_id = nil)
+        def initialize(vm_64, xpath_filter = nil, deploy_id = nil, bridged=true)
             @locking = true
+
+            @bridged = bridged
 
             vm = Base64::decode64(vm_64)
 
@@ -76,7 +78,7 @@ module VNMMAD
             lock
 
             # Global Bootstrap
-            SGIPTables.global_bootstrap
+            SGIPTables.global_bootstrap(@bridged)
 
             attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
 
@@ -89,7 +91,7 @@ module VNMMAD
                     @security_group_rules = EMPTY_RULES
                 end
 
-                SGIPTables.nic_pre(@vm, nic)
+                SGIPTables.nic_pre(@bridged, @vm, nic)
 
                 sg_ids = nic[:security_groups].split(",")
 
