@@ -64,10 +64,19 @@ module OneCfg::Config::Type
                                   :root             => work_file_dir,
                                   :loadpath         => @load_path)
 
-            aug.clear_transforms
-            aug.transform(:lens => @lens, :incl => work_file_name)
-            aug.context = "/files/#{work_file_name}"
-            aug.load
+            begin
+                # Temporarily suppress Ruby warnings due to
+                # augeas.rb:378: warning: constant ::Fixnum is deprecated
+                verb = $VERBOSE
+                $VERBOSE = nil
+
+                aug.clear_transforms
+                aug.transform(:lens => @lens, :incl => work_file_name)
+                aug.context = "/files/#{work_file_name}"
+                aug.load
+            ensure
+                $VERBOSE = verb
+            end
 
             # validate there was no Augeas error
             if aug.exists("/augeas#{aug.context}/error")
