@@ -1659,10 +1659,12 @@ module VCenterDriver
                 folders = []
                 until item.instance_of? RbVmomi::VIM::Datacenter
                     item = item.parent
-                    first_condition = item.instance_of? RbVmomi::VIM::Datacenter
-                    second_condition = item.name != 'vm'
+                    first_condition =
+                        !(item.instance_of? RbVmomi::VIM::Datacenter)
+                    second_condition =
+                        item.name != 'vm'
 
-                    unless first_condition && second_condition
+                    if first_condition && second_condition
                         folders << item.name
                     end
                     if item.nil?
@@ -1693,8 +1695,8 @@ module VCenterDriver
                 one_tmp[:dc_name]               = dc_name
                 one_tmp[:template_name]         = template_name
                 one_tmp[:sunstone_template_name]=
-                    "#{template_name} [ Cluster: #{template_ccr_name} \
-                    - Template location: #{location} ]"
+                    "#{template_name} [ Cluster: #{template_ccr_name}" \
+                    "- Template location: #{location} ]"
                 one_tmp[:template_location]     = location
                 one_tmp[:vcenter_ccr_ref]       = template_ccr_ref
                 one_tmp[:vcenter_ref]           = template_ref
