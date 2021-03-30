@@ -104,6 +104,12 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :format => String
         },
         {
+            :name => 'fs',
+            :large => '--fs filesystem',
+            :description => 'Filesystem to format the image (ext4, xfs, ...)',
+            :format => String
+        },
+        {
             :name => 'disk_type',
             :large => '--disk_type disk_type',
             :description => "Type of the image \n"<<
