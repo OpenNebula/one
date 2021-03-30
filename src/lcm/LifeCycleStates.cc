@@ -2075,20 +2075,20 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
     trigger([this, vid] {
         set<int> ids;
 
-        if ( auto vm = vmpool->get_ro(vid) )
-        {
-            if ( vm->get_state() != VirtualMachine::CLONING &&
-                vm->get_state() != VirtualMachine::CLONING_FAILURE )
-            {
-                return;
-            }
+        auto vm = vmpool->get(vid);
 
-            vm->get_cloning_image_ids(ids);
-        }
-        else
+        if (!vm)
         {
             return;
         }
+
+        if ( vm->get_state() != VirtualMachine::CLONING &&
+            vm->get_state() != VirtualMachine::CLONING_FAILURE )
+        {
+            return;
+        }
+
+        vm->get_cloning_image_ids(ids);
 
         vector<tuple<int, string, string>> ready;
         set<int> error;
@@ -2120,12 +2120,6 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
             }
         }
 
-        auto vm = vmpool->get(vid);
-
-        if (!vm)
-        {
-            return;
-        }
 
         for (const auto& rit : ready)
         {
