@@ -5,6 +5,10 @@ import { SnackbarProvider } from 'notistack'
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(({ palette }) => ({
+  containerRoot: {
+    marginLeft: 20,
+    wordBreak: 'break-all'
+  },
   variantSuccess: {
     backgroundColor: `${palette.success.main} !important`,
     color: palette.success.contrastText
@@ -25,6 +29,7 @@ const useStyles = makeStyles(({ palette }) => ({
 
 const NotistackProvider = ({ children }) => {
   const classes = useStyles()
+
   return (
     <SnackbarProvider
       hideIconVariant
