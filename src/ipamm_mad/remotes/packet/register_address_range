@@ -103,13 +103,31 @@ IP_TYPE = %w[public_ipv4 global_ipv4]
 
 DEFAULT_PRIVATE_CIDR = "172.16.0.0/12"
 
-# Add ^ operator to the IPAddr class
 class IPAddr
 
+    # Add ^ operator to the IPAddr class
     def ^(other)
         clone.set(@addr ^ other.to_i)
     end
 
+    # Add prefix method, to work with older ipadddr & ruby
+    def prefix
+        case @family
+        when Socket::AF_INET
+            n = IN4MASK ^ @mask_addr
+            i = 32
+        when Socket::AF_INET6
+            n = IN6MASK ^ @mask_addr
+            i = 128
+        else
+            raise AddressFamilyError, "unsupported address family"
+        end
+        while n>0
+            n >>= 1
+            i -= 1
+        end
+        i
+    end
 end
 
 begin
