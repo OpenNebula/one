@@ -231,10 +231,11 @@ module VCenterDriver
             @ref_hash[attribute][refkey]
         end
 
+        require 'addressable'
         def self.find_image_by(att, the_class, path, ds_id, pool = nil)
             pool = one_pool(the_class, false) if pool.nil?
             pool.find do |e|
-                e[att] == path &&
+                e[att] == Addressable::URI.escape(path) &&
                     e['DATASTORE_ID'] == ds_id
             end
         end
