@@ -9,9 +9,9 @@ import (
 
 	"github.com/OpenNebula/one/src/oca/go/src/goca"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
-	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
-	vm_schemas "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
 	shared_schemas "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
+	vm_schemas "github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 
 	"github.com/docker/machine/libmachine/drivers"
 	"github.com/docker/machine/libmachine/log"
@@ -536,10 +536,17 @@ func (d *Driver) GetIP() (string, error) {
 	}
 
 	if len(vm.Template.GetNICs()) > 0 {
-		ip, err := vm.Template.GetNICs()[0].Get(shared_schemas.IP)
+		// check first for External IP
+		ip, err := vm.Template.GetNICs()[0].Get(shared_schemas.ExternalIP)
 
 		if err == nil && ip != "" {
 			d.IPAddress = ip
+		} else {
+			// check for IP (if External IP is not defined)
+			ip, err = vm.Template.GetNICs()[0].Get(shared_schemas.IP)
+			if err == nil && ip != "" {
+				d.IPAddress = ip
+			}
 		}
 	}
 
