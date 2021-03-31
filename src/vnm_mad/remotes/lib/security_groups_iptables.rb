@@ -339,6 +339,14 @@ module SGIPTables
             vars[:set_sg_out] = "#{vars[:chain]}-#{sg_id}-o"
         end
 
+        vars[:nic_aliases] = []
+
+        unless nic[:alias_ids].nil?
+            nic[:alias_ids].split(',').each do |id|
+                vars[:nic_aliases] << vm.nic_alias(id)
+            end
+        end
+
         vars
     end
 
@@ -441,6 +449,10 @@ module SGIPTables
 
             [:ip, :vrouter_ip].each do |key|
                 ipv4s << nic[key] if !nic[key].nil? && !nic[key].empty?
+                vars[:nic_aliases].each do |nic_alias|
+                    ipv4s << nic_alias[key] \
+                        if !nic_alias[key].nil? && !nic_alias[key].empty?
+                end
             end
 
             if !ipv4s.empty?
@@ -468,6 +480,10 @@ module SGIPTables
 
             [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
                 ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
+                vars[:nic_aliases].each do |nic_alias|
+                    ipv6s << nic_alias[key] \
+                        if !nic_alias[key].nil? && !nic_alias[key].empty?
+                end
             end
 
             if !ipv6s.empty?
