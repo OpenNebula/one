@@ -154,9 +154,12 @@ fi
 
 # Check distro
 if [ -z "$distro" ]; then
-    distro=$(docker run --rm --entrypoint cat \
+    os_info=$(docker run --rm --entrypoint cat \
         -e "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-        "$docker_hub" /etc/os-release | grep "^ID=.*\n" | cut -d= -f 2 | xargs)
+        "$docker_hub" /etc/os-release)
+
+    distro=$(echo "$os_info" | grep "^ID=.*\n" | cut -d= -f 2 | xargs)
+    version=$(echo "$os_info" | grep "VERSION_ID=" | cut -d= -f 2 | xargs)
 fi
 
 if [ -z "$distro" ]; then
@@ -173,7 +176,11 @@ debian|ubuntu)
     commands=$(cat "$DOCKERFILES/debian")
     ;;
 centos)
-    commands=$(cat "$DOCKERFILES/centos")
+    if [ "$version" = "8" ]; then
+        commands=$(cat "$DOCKERFILES/centos8")
+    else
+        commands=$(cat "$DOCKERFILES/centos7")
+    fi
     ;;
 alpine)
     commands=$(cat "$DOCKERFILES/alpine")
