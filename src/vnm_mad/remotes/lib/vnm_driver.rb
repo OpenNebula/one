@@ -80,6 +80,22 @@ module VNMMAD
             end
         end
 
+        # Executes the given block on each NIC
+        def process_all
+            @vm.each_nic do |nic|
+                add_nic_conf(nic)
+                add_bridge_conf(nic)
+                add_ovs_bridge_conf(nic)
+                add_ip_link_conf(nic)
+
+                yield(nic)
+            end
+
+            @vm.each_nic_alias do |nic|
+                yield(nic)
+            end
+        end
+
         # Parse network configuration and add it to the nic
         def add_nic_conf(nic)
             return if nic[:conf] && nic[:conf].instance_of?(Hash)

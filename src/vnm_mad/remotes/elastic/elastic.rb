@@ -68,8 +68,9 @@ class ElasticDriver < VNMMAD::VNMDriver
         provider = ElasticDriver.provider(@provider, @host)
 
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
 
-        process do |nic|
+        process_all do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             cmds.add :ip, "route add #{nic[:ip]}/32 dev #{nic[:bridge]}"
@@ -89,8 +90,9 @@ class ElasticDriver < VNMMAD::VNMDriver
         provider = ElasticDriver.provider(@provider, @host)
 
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
 
-        process do |nic|
+        process_all do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             cmds.add :ip, "route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true"
@@ -98,7 +100,7 @@ class ElasticDriver < VNMMAD::VNMDriver
 
             provider.deactivate(cmds, nic) if provider.respond_to? :deactivate
 
-            next if nic[:conf][:keep_empty_bridge]
+            next if nic[:parent_nic] || nic[:conf][:keep_empty_bridge]
 
             cmds.add :ip, "link delete #{nic[:bridge]} | true"
         end
@@ -117,7 +119,9 @@ class ElasticDriver < VNMMAD::VNMDriver
         assigned = []
 
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-        rc = @vm.each_nic do |nic|
+        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+
+        rc = @vm.each_nic_all do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             # pass aws_allocation_id if present
@@ -144,7 +148,9 @@ class ElasticDriver < VNMMAD::VNMDriver
         return if provider.nil?
 
         attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
-        @vm.each_nic do |nic|
+        attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+
+        @vm.each_nic_all do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             provider.unassign(nic[:ip], nic[:external_ip])

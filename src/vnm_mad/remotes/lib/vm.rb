@@ -54,6 +54,26 @@ module VNMMAD
                 end
 
                 @nics = nics
+
+                nics_alias  = VNMNetwork::Nics.new(hypervisor)
+                xpath_alias = xpath_filter.gsub('TEMPLATE/NIC',
+                                                'TEMPLATE/NIC_ALIAS')
+
+                @vm_root.elements.each(xpath_alias) do |nic_element|
+                    nic = nics_alias.new_nic
+
+                    nic_build_hash(nic_element, nic)
+
+                    parent = @nics.select do |n|
+                        n[:nic_id] == nic[:parent_id]
+                    end
+
+                    nic[:parent_nic] = parent.first
+
+                    nics_alias << nic
+                end
+
+                @nics_alias = nics_alias
             end
 
             # Iterator on each NIC of the VM
@@ -61,6 +81,31 @@ module VNMMAD
                 return if @nics.nil?
 
                 @nics.each do |the_nic|
+                    block.call(the_nic)
+                end
+            end
+
+            # Iterator on each NIC_ALIAS of the VM
+            def each_nic_alias(&block)
+                return if @nics_alias.nil?
+
+                @nics_alias.each do |the_nic|
+                    block.call(the_nic)
+                end
+            end
+
+            def each_nic_all(&block)
+                all_nics = @nics
+
+                if all_nics
+                    all_nics += @nics_alias
+                else
+                    all_nics = @nics_alias
+                end
+
+                return if all_nics.nil?
+
+                all_nics.each do |the_nic|
                     block.call(the_nic)
                 end
             end

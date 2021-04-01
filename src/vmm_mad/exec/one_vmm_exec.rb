@@ -974,18 +974,20 @@ class ExecDriver < VirtualMachineDriver
             nic_alias = true
         end
 
-        external = true if xml_data.elements["#{base_tmpl}/EXTERNAL"]
-
         begin
             source = xml_data.elements["#{base_tmpl}/BRIDGE"]
             mac    = xml_data.elements["#{base_tmpl}/MAC"]
             target = xml_data.elements["#{base_tmpl}/TARGET"]
             vn_mad = xml_data.elements["#{base_tmpl}/VN_MAD"]
 
+            external = xml_data.elements["#{base_tmpl}/EXTERNAL"]
+
             source = source.text.strip
             mac    = mac.text.strip
             target = target.text.strip
             vn_mad = vn_mad.text.strip
+
+            external = !external.nil? || vn_mad == 'elastic'
         rescue StandardError
             send_message(action, RESULT[:failure], id,
                          'Missing VN_MAD, BRIDGE, TARGET or MAC in VM NIC')
@@ -1095,11 +1097,14 @@ class ExecDriver < VirtualMachineDriver
             nic_alias = true
         end
 
-        external = true if xml_data.elements["#{base_tmpl}/EXTERNAL"]
-
         begin
             mac = xml_data.elements["#{base_tmpl}/MAC"]
             mac = mac.text.strip
+
+            external = xml_data.elements["#{base_tmpl}/EXTERNAL"]
+            vn_mad   = xml_data.elements["#{base_tmpl}/VN_MAD"].text.strip
+
+            external = !external.nil? || vn_mad == 'elastic'
         rescue StandardError
             send_message(action, RESULT[:failure], id,
                          "Error in #{ACTION[:detach_nic]}, MAC needed in NIC")

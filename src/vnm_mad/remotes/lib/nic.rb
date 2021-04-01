@@ -41,7 +41,7 @@ module VNMMAD
         ########################################################################
         # Hypervisor specific implementation of network interfaces. Each class
         # implements the following interface:
-        #   - get_info to populste the VM.vm_info Hash
+        #   - get_info to populate the VM.vm_info Hash
         #   - get_tap to set the [:tap] attribute with the associated NIC
         ########################################################################
 
