@@ -2800,7 +2800,8 @@ ONEHEM_ETC_FILES="src/hem/etc/onehem-server.conf"
 #-----------------------------------------------------------------------------
 
 DOCKERFILES_TEMPLATES="src/datastore_mad/remotes/dockerhub/dockerfiles/alpine \
-                       src/datastore_mad/remotes/dockerhub/dockerfiles/centos \
+                       src/datastore_mad/remotes/dockerhub/dockerfiles/centos7 \
+                       src/datastore_mad/remotes/dockerhub/dockerfiles/centos8 \
                        src/datastore_mad/remotes/dockerhub/dockerfiles/debian"
 
 DOCKERFILE_TEMPLATE="src/datastore_mad/remotes/dockerhub/dockerfile"
