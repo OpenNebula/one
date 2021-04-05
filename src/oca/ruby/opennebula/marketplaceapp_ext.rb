@@ -156,28 +156,7 @@ module OpenNebula::MarketPlaceAppExt
                              (ds['TEMPLATE/DRIVER'] == 'vcenter')
 
                 if is_vcenter && options[:template].nil?
-                    vcenterrc_path =
-                        "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
-
-                    if File.file?(vcenterrc_path)
-                        config_vcenter = YAML.load_file(vcenterrc_path)
-
-                        if config_vcenter.key?(:default_template)
-                            options[:template] =
-                                config_vcenter[:default_template]
-                        else
-                            raise "Couldn't find default_template " \
-                                  'configuration in vcenterrc conf ' \
-                                  'file. Please use the --template ' \
-                                  'file to define a VM Template ID if ' \
-                                  'needed or add default_template to' \
-                                  ' vcenterrc conf file'
-                        end
-                    else
-                        raise "Couldn't find vcenterrc conf file. " \
-                              ' Please use the --template file to define' \
-                              ' a VM Template ID if needed.'
-                    end
+                    options = update_options_with_template(options)
                 end
 
                 #---------------------------------------------------------------
@@ -206,7 +185,8 @@ module OpenNebula::MarketPlaceAppExt
                 #---------------------------------------------------------------
                 # Created an associated VMTemplate if needed
                 #---------------------------------------------------------------
-                if self['TEMPLATE/VMTEMPLATE64'].nil? || options[:notemplate] ||
+                if (self['TEMPLATE/VMTEMPLATE64'].nil? && !is_vcenter) ||
+                    options[:notemplate] ||
                     options[:template] == -1
                     return rc_info
                 end
@@ -306,6 +286,33 @@ module OpenNebula::MarketPlaceAppExt
                 rc
             end
 
+            def update_options_with_template(options, _validate = false)
+                vcenterrc_path =
+                    "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"
+
+                if File.file?(vcenterrc_path)
+                    config_vcenter = YAML.load_file(vcenterrc_path)
+
+                    if config_vcenter.key?(:default_template)
+                        options[:template] =
+                            config_vcenter[:default_template]
+
+                        options
+                    else
+                        raise "Couldn't find default_template " \
+                              'configuration in vcenterrc conf ' \
+                              'file. Please use the --template ' \
+                              'file to define a VM Template ID if ' \
+                              'needed or add default_template to' \
+                              ' vcenterrc conf file'
+                    end
+                else
+                    raise "Couldn't find vcenterrc conf file. " \
+                          ' Please use the --template file to define' \
+                          ' a VM Template ID if needed.'
+                end
+            end
+
             # Creates a VM template based on the APPTEMPLATE64 attribute
             #    @param [Hash] options
             #       :export_name [String] name of the vm template
@@ -314,19 +321,50 @@ module OpenNebula::MarketPlaceAppExt
             #
             #    @return [Integer, OpenNebula::Error] template id or error
             def create_vm_template(options, disks)
-                # --------------------------------------------------------------
-                # Allocate Template
-                # --------------------------------------------------------------
-                if self['TEMPLATE/APPTEMPLATE64'].nil?
-                    return Error.new("Missing APPTEMPLATE64 for App #{id}")
+                dsid = options[:dsid]
+                ds = OpenNebula::Datastore.new_with_id(dsid, @client)
+                rc = ds.info
+
+                is_vcenter =
+                    !OpenNebula.is_error?(rc) &&
+                        (ds['TEMPLATE/DRIVER'] == 'vcenter')
+
+                if is_vcenter
+                    if options[:template].nil?
+                        options = update_options_with_template(options)
+                    end
+
+                    template_id = options[:template]
+
+                    if template_id < 0
+                        return
+                    end
+
+                    template = Template.new_with_id(template_id, @client)
+
+                    vmtpl_id = template.clone(
+                        options[:vmtemplate_name] || options[:name]
+                    )
+
+                    vmtpl = Template.new_with_id(vmtpl_id, @client)
+                    rc = vmtpl.info
+                else
+                    # ----------------------------------------------------------
+                    # Allocate Template
+                    # ----------------------------------------------------------
+                    if self['TEMPLATE/APPTEMPLATE64'].nil?
+                        return Error.new(
+                            "Missing APPTEMPLATE64 for App #{id}"
+                        )
+                    end
+
+                    tmpl = Base64.decode64(self['TEMPLATE/APPTEMPLATE64'])
+
+                    tmpl << "\nNAME=\"#{options[:name]}\"\n"
+
+                    vmtpl = Template.new(Template.build_xml, @client)
+                    rc    = vmtpl.allocate(tmpl)
                 end
-
-                tmpl = Base64.decode64(self['TEMPLATE/APPTEMPLATE64'])
-
-                tmpl << "\nNAME=\"#{options[:name]}\"\n"
-
-                vmtpl = Template.new(Template.build_xml, @client)
-                rc    = vmtpl.allocate(tmpl)
 
                 return rc if OpenNebula.is_error?(rc)
 
