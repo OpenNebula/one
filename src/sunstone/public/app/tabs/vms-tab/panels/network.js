@@ -441,25 +441,28 @@ define(function(require) {
                 var new_div = "<div id=alias_" + this.NIC_ID + " style=\"margin-left: 40px; margin-bottom: 5px\">" +
                               "<b>" + "- Alias-" + this.ALIAS_ID + ":" + "</b>";
 
-                if(this.IP !== undefined) {
+                if (this.IP !== undefined) {
                   new_div += "&nbsp;&nbsp;&nbsp;" + this.IP;
                 }
 
-                if(String(this.EXTERNAL_IP).toLowerCase() !== 'yes') {
+                if (
+                  this.EXTERNAL_IP !== undefined &&
+                  !['yes', 'no'].includes(String(this.EXTERNAL_IP).toLowerCase())
+                ) {
                   new_div += "&nbsp;&nbsp;&nbsp;" + this.EXTERNAL_IP;
                 }
 
-                if(this.IP6 !== undefined) {
+                if (this.IP6 !== undefined) {
                   new_div += "&nbsp;&nbsp;&nbsp;" + this.IP6;
                 }
 
                 new_div += "&nbsp;&nbsp;&nbsp;" + this.MAC;
 
-                if(this.IP6_ULA !== undefined) {
+                if (this.IP6_ULA !== undefined) {
                   new_div += "&nbsp;&nbsp;&nbsp;<b>ULA</b>&nbsp;" + this.IP6_ULA;
                 }
 
-                if(this.IP6_GLOBAL !== undefined) {
+                if (this.IP6_GLOBAL !== undefined) {
                   new_div += "&nbsp;&nbsp;&nbsp;<b>Global</b>&nbsp;" + this.IP6_GLOBAL;
                 }
 
