@@ -56,8 +56,13 @@ module VNMMAD
                 @nics = nics
 
                 nics_alias  = VNMNetwork::Nics.new(hypervisor)
-                xpath_alias = xpath_filter.gsub('TEMPLATE/NIC',
-                                                'TEMPLATE/NIC_ALIAS')
+
+                if xpath_filter.nil?
+                    xpath_alias = nil
+                else
+                    xpath_alias = xpath_filter.gsub('TEMPLATE/NIC',
+                                                    'TEMPLATE/NIC_ALIAS')
+                end
 
                 @vm_root.elements.each(xpath_alias) do |nic_element|
                     nic = nics_alias.new_nic
