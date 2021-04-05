@@ -100,9 +100,10 @@ class ElasticDriver < VNMMAD::VNMDriver
 
             provider.deactivate(cmds, nic) if provider.respond_to? :deactivate
 
-            next if nic[:parent_nic] || nic[:conf][:keep_empty_bridge]
-
-            cmds.add :ip, "link delete #{nic[:bridge]} | true"
+            # TODO: MUST check if bridge is empty. Move to remote_clean
+            #next if nic[:parent_nic] || nic[:conf][:keep_empty_bridge]
+            #
+            #cmds.add :ip, "link delete #{nic[:bridge]} | true"
         end
 
         cmds.run_remote(@ssh)

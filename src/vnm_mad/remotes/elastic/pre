@@ -44,17 +44,14 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 require 'vnmmad'
 
 template64 = STDIN.read
+deploy_id  = ARGV[0]
 
-deploy_id = ARGV[0]
+xpath = "TEMPLATE/NIC[VN_MAD='elastic']"
 
 begin
-    drv = VNMMAD::VLANDriver.from_base64(template64,
-                                         "TEMPLATE/NIC[VN_MAD='elastic']",
-                                         deploy_id)
+    drv = VNMMAD::NoVLANDriver.from_base64(template64, xpath, deploy_id)
 
-    drv.create_bridges
-
-    drv.run_hooks(ARGV, template64)
+    drv.run_hooks(ARGV, template64) if drv.activate == 0
 rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
