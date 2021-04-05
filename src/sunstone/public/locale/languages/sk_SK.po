@@ -5238,12 +5238,12 @@ msgstr "RDP v tejto sieti bude aktivované"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:80
 #, fuzzy
 msgid "SSH connection"
-msgstr "RDP spojenie"
+msgstr "SSH spojenie"
 
 #: ../app/utils/nics-section/dd.hbs:108
 #, fuzzy
 msgid "SSH will be enabled in this network"
-msgstr "RDP v tejto sieti bude aktivované"
+msgstr "SSH v tejto sieti bude aktivované"
 
 #: ../app/utils/nics-section/dd.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:95

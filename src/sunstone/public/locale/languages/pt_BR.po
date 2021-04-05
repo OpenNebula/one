@@ -5250,12 +5250,12 @@ msgstr "RDP será habilitada nessa rede"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:80
 #, fuzzy
 msgid "SSH connection"
-msgstr "Conexão RDP"
+msgstr "Conexão SSH"
 
 #: ../app/utils/nics-section/dd.hbs:108
 #, fuzzy
 msgid "SSH will be enabled in this network"
-msgstr "RDP será habilitada nessa rede"
+msgstr "SSH será habilitada nessa rede"
 
 #: ../app/utils/nics-section/dd.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:95

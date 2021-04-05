@@ -5242,12 +5242,12 @@ msgstr "RDP bude na této síti povoleno"
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:80
 #, fuzzy
 msgid "SSH connection"
-msgstr "RDP spojení"
+msgstr "SSH spojení"
 
 #: ../app/utils/nics-section/dd.hbs:108
 #, fuzzy
 msgid "SSH will be enabled in this network"
-msgstr "RDP bude na této síti povoleno"
+msgstr "SSH bude na této síti povoleno"
 
 #: ../app/utils/nics-section/dd.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:95

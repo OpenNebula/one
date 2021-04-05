@@ -5234,12 +5234,12 @@ msgstr ""
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:80
 #, fuzzy
 msgid "SSH connection"
-msgstr "RDP forbindelse"
+msgstr "SSH forbindelse"
 
 #: ../app/utils/nics-section/dd.hbs:108
 #, fuzzy
 msgid "SSH will be enabled in this network"
-msgstr "RDP vil være aktiveret på dette netværk"
+msgstr "SSH vil være aktiveret på dette netværk"
 
 #: ../app/utils/nics-section/dd.hbs:116
 #: ../app/tabs/templates-tab/form-panels/create/wizard-tabs/network/nic-tab/html.hbs:95
