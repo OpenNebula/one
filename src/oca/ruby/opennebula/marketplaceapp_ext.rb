@@ -206,7 +206,8 @@ module OpenNebula::MarketPlaceAppExt
                 #---------------------------------------------------------------
                 # Created an associated VMTemplate if needed
                 #---------------------------------------------------------------
-                if self['TEMPLATE/VMTEMPLATE64'].nil? || options[:notemplate]
+                if self['TEMPLATE/VMTEMPLATE64'].nil? || options[:notemplate] ||
+                    options[:template] == -1
                     return rc_info
                 end
 
