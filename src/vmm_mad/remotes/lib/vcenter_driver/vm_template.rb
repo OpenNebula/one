@@ -1696,7 +1696,7 @@ module VCenterDriver
                 one_tmp[:template_name]         = template_name
                 one_tmp[:sunstone_template_name]=
                     "#{template_name} [ Cluster: #{template_ccr_name}" \
-                    "- Template location: #{location} ]"
+                    " - Template location: #{location} ]"
                 one_tmp[:template_location]     = location
                 one_tmp[:vcenter_ccr_ref]       = template_ccr_ref
                 one_tmp[:vcenter_ref]           = template_ref
