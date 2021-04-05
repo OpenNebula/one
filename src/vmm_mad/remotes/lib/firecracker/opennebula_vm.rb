@@ -90,13 +90,8 @@ class FirecrackerVM < OpenNebulaVM
 
         # Set logger info
         fc['logger'] = {}
-        fc['logger']['log_path'] = LOG_FILE
-        fc['logger']['level'] = 'Debug'
-
-        # Set metrics info
-        fc['metrics'] = {}
-        fc['metrics']['metrics_path'] = METRICS_FILE
-        fc['metrics']['level'] = 'Debug'
+        fc['logger']['log_fifo'] = LOG_FILE
+        fc['logger']['metrics_fifo'] = METRICS_FILE
 
         boot_source(fc['boot-source'])
         drives(fc['drives'])
