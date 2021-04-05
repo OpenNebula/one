@@ -486,7 +486,7 @@ module VCenterDriver
             @defaults = { :size => '255', :type => 'ether' }
         end
 
-        def process_import(indexes, opts = {}, &block)
+        def process_import(indexes, opts = {}, &_block)
             indexes = indexes.gsub(/\s*\,\s*/, ',').strip.split(',')
 
             dc_folder = VCenterDriver::DatacenterFolder.new(@vi_client)
@@ -526,30 +526,20 @@ module VCenterDriver
                               "#{hpool.message}"
                     end
 
-                    opts = {}
-
                     params = {}
                     params[:vc_network] = vc_cluster_network
                     params[:vcenter_instance_name] = vcenter_instance_name
                     params[:vcenter_uuid] = vcenter_uuid
                     params[:_hpool] = hpool
                     params[:one_host] = one_host
-                    params[:args] = opts
+                    params[:args] = {}
 
                     selected = dc_folder.process_network(params)
 
                     selected = selected[index]
 
-                    if block_given?
-                        @info[index][:opts] = block.call(selected)
-                    elsif opts[index]
-                        @info[index][:opts] = opts[index]
-                    else
-                        @info[index][:opts] = defaults
-                    end
-
                     # import the object
-                    @info[:success] << import(selected)
+                    @info[:success] << import(selected, opts[index])
                 rescue StandardError => e
                     @info[:error] << { index => e.message }
                     @info[index][:e] = e
@@ -645,8 +635,8 @@ module VCenterDriver
             str
         end
 
-        def import(selected)
-            opts = @info[selected[:ref]][:opts]
+        def import(selected, opts = nil)
+            opts = @info[selected[:ref]][:opts] if opts.nil?
 
             net = VCenterDriver::Network
                   .new_from_ref(selected[:ref], @vi_client)
