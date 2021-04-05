@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "devDependencies": {
     "grunt": "<1.1.0",
-    "grunt-cli": "^1.2.0",
-    "grunt-contrib-requirejs": "^1.0.0",
-    "grunt-contrib-watch": "^1.0.0",
-    "grunt-sass": "^1.2.1",
-    "node-sass": "^3.10.1"
+    "grunt-cli": "1.2.0",
+    "grunt-contrib-requirejs": "1.0.0",
+    "grunt-contrib-watch": "1.0.0",
+    "grunt-sass": "1.2.1",
+    "node-sass": "3.10.1"
   }
 }
