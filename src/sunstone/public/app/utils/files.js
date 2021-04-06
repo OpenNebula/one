@@ -16,6 +16,7 @@
 
 define(function(require) {
   var Config = require('sunstone-config');
+  var UtilsConnection = require("utils/info-connection/utils");
 
   return {
     "downloadWFile": _downloadWFile,
@@ -31,9 +32,12 @@ define(function(require) {
     var protocol = window.location.protocol;
     var proxy_host = window.location.hostname;
     var proxy_port = Config.vncProxyPort;
+
+    var info_decode = UtilsConnection.decodeInfoConnection(response["info"]);
+    var filename = info_decode["name"]
+
     var token = response["token"];
     var password = response["password"];
-    var vm_name = response["vm_name"];
 
     if ($.inArray(graphics_type, ['spice', 'vnc']) < 0) {
       Notifier.notifyError(Locale.tr("Type graphics supported: vnc, spice"));
@@ -52,8 +56,8 @@ define(function(require) {
 
     var proxy = protocol + "//" + proxy_host + ":" + proxy_port + "?token=" + token;
     
-    var file = _wFile(graphics_type, vm_name, vm_host, graphics_port, proxy, password);
-    _download(vm_name, ".vv", file);
+    var file = _wFile(graphics_type, filename, vm_host, graphics_port, proxy, password);
+    _download(filename, ".vv", file);
   }
 
   function _download(name, extension, text) {
