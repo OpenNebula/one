@@ -539,6 +539,7 @@ module VCenterDriver
                     selected = selected[index]
 
                     # import the object
+                    opts[index] ||= @defaults
                     @info[:success] << import(selected, opts[index])
                 rescue StandardError => e
                     @info[:error] << { index => e.message }
