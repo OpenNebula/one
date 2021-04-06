@@ -23,7 +23,7 @@ define(function (require) {
 
   var VM_header = require("tabs/vms-tab/hooks/header");
   var VM_state = require("tabs/vms-tab/hooks/state");
-  
+
   const STATUS = {
     DISCONNECTED: 0,
     CONNECTED: 1,
@@ -34,15 +34,15 @@ define(function (require) {
 
   var _connected = function(){
     return connection == STATUS.CONNECTED;
-  }
+  };
 
   var _disconnected = function(){
     return connection == STATUS.DISCONNECTED;
-  }
+  };
 
   var _processing = function(){
     return connection == STATUS.PROCESSING;
-  }
+  };
 
   var _start = function (fireedgeToken="") {
     connection = STATUS.PROCESSING;
@@ -111,7 +111,14 @@ define(function (require) {
           // update VM and HOST
           var tab = $("#" + tab_id);
 
-          Sunstone.getDataTable(tab_id).updateElement(request, response);
+          if(
+            Sunstone.getDataTable(tab_id) &&
+            Sunstone.getDataTable(tab_id).updateElement &&
+            typeof Sunstone.getDataTable(tab_id).updateElement === "function"
+          ){
+            Sunstone.getDataTable(tab_id).updateElement(request, response);
+          }
+
 
           if (Sunstone.rightInfoVisible(tab) && event_data.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
             callFunction(response);
