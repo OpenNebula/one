@@ -77,5 +77,5 @@ require 'opennebula/flow'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '6.0.0'
+    VERSION = '6.1.80'
 end
