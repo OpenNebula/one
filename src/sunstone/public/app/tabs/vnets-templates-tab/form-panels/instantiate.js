@@ -91,6 +91,7 @@ define(function(require) {
 
   function _setup(context) {
     this.arTemplates = [];
+    CustomTagsTable.setup(context)
   }
 
   function _submitWizard(context) {
@@ -115,6 +116,8 @@ define(function(require) {
       extra_info["template"]["AR"] = that.arTemplates[template_id].AR;
 
       $.extend(extra_info["template"], WizardFields.retrieve($("#instantiateContext", context)));
+
+      $.extend(extra_info["template"], CustomTagsTable.retrieve(context));
 
       var secgroups = that.securityGroupsTable.retrieveResourceTableSelect();
       if (secgroups != undefined && secgroups.length != 0) {
