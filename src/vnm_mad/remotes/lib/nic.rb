@@ -202,6 +202,8 @@ module VNMMAD
             end
 
             def get_tap(vm)
+                return self unless vm.deploy_id
+
                 self[:tap] = "#{vm.deploy_id}-#{self[:nic_id]}"
 
                 self
