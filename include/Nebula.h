@@ -394,7 +394,7 @@ public:
      */
     static std::string code_version()
     {
-        return "6.0.0"; // bump version
+        return "6.0.0.1"; // bump version
     }
 
     /**
