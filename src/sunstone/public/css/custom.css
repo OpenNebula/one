@@ -185,8 +185,13 @@ meter {
 .number-title{
   margin-top: -15px;
 }
-.label-card{
+.label-card {
   margin-top: -25px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
 }
 .dashboard-fieldset{
   background-color: #f8f8f8;
