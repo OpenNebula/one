@@ -273,10 +273,7 @@ define(function(require) {
     CustomTagsTable.setup($("#vntemplateCreateContextTab", context));
 
     Foundation.reflow(context, "tabs");
-
-    // Add first AR
-    $("#vnet_wizard_ar_btn", context).trigger("click");
-
+ 
     Tips.setup();
 
     if (config["mode"] === "kvm"){
@@ -291,7 +288,12 @@ define(function(require) {
       $("#network_mode option[value=\"ovswitch_vxlan\"]", context).hide();
     }
 
-    $("#vntemplateCreateARTab ul#vnet_wizard_ar_tabs i.remove-tab", context).trigger("click");
+    // Remove AR given for errors
+    if ($("#vntemplateCreateARTab #ar0Tab").length && $("#vntemplateCreateARTab #ar_tabar0").length){
+      $("#vntemplateCreateARTab #ar0Tab").remove();
+    }
+
+    $("#vntemplateCreateARTab #vnet_wizard_ar_btn", context).click();
 
     return false;
   }
@@ -325,11 +327,12 @@ define(function(require) {
 
 
     // close icon: removing the tab on click
-    a.on("click", "i.remove-tab", function() {
+    a.on("click", "i.remove-tab", function(e) {
+      e.stopPropagation();
       var target = $(this).parent().attr("href");
       var li = $(this).closest("li");
       var ul = $(this).closest("ul");
-      var content = $(target);
+      var content = $("#vntemplateCreateARTab " + target);
 
       var ar_id = content.attr("ar_id");
 
