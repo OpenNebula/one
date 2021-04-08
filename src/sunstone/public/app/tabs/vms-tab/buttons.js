@@ -98,7 +98,7 @@ define(function(require) {
     "VM.suspend" : {
       type: text,
       text: Locale.tr("Suspend") + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Keeps allocated Host resources. The resume operation happens quickly")) + "</span>",
-      layout: "vmspause_buttons",
+      layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
     "VM.resume" : {
@@ -110,7 +110,7 @@ define(function(require) {
     "VM.stop" : {
       type: text,
       text: Locale.tr("Stop")  + "<span class='right'>&nbsp;" + Tips.html(Locale.tr("Frees Host resources. The resume operation may take long")) + "</span>",
-      layout: "vmspause_buttons",
+      layout: "vmsstop_buttons",
       custom_classes : "state-dependent"
     },
     "VM.reboot" : {
