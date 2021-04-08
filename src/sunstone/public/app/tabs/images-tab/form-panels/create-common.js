@@ -204,7 +204,7 @@ define(function(require) {
     var that = this;
     $.each(this.wizardTabs, function(index, wizardTab) {
       wizardTab.setup($("#" + wizardTab.wizardTabId, context));
-      if(wizardTab.title === "Image"){
+      if(wizardTab.title === Locale.tr("Image")){
         that.uploader = wizardTab.uploader;
       }
     });
