@@ -50,7 +50,7 @@ const Inputs = () => ({
 
         // MERGE INPUTS provision template + PROVISION_BODY.inputs (provider fetch)
         inputs = provisionTemplate.inputs.map(templateInput =>
-          PROVISION_BODY.inputs.find(
+          PROVISION_BODY.inputs?.find(
             providerInput => providerInput.name === templateInput.name
           ) || templateInput
         ) ?? []
