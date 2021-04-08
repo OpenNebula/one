@@ -201,10 +201,6 @@ class SunstoneVNC
             return error(400, "VNC Proxy is not running")
         end
 
-        if !is_running?
-            return error(400, "VNC Proxy is not running")
-        end
-
         if !VNC_STATES.include?(vm_resource['LCM_STATE'])
             return error(400,"Wrong state (#{vm_resource['LCM_STATE']}) to open a VNC session")
         end
