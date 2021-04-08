@@ -142,10 +142,10 @@ if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
     TMP_DST="$STAGING_DIR/$IMAGE_HASH"
 
-    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=${DD_BLOCK_SIZE:-64k}" \
+    multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND | $SSH $DST_HOST $DD of=$TMP_DST bs=${DD_BLOCK_SIZE:-64k} conv=sparse" \
                  "Error dumping $SRC to $DST_HOST:$TMP_DST"
 
-    ssh_exec_and_log    "$DST_HOST" "set -e -o pipefail; mkdir -p $BASE_PATH; mv -f $TMP_DST $DST; fallocate -d $DST" \
+    ssh_exec_and_log    "$DST_HOST" "set -e -o pipefail; mkdir -p $BASE_PATH; mv -f $TMP_DST $DST" \
                         "Error moving $TMP_DST to $DST in $DST_HOST"
 
     if [ "x$CONVERT" = 'xyes' ] && [ -n "$DRIVER" ]; then
@@ -162,7 +162,7 @@ else
         multiline_exec_and_log "$CONVERT_CMD" "Error converting $DST"
     fi
 
-    fallocate -d "$DST"
+    fallocate -d "$DST" &> /dev/null || true # Avoid errors if fallocate not supported by FS
 
     FORMAT=$($QEMU_IMG info $DST | grep "^file format:" | awk '{print $3}' || :)
 fi
