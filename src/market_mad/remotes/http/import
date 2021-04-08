@@ -80,10 +80,8 @@ if [ -n "$BRIDGE_LIST" ]; then
     DST_HOST=`get_destination_host $ID`
     CP_CMD="$UTILS_PATH/downloader.sh -n '${IMPORT_SOURCE}' -"
 
-    multiline_exec_and_log "set -e -o pipefail; $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=${DD_BLOCK_SIZE:-64k}" \
+    multiline_exec_and_log "set -e -o pipefail; $CP_CMD | $SSH ${DST_HOST} $DD of=${DST_PATH} bs=${DD_BLOCK_SIZE:-64k} conv=sparse" \
                  "Error dumping ${IMPORT_SOURCE} to ${DST_HOST}:${DST_PATH}"
-
-    ssh_exec_and_log "$DST_HOST" "fallocate -d $DST_PATH" "Error running: fallocate -d $DST_PATH"
 else
     CP_CMD="$UTILS_PATH/downloader.sh -n ${IMPORT_SOURCE} ${DST_PATH}"
     exec_and_log "$CP_CMD" "Error copying ${IMPORT_SOURCE} to ${DST_PATH}"
