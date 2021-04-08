@@ -2095,7 +2095,7 @@ void LifeCycleManager::trigger_disk_lock_success(int vid)
 
         for (auto id : ids)
         {
-            if (auto image = ipool->get_ro(id))
+            if (auto image = ipool->get(id))
             {
                 switch (image->get_state()) {
                     case Image::USED:
