@@ -26,6 +26,8 @@ const Info = memo(({ data }) => {
     registration_time: time
   } = TEMPLATE?.PROVISION_BODY
 
+  const hasConnection = connection && Object.keys(connection).length > 0
+
   const isChecked = checked =>
     checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
 
@@ -71,26 +73,28 @@ const Info = memo(({ data }) => {
             </ListItem>
           </List>
         </Paper>
-        <Paper variant="outlined">
-          <List className={clsx(classes.list, 'w-50')}>
-            <ListItem className={classes.title}>
-              <Typography>{Tr(T.Credentials)}</Typography>
-              <span className={classes.alignToRight}>
-                {!showConnection && <ConnectionButton />}
-              </span>
-            </ListItem>
-            <Divider />
-            {Object.entries(connection)?.map(([key, value]) =>
-              typeof value === 'string' && (
-                <ListItem key={key}>
-                  <Typography>{key}</Typography>
-                  <Typography data-cy={`provider-${key}`}>
-                    {showConnection?.[key] ?? value}
-                  </Typography>
-                </ListItem>
-              ))}
-          </List>
-        </Paper>
+        {hasConnection && (
+          <Paper variant="outlined">
+            <List className={clsx(classes.list, 'w-50')}>
+              <ListItem className={classes.title}>
+                <Typography>{Tr(T.Credentials)}</Typography>
+                <span className={classes.alignToRight}>
+                  {!showConnection && <ConnectionButton />}
+                </span>
+              </ListItem>
+              <Divider />
+              {Object.entries(connection)?.map(([key, value]) =>
+                typeof value === 'string' && (
+                  <ListItem key={key}>
+                    <Typography>{key}</Typography>
+                    <Typography data-cy={`provider-${key}`}>
+                      {showConnection?.[key] ?? value}
+                    </Typography>
+                  </ListItem>
+                ))}
+            </List>
+          </Paper>
+        )}
       </Grid>
       <Grid item xs={12} md={6}>
         <Paper variant="outlined" className={classes.marginBottom}>
