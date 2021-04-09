@@ -481,9 +481,12 @@ module CommandParser
                 begin
                     rc = comm[:proc].call
 
-                    if rc.instance_of?(Array)
+                    if rc.instance_of?(Array) && rc[0] != 0
+                        STDERR.puts rc[1]
+                        exit(rc[0])
+                    elsif rc.instance_of?(Array)
                         puts rc[1]
-                        exit rc.first
+                        exit(rc[0])
                     else
                         exit(@exit_code || rc)
                     end
