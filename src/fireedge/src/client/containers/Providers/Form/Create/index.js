@@ -54,7 +54,7 @@ function ProviderCreateForm () {
     const { inputs, plain, provider } = templateSelected
     const { location_key: locationKey } = plain
 
-    const { [locationKey]: connectionFixed } = templateSelected.connection
+    const connectionFixed = templateSelected.connection?.[locationKey]
 
     const formatData = {
       connection: { ...connection, [locationKey]: connectionFixed },

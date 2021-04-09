@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Divider, Select, Breadcrumbs } from '@material-ui/core'
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
 import Marked from 'marked'
@@ -22,15 +22,24 @@ const Template = () => ({
   label: T.ProvisionTemplate,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
+    const { provisionsTemplates, providers } = useProvision()
+
     const templateSelected = data?.[0]
 
-    const [provisionSelected, setProvision] = React.useState(templateSelected?.provision_type)
-    const [providerSelected, setProvider] = React.useState(templateSelected?.provider)
+    const [provisionSelected, setProvision] = React.useState(
+      () => templateSelected?.provision_type ?? Object.keys(provisionsTemplates)?.[0]
+    )
 
-    const { provisionsTemplates, providers } = useProvision()
-    const provisionSelectedDescription = provisionsTemplates?.[provisionSelected]?.description
+    const [providerSelected, setProvider] = React.useState(() => templateSelected?.provider)
+
     const providersTypes = provisionsTemplates?.[provisionSelected]?.provisions ?? []
+    const provisionSelectedDescription = provisionsTemplates?.[provisionSelected]?.description
     const templatesAvailable = providersTypes?.[providerSelected] ?? []
+
+    useEffect(() => {
+      // Select the first provider type
+      setProvider(Object.keys(providersTypes)?.[0])
+    }, [provisionSelected])
 
     const {
       handleSelect,
@@ -76,7 +85,7 @@ const Template = () => ({
 
       renderer.link = (href, title, text) => (
         `<a class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorSecondary"
-          target="_blank" rel="nofollow" title='${title}' href='${href}' >${text}</a>`
+          target="_blank" rel="nofollow" title='${title}' href='${href}'>${text}</a>`
       )
 
       const html = Marked(sanitize`${description}`, { renderer })
@@ -96,7 +105,6 @@ const Template = () => ({
             value={provisionSelected}
             variant='outlined'
           >
-            <option value="">{T.None}</option>
             <RenderOptions options={provisionsTemplates} />
           </Select>
           {provisionSelected && <Select
@@ -108,7 +116,6 @@ const Template = () => ({
             value={providerSelected}
             variant='outlined'
           >
-            <option value="">{T.None}</option>
             <RenderOptions options={providersTypes} />
           </Select>}
         </Breadcrumbs>
@@ -129,8 +136,8 @@ const Template = () => ({
               !provisionSelected
                 ? 'Please choose your provision type'
                 : !providerSelected
-                  ? 'Please choose your provider type'
-                  : 'Your provisions templates list is empty'
+                    ? 'Please choose your provider type'
+                    : 'Your provisions templates list is empty'
             } />
           }
           gridProps={{ 'data-cy': 'provisions-templates' }}

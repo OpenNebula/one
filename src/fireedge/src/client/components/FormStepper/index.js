@@ -14,7 +14,7 @@ const FIRST_STEP = 0
 const FormStepper = ({ steps, schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
   const { watch, reset, errors, setError } = useFormContext()
-  const { isLoading } = useGeneral()
+  const { isLoading, changeLoading } = useGeneral()
 
   const [formData, setFormData] = useState(() => watch())
   const [activeStep, setActiveStep] = useState(FIRST_STEP)
@@ -37,15 +37,16 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
       .then(() => ({ id, data: stepData }))
   }
 
-  const setErrors = ({ inner: errors, ...rest }) => {
+  const setErrors = ({ inner: errors = [], ...rest }) => {
+    changeLoading(false)
     const errorsByPath = groupBy(errors, 'path') ?? {}
     const totalErrors = Object.keys(errorsByPath).length
 
     totalErrors > 0
       ? setError(id, {
-        type: 'manual',
-        message: `${totalErrors} error(s) occurred`
-      })
+          type: 'manual',
+          message: `${totalErrors} error(s) occurred`
+        })
       : setError(id, rest)
 
     errors?.forEach(({ path, type, message }) =>

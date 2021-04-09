@@ -42,5 +42,9 @@ export const PROVIDERS_TYPES = [
   {
     name: 'packet',
     color: '#364562'
+  },
+  {
+    name: 'dummy',
+    color: '#436637'
   }
 ]
