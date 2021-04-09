@@ -27,11 +27,16 @@ export const UserInput = PropTypes.shape({
   ])
 })
 
-export const ProviderType = PropTypes.oneOf(['aws', 'packet'])
+export const ProviderType = PropTypes.oneOf([
+  'aws',
+  'packet',
+  'dummy'
+])
 
 export const ProvisionType = PropTypes.oneOf([
   'metal',
-  'virtual'
+  'virtual',
+  'onprem'
 ])
 
 export const ProvisionHost = PropTypes.shape({

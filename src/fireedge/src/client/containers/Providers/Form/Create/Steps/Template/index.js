@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Divider, Select, Breadcrumbs } from '@material-ui/core'
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
 import Marked from 'marked'
@@ -22,15 +22,24 @@ const Template = () => ({
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(
     ({ data, setFormData }) => {
+      const { provisionsTemplates } = useProvision()
+
       const templateSelected = data?.[0]
 
-      const [provisionSelected, setProvision] = React.useState(() => templateSelected?.plain?.provision_type)
+      const [provisionSelected, setProvision] = React.useState(
+        () => templateSelected?.plain?.provision_type ?? Object.keys(provisionsTemplates)?.[0]
+      )
+
       const [providerSelected, setProvider] = React.useState(() => templateSelected?.provider)
 
-      const { provisionsTemplates } = useProvision()
-      const provisionSelectedDescription = provisionsTemplates?.[provisionSelected]?.description
       const providersTypes = provisionsTemplates?.[provisionSelected]?.providers ?? []
+      const provisionSelectedDescription = provisionsTemplates?.[provisionSelected]?.description
       const templatesAvailable = providersTypes?.[providerSelected]
+
+      useEffect(() => {
+        // Select the first provider type
+        setProvider(Object.keys(providersTypes)?.[0])
+      }, [provisionSelected])
 
       const {
         handleSelect,
@@ -52,26 +61,29 @@ const Template = () => ({
       const handleClick = (template, isSelected) => {
         const { name, description, plain = {}, connection } = template
         const { location_key: locationKey = '' } = plain
-        const { [locationKey]: _, ...connectionEditable } = connection
+        const { [locationKey]: _, ...connectionEditable } = connection ?? {}
 
         // reset rest of form when change template
-        setFormData({ [CONFIGURATION_ID]: { name, description }, [CONNECTION_ID]: connectionEditable })
+        setFormData({
+          [CONFIGURATION_ID]: { name, description },
+          [CONNECTION_ID]: connectionEditable
+        })
 
         isSelected
           ? handleUnselect(name, item => item.name === name)
           : handleSelect(template)
       }
 
-      const RenderOptions = ({ options = {} }) => Object.keys(options)?.map(option => (
-        <option key={option} value={option}>{option}</option>
-      ))
+      const RenderOptions = ({ options = {} }) => Object.keys(options)?.map(
+        option => <option key={option} value={option}>{option}</option>
+      ) ?? <option value=''>{T.None}</option>
 
       const RenderDescription = ({ description = '' }) => {
         const renderer = new Marked.Renderer()
 
         renderer.link = (href, title, text) => (
           `<a class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorSecondary"
-            target="_blank" rel="nofollow" title='${title}' href='${href}' >${text}</a>`
+            target="_blank" rel="nofollow" title='${title}' href='${href}'>${text}</a>`
         )
 
         const html = Marked(sanitize`${description}`, { renderer })
@@ -91,7 +103,6 @@ const Template = () => ({
               value={provisionSelected}
               variant='outlined'
             >
-              <option value="">{T.None}</option>
               <RenderOptions options={provisionsTemplates} />
             </Select>
             {provisionSelected && <Select
@@ -103,7 +114,6 @@ const Template = () => ({
               value={providerSelected}
               variant='outlined'
             >
-              <option value="">{T.None}</option>
               <RenderOptions options={providersTypes} />
             </Select>}
           </Breadcrumbs>
@@ -124,8 +134,8 @@ const Template = () => ({
                 !provisionSelected
                   ? 'Please choose your provision type'
                   : !providerSelected
-                    ? 'Please choose your provider type'
-                    : 'Your providers templates list is empty'
+                      ? 'Please choose your provider type'
+                      : 'Your providers templates list is empty'
               } />
             }
             gridProps={{ 'data-cy': 'providers-templates' }}
