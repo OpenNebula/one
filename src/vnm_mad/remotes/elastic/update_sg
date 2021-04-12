@@ -16,24 +16,22 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$LOAD_PATH << File.dirname(__FILE__)
-$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
+$: << File.dirname(__FILE__)
+$: << File.join(File.dirname(__FILE__), "..")
 
 require 'vnmmad'
 
-template64 = STDIN.read
-
-deploy_id = ARGV[0]
-hostname  = ARGV[1]
-
-update_sg ="/var/tmp/one/vnm/elastic/remote_update_sg #{deploy_id} #{hostname}"
+template64   = STDIN.read
+deploy_id    = ARGV[0]
+xpath_filter = "TEMPLATE/NIC[VN_MAD='elastic']"
 
 begin
-    rc = SSHCommand.run(update_sg, hostname, nil, template64)
-
-    raise rc.stderr unless rc.code == 0
-
-rescue StandardError => e
+    filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
+                                                    xpath_filter,
+                                                    deploy_id,
+                                                    false)
+    filter_driver.activate(true)
+rescue Exception => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
     exit 1
