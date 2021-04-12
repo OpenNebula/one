@@ -221,11 +221,7 @@ class SshStreamCommand < RemotesCommand
         end
 
         @stream.exec(command)
-
-        if stdin
-            @stream.stdin.write(stdin)
-            @stream.stdin.close
-        end
+        @stream.stdin.write(stdin) if stdin
 
         @code = @stream.wait_for_command(@timeout)
 
