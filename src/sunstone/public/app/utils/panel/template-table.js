@@ -21,44 +21,73 @@ define(function(require) {
    */
 
   var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
-  var Notifier = require('utils/notifier');
 
-  /*
-    Generate the table HTML with the template of the resource and an edit icon
-    @param {Object} templateJSON Resource template (i.e: ZONE.TEMPLATE, IMAGE.TEMPLATE...)
-    @param {String} resourceType Resource type (i.e: Zone, Host, Image...)
-    @param {String} tableName Header of the table (i.e: Locale.tr("Attributes"))
-    @returns {String} HTML table
-   */
-  function _html(templateJSON, resourceType, tableName, modify) {
-    if (!modify) {
-      modify = true;
-    }
-    var str = '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs"><thead><tr><th colspan="3">' + tableName + '</th></tr></thead>' + fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined, modify);
-    if (modify) {
-      str += '<tr><td class="key_td"><input type="text" name="new_key" id="new_key" /></td><td class="value_td"><textarea type="text" name="new_value" id="new_value"></textarea></td><td class="text-right"><button type="button" id="button_add_value" class="button small secondary"><i class="fas fa-lg fa-plus-circle"></i></button>\</td></tr>';
-    }
-    str += '</table>';
-    return str;
+  // This attributes has special restrictions
+  var special_restrictions = {
+    // vCenter
+    VCENTER_CCR_REF: { edit: false, delete: false },
+    VCENTER_HOST: { edit: false, delete: false },
+    VCENTER_INSTANCE_ID: { edit: false, delete: false },
+    VCENTER_PASSWORD: { edit: true, delete: false },
+    VCENTER_USER: { edit: false, delete: false },
+    VCENTER_VERSION: { edit: false, delete: false },
+    HOT_RESIZE: { edit: false, delete: false, show: false }
   }
 
-  /*
-    Initialize the table, clicking the edit icon will add an input to edit the value
-    @param {Object} templateJSON Resource template (i.e: ZONE.TEMPLATE, IMAGE.TEMPLATE...)
-    @param {String} resourceType Resource type (i.e: Zone, Host, Image...)
-    @param {String} resourceId ID of the resource
-    @param {jQuery Object} context Selector including the tr
-    @param {Object} unshownValues Values from the origianl resource template that
-      have been deleted from the templateJSON param. Whithout this, a template
-      update would permanently delete the missing values from OpenNebula
+  /**
+   * Generate the table HTML with the template of the resource and an edit icon
+   * @param {Object} templateJSON Resource template (e.g: ZONE.TEMPLATE, IMAGE.TEMPLATE...)
+   * @param {String} resourceType Resource type (e.g: Zone, Host, Image...)
+   * @param {String} tableName Header of the table (e.g: Locale.tr("Attributes"))
+   * @returns {String} HTML table
    */
+  function _html(templateJSON, resourceType, tableName) {
+    // Start - TEMPLATE TABLE
+    var html = '<table id="' + resourceType.toLowerCase() + '_template_table" class="dataTable configuration_attrs">\
+      <thead>\
+        <tr><th colspan="3">' + tableName + '</th></tr>\
+      </thead>' +
+      fromJSONtoHTMLTable(templateJSON, resourceType, undefined, undefined, true);
 
+    // Row with form to create new attribute
+    html += '<tr>\
+      <td class="key_td">\
+        <input type="text" name="new_key" id="new_key" />\
+      </td>\
+      <td class="value_td">\
+        <textarea type="text" name="new_value" id="new_value" />\
+      </td>\
+      <td class="text-right">\
+        <button type="button" id="button_add_value" class="button small secondary">\
+          <i class="fas fa-lg fa-plus-circle" />\
+        </button>\
+      </td>\
+    </tr>';
+
+    // Close - TEMPLATE TABLE
+    html += '</table>';
+
+    return html;
+  }
+
+  /**
+   * Initialize the table, clicking the edit icon will add an input to edit the value
+   * @param {Object} templateJSON Resource template (e.g: ZONE.TEMPLATE, IMAGE.TEMPLATE...)
+   * @param {String} resourceType Resource type (e.g: Zone, Host, Image...)
+   * @param {String} resourceId ID of the resource
+   * @param {jQuery Object} context Selector including the tr
+   * @param {Object} unshownValues Values from the original resource template that
+   *   have been deleted from the templateJSON param. Without this, a template
+   *   update would permanently delete the missing values from OpenNebula
+   */
   var _setup = function(templateJSON, resourceType, resourceId, context, unshownValues, templateJSON_Others) {
-    if (!templateJSON_Others){
+    if (!templateJSON_Others) {
       templateJSON_Others = templateJSON;
     }
+
     // Remove previous listeners
     context.off("keypress", "#new_key");
     context.off("keypress", "#new_value");
@@ -72,8 +101,6 @@ define(function(require) {
     context.off("click", "#button_add_value");
     context.off("click", "#button_add_value_vectorial");
     context.off("click", "#div_add_vectorial");
-    this.templateJSON_Others = templateJSON_Others;
-    var that = this;
 
     // Add listener for add key and add value for Extended Template
     context.on("click", '#button_add_value', function() {
@@ -113,24 +140,28 @@ define(function(require) {
     // Listener for key,value pair remove action
     context.on("click", "#div_minus", function() {
       // Remove div_minus_ from the id
-      field               = this.firstElementChild.id.substring(10, this.firstElementChild.id.length);
+      var field = this.firstElementChild.id.substring(10, this.firstElementChild.id.length);
       var list_of_classes = this.firstElementChild.className.split(" ");
       var ocurrence = null;
+
       if (list_of_classes.length != 1) {
-        $.each(list_of_classes, function(index, value) {
+        $.each(list_of_classes, function(_, value) {
           if (value.match(/^ocurrence_/))
           ocurrence = value.substring(10, value.length);;
         });
       }
+
+      var newTemplate = $.extend({}, templateJSON, templateJSON_Others);
+
       // Erase the value from the template
-      if (ocurrence != null){
-        that.templateJSON_Others[field].splice(ocurrence, 1);
-      }else{
-          delete that.templateJSON_Others[field];
+      if (ocurrence != null) {
+        newTemplate[field].splice(ocurrence, 1);
+      } else {
+          delete newTemplate[field];
       }
-      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
-      template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
-      // Let OpenNebula know
+
+      template_str = TemplateUtils.templateToString(newTemplate, unshownValues);
+
       Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
     });
 
@@ -154,12 +185,15 @@ define(function(require) {
     context.on("change", ".input_edit_value", function() {
       var key_str = $.trim(this.id.substring(11, this.id.length));
       var value_str = $.trim(this.value);
+      
       var templateJSON_bk = $.extend({}, templateJSON_Others);
+
       delete templateJSON_Others[key_str];
       templateJSON_Others[key_str] = value_str;
-      templateJSON = $.extend({}, templateJSON_Others, templateJSON);
+
+      templateJSON = $.extend({}, templateJSON, templateJSON_Others);
       template_str = TemplateUtils.templateToString(templateJSON, unshownValues);
-      // Let OpenNebula know
+
       Sunstone.runAction(resourceType + ".update_template", resourceId, template_str);
       templateJSON = templateJSON_bk;
     });
@@ -263,19 +297,18 @@ define(function(require) {
     // Listener for vectorial key,value pair add action
     context.on("click", "#div_add_vectorial", function() {
       if (!$('#button_add_value_vectorial').html()) {
-        var field = this.firstElementChild.id.substring(18, this.firstElementChild.id.length);
         var list_of_classes = this.firstElementChild.className.split(" ");
         var ocurrence = null;
         var vectorial_key = null;
         if (list_of_classes.length != 1) {
-          $.each(list_of_classes, function(index, value) {
+          $.each(list_of_classes, function(_, value) {
             if (value.match(/^ocurrence_/)){
               ocurrence = value;
             }
           });
         }
         if (list_of_classes.length != 1) {
-          $.each(list_of_classes, function(index, value) {
+          $.each(list_of_classes, function(_, value) {
             if (value.match(/^vectorial_key_/)){
               vectorial_key = value;
             }
@@ -358,18 +391,6 @@ define(function(require) {
     return str;
   }
 
-  // This attributes has special restrictions
-  var special_restrictions = {
-    // vCenter
-    VCENTER_CCR_REF: {edit: false, delete: false},
-    VCENTER_HOST: {edit: false, delete: false},
-    VCENTER_INSTANCE_ID: {edit: false, delete: false},
-    VCENTER_PASSWORD: {edit: true, delete: false},
-    VCENTER_USER: {edit: false, delete: false},
-    VCENTER_VERSION: {edit: false, delete: false},
-    HOT_RESIZE: {edit: false, delete: false, show: false}
-  }
-
   // Helper for fromJSONtoHTMLTable function
   function fromJSONtoHTMLRow(field, value, resourceType, vectorial_key, ocurrence, modify) {
     var str = "";
@@ -385,24 +406,11 @@ define(function(require) {
             str += '<td class="text-right nowrap"><span id="div_add_vectorial"><a id="div_add_vectorial_' + field + '" class="add_vectorial_a ocurrence_' + it + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a></span>&emsp;<span id="div_minus"><a id="div_minus_' + field + '" class="remove_vectorial_x ocurrence_' + it + '" href="#"><i class="fas fa-trash-alt"/></a></span></td>';
           }
           str += '</tr>';
-          str += fromJSONtoHTMLTable(
-            current_value,
-            resourceType,
-            field,
-            it,
-            modify
-          );
+          str += fromJSONtoHTMLTable(current_value, resourceType, field, it, modify);
         } else {
-          // if it is a single value, create the row for this occurence of the key
+          // if it is a single value, create the row for this occurrence of the key
           if (!special_restrictions[field] || (special_restrictions[field] && special_restrictions[field]['show'])){
-            str += fromJSONtoHTMLRow(
-              field,
-              current_value,
-              resourceType,
-              false,
-              it,
-              modify
-              );
+            str += fromJSONtoHTMLRow(field, current_value, resourceType, false, it, modify);
           } 
         }
       }
@@ -426,13 +434,7 @@ define(function(require) {
             if (modify) {
               str += '<td class="text-right nowrap"><span id="div_add_vectorial"><a id="div_add_vectorial_' + field + '" class="add_vectorial_a' + ocurrence_str + ' vectorial_key_' + field + '" href="#"><i class="fas fa-plus-sign"/></a></span>&emsp;<span id="div_minus"><a id="div_minus_' + field + '" class="remove_vectorial_x' + ocurrence_str + '" href="#"><i class="fas fa-trash-alt"/></a></span></td>';
             }
-            str += fromJSONtoHTMLTable(
-                value,
-                resourceType,
-                field,
-                ocurrence,
-                modify
-            );
+            str += fromJSONtoHTMLTable(value, resourceType, field, ocurrence, modify);
           }
         } else {
           str += '<tr><td class="key_td">' + Locale.tr(field) + '</td><td class="value_td" id="value_td_input_' + field + '">';
@@ -458,9 +460,50 @@ define(function(require) {
     }
     return str;
   }
+
+  /**
+   * @param {Object} template Template from database resource (vm, host, etc)
+   * @param {Object} options Options to filter attributes
+   * @param {Array} options.hidden Array of attribute names to hide
+   * @param {RegExp} options.regexVCenter Regex to split vCenter attributes
+   * @param {RegExp} options.regexNSX Regex to split NSX attributes
+   * @return {{
+   *  general: Object,
+   *  nsx: Object,
+   *  vcenter: Object,
+   *  hidden: Object
+   * }} All resource attributes
+   */
+  function getTemplatesAttributes(template, options) {
+    var options = $.extend({
+      regexHidden: /^$/,
+      regexVCenter: /^VCENTER_/,
+      regexNSX: /^$/,
+    }, options);
+
+    var general = {}, nsx = {}, vcenter = {}, hidden = {};
+
+    $.each(template, function(key, value) {
+      if (key.match(options.regexHidden)) {
+        hidden[key] = value
+      }
+      else if (key.match(options.regexNSX)) {
+        nsx[key] = value;
+      }
+      else if (key.match(options.regexVCenter)) {
+        vcenter[key] = value;
+      }
+      else {
+        general[key] = value;
+      }
+    });
+
+    return { general, nsx, vcenter, hidden }
+  }
   
   return {
-    'html': _html,
-    'setup': _setup
+    getTemplatesAttributes: getTemplatesAttributes,
+    html: _html,
+    setup: _setup,
   };
 });

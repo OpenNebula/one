@@ -25,7 +25,6 @@ define(function(require) {
   var TemplateTable = require('utils/panel/template-table');
   var PermissionsTable = require('utils/panel/permissions-table');
   var OpenNebulaMarketPlaceApp = require('opennebula/marketplaceapp');
-  var Sunstone = require('sunstone');
 
   /*
     TEMPLATES
@@ -41,6 +40,7 @@ define(function(require) {
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "MarketPlaceApp"
   var XML_ROOT = "MARKETPLACEAPP"
+  var REGEX_HIDDEN_ATTRS = /^(VMTEMPLATE64|APPTEMPLATE64)$/
 
   /*
     CONSTRUCTOR
@@ -65,15 +65,12 @@ define(function(require) {
     FUNCTION DEFINITIONS
    */
 
-
   function _html() {
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["VMTEMPLATE64"];
-    delete strippedTemplate["APPTEMPLATE64"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var templateTableHTML = TemplateTable.html(
-                                      strippedTemplate, RESOURCE,
-                                      Locale.tr("Attributes"));
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
 
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
@@ -81,7 +78,6 @@ define(function(require) {
     var stateStr = OpenNebulaMarketPlaceApp.stateStr(this.element.STATE);
     var typeStr = OpenNebulaMarketPlaceApp.typeStr(this.element.TYPE);
     var sizeStr = Humanize.sizeFromMB(this.element.SIZE);
-
 
     return TemplateInfo({
       'element': this.element,
@@ -96,23 +92,15 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["VMTEMPLATE64"];
-    delete strippedTemplate["APPTEMPLATE64"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var hiddenValues = {};
-
-    if (this.element.TEMPLATE.VMTEMPLATE64 !== undefined) {
-      hiddenValues.VMTEMPLATE64 = this.element.TEMPLATE.VMTEMPLATE64;
-    }
-    if (this.element.TEMPLATE.APPTEMPLATE64 !== undefined) {
-      hiddenValues.APPTEMPLATE64 = this.element.TEMPLATE.APPTEMPLATE64;
-    }
-
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden);
 
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+
     return false;
   }
 });

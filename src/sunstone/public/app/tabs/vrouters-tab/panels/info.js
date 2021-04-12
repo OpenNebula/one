@@ -15,40 +15,31 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  /*
-    DEPENDENCIES
-   */
+  /* DEPENDENCIES */
 
-  var TemplateInfo = require('hbs!./info/html');
-  var Locale = require('utils/locale');
   var Config = require('sunstone-config');
-  var Sunstone = require('sunstone');
+  var Locale = require('utils/locale');
+  var Navigation = require('utils/navigation');
   var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
-  var OpenNebulaVirtualRouter = require('opennebula/virtualrouter');
-  var Navigation = require('utils/navigation');
-
-  /*
-    TEMPLATES
-   */
-
+  var Sunstone = require('sunstone');
   var TemplateTable = require('utils/panel/template-table');
+  
+  /* TEMPLATES */
+  
+  var TemplateInfo = require('hbs!./info/html');
 
-  /*
-    CONSTANTS
-   */
+  /* CONSTANTS */
 
+  var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "VirtualRouter";
   var XML_ROOT = "VROUTER";
+  var REGEX_HIDDEN_ATTRS = /^(NIC)$/
 
-  var ATTACH_NIC_DIALOG_ID = require('../dialogs/attach-nic/dialogId');
-  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
-
-  /*
-    CONSTRUCTOR
-   */
+  /* CONSTRUCTOR */
 
   function Panel(info) {
     this.title = Locale.tr("Info");
@@ -65,9 +56,7 @@ define(function(require) {
 
   return Panel;
 
-  /*
-    FUNCTION DEFINITIONS
-   */
+  /* FUNCTION DEFINITIONS */
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
@@ -112,13 +101,11 @@ define(function(require) {
       }
     });
 
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["NIC"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
-                                              Locale.tr("Attributes"));
-    //====
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
 
     return TemplateInfo({
       'element': this.element,
@@ -134,7 +121,6 @@ define(function(require) {
 
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-
 
     if (Config.isTabActionEnabled(TAB_ID, "VirtualRouter.attachnic")) {
       context.off('click', '.attach_nic');
@@ -169,18 +155,11 @@ define(function(require) {
       });
     }
 
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["NIC"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var hiddenValues = {};
-
-    if (this.element.TEMPLATE.NIC != undefined){
-        hiddenValues.NIC = this.element.TEMPLATE.NIC;
-    }
-
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
-    //===
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden);
 
     return false;
   }

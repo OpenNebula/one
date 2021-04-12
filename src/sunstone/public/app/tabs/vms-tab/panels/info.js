@@ -19,16 +19,15 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require("utils/locale");
   var Humanize = require("utils/humanize");
-  var RenameTr = require("utils/panel/rename-tr");
-  var PermissionsTable = require("utils/panel/permissions-table");
-  var TemplateTable = require("utils/panel/template-table");
-  var TemplateTableVcenter = require("utils/panel/template-table");
-  var OpenNebula = require("opennebula");
+  var Locale = require("utils/locale");
   var Navigation = require("utils/navigation");
-  var TemplateUtils = require('utils/template-utils');
+  var OpenNebula = require("opennebula");
+  var PermissionsTable = require("utils/panel/permissions-table");
+  var RenameTr = require("utils/panel/rename-tr");
   var Sunstone = require('sunstone');
+  var TemplateTable = require("utils/panel/template-table");
+  var TemplateUtils = require('utils/template-utils');
 
   /*
     TEMPLATES
@@ -44,6 +43,9 @@ define(function(require) {
   var PANEL_ID = require("./info/panelId");
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
+  var REGEX_VCENTER_ATTRS = /^VCENTER_/
+  // Get rid of the unwanted (for show) SCHED_* keys
+  var REGEX_HIDDEN_ATTRS = /^(USER_INPUTS|BACKUP)$|SCHED_|ERROR/
 
   /*
     CONSTRUCTOR
@@ -53,6 +55,7 @@ define(function(require) {
     this.title = Locale.tr("Info");
     this.icon = "fa-info-circle";
     this.element = info[XML_ROOT];
+
     return this;
   }
 
@@ -76,42 +79,30 @@ define(function(require) {
     var lcmStateStr = OpenNebula.VM.lcmStateStr(this.element.LCM_STATE);
     var lcmStateClass = OpenNebula.VM.lcmStateClass(this.element.LCM_STATE);
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
-    var vrouterHTML = "--";
-
     var IP = OpenNebula.VM.ipsStr(this.element, { forceGroup: true });
+    
+    var vrouterHTML = "--";
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
       vrouterHTML = Navigation.link(
         OpenNebula.VirtualRouter.getName(this.element.TEMPLATE.VROUTER_ID),
-        "vrouters-tab", this.element.TEMPLATE.VROUTER_ID);
+        "vrouters-tab", this.element.TEMPLATE.VROUTER_ID
+      );
     }
 
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"));
 
-    // Get rid of the unwanted (for show) SCHED_* keys
-    var that = this;
-    var strippedTemplate = {};
-    var strippedTemplateVcenter = {};
-    var unshownValues = {};
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexVCenter: REGEX_VCENTER_ATTRS,
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS" || key == "BACKUP") {
-        unshownValues[key] = value;
-      }
-      else if (key.match(/^VCENTER_*/)){
-        strippedTemplateVcenter[key] = value;
-      }
-      else {
-        strippedTemplate[key] = value;
-      }
-    });
-
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
-
-    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
+    var templateTableVcenterHTML = TemplateTable.html(attributes.vcenter, RESOURCE, Locale.tr("vCenter information"));
 
     var monitoring = $.extend({}, this.element.MONITORING);
+
     delete monitoring.CPU;
     delete monitoring.MEMORY;
     delete monitoring.NETTX;
@@ -119,10 +110,8 @@ define(function(require) {
     delete monitoring.STATE;
     delete monitoring.DISK_SIZE;
     delete monitoring.SNAPSHOT_SIZE;
-    var monitoringTableContentHTML;
-    if (!$.isEmptyObject(monitoring)) {
-      monitoringTableContentHTML = Humanize.prettyPrintJSON(monitoring);
-    }
+
+    var monitoringTableContentHTML = !$.isEmptyObject(monitoring) && Humanize.prettyPrintJSON(monitoring);
 
     var errorMessageHTML = ""
     if (this.element && 
@@ -173,29 +162,24 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
+  
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-    // Get rid of the unwanted (for show) SCHED_* keys
-    var that = this;
-    var strippedTemplate = {};
-    var strippedTemplateVcenter = {};
-    var unshownValues = {};
-    $.each(that.element.USER_TEMPLATE, function(key, value) {
-      if (key.match(/^SCHED_*/) || key.match(/^ERROR/) || key == "USER_INPUTS") {
-        unshownValues[key] = value;
-      }
-      else if (key.match(/^VCENTER_*/)){
-        strippedTemplateVcenter[key] = value;
-      }
-      else {
-        strippedTemplate[key] = value;
-      }
-    });
-    if($.isEmptyObject(strippedTemplateVcenter)){
+    
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexVCenter: REGEX_VCENTER_ATTRS,
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
+    
+    if($.isEmptyObject(attributes.vcenter)){
       $(".vcenter", context).hide();
     }
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, unshownValues, strippedTemplateVcenter);
-    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, unshownValues, strippedTemplate);
+
+    // General Attributes section
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden, attributes.vcenter);
+    // vCenter Attributes section
+    TemplateTable.setup(attributes.vcenter, RESOURCE, this.element.ID, context, attributes.hidden, attributes.general);
 
     context.off("click", "#close_vm_async_error");
     context.on("click", "#close_vm_async_error", function() {
@@ -207,12 +191,10 @@ define(function(require) {
       Sunstone.runAction(RESOURCE + ".update_template", resourceId, template_str);
     });
 
-    if (this.element &&
-        this.element.USER_TEMPLATE &&
-        this.element.USER_TEMPLATE.HYPERVISOR &&
-        this.element.USER_TEMPLATE.HYPERVISOR === "vcenter")
+    if (OpenNebula.VM.isvCenterVM(this.element)) {
       $('button[href="VM.upload_marketplace_dialog"]').attr('disabled','disabled');
-    else
+    } else {
       $('button[href="VM.upload_marketplace_dialog"]').removeAttr('disabled');
+    }
   }
 });

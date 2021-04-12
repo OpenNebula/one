@@ -19,19 +19,18 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
+  var Navigation = require('utils/navigation');
+  var OpenNebulaNetwork = require('opennebula/network');
   var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
-  var OpenNebulaNetwork = require('opennebula/network');
-  var Navigation = require('utils/navigation');
-
+  var TemplateTable = require('utils/panel/template-table');
+  
   /*
     TEMPLATES
    */
-
-  var TemplateTable = require('utils/panel/template-table');
-  var TemplateTableVcenter = require('utils/panel/template-table');
+ 
+  var TemplateInfo = require('hbs!./info/html');
 
   /*
     CONSTANTS
@@ -41,6 +40,8 @@ define(function(require) {
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Network";
   var XML_ROOT = "VNET";
+  var REGEX_VCENTER_ATTRS = /^VCENTER_/
+  var REGEX_HIDDEN_ATTRS = /^(SECURITY_GROUPS|INBOUND_AVG_BW|INBOUND_PEAK_BW|INBOUND_PEAK_KB|OUTBOUND_AVG_BW|OUTBOUND_PEAK_BW|OUTBOUND_PEAK_KB)$/
 
   /*
     CONSTRUCTOR
@@ -69,49 +70,23 @@ define(function(require) {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
-    // TODO: simplify interface?
-    var hiddenKeys = [
-      "SECURITY_GROUPS",
-      "INBOUND_AVG_BW",
-      "INBOUND_PEAK_BW",
-      "INBOUND_PEAK_KB",
-      "OUTBOUND_AVG_BW",
-      "OUTBOUND_PEAK_BW",
-      "OUTBOUND_PEAK_KB" ];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexVCenter: REGEX_VCENTER_ATTRS,
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var strippedTemplate = {};
-    var strippedTemplateVcenter = {};
-    $.each(this.element.TEMPLATE, function(key, value) {
-      if (!$.inArray(key, hiddenKeys) > -1) {
-        if (key.match(/^VCENTER_*/)){
-          strippedTemplateVcenter[key] = value;
-        }
-        else {
-          strippedTemplate[key] = value;
-        }
-      }
-    });
-
-    var templateTableHTML = TemplateTable.html(
-      strippedTemplate,
-      RESOURCE,
-      Locale.tr("Attributes")
-    );
-
-    var templateTableVcenterHTML = TemplateTableVcenter.html(
-      strippedTemplateVcenter, 
-      RESOURCE,
-      Locale.tr("vCenter information"),
-      false
-    );
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
+    var templateTableVcenterHTML = TemplateTable.html(attributes.vcenter, RESOURCE, Locale.tr("vCenter information"));
 
     var reservationTrHTML = '';
 
-    if(this.element.PARENT_NETWORK_ID.length > 0){
+    if (this.element.PARENT_NETWORK_ID.length > 0) {
       reservationTrHTML =
         '<tr>\
-          <td class="key_td">'+Locale.tr("Reservation parent")+'</td>\
-          <td class="value_td">'+Navigation.link(OpenNebulaNetwork.getName(this.element.PARENT_NETWORK_ID), "vnets-tab", this.element.PARENT_NETWORK_ID)+'</td>\
+          <td class="key_td">' + Locale.tr("Reservation parent") + '</td>\
+          <td class="value_td">' +
+            Navigation.link(OpenNebulaNetwork.getName(this.element.PARENT_NETWORK_ID), "vnets-tab", this.element.PARENT_NETWORK_ID) +
+          '</td>\
           <td></td>\
         </tr>';
 
@@ -124,16 +99,9 @@ define(function(require) {
       $(".reserve-sunstone-info").removeAttr("title");
     }
  
-    var auto_vlan_id = Locale.tr("NO");
-    var auto_outer_vlan_id = Locale.tr("NO");
+    var auto_vlan_id = (this.element.VLAN_ID_AUTOMATIC == "1") ? Locale.tr("YES") : Locale.tr("NO");
+    var auto_outer_vlan_id = (this.element.OUTER_VLAN_ID_AUTOMATIC == "1") ? Locale.tr("YES") : Locale.tr("NO");
 
-    if (this.element.VLAN_ID_AUTOMATIC == "1") {
-      auto_vlan_id = Locale.tr("YES");
-    }
-
-    if (this.element.OUTER_VLAN_ID_AUTOMATIC == "1") {
-      auto_outer_vlan_id = Locale.tr("YES");
-    }
     this.element.VLAN_ID = jQuery.isEmptyObject(this.element.VLAN_ID) && 
                            this.element.TEMPLATE && 
                            this.element.TEMPLATE.VCENTER_VLAN_ID? 
@@ -153,43 +121,20 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var that = this;
-
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
-    // TODO: simplify interface?
-    var hiddenKeys = [
-      "SECURITY_GROUPS",
-      "INBOUND_AVG_BW",
-      "INBOUND_PEAK_BW",
-      "INBOUND_PEAK_KB",
-      "OUTBOUNDD_AVG_BW",
-      "OUTBOUND_PEAK_BW",
-      "OUTBOUND_PEAK_KB" ];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexVCenter: REGEX_VCENTER_ATTRS,
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var hiddenValues = {};
-    var strippedTemplate = {};
-    var strippedTemplateVcenter = {};
-    $.each(that.element.TEMPLATE, function(key, value) {
-      if ($.inArray(key, hiddenKeys) > -1) {
-        hiddenValues[key] = value;
-      }
-      if (key.match(/^VCENTER_*/)){
-          strippedTemplateVcenter[key] = value;
-        }
-        else {
-          strippedTemplate[key] = value;
-        }
-    });
-
-    if($.isEmptyObject(strippedTemplateVcenter)){
+    if ($.isEmptyObject(attributes.vcenter)) {
       $('.vcenter', context).hide();
     }
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues, strippedTemplateVcenter);
-    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, hiddenValues, strippedTemplate);
-    //===
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden, attributes.vcenter);
+    TemplateTable.setup(attributes.vcenter, RESOURCE, this.element.ID, context, attributes.hidden, attributes.general);
 
     return false;
   }
