@@ -19,15 +19,14 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
+  var DatastoreCapacityBar = require('../utils/datastore-capacity-bar');
   var Humanize = require('utils/humanize');
+  var Locale = require('utils/locale');
+  var OpenNebulaDatastore = require('opennebula/datastore');
+  var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
-  var TemplateTableVcenter = require('utils/panel/template-table');
-  var PermissionsTable = require('utils/panel/permissions-table');
-  var OpenNebulaDatastore = require('opennebula/datastore');
-  var DatastoreCapacityBar = require('../utils/datastore-capacity-bar');
-
+  
   /*
     TEMPLATES
    */
@@ -41,6 +40,7 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "Datastore"
+  var REGEX_VCENTER_ATTRS = /^VCENTER_(?!(HOST|USER|PASSWORD|DS_IMAGE_DIR|DS_VOLATILE_DIR)$)/
 
   /*
     CONSTRUCTOR
@@ -68,23 +68,12 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var strippedTemplate = {};
-    var strippedTemplateVcenter = {};
-    $.each(this.element.TEMPLATE, function(key, value) {
-      if (!key.match(/^VCENTER_HOST$/) &&
-          !key.match(/^VCENTER_USER$/) &&
-          !key.match(/^VCENTER_PASSWORD$/) &&
-          !key.match(/^VCENTER_DS_IMAGE_DIR$/) &&
-          !key.match(/^VCENTER_DS_VOLATILE_DIR$/) &&
-           key.match(/^VCENTER_*/)){
-        strippedTemplateVcenter[key] = value;
-      }
-      else {
-        strippedTemplate[key] = value;
-      }
-    });
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE, Locale.tr("Attributes"), true);
-    var templateTableVcenterHTML = TemplateTableVcenter.html(strippedTemplateVcenter, RESOURCE, Locale.tr("vCenter information"), false);
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexVCenter: REGEX_VCENTER_ATTRS
+    })
+
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
+    var templateTableVcenterHTML = TemplateTable.html(attributes.vcenter, RESOURCE, Locale.tr("vCenter information"));
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
     var stateStr = OpenNebulaDatastore.stateStr(this.element.STATE);
@@ -110,29 +99,21 @@ define(function(require) {
 
   function _setup(context) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
-    var strippedTemplate = {};
-    var strippedTemplateVcenter = {};
-    $.each(this.element.TEMPLATE, function(key, value) {
-      if (!key.match(/^VCENTER_HOST$/) &&
-          !key.match(/^VCENTER_USER$/) &&
-          !key.match(/^VCENTER_PASSWORD$/) &&
-          !key.match(/^VCENTER_DS_IMAGE_DIR$/) &&
-          !key.match(/^VCENTER_DS_VOLATILE_DIR$/) &&
-          key.match(/^VCENTER_*/)){
-        strippedTemplateVcenter[key] = value;
-      }
-      else {
-        strippedTemplate[key] = value;
-      }
-    });
-    if($.isEmptyObject(strippedTemplateVcenter)){
+    PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
+
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexVCenter: REGEX_VCENTER_ATTRS
+    })
+
+    if ($.isEmptyObject(attributes.vcenter)) {
       $('.vcenter', context).hide();
     }
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, undefined, strippedTemplateVcenter);
-    TemplateTableVcenter.setup(strippedTemplateVcenter, RESOURCE, this.element.ID, context, undefined, strippedTemplate);
+    // General Attributes section
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, undefined, attributes.vcenter);
+    // vCenter Attributes section
+    TemplateTable.setup(attributes.vcenter, RESOURCE, this.element.ID, context, undefined, attributes.general);
 
-    PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
     return false;
   }
 });

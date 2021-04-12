@@ -20,6 +20,11 @@ define(function(require) {
    */
 
   var Sunstone = require('sunstone');
+
+  /*
+    CONSTANTS
+   */
+ 
   var TemplateInfo = require('hbs!./info/html');
 
   /*

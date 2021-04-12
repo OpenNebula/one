@@ -19,11 +19,11 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var RenameTr = require('utils/panel/rename-tr');
-  var PermissionsTable = require('utils/panel/permissions-table');
-  var OpenNebulaService = require('opennebula/service');
   var Humanize = require('utils/humanize');
+  var Locale = require('utils/locale');
+  var OpenNebulaService = require('opennebula/service');
+  var PermissionsTable = require('utils/panel/permissions-table');
+  var RenameTr = require('utils/panel/rename-tr');
 
   /*
     TEMPLATES

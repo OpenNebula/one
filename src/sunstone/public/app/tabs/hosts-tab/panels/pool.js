@@ -17,49 +17,58 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
+  
   var Locale = require('utils/locale');
   var ResourcePoolCards = require("../utils/cards");
+
   /*
     TEMPLATES
    */
+
   var TemplatePool = require('hbs!./pool/html');
+
   /*
     CONSTANTS
    */
+
   var PANEL_ID = require('./pool/panelId');
-  var RESOURCE = "Host"
+  var RESOURCE = "HOST"
+
   /*
     CONSTRUCTOR
    */
+
   function Panel(info) {
-    var self = this;
     this.title = Locale.tr("POOL");
     this.icon = "fa-server";
-    this.element = info[RESOURCE.toUpperCase()];
+    this.element = info[RESOURCE];
+
     // Do not create an instance of this panel if no vcenter hypervisor
-    // porque el hypervisor proviene de la monitorizacion de por si no esta en el template
-    if(this.element && this.element.TEMPLATE && this.element.TEMPLATE.HYPERVISOR){
-      if(this.element.TEMPLATE.HYPERVISOR != "vcenter"){
+    if (this.element && this.element.TEMPLATE && this.element.TEMPLATE.HYPERVISOR) {
+      if (this.element.TEMPLATE.HYPERVISOR !== "vcenter") {
         throw "Panel not available for this element";
       }
-    }else{
+    } else {
       throw "Panel not available for this element";
     }
 
     return this;
   };
+
   Panel.PANEL_ID = PANEL_ID;
   Panel.prototype.html = _html;
   Panel.prototype.setup = _setup;
   return Panel;
+
   /*
     FUNCTION DEFINITIONS
    */
+
   function _html() {
     return TemplatePool({
         "resourcePoolCards": ResourcePoolCards.html(this.element)
     });
   }
-  function _setup(context) {
-  }
+
+  function _setup(context) {}
 })

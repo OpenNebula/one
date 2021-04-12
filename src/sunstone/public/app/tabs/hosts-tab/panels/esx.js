@@ -49,7 +49,7 @@ define(function(require) {
     this.element = info[RESOURCE.toUpperCase()];
 
     // Do not create an instance of this panel if no vcenter hypervisor
-    if (this.element.TEMPLATE.HYPERVISOR != "vcenter") {
+    if (this.element.TEMPLATE.HYPERVISOR !== "vcenter") {
       throw "Panel not available for this element";
     }
 

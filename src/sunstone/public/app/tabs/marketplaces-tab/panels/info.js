@@ -19,12 +19,11 @@ define(function(require) {
     DEPENDENCIES
    */
 
+  var DatastoreCapacityBar = require('tabs/datastores-tab/utils/datastore-capacity-bar');
   var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
+  var PermissionsTable = require('utils/panel/permissions-table');
   var RenameTr = require('utils/panel/rename-tr');
   var TemplateTable = require('utils/panel/template-table');
-  var PermissionsTable = require('utils/panel/permissions-table');
-  var DatastoreCapacityBar = require('tabs/datastores-tab/utils/datastore-capacity-bar');
 
   /*
     TEMPLATES
@@ -66,9 +65,7 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var templateTableHTML = TemplateTable.html(
-                                      this.element.TEMPLATE, RESOURCE,
-                                      Locale.tr("Attributes"));
+    var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE, Locale.tr("Attributes"));
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
     var capacityBar = DatastoreCapacityBar.html(this.element);
 

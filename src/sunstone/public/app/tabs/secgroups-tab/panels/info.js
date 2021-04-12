@@ -40,6 +40,7 @@ define(function(require) {
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "SecurityGroup";
   var XML_ROOT = "SECURITY_GROUP";
+  var REGEX_HIDDEN_ATTRS = /^(RULE)$/
 
   /*
     CONSTRUCTOR
@@ -72,17 +73,15 @@ define(function(require) {
 
     var ruleTextList = [];
 
-    $.each(rules, function(){
+    $.each(rules, function() {
       ruleTextList.push(Utils.sgRuleToSt(this));
     });
 
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["RULE"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
-                                              Locale.tr("Attributes"));
-    //====
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
 
     return TemplateInfo({
       'element': this.element,
@@ -97,14 +96,11 @@ define(function(require) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
 
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["RULE"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var hiddenValues = {RULE: this.element.TEMPLATE.RULE};
-
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
-    //===
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden);
 
     return false;
   }

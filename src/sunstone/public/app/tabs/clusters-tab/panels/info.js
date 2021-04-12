@@ -19,12 +19,17 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TemplateHTML = require("hbs!./info/html");
   var Locale = require("utils/locale");
   var RenameTr = require("utils/panel/rename-tr");
-  var TemplateTable = require("utils/panel/template-table");
   var Sunstone = require("sunstone");
+  var TemplateTable = require("utils/panel/template-table");
   var TemplateUtils = require("utils/template-utils");
+
+  /*
+    TEMPLATES
+   */
+
+  var TemplateHTML = require("hbs!./info/html");
 
   /*
     CONSTANTS
@@ -34,34 +39,17 @@ define(function(require) {
   var PANEL_ID = require("./info/panelId");
   var RESOURCE = "Cluster";
   var XML_ROOT = "CLUSTER";
-
-  var OVERCOMMIT_DIALOG_ID = require("utils/dialogs/overcommit/dialogId");
+  var REGEX_HIDDEN_ATTRS = /^(HOST|RESERVED_CPU|RESERVED_MEM)$/
 
   /*
     CONSTRUCTOR
    */
 
   function Panel(info) {
-    var that = this;
-
     this.title = Locale.tr("Info");
     this.icon = "fa-info-circle";
-
     this.element = info[XML_ROOT];
-    this.percent = false;
-
-    // Hide information in the template table. Unshow values are stored
-    // in the unshownTemplate object to be used when the element info is updated.
-    that.unshownTemplate = {};
-    that.strippedTemplate = {};
-    var unshownKeys = ["HOST", "RESERVED_CPU", "RESERVED_MEM"];
-    $.each(that.element.TEMPLATE, function(key, value) {
-      if ($.inArray(key, unshownKeys) > -1) {
-        that.unshownTemplate[key] = value;
-      } else {
-        that.strippedTemplate[key] = value;
-      }
-    });
+    this.percent = false; 
 
     return this;
   }
@@ -77,30 +65,23 @@ define(function(require) {
    */
 
   function _html() {
-    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var templateTableHTML = TemplateTable.html(
-                                      this.strippedTemplate,
-                                      RESOURCE,
-                                      Locale.tr("Attributes"));
-    var reservedMem;
-    var reservedMemInput;
-    if (this.element.TEMPLATE.RESERVED_MEM != "0%" && this.element.TEMPLATE.RESERVED_MEM != ""){
-      reservedMem = parseInt(this.element.TEMPLATE.RESERVED_MEM);
-      reservedMemInput = this.element.TEMPLATE.RESERVED_MEM;
-    } else {
-      reservedMem = 0;
-      reservedMemInput = "0%";
-    }
+    var TEMPLATE = this.element.TEMPLATE
 
-    var reservedCPU;
-    var reservedCPUInput;
-    if (this.element.TEMPLATE.RESERVED_CPU != "0%" && this.element.TEMPLATE.RESERVED_CPU != ""){
-      reservedCPU = parseInt(this.element.TEMPLATE.RESERVED_CPU);
-      reservedCPUInput = this.element.TEMPLATE.RESERVED_CPU;
-    } else {
-      reservedCPU = 0;
-      reservedCPUInput = "0%";
-    }
+    var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
+
+    var attributes = TemplateTable.getTemplatesAttributes(TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
+
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr('Attributes'));    
+
+    var hasReservedMem = TEMPLATE.RESERVED_MEM !== '0%' && TEMPLATE.RESERVED_MEM !== '';
+    var reservedMem = hasReservedMem ? parseInt(TEMPLATE.RESERVED_MEM) : 0;
+    var reservedMemInput = hasReservedMem ? TEMPLATE.RESERVED_MEM : '0%';
+
+    var hasReservedCpu = TEMPLATE.RESERVED_CPU !== '0%' && TEMPLATE.RESERVED_CPU !== '';
+    var reservedCPU = hasReservedCpu ? parseInt(TEMPLATE.RESERVED_CPU) : 0;
+    var reservedCPUInput = hasReservedCpu ? TEMPLATE.RESERVED_CPU : '0%';
 
     return TemplateHTML({
       "element": this.element,
@@ -115,22 +96,20 @@ define(function(require) {
 
   function changeBarColorCPU(){
     var cpuValue = parseInt($("#change_bar_cpu").val());
-    if (cpuValue > 0){
-      $("#textInput_reserved_cpu").css("background-color", "rgba(111, 220, 111, 0.5)");
-    }
 
-    if (cpuValue < 0){
+    if (cpuValue > 0) {
+      $("#textInput_reserved_cpu").css("background-color", "rgba(111, 220, 111, 0.5)");
+    } else if (cpuValue < 0) {
       $("#textInput_reserved_cpu").css("background-color", "rgba(255, 80, 80,0.5)");
     }
   }
 
   function changeBarColorMEM(){
     var memValue = parseInt($("#change_bar_mem").val());
-    if (memValue > 0){
-      $("#textInput_reserved_mem").css("background-color", "rgba(111, 220, 111, 0.5)");
-    }
 
-    if (memValue < 0){
+    if (memValue > 0) {
+      $("#textInput_reserved_mem").css("background-color", "rgba(111, 220, 111, 0.5)");
+    } else if (memValue < 0) {
       $("#textInput_reserved_mem").css("background-color", "rgba(255, 80, 80,0.5)");
     }
   }
@@ -160,7 +139,11 @@ define(function(require) {
 
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
 
-    TemplateTable.setup(this.strippedTemplate, RESOURCE, this.element.ID, context, this.unshownTemplate);
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
+
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden);
 
     changeBarColorCPU();
     changeBarColorMEM();
@@ -170,7 +153,9 @@ define(function(require) {
     document.getElementById("change_bar_mem").addEventListener("input", changeBarMEM);
     document.getElementById("textInput_reserved_mem").addEventListener("input", changeInputMEM);
 
-    $(document).off("click", ".update_reserved").on("click", ".update_reserved", function(){
+    $(document)
+      .off("click", ".update_reserved")
+      .on("click", ".update_reserved", function() {
         var reservedCPU = document.getElementById("textInput_reserved_cpu").value;
         var reservedMem = document.getElementById("textInput_reserved_mem").value;
 

@@ -9,8 +9,6 @@
       word-break: break-word;
       padding: 0;
       padding-bottom: 0.5rem;
-      //padding: 1rem;
-      //color: $black;
       font-size: 1.1rem;
       font-weight: bold;
     }
@@ -18,8 +16,6 @@
     .without-link {
       padding: 0;
       padding-bottom: 0.5rem;
-      //padding: 1rem;
-      //color: $black;
       font-size: 1.1rem;
       display: block;
       font-weight: bold;
@@ -29,7 +25,6 @@
 
   .provision-bullet-item {
     padding-bottom: 0.2rem;
-    //padding: 0.2rem 1rem;
     i {
       color: $dark-gray;
     }
@@ -41,15 +36,9 @@
 
   .provision-bullet-item-last {
     padding-top: 0.5rem;
-    //padding: 0.5rem 1rem;
     color: $dark-gray;
     i {
       color: $dark-gray;
     }
-  }
-
-  .provision-bullet-item-buttons {
-    //padding-top: 1rem;
-    //padding: 0 1rem 0.5rem 1rem;
   }
 }
