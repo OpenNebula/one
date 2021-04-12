@@ -20,22 +20,27 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./migrate/html');
-  var Sunstone = require('sunstone');
+  var Config = require('sunstone-config');
   var DatastoresTable = require('tabs/datastores-tab/datatable');
   var HostsTable = require('tabs/hosts-tab/datatable');
-  var Notifier = require('utils/notifier');
-  var Tips = require('utils/tips');
   var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
   var OpenNebulaVM = require('opennebula/vm');
-  var Config = require('sunstone-config');
+  var Sunstone = require('sunstone');
+  var Tips = require('utils/tips');
+  
+  /*
+    TEMPLATES
+   */
+
+  var TemplateHTML = require('hbs!./migrate/html');
 
   /*
     CONSTANTS
    */
 
   var DIALOG_ID = require('./migrate/dialogId');
-  var TAB_ID = require('../tabId')
+  var TAB_ID = require('../tabId');
 
   /*
     CONSTRUCTOR
@@ -98,7 +103,7 @@ define(function(require) {
           return false;
       }
 
-      extra_info['ds_id'] = $("#selected_resource_id_migrate_vm_ds", context).val() || -1
+      extra_info['ds_id'] = $("#selected_resource_id_migrate_vm_ds", context).val() || -1;
       extra_info['enforce'] = $("#enforce", context).is(":checked");
 
       $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
@@ -180,12 +185,16 @@ define(function(require) {
     return false;
   }
 
-  // @param [Boolean] live Set migrate live or migrate
+  /**
+   * @param [Boolean] live Set migrate live or migrate
+   */
   function _setLive(live) {
     this.live = live;
   }
 
-  // @param [Int] type Set migration type
+  /**
+   * @param [Int] type Set migration type
+   */
   function _setType(type) {
     this.type = type;
   }

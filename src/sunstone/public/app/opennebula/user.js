@@ -16,11 +16,9 @@
 
 define(function(require) {
 
+  var OpenNebulaAction = require('./action');
+  var OpenNebulaHelper = require('./helper');
   var QuotaDefaults = require('utils/quotas/quota-defaults');
-
-  var OpenNebulaAction = require('./action'),
-      OpenNebulaHelper = require('./helper'),
-      OpenNebulaError  = require('./error');
 
   var RESOURCE = "USER";
 

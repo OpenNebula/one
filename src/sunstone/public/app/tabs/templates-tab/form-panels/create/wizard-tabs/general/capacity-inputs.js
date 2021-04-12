@@ -19,14 +19,13 @@ define(function(require) {
     DEPENDENCIES
    */
 
-//  require('foundation.slider');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var WizardFields = require('utils/wizard-fields');
-  var UserInputs = require('utils/user-inputs');
   var Config = require('sunstone-config');
-  var Notifier = require("utils/notifier");
   var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
+  var Locale = require('utils/locale');
+  var Notifier = require("utils/notifier");
+  var Tips = require('utils/tips');
+  var UserInputs = require('utils/user-inputs');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
@@ -175,7 +174,7 @@ define(function(require) {
       cpuInput.prop("disabled", true);
       var vcpuValue = vcpuInput.val();
       if (vcpuValue && vcpuValue !== "") {
-        vcpuInput.trigger("change")
+        vcpuInput.trigger("change");
       } 
     }
 
@@ -220,14 +219,14 @@ define(function(require) {
         
       });
 
-      $("#CORES_PER_SOCKET", context).on("change", function(){
+      $("#CORES_PER_SOCKET", context).on("change", function() {
         CoresPerSocket.calculateSockets(VCPU_SELECTOR);
-      })
+      });
 
       CoresPerSocket.calculateSockets(VCPU_SELECTOR);
     }
 
-    if (userInputs != undefined && userInputs.MEMORY != undefined){
+    if (userInputs != undefined && userInputs.MEMORY != undefined) {
       attr = UserInputs.parse("MEMORY", userInputs.MEMORY);
     } else {
       attr = UserInputs.parse("MEMORY", "O|number|||");

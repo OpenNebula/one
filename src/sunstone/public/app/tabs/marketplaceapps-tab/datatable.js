@@ -19,17 +19,21 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require('utils/tab-datatable');
-  var Sunstone = require('sunstone');
-  var SunstoneConfig = require('sunstone-config');
+  var Humanize = require('utils/humanize');
+  var LabelsUtils = require('utils/labels/utils');
   var Locale = require('utils/locale');
   var OpenNebulaMarketPlaceApp = require('opennebula/marketplaceapp');
   var OpenNebulaZone = require('opennebula/zone');
   var StateActions = require('./utils/state-actions');
-  var LabelsUtils = require('utils/labels/utils');
-  var Humanize = require('utils/humanize');
-  var SearchDropdown = require('hbs!./datatable/search');
   var Status = require('utils/status');
+  var Sunstone = require('sunstone');
+  var SunstoneConfig = require('sunstone-config');
+  var TabDataTable = require('utils/tab-datatable');
+
+  /*
+    TEMPLATES
+   */
+  var SearchDropdown = require('hbs!./datatable/search');
 
   /*
     CONSTANTS
@@ -46,19 +50,19 @@ define(function(require) {
     CONSTRUCTOR
    */
 
-  /*
-    @dataTableId
-    @param {String} dataTableId unique identifier
-    @param {Object} conf
-      conf = {
-        'info': true,     enable on click row will show the element
-        'action': true,   enable actions on row elements
-        'select': true,   enable selecting elements from the table
-        'selectOptions': {
-          'filter_fn': function(ds) { return ds.TYPE == 0; }
-        }
-      }
-    @returns {Table} A new table object
+  /**
+   * @dataTableId
+   * @param {String} dataTableId unique identifier
+   * @param {Object} conf
+   *   conf = {
+   *     'info': true,     enable on click row will show the element
+   *     'action': true,   enable actions on row elements
+   *     'select': true,   enable selecting elements from the table
+   *     'selectOptions': {
+   *       'filter_fn': function(ds) { return ds.TYPE == 0; }
+   *     }
+   *   }
+   * @returns {Table} A new table object
    */
   function Table(dataTableId, conf) {
     this.conf = conf || {};
@@ -132,8 +136,6 @@ define(function(require) {
    */
 
   function _initialize(opts) {
-    var that = this;
-
     TabDataTable.prototype.initialize.call(this, opts);
     _updateStateActions();
   }

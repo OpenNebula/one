@@ -28,14 +28,14 @@ define(function (require) {
      * @param token [String] new key to be stored.
      *
      */
-    var set_fireedge_token = function(token){
+    var set_fireedge_token = function(token) {
         fireedge_token = token;
     };
 
     /**
      * Sets the fireedge_token variable to "".
      */
-    var clear_fireedge_token = function(){
+    var clear_fireedge_token = function() {
         fireedge_token = "";
     };
 
@@ -50,21 +50,25 @@ define(function (require) {
          * validations. If that variable is true, that means that fireedge
          * endpoint was working last time we checked it.
          */
-        if (sunstone_fireedge_active && fireedge_token == "" && fireedge_endpoint){
+        if (sunstone_fireedge_active && fireedge_token == "" && fireedge_endpoint) {
             $.ajax({
                 url: "/fireedge",
                 type: "GET",
                 success: function(data) {
                     set_fireedge_token(data.token);
-                    if (typeof success === "function"){
+                    if (typeof success === "function") {
                         success(fireedge_token);
                     }
                 },
-                error: function(request, response, data) {
-                    Notifier.onError(request, {error:{ message: "FireEdge private endpoint is not working, please contact your cloud administrator"}});
+                error: function(request) {
+                    Notifier.onError(
+                        request,
+                        { error: { message: "FireEdge private endpoint is not working, please contact your cloud administrator" } }
+                    );
+                        
                     sunstone_fireedge_active = false;
                     clear_fireedge_token();
-                    if (typeof error === "function"){
+                    if (typeof error === "function") {
                         error();
                     }
                 }
@@ -75,44 +79,47 @@ define(function (require) {
          * configurations are available on sunstone-server.conf.
          * If they are available then we must use fireedge for everything.
         */
-        else if (sunstone_fireedge_active || is_fireedge_configured){
-            if (typeof success === "function"){
+        else if (sunstone_fireedge_active || is_fireedge_configured) {
+            if (typeof success === "function") {
                 success(fireedge_token);
             }
         }
         // If fireedge it is not available and not configured then we dont use it
-        else{
-            if (typeof error === "function"){
+        else {
+            if (typeof error === "function") {
                 error();
             }
         }
     };
 
-    var error_function = function(error, request=null, notify=true){
-        if (notify)
-            Notifier.onError(request, {error:{ message: "FireEdge public endpoint is not working, please contact your cloud administrator"}});
+    var error_function = function(error, request=null, notify=true) {
+        if (notify) {
+            Notifier.onError(
+                request, 
+                { error: { message: "FireEdge public endpoint is not working, please contact your cloud administrator" } }
+            );
+        }
         
         sunstone_fireedge_active = false;
 
-        if (typeof error === "function")
-            error();
-    }
+        if (typeof error === "function") error();
+    };
 
     var _check_fireedge_public_url = function (success, aux, error) {
         var regex = /^(http(s)?:\/\/)(www\.)?[a-z,0-9]+([\-\.]{1}[a-z,0-9]+)*(:[0-9]{1,5})?(\/.*)?$/gm
         var valid_endpoint = Boolean(fireedge_endpoint.match(regex))
 
-        if (fireedge_endpoint && valid_endpoint){
+        if (fireedge_endpoint && valid_endpoint) {
             $.ajax({
                 url: fireedge_endpoint,
                 type: "GET",
                 success: function() {
                     sunstone_fireedge_active = true;
-                    if (typeof success === "function" && typeof aux === "function"){
+                    if (typeof success === "function" && typeof aux === "function") {
                         success(aux);
                     }
                 },
-                error: function(request, response, data) {
+                error: function(request) {
                     error_function(error, request);
                 }
             });

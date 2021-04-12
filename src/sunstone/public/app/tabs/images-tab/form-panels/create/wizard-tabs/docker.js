@@ -21,14 +21,9 @@ define(function(require) {
 
   var Config = require("sunstone-config");
   var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
-  var WizardFields = require("utils/wizard-fields");
-  var FilesTable = require("tabs/files-tab/datatable");
-  var UniqueId = require("utils/unique-id");
-  var OpenNebulaAction = require("opennebula/action");
-  var ResourceSelect = require("utils/resource-select");
   var OpenNebulaDatastore = require("opennebula/datastore");
-  var aceBuilds = require("ace-builds");
+  var ResourceSelect = require("utils/resource-select");
+  var UniqueId = require("utils/unique-id");
 
   /*
     TEMPLATES
@@ -41,24 +36,29 @@ define(function(require) {
    */
 
   var WIZARD_TAB_ID = require("./docker/wizardTabId");
+  var DOCKER_PREPEND = "docker";
 
   /*
     CONSTRUCTOR
    */
-  var prepend = "docker";
 
   function WizardTab(opts) {
     this.editor;
-    this.getValueEditor = function(){
+
+    this.getValueEditor = function() {
       var rtn = "";
+
       try {
         rtn = this.editor.getValue();
       } catch (error) {}
+
       return rtn;
     };
+
     if (!Config.isTemplateCreationTabEnabled(opts.tabId, "docker")) {
       throw "Wizard Tab not enabled";
     }
+
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = "fa-file-code";
     this.title = Locale.tr("Dockerfile");
@@ -70,8 +70,6 @@ define(function(require) {
   WizardTab.prototype.html = _html;
   WizardTab.prototype.setup = _setup;
   WizardTab.prototype.onShow = _onShow;
-  // WizardTab.prototype.retrieve = _retrieve;
-  // WizardTab.prototype.fill = _fill;
 
   return WizardTab;
 
@@ -82,30 +80,32 @@ define(function(require) {
   function _html() {
     var that = this;
     return TemplateHTML({
-      "prepend": prepend,
+      "prepend": DOCKER_PREPEND,
       "formPanelId": that.formPanelId,
     });
   }
 
-  function _onShow(context, panelForm) {
-    var ds_id = $("#"+prepend+"_datastore .resource_list_select", context).val();
+  function _onShow(context, _) {
+    var ds_id = $("#"+DOCKER_PREPEND+"_datastore .resource_list_select", context).val();
     var filterValue = OpenNebulaDatastore.TYPES.IMAGE_DS;
+
     ResourceSelect.insert({
-      context: $("#"+prepend+"_datastore", context),
+      context: $("#"+DOCKER_PREPEND+"_datastore", context),
       resourceName: "Datastore",
       initValue: ds_id,
       filterKey: "TYPE",
       filterValue: filterValue.toString(),
       triggerChange: true
     });
+
     ace.config.set("basePath", "/bower_components/ace-builds");
+
     this.editor = ace.edit("docker_template");
     this.editor.setTheme("ace/theme/github");
     this.editor.session.setMode("ace/mode/dockerfile");
   }
 
   function _setup(context) {
-    var that = this;
     Foundation.reflow(context, "tabs");
   }
 });

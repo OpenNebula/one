@@ -213,7 +213,7 @@ define(function(require) {
       listWaiting[cache_name] = true;
       var pool_filter = Config.isChangedFilter()?-4:-2;
 
-      let data = $.extend(extra_params, { timeout: timeout, pool_filter: pool_filter })
+      let data = $.extend(extra_params, { timeout: timeout, pool_filter: pool_filter });
 
       $.ajax({
         url: reqPath,
@@ -297,7 +297,6 @@ define(function(require) {
       });
     },
 
-    //Subresource examples: "log"...
     "show": function(params, resource, subresource, path) {
       var callback = params.success;
       var callbackError = params.error;

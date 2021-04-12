@@ -16,7 +16,6 @@
 
 define(function(require) {
   var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
 
   var Buttons = {
     "Image.refresh" : {
@@ -88,18 +87,6 @@ define(function(require) {
     "Image.edit_labels" : {
       layout: "labels",
     },
-    // "Image.lockA" : {
-    //   type: "action",
-    //   text: Locale.tr("Admin"),
-    //   layout: "lock_buttons",
-    //   data: 3
-    // },
-    // "Image.lockM" : {
-    //   type: "action",
-    //   text: Locale.tr("Manage"),
-    //   layout: "lock_buttons",
-    //   data: 2
-    // },
     "Image.lockU" : {
       type: "action",
       text: Locale.tr("Lock"),

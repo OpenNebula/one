@@ -49,39 +49,27 @@ define(function(require) {
     setStatus("Something went wrong, more credentials must be given to continue", "Failed");
   }
 
-  function passwordRequired(rfb) {
-    var msg;
-    msg = "<form id=\"setPasswordForm\"";
-    msg += "  style=\"margin-bottom: 0px\">";
-    msg += "Password Required: ";
-    msg += "<input type=password size=10 id=\"password_input\" class=\"noVNC_status\">";
-    msg += "<\/form>";
-    document.querySelector("#noVNC_status_bar").setAttribute("class", "noVNC_status_warn");
-    document.querySelector("#noVNC_status").innerHTML = msg;
-    document.querySelector("#setPasswordForm").addEventListener("submit", setPassword);
-  }
-  function setPassword(event) {
-    _rfb.sendPassword(document.querySelector("#password_input").value);
-    event.preventDefault();
-    return false;
-  }
   function sendCtrlAltDel() {
     _rfb.sendCtrlAltDel();
     return false;
   }
+
   function xvpShutdown() {
     _rfb.xvpShutdown();
     return false;
   }
+
   function xvpReboot() {
     _rfb.xvpReboot();
     return false;
   }
+
   function xvpReset() {
     _rfb.xvpReset();
     return false;
   }
-  function updateState(rfb, state, oldstate, msg) {
+
+  function updateState(rfb, state, _, msg) {
     var s, sb, cad, level;
     s = document.querySelector("#noVNC_status");
     sb = document.querySelector("#noVNC_status_bar");
@@ -118,15 +106,19 @@ define(function(require) {
     }
   }
 
-  function getQueryVariable(variable)
-  {
-         var query = window.location.search.substring(1);
-         var vars = query.split("&");
-         for (var i=0;i<vars.length;i++) {
-                 var pair = vars[i].split("=");
-                 if(pair[0] == variable){return pair[1];}
-         }
-         return(false);
+  function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+
+    for (var i=0;i<vars.length;i++) {
+      var pair = vars[i].split("=");
+
+      if (pair[0] == variable) {
+        return pair[1];
+      }
+    }
+
+    return false;
   }
 
   var URL = "";
@@ -137,10 +129,10 @@ define(function(require) {
   
   var info = getQueryVariable('info') || undefined;
   var info_decode = UtilsConnection.decodeInfoConnection(info);
-  UtilsConnection.printInfoConnection($('.NOVNC_info'), info_decode)
+  UtilsConnection.printInfoConnection($('.NOVNC_info'), info_decode);
 
   if (info_decode && info_decode.name) {
-    document.title = info_decode.name
+    document.title = info_decode.name;
   }
 
   var rfbConfig = password? { "credentials": { "password": password } } : {};
@@ -152,10 +144,12 @@ define(function(require) {
     URL = "ws";
     _is_encrypted = "unencrypted";
   }
+
   URL += "://" + window.location.hostname;
   URL += ":" + proxy_port;
   URL += "?host=" + proxy_host;
   URL += "&port=" + proxy_port;
+
   if(token){
     URL += "&token=" + token;
   }
@@ -172,13 +166,14 @@ define(function(require) {
         "Must specify host and port in URL");
     return;
   }
-  try{
+
+  try {
     _rfb = new RFB(document.querySelector("#VNC_canvas"), URL, rfbConfig);
     _rfb.addEventListener("connect",  connected);
     _rfb.addEventListener("disconnect", disconnectedFromServer);
     _rfb.addEventListener("desktopname", desktopNameChange);
     _rfb.addEventListener("credentialsrequired", credentialsRequired);
-  }catch(err){
+  } catch(err) {
     setStatus("Something went wrong, connection is closed", "Failed");
   }
 });

@@ -83,7 +83,7 @@ define(function(require) {
     var token = response.token;
 
     var info_decode = UtilsConnection.decodeInfoConnection(response.info);
-    UtilsConnection.printInfoConnection($('.NOVNC_info'), info_decode)
+    UtilsConnection.printInfoConnection($('.NOVNC_info'), info_decode);
 
     var proxy_host = window.location.hostname;
     var protocol = window.location.protocol;

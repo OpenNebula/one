@@ -18,8 +18,9 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  var ProgressBar = require('utils/progress-bar');
+
   var Humanize = require('utils/humanize');
+  var ProgressBar = require('utils/progress-bar');
   var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
   var Tips = require('utils/tips');
@@ -49,6 +50,7 @@ define(function(require) {
     this.icon = "fa-microchip";
     this.element = info[RESOURCE.toUpperCase()];
     this.class = "not_vcenter";
+
     return this;
   };
 
@@ -67,7 +69,7 @@ define(function(require) {
     return TemplateNUMA();
   }
 
-  function _onShow(context){
+  function _onShow(){
     var that = this;
     $("#"+SELECT_ID).change(function(e){
       if(that.element && that.element.ID && that.element.TEMPLATE){
@@ -92,7 +94,7 @@ define(function(require) {
     return typeof string !== 'string'? "" : string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
 
-  function _setup(context) {
+  function _setup() {
     var that = this;
 
     // Hide NUMA tab if hypervisor is vcenter
@@ -233,7 +235,7 @@ define(function(require) {
             }
             memory.append(ProgressBar.html(used, total, info_str, 'memory-used'));
           }
-          //HUGEPAGE
+
           if(infoNode.HUGEPAGE){
             var infoHugepages = infoNode.HUGEPAGE;
 
@@ -272,6 +274,7 @@ define(function(require) {
             hugepage.append(hugepageTable.append(body));
           }
         }
+
         $("#placeNumaInfo").append(title.add(subtitle).add(coreTable).add($("<div/>",{"class":"row"}).append(memory.add(hugepage))));
 
         Tips.setup();

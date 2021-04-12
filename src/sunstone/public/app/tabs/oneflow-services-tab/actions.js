@@ -15,13 +15,13 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
+  var CommonActions = require('utils/common-actions');
   var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
   var OpenNebulaResource = require('opennebula/service');
   var OpenNebulaRole = require('opennebula/role');
   var OpenNebulaVM = require('opennebula/vm');
-  var CommonActions = require('utils/common-actions');
+  var Sunstone = require('sunstone');
 
   var TAB_ID = require('./tabId');
   var XML_ROOT = "DOCUMENT";
@@ -506,8 +506,6 @@ define(function(require) {
       error: Notifier.onError,
       notify: true
     }
-
-
   };
 
   return _actions;

@@ -19,14 +19,14 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require('utils/tab-datatable');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
-  var OpenNebulaImage = require('opennebula/image');
   var LabelsUtils = require('utils/labels/utils');
+  var Locale = require('utils/locale');
+  var OpenNebulaImage = require('opennebula/image');
   var SearchDropdown = require('hbs!./datatable/search');
   var Status = require('utils/status');
+  var SunstoneConfig = require('sunstone-config');
+  var TabDataTable = require('utils/tab-datatable');
 
   /*
     CONSTANTS
@@ -57,7 +57,7 @@ define(function(require) {
         {
           "aTargets": [2, 3, 4, 5, 6, 7, 8, 9, 10],
           "sClass": "overflow",
-          "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+          "fnCreatedCell": function (nTd, sData) {
             $(nTd).attr('title', sData)
           }
         },

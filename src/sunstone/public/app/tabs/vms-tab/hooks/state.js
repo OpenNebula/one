@@ -19,23 +19,21 @@ define(function(require) {
     DEPENDENCIES
    */
 
+  var FireedgeValidator = require('utils/fireedge-validator');
   var OpenNebulaVM = require('opennebula/vm');
   var StateActions = require('tabs/vms-tab/utils/state-actions');
-  var FireedgeValidator = require('utils/fireedge-validator');
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var RESOURCE = "VM";
   var XML_ROOT = "VM";
 
   /*
     FUNCTION DEFINITIONS
    */
 
-  function _pre(info, contextTabId) {
+  function _pre(info) {
     var element = info[XML_ROOT];
 
     // Enable only action buttons for the current state
@@ -148,8 +146,7 @@ define(function(require) {
   }
 
   
-  function _post(info, contextTabId) {
-  }
+  function _post() {}
 
   return {
     'pre': _pre,

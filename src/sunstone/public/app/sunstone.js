@@ -280,7 +280,6 @@ define(function(require) {
   var _insertButtonsInTab = function(tabName, panelName, panelButtons, customContext) {
     var buttons = panelButtons ? panelButtons : SunstoneCfg["tabs"][tabName]["buttons"];
     var buttonCode = "";
-    var condition = null;
 
     var context, customId;
     if (customContext) {
@@ -567,7 +566,6 @@ define(function(require) {
       };
       switch (action.type){
       case "multiple": //find the datatable
-        var context = $(this).parents(".tab");
         var nodes = action.elements();
         error = _runAction(value, nodes, data);
         break;
@@ -750,7 +748,6 @@ define(function(require) {
     $("#navigation li").removeClass("navigation-active-li");
     $("#navigation li#li_" + tabName).addClass("navigation-active-li");
 
-    var tab = $("#" + tabName);
     //show tab
     _showRighList(tabName);
 

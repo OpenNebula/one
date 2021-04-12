@@ -74,7 +74,7 @@ define(function(require) {
 
         nics.map(function(nic){
           nic.FROM = 'TEMPLATE';
-        })
+        });
 
         var pcis = [];
 
@@ -273,7 +273,6 @@ define(function(require) {
    */
   function _generate_provision_network_table(context, options, template_json) {
     context.off();
-    var nic_span;
 
     if (options == undefined){
       options = {};
@@ -557,7 +556,7 @@ define(function(require) {
     ) ? true : false;
     
     $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_rdp", context).prop("checked", isRDPActivated);
-    _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
+    _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context);
 
     // fill ssh connection
     const isSSHActivated = (
@@ -568,7 +567,7 @@ define(function(require) {
     ) ? true : false;
     
     $("input#provision_accordion_dd_" + provision_nic_accordion_dd_id + "_ssh", context).prop("checked", isSSHActivated);
-    _enableSSH("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
+    _enableSSH("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context);
 
     provision_nic_accordion_dd_id += 1;
 
@@ -674,8 +673,8 @@ define(function(require) {
 
       nicId ++;
 
-      _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
-      _enableSSH("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context)
+      _enableRDP("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context);
+      _enableSSH("#provision_accordion_dd_" + provision_nic_accordion_dd_id, context);
     });
 
     if (options.click_add_button == true){
@@ -683,45 +682,9 @@ define(function(require) {
     }
   }
 
-  function update_provision_networks_datatable(datatable) {
-    datatable.html("<div class=\"text-center\">" +
-      "<span class=\"fa-stack fa-5x\">" +
-        "<i class=\"fas fa-cloud fa-stack-2x\"></i>" +
-        "<i class=\"fa  fa-spinner fa-spin fa-stack-1x fa-inverse\"></i>" +
-      "</span>" +
-      "<br>" +
-      "<br>" +
-      "<span>" +
-      "</span>" +
-      "</div>");
-
-    OpenNebula.Network.list({
-      timeout: true,
-      success: function (request, item_list) {
-        datatable.fnClearTable(true);
-        if (item_list.length == 0) {
-          datatable.html("<div class=\"text-center\">" +
-            "<span class=\"fa-stack fa-5x\">" +
-              "<i class=\"fas fa-cloud fa-stack-2x\"></i>" +
-              "<i class=\"fas fa-info-circle fa-stack-1x fa-inverse\"></i>" +
-            "</span>" +
-            "<br>" +
-            "<br>" +
-            "<span>" +
-              Locale.tr("There are no networks available.") +
-            "</span>" +
-            "</div>");
-        } else {
-          datatable.fnAddData(item_list);
-        }
-      },
-      error: Notifier.onError
-    });
-  }
-
   function _fill_alias(nicParentName, isExternal) {
-    $.each(_nics, function(index, value) {
-        if (value.NAME == ("NIC" + nicId)) {
+    $.each(_nics, function(_, value) {
+        if (value.NAME === ("NIC" + nicId)) {
             value.ALIAS = nicParentName;
         }
     });
@@ -738,7 +701,7 @@ define(function(require) {
   }
 
   function _hide_remove() {
-    $.each(_nics, function(index, value) {
+    $.each(_nics, function(_, value) {
         if (_nics.find(function(nic) { return nic.ALIAS === value.NAME })) {
             $("#remove_nic_" + value.DD_ID).hide();
         } else {

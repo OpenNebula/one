@@ -267,7 +267,7 @@ define(function(require) {
 
     $.each(monitoringDisks, function(index, monitoringDisk){
       disksSize[monitoringDisk.ID] = monitoringDisk.SIZE;
-    })
+    });
 
     var disk_dt_data = [];
     if (disks.length) {
@@ -394,7 +394,7 @@ define(function(require) {
       }
     }
 
-    var disks_table = $("#tab_storage_form .disks_table", context).DataTable({
+    $("#tab_storage_form .disks_table", context).DataTable({
       "bDeferRender": true,
       "data": disk_dt_data,
       "columns": [
@@ -412,11 +412,8 @@ define(function(require) {
         {"data": "ACTIONS",   "defaultContent": "", "orderable": false}
       ],
 
-      "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
-        if (aData.SNAPSHOTS == undefined ||
-            aData.SNAPSHOTS.length == 0) {
-
+      "fnRowCallback": function(nRow, aData) {
+        if (aData.SNAPSHOTS == undefined || aData.SNAPSHOTS.length == 0) {
           $("td.open-control", nRow).html("").removeClass('open-control');
         }
 
@@ -427,7 +424,7 @@ define(function(require) {
     $("#tab_storage_form .disks_table", context).dataTable().fnSort([[1, 'asc']]);
 
     // Add event listener for opening and closing each row details
-    context.off('click', '#tab_storage_form .disks_table td.open-control')
+    context.off('click', '#tab_storage_form .disks_table td.open-control');
     context.on('click', '#tab_storage_form .disks_table td.open-control', function () {
       var row = $(this).closest('table').DataTable().row($(this).closest('tr'));
 
@@ -705,8 +702,6 @@ define(function(require) {
   }
 
   function _setState(state, context) {
-    var that = this;
-
     $.each(state["openDisksDetails"], function(){
       $('#tab_storage_form .disks_table tr[disk_id="'+this+'"] td.open-control', context).click();
     });

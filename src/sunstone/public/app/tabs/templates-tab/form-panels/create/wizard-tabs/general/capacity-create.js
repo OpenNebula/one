@@ -19,12 +19,9 @@ define(function(require) {
     DEPENDENCIES
    */
 
-//  require('foundation.slider');
-  var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
-  var WizardFields = require("utils/wizard-fields");
-  var UserInputs = require("utils/user-inputs");
   var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
+  var UserInputs = require("utils/user-inputs");
+  var WizardFields = require("utils/wizard-fields");
 
   /*
     TEMPLATES
@@ -119,20 +116,22 @@ define(function(require) {
     var memory_cost = $("#MEMORY_COST").val() || 0;
     var type_cost   = $("#MEMORY_UNIT_COST").val() || 0;
     var memory = $("#MEMORY").val();
-    var type   = $("#memory_unit").val();
+
     if (type_cost == "GB"){
       memory = (memory / 1024) * memory_cost * 24 * 30;
     } else {
       memory = memory * memory_cost * 24 * 30;
     }
+
     var realMemory = document.getElementById("real_memory_cost");
     var totalMemory = document.getElementById("total_value_memory");
-    if(realMemory && totalMemory){
+
+    if (realMemory && totalMemory) {
       realMemory.value = memory;
       totalMemory.textContent = convertCostNumber(memory);
     }
 
-    if (memory_cost != ""){
+    if (memory_cost != "") {
       $(".total_memory_cost", context).show();
     }
     _totalCost();

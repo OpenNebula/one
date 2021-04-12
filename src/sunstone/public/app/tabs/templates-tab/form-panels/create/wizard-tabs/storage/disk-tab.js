@@ -20,22 +20,16 @@ define(function(require) {
    */
 
   var Config = require("sunstone-config");
-  var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
   var ImageTable = require("tabs/images-tab/datatable");
-  var WizardFields = require("utils/wizard-fields");
-  var UniqueId = require("utils/unique-id");
   var TemplateUtils = require("utils/template-utils");
+  var UniqueId = require("utils/unique-id");
+  var WizardFields = require("utils/wizard-fields");
 
   /*
     TEMPLATES
    */
 
   var TemplateHTML = require("hbs!./disk-tab/html");
-
-  /*
-    CONSTANTS
-   */
 
   /*
     CONSTRUCTOR
@@ -82,7 +76,7 @@ define(function(require) {
     });
   }
 
-  function _onShow(context, panelForm) {
+  function _onShow() {
     this.imageTable.refreshResourceTableSelect();
   }
 

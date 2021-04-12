@@ -16,13 +16,13 @@
 
 define(function(require) {
   // Dependencies
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
   var Config = require('sunstone-config');
-
-  var TemplateUtils = require("../../../utils/template-utils");
-  var TemplateHTML = require('hbs!./role-tab/html');
   var HostsTable = require('./datatable');
+  var TemplateUtils = require("../../../utils/template-utils");
+  var Tips = require('utils/tips');
+
+  // Templates
+  var TemplateHTML = require('hbs!./role-tab/html');
 
   function RoleTab(html_role_id) {
     this.html_role_id = html_role_id;
@@ -90,7 +90,7 @@ define(function(require) {
       $.each(selectedHostsList, function(i,e){
         selectedHosts[e] = 1;
       });
-      var text = "";
+
       for(key in selectedHosts){
         _generateBox("AFFINED",key,that);
       }

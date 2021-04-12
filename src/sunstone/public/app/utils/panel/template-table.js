@@ -269,7 +269,7 @@ define(function(require) {
       var ocurrence = null;
       var vectorial_key = null;
       if (list_of_classes.length != 1) {
-        $.each(list_of_classes, function(index, value) {
+        $.each(list_of_classes, function(_, value) {
           if (value.match(/^ocurrence_/)){
             ocurrence = value.substring(10, value.length);
           }
@@ -277,7 +277,7 @@ define(function(require) {
       }
 
       if (list_of_classes.length != 1) {
-        $.each(list_of_classes, function(index, value) {
+        $.each(list_of_classes, function(_, value) {
           if (value.match(/^vectorial_key_/)){
             vectorial_key = value.substring(14, value.length);
           }
@@ -327,7 +327,7 @@ define(function(require) {
         var templateJSON_bk = $.extend({}, templateJSON_Others);
 
         if (list_of_classes.length != 1) {
-          $.each(list_of_classes, function(index, value) {
+          $.each(list_of_classes, function(_, value) {
             if (value.match(/^vectorial_key_/)){
               vectorial_key = value;
             }

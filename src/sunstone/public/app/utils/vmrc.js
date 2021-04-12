@@ -73,10 +73,10 @@ define(function (require) {
 
     var info = response.info;
     var info_decode = UtilsConnection.decodeInfoConnection(info);
-    UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode)
+    UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode);
 
     // set vm name on title
-    vm_name = (info_decode && info_decode.name) ? info_decode.name : ""
+    vm_name = (info_decode && info_decode.name) ? info_decode.name : "";
 
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);

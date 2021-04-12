@@ -20,7 +20,7 @@ define(function(require) {
 
   var ALL_ACTION_BUTTONS = $.map(Buttons, function(_, action) {
     return [action]
-  })
+  });
 
   var STATE_ACTIONS = {};
 

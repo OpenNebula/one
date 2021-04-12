@@ -15,12 +15,11 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require("sunstone");
-  var Notifier = require("utils/notifier");
-  var Locale = require("utils/locale");
-  var DataTable = require("./datatable");
-  var OpenNebulaResource = require("opennebula/user");
   var CommonActions = require("utils/common-actions");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaResource = require("opennebula/user");
+  var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
 
   var TAB_ID = require("./tabId");
@@ -110,8 +109,7 @@ define(function(require) {
             success: function() {
               return false;
             },
-            error: function(response) {
-            }
+            error: function() {}
           });
         }
       },
@@ -136,8 +134,7 @@ define(function(require) {
             success: function() {
               return false;
             },
-            error: function(response) {
-            }
+            error: function() {}
           });
         }
       },
@@ -159,8 +156,7 @@ define(function(require) {
             success: function() {
               window.location.href = ".";
             },
-            error: function(response) {
-            }
+            error: function() {}
           });
         } else {
           Sunstone.runAction(RESOURCE+".show",reqId);
@@ -228,12 +224,12 @@ define(function(require) {
     "User.disable_sunstone_security_key" : {
       type: "single",
       call: OpenNebulaResource.disable_sunstone_security_key,
-      callback: function(request, response) {
+      callback: function(request) {
         OpenNebulaResource.show({
           data : {
             id: request.request.data[0]
           },
-          success: function(request, response) {
+          success: function(_, response) {
             var sunstone_template = {};
             if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
               $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
@@ -260,7 +256,7 @@ define(function(require) {
           data : {
             id: params.data.id
           },
-          success: function(request, response) {
+          success: function(_, response) {
             var sunstone_template = {};
             if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
               $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
@@ -282,7 +278,7 @@ define(function(require) {
           data : {
             id: params.data.id
           },
-          success: function(request, response) {
+          success: function(_, response) {
             var sunstone_template = {};
             if (response[XML_ROOT].TEMPLATE.SUNSTONE) {
               $.extend(sunstone_template, response[XML_ROOT].TEMPLATE.SUNSTONE);
@@ -300,7 +296,7 @@ define(function(require) {
     "User.fetch_quotas" : {
       type: "single",
       call: OpenNebulaResource.show,
-      callback: function (request,response) {
+      callback: function (_,response) {
         Sunstone.getDialog(QUOTAS_DIALOG_ID).setParams({element: response[XML_ROOT]});
         Sunstone.getDialog(QUOTAS_DIALOG_ID).reset();
         Sunstone.getDialog(QUOTAS_DIALOG_ID).show();

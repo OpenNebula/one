@@ -15,11 +15,9 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require("sunstone");
-  var Notifier = require("utils/notifier");
+  var CommonActions = require("utils/common-actions");
   var Locale = require("utils/locale");
   var OpenNebulaResource = require("opennebula/image");
-  var CommonActions = require("utils/common-actions");
 
   var RESOURCE = "File";
   var XML_ROOT = "IMAGE";

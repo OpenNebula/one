@@ -26,18 +26,18 @@ define(function(require) {
   var Spice = require('utils/spice');
   var Files = require('utils/files');
 
-  var TAB_ID = require('./tabId');
-  var CREATE_DIALOG_ID           = require('./form-panels/create/formPanelId');
-  var DEPLOY_DIALOG_ID           = require('./dialogs/deploy/dialogId');
-  var MIGRATE_DIALOG_ID          = require('./dialogs/migrate/dialogId');
-  var VNC_DIALOG_ID              = require('./dialogs/vnc/dialogId');
-  var VMRC_DIALOG_ID              = require('./dialogs/vmrc/dialogId');
-  var SPICE_DIALOG_ID            = require('./dialogs/spice/dialogId');
-  var GUAC_DIALOG_ID            = require('./dialogs/guac/dialogId');
-  var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
-  var UPDATECONF_FORM_ID         = require('./form-panels/updateconf/formPanelId');
-  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
   var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
+  var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
+  var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
+  var GUAC_DIALOG_ID = require('./dialogs/guac/dialogId');
+  var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
+  var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
+  var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
+  var SPICE_DIALOG_ID = require('./dialogs/spice/dialogId');
+  var TAB_ID = require('./tabId');
+  var UPDATECONF_FORM_ID = require('./form-panels/updateconf/formPanelId');
+  var VMRC_DIALOG_ID = require('./dialogs/vmrc/dialogId');
+  var VNC_DIALOG_ID = require('./dialogs/vnc/dialogId');
 
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -210,7 +210,7 @@ define(function(require) {
           if (vm.TEMPLATE.NIC_ALIAS) {
             var alias = vm.TEMPLATE.NIC_ALIAS;
             alias = Array.isArray(alias) ? alias : [alias];
-            nics = $.merge(alias, nics)
+            nics = $.merge(alias, nics);
           }
 
           var nic = nics.find(function(n) { return n.RDP && String(n.RDP).toUpperCase() === "YES" });

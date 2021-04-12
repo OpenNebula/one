@@ -15,46 +15,42 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-require('jquery');
-require('jquery-ui');
-require('wickedpicker');
-require('foundation');
+  require('jquery');
+  require('jquery-ui');
+  require('wickedpicker');
+  require('foundation');
 
-Foundation.Dropdown.defaults.positionClass = 'left';
-Foundation.Dropdown.defaults.closeOnClick = true;
-Foundation.DropdownMenu.defaults.closeOnClick = true;
-Foundation.DropdownMenu.defaults.disableHover = true;
-Foundation.DropdownMenu.defaults.clickOpen = true;
-Foundation.Reveal.defaults.closeOnClick = false;
+  Foundation.Dropdown.defaults.positionClass = 'left';
+  Foundation.Dropdown.defaults.closeOnClick = true;
+  Foundation.DropdownMenu.defaults.closeOnClick = true;
+  Foundation.DropdownMenu.defaults.disableHover = true;
+  Foundation.DropdownMenu.defaults.clickOpen = true;
+  Foundation.Reveal.defaults.closeOnClick = false;
 
-_setupDataTableSearch();
-_setDataTableErrMode();
+  _setupDataTableSearch();
+  _setDataTableErrMode();
 
-var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
-var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
-var Sunstone = require('sunstone');
-var Config = require('sunstone-config');
-var OpenNebula = require('opennebula');
-var Notifier = require('utils/notifier');
-var Menu = require('utils/menu');
-var Locale = require('utils/locale');
-var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
-var Websocket = require("utils/websocket");
-var FireedgeValidator = require("utils/fireedge-validator")
+  var SETTINGS_TAB_ID = require('tabs/settings-tab/tabId');
+  var PROVISION_TAB_ID = require('tabs/provision-tab/tabId');
+  var Config = require('sunstone-config');
+  var FireedgeValidator = require("utils/fireedge-validator");
+  var Locale = require('utils/locale');
+  var Menu = require('utils/menu');
+  var Notifier = require('utils/notifier');
+  var OpenNebula = require('opennebula');
+  var Sunstone = require('sunstone');
+  var Websocket = require("utils/websocket");
 
-var _commonDialogs = [
-  require('utils/dialogs/confirm'),
-  require('utils/dialogs/confirm-with-select'),
-  require('utils/dialogs/generic-confirm'),
-  require('utils/dialogs/clusters'),
-  require('utils/dialogs/overcommit'),
-  require('utils/dialogs/leases')
-]
+  var UserAndZoneTemplate = require('hbs!sunstone/user_and_zone');
 
-
-//$(window).load(function() {
-//   $('#loading').hide();
-//});
+  var _commonDialogs = [
+    require('utils/dialogs/confirm'),
+    require('utils/dialogs/confirm-with-select'),
+    require('utils/dialogs/generic-confirm'),
+    require('utils/dialogs/clusters'),
+    require('utils/dialogs/overcommit'),
+    require('utils/dialogs/leases')
+  ];
 
   $(document).ready(function() {
     Sunstone.addDialogs(_commonDialogs);
@@ -76,11 +72,11 @@ var _commonDialogs = [
       Sunstone.showTab(PROVISION_TAB_ID);
     }
 
-    var create_socket = function(token){
+    var create_socket = function(token) {
       if (Websocket.disconnected()){
         Websocket.start(token);
       }
-    }
+    };
 
     FireedgeValidator.checkFireedgePublicURL(FireedgeValidator.validateFireedgeToken, create_socket);
 
@@ -144,13 +140,12 @@ var _commonDialogs = [
     });
 
     function groupsRefresh() {
-
       OpenNebula.User.show({
         timeout: true,
         data : {
           id: config['user_id']
         },
-        success: function (request, obj_user) {
+        success: function (_, obj_user) {
           var groups = obj_user.USER.GROUPS.ID;
           this.primaryGroup = obj_user.USER.GID;
           var groupsHTML = "<li class='groups' value='-2'> <a href='#' value='-2' id='-2'> \
@@ -167,9 +162,9 @@ var _commonDialogs = [
           that = this;
           OpenNebula.Group.list({
             timeout: true,
-            success: function(request, group_list) {
+            success: function(_, group_list) {
               var group_list_aux = group_list;
-              $.each(groups, function(key, value){
+              $.each(groups, function(_, value){
                 var id = value;
                 $.each(group_list_aux, function(key, value){
                   if(id == value.GROUP.ID){

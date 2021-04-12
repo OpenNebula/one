@@ -17,38 +17,39 @@
 define(function(require) {
     require("datatables.net");
     require("datatables.foundation");
-    var Locale = require("utils/locale");
-    var Config = require("sunstone-config");
-    var OpenNebula = require("opennebula");
-    var Sunstone = require("sunstone");
-    var Notifier = require("utils/notifier");
-    var QuotaWidgets = require("utils/quotas/quota-widgets");
-    var QuotaDefaults = require("utils/quotas/quota-defaults");
     var Accounting = require("utils/accounting");
-    var Showback = require("utils/showback");
-    var Humanize = require("utils/humanize");
-    var QuotaLimits = require("utils/quotas/quota-limits");
-    var RangeSlider = require("utils/range-slider");
-    var DisksResize = require("utils/disks-resize");
-    var NicsSection = require("utils/nics-section");
-    var VMGroupSection = require("utils/vmgroup-section");
-    var TemplateUtils = require("utils/template-utils");
-    var ServiceUtils = require("utils/service-utils");
-    var WizardFields = require("utils/wizard-fields");
-    var UserInputs = require("utils/user-inputs");
     var CapacityInputs = require("tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs");
-    var LabelsUtils = require("utils/labels/utils");
+    var Config = require("sunstone-config");
     var DatastoresTable = require("tabs/datastores-tab/datatable");
-    var UniqueId = require("utils/unique-id");
-    var ProvisionVmsList = require("./provision-tab/vms/list");
-    var ProvisionTemplatesList = require("./provision-tab/templates/list");
+    var DisksResize = require("utils/disks-resize");
+    var Humanize = require("utils/humanize");
+    var LabelsUtils = require("utils/labels/utils");
+    var Locale = require("utils/locale");
+    var NicsSection = require("utils/nics-section");
+    var Notifier = require("utils/notifier");
+    var OpenNebula = require("opennebula");
     var ProvisionFlowsList = require("./provision-tab/flows/list");
+    var ProvisionTemplatesList = require("./provision-tab/templates/list");
+    var ProvisionVmsList = require("./provision-tab/vms/list");
+    var QuotaDefaults = require("utils/quotas/quota-defaults");
+    var QuotaWidgets = require("utils/quotas/quota-widgets");
+    var RangeSlider = require("utils/range-slider");
+    var ServiceUtils = require("utils/service-utils");
+    var Sunstone = require("sunstone");
+    var TemplateUtils = require("utils/template-utils");
+    var UniqueId = require("utils/unique-id");
+    var UserInputs = require("utils/user-inputs");
+    var VMGroupSection = require("utils/vmgroup-section");
+    var WizardFields = require("utils/wizard-fields");
+
     // Templates
     var TemplateContent = require("hbs!./provision-tab/content");
-    var TemplateDashboardQuotas = require("hbs!./provision-tab/dashboard/quotas");
     var TemplateDashboardGroupQuotas = require("hbs!./provision-tab/dashboard/group-quotas");
-    var TemplateDashboardVms = require("hbs!./provision-tab/dashboard/vms");
     var TemplateDashboardGroupVms = require("hbs!./provision-tab/dashboard/group-vms");
+    var TemplateDashboardQuotas = require("hbs!./provision-tab/dashboard/quotas");
+    var TemplateDashboardVms = require("hbs!./provision-tab/dashboard/vms");
+
+    // Constants
     var TAB_ID = require("./provision-tab/tabId");
     var FLOW_TEMPLATE_LABELS_COLUMN = 2;
 
@@ -83,6 +84,7 @@ define(function(require) {
         error: Notifier.onError
       }
     };
+
     function _clearVMCreate(){
       OpenNebula.Action.clear_cache("VM");
       ProvisionVmsList.show(0);
@@ -97,6 +99,7 @@ define(function(require) {
       $("#provision_vm_instantiate_templates_owner_filter").val("all").change();
       $("#provision_vm_instantiate_template_search").val("").trigger("input");
     }
+
     function generate_cardinality_selector(context, role_template, template_json) {
       context.off();
       var min_vms = (role_template.min_vms||1);
@@ -155,6 +158,7 @@ define(function(require) {
           $( ".cardinality_no_slider_div", context).show();
         }
     }
+
     function generate_provision_capacity_accordion(context, element) {
       var capacity = element.TEMPLATE;
       context.off();
@@ -280,10 +284,10 @@ define(function(require) {
       }
       
       if (!Config.provision.create_vm.isEnabled("capacity_select")) {
-        $('input, select', $(".provision_capacity_selector"))
-          .prop("disabled", true)
+        $('input, select', $(".provision_capacity_selector")).prop("disabled", true);
       }
     }
+
     function _calculateCost(){
       var context = $("#provision_create_vm");
       var capacity_val = parseFloat( $(".provision_create_template_cost_div .cost_value", context).text() );
@@ -309,6 +313,7 @@ define(function(require) {
         }
       }
     }
+
     function _calculateFlowCost(){
       var context = $("#provision_create_flow");
       var total = 0;
@@ -320,6 +325,7 @@ define(function(require) {
         $(".total_cost_div .cost_value", context).text( (total).toFixed(2) );
       }
     }
+
     function show_provision_dashboard() {
       $(".section_content").hide();
       $("#provision_dashboard").fadeIn();
@@ -348,12 +354,12 @@ define(function(require) {
             var off = 0;
             var error = 0;
             var deploying = 0;
-            var groups = [];
+
             var diferentsGroups = function (item_list = []){
               var groups = [];
               var rtn = groups.length;
               if(Array.isArray(item_list)){
-                var finderElements = function (element, index){
+                var finderElements = function (element){
                   if(element && element.VM && element.VM.GNAME && !groups.includes(element.VM.GNAME)){
                     groups.push(element.VM.GNAME);
                   }
@@ -362,9 +368,9 @@ define(function(require) {
                 rtn = groups.length;
               }
               return rtn;
-            }
+            };
 
-            $.each(item_list, function(index, vm){
+            $.each(item_list, function(_, vm){
               if (vm.VM.UID == config["user_id"]) {
                 var state = ProvisionVmsList.state(vm.VM);
                 total = total + 1;
@@ -529,7 +535,7 @@ define(function(require) {
               ){
                 var used = 0;
                 var size = 0;
-                var nets = user.NETWORK_QUOTA.NETWORK
+                var nets = user.NETWORK_QUOTA.NETWORK;
                 if(Array.isArray(nets)){
                   nets.map(function(network){
                     if(network.LEASES_USED){
@@ -621,6 +627,7 @@ define(function(require) {
         });
       }
     }
+
     function show_provision_create_vm() {
       OpenNebula.Action.clear_cache("VMTEMPLATE");
       ProvisionTemplatesList.updateDatatable(provision_vm_instantiate_templates_datatable);
@@ -645,6 +652,7 @@ define(function(require) {
       $(".section_content").hide();
       $("#provision_create_vm").fadeIn();
     }
+
     function show_provision_create_flow() {
       update_provision_flow_templates_datatable(provision_flow_templates_datatable);
       var context = $("#provision_create_flow");
@@ -664,6 +672,7 @@ define(function(require) {
       $(".section_content").hide();
       $("#provision_create_flow").fadeIn();
     }
+
     function update_provision_flow_templates_datatable(datatable, timeout) {
       datatable.html("<div class=\"text-center\">"+
         "<span class=\"fa-stack fa-5x\">"+
@@ -710,6 +719,7 @@ define(function(require) {
         });
       }, timeout);
     }
+
     var _panels = [
       require("./vms-tab/panels/info"),
       require("./vms-tab/panels/capacity"),
@@ -722,9 +732,8 @@ define(function(require) {
       require("./vms-tab/panels/template"),
       require("./vms-tab/panels/log")
     ];
+  
     var _dialogs = [
-      //require('./vms-tab/dialogs/deploy'),
-      //require('./vms-tab/dialogs/migrate'),
       require("./vms-tab/dialogs/resize"),
       require("./vms-tab/dialogs/disk-resize"),
       require("./vms-tab/dialogs/attach-disk"),
@@ -736,10 +745,11 @@ define(function(require) {
       require("./vms-tab/dialogs/snapshot"),
       require("./vms-tab/dialogs/vnc"),
       require("./vms-tab/dialogs/spice"),
-      //require('./vms-tab/dialogs/saveas-template')
       require("./users-tab/dialogs/login-token")
     ];
+
     var Actions = require("./vms-tab/actions");
+
     var Tab = {
       tabId: TAB_ID,
       list_header: "",
@@ -749,10 +759,11 @@ define(function(require) {
       panels: _panels,
       dialogs: _dialogs
     };
+
     return Tab;
+
     function _setup() {
-      $(document).ready(function(){
-        var that = this;
+      $(document).ready(function() {
         var tab_name = "provision-tab";
         var tab = $("#"+tab_name);
         if (Config.isTabEnabled(tab_name)) {
@@ -1239,7 +1250,7 @@ define(function(require) {
                     _fillBootValue(create_vm_context, osJSON["BOOT"]);
                   }
 
-                  _loadBootOrder(create_vm_context, template_json.VMTEMPLATE.TEMPLATE)
+                  _loadBootOrder(create_vm_context, template_json.VMTEMPLATE.TEMPLATE);
 
                 },
                 error: function(request, error_json, container) {
@@ -1278,13 +1289,12 @@ define(function(require) {
 
             var extra_info = {
               "vm_name" : vm_name,
-              "template": {
-              }
+              "template": {}
             };
 
             var vmgroup = VMGroupSection.retrieve($(".vmgroupContext", context));
 
-            if(vmgroup){
+            if(vmgroup) {
               $.extend(extra_info.template, vmgroup);
             }
 
@@ -1319,9 +1329,9 @@ define(function(require) {
                $.extend(extra_info.template, user_inputs_values);
             }
 
-            var topology = {}
+            var topology = {};
 
-            if (extra_info && extra_info.template && extra_info.template.CORES){
+            if (extra_info.template && extra_info.template.CORES){
               topology.CORES = extra_info["template"]["CORES"];
               topology.SOCKETS = parseInt(extra_info["template"]["VCPU"]) / parseInt(extra_info["template"]["CORES"]);
               topology.THREADS = 1;
@@ -1336,7 +1346,7 @@ define(function(require) {
             var os = tab.template_base_json.VMTEMPLATE.TEMPLATE.OS ? tab.template_base_json.VMTEMPLATE.TEMPLATE.OS : {};
 
             if (boot && boot.length > 0) {
-              os.BOOT = boot
+              os.BOOT = boot;
               extra_info.template.OS = os;
             } else {
               extra_info.template.OS = os;
@@ -1403,9 +1413,8 @@ define(function(require) {
             "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
               var data = aData.DOCUMENT;
               var body = data.TEMPLATE.BODY;
-              var logo;
-
               var roles_li = "";
+
               if (body.roles) {
                 $.each(body.roles, function(index, role) {
                   roles_li +=
@@ -1593,5 +1602,4 @@ define(function(require) {
         }
       });
     }
-
-  });
+});

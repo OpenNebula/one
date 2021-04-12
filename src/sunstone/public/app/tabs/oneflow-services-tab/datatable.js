@@ -109,7 +109,6 @@ define(function(require) {
       "z-index":"1",
       "min-width":"8rem",
       "font-family": "\"Lato\",\"Helvetica Neue\",Helvetica,Roboto,Arial,sans-serif",
-      "font-weight": "100",
       "color":"#000",
       "font-weight": "bold"
     };

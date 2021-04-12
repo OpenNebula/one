@@ -64,13 +64,12 @@ define(function(require) {
     return this.resourcesTab.html();
   }
 
-  function _onShow(context){
-    var that = this;
+  function _onShow(context) {
     var renderZones = "";
     $("select.vdc_zones_select", context).empty();
-    if(ZONES && ZONES.length){
-      ZONES.map(function(zone){
-        if(zone.ZONE){
+    if(ZONES && ZONES.length) {
+      ZONES.map(function(zone) {
+        if(zone.ZONE) {
           renderZones += "<option value=\""+zone.ZONE.ID+"\">"+zone.ZONE.NAME+"</option>";
         }
       });
@@ -81,18 +80,21 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     var indexed_resources = Utils.indexedVdcResources(that.element);
-    if(indexed_resources && !indexed_resources.ZONE){
-      OpenNebula.Zone.list({success:function(request, obj_list){
+
+    if(indexed_resources && !indexed_resources.ZONE) {
+      OpenNebula.Zone.list({ success: function(_, obj_list) {
         ZONES = obj_list;
       }});
     }
-    $.each(indexed_resources, function(zone_id,objects){
+
+    $.each(indexed_resources, function(zone_id,objects) {
       that.resourcesTab.addResourcesZone(
         zone_id,
         OpenNebulaZone.getName(zone_id),
         context,
         indexed_resources);
     });
+
     that.resourcesTab.setup(context);
     that.resourcesTab.onShow(context);
   }

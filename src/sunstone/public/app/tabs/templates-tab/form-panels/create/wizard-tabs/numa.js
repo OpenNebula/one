@@ -20,13 +20,10 @@ define(function(require) {
    */
 
   var Config = require("sunstone-config");
-  var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
-  var WizardFields = require("utils/wizard-fields");
-  var FilesTable = require("tabs/files-tab/datatable");
-  var UniqueId = require("utils/unique-id");
-  var OpenNebulaAction = require('opennebula/action');
   var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
+  var Locale = require("utils/locale");
+  var OpenNebulaAction = require('opennebula/action');
+  var UniqueId = require("utils/unique-id");
 
   /*
     TEMPLATES
@@ -80,7 +77,6 @@ define(function(require) {
    */
 
   function _html() {
-    var that = this;
     return TemplateHTML();
   }
 
@@ -88,15 +84,18 @@ define(function(require) {
     return bytes / 1024;
   }
 
-  function successCallback(request, opts, infohost){
+  function successCallback(_, _, infohost){
     var selector = $(idsElements.hugepages);
     selector.empty();
-    if(infohost && infohost.HOST_POOL && infohost.HOST_POOL.HOST){
+
+    if (infohost && infohost.HOST_POOL && infohost.HOST_POOL.HOST) {
       var hosts = infohost.HOST_POOL.HOST;
       var hugepages = [];
+
       if (!(hosts instanceof Array)) {
         hosts = [hosts];
       }
+
       hosts.map(function(host){
         if(
           host && 
@@ -105,7 +104,6 @@ define(function(require) {
           host.HOST_SHARE.NUMA_NODES && 
           host.HOST_SHARE.NUMA_NODES.NODE
         ){
-          var name = host.NAME;
           var numaNodes = host.HOST_SHARE.NUMA_NODES.NODE;
           if (!(numaNodes instanceof Array)) {
             numaNodes = [numaNodes];
@@ -121,7 +119,9 @@ define(function(require) {
           });
         }
       });
+
       selector.append($("<option/>",{"value":""}).text("-"));
+
       hugepages.map(function(hugepage){
         var parsedHugepage = parseToMB(hugepage);
         var selected = parseInt(parsedHugepage,10) === parseInt(HUGEPAGE_SELECTED_VALUE,10);
@@ -143,8 +143,7 @@ define(function(require) {
     console.log(error);
   }
 
-  function _onShow(context, panelForm) {
-    var that = this;
+  function _onShow(context) {
     $(BUTTON_NUMA_TOPOLOGY, context).on( 'click', function() {
       var form = $(".numa-form",context);
       if( $(this).is(':checked') ){
@@ -167,7 +166,6 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var that = this;
     Foundation.reflow(context, "tabs");
 
     $("#CORES_PER_SOCKET", context).on("change", function (){
@@ -182,6 +180,7 @@ define(function(require) {
 
   function _retrieve(context) {
     var templateJSON = { TOPOLOGY : {DELETE:"DELETE"} };
+
     if(getStatusNuma()){
       delete templateJSON["TOPOLOGY"]["DELETE"];
       var temp = {};
@@ -210,16 +209,12 @@ define(function(require) {
     return templateJSON;
   }
 
-  function _getValue(id="", context=null){
-    rtn = null;
-    if(id.length && context){
-      rtn = $(String(id), context).val();
-    }
-    return rtn;
+  function _getValue(id = "", context = null) {
+    return (id.length && context) ? $(String(id), context).val() : null;
   }
 
-  function _fillBootValue(id="", context=null, value="") {
-    if(id.length && context && value.length){
+  function _fillBootValue(id = "", context = null, value = "") {
+    if (id.length && context && value.length) {
       $(String(id), context).val(value);
     }
   }

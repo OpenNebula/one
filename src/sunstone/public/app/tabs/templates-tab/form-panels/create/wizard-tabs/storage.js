@@ -19,14 +19,12 @@ define(function(require) {
     DEPENDENCIES
    */
 
-//  require('foundation.tab');
   var Config = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var WizardFields = require('utils/wizard-fields');
   var DiskTab = require('./storage/disk-tab');
-  var UniqueId = require('utils/unique-id');
+  var Locale = require('utils/locale');
   var OpenNebula = require('opennebula');
+  var Tips = require('utils/tips');
+  var UniqueId = require('utils/unique-id');
 
   /*
     TEMPLATES
@@ -83,7 +81,7 @@ define(function(require) {
     });
   }
 
-  function _onShow(context, panelForm) {
+  function _onShow() {
     $.each(this.diskTabObjects, function(id, tab) {
       tab.onShow();
     })
@@ -115,8 +113,8 @@ define(function(require) {
 
     OpenNebula.Datastore.list({
       timeout: true,
-      success: function(request, ds_list){
-        $.each(ds_list, function(ds_id, ds){
+      success: function(_, ds_list){
+        $.each(ds_list, function(_, ds){
           if (ds["DATASTORE"]["TEMPLATE"]["TYPE"] === "IMAGE_DS") {
             tm_mad_system = ds["DATASTORE"]["TEMPLATE"]["TM_MAD_SYSTEM"]
             if (tm_mad_system){
@@ -140,7 +138,7 @@ define(function(require) {
 
     var disksJSON = [];
     var diskJSON;
-    $.each(this.diskTabObjects, function(id, diskTab) {
+    $.each(this.diskTabObjects, function(_, diskTab) {
       diskJSON = diskTab.retrieve($("#" + diskTab.diskTabId, context));
       if (!$.isEmptyObject(diskJSON)) { disksJSON.push(diskJSON); };
     });

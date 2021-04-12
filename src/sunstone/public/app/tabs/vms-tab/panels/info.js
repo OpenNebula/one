@@ -113,7 +113,7 @@ define(function(require) {
 
     var monitoringTableContentHTML = !$.isEmptyObject(monitoring) && Humanize.prettyPrintJSON(monitoring);
 
-    var errorMessageHTML = ""
+    var errorMessageHTML = "";
     if (this.element && 
         this.element.USER_TEMPLATE &&
         this.element.USER_TEMPLATE.ERROR){

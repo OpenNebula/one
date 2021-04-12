@@ -21,21 +21,20 @@ define(function(require) {
 
   require('datatables.net');
   require('datatables.foundation');
-  var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table');
+  var LabelsUtils = require('utils/labels/utils');
+  var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
+  var OpenNebula = require('opennebula');
   var Sunstone = require('sunstone');
   var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
   var Tips = require('utils/tips');
-  var OpenNebula = require('opennebula');
-  var Notifier = require('utils/notifier');
-  var OpenNebulaUser = require('opennebula/user');
-  var LabelsUtils = require('utils/labels/utils');
   var UtilsFoundation = require("utils/foundation/utils");
-
+  
   /*
     TEMPLATES
    */
-
+ 
+ var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table');
   var TemplateDataTableHTML = require('hbs!./tab-datatable/table');
   var TemplateSearchInputHTML = require('hbs!./tab-datatable/search-input');
 
@@ -61,15 +60,6 @@ define(function(require) {
       "emptyTable": TemplateEmptyTable()
     }
   } );
-
-  //$.extend(true, $.fn.dataTable.defaults, {
-  //  dom: "t<'row collapse'<'small-6 columns'i><'small-6 columns'lp>>",
-  //  renderer: 'foundation',
-  //  language: {
-  //    "sLengthMenu": "_MENU_",
-  //    "emptyTable": TemplateEmptyTable()
-  //  }
-  //});
 
   /*
     CONSTRUCTOR
@@ -179,7 +169,7 @@ define(function(require) {
     'list': _list,
     'clearLabelsFilter': _clearLabelsFilter,
     'getLabelsFilter': _getLabelsFilter
-  }
+  };
 
   return TabDatatable;
 
@@ -256,7 +246,7 @@ define(function(require) {
 
     this.dataTable.on('draw.dt', function() {
       that.recountCheckboxes();
-    })
+    });
 
     if (this.selectOptions && this.selectOptions.id_index) {
       this.dataTable.fnSort([[this.selectOptions.id_index, config['user_config']['table_order']]]);
@@ -499,7 +489,6 @@ define(function(require) {
     var nodes = $('tr', table); //visible nodes
     var total_length = nodes.length;
     var checked_length = $('input.check_item:checked', nodes).length;
-    var last_action_b = $('.last_action_button', context);
 
     if (checked_length) { //at least 1 element checked
       //enable action buttons
@@ -536,8 +525,6 @@ define(function(require) {
     //listen to changes in the visible inputs
     var that = this;
     this.dataTable.on("change", 'tbody input.check_item', function() {
-      var datatable = $(this).parents('table');
-
       if ($(this).is(":checked")) {
         $(this).parents('tr').children().addClass('markrowchecked');
       } else {
@@ -763,7 +750,7 @@ define(function(require) {
 
     var selected_nodes = [];
     if (this.dataTable) {
-      var tab = this.dataTable.parents(".tab")
+      var tab = this.dataTable.parents(".tab");
       if (Sunstone.rightInfoVisible(tab)) {
         selected_nodes.push(Sunstone.rightInfoResourceId(tab));
       } else {
@@ -880,9 +867,7 @@ define(function(require) {
 
     $('#selected_ids_row_' + that.dataTableId, section).data("options", that.selectOptions);
 
-    if (that.selectOptions.read_only) {
-
-    } else if (that.selectOptions.multiple_choice) {
+    if (that.selectOptions.multiple_choice) {
       $('#selected_ids_row_' + that.dataTableId, section).data("ids", {});
 
       function row_click(row, aData) {
@@ -937,7 +922,7 @@ define(function(require) {
         return true;
       };
 
-      $('#' + that.dataTableId + ' tbody', section).on("click", "tr", function(e) {
+      $('#' + that.dataTableId + ' tbody', section).on("click", "tr", function() {
         var aData = that.dataTable.fnGetData(this);
 
         if(aData != undefined){
@@ -953,7 +938,7 @@ define(function(require) {
         var aData = that.dataTable.fnGetData();
         // TODO: improve preformance, linear search
         $.each(aData, function(index, row) {
-          if (row[that.selectOptions.id_index] == row_id) {
+          if (row[that.selectOptions.id_index] === row_id) {
             found = true;
             row_click(that.dataTable.fnGetNodes(index), row);
             return false;
@@ -1160,14 +1145,7 @@ define(function(require) {
             return false;
           }
         });
-
-        //if (row_id == undefined){
-        //  $('#selected_resource_id_' + that.dataTableId, section).data("pending_select", selectedResources);
-        //}
       }
-
-      //        $("td", this).addClass('markrow');
-      //        $('input.check_item', this).prop('checked', true);
 
       if (row_id !== undefined) {
         $('#selected_resource_id_' + that.dataTableId, section).val(row_id).trigger("change");

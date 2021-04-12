@@ -19,23 +19,17 @@ define(function(require) {
     DEPENDENCIES
    */
 
+  var DomDataTable = require('utils/dom-datatable');
   var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
   var OpenNebulaRole = require('opennebula/role');
+  var OpenNebulaVM = require("opennebula/vm");
   var roles_buttons = require('./roles/roles-buttons');
   var roles_vm_buttons = require('./roles/roles-vm-buttons');
   var StateRolesButtons = require('./roles/state-roles-buttons');
   var Sunstone = require('sunstone');
-  var DomDataTable = require('utils/dom-datatable');
-  var VMRemoteActions = require('utils/remote-actions');
-  var OpenNebulaVM = require("opennebula/vm");
-
-  var FireedgeValidator = require('utils/fireedge-validator');
-  var Websocket = require("utils/websocket");
-
+  var Tips = require('utils/tips');
   var UtilsFoundation = require("utils/foundation/utils");
-
-  var VMS_TAB_ID = require('tabs/vms-tab/tabId');
+  var VMRemoteActions = require('utils/remote-actions');
 
   /*
     TEMPLATES
@@ -51,7 +45,6 @@ define(function(require) {
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./roles/panelId');
   var XML_ROOT = "DOCUMENT";
-  var RESOURCE = "Service";
 
   /*
     CONSTRUCTOR
@@ -111,7 +104,7 @@ define(function(require) {
     });
   }
 
-  function _getState(context) {
+  function _getState() {
     var state = {};
 
     if (this.servicerolesDataTable){
@@ -137,7 +130,7 @@ define(function(require) {
     return state;
   }
 
-  function _setState(state, context) {
+  function _setState(state, _) {
     var that = this;
 
     if (that.servicerolesDataTable && state["selectedRole"]){

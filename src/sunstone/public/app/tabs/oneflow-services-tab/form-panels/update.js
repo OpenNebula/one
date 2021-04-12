@@ -21,10 +21,9 @@ define(function(require) {
 
   var InstantiateTemplateFormPanel = require('tabs/oneflow-services-tab/form-panels/update/update');
   var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var TemplatesTable = require('tabs/oneflow-templates-tab/datatable');
-  var TemplateUtils = require('utils/template-utils');
   var RoleTab = require('tabs/oneflow-services-tab/utils/role-tab');
+  var TemplatesTable = require('tabs/oneflow-templates-tab/datatable');
+  var Tips = require('utils/tips');
 
   /*
     CONSTANTS
@@ -87,7 +86,7 @@ define(function(require) {
     });
 
     that.roles_index = 0;
-    //$("#tf_btn_roles", context).unbind("click");
+
     $("#tf_btn_roles", context).bind("click", function(){
       that.addRoleTab(that.roles_index, context);
       that.roles_index++;
@@ -145,7 +144,6 @@ define(function(require) {
   }
 
   function _fill(context, element) {
-
     var that = this;
 
     if (this.action != "update") {return;}
@@ -200,6 +198,7 @@ define(function(require) {
           });
         }
     });
+
     return false;
   }
 
@@ -246,8 +245,8 @@ define(function(require) {
       delete that.roleTabObjects[role_id];
       return false;
     });
+
     role_tab.setup(role_section);
     role_tab.onShow();
   }
-
 });

@@ -34,7 +34,7 @@ define(function(require) {
     var proxy_port = Config.vncProxyPort;
 
     var info_decode = UtilsConnection.decodeInfoConnection(response["info"]);
-    var filename = info_decode["name"]
+    var filename = info_decode["name"];
 
     var token = response["token"];
     var password = response["password"];

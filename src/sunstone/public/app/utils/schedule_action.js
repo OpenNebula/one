@@ -17,16 +17,15 @@
 
 define(function (require) {
   var Config = require("sunstone-config");
-  var Locale = require("utils/locale");
   var Humanize = require("utils/humanize");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
   var TemplateUtils = require("utils/template-utils");
   var Tips = require("utils/tips");
-  var Notifier = require("utils/notifier");
 
   var TemplateHTML = require("hbs!./schedule_action/html");
   var TemplateTableHTML = require("hbs!./schedule_action/table");
 
-  var selector = '';
   var defaultHour = "12:30";
   var actionsWithARGS = [
     'snapshot-create',
@@ -137,18 +136,21 @@ define(function (require) {
     $("tr.periodic.create, tr#no_relative_time_form").remove();
     this.res = res;
     var options = "";
-    var that = this;
+
     $.each(actions, function (key, action) {
       var actionAux = action.replace(/\-/g, "_");
       if (Config.isTabActionEnabled("vms-tab", "VM." + actionAux)) {
         options += "<option value=\"" + action + "\">" + Locale.tr(action) + "</option>";
       }
     });
+
     var schedule = $("#scheduling_" + this.res + "_actions_table tbody", context).append(TemplateHTML({
       "actions": options,
       "res": this.res
     }));
+
     addPickers(schedule,context);
+
     if (this.res === "vms") {
       $("#title", context).prop("colspan", "10");
       $("#td_days", context).prop("colspan", "8");
@@ -229,6 +231,7 @@ define(function (require) {
       var value = $(this).val();
       that.repeat = value;
       var input_html = "";
+
       switch (value) {
         case "week":
           input_html = "<div id=\"days_week_value\" style=\"margin: 10px 0 10px 0;\">\
@@ -263,9 +266,9 @@ define(function (require) {
 
     $("input[name='end_type']", context).change(function () {
       var value = $(this).val();
-      that.end_type = value;
-      var input_html = "";
       var min;
+      that.end_type = value;
+
       $(".end_input", context).prop("disabled", true);
       switch (value) {
         case "n_rep":
@@ -300,10 +303,18 @@ define(function (require) {
 
   function _fill(element, context){
     _reset();
-    if(element && element.closest && element.closest("tr") && element.closest("tr").attr && element.closest("tr").attr("data") && context){
+
+    if(
+      element &&
+      element.closest &&
+      element.closest("tr") &&
+      element.closest("tr").attr &&
+      element.closest("tr").attr("data") &&
+      context
+    ){
       var data = element.closest("tr").attr("data");
       var dataJSON = JSON.parse(data);
-      if(dataJSON){
+      if (dataJSON) {
         var relative = true;
 
         Object.keys(dataJSON).forEach(function(key){
@@ -315,6 +326,7 @@ define(function (require) {
 
         if(dataJSON.ACTION){
           $("#select_new_action").val(dataJSON.ACTION).change();
+
           if(dataJSON.ARGS){
             var args = dataJSON.ARGS.split(",");
             var disk_id = $("#diskid",context);
@@ -507,7 +519,7 @@ define(function (require) {
   function _retrieve(context) {
     $("#scheduling_" + this.res + "_actions_table .create", context).remove();
     var actionsJSON = [];
-    var that = this;
+
     $("#scheduling_" + this.res + "_actions_table tbody tr").each(function (index) {
       var first = $(this).children("td")[0];
       if (!$("select", first).html()) { //table header
@@ -811,17 +823,8 @@ define(function (require) {
     return str;
   }
 
-  function convertDate(date_string) {
-    date_string = date_string.split("/");
-    return date_string[2] + "-" + date_string[1] + "-" + date_string[0];
-  }
-
-  function parseToRequestString(data){
-    var rtn = "";
-    if(data){
-      rtn = TemplateUtils.templateToString({SCHED_ACTION: data});
-    }
-    return rtn;
+  function parseToRequestString(data) {
+    return data ? TemplateUtils.templateToString({ SCHED_ACTION: data }) : "";
   }
 
   var defaultActions = [

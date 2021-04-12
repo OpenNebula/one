@@ -15,25 +15,27 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require("sunstone");
-  var Notifier = require("utils/notifier");
-  var Locale = require("utils/locale");
-  var OpenNebulaResource = require("opennebula/servicetemplate");
   var CommonActions = require("utils/common-actions");
-  var OpenNebulaAction = require("opennebula/action");
+  var Locale = require("utils/locale");
   var Navigation = require("utils/navigation");
-  var OpenNebula = require("opennebula");
-  var CREATE_APP_DIALOG_ID = require("tabs/marketplaceapps-tab/form-panels/create/formPanelId");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaResource = require("opennebula/servicetemplate");
+  var Sunstone = require("sunstone");
+
+  var CLONE_DIALOG_ID = require("./dialogs/clone/dialogId");
   var CONFIRM_DIALOG_ID = require("utils/dialogs/generic-confirm/dialogId");
-  var MARKETPLACEAPPS_TAB_ID = require("tabs/marketplaceapps-tab/tabId");
-  var TAB_ID = require("./tabId");
+  var CREATE_APP_DIALOG_ID = require("tabs/marketplaceapps-tab/form-panels/create/formPanelId");
   var CREATE_DIALOG_ID = require("./form-panels/create/formPanelId");
   var INSTANTIATE_DIALOG_ID = require("./form-panels/instantiate/formPanelId");
-  var CLONE_DIALOG_ID = require("./dialogs/clone/dialogId");
+  var MARKETPLACEAPPS_TAB_ID = require("tabs/marketplaceapps-tab/tabId");
+  var TAB_ID = require("./tabId");
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "ServiceTemplate";
+
   var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
     XML_ROOT, Locale.tr("Service Template created"));
+
   var _actions = {
     "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
     "ServiceTemplate.show" : _commonActions.show(),
@@ -49,26 +51,24 @@ define(function(require) {
       type: "custom",
       call: function() {
         Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
-          //header :
           headerTabId: TAB_ID,
           body : Locale.tr("This will delete the Service.<br/>You can also delete the template or the template and image referenced inside this Service."),
-          //question :
           buttons : [
             Locale.tr("Delete Images and VM Templates"),
             Locale.tr("Delete VM Templates"),
             Locale.tr("Delete"),
           ],
           submit : [
-            function(){
-              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), {"delete_type": "all"});
+            function() {
+              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), { "delete_type": "all" });
               return false;
             },
-            function(){
-              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), {"delete_type": "templates"});
+            function() {
+              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), { "delete_type": "templates" });
               return false;
             },
-            function(){
-              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), {"delete_type": "none"});
+            function() {
+              Sunstone.runAction(RESOURCE+".delete", Sunstone.getDataTable(TAB_ID).elements(), { "delete_type": "none" });
               return false;
             }
           ]
@@ -76,8 +76,7 @@ define(function(require) {
         Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
         Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
       },
-      callback : function(request, response) {
-        var tab = $("#" + that.tabId);
+      callback : function() {
         if (Sunstone.getTab() == that.tabId) {
           Sunstone.showTab(that.tabId);
         }
@@ -98,7 +97,7 @@ define(function(require) {
         Sunstone.runAction("VNTemplate.list");
         OpenNebulaResource.show(params);
       },
-      callback: function(request, response) {
+      callback: function(_, response) {
         Sunstone.showFormPanel(TAB_ID, CREATE_DIALOG_ID, "update",
           function(formPanelInstance, context) {
             formPanelInstance.fill(context, response[XML_ROOT]);
@@ -121,7 +120,7 @@ define(function(require) {
     "ServiceTemplate.instantiate" : {
       type: "single",
       call: OpenNebulaResource.instantiate,
-      callback: function(request, response){
+      callback: function(_, response){
         Sunstone.hideFormPanel();
         OpenNebulaAction.clear_cache("SERVICE");
 
@@ -168,7 +167,7 @@ define(function(require) {
     },
     "ServiceTemplate.upload_marketplace_dialog" : {
       type: "custom",
-      call: function(params) {
+      call: function() {
         var selectedNodes = Sunstone.getDataTable(TAB_ID).elements();
 
         if (selectedNodes.length !== 1) {

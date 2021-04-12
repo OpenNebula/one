@@ -19,13 +19,13 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require('utils/tab-datatable');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
   var LabelsUtils = require('utils/labels/utils');
+  var Locale = require('utils/locale');
   var SearchDropdown = require('hbs!./datatable/search');
   var Status = require('utils/status');
+  var SunstoneConfig = require('sunstone-config');
+  var TabDataTable = require('utils/tab-datatable');
 
   /*
     CONSTANTS

@@ -15,14 +15,14 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
   var CommonActions = require('utils/common-actions');
-  var OpenNebulaResource = require('opennebula/marketplaceapp');
+  var Locale = require('utils/locale');
+  var Navigation = require('utils/navigation');
+  var Notifier = require('utils/notifier');
   var OpenNebula = require('opennebula');
   var OpenNebulaAction = require('opennebula/action');
-  var Navigation = require('utils/navigation');
+  var OpenNebulaResource = require('opennebula/marketplaceapp');
+  var Sunstone = require('sunstone');
 
   var RESOURCE = "MarketPlaceApp";
   var XML_ROOT = "MARKETPLACEAPP";
@@ -296,7 +296,7 @@ define(function(require) {
         Notifier.onError(request, response);
       }
     }
-  }
+  };
 
   return _actions;
 });

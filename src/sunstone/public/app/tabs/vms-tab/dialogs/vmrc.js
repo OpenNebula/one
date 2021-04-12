@@ -20,8 +20,8 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./vmrc/html');
   var Sunstone = require('sunstone');
+  var TemplateHTML = require('hbs!./vmrc/html');
   var Vmrc = require('utils/vmrc');
 
   /*
@@ -29,7 +29,6 @@ define(function(require) {
    */
 
   var DIALOG_ID = require('./vmrc/dialogId');
-  var TAB_ID = require('../tabId')
 
   /*
     CONSTRUCTOR

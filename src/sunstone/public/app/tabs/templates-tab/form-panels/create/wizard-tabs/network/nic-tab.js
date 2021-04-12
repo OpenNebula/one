@@ -20,14 +20,14 @@ define(function(require) {
    */
 
   var Config = require('sunstone-config');
-  var OpenNebulaNetwork = require('opennebula/network');
-  var VNetsTable = require('tabs/vnets-tab/datatable');
-  var SecgroupsTable = require('tabs/secgroups-tab/datatable');
-  var WizardFields = require('utils/wizard-fields');
-  var UniqueId = require('utils/unique-id');
   var CreateUtils = require('../utils');
   var Notifier = require('utils/notifier');
+  var OpenNebulaNetwork = require('opennebula/network');
+  var SecgroupsTable = require('tabs/secgroups-tab/datatable');
   var TemplateUtils = require('utils/template-utils');
+  var UniqueId = require('utils/unique-id');
+  var VNetsTable = require('tabs/vnets-tab/datatable');
+  var WizardFields = require('utils/wizard-fields');
 
   /*
     TEMPLATES
@@ -69,7 +69,8 @@ define(function(require) {
           }
         }
       }
-    }
+    };
+
     this.secgroupsTable = new SecgroupsTable(this.nicTabId + 'SGTable', secgroupSelectOptions);
   }
 
@@ -344,7 +345,7 @@ define(function(require) {
     }
 
     if ($("#icmp_type", context).is(":checked")) {
-      nicJSON["ICMP"] = "drop"
+      nicJSON["ICMP"] = "drop";
     }
 
     var secgroups = this.secgroupsTable.retrieveResourceTableSelect();
@@ -395,17 +396,17 @@ define(function(require) {
   function _fill(context, templateJSON) {
     if (templateJSON.NETWORK_ID != undefined) {
       var selectedResources = {
-          ids : templateJSON.NETWORK_ID
-        }
+        ids: templateJSON.NETWORK_ID
+      };
 
       this.vnetsTable.selectResourceTableSelect(selectedResources);
     } else if (templateJSON.NETWORK != undefined && templateJSON.NETWORK_UNAME != undefined) {
       var selectedResources = {
-          names : {
-            name: templateJSON.NETWORK,
-            uname: templateJSON.NETWORK_UNAME
-          }
+        names: {
+          name: templateJSON.NETWORK,
+          uname: templateJSON.NETWORK_UNAME
         }
+      };
 
       this.vnetsTable.selectResourceTableSelect(selectedResources);
     }
@@ -473,12 +474,12 @@ define(function(require) {
 
         var nets = [];
         while (match = net_id_regexp.exec(req)) {
-            nets.push(match[2])
+          nets.push(match[2]);
         }
 
         var selectedResources = {
-            ids : nets
-          }
+          ids : nets
+        };
 
         this.vnetsTableAuto.selectResourceTableSelect(selectedResources);
       }

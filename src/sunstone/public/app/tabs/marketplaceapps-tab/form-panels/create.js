@@ -20,19 +20,18 @@ define(function(require) {
    */
 
   var BaseFormPanel = require("utils/form-panels/form-panel");
-  var Sunstone = require("sunstone");
-  var Locale = require("utils/locale");
-  var Notifier = require("utils/notifier");
-  var Tips = require("utils/tips");
   var ImagesTable = require("tabs/images-tab/datatable");
-  var TemplatesTable = require("tabs/templates-tab/datatable");
-  var ServicesTable = require("tabs/oneflow-templates-tab/datatable");
-  var VMsTable = require("tabs/vms-tab/datatable");
+  var Locale = require("utils/locale");
   var MarketPlacesTable = require("tabs/marketplaces-tab/datatable");
-  var Config = require("sunstone-config");
-  var WizardFields = require("utils/wizard-fields");
+  var Notifier = require("utils/notifier");
   var OpenNebula = require("opennebula");
   var OpenNebulaAction = require("opennebula/action");
+  var ServicesTable = require("tabs/oneflow-templates-tab/datatable");
+  var Sunstone = require("sunstone");
+  var TemplatesTable = require("tabs/templates-tab/datatable");
+  var Tips = require("utils/tips");
+  var VMsTable = require("tabs/vms-tab/datatable");
+  var WizardFields = require("utils/wizard-fields");
 
   /*
     TEMPLATES

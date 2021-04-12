@@ -19,21 +19,25 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TabDataTable = require("utils/tab-datatable");
-  var SunstoneConfig = require("sunstone-config");
-  var Locale = require("utils/locale");
-  var Humanize = require("utils/humanize");
   var CPUBars = require("./utils/cpu-bars");
-  var MemoryBars = require("./utils/memory-bars");
-  var Reserved = require("./utils/reserved");
-  var OpenNebulaHost = require("opennebula/host");
-  var LabelsUtils = require("utils/labels/utils");
-  var SearchDropdown = require("hbs!./datatable/search");
-  var OpenNebulaAction = require("opennebula/action");
-  var Sunstone = require("sunstone");
-  var Status = require('utils/status');
   var DashboardUtils = require('utils/dashboard');
+  var Humanize = require("utils/humanize");
+  var LabelsUtils = require("utils/labels/utils");
+  var Locale = require("utils/locale");
+  var MemoryBars = require("./utils/memory-bars");
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaHost = require("opennebula/host");
+  var Reserved = require("./utils/reserved");
+  var Status = require('utils/status');
+  var Sunstone = require("sunstone");
+  var SunstoneConfig = require("sunstone-config");
+  var TabDataTable = require("utils/tab-datatable");
+  
+  /*
+    TEMPLATES
+   */
 
+  var SearchDropdown = require("hbs!./datatable/search");
 
   /*
     CONSTANTS
@@ -168,7 +172,7 @@ define(function(require) {
       STATE:    state,
       IM_MAD:   element.IM_MAD,
       VM_MAD:   element.VM_MAD
-    }
+    };
 
     var color_html = Status.state_lock_to_color("HOST",state, element_json[XML_ROOT]["LOCK"]);
 
@@ -264,24 +268,24 @@ define(function(require) {
     });
   }
 
-  function quotaDashboard(html_tag, legend, font_large_size, font_small_size, quota) {
+  function quotaDashboard(html_tag, legend, _, _, quota) {
     var min = SunstoneConfig.thresholds.min;
     var low = SunstoneConfig.thresholds.low;
     var high = SunstoneConfig.thresholds.high;
     return "<div class=\"row\">" +
-          "<div class=\"large-12 columns\">" +
-            "<span>" + legend + "</span>" +
-          "</div>" +
-        "</div>" +
-        "<div class=\"row\">" +
-          "<div class=\"large-12 columns\">" +
-            "  <meter id=\"" + html_tag + "_meter\" min=\""+ min +"\" low=\""+ low +"\" high=\""+ high +"\" optimum=\"0\" max=\"100\" value=\"0\"></meter>" +
-          "</div>" +
-        "</div>" +
-        "<div class=\"row\">" +
-          "<div class=\"large-12 columns\">" +
-            "<span id=\"" + html_tag + "_str\" class=\"right\">" + quota.str + "</span>" +
-          "</div>" +
-        "</div>";
+      "<div class=\"large-12 columns\">" +
+        "<span>" + legend + "</span>" +
+      "</div>" +
+    "</div>" +
+    "<div class=\"row\">" +
+      "<div class=\"large-12 columns\">" +
+        "  <meter id=\"" + html_tag + "_meter\" min=\""+ min +"\" low=\""+ low +"\" high=\""+ high +"\" optimum=\"0\" max=\"100\" value=\"0\"></meter>" +
+      "</div>" +
+    "</div>" +
+    "<div class=\"row\">" +
+      "<div class=\"large-12 columns\">" +
+        "<span id=\"" + html_tag + "_str\" class=\"right\">" + quota.str + "</span>" +
+      "</div>" +
+    "</div>";
   }
 });

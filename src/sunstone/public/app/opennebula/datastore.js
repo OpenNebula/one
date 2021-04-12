@@ -16,7 +16,6 @@
 
 define(function(require) {
   var OpenNebulaAction = require('./action');
-  var Locale = require('utils/locale');
   var Config = require('sunstone-config');
   var OpenNebulaHelper = require('./helper');
 
@@ -124,7 +123,7 @@ define(function(require) {
       var support = false;
 
       $.each(Config.onedConf.DS_MAD_CONF, function(){
-        if (this.NAME == name){
+        if (this.NAME === name){
           support = (this.MARKETPLACE_ACTIONS != undefined &&
                      this.MARKETPLACE_ACTIONS.split(',').includes("export"));
           return false; //break
@@ -135,11 +134,11 @@ define(function(require) {
     },
     "initMarketExportSupported": function(){
       var pool_filter = Config.isChangedFilter()? -4 : -2;
+
       this.list({
-        data : {pool_filter : pool_filter},
+        data : { pool_filter : pool_filter },
         timeout: true,
-        success: function (request, obj_list) {},
-        //error: Notifier.onError
+        success: function() {}
       });
     }
   }

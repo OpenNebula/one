@@ -746,13 +746,14 @@ define(function(require) {
     var unit = "MB";
     var valueInMB = 0;
     var contextElement = $("div.mb_input", context);
+
     // Fill in the input with your unit the first time
     $("input, select", contextElement).trigger("input");
     var element = $("input.uinput-slider-val", contextElement);
     var value = element.val();
     var valueInUnit = value;
     var min = parseInt(element.attr("min"),10);
-    var max = parseInt(element.attr("max"),10);
+
     if (value == ""){
       $(".mb_input_unit", context).val("MB").trigger("change");
     }else{

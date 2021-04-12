@@ -18,18 +18,18 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-  var Locale = require("utils/locale");
-  var Config = require("sunstone-config");
-  var Sunstone = require("sunstone");
-  var Humanize = require("utils/humanize");
-  var Notifier = require("utils/notifier");
-  var Graphs = require("utils/graphs");
+
   require("flot.navigate");
   require("flot.canvas");
-  var StateActions = require("../utils/state-actions");
+  var Config = require("sunstone-config");
+  var Graphs = require("utils/graphs");
+  var Locale = require("utils/locale");
+  var Navigation = require("utils/navigation");  
+  var Notifier = require("utils/notifier");
   var OpenNebulaVM = require("opennebula/vm");
   var SecGroupsCommon = require("tabs/secgroups-tab/utils/common");
-  var Navigation = require("utils/navigation");
+  var StateActions = require("../utils/state-actions");
+  var Sunstone = require("sunstone");
 
   /*
     CONSTANTS
@@ -39,7 +39,6 @@ define(function(require) {
   var PANEL_ID = require("./network/panelId");
   var ATTACH_NIC_DIALOG_ID = require("../dialogs/attach-nic/dialogId");
   var CONFIRM_DIALOG_ID = require("utils/dialogs/generic-confirm/dialogId");
-  var RESOURCE = "VM";
   var XML_ROOT = "VM";
 
   var isFirecracker = function(context) {
@@ -107,7 +106,7 @@ define(function(require) {
       var attachButton = function(enable){
         var isDisabled = enable ?  "" : "disabled='disabled'";
         return "<button id='attach_nic' class='button small success right radius' "+isDisabled+">" + Locale.tr("Attach nic") + "</button>";
-      }
+      };
 
       if (validateAction(that, "VM.attachnic") && OpenNebulaVM.isNICAttachSupported(that.element)) {
         html += (isFirecracker(that)) ? attachButton(isPowerOff(that)) : attachButton(true);
@@ -389,7 +388,7 @@ define(function(require) {
       }
     }
 
-    var nics_table = $("#tab_network_form .nics_table", context).DataTable({
+    $("#tab_network_form .nics_table", context).DataTable({
       "stateSave": true,
       "bDeferRender": true,
       "data": nic_dt_data,
@@ -644,9 +643,7 @@ define(function(require) {
     return state;
   }
   function _setState(state, context) {
-    var that = this;
-
-    $.each(state["openNicsDetails"], function(){
+    $.each(state["openNicsDetails"], function() {
       $("#tab_network_form .nics_table tr[nic_id=\""+this+"\"] td.open-control", context).click();
     });
   }

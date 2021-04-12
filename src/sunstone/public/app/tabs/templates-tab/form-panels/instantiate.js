@@ -20,30 +20,34 @@ define(function(require) {
    */
 
   var BaseFormPanel = require("utils/form-panels/form-panel");
-  var TemplateHTML = require("hbs!./instantiate/html");
-  var TemplateRowHTML = require("hbs!./instantiate/templateRow");
-  var Sunstone = require("sunstone");
-  var Notifier = require("utils/notifier");
-  var OpenNebulaTemplate = require("opennebula/template");
-  var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
-  var UserInputs = require("utils/user-inputs");
-  var WizardFields = require("utils/wizard-fields");
-  var TemplateUtils = require("utils/template-utils");
-  var DisksResize = require("utils/disks-resize");
-  var NicsSection = require("utils/nics-section");
-  var VMGroupSection = require("utils/vmgroup-section");
-  var VcenterVMFolder = require("utils/vcenter-vm-folder");
   var CapacityInputs = require("tabs/templates-tab/form-panels/create/wizard-tabs/general/capacity-inputs");
   var Config = require("sunstone-config");
-  var HostsTable = require("tabs/hosts-tab/datatable");
   var DatastoresTable = require("tabs/datastores-tab/datatable");
-  var UsersTable = require("tabs/users-tab/datatable");
+  var DisksResize = require("utils/disks-resize");
   var GroupTable = require("tabs/groups-tab/datatable");
-  var Humanize = require("utils/humanize");
-  var UniqueId = require("utils/unique-id");
-  var ScheduleActions = require("utils/schedule_action");
+  var HostsTable = require("tabs/hosts-tab/datatable");
   var Leases = require("utils/leases");
+  var Locale = require("utils/locale");
+  var NicsSection = require("utils/nics-section");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaTemplate = require("opennebula/template");
+  var ScheduleActions = require("utils/schedule_action");
+  var Sunstone = require("sunstone");
+  var TemplateUtils = require("utils/template-utils");
+  var Tips = require("utils/tips");
+  var UniqueId = require("utils/unique-id");
+  var UserInputs = require("utils/user-inputs");
+  var UsersTable = require("tabs/users-tab/datatable");
+  var VcenterVMFolder = require("utils/vcenter-vm-folder");
+  var VMGroupSection = require("utils/vmgroup-section");
+  var WizardFields = require("utils/wizard-fields");
+
+  /*
+    TEMPLATES
+   */
+
+  var TemplateHTML = require("hbs!./instantiate/html");
+  var TemplateRowHTML = require("hbs!./instantiate/templateRow");
 
   /*
     CONSTANTS
@@ -443,7 +447,8 @@ define(function(require) {
             {[key]: capacityRetrieveValues[key]},
             {[key]:original_tmpl.TEMPLATE[key]}
           );
-          if(diff && diff[0] && typeof diff[0] === "object"){
+
+          if(diff[0] && typeof diff[0] === "object") {
             $.extend(tmp_json, diff[0]);
           }
         }

@@ -1097,7 +1097,7 @@ define(function(require) {
         if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
           var ip;
           
-          var nicSection = $("<a/>").css("color", "gray")
+          var nicSection = $("<a/>").css("color", "gray");
           
           if (nic.EXTERNAL_IP) {
             ip = nic.EXTERNAL_IP;

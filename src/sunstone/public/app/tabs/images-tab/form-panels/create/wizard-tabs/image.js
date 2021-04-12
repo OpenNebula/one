@@ -22,12 +22,8 @@ define(function(require) {
   var Config = require("sunstone-config");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
-  var WizardFields = require("utils/wizard-fields");
-  var FilesTable = require("tabs/files-tab/datatable");
   var UniqueId = require("utils/unique-id");
   var OpenNebulaAction = require("opennebula/action");
-
-  var Sunstone = require("sunstone");
   var CustomTagsTable = require("utils/custom-tags-table");
   var ResourceSelect = require("utils/resource-select");
   var BrowserInfo = require("utils/browser-info");
@@ -39,6 +35,7 @@ define(function(require) {
   /*
     TEMPLATES
    */
+
   var WrapperTaps = require("hbs!../wrapper");
   var TemplateHTML = require("hbs!./image/html");
   var TemplateAdvancedHTML = require("hbs!./image/advanced");
@@ -88,9 +85,7 @@ define(function(require) {
    */
 
   function _html() {
-    var that = this;
-
-    //this alls forms of Image template
+    // this alls forms of Image template
     return WrapperTaps({
       "formPanelId": this.formPanelId,
       "form": TemplateHTML({

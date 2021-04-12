@@ -19,9 +19,8 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Config = require("sunstone-config");
-  var Locale = require("utils/locale");
   var Actions = require("opennebula/action");
+  var Locale = require("utils/locale");
   var Notifier = require("utils/notifier");
   var ScheduleActions = require("utils/schedule_action");
   var TemplateUtils = require("utils/template-utils");
@@ -37,7 +36,6 @@ define(function(require) {
     CONSTANTS
    */
 
-  var TAB_ID = require("../tabId");
   var PANEL_ID = require("./sched-actions/panelId");
   var RESOURCE = "Service";
 
@@ -90,14 +88,18 @@ define(function(require) {
       return "<option value='"+ac+"'>"+ac+"</option>";
     }).join("");
 
-    var optionsRoles = this.data.filter(function(role){
-      return role && role.name;
-    }).map(function(role){
-      return "<option value='"+role.name+"'>"+role.name+"</option>";
-    });
+    var optionsRoles = this.data
+      .filter(function(role) {
+        return role && role.name;
+      })
+      .map(function(role){
+        return "<option value='"+role.name+"'>"+role.name+"</option>";
+      });
+
     optionsRoles.unshift("<option value=''>"+Locale.tr("All Roles")+"</option>");
     optionsRoles = optionsRoles.join("");
-    if(this.data && Array.isArray(this.data) && this.data[0] && this.data[0].vm_template_contents){
+
+    if(this.data && Array.isArray(this.data) && this.data[0] && this.data[0].vm_template_contents) {
       var parseData = TemplateUtils.stringToTemplate(this.data[0].vm_template_contents);
       if(parseData && parseData.SCHED_ACTION){
         var sched_actions = Array.isArray(parseData.SCHED_ACTION)? parseData.SCHED_ACTION : [parseData.SCHED_ACTION];

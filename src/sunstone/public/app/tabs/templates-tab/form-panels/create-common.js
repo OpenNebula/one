@@ -19,13 +19,14 @@ define(function(require) {
     DEPENDENCIES
   */
   var BaseFormPanel = require("utils/form-panels/form-panel");
-  var Sunstone = require("sunstone");
+  var IothreadsConf = require("./create/wizard-tabs/utils/iothreads");
   var Locale = require("utils/locale");
-  var TemplateUtils = require("utils/template-utils");
-  var WizardFields = require("utils/wizard-fields");
   var OpenNebulaAction = require("opennebula/action");
   var OpenNebulaTemplate = require("opennebula/template");
-  var IothreadsConf = require("./create/wizard-tabs/utils/iothreads");
+  var Sunstone = require("sunstone");
+  var TemplateUtils = require("utils/template-utils");
+  var WizardFields = require("utils/wizard-fields");
+
   /*
     TEMPLATES
    */
@@ -239,15 +240,16 @@ define(function(require) {
     var templateJSON = this.retrieve(context);
     var current = {};
     cachedTemplate = OpenNebulaAction.cache("VMTEMPLATE");
+
     if(
-      this && 
+      this &&
       this.resourceId && 
       cachedTemplate && 
       cachedTemplate.data &&
       Array.isArray(cachedTemplate.data)
     ){
       var id = this.resourceId;
-      var currentTemplate = cachedTemplate.data.filter(function(vmtemplate){
+      var currentTemplate = cachedTemplate.data.filter(function(vmtemplate) {
         var rtn = false;
         if(
           vmtemplate && 
@@ -271,7 +273,7 @@ define(function(require) {
       if(current) {
         for (key in current) {
           if (!templateJSON[key]) {
-            delete current[key]
+            delete current[key];
           }
         }
       }

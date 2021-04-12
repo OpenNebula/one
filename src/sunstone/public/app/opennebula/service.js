@@ -126,7 +126,7 @@ define(function(require) {
       var request = OpenNebulaHelper.request(RESOURCE, "update", [id, action_obj]);
 
       var reqPath = PATH ? PATH : RESOURCE.toLowerCase();
-      var cache_name = params.cache_name ? params.cache_name : RESOURCE;
+
       $.ajax({
         url: reqPath + "/" + id,
         type: "PUT",
@@ -143,7 +143,7 @@ define(function(require) {
         }
       });
     },
-    "purgeDone": function(params){
+    "purgeDone": function(){
       var reqPath = PATH ? PATH : RESOURCE.toLowerCase();
       $.ajax({
         url: reqPath + '/purge',
@@ -151,7 +151,7 @@ define(function(require) {
         data: {
           csrftoken: csrftoken
         },
-        success: function(response) {
+        success: function() {
           Notifier.notifyCustom(Locale.tr("Purge Services"),Locale.tr("Services on DONE state has been deleted from database"));
           return null;
         },

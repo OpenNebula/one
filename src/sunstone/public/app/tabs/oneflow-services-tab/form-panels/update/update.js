@@ -23,7 +23,6 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
-  var OpenNebulaAction = require("opennebula/action");
   var OpenNebula = require("opennebula");
   var UserInputs = require("utils/user-inputs");
   var Notifier = require("utils/notifier");
@@ -39,7 +38,6 @@ define(function(require) {
 
   var FORM_PANEL_ID = require("./formPanelId");
   var TAB_ID = require("../../tabId");
-  var vm_group = "VM_GROUP";
   var classButton = "small button leases right radius";
 
   /*
@@ -100,16 +98,14 @@ define(function(require) {
     return false;
   }
 
-  function _onShow(context) {
-    //nothing
+  function _onShow() {
     Sunstone.runAction("Service.show", window.ServiceId);
   }
 
-  function _setTemplateId(context, templateId) {
+  function _setTemplateId(_, templateId) {
     this.templateId = templateId;
   }
 
-  //submit
   function _submitWizard(context) {
     if (this.action != "update") return;
     var that = this;
@@ -120,13 +116,12 @@ define(function(require) {
     var json_template = {};
     var ret = {};
 
-    //
     OpenNebula.Service.show({
       data : {
         id: window.ServiceId
       },
       error: Notifier.onError,
-      success: function(request, response){
+      success: function(_, response){
         if (
           response &&
           response.DOCUMENT &&

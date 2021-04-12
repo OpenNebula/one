@@ -20,21 +20,18 @@ define(function(require) {
    */
 
 
-  var Locale = require("utils/locale");
-  var Sunstone = require("sunstone");
   var Humanize = require("utils/humanize");
-  var TemplateUtils = require("utils/template-utils");
-  var Config = require("sunstone-config");
-  var ScheduleActions = require("utils/schedule_action");
   var Leases = require("utils/leases");
+  var Locale = require("utils/locale");
+  var ScheduleActions = require("utils/schedule_action");
+  var Sunstone = require("sunstone");
+  var TemplateUtils = require("utils/template-utils");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require("../tabId");
   var PANEL_ID = require("./actions/panelId");
-  var RESOURCE = "VM";
   var RESOURCE_SCHED_ACTIONS = "vms";
   var XML_ROOT = "VM";
   /*
@@ -210,7 +207,7 @@ define(function(require) {
       return empty;
     }
 
-    $.each(actions_array, function(index, scheduling_action) {
+    $.each(actions_array, function(_, scheduling_action) {
       str += "<tr class='tr_action_"+scheduling_action.ID+"' data='" + JSON.stringify(scheduling_action) + "'>";
       str += "<td class=\"id_row\">" + TemplateUtils.htmlEncode(scheduling_action.ID) + "</td>";
       var actions = ScheduleActions.fromJSONtoActionsTable([scheduling_action], scheduling_action.ID, true);

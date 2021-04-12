@@ -19,14 +19,13 @@ define(function(require) {
     DEPENDENCIES
    */
 
-//  require('foundation.tab');
   var BaseFormPanel = require('utils/form-panels/form-panel');
-  var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
-  var UserCreation = require('tabs/users-tab/utils/user-creation');
-  var Tips = require('utils/tips');
-  var Views = require('tabs/groups-tab/utils/views');
+  var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
+  var Tips = require('utils/tips');
+  var UserCreation = require('tabs/users-tab/utils/user-creation');
+  var Views = require('tabs/groups-tab/utils/views');
 
   /*
     TEMPLATES
@@ -143,7 +142,6 @@ define(function(require) {
   function _setup(context) {
     var that = this;
 
-    //context.foundation('tabs');
     Foundation.reflow(context, 'tabs');
 
     this.userCreation.setup( $("#admin_user_wrapper",context) );
@@ -305,12 +303,9 @@ define(function(require) {
     }
   }
 
-  function _onShow(context) {
-  }
+  function _onShow() {}
 
   function _fill(context, element) {
-    var that = this;
-
     if (this.action != "update") {return;}
 
     this.setHeader(element);
@@ -381,7 +376,6 @@ define(function(require) {
   }
 
   function _generateViewsSelect(context, idPrefix, value) {
-    var views = [];
     var old_value = value || $("#"+idPrefix+"_view_default", context).val();
 
     var html = '<option id="" name="" value=""></option>';

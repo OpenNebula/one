@@ -29,7 +29,6 @@ define(function(require) {
    */
 
   var DIALOG_ID = require('./guac/dialogId');
-  var TAB_ID = require('../tabId')
 
   /*
     CONSTRUCTOR

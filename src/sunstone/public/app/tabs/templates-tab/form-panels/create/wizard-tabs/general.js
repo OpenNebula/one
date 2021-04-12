@@ -20,7 +20,6 @@ define(function(require) {
    */
 
   var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
   var CapacityCreate = require("./general/capacity-create");
   var WizardFields = require("utils/wizard-fields");
   var Config = require("sunstone-config");
@@ -29,7 +28,6 @@ define(function(require) {
   var OpenNebula = require("opennebula");
   var UsersTable = require("tabs/users-tab/datatable");
   var GroupTable = require("tabs/groups-tab/datatable");
-  var OpenNebulaHost = require("opennebula/host");
   var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
   var OpenNebulaMarketplace = require("opennebula/marketplace");
   var Notifier = require("utils/notifier");

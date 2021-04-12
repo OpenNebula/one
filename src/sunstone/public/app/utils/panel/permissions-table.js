@@ -20,22 +20,23 @@ define(function(require) {
     The row can be edited and a rename action will be sent
    */
 
-  var TemplatePermissionsTable = require('hbs!./permissions-table/html');
-  var TemplatePermissions = require('hbs!./permissions-table/permissions');
-  var TemplateOwner = require('hbs!./permissions-table/owner');
-  var TemplateGroup = require('hbs!./permissions-table/group');
-  var TemplateBackup = require('hbs!./permissions-table/backup');
-  var ResourceSelect = require('utils/resource-select');
-  var Humanize = require("utils/humanize");
-  var Sunstone = require('sunstone');
   var Config = require('sunstone-config');
+  var Humanize = require("utils/humanize");
+  var ResourceSelect = require('utils/resource-select');
+  var Sunstone = require('sunstone');
+  var TemplateBackup = require('hbs!./permissions-table/backup');
 
-  /*
-    Generate the tr HTML with the name of the resource and an edit icon
-    @param {String} tabName
-    @param {String} resourceType Resource type (i.e: Zone, Host, Image...)
-    @param {Object} element OpenNebula object (i.e: element.ID, element.GNAME)
-    @returns {String} HTML row
+  var TemplateGroup = require('hbs!./permissions-table/group');
+  var TemplateOwner = require('hbs!./permissions-table/owner');
+  var TemplatePermissions = require('hbs!./permissions-table/permissions');
+  var TemplatePermissionsTable = require('hbs!./permissions-table/html');
+
+  /**
+   * Generate the tr HTML with the name of the resource and an edit icon
+   * @param {String} tabName
+   * @param {String} resourceType Resource type (i.e: Zone, Host, Image...)
+   * @param {Object} element OpenNebula object (i.e: element.ID, element.GNAME)
+   * @returns {String} HTML row
    */
   var _html = function(tabName, resourceType, element) {
     var permissionsHTML = '';
@@ -84,15 +85,16 @@ define(function(require) {
     return permissionsTableHTML;
   };
 
-  /*
-    Initialize the row, clicking the edit icon will add an input to edit the name
-    @param {String} tabName
-    @param {String} resourceType Resource type (i.e: Zone, Host, Image...)
-    @param {Object} element OpenNebula object (i.e: element.ID, element.GNAME)
-    @param {jQuery Object} context Selector including the tr
+  /**
+   * Initialize the row, clicking the edit icon will add an input to edit the name
+   * @param {String} tabName
+   * @param {String} resourceType Resource type (i.e: Zone, Host, Image...)
+   * @param {Object} element OpenNebula object (i.e: element.ID, element.GNAME)
+   * @param {jQuery Object} context Selector including the tr
    */
   var _setup = function(tabName, resourceType, element, context) {
-    var resourceId = element.ID
+    var resourceId = element.ID;
+
     if (Config.isTabActionEnabled(tabName, resourceType + '.chmod')) {
       _setPermissionsTable(element, context);
 
@@ -142,7 +144,7 @@ define(function(require) {
     }
 
     return false;
-  }
+  };
 
   //Returns an octet given a permission table with checkboxes
   var _buildOctet = function(context) {
@@ -204,30 +206,6 @@ define(function(require) {
     return parseInt(element.PERMISSIONS.OTHER_A);
   };
 
-  var _ownerPermStr = function(element) {
-    var result = "";
-    result += _ownerUse(element) ? "u" : "-";
-    result += _ownerManage(element) ? "m" : "-";
-    result += _ownerAdmin(element) ? "a" : "-";
-    return result;
-  };
-
-  var _groupPermStr = function(element) {
-    var result = "";
-    result += _groupUse(element) ? "u" : "-";
-    result += _groupManage(element) ? "m" : "-";
-    result += _groupAdmin(element) ? "a" : "-";
-    return result;
-  };
-
-  var _otherPermStr = function(element) {
-    var result = "";
-    result += _otherUse(element) ? "u" : "-";
-    result += _otherManage(element) ? "m" : "-";
-    result += _otherAdmin(element) ? "a" : "-";
-    return result;
-  };
-
   var _setPermissionsTable = function(element, context) {
     if (_ownerUse(element))
         $('.owner_u', context).attr('checked', 'checked');
@@ -252,5 +230,5 @@ define(function(require) {
   return {
     'html': _html,
     'setup': _setup
-  }
+  };
 });

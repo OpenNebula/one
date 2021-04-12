@@ -15,19 +15,15 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-//  require('foundation.alert');
-  var OpenNebula = require("opennebula");
-  var Sunstone = require("sunstone");
-  var OpenNebulaService = require("opennebula/service");
-  var OpenNebulaVm = require("opennebula/vm");
+  var Humanize = require("utils/humanize");
   var Locale = require("utils/locale");
   var Notifier = require("utils/notifier");
-  var Humanize = require("utils/humanize");
-  var ResourceSelect = require("utils/resource-select");
-  var RangeSlider = require("utils/range-slider");
-  var TemplateUtils = require("utils/template-utils");
-
+  var OpenNebula = require("opennebula");
   var ProvisionVmsList = require("tabs/provision-tab/vms/list");
+  var RangeSlider = require("utils/range-slider");
+  var ResourceSelect = require("utils/resource-select");
+  var Sunstone = require("sunstone");
+  var TemplateUtils = require("utils/template-utils");
 
   var TemplateFlowsList = require("hbs!./list");
 
@@ -39,7 +35,7 @@ define(function(require) {
   };
 
 
-  function show_provision_flow_list(timeout) {
+  function show_provision_flow_list() {
     $(".section_content").hide();
     $(".provision_flows_list_section").fadeIn();
 
@@ -84,7 +80,7 @@ define(function(require) {
       OpenNebula.Service.list({
         timeout: true,
         success: function (request, item_list){
-          var undoneServices = OpenNebulaService.filterDoneServices(item_list);
+          var undoneServices = OpenNebula.Service.filterDoneServices(item_list);
           $(".flow_error_message").hide();
           datatable.fnClearTable(true);
           if (undoneServices.length == 0) {
@@ -166,7 +162,7 @@ define(function(require) {
 
         return true;
       },
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      "fnRowCallback": function( nRow, aData, _, iDisplayIndexFull ) {
         var data = aData.DOCUMENT;
         var body = data.TEMPLATE.BODY;
         var state = get_provision_flow_state(body);
@@ -174,11 +170,10 @@ define(function(require) {
 
         var roles_li = "";
         if (body.roles) {
-          $.each(body.roles, function(index, role) {
-            var role_state = get_provision_flow_state(role);
+          $.each(body.roles, function(_, role) {
             var rvms = {
-              str : (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality ,
-              percentage : Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality)*100
+              str: (role.nodes ? role.nodes.length : 0) + " / " + role.cardinality,
+              percentage: Math.floor((role.nodes ? role.nodes.length : 0) / role.cardinality) * 100
             };
 
             roles_li +=
@@ -255,8 +250,6 @@ define(function(require) {
 
     OpenNebula.Action.clear_cache("SERVICE");
     update_provision_flows_datatable(provision_flows_datatable, 0);
-
-    //$(document).foundation();
   }
 
   function setup_info_flow(context) {
@@ -271,7 +264,7 @@ define(function(require) {
           id: flow_id
         },
         error: Notifier.onError,
-        success: function(request, response){
+        success: function(_, response){
           var data = response.DOCUMENT;
           var body = data.TEMPLATE.BODY;
           var state = get_provision_flow_state(body);
@@ -410,7 +403,7 @@ define(function(require) {
       if (role.nodes && role.nodes.length > 0) {
         $.each(role.nodes, function(_, node) {
           if (node.vm_info !== undefined) {
-            function promiseVmInfo(id, success) {
+            function promiseVmInfo(id) {
               return $.ajax({
                 url: "vm/" + id,
                 type: "GET",
@@ -498,8 +491,8 @@ define(function(require) {
 
     context.on("click", ".provision_change_cardinality_button", function() {
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
-      var role_name = $(this).attr("role_id")
-      var cardinality = $(".cardinality_slider_div", context).val()
+      var role_name = $(this).attr("role_id");
+      var cardinality = $(".cardinality_slider_div", context).val();
 
       OpenNebula.Role.scale({
         data : {
@@ -510,7 +503,7 @@ define(function(require) {
             role_name: role_name,
           }
         },
-        success: function(request, response){
+        success: function(){
           OpenNebula.Action.clear_cache("SERVICE");
           $(".provision_refresh_info", context).trigger("click");
         },
@@ -567,7 +560,7 @@ define(function(require) {
         data : {
           id: flow_id
         },
-        success: function(request, response){
+        success: function() {
           update_provision_flow_info(flow_id, context);
         },
         error: Notifier.onError
@@ -581,7 +574,7 @@ define(function(require) {
         data : {
           id: flow_id
         },
-        success: function(request, response){
+        success: function() {
           update_provision_flow_info(flow_id, context);
         },
         error: Notifier.onError
@@ -597,12 +590,12 @@ define(function(require) {
         data : {
           id: flow_id
         },
-        success: function(request, response){
+        success: function() {
           $(".provision_back", context).click();
           $(".provision_flows_list_refresh_button", context).click();
           button.removeAttr("disabled");
         },
-        error: function(request, response){
+        error: function(request, response) {
           Notifier.onError(request, response);
           button.removeAttr("disabled");
         }
@@ -613,7 +606,6 @@ define(function(require) {
       var flow_id = $(".provision_info_flow", context).attr("flow_id");
       var role_id = $(".provision_info_flow", context).data("role_id");
       update_provision_flow_info(flow_id, context, role_id);
-      //$(".provision_flows_list_refresh_button", $(".provision_flows_list_section")).trigger("click");
       return false;
     });
 

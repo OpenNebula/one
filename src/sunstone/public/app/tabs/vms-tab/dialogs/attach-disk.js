@@ -22,11 +22,9 @@ define(function(require) {
   var BaseDialog = require('utils/dialogs/dialog');
   var TemplateHTML = require('hbs!./attach-disk/html');
   var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
   var Tips = require('utils/tips');
   var DiskTab = require('tabs/templates-tab/form-panels/create/wizard-tabs/storage/disk-tab');
   var IothreadsConf = require('tabs/templates-tab/form-panels/create/wizard-tabs/utils/iothreads');
-  var WizardFields = require('utils/wizard-fields');
 
   /*
     CONSTANTS

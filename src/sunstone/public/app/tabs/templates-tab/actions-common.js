@@ -15,18 +15,19 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Sunstone = require("sunstone");
-  var Notifier = require("utils/notifier");
-  var Locale = require("utils/locale");
-  var OpenNebulaResource = require("opennebula/template");
   var CommonActions = require("utils/common-actions");
-  var OpenNebulaAction = require("opennebula/action");
+  var Locale = require("utils/locale");
   var Navigation = require("utils/navigation");
-  var OpenNebula = require("opennebula");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaAction = require("opennebula/action");
+  var OpenNebulaResource = require("opennebula/template");
+  var Sunstone = require("sunstone");
+
   var CREATE_APP_DIALOG_ID = require("tabs/marketplaceapps-tab/form-panels/create/formPanelId");
   var MARKETPLACEAPPS_TAB_ID = require("tabs/marketplaceapps-tab/tabId");
   var XML_ROOT = "VMTEMPLATE";
-  function Actions(tabId, resource, ids){
+
+  function Actions(_, resource, ids) {
     var RESOURCE = resource;
     var TAB_ID  = ids.TAB_ID;
     var CREATE_DIALOG_ID  = ids.CREATE_DIALOG_ID;
@@ -34,13 +35,17 @@ define(function(require) {
     var INSTANTIATE_DIALOG_ID   = ids.INSTANTIATE_DIALOG_ID;
     var IMPORT_DIALOG_ID  = ids.IMPORT_DIALOG_ID;
     var CONFIRM_DIALOG_ID   = ids.CONFIRM_DIALOG_ID;
+
     var _commonActions = new CommonActions(OpenNebulaResource, RESOURCE, TAB_ID,
       XML_ROOT, Locale.tr("VM Template created"));
+
     var _actions = {};
-    _actions[resource+".list"] = _commonActions.list(),
-    _actions[resource+".show"] = _commonActions.show(),
-    _actions[resource+".refresh"] = _commonActions.refresh(),
-    _actions[resource+".delete"] = _commonActions.del(),
+
+    _actions[resource+".list"] = _commonActions.list();
+    _actions[resource+".show"] = _commonActions.show();
+    _actions[resource+".refresh"] = _commonActions.refresh();
+    _actions[resource+".delete"] = _commonActions.del();
+
     _actions[resource+".delete_dialog"] = {
       type: "custom",
       call: function() {
@@ -67,11 +72,12 @@ define(function(require) {
         Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
         Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
       }
-    },
+    };
+
     _actions[resource+".delete_recursive"] = {
       type: "multiple",
       call: OpenNebulaResource.delete_recursive,
-      callback : function(request, response) {
+      callback : function() {
         if (Sunstone.getTab() == TAB_ID) {
           Sunstone.showTab(TAB_ID);
         }
@@ -81,10 +87,12 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
-    },
-    _actions[resource+".chown"] = _commonActions.multipleAction("chown"),
-    _actions[resource+".chgrp"] = _commonActions.multipleAction("chgrp"),
-    _actions[resource+".chmod"] = _commonActions.singleAction("chmod"),
+    };
+
+    _actions[resource+".chown"] = _commonActions.multipleAction("chown");
+    _actions[resource+".chgrp"] = _commonActions.multipleAction("chgrp");
+    _actions[resource+".chmod"] = _commonActions.singleAction("chmod");
+
     _actions[resource+".share"] = {
       type: "multiple",
       call: function(params){
@@ -94,7 +102,7 @@ define(function(require) {
         };
         Sunstone.runAction(RESOURCE+".chmod", params.data.id, permissions);
       },
-      callback : function(request, response) {
+      callback : function() {
         Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function(opts) {
@@ -102,7 +110,8 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: false
-    },
+    };
+
     _actions[resource+".unshare"] = {
       type: "multiple",
       call: function(params){
@@ -112,7 +121,7 @@ define(function(require) {
         };
         Sunstone.runAction(RESOURCE+".chmod", params.data.id, permissions);
       },
-      callback : function(request, response) {
+      callback : function() {
         Sunstone.runAction(RESOURCE+".show", req.request.data[0]);
       },
       elements: function(opts) {
@@ -120,25 +129,28 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: false
-    },
-    _actions[resource+".rename"] = _commonActions.singleAction("rename"),
-    _actions[resource+".create"] = _commonActions.create(CREATE_DIALOG_ID),
-    _actions[resource+".create_dialog"] = _commonActions.showCreate(CREATE_DIALOG_ID),
+    };
+
+    _actions[resource+".rename"] = _commonActions.singleAction("rename");
+    _actions[resource+".create"] = _commonActions.create(CREATE_DIALOG_ID);
+    _actions[resource+".create_dialog"] = _commonActions.showCreate(CREATE_DIALOG_ID);
     _actions[resource+".import_dialog"] = {
       type: "custom",
       call: function() {
         Sunstone.showFormPanel(TAB_ID, IMPORT_DIALOG_ID, "import");
       }
-    },
-    _actions[resource+".append_template"] = _commonActions.appendTemplate(),
-    _actions[resource+".update"] =  _commonActions.update(),
-    _actions[resource+".update_dialog"] = _commonActions.checkAndShowUpdate(),
-    _actions[resource+".update_template"] = _commonActions.updateTemplate(),
-    _actions[resource+".show_to_update"] = _commonActions.showUpdate(CREATE_DIALOG_ID),
+    };
+
+    _actions[resource+".append_template"] = _commonActions.appendTemplate();
+    _actions[resource+".update"] =  _commonActions.update();
+    _actions[resource+".update_dialog"] = _commonActions.checkAndShowUpdate();
+    _actions[resource+".update_template"] = _commonActions.updateTemplate();
+    _actions[resource+".show_to_update"] = _commonActions.showUpdate(CREATE_DIALOG_ID);
+
     _actions[resource+".instantiate"] = {
       type: "multiple",
       call: OpenNebulaResource.instantiate,
-      callback: function(request, response) {
+      callback: function(_, response) {
         Sunstone.hideFormPanel();
         OpenNebulaAction.clear_cache("VM");
         Notifier.notifyCustom(
@@ -156,11 +168,12 @@ define(function(require) {
         Notifier.onError(request, response);
       },
       notify: false
-    },
+    };
+
     _actions[resource+".instantiate_quiet"] = {
       type: "single",
       call: OpenNebulaResource.instantiate,
-      callback: function(request, response) {
+      callback: function() {
         Sunstone.hideFormPanel();
         OpenNebulaAction.clear_cache("VM");
       },
@@ -169,7 +182,8 @@ define(function(require) {
         Sunstone.hideFormPanelLoading();
         Notifier.onError(request, response);
       }
-    },
+    };
+
     _actions[resource+".instantiate_vms"] = {
       type: "custom",
       call: function(){
@@ -180,11 +194,12 @@ define(function(require) {
             formPanelInstance.setTemplateIds(context, selected_nodes);
           });
       }
-    },
+    };
+
     _actions[resource+".instantiate_persistent"] = {
       type: "single",
       call: OpenNebulaResource.instantiate_persistent,
-      callback: function(request, response) {
+      callback: function(_, response) {
         Sunstone.hideFormPanel();
         OpenNebulaAction.clear_cache("VM");
         Notifier.notifyCustom(Locale.tr("VM created"),
@@ -196,7 +211,8 @@ define(function(require) {
         Sunstone.hideFormPanelLoading();
         Notifier.onError(request, response);
       }
-    },
+    };
+
     _actions[resource+".clone_dialog"] = {
       type: "custom",
       call: function(){
@@ -207,11 +223,12 @@ define(function(require) {
         Sunstone.getDialog(CLONE_DIALOG_ID).reset();
         Sunstone.getDialog(CLONE_DIALOG_ID).show();
       }
-    },
+    };
+
     _actions[resource+".clone"] =  {
       type: "single",
       call: OpenNebulaResource.clone,
-      callback: function(request, response) {
+      callback: function(_, response) {
         OpenNebulaAction.clear_cache("VMTEMPLATE");
         Notifier.notifyCustom(Locale.tr("VM Template created"),
           Navigation.link(" ID: " + response.VMTEMPLATE.ID, "templates-tab", response.VMTEMPLATE.ID),
@@ -219,11 +236,12 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
-    },
+    };
+
     _actions[resource+".clone_recursive"] = {
       type: "single",
       call: OpenNebulaResource.clone_recursive,
-      callback : function(request, response) {
+      callback : function(_, response) {
         OpenNebulaAction.clear_cache("VMTEMPLATE");
         Notifier.notifyCustom(Locale.tr("VM Template created"),
           Navigation.link(" ID: " + response.VMTEMPLATE.ID, "templates-tab", response.VMTEMPLATE.ID),
@@ -231,11 +249,13 @@ define(function(require) {
       },
       error: Notifier.onError,
       notify: true
-    },
-    _actions[resource+".lockA"] = _commonActions.multipleAction("lock"),
-    _actions[resource+".lockM"] = _commonActions.multipleAction("lock"),
-    _actions[resource+".lockU"] = _commonActions.multipleAction("lock"),
-    _actions[resource+".unlock"] = _commonActions.multipleAction("unlock"),
+    };
+
+    _actions[resource+".lockA"] = _commonActions.multipleAction("lock");
+    _actions[resource+".lockM"] = _commonActions.multipleAction("lock");
+    _actions[resource+".lockU"] = _commonActions.multipleAction("lock");
+    _actions[resource+".unlock"] = _commonActions.multipleAction("unlock");
+
     _actions[resource+".upload_marketplace_dialog"] = {
       type: "custom",
       call: function() {
@@ -267,6 +287,7 @@ define(function(require) {
         });
       }
     };
+
     return _actions;
   }
   return Actions;

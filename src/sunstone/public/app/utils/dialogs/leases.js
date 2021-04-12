@@ -22,7 +22,6 @@ define(function(require) {
   var BaseDialog = require("utils/dialogs/dialog");
   var TemplateHTML = require("hbs!./leases/html");
   var Sunstone = require("sunstone");
-  var Locale = require("utils/locale");
 
   /*
     CONSTANTS

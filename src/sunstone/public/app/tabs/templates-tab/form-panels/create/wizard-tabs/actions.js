@@ -20,15 +20,15 @@ define(function(require) {
   */
 
   var Config = require("sunstone-config");
-  var ScheduleActions = require("utils/schedule_action");
-  var Locale = require("utils/locale");
-  var Tips = require("utils/tips");
-  var WizardFields = require("utils/wizard-fields");
-  var UniqueId = require("utils/unique-id");
-  var Humanize = require("utils/humanize");
-  var TemplateUtils = require("utils/template-utils");
-  var Actions = require("utils/actions");
   var Leases = require("utils/leases");
+  var Locale = require("utils/locale");
+  var ScheduleActions = require("utils/schedule_action");
+  var UniqueId = require("utils/unique-id");
+  
+  /*
+    TEMPLATES
+  */
+
   var TemplateHTML = require("hbs!./actions/html");
 
   /*
@@ -69,7 +69,7 @@ define(function(require) {
     });
   }
 
-  function _onShow(context, panelForm) {
+  function _onShow(_, panelForm) {
     Leases.actions(panelForm);
   }
 
@@ -77,8 +77,9 @@ define(function(require) {
     if(!CREATE){
       CREATE = true;
     }
-    var that = this;
+
     var actions = ScheduleActions.defaultActions;
+
     function renderCreateForm() {
       if(CREATE){
         ScheduleActions.htmlNewAction(actions, context, "temp");
@@ -154,7 +155,7 @@ define(function(require) {
     CREATE = true;
   }
 
-  function _fill(context, templateJSON) {
+  function _fill(_, templateJSON) {
     var actions = ScheduleActions.fromJSONtoActionsTable(templateJSON.SCHED_ACTION);
     $("#sched_temp_actions_body").prepend(actions);
     delete templateJSON["SCHED_ACTION"];

@@ -16,9 +16,8 @@
 
 define(function(require) {
   var Sunstone = require("sunstone");
-  var Notifier = require("utils/notifier");
-  var Locale = require("utils/locale");
   var Navigation = require("utils/navigation");
+  var Notifier = require("utils/notifier");
 
   /*
     CONSTRUCTOR
@@ -103,9 +102,7 @@ define(function(require) {
     return {
       type: "multiple",
       call : that.openNebulaResource.del,
-      callback : function(request, response) {
-        var tab = $("#" + that.tabId);
-
+      callback : function() {
         if (Sunstone.getTab() == that.tabId) {
           Sunstone.showTab(that.tabId);
         }
@@ -127,7 +124,7 @@ define(function(require) {
     return {
       type: "multiple",
       call: that.openNebulaResource[actionStr],
-      callback: function (req, response) {
+      callback: function (req) {
         Sunstone.runAction(that.resourceStr + ".show", req.request.data[0]);
       },
       elements: function(opts) {
@@ -159,7 +156,7 @@ define(function(require) {
     return {
       type: "create",
       call: that.openNebulaResource.create,
-      callback : function(request, response) {
+      callback : function(_, response) {
         Sunstone.resetFormPanel(that.tabId, formPanelId);
         Sunstone.hideFormPanel(that.tabId);
         that.refresh();
@@ -195,7 +192,7 @@ define(function(require) {
     return {
       type: "single",
       call: that.openNebulaResource.show,
-      callback: function(request, response) {
+      callback: function(_, response) {
         Sunstone.showFormPanel(that.tabId, formPanelId, "update",
           function(formPanelInstance, context) {
             if (that.xmlRoot) {
@@ -249,7 +246,7 @@ define(function(require) {
     return {
       type: "single",
       call: that.openNebulaResource.update,
-      callback: function(request, response){
+      callback: function() {
         Sunstone.hideFormPanel(that.tabId);
       },
       error: function(request, response){

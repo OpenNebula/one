@@ -15,28 +15,25 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-//  require('foundation.alert');
-  var Sunstone = require("sunstone");
+  var Config = require("sunstone-config");
+  var Graphs = require("utils/graphs");
+  var Humanize = require("utils/humanize");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
   var OpenNebula = require("opennebula");
   var OpenNebulaVM = require("opennebula/vm");
-  var Locale = require("utils/locale");
-  var Config = require("sunstone-config");
-  var Notifier = require("utils/notifier");
-  var Humanize = require("utils/humanize");
   var ResourceSelect = require("utils/resource-select");
-  var Graphs = require("utils/graphs");
-  var TemplateUtils = require("utils/template-utils");
   var StateActions = require("tabs/vms-tab/utils/state-actions");
-  var Vnc = require("utils/vnc");
-  var Spice = require("utils/spice");
+  var Sunstone = require("sunstone");
+  var TemplateUtils = require("utils/template-utils");
   var VMsTableUtils = require('../../vms-tab/utils/datatable-common');
 
-  var TemplateVmsList = require("hbs!./list");
+  var TemplateConfirmPoweroff = require("hbs!./confirm_poweroff");
+  var TemplateConfirmReboot = require("hbs!./confirm_reboot");
   var TemplateConfirmSaveAsTemplate = require("hbs!./confirm_save_as_template");
   var TemplateConfirmTerminate = require("hbs!./confirm_terminate");
-  var TemplateConfirmPoweroff = require("hbs!./confirm_poweroff");
   var TemplateConfirmUndeploy = require("hbs!./confirm_undeploy");
-  var TemplateConfirmReboot = require("hbs!./confirm_reboot");
+  var TemplateVmsList = require("hbs!./list");
 
   var TAB_ID = require("../tabId");
   var _accordionId = 0;
@@ -50,7 +47,7 @@ define(function(require) {
     "state": get_provision_vm_state
   };
 
-  function show_provision_vm_list(timeout, context) {
+  function show_provision_vm_list() {
     $(".section_content").hide();
     $(".provision_vms_list_section").fadeIn();
 
@@ -169,7 +166,7 @@ define(function(require) {
 
         return true;
       },
-      "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+      "fnRowCallback": function( nRow, aData, _, iDisplayIndexFull ) {
         var data = aData.VM;
         if(data == undefined){
           return nRow;
@@ -180,7 +177,7 @@ define(function(require) {
           monitoring = "<li class=\"provision-bullet-item\"><span class=\"\"><i class=\"fas fa-fw fa-lg fa-server\"/>" + data.MONITORING.GUEST_IP + "</span></li>";
         }
         var charter = VMsTableUtils.leasesClock(data);
-        var addStyle = charter && charter.length && 'style="padding-left:.5rem;"'
+        var addStyle = charter && charter.length && 'style="padding-left:.5rem;"';
         $(".provision_vms_ul", context).append("<div class='column'>\
             <ul class='8 provision-pricing-table menu vertical' opennebula_id='"+data.ID+"' datatable_index='"+iDisplayIndexFull+"'>\
               <li class='provision-title'>\
@@ -274,7 +271,7 @@ define(function(require) {
           id: vm_id
         },
         error: Notifier.onError,
-        success: function(request, response){
+        success: function(_, response){
           Sunstone.insertPanels(TAB_ID, response, TAB_ID, $(".provision-sunstone-info", context));
 
           var data = response.VM;
@@ -364,7 +361,7 @@ define(function(require) {
                       "name" : valueStr
                     }
                   },
-                  success: function(request, response){
+                  success: function() {
                     update_provision_vm_info(vm_id, context);
                   },
                   error: function(request, response){
@@ -443,8 +440,6 @@ define(function(require) {
           $(".provision_info_vm", context).css("visibility", "visible");
           $(".provision_info_vm_loading", context).hide();
 
-          //$(window).scrollTop(tempScrollTop);
-
           OpenNebula.VM.monitor({
             data : {
               timeout: true,
@@ -453,7 +448,7 @@ define(function(require) {
                 monitor_resources : "CPU,MEMORY,NETTX,NETRX"
               }
             },
-            success: function(request, response){
+            success: function(_, response){
               var vm_graphs = [
                   {
                       monitor_resources : "CPU",
@@ -540,7 +535,7 @@ define(function(require) {
             }
           },
           timeout: false,
-          success: function(request, response){
+          success: function(request){
             OpenNebula.Action.clear_cache("VMTEMPLATE");
             Notifier.notifyMessage(Locale.tr("VM Template") + " " + request.request.data[1].name + " " + Locale.tr("saved successfully"));
             update_provision_vm_info(vm_id, context);
@@ -652,11 +647,11 @@ define(function(require) {
         data : {
           id: vm_id
         },
-        success: function(request, response){
+        success: function() {
           update_provision_vm_info(vm_id, context);
           button.removeAttr("disabled");
         },
-        error: function(request, response){
+        error: function(request, response) {
           Notifier.onError(request, response);
           button.removeAttr("disabled");
         }
@@ -698,11 +693,11 @@ define(function(require) {
         data : {
           id: vm_id
         },
-        success: function(request, response){
+        success: function() {
           update_provision_vm_info(vm_id, context);
           button.removeAttr("disabled");
         },
-        error: function(request, response){
+        error: function(request, response) {
           Notifier.onError(request, response);
           button.removeAttr("disabled");
         }
@@ -722,11 +717,11 @@ define(function(require) {
         data : {
           id: vm_id
         },
-        success: function(request, response){
+        success: function() {
           update_provision_vm_info(vm_id, context);
           button.removeAttr("disabled");
         },
-        error: function(request, response){
+        error: function(request, response) {
           Notifier.onError(request, response);
           button.removeAttr("disabled");
         }
@@ -735,7 +730,7 @@ define(function(require) {
       return false;
     });
 
-    context.on("click", ".provision_resume_button", function(){
+    context.on("click", ".provision_resume_button", function() {
       var button = $(this);
       button.attr("disabled", "disabled");
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
@@ -744,11 +739,11 @@ define(function(require) {
         data : {
           id: vm_id
         },
-        success: function(request, response){
+        success: function() {
           update_provision_vm_info(vm_id, context);
           button.removeAttr("disabled");
         },
-        error: function(request, response){
+        error: function(request, response) {
           Notifier.onError(request, response);
           button.removeAttr("disabled");
         }
@@ -798,7 +793,7 @@ define(function(require) {
         data : {
           id: vm_id
         },
-        success: function(request, response){
+        success: function(_, response){
           if (OpenNebulaVM.isVNCSupported(vm_data)) {
 
             var dialog = Sunstone.getDialog(VNC_DIALOG_ID);

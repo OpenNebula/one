@@ -17,13 +17,13 @@
 define(function (require) {
   /* DEPENDENCIES */
 
-  var Tree = require('./tree');
-  var Sunstone = require('sunstone');
-  var OpenNebula = require('opennebula');
   var Locale = require('utils/locale');
   var Notifier = require('utils/notifier');
-  var TemplateUtils = require('utils/template-utils');
+  var OpenNebula = require('opennebula');
   var OpenNebulaUser = require('opennebula/user');
+  var Sunstone = require('sunstone');
+  var TemplateUtils = require('utils/template-utils');
+  var Tree = require('./tree');
   var UtilsFoundation = require("utils/foundation/utils");
 
   var LABELS_ATTR = 'LABELS';
@@ -64,8 +64,8 @@ define(function (require) {
     var dataTable = opts.dataTable || Sunstone.getDataTable(opts.tabName).dataTable;
     var labelsColumn = opts.labelsColumn || Sunstone.getDataTable(opts.tabName).labelsColumn;
     var labelsPath = opts.labelsPath;
-
     var labels = _getLabels(dataTable, labelsColumn, labelsPath);
+
     $('.labels-tree', context).remove();
     if ($.isEmptyObject(labels)) {
       if (opts.placeholder) {
@@ -140,7 +140,8 @@ define(function (require) {
             if (labels[config['all_labels'][index]]) {
               delete labels[config['all_labels'][index]];
             }
-          })
+          });
+
           labels_yaml = _deserializeLabels(array_labels_yaml.join(','));
         }
         var keys = Object.keys(labels_persis).sort();
@@ -152,7 +153,7 @@ define(function (require) {
           delete labels_persis[keys[i]];
         }
         $.extend(labels, labels_persis);
-        var html_yaml = ""
+        var html_yaml = "";
         if (!$.isEmptyObject(labels_yaml)) {
           html_yaml = '<h6>' + Locale.tr('System Labels') + '</h6>' +
             '<div class="labeltree-container">' +

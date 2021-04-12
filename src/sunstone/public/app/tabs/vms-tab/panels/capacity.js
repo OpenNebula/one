@@ -19,17 +19,17 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require("utils/locale");
   var Config = require("sunstone-config");
-  var Sunstone = require("sunstone");
-  var OpenNebulaVM = require("opennebula/vm");
-  var Notifier = require("utils/notifier");
+  var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket");
   var Graphs = require("utils/graphs");
-  var StateActions = require("tabs/vms-tab/utils/state-actions");
-  var OpenNebulaAction = require("opennebula/action");
   var Humanize = require("utils/humanize");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaVM = require("opennebula/vm");
   var ProgressBar = require("utils/progress-bar");
-  var CoresPerSocket = require("tabs/templates-tab/form-panels/create/wizard-tabs/utils/cores-per-socket")
+  var StateActions = require("tabs/vms-tab/utils/state-actions");
+  var Sunstone = require("sunstone");
+
   /*
     TEMPLATES
    */
@@ -40,10 +40,8 @@ define(function(require) {
     CONSTANTS
    */
 
-  var TAB_ID = require("../tabId");
   var PANEL_ID = require("./capacity/panelId");
   var RESIZE_DIALOG_ID = require("../dialogs/resize/dialogId");
-  var RESOURCE = "VM";
   var XML_ROOT = "VM";
   var VCPU_SELECTOR = 'div.vcpu_input input';
 
@@ -73,8 +71,7 @@ define(function(require) {
    */
 
   function _html() {
-    var resizeStateEnabled = StateActions.enabledStateAction("VM.resize",
-                                    this.element.STATE, this.element.LCM_STATE);
+    var resizeStateEnabled = StateActions.enabledStateAction("VM.resize", this.element.STATE, this.element.LCM_STATE);
 
     var cpuCost    = this.element.TEMPLATE.CPU_COST;
     var memoryCost = this.element.TEMPLATE.MEMORY_COST;

@@ -16,13 +16,13 @@
 
 define(function(require) {
 
-  var OpenNebulaVM = require('opennebula/vm');
-  var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
-  var TemplateUtils = require('utils/template-utils');
   var LabelsUtils = require('utils/labels/utils');
-  var Status = require('utils/status');
+  var Locale = require('utils/locale');
+  var OpenNebulaVM = require('opennebula/vm');
   var ScheduleActions = require("utils/schedule_action");
+  var Status = require('utils/status');
+  var TemplateUtils = require('utils/template-utils');
   var VMRemoteActions = require('utils/remote-actions');
 
   var RESOURCE = "VM";
@@ -55,10 +55,12 @@ define(function(require) {
 
   function checkTime(startTime, addedEndTime, warningTime, rtnTime){
     var rtn = false;
-    if(startTime && addedEndTime){
+
+    if (startTime && addedEndTime) {
       var regexNumber = new RegExp('[0-9]*$','gm');
       var date = parseInt(startTime,10);
       var added = parseInt(addedEndTime.match(regexNumber)[0],10);
+
       if(!isNaN(date) && !isNaN(added)){
         var operator = addedEndTime.replace(regexNumber, "");
         var finalTime = date;
@@ -70,16 +72,21 @@ define(function(require) {
             finalTime = date + added;
           break;
         }
+
         now = new Date();
-        var nowGetTime = parseInt(now.getTime(),10)
+        var nowGetTime = parseInt(now.getTime(),10);
         var nowInSeconds = Math.round(nowGetTime / 1000);
-        if(finalTime >= nowInSeconds && warningTime === undefined){
+
+        if (finalTime >= nowInSeconds && warningTime === undefined) {
           rtn = rtnTime? finalTime - nowInSeconds : true;
-        }else if(!!warningTime){
-          var warning = parseInt(warningTime.match(regexNumber)[0],10);
+        }
+        else if(!!warningTime) {
+          var warning = parseInt(warningTime.match(regexNumber)[0], 10);
+
           if(!isNaN(warning)){
             operator = warningTime.replace(regexNumber, "");
             var wtime = date;
+
             switch (operator) {
               case '-':
                 wtime = finalTime - warning;
@@ -88,6 +95,7 @@ define(function(require) {
                 wtime = finalTime + warning;
               break;
             }
+
             if(finalTime >= nowInSeconds && wtime <= nowInSeconds){
               rtn = true;
             }
@@ -107,7 +115,6 @@ define(function(require) {
       "z-index":"1",
       "min-width":"8rem",
       "font-family": '"Lato","Helvetica Neue",Helvetica,Roboto,Arial,sans-serif',
-      "font-weight": "100",
       "color":"#000",
       "font-weight": "bold"
     };

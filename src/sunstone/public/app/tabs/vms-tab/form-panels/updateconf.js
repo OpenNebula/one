@@ -20,9 +20,8 @@ define(function(require) {
    */
 
   var BaseFormPanel = require('utils/form-panels/form-panel');
-  var Sunstone = require('sunstone');
   var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
+  var Sunstone = require('sunstone');
   var TemplateUtils = require('utils/template-utils');
 
   /*
@@ -44,7 +43,7 @@ define(function(require) {
     require('tabs/templates-tab/form-panels/create/wizard-tabs/io'),
     require('tabs/templates-tab/form-panels/create/wizard-tabs/context'),
     require('tabs/templates-tab/form-panels/create/wizard-tabs/other')
-  ]
+  ];
 
   /*
     CONSTRUCTOR
@@ -73,7 +72,7 @@ define(function(require) {
       } catch (err) {
         console.log(err);
       }
-    })
+    });
 
     BaseFormPanel.call(this);
   }
