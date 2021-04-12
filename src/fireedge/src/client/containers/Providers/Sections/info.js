@@ -36,7 +36,7 @@ const Info = memo(({ data }) => {
       icon={<Visibility />}
       cy='provider-connection'
       handleClick={() => getProviderConnection({ id: ID })
-        .then(connection => setShowConnection(connection))}
+        .then(setShowConnection)}
     />
   )
 
