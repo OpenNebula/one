@@ -19,15 +19,15 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
   var RenameTr = require('utils/panel/rename-tr');
+  var TemplateTable = require('utils/panel/template-table');
 
   /*
     TEMPLATES
    */
 
-  var TemplateTable = require('utils/panel/template-table');
+  var TemplateInfo = require('hbs!./info/html');
 
   /*
     CONSTANTS
@@ -62,8 +62,7 @@ define(function(require) {
 
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE,
-                                      Locale.tr("Attributes"));
+    var templateTableHTML = TemplateTable.html(this.element.TEMPLATE, RESOURCE, Locale.tr("Attributes"));
 
     if (this.element.SERVER_POOL.SERVER){
       var serverPool = this.element.SERVER_POOL.SERVER;

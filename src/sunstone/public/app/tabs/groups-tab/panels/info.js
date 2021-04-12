@@ -19,16 +19,16 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var TemplateInfo = require("hbs!./info/html");
   var Locale = require("utils/locale");
-  var Views = require("../utils/views");
+  var TemplateTable = require("utils/panel/template-table");
   var Tips = require("utils/tips");
+  var Views = require("../utils/views");
 
   /*
     TEMPLATES
    */
 
-  var TemplateTable = require("utils/panel/template-table");
+  var TemplateInfo = require("hbs!./info/html");
 
   /*
     CONSTANTS
@@ -38,6 +38,7 @@ define(function(require) {
   var PANEL_ID = require("./info/panelId");
   var RESOURCE = "Group";
   var XML_ROOT = "GROUP";
+  var REGEX_HIDDEN_ATTRS = /^(SUNSTONE|OPENNEBULA|TABLE_DEFAULT_PAGE_LENGTH)$/
 
   /*
     CONSTRUCTOR
@@ -76,14 +77,12 @@ define(function(require) {
         sunstone_template.DEFAULT_VIEW);
     }
 
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["SUNSTONE"];
-    delete strippedTemplate["OPENNEBULA"];
+    
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
-                                              Locale.tr("Attributes"));
-    //====
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
 
     return TemplateInfo({
       "element": this.element,
@@ -94,33 +93,13 @@ define(function(require) {
   }
 
   function _setup(context) {
-    var that = this;
-
     Tips.setup(context);
 
-    // Template update
-    // TODO: simplify interface?
-    var hiddenKeys = [
-      "SUNSTONE",
-      "TABLE_DEFAULT_PAGE_LENGTH",
-      "OPENNEBULA"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-
-    $.each(hiddenKeys, function(i, key){
-      delete strippedTemplate[key];
-    });
-
-    var hiddenValues = {};
-
-    $.each(hiddenKeys, function(i, key){
-      if (that.element.TEMPLATE[key] != undefined){
-          hiddenValues[key] = that.element.TEMPLATE[key];
-      }
-    });
-
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
-    //===
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden);
 
     return false;
   }

@@ -15,34 +15,26 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  /*
-    DEPENDENCIES
-   */
+  /* DEPENDENCIES */
 
-  var TemplateInfo = require('hbs!./info/html');
   var Locale = require('utils/locale');
-  var OpenNebulaVMGroup= require('opennebula/vmgroup');
   var PermissionsTable = require('utils/panel/permissions-table');
-  var Utils = require('../utils/common');
-
-  /*
-    TEMPLATES
-   */
-
   var TemplateTable = require('utils/panel/template-table');
+  var Utils = require('../utils/common');
+  
+  /* TEMPLATES */
+  var TemplateInfo = require('hbs!./info/html');
 
-  /*
-    CONSTANTS
-   */
+
+  /* CONSTANTS */
 
   var TAB_ID = require('../tabId');
   var PANEL_ID = require('./info/panelId');
   var RESOURCE = "VMGroup";
   var XML_ROOT = "VM_GROUP";
+  var REGEX_HIDDEN_ATTRS = /^(ROLE)$/
 
-  /*
-    CONSTRUCTOR
-   */
+  /* CONSTRUCTOR */
 
   function Panel(info) {
     this.title = Locale.tr("Info");
@@ -59,24 +51,20 @@ define(function(require) {
 
   return Panel;
 
-  /*
-    FUNCTION DEFINITIONS
-   */
+  /* FUNCTION DEFINITIONS */
 
   function _html() {
-    //var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
-    
     var roles = Utils.getRoles(this.element);
     var groupRoles = Utils.getGroupRoles(this.element);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
 
     var roleTextList = [];
     var roleAffinityTextList = [];
-    if(Array.isArray(roles["ROLE"])){
+    if (Array.isArray(roles["ROLE"])) {
       $.each(roles["ROLE"], function(){
         roleTextList.push(Utils.sgRoleToSt(this));
       });
-    }else{
+    } else {
       $.each(roles, function(){
         roleTextList.push(Utils.sgRoleToSt(this));
       });
@@ -88,13 +76,11 @@ define(function(require) {
         roleAffinityTextList.push(text);
     });
 
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["ROLE"];
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
-                                              Locale.tr("Attributes"));
-    //====
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
 
     return TemplateInfo({
       'element': this.element,
@@ -107,13 +93,14 @@ define(function(require) {
 
   function _setup(context) {
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["ROLE"];
 
-    var hiddenValues = {ROLE: this.element.ROLE};
+    var hiddenAttributes = { ROLE: this.element.ROLE };
 
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
-    //===
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
+
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, hiddenAttributes);
 
     return false;
   }

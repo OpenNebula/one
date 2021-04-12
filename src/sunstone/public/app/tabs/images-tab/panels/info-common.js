@@ -19,14 +19,14 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Humanize = require('utils/humanize');
-  var RenameTr = require('utils/panel/rename-tr');
-  var TemplateTable = require('utils/panel/template-table');
-  var PermissionsTable = require('utils/panel/permissions-table');
-  var OpenNebulaImage = require('opennebula/image');
   var Config = require('sunstone-config');
+  var Humanize = require('utils/humanize');
+  var Locale = require('utils/locale');
+  var OpenNebulaImage = require('opennebula/image');
+  var PermissionsTable = require('utils/panel/permissions-table');
+  var RenameTr = require('utils/panel/rename-tr');
   var Sunstone = require('sunstone');
+  var TemplateTable = require('utils/panel/template-table');
 
   /*
     TEMPLATES

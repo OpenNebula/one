@@ -17,26 +17,25 @@
 define(function(require) {
   /* DEPENDENCIES */
 
-  var TemplateInfo = require('hbs!./auth/html');
-  var ResourceSelect = require('utils/resource-select');
-  var TemplateUtils = require('utils/template-utils');
   var Locale = require('utils/locale');
-  var OpenNebulaUser = require('opennebula/user');
   var Sunstone = require('sunstone');
-  var UserCreation = require('tabs/users-tab/utils/user-creation');
-
-  /* TEMPLATES */
-
   var TemplateTable = require('utils/panel/template-table');
+  var TemplateUtils = require('utils/template-utils');
+  var UserCreation = require('tabs/users-tab/utils/user-creation');
+  
+  /* TEMPLATES */
+  
+  var TemplateInfo = require('hbs!./auth/html');
 
   /* CONSTANTS */
 
-  var RESOURCE = "User";
-  var XML_ROOT = "USER";
   var PASSWORD_DIALOG_ID = require('tabs/users-tab/dialogs/password/dialogId');
   var LOGIN_TOKEN_DIALOG_ID = require('tabs/users-tab/dialogs/login-token/dialogId');
   var TWO_FACTOR_AUTH_DIALOG_ID = require('tabs/users-tab/dialogs/two-factor-auth/dialogId');
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
+  var RESOURCE = "User";
+  var XML_ROOT = "USER";
+  var REGEX_HIDDEN_ATTRS = /^(SUNSTONE|SSH_PUBLIC_KEY)$/
 
   /* CONSTRUCTOR */
 
@@ -56,16 +55,11 @@ define(function(require) {
   /* FUNCTION DEFINITIONS */
 
   function _html() {
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["SSH_PUBLIC_KEY"];
-    delete strippedTemplate["SUNSTONE"];
-
-     var templateTableHTML = TemplateTable.html(strippedTemplate, RESOURCE,
-                                              Locale.tr("Attributes"));
-    //====
-
+    var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
 
     return TemplateInfo({
       'element': this.element,
@@ -78,23 +72,12 @@ define(function(require) {
   function _setup(context) {
     var that = this;
     this.userCreation.setup(context);
-    // Template update
-    // TODO: simplify interface?
-    var strippedTemplate = $.extend({}, this.element.TEMPLATE);
-    delete strippedTemplate["SSH_PUBLIC_KEY"];
-    delete strippedTemplate["SUNSTONE"];
 
-    var hiddenValues = {};
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+      regexHidden: REGEX_HIDDEN_ATTRS
+    })
 
-    if (this.element.TEMPLATE.SSH_PUBLIC_KEY != undefined) {
-      hiddenValues.SSH_PUBLIC_KEY = this.element.TEMPLATE.SSH_PUBLIC_KEY;
-    }
-    if (this.element.TEMPLATE.SUNSTONE != undefined) {
-      hiddenValues.SUNSTONE = this.element.TEMPLATE.SUNSTONE;
-    }
-
-    TemplateTable.setup(strippedTemplate, RESOURCE, this.element.ID, context, hiddenValues);
-    //===
+    TemplateTable.setup(attributes.general, RESOURCE, this.element.ID, context, attributes.hidden);
 
     // Change two factor auth
     if (that.element.ID == config['user_id']) {

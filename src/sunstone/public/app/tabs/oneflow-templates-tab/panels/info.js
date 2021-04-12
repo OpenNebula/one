@@ -19,10 +19,10 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
   var Humanize = require('utils/humanize');
-  var RenameTr = require('utils/panel/rename-tr');
+  var Locale = require('utils/locale');
   var PermissionsTable = require('utils/panel/permissions-table');
+  var RenameTr = require('utils/panel/rename-tr');
 
   /*
     TEMPLATES
