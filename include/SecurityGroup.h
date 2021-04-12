@@ -179,7 +179,14 @@ private:
      *    @param error describing the problem if any
      *    @return true if the rule is valid
      */
-    bool isValidRule(const VectorAttribute * rule, std::string& error) const;
+    bool is_valid(const VectorAttribute * rule, std::string& error) const;
+
+    /**
+     *  Remove duplicit rules. The duplicits are removed from obj_template
+     *  not from passed parameter
+     *    @param rules as vector of VectorAttributes
+     */
+    void remove_duplicates(std::vector<VectorAttribute*>& rules);
 
     /**
      * Checks the new rules

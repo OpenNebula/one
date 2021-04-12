@@ -57,7 +57,7 @@ SecurityGroup::SecurityGroup(
 
 int SecurityGroup::insert(SqlDB *db, string& error_str)
 {
-    vector<const VectorAttribute*> rules;
+    vector<VectorAttribute*> rules;
 
     erase_template_attribute("NAME",name);
 
@@ -70,11 +70,13 @@ int SecurityGroup::insert(SqlDB *db, string& error_str)
 
     for ( auto rule : rules )
     {
-        if (!isValidRule(rule, error_str))
+        if (!is_valid(rule, error_str))
         {
             goto error_valid;
         }
     }
+
+    remove_duplicates(rules);
 
     if ( insert_replace(db, false, error_str) != 0 )
     {
@@ -299,7 +301,7 @@ void SecurityGroup::get_rules(vector<VectorAttribute*>& result) const
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) const
+bool SecurityGroup::is_valid(const VectorAttribute * rule, string& error) const
 {
     string value, ip, proto;
 
@@ -431,19 +433,58 @@ bool SecurityGroup::isValidRule(const VectorAttribute * rule, string& error) con
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void SecurityGroup::remove_duplicates(vector<VectorAttribute*>& rules)
+{
+    for (auto rule : rules)
+    {
+        rule->replace("HASH", one_util::sha1_digest(rule->marshall()));
+    }
+
+    // Sort to get duplicates next to each other
+    sort(rules.begin(), rules.end(),
+        [](const VectorAttribute* va1, const VectorAttribute* va2) {
+            return va1->vector_value("HASH") < va2->vector_value("HASH");
+        });
+
+    string prev_value;
+
+    for (auto rule : rules)
+    {
+        string value = rule->vector_value("HASH");
+
+        if (value == prev_value)
+        {
+            auto r = obj_template->remove(rule);
+
+            delete r;
+        }
+        else
+        {
+            rule->remove("HASH");
+        }
+
+        prev_value = move(value);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int SecurityGroup::post_update_template(string& error)
 {
-    vector<const VectorAttribute*> rules;
+    vector<VectorAttribute*> rules;
 
-    get_template_attribute("RULE", rules);
+    obj_template->get("RULE", rules);
 
     for ( auto rule : rules )
     {
-        if (!isValidRule(rule, error))
+        if (!is_valid(rule, error))
         {
             return -1;
         }
     }
+
+    remove_duplicates(rules);
 
     commit(false);
 
