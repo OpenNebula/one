@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Providers/Form/Create/Steps'
 
-import { useFetch, useProvision, useGeneral } from 'client/hooks'
+import { useFetchAll, useGeneral, useProvision } from 'client/hooks'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 import { PATH } from 'client/router/provision'
 
@@ -19,11 +19,12 @@ function ProviderCreateForm () {
 
   const {
     getProvider,
+    getProviderConnection,
     createProvider,
     updateProvider
   } = useProvision()
 
-  const { data, fetchRequest, loading, error } = useFetch(getProvider)
+  const { data, fetchRequestAll, loading, error } = useFetchAll()
   const { steps, defaultValues, resolvers } = Steps({ isUpdate })
   const { showError, changeLoading } = useGeneral()
 
@@ -72,19 +73,19 @@ function ProviderCreateForm () {
   const callUpdateProvider = formData => {
     const { configuration, connection: connectionEditable } = formData
     const { description } = configuration
+    const [provider = {}, connection = []] = data
 
     const {
       PLAIN: { location_key: locationKey } = {},
-      PROVISION_BODY: {
-        connection: { [locationKey]: connectionFixed },
-        registration_time: registrationTime
-      }
-    } = data?.TEMPLATE
+      PROVISION_BODY: currentBodyTemplate
+    } = provider?.TEMPLATE
+
+    const { [locationKey]: connectionFixed } = connection
 
     const formatData = {
+      ...currentBodyTemplate,
       description,
-      connection: { ...connectionEditable, [locationKey]: connectionFixed },
-      registration_time: registrationTime
+      connection: { ...connectionEditable, [locationKey]: connectionFixed }
     }
 
     updateProvider({ id, data: formatData })
@@ -97,19 +98,22 @@ function ProviderCreateForm () {
   }
 
   useEffect(() => {
-    isUpdate && fetchRequest({ id })
+    isUpdate && fetchRequestAll([
+      getProvider({ id }),
+      getProviderConnection({ id })
+    ])
   }, [isUpdate])
 
   useEffect(() => {
     if (data) {
+      const [provider = {}, connection = []] = data
+
       const {
         PLAIN: { location_key: locationKey } = {},
-        PROVISION_BODY: {
-          connection: { [locationKey]: _, ...connectionEditable },
-          description,
-          name
-        }
-      } = data?.TEMPLATE
+        PROVISION_BODY: { description, name }
+      } = provider?.TEMPLATE
+
+      const { [locationKey]: _, ...connectionEditable } = connection
 
       methods.reset({
         connection: connectionEditable,
