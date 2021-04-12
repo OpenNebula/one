@@ -267,7 +267,6 @@ define(function(require) {
   }
 
   function _submitWizard(context) {
-
     var name = WizardFields.retrieveInput($('#security_group_name', context));
     var description = WizardFields.retrieveInput($('#security_group_description', context));
 
@@ -291,12 +290,15 @@ define(function(require) {
       Sunstone.runAction("SecurityGroup.create",security_group_json);
       return false;
     } else if (this.action == "update") {
-      delete security_group_json["NAME"];
+
+      var update_json = $.extend({},this.element.TEMPLATE,security_group_json)
+
+      delete update_json["NAME"];
 
       Sunstone.runAction(
         "SecurityGroup.update",
         this.resourceId,
-        TemplateUtils.templateToString(security_group_json));
+        TemplateUtils.templateToString(update_json));
 
       return false;
     }
@@ -320,6 +322,7 @@ define(function(require) {
   }
 
   function _fill(context, element) {
+    this.element = element;
     var that = this;
 
     this.setHeader(element);
