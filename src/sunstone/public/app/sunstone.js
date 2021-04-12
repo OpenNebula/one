@@ -224,10 +224,15 @@ define(function(require) {
     if (tabInfo.icon) {
       title += "<i class=\"fas fa-lg fa-fw " + tabInfo.icon + "\"></i> ";
     }
+
     title += tabInfo.title;
+
     if(title !== "undefined"){
       if (parent !== "") {
-        liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" + "<a href=\"#\">" + title + "</a>" + "</li>";
+        liItem = "<li id=\"li_" + tabName + "\" class=\"" + tabClass + "\">" +
+          "<a title=\"" + tabInfo.title + "\" href=\"#\">" + title + "</a>" +
+        "</li>";
+
         if ($("#menu ul#navigation #li_" + parent + " .menu").length > 0) {
           $("#menu ul#navigation #li_" + parent + " .menu").append(liItem);
         } else {

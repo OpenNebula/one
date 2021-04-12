@@ -38,6 +38,8 @@
     &.subTab > * {
       padding: 0.5rem 1rem;
       color: $dark-gray;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &.navigation-active-li:not(.topTab) > a {
