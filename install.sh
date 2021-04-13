@@ -511,6 +511,8 @@ INSTALL_FILES=(
     MAD_SH_LIB_FILES:$VAR_LOCATION/remotes
     ONEDB_FILES:$LIB_LOCATION/ruby/onedb
     ONEDB_PATCH_FILES:$LIB_LOCATION/ruby/onedb/patches
+    ONEDB_SHARED_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb/shared
+    ONEDB_LOCAL_MIGRATOR_FILES:$LIB_LOCATION/ruby/onedb/local
     MADS_LIB_FILES:$LIB_LOCATION/mads
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
@@ -1897,6 +1899,68 @@ ONEDB_FILES="src/onedb/fsck.rb \
 
 ONEDB_PATCH_FILES="src/onedb/patches/4.14_monitoring.rb \
                    src/onedb/patches/history_times.rb"
+
+ONEDB_SHARED_MIGRATOR_FILES="src/onedb/shared/2.0_to_2.9.80.rb \
+                             src/onedb/shared/2.9.80_to_2.9.85.rb \
+                             src/onedb/shared/2.9.85_to_2.9.90.rb \
+                             src/onedb/shared/2.9.90_to_3.0.0.rb \
+                             src/onedb/shared/3.0.0_to_3.1.0.rb \
+                             src/onedb/shared/3.1.0_to_3.1.80.rb \
+                             src/onedb/shared/3.1.80_to_3.2.0.rb \
+                             src/onedb/shared/3.2.0_to_3.2.1.rb \
+                             src/onedb/shared/3.2.1_to_3.3.0.rb \
+                             src/onedb/shared/3.3.0_to_3.3.80.rb \
+                             src/onedb/shared/3.3.80_to_3.4.0.rb \
+                             src/onedb/shared/3.4.0_to_3.4.1.rb \
+                             src/onedb/shared/3.4.1_to_3.5.80.rb \
+                             src/onedb/shared/3.5.80_to_3.6.0.rb \
+                             src/onedb/shared/3.6.0_to_3.7.80.rb \
+                             src/onedb/shared/3.7.80_to_3.8.0.rb \
+                             src/onedb/shared/3.8.0_to_3.8.1.rb \
+                             src/onedb/shared/3.8.1_to_3.8.2.rb \
+                             src/onedb/shared/3.8.2_to_3.8.3.rb \
+                             src/onedb/shared/3.8.3_to_3.8.4.rb \
+                             src/onedb/shared/3.8.4_to_3.8.5.rb \
+                             src/onedb/shared/3.8.5_to_3.9.80.rb \
+                             src/onedb/shared/3.9.80_to_3.9.90.rb \
+                             src/onedb/shared/3.9.90_to_4.0.0.rb \
+                             src/onedb/shared/4.0.0_to_4.0.1.rb \
+                             src/onedb/shared/4.0.1_to_4.1.80.rb \
+                             src/onedb/shared/4.1.80_to_4.2.0.rb \
+                             src/onedb/shared/4.2.0_to_4.3.80.rb \
+                             src/onedb/shared/4.3.80_to_4.3.85.rb \
+                             src/onedb/shared/4.3.85_to_4.3.90.rb \
+                             src/onedb/shared/4.3.90_to_4.4.0.rb \
+                             src/onedb/shared/4.4.0_to_4.4.1.rb \
+                             src/onedb/shared/4.4.1_to_4.5.80.rb\
+                             src/onedb/shared/4.5.80_to_4.6.0.rb \
+                             src/onedb/shared/4.6.0_to_4.11.80.rb \
+                             src/onedb/shared/4.11.80_to_4.90.0.rb \
+                             src/onedb/shared/4.90.0_to_5.2.0.rb \
+                             src/onedb/shared/5.2.0_to_5.3.80.rb \
+                             src/onedb/shared/5.3.80_to_5.4.0.rb \
+                             src/onedb/shared/5.4.0_to_5.4.1.rb \
+                             src/onedb/shared/5.4.1_to_5.5.80.rb \
+                             src/onedb/shared/5.5.80_to_5.6.0.rb \
+                             src/onedb/shared/5.6.0_to_5.10.0.rb \
+                             src/onedb/shared/5.10.0_to_5.12.0.rb"
+
+ONEDB_LOCAL_MIGRATOR_FILES="src/onedb/local/4.5.80_to_4.7.80.rb \
+                            src/onedb/local/4.7.80_to_4.9.80.rb \
+                            src/onedb/local/4.9.80_to_4.10.3.rb \
+                            src/onedb/local/4.10.3_to_4.11.80.rb \
+                            src/onedb/local/4.11.80_to_4.13.80.rb \
+                            src/onedb/local/4.13.80_to_4.13.85.rb \
+                            src/onedb/local/4.13.85_to_4.90.0.rb \
+                            src/onedb/local/4.90.0_to_5.3.80.rb \
+                            src/onedb/local/5.3.80_to_5.4.0.rb \
+                            src/onedb/local/5.4.0_to_5.4.1.rb \
+                            src/onedb/local/5.4.1_to_5.5.80.rb \
+                            src/onedb/local/5.5.80_to_5.6.0.rb \
+                            src/onedb/local/5.6.0_to_5.7.80.rb \
+                            src/onedb/local/5.7.80_to_5.8.0.rb \
+                            src/onedb/local/5.8.0_to_5.10.0.rb \
+                            src/onedb/local/5.10.0_to_5.12.0.rb"
 
 #-------------------------------------------------------------------------------
 # Configuration files for OpenNebula, to be installed under $ETC_LOCATION
