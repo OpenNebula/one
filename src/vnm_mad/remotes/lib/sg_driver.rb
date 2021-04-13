@@ -80,10 +80,13 @@ module VNMMAD
             # Global Bootstrap
             SGIPTables.global_bootstrap(@bridged)
 
-            attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
+            unless do_all
+               attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+               attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+            end
 
             # Process the rules
-            process do |nic|
+            process_all do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
                 if nic[:security_groups].nil?
@@ -124,9 +127,12 @@ module VNMMAD
             lock
 
             begin
-                attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID'] if !do_all
+                unless do_all
+                   attach_nic_id = @vm['TEMPLATE/NIC[ATTACH="YES"]/NIC_ID']
+                   attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
+                end
 
-                @vm.nics.each do |nic|
+                process_all do |nic|
                     next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
                     SGIPTables.nic_deactivate(@vm, nic)

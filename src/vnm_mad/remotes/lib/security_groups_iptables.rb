@@ -14,6 +14,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+require 'ipaddr'
+
 module VNMMAD
 
 # This module implements the SecurityGroup abstraction on top of iptables
@@ -288,7 +290,7 @@ module SGIPTables
     #   2.- Forwards the bridge traffic to the GLOBAL_CHAIN
     #   3.- By default ACCEPT all traffic
     #
-    # If inbound packets are routed (not bridged) by the hypervisor OpenNebula 
+    # If inbound packets are routed (not bridged) by the hypervisor OpenNebula
     # process all forwarding traffic.
     def self.global_bootstrap(bridged)
         info = SGIPTables.info
@@ -381,9 +383,12 @@ module SGIPTables
         commands.add :ip6tables, "-N #{chain_out}" # outbound
 
         # Send traffic to the NIC chains
-
         base_br = "-I #{GLOBAL_CHAIN} -m physdev --physdev-is-bridged "
-        nro     = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
+        if nic[:alias_id]
+            nro = "#{base_br} --physdev-in #{nic[:parent_nic][:tap]} -s #{nic[:ip]} -j #{chain_out}"
+        else
+            nro = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
+        end
 
         if bridged
             nri = "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
@@ -391,12 +396,13 @@ module SGIPTables
             nri = "-I #{GLOBAL_CHAIN} -d #{nic[:ip]} -j #{chain_in}"
         end
 
-        #TODO routed traffic is only filtered for IPv4 addressing
-        commands.add :iptables, nri
-        commands.add :iptables, nro
-
-        commands.add :ip6tables, nri if bridged
-        commands.add :ip6tables, nro
+        if IPAddr.new(nic[:ip]).ipv4?
+            commands.add :iptables, nri
+            commands.add :iptables, nro
+        else
+            commands.add :ip6tables, nri
+            commands.add :ip6tables, nro
+        end
 
         # ICMPv6 Neighbor Discovery Protocol (ARP replacement for IPv6)
         ## Allow routers to send router advertisements
