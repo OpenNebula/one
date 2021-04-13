@@ -284,7 +284,7 @@ module OpenNebula
                 if OpenNebula.is_error?(rc)
                     log_info("Error deleting vnet #{net_id}: #{rc}")
                 end
-            end
+            end if networks
 
             super()
         end

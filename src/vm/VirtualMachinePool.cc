@@ -334,21 +334,72 @@ int VirtualMachinePool::dump_showback(string& oss,
 
 int VirtualMachinePool::dump_monitoring(
         string& oss,
-        const string&  where)
+        const string&  where,
+        const int seconds)
 {
     ostringstream cmd;
 
-    cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
-        << one_db::vm_monitor_table
-        << " INNER JOIN " << one_db::vm_table
-        << " WHERE vmid = oid";
-
-    if ( !where.empty() )
+    switch (seconds)
     {
-        cmd << " AND " << where;
-    }
+        case 0: //Get last monitor value
+            /*
+            * SELECT vm_monitoring.body
+            * FROM vm_monitoring
+            *     INNER JOIN (
+            *         SELECT vmid, MAX(last_poll) as last_poll
+            *             FROM vm_monitoring
+            *             GROUP BY vmid
+            *     ) lpt on lpt.vmid = vm_monitoring.vmid AND lpt.last_poll = vm_monitoring.last_poll
+            *     INNER JOIN vm_pool ON vm_monitoring.vmid = oid
+            * ORDER BY oid;
+            */
+            cmd << "SELECT " << one_db::vm_monitor_table << ".body "
+                << "FROM " << one_db::vm_monitor_table << " INNER JOIN ("
+                << "SELECT vmid, MAX(last_poll) as last_poll FROM "
+                << one_db::vm_monitor_table << " GROUP BY vmid) as lpt "
+                << "ON lpt.vmid = " << one_db::vm_monitor_table << ".vmid "
+                << "AND lpt.last_poll = " << one_db::vm_monitor_table
+                << ".last_poll INNER JOIN " << one_db::vm_table
+                << " ON " << one_db::vm_monitor_table << ".vmid = oid";
 
-    cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY oid";
+
+            break;
+
+        case -1: //Get all monitoring
+            cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
+                << one_db::vm_monitor_table << " INNER JOIN " << one_db::vm_table
+                << " ON vmid = oid";
+
+            if ( !where.empty() )
+            {
+                cmd << " WHERE " << where;
+            }
+
+            cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
+
+            break;
+
+        default: //Get monitor in last s seconds
+            cmd << "SELECT " << one_db::vm_monitor_table << ".body FROM "
+                << one_db::vm_monitor_table << " INNER JOIN " << one_db::vm_table
+                << " ON vmid = oid WHERE " << one_db::vm_monitor_table
+                << ".last_poll > " << time(nullptr) - seconds;
+
+            if ( !where.empty() )
+            {
+                cmd << " ANS " << where;
+            }
+
+            cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
+
+            break;
+    }
 
     return PoolSQL::dump(oss, "MONITORING_DATA", cmd);
 }
@@ -966,7 +1017,7 @@ void VirtualMachinePool::delete_attach_disk(int vid)
 void VirtualMachinePool::delete_attach_nic(int vid)
 {
     VirtualMachine *  vm;
-    VirtualMachineNic * nic;
+    VirtualMachineNic * nic, * p_nic;
 
     int uid;
     int gid;
@@ -1010,6 +1061,18 @@ void VirtualMachinePool::delete_attach_nic(int vid)
         nic->vector_value("ALIAS_ID", alias_id);
 
         vm->clear_nic_alias_context(parent_id, alias_id);
+
+        p_nic = vm->get_nic(parent_id);
+
+        // As NIC is an alias, parent ALIAS_IDS array should be updated
+        // to remove the alias_id
+        std::set<int> p_a_ids;
+
+        one_util::split_unique(p_nic->vector_value("ALIAS_IDS"), ',', p_a_ids);
+
+        p_a_ids.erase(nic_id);
+
+        p_nic->replace("ALIAS_IDS", one_util::join(p_a_ids, ','));
     }
 
     uid  = vm->get_uid();

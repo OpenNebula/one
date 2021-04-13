@@ -30,13 +30,12 @@ DATA=`virsh --connect $LIBVIRT_URI create $DEP_FILE`
 if [ "x$?" = "x0" ]; then
 
     DOMAIN_ID=$(echo $DATA | sed 's/Domain //' | sed 's/ created from .*$//')
-    echo $DOMAIN_ID
+    UUID=$(virsh --connect $LIBVIRT_URI dominfo $DOMAIN_ID | grep UUID: | awk '{print $2}')
+    echo $UUID
 
     # redefine potential snapshots
     for SNAPSHOT_MD_XML in $(ls ${DEP_FILE_LOCATION}/snap-*.xml 2>/dev/null); do
 
-        # query UUID, but only once
-        UUID=${UUID:-$(virsh --connect $LIBVIRT_URI dominfo $DOMAIN_ID | grep UUID: | awk '{print $2}')}
 
         # replace uuid in the snapshot metadata xml
         sed -i "s%<uuid>[[:alnum:]-]*</uuid>%<uuid>$UUID</uuid>%" $SNAPSHOT_MD_XML

@@ -3657,3 +3657,50 @@ void VirtualMachine::get_quota_template(VirtualMachineTemplate& quota_tmpl,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void VirtualMachine::release_previous_vnc_port()
+{
+    ClusterPool * cpool = Nebula::instance().get_clpool();
+
+    VectorAttribute * graphics = get_template_attribute("GRAPHICS");
+
+    unsigned int previous_port;
+
+    if (graphics == nullptr ||
+            graphics->vector_value("PREVIOUS_PORT", previous_port) != 0)
+    {
+        return;
+    }
+
+    cpool->release_vnc_port(previous_history->cid, previous_port);
+
+    graphics->remove("PREVIOUS_PORT");
+};
+
+/* -------------------------------------------------------------------------- */
+
+void VirtualMachine::rollback_previous_vnc_port()
+{
+    ClusterPool * cpool = Nebula::instance().get_clpool();
+
+    VectorAttribute * graphics = get_template_attribute("GRAPHICS");
+
+    unsigned int previous_port;
+    unsigned int port;
+
+    if (graphics == nullptr ||
+            graphics->vector_value("PREVIOUS_PORT", previous_port) != 0)
+    {
+        return;
+    }
+
+    if ( graphics->vector_value("PORT", port) == 0 )
+    {
+        cpool->release_vnc_port(history->cid, port);
+    }
+
+    graphics->replace("PORT", previous_port);
+
+    graphics->remove("PREVIOUS_PORT");
+};
+
+>>>>>>> one-5.12-new

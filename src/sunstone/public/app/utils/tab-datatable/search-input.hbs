@@ -16,7 +16,7 @@
 
 {{#if searchDropdownHTML}}
 <div id="{{dataTableSearchId}}-wrapper" class="input-group">
-  <input class="input-group-field" id="{{dataTableSearchId}}" name="{{dataTableSearchId}}" type="search" placeholder="{{tr "Search"}}" />
+  <input class="input-group-field" id="{{dataTableSearchId}}" name="{{dataTableSearchId}}" autocomplete="off" type="search" placeholder="{{tr "Search"}}" />
   <div class="input-group-button">
     <i class="fas fa-filter search-button" data-toggle="{{dataTableSearchId}}-dropdown"></i>
   </div>

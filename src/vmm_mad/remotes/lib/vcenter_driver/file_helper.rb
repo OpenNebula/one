@@ -49,11 +49,11 @@ class FileHelper
     end
 
     def self.is_remote_or_needs_unpack?(file)
-        return !is_remote?(file).nil? || needs_unpack?(file)
+        return !remote?(file).nil? || needs_unpack?(file)
     end
 
-    def self.is_remote?(file)
-        file.match(%r{^https?://})
+    def self.remote?(file)
+        file.match(%r{^https?://}) || file.match(%r{^s3?://})
     end
 
     def self.is_vmdk?(file)
@@ -203,7 +203,7 @@ class FileHelper
             descriptor_name = File.basename vcenter_url.path
             temp_folder = VAR_LOCATION + "/vcenter/" + descriptor_name + "/"
             FileUtils.mkdir_p(temp_folder) if !File.directory?(temp_folder)
-            
+
             image_path = File.dirname(vcenter_url.host+vcenter_url.path)
             self.download_vmdks(files_to_download, image_path, temp_folder, ds)
 

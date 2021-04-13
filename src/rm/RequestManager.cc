@@ -241,8 +241,10 @@ int RequestManager::setup_socket()
     int rc;
     int yes = 1;
 
-    struct addrinfo hints = {0};
+    struct addrinfo hints;
     struct addrinfo * result;
+
+    memset(&hints, 0, sizeof hints);
 
     hints.ai_family   = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
@@ -488,6 +490,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr datastorepool_info(new DatastorePoolInfo());
     xmlrpc_c::methodPtr vm_pool_info(new VirtualMachinePoolInfo());
     xmlrpc_c::methodPtr vm_pool_info_extended(new VirtualMachinePoolInfoExtended());
+    xmlrpc_c::methodPtr vm_pool_info_set(new VirtualMachinePoolInfoSet());
     xmlrpc_c::methodPtr template_pool_info(new TemplatePoolInfo());
     xmlrpc_c::methodPtr vnpool_info(new VirtualNetworkPoolInfo());
     xmlrpc_c::methodPtr vntemplate_pool_info(new VirtualNetworkTemplatePoolInfo());
@@ -615,6 +618,7 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.vmpool.info", vm_pool_info);
     RequestManagerRegistry.addMethod("one.vmpool.infoextended", vm_pool_info_extended);
+    RequestManagerRegistry.addMethod("one.vmpool.infoset", vm_pool_info_set);
     RequestManagerRegistry.addMethod("one.vmpool.accounting", vm_pool_acct);
     RequestManagerRegistry.addMethod("one.vmpool.monitoring", vm_pool_monitoring);
     RequestManagerRegistry.addMethod("one.vmpool.showback", vm_pool_showback);

@@ -1266,9 +1266,10 @@ void AddressRange::set_vnet(VectorAttribute *nic, const vector<string> &inherit)
 
     for (it = inherit.begin(); it != inherit.end(); it++)
     {
+        string current_val = nic->vector_value(*it);
         string inherit_val = attr->vector_value(*it);
 
-        if (!inherit_val.empty())
+        if (current_val.empty() && !inherit_val.empty())
         {
             nic->replace((*it).c_str(), inherit_val);
         }
@@ -1525,7 +1526,7 @@ int AddressRange::free_addr(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = mac_i[0] - mac[0];
 
-    if (index < 0 || index >= size)
+    if ( mac[0] > mac_i[0] || index >= size)
     {
         return -1;
     }
@@ -1561,7 +1562,7 @@ int AddressRange::free_addr_by_ip(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = ip_i - ip;
 
-    if (index < 0 || index >= size)
+    if (ip > ip_i || index >= size)
     {
         return -1;
     }
@@ -1596,7 +1597,7 @@ int AddressRange::free_addr_by_ip6(PoolObjectSQL::ObjectType ot, int obid,
 
     unsigned int index = ip_i[0] - ip6[0];
 
-    if (index < 0 || index >= size || ip6[3] != ip_i[3] || ip6[2] != ip_i[2]
+    if (ip6[0] > ip_i[0] || index >= size || ip6[3] != ip_i[3] || ip6[2] != ip_i[2]
             || ip6[1] != ip_i[1])
     {
         return -1;
@@ -1663,7 +1664,7 @@ int AddressRange::free_addr_by_range(PoolObjectSQL::ObjectType ot, int obid,
 
     string error_msg;
 
-    if ((0 <= index) && (index < size))
+    if ((mac[0] <= mac_i[0]) && (index < size))
     {
         map<unsigned int, long long>::iterator it = allocated.find(index);
 

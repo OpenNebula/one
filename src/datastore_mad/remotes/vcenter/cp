@@ -106,8 +106,9 @@ if VCenterDriver::FileHelper.is_remote_or_needs_unpack?(img_path)
     downsh_args << '--convert vmdk'
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
+    b64        = Base64.encode64(drv_action.to_xml).gsub!("\n", '')
 
-    rc = system("#{downloader} #{img_path} #{temp_file}")
+    rc = system("DRV_ACTION=#{b64} #{downloader} #{img_path} #{temp_file}")
 
     if there_is_not_system_error?(rc)
         STDERR.puts "Error downloading #{img_path}"
@@ -171,17 +172,17 @@ files_to_upload.each_with_index do |f, index|
 
     cmd = "#{File.dirname(__FILE__)}/../vcenter_uploader.rb #{uploader_args}"
 
-    stdout_str, status = Open3.capture2(cmd)
+    target, stderr, status = Open3.capture3(cmd)
 
-    if last_file_to_upload?(index, files_to_upload)
-        puts stdout_str
+    if !status.success?
+        STDERR.puts "Cannot upload file #{f}: #{stderr}"
+        FileUtils.rm_rf(temp_file) if temp_file
+        exit(-1)
     end
 
-    next if status.success?
-
-    STDERR.puts "Cannot upload file #{f}"
-    FileUtils.rm_rf(temp_file) if temp_file
-    exit(-1)
+    if last_file_to_upload?(index, files_to_upload)
+        puts "#{target.gsub("\n", '')} vmdk"
+    end
 end
 
 FileUtils.rm_rf(temp_file) if temp_file

@@ -634,7 +634,7 @@ public:
      *  function MUST be called before this one.
      *    @return the action that closed the current history record
      */
-    const VMActions::Action get_action() const
+    VMActions::Action get_action() const
     {
         return history->action;
     };
@@ -643,7 +643,7 @@ public:
      *  Returns the action that closed the history record in the previous host
      *    @return the action that closed the history record in the previous host
      */
-    const VMActions::Action get_previous_action() const
+    VMActions::Action get_previous_action() const
     {
         return previous_history->action;
     };
@@ -846,6 +846,19 @@ public:
 
         previous_history->req_id = rid;
     };
+
+    /**
+     *  Release the previous VNC port when a VM is migrated to another cluster
+     *  (GRAPHICS/PREVIOUS_PORT present)
+     */
+    void release_previous_vnc_port();
+
+    /**
+     *  Frees current PORT from **current** cluster and sets it to PREVIOUS_PORT
+     *  (which is allocated in previous cluster). This function is called when
+     *  the migration fails.
+     */
+    void rollback_previous_vnc_port();
 
     // ------------------------------------------------------------------------
     // Template & Object Representation

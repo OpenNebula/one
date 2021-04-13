@@ -20,10 +20,6 @@ module VirtualMachineDevice
 
         attr_reader :size
 
-        def initialize(id, one_res, vc_res)
-            super(id, one_res, vc_res)
-        end
-
         # Create the OpenNebula disk representation
         # Allow us to create the class without vCenter representation
         # example: attached disks not synced with vCenter

@@ -159,6 +159,20 @@ func (vc *VMsController) InfoExtendedFilter(f *VMFilter) (*vm.Pool, error) {
 	return vmPool, nil
 }
 
+// InfoSet connects to OpenNebula and fetches a VM_POOL containing the VMs in vmIds
+func (vc *VMsController) InfoSet(vmIds string, extended bool) (*vm.Pool, error) {
+	response, err := vc.c.Client.Call("one.vmpool.infoset", vmIds, extended)
+	if err != nil {
+		return nil, err
+	}
+	vmPool := &vm.Pool{}
+	err = xml.Unmarshal([]byte(response.Body()), vmPool)
+	if err != nil {
+		return nil, err
+	}
+	return vmPool, nil
+}
+
 // Info connects to OpenNebula and fetches the information of the VM
 func (vc *VMController) Info(decrypt bool) (*vm.VM, error) {
 	response, err := vc.c.Client.Call("one.vm.info", vc.ID, decrypt)

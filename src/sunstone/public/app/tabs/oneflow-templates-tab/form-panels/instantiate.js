@@ -254,38 +254,52 @@ define(function(require) {
           }
         });
       }
+
       $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
-        var temp_role = role;
+        var temp_role = {};
+        $.extend( temp_role, role);
+
         var div_id = "user_input_role_"+index;
         var tmp_json = {};
-        var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
+
         $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
-        role.user_inputs_values = tmp_json;
+        temp_role.user_inputs_values = tmp_json;
+        
+        var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
         if (stringCustomValues) {
           (temp_role.vm_template_contents)
             ? temp_role.vm_template_contents += stringCustomValues
             : temp_role.vm_template_contents = stringCustomValues;
         }
-        $("#instantiate_service_role_user_inputs").find("select").each(function(key, vm_group){
+
+        $("#instantiate_service_role_user_inputs").find("select").each(function(_, vm_group){
           var element = $(vm_group);
           rolevm_group = element.attr("data-role");
           vm_group_value = element.children("option:selected").val();
+
           if(rolevm_group && role.name && rolevm_group === role.name && vm_group_value){
             if(temp_role.vm_template_contents === undefined){
               temp_role.vm_template_contents = "";
             }
-            temp_role.vm_template_contents += TemplateUtils.templateToString({VMGROUP:{ROLE:role.name,VMGROUP_ID:vm_group_value}});
+
+            temp_role.vm_template_contents += TemplateUtils.templateToString({
+              VMGROUP:{
+                ROLE: role.name,
+                VMGROUP_ID: vm_group_value
+              }
+            });
           }
         });
+
         if(charters && charters.length){
-          if(temp_role.vm_template_contents !== undefined){
-            temp_role.vm_template_contents += charters;
-          }else{
-            temp_role.vm_template_contents = charters;
-          }
+          (temp_role.vm_template_contents !== undefined)
+            ? temp_role.vm_template_contents += charters
+            : temp_role.vm_template_contents = charters;
         }
+
         extra_info.merge_template.roles.push(temp_role);
       });
+
       charters = "";
     }
     if (!service_name.length){ //empty name

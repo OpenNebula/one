@@ -100,7 +100,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             if File.file?(o)
                 options[:file] = o
             else
-                exit - 1
+                STDERR.puts "File `#{options[:file]}` doesn't exist"
+                exit(-1)
             end
         }
     }

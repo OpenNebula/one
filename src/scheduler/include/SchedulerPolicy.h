@@ -41,7 +41,7 @@ public:
      *    @param obj, pointer to the object to schedule
      *
      */
-    const void schedule(ObjectXML * obj)
+    void schedule(ObjectXML * obj)
     {
         vector<float> priority;
         const vector<Resource *> resources = get_match_resources(obj);

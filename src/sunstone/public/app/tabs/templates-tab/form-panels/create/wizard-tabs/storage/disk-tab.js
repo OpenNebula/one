@@ -22,7 +22,7 @@ define(function(require) {
   var Config = require("sunstone-config");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
-  var ImageTable = require("tabs/images-tab/datatable")
+  var ImageTable = require("tabs/images-tab/datatable");
   var WizardFields = require("utils/wizard-fields");
   var UniqueId = require("utils/unique-id");
   var TemplateUtils = require("utils/template-utils");
@@ -82,6 +82,7 @@ define(function(require) {
         "select_callback": function(aData, options) {
           // If the image is selected by Id, avoid overwriting it with name+uname
           if ($("#IMAGE_ID", context).val() != aData[options.id_index]) {
+            $("input[wizard_field]", context).val("");
             $("#IMAGE_ID", context).val("");
             $("#IMAGE", context).val(aData[options.name_index]);
             $("#IMAGE_UNAME", context).val(aData[options.uname_index]);
@@ -90,7 +91,7 @@ define(function(require) {
         }
       }
     });
-    $("table#"+this.imageTable.dataTableId).css("table-layout", "fixed")
+    $("table#"+this.imageTable.dataTableId).css("table-layout", "fixed");
     that.imageTable.refreshResourceTableSelect();
 
     // Select Image or Volatile disk. The div is hidden depending on the selection, and the
@@ -209,7 +210,7 @@ define(function(require) {
       tmpl.SIZE = tmpl.SIZE * 1048576;
       tmpl.SIZE = tmpl.SIZE.toString();
     }
-    
+
     var formatKvm = $("#FORMAT_KVM", context).val();
     var formatVcenter = $("#FORMAT_VCENTER", context).val();
 
@@ -247,7 +248,7 @@ define(function(require) {
       if (templateJSON.IMAGE_ID != undefined) {
         var selectedResources = {
           ids : templateJSON.IMAGE_ID
-        }
+        };
 
         this.imageTable.selectResourceTableSelect(selectedResources);
 
@@ -257,7 +258,7 @@ define(function(require) {
             name: templateJSON.IMAGE,
             uname: templateJSON.IMAGE_UNAME
           }
-        }
+        };
 
         this.imageTable.selectResourceTableSelect(selectedResources);
       }

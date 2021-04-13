@@ -54,11 +54,6 @@ module NSXDriver
         # ATTRIBUTES
         attr_reader :one_section_name
 
-        # CONSTRUCTOR
-        def initialize(nsx_client)
-            super(nsx_client)
-        end
-
         def self.new_child(nsx_client)
             case nsx_client
             when NSXTClient

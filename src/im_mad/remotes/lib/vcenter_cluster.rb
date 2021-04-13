@@ -307,30 +307,19 @@ class Cluster
     end
 
     def cluster_monitoring
-        metrics = @cluster.item.collect(*(CLUSTER_PROPERTIES[0..4]))
+        resource_usage_summary = @cluster.item.GetResourceUsage()
 
-        total_cpu     = metrics[0].to_f
-        num_cpu_cores = metrics[1].to_f
-        effective_cpu = metrics[2].to_f
-        total_memory  = metrics[3].to_i
-        effective_mem = metrics[4].to_i
+        total_cpu    = resource_usage_summary.cpuCapacityMHz.to_i
+        used_cpu     = resource_usage_summary.cpuUsedMHz.to_i
+        total_memory = resource_usage_summary.memCapacityMB.to_i
+        used_mem     = resource_usage_summary.memUsedMB.to_i
 
-        if num_cpu_cores > 0
-            mhz_core = total_cpu / num_cpu_cores
-            eff_core = effective_cpu / mhz_core
-        else
-            eff_core = 0
-        end
-
-        free_cpu = (eff_core * 100).to_i
-        used_cpu = (total_cpu - free_cpu).to_i
-
-        total_mem = total_memory / 1024
-        free_mem  = effective_mem * 1024
+        free_cpu  = total_cpu - used_cpu
+        free_mem  = total_memory - used_mem
 
         unindent(<<-EOS)
             HYPERVISOR = vcenter
-            USEDMEMORY = "#{(total_mem - free_mem)}"
+            USEDMEMORY = "#{(used_mem * 1024)}"
             FREEMEMORY = "#{free_mem}"
             USEDCPU    = "#{used_cpu}"
             FREECPU    = "#{free_cpu}"
@@ -825,7 +814,7 @@ class ClusterSet
                         next unless (Time.now.to_i - last_mon) > probe_frequency
 
                         # Refresh the vCenter connection in the least frequent probe
-                        if probe_name.eql?('system_host')
+                        if probe_name.eql?(:system_host)
                             c[:cluster].connect_vcenter
                         end
 

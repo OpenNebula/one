@@ -39,6 +39,7 @@ class FirecrackerConfiguration < Hash
     FIRECRACKERRC = '../../etc/vmm/firecracker/firecrackerrc'
 
     def initialize
+        super
         replace(DEFAULT_CONFIGURATION)
 
         begin

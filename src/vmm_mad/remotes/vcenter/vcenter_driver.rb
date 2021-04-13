@@ -58,6 +58,7 @@ class VCenterConf < Hash
     }
 
     def initialize
+        super
         replace(DEFAULT_CONFIGURATION)
         begin
             vcenterrc_path = "#{VAR_LOCATION}/remotes/etc/vmm/vcenter/vcenterrc"

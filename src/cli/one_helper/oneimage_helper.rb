@@ -20,6 +20,10 @@ require 'one_helper/onevm_helper'
 # CLI helper for oneimage command
 class OneImageHelper < OpenNebulaHelper::OneHelper
 
+    # This list contains prefixes that should skip adding user home to the path
+    # This must have the same content as the case $FROM in downloader.sh
+    PREFIXES = %w[http https ssh s3 rbd vcenter lxd docker]
+
     TEMPLATE_OPTIONS=[
         {
             :name => 'name',
@@ -82,7 +86,7 @@ class OneImageHelper < OpenNebulaHelper::OneHelper
             :description => 'Path of the image file',
             :format => String,
             :proc => lambda do |o, _options|
-                next [0, o] if o.match(%r{^(https?|docker)://})
+                next [0, o] if o.match(%r{^(#{PREFIXES.join('|')})://})
 
                 if o[0, 1]=='/'
                     path=o

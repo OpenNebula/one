@@ -397,8 +397,8 @@ class EventManager
         rc_nodes = { :successful => [], :failure => [] }
 
         nodes.delete_if do |node|
-            vm = OpenNebula::VirtualMachine.new_with_id(node, @cloud_auth.client)
-
+            vm = OpenNebula::VirtualMachine.new_with_id(node,
+                                                        @cloud_auth.client)
             vm.info
 
             vm_lcm_state = OpenNebula::VirtualMachine::LCM_STATE[vm.lcm_state]
