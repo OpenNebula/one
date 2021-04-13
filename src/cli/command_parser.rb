@@ -540,7 +540,7 @@ module CommandParser
             begin
                 @cmdparse.parse!(@args)
             rescue => e
-                puts e.message
+                STDERR.puts e.message
                 exit -1
             end
 
@@ -550,8 +550,8 @@ module CommandParser
                     if rc[0] == 0
                         @options[e[:name].to_sym] = rc[1]
                     else
-                        puts rc[1]
-                        puts "option #{e[:name]}: Parsing error"
+                        STDERR.puts rc[1]
+                        STDERR.puts "option #{e[:name]}: Parsing error"
                         exit -1
                     end
                 end
@@ -560,11 +560,11 @@ module CommandParser
 
         def check_args!(name, arity, args_format)
             if @args.length < arity
-                print "Command #{name} requires "
+                STDERR.print "Command #{name} requires "
                 if arity>1
-                    puts "#{args_format.length} parameters to run."
+                    STDERR.puts "#{args_format.length} parameters to run."
                 else
-                    puts "one parameter to run"
+                    STDERR.puts "one parameter to run"
                 end
 
                 print_command_help(name)
@@ -582,11 +582,11 @@ module CommandParser
                             end
                         }.join(' ')
 
-                        puts "Wrong number of arguments"
+                        STDERR.puts "Wrong number of arguments"
                         if args_str.empty?
-                            puts "No argument is required"
+                            STDERR.puts "No argument is required"
                         else
-                            puts "The arguments should be: #{args_str}"
+                            STDERR.puts "The arguments should be: #{args_str}"
                         end
                         exit -1
                     end
@@ -616,9 +616,9 @@ module CommandParser
 
                     unless argument
                         if error_msg
-                            puts error_msg
+                            STDERR.puts error_msg
                         else
-                            puts "command #{name}: argument #{id} must be one of #{format.join(', ')}"
+                            STDERR.puts "command #{name}: argument #{id} must be one of #{format.join(', ')}"
                         end
                         exit -1
                     end

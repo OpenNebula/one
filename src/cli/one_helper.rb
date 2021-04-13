@@ -1010,7 +1010,7 @@ EOT
                 rc = perform_action(id,options,verbose,&block)
 
                 unless rc[0]==0
-                    puts rc[1]
+                    STDERR.puts rc[1]
                     exit_code=rc[0]
                 end
             end
