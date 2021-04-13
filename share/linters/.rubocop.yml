@@ -748,7 +748,6 @@ Style/SoleNestedConditional:
 
 Style/StringConcatenation:
   Enabled: false
->>>>>>> one-5.12-new
 
 ######
 # LINT
@@ -855,7 +854,6 @@ Lint/UselessMethodDefinition:
 Lint/UselessTimes:
   Enabled: true
 
->>>>>>> one-5.12-new
 #########
 # METRICS
 ########

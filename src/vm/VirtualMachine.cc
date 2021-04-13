@@ -3702,5 +3702,3 @@ void VirtualMachine::rollback_previous_vnc_port()
 
     graphics->remove("PREVIOUS_PORT");
 };
-
->>>>>>> one-5.12-new
