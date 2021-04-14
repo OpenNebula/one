@@ -20,12 +20,17 @@ define(function(require) {
    */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./add-secgroups/html');
+  var Locale = require('utils/locale');
+  var Notifier = require('utils/notifier');
   var SecGroupsTab = require('tabs/vnets-tab/utils/secgroups-tab');
   var Sunstone = require('sunstone');
-  var Notifier = require('utils/notifier');
-  var Locale = require('utils/locale');
   var TemplateUtils = require("utils/template-utils");
+  
+  /*
+    TEMPLATES
+   */
+
+  var TemplateHTML = require('hbs!./add-secgroups/html');
 
   /*
     CONSTANTS
@@ -52,7 +57,7 @@ define(function(require) {
   Dialog.prototype.html = _html;
   Dialog.prototype.onShow = _onShow;
   Dialog.prototype.setup = _setup;
-  Dialog.prototype.setId = _setId;
+  Dialog.prototype.setElement = _setElement;
 
   return Dialog;
 
@@ -72,7 +77,7 @@ define(function(require) {
 
     Foundation.reflow(context, 'abide');
 
-    that.secgroupTab.setup(context, "add_secgroup");
+    this.secgroupTab.setup(context, "add_secgroup");
 
     $('#submit_secgroups_reset_button', context).click(function(){
       Sunstone.getDialog(DIALOG_ID).hide();
@@ -81,43 +86,39 @@ define(function(require) {
     });
 
     $('#add_secgroups_form', context)
-      .on('forminvalid.zf.abide', function(ev, frm) {
+      .on('forminvalid.zf.abide', function() {
         Notifier.notifyError(Locale.tr("One or more required fields are missing."));
       })
-      .on('formvalid.zf.abide', function(ev, frm) {
-        var current_security_group = $("#value_td_input_SECURITY_GROUPS").text().split(",");
-        var new_security_groups = [];
-        for (var i = 0; i < current_security_group.length; i++) {
-          var security_group = current_security_group[i];
-          if (security_group != ""){
-            new_security_groups.push(security_group);
-          }
-        }
+      .on('formvalid.zf.abide', function() {
+        var str_current_secgroups = that.vnet.TEMPLATE.SECURITY_GROUPS || "";
+        var current_secgroups = str_current_secgroups.split(',');
+        
+        var str_selected_secgroups = that.secgroupTab.retrieve()["SECURITY_GROUPS"] || ""
+        var selected_secgroups = str_selected_secgroups.split(",");
 
-        var selected_security_groups = that.secgroupTab.retrieve()["SECURITY_GROUPS"].split(",");
+        var merged_secgroups = current_secgroups.concat(selected_secgroups)
 
-        for (var i = 0; i < selected_security_groups.length; i++) {
-          var security_group = selected_security_groups[i];
-          if (current_security_group.indexOf(security_group) < 0){
-            new_security_groups += "," + security_group;
-          }
-        }
-        var network_json = {};
-        network_json["SECURITY_GROUPS"] = new_security_groups;
-        Sunstone.runAction('Network.add_secgroup', that.vnetId, TemplateUtils.templateToString(network_json));
+        var removed_duplicates = $.grep(merged_secgroups, function(item, index) {
+          return merged_secgroups.indexOf(item) === index
+        })
+
+        var rawTemplate = TemplateUtils.templateToString({
+          SECURITY_GROUPS: removed_duplicates.join(',')
+        });
+
+        Sunstone.runAction('Network.add_secgroup', that.vnet.ID, rawTemplate);
       })
       .on("submit", function(ev) {
         ev.preventDefault();
       });
   }
 
-  function _onShow(context) {
+  function _onShow() {
     this.setNames( {tabId: TAB_ID} );
-
     this.secgroupTab.onShow();
   }
 
-  function _setId(id) {
-    this.vnetId = id;
+  function _setElement(element) {
+    this.vnet = element;
   }
 });
