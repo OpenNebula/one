@@ -391,7 +391,11 @@ module SGIPTables
         end
 
         if bridged
-            nri = "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
+            if nic[:alias_id]
+                nri = "#{base_br} --physdev-out #{nic[:parent_nic][:tap]} -d #{nic[:ip]} -j #{chain_in}"
+            else
+                nri = "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
+            end
         else
             nri = "-I #{GLOBAL_CHAIN} -d #{nic[:ip]} -j #{chain_in}"
         end
@@ -434,7 +438,7 @@ module SGIPTables
             "-j RETURN"
 
         # Mac-spofing
-        if nic[:filter_mac_spoofing] == "YES"
+        if nic[:filter_mac_spoofing] == "YES" && nic[:alias_id].nil?
             commands.add :iptables, "-A #{chain_out} -m mac ! "\
                 "--mac-source #{nic[:mac]} -j DROP"
             commands.add :ip6tables, "-A #{chain_out} -m mac ! "\
