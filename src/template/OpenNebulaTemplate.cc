@@ -362,6 +362,7 @@ void OpenNebulaTemplate::set_conf_default()
 #  VM_SUBMIT_ON_HOLD
 #  API_LIST_ORDER
 #  VNC_PORTS
+#  SHOWBACK_ONLY_RUNNING
 #*******************************************************************************
 */
     set_conf_single("MANAGER_TIMER", "15");
@@ -382,7 +383,7 @@ void OpenNebulaTemplate::set_conf_default()
     set_conf_single("HOST_ENCRYPTED_ATTR", "VCENTER_PASSWORD");
     set_conf_single("HOST_ENCRYPTED_ATTR", "NSX_PASSWORD");
     set_conf_single("HOST_ENCRYPTED_ATTR", "ONE_PASSWORD");
-
+    set_conf_single("SHOWBACK_ONLY_RUNNING", "NO");
 
     //DB CONFIGURATION
     vvalue.insert(make_pair("BACKEND","sqlite"));
