@@ -151,10 +151,10 @@ class OneDBBacKEnd
         is_slave = @db[:local_db_versioning].select(:is_slave).where_single_value(oid: max_oid)
 
         @db[:local_db_versioning].insert(
-            oid: max_oid + 1, 
-            version: db_version, 
-            timestamp: Time.new.to_i, 
-            comment: comment, 
+            oid: max_oid + 1,
+            version: db_version,
+            timestamp: Time.new.to_i,
+            comment: comment,
             is_slave: is_slave)
 
         puts comment
@@ -677,7 +677,7 @@ class BackEndPostgreSQL < OneDBBacKEnd
 
     def backup(bck_file, federated = false)
         cmd = "PGPASSWORD=\"#{@passwd}\" pg_dump -U #{@user} -h #{@server} -p #{@port} -b #{@db_name} -Fp -f #{bck_file} "
-        
+
         if federated
             connect_db
 
@@ -697,7 +697,7 @@ class BackEndPostgreSQL < OneDBBacKEnd
             end
 
             @db.drop_table(:logdb_tmp)
-            
+
             File.write("#{bck_file}",File.open("#{bck_file}",&:read).gsub("logdb_tmp","logdb"))
         else
             rc = system(cmd)
@@ -800,7 +800,40 @@ class BackEndPostgreSQL < OneDBBacKEnd
     end
 
     def fts_index(recreate = false)
-        raise "FTS index not supported for PostgreSQL." 
+        raise "FTS index not supported for PostgreSQL."
+    end
+
+    def idx?(idx)
+        query = "SELECT * FROM pg_indexes WHERE indexname = '#{idx[:name]}'"
+        !@db.fetch(query).first.nil?
+    end
+
+    def create_idx(version = nil)    
+        schema = get_schema(:index_sqlite, version)
+
+        schema.each do |idx|
+            next if idx? idx
+
+            query = 'CREATE INDEX '
+            query << idx[:type] if idx[:type]
+            query << " #{idx[:name]} ON #{idx[:table]} #{idx[:columns]};"
+
+            @db.run query
+        end
+    end
+
+    def delete_idx(version = nil)
+        schema = get_schema(:index_sqlite, version)
+
+        return unless schema
+
+        schema.each do |idx|
+            next unless idx? idx
+            
+            query = "DROP INDEX  #{idx[:name]};"
+
+            @db.run query
+        end
     end
 
     private
@@ -845,7 +878,7 @@ class BackEndPostgreSQL < OneDBBacKEnd
             pp_query = replace_type(pp_query, 'BIGINT UNSIGNED', 'NUMERIC(20)')
         end
 
-        preprocess_query(query)
+        preprocess_query(pp_query)
     end
 
     def self.replace_type(query, type, replacement)
