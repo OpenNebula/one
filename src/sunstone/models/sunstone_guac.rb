@@ -194,9 +194,7 @@ class SunstoneGuac
                 return error(400, error_message)
             end
         else
-            hostname = vm_resource[
-                '/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME'
-            ]
+            hostname = vm_resource['/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME']
         end
 
         {
@@ -208,13 +206,15 @@ class SunstoneGuac
                 'hostname' =>  hostname,
                 'port' =>  vm_resource['TEMPLATE/GRAPHICS/PORT'],
                 'password' =>  vm_resource['TEMPLATE/GRAPHICS/PASSWD']
-            }
+            }.compact
         )
     end
 
     def get_config_rdp(vm_resource)
-        hostname = vm_resource["TEMPLATE/NIC[RDP='YES'][1]/IP"] ||
-                   vm_resource["TEMPLATE/NIC_ALIAS[RDP='YES'][1]/IP"]
+        hostname =  vm_resource["TEMPLATE/NIC[RDP='YES'][1]/EXTERNAL_IP"] ||
+                    vm_resource["TEMPLATE/NIC[RDP='YES'][1]/IP"] ||
+                    vm_resource["TEMPLATE/NIC_ALIAS[RDP='YES'][1]/EXTERNAL_IP"] ||
+                    vm_resource["TEMPLATE/NIC_ALIAS[RDP='YES'][1]/IP"]
 
         if hostname.nil?
             error_message = 'Wrong configuration. Cannot find a NIC with RDP'
@@ -232,13 +232,15 @@ class SunstoneGuac
                 'port' =>  vm_resource['TEMPLATE/CONTEXT/RDP_PORT'],
                 'username' =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
                 'password' => vm_resource['TEMPLATE/CONTEXT/PASSWORD']
-            }
+            }.compact
         )
     end
 
     def get_config_ssh(vm_resource)
-        hostname = vm_resource["TEMPLATE/NIC[SSH='YES'][1]/IP"] ||
-                   vm_resource["TEMPLATE/NIC_ALIAS[SSH='YES'][1]/IP"]
+        hostname =  vm_resource["TEMPLATE/NIC[SSH='YES'][1]/EXTERNAL_IP"] ||
+                    vm_resource["TEMPLATE/NIC[SSH='YES'][1]/IP"] ||
+                    vm_resource["TEMPLATE/NIC_ALIAS[SSH='YES'][1]/EXTERNAL_IP"] ||
+                    vm_resource["TEMPLATE/NIC_ALIAS[SSH='YES'][1]/IP"]
 
         if hostname.nil?
             error_message = 'Wrong configuration. Cannot find a NIC with SSH'
@@ -256,7 +258,7 @@ class SunstoneGuac
                 'port' =>  vm_resource['TEMPLATE/CONTEXT/SSH_PORT'],
                 'username' =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
                 'password' =>  vm_resource['TEMPLATE/CONTEXT/PASSWORD']
-            }
+            }.compact
         )
     end
 
