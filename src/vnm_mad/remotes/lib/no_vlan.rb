@@ -25,17 +25,10 @@ module VNMMAD
             super(vm, xpath_filter, deploy_id)
         end
 
-        def create_vlan_dev
-            true
-        end
-
-        def delete_vlan_dev
-            true
-        end
 
         # Activate the driver and creates bridges and tags devices as needed.
         def activate
-            lock
+          lock
 
             @bridges = list_bridges
 
@@ -44,6 +37,15 @@ module VNMMAD
 
                 # Create the bridge.
                 create_bridge
+
+                # Return if vlan device is already in the bridge.
+                next if !nic[:phydev] || @bridges[@nic[:bridge]].include? @nic[:phydev]
+
+                # Add phydev device to the bridge.
+                OpenNebula.exec_and_log("#{command(:ip)} link set " \
+                "#{@nic[:phydev]} master #{@nic[:bridge]}")
+
+                @bridges[@nic[:bridge]] << @nic[:phydev]
             end
 
             unlock
@@ -75,8 +77,10 @@ module VNMMAD
                     # Return if we want to keep the empty bridge
                     next if @nic[:conf][:keep_empty_bridge]
 
-                    # Return if the bridge is not empty
-                    next unless @bridges[@nic[:bridge]].empty?
+                    # Return if the phydev device is not the only left device in
+                    # the bridge.
+                    next if (@bridges[@nic[:bridge]].length > 1) ||
+                            !@bridges[@nic[:bridge]].include?(@nic[:phydev])
 
                     # Delete the bridge.
                     OpenNebula.exec_and_log("#{command(:ip)} link delete"\
@@ -88,16 +92,6 @@ module VNMMAD
             unlock
 
             0
-        end
-
-        private
-
-        def gen_vlan_dev_name
-            @nic[:vlan_dev] = @nic[:phydev] if @nic[:phydev]
-        end
-
-        def validate_vlan_id
-            true
         end
 
     end
