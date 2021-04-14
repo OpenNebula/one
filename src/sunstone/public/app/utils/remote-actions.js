@@ -226,8 +226,8 @@ define(function(require) {
     var wFile = OpenNebulaVM.isWFileSupported(vm);
     actions += wFile ? buttonWFile(vm.ID, wFile) : '';
 
-    var rdp = OpenNebulaVM.isConnectionSupported(vm, 'rdp');
-    actions += rdp ? dropdownRDP(vm.ID, rdp.IP, vm) : '';
+    var rdpIp = OpenNebulaVM.isConnectionSupported(vm, 'rdp');
+    actions += rdpIp ? dropdownRDP(vm.ID, rdpIp, vm) : '';
 
     var ssh = OpenNebulaVM.isConnectionSupported(vm, 'ssh');
     actions += ssh && Config.isTabActionEnabled("vms-tab", "VM.rdp") ? buttonSSH(vm.ID) : '';
