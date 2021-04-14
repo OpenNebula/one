@@ -1238,6 +1238,7 @@ define(function(require) {
    */
   function isConnectionSupported(element, typeConnection) {
     var isEnabled = false;
+
     if (
       $.inArray(String(typeConnection).toLowerCase(), ['rdp', 'ssh']) > -1 &&
       element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE
@@ -1267,7 +1268,7 @@ define(function(require) {
         nic[typeConnection] &&
         String(nic[typeConnection]).toLowerCase() === "yes"
       ) {
-        activated = nic;
+        activated = nic.EXTERNAL_IP || nic.IP;
       }
     });
 

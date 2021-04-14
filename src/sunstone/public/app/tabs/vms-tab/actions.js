@@ -194,6 +194,7 @@ define(function(require) {
       type: "custom",
       call: function(args) {
         var vm = Sunstone.getElementRightInfo(TAB_ID);
+        var rdpIp = OpenNebulaVM.isConnectionSupported(vm, 'rdp');
 
         if (args && args.ip && args.name) {
           var credentials = {};
@@ -201,20 +202,8 @@ define(function(require) {
           args.password && (credentials["PASSWORD"] = args.password);
           Files.downloadRdpFile(args.ip, args.name, credentials);
         }
-        else if (vm && vm.NAME && vm.TEMPLATE && vm.TEMPLATE.NIC) {
+        else if (vm && vm.NAME && vm.TEMPLATE && rdpIp) {
           var name = vm.NAME;
-          var nics = vm.TEMPLATE.NIC;
-          nics = Array.isArray(nics) ? vm.TEMPLATE.NIC : [vm.TEMPLATE.NIC];
-
-          // append nic_alias in nics
-          if (vm.TEMPLATE.NIC_ALIAS) {
-            var alias = vm.TEMPLATE.NIC_ALIAS;
-            alias = Array.isArray(alias) ? alias : [alias];
-            nics = $.merge(alias, nics);
-          }
-
-          var nic = nics.find(function(n) { return n.RDP && String(n.RDP).toUpperCase() === "YES" });
-          var ip = nic && nic.IP ? nic.IP : '';
           var credentials = {};
 
           if (vm.TEMPLATE.CONTEXT) {
@@ -226,7 +215,7 @@ define(function(require) {
             }
           }
 
-          nic && Files.downloadRdpFile(ip, name, credentials);
+          Files.downloadRdpFile(rdpIp, name, credentials);
         } else {
           Notifier.notifyError(Locale.tr("Data for rdp file isn't correct"));
           return false;

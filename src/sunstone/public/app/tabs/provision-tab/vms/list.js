@@ -754,7 +754,7 @@ define(function(require) {
 
     context.on("click", ".provision_rdp_button", function() {
       var vm = $(".provision_info_vm", context).data("vm") || {};
-      var rdp = OpenNebulaVM.isConnectionSupported(vm, 'rdp') || {};
+      var rdpIp = OpenNebulaVM.isConnectionSupported(vm, 'rdp');
 
       var username, password;
       if (vm.TEMPLATE && vm.TEMPLATE.CONTEXT) {
@@ -768,7 +768,7 @@ define(function(require) {
 
       Sunstone.runAction("VM.save_rdp", JSON.parse(JSON.stringify({
         name: vm.NAME,
-        ip: rdp.IP,
+        ip: rdpIp,
         username: username,
         password: password,
       })));
