@@ -167,7 +167,7 @@ define(function(require) {
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
     
-    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.USER_TEMPLATE, {
       regexVCenter: REGEX_VCENTER_ATTRS,
       regexHidden: REGEX_HIDDEN_ATTRS
     })
