@@ -39,11 +39,11 @@ module VNMMAD
                 create_bridge(@nic)
 
                 # Return if vlan device is already in the bridge.
-                next if !nic[:phydev] || @bridges[@nic[:bridge]].include? @nic[:phydev]
+                next if !@nic[:phydev] || @bridges[@nic[:bridge]].include? @nic[:phydev]
 
                 # Add phydev device to the bridge.
                 OpenNebula.exec_and_log("#{command(:ip)} link set " \
-                "#{@nic[:phydev]} master #{@nic[:bridge]}")
+                    "#{@nic[:phydev]} master #{@nic[:bridge]}")
 
                 @bridges[@nic[:bridge]] << @nic[:phydev]
             end
@@ -78,9 +78,16 @@ module VNMMAD
                     next if @nic[:conf][:keep_empty_bridge]
 
                     # Return if the phydev device is not the only left device in
-                    # the bridge.
-                    next if (@bridges[@nic[:bridge]].length > 1) ||
+                    # the bridge.A
+                    if @nic[:phydev].nil?
+                        keep = !@bridges[@nic[:bridge]].empty?
+                    else
+
+                        keep = @bridges[@nic[:bridge]].length > 1 ||
                             !@bridges[@nic[:bridge]].include?(@nic[:phydev])
+                    end
+
+                    next if keep
 
                     # Delete the bridge.
                     OpenNebula.exec_and_log("#{command(:ip)} link delete"\
