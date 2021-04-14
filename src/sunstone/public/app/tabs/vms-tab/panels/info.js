@@ -93,7 +93,7 @@ define(function(require) {
     var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"));
 
-    var attributes = TemplateTable.getTemplatesAttributes(this.element.TEMPLATE, {
+    var attributes = TemplateTable.getTemplatesAttributes(this.element.USER_TEMPLATE, {
       regexVCenter: REGEX_VCENTER_ATTRS,
       regexHidden: REGEX_HIDDEN_ATTRS
     })
