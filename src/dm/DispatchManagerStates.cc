@@ -48,6 +48,12 @@ void  DispatchManager::suspend_success_action(int vid)
 
         vm->set_state(VirtualMachine::LCM_INIT);
 
+        time_t the_time = time(0);
+
+        vm->set_running_etime(the_time);
+
+        vmpool->update_history(vm);
+
         vmpool->update(vm);
     }
     else
@@ -230,6 +236,12 @@ void  DispatchManager::poweroff_success_action(int vid)
         vm->set_state(VirtualMachine::POWEROFF);
 
         vm->set_state(VirtualMachine::LCM_INIT);
+
+        time_t the_time = time(0);
+
+        vm->set_running_etime(the_time);
+
+        vmpool->update_history(vm);
 
         vmpool->update(vm);
     }

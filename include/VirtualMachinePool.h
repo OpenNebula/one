@@ -38,7 +38,8 @@ public:
                        bool                         on_hold,
                        float                        default_cpu_cost,
                        float                        default_mem_cost,
-                       float                        default_disk_cost);
+                       float                        default_disk_cost,
+                       bool                         showback_only_running);
 
     ~VirtualMachinePool(){};
 
@@ -436,6 +437,15 @@ private:
     float _default_cpu_cost;
     float _default_mem_cost;
     float _default_disk_cost;
+
+    /**
+     * Switch for showback cpu and memory cost calculation
+     *  - true:  count only running VMs for CPU and MEMORY
+     *  - false: include reservations for CPU and MEMORY
+     *           this includes poweroff and suspended VM states
+     * note: datastore cost is always counted in poweroff and suspended state
+     */
+    bool _showback_only_running;
 
     /**
      * Callback used to get an int in the DB it is used by VM Pool in:

@@ -721,7 +721,16 @@ public:
     };
 
     /**
-     *  Sets end time of a VM in the previous Host. It also sets the vm_info 
+     *  Sets end time of a VM. It also sets the vm_info when the record is closed
+     *    @param _etime time when the VM finished
+     */
+    time_t get_etime()
+    {
+        return history->etime;
+    }
+
+    /**
+     *  Sets end time of a VM in the previous Host. It also sets the vm_info
      *  when the record is closed
      *    @param _etime time when the VM finished
      */
@@ -775,6 +784,14 @@ public:
     {
         history->running_etime = _etime;
     };
+
+    /**
+     *  Gets the running end time for the VM
+     */
+    time_t get_running_etime() const
+    {
+        return history->running_etime;
+    }
 
     /**
      *  Sets end time of VM running state in the previous host.

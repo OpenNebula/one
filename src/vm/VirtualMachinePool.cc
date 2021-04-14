@@ -35,11 +35,13 @@ VirtualMachinePool::VirtualMachinePool(
         bool    on_hold,
         float   default_cpu_cost,
         float   default_mem_cost,
-        float   default_disk_cost)
+        float   default_disk_cost,
+        bool    showback_only_running)
     : PoolSQL(db, one_db::vm_table),
     _submit_on_hold(on_hold),
     _default_cpu_cost(default_cpu_cost), _default_mem_cost(default_mem_cost),
-    _default_disk_cost(default_disk_cost)
+    _default_disk_cost(default_disk_cost),
+    _showback_only_running(showback_only_running)
 {
     // Set restricted attributes
     VirtualMachineTemplate::parse_restricted(restricted_attrs);
@@ -582,8 +584,8 @@ int VirtualMachinePool::calculate_showback(
 
     tm    tmp_tm;
     int   vid;
-    int   h_stime;
-    int   h_etime;
+    time_t   h_stime, h_rstime;
+    time_t   h_etime, h_retime;
     float cpu_cost;
     float mem_cost;
     float disk_cost;
@@ -726,8 +728,11 @@ int VirtualMachinePool::calculate_showback(
 
             history.xpath(vid,      "/HISTORY/OID", -1);
 
-            history.xpath(h_stime,  "/HISTORY/STIME", 0);
-            history.xpath(h_etime,  "/HISTORY/ETIME", 0);
+            history.xpath(h_stime,  "/HISTORY/STIME", (time_t)0);
+            history.xpath(h_etime,  "/HISTORY/ETIME", (time_t)0);
+
+            history.xpath(h_rstime,  "/HISTORY/RSTIME", (time_t)0);
+            history.xpath(h_retime,  "/HISTORY/RETIME", (time_t)0);
 
             history.xpath<float>(cpu,  "/HISTORY/VM/TEMPLATE/CPU", 0.0);
             history.xpath(mem,  "/HISTORY/VM/TEMPLATE/MEMORY", 0);
@@ -768,28 +773,47 @@ int VirtualMachinePool::calculate_showback(
                 time_t t      = *slot_it;
                 time_t t_next = *(slot_it+1);
 
-                if( (h_etime > t || h_etime == 0) &&
-                    (h_stime != 0 && h_stime <= t_next) ) {
+                auto count_sb_record = [&](time_t st, time_t et, bool cpu_mem, bool disk_total)
+                {
+                    if( (et > t || et == 0) &&
+                        (st != 0 && st <= t_next) ) {
 
-                    time_t stime = t;
-                    if(h_stime != 0){
-                        stime = (t < h_stime) ? h_stime : t; //max(t, h_stime);
+                        time_t stime = t;
+                        if(st != 0){
+                            stime = max(t, st);
+                        }
+
+                        time_t etime = t_next;
+                        if(et != 0){
+                            etime = min(t_next, et);
+                        }
+
+                        float n_hours = difftime(etime, stime) / 60 / 60;
+
+                        // Add to vm time slot.
+                        SBRecord& totals = vm_cost.totals[t];
+
+                        if (cpu_mem)
+                        {
+                            totals.cpu_cost += cpu_cost * cpu * n_hours;
+                            totals.mem_cost += mem_cost * mem * n_hours;
+                        }
+                        if (disk_total)
+                        {
+                            totals.disk_cost+= disk_cost* disk* n_hours;
+                            totals.hours    += n_hours;
+                        }
                     }
+                };
 
-                    time_t etime = t_next;
-                    if(h_etime != 0){
-                        etime = (t_next < h_etime) ? t_next : h_etime; //min(t_next, h_etime);
-                    }
-
-                    float n_hours = difftime(etime, stime) / 60 / 60;
-
-                    // Add to vm time slot.
-                    SBRecord& totals = vm_cost.totals[t];
-
-                    totals.cpu_cost += cpu_cost * cpu * n_hours;
-                    totals.mem_cost += mem_cost * mem * n_hours;
-                    totals.disk_cost+= disk_cost* disk* n_hours;
-                    totals.hours    += n_hours;
+                if (_showback_only_running)
+                {
+                    count_sb_record(h_stime, h_etime, false, true);
+                    count_sb_record(h_rstime, h_retime, true, false);
+                }
+                else
+                {
+                    count_sb_record(h_stime, h_etime, true, true);
                 }
             }
         }

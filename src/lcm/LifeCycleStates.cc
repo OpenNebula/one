@@ -299,19 +299,13 @@ void  LifeCycleManager::deploy_success_action(int vid)
               vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY_FAILURE ||
               vm->get_lcm_state() == VirtualMachine::BOOT_FAILURE )
     {
-        if ( vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED ||
-             vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF )
-        {
-            vm->set_previous_etime(time(0));
-
-            vm->set_previous_running_etime(time(0));
-
-            vmpool->update_previous_history(vm);
-        }
-
         vm->set_state(VirtualMachine::RUNNING);
 
         vm->clear_action();
+
+        vm->set_etime(0);
+
+        vm->set_running_etime(0);
 
         vmpool->update_history(vm);
 
@@ -340,11 +334,11 @@ void  LifeCycleManager::deploy_failure_action(int vid)
         return;
     }
 
+    time_t the_time = time(0);
+
     if ( vm->get_lcm_state() == VirtualMachine::MIGRATE )
     {
         HostShareCapacity sr;
-
-        time_t the_time = time(0);
 
         //----------------------------------------------------
         //           RUNNING STATE FROM MIGRATE
@@ -382,50 +376,44 @@ void  LifeCycleManager::deploy_failure_action(int vid)
 
         vm->log("LCM", Log::INFO, "Fail to live migrate VM."
                 " Assuming that the VM is still RUNNING.");
+
+        vm->unlock();
+
+        return;
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT)
     {
         vm->set_state(VirtualMachine::BOOT_FAILURE);
-
-        vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_MIGRATE)
     {
         vm->set_state(VirtualMachine::BOOT_MIGRATE_FAILURE);
-
-        vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_UNKNOWN)
     {
         vm->set_state(VirtualMachine::UNKNOWN);
-
-        vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_POWEROFF)
     {
         vm->set_state(VirtualMachine::POWEROFF);
         vm->set_state(VirtualMachine::LCM_INIT);
-
-        vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_SUSPENDED)
     {
         vm->set_state(VirtualMachine::SUSPENDED);
         vm->set_state(VirtualMachine::LCM_INIT);
-
-        vmpool->update(vm);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_STOPPED)
     {
         vm->set_state(VirtualMachine::BOOT_STOPPED_FAILURE);
 
-        vmpool->update(vm);
+        vm->set_etime(the_time);
     }
     else if (vm->get_lcm_state() == VirtualMachine::BOOT_UNDEPLOY)
     {
         vm->set_state(VirtualMachine::BOOT_UNDEPLOY_FAILURE);
 
-        vmpool->update(vm);
+        vm->set_etime(the_time);
     }
     //wrong state + recover failure from failure state
     else if ( vm->get_lcm_state() != VirtualMachine::BOOT_FAILURE &&
@@ -435,6 +423,12 @@ void  LifeCycleManager::deploy_failure_action(int vid)
     {
         vm->log("LCM",Log::ERROR,"deploy_failure_action, VM in a wrong state");
     }
+
+    vm->set_running_etime(the_time);
+
+    vmpool->update_history(vm);
+
+    vmpool->update(vm);
 
     vm->unlock();
 }

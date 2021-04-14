@@ -661,6 +661,7 @@ void Nebula::start(bool bootstrap_only)
         float cpu_cost;
         float mem_cost;
         float disk_cost;
+        bool  showback_only_running;
 
         const VectorAttribute * default_cost;
 
@@ -687,8 +688,10 @@ void Nebula::start(bool bootstrap_only)
             disk_cost = 0;
         }
 
+        nebula_configuration->get("SHOWBACK_ONLY_RUNNING", showback_only_running);
+
         vmpool = new VirtualMachinePool(logdb, vm_restricted_attrs, vm_encrypted_attrs,
-                vm_submit_on_hold, cpu_cost, mem_cost, disk_cost);
+                vm_submit_on_hold, cpu_cost, mem_cost, disk_cost, showback_only_running);
 
         /* ---------------------------- Host Pool --------------------------- */
         vector<const SingleAttribute *> host_encrypted_attrs;
