@@ -178,9 +178,7 @@ define(function(require) {
     if (Config.isTabActionEnabled("vnets-tab", "Network.add_secgroup")) {
       context.off("click", 'button#add_secgroup_button');
       context.on("click", 'button#add_secgroup_button', function(){
-        var id = that.element.ID;
-
-        Sunstone.getDialog(ADD_SECGROUPS_DIALOG_ID).setId(id);
+        Sunstone.getDialog(ADD_SECGROUPS_DIALOG_ID).setElement(that.element);
         Sunstone.getDialog(ADD_SECGROUPS_DIALOG_ID).show();
 
         return false;
