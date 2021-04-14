@@ -55,9 +55,10 @@ end
 drv_action = OpenNebula::XMLElement.new
 drv_action.initialize_xml(Base64.decode64(STDIN.read), 'VM')
 
-deploy_id    = drv_action['DEPLOY_ID']
-host_id      = drv_action['HISTORY_RECORDS/HISTORY[last()]/HID']
-deploy       = {}
+deploy_id     = drv_action['DEPLOY_ID']
+host_id       = drv_action['HISTORY_RECORDS/HISTORY[last()]/HID']
+deploy        = {}
+deploy[:boot] = drv_action['TEMPLATE/OS/BOOT'] unless drv_action['TEMPLATE/OS/BOOT'].nil?
 
 begin
     retries ||= 0
@@ -73,7 +74,6 @@ begin
         # VM is not new, we just need to reconfigure it and to power it on
         vm = VCenterDriver::VirtualMachine.new_one(vi_client, deploy_id, one_vm)
     else
-        deploy[:boot] = drv_action['TEMPLATE/OS/BOOT']
         vm = VCenterDriver::VirtualMachine.new_from_clone(vi_client,
                                                           drv_action,
                                                           vm_id)
