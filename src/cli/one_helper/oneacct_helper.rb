@@ -98,12 +98,10 @@ class AcctHelper < OpenNebulaHelper::OneHelper
     }
 
     ACCT_OPTIONS     = [START_TIME_ACCT, END_TIME_ACCT, USERFILTER, GROUP, HOST, XPATH, SPLIT]
-    SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP]
+    SHOWBACK_OPTIONS = [START_TIME_SHOWBACK, END_TIME_SHOWBACK, USERFILTER, GROUP, OpenNebulaHelper::FORMAT]
 
     ACCT_OPTIONS << OpenNebulaHelper::XML
     ACCT_OPTIONS << OpenNebulaHelper::JSON
-
-    SHOWBACK_OPTIONS += OpenNebulaHelper::FORMAT
 
     ACCT_TABLE = CLIHelper::ShowTable.new(self.table_conf("oneacct.yaml"), nil) do
         column :UID, "User ID", :size=>4 do |d|
