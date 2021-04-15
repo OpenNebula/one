@@ -39,7 +39,7 @@ module VNMMAD
                 create_bridge
 
                 # Return if vlan device is already in the bridge.
-                next if !@nic[:phydev] || @bridges[@nic[:bridge]].include? @nic[:phydev]
+                next if !@nic[:phydev] || @bridges[@nic[:bridge]].include?(@nic[:phydev])
 
                 # Add phydev device to the bridge.
                 OpenNebula.exec_and_log("#{command(:ip)} link set " \
