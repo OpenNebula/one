@@ -384,8 +384,36 @@ module OpenNebula
                 return rc
             end
 
+            # add registration time, as the template is new
+            body['registration_time'] = Integer(Time.now)
+
             # update the template with the new body
             doc.update(body.to_json)
+
+            # return the new document ID
+            new_id
+        end
+
+        # Clones a service template
+        #
+        # @param name [Stirng] New name
+        #
+        # @return [Integer] New template ID
+        def clone(name)
+            new_id = super
+
+            doc = OpenNebula::ServiceTemplate.new_with_id(new_id, @client)
+            rc  = doc.info
+
+            return rc if OpenNebula.is_error?(rc)
+
+            body = JSON.parse(doc["TEMPLATE/#{TEMPLATE_TAG}"])
+
+            # add registration time, as the template is new
+            body['registration_time'] = Integer(Time.now)
+
+            # update the template with the new body
+            DocumentJSON.instance_method(:update).bind(doc).call(body.to_json)
 
             # return the new document ID
             new_id
