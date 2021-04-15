@@ -1299,8 +1299,16 @@ static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm,
         VMActions::Action action, const RequestAttributes& ra)
 {
     time_t the_time = time(0);
+    bool set_retime = false;
 
-    vm->set_running_etime(the_time);
+    if (vm->get_running_etime() == 0)
+    {
+        vm->set_running_etime(the_time);
+    }
+    else
+    {
+        set_retime = true;
+    }
 
     vm->set_etime(the_time);
 
@@ -1317,6 +1325,11 @@ static void close_cp_history(VirtualMachinePool *vmpool, VirtualMachine *vm,
     vm->set_stime(the_time);
 
     vm->set_running_stime(the_time);
+
+    if (set_retime) //Keep VM not running
+    {
+        vm->set_running_etime(the_time);
+    }
 
     vmpool->insert_history(vm);
 }
@@ -1743,7 +1756,14 @@ int DispatchManager::attach_nic(int vid, VirtualMachineTemplate* tmpl,
         vm->log("DiM", Log::INFO, "VM NIC Successfully attached.");
 
         vm->clear_attach_nic();
+
         vmpool->update_search(vm.get());
+
+        time_t the_time = time(0);
+
+        vm->set_running_etime(the_time);
+
+        vmpool->update_history(vm.get());
     }
 
     vmpool->update(vm.get());
