@@ -751,8 +751,6 @@ void LifeCycleManager::trigger_restore(int vid, const RequestAttributes& ra)
 
             vm->set_etime(the_time);
 
-            vm->set_running_etime(the_time);
-
             vmpool->update_history(vm.get());
 
             vm->cp_history();
@@ -813,8 +811,6 @@ void LifeCycleManager::trigger_restart(int vid, const RequestAttributes& ra)
             vm->set_state(VirtualMachine::BOOT_POWEROFF);
 
             vm->set_etime(the_time);
-
-            vm->set_running_etime(the_time);
 
             vmpool->update_history(vm.get());
 
@@ -1006,7 +1002,10 @@ void LifeCycleManager::clean_up_vm(VirtualMachine * vm, bool dispose,
         vm->delete_snapshots();
     }
 
-    vm->set_etime(the_time);
+    if (vm->get_etime() == 0)
+    {
+        vm->set_etime(the_time);
+    }
 
     vm->get_capacity(sr);
 
