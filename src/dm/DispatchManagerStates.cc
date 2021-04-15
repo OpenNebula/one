@@ -49,6 +49,12 @@ void DispatchManager::trigger_suspend_success(int vid)
 
             vm->set_state(VirtualMachine::LCM_INIT);
 
+            time_t the_time = time(0);
+
+            vm->set_running_etime(the_time);
+
+            vmpool->update_history(vm.get());
+
             vmpool->update(vm.get());
 
             int uid = vm->get_uid();
@@ -215,6 +221,12 @@ void DispatchManager::trigger_poweroff_success(int vid)
             vm->set_state(VirtualMachine::POWEROFF);
 
             vm->set_state(VirtualMachine::LCM_INIT);
+
+            time_t the_time = time(0);
+
+            vm->set_running_etime(the_time);
+
+            vmpool->update_history(vm.get());
 
             vmpool->update(vm.get());
 
