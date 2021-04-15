@@ -21,11 +21,12 @@ define(function(require) {
   return {
     "downloadWFile": _downloadWFile,
     "downloadRdpFile": _downloadRdpFile,
+    "downloadImage": _downloadImage,
   };
 
   function _downloadRdpFile(ip, name = "vm_name", credentials = {}) {
     var file = _rdpFile(ip, credentials.USERNAME, credentials.PASSWORD);
-    _download(name, ".rdp", file);
+    _download(name, ".rdp", 'data:text/plain;charset=utf-8,' + encodeURIComponent(file));
   }
 
   function _downloadWFile(response, vm_host, graphics_type, graphics_port) {
@@ -57,12 +58,16 @@ define(function(require) {
     var proxy = protocol + "//" + proxy_host + ":" + proxy_port + "?token=" + token;
     
     var file = _wFile(graphics_type, filename, vm_host, graphics_port, proxy, password);
-    _download(filename, ".vv", file);
+    _download(filename, ".vv", 'data:text/plain;charset=utf-8,' + encodeURIComponent(file));
   }
 
-  function _download(name, extension, text) {
+  function _downloadImage(name, image) {
+    _download(name, '.png', image.toDataURL('image/png'))
+  }
+
+  function _download(name, extension, file) {
     var link = $("<a/>", {
-      href: 'data:text/plain;charset=utf-8,' + encodeURIComponent(text),
+      href: file,
       download: String(name).concat(extension),
     }).css({
       display: 'none',
