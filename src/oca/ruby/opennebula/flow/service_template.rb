@@ -357,7 +357,15 @@ module OpenNebula
 
                 break rc if OpenNebula.is_error?(rc)
 
-                rc = template.clone("#{template.name}-#{name}", recursive)
+                # The maximum size is 128, so crop the template name if it
+                # exceeds the limit
+                new_name = "#{template.name}-#{name}"
+
+                if new_name.size > 128
+                    new_name = "#{template.name[0..(126 - name.size)]}-#{name}"
+                end
+
+                rc = template.clone(new_name, recursive)
 
                 break rc if OpenNebula.is_error?(rc)
 
