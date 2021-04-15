@@ -707,10 +707,10 @@ EOT
 
                 return -1, rc.message if OpenNebula.is_error?(rc)
 
-                _, hash = print_page(pool, options)
+                elements, hash = print_page(pool, options)
 
                if options[:ids] && elements
-                    hash.reject! do |element|
+                    hash[pool.pool_name][pool.element_name].reject! do |element|
                         !options[:ids].include?(element['ID'].to_i)
                     end
                 end
