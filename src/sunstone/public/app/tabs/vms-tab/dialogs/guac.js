@@ -23,6 +23,7 @@ define(function(require) {
   var TemplateHTML = require('hbs!./guac/html');
   var Sunstone = require('sunstone');
   var GClient = require('utils/gclient');
+  var Files = require('utils/files');
 
   /*
     CONSTANTS
@@ -64,9 +65,16 @@ define(function(require) {
   }
 
   function _setup(context) {
+    var that = this;
+
     $("#open_in_a_new_window_gclient", context).on("click", function() {
       var dialog = Sunstone.getDialog(DIALOG_ID);
       dialog.hide();
+    });
+
+    $("#takeScreenshot_gclient", context).on("click", function() {
+      var canvas = that.gClient.snapshot();
+      Files.downloadImage('screenshot', canvas)
     });
 
     return false;
