@@ -131,10 +131,10 @@ class InformationManagerDriver < OpenNebulaDriver
              :stdin    => config_xml.to_s}]
 
     rescue StandardError => e
-        msg = Zlib::Deflate.deflate(e.message, Zlib::BEST_COMPRESSION)
-        msg = Base64.strict_encode64(msg)
-
-        send_message(msg_type, RESULT[:failure], host_id, msg)
+        write_respond(msg_type,
+                      RESULT[:failure],
+                      host_id,
+                      e.message)
 
         [-1, {}]
     end
@@ -146,11 +146,10 @@ class InformationManagerDriver < OpenNebulaDriver
         cmd = SSHCommand.run(mkdir_cmd, hostname, log_method(hostid))
 
         if cmd.code != 0
-            msg = Zlib::Deflate.deflate('Could not update remotes',
-                                        Zlib::BEST_COMPRESSION)
-            msg = Base64.strict_encode64(msg)
-
-            send_message(action, RESULT[:failure], hostid, msg)
+            write_respond(action,
+                          RESULT[:failure],
+                          hostid,
+                          'Could not update remotes')
             return -1
         end
 
@@ -165,11 +164,10 @@ class InformationManagerDriver < OpenNebulaDriver
         cmd = LocalCommand.run(sync_cmd, log_method(hostid))
 
         if cmd.code != 0
-            msg = Zlib::Deflate.deflate('Could not update remotes',
-                                        Zlib::BEST_COMPRESSION)
-            msg = Base64.strict_encode64(msg)
-
-            send_message(action, RESULT[:failure], hostid, msg)
+            write_respond(action,
+                          RESULT[:failure],
+                          hostid,
+                          'Could not update remotes')
             return -1
         end
 
@@ -213,10 +211,7 @@ class InformationManagerDriver < OpenNebulaDriver
                 end
             end
 
-            zline   = Zlib::Deflate.deflate(line.strip, Zlib::BEST_COMPRESSION)
-            zline64 = Base64.strict_encode64(zline)
-
-            send_message('LOG', severity, id, "#{Time.now.to_i} #{zline64}")
+            write_respond('LOG', severity, id, line.strip)
         end
     end
 
