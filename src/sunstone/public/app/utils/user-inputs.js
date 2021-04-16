@@ -344,7 +344,7 @@ define(function(require) {
           if (defaults[key] != undefined){
             attrs.initial = opts.defaults[key];
           }
-          if(checkItemInArray(attrs, store, 'name')){
+          if(checkItemInArray(attrs, store, "name")){
             store.push(attrs);
           }
         });
@@ -371,10 +371,10 @@ define(function(require) {
       var separator = $("<div>");
       $.each(network_attrs, function(index, vnet_attr) {
         // 0 type; 1 id; 3(optional) extra
-        var info = vnet_attr.initial.split(":")
+        var info = vnet_attr.initial.split(":");
         var type = info[0];
         var id = info[1];
-        var extra = info.slice(2).join('');
+        var extra = info.slice(2).join("");
 
         var unique_id = "vnet_user_input_" + UniqueId.id();
         if(type === "reserve_from" || type === "id") {
@@ -393,10 +393,10 @@ define(function(require) {
                       $("<div>",{class:"columns small-12"}).append(
                         $("<select>",{
                           class: "changePlaceDatatable",
-                          wizard_field: 'type_'+vnet_attr.name,
-                          'data-nametable': vnet_attr.name,
-                          'data-idtable': unique_id,
-                          'data-id': index
+                          wizard_field: "type_"+vnet_attr.name,
+                          "data-nametable": vnet_attr.name,
+                          "data-idtable": unique_id,
+                          "data-id": index
                         }).append(
                             $("<option>",{ value: "id" }).text(Locale.tr("Existing")
                           ).add(
@@ -426,24 +426,24 @@ define(function(require) {
         table.idInput().attr("wizard_field", vnet_attr.name).attr("required", "");
 
         // Fill type, id of vnet/vnet-template and extra
-        $(".changePlaceDatatable[data-id="+index+"]").val(type)
-        table.selectResourceTableSelect({ 'ids': String(id) })
+        $(".changePlaceDatatable[data-id="+index+"]").val(type);
+        table.selectResourceTableSelect({ "ids": String(id) });
         if (type === "template_id" || type === "reserve_from") {
           $("#placeDatatable_"+index).append(
-            $("<div/>",{'class': "row addExtra_"+id}).append(
-              $("<div/>",{'class': "columns small-12"}).append(
+            $("<div/>",{"class": "row addExtra_"+id}).append(
+              $("<div/>",{"class": "columns small-12"}).append(
                 $("<label/>").text(Locale.tr("Extra")).add(
                   $("<input/>",{
-                    'wizard_field': "extra_"+vnet_attr.name,
-                    'type': "text",
-                    'name': "extra",
-                    'id': "extra",
-                    'placeholder': Locale.tr("Extra")
+                    "wizard_field": "extra_"+vnet_attr.name,
+                    "type": "text",
+                    "name": "extra",
+                    "id": "extra",
+                    "placeholder": Locale.tr("Extra")
                   }).val(extra)
                 )
               )
             )
-          )
+          );
         }
       });
       if(opts && opts.select_networks){
@@ -551,7 +551,7 @@ define(function(require) {
 
     //render Vmgroups_attr_values
     if (vmgroups_attrs.length > 0 && opts.role) {
-      var options = '<option value="">'+Locale.tr("Without VM Group")+'</option>';
+      var options = "<option value=\"\">"+Locale.tr("Without VM Group")+"</option>";
       vmgroups_attrs.map(function(vmgroup){
         if(
           vmgroup &&
@@ -561,7 +561,7 @@ define(function(require) {
           vmgroup.VM_GROUP.TEMPLATE
         ){
           vmGroupDescription = vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION? "("+vmgroup.VM_GROUP.TEMPLATE.DESCRIPTION+")": "";
-          options += "<option value='"+vmgroup.VM_GROUP.ID+"'>"+vmgroup.VM_GROUP.NAME+vmGroupDescription+"</option>"
+          options += "<option value='"+vmgroup.VM_GROUP.ID+"'>"+vmgroup.VM_GROUP.NAME+vmGroupDescription+"</option>";
         }
       });
 
@@ -718,8 +718,8 @@ define(function(require) {
     if (attr.type == "range"){
       attr.tick_size = 1024;
     }
-    var select = '';
-    var selectInput = editUnit? '': 'disabled';
+    var select = "";
+    var selectInput = editUnit? "": "disabled";
     if(displayUnit){
       var select = "<select class=\"mb_input_unit\" "+selectInput+">" +
         "<option value=\"MB\">"+Locale.tr("MB")+"</option>" +
@@ -733,7 +733,7 @@ define(function(require) {
         "<div class=\"mb_input input-group-field\">" +
           _attributeInput(attr) +
         "</div>"+
-          "<div class=\"input-group-button\">"+ 
+          "<div class=\"input-group-button\">"+
             select+
           "</div>"+
         "</div>");
@@ -746,26 +746,27 @@ define(function(require) {
     var unit = "MB";
     var valueInMB = 0;
     var contextElement = $("div.mb_input", context);
+
     // Fill in the input with your unit the first time
     $("input, select", contextElement).trigger("input");
     var element = $("input.uinput-slider-val", contextElement);
     var value = element.val();
     var valueInUnit = value;
     var min = parseInt(element.attr("min"),10);
-    var max = parseInt(element.attr("max"),10);
+
     if (value == ""){
       $(".mb_input_unit", context).val("MB").trigger("change");
     }else{
       // If you are going to put a new unit you must put it up in the html, here and down in the change
-      if(value / (base**2) >= 1){
-        baseCal = base**2;
+      if(value / (base*base) >= 1){
+        baseCal = base*base;
         unit = "TB";
       }else if(value / base >= 1){
         baseCal = base;
         unit = "GB";
       }
       if (value && value.length > 0) {
-        valueInMB = value
+        valueInMB = value;
         if(!isNaN(min) && parseInt(min, 10) > valueInMB ){
           valueInMB = min;
         }
@@ -785,11 +786,11 @@ define(function(require) {
       var valueInUnit = value;
       var mb_input_unit_val = $(".mb_input_unit :selected", context).val();
       switch (mb_input_unit_val) {
-        case 'TB':
-          baseCal = base**2;
+        case "TB":
+          baseCal = base*base;
           unit = "TB";
         break;
-        case 'GB':
+        case "GB":
           baseCal = base;
           unit = "GB";
         break;
@@ -836,7 +837,7 @@ define(function(require) {
       value = TemplateUtils.htmlEncode(attr.initial);
     }
     if(attr.visor){
-      clss = "hide"
+      clss = "hide";
     }
     switch (attr.type) {
       case "text64":
@@ -857,7 +858,7 @@ define(function(require) {
           input += Locale.tr("NO ") + "<input type='radio' name='bool_" + id + "' value='NO'" + wizard_field + " " + required + "/>";
         } else if(value == "NO"){
           input = "<br>" + Locale.tr("YES ") + "<input style='margin-right: 20px' type='radio' name='bool_" + id + "' value='YES'" + wizard_field + " " + required + "/>";
-          input += Locale.tr("NO ") + "<input checked type='radio' name='bool_" + id + "' value='NO'" + wizard_field + " " + required + "/>"
+          input += Locale.tr("NO ") + "<input checked type='radio' name='bool_" + id + "' value='NO'" + wizard_field + " " + required + "/>";
         } else {
           input = "<br>" + Locale.tr("YES ") + "<input style='margin-right: 20px' type='radio' name='bool_" + id + "' value='YES'" + wizard_field + " " + required + "/>";
           input += Locale.tr("NO ") + "<input type='radio' name='bool_" + id + "' value='NO'" + wizard_field + " " + required + "/>";
@@ -902,7 +903,7 @@ define(function(require) {
       break;
     }
     if(attr.visor){
-      input += '<input type="number" class="visor" value="'+value+'" required>';
+      input += "<input type=\"number\" class=\"visor\" value=\""+value+"\" required>";
     }
     return input;
   }

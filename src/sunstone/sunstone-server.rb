@@ -366,6 +366,30 @@ helpers do
         }
     end
 
+    def get_fireedge_token(tfa)
+        response = ""
+        if $conf && $conf[:private_fireedge_endpoint] && !$conf[:private_fireedge_endpoint].empty?
+          begin
+            uri = URI($conf[:private_fireedge_endpoint]+'/fireedge/api/auth')
+            user_pass = Base64.decode64(session[:auth])
+            username = user_pass.split(":")[0]
+            password = user_pass.split(":")[1]
+            params = { :user => username, :token => password }
+            if tfa && !tfa.empty?
+              params[:token2fa] = tfa
+            end
+            fireedge_token = ""
+            res = Net::HTTP.post_form(uri, params)
+            fireedge_token = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
+            
+            response = fireedge_token
+          rescue StandardError => error
+            logger.error { "Cannot connect with fireedge: #{error.message}" }
+          end
+        end
+        return response
+    end
+
     def build_session
         begin
             result = $cloud_auth.auth(request.env, params)
@@ -391,8 +415,8 @@ helpers do
         # two factor_auth
         isHOTPConfigured = (user[TWO_FACTOR_AUTH_SECRET_XPATH] && user[TWO_FACTOR_AUTH_SECRET_XPATH] != "")
         isWebAuthnConfigured = $conf[:webauthn_avail] && SunstoneWebAuthn.getCredentialIDsForUser(user.id).length > 0
+        two_factor_auth_token = params[:two_factor_auth_token]
         if isHOTPConfigured || isWebAuthnConfigured
-            two_factor_auth_token = params[:two_factor_auth_token]
             if !two_factor_auth_token || two_factor_auth_token == ""
                 return [202, { code: "two_factor_auth", uid: user.id }.to_json]
             end
@@ -507,6 +531,9 @@ helpers do
 
         auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>\w+)/)
         session[:auth] = auth[:pass]
+
+        #get firedge JWT
+        session[:fireedge_token] = get_fireedge_token(two_factor_auth_token)
 
         [204, ""]
     end
@@ -919,24 +946,19 @@ end
 # GET FireEdge token
 ##############################################################################
 get '/fireedge' do
-    begin
-        uri = URI($conf[:private_fireedge_endpoint]+'/fireedge/api/auth')
-        user_pass = Base64.decode64(session[:auth])
-        username = user_pass.split(":")[0]
-        password = user_pass.split(":")[1]
-        params = { :user => username, :token => password }
-
-        fireedge_token = ""
-        res = Net::HTTP.post_form(uri, params)
-        fireedge_token = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
+    if !session[:fireedge_token].empty?
+      response = {:token => session[:fireedge_token]}
+      [200,  response.to_json]
+    else
+      fireedge_token = get_fireedge_token("")
+      if !fireedge_token.empty?
         session[:fireedge_token] = fireedge_token
-
-        response = {:token => fireedge_token}
-       [200,  response.to_json]
-    rescue StandardError => error
-        logger.info("FireEdge server is not running. Error: #{error}")
+        response = {:token => session[:fireedge_token]}
+        [200,  response.to_json]
+      else
         response = {:token => ""}
         [400,  response.to_json]
+      end
     end
 end
 
