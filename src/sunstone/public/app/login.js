@@ -15,15 +15,15 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('../bower_components/jquery/dist/jquery.min');
-  var OpenNebulaAuth = require('opennebula/auth');
-  var WebAuthnJSON = require('../bower_components/webauthn-json/dist/index');
+  require("../bower_components/jquery/dist/jquery.min");
+  var OpenNebulaAuth = require("opennebula/auth");
+  var WebAuthnJSON = require("../bower_components/webauthn-json/dist/index");
 
   var showErrorAuth = false;
   var uid;
-  
+
   var textOpenNebulaNotRunning = "OpenNebula is not running or there was a server exception. Please check the server logs.";
-  var textInvalidUserorPassword = "Invalid username or password"; 
+  var textInvalidUserorPassword = "Invalid username or password";
   var textNoAnswerFromServer = "No answer from server. Is it running?";
   var textTwoFactorTokenInvalid = "Invalid second factor authentication";
   var idElementTwoFactor = "#two_factor_auth_token";
@@ -59,11 +59,11 @@ define(function(require) {
       dataType: "json",
       success: function (response) {
         if (!response) {
-          return
+          return;
         }
         if (!navigator.credentials) {
           $("#webauthn_login_div").hide();
-          console.warn('WebAuthn functionality unavailable. Ask your cloud administrator to enable TLS.');
+          console.warn("WebAuthn functionality unavailable. Ask your cloud administrator to enable TLS.");
         }
         $("#webauthn_login_btn").click(function () {
           WebAuthnJSON.get({ "publicKey": response }).then(authenticate)
@@ -71,13 +71,13 @@ define(function(require) {
             $("#error_message").text(e.message);
             $("#error_box").fadeIn("slow");
             $("#login_spinner").hide();
-          });              
+          });
         });
       },
       error: function (response) {
         if (response.status == 501) {
           $("#webauthn_login_div").hide();
-          console.warn('WebAuthn functionality unavailable. Ask your cloud administrator to upgrade the Ruby version.');
+          console.warn("WebAuthn functionality unavailable. Ask your cloud administrator to upgrade the Ruby version.");
         }
       }
     });
@@ -116,13 +116,13 @@ define(function(require) {
     var error_callback;
     if (publicKeyCredential == undefined) {
       two_factor_auth_token = $("#two_factor_auth_token").val();
-      error_callback = auth_error
+      error_callback = auth_error;
     } else {
       two_factor_auth_token = JSON.stringify(publicKeyCredential);
       error_callback = function(req, error) {
         auth_error(req, error);
         prepareWebAuthn(uid);
-      }
+      };
     }
 
     $("#error_box").fadeOut("slow");
@@ -144,7 +144,7 @@ define(function(require) {
     // Returns the version of Internet Explorer or a -1
     // (indicating the use of another browser).
     var rv = -1; // Return value assumes failure.
-    if (navigator.appName == 'Microsoft Internet Explorer') {
+    if (navigator.appName == "Microsoft Internet Explorer") {
       var ua = navigator.userAgent;
       var re  = new RegExp("MSIE ([0-9]{1,}[.0-9]{0,})");
       if (re.exec(ua) != null)
@@ -161,19 +161,19 @@ define(function(require) {
   Please upgrade or use Firefox or Chrome for full compatibility." :
       "OpenNebula Sunstone is best seen with Chrome or Firefox";
       $("#error_box").text(msg);
-      $("#error_box").fadeIn('slow');
+      $("#error_box").fadeIn("slow");
     }
   }
 
   function limitToken(){
-    $(idElementTwoFactor).off('input').on('input', function() {
+    $(idElementTwoFactor).off("input").on("input", function() {
       var element = $(this);
       if(element.attr("maxlength") && element.attr("maxlength") > 0){
-        var value = element.val().replace(/[^0-9.]/g, '')
+        var value = element.val().replace(/[^0-9.]/g, "");
         if (value.length > element.attr("maxlength")){
-          element.val(value.substr(0,15))
+          element.val(value.substr(0,15));
         }else{
-          element.val(value)
+          element.val(value);
         }
       }
     });
@@ -195,9 +195,9 @@ define(function(require) {
 
     //compact login elements according to screen height
     if (screen.height <= 600) {
-      $('div#logo_sunstone').css("top", "15px");
-      $('div#login').css("top", "10px");
-      $('.error_message').css("top", "10px");
+      $("div#logo_sunstone").css("top", "15px");
+      $("div#login").css("top", "10px");
+      $(".error_message").css("top", "10px");
     };
 
     $("input#username.box").focus();
