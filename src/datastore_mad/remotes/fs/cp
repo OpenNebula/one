@@ -153,7 +153,13 @@ if [ -n "$BRIDGE_LIST" ]; then
                          "Error converting $DST in $DST_HOST"
     fi
 
-    FORMAT=$(ssh_monitor_and_log $DST_HOST "$QEMU_IMG info $DST | grep "^file format:" | awk '{print \$3}' || :" 2>&1)
+    FORMAT=$(ssh_monitor_and_log $DST_HOST "set -e -o pipefail; $QEMU_IMG info $DST | grep \"^file format:\" | awk '{print \$3}'")
+
+    # if ssh_monitor_and_log fails RC is returned
+    if [[ $FORMAT =~ '^[0-9]+$' ]]; then
+        exit -1
+    fi
+
 else
     mkdir -p "$BASE_PATH"
     multiline_exec_and_log "set -e -o pipefail; $COPY_COMMAND" "Error copying $SRC to $DST"
