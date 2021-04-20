@@ -301,11 +301,14 @@ class Mapper
         3.times do |t| # wait for device to be ready to be parsed
             rc, o, e = Command.execute(cmd, false)
 
-            blocklist = o unless rc != 0 || o.empty?
+            if rc != 0 || o.empty?
+                OpenNebula.log_error("#{__method__}: #{rc}, #{o}, #{e}") if t == 3
+                sleep 1
+                next
+            end
 
-            OpenNebula.log_error("#{__method__}: #{rc}, #{o}, #{e}") if t == 3
-            sleep 1
-            next
+            blocklist = o
+            break
         end
 
         begin
