@@ -67,6 +67,7 @@ protected:
     {
         leader_only = false;
         extended    = false;
+        zone_disabled = true;
     };
 
     void request_execute(

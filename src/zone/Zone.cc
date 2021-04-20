@@ -32,6 +32,7 @@ const char * ZoneServers::SERVER_ID_NAME = "ID";
 
 Zone::Zone(int id, unique_ptr<Template> zone_template):
     PoolObjectSQL(id, ZONE, "", -1, -1, "", "", one_db::zone_table),
+    state(ENABLED),
     servers_template(false, '=', "SERVER_POOL"),
     servers(0)
 {
@@ -217,6 +218,7 @@ string& Zone::to_xml(string& xml) const
     "<ZONE>"    <<
         "<ID>"   << oid  << "</ID>"   <<
         "<NAME>" << name << "</NAME>" <<
+        "<STATE>" << state << "</STATE>" <<
         obj_template->to_xml(template_xml) <<
         servers_template.to_xml(server_xml) <<
     "</ZONE>";
@@ -234,12 +236,17 @@ int Zone::from_xml(const string& xml)
     vector<xmlNodePtr> content;
     int rc = 0;
 
+    int int_state;
+
     // Initialize the internal XML object
     update_from_str(xml);
 
     // Get class base attributes
     rc += xpath(oid, "/ZONE/ID",   -1);
     rc += xpath(name,"/ZONE/NAME", "not_found");
+    rc += xpath(int_state, "/ZONE/STATE", 0);
+
+    state = static_cast<ZoneState>( int_state );
 
     // -------------------------------------------------------------------------
     // Zone template
@@ -335,6 +342,9 @@ int Zone::add_server(Template& tmpl, int& sid, string& xmlep, string& error)
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 int Zone::delete_server(int id, string& error)
 {
     ZoneServer * zs;
@@ -354,12 +364,18 @@ int Zone::delete_server(int id, string& error)
     return 0;
 }
 
-unsigned int Zone::servers_size()
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+unsigned int Zone::servers_size() const
 {
     return servers->size();
 }
 
-ZoneServer * Zone::get_server(int server_id)
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+ZoneServer * Zone::get_server(int server_id) const
 {
     return servers->get_server(server_id);
 }

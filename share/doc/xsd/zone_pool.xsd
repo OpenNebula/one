@@ -7,6 +7,7 @@
         <xs:sequence>
           <xs:element name="ID" type="xs:integer"/>
           <xs:element name="NAME" type="xs:string"/>
+          <xs:element name="STATE" type="xs:integer"/>
           <xs:element name="TEMPLATE">
             <xs:complexType>
               <xs:sequence>

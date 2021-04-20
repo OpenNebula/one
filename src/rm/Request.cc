@@ -22,6 +22,7 @@
 #include "HookAPI.h"
 #include "HookManager.h"
 #include "RaftManager.h"
+#include "ZonePool.h"
 
 #include <xmlrpc-c/abyss.h>
 
@@ -439,6 +440,16 @@ void Request::execute(
     }
     else //leader or solo or !leader_only
     {
+        if ( !zone_disabled && nd.get_zone_state() == Zone::DISABLED )
+        {
+            att.resp_msg = "Cannot process request, zone disabled";
+            failure_response(INTERNAL, att);
+
+            log_result(att, method_name);
+
+            return;
+        }
+
         request_execute(_paramList, att);
     }
 

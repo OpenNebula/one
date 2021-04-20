@@ -52,7 +52,10 @@ public:
     SystemVersion():
         RequestManagerSystem("one.system.version",
                           "Returns the OpenNebula version",
-                          "A:s") {}
+                          "A:s")
+    {
+        zone_disabled = true;
+    }
 
     ~SystemVersion(){};
 
@@ -69,7 +72,10 @@ public:
     SystemConfig():
         RequestManagerSystem("one.system.config",
                           "Returns the OpenNebula configuration",
-                          "A:s") {}
+                          "A:s")
+    {
+        zone_disabled = true;
+    }
 
     ~SystemConfig(){};
 
@@ -139,7 +145,10 @@ public:
     UserQuotaInfo():
         RequestManagerSystem("one.userquota.info",
                            "Returns the default user quota limits",
-                           "A:s") { }
+                           "A:s")
+    {
+        zone_disabled = true;
+    }
 
     ~UserQuotaInfo(){};
 
@@ -156,7 +165,10 @@ public:
     GroupQuotaInfo():
         RequestManagerSystem("one.groupquota.info",
                            "Returns the default group quota limits",
-                           "A:s") { }
+                           "A:s")
+    {
+        zone_disabled = true;
+    }
 
     ~GroupQuotaInfo(){};
 

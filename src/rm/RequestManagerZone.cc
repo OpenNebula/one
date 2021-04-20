@@ -124,8 +124,6 @@ void ZoneAddServer::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( nd.is_federation_master() || !nd.is_federation_enabled() )
     {
-        std::vector<int> zids;
-
         pool->update(zone.get());
     }
     else
@@ -224,8 +222,6 @@ void ZoneDeleteServer::request_execute(xmlrpc_c::paramList const& paramList,
 
     if ( nd.is_federation_master() || !nd.is_federation_enabled() )
     {
-        std::vector<int> zids;
-
         pool->update(zone.get());
     }
     else
@@ -651,3 +647,69 @@ void ZoneReplicateFedLog::request_execute(xmlrpc_c::paramList const& paramList,
     return;
 }
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void ZoneEnable::request_execute(xmlrpc_c::paramList const& paramList,
+    RequestAttributes& att)
+{
+    Nebula& nd = Nebula::instance();
+
+    int id = xmlrpc_c::value_int(paramList.getInt(1));
+    bool enable = xmlrpc_c::value_boolean(paramList.getBoolean(2));
+    Zone::ZoneState state;
+
+    string error_str;
+
+    if ( id != nd.get_zone_id() )
+    {
+        att.resp_msg = "Enable/disable mode have to be set through the target"
+             " zone endpoints";
+        failure_response(ACTION, att);
+
+        return;
+    }
+
+    if ( basic_authorization(id, att) == false )
+    {
+        return;
+    }
+
+    auto zone = pool->get<Zone>(id);
+
+    if ( enable )
+    {
+        zone->enable();
+        state = Zone::ENABLED;
+    }
+    else
+    {
+        zone->disable();
+        state = Zone::DISABLED;
+    }
+
+    if ( nd.is_federation_master() || !nd.is_federation_enabled() )
+    {
+        pool->update(zone.get());
+    }
+    else
+    {
+        std::string tmpl_xml;
+
+        zone->to_xml(tmpl_xml);
+
+        ErrorCode ec = master_update_zone(id, tmpl_xml, att);
+
+        if ( ec != SUCCESS )
+        {
+            NebulaLog::error("ReM", att.resp_msg);
+
+            failure_response(ec, att);
+            return;
+        }
+    }
+
+    nd.set_zone_state(state);
+
+    success_response(id, att);
+}

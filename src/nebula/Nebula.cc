@@ -800,6 +800,8 @@ void Nebula::start(bool bootstrap_only)
 
         default_user_quota.select();
         default_group_quota.select();
+
+        update_zone_state();
     }
     catch (exception&)
     {
@@ -1237,6 +1239,22 @@ error_mad:
     throw runtime_error("Could not load an OpenNebula driver");
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+void Nebula::update_zone_state()
+{
+    if (auto zone = zonepool->get_ro(get_zone_id()))
+    {
+        set_zone_state(zone->get_state());
+    }
+    else
+    {
+        NebulaLog::warn("ONE", "Unable to find zone id: "
+            + to_string(get_zone_id()));
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

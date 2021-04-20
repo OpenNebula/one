@@ -28,6 +28,51 @@ class ZoneServer;
 class Zone : public PoolObjectSQL
 {
 public:
+    enum ZoneState
+    {
+        ENABLED  = 0, /**< Enabled */
+        DISABLED = 1, /**< Disabled, only read-only commmands are executed */
+    };
+
+    /**
+     *  Functions to convert to/from string the Host states
+     */
+    static int str_to_state(std::string& st, ZoneState& state)
+    {
+        one_util::toupper(st);
+
+        state = ENABLED;
+
+        if ( st == "ENABLED" ) {
+            state = ENABLED;
+        } else if ( st == "DISABLED" ) {
+            state = DISABLED;
+        }
+        else
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    static std::string state_to_str(ZoneState state)
+    {
+        std::string st = "";
+
+        switch (state)
+        {
+            case ENABLED:
+                st = "ENABLED";
+                break;
+            case DISABLED:
+                st = "DISABLED";
+                break;
+        }
+
+        return st;
+    }
+
     virtual ~Zone();
 
     /**
@@ -78,12 +123,33 @@ public:
 	 *  @param server_id
      *  @return the server
      */
-	ZoneServer * get_server(int server_id);
+	ZoneServer * get_server(int server_id) const;
 
     /**
      *  @return the number of servers in this zone
      */
-    unsigned int servers_size();
+    unsigned int servers_size() const;
+
+    ZoneState get_state() const
+    {
+        return state;
+    }
+
+    /**
+     * Enable the zone
+     */
+    void enable()
+    {
+        state = ENABLED;
+    }
+
+    /**
+     * Disable the zone, only read_only commands are allowed
+     */
+    void disable()
+    {
+        state = DISABLED;
+    }
 
 private:
     // -------------------------------------------------------------------------
@@ -95,6 +161,8 @@ private:
     // Constructor
     // -------------------------------------------------------------------------
     Zone(int id, std::unique_ptr<Template> zone_template);
+
+    ZoneState state;
 
     // -------------------------------------------------------------------------
     // Zone servers

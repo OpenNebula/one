@@ -22,6 +22,7 @@
 
 #include "DefaultQuotas.h"
 #include "UserPool.h"
+#include "Zone.h"
 #include "NebulaLog.h"
 
 class LogDB;
@@ -403,7 +404,7 @@ public:
      */
     static std::string shared_db_version()
     {
-        return "6.0.0";
+        return "6.2.0";
     }
 
     /**
@@ -412,7 +413,7 @@ public:
      */
     static std::string local_db_version()
     {
-        return "6.0.0";
+        return "6.2.0";
     }
 
     /**
@@ -467,6 +468,21 @@ public:
     {
         return master_oned;
     };
+
+    void set_zone_state(Zone::ZoneState state)
+    {
+        zone_state = state;
+    }
+
+    Zone::ZoneState get_zone_state() const
+    {
+        return zone_state;
+    }
+
+    /**
+     * Update actual zone state from the DB
+     */
+    void update_zone_state();
 
     // -----------------------------------------------------------------------
     // Configuration attributes (read from oned.conf)
@@ -808,6 +824,7 @@ private:
     int         zone_id;
     int         server_id;
     std::string master_oned;
+    Zone::ZoneState zone_state = Zone::ENABLED;
 
     // ---------------------------------------------------------------
     // Default quotas

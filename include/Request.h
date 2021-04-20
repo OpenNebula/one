@@ -304,8 +304,11 @@ protected:
     std::set<int> hidden_params;
     bool          log_method_call;
 
-    //Method can be only execute by leaders or solo servers
+    // Method can be only execute by leaders or solo servers
     bool leader_only;
+
+    // Method can be executed in disabled state
+    bool zone_disabled;
 
     /* ---------------------------------------------------------------------- */
     /* Class Constructors                                                     */
@@ -325,6 +328,7 @@ protected:
 
         log_method_call = true;
         leader_only     = true;
+        zone_disabled   = false;
 
         vm_action = VMActions::NONE_ACTION;
     };

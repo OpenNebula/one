@@ -491,6 +491,13 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         "onezone.yaml"
     end
 
+    def self.state_to_str(id)
+        id        = id.to_i
+        state_str = Zone::ZONE_STATES[id]
+
+        Zone::SHORT_ZONE_STATES[state_str]
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -516,7 +523,11 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
                 helper.get_fed_index(d["TEMPLATE"]['ENDPOINT'])
             end
 
-            default :CURRENT, :ID, :NAME, :ENDPOINT, :FED_INDEX
+            column :STAT, 'Zone status', :left, :size => 6 do |d|
+                OneZoneHelper.state_to_str(d['STATE'])
+            end
+
+            default :CURRENT, :ID, :NAME, :ENDPOINT, :FED_INDEX, :STAT
         end
 
         table
@@ -583,6 +594,7 @@ class OneZoneHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % "ZONE #{zone['ID']} INFORMATION")
         puts str % ["ID",   zone.id.to_s]
         puts str % ["NAME", zone.name]
+        puts str % ["STATE",zone.state_str]
         puts
 
         zone_hash=zone.to_hash

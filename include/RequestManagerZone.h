@@ -108,6 +108,7 @@ public:
     {
         log_method_call = false;
         leader_only     = false;
+        zone_disabled   = true;
     };
 
     ~ZoneReplicateLog(){};
@@ -126,6 +127,7 @@ public:
         "Request vote from a candidate", "A:siiii")
     {
         leader_only = false;
+        zone_disabled = true;
     };
 
     ~ZoneVoteRequest(){};
@@ -144,6 +146,7 @@ public:
         "Returns Raft status", "A:s")
     {
         leader_only = false;
+        zone_disabled = true;
     };
 
     ~ZoneRaftStatus(){};
@@ -163,9 +166,28 @@ public:
                 "A:sis")
     {
         log_method_call = false;
+        zone_disabled   = true;
     };
 
     ~ZoneReplicateFedLog(){};
+
+    void request_execute(xmlrpc_c::paramList const& _paramList,
+                         RequestAttributes& att) override;
+};
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+class ZoneEnable : public RequestManagerZone
+{
+public:
+    ZoneEnable():
+        RequestManagerZone("one.zone.enable", "Enable or disable zone",
+                "A:sii")
+    {
+        log_method_call = true;
+        zone_disabled   = true;
+    }
 
     void request_execute(xmlrpc_c::paramList const& _paramList,
                          RequestAttributes& att) override;

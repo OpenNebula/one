@@ -52,6 +52,7 @@ protected:
         auth_op = AuthRequest::USE_NO_LCK;
 
         leader_only = false;
+        zone_disabled = true;
     };
 
     /* -------------------------------------------------------------------- */

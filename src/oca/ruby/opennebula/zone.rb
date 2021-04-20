@@ -31,7 +31,15 @@ module OpenNebula
             :delete         => "zone.delete",
             :addserver      => "zone.addserver",
             :delserver      => "zone.delserver",
-            :resetserver    => "zone.resetserver"
+            :resetserver    => "zone.resetserver",
+            :enable         => "zone.enable"
+        }
+
+        ZONE_STATES=%w{ENABLED DISABLED}
+
+        SHORT_ZONE_STATES={
+            "ENABLED"              => "on",
+            "DISABLED"             => "off"
         }
 
         # Creates a Zone description with just its identifier
@@ -177,6 +185,37 @@ module OpenNebula
         #   otherwise
         def reset_server(server_id)
             return call(ZONE_METHODS[:resetserver], @pe_id, server_id)
+        end
+
+        # Enable zone
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def enable()
+            return call(ZONE_METHODS[:enable], @pe_id, true)
+        end
+
+        # Disable zone, only readonly commands can be executed in disabled
+        # state
+        #
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def disable()
+            return call(ZONE_METHODS[:enable], @pe_id, false)
+        end
+
+        #######################################################################
+        # Helpers to get Zone information
+        #######################################################################
+
+        # Returns the state of the Zone (numeric value)
+        def state
+            self['STATE'].to_i
+        end
+
+        # Returns the state of the Zone (string value)
+        def state_str
+            ZONE_STATES[state]
         end
 
         private

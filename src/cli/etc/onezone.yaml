@@ -22,9 +22,15 @@
   :desc: Federation index
   :size: 10
 
+:STAT:
+  :desc: Zone status
+  :size: 4
+  :left: true
+
 :default:
 - :CURRENT
 - :ID
 - :NAME
 - :ENDPOINT
 - :FED_INDEX
+- :STAT

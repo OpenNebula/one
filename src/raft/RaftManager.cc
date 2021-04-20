@@ -405,6 +405,8 @@ void RaftManager::leader()
         im->raft_status(state);
     }
 
+    nd.update_zone_state();
+
     aclm->reload_rules();
 
     if ( nd.is_federation_master() )
