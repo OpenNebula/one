@@ -529,7 +529,7 @@ module OneProvision
                     when 'array'
                         next unless input['default']
 
-                        next if input['default'].match(/(\w+)(,\s*\w+)*/)
+                        next if input['default'].match(/(\w+)(;\s*\w+)*/)
 
                         return [false, "default #{input['default']} " \
                                        'invalid format']
@@ -675,7 +675,7 @@ module OneProvision
                         case input['type']
                         when 'array'
                             value = []
-                            value << i_value.split(',')
+                            value << i_value.split(';')
                             value.flatten!
                         else
                             value.gsub!("${#{match.join('.')}}", i_value.to_s)
@@ -808,7 +808,7 @@ module OneProvision
             when 'array'
                 answer = ''
 
-                until answer.match(/(\w+)(,\s*\w+)*/)
+                until answer.match(/(\w+)(;\s*\w+)*/)
                     print "Array `#{input['name']}` " \
                           "(default=#{input['default']}): "
 
