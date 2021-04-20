@@ -87,7 +87,7 @@ class Mapper
     # Errors should be log using OpenNebula driver functions
     def do_map(_one_vm, _disk, _directory)
         OpenNebula.log_error("map function not implemented for #{self.class}")
-        ""
+        ''
     end
 
     # Unmaps a previously mapped partition
@@ -98,7 +98,7 @@ class Mapper
     # @return nil
     def do_unmap(_device, _one_vm, _disk, _directory)
         OpenNebula.log_error("unmap function not implemented for #{self.class}")
-        ""
+        ''
     end
 
     #---------------------------------------------------------------------------
@@ -263,7 +263,8 @@ class Mapper
 
         mkdir_safe(path)
 
-        rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}", true)
+        rc, _out, err = Command.execute("#{COMMANDS[:mount]} #{dev} #{path}",
+                                        true)
 
         if rc != 0
             OpenNebula.log_error("mount_dev: #{err}")
@@ -293,16 +294,22 @@ class Mapper
     # @return [Hash] with partitions
     def lsblk(device)
         partitions = {}
+        blocklist = ''
 
-        rc, o, e = Command.execute("#{COMMANDS[:lsblk]} -OJ #{device}", false)
+        cmd ="#{COMMANDS[:lsblk]} -OJ #{device}"
 
-        if rc != 0 || o.empty?
-            OpenNebula.log_error("lsblk: #{e}")
-            return partitions
+        3.times do |t| # wait for device to be ready to be parsed
+            rc, o, e = Command.execute(cmd, false)
+
+            blocklist = o unless rc != 0 || o.empty?
+
+            OpenNebula.log_error("#{__method__}: #{rc}, #{o}, #{e}") if t == 3
+            sleep 1
+            next
         end
 
         begin
-            partitions = JSON.parse(o)['blockdevices']
+            partitions = JSON.parse(blocklist)['blockdevices']
 
             if !device.empty?
                 partitions = partitions[0]
@@ -314,7 +321,7 @@ class Mapper
                 end
 
                 partitions.delete_if do |p|
-                  p['fstype'].casecmp('swap').zero? if p['fstype']
+                    p['fstype'].casecmp('swap').zero? if p['fstype']
                 end
             end
         rescue StandardError
