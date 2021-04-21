@@ -40,7 +40,7 @@ install_requires = [
 if sys.version_info[0] < 3:
     install_requires.append('future')
 
-version = '5.12.0.4'
+version = '5.12.0.5'
 
 # mark pre-release
 v1 = int(version.split('.')[1])
