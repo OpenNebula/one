@@ -15,30 +15,20 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  /*
-    DEPENDENCIES
-   */
 
   var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./guac/html');
+  var GuacController = require('utils/guacamole/controller');
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
   var Sunstone = require('sunstone');
-  var GClient = require('utils/gclient');
-  var Files = require('utils/files');
 
-  /*
-    CONSTANTS
-   */
+  var TemplateHTML = require('hbs!./guac/html');
 
   var DIALOG_ID = require('./guac/dialogId');
   var TAB_ID = require('../tabId')
 
-  /*
-    CONSTRUCTOR
-   */
-
   function Dialog() {
     this.dialogId = DIALOG_ID;
-    this.gClient = new GClient();
 
     BaseDialog.call(this);
   };
@@ -54,47 +44,47 @@ define(function(require) {
 
   return Dialog;
 
-  /*
-    FUNCTION DEFINITIONS
-   */
+  /* FUNCTION DEFINITIONS */
 
   function _html() {
-    return TemplateHTML({
-      'dialogId': this.dialogId
-    });
+    return TemplateHTML({ 'dialogId': this.dialogId });
   }
 
   function _setup(context) {
-    var that = this;
-
     $("#open_in_a_new_window_gclient", context).on("click", function() {
       var dialog = Sunstone.getDialog(DIALOG_ID);
       dialog.hide();
-    });
-
-    $("#takeScreenshot_gclient", context).on("click", function() {
-      var canvas = that.gClient.snapshot();
-      Files.downloadImage('screenshot', canvas)
     });
 
     return false;
   }
 
   function _onShow() {
-    this.gClient.connect(this.element);
-    this.gClient.mouse(true);
-    this.gClient.keyboard(true);
+    var token = this.element.token;
+    var info = this.element.info;
+
+    if (!token) {
+      Notifier.notifyError(
+        Locale.tr("The OpenNebula service for remote console is not running, please contact your administrator.")
+      );
+
+      return null;
+    }
+
+    this.controller = new GuacController();
+    this.controller.setInformation(info);
+    this.controller.setConnection(token);
+
     return false;
   }
 
   function _onClose() {
-    this.gClient.disconnect();
-    this.gClient.mouse(false);
-    this.gClient.keyboard(false);
+    this.controller.disconnect();
+
     return false;
   }
 
   function _setElement(element) {
-    this.element = element
+    this.element = element;
   }
 });
