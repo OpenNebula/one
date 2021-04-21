@@ -709,8 +709,9 @@ EOT
 
                 elements, hash = print_page(pool, options)
 
-               if options[:ids] && elements
-                    hash[pool.pool_name][pool.element_name].reject! do |element|
+                if options[:ids] && elements
+                    arr = [hash[pool.pool_name][pool.element_name]].flatten
+                    arr.reject! do |element|
                         !options[:ids].include?(element['ID'].to_i)
                     end
                 end
