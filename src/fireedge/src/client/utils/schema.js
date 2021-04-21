@@ -9,7 +9,7 @@ const requiredSchema = (mandatory, name, schema) =>
 const getRange = (options) =>
   options.split('..').map(option => parseFloat(option))
 
-const getValuesFromArray = (options, separator = ',') => options?.split(separator)
+const getValuesFromArray = (options, separator = ';') => options?.split(separator)
 
 const getOptionsFromList = (options, separator = ',') =>
   options?.split(separator).map(value => ({ text: value, value }))
