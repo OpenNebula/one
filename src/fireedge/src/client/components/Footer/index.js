@@ -15,7 +15,6 @@ const Footer = memo(() => {
         <span className={classes.heartIcon} role="img" aria-label="heart-emoji">
           {'❤️'}
         </span>
-        {'by'}
         <Link href={BY.url} className={classes.link}>
           {BY.text}
         </Link>
