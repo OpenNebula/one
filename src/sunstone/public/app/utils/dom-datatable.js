@@ -20,8 +20,6 @@ define(function(require) {
    */
 
   var TabDataTable = require('utils/tab-datatable');
-  var SunstoneConfig = require('sunstone-config');
-  var Locale = require('utils/locale');
 
   /*
     CONSTRUCTOR

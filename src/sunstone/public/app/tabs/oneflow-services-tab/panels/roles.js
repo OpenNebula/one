@@ -22,9 +22,11 @@ define(function(require) {
   var Locale = require('utils/locale');
   var Tips = require('utils/tips');
   var OpenNebulaRole = require('opennebula/role');
-  var roles_buttons = require('./roles/roles-buttons');
-  var roles_vm_buttons = require('./roles/roles-vm-buttons');
+  var OpenNebulaVM = require("opennebula/vm");
+  var RolesButtons = require('./roles/roles-buttons');
+  var RolesVmButtons = require('./roles/roles-vm-buttons');
   var StateRolesButtons = require('./roles/state-roles-buttons');
+  var StateRolesVmButtons = require('./roles/state-roles-vm-buttons');
   var Sunstone = require('sunstone');
   var DomDataTable = require('utils/dom-datatable');
   var VMRemoteActions = require('utils/remote-actions');
@@ -52,6 +54,8 @@ define(function(require) {
   var PANEL_ID = require('./roles/panelId');
   var XML_ROOT = "DOCUMENT";
   var RESOURCE = "Service";
+
+  var lastRoleIndexSelected = undefined;
 
   /*
     CONSTRUCTOR
@@ -153,11 +157,9 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
+    var roles = this.roles = that.element.TEMPLATE.BODY.roles;
 
     Tips.setup(context);
-
-    var lastRoleIndexSelected = undefined
-    var roles = that.element.TEMPLATE.BODY.roles;
 
     if (roles && roles.length) {
       that.servicerolesDataTable = new DomDataTable(
@@ -170,23 +172,26 @@ define(function(require) {
           customTrListener: function(tableObj, tr){
             var rowData = tableObj.dataTable.fnGetData(tr);
             var roleName = $(rowData[0]).data().name
-            
+
             var roleIndexSelected = roles.findIndex(function(role) {
               return role.name === roleName
             })
 
-            if (lastRoleIndexSelected !== roleIndexSelected) {
+            var roleSelected = roles[roleIndexSelected];
+            var isEqualLastIndex = lastRoleIndexSelected === roleIndexSelected;
+
+            StateRolesButtons.enableStateActions(roleSelected.state);
+
+            if (!isEqualLastIndex) {
               lastRoleIndexSelected = roleIndexSelected
-
-              var roleSelected = roles[roleIndexSelected];
-              
-              StateRolesButtons.enableStateActions(roleSelected.state);
-
-              $("#roles_extended_info", context).fadeOut('slow', function() {
-                $(this).html(that.roleHTML(context, roleSelected))
-                that.roleSetup($(this), roleSelected)
-              }).fadeIn('slow');
             }
+
+            $('#roles_extended_info, context')
+              .fadeOut(isEqualLastIndex ? 0 : 'slow', function() {
+                $(this).html(that.roleHTML(context, roleSelected));
+                that.roleSetup($(this), roleSelected);
+              })
+              .fadeIn(isEqualLastIndex ? 0 : 'slow');
 
             // The info listener is triggered instead of
             // the row selection. So we click the check input to select
@@ -200,12 +205,12 @@ define(function(require) {
 
       this.servicerolesDataTable.initialize();
 
-      Sunstone.insertButtonsInTab(TAB_ID, "service_roles_tab", roles_buttons, $('#role_actions', context));
+      Sunstone.insertButtonsInTab(TAB_ID, "service_roles_tab", RolesButtons, $('#role_actions', context));
     }
   }
 
 
-  function _roleHTML(context, role) {
+  function _roleHTML(context, role, callback) {
     var that = this;
     var ready_status_gate = that.element.TEMPLATE.BODY.ready_status_gate;
     var promises = [];
@@ -236,7 +241,7 @@ define(function(require) {
             actions = VMRemoteActions.renderActionsHtml(data);
           }
 
-          roleVms[index] = rowInfoRoleVm(ready, id, name, uname, gname, ips, actions);
+          roleVms[index] = rowInfoRoleVm(ready, id, name, uname, gname, ips, actions, data.STATE, data.LCM_STATE);
         }
 
         promises.push(OpenNebulaVM.promiseGetVm({ id, success: successCallback }))
@@ -249,7 +254,11 @@ define(function(require) {
           UtilsFoundation.update(context);
           VMRemoteActions.bindActionsToContext(context)
         }
-        
+
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+
         Tips.setup(context);
       });
 
@@ -270,11 +279,17 @@ define(function(require) {
     });
   }
 
-  function rowInfoRoleVm(ready, id, name = "", uname = "", gname = "", ips = "", actions = "") {
+  function rowInfoRoleVm(ready, id, name = "", uname = "", gname = "", ips = "", actions = "", state, lcm_state) {
     return [
       ready,
-      '<input class="check_item" style="vertical-align: inherit;" type="checkbox" '+
-        'id="vm_' + id + '" name="selected_items" value="' + id + '"/>',
+      '<input class="check_item" ' +
+        'style="vertical-align: inherit;" ' +
+        'type="checkbox" ' +
+        'id="vm_' + id + '" ' +
+        'name="selected_items" ' +
+        'value="' + id + '" ' +
+        'state="' + state + '" ' +
+        'lcm_state="' + lcm_state + '" />',
       '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
       name,
       uname,
@@ -285,7 +300,7 @@ define(function(require) {
   }
 
   function _roleSetup(context, role) {
-    var that = this
+    var that = this;
 
     if(that.servicePanel) {
       that.serviceroleVMsDataTable = new DomDataTable(
@@ -302,15 +317,51 @@ define(function(require) {
               {"bSortable": false, "aTargets": ["check", 5, 6]}
             ]
           }
-        });
+        }
+      );
 
-        that.serviceroleVMsDataTable.initialize();
+      that.serviceroleVMsDataTable.initialize();
+
       Sunstone.insertButtonsInTab(
         TAB_ID,
         "service_roles_tab",
-        roles_vm_buttons,
+        RolesVmButtons,
         $('div#role_vms_actions', context)
       );
+
+      $("#role_vms_actionsrefresh_buttons", context).on('click', function(event) {
+        event.preventDefault();
+
+        var prevRowsSelected = $(".check_item:checked", that.serviceroleVMsDataTable.dataTable);
+        var prevIdsSelected = $.map(prevRowsSelected, function(row) {
+          return $(row).attr('id');
+        });
+
+        var roleSelected = that.roles[lastRoleIndexSelected];
+
+        that.roleHTML(context, roleSelected, function() {
+          // for each previous selected vms
+          $.each(prevIdsSelected, function(_, id) {
+            // if exists yet, check it
+            var currentRow = $("input#" + id, that.serviceroleVMsDataTable.dataTable);
+            currentRow.length && currentRow.trigger("click");
+          });
+        });
+
+        event.stopPropagation();
+      });
+
+      $("#" + that.serviceroleVMsDataTable.dataTableId).on("change", "tbody input.check_item", function() {
+        StateRolesVmButtons.disableAllStateActions();
+
+        // Enable actions available to any of the selected VMs
+        var nodes = $("tr", that.serviceroleVMsDataTable.dataTable); //visible nodes only
+        $.each($("input.check_item:checked", nodes), function() {
+          StateRolesVmButtons.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
+        });
+
+        return true;
+      });
     }
   }
 });
