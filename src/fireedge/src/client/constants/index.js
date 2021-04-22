@@ -19,7 +19,7 @@ import * as Setting from 'client/constants/setting'
 export const JWT_NAME = 'FireedgeToken'
 
 export const BY = {
-  text: 'OpenNebula',
+  text: 'by OpenNebula',
   url: 'https://opennebula.io/'
 }
 

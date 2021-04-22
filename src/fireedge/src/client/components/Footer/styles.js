@@ -14,11 +14,10 @@ export default makeStyles(theme => ({
     padding: 5
   },
   heartIcon: {
-    margin: theme.spacing(0, 1),
+    margin: '0 0.5em',
     color: theme.palette.error.dark
   },
   link: {
-    color: theme.palette.primary.contrastText,
-    marginLeft: theme.spacing(1)
+    color: theme.palette.primary.contrastText
   }
 }))
