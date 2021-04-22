@@ -38,9 +38,6 @@ define(function(require) {
   var TAB_ID = require("../tabId");
   var _accordionId = 0;
 
-  var VNC_DIALOG_ID   = require("tabs/vms-tab/dialogs/vnc/dialogId");
-  var SPICE_DIALOG_ID = require("tabs/vms-tab/dialogs/spice/dialogId");
-
   return {
     "generate": generate_provision_vms_list,
     "show": show_provision_vm_list,
@@ -796,15 +793,15 @@ define(function(require) {
         success: function(_, response){
           if (OpenNebulaVM.isVNCSupported(vm_data)) {
 
-            var dialog = Sunstone.getDialog(VNC_DIALOG_ID);
-            dialog.setElement(response);
-            dialog.show();
+            var urlAndLink = Vnc.getURLAndLink(response);
+            // Open in a new tab the noVNC connection
+            window.open(urlAndLink.link);
 
             button.removeAttr("disabled");
           } else if (OpenNebulaVM.isSPICESupported(vm_data)) {
-            var dialog = Sunstone.getDialog(SPICE_DIALOG_ID);
-            dialog.setElement(response);
-            dialog.show();
+            var urlAndLink = Spice.getURLAndLink(response);
+            // Open in a new tab the noVNC connection
+            window.open(urlAndLink.link);
 
             button.removeAttr("disabled");
           } else {

@@ -27,6 +27,10 @@ define(function(require) {
     context.empty()
     info && context.append(TemplateInfo(info))
     UtilsFoundation.update(context);
+
+    if (info && info.name) {
+      document.title = info.name;
+    }
   }
 
   function decodeInfoConnection(info_encode) {

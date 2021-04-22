@@ -2520,6 +2520,7 @@ SUNSTONE_MODELS_FILES="src/sunstone/models/OpenNebulaJSON.rb \
                     src/sunstone/models/SunstoneServer.rb \
                     src/sunstone/models/SunstoneViews.rb \
                     src/sunstone/models/sunstone_vm_helper.rb \
+                    src/sunstone/models/sunstone_remotes.rb \
                     src/sunstone/models/sunstone_vnc.rb \
                     src/sunstone/models/sunstone_guac.rb \
                     src/sunstone/models/sunstone_vmrc.rb \
@@ -2554,6 +2555,7 @@ SUNSTONE_VIEWS_FILES="src/sunstone/views/index.erb \
                       src/sunstone/views/vnc.erb \
                       src/sunstone/views/vmrc.erb \
                       src/sunstone/views/spice.erb \
+                      src/sunstone/views/guac.erb \
                       src/sunstone/views/_login_standard.erb \
                       src/sunstone/views/_login_x509.erb"
 
@@ -2567,6 +2569,8 @@ SUNSTONE_PUBLIC_JS_CONSOLE_FILES="src/sunstone/public/dist/console/vnc.js \
                         src/sunstone/public/dist/console/vnc.js.map \
                         src/sunstone/public/dist/console/spice.js \
                         src/sunstone/public/dist/console/spice.js.map \
+                        src/sunstone/public/dist/console/guacamole.js \
+                        src/sunstone/public/dist/console/guacamole.js.map \
                         src/sunstone/public/dist/console/vmrc.js \
                         src/sunstone/public/dist/console/vmrc.js.map"
 
@@ -2579,7 +2583,9 @@ SUNSTONE_ROUTES_FILES="src/sunstone/routes/oneflow.rb \
 
 SUNSTONE_PUBLIC_CSS_FILES="src/sunstone/public/css/app.min.css \
                 src/sunstone/public/css/opensans/opensans.woff \
+                src/sunstone/public/css/vmrc-custom.css \
                 src/sunstone/public/css/novnc-custom.css \
+                src/sunstone/public/css/guac-custom.css \
                 src/sunstone/public/css/spice-custom.css"
 
 SUNSTONE_PUBLIC_FONT_AWSOME="src/sunstone/public/bower_components/fontawesome/web-fonts-with-css/webfonts/fa-brands-400.eot \

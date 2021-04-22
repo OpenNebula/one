@@ -19,27 +19,15 @@ define(function(require) {
     Sunstone = require('sunstone'),
     Config = require("sunstone-config"),
     OpenNebulaVM = require("opennebula/vm"),
-    Vnc = require('utils/vnc'),
-    Spice = require('utils/spice'),
     FireedgeValidator = require('utils/fireedge-validator'),
     Notifier = require('utils/notifier');
   
   function _callSpice(data) {
-    if (!Spice.lockStatus() && data.hasOwnProperty('id')) {
-      Spice.lock();
-      Sunstone.runAction('VM.startspice_action', String(data.id));
-    } else {
-      Notifier.notifyError(Locale.tr('SPICE Connection in progress'));
-    }
+    if (data.hasOwnProperty('id')) Sunstone.runAction('VM.startspice_action', String(data.id));
   }
   
   function _callVNC(data) {
-    if (!Vnc.lockStatus() && data.hasOwnProperty('id')) {
-      Vnc.lock();
-      Sunstone.runAction('VM.startvnc_action', String(data.id));
-    } else {
-      Notifier.notifyError(Locale.tr('VNC Connection in progress'));
-    }
+    if (data.hasOwnProperty('id')) Sunstone.runAction('VM.startvnc_action', String(data.id));
   }
   
   function _callSaveRDP(data) {

@@ -38,10 +38,10 @@ define(function(require) {
       closeOskButton: document.getElementById('osk-close'),
 
       /* Buttons */
-      sendCtrlAltDelButton: document.getElementById('sendCtrlAltDelButton_gclient'),
-      mouseButton: document.getElementById('mouseButton_gclient'),
-      screenshotButton: document.getElementById('takeScreenshot_gclient'),
-      oskButton: document.getElementById('oskButton_gclient'),
+      sendCtrlAltDelButton: document.getElementById('sendCtrlAltDelButton'),
+      mouseButton: document.getElementById('mouseButton'),
+      screenshotButton: document.getElementById('takeScreenshot'),
+      oskButton: document.getElementById('oskButton'),
     };
 
     var throttleResizeFunction = Utils.throttle(containerResized, 250);

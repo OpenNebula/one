@@ -21,23 +21,16 @@ define(function(require) {
   var Locale = require('utils/locale');
   var OpenNebulaVM = require('opennebula/vm');
   var CommonActions = require('utils/common-actions');
-  var Vnc = require('utils/vnc');
-  var Vmrc = require('utils/vmrc');
-  var Spice = require('utils/spice');
   var Files = require('utils/files');
 
   var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var DEPLOY_DIALOG_ID = require('./dialogs/deploy/dialogId');
-  var GUAC_DIALOG_ID = require('./dialogs/guac/dialogId');
   var MARKETPLACEAPPS_TAB_ID = require('tabs/marketplaceapps-tab/tabId');
   var MIGRATE_DIALOG_ID = require('./dialogs/migrate/dialogId');
   var SAVE_AS_TEMPLATE_DIALOG_ID = require('./dialogs/saveas-template/dialogId');
-  var SPICE_DIALOG_ID = require('./dialogs/spice/dialogId');
   var TAB_ID = require('./tabId');
   var UPDATECONF_FORM_ID = require('./form-panels/updateconf/formPanelId');
-  var VMRC_DIALOG_ID = require('./dialogs/vmrc/dialogId');
-  var VNC_DIALOG_ID = require('./dialogs/vnc/dialogId');
 
   var XML_ROOT = "VM";
   var RESOURCE = "VM";
@@ -257,13 +250,7 @@ define(function(require) {
       type: "custom",
       call: function() {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          if (!Vnc.lockStatus()) {
-            Vnc.lock();
-            Sunstone.runAction("VM.startvnc_action", elem);
-          } else {
-            Notifier.notifyError(Locale.tr("VNC Connection in progress"))
-            return false;
-          }
+          Sunstone.runAction("VM.startvnc_action", elem);
         });
       }
     },
@@ -271,13 +258,20 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.vnc,
       callback: function(request, response) {
-       var dialog = Sunstone.getDialog(VNC_DIALOG_ID);
-       dialog.setElement(response);
-       dialog.show();
+        var link = getLink(response,{
+            port: Config.vncProxyPort,
+            connnection_type: 'vnc',
+            extra_params: [
+              'port=' + Config.vncProxyPort,
+              'encrypt=' + Config.vncWSS,
+              !Config.requestVNCPassword && 'password=' + response.password
+            ]
+        });
+       // Open in a new tab the noVNC connection
+       window.open(link);
       },
       error: function(req, resp) {
         Notifier.onError(req, resp);
-        Vnc.unlock();
       },
       notify: true
     },
@@ -285,14 +279,8 @@ define(function(require) {
       type: "custom",
       call: function() {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          if (!Vmrc.lockStatus()) {
-            Vmrc.lock();
             var vm_name = OpenNebulaVM.getName(elem);
             Sunstone.runAction("VM.startvmrc_action", elem, vm_name);
-          } else {
-            Notifier.notifyError(Locale.tr("VMRC Connection in progress"))
-            return false;
-          }
         });
       }
     },
@@ -300,14 +288,19 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.vmrc,
       callback: function(request, response) {
-       var dialog = Sunstone.getDialog(VMRC_DIALOG_ID);
-       response["vm_name"] = request.request.data[0].extra_param;
-       dialog.setElement(response);
-       dialog.show();
+        response["vm_name"] = request.request.data[0].extra_param;
+        var fireedge_endpoint = new URL(Config.publicFireedgeEndpoint);
+        var link = getLink(response,{
+          host: fireedge_endpoint.hostname,
+          port: fireedge_endpoint.port,
+          connnection_type: 'vmrc',
+          extra_path: '/fireedge/vmrc/' + response.data.ticket,
+        });
+        // Open in a new tab the noVNC connection
+        window.open(link);
       },
       error: function(req, resp) {
         Notifier.onError(req, resp);
-        Vmrc.unlock();
       },
       notify: true
     },
@@ -315,13 +308,7 @@ define(function(require) {
       type: "custom",
       call: function() {
         $.each(Sunstone.getDataTable(TAB_ID).elements(), function(index, elem) {
-          if (!Spice.lockStatus()) {
-            Spice.lock();
-            Sunstone.runAction("VM.startspice_action", elem);
-          } else {
-            Notifier.notifyError(Locale.tr("SPICE Connection in progress"))
-            return false;
-          }
+          Sunstone.runAction("VM.startspice_action", elem);
         });
       }
     },
@@ -329,13 +316,19 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.vnc,
       callback: function(request, response) {
-       var dialog = Sunstone.getDialog(SPICE_DIALOG_ID);
-       dialog.setElement(response);
-       dialog.show();
+        var link = getLink(response, {
+          port: Config.vncProxyPort, 
+          connnection_type: 'spice',
+          extra_params: [
+            'password=' + response.password,
+            'encrypt=' + config.user_config.vnc_wss,
+          ]
+        });
+        // Open in a new tab the noVNC connection
+        window.open(link);
       },
       error: function(req, resp) {
         Notifier.onError(req, resp);
-        Spice.unlock();
       },
       notify: true
     },
@@ -376,9 +369,12 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.guac,
       callback: function(_, response) {
-       var dialog = Sunstone.getDialog(GUAC_DIALOG_ID);
-       dialog.setElement(response);
-       dialog.show();
+        var link = getLink(response, {
+          connnection_type: 'guac',
+          extra_path: '/fireedge/guacamole'
+        });
+        // Open in a new tab the noVNC connection
+        window.open(link);
       },
       error: function(req, resp) {
         Notifier.onError(req, resp);
@@ -460,6 +456,47 @@ define(function(require) {
     }
 
   };
+
+  /**
+   * 
+   * @param {Object} response Callback response with the token and info 
+   * @param {Object} options 
+   * @returns 
+   */
+  function getLink(response, options){
+    options = $.extend({
+      host: undefined,
+      port: undefined,
+      connnection_type: '',
+      extra_path: '',
+      extra_params: []
+    }, options);
+
+    var params = options.extra_params.concat([
+      response.token && 'token=' + response.token,
+      response.info && 'info=' + response.info
+    ]).filter(Boolean);
+
+    var endpoint = new URL(window.location.href);
+    var websocketProtocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    var websocket = websocketProtocol + '//';
+
+    if (options.host && options.port)
+      websocket += options.host + ':' + options.port
+    else if (options.port)
+      websocket += endpoint.hostname + ':' + options.port
+    else  
+      websocket += endpoint.host;
+    
+    websocket += options.extra_path + '?' + params.join("&");
+
+    var encoded_socket = btoa(websocket);
+
+    var link = endpoint.origin + "/" + options.connnection_type + "?socket=" + encoded_socket;
+    
+    return link;
+  }
 
   return _actions;
 });
