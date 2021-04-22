@@ -74,5 +74,5 @@ require 'opennebula/hook_log'
 module OpenNebula
 
     # OpenNebula version
-    VERSION = '5.12.9'
+    VERSION = '5.12.10'
 end
