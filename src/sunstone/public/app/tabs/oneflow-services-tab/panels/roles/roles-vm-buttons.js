@@ -15,24 +15,24 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale');
   var VMButtons = require('tabs/vms-tab/buttons');
 
   var Buttons = {
     "RoleVM.hold" : VMButtons["VM.hold"],
+    "RoleVM.poweroff_hard" : VMButtons["VM.poweroff_hard"],
+    "RoleVM.poweroff" : VMButtons["VM.poweroff"],
+    "RoleVM.reboot_hard" : VMButtons["VM.reboot_hard"],
+    "RoleVM.reboot" : VMButtons["VM.reboot"],
+    "RoleVM.refresh" : VMButtons["VM.refresh"],
     "RoleVM.release" : VMButtons["VM.release"],
-    "RoleVM.suspend" : VMButtons["VM.suspend"],
+    "RoleVM.resched" : VMButtons["VM.resched"],
     "RoleVM.resume" : VMButtons["VM.resume"],
     "RoleVM.stop" : VMButtons["VM.stop"],
-    "RoleVM.reboot" : VMButtons["VM.reboot"],
-    "RoleVM.reboot_hard" : VMButtons["VM.reboot_hard"],
-    "RoleVM.poweroff" : VMButtons["VM.poweroff"],
-    "RoleVM.poweroff_hard" : VMButtons["VM.poweroff_hard"],
-    "RoleVM.undeploy" : VMButtons["VM.undeploy"],
-    "RoleVM.undeploy_hard" : VMButtons["VM.undeploy_hard"],
-    "RoleVM.terminate" : VMButtons["VM.terminate"],
+    "RoleVM.suspend" : VMButtons["VM.suspend"],
     "RoleVM.terminate_hard" : VMButtons["VM.terminate_hard"],
-    "RoleVM.resched" : VMButtons["VM.resched"],
+    "RoleVM.terminate" : VMButtons["VM.terminate"],
+    "RoleVM.undeploy_hard" : VMButtons["VM.undeploy_hard"],
+    "RoleVM.undeploy" : VMButtons["VM.undeploy"],
     "RoleVM.unresched" : VMButtons["VM.unresched"]
   };
 
