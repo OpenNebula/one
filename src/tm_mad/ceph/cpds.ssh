@@ -74,7 +74,9 @@ done < <(onevm show -x $VM_ID| $XPATH \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
                     /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE )
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TYPE \
+                    /VM/LCM_STATE \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD)
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
@@ -83,11 +85,22 @@ CEPH_USER="${XPATH_ELEMENTS[j++]}"
 CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 TYPE="${XPATH_ELEMENTS[j++]}"
-
+LCM_STATE="${XPATH_ELEMENTS[j++]}"
+VM_MAD="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Copy Image back to the datastore
 #-------------------------------------------------------------------------------
+
+if [ "${LCM_STATE}" = '26' -a "${VM_MAD}" != "kvm" ]; then
+    error_message "cpds.ssh: Live operation not supported on ${VM_MAD}"
+    exit 1
+fi
+
+if [ "$SNAP_ID" != "-1" ]; then
+    error_message "cpds.ssh: Operation not supported on disk type ${TYPE} with snapshots"
+    exit 1
+fi
 
 if [ -n "$CEPH_USER" ]; then
     RBD="$RBD --id ${CEPH_USER}"
@@ -105,19 +118,17 @@ if [ "$RBD_FORMAT" = "2" ]; then
     FORMAT_OPT="--image-format 2"
 fi
 
-if [ "$SNAP_ID" != "-1" ]; then
-    error_message "$script_name: Operation not supported on disk type ${TYPE} with snapshots"
-    exit 1
-fi
 
 COPY_CMD=$(cat <<EOF
-    if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
-        trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT TERM INT HUP
-    elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
-        trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT TERM INT HUP
-    else
-        echo "Could not domfsfreeze or suspend domain" >&2
-        exit 1
+    if [ "${LCM_STATE}" = '26' ]; then
+        if virsh -c $LIBVIRT_URI domfsfreeze $DEPLOY_ID ; then
+            trap "virsh -c $LIBVIRT_URI domfsthaw $DEPLOY_ID" EXIT
+        elif virsh -c $LIBVIRT_URI suspend $DEPLOY_ID; then
+            trap "virsh -c $LIBVIRT_URI resume $DEPLOY_ID" EXIT
+        else
+            echo "Could not domfsfreeze or suspend domain" >&2
+            exit 1
+        fi
     fi
 
     $RBD import $FORMAT_OPT $SRC_PATH $DST

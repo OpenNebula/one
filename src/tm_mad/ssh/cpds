@@ -56,11 +56,13 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/DEPLOY_ID \
                     /VM/LCM_STATE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET)
+                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
+                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD)
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
 LCM_STATE="${XPATH_ELEMENTS[j++]}"
 DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+VM_MAD="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Set src path
@@ -80,8 +82,12 @@ fi
 # For current image of the running VMs, don't touch the image directly,
 # but export the content via blockcopy. If that's not possible (old QEMU),
 # domfsfreeze or suspend the domain before.
+if [ "${LCM_STATE}" = '26' -a "${VM_MAD}" != "kvm" ]; then
+    error_message "cpds: Live operation not supported on ${VM_MAD}"
+    exit 1
+fi
 
-if [ "${LCM_STATE}" = '26' ] && [ "${SNAP_ID}" = '-1' ]; then
+if [ "${LCM_STATE}" = '26' -a "${SNAP_ID}" = '-1' ]; then
     log "VM is running, trying blockcopy, fsfreeze, suspend"
 
     CPDS_CMD_EXPORT=$(cat <<EOF

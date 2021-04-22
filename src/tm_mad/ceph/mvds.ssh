@@ -114,6 +114,8 @@ MVDS_CMD=$(cat <<EOF
     ${QEMU_IMG} convert -n \
         -f raw "${SRC_PATH}" \
         -O rbd "rbd:${RBD_SRC}${QEMU_OPTS}"
+
+    rm -f ${SRC_PATH}
 EOF
 )
 
