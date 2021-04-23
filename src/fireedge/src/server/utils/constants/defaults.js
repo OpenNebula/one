@@ -29,10 +29,8 @@ const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = 'localhost'
 const protocol = 'http'
 const defaults = {
-  defaultLimit: {
-    min: 14,
-    max: 30
-  },
+  defaultOpennebulaExpiration: 180,
+  defaultOpennebulaMinimumExpiration: 30,
   defaultAppName: appName,
   defaultConfigErrorMessage: {
     color: 'red',
