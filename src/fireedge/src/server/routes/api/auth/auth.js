@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 const { Map } = require('immutable')
 const {
-  authenticate,
+  login,
   getUser,
   getPass,
   setUser,
@@ -26,23 +26,23 @@ const {
   setReq,
   setRes,
   setNodeConnect,
-  setDates,
-  getRelativeTime,
   connectOpennebula,
   updaterResponse
 } = require('./functions')
 const { internalServerError } = require('server/utils/constants/http-codes')
 const {
   httpMethod,
-  defaultMethodLogin
+  defaultMethodLogin,
+  defaultMethodUserInfo
 } = require('server/utils/constants/defaults')
 const {
+  paramsDefaultByCommandOpennebula,
   responseOpennebula,
   checkOpennebulaCommand
 } = require('server/utils/opennebula')
 const { from } = require('server/utils/constants/defaults')
 
-const { POST } = httpMethod
+const { POST, GET } = httpMethod
 
 const auth = (req, res, next, connect) => {
   if (req && res && connect) {
@@ -85,17 +85,12 @@ const auth = (req, res, next, connect) => {
       )
       setNodeConnect(connect)
       if (getUser() && getPass()) {
-        setDates()
-        const relativeTime = getRelativeTime()
         const oneConnect = connectOpennebula()
-        const dataSourceWithExpirateDate = Map(req).toObject()
-        // add expire time unix for opennebula creation token
-        dataSourceWithExpirateDate[from.postBody].expire = relativeTime
         oneConnect(
-          defaultMethodLogin,
-          getOpennebulaMethod(dataSourceWithExpirateDate),
+          defaultMethodUserInfo,
+          paramsDefaultByCommandOpennebula(defaultMethodUserInfo, GET),
           (err, value) => {
-            responseOpennebula(updaterResponse, err, value, authenticate, next)
+            responseOpennebula(updaterResponse, err, value, login, next)
           }
         )
       }

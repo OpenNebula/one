@@ -15,8 +15,10 @@
 const { DateTime } = require('luxon')
 const { Map } = require('immutable')
 const {
+  from,
   httpMethod,
-  defaultLimit,
+  defaultOpennebulaExpiration,
+  defaultOpennebulaMinimumExpiration,
   defaultMethodLogin,
   defaultMethodZones,
   defaultMethodUserInfo,
@@ -33,22 +35,22 @@ const { createToken } = require('server/utils/jwt')
 const { httpResponse } = require('server/utils/server')
 const {
   responseOpennebula,
-  paramsDefaultByCommandOpennebula,
   checkOpennebulaCommand,
   check2Fa
 } = require('server/utils/opennebula')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
-const { global } = require('window-or-global')
+const { global, Array } = require('window-or-global')
 
 const appConfig = getConfig()
 
 const namespace = appConfig.namespace || defaultNamespace
-const { GET, POST } = httpMethod
+const minimumExpirationTime = appConfig.minimun_opennebula_expiration || defaultOpennebulaMinimumExpiration
+
+const { POST } = httpMethod
 
 const getOpennebulaMethod = checkOpennebulaCommand(defaultMethodLogin, POST)
 
-let opennebulaToken = ''
 let user = ''
 let pass = ''
 let type = ''
@@ -60,7 +62,7 @@ let res = {}
 let nodeConnect = () => undefined
 let now = ''
 let nowUnix = ''
-let nowWithDays = ''
+let nowWithMinutes = ''
 let relativeTime = ''
 
 const dataSourceWithExpirateDate = () => Map(req).toObject()
@@ -112,12 +114,11 @@ const setRes = newRes => {
 }
 
 const setDates = () => {
-  const limitToken = appConfig.limit_token || defaultLimit
-  const { min, max } = limitToken
+  const limitToken = appConfig.opennebula_expiration || defaultOpennebulaExpiration
   now = DateTime.local()
   nowUnix = now.toSeconds()
-  nowWithDays = now.plus({ days: extended ? max : min })
-  const diff = nowWithDays.diff(now, 'seconds')
+  nowWithMinutes = now.plus({ minutes: limitToken })
+  const diff = nowWithMinutes.diff(now, 'seconds')
   relativeTime = diff.seconds
 }
 
@@ -136,6 +137,7 @@ const updaterResponse = code => {
 }
 
 const validate2faAuthentication = informationUser => {
+  let rtn = false
   if (
     informationUser.TEMPLATE &&
     informationUser.TEMPLATE.SUNSTONE &&
@@ -143,28 +145,31 @@ const validate2faAuthentication = informationUser => {
   ) {
     if (tfatoken.length <= 0) {
       updaterResponse(httpResponse(accepted))
-      next()
-      return
+    } else {
+      const secret = informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
+      if (!check2Fa(secret, tfatoken)) {
+        updaterResponse(httpResponse(unauthorized, '', 'invalid 2fa token'))
+      } else {
+        rtn = true
+      }
     }
-
-    const secret = informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
-    if (!check2Fa(secret, tfatoken)) {
-      updaterResponse(httpResponse(unauthorized, '', 'invalid 2fa token'))
-      next()
-    }
+  } else {
+    // without 2FA login
+    rtn = true
   }
+  return rtn
 }
 
-const genJWT = informationUser => {
-  if (informationUser && informationUser.ID && informationUser.PASSWORD) {
+const genJWT = (token, informationUser) => {
+  if (token && informationUser && informationUser.ID && informationUser.PASSWORD) {
     const { ID: id, TEMPLATE: userTemplate } = informationUser
-    const dataJWT = { id, user, token: opennebulaToken }
-    const jwt = createToken(dataJWT, nowUnix, nowWithDays.toSeconds())
+    const dataJWT = { id, user, token }
+    const jwt = createToken(dataJWT, nowUnix, nowWithMinutes.toSeconds())
     if (jwt) {
       if (!global.users) {
         global.users = {}
       }
-      global.users[user] = opennebulaToken
+      global.users[user] = token
       const rtn = { token: jwt, id }
       if (userTemplate && userTemplate.SUNSTONE && userTemplate.SUNSTONE.LANG) {
         rtn.language = userTemplate.SUNSTONE.LANG
@@ -216,42 +221,96 @@ const setZones = () => {
   }
 }
 
-const userInfo = userData => {
-  if (user && opennebulaToken && userData && userData.USER) {
-    const informationUser = userData.USER
-    setZones()
-    validate2faAuthentication(informationUser)
-    genJWT(informationUser)
-    next()
-  } else {
+const login = (userData) => {
+  let rtn = true
+  if (userData) {
+    const findTextError = `[${namespace + defaultMethodUserInfo}]`
+    if (userData.indexOf && userData.indexOf(findTextError) >= 0) {
+      updaterResponse(httpResponse(unauthorized))
+    }
+    if (userData.USER) {
+      setZones()
+      if (validate2faAuthentication(userData.USER)) {
+        rtn = false
+        checkOpennebulaToken(userData.USER)
+      }
+    }
+  }
+  if (rtn) {
     next()
   }
 }
 
-const authenticate = val => {
-  const findTextError = `[${namespace + defaultMethodLogin}]`
-  if (val) {
-    if (val.indexOf(findTextError) >= 0) {
-      updaterResponse(httpResponse(unauthorized))
+const checkOpennebulaToken = userData => {
+  setDates()
+  if (userData && userData.LOGIN_TOKEN) {
+    const loginTokens = Array.isArray(userData.LOGIN_TOKEN) ? userData.LOGIN_TOKEN : [userData.LOGIN_TOKEN]
+    const token = getValidOpennebulaToken(loginTokens)
+    if (token) {
+      genJWT(token, userData)
       next()
     } else {
-      const oneConnect = connectOpennebula()
-      opennebulaToken = val
-      oneConnect(
-        defaultMethodUserInfo,
-        paramsDefaultByCommandOpennebula(defaultMethodUserInfo, GET),
-        (err, value) => {
-          responseOpennebula(updaterResponse, err, value, userInfo, next)
-        }
-      )
+      createOpennebulaToken(userData)
     }
   } else {
-    next()
+    createOpennebulaToken(userData)
   }
+}
+
+const getValidOpennebulaToken = userDataTokens => {
+  let rtn
+  if (Array.isArray(userDataTokens)) {
+    const validToken = userDataTokens.find(token => {
+      now = DateTime.local()
+      nowUnix = now.toSeconds()
+      return (
+        token &&
+        token.TOKEN &&
+        token.EGID &&
+        token.EGID === '-1' &&
+        token.EXPIRATION_TIME &&
+        parseInt(token.EXPIRATION_TIME, 10) >= nowUnix + (parseInt(minimumExpirationTime, 10) * 60)
+      )
+    })
+    rtn = validToken && validToken.TOKEN
+  }
+  return rtn
+}
+
+const createOpennebulaToken = userData => {
+  const relativeTime = getRelativeTime()
+  const dataSourceWithExpirateDate = Map(req).toObject()
+  // add expire time unix for opennebula creation token
+  dataSourceWithExpirateDate[from.postBody].expire = relativeTime
+  dataSourceWithExpirateDate[from.postBody].token = ''
+
+  const oneConnect = connectOpennebula()
+  oneConnect(
+    defaultMethodLogin,
+    getOpennebulaMethod(dataSourceWithExpirateDate),
+    (err, value) => {
+      responseOpennebula(
+        updaterResponse,
+        err,
+        value,
+        token => authenticate(token, userData),
+        next)
+    }
+  )
+}
+
+const authenticate = (token, userData) => {
+  const findTextError = `[${namespace + defaultMethodLogin}]`
+  if (token && userData) {
+    if (token.indexOf(findTextError) < 0) {
+      genJWT(token, userData)
+    }
+  }
+  next()
 }
 
 const functionRoutes = {
-  authenticate,
+  login,
   getUser,
   getPass,
   setType,
@@ -264,9 +323,7 @@ const functionRoutes = {
   setRes,
   updaterResponse,
   setNodeConnect,
-  connectOpennebula,
-  setDates,
-  getRelativeTime
+  connectOpennebula
 }
 
 module.exports = functionRoutes
