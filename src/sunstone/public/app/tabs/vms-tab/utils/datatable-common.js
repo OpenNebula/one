@@ -131,7 +131,7 @@ define(function(require) {
         }
       }
     })
-    $(".describeCharter").on("mouseleave").on("mouseleave", function(e){
+    $(".describeCharter").off("mouseleave").on("mouseleave", function(e){
       $(this).find("."+classInfo).remove();
     });
   }

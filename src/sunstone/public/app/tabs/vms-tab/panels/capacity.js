@@ -110,6 +110,7 @@ define(function(require) {
       context.off("click", "#resize_capacity");
       context.on("click", "#resize_capacity", function() {
         var dialog = Sunstone.getDialog(RESIZE_DIALOG_ID);
+        dialog.reset();
         dialog.setElement(that.element);
         dialog.show();
         dialogContext = dialog.dialogElement;

@@ -24,7 +24,15 @@ define(function(require) {
   require('flot.resize');
   // TODO Check if necessary require('flot.tooltip');
   require('flot.time');
+
   var Humanize = require('utils/humanize');
+
+  /*
+    VARIABLES
+   */
+
+  var currentGraph = undefined;
+
   /*
     CONSTRUCTOR
    */
@@ -120,7 +128,10 @@ define(function(require) {
     //options.xaxis.zoomRange = false;
     options.yaxis.panRange = false;
     if (series.length > 0) {
-      $.plot(info.div_graph, series, options);
+      currentGraph && currentGraph.shutdown();
+      info.div_graph.removeData('plot').empty();
+
+      currentGraph = $.plot(info.div_graph, series, options);
     };
   }
 

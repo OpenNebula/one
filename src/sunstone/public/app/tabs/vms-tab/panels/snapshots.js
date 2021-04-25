@@ -162,6 +162,7 @@ define(function(require) {
       context.off('click', '#take_snapshot');
       context.on('click', '#take_snapshot', function() {
         var dialog = Sunstone.getDialog(SNAPSHOT_DIALOG_ID);
+        dialog.reset();
         dialog.setElement(that.element);
         dialog.show();
         return false;
@@ -173,6 +174,7 @@ define(function(require) {
       context.on('click', '.snapshot_revert', function() {
         var dialog = Sunstone.getDialog(REVERT_DIALOG_ID);
         that.element.snapshot_id = $(this).parents('tr').attr('snapshot_id');
+        dialog.reset();
         dialog.setElement(that.element);
         dialog.show();
         return false;

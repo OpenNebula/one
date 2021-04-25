@@ -22,6 +22,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
   var TemplateUtils = require("utils/template-utils");
+  var Tips = require("utils/tips");
   var WizardFields = require("utils/wizard-fields");
   var OpenNebulaAction = require("opennebula/action");
   var OpenNebulaTemplate = require("opennebula/template");
@@ -148,7 +149,7 @@ define(function(require) {
     });
 
     Foundation.reflow(context, "tabs");
-    Foundation.reflow(context, "tooltip");
+    Tips.setup(context);
   }
 
   function _onShow(context) {

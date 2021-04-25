@@ -100,9 +100,10 @@ define(function (require) {
 
           var response = {};
           response[object] = event_data.HOOK_MESSAGE[object];
+
           var request = {
             "request": {
-              "data": [response.ID],
+              "data": [response[object].ID],
               "method": "show",
               "resource": object
             }
