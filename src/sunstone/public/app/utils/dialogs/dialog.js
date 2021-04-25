@@ -76,6 +76,7 @@ define(function(require) {
   }
 
   function _reset() {
+    $('.reveal-overlay').remove();
     this.dialogElement.remove();
     this.dialogElement = this.insert();
     return false;

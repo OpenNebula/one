@@ -20,13 +20,14 @@ define(function(require) {
    */
 
   var BaseFormPanel = require("utils/form-panels/form-panel");
-  var Sunstone = require("sunstone");
-  var OpenNebulaError = require("opennebula/error");
-  var Notifier = require("utils/notifier");
-  var Locale = require("utils/locale");
-  var WizardFields = require("utils/wizard-fields");
-  var TemplateTabsHTML = require("hbs!./create/tabs");
   var CustomTagsTable = require("utils/custom-tags-table");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var OpenNebulaError = require("opennebula/error");
+  var Sunstone = require("sunstone");
+  var TemplateTabsHTML = require("hbs!./create/tabs");
+  var Tips = require("utils/tips");
+  var WizardFields = require("utils/wizard-fields");
 
   /*
     CONSTANTS
@@ -209,7 +210,7 @@ define(function(require) {
       }
     });
     Foundation.reflow(context, "tabs");
-    Foundation.reflow(context, "tooltip");
+    Tips.setup(context);
   }
 
   function _submitWizard(that, context) {

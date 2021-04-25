@@ -479,6 +479,7 @@ define(function(require) {
           $('.hypervisor.only_kvm').hide();
           $('.hypervisor.only_vcenter').show();
         }
+        dialog.reset();
         dialog.show();
         return false;
       });
