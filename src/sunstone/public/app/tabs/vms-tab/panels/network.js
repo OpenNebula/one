@@ -521,6 +521,7 @@ define(function(require) {
       context.off("click", "#attach_nic");
       context.on("click", "#attach_nic", function() {
         var dialog = Sunstone.getDialog(ATTACH_NIC_DIALOG_ID);
+        dialog.reset();
         dialog.setElement(that.element);
         dialog.setNicsNames(nics_names);
         dialog.show();

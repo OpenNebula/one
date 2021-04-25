@@ -135,7 +135,9 @@ define(function(require) {
     "VM.deploy" : {
       type: "custom",
       call: function() {
-        Sunstone.getDialog(DEPLOY_DIALOG_ID).show();
+        Sunstone.getDialog(DEPLOY_DIALOG_ID)
+          .reset()
+          .show();
       }
     },
     "VM.silent_deploy_action" : {
@@ -146,41 +148,41 @@ define(function(require) {
     "VM.migrate" : {
       type: "custom",
       call: function() {
-       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
-       dialog.reset();
-       dialog.setLive(false);
-       dialog.setType(0);
-       dialog.show();
+       Sunstone.getDialog(MIGRATE_DIALOG_ID)
+        .reset()
+        .setLive(false)
+        .setType(0)
+        .show();
      }
     },
     "VM.migrate_poff" : {
       type: "custom",
       call: function() {
-       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
-       dialog.reset();
-       dialog.setLive(false);
-       dialog.setType(1);
-       dialog.show();
+       Sunstone.getDialog(MIGRATE_DIALOG_ID)
+        .reset()
+        .setLive(false)
+        .setType(1)
+        .show();
      }
     },
     "VM.migrate_poff_hard" : {
       type: "custom",
       call: function() {
-       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
-       dialog.reset();
-       dialog.setLive(false);
-       dialog.setType(2);
-       dialog.show();
+       Sunstone.getDialog(MIGRATE_DIALOG_ID)
+        .reset()
+        .setLive(false)
+        .setType(2)
+        .show();
      }
     },
     "VM.migrate_live" : {
       type: "custom",
       call: function() {
-       var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
-       dialog.reset();
-       dialog.setLive(true);
-       dialog.setType(0);
-       dialog.show();
+       Sunstone.getDialog(MIGRATE_DIALOG_ID)
+        .reset()
+        .setLive(true)
+        .setType(0)
+        .show();
      }
     },
     "VM.save_rdp" : {
@@ -384,8 +386,9 @@ define(function(require) {
     "VM.save_as_template" : {
       type: "single",
       call: function() {
-       var dialog = Sunstone.getDialog(SAVE_AS_TEMPLATE_DIALOG_ID);
-       dialog.show();
+       Sunstone.getDialog(SAVE_AS_TEMPLATE_DIALOG_ID)
+        .reset()
+        .show();
        },
       error: function(req, resp) {
         Notifier.onError(req, resp);

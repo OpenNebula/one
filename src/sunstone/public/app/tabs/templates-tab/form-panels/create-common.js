@@ -25,6 +25,7 @@ define(function(require) {
   var OpenNebulaTemplate = require("opennebula/template");
   var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
+  var Tips = require("utils/tips");
   var WizardFields = require("utils/wizard-fields");
 
   /*
@@ -149,7 +150,7 @@ define(function(require) {
     });
 
     Foundation.reflow(context, "tabs");
-    Foundation.reflow(context, "tooltip");
+    Tips.setup(context);
   }
 
   function _onShow(context) {

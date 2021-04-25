@@ -23,6 +23,8 @@ define(function(require) {
       context = $(document);
     }
 
+    $('.tooltip').remove();
+
     //For each tip in this context
     $('.tip', context).each(function() {
       var obj = $(this);
