@@ -317,7 +317,7 @@ class SunstoneServer < CloudServer
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         end
-		
+
 		client = @client
 		vm_pool = VirtualMachinePool.new(client, -1)
 		user_pool = UserPool.new(client)
@@ -333,21 +333,20 @@ class SunstoneServer < CloudServer
 			 puts rc.message
 			 exit -1
 		end
-		
+
         return guac.proxy(resource, type_connection)
-    end	
+    end
 
     ########################################################################
     # VMRC
     ########################################################################
-    def startvmrc(id, vmrc)
+    def startvmrc(id, vmrc, _client=nil)
         resource = retrieve_resource("vm", id)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
         end
-        client = @client
-        vm_pool = VirtualMachinePool.new(client, -1)
-        user_pool = UserPool.new(client)
+        vm_pool = VirtualMachinePool.new(@client, -1)
+        user_pool = UserPool.new(@client)
 
         rc = user_pool.info
         if OpenNebula.is_error?(rc)
@@ -361,6 +360,7 @@ class SunstoneServer < CloudServer
           exit -1
         end
 
+        client = _client.nil? ? @client : _client
         return vmrc.proxy(resource, client)
     end
 

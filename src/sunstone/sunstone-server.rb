@@ -381,7 +381,7 @@ helpers do
             fireedge_token = ""
             res = Net::HTTP.post_form(uri, params)
             fireedge_token = JSON.parse(res.body)['data']['token'] if res.is_a?(Net::HTTPSuccess)
-            
+
             response = fireedge_token
           rescue StandardError => error
             logger.error { "Cannot connect with fireedge: #{error.message}" }
@@ -1150,7 +1150,8 @@ end
 ##############################################################################
 post '/vm/:id/startvmrc' do
     vm_id = params[:id]
-    @SunstoneServer.startvmrc(vm_id, $vmrc)
+    serveradmin_client = $cloud_auth.client(nil, session[:active_zone_endpoint])
+    @SunstoneServer.startvmrc(vm_id, $vmrc, serveradmin_client)
 end
 
 ##############################################################################
