@@ -22,6 +22,7 @@ define(function(require) {
   var OpenNebulaVM = require('opennebula/vm');
   var CommonActions = require('utils/common-actions');
   var Files = require('utils/files');
+  var RemoteActions = require('utils/remote-actions');
 
   var CREATE_APP_DIALOG_ID = require('tabs/marketplaceapps-tab/form-panels/create/formPanelId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
@@ -260,7 +261,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.vnc,
       callback: function(request, response) {
-        var link = getLink(response,{
+        var link = RemoteActions.getLink(response,{
             port: Config.vncProxyPort,
             connnection_type: 'vnc',
             extra_params: [
@@ -269,8 +270,8 @@ define(function(require) {
               !Config.requestVNCPassword && 'password=' + response.password
             ]
         });
-       // Open in a new tab the noVNC connection
-       window.open(link);
+        // Open in a new tab the noVNC connection
+        window.open(link);
       },
       error: function(req, resp) {
         Notifier.onError(req, resp);
@@ -292,13 +293,13 @@ define(function(require) {
       callback: function(request, response) {
         response["vm_name"] = request.request.data[0].extra_param;
         var fireedge_endpoint = new URL(Config.publicFireedgeEndpoint);
-        var link = getLink(response,{
+        var link = RemoteActions.getLink(response,{
           host: fireedge_endpoint.hostname,
           port: fireedge_endpoint.port,
           connnection_type: 'vmrc',
           extra_path: '/fireedge/vmrc/' + response.data.ticket,
         });
-        // Open in a new tab the noVNC connection
+        // Open in a new tab the VMRC connection
         window.open(link);
       },
       error: function(req, resp) {
@@ -318,7 +319,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.vnc,
       callback: function(request, response) {
-        var link = getLink(response, {
+        var link = RemoteActions.getLink(response, {
           port: Config.vncProxyPort, 
           connnection_type: 'spice',
           extra_params: [
@@ -326,7 +327,7 @@ define(function(require) {
             'encrypt=' + config.user_config.vnc_wss,
           ]
         });
-        // Open in a new tab the noVNC connection
+        // Open in a new tab the SPICE connection
         window.open(link);
       },
       error: function(req, resp) {
@@ -371,7 +372,7 @@ define(function(require) {
       type: "single",
       call: OpenNebulaVM.guac,
       callback: function(_, response) {
-        var link = getLink(response, {
+        var link = RemoteActions.getLink(response, {
           connnection_type: 'guac',
           extra_path: '/fireedge/guacamole'
         });
@@ -459,47 +460,6 @@ define(function(require) {
     }
 
   };
-
-  /**
-   * 
-   * @param {Object} response Callback response with the token and info 
-   * @param {Object} options 
-   * @returns 
-   */
-  function getLink(response, options){
-    options = $.extend({
-      host: undefined,
-      port: undefined,
-      connnection_type: '',
-      extra_path: '',
-      extra_params: []
-    }, options);
-
-    var params = options.extra_params.concat([
-      response.token && 'token=' + response.token,
-      response.info && 'info=' + response.info
-    ]).filter(Boolean);
-
-    var endpoint = new URL(window.location.href);
-    var websocketProtocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
-
-    var websocket = websocketProtocol + '//';
-
-    if (options.host && options.port)
-      websocket += options.host + ':' + options.port
-    else if (options.port)
-      websocket += endpoint.hostname + ':' + options.port
-    else  
-      websocket += endpoint.host;
-    
-    websocket += options.extra_path + '?' + params.join("&");
-
-    var encoded_socket = btoa(websocket);
-
-    var link = endpoint.origin + "/" + options.connnection_type + "?socket=" + encoded_socket;
-    
-    return link;
-  }
 
   return _actions;
 });

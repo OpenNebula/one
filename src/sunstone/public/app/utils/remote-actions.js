@@ -290,6 +290,47 @@ define(function(require) {
       })
   }
 
+  /**
+   * 
+   * @param {Object} response Callback response with the token and info 
+   * @param {Object} options 
+   * @returns 
+   */
+   function _getLink(response, options){
+    options = $.extend({
+      host: undefined,
+      port: undefined,
+      connnection_type: '',
+      extra_path: '',
+      extra_params: []
+    }, options);
+
+    var params = options.extra_params.concat([
+      response.token && 'token=' + response.token,
+      response.info && 'info=' + response.info
+    ]).filter(Boolean);
+
+    var endpoint = new URL(window.location.href);
+    var websocketProtocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    var websocket = websocketProtocol + '//';
+
+    if (options.host && options.port)
+      websocket += options.host + ':' + options.port
+    else if (options.port)
+      websocket += endpoint.hostname + ':' + options.port
+    else  
+      websocket += endpoint.host;
+    
+    websocket += options.extra_path + '?' + params.join("&");
+
+    var encoded_socket = btoa(websocket);
+
+    var link = endpoint.origin + "/" + options.connnection_type + "?socket=" + encoded_socket;
+    
+    return link;
+  }
+
   return {
     'callSpice': _callSpice,
     'callVNC': _callVNC,
@@ -301,6 +342,7 @@ define(function(require) {
     'callGuacRDP': _callGuacRDP,
     'callGuacVNC': _callGuacVNC,
     'renderActionsHtml': _renderActionsHtml,
-    'bindActionsToContext': _bindActionsToContext
+    'bindActionsToContext': _bindActionsToContext,
+    'getLink': _getLink
   };
 });

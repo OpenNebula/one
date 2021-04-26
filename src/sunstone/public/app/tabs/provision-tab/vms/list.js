@@ -27,6 +27,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var TemplateUtils = require("utils/template-utils");
   var VMsTableUtils = require('../../vms-tab/utils/datatable-common');
+  var RemoteActions = require('utils/remote-actions');
 
   var TemplateConfirmPoweroff = require("hbs!./confirm_poweroff");
   var TemplateConfirmReboot = require("hbs!./confirm_reboot");
@@ -792,18 +793,30 @@ define(function(require) {
         },
         success: function(_, response){
           if (OpenNebulaVM.isVNCSupported(vm_data)) {
-
-            var urlAndLink = Vnc.getURLAndLink(response);
+            var link = RemoteActions.getLink(response,{
+              port: Config.vncProxyPort,
+              connnection_type: 'vnc',
+              extra_params: [
+                'port=' + Config.vncProxyPort,
+                'encrypt=' + Config.vncWSS,
+                !Config.requestVNCPassword && 'password=' + response.password
+              ]
+            });
             // Open in a new tab the noVNC connection
-            window.open(urlAndLink.link);
+            window.open(link);
 
             button.removeAttr("disabled");
           } else if (OpenNebulaVM.isSPICESupported(vm_data)) {
-            var urlAndLink = Spice.getURLAndLink(response);
-            // Open in a new tab the noVNC connection
-            window.open(urlAndLink.link);
-
-            button.removeAttr("disabled");
+            var link = RemoteActions.getLink(response, {
+              port: Config.vncProxyPort, 
+              connnection_type: 'spice',
+              extra_params: [
+                'password=' + response.password,
+                'encrypt=' + config.user_config.vnc_wss,
+              ]
+            });
+            // Open in a new tab the SPICE connection
+            window.open(link);
           } else {
             Notifier.notifyError("The remote console is not enabled for this VM");
           }
