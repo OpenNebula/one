@@ -136,9 +136,9 @@ define(function(require) {
     "VM.deploy" : {
       type: "custom",
       call: function() {
-        Sunstone.getDialog(DEPLOY_DIALOG_ID)
-          .reset()
-          .show();
+        var dialog = Sunstone.getDialog(DEPLOY_DIALOG_ID);
+        dialog.reset();
+        dialog.show();
       }
     },
     "VM.silent_deploy_action" : {
@@ -149,42 +149,42 @@ define(function(require) {
     "VM.migrate" : {
       type: "custom",
       call: function() {
-       Sunstone.getDialog(MIGRATE_DIALOG_ID)
-        .reset()
-        .setLive(false)
-        .setType(0)
-        .show();
-     }
+        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+        dialog.reset();
+        dialog.setLive(false);
+        dialog.setType(0);
+        dialog.show();
+      }
     },
     "VM.migrate_poff" : {
       type: "custom",
       call: function() {
-       Sunstone.getDialog(MIGRATE_DIALOG_ID)
-        .reset()
-        .setLive(false)
-        .setType(1)
-        .show();
-     }
+        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+        dialog.reset();
+        dialog.setLive(false);
+        dialog.setType(1);
+        dialog.show();
+      }
     },
     "VM.migrate_poff_hard" : {
       type: "custom",
       call: function() {
-       Sunstone.getDialog(MIGRATE_DIALOG_ID)
-        .reset()
-        .setLive(false)
-        .setType(2)
-        .show();
-     }
+        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+        dialog.reset();
+        dialog.setLive(false);
+        dialog.setType(2);
+        dialog.show();
+      }
     },
     "VM.migrate_live" : {
       type: "custom",
       call: function() {
-       Sunstone.getDialog(MIGRATE_DIALOG_ID)
-        .reset()
-        .setLive(true)
-        .setType(0)
-        .show();
-     }
+        var dialog = Sunstone.getDialog(MIGRATE_DIALOG_ID);
+        dialog.reset();
+        dialog.setLive(true);
+        dialog.setType(0);
+        dialog.show();
+      }
     },
     "VM.save_rdp" : {
       type: "custom",
@@ -431,11 +431,12 @@ define(function(require) {
               id: resourceId
           },
           success: function(_, vmTemplate){
-            if (vmTemplate && 
-                vmTemplate.VM && 
-                vmTemplate.VM.USER_TEMPLATE && 
-                vmTemplate.VM.USER_TEMPLATE.HYPERVISOR && 
-                vmTemplate.VM.USER_TEMPLATE.HYPERVISOR !== "vcenter"){
+            if (
+              vmTemplate &&
+              vmTemplate.VM &&
+              vmTemplate.VM.USER_TEMPLATE &&
+              vmTemplate.VM.USER_TEMPLATE.HYPERVISOR !== "vcenter"
+            ){
               Sunstone.showTab(MARKETPLACEAPPS_TAB_ID);
               Sunstone.showFormPanel(
                 MARKETPLACEAPPS_TAB_ID,

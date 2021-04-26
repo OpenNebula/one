@@ -126,7 +126,7 @@ class SunstoneGuac < SunstoneRemoteConnections
                 'hostname' =>  hostname,
                 'port' =>  vm_resource['TEMPLATE/GRAPHICS/PORT'],
                 'password' =>  vm_resource['TEMPLATE/GRAPHICS/PASSWD']
-            }.compact
+            }
         )
     end
 
@@ -153,7 +153,7 @@ class SunstoneGuac < SunstoneRemoteConnections
                 'port' =>  vm_resource['TEMPLATE/CONTEXT/RDP_PORT'],
                 'username' =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
                 'password' => vm_resource['TEMPLATE/CONTEXT/PASSWORD']
-            }.compact
+            }
         )
     end
 
@@ -180,7 +180,7 @@ class SunstoneGuac < SunstoneRemoteConnections
                 'port' =>  vm_resource['TEMPLATE/CONTEXT/SSH_PORT'],
                 'username' =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
                 'password' =>  vm_resource['TEMPLATE/CONTEXT/PASSWORD']
-            }.compact
+            }
         )
     end
 
