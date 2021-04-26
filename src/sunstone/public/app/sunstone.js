@@ -550,7 +550,10 @@ define(function(require) {
     //Listen for .action_buttons
     //An action buttons runs a predefined action. If it has type
     //"multiple" it runs that action on the elements of a datatable.
-    $(document).on("click", ".action_button", function() {
+    $(document).on("click", ".action_button", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       var error = 0;
       var value = $(this).val();
       var data = ($(this).attr("data") == "")? undefined: $(this).attr("data");
@@ -580,7 +583,10 @@ define(function(require) {
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //before running the action.
-    $(document).on("click", ".confirm_button", function() {
+    $(document).on("click", ".confirm_button", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       var dialogInstance = _getDialogInstance(CONFIRM_DIALOG_ID);
       dialogInstance.reset();
       $("#" + CONFIRM_DIALOG_ID).data("buttonAction", $(this).attr("href"));
@@ -591,7 +597,10 @@ define(function(require) {
 
     //Listen .confirm_buttons. These buttons show a confirmation dialog
     //with a select box before running the action.
-    $(document).on("click", ".confirm_with_select_button", function() {
+    $(document).on("click", ".confirm_with_select_button", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       var dialogInstance = _getDialogInstance(CONFIRM_WITH_SELECT_DIALOG_ID);
 
       dialogInstance.setParams({
@@ -608,16 +617,21 @@ define(function(require) {
     //$(document).foundation('dropdown', 'reflow');
 
     // Button to return to the list view from the detailed view
-    $(document).on("click", "button[href='back']", function(e) {
+    $(document).on("click", "button[href='back']", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       if(window.sunstoneNoMultipleRedirects){
         window.history.back();
         window.sunstoneNoMultipleRedirects = false;
       }
-      e.preventDefault();
     });
 
     // Reload foundation ips dropdown when change page on datatables
-    $(document).on("click", ".paginate_button", function() {
+    $(document).on("click", ".paginate_button", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
       UtilsFoundation.update(null);
     });
   };
