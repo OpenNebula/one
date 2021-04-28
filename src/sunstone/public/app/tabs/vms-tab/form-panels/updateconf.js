@@ -41,7 +41,6 @@ define(function(require) {
   var TEMPLATE_TAB_ID = require('tabs/templates-tab/tabId');
   var WIZARD_TABS = [
     require('tabs/templates-tab/form-panels/create/wizard-tabs/os'),
-    require('tabs/templates-tab/form-panels/create/wizard-tabs/io'),
     require('tabs/templates-tab/form-panels/create/wizard-tabs/context'),
     require('tabs/templates-tab/form-panels/create/wizard-tabs/other')
   ]
