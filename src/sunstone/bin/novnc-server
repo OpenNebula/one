@@ -76,9 +76,9 @@ if ARGV[0]
     when :start
         vnc.start
     when :stop
-        vnc.stop(true)
+        vnc.stop
     when :restart
-        vnc.stop(true)
+        vnc.stop
         sleep 1
         vnc.start
     when :status
@@ -92,4 +92,3 @@ if ARGV[0]
 else
     exit(-1)
 end
-

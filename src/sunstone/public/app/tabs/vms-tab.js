@@ -19,7 +19,6 @@ define(function(require) {
   var Buttons = require("./vms-tab/buttons");
   var Actions = require("./vms-tab/actions");
   var Table = require("./vms-tab/datatable");
-  require("utils/vnc");
   var TAB_ID = require("./vms-tab/tabId");
   var DATATABLE_ID = "dataTableVms";
 
@@ -35,10 +34,6 @@ define(function(require) {
     require("./vms-tab/dialogs/attach-nic"),
     require("./vms-tab/dialogs/snapshot"),
     require("./vms-tab/dialogs/revert"),
-    require("./vms-tab/dialogs/vnc"),
-    require("./vms-tab/dialogs/vmrc"),
-    require("./vms-tab/dialogs/spice"),
-    require("./vms-tab/dialogs/guac"),
     require("./vms-tab/dialogs/saveas-template")
   ];
 

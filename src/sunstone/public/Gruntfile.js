@@ -93,6 +93,11 @@ module.exports = function(grunt) {
               name: "console/spice",
               include: ["almond"],
               insertRequire: ["console/spice"]
+            },
+            {
+              name: "console/guacamole",
+              include: ["almond"],
+              insertRequire: ["console/guacamole"]
             }
           ]
         }

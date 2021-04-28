@@ -55,3 +55,29 @@ main {
 .spice-message-error {
     color: red;
 }
+
+#VMRC_buttons {
+    white-space: nowrap;
+}
+
+.remote_logo{
+    border-radius: 50%;
+    background-color: #282828;
+    padding: 0.4em;
+    margin-right: 1em;
+    height: 40px;
+    width: 40px;
+}
+
+#spice_status_msg{
+    white-space: nowrap; 
+    max-width: 20em; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

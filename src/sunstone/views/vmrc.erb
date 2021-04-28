@@ -10,7 +10,8 @@
       <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
       <link rel="apple-touch-icon" href="images/screen_57x57.png">
       <!-- Stylesheets -->
-      <link rel="stylesheet" type="text/css" href="css/novnc-custom.css" title="plain">
+      <link rel="stylesheet" type="text/css" href="css/app.css" title="plain">
+      <link rel="stylesheet" type="text/css" href="css/vmrc-custom.css" title="plain">
       <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>
       <!-- JQuery -->
       <script src="bower_components/jquery/dist/jquery.min.js"></script>
@@ -68,27 +69,45 @@
     </head>
     <body style="margin: 0px;">
       <div id="VMRC_screen">
-        <div style="background: #f7f7f7; border-bottom: 1px solid #dfdfdf; padding: 10px 0px 15px 0px">
-          <div id="VMRC_status_bar" class="VMRC_status_bar" style="margin-top: 0px;">
-            <table border="0" width="100%">
-              <tr>
-                <td width="1%" >
-                  <img src="images/one_small_logo.png" style="height:40px; vertical-align:top; margin-left: 30px"></td>
-                <td>
-                  <div id="VMRC_status" style="position: relative; height: auto; color: #000; text-align:center;">Loading</div>
-                </td>
-                <td width="1%" >
-                  <div id="VMRC_buttons" style="margin-right: 30px">
-                    <input type=button value="Send CtrlAltDel"
-                                id="sendCtrlAltDelButton">
+        <div style="background: #f7f7f7; padding: 1.5em 1.5em 0.8em;">
+          <div style="max-width: 1250px; margin: 0 auto;">
+            <div id="VMRC_status_bar" class="noVNC_status_bar" style="display: flex; align-items: center;">
+              <img src="images/one_small_logo.png" style="height:40px;">
+              
+              <h5 id="VMRC_status" style="position: relative;">
+                <div class="container">
+                  <div class="remote_logo">
+                    <img src="images/remote_console/vmrc.png">
                   </div>
-                </td>
-              </tr>
-            </table>
+                  <div id="VMRC_status_msg">
+                    Loading
+                  </div>
+                </div>
+              </h5>
+
+              <div id="VMRC_buttons">
+                <button class="button alert" id="sendCtrlAltDelButton">Send CtrlAltDel</button>
+                <button class="button info" id="fullScreenButton"><i class="fas fa-expand"></i></button>
+                <button class="button info" id="keyboardSelector"><i class="fas fa-keyboard"></i></button>
+                <select style="width: auto;" id="selectLanguage" hidden>
+                  <option value="en-US">English</option>
+                  <option value="ja-JP_106/109">Japanese</option>
+                  <option value="de-DE">German</option>
+                  <option value="it-IT">Italian</option>
+                  <option value="es-ES">Spanish</option>
+                  <option value="pt-PT">Portuguese</option>
+                  <option value="fr-FR">French</option>
+                  <option value="fr-CH">Swiss-French</option>
+                  <option value="de-CH">Swiss-German</option>
+                </select>
+              </div>
+            </div>
+            <div class="VMRC_info"></div>
           </div>
         </div>
-        <div id="wmksContainer" style="position:absolute;width:100%;height:100%; left:0em"></div>
-        <div id="VMRC_canvas" width="640px" height="20px">
+
+        <div id="VMRC_canvas">
+          <div id="wmksContainer" class="wmksContainer"></div>
           <div class="VMRC_message"></div>
         </div>
       </div>

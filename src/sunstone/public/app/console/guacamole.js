@@ -15,5 +15,24 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  return 'spiceVMDialog';
+    var GuacController = require('utils/guacamole/controller');
+
+    try {
+		var endpoint = new URL(window.location.href);
+		var encoded_socket = endpoint.searchParams.get("socket");
+		var socket_string = atob(encoded_socket);
+
+        var url = new URL(socket_string);
+        var params = url.searchParams;
+        var token = params.get("token");
+        var info = params.get("info");
+    
+        var controller = new GuacController();
+        controller.setInformation(info);
+        controller.setConnection(token);
+    } catch (error) {
+		console.log(error);
+        $('#guacamole-state').empty().text('Failed');
+    }
+    
 });

@@ -201,6 +201,7 @@ define(function(require) {
     },
     "VM.startvnc" : {
       type: "action",
+      id: "vm_vnc_action",
       text: Locale.tr("VNC"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info vnc-button"
