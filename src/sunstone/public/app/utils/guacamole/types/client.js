@@ -215,9 +215,15 @@ define(function(require) {
   function getConnectString(token, connectionParameters, display = window) {
     // Calculate optimal width/height for display
     var pixel_density = window.devicePixelRatio || 1;
-    var optimal_width = display.innerWidth * pixel_density;
-    var optimal_height = display.innerHeight * pixel_density;
     var optimal_dpi = pixel_density * 96;
+    
+    var optimal_width = display instanceof Window
+      ? display.innerWidth * pixel_density
+      : display.offsetWidth * pixel_density;
+
+    var optimal_height = display instanceof Window
+      ? display.innerHeight * pixel_density
+      : display.offsetHeight * pixel_density;
 
     // Build base connect string
     var connectString = [
