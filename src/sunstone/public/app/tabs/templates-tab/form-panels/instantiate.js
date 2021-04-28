@@ -466,7 +466,7 @@ define(function(require) {
       var os = original_tmpl.TEMPLATE.OS ? original_tmpl.TEMPLATE.OS : {};
       
       for ([key, value] of Object.entries(os)) {
-        os[key] = value.replaceAll('"', '\\"');
+        os[key] = value.replace(/"/g, '\\"');
       }
 
       if (boot && boot.length > 0) {
