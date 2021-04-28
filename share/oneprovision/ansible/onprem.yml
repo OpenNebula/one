@@ -1,0 +1,22 @@
+---
+
+- hosts: all
+  gather_facts: false
+  roles:
+    - python
+
+- hosts: nodes
+  roles:
+    - ddc
+    - opennebula-repository
+    - { role: opennebula-node-kvm, when: oneprovision_hypervisor == 'kvm' }
+    - { role: opennebula-node-firecracker, when: oneprovision_hypervisor == 'firecracker' }
+    - { role: opennebula-node-lxc, when: oneprovision_hypervisor == 'lxc' }
+    - opennebula-ssh
+    - update-replica
+    - role: frr
+      #bond0_0 is attached to the project private network
+      frr_iface: '{{ oneprovision_private_phydev }}'
+      # Use /25 for the internal management network address
+      frr_prefix_length: 25
+

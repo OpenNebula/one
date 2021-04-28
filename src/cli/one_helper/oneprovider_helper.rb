@@ -102,6 +102,8 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
         puts format('ID   : %<s>s', :s => id)
         puts format('NAME : %<s>s', :s => provider['NAME'])
 
+        return if body['provider'] == 'dummy'
+
         # Get max size to adjust all the values
         size = body['connection'].keys.map {|k| k.size }.max
         data = {}
@@ -176,7 +178,6 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
             template = YAML.load_file(template)
 
             raise 'Name not found' unless template['name']
-            raise 'Connection info not found' unless template['connection']
 
             unless OneProvision::Terraform::PROVIDERS.include?(
                 template['provider']
@@ -184,6 +185,10 @@ class OneProviderHelper < OpenNebulaHelper::OneHelper
                 raise 'Invalid provider, available providers: ' \
                       "#{OneProvision::Terraform::PROVIDERS.join(', ')}"
             end
+
+            return template if template['provider'] == 'dummy'
+
+            raise 'Connection info not found' unless template['connection']
 
             template
         rescue StandardError => e

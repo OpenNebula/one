@@ -1,0 +1,57 @@
+---
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+inputs:
+  - name: 'hosts_names'
+    type: array
+    description: 'Comma separated list of FQDNs or IP addresses of the hosts to be added to the cluster'
+
+  - name: 'one_hypervisor'
+    type: list
+    description: "Virtualization technology for the cluster hosts"
+    options:
+        - 'kvm'
+        - 'lxc'
+        - 'firecracker'
+
+  - name: 'dns'
+    type: text
+    description: 'Comma separated list of DNS servers for public network'
+    default: '1.1.1.1'
+
+  - name: 'public_network_bridge'
+    type: text
+    description: 'Name of the bridge to be created by OpenNebula for public networking.'
+
+  - name: 'first_public_ip'
+    type: text
+    description: 'First public IP for the public IPs address range.'
+
+  - name: 'number_public_ips'
+    type: text
+    description: 'Number of public IPs to get'
+    default: '1'
+
+  - name: 'public_phydev'
+    type: text
+    description: 'Physical device to be used for public networking.'
+
+  - name: 'private_phydev'
+    type: text
+    description: 'Physical device to be used for private networking.'
+
+...

@@ -148,8 +148,6 @@ module OneProvision
         #
         # @return [Provider]
         def self.by_name(client, provider)
-            return Provider.new_with_id(-1) if provider == 'dummy'
-
             if provider.to_s.match(/^[0123456789]+$/)
                 provider = Provider.new_with_id(Integer(provider), client)
                 rc       = provider.info(true)
