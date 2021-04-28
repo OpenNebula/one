@@ -15,39 +15,39 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  var Locale = require('utils/locale'),
-    Sunstone = require('sunstone'),
+  var Locale = require("utils/locale"),
+    Sunstone = require("sunstone"),
     Config = require("sunstone-config"),
     OpenNebulaVM = require("opennebula/vm"),
-    Vnc = require('utils/vnc'),
-    Spice = require('utils/spice'),
-    FireedgeValidator = require('utils/fireedge-validator'),
-    Notifier = require('utils/notifier');
-  
+    Vnc = require("utils/vnc"),
+    Spice = require("utils/spice"),
+    FireedgeValidator = require("utils/fireedge-validator"),
+    Notifier = require("utils/notifier");
+
   function _callSpice(data) {
-    if (!Spice.lockStatus() && data.hasOwnProperty('id')) {
+    if (!Spice.lockStatus() && data.hasOwnProperty("id")) {
       Spice.lock();
-      Sunstone.runAction('VM.startspice_action', String(data.id));
+      Sunstone.runAction("VM.startspice_action", String(data.id));
     } else {
-      Notifier.notifyError(Locale.tr('SPICE Connection in progress'));
+      Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
     }
   }
-  
+
   function _callVNC(data) {
-    if (!Vnc.lockStatus() && data.hasOwnProperty('id')) {
+    if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
       Vnc.lock();
-      Sunstone.runAction('VM.startvnc_action', String(data.id));
+      Sunstone.runAction("VM.startvnc_action", String(data.id));
     } else {
-      Notifier.notifyError(Locale.tr('VNC Connection in progress'));
+      Notifier.notifyError(Locale.tr("VNC Connection in progress"));
     }
   }
-  
+
   function _callSaveRDP(data) {
-    (data.hasOwnProperty('ip') && data.hasOwnProperty('name'))
-      ? Sunstone.runAction('VM.save_rdp', data)
-      : Notifier.notifyError(Locale.tr('This VM needs a nic with rdp active'));
+    (data.hasOwnProperty("ip") && data.hasOwnProperty("name"))
+      ? Sunstone.runAction("VM.save_rdp", data)
+      : Notifier.notifyError(Locale.tr("This VM needs a nic with rdp active"));
   }
-  
+
   function _callSaveWFile(data) {
     (
       data.hasOwnProperty("id") &&
@@ -76,125 +76,127 @@ define(function(require) {
   /**
    * Guacamole actions
    */
-  
+
   function _callGuacVNC(data) {
-    (data.hasOwnProperty('id'))
-      ? Sunstone.runAction('VM.startguac_action', String(data.id), 'vnc')
-      : Notifier.notifyError(Locale.tr('VNC - Invalid action'));
+    (data.hasOwnProperty("id"))
+      ? Sunstone.runAction("VM.startguac_action", String(data.id), "vnc")
+      : Notifier.notifyError(Locale.tr("VNC - Invalid action"));
   }
 
   function _callGuacRDP(data) {
-    (data.hasOwnProperty('id'))
-      ? Sunstone.runAction('VM.startguac_action', String(data.id), 'rdp')
-      : Notifier.notifyError(Locale.tr('RDP - Invalid action'));
+    (data.hasOwnProperty("id"))
+      ? Sunstone.runAction("VM.startguac_action", String(data.id), "rdp")
+      : Notifier.notifyError(Locale.tr("RDP - Invalid action"));
   }
-  
+
   function _callGuacSSH(data) {
-    (data.hasOwnProperty('id'))
-      ? Sunstone.runAction('VM.startguac_action', String(data.id), 'ssh')
-      : Notifier.notifyError(Locale.tr('SSH - Invalid action'));
+    (data.hasOwnProperty("id"))
+      ? Sunstone.runAction("VM.startguac_action", String(data.id), "ssh")
+      : Notifier.notifyError(Locale.tr("SSH - Invalid action"));
   }
 
   /**
    * Render actions
    */
 
-  function buttonVnc(id = '') {
-    var icon = $('<i>', { class: 'fas fa-desktop' })
+  function buttonVnc(id = "") {
+    var icon = $("<i>", { class: "fas fa-desktop" });
 
-    var button = $('<button>', {
-      title: 'vnc',
-      class: 'vnc remote-vm',
-      'data-id': id
-    })
+    var button = $("<button>", {
+      title: "vnc",
+      class: "vnc remote-vm",
+      "data-id": id
+    });
 
-    return $('<div>').append(button.append(icon)).html()
+    return $("<div>").append(button.append(icon)).html();
   }
 
-  function buttonSSH(id = '') {
-    var icon = $('<i>', { class: 'fas fa-terminal' })
+  function buttonSSH(id = "") {
+    var icon = $("<i>", { class: "fas fa-terminal" });
 
-    var button = $('<button>', {
-      title: 'ssh',
-      class: 'ssh remote-vm',
-      'data-id': id
-    })
+    var button = $("<button>", {
+      title: "ssh",
+      class: "ssh remote-vm",
+      "data-id": id
+    });
 
-    return $('<div>').append(button.append(icon)).html()
+    return $("<div>").append(button.append(icon)).html();
   }
 
-  function buttonSpice(id = '') {
-    var icon = $('<i>', { class: 'fas fa-desktop' })
+  function buttonSpice(id = "") {
+    var icon = $("<i>", { class: "fas fa-desktop" });
 
-    var button = $('<button>', {
-      title: 'spice',
-      class: 'spice remote-vm',
-      'data-id': id
-    })
+    var button = $("<button>", {
+      title: "spice",
+      class: "spice remote-vm",
+      "data-id": id
+    });
 
-    return $('<div>').append(button.append(icon)).html()
+    return $("<div>").append(button.append(icon)).html();
   }
 
-  function buttonWFile(id = '', data = {}) {
-    var icon = $('<i>', { class: 'fas fa-external-link-square-alt' })
+  function buttonWFile(id = "", data = {}) {
+    var icon = $("<i>", { class: "fas fa-external-link-square-alt" });
 
-    var button = $('<button>', {
-      title: 'download virt-viewer file',
-      class: 'w-file remote-vm',
-      'data-id': id,
-      'data-type': data.type,
-      'data-port': data.port,
-      'data-hostname':data.hostname
-    })
+    var button = $("<button>", {
+      title: "download virt-viewer file",
+      class: "w-file remote-vm",
+      "data-id": id,
+      "data-type": data.type,
+      "data-port": data.port,
+      "data-hostname":data.hostname
+    });
 
-    return $('<div>').append(button.append(icon)).html()
+    return $("<div>").append(button.append(icon)).html();
   }
 
 
-  function dropdownRDP(id = '', ip = '', vm = {}) {
-    var icon = $('<i>', { class: 'fab fa-windows' })
-    var dropdownButton = $('<button>', { title:'RDP menu', class: 'remote-vm' })
+  function dropdownRDP(id = "", ip = "", vm = {}) {
+    var icon = $("<i>", { class: "fab fa-windows" });
+    var dropdownButton = $("<button>", { title:"RDP menu", class: "remote-vm" });
 
-    var dropdownMenu = $('<ul>', {
-      class: 'dropdown menu rdp-buttons',
-      'data-dropdown-menu': ''
-    })
+    var dropdownMenu = $("<ul>", {
+      class: "dropdown-menu-css"
+    });
 
-    var buttonsEnabled = []
+    var buttonsEnabled = [];
 
     Config.isTabActionEnabled("vms-tab", "VM.rdp") &&
-      buttonsEnabled.push($('<li>').append(buttonRDP(id)));
-      
+      buttonsEnabled.push($("<li>").append(buttonRDP(id)));
+
     Config.isTabActionEnabled("vms-tab", "VM.save_rdp") &&
-      buttonsEnabled.push($('<li>').append(buttonSaveRDP(ip, vm)));
+      buttonsEnabled.push($("<li>").append(buttonSaveRDP(ip, vm)));
 
-    if (buttonsEnabled.length === 0) return '';
+    if (buttonsEnabled.length === 0) return "";
 
-    var menu = $('<ul>', { class: 'menu' }).append(buttonsEnabled)
+    var menu = $("<ul>", { class: "menu" }).append(buttonsEnabled);
 
-    return $('<div>').append(
+    return $("<div>").append(
       dropdownMenu.append(
-        $('<li>').append([dropdownButton.append(icon), menu])
+        [
+          $("<li>").append(dropdownButton.append(icon)),
+          $("<li>", {class:"menu-hide"}).append(menu)
+        ]
       )
-    ).html()
+    ).html();
   }
 
-  function buttonRDP(id = '') {
-    var icon = $('<i>', { class: 'fas fa-desktop' })
-      .css({ width: '2em', 'text-align': 'center' })
-    
-    var text = $('<span>', { text: Locale.tr('HTML') })
-    var button = $('<a>', { class: 'rdp', 'data-id': id })
+  function buttonRDP(id = "") {
+    var icon = $("<i>", { class: "fas fa-desktop" })
+      .css({ width: "2em", "text-align": "center" });
 
-    return $('<div>').append(button.append([icon, text])).html()
+    var text = $("<span>", { text: Locale.tr("HTML") });
+    var button = $("<a>", { class: "rdp", "data-id": id });
+
+    return $("<div>").append(button.append([icon, text])).html();
   }
 
   function buttonSaveRDP(ip = "", vm = {}) {
-    var icon = $('<i>', { class: 'fas fa-file' })
-      .css({ width: '2em', 'text-align': 'center' })
-    
-    var text = $('<span>', { text: Locale.tr('RDP Client') })
-    var button = $('<a>', { class: 'save-rdp', 'data-name': vm.NAME, 'data-ip': ip })
+    var icon = $("<i>", { class: "fas fa-file" })
+      .css({ width: "2em", "text-align": "center" });
+
+    var text = $("<span>", { text: Locale.tr("Client") });
+    var button = $("<a>", { class: "save-rdp", "data-name": vm.NAME, "data-ip": ip });
 
     var username, password;
 
@@ -207,14 +209,14 @@ define(function(require) {
       }
     }
 
-    username && button.attr('data-username', username)
-    password && button.attr('data-password', password)
+    username && button.attr("data-username", username);
+    password && button.attr("data-password", password);
 
-    return $('<div>').append(button.append([icon, text])).html()
+    return $("<div>").append(button.append([icon, text])).html();
   }
 
   function _renderActionsHtml(vm) {
-    var actions = '';
+    var actions = "";
 
     if (OpenNebulaVM.isVNCSupported(vm)) {
       actions += buttonVnc(vm.ID);
@@ -224,23 +226,23 @@ define(function(require) {
     }
 
     var wFile = OpenNebulaVM.isWFileSupported(vm);
-    actions += wFile ? buttonWFile(vm.ID, wFile) : '';
+    actions += wFile ? buttonWFile(vm.ID, wFile) : "";
 
-    var rdpIp = OpenNebulaVM.isConnectionSupported(vm, 'rdp');
-    actions += rdpIp ? dropdownRDP(vm.ID, rdpIp, vm) : '';
+    var rdpIp = OpenNebulaVM.isConnectionSupported(vm, "rdp");
+    actions += rdpIp ? dropdownRDP(vm.ID, rdpIp, vm) : "";
 
-    var ssh = OpenNebulaVM.isConnectionSupported(vm, 'ssh');
-    actions += ssh && Config.isTabActionEnabled("vms-tab", "VM.rdp") ? buttonSSH(vm.ID) : '';
+    var ssh = OpenNebulaVM.isConnectionSupported(vm, "ssh");
+    actions += ssh && Config.isTabActionEnabled("vms-tab", "VM.rdp") ? buttonSSH(vm.ID) : "";
 
-    if(config && 
-      config["system_config"] && 
-      config["system_config"]["allow_vnc_federation"] && 
-      config["system_config"]["allow_vnc_federation"] === 'no' &&
-      config["id_own_federation"] && 
-      config["zone_id"] && 
+    if(config &&
+      config["system_config"] &&
+      config["system_config"]["allow_vnc_federation"] &&
+      config["system_config"]["allow_vnc_federation"] === "no" &&
+      config["id_own_federation"] &&
+      config["zone_id"] &&
       config["id_own_federation"] !== config["zone_id"])
     {
-      actions = '';
+      actions = "";
     }
 
     return "<div style='display: flex; align-items: end; gap:5px'>"+actions+"</div>";
@@ -248,38 +250,38 @@ define(function(require) {
 
   function _bindActionsToContext(context) {
     $(context)
-      .off("click", '.w-file')
-      .on("click", '.w-file', function(evt) {
+      .off("click", ".w-file")
+      .on("click", ".w-file", function(evt) {
         evt.preventDefault();
         _callSaveWFile($(this).data());
         evt.stopPropagation();
       })
-      .off("click", '.save-rdp')
-      .on("click", '.save-rdp', function(evt) {
+      .off("click", ".save-rdp")
+      .on("click", ".save-rdp", function(evt) {
         evt.preventDefault();
         _callSaveRDP($(this).data());
         evt.stopPropagation();
       })
-      .off("click", '.rdp')
+      .off("click", ".rdp")
       .on("click", ".rdp", function(evt) {
       evt.preventDefault();
       _callGuacRDP($(this).data());
         evt.stopPropagation();
       })
-      .off("click", '.ssh')
+      .off("click", ".ssh")
       .on("click", ".ssh", function(evt) {
         evt.preventDefault();
         _callGuacSSH($(this).data());
         evt.stopPropagation();
       })
-      .off("click", '.spice')
-      .on("click", '.spice', function(evt) {
+      .off("click", ".spice")
+      .on("click", ".spice", function(evt) {
         evt.preventDefault();
         _callSpice($(this).data());
         evt.stopPropagation();
       })
-      .off("click", '.vnc')
-      .on("click", '.vnc', function(evt) {
+      .off("click", ".vnc")
+      .on("click", ".vnc", function(evt) {
         evt.preventDefault();
         var data = $(this).data();
 
@@ -289,30 +291,30 @@ define(function(require) {
           success: function(response) {
             FireedgeValidator.validateFireedgeToken(
               function() {
-                  OpenNebulaVM.isVMRCSupported(response) ? _callVMRC(data) : _callGuacVNC(data)
+                  OpenNebulaVM.isVMRCSupported(response) ? _callVMRC(data) : _callGuacVNC(data);
               },
               function() {
-                _callVNC(data)
+                _callVNC(data);
               }
             );
           }
         });
 
         evt.stopPropagation();
-      })
+      });
   }
 
   return {
-    'callSpice': _callSpice,
-    'callVNC': _callVNC,
-    'callSaveRDP': _callSaveRDP,
-    'callSaveWFile': _callSaveWFile,
-    'callVMRC': _callVMRC,
-    'callGuacVNC': _callGuacVNC,
-    'callGuacSSH': _callGuacSSH,
-    'callGuacRDP': _callGuacRDP,
-    'callGuacVNC': _callGuacVNC,
-    'renderActionsHtml': _renderActionsHtml,
-    'bindActionsToContext': _bindActionsToContext
+    "callSpice": _callSpice,
+    "callVNC": _callVNC,
+    "callSaveRDP": _callSaveRDP,
+    "callSaveWFile": _callSaveWFile,
+    "callVMRC": _callVMRC,
+    "callGuacVNC": _callGuacVNC,
+    "callGuacSSH": _callGuacSSH,
+    "callGuacRDP": _callGuacRDP,
+    "callGuacVNC": _callGuacVNC,
+    "renderActionsHtml": _renderActionsHtml,
+    "bindActionsToContext": _bindActionsToContext
   };
 });

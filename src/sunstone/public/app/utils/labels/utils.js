@@ -17,28 +17,27 @@
 define(function (require) {
   /* DEPENDENCIES */
 
-  var Tree = require('./tree');
-  var Sunstone = require('sunstone');
-  var OpenNebula = require('opennebula');
-  var Locale = require('utils/locale');
-  var Notifier = require('utils/notifier');
-  var TemplateUtils = require('utils/template-utils');
-  var OpenNebulaUser = require('opennebula/user');
-  var UtilsFoundation = require("utils/foundation/utils");
+  var Tree = require("./tree");
+  var Sunstone = require("sunstone");
+  var OpenNebula = require("opennebula");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var TemplateUtils = require("utils/template-utils");
+  var OpenNebulaUser = require("opennebula/user");
 
-  var LABELS_ATTR = 'LABELS';
+  var LABELS_ATTR = "LABELS";
 
   return {
-    'labelsStr': _labelsStr,
-    'deserializeLabels': _deserializeLabels,
-    'makeTree': _makeTree,
-    'insertLabelsMenu': _insertLabelsMenu,
-    'insertLabelsDropdown': _insertLabelsDropdown,
-    'clearLabelsFilter': _clearLabelsFilter,
-    'setLabelsFilter': _setLabelsFilter,
-    'getLabelsFilter': _getLabelsFilter,
-    'getLabels': _getLabels,
-    'getLabel': _getLabel
+    "labelsStr": _labelsStr,
+    "deserializeLabels": _deserializeLabels,
+    "makeTree": _makeTree,
+    "insertLabelsMenu": _insertLabelsMenu,
+    "insertLabelsDropdown": _insertLabelsDropdown,
+    "clearLabelsFilter": _clearLabelsFilter,
+    "setLabelsFilter": _setLabelsFilter,
+    "getLabelsFilter": _getLabelsFilter,
+    "getLabels": _getLabels,
+    "getLabel": _getLabel
   };
 
   /* FUNCTION DEFINITIONS */
@@ -60,25 +59,25 @@ define(function (require) {
    * @param {string}        [opts.placeholder] - Message to be shown in no labels are defined
    */
   function _insertLabelsMenu(opts) {
-    var context = opts.context || $('#li_' + opts.tabName);
+    var context = opts.context || $("#li_" + opts.tabName);
     var dataTable = opts.dataTable || Sunstone.getDataTable(opts.tabName).dataTable;
     var labelsColumn = opts.labelsColumn || Sunstone.getDataTable(opts.tabName).labelsColumn;
     var labelsPath = opts.labelsPath;
 
     var labels = _getLabels(dataTable, labelsColumn, labelsPath);
-    $('.labels-tree', context).remove();
+    $(".labels-tree", context).remove();
     if ($.isEmptyObject(labels)) {
       if (opts.placeholder) {
-        context.html('<div class="text-center">' + opts.placeholder + '</div>');
+        context.html("<div class=\"text-center\">" + opts.placeholder + "</div>");
       }
     } else {
       context.append(Tree.html(_makeTree(labels), true));
 
-      context.off('click', '.labeltree-line');
+      context.off("click", ".labeltree-line");
 
-      Tree.setup($('.labels-tree', context));
+      Tree.setup($(".labels-tree", context));
 
-      var currentLabel = $('span[one-label-full-name="' + _getLabelsFilter(dataTable) + '"]', context);
+      var currentLabel = $("span[one-label-full-name=\"" + _getLabelsFilter(dataTable) + "\"]", context);
 
       if (currentLabel.length == 0) {
         _clearLabelsFilter(dataTable, labelsColumn);
@@ -91,16 +90,16 @@ define(function (require) {
     /*
       Filter datatable when a label in the left menu is clicked
      */
-    context.off('click', '.labeltree-line');
-    context.on('click', '.labeltree-line', function () {
+    context.off("click", ".labeltree-line");
+    context.on("click", ".labeltree-line", function () {
       var span = $(".one-label", this);
 
       if ($(span).hasClass("active")) {
-        if (opts.tabName && !Sunstone.rightListVisible($('#' + opts.tabName))) {
+        if (opts.tabName && !Sunstone.rightListVisible($("#" + opts.tabName))) {
           Sunstone.showTab(opts.tabName);
         }
 
-        var label = $(span).attr('one-label-full-name');
+        var label = $(span).attr("one-label-full-name");
 
         _setLabelsFilter(dataTable, labelsColumn, label);
       } else {
@@ -117,14 +116,14 @@ define(function (require) {
     var dataTable = tabTable.dataTable;
     var labelsColumn = tabTable.labelsColumn;
 
-    var labelsDropdown = $('#' + tabName + 'LabelsDropdown');
+    var labelsDropdown = $("#" + tabName + "LabelsDropdown");
 
     OpenNebulaUser.show({
       data: {
-        id: config['user_id']
+        id: config["user_id"]
       },
       success: function (request, user_json) {
-        var labels_persis = '';
+        var labels_persis = "";
         if (user_json["USER"]["TEMPLATE"]) {
           if (user_json["USER"]["TEMPLATE"]["LABELS"]) {
             labels_persis = user_json["USER"]["TEMPLATE"]["LABELS"];
@@ -134,14 +133,14 @@ define(function (require) {
         labels_persis = _deserializeLabels(labels_persis);
         var array_labels_yaml = [];
         var labels_yaml = {};
-        if (config['all_labels'][0] != "") {
-          $.each(config['all_labels'], function (index) {
-            array_labels_yaml.push(config['all_labels'][index] + '_YAML');
-            if (labels[config['all_labels'][index]]) {
-              delete labels[config['all_labels'][index]];
+        if (config["all_labels"][0] != "") {
+          $.each(config["all_labels"], function (index) {
+            array_labels_yaml.push(config["all_labels"][index] + "_YAML");
+            if (labels[config["all_labels"][index]]) {
+              delete labels[config["all_labels"][index]];
             }
-          })
-          labels_yaml = _deserializeLabels(array_labels_yaml.join(','));
+          });
+          labels_yaml = _deserializeLabels(array_labels_yaml.join(","));
         }
         var keys = Object.keys(labels_persis).sort();
         for (var i = 0; i < keys.length; i++) {
@@ -152,29 +151,29 @@ define(function (require) {
           delete labels_persis[keys[i]];
         }
         $.extend(labels, labels_persis);
-        var html_yaml = ""
+        var html_yaml = "";
         if (!$.isEmptyObject(labels_yaml)) {
-          html_yaml = '<h6>' + Locale.tr('System Labels') + '</h6>' +
-            '<div class="labeltree-container">' +
+          html_yaml = "<h6>" + Locale.tr("System Labels") + "</h6>" +
+            "<div class=\"labeltree-container\">" +
             Tree.html(_makeTree(labels_yaml), false) +
-            '</div>';
+            "</div>";
         }
         labelsDropdown.html(
-          '<div>' +
-          '<h6>' + Locale.tr('Edit Labels') + '</h6>' +
-          '<div class="labeltree-container">' +
+          "<div>" +
+          "<h6>" + Locale.tr("Edit Labels") + "</h6>" +
+          "<div class=\"labeltree-container\">" +
           Tree.html(_makeTree(labels), false) +
-          '</div>' +
+          "</div>" +
           html_yaml +
-          '<div class="input-container">' +
-          '<input type="text" class="newLabelInput" placeholder="' + Locale.tr("Add Label") + '"/>' +
-          '</div>' +
-          '</div>');
+          "<div class=\"input-container\">" +
+          "<input type=\"text\" class=\"newLabelInput\" placeholder=\"" + Locale.tr("Add Label") + "\"/>" +
+          "</div>" +
+          "</div>");
 
         Tree.setup(labelsDropdown);
         recountLabels();
-        $('[data-toggle="' + tabName + 'LabelsDropdown"]').off('click');
-        $('[data-toggle="' + tabName + 'LabelsDropdown"]').on('click', function () {
+        $("[data-toggle=\"" + tabName + "LabelsDropdown\"]").off("click");
+        $("[data-toggle=\"" + tabName + "LabelsDropdown\"]").on("click", function () {
           recountLabels();
         });
       }
@@ -192,93 +191,93 @@ define(function (require) {
       var selectedItems = tabTable.elements();
       $.each(selectedItems, function (index, resourceId) {
         labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
-        if (labelsStr != '') {
-          $.each(labelsStr.split(','), function () {
+        if (labelsStr != "") {
+          $.each(labelsStr.split(","), function () {
             if (labelsIndexed[this]) {
-              labelsIndexed[this] += 1
+              labelsIndexed[this] += 1;
             } else {
-              labelsIndexed[this] = 1
+              labelsIndexed[this] = 1;
             }
-          })
+          });
         }
       });
 
       // Set checkboxes (check|minus) depending on the number of items
 
       // Reset label checkboxes
-      $('.labelsCheckbox', labelsDropdown)
-        .removeClass('fa-minus-square')
-        .removeClass('fa-check-square')
-        .addClass('fa-square');
+      $(".labelsCheckbox", labelsDropdown)
+        .removeClass("fa-minus-square")
+        .removeClass("fa-check-square")
+        .addClass("fa-square");
 
       var labelsCheckbox;
       $.each(labelsIndexed, function (labelName, numberOfItems) {
-        labelsCheckbox = $('.labelsCheckbox',
-          $('[one-label-full-name="' + labelName + '"]', labelsDropdown).closest('li'));
+        labelsCheckbox = $(".labelsCheckbox",
+          $("[one-label-full-name=\"" + labelName + "\"]", labelsDropdown).closest("li"));
         if (labelsCheckbox.length > 0) {
           if (numberOfItems == selectedItems.length) {
             $(labelsCheckbox[0])
-              .removeClass('fa-square')
-              .addClass('fa-check-square');
+              .removeClass("fa-square")
+              .addClass("fa-check-square");
           } else {
             $(labelsCheckbox[0])
-              .removeClass('fa-square')
-              .addClass('fa-minus-square');
+              .removeClass("fa-square")
+              .addClass("fa-minus-square");
           }
         }
       });
 
-      $('.newLabelInput', labelsDropdown).focus();
+      $(".newLabelInput", labelsDropdown).focus();
     }
 
     /*
       Check/Uncheck label & Update Templates
      */
-    labelsDropdown.off('click', '.labeltree-line');
-    labelsDropdown.on('click', '.labeltree-line', function () {
+    labelsDropdown.off("click", ".labeltree-line");
+    labelsDropdown.on("click", ".labeltree-line", function () {
       var action;
       var that = $(".labelsCheckbox", this);
 
-      if ($(that).hasClass('fa-square')) {
-        action = 'add';
-        $(that).removeClass('fa-square').addClass('fa-check-square');
+      if ($(that).hasClass("fa-square")) {
+        action = "add";
+        $(that).removeClass("fa-square").addClass("fa-check-square");
       } else {
-        action = 'remove';
-        $(that).removeClass('fa-check-square fa-minus-square').addClass('fa-square');
+        action = "remove";
+        $(that).removeClass("fa-check-square fa-minus-square").addClass("fa-square");
       }
       OpenNebulaUser.show({
         data: {
-          id: config['user_id']
+          id: config["user_id"]
         },
         success: function (request, user_json) {
-          var labels_persis = '';
+          var labels_persis = "";
           if (user_json["USER"]["TEMPLATE"]) {
             if (user_json["USER"]["TEMPLATE"]["LABELS"]) {
               labels_persis = user_json["USER"]["TEMPLATE"]["LABELS"];
             }
           }
-          var labelName = $('.one-label', $(that).closest('li')).attr('one-label-full-name');
+          var labelName = $(".one-label", $(that).closest("li")).attr("one-label-full-name");
           var labelsArray, labelsArray_persis, labelIndex;
           var selectedItems = tabTable.elements();
-          if (labels_persis != '') {
-            labelsArray_persis = labels_persis.split(',')
+          if (labels_persis != "") {
+            labelsArray_persis = labels_persis.split(",");
           } else {
-            labelsArray_persis = []
+            labelsArray_persis = [];
           }
           $.each(selectedItems, function (index, resourceId) {
             labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
-            if (labelsStr != '') {
-              labelsArray = labelsStr.split(',')
+            if (labelsStr != "") {
+              labelsArray = labelsStr.split(",");
             } else {
-              labelsArray = []
+              labelsArray = [];
             }
             labelIndex = $.inArray(labelName, labelsArray);
-            if (action == 'add' && labelIndex == -1) {
-              labelsArray.push(labelName)
+            if (action == "add" && labelIndex == -1) {
+              labelsArray.push(labelName);
               _updateResouceLabels(tabName, resourceId, labelsArray);
-            } else if (action == 'remove' && labelIndex != -1) {
+            } else if (action == "remove" && labelIndex != -1) {
               if ((!labelsArray_persis || (labelsArray_persis && $.inArray(labelName, labelsArray_persis) == -1)) ||
-                (!config['all_labels'] || (config['all_labels'] && $.inArray(labelName, config['all_labels']) == -1))) {
+                (!config["all_labels"] || (config["all_labels"] && $.inArray(labelName, config["all_labels"]) == -1))) {
                 labelsArray.splice(labelIndex, 1);
                 _updateResouceLabels(tabName, resourceId, labelsArray);
               }
@@ -291,21 +290,21 @@ define(function (require) {
     /*
       Add a new label when ENTER is presed in the input
      */
-    labelsDropdown.off('keypress', '.newLabelInput');
-    labelsDropdown.on('keypress', '.newLabelInput', function (e) {
+    labelsDropdown.off("keypress", ".newLabelInput");
+    labelsDropdown.on("keypress", ".newLabelInput", function (e) {
       var ev = e || window.event;
       var key = ev.keyCode;
       var labelName = $(this).val().trim();
 
-      if (key == 13 && !ev.altKey && labelName !== '') {
+      if (key == 13 && !ev.altKey && labelName !== "") {
         var labelsArray;
-        var labelClean = transformLabelToCleanFormat(labelName)
-        var selectedItems = tabTable.elements()
+        var labelClean = transformLabelToCleanFormat(labelName);
+        var selectedItems = tabTable.elements();
 
         $.each(selectedItems, function (_, resourceId) {
           labelsStr = _getLabel(tabName, dataTable, labelsColumn, resourceId);
-          if (labelsStr != '') {
-            labelsArray = labelsStr.split(',');
+          if (labelsStr != "") {
+            labelsArray = labelsStr.split(",");
           } else {
             labelsArray = [];
           }
@@ -337,9 +336,9 @@ define(function (require) {
     var tabTable = Sunstone.getDataTable(tabName);
 
     if (resource == "ServiceTemplate" || resource == "Service") {
-      var templateStr = '{"' + LABELS_ATTR.toLowerCase() + '":"' + labelsArray.join(',') + '"}';
+      var templateStr = "{\"" + LABELS_ATTR.toLowerCase() + "\":\"" + labelsArray.join(",") + "\"}";
     } else {
-      var templateStr = LABELS_ATTR + '="' + labelsArray.join(',') + '"';
+      var templateStr = LABELS_ATTR + "=\"" + labelsArray.join(",") + "\"";
     }
 
     OpenNebula[resource].append({
@@ -356,24 +355,24 @@ define(function (require) {
           },
           success: function (request, response) {
             tabTable.updateElement(request, response);
-            if (Sunstone.rightInfoVisible($('#' + tabName))) {
+            if (Sunstone.rightInfoVisible($("#" + tabName))) {
               Sunstone.insertPanels(tabName, response);
             }
 
 
-            _insertLabelsMenu({ 'tabName': tabName });
+            _insertLabelsMenu({ "tabName": tabName });
             _insertLabelsDropdown(tabName);
           },
           error: Notifier.onError
         });
       },
       error: Notifier.onError
-    })
+    });
   }
 
   function _labelsStr(elementTemplate) {
-    if (elementTemplate && 
-        elementTemplate.BODY && 
+    if (elementTemplate &&
+        elementTemplate.BODY &&
         elementTemplate.BODY[LABELS_ATTR.toLowerCase()]
       ) {
       return TemplateUtils.htmlEncode(elementTemplate.BODY[LABELS_ATTR.toLowerCase()]);
@@ -387,9 +386,9 @@ define(function (require) {
 
     if (labelsStr) {
       var parent;
-      $.each(labelsStr.split(','), function () {
+      $.each(labelsStr.split(","), function () {
         parent = indexedLabels;
-        $.each(this.split('/'), function () {
+        $.each(this.split("/"), function () {
           if (parent[this] == undefined) {
             parent[this] = {};
           }
@@ -403,7 +402,7 @@ define(function (require) {
 
   function _makeTree(indexedLabels, currentLabel) {
     var treeRoot = {
-      htmlStr: '',
+      htmlStr: "",
       subTree: []
     };
 
@@ -412,7 +411,7 @@ define(function (require) {
     for (var i = 0; i < keys.length; i++) {
       var folderName = keys[i];
       var childs = indexedLabels[folderName];
-      treeRoot.subTree.push(_makeSubTree('', folderName, childs, currentLabel));
+      treeRoot.subTree.push(_makeSubTree("", folderName, childs, currentLabel));
     }
 
     return treeRoot;
@@ -445,19 +444,19 @@ define(function (require) {
     var fullName = parentName + folderName;
     if (persis) {
       var htmlStr =
-        '<span class="secondary one-label" persis="true" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+        "<span class=\"secondary one-label\" persis=\"true\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
         folderName +
-        '</span>';
+        "</span>";
     } else if (yaml) {
       var htmlStr =
-        '<span class="secondary one-label" yaml="true" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+        "<span class=\"secondary one-label\" yaml=\"true\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
         folderName +
-        '</span>';
+        "</span>";
     } else {
       var htmlStr =
-        '<span class="secondary one-label" title="' + fullName + '" one-label-full-name="' + fullName + '">' +
+        "<span class=\"secondary one-label\" title=\"" + fullName + "\" one-label-full-name=\"" + fullName + "\">" +
         folderName +
-        '</span>';
+        "</span>";
     }
 
 
@@ -470,7 +469,7 @@ define(function (require) {
     for (var i = 0; i < keys.length; i++) {
       var subFolderName = keys[i];
       var subChilds = childs[subFolderName];
-      tree.subTree.push(_makeSubTree(fullName + '/', subFolderName, subChilds, currentLabel));
+      tree.subTree.push(_makeSubTree(fullName + "/", subFolderName, subChilds, currentLabel));
     }
 
     return tree;
@@ -484,21 +483,20 @@ define(function (require) {
 
     // Make the label safe, it may contain regexp special characters. Source:
     // https://developer.mozilla.org/en/docs/Web/JavaScript/Guide/Regular_Expressions
-    var escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-    var regExp = '^' + escapedLabel + '$|' +
-      ',' + escapedLabel + '$|' +
-      '^' + escapedLabel + ',|' +
-      ',' + escapedLabel + ','
+    var regExp = "^" + escapedLabel + "$|" +
+      "," + escapedLabel + "$|" +
+      "^" + escapedLabel + ",|" +
+      "," + escapedLabel + ",";
 
     dataTable.data("sunstone-label-filter", label);
     dataTable.fnFilter(regExp, labelsColumn, true, false);
-    UtilsFoundation.update(null);
   }
 
   function _clearLabelsFilter(dataTable, labelsColumn) {
     dataTable.removeData("sunstone-label-filter");
-    dataTable.fnFilter('', labelsColumn, true, false);
+    dataTable.fnFilter("", labelsColumn, true, false);
   }
 
   function _getLabelsFilter(dataTable) {
@@ -511,25 +509,25 @@ define(function (require) {
     $.each(dataTable.fnGetData(), function () {
       if (labelsPath) {
         tmp = this;
-        $.each(labelsPath.split('.'), function () {
+        $.each(labelsPath.split("."), function () {
           if (tmp) {
             tmp = tmp[this];
           }
         });
-        if (tmp && tmp != '') {
+        if (tmp && tmp != "") {
           labels.push(tmp);
         }
       } else {
-        if (this[labelsColumn] != '') {
+        if (this[labelsColumn] != "") {
           labels.push(this[labelsColumn]);
         }
       }
-    })
-    return _deserializeLabels(labels.join(','));
+    });
+    return _deserializeLabels(labels.join(","));
   }
 
   function _getLabel(tabName, dataTable, labelsColumn, resourceId) {
-    if (Sunstone.rightInfoVisible($('#' + tabName))) {
+    if (Sunstone.rightInfoVisible($("#" + tabName))) {
       var element = Sunstone.getElementRightInfo(tabName);
       if (element) {
         var template;
@@ -542,17 +540,17 @@ define(function (require) {
           if (template["BODY"] && template["BODY"][LABELS_ATTR.toLowerCase()]) {
             return template["BODY"][LABELS_ATTR.toLowerCase()];
           } else {
-            return template[LABELS_ATTR] || '';
+            return template[LABELS_ATTR] || "";
           }
         } else {
-          return '';
+          return "";
         }
       } else {
-        return '';
+        return "";
       }
     } else {
       var nodes = dataTable.fnGetNodes();
-      var tr = $('.check_item[value="' + resourceId + '"]', nodes).closest('tr');
+      var tr = $(".check_item[value=\"" + resourceId + "\"]", nodes).closest("tr");
       var aData = dataTable.fnGetData(tr);
       return aData[labelsColumn];
     }
@@ -561,44 +559,44 @@ define(function (require) {
   /**
    * Returns the label with a clean format
    * @param {string} label
-   * 
+   *
    * Eg: ubuntu linux/alpine => Ubuntu Linux/Alpine
    */
   function transformLabelToCleanFormat(label) {
-    let SEPARATOR_SUB_TREE = '/'
+    let SEPARATOR_SUB_TREE = "/";
 
     return $.map(label.split(SEPARATOR_SUB_TREE), function(tree) {
       return firstLetterToUppercase(tree);
-    }).join(SEPARATOR_SUB_TREE)
+    }).join(SEPARATOR_SUB_TREE);
   }
 
   /**
-   * Returns the same string but with first letter in uppercase 
+   * Returns the same string but with first letter in uppercase
    * @param {string} phrase
    */
   function firstLetterToUppercase(phrase) {
-    let words = splitPhraseWithSpaces(phrase)
-    
+    let words = splitPhraseWithSpaces(phrase);
+
     return $.map(words, function(word) {
       return capitalize(word.toLowerCase());
-    }).join(' ')
+    }).join(" ");
   }
 
   /**
    * Separate words from phrase using regex to split with white spaces
    * @param {string} [phrase] - Phrase
    */
-  function splitPhraseWithSpaces(phrase = '') {
-    let validRegex = /[^ ]+/g
+  function splitPhraseWithSpaces(phrase = "") {
+    let validRegex = /[^ ]+/g;
 
-    return String(phrase).match(validRegex)
+    return String(phrase).match(validRegex);
   }
 
   /**
    * Convert first letter to upper case
-   * @param {string} string 
+   * @param {string} string
    */
   function capitalize(string) {
-    return string[0].toUpperCase() + string.slice(1)
+    return string[0].toUpperCase() + string.slice(1);
   }
 });
