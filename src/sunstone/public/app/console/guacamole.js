@@ -15,24 +15,57 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
+    require("jquery-ui");
+
     var GuacController = require('utils/guacamole/controller');
-
-    try {
-		var endpoint = new URL(window.location.href);
-		var encoded_socket = endpoint.searchParams.get("socket");
-		var socket_string = atob(encoded_socket);
-
-        var url = new URL(socket_string);
-        var params = url.searchParams;
-        var token = params.get("token");
-        var info = params.get("info");
     
-        var controller = new GuacController();
-        controller.setInformation(info);
-        controller.setConnection(token);
-    } catch (error) {
-		console.log(error);
-        $('#guacamole-state').empty().text('Failed');
+    var controller = new GuacController();
+    var reconnectButton = document.getElementById('buttons__reconnect');
+
+    var endpoint = new URL(window.location.href);
+    var encoded_socket = endpoint.searchParams.get("socket");
+    var socket_string = atob(encoded_socket);
+
+    var url = new URL(socket_string);
+    var params = url.searchParams;
+    var token = params.get("token");
+    var connectionType = params.get("type");
+    var info = params.get("info");
+
+    controller.setInformation(info);
+
+    // Trigger first connect
+    document.readyState !== 'loading'
+        ? connect()
+        : document.addEventListener('DOMContentLoaded', connect);
+
+    window.onunload = disconnect;
+    
+
+    reconnectButton.onclick = function reconnect() {
+        disconnect();
+
+        document.querySelector('.toolbar__state h5').innerHTML = "";
+        document.querySelector('.toolbar__state .spinner').style.display = "block";
+
+        setTimeout(connect, 500)
+    }
+    
+    function connect() {
+        try {
+            controller && controller.setConnection(token, connectionType);
+        } catch (error) {
+            controller && controller.disconnect();
+            document.querySelector('.toolbar__state h5').innerHTML = "Failed";
+        }
+    }
+    
+    function disconnect() {
+        try {
+            controller && controller.disconnect();
+        } catch (error) {
+            document.querySelector('.toolbar__state h5').innerHTML = "Failed";
+        }
     }
     
 });

@@ -16,53 +16,45 @@
 
 define(function(require) {
 
-  require("guacamole-common-js")
-  var ManagedClient = require("utils/guacamole/types/client");
-  var ManagedClientState = require("utils/guacamole/types/client-state");
-  var Utils = require("utils/guacamole/utils");
-  var UtilsConnection = require("utils/info-connection/utils");
+  require('guacamole-common-js')
+  var ConnectionTypes = require('utils/guacamole/types/connection-types');
+  var ManagedClient = require('utils/guacamole/types/client');
+  var ManagedClientState = require('utils/guacamole/types/client-state');
+  var Utils = require('utils/guacamole/utils');
+  var UtilsConnection = require('utils/info-connection/utils');
 
-  var GuacButtons = require("utils/guacamole/directives/guacButtons");
-  var GuacClipboard = require("utils/guacamole/directives/guacClipboard");
-  var GuacKeyboard = require("utils/guacamole/directives/guacKeyboard");
-  var GuacMouse = require("utils/guacamole/directives/guacMouse");
-  var GuacOsk = require("utils/guacamole/directives/guacOsk");
+  var GuacButtons = require('utils/guacamole/directives/guacButtons');
+  var GuacClipboard = require('utils/guacamole/directives/guacClipboard');
+  var GuacKeyboard = require('utils/guacamole/directives/guacKeyboard');
+  var GuacMouse = require('utils/guacamole/directives/guacMouse');
+  var GuacOsk = require('utils/guacamole/directives/guacOsk');
 
   function GuacController() {
     var $guac = {};
     var $scope = {};
     var $elements = {
-      main: document.getElementById('guacamole-main'),
-      displayContainer: document.getElementById('guacamole-display'),
+      main: document.querySelector('.wrapper__display'),
+      displayContainer: document.getElementById('display'),
       osk: document.getElementById('osk'),
-      closeOskButton: document.getElementById('osk-close'),
+      closeOskButton: document.querySelector('.osk__header__buttons .close'),
 
       /* Buttons */
-      sendCtrlAltDelButton: document.getElementById('sendCtrlAltDelButton'),
-      mouseButton: document.getElementById('mouseButton'),
-      screenshotButton: document.getElementById('takeScreenshot'),
-      oskButton: document.getElementById('oskButton'),
+      sendCtrlAltDelButton: document.getElementById('buttons__sendctrlaltdel'),
+      mouseButton: document.getElementById('buttons__mouse'),
+      screenshotButton: document.getElementById('buttons__screenshot'),
+      oskButton: document.getElementById('buttons__osk'),
+      fullscreenButton: document.getElementById('buttons__fullscreen'),
     };
 
-    var throttleResizeFunction = Utils.throttle(containerResized, 250);
-    window.addEventListener('resize', throttleResizeFunction);
+    this.disconnect = disconnect;
 
-    this.disconnect = function() {
-      if ($guac.client) $guac.client.disconnect();
-      if ($guac.keyboard) GuacKeyboard.destroy();
-      if ($guac.mouse) GuacMouse.destroy();
-      if ($guac.osk) GuacOsk.destroy();
+    this.setConnection = function(token, connectionType) {
+      $scope.connectionType = String(connectionType).toUpperCase();
 
-      GuacButtons.destroy();
-      GuacClipboard.destroy();
-      window.removeEventListener('resize', throttleResizeFunction);
-      $('#guacamole-state').text('');
+      $scope.connectionType === ConnectionTypes.SSH
+        ? $elements.displayContainer.classList.add('ssh')
+        : $elements.displayContainer.classList.remove('ssh');
 
-      $guac = {};
-      $scope = {};
-    }
-
-    this.setConnection = function(token) {
       var managedClient = ManagedClient.getInstance(token, undefined, $elements.displayContainer)
 
       new GuacKeyboard($guac, $scope, $elements);
@@ -70,14 +62,16 @@ define(function(require) {
       new GuacOsk($guac, $scope, $elements);
       new GuacButtons($guac, $scope, $elements);
       new GuacClipboard($guac, $scope, $elements);
+      window.addEventListener('resize', containerResized);
+      document.addEventListener('fullscreenchange', containerResized)
 
       // Remove any existing display
-      $elements.displayContainer.innerHTML = "";
+      $elements.displayContainer.innerHTML = '';
   
       // Only proceed if a client is given 
       if (!managedClient) return;
       $scope.client = managedClient;
-  
+
       // Get Guacamole client instance
       $guac.client = managedClient.client;
   
@@ -108,36 +102,40 @@ define(function(require) {
         }
       }).bind(this));
 
-      Utils.observe($scope, 'disableCursor', (function(disabled) {
-        $elements.mouseButton.disabled = !!disabled;
-      }).bind(this));
-
       Utils.observe($scope.client.clientState, 'connectionState', (function(connectionState) {
         var isLoading = connectionState === ManagedClientState.ConnectionState.WAITING;
-        
-        $('#guacamole-loading')[isLoading ? 'fadeIn' : 'fadeOut']('fast');
-        $('#guacamole-state').text(connectionState).animate();
-      }).bind(this));
+        var isConnected = connectionState === ManagedClientState.ConnectionState.CONNECTED;
+        var isDisconnected = connectionState === ManagedClientState.ConnectionState.DISCONNECTED;
 
-      Utils.observe($scope.client.clientProperties, 'scale', (function(scale) {
-        scale = Math.max(scale, $scope.client.clientProperties.minScale);
-        scale = Math.min(scale, $scope.client.clientProperties.maxScale);
-  
-        // Apply scale if client attached
-        if ($guac.display && scale !== 0) {
-          $guac.display.scale(scale);
-          $elements.displayContainer.style['min-height'] = $guac.display.getHeight() + "px";
-        }
+        isConnected && setTimeout(containerResized, 100);
+        isDisconnected && disconnect();
         
-        if (scale !== $scope.client.clientProperties.scale) {
-          $scope.client.clientProperties.scale = scale;
-        }
+        $('.spinner')[isLoading ? 'fadeIn' : 'fadeOut']('fast');
+        $('.toolbar__state h5').text(connectionState).animate();
       }).bind(this));
     };
 
     this.setInformation = function(information) {
       var info_decode = UtilsConnection.decodeInfoConnection(information);
-      UtilsConnection.printInfoConnection($('.guacamole_info'), info_decode);
+      UtilsConnection.printInfoConnection($('.information'), info_decode);
+    }
+
+    function disconnect() {
+      if ($guac.client) $guac.client.disconnect();
+      if ($guac.keyboard) GuacKeyboard.destroy();
+      if ($guac.mouse) GuacMouse.destroy();
+      if ($guac.osk) GuacOsk.destroy();
+
+      GuacButtons.destroy();
+      GuacClipboard.destroy();
+      window.removeEventListener('resize', containerResized);
+      document.removeEventListener('fullscreenchange', containerResized)
+
+      while($elements.displayContainer.firstChild)
+        $elements.displayContainer.removeChild($elements.displayContainer.firstChild);
+
+      $guac = {};
+      $scope = {};
     }
 
     function containerResized() {
@@ -150,38 +148,37 @@ define(function(require) {
         if ($guac.display.getWidth() !== width || $guac.display.getHeight() !== height) {
           $guac.client.sendSize(width, height);
         }
-        
-        if ($guac.osk) {
-          var MAX_OSK_WIDTH = 1000;
 
-          $guac.osk.resize(Math.min(MAX_OSK_WIDTH, width));
-        }
+        // when type connection is SSH, display doesn't need scale
+        $scope.connectionType !== ConnectionTypes.SSH && updateDisplayScale();
       }
 
-      updateDisplayScale();
+      if ($guac.osk) {
+        $guac.osk.resize(1000);
+      }
     };
 
     function updateDisplayScale() {
       if (!$guac.display) return;
 
-      // Calculate scale to fit screen
-      $scope.client.clientProperties.minScale = Math.min(
-        $elements.main.offsetWidth / Math.max($guac.display.getWidth(), 1),
-        $elements.main.offsetHeight / Math.max($guac.display.getHeight(), 1)
-      );
+      // Get screen resolution.
+      var origHeight = Math.max($guac.display.getHeight(), 1);
+      var origWidth = Math.max($guac.display.getWidth(), 1);
+      
+      var htmlWidth = window.innerWidth;
+      var htmlHeight = window.innerHeight;
+      
+      var xScale = htmlWidth / origWidth;
+      var yScale = htmlHeight / origHeight;
+      
+      // This is done to handle both X and Y axis
+      var scale = Math.min(yScale, xScale);
 
-      // Calculate appropriate maximum zoom level
-      $scope.client.clientProperties.maxScale = Math.max($scope.client.clientProperties.minScale, 3);
+      // Limit to 1
+      scale = Math.min(scale, 1);
 
-      // Clamp zoom level, maintain auto-fit
-      if (
-        $guac.display.getScale() < $scope.client.clientProperties.minScale ||
-        $scope.client.clientProperties.autoFit
-      ) {
-        $scope.client.clientProperties.scale = $scope.client.clientProperties.minScale;
-      }
-      else if ($guac.display.getScale() > $scope.client.clientProperties.maxScale) {
-        $scope.client.clientProperties.scale = $scope.client.clientProperties.maxScale;
+      if (scale !== 0) {
+        $guac.display.scale(scale);
       }
     };
   }

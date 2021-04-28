@@ -30,9 +30,7 @@ define(function(require) {
 
     // Forward mousemove events untouched
     mouse.onmousemove = function(mouseState) {
-      mouseState.y =  mouseState.y / $guac.display.getScale();
-      mouseState.x =  mouseState.x / $guac.display.getScale();
-      handleMouseState(mouseState);
+      handleMouseState(mouseState, true);
     }
 
     // Hide software cursor when mouse leaves display
@@ -42,10 +40,15 @@ define(function(require) {
         $guac.display.showCursor(false);
     };
 
-    function handleMouseState(mouseState) {
+    function handleMouseState(mouseState, scaleMouse = false) {
       // Do not attempt to handle mouse state changes if the client
       // or display are not yet available
-      if (!$guac.client || !$guac.display) return;
+      if (!$guac.client || !$guac.display || $scope.disabledMouse) return;
+
+      if (scaleMouse) {
+        mouseState.y =  mouseState.y / $guac.display.getScale();
+        mouseState.x =  mouseState.x / $guac.display.getScale();
+      }
   
       // Send mouse state, show cursor if necessary
       $guac.display.showCursor(!$scope.localCursor);

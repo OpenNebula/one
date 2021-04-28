@@ -371,10 +371,13 @@ define(function(require) {
     "VM.startguac_action" : {
       type: "single",
       call: OpenNebulaVM.guac,
-      callback: function(_, response) {
-        var link = RemoteActions.getLink(response, {
+      callback: function(request, response) {
+        var protocolConnection = request.request.data[0].extra_param;
+
+        var link = getLink(response, {
           connnection_type: 'guac',
-          extra_path: '/fireedge/guacamole'
+          extra_path: '/fireedge/guacamole',
+          extra_params: ['type=' + protocolConnection]
         });
         // Open in a new tab the noVNC connection
         window.open(link);
