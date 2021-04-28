@@ -1,0 +1,8 @@
+name: 'onprem'
+
+description: 'On Premises datacenter infrastructure'
+provider: 'dummy'
+
+plain:
+  image: 'ON-PREMISE'
+  provision_type: 'onprem'

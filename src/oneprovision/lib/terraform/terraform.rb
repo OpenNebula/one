@@ -46,7 +46,7 @@ module OneProvision
     class Terraform
 
         # Providers that are currently available
-        PROVIDERS = %w[aws packet]
+        PROVIDERS = %w[aws packet dummy]
 
         # Class constructor
         #
@@ -66,13 +66,13 @@ module OneProvision
         #
         # @return [Terraform] Terraform provider
         def self.singleton(provider, tf)
-            return Dummy.new if Integer(provider['ID']) == -1
-
             case provider.body['provider']
             when 'packet'
                 tf_class = Packet
             when 'aws'
                 tf_class = AWS
+            when 'dummy'
+                tf_class = Dummy
             else
                 raise OneProvisionLoopException,
                       "Unknown provider: #{provider.body['provider']}"
@@ -91,6 +91,8 @@ module OneProvision
                 keys = Packet::KEYS
             when 'aws'
                 keys = AWS::KEYS
+            when 'dummy'
+                return true
             else
                 raise OneProvisionLoopException,
                       "Unknown provider: #{provider['provider']}"
