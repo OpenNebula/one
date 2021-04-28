@@ -17,6 +17,7 @@
 define(function(require) {
 
   var Files = require('utils/files');
+  var ConnectionTypes = require("utils/guacamole/types/connection-types");
 
   function GuacButtons($guac, $scope, $elements) {
     $elements.screenshotButton.onclick = function() {
@@ -45,7 +46,7 @@ define(function(require) {
     $elements.closeOskButton.onclick = function() {
       if (!$guac.client) return;
 
-      $('#osk-container').fadeToggle('fast');
+      $('#osk__container').fadeToggle('fast');
     };
 
     $elements.mouseButton.onclick = function() {
@@ -55,16 +56,25 @@ define(function(require) {
       $scope.localCursor = $elements.mouseButton.classList.contains('disabled');
     };
 
+    $elements.fullscreenButton.onclick = function() {
+      // If the document is not in full screen mode make the video full screen
+      if (!document.fullscreenElement && document.fullscreenEnabled) {
+        $elements.main.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    };
+
     GuacButtons.destroy = function() {
       // reset default state
-      $('#osk-container').hide();
+      $('#osk__container').hide();
       $elements.mouseButton.classList.remove('disabled');
 
-      $elements.sendCtrlAltDelButton      =
-      $elements.screenshotButton.onclick  =
-      $elements.mouseButton.onclick       =
-      $elements.oskButton.onclick         =
-      $elements.closeOskButton.onclick    = null;
+      $elements.sendCtrlAltDelButton.onclick  =
+      $elements.screenshotButton.onclick      =
+      $elements.mouseButton.onclick           =
+      $elements.oskButton.onclick             =
+      $elements.closeOskButton.onclick        = null;
     };
   }
 

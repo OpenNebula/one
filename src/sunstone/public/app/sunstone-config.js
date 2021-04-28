@@ -172,14 +172,14 @@ define(function(require) {
           }
         }
       },
-      "logo": (_config["view"]["provision_logo"] || "images/one_small_logo.png"),
+      "logo": (_config["view"]["provision_logo"] || "images/opennebula-5.0.png"),
     },
 
     "tableOrder": _config["user_config"]["table_order"],
     "vncProxyPort": _config["system_config"]["vnc_client_port"] || _config["system_config"]["vnc_proxy_port"].split(":")[1] || _config["system_config"]["vnc_proxy_port"],
     "vncWSS": _config["user_config"]["vnc_wss"],
     "requestVNCPassword": _config["system_config"]["vnc_request_password"],
-    "logo": (_config["view"]["small_logo"] || "images/one_small_logo.png"),
+    "logo": (_config["view"]["small_logo"] || "images/opennebula-5.0.png"),
     "link_logo": (_config["view"]["link_logo"] || false),
     "text_link_logo": (_config["view"]["text_link_logo"] || false),
     "vmLogos": (_config["vm_logos"]),

@@ -4,66 +4,64 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="apple-touch-startup-image" href="images/screen_320x460.png" />
-  <link rel="apple-touch-icon" href="images/screen_57x57.png">
+  <link rel="icon" href="images/favicon.png">
   <!-- Stylesheets -->
   <link rel="stylesheet" type="text/css" href="css/app.css" title="plain">
   <link rel="stylesheet" type="text/css" href="css/guac-custom.css" title="plain">
 </head>
 <body>
-  <div class="main">
-    <div style="background: #f7f7f7; padding: 1.5em 1.5em 0.8em;">
-      <div style="max-width: 1250px; margin: 0 auto;">
-        <div style="display: flex; align-items: center;">
-          <img src="images/one_small_logo.png" style="height:40px;">
-          <h5 class="guacamole-status">
-            <div class="container">
-              <div class="remote-logo">
-                <img src="images/remote_console/guacamole.png">
-              </div>
-              <div id="guacamole-state" class="guacamole-state">
-                <span id="guacamole-loading">
-                  <i class="fas fa-spinner fa-spin"></i>
-                </span>
-              </div>
-            </div>
-          </h5>
-          <div class="remote-buttons">
-            <button class="button alert" id="sendCtrlAltDelButton">
-              Send CtrlAltDel
-            </button>
-            <button class="button primary" id="oskButton" style="display: none !important;">
-              <i class="fas fa-keyboard fa-fw"></i>
-            </button>
-            <button class="button primary" id="mouseButton">
-              <i class="fas fa-mouse-pointer fa-fw"></i>
-            </button>
-            <button class="button primary" id="takeScreenshot">
-              <i class="fas fa-camera fa-fw" title="Take screenshot"></i>
-            </button>
-          </div>
+  <header>
+    <div class="header__wrapper">
+      <div class="toolbar">
+        <img src="images/opennebula-5.0.png">
+        <div class="toolbar__state">
+          <img src="images/remote_console/guacamole.png">
+          <h5></h5>
+          <span class="spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+          </span>
         </div>
-        <div class="guacVNC_info"></div>
+        <div class="toolbar__buttons">
+          <button class="button alert" id="buttons__sendctrlaltdel">
+            Send CtrlAltDel
+          </button>
+          <button class="button secondary" id="buttons__reconnect" title="Reconnect">
+            <i class="fas fa-redo-alt fa-fw"></i>
+          </button>
+          <button class="button secondary" id="buttons__fullscreen" title="Fullscreen">
+            <i class="fas fa-expand fa-fw"></i>
+          </button>
+          <button class="button primary" id="buttons__osk" title="Show keyboard">
+            <i class="fas fa-keyboard fa-fw"></i>
+          </button>
+          <button class="button primary" id="buttons__mouse" title="Emulate mouse">
+            <i class="fas fa-mouse-pointer fa-fw"></i>
+          </button>
+          <button class="button primary" id="buttons__screenshot" title="Take screenshot">
+            <i class="fas fa-camera fa-fw"></i>
+          </button>
+        </div>
       </div>
+      <div class="information"></div>
     </div>
-    <div id="guacamole-main" class="guacamole-main">
-      <div id="guacamole-display" class="guacamole-display"></div>
+  </header>
+  <main>
+    <%### Guacamole display screen ###%>
+    <div class="wrapper__display">
+      <div id="display"></div>
     </div>
-    <!-- On-screen keyboard -->
-    <div class="osk-container" id="osk-container">
-      <div class="osk-container-header" id="osk-container-header">
-        <div class="buttons">
-          <button class="close" id="osk-close">x</button>
+
+    <%### Guacamole on-screen keyboard ###%>
+    <div class="osk__container" id="osk__container">
+      <div class="osk__header">
+        <div class="osk__header__buttons">
+          <button class="close">x</button>
         </div>
-        <div class="layouts">
-          <select id="osk-qwerty"></select>
-        </div>
+        <select id="select__qwerty"></select>
       </div>
       <div class="osk" id="osk"></div>
     </div>
-  </div>
+  </main>
 
   <script src="dist/console/guacamole.js?v=<%= OpenNebula::VERSION %>"></script>
   <% view = $views_config.view(session[:user], session[:user_gname], session[:default_view]) %>

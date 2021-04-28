@@ -1,87 +1,122 @@
-body {
-  margin:0;
-  padding:0;
-  font-family: Helvetica;
-  height:100%;
-}
+/* 
+*  CSS TABLE OF CONTENTS
+*   
+*  1.0 - Globals
+*  2.0 - Header
+*  3.0 - Body
+*    3.1 - Guacamole display
+*    3.2 - Defaults classes by guacamole-common-js
+*/
+
+/*** 1.0 - Globals ***/
 
 html {
-  height:100%;
+  box-sizing: border-box;
 }
 
-.remote-buttons {
-  white-space: nowrap;
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
-.main {
-  width: 100%;
-  display: inline-flex;
-  height: 100%;
-  flex-direction: column;
-  background-color: rgb(40, 40, 40);
+body {
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
-.guacamole-main{
-  flex-grow: 1;
+h5 {
+  margin: 0;
+  padding: 0;
 }
 
-.guacamole-status {
-  text-align: center;
-  position: relative;
-  width: 100%;
+/*** 2.0 - Header ***/
+
+header {
+  background: #f2f4f8;
+  padding: 1em 1em 0.8em;
+  box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
+    0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
 }
 
-.remote-logo{
-  border-radius: 50%;
-  background-color: #282828;
-  padding: 0.4em;
-  margin-right: 1em;
-  height: 40px;
-  width: 40px;
+.header__wrapper {
+  max-width: 1250px;
+  margin: 0 auto;
 }
 
-.container{
+.toolbar {
+  padding: 1em;
   display: flex;
-  justify-content: center;
+  gap: 2em;
+  flex-wrap: wrap;
+}
+
+.toolbar img {
+  height: 40px;
+}
+
+.toolbar__state {
+  flex-grow: 1;
+  display: flex;
+  gap: 1em;
   align-items: center;
+  justify-content: center;
 }
 
-.guacamole-state{
-  white-space: nowrap; 
-  max-width: 20em; 
-  overflow: hidden;
-  text-overflow: ellipsis; 
+.toolbar__state img {
+  width: 40px;
+  background-color: #282828;
+  border-radius: 50%;
+  padding: 0.4em;
 }
 
+.toolbar__buttons {
+  display: flex;
+  justify-content: flex-end;
+}
 
-/* left-align the status text on lower resolutions */
-@media screen and (max-width: 800px){
-  .guacamole-status {
-    z-index: 1;
-    position: relative;
-    width: auto;
-    float: left;
+@media (max-width: 768px) {
+  .toolbar__state {
+    justify-content: end;
+    flex-direction: row-reverse;
+  }
+  .toolbar__buttons {
+    flex-grow: 1;
   }
 }
 
-.guacamole-main {
-  width: 100%;
-  height: fit-content;
-  display: flex;
-  align-items: center;
-  place-content: center;
-  background-color: #282828;
+/*** 3.0 - Body ***/
+
+main {
+  background-color: #222431;
 }
 
-.guacamole-main > div {
+main > div {
   z-index: 1;
 }
 
-.guacamole-main .guacamole-display {
+/*** 3.1 - Guacamole display ***/
+
+.wrapper__display {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  place-content: center;
+}
+
+#display {
+  overflow: hidden;
   cursor: none;
 }
 
-.osk-container {
+#display.ssh {
+  width: 100vw;
+  height: 100%;
+}
+
+/*** 3.2 - Guacamole OSK ***/
+
+.osk__container {
   z-index: 2;
   background: rgba(0, 0, 0, 0.59);
   position: absolute;
@@ -93,30 +128,24 @@ html {
   box-shadow: 0 0 20px #acacac;
 }
 
-.osk-container-header {
+.osk__header {
   background: linear-gradient(to top, #ebebeb, #d5d5d5);
   color: #4d494d;
-  font-size: 11pt;
-  line-height: 20px;
-  text-align: center;
-  width: 100%;
-  height: 28px;
+
   user-select: none;
   cursor: default;
+  
   border-top: 1px solid #f3f1f3;
-  border-bottom: 1px solid #b1aeb1;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
+
+  padding: 0.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
 }
 
-.osk-container-header .buttons {
-  padding-left: 8px;
-  padding-top: 3px;
-  float: left;
-  line-height: 0;
-}
-
-.osk-container-header .buttons .close {
+.osk__header__buttons .close {
   background: #ff5c5c;
   font-size: 13px;
   font-weight: bold;
@@ -126,18 +155,17 @@ html {
   display: inline-block;
 }
 
-.osk-container-header .layouts {
-  padding-right: 8px;
-  padding-top: 3px;
-  float: right;
-  line-height: 0;
+.osk__header select {
+  width: auto;
+  margin: 0;
 }
 
+/*** 3.2 Defaults classes by guacamole-common-js ***/
 
 .guac-keyboard {
   display: inline-block;
   width: 100%;
-  
+
   margin: 0;
   padding: 0;
   cursor: default;
@@ -159,20 +187,19 @@ html {
 }
 
 .guac-keyboard .guac-keyboard-key {
-
   position: absolute;
-  left:   0;
-  right:  0;
-  top:    0;
+  left: 0;
+  right: 0;
+  top: 0;
   bottom: 0;
 
   background: #444;
 
   border: 0.125em solid #666;
-  -moz-border-radius:    0.25em;
+  -moz-border-radius: 0.25em;
   -webkit-border-radius: 0.25em;
-  -khtml-border-radius:  0.25em;
-  border-radius:         0.25em;
+  -khtml-border-radius: 0.25em;
+  border-radius: 0.25em;
 
   color: white;
   font-size: 40%;
@@ -180,11 +207,8 @@ html {
   text-align: center;
   white-space: pre;
 
-  text-shadow:  1px  1px 0 rgba(0, 0, 0, 0.25),
-                1px -1px 0 rgba(0, 0, 0, 0.25),
-               -1px  1px 0 rgba(0, 0, 0, 0.25),
-               -1px -1px 0 rgba(0, 0, 0, 0.25);
-
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.25), 1px -1px 0 rgba(0, 0, 0, 0.25),
+    -1px 1px 0 rgba(0, 0, 0, 0.25), -1px -1px 0 rgba(0, 0, 0, 0.25);
 }
 
 .guac-keyboard .guac-keyboard-key:hover {
@@ -232,12 +256,12 @@ html {
 /* Active super */
 .guac-keyboard.guac-keyboard-modifier-super .guac-keyboard-key-super {
   background: #882;
-  border-color: #DD4;
+  border-color: #dd4;
 }
 
 .guac-keyboard .guac-keyboard-key.guac-keyboard-pressed {
   background: #822;
-  border-color: #D44;
+  border-color: #d44;
 }
 
 .guac-keyboard .guac-keyboard-group {
@@ -252,7 +276,6 @@ html {
 }
 
 .guac-keyboard .guac-keyboard-group.guac-keyboard-main {
-
   /* IE10 */
   display: -ms-flexbox;
   -ms-flex-align: stretch;
@@ -262,7 +285,7 @@ html {
   display: -moz-box;
   -moz-box-align: stretch;
   -moz-box-orient: horizontal;
-  
+
   /* Ancient WebKit */
   display: -webkit-box;
   -webkit-box-align: stretch;
@@ -277,7 +300,6 @@ html {
   display: flex;
   align-items: stretch;
   flex-direction: row;
-
 }
 
 .guac-keyboard .guac-keyboard-group.guac-keyboard-movement {
@@ -315,13 +337,11 @@ html {
 .guac-keyboard.guac-keyboard-modifier-alt-gr
 .guac-keyboard-key.guac-keyboard-uses-alt-gr
 .guac-keyboard-cap:not(.guac-keyboard-requires-alt-gr) {
-
   display: none;
-  
 }
 
 /* Fade out keys which do not use AltGr if AltGr is active */
 .guac-keyboard.guac-keyboard-modifier-alt-gr
-.guac-keyboard-key:not(.guac-keyboard-uses-alt-gr):not(.guac-keyboard-key-alt-gr) {
+  .guac-keyboard-key:not(.guac-keyboard-uses-alt-gr):not(.guac-keyboard-key-alt-gr) {
   opacity: 0.5;
 }

@@ -26,18 +26,21 @@ define(function(require) {
     loadLayouts();
     changeLayout(DEFAULT_LAYOUT);
 
-    // $('#osk-container').draggable();
+    $('#osk__container').draggable({
+      start: function() { $scope.disabledMouse = true; },
+      stop: function() { $scope.disabledMouse = false; }
+    });
 
     function loadLayouts() {
-      $('#osk-qwerty').empty();
+      $('#select__qwerty').empty();
 
       var enUsLayout = new Option(enUsQwerty.language, enUsQwerty.language);
-      $('#osk-qwerty').append(enUsLayout);
+      $('#select__qwerty').append(enUsLayout);
 
       var esEsLayout = new Option(esEsQwerty.language, esEsQwerty.language);
-      $('#osk-qwerty').append(esEsLayout);
+      $('#select__qwerty').append(esEsLayout);
 
-      $('#osk-qwerty').off().on('change', function() {
+      $('#select__qwerty').off().on('change', function() {
         changeLayout(this.value);
       })
     };
