@@ -30,6 +30,8 @@ module OneProvision
         end
 
         def deploy(_)
+            OneProvisionLogger.info('(Deploy skipped)')
+
             [@hosts.map do |h|
                 h.to_hash['HOST']['TEMPLATE']['PROVISION']['HOSTNAME']
             end,
@@ -51,12 +53,34 @@ module OneProvision
         # @return [Array]
         #   - Terraform state in base64
         #   - Terraform config in base64
-        def destroy(_ = nil) end
+        def destroy(_ = nil)
+            OneProvisionLogger.info('(Destroy skipped)')
+        end
 
         # Destroys a host
         #
         # @param host [String] Host ID
-        def destroy_host(_) end
+        def destroy_host(_)
+            OneProvisionLogger.info('(Destroy host skipped)')
+        end
+
+        def destroy_cluster(_)
+            OneProvisionLogger.info('(Destroy cluster skipped)')
+        end
+
+        # Destroys a datastore
+        #
+        # @param id [String] Datastore ID
+        def destroy_datastore(_)
+            OneProvisionLogger.info('(Destroy datastore skipped)')
+        end
+
+        # Destriys a network
+        #
+        # @param id [String] Network ID
+        def destroy_network(_)
+            OneProvisionLogger.info('(Destroy network skipped)')
+        end
 
     end
 
