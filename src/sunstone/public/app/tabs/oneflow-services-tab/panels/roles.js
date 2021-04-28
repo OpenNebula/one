@@ -166,7 +166,7 @@ define(function(require) {
             var roleName = $(rowData[0]).data().name
             
             var roleIndexSelected = roles.findIndex(function(role) {
-              return role.name === roleName
+              return role.name === String(roleName)
             })
 
             var roleSelected = roles[roleIndexSelected];
