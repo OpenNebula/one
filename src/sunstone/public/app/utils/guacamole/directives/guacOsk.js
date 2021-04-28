@@ -26,7 +26,7 @@ define(function(require) {
     loadLayouts();
     changeLayout(DEFAULT_LAYOUT);
 
-    $('#osk-container').draggable();
+    // $('#osk-container').draggable();
 
     function loadLayouts() {
       $('#osk-qwerty').empty();

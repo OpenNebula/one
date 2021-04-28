@@ -550,7 +550,7 @@ before do
     @request_body = request.body.read
     request.body.rewind
 
-    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get /ws /vmrc).include?(request.path)
+    unless %w(/ /login /vnc /spice /version /webauthn_options_for_get /ws /vmrc /guac).include?(request.path)
         halt [401, "csrftoken"] unless authorized? && valid_csrftoken?
     end
 
@@ -739,6 +739,20 @@ get '/vnc' do
         erb :login
     else
         erb :vnc, :locals =>  {
+            :logos_conf => $conf[:locals][:logos_conf],
+            :oned_conf  => $conf[:locals][:oned_conf],
+            :support    => $conf[:locals][:support],
+            :upgrade    => $conf[:locals][:upgrade]
+        }
+    end
+end
+
+get '/guac' do
+    content_type 'text/html', :charset => 'utf-8'
+    if !authorized?
+        erb :login
+    else
+        erb :guac, :locals =>  {
             :logos_conf => $conf[:locals][:logos_conf],
             :oned_conf  => $conf[:locals][:oned_conf],
             :support    => $conf[:locals][:support],

@@ -26,16 +26,16 @@ define(function(require) {
 
   function setStatus(message="", status=""){
     $(".VMRC_message").text(message);
-    $("#VMRC_status").text(status);
+    $("#VMRC_status_msg").text(status);
   }
 
   function connected(){
-    setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " + _wmks.vm_name);
+    setStatus(null, "VMRC " + _wmks.connectionState);
   }
 
   function disconnectedFromServer(e){
     if (e.detail.clean) {
-      setStatus(null, "VMRC " + _wmks.connectionState + " (" + _is_encrypted + ") to: " + _wmks.vm_name);
+      setStatus(null, "VMRC " + _wmks.connectionState);
     } else {
       setStatus("Something went wrong, connection is closed", "Failed");
     }
@@ -45,76 +45,44 @@ define(function(require) {
     if (_wmks) { _wmks.sendCAD(); }
   }
 
-  function updateState(state, msg) {
-    var s, sb, cad, level;
-    s = document.querySelector("#VMRC_status");
-    sb = document.querySelector("#VMRC_status_bar");
-    cad = document.querySelector("#sendCtrlAltDelButton");
-    switch (state) {
-      case "failed":       level = "error";  break;
-      case "fatal":        level = "error";  break;
-      case "normal":       level = "normal"; break;
-      case "disconnected": level = "normal"; break;
-      case "loaded":       level = "normal"; break;
-      default:             level = "warn";   break;
-    }
+  function enterFullScreen() {
+    if (_wmks) { _wmks.enterFullScreen(); }
+  }
+  
+  function selectLanguage() {
+    if(!_wmks) return;
+    var keyboardLayoutId = $('#selectLanguage').find(":selected").val();
+    _wmks.setOption('keyboardLayoutId',keyboardLayoutId);
+  } 
 
-    if (state === "normal") {
-      cad.disabled = false;
-    } else {
-      cad.disabled = true;
-      xvpInit(0);
-    }
-
-    if (typeof(msg) !== "undefined") {
-      sb.setAttribute("class", "VMRC_status_" + level);
-      s.innerHTML = msg;
-    }
+  function keyboardSelector() {
+    $('#selectLanguage').toggle();
   }
 
-  function getQueryVariable(variable)
-  {
-    var query = window.location.search.substring(1);
-    var vars = query.split("&");
-    for (var i=0;i<vars.length;i++) {
-            var pair = vars[i].split("=");
-            if(pair[0] == variable){return pair[1];}
-    }
-    return(false);
+  function updateScreen() {    
+    _wmks.updateScreen();
   }
-
-  var URL = "";
-  var host = getQueryVariable("host");
-  var port = getQueryVariable("port");
-  var ticket = getQueryVariable("ticket");
-
-  var info = spice_query_var('info', undefined);
-  var info_decode = UtilsConnection.decodeInfoConnection(info);
-  UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode)
-
-  if (info_decode && info_decode.name) {
-    document.title = info_decode.name
-  }
-
-  if (window.location.protocol === "https:") {
-    URL = "wss";
-    _is_encrypted = "encrypted";
-  } else {
-    URL = "ws";
-    _is_encrypted = "unencrypted";
-  }
-  URL += "://" + host;
-  URL += ":" + port;
-  URL += "/vmrc/" + ticket;
 
   document.querySelector("#sendCtrlAltDelButton").style.display = "inline";
   document.querySelector("#sendCtrlAltDelButton").onclick = sendCtrlAltDel;
+
+  document.querySelector("#fullScreenButton").onclick = enterFullScreen;
+  document.querySelector("#keyboardSelector").onclick = keyboardSelector;
+  document.querySelector("#selectLanguage").onchange = selectLanguage;
   
-  if ((!host) || (!port)) {
-    updateState("failed",
-        "Must specify host and port in URL");
-    return;
-  }
+  var endpoint = new URL(window.location.href);
+  var encoded_socket = endpoint.searchParams.get("socket");
+  var socket_string = atob(encoded_socket);
+  
+  var socket_endpoint = new URL(socket_string);
+  var host = socket_endpoint.searchParams.get("host");
+  var port = socket_endpoint.searchParams.get("port");
+  var info = socket_endpoint.searchParams.get("info");
+  var ticket = socket_endpoint.searchParams.get("ticket");
+
+  var info_decode = UtilsConnection.decodeInfoConnection(info);
+  UtilsConnection.printInfoConnection($('.VMRC_info'), info_decode)
+
 
   try{
     _wmks = WMKS.createWMKS("wmksContainer", {})
@@ -129,9 +97,11 @@ define(function(require) {
     _wmks.eventHandlers["connectionstatechange"].push(connected);
     _wmks.eventHandlers["disconnect"] = disconnectedFromServer;
     _wmks.vm_name = info_decode && info_decode.name;
-    
-    _wmks.connect(URL);
+
+    _wmks.connect(socket_string);
   }catch(err){
     setStatus("Something went wrong, connection is closed", "Failed");
   }
+
+  $(window).resize(updateScreen);
 });

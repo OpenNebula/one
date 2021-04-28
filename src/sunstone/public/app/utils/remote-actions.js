@@ -19,27 +19,15 @@ define(function(require) {
     Sunstone = require("sunstone"),
     Config = require("sunstone-config"),
     OpenNebulaVM = require("opennebula/vm"),
-    Vnc = require("utils/vnc"),
-    Spice = require("utils/spice"),
-    FireedgeValidator = require("utils/fireedge-validator"),
-    Notifier = require("utils/notifier");
-
+    FireedgeValidator = require('utils/fireedge-validator'),
+    Notifier = require('utils/notifier');
+  
   function _callSpice(data) {
-    if (!Spice.lockStatus() && data.hasOwnProperty("id")) {
-      Spice.lock();
-      Sunstone.runAction("VM.startspice_action", String(data.id));
-    } else {
-      Notifier.notifyError(Locale.tr("SPICE Connection in progress"));
-    }
+    if (data.hasOwnProperty('id')) Sunstone.runAction('VM.startspice_action', String(data.id));
   }
 
   function _callVNC(data) {
-    if (!Vnc.lockStatus() && data.hasOwnProperty("id")) {
-      Vnc.lock();
-      Sunstone.runAction("VM.startvnc_action", String(data.id));
-    } else {
-      Notifier.notifyError(Locale.tr("VNC Connection in progress"));
-    }
+    if (data.hasOwnProperty('id')) Sunstone.runAction('VM.startvnc_action', String(data.id));
   }
 
   function _callSaveRDP(data) {
@@ -304,17 +292,59 @@ define(function(require) {
       });
   }
 
+  /**
+   * 
+   * @param {Object} response Callback response with the token and info 
+   * @param {Object} options 
+   * @returns 
+   */
+   function _getLink(response, options){
+    options = $.extend({
+      host: undefined,
+      port: undefined,
+      connnection_type: '',
+      extra_path: '',
+      extra_params: []
+    }, options);
+
+    var params = options.extra_params.concat([
+      response.token && 'token=' + response.token,
+      response.info && 'info=' + response.info
+    ]).filter(Boolean);
+
+    var endpoint = new URL(window.location.href);
+    var websocketProtocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    var websocket = websocketProtocol + '//';
+
+    if (options.host && options.port)
+      websocket += options.host + ':' + options.port
+    else if (options.port)
+      websocket += endpoint.hostname + ':' + options.port
+    else  
+      websocket += endpoint.host;
+    
+    websocket += options.extra_path + '?' + params.join("&");
+
+    var encoded_socket = btoa(websocket);
+
+    var link = endpoint.origin + "/" + options.connnection_type + "?socket=" + encoded_socket;
+    
+    return link;
+  }
+
   return {
-    "callSpice": _callSpice,
-    "callVNC": _callVNC,
-    "callSaveRDP": _callSaveRDP,
-    "callSaveWFile": _callSaveWFile,
-    "callVMRC": _callVMRC,
-    "callGuacVNC": _callGuacVNC,
-    "callGuacSSH": _callGuacSSH,
-    "callGuacRDP": _callGuacRDP,
-    "callGuacVNC": _callGuacVNC,
-    "renderActionsHtml": _renderActionsHtml,
-    "bindActionsToContext": _bindActionsToContext
+    'callSpice': _callSpice,
+    'callVNC': _callVNC,
+    'callSaveRDP': _callSaveRDP,
+    'callSaveWFile': _callSaveWFile,
+    'callVMRC': _callVMRC,
+    'callGuacVNC': _callGuacVNC,
+    'callGuacSSH': _callGuacSSH,
+    'callGuacRDP': _callGuacRDP,
+    'callGuacVNC': _callGuacVNC,
+    'renderActionsHtml': _renderActionsHtml,
+    'bindActionsToContext': _bindActionsToContext,
+    'getLink': _getLink
   };
 });

@@ -1,8 +1,8 @@
 /*
- * Based on the noVNC base CSS
+ * Based on the VMRC base CSS
  * Copyright (C) 2012 Joel Martin
  * Copyright (C) 2013 Samuel Mannehed for Cendio AB
- * noVNC is licensed under the MPL 2.0 (see LICENSE.txt)
+ * VMRC is licensed under the MPL 2.0 (see LICENSE.txt)
  * This file is licensed under the 2-Clause BSD license (see LICENSE.txt).
  */
 
@@ -18,113 +18,110 @@ html {
   height:100%;
 }
 
-#noVNC_controls ul {
+#VMRC_controls ul {
   list-style: none;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
-#noVNC_controls li {
+#VMRC_controls li {
   padding-bottom:8px;
 }
 
-#noVNC_host {
+#VMRC_host {
   width:150px;
 }
-#noVNC_port {
+#VMRC_port {
   width: 80px;
 }
-#noVNC_password {
+#VMRC_password {
   width: 150px;
 }
-#noVNC_path {
+#VMRC_path {
   width: 100px;
 }
-#noVNC_connect_button {
+#VMRC_connect_button {
   width: 110px;
   float:right;
 }
 
-#noVNC_buttons {
+#VMRC_buttons {
   white-space: nowrap;
 }
 
-#noVNC_view_drag_button {
+#VMRC_view_drag_button {
   display: none;
 }
-#sendCtrlAltDelButton {
+#VMRC_xvp_buttons {
   display: none;
 }
-#noVNC_xvp_buttons {
-  display: none;
-}
-#noVNC_mobile_buttons {
+#VMRC_mobile_buttons {
   display: none;
 }
 
-#noVNC_extra_keys {
+#VMRC_extra_keys {
   display: inline;
   list-style-type: none;
-  padding: 0px;
-  margin: 0px;
+  padding: 0;
+  margin: 0;
   position: relative;
 }
 
-.noVNC-buttons-left {
+.VMRC-buttons-left {
   float: left;
   z-index: 1;
   position: relative;
 }
 
-.noVNC-buttons-right {
+.VMRC-buttons-right {
   float:right;
-  right: 0px;
+  right: 0;
   z-index: 2;
   position: absolute;
 }
 
-#noVNC_status {
+#VMRC_status {
   text-align: center;
 }
 
-#noVNC_settings_menu {
+#VMRC_settings_menu {
   margin: 3px;
   text-align: left;
 }
-#noVNC_settings_menu ul {
+#VMRC_settings_menu ul {
   list-style: none;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
 }
 
-#noVNC_apply {
+#VMRC_apply {
   float:right;
 }
 
 /* Do not set width/height for VNC_screen or VNC_canvas or incorrect
  * scaling will occur. Canvas resizes to remote VNC settings */
-#noVNC_screen_pad {
-  margin: 0px;
-  padding: 0px;
+#VMRC_screen_pad {
+  margin: 0;
+  padding: 0;
   height: 36px;
 }
-#noVNC_screen {
+#VMRC_screen {
   width: 100%;
-  display: inline-flex;
+  display: flex;
   height: 100%;
   flex-direction: column;
   background-color: rgb(40, 40, 40);
 }
-#noVNC_screen > #VNC_canvas{
+#VMRC_screen > #VNC_canvas{
   flex-grow: 1;
 }
 
-#noVNC_container, #noVNC_canvas {
-  margin: 0px;
-  padding: 0px;
+#VMRC_container, #VMRC_canvas {
+  margin: 0;
+  padding: 0;
 }
 
-#noVNC_canvas {
-  left: 0px;
+#VMRC_canvas {
+  flex-grow: 1;
 }
 
 #VNC_clipboard_clear_button {
@@ -134,29 +131,29 @@ html {
   font-size: 11px;
 }
 
-#noVNC_clipboard_clear_button {
+#VMRC_clipboard_clear_button {
   float:right;
 }
 
 /*Bubble contents divs*/
-#noVNC_settings {
+#VMRC_settings {
   display:none;
   margin-top:73px;
   right:20px;
   position:fixed;
 }
 
-#noVNC_controls {
+#VMRC_controls {
   display:none;
   margin-top:73px;
   right:12px;
   position:fixed;
 }
-#noVNC_controls.top:after  {
+#VMRC_controls.top:after  {
   right:15px;
 }
 
-#noVNC_description {
+#VMRC_description {
   display:none;
   position:fixed;
 
@@ -169,7 +166,7 @@ html {
   border:2px solid #E0E0E0;
 }
 
-#noVNC_popup_status_panel {
+#VMRC_popup_status_panel {
   display:none;
   position: fixed;
   z-index: 1;
@@ -189,23 +186,23 @@ html {
   border-radius:10px;
 }
 
-#noVNC_xvp {
+#VMRC_xvp {
   display:none;
   margin-top:73px;
   right:30px;
   position:fixed;
 }
-#noVNC_xvp.top:after {
+#VMRC_xvp.top:after {
   right:125px;
 }
 
-#noVNC_clipboard {
+#VMRC_clipboard {
   display:none;
   margin-top:73px;
   right:30px;
   position:fixed;
 }
-#noVNC_clipboard.top:after {
+#VMRC_clipboard.top:after {
   right:85px;
 }
 
@@ -224,18 +221,18 @@ html {
  * Advanced Styling
  */
 
-.noVNC_status_normal {
+.VMRC_status_normal {
   color: #b2bdcd; /* Old browsers */
 }
-.noVNC_status_error {
+.VMRC_status_error {
   color: #f04040; /* Old browsers */
 }
-.noVNC_status_warn {
+.VMRC_status_warn {
   color: #f0f040; /* Old browsers */
 }
 
 /* Control bar */
-#noVNC-control-bar {
+#VMRC-control-bar {
   position:fixed;
   
   display:block;
@@ -246,7 +243,7 @@ html {
   z-index:200;
 }
 
-.noVNC_status_button {
+.VMRC_status_button {
   padding: 4px 4px;
   vertical-align: middle;
   border:1px solid #869dbc;
@@ -264,7 +261,7 @@ html {
   /*box-shadow:inset 0.4px 0.4px 0.4px #000000;*/
 }
 
-.noVNC_status_button_selected {
+.VMRC_status_button_selected {
   padding: 4px 4px;
   vertical-align: middle;
   border:1px solid #4366a9;
@@ -332,7 +329,7 @@ html {
   border-color:transparent #E0E0E0;
 }
 
-/*Default noVNC logo.*/
+/*Default VMRC logo.*/
 /* From: http://fonts.googleapis.com/css?family=Orbitron:700 */
 @font-face {
   font-family: 'Orbitron';
@@ -342,7 +339,7 @@ html {
                    url('Orbitron700.ttf') format('truetype');
 }
 
-#noVNC_logo {
+#VMRC_logo {
   margin-top: 170px;
   margin-left: 10px;
   color:yellow;
@@ -358,7 +355,7 @@ html {
 }
 
 
-#noVNC_logo span{
+#VMRC_logo span{
   color:green;
 }
 
@@ -368,29 +365,36 @@ html {
  */
 
 
-.noVNC_status_button {
+.VMRC_status_button {
   font-size: 12px;
 }
 
-#noVNC_clipboard_text {
+#VMRC_clipboard_text {
   width: 500px;
 }
 
-#noVNC_logo {
+#VMRC_logo {
   font-size: 180px;
 }
 
-.noVNC-buttons-left {
+.VMRC-buttons-left {
   padding-left: 10px;
 }
 
-.noVNC-buttons-right {
+.VMRC-buttons-right {
   padding-right: 10px;
 }
 
-#noVNC_status {
+#VMRC_status {
   position: absolute;
   width: 100%;
+}
+
+#wmksContainer {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  padding: 1em 0;
 }
 
 .remote_logo{
@@ -402,7 +406,7 @@ html {
   width: 40px;
 }
 
-#noVNC_status_msg{
+#VMRC_status_msg{
   white-space: nowrap; 
   max-width: 20em; 
   overflow: hidden;
@@ -423,7 +427,7 @@ html {
 
 /* left-align the status text on lower resolutions */
 @media screen and (max-width: 800px){
-  #noVNC_status {
+  #VMRC_status {
     z-index: 1;
     position: relative;
     width: auto;
@@ -432,20 +436,20 @@ html {
 }
 
 @media screen and (max-width: 640px){
-  #noVNC_clipboard_text {
+  #VMRC_clipboard_text {
     width: 410px;
   }
-  #noVNC_logo {
+  #VMRC_logo {
     font-size: 150px;
   }
-  .noVNC_status_button {
+  .VMRC_status_button {
     font-size: 10px;
   }
-  .noVNC-buttons-left {
-    padding-left: 0px;
+  .VMRC-buttons-left {
+    padding-left: 0;
   }
-  .noVNC-buttons-right {
-    padding-right: 0px;
+  .VMRC-buttons-right {
+    padding-right: 0;
   }
   /* collapse the extra keys on lower resolutions */
   #showExtraKeysButton {
@@ -455,45 +459,45 @@ html {
     display: none;
     position: absolute;
     top: 30px;
-    left: 0px;
+    left: 0;
   }
   #toggleAltButton {
     display: none;
     position: absolute;
     top: 65px;
-    left: 0px;
+    left: 0;
   }
   #sendTabButton {
     display: none;
     position: absolute;
     top: 100px;
-    left: 0px;
+    left: 0;
   }
   #sendEscButton {
     display: none;
     position: absolute;
     top: 135px;
-    left: 0px;
+    left: 0;
   }
 }
 
 @media screen and (min-width: 321px) and (max-width: 480px) {
-  #noVNC_clipboard_text {
+  #VMRC_clipboard_text {
     width: 250px;
   }
-  #noVNC_logo {
+  #VMRC_logo {
     font-size: 110px;
   }
 }
 
 @media screen and (max-width: 320px) {
-  .noVNC_status_button {
+  .VMRC_status_button {
     font-size: 9px;
   }
-  #noVNC_clipboard_text {
+  #VMRC_clipboard_text {
     width: 220px;
   }
-  #noVNC_logo {
+  #VMRC_logo {
     font-size: 90px;
   }
 }

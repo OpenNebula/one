@@ -23,8 +23,13 @@ define(function(require) {
   var TemplateInfo = require("hbs!./info");
 
   function printInfoConnection(context, info) {
-    context.empty();
-    info && context.append(TemplateInfo(info));
+    context.empty()
+    info && context.append(TemplateInfo(info))
+    UtilsFoundation.update(context);
+
+    if (info && info.name) {
+      document.title = info.name;
+    }
   }
 
   function decodeInfoConnection(info_encode) {

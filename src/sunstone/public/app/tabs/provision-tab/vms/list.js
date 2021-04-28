@@ -27,9 +27,8 @@ define(function(require) {
   var Graphs = require("utils/graphs");
   var TemplateUtils = require("utils/template-utils");
   var StateActions = require("tabs/vms-tab/utils/state-actions");
-  var Vnc = require("utils/vnc");
-  var Spice = require("utils/spice");
   var VMsTableUtils = require('../../vms-tab/utils/datatable-common');
+  var RemoteActions = require('utils/remote-actions');
 
   var TemplateVmsList = require("hbs!./list");
   var TemplateConfirmSaveAsTemplate = require("hbs!./confirm_save_as_template");
@@ -40,9 +39,6 @@ define(function(require) {
 
   var TAB_ID = require("../tabId");
   var _accordionId = 0;
-
-  var VNC_DIALOG_ID   = require("tabs/vms-tab/dialogs/vnc/dialogId");
-  var SPICE_DIALOG_ID = require("tabs/vms-tab/dialogs/spice/dialogId");
 
   return {
     "generate": generate_provision_vms_list,
@@ -800,18 +796,30 @@ define(function(require) {
         },
         success: function(request, response){
           if (OpenNebulaVM.isVNCSupported(vm_data)) {
-
-            var dialog = Sunstone.getDialog(VNC_DIALOG_ID);
-            dialog.setElement(response);
-            dialog.show();
+            var link = RemoteActions.getLink(response,{
+              port: Config.vncProxyPort,
+              connnection_type: 'vnc',
+              extra_params: [
+                'port=' + Config.vncProxyPort,
+                'encrypt=' + Config.vncWSS,
+                !Config.requestVNCPassword && 'password=' + response.password
+              ]
+            });
+            // Open in a new tab the noVNC connection
+            window.open(link);
 
             button.removeAttr("disabled");
           } else if (OpenNebulaVM.isSPICESupported(vm_data)) {
-            var dialog = Sunstone.getDialog(SPICE_DIALOG_ID);
-            dialog.setElement(response);
-            dialog.show();
-
-            button.removeAttr("disabled");
+            var link = RemoteActions.getLink(response, {
+              port: Config.vncProxyPort, 
+              connnection_type: 'spice',
+              extra_params: [
+                'password=' + response.password,
+                'encrypt=' + config.user_config.vnc_wss,
+              ]
+            });
+            // Open in a new tab the SPICE connection
+            window.open(link);
           } else {
             Notifier.notifyError("The remote console is not enabled for this VM");
           }
