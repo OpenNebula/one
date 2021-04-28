@@ -25,7 +25,7 @@ define(function(require) {
     Navigation = require("utils/navigation");
 
   var RESOURCE = "VM";
-  var VM_MONITORING_CACHE_NAME = 'VM.MONITORING';
+  var VM_MONITORING_CACHE_NAME = "VM.MONITORING";
 
   var STATES_STR = [
     "INIT",
@@ -674,12 +674,12 @@ define(function(require) {
 
         return Array.isArray(monitoringPool)
           ? monitoringPool.reduce(function(result, monitoringVM) {
-            return $.extend(result, { [monitoringVM.ID]: monitoringVM })
+            return $.extend(result, { [monitoringVM.ID]: monitoringVM });
           }, {})
-          : {}
-      }
+          : {};
+      };
 
-      OpenNebulaAction.list(params, VM_MONITORING_CACHE_NAME, 'vm/monitor', process, undefined, false);
+      OpenNebulaAction.list(params, VM_MONITORING_CACHE_NAME, "vm/monitor", process, undefined, false);
     },
     "resize" : function(params) {
       var action_obj = params.data.extra_param;
@@ -848,10 +848,10 @@ define(function(require) {
 
   function _promiseGetVm({ id, success, async = true } = {}) {
     return $.ajax({
-      url: 'vm/' + id,
-      type: 'GET',
+      url: "vm/" + id,
+      type: "GET",
       success: function(response) {
-        if (typeof success === 'function') {
+        if (typeof success === "function") {
           var vm =  response ? response[RESOURCE] : undefined;
           success(vm);
         }
@@ -863,20 +863,20 @@ define(function(require) {
   function _getMonitoringPool() {
     var monitoring = undefined;
     var cache = OpenNebulaAction.cache(VM_MONITORING_CACHE_NAME);
-    
+
     if (cache && cache.data) {
-      monitoring = cache.data
+      monitoring = cache.data;
     }
 
     if (!monitoring || $.isEmptyObject(monitoring)) {
       VM.pool_monitor({
         success: function(response) {
-          monitoring = response
+          monitoring = response;
         }
-      })
+      });
     }
 
-    return monitoring || {}
+    return monitoring || {};
   }
 
   function retrieveLastHistoryRecord(element) {
@@ -976,52 +976,52 @@ define(function(require) {
   }
 
   function getNicsFromMonitoring(element = {}) {
-    let monitoringPool = _getMonitoringPool()
-    let monitoringVM = monitoringPool[element.ID]
+    let monitoringPool = _getMonitoringPool();
+    let monitoringVM = monitoringPool[element.ID];
 
     if (!monitoringPool || $.isEmptyObject(monitoringPool) || !monitoringVM) return [];
 
     return EXTERNAL_IP_ATTRS.reduce(function(externalNics, attr) {
-      let monitoringValues = monitoringVM[attr]
+      let monitoringValues = monitoringVM[attr];
 
       if (monitoringValues) {
-        $.each(monitoringValues.split(','), function(_, ip) {
-          let exists = externalNics.some(function(nic) { return nic.IP === ip })
+        $.each(monitoringValues.split(","), function(_, ip) {
+          let exists = externalNics.some(function(nic) { return nic.IP === ip; });
 
           if (!exists) {
-            externalNics.push({ NIC_ID: '_', IP: ip });
+            externalNics.push({ NIC_ID: "_", IP: ip });
           }
         });
       }
 
       return externalNics;
-    }, [])
+    }, []);
   }
 
   // Return the IP or several IPs of a VM
   function ipsStr(element, options) {
     options = $.extend({
-      defaultValue: '--',
-      divider: '<br>',
+      defaultValue: "--",
+      divider: "<br>",
       groupStrFunction: groupByIpsStr,
       forceGroup: false
-    }, options)
-    
-    var nics = getNICs(element);
-    var nicsFromMonitoring = getNicsFromMonitoring(element)
+    }, options);
 
-    nics = nics.concat(nicsFromMonitoring)
+    var nics = getNICs(element);
+    var nicsFromMonitoring = getNicsFromMonitoring(element);
+
+    nics = nics.concat(nicsFromMonitoring);
 
     // infoextended: alias will be group by nic
     if (Config.isExtendedVmInfo || options.forceGroup) {
-      return options.groupStrFunction(element, nics)
+      return options.groupStrFunction(element, nics);
     }
 
     return $.map(nics, function(nic) {
       return $.map(NIC_ALIAS_IP_ATTRS, function(attribute) {
-        return nic[attribute]
-      })
-    }).join(options.divider) || options.defaultValue
+        return nic[attribute];
+      });
+    }).join(options.divider) || options.defaultValue;
   };
 
   // Return a dropdown with all the IPs
@@ -1037,20 +1037,22 @@ define(function(require) {
     if (ips.length === 0)
       return "<p style=\"margin-bottom:0;\">--</p>";
     else if (ips.length === 1)
-      return "<p style=\"margin-bottom:0;\">"+ips[0]+"</p>"
-    
-    var firstIP = ipsHtml.split("<end_first_ip>")[0]
-    ipsHtml = ipsHtml.split("<end_first_ip>")[1]
-    ipsHtml = 
-      "<ul class=\"dropdown menu ips-dropdown\" style=\"white-space: nowrap;text-align:left;\" data-dropdown-menu>" +
-        "<li>" + 
-          "<a style=\"padding-top:0em;padding-bottom:0em;padding-left:0em;color:gray\">"+
+      return "<p style=\"margin-bottom:0;\">"+ips[0]+"</p>";
+
+    var firstIP = ipsHtml.split("<end_first_ip>")[0];
+    ipsHtml = ipsHtml.split("<end_first_ip>")[1];
+    ipsHtml =
+      "<ul class='dropdown-menu-css'>" +
+        "<li>" +
+          "<div>"+
             firstIP +
-          "</a>" +
-          "<ul class=\"menu\" style=\"max-height: 50em; overflow: scroll; width:250px;\">" +
+          "</div>" +
+        "</li>" +
+        "<li class='menu-hide upper'>" +
+          "<ul>" +
             ipsHtml +
           "</ul>" +
-        "</li>" + 
+        "</li>" +
       "</ul>";
     return ipsHtml;
   };
@@ -1096,9 +1098,9 @@ define(function(require) {
       else{
         if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
           var ip;
-          
-          var nicSection = $("<a/>").css("color", "gray")
-          
+
+          var nicSection = $("<a/>").css("color", "gray");
+
           if (nic.EXTERNAL_IP) {
             ip = nic.EXTERNAL_IP;
             nicSection.css("font-weight", "bold");
@@ -1108,22 +1110,22 @@ define(function(require) {
           }
 
           nicSection.html(nic.NIC_ID + ": " + ip);
-  
+
           column.append($("<li/>").append(nicSection));
-  
+
           if (nic.ALIAS_IDS) {
             nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
               var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
                 ? element.TEMPLATE.NIC_ALIAS
                 : [element.TEMPLATE.NIC_ALIAS];
-  
+
               var alias = templateAlias.find(function(alias) {
                 return alias.NIC_ID === aliasId;
               });
-  
+
               if (alias) {
                 var alias_ip = alias.IP || alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
-  
+
                 column.append($("<li/>").append($("<a/>").css({
                   "color": "gray",
                   "font-style": "italic",
@@ -1157,13 +1159,13 @@ define(function(require) {
           nicSection.css("font-weight","bold");
         }
         else {
-          ip = nic.IP || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL
+          ip = nic.IP || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL;
         }
 
         nicSection.html(nic.NIC_ID + ": " + ip);
 
         column.append(nicSection);
-        
+
         if (nic.ALIAS_IDS) {
           nic.ALIAS_IDS.split(",").forEach(function(aliasId) {
             var templateAlias = Array.isArray(element.TEMPLATE.NIC_ALIAS)
@@ -1191,36 +1193,36 @@ define(function(require) {
   };
 
   function isVNCSupported(element = {}) {
-    var actionEnabled = Config.isTabActionEnabled('vms-tab', 'VM.vnc')
-    var vncSupported = graphicSupported(element, 'vnc')
+    var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.vnc");
+    var vncSupported = graphicSupported(element, "vnc");
 
-    return actionEnabled && vncSupported
+    return actionEnabled && vncSupported;
   }
 
   function isVCenterVM(element = {}){
     return Boolean(element.USER_TEMPLATE &&
-      String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === 'vcenter');
+      String(element.USER_TEMPLATE.HYPERVISOR).toLowerCase() === "vcenter");
   }
 
   function isVMRCSupported(element = {}) {
-    var actionEnabled = Config.isTabActionEnabled('vms-tab', 'VM.startvmrc')
-    var vmrcSupported = graphicSupported(element, 'vnc')
+    var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.startvmrc");
+    var vmrcSupported = graphicSupported(element, "vnc");
 
     return actionEnabled && vmrcSupported && isVCenterVM(element);
   }
 
   function isSPICESupported(element = {}) {
-    var actionEnabled = Config.isTabActionEnabled('vms-tab', 'VM.startspice')
-    var spiceSupported = graphicSupported(element, 'spice')
+    var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.startspice");
+    var spiceSupported = graphicSupported(element, "spice");
 
-    return actionEnabled && spiceSupported
+    return actionEnabled && spiceSupported;
   }
 
   function isWFileSupported(element = {}) {
     var history = retrieveLastHistoryRecord(element);
-    var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer")
-    var vncSupported = graphicSupported(element, 'vnc')
-    var spiceSupported = graphicSupported(element, 'spice')
+    var actionEnabled = Config.isTabActionEnabled("vms-tab", "VM.save_virt_viewer");
+    var vncSupported = graphicSupported(element, "vnc");
+    var spiceSupported = graphicSupported(element, "spice");
 
     return (actionEnabled && history && (vncSupported || spiceSupported))
       ? {
@@ -1240,7 +1242,7 @@ define(function(require) {
     var isEnabled = false;
 
     if (
-      $.inArray(String(typeConnection).toLowerCase(), ['rdp', 'ssh']) > -1 &&
+      $.inArray(String(typeConnection).toLowerCase(), ["rdp", "ssh"]) > -1 &&
       element && element.TEMPLATE && element.TEMPLATE.GRAPHICS && element.LCM_STATE
     ) {
       var template = element.TEMPLATE;

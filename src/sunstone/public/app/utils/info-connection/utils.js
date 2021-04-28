@@ -15,42 +15,40 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-  require('foundation')
+  require("foundation");
 
-  var OpenNebulaVM = require('opennebula/vm');
-  var OpenNebulaService = require('opennebula/service');
-  var UtilsFoundation = require("utils/foundation/utils");
+  var OpenNebulaVM = require("opennebula/vm");
+  var OpenNebulaService = require("opennebula/service");
 
-  var TemplateInfo = require('hbs!./info');
-  
+  var TemplateInfo = require("hbs!./info");
+
   function printInfoConnection(context, info) {
-    context.empty()
-    info && context.append(TemplateInfo(info))
-    UtilsFoundation.update(context);
+    context.empty();
+    info && context.append(TemplateInfo(info));
   }
 
   function decodeInfoConnection(info_encode) {
-    if (!info_encode) return undefined
+    if (!info_encode) return undefined;
 
     try {
-      var json = atob(info_encode)
-      var info = JSON.parse(json)
+      var json = atob(info_encode);
+      var info = JSON.parse(json);
 
-      var stateId = OpenNebulaVM.STATES[info.state]
-      var lcmStateId = OpenNebulaVM.LCM_STATES[info.state]
-      var stateClass = OpenNebulaVM.stateClass(stateId) || OpenNebulaVM.lcmStateClass(lcmStateId)
+      var stateId = OpenNebulaVM.STATES[info.state];
+      var lcmStateId = OpenNebulaVM.LCM_STATES[info.state];
+      var stateClass = OpenNebulaVM.stateClass(stateId) || OpenNebulaVM.lcmStateClass(lcmStateId);
 
-      var service = OpenNebulaService.getService(info.service_id)
+      var service = OpenNebulaService.getService(info.service_id);
 
-      return $.extend(info, { stateClass, service })
+      return $.extend(info, { stateClass, service });
 
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   }
 
   return {
-    'printInfoConnection': printInfoConnection,
-    'decodeInfoConnection': decodeInfoConnection
-  }
+    "printInfoConnection": printInfoConnection,
+    "decodeInfoConnection": decodeInfoConnection
+  };
 });

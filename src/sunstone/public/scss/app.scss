@@ -280,6 +280,40 @@ select.mb_input_unit {
   line-height: 1.4rem;
 }
 
+ul.dropdown-menu-css{
+  position: relative;
+  margin: 0;
+  list-style: none;
+
+  & > .menu-hide{
+    display: none;
+    position: absolute;
+    background-color: $white;
+    padding: 5px;
+    -webkit-box-shadow: 5px 5px 10px 0px $black;
+    -moz-box-shadow: 5px 5px 10px 0px $black;
+    box-shadow: 5px 5px 10px 0px $black;
+    z-index: 999999;
+
+    & ul{
+      margin: 0;
+      list-style: none;
+
+      & > li{
+        display: inline-block;
+      }
+    }
+  }
+
+  & > li.menu-hide.upper{
+    top: 0px;
+  }
+
+  &:hover > li{
+    display: block;
+  }
+}
+
 @media screen and (min-width: 64em){
   .medium-hide {
       display: none !important;
