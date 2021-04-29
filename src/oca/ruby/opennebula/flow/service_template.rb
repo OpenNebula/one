@@ -361,8 +361,8 @@ module OpenNebula
                 # exceeds the limit
                 new_name = "#{template.name}-#{name}"
 
-                if new_name.size > 128
-                    new_name = "#{template.name[0..(126 - name.size)]}-#{name}"
+                if new_name.size > 119
+                    new_name = "#{template.name[0..(119 - name.size)]}-#{name}"
                 end
 
                 rc = template.clone(new_name, recursive)
