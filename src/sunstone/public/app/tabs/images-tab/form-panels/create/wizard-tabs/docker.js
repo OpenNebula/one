@@ -18,7 +18,7 @@ define(function(require) {
   /*
     DEPENDENCIES
    */
-
+  require("ace-builds");
   var Config = require("sunstone-config");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
