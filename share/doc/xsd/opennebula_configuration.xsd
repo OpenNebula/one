@@ -270,6 +270,7 @@
         <xs:element name="RPC_LOG" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="SCRIPTS_REMOTE_DIR" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="SESSION_EXPIRATION_TIME" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="SHOWBACK_ONLY_RUNNING" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="TIMEOUT" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 
         <xs:element name="TM_MAD" minOccurs="0" maxOccurs="unbounded">
