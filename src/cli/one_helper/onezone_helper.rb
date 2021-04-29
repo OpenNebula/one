@@ -77,6 +77,12 @@ class Replicator
         @l_config_elements = { :raw => @l_config }
         @l_fed_elements    = { :raw => @l_config }
 
+        if OpenNebula.is_error?(@l_config)
+            STDERR.puts 'Unable to read OpenNebula configuration. ' \
+                        'Is OpenNebula running?'
+            exit(-1)
+        end
+
         fetch_db_config(@l_config_elements)
         fetch_fed_config(@l_fed_elements)
 
@@ -129,7 +135,7 @@ class Replicator
     def fetch_db_config(configs)
         configs.store(:backend, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/BACKEND'])
 
-        if configs[:backend] == 'mysql'
+        if configs[:backend] == 'mysql' || configs[:backend] == 'postgresql'
             configs.store(:server, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/SERVER'])
             configs.store(:user, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/USER'])
             configs.store(:password, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/PASSWD'])
@@ -137,7 +143,7 @@ class Replicator
             configs.store(:port, configs[:raw]['/OPENNEBULA_CONFIGURATION/DB/PORT'])
             configs[:port] = '3306' if configs[:port] == '0'
         else
-            STDERR.puts 'No mysql backend configuration found'
+            STDERR.puts 'No mysql or postgresql backend configuration found'
             exit(-1)
         end
     end
@@ -305,7 +311,8 @@ class Replicator
              'this could take a while'
 
         ssh(
-            "onedb backup -f -u #{@r_config_elements[:user]} " \
+            "onedb backup -f -t #{@r_config_elements[:backend]} " \
+            "-u #{@r_config_elements[:user]} " \
             "-p #{@r_config_elements[:password]} " \
             "-d #{@r_config_elements[:dbname]} " \
             "-P #{@r_config_elements[:port]} /tmp/one_db_dump.sql"
@@ -320,7 +327,8 @@ class Replicator
         puts 'Restoring database'
 
         run_command(
-            "onedb restore -f -u #{@l_config_elements[:user]} " \
+            "onedb restore -f -t #{@l_config_elements[:backend]}" \
+            "-u #{@l_config_elements[:user]} " \
             "-p #{@l_config_elements[:password]} " \
             "-d #{@l_config_elements[:dbname]} " \
             "-P #{@l_config_elements[:port]} " \

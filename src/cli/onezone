@@ -254,7 +254,7 @@ CommandParser::CmdParser.new(ARGV) do
         end
 
         server = Replicator.new('/var/lib/one/.ssh/id_rsa', args[0])
-        server.process_files(options.key?(:database))
+        server.process_files(options[:db])
 
         0
     end
