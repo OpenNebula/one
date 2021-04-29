@@ -18,7 +18,7 @@
 # Defaults
 ################################################################################
 
-ruby '~> 2'
+ruby '>=2.0.0', '<4'
 source 'https://rubygems.org'
 ruby_version = Gem::Version.new(RUBY_VERSION)
 
