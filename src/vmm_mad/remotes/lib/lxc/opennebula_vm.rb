@@ -44,6 +44,11 @@ class LXCConfiguration < Hash
         },
         :datastore_location => '/var/lib/one/datastores',
         :default_lxc_config => '/usr/share/lxc/config/common.conf',
+    }
+
+    # Configuration attributes that are not customizable
+    FIXED_CONFIGURATION = {
+        :profiles_location  => '/var/tmp/one/etc/vmm/lxc/profiles',
         :id_map => 600100001, # First id for mapping
         :max_map => 65536     # Max id for mapping
     }
@@ -58,6 +63,8 @@ class LXCConfiguration < Hash
         rescue StandardError => e
             OpenNebula.log_error e
         end
+
+        merge!(FIXED_CONFIGURATION)
 
         super
     end
@@ -84,11 +91,10 @@ class LXCVM < OpenNebulaVM
 
     # Returns a Hash representing the LXC configuration for this OpenNebulaVM
     def to_lxc
-        prefix = 'lxc'
-        lxc    = {}
+        lxc = {}
 
         # Always include default file with uids mapping
-        lxc["#{prefix}.include"] = [@lxcrc[:default_lxc_config]]
+        lxc['lxc.include'] = [@lxcrc[:default_lxc_config]]
 
         # Add disks
         disks.each do |disk|
@@ -122,8 +128,13 @@ class LXCVM < OpenNebulaVM
                             "g 0 #{@lxcrc[:id_map]} #{@lxcrc[:max_map]}"]
         # rubocop:enable Layout/LineLength
 
-        # hash_to_lxc values should prevail over raw section values
-        hash_to_lxc(parse_raw.merge(lxc))
+        # Add profiles
+        lxc['lxc.include'] |= parse_profiles
+
+        # Parse RAW section (lxc values should prevail over raw section values)
+        lxc = parse_raw.merge(lxc)
+
+        hash_to_lxc(lxc)
     end
 
     # Returns an Array of Disk objects, each one represents an OpenNebula DISK
@@ -171,6 +182,7 @@ class LXCVM < OpenNebulaVM
         lxc
     end
 
+    # Parse configuration in template RAW section
     def parse_raw
         raw_map = {}
 
@@ -200,6 +212,28 @@ class LXCVM < OpenNebulaVM
         end
 
         raw_map
+    end
+
+    # Parse profiles and return the list of files (profiles) to be included.
+    def parse_profiles
+        profiles = @xml['/VM/USER_TEMPLATE/LXC_PROFILES']
+
+        return [] if profiles.empty?
+
+        files = []
+
+        profiles.split(',').each do |profile|
+            profile.strip!
+            path = "#{@lxcrc[:profiles_location]}/#{profile}"
+
+            if File.exist?(path)
+                files << path
+            else
+                STDERR.puts "Cannot find profile: \"#{profile}\"."
+            end
+        end
+
+        files.uniq
     end
 
 end
