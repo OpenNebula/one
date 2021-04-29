@@ -234,7 +234,7 @@ int VirtualNetwork::insert(SqlDB * db, string& error_str)
 
     if ( !PoolObjectSQL::name_is_valid(name, error_str) )
     {
-        goto error_name;
+        goto error_common;
     }
 
     this->name = name;
