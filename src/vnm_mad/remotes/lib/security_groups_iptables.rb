@@ -382,28 +382,30 @@ module SGIPTables
         commands.add :ip6tables, "-N #{chain_in}"  # inbound
         commands.add :ip6tables, "-N #{chain_out}" # outbound
 
+        ip = nic[:ip] || nic[:ip6_global]
+
         # Send traffic to the NIC chains
         base_br = "-I #{GLOBAL_CHAIN} -m physdev --physdev-is-bridged "
         if nic[:alias_id]
-            nro = "#{base_br} --physdev-in #{nic[:parent_nic][:tap]} -s #{nic[:ip]} -j #{chain_out}"
+            nro = "#{base_br} --physdev-in #{nic[:parent_nic][:tap]} -s #{ip} -j #{chain_out}"
         else
             nro = "#{base_br} --physdev-in #{nic[:tap]} -j #{chain_out}"
         end
 
         if bridged
             if nic[:alias_id]
-                nri = "#{base_br} --physdev-out #{nic[:parent_nic][:tap]} -d #{nic[:ip]} -j #{chain_in}"
+                nri = "#{base_br} --physdev-out #{nic[:parent_nic][:tap]} -d #{ip} -j #{chain_in}"
             else
                 nri = "#{base_br} --physdev-out #{nic[:tap]} -j #{chain_in}"
             end
         else
-            nri = "-I #{GLOBAL_CHAIN} -d #{nic[:ip]} -j #{chain_in}"
+            nri = "-I #{GLOBAL_CHAIN} -d #{ip} -j #{chain_in}"
         end
 
-        if IPAddr.new(nic[:ip]).ipv4?
+        if !ip.nil? && IPAddr.new(ip).ipv4?
             commands.add :iptables, nri
             commands.add :iptables, nro
-        else
+        elsif !ip.nil? && IPAddr.new(ip).ipv6?
             commands.add :ip6tables, nri
             commands.add :ip6tables, nro
         end
