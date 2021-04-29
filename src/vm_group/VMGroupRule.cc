@@ -50,6 +50,11 @@ bool VMGroupRule::compatible(rule_set& affined, rule_set& anti,VMGroupRule& err)
 
 void VMGroupRule::reduce(rule_set affined, rule_set& reduced_set)
 {
+    if (affined.empty())
+    {
+        return;
+    }
+
     VMGroupRule::rule_set::iterator it, jt;
 
     VMGroupRule reduced_rule;
@@ -60,10 +65,6 @@ void VMGroupRule::reduce(rule_set affined, rule_set& reduced_set)
 
         for ( jt = affined.begin() ; jt != affined.end() ; )
         {
-            VMGroupRule tmp = *it;
-
-            tmp &= *jt;
-
             if ( it == jt || (reduced_rule & *jt).none() )
             {
                 ++jt;
@@ -82,7 +83,11 @@ void VMGroupRule::reduce(rule_set affined, rule_set& reduced_set)
         {
             reduced_set.insert(reduced_rule);
 
-            reduced_rule = *(++it);
+            ++it;
+            if (it != affined.end())
+            {
+                reduced_rule = *it;
+            }
         }
     }
 }
