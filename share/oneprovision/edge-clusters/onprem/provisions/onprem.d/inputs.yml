@@ -28,15 +28,6 @@ inputs:
         - 'lxc'
         - 'firecracker'
 
-  - name: 'dns'
-    type: text
-    description: 'Comma separated list of DNS servers for public network'
-    default: '1.1.1.1'
-
-  - name: 'public_network_bridge'
-    type: text
-    description: 'Name of the bridge to be created by OpenNebula for public networking.'
-
   - name: 'first_public_ip'
     type: text
     description: 'First public IP for the public IPs address range.'

@@ -696,6 +696,9 @@ module OneProvision
 
             puts
 
+            desc = input['description']
+            puts desc if desc && !desc.empty?
+
             case input['type']
             when 'text', 'text64'
                 print "Text `#{input['name']}` (default=#{input['default']}): "
