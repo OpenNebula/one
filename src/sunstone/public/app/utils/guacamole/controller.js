@@ -24,7 +24,7 @@ define(function(require) {
   var UtilsConnection = require('utils/info-connection/utils');
 
   var GuacButtons = require('utils/guacamole/directives/guacButtons');
-  var GuacClipboard = require('utils/guacamole/directives/guacClipboard');
+  // var GuacClipboard = require('utils/guacamole/directives/guacClipboard');
   var GuacKeyboard = require('utils/guacamole/directives/guacKeyboard');
   var GuacMouse = require('utils/guacamole/directives/guacMouse');
   var GuacOsk = require('utils/guacamole/directives/guacOsk');
@@ -61,7 +61,7 @@ define(function(require) {
       new GuacMouse($guac, $scope, $elements);
       new GuacOsk($guac, $scope, $elements);
       new GuacButtons($guac, $scope, $elements);
-      new GuacClipboard($guac, $scope, $elements);
+      // new GuacClipboard($guac, $scope, $elements);
       window.addEventListener('resize', containerResized);
       document.addEventListener('fullscreenchange', containerResized)
 
@@ -127,7 +127,7 @@ define(function(require) {
       if ($guac.osk) GuacOsk.destroy();
 
       GuacButtons.destroy();
-      GuacClipboard.destroy();
+      // GuacClipboard.destroy();
       window.removeEventListener('resize', containerResized);
       document.removeEventListener('fullscreenchange', containerResized)
 
