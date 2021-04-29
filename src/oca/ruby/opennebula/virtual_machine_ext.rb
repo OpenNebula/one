@@ -267,16 +267,19 @@ module OpenNebula::VirtualMachineExt
                 # --------------------------------------------------------------
                 # Check backup consistency
                 # --------------------------------------------------------------
-                unless binfo
-                    rc = info
-                    raise rc.message if OpenNebula.is_error?(rc)
+                rc = info
 
-                    binfo = backup_info
+                raise rc.message if OpenNebula.is_error?(rc)
+
+                binfo.merge!(backup_info) do |key, old_val, new_val|
+                    new_val.nil? ? old_val : new_val
                 end
 
                 raise 'No backup information' if binfo.nil?
 
                 raise 'No frequency defined' unless valid?(binfo[:freq])
+
+                raise 'No marketplace defined' unless valid?(binfo[:market])
 
                 return if Time.now.to_i - binfo[:last].to_i < binfo[:freq].to_i
 
@@ -319,19 +322,12 @@ module OpenNebula::VirtualMachineExt
                 # --------------------------------------------------------------
                 # Cleanup
                 # --------------------------------------------------------------
-                logger.info "Deleting template #{tmp.id}" if logger
-
-                tmp.delete(true)
-
-                binfo[:apps].each do |id|
-                    logger.info "Deleting applicance #{id}" if logger
-
-                    papp = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
-
-                    papp.delete
-                end if !keep && binfo[:apps]
+                backup_cleanup(keep, logger, binfo, tmp)
             rescue Error, StandardError => e
+                backup_cleanup(keep, logger, binfo, tmp)
+
                 logger.fatal(e.inspect) if logger
+
                 raise
             end
 
@@ -421,9 +417,9 @@ module OpenNebula::VirtualMachineExt
 
             private
 
-            # --------------------------------------------------------------
+            #-------------------------------------------------------------------
             # Check an attribute is defined and valid
-            # --------------------------------------------------------------
+            #-------------------------------------------------------------------
             def valid?(att)
                 return false if att.nil?
 
@@ -454,12 +450,34 @@ module OpenNebula::VirtualMachineExt
                 binfo
             end
 
+            #-------------------------------------------------------------------
+            # Generate backup information string
+            #-------------------------------------------------------------------
             def backup_attr(binfo, ids)
                 'BACKUP=[' \
                 "  MARKETPLACE_APP_IDS = \"#{ids.join(',')}\"," \
                 "  FREQUENCY_SECONDS   = \"#{binfo[:freq]}\"," \
                 "  LAST_BACKUP_TIME    = \"#{Time.now.to_i}\"," \
                 "  MARKETPLACE_ID      = \"#{binfo[:market]}\" ]"
+            end
+
+            #-------------------------------------------------------------------
+            # Cleanup backup leftovers in case of failure
+            #-------------------------------------------------------------------
+            def backup_cleanup(keep, logger, binfo, template)
+                if template
+                    logger.info "Deleting template #{template.id}" if logger
+
+                    template.delete(true)
+                end
+
+                binfo[:apps].each do |id|
+                    logger.info "Deleting applicance #{id}" if logger
+
+                    papp = OpenNebula::MarketPlaceApp.new_with_id(id, @client)
+
+                    papp.delete
+                end if !keep && binfo[:apps]
             end
 
         end
