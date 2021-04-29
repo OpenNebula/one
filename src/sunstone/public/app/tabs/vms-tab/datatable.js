@@ -31,7 +31,6 @@ define(function(require) {
   var FireedgeValidator = require("utils/fireedge-validator");
   var Websocket = require("utils/websocket");
   var VMRemoteActions = require("utils/remote-actions");
-  var UtilsFoundation = require("utils/foundation/utils");
 
   /*
     CONSTANTS
@@ -169,8 +168,6 @@ define(function(require) {
     $(".off_vms").text(this.offVms);
 
     VMsTableUtils.tooltipCharters();
-
-    UtilsFoundation.update(null);
 
     FireedgeValidator.validateFireedgeToken(function(token) {
       if (Websocket.disconnected()) {

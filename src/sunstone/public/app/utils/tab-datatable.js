@@ -19,30 +19,29 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  require('datatables.net');
-  require('datatables.foundation');
-  var LabelsUtils = require('utils/labels/utils');
-  var Locale = require('utils/locale');
-  var Notifier = require('utils/notifier');
-  var OpenNebula = require('opennebula');
-  var Sunstone = require('sunstone');
-  var SunstoneConfig = require('sunstone-config');
-  var Tips = require('utils/tips');
-  var UtilsFoundation = require("utils/foundation/utils");
-  
+  require("datatables.net");
+  require("datatables.foundation");
+  var LabelsUtils = require("utils/labels/utils");
+  var Locale = require("utils/locale");
+  var Notifier = require("utils/notifier");
+  var OpenNebula = require("opennebula");
+  var Sunstone = require("sunstone");
+  var SunstoneConfig = require("sunstone-config");
+  var Tips = require("utils/tips");
+
   /*
     TEMPLATES
    */
- 
- var TemplateEmptyTable = require('hbs!./tab-datatable/empty-table');
-  var TemplateDataTableHTML = require('hbs!./tab-datatable/table');
-  var TemplateSearchInputHTML = require('hbs!./tab-datatable/search-input');
+
+ var TemplateEmptyTable = require("hbs!./tab-datatable/empty-table");
+  var TemplateDataTableHTML = require("hbs!./tab-datatable/table");
+  var TemplateSearchInputHTML = require("hbs!./tab-datatable/search-input");
 
   /*
     CONSTANTS
    */
 
-  var SPINNER = '<img src="images/ajax-loader.gif" alt="retrieving" class="loading_img"/>';
+  var SPINNER = "<img src=\"images/ajax-loader.gif\" alt=\"retrieving\" class=\"loading_img\"/>";
 
   /*
     GLOBAL INITIALIZATION
@@ -53,7 +52,7 @@ define(function(require) {
     dom:
       "t"+
       "<'row'<'small-6 columns'li><'small-6 columns'p>>",
-    renderer: 'foundation',
+    renderer: "foundation",
     autoWidth: false,
     language: {
       "url": "../locale/languages/" + datatable_lang,
@@ -123,7 +122,7 @@ define(function(require) {
         });
 
         if (that.selectOptions.starred_icon == undefined) {
-          that.selectOptions.starred_icon = '<i class="fas fa-star fa-fw"></i>';
+          that.selectOptions.starred_icon = "<i class=\"fas fa-star fa-fw\"></i>";
         }
       }
 
@@ -133,42 +132,42 @@ define(function(require) {
     }
 
     that.dataTableHTML = TemplateDataTableHTML({
-                          'dataTableId': this.dataTableId,
-                          'columns': this.columns,
-                          'conf': this.conf,
-                          'selectOptions': this.selectOptions});
+                          "dataTableId": this.dataTableId,
+                          "columns": this.columns,
+                          "conf": this.conf,
+                          "selectOptions": this.selectOptions});
 
     that.searchInputHTML = TemplateSearchInputHTML({
-      'dataTableSearchId': this.dataTableId + 'Search',
-      'searchDropdownHTML': this.conf.searchDropdownHTML
+      "dataTableSearchId": this.dataTableId + "Search",
+      "searchDropdownHTML": this.conf.searchDropdownHTML
     });
 
     return that;
   }
 
   TabDatatable.prototype = {
-    'initialize': _initialize,
-    'initCheckAllBoxes': _initCheckAllBoxes,
-    'tableCheckboxesListener': _tableCheckboxesListener,
-    'onlyOneCheckboxListener': _onlyOneCheckboxListener,
-    'infoListener': _infoListener,
-    'updateElement': _updateElement,
-    'elements': _elements,
-    'updateView': _updateView,
-    'getElementData': _getElementData,
-    'waitingNodes': _waitingNodes,
-    'recountCheckboxes': _recountCheckboxes,
-    'filter': _filter,
-    'resetResourceTableSelect': _resetResourceTableSelect,
-    'refreshResourceTableSelect': _refreshResourceTableSelect,
-    'selectResourceTableSelect': _selectResourceTableSelect,
-    'retrieveResourceTableSelect': _retrieveResourceTableSelect,
-    'idInput': _idInput,
-    'initSelectResourceTableSelect': _initSelectResourceTableSelect,
-    'updateFn': _updateFn,
-    'list': _list,
-    'clearLabelsFilter': _clearLabelsFilter,
-    'getLabelsFilter': _getLabelsFilter
+    "initialize": _initialize,
+    "initCheckAllBoxes": _initCheckAllBoxes,
+    "tableCheckboxesListener": _tableCheckboxesListener,
+    "onlyOneCheckboxListener": _onlyOneCheckboxListener,
+    "infoListener": _infoListener,
+    "updateElement": _updateElement,
+    "elements": _elements,
+    "updateView": _updateView,
+    "getElementData": _getElementData,
+    "waitingNodes": _waitingNodes,
+    "recountCheckboxes": _recountCheckboxes,
+    "filter": _filter,
+    "resetResourceTableSelect": _resetResourceTableSelect,
+    "refreshResourceTableSelect": _refreshResourceTableSelect,
+    "selectResourceTableSelect": _selectResourceTableSelect,
+    "retrieveResourceTableSelect": _retrieveResourceTableSelect,
+    "idInput": _idInput,
+    "initSelectResourceTableSelect": _initSelectResourceTableSelect,
+    "updateFn": _updateFn,
+    "list": _list,
+    "clearLabelsFilter": _clearLabelsFilter,
+    "getLabelsFilter": _getLabelsFilter
   };
 
   return TabDatatable;
@@ -187,37 +186,36 @@ define(function(require) {
 
       this.initSelectResourceTableSelect();
     } else {
-      this.dataTableOptions.pageLength = parseInt(config['user_config']['page_length']);
+      this.dataTableOptions.pageLength = parseInt(config["user_config"]["page_length"]);
     }
 
-    this.dataTable = $('#' + this.dataTableId).dataTable(this.dataTableOptions);
+    this.dataTable = $("#" + this.dataTableId).dataTable(this.dataTableOptions);
 
     // Remember page length only for non selectable datatables
     if (!this.conf.select) {
-      this.dataTable.on( 'length.dt', function ( e, settings, len ) {
-        if (config['user_config']['page_length'] != len){
-          config['user_config']['page_length'] = len;
-          var sunstone_setting = {'TABLE_DEFAULT_PAGE_LENGTH': len};
-          Sunstone.runAction("User.append_sunstone_setting", config['user_id'], sunstone_setting);
+      this.dataTable.on( "length.dt", function ( e, settings, len ) {
+        if (config["user_config"]["page_length"] != len){
+          config["user_config"]["page_length"] = len;
+          var sunstone_setting = {"TABLE_DEFAULT_PAGE_LENGTH": len};
+          Sunstone.runAction("User.append_sunstone_setting", config["user_id"], sunstone_setting);
         }
       });
     }
 
-    $('#' + this.dataTableId + 'Search').on('input', function() {
+    $("#" + this.dataTableId + "Search").on("input", function() {
       that.dataTable.fnFilter($(this).val());
-      UtilsFoundation.update(null);
       return false;
     });
 
     if(that.conf.searchDropdownHTML != undefined){
-      var context = $('#' + this.dataTableId + 'Search-wrapper');
+      var context = $("#" + this.dataTableId + "Search-wrapper");
       if (that.setupSearch != undefined){
         that.setupSearch(context);
       } else {
         _setupSearch(that, context);
       }
 
-      $("a.advanced-search-clear", context).on('click', function(){
+      $("a.advanced-search-clear", context).on("click", function(){
         $("input,select", context).val("").trigger("input");
 
         that.clearLabelsFilter();
@@ -232,24 +230,24 @@ define(function(require) {
         }
       });
 
-      $("button.advanced-search", context).on('click', function(){
-        $('#' + that.dataTableId + 'Search-dropdown', context).foundation('close');
+      $("button.advanced-search", context).on("click", function(){
+        $("#" + that.dataTableId + "Search-dropdown", context).foundation("close");
         that.dataTable.fnDraw(true);
         return false;
       });
 
-      $("#"+ this.dataTableId +"Search-selectTYPE", context).on('change', function(){
-        that.dataTable.fnDraw(true);        
+      $("#"+ this.dataTableId +"Search-selectTYPE", context).on("change", function(){
+        that.dataTable.fnDraw(true);
         return false;
       });
     }
 
-    this.dataTable.on('draw.dt', function() {
+    this.dataTable.on("draw.dt", function() {
       that.recountCheckboxes();
     });
 
     if (this.selectOptions && this.selectOptions.id_index) {
-      this.dataTable.fnSort([[this.selectOptions.id_index, config['user_config']['table_order']]]);
+      this.dataTable.fnSort([[this.selectOptions.id_index, config["user_config"]["table_order"]]]);
     } else {
       this.dataTable.fnSort([[1, SunstoneConfig.tableOrder]]);
     }
@@ -290,13 +288,13 @@ define(function(require) {
       }
     }
 
-    Foundation.reflow($('#' + this.dataTableId + 'Search-dropdown'), 'dropdown');
+    Foundation.reflow($("#" + this.dataTableId + "Search-dropdown"), "dropdown");
 
     // For some reason the dropdown forces horizontal and vertical scrollbars,
     // and breaks the full-screen modal positioning (VNC). It gets fixed once
     // the dropdown is shown+hidden, so we force it now
-    $('#' + this.dataTableId + 'Search-wrapper button.search-dropdown').click();
-    $('#' + this.dataTableId + 'Search-wrapper button.search-dropdown').click();
+    $("#" + this.dataTableId + "Search-wrapper button.search-dropdown").click();
+    $("#" + this.dataTableId + "Search-wrapper button.search-dropdown").click();
   }
 
 
@@ -323,7 +321,7 @@ define(function(require) {
       that.searchOps[name] = op;
     });
 
-    $("[search-field]", context).on('input change', function(){
+    $("[search-field]", context).on("input change", function(){
       var name = $(this).attr("search-field");
 
       if($(this).attr("type") == "date"){
@@ -339,7 +337,7 @@ define(function(require) {
       }
     });
 
-    that.dataTable.on('search.dt', function() {
+    that.dataTable.on("search.dt", function() {
       var empty = true;
 
       for(var i=0; i < that.searchFields.length; i++){
@@ -433,20 +431,20 @@ define(function(require) {
   //Shows run a custom action when clicking on rows.
   function _infoListener(info_action) {
     var that = this;
-    this.dataTable.on("click", 'tbody tr', function(e) {
-      if ($(e.target).is('input') || $(e.target).is('select') || $(e.target).is('option')) {
+    this.dataTable.on("click", "tbody tr", function(e) {
+      if ($(e.target).is("input") || $(e.target).is("select") || $(e.target).is("option")) {
         return true;
       }
 
       if (info_action) {
         //If ctrl is hold down, make check_box click
-        if (e.ctrlKey || e.metaKey || $(e.target).is('input')) {
-          $('.check_item', this).trigger('click');
+        if (e.ctrlKey || e.metaKey || $(e.target).is("input")) {
+          $(".check_item", this).trigger("click");
         } else {
           info_action(that, this);
         }
       } else {
-        $('.check_item', this).trigger('click');
+        $(".check_item", this).trigger("click");
       }
 
       return true;
@@ -457,14 +455,14 @@ define(function(require) {
   //check and uncheck all the checkboxes of its elements.
   function _initCheckAllBoxes() {
     var that = this;
-    this.dataTable.on("change", '.check_all', function() {
-      var table = $(this).closest('.dataTables_wrapper');
+    this.dataTable.on("change", ".check_all", function() {
+      var table = $(this).closest(".dataTables_wrapper");
       if ($(this).is(":checked")) { //check all
-        $('tbody input.check_item', table).prop('checked', true).change();
-        $('td', table).addClass('markrowchecked');
+        $("tbody input.check_item", table).prop("checked", true).change();
+        $("td", table).addClass("markrowchecked");
       } else { //uncheck all
-        $('tbody input.check_item', table).prop('checked', false).change();
-        $('td', table).removeClass('markrowchecked');
+        $("tbody input.check_item", table).prop("checked", false).change();
+        $("td", table).removeClass("markrowchecked");
       };
 
       that.recountCheckboxes();
@@ -474,61 +472,61 @@ define(function(require) {
   //Handle the activation of action buttons and the check_all box
   //when elements in a datatable are modified.
   function _recountCheckboxes() {
-    var table = $('tbody', this.dataTable);
+    var table = $("tbody", this.dataTable);
 
     var context;
     if (this.conf.customTabContext) {
       context = this.conf.customTabContext;
     } else {
-      context = table.parents('.tab');
-      if ($(".sunstone-info", context).is(':visible')) {
+      context = table.parents(".tab");
+      if ($(".sunstone-info", context).is(":visible")) {
         return;
       }
     }
 
-    var nodes = $('tr', table); //visible nodes
+    var nodes = $("tr", table); //visible nodes
     var total_length = nodes.length;
-    var checked_length = $('input.check_item:checked', nodes).length;
+    var checked_length = $("input.check_item:checked", nodes).length;
 
     if (checked_length) { //at least 1 element checked
       //enable action buttons
-      $('.top_button, .list_button', context).prop('disabled', false);
+      $(".top_button, .list_button", context).prop("disabled", false);
 
       //enable checkall box
       if (total_length == checked_length) {
-        $('.check_all', this.dataTable).prop('checked', true);
+        $(".check_all", this.dataTable).prop("checked", true);
       } else {
-        $('.check_all', this.dataTable).prop('checked', false);
+        $(".check_all", this.dataTable).prop("checked", false);
       };
     } else { //no elements cheked
       //disable action buttons, uncheck checkAll
-      $('.check_all', this.dataTable).prop('checked', false);
-      $('.top_button, .list_button', context).prop('disabled', true).attr('disabled', 'disabled');
+      $(".check_all", this.dataTable).prop("checked", false);
+      $(".top_button, .list_button", context).prop("disabled", true).attr("disabled", "disabled");
     };
 
     //any case the create dialog buttons should always be enabled.
-    $('.create_dialog_button', context).prop('disabled', false);
-    $('.alwaysActive', context).prop('disabled', false);
+    $(".create_dialog_button", context).prop("disabled", false);
+    $(".alwaysActive", context).prop("disabled", false);
   }
 
   //Init action buttons and checkboxes listeners
   function _tableCheckboxesListener() {
     //Initialization - disable all buttons
-    var context = this.conf.customTabContext || this.dataTable.parents('.tab');
+    var context = this.conf.customTabContext || this.dataTable.parents(".tab");
 
-    $('.last_action_button', context).prop('disabled', true);
-    $('.top_button, .list_button', context).prop('disabled', true);
+    $(".last_action_button", context).prop("disabled", true);
+    $(".top_button, .list_button", context).prop("disabled", true);
     //These are always enabled
-    $('.create_dialog_button', context).prop('disabled', false);
-    $('.alwaysActive', context).prop('disabled', false);
+    $(".create_dialog_button", context).prop("disabled", false);
+    $(".alwaysActive", context).prop("disabled", false);
 
     //listen to changes in the visible inputs
     var that = this;
-    this.dataTable.on("change", 'tbody input.check_item', function() {
+    this.dataTable.on("change", "tbody input.check_item", function() {
       if ($(this).is(":checked")) {
-        $(this).parents('tr').children().addClass('markrowchecked');
+        $(this).parents("tr").children().addClass("markrowchecked");
       } else {
-        $(this).parents('tr').children().removeClass('markrowchecked');
+        $(this).parents("tr").children().removeClass("markrowchecked");
       }
 
       that.recountCheckboxes();
@@ -541,12 +539,12 @@ define(function(require) {
 
   function _onlyOneCheckboxListener() {
     var that = this;
-    this.dataTable.on("change", 'tbody input.check_item', function() {
-      var checked = $(this).is(':checked');
-      $('td', that.dataTable).removeClass('markrowchecked');
-      $('input.check_item:checked', that.dataTable).prop('checked', false);
-      $("td", $(this).closest('tr')).addClass('markrowchecked')
-      $(this).prop('checked', checked);
+    this.dataTable.on("change", "tbody input.check_item", function() {
+      var checked = $(this).is(":checked");
+      $("td", that.dataTable).removeClass("markrowchecked");
+      $("input.check_item:checked", that.dataTable).prop("checked", false);
+      $("td", $(this).closest("tr")).addClass("markrowchecked");
+      $(this).prop("checked", checked);
     });
   }
 
@@ -571,13 +569,13 @@ define(function(require) {
       } catch(e){}
     }
 
-    that.dataTable.DataTable().page.len(parseInt(config['user_config']['page_length']));
+    that.dataTable.DataTable().page.len(parseInt(config["user_config"]["page_length"]));
 
     var row_id_index = this.dataTable.attr("row_id");
 
     if (row_id_index != undefined) {
       $.each($(that.dataTable.fnGetNodes()), function() {
-        if ($('td.markrow', this).length != 0) {
+        if ($("td.markrow", this).length != 0) {
           var aData = that.dataTable.fnGetData(this);
 
           selected_row_id = aData[row_id_index];
@@ -587,11 +585,11 @@ define(function(require) {
     }
 
     $.each($(that.dataTable.fnGetNodes()), function() {
-      if ($('td.markrowchecked', this).length != 0) {
-        if (!isNaN($($('td', $(this))[1]).html())) {
-          checked_row_ids.push($($('td', $(this))[1]).html());
+      if ($("td.markrowchecked", this).length != 0) {
+        if (!isNaN($($("td", $(this))[1]).html())) {
+          checked_row_ids.push($($("td", $(this))[1]).html());
         } else {
-          checked_row_ids.push($($('td', $(this))[0]).html());
+          checked_row_ids.push($($("td", $(this))[0]).html());
         }
       }
     });
@@ -652,23 +650,23 @@ define(function(require) {
         var aData = that.dataTable.fnGetData(this);
 
         if (aData[row_id_index] == selected_row_id) {
-          $('td', this)[0].click();
+          $("td", this)[0].click();
         }
       });
     }
 
     if (checked_row_ids.length != 0) {
       $.each($(that.dataTable.fnGetNodes()), function() {
-        var current_id = $($('td', this)[1]).html();
+        var current_id = $($("td", this)[1]).html();
 
         if (isNaN(current_id)) {
-          current_id = $($('td', this)[0]).html();
+          current_id = $($("td", this)[0]).html();
         }
 
         if (current_id) {
           if ($.inArray(current_id, checked_row_ids) != -1) {
-            $('input.check_item:not(:checked)', this).first().click();
-            $('td', this).addClass('markrowchecked');
+            $("input.check_item:not(:checked)", this).first().click();
+            $("td", this).addClass("markrowchecked");
           }
         }
       });
@@ -676,18 +674,17 @@ define(function(require) {
 
     if (that.labelsColumn &&
         SunstoneConfig.isTabEnabled(that.tabId) &&
-        $("#" + that.tabId).is(':visible')) {
+        $("#" + that.tabId).is(":visible")) {
 
       LabelsUtils.insertLabelsDropdown(that.tabId);
 
       if (SunstoneConfig.isTabActionEnabled(that.tabId, that.resource+".menu_labels")){
-        LabelsUtils.insertLabelsMenu({'tabName': that.tabId});
+        LabelsUtils.insertLabelsMenu({"tabName": that.tabId});
       }
     }
 
     if (that.postUpdateView) {
       that.postUpdateView();
-      UtilsFoundation.update(null);
     }
 
     if(that.conf.searchDropdownHTML != undefined){
@@ -699,7 +696,7 @@ define(function(require) {
 
           if(dlist.length > 0){
             that.searchSets[name].forEach(function(val){
-              st += '<option value="' + val + '"></option>';
+              st += "<option value=\"" + val + "\"></option>";
             });
 
             dlist.html(st);
@@ -718,30 +715,28 @@ define(function(require) {
     $.each(that.dataTable.fnGetData(), function(index, aData) {
       if (aData[that.selectOptions.id_index] === elementId) {
         var nodes = that.dataTable.fnGetNodes();
-        var checkId = '#' + that.resource.toLowerCase() + '_' + elementId;
-        var checkVal = $(checkId, nodes).prop('checked');
+        var checkId = "#" + that.resource.toLowerCase() + "_" + elementId;
+        var checkVal = $(checkId, nodes).prop("checked");
         that.dataTable.fnUpdate(element, index, undefined, false);
         if (checkVal) {
-          $(checkId, nodes).prop('checked', checkVal);
+          $(checkId, nodes).prop("checked", checkVal);
         }
         that.recountCheckboxes();
         return false;
       }
     });
-
-    UtilsFoundation.update(null);
   }
 
   function _getElementData(id, resource_tag) {
     // TODO If the element is not included in the visible rows of
     // the table, it will not be included in the fnGetNodes response
     var nodes = this.dataTable.fnGetNodes();
-    var tr = $('#' + resource_tag + '_' + id, nodes).closest('tr');
+    var tr = $("#" + resource_tag + "_" + id, nodes).closest("tr");
     return this.dataTable.fnGetData(tr);
   }
 
   function _waitingNodes() {
-    $('tr input.check_item:visible', this.dataTable).replaceWith(SPINNER);
+    $("tr input.check_item:visible", this.dataTable).replaceWith(SPINNER);
   }
 
   //returns an array of ids of selected elements in a dataTable
@@ -755,7 +750,7 @@ define(function(require) {
         selected_nodes.push(Sunstone.rightInfoResourceId(tab));
       } else {
         //Which rows of the datatable are checked?
-        var nodes = $('tbody input.check_item:checked', this.dataTable);
+        var nodes = $("tbody input.check_item:checked", this.dataTable);
         $.each(nodes, function() {
           selected_nodes.push($(this).val());
         });
@@ -785,7 +780,7 @@ define(function(require) {
 
   function _initSelectResourceTableSelect() {
     var that = this;
-    var section = $('#' + that.dataTableId + 'Container');
+    var section = $("#" + that.dataTableId + "Container");
 
     if (that.selectOptions.id_index == undefined) {
       that.selectOptions.id_index = 0;
@@ -811,64 +806,64 @@ define(function(require) {
       that.dataTableOptions.fnRowCallback = function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         var row_id = aData[that.selectOptions.id_index];
 
-        var ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
+        var ids = $("#selected_ids_row_" + that.dataTableId, section).data("ids");
         if (ids != undefined && ids[row_id]) {
-          $("td", nRow).addClass('markrowchecked');
-          $('input.check_item', nRow).prop('checked', true);
+          $("td", nRow).addClass("markrowchecked");
+          $("input.check_item", nRow).prop("checked", true);
         } else {
-          $("td", nRow).removeClass('markrowchecked');
-          $('input.check_item', nRow).prop('checked', false);
+          $("td", nRow).removeClass("markrowchecked");
+          $("input.check_item", nRow).prop("checked", false);
         }
       };
     } else {
       that.dataTableOptions.fnRowCallback = function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         var row_id = aData[that.selectOptions.id_index];
 
-        var selected_id = $('#selected_resource_id_' + that.dataTableId, section).val();
+        var selected_id = $("#selected_resource_id_" + that.dataTableId, section).val();
 
         if (row_id == selected_id) {
-          $("td", nRow).addClass('markrow');
-          $('input.check_item', nRow).prop('checked', true);
+          $("td", nRow).addClass("markrow");
+          $("input.check_item", nRow).prop("checked", true);
         } else {
-          $("td", nRow).removeClass('markrow');
-          $('input.check_item', nRow).prop('checked', false);
+          $("td", nRow).removeClass("markrow");
+          $("input.check_item", nRow).prop("checked", false);
         }
       };
     }
 
-    $('#refresh_button_' + that.dataTableId, section).off("click");
-    section.on('click', '#refresh_button_' + that.dataTableId, function() {
+    $("#refresh_button_" + that.dataTableId, section).off("click");
+    section.on("click", "#refresh_button_" + that.dataTableId, function() {
       that.updateFn();
       return false;
     });
 
-    $('#' + that.dataTableId + '_search', section).on('input', function() {
+    $("#" + that.dataTableId + "_search", section).on("input", function() {
       that.dataTable.fnFilter($(this).val());
       return false;
-    })
+    });
 
     if (that.selectOptions.read_only) {
-      $('#selected_ids_row_' + that.dataTableId, section).hide();
+      $("#selected_ids_row_" + that.dataTableId, section).hide();
     } else if (that.selectOptions.multiple_choice) {
-      $('#selected_resource_' + that.dataTableId, section).hide();
-      $('#select_resource_' + that.dataTableId, section).hide();
+      $("#selected_resource_" + that.dataTableId, section).hide();
+      $("#select_resource_" + that.dataTableId, section).hide();
 
-      $('#selected_resource_multiple_' + that.dataTableId, section).hide();
-      $('#select_resource_multiple_' + that.dataTableId, section).show();
+      $("#selected_resource_multiple_" + that.dataTableId, section).hide();
+      $("#select_resource_multiple_" + that.dataTableId, section).show();
     } else {
-      $('#selected_resource_' + that.dataTableId, section).hide();
-      $('#select_resource_' + that.dataTableId, section).show();
+      $("#selected_resource_" + that.dataTableId, section).hide();
+      $("#select_resource_" + that.dataTableId, section).show();
 
-      $('#selected_resource_multiple_' + that.dataTableId, section).hide();
-      $('#select_resource_multiple_' + that.dataTableId, section).hide();
+      $("#selected_resource_multiple_" + that.dataTableId, section).hide();
+      $("#select_resource_multiple_" + that.dataTableId, section).hide();
     }
 
-    $('#selected_resource_name_' + that.dataTableId, section).hide();
+    $("#selected_resource_name_" + that.dataTableId, section).hide();
 
-    $('#selected_ids_row_' + that.dataTableId, section).data("options", that.selectOptions);
+    $("#selected_ids_row_" + that.dataTableId, section).data("options", that.selectOptions);
 
     if (that.selectOptions.multiple_choice) {
-      $('#selected_ids_row_' + that.dataTableId, section).data("ids", {});
+      $("#selected_ids_row_" + that.dataTableId, section).data("ids", {});
 
       function row_click(row, aData) {
         that.dataTable.unbind("draw");
@@ -876,18 +871,18 @@ define(function(require) {
         var row_id = aData[that.selectOptions.id_index];
         var row_name = aData[that.selectOptions.name_index];
 
-        var ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
+        var ids = $("#selected_ids_row_" + that.dataTableId, section).data("ids");
 
         if (ids[row_id]) {
           delete ids[row_id];
 
           // Happens if row is not yet rendered (i.e. higher unvisited page)
           if (row != undefined) {
-            $("td", row).removeClass('markrowchecked');
-            $('input.check_item', row).prop('checked', false);
+            $("td", row).removeClass("markrowchecked");
+            $("input.check_item", row).prop("checked", false);
           }
 
-          $('#selected_ids_row_' + that.dataTableId + ' span[row_id="' + row_id + '"]', section).remove();
+          $("#selected_ids_row_" + that.dataTableId + " span[row_id=\"" + row_id + "\"]", section).remove();
 
           that.selectOptions.unselect_callback(aData, that.selectOptions);
         } else {
@@ -895,13 +890,13 @@ define(function(require) {
 
           // Happens if row is not yet rendered (i.e. higher unvisited page)
           if (row != undefined) {
-            $("td", row).addClass('markrowchecked');
-            $('input.check_item', row).prop('checked', true);
+            $("td", row).addClass("markrowchecked");
+            $("input.check_item", row).prop("checked", true);
           }
-          
+
           var attr = {row_id:row_id, class:"radius label"};
           var span = $("<span/>",attr).text(row_name);
-          $('#selected_ids_row_' + that.dataTableId, section).append(span);
+          $("#selected_ids_row_" + that.dataTableId, section).append(span);
           if(that.selectOptions.click && typeof that.selectOptions.click === "function"){
             span.attr("title",Locale.tr("just click if you want to delete the resource"));
             span.append($("<i/>",{class: "fas fa-times"}).css({"margin-left":"5px"}));
@@ -912,17 +907,17 @@ define(function(require) {
         }
 
         if ($.isEmptyObject(ids)) {
-          $('#selected_resource_multiple_' + that.dataTableId, section).hide();
-          $('#select_resource_multiple_' + that.dataTableId, section).show();
+          $("#selected_resource_multiple_" + that.dataTableId, section).hide();
+          $("#select_resource_multiple_" + that.dataTableId, section).show();
         } else {
-          $('#selected_resource_multiple_' + that.dataTableId, section).show();
-          $('#select_resource_multiple_' + that.dataTableId, section).hide();
+          $("#selected_resource_multiple_" + that.dataTableId, section).show();
+          $("#select_resource_multiple_" + that.dataTableId, section).hide();
         }
 
         return true;
       };
 
-      $('#' + that.dataTableId + ' tbody', section).on("click", "tr", function() {
+      $("#" + that.dataTableId + " tbody", section).on("click", "tr", function() {
         var aData = that.dataTable.fnGetData(this);
 
         if(aData != undefined){
@@ -930,8 +925,8 @@ define(function(require) {
         }
       });
 
-      $(section).on("click", '#selected_ids_row_' + that.dataTableId + ' span.fa.fa-times', function() {
-        var row_id = $(this).parent("span").attr('row_id');
+      $(section).on("click", "#selected_ids_row_" + that.dataTableId + " span.fa.fa-times", function() {
+        var row_id = $(this).parent("span").attr("row_id");
 
         var found = false;
 
@@ -946,43 +941,43 @@ define(function(require) {
         });
 
         if (!found) {
-          var ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
+          var ids = $("#selected_ids_row_" + that.dataTableId, section).data("ids");
           delete ids[row_id];
-          $('#selected_ids_row_' + that.dataTableId + ' span[row_id="' + row_id + '"]', section).remove();
+          $("#selected_ids_row_" + that.dataTableId + " span[row_id=\"" + row_id + "\"]", section).remove();
 
           if ($.isEmptyObject(ids)) {
-            $('#selected_resource_multiple_' + that.dataTableId, section).hide();
-            $('#select_resource_multiple_' + that.dataTableId, section).show();
+            $("#selected_resource_multiple_" + that.dataTableId, section).hide();
+            $("#select_resource_multiple_" + that.dataTableId, section).show();
           } else {
-            $('#selected_resource_multiple_' + that.dataTableId, section).show();
-            $('#select_resource_multiple_' + that.dataTableId, section).hide();
+            $("#selected_resource_multiple_" + that.dataTableId, section).show();
+            $("#select_resource_multiple_" + that.dataTableId, section).hide();
           }
         }
 
         that.selectOptions.unselect_callback(aData, that.selectOptions);
       });
     } else {
-      $('#' + that.dataTableId + ' tbody', section).delegate("tr", "click", function(e) {
+      $("#" + that.dataTableId + " tbody", section).delegate("tr", "click", function(e) {
         that.dataTable.unbind("draw");
         var wasChecked = $("td.markrow", this).hasClass("markrow");
         var aData = that.dataTable.fnGetData(this);
         var check = aData != undefined && !wasChecked;
 
-        $("td", that.dataTable).removeClass('markrow');
-        $("td", this).toggleClass('markrow', check);
-        $('tbody input.check_item', that.dataTable).prop('checked', check);
+        $("td", that.dataTable).removeClass("markrow");
+        $("td", this).toggleClass("markrow", check);
+        $("tbody input.check_item", that.dataTable).prop("checked", check);
 
-        $('#selected_resource_' + that.dataTableId, section).toggle(check);
-        $('#select_resource_' + that.dataTableId, section).toggle(!check);
+        $("#selected_resource_" + that.dataTableId, section).toggle(check);
+        $("#select_resource_" + that.dataTableId, section).toggle(!check);
 
-        $('#selected_resource_id_' + that.dataTableId, section)
-          .val(function() { return check ? aData[that.selectOptions.id_index] : "" }).trigger("change");
-        $('#selected_resource_name_' + that.dataTableId, section)
-          .text(function() { return check ? aData[that.selectOptions.name_index] : "" }).trigger("change");
+        $("#selected_resource_id_" + that.dataTableId, section)
+          .val(function() { return check ? aData[that.selectOptions.id_index] : ""; }).trigger("change");
+        $("#selected_resource_name_" + that.dataTableId, section)
+          .text(function() { return check ? aData[that.selectOptions.name_index] : ""; }).trigger("change");
 
-        $('#selected_resource_name_' + that.dataTableId, section).toggle(check);
+        $("#selected_resource_name_" + that.dataTableId, section).toggle(check);
 
-        $('#selected_resource_id_' + that.dataTableId, section).removeData("pending_select");
+        $("#selected_resource_id_" + that.dataTableId, section).removeData("pending_select");
 
         var callback = check ? "select_callback" : "unselect_callback";
         that.selectOptions[callback](aData, that.selectOptions);
@@ -995,32 +990,32 @@ define(function(require) {
 
   function _resetResourceTableSelect() {
     var that = this;
-    var section = $('#' + that.dataTableId + 'Container');
+    var section = $("#" + that.dataTableId + "Container");
 
     // TODO: do for multiple_choice
 
     // TODO: works for more than one page?
 
-    $("td.markrow", that.dataTable).removeClass('markrow');
-    $('tbody input.check_item', that.dataTable).prop('checked', false);
+    $("td.markrow", that.dataTable).removeClass("markrow");
+    $("tbody input.check_item", that.dataTable).prop("checked", false);
 
-    $('#' + that.dataTableId + '_search', section).val("").trigger("input");
-    $('#selected_resource_id_' + that.dataTableId, section).val("").trigger("change");
-    $('#selected_resource_name_' + that.dataTableId, section).text("").trigger("change").hide();
-    $('#refresh_button_' + that.dataTableId).click();
+    $("#" + that.dataTableId + "_search", section).val("").trigger("input");
+    $("#selected_resource_id_" + that.dataTableId, section).val("").trigger("change");
+    $("#selected_resource_name_" + that.dataTableId, section).text("").trigger("change").hide();
+    $("#refresh_button_" + that.dataTableId).click();
 
-    $('#selected_resource_' + that.dataTableId, section).hide();
-    $('#select_resource_' + that.dataTableId, section).show();
+    $("#selected_resource_" + that.dataTableId, section).hide();
+    $("#select_resource_" + that.dataTableId, section).show();
 
   }
 
   // Returns an ID, or an array of IDs for that.selectOptions.multiple_choice
   function _retrieveResourceTableSelect() {
     var that = this;
-    var section = $('#' + that.dataTableId + 'Container');
+    var section = $("#" + that.dataTableId + "Container");
 
     if (that.selectOptions.multiple_choice) {
-      var ids = $('#selected_ids_row_' + that.dataTableId, section).data("ids");
+      var ids = $("#selected_ids_row_" + that.dataTableId, section).data("ids");
 
       var arr = [];
 
@@ -1030,7 +1025,7 @@ define(function(require) {
 
       return arr;
     } else {
-      return $('#selected_resource_id_' + that.dataTableId, section).val();
+      return $("#selected_resource_id_" + that.dataTableId, section).val();
     }
   }
 
@@ -1041,20 +1036,20 @@ define(function(require) {
    */
   function _idInput() {
     var that = this;
-    var section = $('#' + that.dataTableId + 'Container');
+    var section = $("#" + that.dataTableId + "Container");
 
     if (that.selectOptions.multiple_choice) {
-      return $('#selected_ids_row_' + that.dataTableId, section);
+      return $("#selected_ids_row_" + that.dataTableId, section);
     } else {
-      return $('#selected_resource_id_' + that.dataTableId, section);
+      return $("#selected_resource_id_" + that.dataTableId, section);
     }
   }
 
   // Clicks the refresh button
   function _refreshResourceTableSelect() {
     var that = this;
-    var section = $('#' + that.dataTableId + 'Container');
-    $('#refresh_button_' + that.dataTableId, section).click();
+    var section = $("#" + that.dataTableId + "Container");
+    $("#refresh_button_" + that.dataTableId, section).click();
   }
 
   /**
@@ -1067,14 +1062,14 @@ define(function(require) {
   function _selectResourceTableSelect(selectedResources) {
     var that = this;
 
-    var section = $('#' + that.dataTableId + 'Container');
+    var section = $("#" + that.dataTableId + "Container");
 
     if (that && that.selectOptions && that.selectOptions.multiple_choice) {
       that.refreshResourceTableSelect(section, that.dataTableId);
 
       var data_ids = {};
 
-      $('#selected_ids_row_' + that.dataTableId + ' span[row_id]', section).remove();
+      $("#selected_ids_row_" + that.dataTableId + " span[row_id]", section).remove();
 
       if (selectedResources.ids == undefined) {
         selectedResources.ids = [];
@@ -1101,26 +1096,26 @@ define(function(require) {
           span.off("click").on("click", that.selectOptions.click);
         }
 
-        $('#selected_ids_row_' + that.dataTableId, section).append(span);
+        $("#selected_ids_row_" + that.dataTableId, section).append(span);
       });
 
-      $('#selected_ids_row_' + that.dataTableId, section).data("ids", data_ids);
+      $("#selected_ids_row_" + that.dataTableId, section).data("ids", data_ids);
 
       if ($.isEmptyObject(data_ids)) {
-        $('#selected_resource_multiple_' + that.dataTableId, section).hide();
-        $('#select_resource_multiple_' + that.dataTableId, section).show();
+        $("#selected_resource_multiple_" + that.dataTableId, section).hide();
+        $("#select_resource_multiple_" + that.dataTableId, section).show();
       } else {
-        $('#selected_resource_multiple_' + that.dataTableId, section).show();
-        $('#select_resource_multiple_' + that.dataTableId, section).hide();
+        $("#selected_resource_multiple_" + that.dataTableId, section).show();
+        $("#select_resource_multiple_" + that.dataTableId, section).hide();
       }
 
       that.dataTable.fnDraw();
     } else {
-      $("td.markrow", that.dataTable).removeClass('markrow');
-      $('tbody input.check_item', that.dataTable).prop('checked', false);
+      $("td.markrow", that.dataTable).removeClass("markrow");
+      $("tbody input.check_item", that.dataTable).prop("checked", false);
 
-      $('#selected_resource_' + that.dataTableId, section).show();
-      $('#select_resource_' + that.dataTableId, section).hide();
+      $("#selected_resource_" + that.dataTableId, section).show();
+      $("#select_resource_" + that.dataTableId, section).hide();
 
       var row_id = undefined;
       var row_name = "";
@@ -1148,11 +1143,11 @@ define(function(require) {
       }
 
       if (row_id !== undefined) {
-        $('#selected_resource_id_' + that.dataTableId, section).val(row_id).trigger("change");
+        $("#selected_resource_id_" + that.dataTableId, section).val(row_id).trigger("change");
       }
 
-      $('#selected_resource_name_' + that.dataTableId, section).text(row_name).trigger("change");
-      $('#selected_resource_name_' + that.dataTableId, section).show();
+      $("#selected_resource_name_" + that.dataTableId, section).text(row_name).trigger("change");
+      $("#selected_resource_name_" + that.dataTableId, section).show();
 
       that.refreshResourceTableSelect(section, that.dataTableId);
     }
@@ -1187,7 +1182,7 @@ define(function(require) {
           if (that.selectOptions.starred_ids != undefined){
             if (that.selectOptions.starred_ids_map[this[that.xmlRoot].ID]){
               elementArray[that.selectOptions.name_index] =
-                  (that.selectOptions.starred_icon + ' ' +
+                  (that.selectOptions.starred_icon + " " +
                     elementArray[that.selectOptions.name_index]);
             } else {
               elementArray[that.selectOptions.name_index] =
@@ -1200,21 +1195,21 @@ define(function(require) {
           delete fixed_ids_map[this[that.xmlRoot].ID];
         }
       });
-      
+
       that.updateView(null, list_array, true);
 
-      var section = $('#' + that.dataTableId + 'Container');
-      var selectedResources = $('#selected_resource_id_' + that.dataTableId, section).data("pending_select");
+      var section = $("#" + that.dataTableId + "Container");
+      var selectedResources = $("#selected_resource_id_" + that.dataTableId, section).data("pending_select");
       if (selectedResources != undefined){
-        $('#selected_resource_id_' + that.dataTableId, section).removeData("pending_select");
+        $("#selected_resource_id_" + that.dataTableId, section).removeData("pending_select");
         that.selectResourceTableSelect(selectedResources);
       }
-    }
+    };
 
     var error_func = function(request, error_json, container) {
       success_func(request, []);
       Notifier.onError(request, error_json, container);
-    }
+    };
     var pool_filter = SunstoneConfig.isChangedFilter()? -4 : -2;
     if (that.selectOptions.zone_id == undefined) {
       OpenNebula[that.resource].list({
@@ -1250,10 +1245,10 @@ define(function(require) {
 
   function _clearLabelsFilter() {
     LabelsUtils.clearLabelsFilter(this.dataTable, this.labelsColumn);
-    LabelsUtils.insertLabelsMenu({'tabName': this.tabId});
+    LabelsUtils.insertLabelsMenu({"tabName": this.tabId});
   }
 
   function _getLabelsFilter() {
     return LabelsUtils.getLabelsFilter(this.dataTable);
   }
-})
+});

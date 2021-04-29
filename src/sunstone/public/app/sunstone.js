@@ -26,7 +26,6 @@ define(function(require) {
   var Menu = require("utils/menu");
   var Tips = require("utils/tips");
   var Navigo = require("Navigo");
-  var UtilsFoundation = require("utils/foundation/utils");
 
   var router;
 
@@ -629,8 +628,6 @@ define(function(require) {
     $(document).on("click", ".paginate_button", function(event) {
       event.preventDefault();
       event.stopPropagation();
-
-      UtilsFoundation.update(null);
     });
   };
 
@@ -691,7 +688,7 @@ define(function(require) {
     $(".only-sunstone-info", tab).hide();
     $(".only-sunstone-form", tab).hide();
     $(".only-sunstone-list", tab).fadeIn();
-    
+
     if (tabName == "marketplaceapps-tab"){
       $(".action_blocks", tab).removeClass("large-10").addClass("large-7");
       $(".search_division", tab).removeClass("large-2").addClass("large-5");

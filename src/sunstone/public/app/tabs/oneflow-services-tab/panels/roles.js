@@ -29,22 +29,21 @@ define(function(require) {
   var StateRolesVmButtons = require('./roles/state-roles-vm-buttons');
   var Sunstone = require('sunstone');
   var Tips = require('utils/tips');
-  var UtilsFoundation = require("utils/foundation/utils");
   var VMRemoteActions = require('utils/remote-actions');
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./roles/html');
-  var TemplateRoleInfo = require('hbs!./roles/roleInfo');
+  var TemplateHTML = require("hbs!./roles/html");
+  var TemplateRoleInfo = require("hbs!./roles/roleInfo");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./roles/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./roles/panelId");
   var XML_ROOT = "DOCUMENT";
 
   var lastRoleIndexSelected = undefined;
@@ -90,20 +89,20 @@ define(function(require) {
       $.each(roles, function(){
         roleList.push(
           {
-            'name': this.name,
-            'state': OpenNebulaRole.state(this.state),
-            'cardinality': this.cardinality,
-            'vm_template': this.vm_template,
-            'parents': this.parents ? this.parents.join(', ') : '-'
+            "name": this.name,
+            "state": OpenNebulaRole.state(this.state),
+            "cardinality": this.cardinality,
+            "vm_template": this.vm_template,
+            "parents": this.parents ? this.parents.join(", ") : "-"
           });
       });
     }
 
     return TemplateHTML({
-      'element': this.element,
-      'panelId': this.panelId,
-      'servicePanel': this.servicePanel,
-      'roleList': roleList
+      "element": this.element,
+      "panelId": this.panelId,
+      "servicePanel": this.servicePanel,
+      "roleList": roleList
     });
   }
 
@@ -137,12 +136,12 @@ define(function(require) {
     var that = this;
 
     if (that.servicerolesDataTable && state["selectedRole"]){
-      $('.check_item[id="'+state["selectedRole"]+'"]', that.servicerolesDataTable.dataTable).closest('tr').click();
+      $(".check_item[id=\""+state["selectedRole"]+"\"]", that.servicerolesDataTable.dataTable).closest("tr").click();
     }
 
     if (that.serviceroleVMsDataTable && state["selectedVMs"]){
       $.each(state["selectedVMs"], function(){
-        $('.check_item[id="'+this+'"]', that.serviceroleVMsDataTable.dataTable).closest('tr').click();
+        $(".check_item[id=\""+this+"\"]", that.serviceroleVMsDataTable.dataTable).closest("tr").click();
       });
     }
   }
@@ -155,12 +154,12 @@ define(function(require) {
 
     if (roles && roles.length) {
       that.servicerolesDataTable = new DomDataTable(
-        'datatable_roles_'+this.panelId,
+        "datatable_roles_"+this.panelId,
         {
           actions: true,
           info: false,
           oneSelection: true,
-          customTabContext: $('#role_actions', context),
+          customTabContext: $("#role_actions", context),
           customTrListener: function(tableObj, tr){
             var rowData = tableObj.dataTable.fnGetData(tr);
             var roleName = $(rowData[0]).data().name
@@ -175,29 +174,29 @@ define(function(require) {
             StateRolesButtons.enableStateActions(roleSelected.state);
 
             if (!isEqualLastIndex) {
-              lastRoleIndexSelected = roleIndexSelected
+              lastRoleIndexSelected = roleIndexSelected;
             }
 
-            $('#roles_extended_info, context')
-              .fadeOut(isEqualLastIndex ? 0 : 'slow', function() {
+            $("#roles_extended_info, context")
+              .fadeOut(isEqualLastIndex ? 0 : "slow", function() {
                 $(this).html(that.roleHTML(context, roleSelected));
                 that.roleSetup($(this), roleSelected);
               })
-              .fadeIn(isEqualLastIndex ? 0 : 'slow');
+              .fadeIn(isEqualLastIndex ? 0 : "slow");
 
             // The info listener is triggered instead of
             // the row selection. So we click the check input to select
             // the row also
-            var check = $('.check_item', tr);
+            var check = $(".check_item", tr);
             if (!check.is(":checked")) {
-              check.trigger('click');
+              check.trigger("click");
             }
           }
         });
 
       this.servicerolesDataTable.initialize();
 
-      Sunstone.insertButtonsInTab(TAB_ID, "service_roles_tab", RolesButtons, $('#role_actions', context));
+      Sunstone.insertButtonsInTab(TAB_ID, "service_roles_tab", RolesButtons, $("#role_actions", context));
     }
   }
 
@@ -220,13 +219,13 @@ define(function(require) {
 
         function successCallback (data) {
           if (data && data.ID === id) {
-            var ready = ""
+            var ready = "";
             if (ready_status_gate) {
               ready = (data.USER_TEMPLATE && data.USER_TEMPLATE.READY == "YES")
-                ? '<span class="has-tip" title="'+
-                  Locale.tr("The VM is ready")+'"><i class="fas fa-check"/></span>'
-                : '<span class="has-tip" title="'+
-                  Locale.tr("Waiting for the VM to be ready")+'"><i class="fas fa-clock"/></span>'
+                ? "<span class=\"has-tip\" title=\""+
+                  Locale.tr("The VM is ready")+"\"><i class=\"fas fa-check\"/></span>"
+                : "<span class=\"has-tip\" title=\""+
+                  Locale.tr("Waiting for the VM to be ready")+"\"><i class=\"fas fa-clock\"/></span>";
             }
             ips = OpenNebulaVM.ipsStr(data, { forceGroup: true });
 
@@ -236,18 +235,17 @@ define(function(require) {
           roleVms[index] = rowInfoRoleVm(ready, id, name, uname, gname, ips, actions, data.STATE, data.LCM_STATE);
         }
 
-        promises.push(OpenNebulaVM.promiseGetVm({ id, success: successCallback }))
-      })
+        promises.push(OpenNebulaVM.promiseGetVm({ id, success: successCallback }));
+      });
     }
 
     $.when.apply($, promises).then(function() {
         if (that.serviceroleVMsDataTable) {
           that.serviceroleVMsDataTable.updateView(null, roleVms, true);
-          UtilsFoundation.update(context);
-          VMRemoteActions.bindActionsToContext(context)
+          VMRemoteActions.bindActionsToContext(context);
         }
 
-        if (callback && typeof callback === 'function') {
+        if (callback && typeof callback === "function") {
           callback();
         }
 
@@ -256,10 +254,10 @@ define(function(require) {
 
 
     return TemplateRoleInfo({
-      'role': role,
-      'servicePanel': that.servicePanel,
-      'panelId': that.panelId,
-      'vmsTableColumns': [
+      "role": role,
+      "servicePanel": that.servicePanel,
+      "panelId": that.panelId,
+      "vmsTableColumns": [
         Locale.tr("ID"),
         Locale.tr("Name"),
         Locale.tr("Owner"),
@@ -267,22 +265,22 @@ define(function(require) {
         Locale.tr("IPs"),
         "" // Remote actions
       ],
-      'vms': roleVms
+      "vms": roleVms
     });
   }
 
   function rowInfoRoleVm(ready, id, name = "", uname = "", gname = "", ips = "", actions = "", state, lcm_state) {
     return [
       ready,
-      '<input class="check_item" ' +
-        'style="vertical-align: inherit;" ' +
-        'type="checkbox" ' +
-        'id="vm_' + id + '" ' +
-        'name="selected_items" ' +
-        'value="' + id + '" ' +
-        'state="' + state + '" ' +
-        'lcm_state="' + lcm_state + '" />',
-      '<a href="/#vms-tab/' + id + '">'+ id +'</a>',
+      "<input class=\"check_item\" " +
+        "style=\"vertical-align: inherit;\" " +
+        "type=\"checkbox\" " +
+        "id=\"vm_" + id + "\" " +
+        "name=\"selected_items\" " +
+        "value=\"" + id + "\" " +
+        "state=\"" + state + "\" " +
+        "lcm_state=\"" + lcm_state + "\" />",
+      "<a href=\"/#vms-tab/" + id + "\">"+ id +"</a>",
       name,
       uname,
       gname,
@@ -296,11 +294,11 @@ define(function(require) {
 
     if(that.servicePanel) {
       that.serviceroleVMsDataTable = new DomDataTable(
-        'datatable_vms_' + that.panelId + '_' + role.name,
+        "datatable_vms_" + that.panelId + "_" + role.name,
         {
           actions: true,
           info: false,
-          customTabContext: $('#role_vms_actions', context),
+          customTabContext: $("#role_vms_actions", context),
           dataTableOptions: {
             "bAutoWidth": false,
             "bSortClasses" : false,
@@ -318,15 +316,15 @@ define(function(require) {
         TAB_ID,
         "service_roles_tab",
         RolesVmButtons,
-        $('div#role_vms_actions', context)
+        $("div#role_vms_actions", context)
       );
 
-      $("#role_vms_actionsrefresh_buttons", context).on('click', function(event) {
+      $("#role_vms_actionsrefresh_buttons", context).on("click", function(event) {
         event.preventDefault();
 
         var prevRowsSelected = $(".check_item:checked", that.serviceroleVMsDataTable.dataTable);
         var prevIdsSelected = $.map(prevRowsSelected, function(row) {
-          return $(row).attr('id');
+          return $(row).attr("id");
         });
         
         var roleSelected = that.roles[lastRoleIndexSelected];

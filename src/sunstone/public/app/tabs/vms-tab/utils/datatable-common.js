@@ -27,7 +27,7 @@ define(function(require) {
 
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
-  var TEMPLATE_ATTR = 'USER_TEMPLATE';
+  var TEMPLATE_ATTR = "USER_TEMPLATE";
 
   var _columns = [
     Locale.tr("ID"),
@@ -46,11 +46,11 @@ define(function(require) {
   ];
 
   return {
-    'elementArray': _elementArray,
-    'emptyElementArray': _emptyElementArray,
-    'tooltipCharters': showCharterInfo,
-    'columns': _columns,
-    'leasesClock': leasesClock
+    "elementArray": _elementArray,
+    "emptyElementArray": _emptyElementArray,
+    "tooltipCharters": showCharterInfo,
+    "columns": _columns,
+    "leasesClock": leasesClock
   };
 
   function checkTime(startTime, addedEndTime, warningTime, rtnTime){
@@ -65,7 +65,7 @@ define(function(require) {
         var operator = addedEndTime.replace(regexNumber, "");
         var finalTime = date;
         switch (operator) {
-          case '-':
+          case "-":
             finalTime = date - added;
           break;
           default:
@@ -88,7 +88,7 @@ define(function(require) {
             var wtime = date;
 
             switch (operator) {
-              case '-':
+              case "-":
                 wtime = finalTime - warning;
               break;
               default:
@@ -137,7 +137,7 @@ define(function(require) {
           );
         }
       }
-    })
+    });
     $(".describeCharter").off("mouseleave").on("mouseleave", function(e){
       $(this).find("."+classInfo).remove();
     });
@@ -146,11 +146,11 @@ define(function(require) {
   function leasesClock(element){
     var rtn = "";
     if(
-      element && 
-      element.STIME && 
-      element.USER_TEMPLATE && 
-      element.USER_TEMPLATE.SCHED_ACTION && 
-      config && 
+      element &&
+      element.STIME &&
+      element.USER_TEMPLATE &&
+      element.USER_TEMPLATE.SCHED_ACTION &&
+      config &&
       config.system_config &&
       config.system_config.leases
     ){
@@ -164,27 +164,27 @@ define(function(require) {
       }
       actionsArray.some(function(action){
         if(
-          action && 
-          action.ACTION && 
-          action.TIME && 
-          leases && 
-          leases[action.ACTION] && 
-          leases[action.ACTION].time && 
-          !isNaN(parseInt(leases[action.ACTION].time)) && 
+          action &&
+          action.ACTION &&
+          action.TIME &&
+          leases &&
+          leases[action.ACTION] &&
+          leases[action.ACTION].time &&
+          !isNaN(parseInt(leases[action.ACTION].time)) &&
           leases[action.ACTION].color
         ){
           if(checkTime(element.STIME, action.TIME)){
             rtn = $("<i/>",{class:"describeCharter fa fa-clock",data_start:element.STIME, data_add:action.TIME, data_action:action.ACTION}).css({"position":"relative","color":leases[action.ACTION].color});
             if(
-              leases[action.ACTION].warning && 
-              leases[action.ACTION].warning.time && 
+              leases[action.ACTION].warning &&
+              leases[action.ACTION].warning.time &&
               leases[action.ACTION].warning.color
             ){
               if(checkTime(element.STIME, action.TIME, leases[action.ACTION].warning.time)){
                 rtn.css("color", leases[action.ACTION].warning.color);
               }
             }
-            rtn = rtn.prop('outerHTML');
+            rtn = rtn.prop("outerHTML");
             return true;
           }
         }
@@ -238,13 +238,13 @@ define(function(require) {
     var color_html = Status.state_lock_to_color("VM", value_state, element_json[RESOURCE.toUpperCase()]["LOCK"]);
 
     return [
-      '<input class="check_item" '+
-        'style="vertical-align: inherit;"'+
-        'type="checkbox" '+
-        'id="' + RESOURCE.toLowerCase() + '_' + element.ID + '" '+
-        'name="selected_items" '+
-        'value="' + element.ID + '" '+
-        'state="'+element.STATE+'" lcm_state="'+element.LCM_STATE+'"/>'+color_html,
+      "<input class=\"check_item\" "+
+        "style=\"vertical-align: inherit;\""+
+        "type=\"checkbox\" "+
+        "id=\"" + RESOURCE.toLowerCase() + "_" + element.ID + "\" "+
+        "name=\"selected_items\" "+
+        "value=\"" + element.ID + "\" "+
+        "state=\""+element.STATE+"\" lcm_state=\""+element.LCM_STATE+"\"/>"+color_html,
       element.ID,
       element.NAME,
       element.UNAME,
@@ -255,7 +255,7 @@ define(function(require) {
       Humanize.prettyTimeDatatable(element.STIME),
       actions,
       TemplateUtils.htmlEncode(TemplateUtils.templateToString(element)),
-      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+      (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
       btoa(unescape(encodeURIComponent(JSON.stringify(search)))),
       leasesClock(element)
     ];
@@ -264,9 +264,9 @@ define(function(require) {
 
   function _emptyElementArray(vmId) {
     return [
-      '<input class="check_item" type="checkbox" id="' + RESOURCE.toLowerCase() + '_' +
-                             vmId + '" name="selected_items" value="' +
-                             vmId + '"/>',
+      "<input class=\"check_item\" type=\"checkbox\" id=\"" + RESOURCE.toLowerCase() + "_" +
+                             vmId + "\" name=\"selected_items\" value=\"" +
+                             vmId + "\"/>",
        vmId,
        "",
        "",
