@@ -55,6 +55,12 @@ class PacketProvider
     def assign(_ip, external, _opts = {})
         @client.assign_cidr_device("#{external}/32", @deploy_id)
         0
+    rescue Packet::Error => e
+        # potential VM poweroff(itself) + resume
+        return 0 if e.message == '{"errors"=>["Address has already been taken"]}'
+
+        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
+        1
     rescue StandardError => e
         OpenNebula.log_error("Error assiging #{external}:#{e.message}")
         1
@@ -87,4 +93,5 @@ class PacketProvider
         cmds.add :iptables, "-t nat -D PREROUTING -d #{nic[:external_ip]} -j DNAT"\
                         " --to-destination #{nic[:ip]}"
     end
+
 end
