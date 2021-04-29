@@ -1437,25 +1437,33 @@ CommandParser::CmdParser.new(ARGV) do
         helper.perform_action(args[0], options, 'Backup') do |vm|
             vm.extend(OpenNebula::VirtualMachineExt)
 
-            # If logger is specified use it, if not use STDOUT
-            options[:logger].nil? ? log_to = STDOUT : log_to = options[:logger]
-
             # Read user options
-            keep   = options.key?(:keep)
-            logger = Logger.new(log_to)
-            format = '%Y-%m-%d %H:%M:%S'
-
-            logger.formatter = proc do |severity, datetime, _p, msg|
-                "#{datetime.strftime(format)} #{severity.ljust(5)} : #{msg}\n"
+            if options[:verbose]
+                log_to = STDOUT
+            elsif !options[:logger].nil?
+                log_to = options[:logger]
             end
 
+            keep = options.key?(:keep)
+
+            if log_to
+                logger = Logger.new(log_to)
+                format = '%Y-%m-%d %H:%M:%S'
+
+                logger.formatter = proc do |severity, datetime, _p, msg|
+                    "#{datetime.strftime(format)} " \
+                    "#{severity.ljust(5)} : #{msg}\n"
+                end
+            end
+
+            binfo          = {}
+            binfo[:market] = options[:market]
+
             if options.key?(:oneshot)
-                binfo        = {}
                 binfo[:name] = "VM #{vm.id} BACKUP - " \
                                "#{Time.now.strftime('%Y%m%d_%k%M')}"
                 binfo[:freq]   = 1
                 binfo[:last]   = Time.now.to_i - 100
-                binfo[:market] = options[:market]
             end
 
             begin
