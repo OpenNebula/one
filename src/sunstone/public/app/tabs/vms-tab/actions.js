@@ -374,7 +374,7 @@ define(function(require) {
       callback: function(request, response) {
         var protocolConnection = request.request.data[0].extra_param;
 
-        var link = getLink(response, {
+        var link = RemoteActions.getLink(response, {
           connnection_type: 'guac',
           extra_path: '/fireedge/guacamole',
           extra_params: ['type=' + protocolConnection]
