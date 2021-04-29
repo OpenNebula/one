@@ -25,7 +25,6 @@ define(function(require) {
   function printInfoConnection(context, info) {
     context.empty()
     info && context.append(TemplateInfo(info))
-    UtilsFoundation.update(context);
 
     if (info && info.name) {
       document.title = info.name;
