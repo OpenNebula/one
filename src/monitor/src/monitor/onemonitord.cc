@@ -132,6 +132,8 @@ int main(int argc, char **argv)
                     break;
             }
         }
+
+        free(_argv_c);
     }
 
     try
