@@ -382,6 +382,14 @@ module VCenterDriver
             end
         end
 
+        def self.sanitize(text)
+            bad_chars = ['|']
+            bad_chars.each do |bad_char|
+                text.gsub!(bad_char, '_')
+            end
+            text
+        end
+
         protected
 
         #
