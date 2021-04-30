@@ -255,7 +255,7 @@ define(function(require) {
         element.GNAME,
         element.NAME,
         state,
-        Humanize.prettyTime(element.TEMPLATE.BODY["registration_time"]),
+        Humanize.prettyTime(element.TEMPLATE.BODY["start_time"]),
         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||""),
         leasesClock(element),
         btoa(unescape(encodeURIComponent(JSON.stringify(search))))
