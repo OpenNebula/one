@@ -124,6 +124,7 @@ GEM
       nokogiri (~> 1.10)
       optimist (~> 3.0)
     rchardet (1.8.0)
+    rexml (3.2.5)
     rotp (6.2.0)
     rqrcode (1.2.0)
       chunky_png (~> 1.0)
@@ -222,6 +223,7 @@ DEPENDENCIES
   public_suffix
   rack
   rbvmomi (~> 3.0.0)
+  rexml
   rotp
   rqrcode
   sequel
