@@ -66,14 +66,14 @@ define(function(require) {
   function _html() {
     var renameTrHTML = RenameTr.html(TAB_ID, RESOURCE, this.element.NAME);
     var permissionsTableHTML = PermissionsTable.html(TAB_ID, RESOURCE, this.element);
-    var prettyRegTime = Humanize.prettyTime(this.element.TEMPLATE.BODY['registration_time']);
+    var prettyStartTime = Humanize.prettyTime(this.element.TEMPLATE.BODY['start_time']);
 
     return TemplateHTML({
       'element': this.element,
       'renameTrHTML': renameTrHTML,
       'permissionsTableHTML': permissionsTableHTML,
       'stateStr': OpenNebulaService.stateStr(this.element.TEMPLATE.BODY.state),
-      'prettyRegTime': prettyRegTime
+      'prettyStartTime': prettyStartTime
     });
   }
 
