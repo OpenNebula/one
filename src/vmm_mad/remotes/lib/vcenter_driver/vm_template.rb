@@ -1573,9 +1573,8 @@ module VCenterDriver
             str << "]\n"
 
             if annotation.nil? || annotation.empty?
-                str << 'DESCRIPTION = "vCenter Template \
-                imported by OpenNebula' \
-                    " from Cluster #{ccr_name}\"\n"
+                str << 'DESCRIPTION = "vCenter Template imported by OpenNebula'\
+                       " from Cluster #{ccr_name}\"\n"
             else
                 notes = annotation.gsub('\\', '\\\\').gsub('"', '\\"')
                 str << "DESCRIPTION = \"#{notes}\"\n"
