@@ -36,15 +36,28 @@ export const PROVISIONS_STATES = [
 
 export const PROVIDERS_TYPES = [
   {
-    name: 'aws',
+    id: 'aws',
+    name: 'AWS',
     color: '#ef931f'
   },
   {
-    name: 'packet',
+    id: 'packet',
+    name: 'Packet',
     color: '#364562'
   },
   {
-    name: 'dummy',
+    id: 'dummy',
+    name: 'Dummy',
     color: '#436637'
+  },
+  {
+    id: 'google',
+    name: 'Google Cloud',
+    color: 'linear-gradient(90deg, #fbbc05 0%, #ea4335 33%, #34a853 66%, #4285f4 100%)'
+  },
+  {
+    id: 'digitalocean',
+    name: 'Digital Ocean',
+    color: '#2381f5'
   }
 ]

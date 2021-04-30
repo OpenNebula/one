@@ -16,174 +16,176 @@
 require 'one_helper'
 require 'one_helper/onevm_helper'
 
+# OneVnet Command Helper
 class OneVNetHelper < OpenNebulaHelper::OneHelper
+
     AR = {
-        :name => "address_range",
-        :short => "-a ar_id",
-        :large => "--address_range ar_id",
+        :name => 'address_range',
+        :short => '-a ar_id',
+        :large => '--address_range ar_id',
         :format => Integer,
-        :description => "ID of the address range"
+        :description => 'ID of the address range'
     }
 
     SHOW_AR = {
-        :name => "show_ar",
-        :large => "--show-ar",
-        :description => "Show also AR templates"
+        :name => 'show_ar',
+        :large => '--show-ar',
+        :description => 'Show also AR templates'
     }
 
     MAC = {
-        :name => "mac",
-        :short => "-m mac",
-        :large => "--mac mac",
+        :name => 'mac',
+        :short => '-m mac',
+        :large => '--mac mac',
         :format => String,
-        :description => "First MAC address in : notation"
+        :description => 'First MAC address in : notation'
     }
 
     IP = {
-        :name => "ip",
-        :short => "-i ip",
-        :large => "--ip ip",
+        :name => 'ip',
+        :short => '-i ip',
+        :large => '--ip ip',
         :format => String,
-        :description => "First IP address in . notation"
+        :description => 'First IP address in . notation'
     }
 
     IP6 = {
-        :name => "ip6",
-        :short => "-6 ip6",
-        :large => "--ip6 ip6",
+        :name => 'ip6',
+        :short => '-6 ip6',
+        :large => '--ip6 ip6',
         :format => String,
-        :description => "First IPv6 address, in CIDR notation e.g. 2001::1/48"
+        :description => 'First IPv6 address, in CIDR notation e.g. 2001::1/48'
     }
 
     SIZE = {
-        :name => "size",
-        :short => "-s size",
-        :large => "--size size",
+        :name => 'size',
+        :short => '-s size',
+        :large => '--size size',
         :format => String,
-        :description => "Number of addresses"
+        :description => 'Number of addresses'
     }
 
     IP6_GLOBAL = {
-        :name => "ip6_global",
-        :short => "-g ip6_pref",
-        :large => "--ip6_global ip6_pref",
+        :name => 'ip6_global',
+        :short => '-g ip6_pref',
+        :large => '--ip6_global ip6_pref',
         :format => String,
-        :description => "IP6 global prefix"
+        :description => 'IP6 global prefix'
     }
 
     IP6_ULA = {
-        :name => "ip6_ula",
-        :short => "-u ip6_pref",
-        :large => "--ip6_ula ip6_pref",
+        :name => 'ip6_ula',
+        :short => '-u ip6_pref',
+        :large => '--ip6_ula ip6_pref',
         :format => String,
-        :description => "IP6 ula prefix"
+        :description => 'IP6 ula prefix'
     }
 
     NAME = {
-        :name => "name",
-        :short => "-n reservation name",
-        :large => "--name reservation name",
+        :name => 'name',
+        :short => '-n reservation name',
+        :large => '--name reservation name',
         :format => String,
-        :description => "Name of the address reservation"
+        :description => 'Name of the address reservation'
     }
 
-#    R_SIZE = {
-#        :name => "rsize",
-#        :short => "-s reservation size",
-#        :large => "--size reservation size",
-#        :format => String,
-#        :description => "Number of addresses to reserve"
-#    }
+    #    R_SIZE = {
+    #        :name => "rsize",
+    #        :short => "-s reservation size",
+    #        :large => "--size reservation size",
+    #        :format => String,
+    #        :description => "Number of addresses to reserve"
+    #    }
 
     GATEWAY = {
-        :name       => "gateway",
-        :large      => "--gateway ip",
+        :name       => 'gateway',
+        :large      => '--gateway ip',
         :format     => String,
-        :description=> "IP of the gateway"
+        :description=> 'IP of the gateway'
     }
 
     NETMASK = {
-        :name       => "netmask",
-        :large      => "--netmask mask",
+        :name       => 'netmask',
+        :large      => '--netmask mask',
         :format     => String,
-        :description=> "Netmask in dot notation"
+        :description=> 'Netmask in dot notation'
     }
 
     VN_MAD = {
-        :name       => "vn_mad",
-        :large      => "--vn_mad mad",
+        :name       => 'vn_mad',
+        :large      => '--vn_mad mad',
         :format     => String,
-        :description=> "Use this driver for the network"
+        :description=> 'Use this driver for the network'
     }
 
     VLAN_ID = {
-        :name       => "vlanid",
-        :large      => "--vlanid id",
+        :name       => 'vlanid',
+        :large      => '--vlanid id',
         :format     => String,
-        :description=> "VLAN ID assigned"
+        :description=> 'VLAN ID assigned'
     }
 
     ADDAR_OPTIONS = [
         SIZE, MAC, IP, IP6, IP6_GLOBAL, IP6_ULA, GATEWAY, NETMASK, VN_MAD,
-        VLAN_ID ]
+        VLAN_ID
+    ]
 
     def self.rname
-        "VNET"
+        'VNET'
     end
 
     def self.conf_file
-        "onevnet.yaml"
+        'onevnet.yaml'
     end
 
     def format_pool(options)
         config_file = self.class.table_conf
 
-        table = CLIHelper::ShowTable.new(config_file, self) do
-            column :ID, "ONE identifier for Virtual Network", :size=>4 do |d|
-                d["ID"]
+        CLIHelper::ShowTable.new(config_file, self) do
+            column :ID, 'ONE identifier for Virtual Network', :size=>4 do |d|
+                d['ID']
             end
 
-            column :USER, "Username of the Virtual Network owner", :left,
-                    :size=>15 do |d|
+            column :USER, 'Username of the Virtual Network owner', :left,
+                   :size=>15 do |d|
                 helper.user_name(d, options)
             end
 
-            column :GROUP, "Group of the Virtual Network", :left,
-                    :size=>12 do |d|
+            column :GROUP, 'Group of the Virtual Network', :left,
+                   :size=>12 do |d|
                 helper.group_name(d, options)
             end
 
-            column :NAME, "Name of the Virtual Network", :left,
-                    :size=>19 do |d|
-                d["NAME"]
+            column :NAME, 'Name of the Virtual Network', :left,
+                   :size=>19 do |d|
+                d['NAME']
             end
 
-            column :CLUSTERS, "Cluster IDs", :left, :size=>10 do |d|
-                OpenNebulaHelper.clusters_str(d["CLUSTERS"]["ID"]) rescue "-"
+            column :CLUSTERS, 'Cluster IDs', :left, :size=>10 do |d|
+                OpenNebulaHelper.clusters_str(d['CLUSTERS']['ID']) rescue '-'
             end
 
-            column :BRIDGE, "Bridge associated to the Virtual Network", :left,
-                    :size=>8 do |d|
-                d["BRIDGE"]
+            column :BRIDGE, 'Bridge associated to the Virtual Network', :left,
+                   :size=>8 do |d|
+                d['BRIDGE']
             end
 
             column :LEASES, "Number of this Virtual Network's given leases",
-                    :size=>6 do |d|
-                d["USED_LEASES"]
+                   :size=>6 do |d|
+                d['USED_LEASES']
             end
 
             default :ID, :USER, :GROUP, :NAME, :CLUSTERS, :BRIDGE, :LEASES
         end
-
-        table
     end
 
     def show_ar(vn, ar_id)
-        CLIHelper.print_header("%-80s" % ["TEMPLATE FOR AR #{ar_id}"], false)
+        CLIHelper.print_header(format('%-80s', "TEMPLATE FOR AR #{ar_id}"),
+                               false)
 
         begin
             template = vn.template_like_str("AR_POOL/AR[AR_ID=#{ar_id}]")
-        rescue
+        rescue StandardError
             STDERR.puts "Can not get template for AR #{ar_id}"
             return
         end
@@ -281,7 +283,7 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
 
     private
 
-    def factory(id=nil)
+    def factory(id = nil)
         if id
             OpenNebula::VirtualNetwork.new_with_id(id, @client)
         else
@@ -290,55 +292,63 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         end
     end
 
-    def factory_pool(user_flag=-2)
+    def factory_pool(user_flag = -2)
         OpenNebula::VirtualNetworkPool.new(@client, user_flag)
     end
 
     def format_resource(vn, options = {})
         vn_hash = vn.to_hash
 
-        str_h1="%-80s"
-        CLIHelper.print_header(str_h1 %
-            ["VIRTUAL NETWORK #{vn.id.to_s} INFORMATION"])
+        str_h1='%-80s'
+        CLIHelper.print_header(format(str_h1,
+                                      "VIRTUAL NETWORK #{vn.id} INFORMATION"))
 
-        str="%-25s: %-20s"
-        puts str % ["ID", vn.id.to_s]
-        puts str % ["NAME", vn['NAME']]
-        puts str % ["USER", vn['UNAME']]
-        puts str % ["GROUP", vn['GNAME']]
-        puts str % ["LOCK", OpenNebulaHelper.level_lock_to_str(vn['LOCK/LOCKED'])]
-        puts str % ["CLUSTERS",
-            OpenNebulaHelper.clusters_str(vn.retrieve_elements("CLUSTERS/ID"))]
-        puts str % ["BRIDGE", vn["BRIDGE"]]
-        puts str % ["VN_MAD", vn['VN_MAD']] if !vn['VN_MAD'].empty?
-        puts str % ["PHYSICAL DEVICE", vn["PHYDEV"]] if !vn["PHYDEV"].empty?
-        puts str % ["VLAN ID", vn["VLAN_ID"]] if !vn["VLAN_ID"].empty?
-        puts str % ["AUTOMATIC VLAN ID", vn["VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
-        puts str % ["OUTER VLAN ID", vn["OUTER_VLAN_ID"]] if !vn["OUTER_VLAN_ID"]
-        puts str % ["AUTOMATIC OUTER VLAN ID", vn["OUTER_VLAN_ID_AUTOMATIC"]=="1" ? "YES" : "NO"]
-        puts str % ["USED LEASES", vn['USED_LEASES']]
+        str='%-25s: %-20s'
+        puts format(str, 'ID', vn.id.to_s)
+        puts format(str, 'NAME', vn['NAME'])
+        puts format(str, 'USER', vn['UNAME'])
+        puts format(str, 'GROUP', vn['GNAME'])
+        puts format(str, 'LOCK',
+                    OpenNebulaHelper.level_lock_to_str(vn['LOCK/LOCKED']))
+        puts format(str, 'CLUSTERS',
+                    OpenNebulaHelper.clusters_str(
+                        vn.retrieve_elements('CLUSTERS/ID')
+                    ))
+        puts format(str, 'BRIDGE', vn['BRIDGE'])
+        puts format(str, 'VN_MAD', vn['VN_MAD']) unless vn['VN_MAD'].empty?
+        puts format(str, 'PHYSICAL DEVICE',
+                    vn['PHYDEV']) unless vn['PHYDEV'].empty?
+        puts format(str, 'VLAN ID', vn['VLAN_ID']) unless vn['VLAN_ID'].empty?
+        puts format(str, 'AUTOMATIC VLAN ID',
+                    vn['VLAN_ID_AUTOMATIC']=='1' ? 'YES' : 'NO')
+        puts format(str, 'OUTER VLAN ID',
+                    vn['OUTER_VLAN_ID']) unless vn['OUTER_VLAN_ID']
+        puts format(str, 'AUTOMATIC OUTER VLAN ID',
+                    vn['OUTER_VLAN_ID_AUTOMATIC']=='1' ? 'YES' : 'NO')
+        puts format(str, 'USED LEASES', vn['USED_LEASES'])
         puts
 
-        CLIHelper.print_header(str_h1 % "PERMISSIONS",false)
+        CLIHelper.print_header(str_h1 % 'PERMISSIONS', false)
 
-        ["OWNER", "GROUP", "OTHER"].each { |e|
-            mask = "---"
-            mask[0] = "u" if vn["PERMISSIONS/#{e}_U"] == "1"
-            mask[1] = "m" if vn["PERMISSIONS/#{e}_M"] == "1"
-            mask[2] = "a" if vn["PERMISSIONS/#{e}_A"] == "1"
+        %w[OWNER GROUP OTHER].each do |e|
+            mask = '---'
+            mask[0] = 'u' if vn["PERMISSIONS/#{e}_U"] == '1'
+            mask[1] = 'm' if vn["PERMISSIONS/#{e}_M"] == '1'
+            mask[2] = 'a' if vn["PERMISSIONS/#{e}_A"] == '1'
 
-            puts str % [e,  mask]
-        }
+            puts format(str, e, mask)
+        end
 
         puts
 
-        CLIHelper.print_header(str_h1 % ["VIRTUAL NETWORK TEMPLATE"], false)
+        CLIHelper.print_header(format(str_h1, 'VIRTUAL NETWORK TEMPLATE'),
+                               false)
 
         puts vn.template_str(false)
 
         puts
 
-        CLIHelper.print_header(str_h1 % ["ADDRESS RANGE POOL"], false)
+        CLIHelper.print_header(format(str_h1, 'ADDRESS RANGE POOL'), false)
 
         arlist = []
 
@@ -347,70 +357,72 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         end
 
         arlist.each do |ar|
+            CLIHelper.print_header(format('%-80s', "AR #{ar['AR_ID']}"))
 
-            CLIHelper.print_header("%-80s" % "AR #{ar["AR_ID"]}")
-
-            str="%-15s: %-20s"
-            puts str % ["SIZE", ar["SIZE"]]
-            puts str % ["LEASES", ar["USED_LEASES"]]
-            puts str % ["VN_MAD", ar["VN_MAD"]] if ar["VN_MAD"]
-            puts str % ["IPAM_MAD", ar["IPAM_MAD"]] if ar["IPAM_MAD"]
+            str='%-15s: %-20s'
+            puts format(str, 'SIZE', ar['SIZE'])
+            puts format(str, 'LEASES', ar['USED_LEASES'])
+            puts format(str, 'VN_MAD', ar['VN_MAD']) if ar['VN_MAD']
+            puts format(str, 'IPAM_MAD', ar['IPAM_MAD']) if ar['IPAM_MAD']
             puts
 
-            format = "%-10s %34s %34s"
-            CLIHelper.print_header(format % ["RANGE", "FIRST", "LAST"], false)
+            format = '%-10s %34s %34s'
+            CLIHelper.print_header(
+                format(format, 'RANGE', 'FIRST', 'LAST'), false
+            )
 
-            puts format % ["MAC", ar["MAC"], ar["MAC_END"]]
+            puts format(format, 'MAC', ar['MAC'], ar['MAC_END'])
 
-            if !ar["IP"].nil?
-                puts format % ["IP", ar["IP"], ar["IP_END"]]
+            if !ar['IP'].nil?
+                puts format(format, 'IP', ar['IP'], ar['IP_END'])
             end
 
-            if !ar["IP6_GLOBAL"].nil?
-                puts format % ["IP6_GLOBAL", ar["IP6_GLOBAL"], ar["IP6_GLOBAL_END"]]
+            if !ar['IP6_GLOBAL'].nil?
+                puts format(format, 'IP6_GLOBAL', ar['IP6_GLOBAL'],
+                            ar['IP6_GLOBAL_END'])
             end
 
-            if !ar["IP6_ULA"].nil?
-                puts format % ["IP6_ULA", ar["IP6_ULA"], ar["IP6_ULA_END"]]
+            if !ar['IP6_ULA'].nil?
+                puts format(format, 'IP6_ULA', ar['IP6_ULA'], ar['IP6_ULA_END'])
             end
 
-            if !ar["IP6"].nil?
-                puts format % ["IP6", ar["IP6"], ar["IP6_END"]]
+            if !ar['IP6'].nil?
+                puts format(format, 'IP6', ar['IP6'], ar['IP6_END'])
             end
 
             puts
         end
 
         puts
-        CLIHelper.print_header(str_h1 % ["LEASES"], false)
+        CLIHelper.print_header(format(str_h1, 'LEASES'), false)
         ar_list = []
 
         if !vn_hash['VNET']['AR_POOL']['AR'].nil?
             lease_list = [vn_hash['VNET']['AR_POOL']['AR']].flatten
-            leases     = Array.new
+            leases     = []
 
             lease_list.each do |ar|
                 id = ar['AR_ID']
                 ar_list << id
 
-                if ar['LEASES'] && !ar['LEASES']['LEASE'].nil?
-                    lease = [ar['LEASES']['LEASE']].flatten
-                    lease.each do |l|
-                        l['AR_ID'] = id
-                    end
-                    leases << lease
+                next unless ar['LEASES'] && !ar['LEASES']['LEASE'].nil?
+
+                lease = [ar['LEASES']['LEASE']].flatten
+                lease.each do |l|
+                    l['AR_ID'] = id
                 end
+                leases << lease
             end
 
             leases.flatten!
         end
 
         CLIHelper::ShowTable.new(nil, self) do
-            column :AR, "", :left, :size=>3 do |d|
+            column :AR, '', :left, :size=>3 do |d|
                 d['AR_ID']
             end
 
-            column :OWNER, "", :left, :size=>15 do |d|
+            column :OWNER, '', :left, :size=>10 do |d|
                 if d['VM']
                     "V:#{d['VM']}"
                 elsif d['VNET']
@@ -420,31 +432,40 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
                 end
             end
 
-            column :MAC, "", :size=>17 do |d|
-                    d["MAC"]
+            column :MAC, '', :adjust do |d|
+                d['MAC']
             end
 
-            column :IP, "", :size=>15 do |d|
-                    d["IP"]||"-"
+            column :IP, '', :adjust do |d|
+                d['IP'] || '-'
             end
 
-            column :IP6, "", :adjust, :size=>26 do |d|
-                    d["IP6"]||d["IP6_GLOBAL"]||"-"
+            column :PORT_FORWARD, '', :adjust do |d|
+                if d['EXTERNAL_PORT_RANGE']
+                    "[#{d['EXTERNAL_PORT_RANGE']}]:" \
+                    "[#{d['INTERNAL_PORT_RANGE'].split('/')[0]}]"
+                else
+                    '-'
+                end
+            end
+
+            column :IP6, '', :adjust do |d|
+                d['IP6']||d['IP6_GLOBAL']||'-'
             end
         end.show(leases, {})
 
         puts
 
-        CLIHelper.print_header("%-15s" % "VIRTUAL ROUTERS")
+        CLIHelper.print_header(format('%-15s', 'VIRTUAL ROUTERS'))
         vn.vrouter_ids.each do |id|
-            puts "%-15s" % [id]
+            puts format('%-15s', id)
         end
 
-        if options[:show_ar]
-            ar_list.each do |ar_id|
-                puts
-                show_ar(vn, ar_id)
-            end
+        return unless options[:show_ar]
+
+        ar_list.each do |ar_id|
+            puts
+            show_ar(vn, ar_id)
         end
     end
 
@@ -459,4 +480,5 @@ class OneVNetHelper < OpenNebulaHelper::OneHelper
         # in options hash
         (add_ar_options-options.keys)!=add_ar_options
     end
+
 end

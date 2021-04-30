@@ -6,7 +6,7 @@ import {
 } from 'server/routes/api/oneflow/string-routes'
 
 import { requestData } from 'client/utils'
-import { REQUEST_ACTIONS } from 'client/constants'
+
 const { GET, POST, PUT } = httpMethod
 
 export const getApplication = ({ id }) =>
@@ -77,7 +77,7 @@ export const instantiateTemplate = ({ id, data = {} }) =>
   requestData(`/api/${SERVICE_TEMPLATE}/action/${id}`, {
     data: {
       action: {
-        perform: REQUEST_ACTIONS.INSTANTIATE,
+        perform: 'instantiate',
         params: { merge_template: data }
       }
     },

@@ -1,0 +1,31 @@
+resource "google_compute_instance" "device_<%= obj['ID'] %>" {
+    name         = "<%= provision['HOSTNAME'] %>"
+    machine_type = "<%= provision['MACHINETYPE'] %>"
+
+    boot_disk {
+        initialize_params {
+            image = "<%= provision['IMAGE'] %>"
+        }
+    }
+
+    network_interface {
+        network = google_compute_network.device_<%= c['ID'] %>.name
+
+        access_config {
+            // Ephemeral IP
+        }
+    }
+
+    metadata = {
+        ssh-keys = "<%= obj['user_data'] %>"
+    }
+}
+
+output "ip_<%= obj['ID'] %>" {
+  value = google_compute_instance.device_<%= obj['ID'] %>.network_interface[0].access_config[0].nat_ip
+}
+
+output "device_id_<%= obj['ID'] %>" {
+  value = google_compute_instance.device_<%= obj['ID'] %>.id
+}
+

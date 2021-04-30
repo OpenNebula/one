@@ -103,6 +103,8 @@
                     <xs:element name="IP6_GLOBAL_END" type="xs:string" minOccurs="0"/>
                     <xs:element name="IP6" type="xs:string" minOccurs="0"/>
                     <xs:element name="IP6_END" type="xs:string" minOccurs="0"/>
+                    <xs:element name="PORT_START" type="xs:string" minOccurs="0"/>
+                    <xs:element name="PORT_SIZE" type="xs:string" minOccurs="0"/>
                     <xs:element name="USED_LEASES" type="xs:string"/>
                     <xs:element name="LEASES" minOccurs="0" maxOccurs="1">
                       <xs:complexType>
