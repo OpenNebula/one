@@ -47,10 +47,6 @@ export const LANGUAGES_URL = `${STATIC_FILES_URL}/languages`
 
 export const ONEADMIN_ID = '0'
 
-export const REQUEST_ACTIONS = {
-  INSTANTIATE: 'instantiate'
-}
-
 export const FILTER_POOL = {
   PRIMARY_GROUP_RESOURCES: '-4',
   USER_RESOURCES: '-3',

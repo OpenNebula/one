@@ -31,6 +31,7 @@ module OneProvision
         }
 
         KEYS = %w[access_key secret_key region]
+
         # Class constructor
         #
         # @param provider [Provider]
@@ -39,10 +40,28 @@ module OneProvision
         def initialize(provider, state, conf)
             @dir = "#{PROVIDERS_LOCATION}/templates/aws"
 
-            # User data should be encoded in base64
-            @base64 = true
+            # Credentials are not stored in a file
+            @file_credentials = false
 
             super
+        end
+
+        # Get user data to add into the VM
+        #
+        # @param ssh_key [String] SSH keys to add
+        def user_data(ssh_key)
+            # Add clod unit information into user_data
+            # This only applies for a set of spported providers
+            user_data = "#cloud-config\n"
+
+            user_data << "ssh_authorized_keys:\n"
+
+            ssh_key.split("\n").each {|key| user_data << "- #{key}\n" }
+
+            # Escape \n to avoid multilines in Terraform deploy file
+            user_data.gsub!("\n", '\\n')
+
+            user_data
         end
 
     end

@@ -598,6 +598,14 @@ private:
     /* ---------------------------------------------------------------------- */
 
     /**
+     *  Writes EXTERNAL_PORT_RANGE and INTERNAL_PORT_RANGE to allocate Forward
+     *  ports to an address lease.
+     *    @param addr_index internal index for the lease
+     *    @param nic attribute of a VMTemplate
+     */
+    void set_port_ranges(unsigned int addr_index, VectorAttribute * nic) const;
+
+    /**
      *  Writes MAC address to the given NIC attribute
      *    @param addr_index internal index for the lease
      *    @param nic attribute of a VMTemplate
@@ -781,6 +789,16 @@ private:
      *  Binary representation of the first IPv6 address in the AR. No SLAAC ARs
      */
     unsigned int ip6[4] = {0};
+
+    /**
+     *  Port range definition parameters. First port available in the range
+     */
+    unsigned int port_start = 0;
+
+    /**
+     *  Port block size, each lease will have a block of port_size ports
+     */
+    unsigned int port_size  = 0;
 
     /**
      *  Security Group IDs for this Address Range

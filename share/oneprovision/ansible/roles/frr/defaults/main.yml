@@ -15,3 +15,11 @@ frr_as: 65000
 # Prefix length for the BGP network
 frr_prefix_length: 16
 
+# Configure Zebra
+frr_zebra: false
+
+# Install and configure with ipcalc
+frr_ipcalc: false
+
+# Default netmask for ipcalc
+frr_net_mask: 20

@@ -15,7 +15,9 @@
 #--------------------------------------------------------------------------- #
 
 require 'terraform/providers/aws'
+require 'terraform/providers/digitalocean'
 require 'terraform/providers/dummy'
+require 'terraform/providers/google'
 require 'terraform/providers/packet'
 
 # Module OneProvision

@@ -723,7 +723,7 @@ _onevm() {
             rename snapshot-create snapshot-revert snapshot-delete disk-snapshot-create
             disk-snapshot-revert disk-snapshot-delete disk-snapshot-rename disk-resize
             list show top resize save updateconf lock unlock create-chart
-            delete-chart update-chart backup restore"
+            delete-chart update-chart backup restore ssh port-forward"
     cmd=onevm
     if [ "$COMP_CWORD" == 1 ]; then
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
@@ -735,7 +735,7 @@ _onevm() {
         unresched|rename|snapshot-create|snapshot-revert|snapshot-delete| \
         disk-snapshot-create|disk-snapshot-delete|disk-snapshot-revert| \
         disk-snapshot-rename|disk-resize|save|updateconf|lock|unlock|create-chart| \
-        delete-chart|update-chart|backup|restore)
+        delete-chart|update-chart|backup|restore|ssh|port-forward)
             _complete $cmd
         ;;
         undeploy|poweroff|reboot|shutdown|suspend|stop|migrate)

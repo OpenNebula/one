@@ -1,0 +1,23 @@
+resource "google_compute_network" "device_<%= obj['ID'] %>" {
+    name = "<%= obj['NAME'] %>-vpc"
+}
+
+resource "google_compute_firewall" "device_<%= obj['ID'] %>" {
+    name    = "<%= obj['NAME'] %>-firewall"
+    network = google_compute_network.device_<%= obj['ID'] %>.name
+
+    allow {
+        protocol = "icmp"
+    }
+
+    # Client Ports for VMs. Port range MUST be consistent with VNET definition
+    allow {
+        protocol = "tcp"
+        ports    = ["22", "179", "5900-6000", "9000-65535"]
+    }
+
+    allow {
+        protocol = "udp"
+        ports    = ["8472"]
+    }
+}

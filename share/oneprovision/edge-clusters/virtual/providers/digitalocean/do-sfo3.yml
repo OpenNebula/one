@@ -1,0 +1,19 @@
+name: 'digitalocean-nyc3'
+
+description: 'cluster on DigitalOcean in San Franciso 3'
+provider: 'digitalocean'
+
+plain:
+  image: 'DIGITALOCEAN'
+  location_key: 'region'
+  provision_type: 'virtual'
+
+connection:
+  token: 'DigitalOcean token'
+  region: 'sfo3'
+
+inputs:
+   - name: 'digitalocean_droplet'
+     type: 'list'
+     options:
+       - 'centos-7-x64'

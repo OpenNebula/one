@@ -1,0 +1,66 @@
+resource "digitalocean_droplet" "device_<%= obj['ID'] %>" {
+    image     = "<%= provision['IMAGE'] %>"
+    name      = "<%= provision['HOSTNAME'] %>"
+    region    = "<%= provision['REGION'] %>"
+    size      = "<%= provision['SIZE'] %>"
+    user_data = "<%= obj['user_data'] %>"
+    vpc_uuid = digitalocean_vpc.device_<%= c['ID'] %>.id
+}
+
+resource "digitalocean_firewall" "device_<%= obj['ID'] %>" {
+    name = "vnc-device-<%= obj['ID'] %>"
+
+    droplet_ids = [digitalocean_droplet.device_<%= obj['ID'] %>.id]
+
+    inbound_rule {
+        protocol         = "tcp"
+        port_range       = "22"
+        source_addresses = ["0.0.0.0/0", "::/0"]
+    }
+
+    # BGP traffic from VPC droplets. IP range MUST be consistent with cluster.erb
+    inbound_rule {
+        protocol         = "tcp"
+        port_range       = "179"
+        source_addresses = ["10.10.10.0/24"]
+    }
+
+    # VXLAN traffic from VPC droplets. IP range MUST be consistent with cluster.erb
+    inbound_rule {
+        protocol         = "udp"
+        port_range       = "8472"
+        source_addresses = ["10.10.10.0/24"]
+    }
+
+    # Client Ports for VMs. Port range MUST be consistent with VNET definition
+    inbound_rule {
+        protocol         = "tcp"
+        port_range       = "9000-65535"
+        source_addresses = ["0.0.0.0/0"]
+    }
+
+    outbound_rule {
+        protocol              = "tcp"
+        port_range            = "1-65535"
+        destination_addresses = ["0.0.0.0/0", "::/0"]
+    }
+
+    outbound_rule {
+        protocol              = "udp"
+        port_range            = "1-65535"
+        destination_addresses = ["0.0.0.0/0", "::/0"]
+    }
+
+    outbound_rule {
+        protocol              = "icmp"
+        destination_addresses = ["0.0.0.0/0", "::/0"]
+    }
+}
+
+output "ip_<%= obj['ID'] %>" {
+  value = digitalocean_droplet.device_<%= obj['ID'] %>.ipv4_address
+}
+
+output "device_id_<%= obj['ID'] %>" {
+  value = digitalocean_droplet.device_<%= obj['ID'] %>.id
+}
