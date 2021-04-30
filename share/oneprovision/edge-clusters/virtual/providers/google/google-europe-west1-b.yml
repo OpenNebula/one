@@ -1,0 +1,27 @@
+name: 'google-belgium'
+
+description: 'Elastic cluster on Google in Belgium'
+provider: 'google'
+
+plain:
+  image: 'GOOGLE'
+  location_key: 'zone'
+  provision_type: 'virtual'
+
+connection:
+  credentials: 'JSON credentials file'
+  project: 'Google Cloud Plataform project ID'
+  region: 'europe-west1'
+  zone: 'europe-west1-b'
+
+inputs:
+   - name: 'google_image'
+     type: 'list'
+     options:
+       - 'centos-8-v20210316'
+   - name: 'google_machine_type'
+     type: 'list'
+     options:
+       - 'e2-standard-2'
+       - 'e2-standard-4'
+       - 'e2-standard-8'

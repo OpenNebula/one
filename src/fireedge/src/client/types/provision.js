@@ -30,7 +30,9 @@ export const UserInput = PropTypes.shape({
 export const ProviderType = PropTypes.oneOf([
   'aws',
   'packet',
-  'dummy'
+  'dummy',
+  'google',
+  'digitalocean'
 ])
 
 export const ProvisionType = PropTypes.oneOf([

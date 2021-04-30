@@ -24,6 +24,9 @@ module OneProvision
         # These attributes can not be changed when updating the provider
         IMMUTABLE_ATTRS = %w[provider name]
 
+        # These providers get the credentials via some file
+        CREDENTIALS_FILE = { 'google' => 'credentials' }
+
         # Allocates a new document
         #
         # @param template [Hash] Document information
@@ -181,6 +184,25 @@ module OneProvision
             document['connection']        = template['connection']
             document['registration_time'] = Time.now.to_i
 
+            if CREDENTIALS_FILE.keys.include?(template['provider'])
+                c_key  = CREDENTIALS_FILE[template['provider']]
+                c_file = template['connection'][c_key]
+
+                if base64?(c_file)
+                    credentials = c_file
+                else
+                    unless File.exist?(c_file)
+                        return OpenNebula::Error.new(
+                            "Credentials file doesn't exist"
+                        )
+                    end
+
+                    credentials = Base64.strict_encode64(File.read(c_file))
+                end
+
+                document['connection'][c_key] = credentials
+            end
+
             template.each do |key, value|
                 next if skip.include?(key)
 
@@ -188,6 +210,16 @@ module OneProvision
             end
 
             document.to_json
+        end
+
+        # Check if value is in Base64 form
+        #
+        # @param value [Object] Object to check
+        #
+        # @return [Boolean] True if it is in Base64, false otherwise
+        def base64?(value)
+            value.is_a?(String) &&
+            Base64.strict_encode64(Base64.decode64(value)) == value
         end
 
     end

@@ -1,0 +1,40 @@
+---
+# ---------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                  #
+#                                                                              #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
+# not use this file except in compliance with the License. You may obtain      #
+# a copy of the License at                                                     #
+#                                                                              #
+# http://www.apache.org/licenses/LICENSE-2.0                                   #
+#                                                                              #
+# Unless required by applicable law or agreed to in writing, software          #
+# distributed under the License is distributed on an "AS IS" BASIS,            #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
+# See the License for the specific language governing permissions and          #
+# limitations under the License.                                               #
+# ---------------------------------------------------------------------------- #
+
+networks:
+  - name: "${provision}-public"
+    vn_mad: 'nodeport'
+    bridge: 'br0'
+    netrole: 'public'
+    ar:
+      - type: 'IP4'
+        ip: "192.168.23.2"
+        size: 250
+        port_start: 9000
+        port_size: 100
+        gateway: "192.168.23.1"
+
+vntemplates:
+  - name: "${provision}-private"
+    vn_mad: 'vxlan'
+    phydev: 'eth1'
+    automatic_vlan_id: 'yes'
+    netrole: 'private'
+    vxlan_mode: 'evpn'
+    vxlan_tep: 'dev'
+    ip_link_conf: 'nolearning='
+    cluster_ids: "${cluster.0.id}"

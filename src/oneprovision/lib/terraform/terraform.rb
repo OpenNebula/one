@@ -46,7 +46,7 @@ module OneProvision
     class Terraform
 
         # Providers that are currently available
-        PROVIDERS = %w[aws packet dummy]
+        PROVIDERS = %w[aws digitalocean google packet dummy]
 
         # Class constructor
         #
@@ -71,6 +71,10 @@ module OneProvision
                 tf_class = Packet
             when 'aws'
                 tf_class = AWS
+            when 'google'
+                tf_class = Google
+            when 'digitalocean'
+                tf_class = DigitalOcean
             when 'dummy'
                 tf_class = Dummy
             else
@@ -91,6 +95,10 @@ module OneProvision
                 keys = Packet::KEYS
             when 'aws'
                 keys = AWS::KEYS
+            when 'google'
+                keys = Google::KEYS
+            when 'digitalocean'
+                keys = DigitalOcean::KEYS
             when 'dummy'
                 return true
             else
@@ -146,6 +154,15 @@ module OneProvision
         def deploy(provision)
             tempdir = init(provision, false, false)
 
+            if @file_credentials
+                c_key       = Provider::CREDENTIALS_FILE[@provider.type]
+                credentials = @provider.connection[c_key.upcase]
+
+                File.open("#{tempdir}/credentials.json", 'w') do |file|
+                    file.write(Base64.decode64(credentials))
+                end
+            end
+
             # Apply
             Driver.retry_loop("Driver action 'tf deploy' failed", provision) do
                 _, e, s = Driver.run(
@@ -182,7 +199,11 @@ module OneProvision
 
             info.gsub!(' ', '')
             info = info.split("\n")
-            info.map! {|ip| ip.split('=')[1] }
+            info.map! {|val| val.split('=')[1] }
+
+            # rubocop:disable Style/StringLiterals
+            info.map! {|val| val.gsub("\"", '') }
+            # rubocop:enable Style/StringLiterals
 
             # rubocop:disable Style/StringLiterals
             info.map! {|val| val.gsub("\"", '') }
@@ -224,6 +245,15 @@ module OneProvision
         #   - Terraform config in base64
         def destroy(provision, target = nil)
             tempdir = init(provision)
+
+            if @file_credentials
+                c_key       = Provider::CREDENTIALS_FILE[@provider.type]
+                credentials = @provider.connection[c_key.upcase]
+
+                File.open("#{tempdir}/credentials.json", 'w') do |file|
+                    file.write(Base64.decode64(credentials))
+                end
+            end
 
             # Destroy
             Driver.retry_loop("Driver action 'tf destroy' failed", provision) do
@@ -300,22 +330,7 @@ module OneProvision
 
                 return if !ssh_key || ssh_key.empty?
 
-                # Add clod unit information into user_data
-                # This only applies for a set of spported providers
-                user_data = "#cloud-config\n"
-
-                user_data << "ssh_authorized_keys:\n"
-
-                ssh_key.split("\n").each {|key| user_data << "- #{key}\n" }
-
-                if @base64
-                    user_data = Base64.strict_encode64(user_data)
-                else
-                    # Escape \n to avoid multilines in Terraform deploy file
-                    user_data = user_data.gsub("\n", '\\n')
-                end
-
-                obj['user_data'] = user_data
+                obj['user_data'] = user_data(ssh_key)
             end
         end
 
@@ -425,8 +440,10 @@ module OneProvision
 
             if version < Gem::Version.new('0.13')
                 cmd = '0.12upgrade'
-            else
+            elsif version < Gem::Version.new('0.15')
                 cmd = '0.13upgrade'
+            else
+                return
             end
 
             # Upgrade

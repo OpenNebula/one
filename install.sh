@@ -296,6 +296,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/oneprovision/lib/terraform/providers \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet \
           $LIB_LOCATION/oneprovision/lib/provision \
           $LIB_LOCATION/oneprovision/lib/provision_template \
@@ -453,6 +455,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/vnm/vcenter/post.d \
           $VAR_LOCATION/remotes/vnm/vcenter/clean.d \
           $VAR_LOCATION/remotes/vnm/elastic \
+          $VAR_LOCATION/remotes/vnm/nodeport\
           $VAR_LOCATION/remotes/vnm/hooks/pre \
           $VAR_LOCATION/remotes/vnm/hooks/post \
           $VAR_LOCATION/remotes/vnm/hooks/clean \
@@ -720,6 +723,7 @@ INSTALL_FILES=(
     NETWORK_OVSWITCH_VXLAN_FILES:$VAR_LOCATION/remotes/vnm/ovswitch_vxlan
     NETWORK_VCENTER_FILES:$VAR_LOCATION/remotes/vnm/vcenter
     NETWORK_ELASTIC_FILES:$VAR_LOCATION/remotes/vnm/elastic
+    NETWORK_NODEPORT_FILES:$VAR_LOCATION/remotes/vnm/nodeport
     EXAMPLE_SHARE_FILES:$SHARE_LOCATION/examples
     EXAMPLE_HOST_HOOKS_SHARE_FILES:$SHARE_LOCATION/examples/host_hooks
     LXD_NETWORK_HOOKS:$SHARE_LOCATION/examples/network_hooks
@@ -775,6 +779,8 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
     ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
     ONEPROVISION_LIB_AWS_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws
+    ONEPROVISION_LIB_GOOGLE_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google
+    ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean
     ONEPROVISION_LIB_PACKET_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet
     ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
     ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources
@@ -1740,6 +1746,12 @@ NETWORK_ELASTIC_FILES="src/vnm_mad/remotes/elastic/elastic.rb \
                        src/vnm_mad/remotes/elastic/pre \
                        src/vnm_mad/remotes/elastic/update_sg"
 
+NETWORK_NODEPORT_FILES="src/vnm_mad/remotes/nodeport/nodeport.rb \
+                        src/vnm_mad/remotes/nodeport/clean \
+                        src/vnm_mad/remotes/nodeport/post \
+                        src/vnm_mad/remotes/nodeport/pre \
+                        src/vnm_mad/remotes/nodeport/update_sg"
+
 #-------------------------------------------------------------------------------
 # Virtual Network Manager drivers configuration to be installed under $REMOTES_LOCATION/etc/vnm
 #-------------------------------------------------------------------------------
@@ -1763,6 +1775,7 @@ IPAM_DRIVER_PACKET_SCRIPTS="src/ipamm_mad/remotes/packet/register_address_range 
                src/ipamm_mad/remotes/packet/allocate_address \
                src/ipamm_mad/remotes/packet/get_address \
                src/ipamm_mad/remotes/packet/free_address"
+
 #-------------------------------------------------------------------------------
 # IPAM EC2 drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
@@ -2472,6 +2485,8 @@ ONEPROVISION_LIB_TF_FILES="src/oneprovision/lib/terraform/terraform.rb \
                            src/oneprovision/lib/terraform/providers.rb"
 
 ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.rb \
+                                  src/oneprovision/lib/terraform/providers/google.rb \
+                                  src/oneprovision/lib/terraform/providers/digitalocean.rb \
                                   src/oneprovision/lib/terraform/providers/dummy.rb \
                                   src/oneprovision/lib/terraform/providers/packet.rb"
 
@@ -2480,6 +2495,18 @@ ONEPROVISION_LIB_AWS_ERB_FILES="src/oneprovision/lib/terraform/providers/templat
                                 src/oneprovision/lib/terraform/providers/templates/aws/host.erb \
                                 src/oneprovision/lib/terraform/providers/templates/aws/network.erb \
                                 src/oneprovision/lib/terraform/providers/templates/aws/provider.erb"
+
+ONEPROVISION_LIB_GOOGLE_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/google/cluster.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/google/datastore.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/google/host.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/google/network.erb \
+                                   src/oneprovision/lib/terraform/providers/templates/google/provider.erb"
+
+ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/digitalocean/cluster.erb \
+                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/datastore.erb \
+                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/host.erb \
+                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/network.erb \
+                                         src/oneprovision/lib/terraform/providers/templates/digitalocean/provider.erb"
 
 ONEPROVISION_LIB_PACKET_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/packet/cluster.erb \
                                    src/oneprovision/lib/terraform/providers/templates/packet/datastore.erb \

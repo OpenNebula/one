@@ -84,34 +84,34 @@ AddressRange::AddressType AddressRange::str_to_type(string& str_type)
 
 int AddressRange::init_ipv4(string& error_msg)
 {
-	if (!is_ipv4())
-	{
-		attr->remove("IP");
-		return 0;
-	}
+    if (!is_ipv4())
+    {
+        attr->remove("IP");
+        return 0;
+    }
 
-	string value = attr->vector_value("IP");
+    string value = attr->vector_value("IP");
 
-	if (value.empty() || ip_to_i(value, ip) == -1)
-	{
-		error_msg = "Wrong or empty IP attribute";
-		return -1;
-	}
+    if (value.empty() || ip_to_i(value, ip) == -1)
+    {
+        error_msg = "Wrong or empty IP attribute";
+        return -1;
+    }
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::init_ipv6(string& error_msg)
 {
-	if (!is_ipv6())
-	{
-		attr->remove("GLOBAL_PREFIX");
-		attr->remove("ULA_PREFIX");
+    if (!is_ipv6())
+    {
+        attr->remove("GLOBAL_PREFIX");
+        attr->remove("ULA_PREFIX");
 
-		return 0;
-	}
+        return 0;
+    }
 
     string value = attr->vector_value("GLOBAL_PREFIX");
 
@@ -129,26 +129,26 @@ int AddressRange::init_ipv6(string& error_msg)
         return -1;
     }
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
 int AddressRange::init_ipv6_static(string& error_msg)
 {
-	if (!is_ipv6_static())
-	{
-		attr->remove("IP6");
-		return 0;
-	}
+    if (!is_ipv6_static())
+    {
+        attr->remove("IP6");
+        return 0;
+    }
 
     string value = attr->vector_value("IP6");
 
-	if (value.empty() || ip6_to_i(value, ip6) == -1)
-	{
-		error_msg = "Wrong or empty IP6 attribute";
-		return -1;
-	}
+    if (value.empty() || ip6_to_i(value, ip6) == -1)
+    {
+        error_msg = "Wrong or empty IP6 attribute";
+        return -1;
+    }
 
     int pl;
 
@@ -158,7 +158,7 @@ int AddressRange::init_ipv6_static(string& error_msg)
         return -1;
     }
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -171,14 +171,14 @@ int AddressRange::init_mac(string& error_msg)
     {
         mac[1] = VirtualNetworkPool::mac_prefix();
 
-		if ( is_ipv4() )
-		{
-			mac[0] = ip;
-		}
-		else
-		{
-			mac[0] = one_util::random<uint32_t>() & 0xFFFFFFFF;
-		}
+        if ( is_ipv4() )
+        {
+            mac[0] = ip;
+        }
+        else
+        {
+            mac[0] = one_util::random<uint32_t>() & 0xFFFFFFFF;
+        }
 
         set_mac(0, attr);
     }
@@ -191,7 +191,7 @@ int AddressRange::init_mac(string& error_msg)
         };
     }
 
-	return 0;
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -253,6 +253,18 @@ int AddressRange::from_attr(VectorAttribute *vattr, string& error_msg)
     else
     {
         one_util::split_unique(value, ',', security_groups);
+    }
+
+    /* ---------------------- Port Range Allocation ------------------------- */
+
+    if ( vattr->vector_value("PORT_START", port_start) == -1 )
+    {
+        port_start = 0;
+    }
+
+    if ( vattr->vector_value("PORT_SIZE", port_size) == -1 )
+    {
+        port_size = 0;
     }
 
     /* ------------------------ AR Internal Data ---------------------------- */
@@ -358,6 +370,7 @@ int AddressRange::update_attributes(
     if (keep_restricted && restricted_set)
     {
         VectorAttribute va_aux(*attr);
+
         remove_all_except_restricted(&va_aux);
 
         vup->merge(&va_aux, true);
@@ -434,6 +447,18 @@ int AddressRange::update_attributes(
         one_util::split_unique(value, ',', security_groups);
     }
 
+    if ( vup->vector_value("PORT_START", port_start) == -1 )
+    {
+        vup->remove("PORT_START");
+        port_start = 0;
+    }
+
+    if ( vup->vector_value("PORT_SIZE", port_size) == -1 )
+    {
+        vup->remove("PORT_SIZE");
+        port_size = 0;
+    }
+
     /* Replace with the new attributes */
 
     attr->replace(vup->value());
@@ -483,6 +508,16 @@ int AddressRange::from_vattr_db(VectorAttribute *vattr)
     if (!value.empty())
     {
         one_util::split_unique(value, ',', security_groups);
+    }
+
+    if ( vattr->vector_value("PORT_START", port_start) == -1 )
+    {
+        port_start = 0;
+    }
+
+    if ( vattr->vector_value("PORT_SIZE", port_size) == -1 )
+    {
+        port_size = 0;
     }
 
     if (type == NONE)
@@ -771,6 +806,8 @@ void AddressRange::to_xml(ostringstream &oss, const vector<int>& vms,
             }
 
             set_mac(it->first, &lease);
+
+            set_port_ranges(it->first, &lease);
 
             if (is_ipv4())
             {
@@ -1152,6 +1189,30 @@ bool AddressRange::is_valid_ip6(unsigned int& index, const string& ip_s,
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
+void AddressRange::set_port_ranges(unsigned int addr_index,
+        VectorAttribute * nic) const
+{
+    if ( port_size == 0 || port_start == 0 )
+    {
+        return;
+    }
+
+    unsigned int p_ini = port_start + (addr_index * port_size) + 1;
+    unsigned int p_end = p_ini + port_size - 1;
+
+    ostringstream erange;
+    ostringstream irange;
+
+    erange << p_ini << ":" << p_end;
+    irange << "1-" << port_size << "/" << p_ini;
+
+    nic->replace("EXTERNAL_PORT_RANGE", erange.str());
+    nic->replace("INTERNAL_PORT_RANGE", irange.str());
+}
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
 void AddressRange::set_mac(unsigned int addr_index, VectorAttribute * nic) const
 {
     unsigned int new_mac[2];
@@ -1210,20 +1271,20 @@ void AddressRange::set_ip6(unsigned int addr_index, VectorAttribute * nic) const
 /* -------------------------------------------------------------------------- */
 
 void AddressRange::set_ip6_static(unsigned int addr_index,
-		VectorAttribute * nic) const
+        VectorAttribute * nic) const
 {
-	unsigned int ip_low[4];
+    unsigned int ip_low[4];
     string       ip6_s;
 
     ip_low[3] = ip6[3];
     ip_low[2] = ip6[2];
     ip_low[1] = ip6[1];
-	ip_low[0] = ip6[0] + addr_index;
+    ip_low[0] = ip6[0] + addr_index;
 
-	if ( ip6_to_s(ip_low, ip6_s) == 0 )
-	{
-		nic->replace("IP6", ip6_s);
-	}
+    if ( ip6_to_s(ip_low, ip6_s) == 0 )
+    {
+        nic->replace("IP6", ip6_s);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1368,6 +1429,8 @@ void AddressRange::allocate_by_index(unsigned int index,
 {
     set_mac(index, nic);
 
+    set_port_ranges(index, nic);
+
     if (is_ipv4())
     {
         set_ip(index, nic);
@@ -1378,7 +1441,7 @@ void AddressRange::allocate_by_index(unsigned int index,
         set_ip6(index, nic);
     }
 
-	if (is_ipv6_static())
+    if (is_ipv6_static())
     {
         set_ip6_static(index, nic);
     }
@@ -1827,6 +1890,8 @@ int AddressRange::reserve_addr(int vid, unsigned int rsize, AddressRange *rar)
 
     set_mac(first_index, new_ar);
 
+    set_port_ranges(first_index, new_ar);
+
     if ( is_ipv4() )
     {
         set_ip(first_index, new_ar);
@@ -1883,6 +1948,8 @@ int AddressRange::reserve_addr_by_index(int vid, unsigned int rsize,
     string            errmsg;
 
     set_mac(sindex, new_ar);
+
+    set_port_ranges(sindex, new_ar);
 
     if ( is_ipv4() )
     {

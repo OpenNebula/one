@@ -24,6 +24,21 @@
   retries: 3
   delay: 10
 
+- name: Install ipcalc
+  package:
+    name: ipcalc
+    state: latest
+  register: pkg_result
+  until: pkg_result is succeeded
+  retries: 3
+  delay: 10
+  when: frr_ipcalc == true
+
+- name: Get network address
+  shell: ipcalc -bn "{{ ansible_default_ipv4.network }}/{{ frr_net_mask }}" | grep NETWORK | cut -d '=' -f2
+  register: frr_net
+  when: frr_ipcalc == true
+
 - name: Configure BGP (RR)
   template:
     src: bgpd_rr.conf.j2
@@ -35,6 +50,18 @@
     src: bgpd.conf.j2
     dest: /etc/frr/bgpd.conf
   when: not vars['ansible_' + frr_iface].ipv4.address in rr_servers
+
+- name: Configure Zebra
+  template:
+    src: zebra.conf.j2
+    dest: /etc/frr/zebra.conf
+  when: frr_zebra == true
+
+- name: Configure Staticd
+  template:
+    src: staticd.conf.j2
+    dest: /etc/frr/staticd.conf
+  when: frr_zebra == true
 
 - name: Enable BGP daemon
   replace:

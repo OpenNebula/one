@@ -1086,6 +1086,26 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             end
         end
 
+        if vm_hash['VM']['TEMPLATE']['NIC']
+            nic = [vm_hash['VM']['TEMPLATE']['NIC']]
+            nic = nic.flatten
+            nic = nic.select {|v| !v['EXTERNAL_PORT_RANGE'].nil? }[0]
+
+            if nic
+                ip   = vm_hash['VM']['HISTORY_RECORDS']['HISTORY']
+                ip   = [ip].flatten[-1]['HOSTNAME']
+                port = Integer(nic['EXTERNAL_PORT_RANGE'].split(':')[0]) + 21
+
+                puts
+                CLIHelper.print_header(str_h1 % 'PORT FORWARD', false)
+
+                puts "[#{nic['EXTERNAL_PORT_RANGE']}]:" \
+                     "[#{nic['INTERNAL_PORT_RANGE'].split('/')[0]}]"
+
+                puts "SSH on #{ip} at port #{port}"
+            end
+        end
+
         if !options[:all]
             while vm.has_elements?('/VM/TEMPLATE/NIC')
                 vm.delete_element('/VM/TEMPLATE/NIC')

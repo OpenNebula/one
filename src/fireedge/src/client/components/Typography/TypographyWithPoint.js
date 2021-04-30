@@ -11,7 +11,7 @@ const useStateStyles = makeStyles(theme => ({
       content: "''",
       display: 'inline-flex',
       marginRight: '0.5rem',
-      backgroundColor: ({ color }) => color,
+      background: ({ color }) => color,
       height: '0.7rem',
       width: '0.7rem',
       borderRadius: '50%'

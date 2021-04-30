@@ -161,6 +161,8 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 #vcenter
 #ovswitch_vxlan
 #bridge
+#elastic
+#nodeport
 #******
 */
 
@@ -173,6 +175,8 @@ void OpenNebulaTemplate::set_multiple_conf_default()
     set_conf_vn("vcenter", "vcenter_port_groups");
     set_conf_vn("ovswitch_vxlan", "openvswitch");
     set_conf_vn("bridge", "linux");
+    set_conf_vn("elastic", "linux");
+    set_conf_vn("nodeport", "linux");
 
     register_multiple_conf_default("VN_MAD_CONF");
 }

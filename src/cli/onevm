@@ -207,6 +207,20 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'Market to save oneshot'
     }
 
+    NIC_ID = {
+        :name   => 'nic_id',
+        :large  => '--nic-id nic_id',
+        :format => String,
+        :description => 'NIC to use when SSH'
+    }
+
+    CMD = {
+        :name   => 'cmd',
+        :large  => '--cmd cmd',
+        :format => String,
+        :description => 'CMD to run when SSH'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -1524,6 +1538,116 @@ CommandParser::CmdParser.new(ARGV) do
                 exit(-1)
             end
         end
+    end
+
+    ssh_desc = <<-EOT.unindent
+        SSH into VM
+    EOT
+
+    command :ssh, ssh_desc, :vmid, [:login, nil], :options => [NIC_ID, CMD] do
+        helper.perform_action(args[0], options, 'SSH') do |vm|
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
+            # Get user to login
+            args[1].nil? ? login = 'root' : login = args[1]
+
+            # Get CMD to run
+            options[:cmd].nil? ? cmd = '' : cmd = options[:cmd]
+
+            # Get NIC to connect
+            if options[:nic_id]
+                nic = vm.retrieve_xmlelements(
+                    "//TEMPLATE/NIC[NIC_ID=\"#{options[:nic_id]}\"]"
+                )[0]
+            else
+                nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[SSH="YES"]')[0]
+            end
+
+            nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[1]')[0] if nic.nil?
+
+            if nic.nil?
+                STDERR.puts 'No NIC found'
+                exit(-1)
+            end
+
+            # If there is node port
+            if nic['EXTERNAL_PORT_RANGE']
+                ip   = vm.to_hash['VM']['HISTORY_RECORDS']['HISTORY']
+                ip   = [ip].flatten[-1]['HOSTNAME']
+                port = Integer(nic['EXTERNAL_PORT_RANGE'].split(':')[0]) + 21
+            else
+                ip   = nic['IP']
+                port = 22
+            end
+
+            system("ssh #{login}@#{ip} -p #{port} #{cmd}")
+        end
+    end
+
+    port_desc = <<-EOT.unindent
+        Get port forwarding from a NIC, e.g:
+
+        1.2.3.4@4000 -> 1, means that to connect to VM port 1, you need to
+        connect to IP 1.2.3.4 in port 4000
+    EOT
+
+    command :'port-forward',
+            port_desc,
+            :vmid,
+            [:port, nil],
+            :options => NIC_ID do
+        helper.perform_action(args[0], options, 'Port Forward') do |vm|
+            rc = vm.info
+
+            if OpenNebula.is_error?(rc)
+                STDERR.puts rc.message
+                exit(-1)
+            end
+
+            if options[:nic_id]
+                nic = vm.retrieve_xmlelements(
+                    "//TEMPLATE/NIC[NIC_ID=\"#{options[:nic_id]}\"]"
+                )[0]
+            else
+                nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[SSH="YES"]')[0]
+            end
+
+            nic = vm.retrieve_xmlelements('//TEMPLATE/NIC[1]')[0] if nic.nil?
+
+            if nic.nil?
+                STDERR.puts 'No NIC found'
+                exit(-1)
+            end
+
+            if nic['EXTERNAL_PORT_RANGE'].nil?
+                STDERR.puts 'No PORT_RANGE found'
+                exit(-1)
+            end
+
+            ip = vm.to_hash['VM']['HISTORY_RECORDS']['HISTORY'][-1]['HOSTNAME']
+
+            e_range   = nic['EXTERNAL_PORT_RANGE'].split(':')
+            e_start_p = Integer(e_range[0])
+            e_end_p   = Integer(e_range[1])
+
+            i_range   = nic['INTERNAL_PORT_RANGE'].split('-')
+            i_start_p = Integer(i_range[0])
+            i_end_p   = Integer(i_range[1].split('/')[0])
+
+            if args[1].nil?
+                [*e_start_p..e_end_p].zip([*i_start_p..i_end_p]) do |p1, p2|
+                    puts "#{ip}@#{p1} -> #{p2}"
+                end
+            else
+                puts "#{ip}@#{e_start_p + Integer(args[1]) - 1} -> #{args[1]}"
+            end
+        end
+
     end
 
     # Deprecated commands

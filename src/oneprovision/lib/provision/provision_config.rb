@@ -298,7 +298,7 @@ module OneProvision
 
             check_rules
 
-            @config
+            @config.sort.to_h
         end
 
         ########################################################################

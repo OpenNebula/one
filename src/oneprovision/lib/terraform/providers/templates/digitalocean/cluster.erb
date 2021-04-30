@@ -1,0 +1,5 @@
+resource "digitalocean_vpc" "device_<%= obj['ID'] %>" {
+  name     = "vpc-digitalocean-<%= provision['REGION'] %>"
+  region   = "<%= provision['REGION'] %>"
+  ip_range = "10.10.10.0/24"
+}
