@@ -39,6 +39,9 @@ vnmad = File.basename(File.expand_path('..', File.dirname(__FILE__)))
 
 XPATH_NICS = "//TEMPLATE/NIC[VN_MAD='#{vnmad}']"
 XPATH_HV   = '//HISTORY/VM_MAD'
+
+OVS_VN_MADS = %w[ovswitch ovswitch_vxlan]
+
 #----------------------------------------------------------------------------
 
 template64 = STDIN.read
@@ -82,7 +85,12 @@ template.elements.each(XPATH_NICS) do |nic_element|
     break unless rc.success?
 
     # Add tap interface to the bridge
-    cmd = "#{command(:ip)} link set #{if_name} master #{bridge}"
+    if OVS_VN_MADS.include?(vnmad)
+        cmd = "#{command(:ovs_vsctl)} add-port #{bridge} #{if_name}"
+    else
+        cmd = "#{command(:ip)} link set #{if_name} master #{bridge}"
+    end
+
     _, _, rc = Open3.capture3(cmd)
 
     break unless rc.success?
