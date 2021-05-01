@@ -43,6 +43,9 @@ vnmad = File.basename(File.expand_path('..', File.dirname(__FILE__)))
 
 XPATH_NICS = "//TEMPLATE/NIC[VN_MAD='#{vnmad}']"
 XPATH_HV   = '//HISTORY/VM_MAD'
+
+OVS_VN_MADS = %w[ovswitch ovswitch_vxlan]
+
 #----------------------------------------------------------------------------
 
 template64 = STDIN.read
@@ -60,6 +63,7 @@ error = false
 
 template.elements.each(XPATH_NICS) do |nic_element|
     nic_id  = Integer(nic_element.elements['NIC_ID'].text)
+    bridge  = nic_element.elements['BRIDGE'].text
     if_name = "#{deploy_id}-#{nic_id}"
 
     # check if interface is already defined
@@ -69,7 +73,12 @@ template.elements.each(XPATH_NICS) do |nic_element|
     next unless rc.success?
 
     # Del tap interface from the bridge
-    cmd = "#{command(:ip)} link set #{if_name} nomaster"
+    if OVS_VN_MADS.include?(vnmad)
+        cmd = "#{command(:ovs_vsctl)} --if-exists del-port #{bridge} #{if_name}"
+    else
+        cmd = "#{command(:ip)} link set #{if_name} nomaster"
+    end
+
     _, e, rc = Open3.capture3(cmd)
 
     if !rc.success?
