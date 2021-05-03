@@ -1,6 +1,6 @@
 name: 'google-moncks'
 
-description: 'Elastic cluster on Google in Moncks'
+description: 'Virtual Edge Cluster in Google Moncks (us-east1-b)'
 provider: 'google'
 
 plain:

@@ -44,6 +44,7 @@ inputs:
   - name: 'one_hypervisor'
     type: list
     description: "Virtualization technology for the cluster hosts"
+    default: 'lxc'
     options:
         - 'qemu'
         - 'lxc'

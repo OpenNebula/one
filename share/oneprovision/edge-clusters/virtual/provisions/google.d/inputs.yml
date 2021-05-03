@@ -21,11 +21,6 @@ inputs:
     description: 'Number of Google instances to create'
     default: '1'
 
-  - name: 'number_public_ips'
-    type: text
-    description: 'Number of public IPs to get'
-    default: '1'
-
   - name: 'google_image'
     type: text
     description: "Google image used for host deployments"
@@ -39,6 +34,7 @@ inputs:
   - name: 'one_hypervisor'
     type: list
     description: "Virtualization technology for the cluster hosts"
+    default: 'lxc'
     options:
         - 'qemu'
         - 'lxc'

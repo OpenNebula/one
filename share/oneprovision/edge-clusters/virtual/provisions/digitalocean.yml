@@ -27,21 +27,13 @@ extends:
     - common.d/resources.yml
     - common.d/hosts.yml
     - digitalocean.d/datastores.yml
-    - digitalocean.d/defaults.yml
     - digitalocean.d/fireedge.yml
     - digitalocean.d/inputs.yml
     - digitalocean.d/networks.yml
 
 #-------------------------------------------------------------------------------
-# playbook: Ansible playbook used for hosts configuration.The digitalocean playbook
-# include the following roles:
-#    - ddc
-#    - opennebula-repository
-#    - opennebula-node-kvm
-#    - opennebula-ssh
-#    - tuntap
-#    - bridged-networking
-#    - iptables
+# playbook: Ansible playbook used for hosts configuration.
+# Check ansible/digitalocean.yml for the specific roles applied.
 #-------------------------------------------------------------------------------
 playbook:
   - digitalocean
@@ -67,8 +59,9 @@ defaults:
 #--------------------------------------------------------------------------------
 cluster:
   name: "${provision}"
-  description: 'digitalocean cluster'
-  datastores:
-    - 1
+  description: 'Digitalocean virtual edge cluster'
   reserved_cpu: '0'
   reserved_mem: '0'
+  datastores:
+    - 1
+    - 2
