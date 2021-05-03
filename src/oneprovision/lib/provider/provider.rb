@@ -188,19 +188,16 @@ module OneProvision
                 c_key  = CREDENTIALS_FILE[template['provider']]
                 c_file = template['connection'][c_key]
 
-                if base64?(c_file)
-                    credentials = c_file
-                else
-                    unless File.exist?(c_file)
-                        return OpenNebula::Error.new(
-                            "Credentials file doesn't exist"
-                        )
+                # Load credentials file if exists
+                begin
+                    if File.exist?(c_file)
+                        c_file = Base64.strict_encode64(File.read(c_file))
                     end
-
-                    credentials = Base64.strict_encode64(File.read(c_file))
+                rescue StandardError => e
+                    return OpenNebula::Error.new("Loading credentials: #{e}")
                 end
 
-                document['connection'][c_key] = credentials
+                document['connection'][c_key] = c_file
             end
 
             template.each do |key, value|
@@ -210,16 +207,6 @@ module OneProvision
             end
 
             document.to_json
-        end
-
-        # Check if value is in Base64 form
-        #
-        # @param value [Object] Object to check
-        #
-        # @return [Boolean] True if it is in Base64, false otherwise
-        def base64?(value)
-            value.is_a?(String) &&
-            Base64.strict_encode64(Base64.decode64(value)) == value
         end
 
     end
