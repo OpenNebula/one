@@ -18,27 +18,23 @@
 inputs:
   - name: 'number_hosts'
     type: text
-    description: "Number of metal servers to create"
-    default: '1'
-
-  - name: 'number_public_ips'
-    type: text
-    description: 'Number of public IPs to get'
+    description: "Number of Droplets to create"
     default: '1'
 
   - name: 'digitalocean_image'
     type: text
-    description: "digitalocean host operating system"
+    description: "Droplet host operating system"
     default: 'centos-8-x64'
 
   - name: 'digitalocean_size'
     type: text
-    description: "digitalocean host size"
+    description: "Droplet size"
     default: 's-1vcpu-1gb'
 
   - name: 'one_hypervisor'
     type: list
     description: "Virtualization technology for the cluster hosts"
+    default: 'lxc'
     options:
         - 'qemu'
         - 'lxc'

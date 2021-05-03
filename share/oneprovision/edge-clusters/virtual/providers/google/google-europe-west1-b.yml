@@ -1,6 +1,6 @@
 name: 'google-belgium'
 
-description: 'Elastic cluster on Google in Belgium'
+description: 'Virtual Edge Cluster in Google Belgium (europe-west1-b)'
 provider: 'google'
 
 plain:

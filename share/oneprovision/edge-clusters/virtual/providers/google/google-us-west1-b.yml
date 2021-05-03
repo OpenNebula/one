@@ -1,6 +1,6 @@
 name: 'google-oregon'
 
-description: 'Elastic cluster on Google in Oregon'
+description: 'Virtual Edge Cluster in Google Oregon (us-west1-b)'
 provider: 'google'
 
 plain:

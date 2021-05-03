@@ -1,6 +1,6 @@
 name: 'google-london'
 
-description: 'Elastic cluster on Google in London'
+description: 'Virtual Edge Cluster in Google London (europe-west2-b)'
 provider: 'google'
 
 plain:

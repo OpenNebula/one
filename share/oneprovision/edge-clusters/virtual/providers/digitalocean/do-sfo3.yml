@@ -1,6 +1,6 @@
-name: 'digitalocean-nyc3'
+name: 'digitalocean-sfo3'
 
-description: 'cluster on DigitalOcean in San Franciso 3'
+description: 'Virtual Edge Cluster in DigitalOcean datacenter in San Francisco (SFO3)'
 provider: 'digitalocean'
 
 plain:
@@ -16,4 +16,4 @@ inputs:
    - name: 'digitalocean_droplet'
      type: 'list'
      options:
-       - 'centos-7-x64'
+       - 'centos-8-x64'
