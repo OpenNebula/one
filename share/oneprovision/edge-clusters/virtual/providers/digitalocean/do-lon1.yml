@@ -1,6 +1,6 @@
-name: 'digitalocean-nyc3'
+name: 'digitalocean-lon1'
 
-description: 'cluster on DigitalOcean in London'
+description: 'Virtual Edge Cluster in DigitalOcean datacenter in London (LON1)'
 provider: 'digitalocean'
 
 plain:
@@ -16,4 +16,4 @@ inputs:
    - name: 'digitalocean_droplet'
      type: 'list'
      options:
-       - 'centos-7-x64'
+       - 'centos-8-x64'

@@ -33,7 +33,7 @@ extends:
 
 #-------------------------------------------------------------------------------
 # playbook: Ansible playbook used for hosts configuration.
-# Check ansible/googl.yml for the specific roles applied.
+# Check ansible/google.yml for the specific roles applied.
 #-------------------------------------------------------------------------------
 playbook:
   - google
