@@ -38,8 +38,10 @@ const Template = () => ({
       const templatesAvailable = providersTypes?.[providerSelected]
 
       useEffect(() => {
-        // Select the first provider type
-        setProvider(Object.keys(providersTypes)?.[0])
+        // Select the first provider type if not selected
+        if (provisionSelected && !providerSelected) {
+          setProvider(Object.keys(providersTypes)?.[0])
+        }
       }, [provisionSelected])
 
       const {
