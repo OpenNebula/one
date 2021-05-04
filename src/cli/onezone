@@ -263,9 +263,9 @@ CommandParser::CmdParser.new(ARGV) do
         Enable zone
     EOT
 
-    command :enable, enable_desc, :zoneid do
-        helper.perform_action(args[0], options, 'enable zone') do |o|
-            o.enable()
+    command :enable, enable_desc, [:range, :zoneid_list] do
+        helper.perform_actions(args[0], options, 'enable zone') do |o|
+            o.enable
         end
     end
 
@@ -273,9 +273,9 @@ CommandParser::CmdParser.new(ARGV) do
         Disable zone, disabled zones can execute only readonly commands
     EOT
 
-    command :disable, disable_desc, :zoneid do
-        helper.perform_action(args[0], options, 'disable zone') do |o|
-            o.disable()
+    command :disable, disable_desc, [:range, :zoneid_list] do
+        helper.perform_actions(args[0], options, 'disable zone') do |o|
+            o.disable
         end
     end
 end
