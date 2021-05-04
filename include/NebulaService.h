@@ -110,6 +110,16 @@ public:
     };
 
     /**
+     *  Returns the default share location. When ONE_LOCATION is defined this path
+     *  points to $ONE_LOCATION/share, otherwise it is /usr/share/one.
+     *      @return the log location.
+     */
+    const std::string& get_share_location() const
+    {
+        return share_location;
+    };
+
+    /**
      *  Returns the default vms location. When ONE_LOCATION is defined this path
      *  points to $ONE_LOCATION/var/vms, otherwise it is /var/lib/one/vms. This
      *  location stores vm related files: deployment, transfer, context, and
@@ -140,7 +150,7 @@ public:
      */
     static std::string code_version()
     {
-        return "5.9.90"; // bump version
+        return "6.1.80"; // bump version
     }
 
     /**
@@ -160,20 +170,6 @@ public:
     {
         return "6.2.0";
     }
-
-    // -----------------------------------------------------------------------
-    // Configuration attributes (read from oned.conf)
-    // -----------------------------------------------------------------------
-    /**
-     *  Gets a configuration attribute for oned
-     *    @param name of the attribute
-     *    @param value of the attribute
-     */
-    template<typename T>
-    void get_configuration_attribute(const std::string& name, T& value) const
-    {
-        config->get(name, value);
-    };
 
     /**
      *  Gets an XML document with all of the configuration attributes
@@ -208,6 +204,7 @@ protected:
             var_location     = "/var/lib/one/";
             remotes_location = "/var/lib/one/remotes/";
             vms_location     = "/var/lib/one/vms/";
+            share_location   = "/usr/share/one";
         }
         else
         {
@@ -224,6 +221,7 @@ protected:
             var_location     = nebula_location + "var/";
             remotes_location = nebula_location + "var/remotes/";
             vms_location     = nebula_location + "var/vms/";
+            share_location   = nebula_location + "share/";
         }
     };
 
@@ -233,9 +231,6 @@ protected:
     };
 
     std::unique_ptr<NebulaTemplate> config;
-
-private:
-    static NebulaService* nebula_service;
 
     // ---------------------------------------------------------------
     // Environment variables
@@ -249,6 +244,10 @@ private:
     std::string  var_location;
     std::string  remotes_location;
     std::string  vms_location;
+    std::string  share_location;
+
+private:
+    static NebulaService* nebula_service;
 };
 
 #endif /*NEBULA_SERVICE_H_*/
