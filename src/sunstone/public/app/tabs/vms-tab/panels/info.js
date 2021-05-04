@@ -25,9 +25,9 @@ define(function(require) {
   var OpenNebula = require("opennebula");
   var PermissionsTable = require("utils/panel/permissions-table");
   var RenameTr = require("utils/panel/rename-tr");
-  var Sunstone = require('sunstone');
+  var Sunstone = require("sunstone");
   var TemplateTable = require("utils/panel/template-table");
-  var TemplateUtils = require('utils/template-utils');
+  var TemplateUtils = require("utils/template-utils");
 
   /*
     TEMPLATES
@@ -43,9 +43,9 @@ define(function(require) {
   var PANEL_ID = require("./info/panelId");
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
-  var REGEX_VCENTER_ATTRS = /^VCENTER_/
+  var REGEX_VCENTER_ATTRS = /^VCENTER_/;
   // Get rid of the unwanted (for show) SCHED_* keys
-  var REGEX_HIDDEN_ATTRS = /^(USER_INPUTS|BACKUP)$|SCHED_|ERROR/
+  var REGEX_HIDDEN_ATTRS = /^(USER_INPUTS|BACKUP)$|SCHED_|ERROR/;
 
   /*
     CONSTRUCTOR
@@ -80,7 +80,7 @@ define(function(require) {
     var lcmStateClass = OpenNebula.VM.lcmStateClass(this.element.LCM_STATE);
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
     var IP = OpenNebula.VM.ipsStr(this.element, { forceGroup: true });
-    
+
     var vrouterHTML = "--";
 
     if (this.element.TEMPLATE.VROUTER_ID != undefined){
@@ -90,13 +90,13 @@ define(function(require) {
       );
     }
 
-    var deployId = (typeof(this.element.DEPLOY_ID) == "object" ? "--" : this.element.DEPLOY_ID);
+    var deployId = (typeof(this.element.DEPLOY_ID) === "object" ? "--" : this.element.DEPLOY_ID);
     var resched = (parseInt(this.element.RESCHED) ? Locale.tr("yes") : Locale.tr("no"));
 
     var attributes = TemplateTable.getTemplatesAttributes(this.element.USER_TEMPLATE, {
       regexVCenter: REGEX_VCENTER_ATTRS,
       regexHidden: REGEX_HIDDEN_ATTRS
-    })
+    });
 
     var templateTableHTML = TemplateTable.html(attributes.general, RESOURCE, Locale.tr("Attributes"));
     var templateTableVcenterHTML = TemplateTable.html(attributes.vcenter, RESOURCE, Locale.tr("vCenter information"));
@@ -114,13 +114,13 @@ define(function(require) {
     var monitoringTableContentHTML = !$.isEmptyObject(monitoring) && Humanize.prettyPrintJSON(monitoring);
 
     var errorMessageHTML = "";
-    if (this.element && 
+    if (this.element &&
         this.element.USER_TEMPLATE &&
         this.element.USER_TEMPLATE.ERROR){
-          errorMessageHTML = 
-            "<div class='row'>" + 
-              "<div class='large-9 columns'>" + 
-                "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable>" + 
+          errorMessageHTML =
+            "<div class='row'>" +
+              "<div class='large-9 columns'>" +
+                "<div class='callout warning warning-message' style='border-radius: .5em;' data-closable>" +
                   "<div class='row'>"+
                     "<div class='columns large-1'>" +
                       "<i class='fas fa-exclamation-circle'></i>"+
@@ -128,7 +128,7 @@ define(function(require) {
                     "<div class='columns large-9'>"+
                       "<p>" + this.element.USER_TEMPLATE.ERROR + "</p>" +
                     "</div>"+
-                    "<div class='columns large-2'>" + 
+                    "<div class='columns large-2'>" +
                         "<a id='close_vm_async_error' data-close>" +
                           "<u>Dismiss</u>"+
                         "</a>" +
@@ -157,21 +157,21 @@ define(function(require) {
       "templateTableHTML": templateTableHTML,
       "monitoringTableContentHTML": monitoringTableContentHTML,
       "vrouterHTML": vrouterHTML,
-      "errorMessageHTML": errorMessageHTML, 
+      "errorMessageHTML": errorMessageHTML
     });
   }
 
   function _setup(context) {
     var that = this;
-  
+
     RenameTr.setup(TAB_ID, RESOURCE, this.element.ID, context);
     PermissionsTable.setup(TAB_ID, RESOURCE, this.element, context);
-    
+
     var attributes = TemplateTable.getTemplatesAttributes(this.element.USER_TEMPLATE, {
       regexVCenter: REGEX_VCENTER_ATTRS,
       regexHidden: REGEX_HIDDEN_ATTRS
-    })
-    
+    });
+
     if($.isEmptyObject(attributes.vcenter)){
       $(".vcenter", context).hide();
     }
@@ -192,9 +192,9 @@ define(function(require) {
     });
 
     if (OpenNebula.VM.isvCenterVM(this.element)) {
-      $('button[href="VM.upload_marketplace_dialog"]').attr('disabled','disabled');
+      $("button[href=\"VM.upload_marketplace_dialog\"]").attr("disabled","disabled");
     } else {
-      $('button[href="VM.upload_marketplace_dialog"]').removeAttr('disabled');
+      $("button[href=\"VM.upload_marketplace_dialog\"]").removeAttr("disabled");
     }
   }
 });
