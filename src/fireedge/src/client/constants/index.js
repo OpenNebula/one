@@ -61,7 +61,8 @@ export const INPUT_TYPES = {
   SELECT: 'select',
   CHECKBOX: 'checkbox',
   SLIDER: 'slider',
-  AUTOCOMPLETE: 'autocomplete'
+  AUTOCOMPLETE: 'autocomplete',
+  FILE: 'file'
 }
 
 export const DEBUG_LEVEL = {

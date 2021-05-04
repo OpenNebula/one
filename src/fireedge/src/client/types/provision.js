@@ -55,7 +55,10 @@ export const ProvisionHost = PropTypes.shape({
 
 export const ProviderPlainInfo = PropTypes.shape({
   image: PropTypes.string,
-  location_key: PropTypes.string,
+  location_key: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.arrayOf(PropTypes.string)
+  ]),
   provision_type: ProvisionType.isRequired
 })
 

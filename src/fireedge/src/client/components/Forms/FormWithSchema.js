@@ -14,13 +14,14 @@ const InputController = {
   [INPUT_TYPES.SELECT]: FC.SelectController,
   [INPUT_TYPES.SLIDER]: FC.SliderController,
   [INPUT_TYPES.CHECKBOX]: FC.CheckboxController,
-  [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController
+  [INPUT_TYPES.AUTOCOMPLETE]: FC.AutocompleteController,
+  [INPUT_TYPES.FILE]: FC.FileController
 }
 const HiddenInput = ({ isHidden, children }) =>
   isHidden ? <Box display="none">{children}</Box> : children
 
 const FormWithSchema = ({ id, cy, fields }) => {
-  const { control, errors } = useFormContext()
+  const { control, errors, ...formContext } = useFormContext()
 
   return (
     <Grid container spacing={1}>
@@ -48,12 +49,13 @@ const FormWithSchema = ({ id, cy, fields }) => {
                   {React.createElement(InputController[type], {
                     control,
                     cy: dataCy,
-                    type: htmlTypeValue,
+                    error: inputError,
+                    formContext,
                     name: inputName,
+                    type: htmlTypeValue,
                     values: typeof values === 'function'
                       ? values(dependValue)
                       : values,
-                    error: inputError,
                     ...restOfProps
                   })}
                 </Grid>

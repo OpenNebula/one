@@ -111,3 +111,23 @@ export const groupBy = (array, key) =>
   }, {})
 
 export const cloneObject = obj => JSON.parse(JSON.stringify(obj))
+
+/**
+ * Check if value is in base64
+ *
+ * @param {String} stringToValidate String to check
+ * @param {Boolean} options.exact Only match and exact string
+ * @returns {Boolean}
+ */
+export const isBase64 = (stringToValidate, options = {}) => {
+  if (stringToValidate === '') return false
+
+  const { exact = true } = options
+
+  const BASE64_REG = /(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)/g
+  const EXACT_BASE64_REG = /(?:^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$)/
+
+  const regex = exact ? EXACT_BASE64_REG : BASE64_REG
+
+  return regex.test(stringToValidate)
+}

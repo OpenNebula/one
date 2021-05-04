@@ -4,6 +4,7 @@ import SelectController from 'client/components/FormControl/SelectController'
 import SliderController from 'client/components/FormControl/SliderController'
 import CheckboxController from 'client/components/FormControl/CheckboxController'
 import AutocompleteController from 'client/components/FormControl/AutocompleteController'
+import FileController from 'client/components/FormControl/FileController'
 
 import SubmitButton from 'client/components/FormControl/SubmitButton'
 import InputCode from 'client/components/FormControl/InputCode'
@@ -16,6 +17,7 @@ export {
   SliderController,
   CheckboxController,
   AutocompleteController,
+  FileController,
 
   SubmitButton,
   InputCode,

@@ -19,9 +19,7 @@ networks:
   - name: "${provision}-public"
     vn_mad: 'bridge'
     phydev: "${input.public_phydev}"
-    bridge: '${input.public_network_bridge}'
     netrole: 'public'
-    dns: "${input.dns}"
     ar:
       - type: IP4
         ip: "${input.first_public_ip}"
