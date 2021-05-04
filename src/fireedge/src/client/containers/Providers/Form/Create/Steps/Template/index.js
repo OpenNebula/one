@@ -1,18 +1,19 @@
 import React, { useCallback, useEffect } from 'react'
-import { Divider, Select, Breadcrumbs } from '@material-ui/core'
+import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@material-ui/core'
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
 import Marked from 'marked'
 
 import { useProvision, useListForm } from 'client/hooks'
 import { ListCards } from 'client/components/List'
-import { EmptyCard, ProvisionTemplateCard } from 'client/components/Cards'
+import { ProvisionTemplateCard } from 'client/components/Cards'
 import { sanitize } from 'client/utils'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
 import { T } from 'client/constants'
 
+import { STEP_FORM_SCHEMA } from 'client/containers/Providers/Form/Create/Steps/Template/schema'
+
 import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Providers/Form/Create/Steps/BasicConfiguration'
 import { STEP_ID as CONNECTION_ID } from 'client/containers/Providers/Form/Create/Steps/Connection'
-import { STEP_FORM_SCHEMA } from 'client/containers/Providers/Form/Create/Steps/Template/schema'
 
 export const STEP_ID = 'template'
 
@@ -59,14 +60,12 @@ const Template = () => ({
       }
 
       const handleClick = (template, isSelected) => {
-        const { name, description, plain = {}, connection } = template
-        const { location_key: locationKey = '' } = plain
-        const { [locationKey]: _, ...connectionEditable } = connection ?? {}
+        const { name, description } = template
 
         // reset rest of form when change template
         setFormData({
           [CONFIGURATION_ID]: { name, description },
-          [CONNECTION_ID]: connectionEditable
+          [CONNECTION_ID]: {}
         })
 
         isSelected
@@ -94,28 +93,40 @@ const Template = () => ({
         <>
           {/* -- SELECTORS -- */}
           <Breadcrumbs separator={<ArrowIcon color="secondary" />}>
-            <Select
-              color='secondary'
-              inputProps = {{ 'data-cy': 'select-provision-type' }}
-              native
-              style={{ minWidth: '8em' }}
-              onChange={handleChangeProvision}
-              value={provisionSelected}
-              variant='outlined'
-            >
-              <RenderOptions options={provisionsTemplates} />
-            </Select>
-            {provisionSelected && <Select
-              color='secondary'
-              inputProps = {{ 'data-cy': 'select-provider-type' }}
-              native
-              style={{ minWidth: '8em' }}
-              onChange={handleChangeProvider}
-              value={providerSelected}
-              variant='outlined'
-            >
-              <RenderOptions options={providersTypes} />
-            </Select>}
+            <FormControl>
+              <InputLabel color='secondary' shrink id='select-provision-type-label'>
+                {'Provision type'}
+              </InputLabel>
+              <Select
+                color='secondary'
+                inputProps={{ 'data-cy': 'select-provision-type' }}
+                labelId='select-provision-type-label'
+                native
+                style={{ marginTop: '1em', minWidth: '8em' }}
+                onChange={handleChangeProvision}
+                value={provisionSelected}
+                variant='outlined'
+              >
+                <RenderOptions options={provisionsTemplates} />
+              </Select>
+            </FormControl>
+            <FormControl>
+              <InputLabel color='secondary' shrink id='select-provider-type-label'>
+                {'Provider type'}
+              </InputLabel>
+              <Select
+                color='secondary'
+                inputProps={{ 'data-cy': 'select-provider-type' }}
+                labelId='select-provider-type-label'
+                native
+                style={{ marginTop: '1em', minWidth: '8em' }}
+                onChange={handleChangeProvider}
+                value={providerSelected}
+                variant='outlined'
+              >
+                <RenderOptions options={providersTypes} />
+              </Select>
+            </FormControl>
           </Breadcrumbs>
 
           {/* -- DESCRIPTION -- */}
@@ -129,22 +140,10 @@ const Template = () => ({
           <ListCards
             keyProp='name'
             list={templatesAvailable}
-            EmptyComponent={
-              <EmptyCard title={
-                !provisionSelected
-                  ? 'Please choose your provision type'
-                  : !providerSelected
-                      ? 'Please choose your provider type'
-                      : 'Your providers templates list is empty'
-              } />
-            }
             gridProps={{ 'data-cy': 'providers-templates' }}
             CardComponent={ProvisionTemplateCard}
             cardsProps={({ value = {} }) => {
-              const isSelected = data?.some(selected =>
-                selected.name === value.name
-              )
-
+              const isSelected = data?.some(selected => selected.name === value.name)
               const isValid = ProviderTemplateModel.isValidProviderTemplate(value)
 
               return {

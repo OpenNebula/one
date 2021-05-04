@@ -5,7 +5,6 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import cors from 'cors'
 import compression from 'compression'
-import bodyParser from 'body-parser'
 import { env } from 'process'
 import {
   accessSync,
@@ -124,8 +123,8 @@ if (appConfig.cors) {
   app.use(cors())
 }
 // post params parser body
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json())
 
 app.use(`${basename}/api`, entrypointApi) // opennebula Api routes
 const frontApps = Object.keys(defaultApps)

@@ -12,7 +12,7 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const providers = ['aws', 'packet', 'dummy']
+const providers = ['aws', 'packet', 'dummy', 'google', 'digitalocean']
 
 const provider = {
   id: '/Provider',

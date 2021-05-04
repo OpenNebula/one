@@ -34,30 +34,35 @@ export const PROVISIONS_STATES = [
   }
 ]
 
-export const PROVIDERS_TYPES = [
-  {
+export const PROVIDERS_TYPES = {
+  aws: {
     id: 'aws',
     name: 'AWS',
     color: '#ef931f'
   },
-  {
+  packet: {
     id: 'packet',
     name: 'Packet',
     color: '#364562'
   },
-  {
+  dummy: {
     id: 'dummy',
     name: 'Dummy',
     color: '#436637'
   },
-  {
+  google: {
     id: 'google',
     name: 'Google Cloud',
-    color: 'linear-gradient(90deg, #fbbc05 0%, #ea4335 33%, #34a853 66%, #4285f4 100%)'
+    color: '#dc382b'
   },
-  {
+  digitalocean: {
     id: 'digitalocean',
     name: 'Digital Ocean',
     color: '#2381f5'
   }
-]
+}
+
+export const CREDENTIALS_FILE = {
+  // Google Cloud provider needs an input file to credential connection
+  [PROVIDERS_TYPES.google.id]: 'credentials'
+}

@@ -7,7 +7,7 @@ import Connection from './Connection'
 const Steps = ({ isUpdate }) => {
   const template = Template()
   const configuration = BasicConfiguration({ isUpdate })
-  const connection = Connection()
+  const connection = Connection({ isUpdate })
 
   const steps = [configuration, connection]
   !isUpdate && steps.unshift(template)

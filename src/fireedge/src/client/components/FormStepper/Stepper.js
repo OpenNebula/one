@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     position: 'sticky',
     top: -15,
     minHeight: 100,
-    background: fade(theme.palette.background.paper, 0.65),
+    background: fade(theme.palette.background.paper, 0.95),
     zIndex: theme.zIndex.mobileStepper
   },
   icon: {
@@ -79,7 +79,7 @@ const CustomStepper = ({
                     error: classes.error
                   }
                 }}
-                {...(Boolean(errors[id]) && { error: true })}
+                {...(Boolean(errors[id]?.message) && { error: true })}
               >{Tr(label)}</StepLabel>
             </StepButton>
           </Step>
