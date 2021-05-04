@@ -1324,9 +1324,9 @@ CommandParser::CmdParser.new(ARGV) do
         Valid states are: All.
     EOT
 
-    command :lock, lock_desc, :vmid,
+    command :lock, lock_desc, [:range, :vmid_list],
             :options => [USE, MANAGE, ADMIN, ALL] do
-        helper.perform_action(args[0], options, 'VM locked') do |vm|
+        helper.perform_actions(args[0], options, 'VM locked') do |vm|
             if !options[:use].nil?
                 level = 1
             elsif !options[:manage].nil?
@@ -1347,8 +1347,8 @@ CommandParser::CmdParser.new(ARGV) do
         Valid states are: All.
     EOT
 
-    command :unlock, unlock_desc, :vmid do
-        helper.perform_action(args[0], options, 'VM unlocked') do |vm|
+    command :unlock, unlock_desc, [:range, :vmid_list] do
+        helper.perform_actions(args[0], options, 'VM unlocked') do |vm|
             vm.unlock
         end
     end
@@ -1361,7 +1361,7 @@ CommandParser::CmdParser.new(ARGV) do
         You can configure the actions in /etc/one/cli/onevm.yaml
     EOT
 
-    command :'create-chart', create_chart_desc, [:range, :vmid_list] do
+    command :'create-chart', create_chart_desc, :vmid do
         charters = helper.get_charters
 
         if charters.nil?
