@@ -182,7 +182,7 @@ define(function(require) {
       Object.keys(errors).forEach(function(element){
         if(element){
           render = $("<div/>", {class:"callout warning warning-message", style:"border-radius: .5em;" });
-          render.data("data-ids","dsad");
+          render.data("data-ids", errors[element]);
           render.append(
             $("<div/>", {class: "row"}).append(
               $("<div/>",{class: "columns large-1"}).append(
@@ -222,7 +222,7 @@ define(function(require) {
       "renameTrHTML": renameTrHTML,
       "permissionsTableHTML": permissionsTableHTML,
       "stateStr": OpenNebulaService.stateStr(this.element.TEMPLATE.BODY.state),
-      "prettyRegTime": prettyRegTime,
+      "prettyStartTime": prettyStartTime,
       "errorMessageHTML": errorMessageHTML,
     });
   }
