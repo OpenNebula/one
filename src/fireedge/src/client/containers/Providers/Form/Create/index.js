@@ -39,31 +39,26 @@ function ProviderCreateForm () {
     history.push(PATH.PROVIDERS.LIST)
   }
 
-  const callCreateProvider = formData => {
+  const callCreateProvider = async formData => {
     const { template, configuration, connection } = formData
 
     const templateSelected = template?.[0]
-    const { name, description } = configuration
 
     const isValid = ProviderTemplateModel.isValidProviderTemplate(templateSelected)
 
     !isValid && redirectWithError(`
-      The template selected has a bad format.
-      Ask your cloud administrator`
+    The template selected has a bad format.
+    Ask your cloud administrator`
     )
 
-    const { inputs, plain, provider } = templateSelected
-    const { location_key: locationKey } = plain
-
-    const connectionFixed = templateSelected.connection?.[locationKey]
+    const { name, description } = configuration
+    const connectionFixed = ProviderTemplateModel.getConnectionFixed(templateSelected)
 
     const formatData = {
-      connection: { ...connection, [locationKey]: connectionFixed },
+      ...templateSelected,
+      connection: { ...connection, ...connectionFixed },
       description,
-      inputs,
-      name,
-      plain,
-      provider
+      name
     }
 
     createProvider({ data: formatData })
@@ -75,17 +70,12 @@ function ProviderCreateForm () {
     const { description } = configuration
     const [provider = {}, connection = []] = data
 
-    const {
-      PLAIN: { location_key: locationKey } = {},
-      PROVISION_BODY: currentBodyTemplate
-    } = provider?.TEMPLATE
-
-    const { [locationKey]: connectionFixed } = connection
+    const { PROVISION_BODY: currentBodyTemplate } = provider?.TEMPLATE
 
     const formatData = {
       ...currentBodyTemplate,
       description,
-      connection: { ...connectionEditable, [locationKey]: connectionFixed }
+      connection: { ...connection, ...connectionEditable }
     }
 
     updateProvider({ id, data: formatData })
@@ -109,15 +99,17 @@ function ProviderCreateForm () {
       const [provider = {}, connection = []] = data
 
       const {
-        PLAIN: { location_key: locationKey } = {},
-        PROVISION_BODY: { description, name }
+        PLAIN = {},
+        PROVISION_BODY: { description, ...currentBodyTemplate }
       } = provider?.TEMPLATE
 
-      const { [locationKey]: _, ...connectionEditable } = connection
+      const connectionEditable = ProviderTemplateModel
+        .getConnectionEditable({ plain: PLAIN, connection })
 
       methods.reset({
+        template: [currentBodyTemplate],
         connection: connectionEditable,
-        configuration: { name, description }
+        configuration: { description }
       }, { errors: false })
     }
   }, [data])

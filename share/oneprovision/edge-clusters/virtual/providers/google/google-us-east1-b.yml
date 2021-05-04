@@ -5,7 +5,9 @@ provider: 'google'
 
 plain:
   image: 'GOOGLE'
-  location_key: 'zone'
+  location_key:
+    - 'region'
+    - 'zone'
   provision_type: 'virtual'
 
 connection:
