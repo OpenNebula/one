@@ -17,6 +17,7 @@
 #ifndef NEBULA_H_
 #define NEBULA_H_
 
+#include "NebulaService.h"
 #include "OpenNebulaTemplate.h"
 #include "SystemDB.h"
 
@@ -68,15 +69,13 @@ class VirtualMachineManager;
  *  to the main modules and data pools. It also includes functions to bootstrap
  *  the system and start all its components.
  */
-class Nebula
+class Nebula : public NebulaService
 {
 public:
 
     static Nebula& instance()
     {
-        static Nebula nebulad;
-
-        return nebulad;
+        return static_cast<Nebula&>(NebulaService::instance());
     };
 
     // --------------------------------------------------------------
@@ -265,96 +264,10 @@ public:
     // --------------------------------------------------------------
 
     /**
-     *  Returns the value of LOG->DEBUG_LEVEL in oned.conf file
-     *      @return the debug level, to instantiate Log'ers
-     */
-    Log::MessageType get_debug_level() const;
-
-    /**
-     *  Returns the value of LOG->SYSTEM in oned.conf file
-     *      @return the logging system CERR, FILE_TS or SYSLOG
-     */
-    NebulaLog::LogType get_log_system() const;
-
-    /**
-     *  Returns the value of ONE_LOCATION env variable. When this variable is
-     *  not defined the nebula location is "/".
-     *      @return the nebula location.
-     */
-    const std::string& get_nebula_location() const
-    {
-        return nebula_location;
-    };
-
-    /**
-     *  Returns the path where mad executables are stored, if ONE_LOCATION is
-     *  defined this path points to $ONE_LOCATION/bin, otherwise it is
-     *  /usr/lib/one/mads.
-     *      @return the mad execs location.
-     */
-    const std::string& get_mad_location() const
-    {
-        return mad_location;
-    };
-
-    /**
-     *  Returns the path where defaults for mads are stored, if ONE_LOCATION is
-     *  defined this path points to $ONE_LOCATION/etc, otherwise it is /etc/one
-     *      @return the mad defaults location.
-     */
-    const std::string& get_defaults_location() const
-    {
-        return etc_location;
-    };
-
-    /**
-     *  Returns the path where logs (oned.log, schedd.log,...) are generated
-     *  if ONE_LOCATION is defined this path points to $ONE_LOCATION/var,
-     *  otherwise it is /var/log/one.
-     *      @return the log location.
-     */
-    const std::string& get_log_location() const
-    {
-        return log_location;
-    };
-
-    /**
-     *  Returns the default var location. When ONE_LOCATION is defined this path
-     *  points to $ONE_LOCATION/var, otherwise it is /var/lib/one.
-     *      @return the log location.
-     */
-    const std::string& get_var_location() const
-    {
-        return var_location;
-    };
-
-    /**
-     *  Returns the default share location. When ONE_LOCATION is defined this path
-     *  points to $ONE_LOCATION/share, otherwise it is /usr/share/one.
-     *      @return the log location.
-     */
-    const std::string& get_share_location() const
-    {
-        return share_location;
-    };
-
-    /**
      *
      *
      */
     void get_ds_location(std::string& dsloc) const;
-
-    /**
-     *  Returns the default vms location. When ONE_LOCATION is defined this path
-     *  points to $ONE_LOCATION/var/vms, otherwise it is /var/lib/one/vms. This
-     *  location stores vm related files: deployment, transfer, context, and
-     *  logs (in self-contained mode only)
-     *      @return the vms location.
-     */
-    const std::string& get_vms_location() const
-    {
-        return vms_location;
-    };
 
     /**
      *  Returns the path of the log file for a VM, depending where OpenNebula is
@@ -374,46 +287,6 @@ public:
     {
         return hostname;
     };
-
-    /**
-     *  Returns the version of oned
-     *    @return the version
-     */
-    static std::string version()
-    {
-       std::ostringstream os;
-       os << "OpenNebula " << code_version();
-       os << " (" << GITVERSION << ")";
-
-       return os.str();
-    };
-
-    /**
-     *  Returns the version of oned
-     * @return
-     */
-    static std::string code_version()
-    {
-        return "6.0.2"; // bump version
-    }
-
-    /**
-     * Version needed for the DB, shared tables
-     * @return
-     */
-    static std::string shared_db_version()
-    {
-        return "6.0.0";
-    }
-
-    /**
-     * Version needed for the DB, local tables
-     * @return
-     */
-    static std::string local_db_version()
-    {
-        return "6.0.0";
-    }
 
     /**
      *  Starts all the modules and services for OpenNebula
@@ -471,7 +344,6 @@ public:
     // -----------------------------------------------------------------------
     // Configuration attributes (read from oned.conf)
     // -----------------------------------------------------------------------
-
     /**
      *  Gets a configuration attribute for oned
      *    @param name of the attribute
@@ -480,7 +352,7 @@ public:
     template<typename T>
     void get_configuration_attribute(const std::string& name, T& value) const
     {
-        nebula_configuration->get(name, value);
+        config->get(name, value);
     };
 
     /**
@@ -535,7 +407,7 @@ public:
             }
         }
 
-        nebula_configuration->get(name, value);
+        config->get(name, value);
 
         return 0;
     }
@@ -595,16 +467,6 @@ public:
     {
         return nebula_configuration->get_vm_auth_op(action);
     }
-
-    /**
-     *  Gets an XML document with all of the configuration attributes
-     *    @return the XML
-     */
-    std::string get_configuration_xml() const
-    {
-        std::string xml;
-        return nebula_configuration->to_xml(xml);
-    };
 
     /**
      *  Gets the database backend type
@@ -715,8 +577,6 @@ public:
         return system_db->update_sys_attribute(attr_name, xml_attr, error_str);
     };
 
-private:
-
     // -----------------------------------------------------------------------
     //Constructors and = are private to only access the class through instance
     // -----------------------------------------------------------------------
@@ -739,56 +599,16 @@ private:
         vntpool(0), hkpool(0), lcm(0), vmm(0), im(0), tm(0), dm(0), rm(0), hm(0),
         hl(0), authm(0), aclm(0), imagem(0), marketm(0), ipamm(0), raftm(0), frm(0)
     {
-        const char * nl = getenv("ONE_LOCATION");
-
-        if (nl == 0) //OpenNebula installed under root directory
-        {
-            nebula_location = "/";
-
-            mad_location     = "/usr/lib/one/mads/";
-            etc_location     = "/etc/one/";
-            log_location     = "/var/log/one/";
-            var_location     = "/var/lib/one/";
-            remotes_location = "/var/lib/one/remotes/";
-            vms_location     = "/var/lib/one/vms/";
-            share_location   = "/usr/share/one";
-        }
-        else
-        {
-            nebula_location = nl;
-
-            if ( nebula_location.at(nebula_location.size()-1) != '/' )
-            {
-                nebula_location += "/";
-            }
-
-            mad_location     = nebula_location + "lib/mads/";
-            etc_location     = nebula_location + "etc/";
-            log_location     = nebula_location + "var/";
-            var_location     = nebula_location + "var/";
-            remotes_location = nebula_location + "var/remotes/";
-            vms_location     = nebula_location + "var/vms/";
-            share_location   = nebula_location + "share/";
-        }
     };
 
     ~Nebula();
 
+private:
     Nebula& operator=(Nebula const&){return *this;};
 
     // ---------------------------------------------------------------
     // Environment variables
     // ---------------------------------------------------------------
-
-    std::string  nebula_location;
-
-    std::string  mad_location;
-    std::string  etc_location;
-    std::string  log_location;
-    std::string  var_location;
-    std::string  remotes_location;
-    std::string  vms_location;
-    std::string  share_location;
 
     std::string  hostname;
 
