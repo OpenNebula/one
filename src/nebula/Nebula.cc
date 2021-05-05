@@ -116,7 +116,6 @@ Nebula::~Nebula()
     delete ipamm;
     delete raftm;
     delete frm;
-    delete nebula_configuration;
     delete logdb;
     delete fed_logdb;
     delete system_db;
@@ -143,7 +142,8 @@ void Nebula::start(bool bootstrap_only)
     // Configuration
     // -----------------------------------------------------------
 
-    nebula_configuration = new OpenNebulaTemplate(etc_location, var_location);
+    config = make_unique<OpenNebulaTemplate>(etc_location, var_location);
+    nebula_configuration = static_cast<OpenNebulaTemplate*>(config.get());
 
     rc = nebula_configuration->load_configuration();
 
@@ -1237,49 +1237,6 @@ error_mad:
     throw runtime_error("Could not load an OpenNebula driver");
 }
 
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-Log::MessageType Nebula::get_debug_level() const
-{
-    Log::MessageType clevel = Log::ERROR;
-    int              log_level_int;
-
-    const VectorAttribute * log = nebula_configuration->get("LOG");
-
-    if ( log != 0 )
-    {
-        string value = log->vector_value("DEBUG_LEVEL");
-
-        log_level_int = atoi(value.c_str());
-
-        if ( Log::ERROR <= log_level_int && log_level_int <= Log::DDDEBUG )
-        {
-            clevel = static_cast<Log::MessageType>(log_level_int);
-        }
-    }
-
-    return clevel;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-NebulaLog::LogType Nebula::get_log_system() const
-{
-    NebulaLog::LogType log_system = NebulaLog::UNDEFINED;
-
-    const VectorAttribute * log = nebula_configuration->get("LOG");
-
-    if ( log != 0 )
-    {
-        string value = log->vector_value("SYSTEM");
-        log_system   = NebulaLog::str_to_type(value);
-    }
-
-    return log_system;
-};
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */

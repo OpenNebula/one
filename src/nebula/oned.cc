@@ -103,7 +103,7 @@ static int oned_main()
 {
     try
     {
-        Nebula& nd  = Nebula::instance();
+        Nebula nd;
         nd.start();
     }
     catch (exception &e)
