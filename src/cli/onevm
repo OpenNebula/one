@@ -1375,7 +1375,7 @@ CommandParser::CmdParser.new(ARGV) do
         charters.each do |action, time|
             sched = "+#{time[:time].to_i + acc_t}"
 
-            helper.schedule_actions(args[0],
+            helper.schedule_actions([args[0]].flatten,
                                     { :schedule => sched },
                                     action.to_s,
                                     time[:warning][:time] + acc_w)
