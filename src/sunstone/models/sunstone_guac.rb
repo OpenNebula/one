@@ -164,6 +164,21 @@ class SunstoneGuac < SunstoneRemoteConnections
             vm_resource["TEMPLATE/NIC_ALIAS[SSH='YES'][1]/EXTERNAL_IP"] ||
             vm_resource["TEMPLATE/NIC_ALIAS[SSH='YES'][1]/IP"]
 
+        external_port_range = vm_resource['TEMPLATE/
+                                           NIC[EXTERNAL_PORT_RANGE][1]/
+                                           EXTERNAL_PORT_RANGE']
+
+        if external_port_range
+            ip = vm_resource['HISTORY_RECORDS/
+                              HISTORY[HOSTNAME][last()]/
+                              HOSTNAME']
+
+            unless ip.nil?
+                hostname = ip
+                port = Integer(external_port_range.split(':')[0]) + 21
+            end
+        end
+
         if hostname.nil?
             error_message = 'Wrong configuration. Cannot find a NIC with SSH'
             return { :error => error(400, error_message) }
@@ -177,7 +192,7 @@ class SunstoneGuac < SunstoneRemoteConnections
         }.merge(
             {
                 'hostname' =>  hostname,
-                'port' =>  vm_resource['TEMPLATE/CONTEXT/SSH_PORT'],
+                'port' =>  port || vm_resource['TEMPLATE/CONTEXT/SSH_PORT'],
                 'username' =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
                 'password' =>  vm_resource['TEMPLATE/CONTEXT/PASSWORD']
             }

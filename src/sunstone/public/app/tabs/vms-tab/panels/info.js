@@ -80,6 +80,7 @@ define(function(require) {
     var lcmStateClass = OpenNebula.VM.lcmStateClass(this.element.LCM_STATE);
     var hostnameHTML = OpenNebula.VM.hostnameStrLink(this.element);
     var IP = OpenNebula.VM.ipsStr(this.element, { forceGroup: true });
+    var sshWithPortForwarding = OpenNebula.VM.getSshWithPortForwarding(this.element, true);
 
     var vrouterHTML = "--";
 
@@ -139,7 +140,6 @@ define(function(require) {
             "</div>";
     }
 
-
     return TemplateInfo({
       "element": this.element,
       "renameTrHTML": renameTrHTML,
@@ -151,6 +151,7 @@ define(function(require) {
       "prettyStartTime": prettyStartTime,
       "deployId": deployId,
       "IP": IP,
+      "sshWithPortForwarding": sshWithPortForwarding,
       "resched": resched,
       "permissionsTableHTML": permissionsTableHTML,
       "templateTableVcenterHTML": templateTableVcenterHTML,
