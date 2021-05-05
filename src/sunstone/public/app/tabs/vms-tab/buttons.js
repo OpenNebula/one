@@ -202,49 +202,49 @@ define(function(require) {
     "VM.startvnc" : {
       type: "action",
       id: "vm_vnc_action",
-      text: Locale.tr("VNC"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/noVNC.png"/></div>' + Locale.tr("VNC"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info vnc-button"
     },
     "VM.startvmrc" : {
       type: "action",
-      text: Locale.tr("VMRC"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/vmrc.png"/></div>' + Locale.tr("VMRC"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info vmrc-button"
     },
     "VM.startspice" : {
       type: "action",
-      text: Locale.tr("SPICE"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/spice.png"/></div>' + Locale.tr("SPICE"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info spice-sunstone-info"
     },
     "VM.save_virt_viewer" : {
       type: "action",
-      text: Locale.tr("VIRT-VIEWER FILE"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/virtviewer.png"/></div>' + Locale.tr("Virt Viewer"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vv-sunstone-info"
     },
     "VM.guac_vnc" : {
       type: "action",
-      text: Locale.tr("GUAC VNC"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div>' + Locale.tr("VNC"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info vnc-sunstone-info guac-button"
     },
     "VM.guac_ssh" : {
       type: "action",
-      text: Locale.tr("GUAC SSH"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div>' + Locale.tr("SSH"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info ssh-sunstone-info guac-button"
     },
     "VM.guac_rdp" : {
       type: "action",
-      text: Locale.tr("GUAC RDP"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div>' + Locale.tr("RDP"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info rdp-sunstone-info guac-button"
     },
     "VM.save_rdp" : {
       type: "action",
-      text: Locale.tr("RDP Client"),
+      text: '<div class="remote-logo-dropdown"><img src="images/remote_console/windows.png"/></div>' + Locale.tr("RDP Client"),
       layout: "vmsremote_buttons",
       custom_classes: "only-sunstone-info rdp-sunstone-info"
     },
