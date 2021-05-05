@@ -153,6 +153,12 @@ class FirecrackerVM < OpenNebulaVM
     def boot_source(hash)
         hash['kernel_image_path'] = 'kernel'
         hash['boot_args'] = @xml['//TEMPLATE/OS/KERNEL_CMD']
+
+        initrd = @xml['//TEMPLATE/OS/INITRD']
+
+        return if (initrd.nil? || initrd.empty?)
+
+        hash['initrd_path'] = File.basename(initrd, '/')
     end
 
     def machine_config(hash)
