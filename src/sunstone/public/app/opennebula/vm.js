@@ -775,28 +775,10 @@ define(function(require) {
       }
     },
     "hostnameStr": function(element) {
-      var state = element.STATE;
-      var hostname = "--";
-      if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
-        var history = retrieveLastHistoryRecord(element);
-        if (history) {
-          hostname = history.HOSTNAME;
-        };
-      };
-
-      return hostname;
+      return hostnameStr(element)
     },
     "hostnameStrLink": function(element) {
-      var state = element.STATE;
-      var hostname = "--";
-      if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
-        var history = retrieveLastHistoryRecord(element);
-        if (history) {
-          hostname = Navigation.link(history.HOSTNAME, "hosts-tab", history.HID);
-        };
-      };
-
-      return hostname;
+      return hostnameStr(element, true)
     },
     "clusterStr": function(element) {
       var state = element.STATE;
@@ -825,38 +807,75 @@ define(function(require) {
     "migrateActionStr": function(stateId) {
       return MIGRATE_ACTION_STR[stateId];
     },
-    "ipsStr": ipsStr,
-    "ipsDropdown": ipsDropdown,
     "groupByIpsStr": groupByIpsStr,
-    "retrieveExternalIPs": retrieveExternalIPs,
-    "retrieveExternalNetworkAttrs": retrieveExternalNetworkAttrs,
-    "isNICGraphsSupported": isNICGraphsSupported,
+    "hasConnection": hasConnection,
+    "ipsDropdown": ipsDropdown,
+    "ipsStr": ipsStr,
+    "getSshWithPortForwarding": getSshWithPortForwarding,
+    "isConnectionSupported": isConnectionSupported,
     "isDiskGraphsSupported": isDiskGraphsSupported,
     "isNICAttachSupported": isNICAttachSupported,
-    "isVNCSupported": isVNCSupported,
-    "isConnectionSupported": isConnectionSupported,
-    "isVMRCSupported": isVMRCSupported,
+    "isNICGraphsSupported": isNICGraphsSupported,
     "isSPICESupported": isSPICESupported,
+    "isVMRCSupported": isVMRCSupported,
+    "isVNCSupported": isVNCSupported,
     "isWFileSupported": isWFileSupported,
-    "hasConnection": hasConnection,
     "promiseGetVm" : _promiseGetVm,
+    "retrieveExternalIPs": retrieveExternalIPs,
+    "retrieveExternalNetworkAttrs": retrieveExternalNetworkAttrs,
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
     },
     "isvCenterVM": isVCenterVM,
   };
 
-  function _promiseGetVm({ id, success, async = true } = {}) {
+  function hostnameStr(element, navigationLink = false) {
+    var state = element.STATE;
+    var hostname = "--";
+    if (state == STATES.ACTIVE || state == STATES.SUSPENDED || state == STATES.POWEROFF) {
+      var history = retrieveLastHistoryRecord(element);
+      if (history) {
+        hostname = navigationLink
+          ? Navigation.link(history.HOSTNAME, "hosts-tab", history.HID)
+          : history.HOSTNAME;
+      };
+    };
+
+    return hostname;
+  }
+
+  function getSshWithPortForwarding(vm = {}, navigationLink = false) {
+    var nics = vm.TEMPLATE && vm.TEMPLATE.NIC || [];
+    
+    var nic = $.grep(nics, function (v) {
+      return v.EXTERNAL_PORT_RANGE !== undefined;
+    })[0];
+
+    if (nic) {
+      var ip = '<b>' + hostnameStr(vm, navigationLink) + '</b>';
+      var externalPortRange = '<b>' + nic.EXTERNAL_PORT_RANGE + '</b>';
+      var internalPortRange = '<b>' + nic.INTERNAL_PORT_RANGE.split('/')[0].replace('-', ':') + '</b>'
+      
+      return ip + ' ports ' + externalPortRange + ' forwarded to VM ports ' + internalPortRange;
+    }
+  }
+
+  function _promiseGetVm(options = {}) {
+    options = $.extend({
+      id: '',
+      async: true
+    }, options);
+
     return $.ajax({
-      url: "vm/" + id,
+      url: "vm/" + options.id,
       type: "GET",
       success: function(response) {
-        if (typeof success === "function") {
+        if (typeof options.success === "function") {
           var vm =  response ? response[RESOURCE] : undefined;
-          success(vm);
+          options.success(vm);
         }
       },
-      async: async
+      async: options.async
     });
   }
 
@@ -1039,6 +1058,7 @@ define(function(require) {
     else if (ips.length === 1)
       return "<p style=\"margin-bottom:0;\">"+ips[0]+"</p>";
 
+    var sshWithPortForwarding = getSshWithPortForwarding(element) || '';
     var firstIP = ipsHtml.split("<end_first_ip>")[0];
     ipsHtml = ipsHtml.split("<end_first_ip>")[1];
     ipsHtml =
@@ -1052,6 +1072,9 @@ define(function(require) {
           "<ul>" +
             ipsHtml +
           "</ul>" +
+          "<span style='white-space: nowrap;font-style: italic;'>" +
+            sshWithPortForwarding +
+          "</span>" +
         "</li>" +
       "</ul>";
     return ipsHtml;

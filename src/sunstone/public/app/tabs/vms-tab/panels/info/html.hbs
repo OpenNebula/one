@@ -69,6 +69,14 @@
           <td></td>
         </tr>
 
+        {{#if sshWithPortForwarding}}
+          <tr>
+            <td class="key_td">{{tr "Port forwarding"}}</td>
+            <td class="value_td">{{{sshWithPortForwarding}}}</td>
+            <td></td>
+          </tr>
+        {{/if}}
+
         <tr>
           <td class="key_td">{{tr "Start time"}}</td>
           <td class="value_td">{{prettyStartTime}}</td>
