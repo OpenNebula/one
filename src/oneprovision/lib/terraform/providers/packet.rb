@@ -57,7 +57,7 @@ module OneProvision
 
             ssh_key.split("\n").each {|key| user_data << "- #{key}\n" }
 
-            Base64.strict_encode64(user_data)
+            user_data.gsub("\n", '\\n')
         end
 
     end
