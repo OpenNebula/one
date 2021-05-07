@@ -105,29 +105,36 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
         CLIHelper.print_header(str_h1 % 'CLUSTER RESOURCES', false)
         cluster.info!
 
-        total_cpu = 0
-        used_cpu  = 0
-        total_ram = 0
-        used_ram  = 0
+        hosts = cluster.to_hash['CLUSTER']['HOSTS']['ID']
 
-        cluster.to_hash['CLUSTER']['HOSTS']['ID'].each do |h|
-            h = OpenNebula::Host.new_with_id(h, @client)
-            h.info!
-            h = h.to_hash
+        if hosts
+            total_cpu = 0
+            used_cpu  = 0
+            total_ram = 0
+            used_ram  = 0
 
-            total_cpu += h['HOST']['HOST_SHARE']['TOTAL_CPU'].to_i / 100
-            used_cpu  += h['HOST']['HOST_SHARE']['CPU_USAGE'].to_i / 100
-            total_ram += h['HOST']['HOST_SHARE']['TOTAL_MEM'].to_i / 1024 / 1024
-            used_ram  += h['HOST']['HOST_SHARE']['MEM_USAGE'].to_i / 1024 / 1024
+            hosts.each do |h|
+                h = OpenNebula::Host.new_with_id(h, @client)
+
+                h.info!
+
+                h = h.to_hash
+                h = h['HOST']['HOST_SHARE']
+
+                total_cpu += h['TOTAL_CPU'].to_i / 100
+                used_cpu  += h['CPU_USAGE'].to_i / 100
+                total_ram += h['TOTAL_MEM'].to_i / 1024 / 1024
+                used_ram  += h['MEM_USAGE'].to_i / 1024 / 1024
+            end
+
+            puts "TOTAL CPUs: #{total_cpu}"
+            puts "OCCUPIED CPUs: #{used_cpu}"
+            puts "AVAILABLE CPUs: #{total_cpu - used_cpu}"
+            puts
+            puts "TOTAL RAM: #{total_ram}"
+            puts "OCCUPIED RAM: #{used_ram}"
+            puts "AVAILABLE RAM: #{total_ram - used_ram}"
         end
-
-        puts "TOTAL CPUs: #{total_cpu}"
-        puts "OCCUPIED CPUs: #{used_cpu}"
-        puts "AVAILABLE CPUs: #{total_cpu - used_cpu}"
-        puts
-        puts "TOTAL RAM: #{total_ram}"
-        puts "OCCUPIED RAM: #{used_ram}"
-        puts "AVAILABLE RAM: #{total_ram - used_ram}"
 
         puts
         CLIHelper.print_header(str_h1 % 'CLUSTER TEMPLATE', false)
