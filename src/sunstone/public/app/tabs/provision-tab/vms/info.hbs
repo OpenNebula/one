@@ -35,22 +35,63 @@
         </li>
         <li class="provision-bullet-item-buttons">
           <ul class="menu provision_action_icons without-link">
-            <li>
-              <button href"#" title="{{tr "Open a remote console in a new window"}}" class="button radius provision_vnc_button tip-top">
-                <i class="fas fa-fw fa-lg fa-desktop"/></button>
-            </li>
-            <li>
-              <button href"#" title="{{tr "Download a file with RDP connection"}}" class="button radius provision_rdp_button tip-top">
-                <i class="fab fa-fw fa-lg fa-windows"/></button>
-            </li>
-            <li>
-              <button href"#" title="{{tr "Download a file with virt-viewer connection"}}" class="button radius provision_wfile_button tip-top">
-                <i class="fas fa-fw fa-lg fa-external-link-square-alt"/></button>
-            </li>
-            <li>
-              <button title="{{tr "You have to boot the Virtual Machine first"}}" class="button radius white provision_vnc_button_disabled disabled tip-top" disabled>
-                <i class="fas fa-fw fa-lg fa-desktop"/></button>
-            </li>
+
+            <ul class="dropdown-menu-css">
+              <li style="margin-bottom: 0;">
+                <div>
+                  <button href="#" class="button radius provision_remote_button tip-top">
+                    <i class="fas fa-fw fa-lg fa-desktop"/>
+                  </button>
+                </div>
+              </li>
+              <li class="menu-hide" style="margin: 0; width: max-content;">
+                <ul>
+                  <!-- noVNC button -->
+                  <li class="display-list margin-tlr-1">
+                    <a href="#" class="provision_vnc_button">
+                      <div class="remote-logo-dropdown"><img src="images/remote_console/noVNC.png"/></div> VNC
+                    </a>
+                  </li>
+                  <!-- SPICE button -->
+                  <li class="display-list margin-tlr-1">
+                    <a href="#" class="provision_spice_button">
+                      <div class="remote-logo-dropdown"><img src="images/remote_console/spice.png"/></div> SPICE
+                    </a>
+                  </li>
+                  <!-- RDP button -->
+                  <li class="display-list margin-tlr-1">
+                    <a href="#" class="provision_rdp_button">
+                      <div class="remote-logo-dropdown"><img src="images/remote_console/windows.png"/></div> RDP
+                    </a>
+                  </li>
+                  <!-- Virt Viewer File button -->
+                  <li class="display-list margin-tlr-1">
+                    <a href="#" class="provision_wfile_button">
+                      <div class="remote-logo-dropdown"><img src="images/remote_console/virtviewer.png"/></div> Virt Viewer
+                    </a>
+                  </li>
+                  <!-- Guacamole VNC button -->
+                  <li class="display-list margin-tlr-1">
+                    <a href="#" class="provision_guac_vnc_button">
+                      <div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div> VNC
+                    </a>
+                  </li>
+                  <!-- Guacamole RDP button -->
+                  <li class="display-list margin-tlr-1">
+                    <a href="#" class="provision_guac_rdp_button">
+                      <div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div> RDP
+                    </a>
+                  </li>
+                  <!-- Guacamole SSH button -->
+                  <li class="display-list margin-tlr-1">
+                    <a href="#" class="provision_guac_ssh_button">
+                      <div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div> SSH
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+
             {{#isTabActionEnabled "provision-tab" "VM.save_as_template"}}
             <li>
               <button href"#" title="{{tr "The disks of the Virtual Machine will be saved in a new Image"}}" class="button radius success provision_save_as_template_confirm_button tip-top">

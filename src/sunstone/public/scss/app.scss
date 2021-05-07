@@ -298,6 +298,20 @@ ul.dropdown-menu-css{
     & ul{
       margin: 0;
       list-style: none;
+
+      & > li{
+        display: inline-block;
+      }
+
+      & > li.display-list{
+        display: list-item;
+      }
+
+      & > li.margin-tlr-1{
+        margin-top: 1em;
+        margin-left: 1em;
+        margin-right: 1em;
+      }
     }
   }
 
@@ -319,5 +333,25 @@ ul.dropdown-menu-css{
 #dataTableMarketplaceApps{
   td{
     word-break: normal;
+  }
+}
+
+// Styles for remote consoles buttons
+.remote-logo-dropdown {
+  border-radius: 50%;
+  padding: 0.2em;
+  height: 2em;
+  width: 2em;
+  display: inline-block;
+  margin-right: 0.5em;
+  border-color: black;
+  border-width: thin;
+  border-style: solid;
+
+  img{
+      max-width: 100%;
+      height: auto;
+      display: inline-block;
+      vertical-align: middle;
   }
 }
