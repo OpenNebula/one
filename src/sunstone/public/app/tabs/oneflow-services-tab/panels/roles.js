@@ -234,7 +234,7 @@ define(function(require) {
                 : "<span class=\"has-tip\" title=\""+
                   Locale.tr("Waiting for the VM to be ready")+"\"><i class=\"fas fa-clock\"/></span>";
             }
-            ips = OpenNebulaVM.ipsStr(data, { forceGroup: true });
+            ips = OpenNebulaVM.ipsDropdown(data);
 
             actions = VMRemoteActions.renderActionsHtml(data);
           }
@@ -348,17 +348,23 @@ define(function(require) {
         event.stopPropagation();
       });
 
-      $("#" + that.serviceroleVMsDataTable.dataTableId).on("change", "tbody input.check_item", function() {
-        StateRolesVmButtons.disableAllStateActions();
-
-        // Enable actions available to any of the selected VMs
-        var nodes = $("tr", that.serviceroleVMsDataTable.dataTable); //visible nodes only
-        $.each($("input.check_item:checked", nodes), function() {
-          StateRolesVmButtons.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
+      $("#" + that.serviceroleVMsDataTable.dataTableId)
+        .on("click", "ul.dropdown-menu-css > .menu-hide", function(event) {
+          event.stopPropagation();
         });
 
-        return true;
-      });
+      $("#" + that.serviceroleVMsDataTable.dataTableId)
+        .on("change", "tbody input.check_item", function() {
+          StateRolesVmButtons.disableAllStateActions();
+
+          // Enable actions available to any of the selected VMs
+          var nodes = $("tr", that.serviceroleVMsDataTable.dataTable); //visible nodes only
+          $.each($("input.check_item:checked", nodes), function() {
+            StateRolesVmButtons.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
+          });
+
+          return true;
+        });
     }
   }
 });

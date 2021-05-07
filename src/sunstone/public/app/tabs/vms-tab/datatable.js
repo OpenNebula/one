@@ -183,6 +183,10 @@ define(function(require) {
 
     VMRemoteActions.bindActionsToContext("#" + this.dataTableId);
 
+    $("#" + this.dataTableId).on("click", "ul.dropdown-menu-css > .menu-hide", function(event) {
+      event.stopPropagation();
+    });
+
     $("#" + this.dataTableId).on("change", "tbody input.check_item", function() {
       if ($(this).is(":checked")){
         StateActions.enableStateActions($(this).attr("state"), $(this).attr("lcm_state"));
