@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react'
 import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 
-import { JWT_NAME, FILTER_POOL, ONEADMIN_ID, TIME_HIDE_LOGO } from 'client/constants'
+import { T, JWT_NAME, FILTER_POOL, ONEADMIN_ID, TIME_HIDE_LOGO } from 'client/constants'
 import { storage, findStorageData, removeStoreData, fakeDelay } from 'client/utils'
 
 import * as serviceAuth from 'client/services/auth'
@@ -84,7 +84,10 @@ const useAuth = () => {
       .then(() => dispatch(updateSetting))
       .then(() => serviceOne.getGroups())
       .then(groups => dispatch(setGroups(groups)))
-      .catch(err => dispatch(failureAuth({ error: err })))
+      .catch(() => {
+        dispatch(logoutRequest())
+        dispatch(failureAuth({ error: T.SessionExpired }))
+      })
   }, [dispatch, JWT_NAME, authUser])
 
   const setPrimaryGroup = useCallback(
