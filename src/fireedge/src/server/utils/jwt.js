@@ -14,7 +14,6 @@
 /* -------------------------------------------------------------------------- */
 
 const jwt = require('jwt-simple')
-const { DateTime } = require('luxon')
 const { messageTerminal } = require('./general')
 
 const createToken = (
@@ -42,35 +41,38 @@ const validateAuth = req => {
     const authorization = req.headers.authorization
     const removeBearer = new RegExp('^Bearer ', 'i')
     const token = authorization.replace(removeBearer, '')
-    try {
-      const payload = jwt.decode(token, global.FIREEDGE_KEY)
-      const now = DateTime.local()
-      if (
-        payload &&
-        'iss' in payload &&
-        'aud' in payload &&
-        'jti' in payload &&
-        'iat' in payload &&
-        'exp' in payload &&
-        payload.exp >= now.toSeconds()
-      ) {
-        const { iss, aud, jti, iat, exp } = payload
-        rtn = {
-          iss,
-          aud,
-          jti,
-          iat,
-          exp
+    const fireedgeKey = global && global.FIREEDGE_KEY
+    if (token && fireedgeKey) {
+      try {
+        const payload = jwt.decode(token, fireedgeKey)
+        if (
+          payload &&
+          'iss' in payload &&
+          'aud' in payload &&
+          'jti' in payload &&
+          'iat' in payload &&
+          'exp' in payload
+        ) {
+          const { iss, aud, jti, iat, exp } = payload
+          rtn = {
+            iss,
+            aud,
+            jti,
+            iat,
+            exp
+          }
         }
+      } catch (error) {
       }
-    } catch (error) {
-      const config = {
-        color: 'red',
-        type: 'ERROR',
-        error: (error && error.message) || '',
-        message: 'Error: %s'
+    } else {
+      const messageError = (!token && 'jwt') || (!fireedgeKey && 'fireedge_key')
+      if (messageError) {
+        messageTerminal({
+          color: 'red',
+          message: 'invalid: %s',
+          type: messageError
+        })
       }
-      messageTerminal(config)
     }
   }
   return rtn
