@@ -85,7 +85,7 @@ const Sidebar = memo(({ endpoints }) => {
       </Box>
     </Drawer>
   )
-}, (prev, next) => prev.endpoints === next.endpoints)
+}, (prev, next) => prev.endpoints.length === next.endpoints.length)
 
 Sidebar.propTypes = {
   endpoints: PropTypes.array

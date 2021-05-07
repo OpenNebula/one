@@ -39,14 +39,16 @@ const MainLayout = ({ endpoints, children }) => {
     isLoginInProcess,
     getAuthInfo,
     authUser,
-    firstRender
+    firstRender,
+    isLoading
   } = useAuth()
 
   useEffect(() => {
-    if (isLogged && !isLoginInProcess) {
+    console.log({ isLoading })
+    if (isLogged && !isLoginInProcess && !isLoading) {
       getAuthInfo()
     }
-  }, [isLogged, isLoginInProcess])
+  }, [isLogged, isLoginInProcess, pathname])
 
   const { authenticated } = findRouteByPathname(ENDPOINTS, pathname)
   const authRoute = Boolean(authenticated)
