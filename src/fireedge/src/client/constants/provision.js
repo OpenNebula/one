@@ -34,6 +34,21 @@ export const PROVISIONS_STATES = [
   }
 ]
 
+export const PROVISIONS_TYPES = {
+  metal: {
+    id: 'metal',
+    name: 'Metal'
+  },
+  onprem: {
+    id: 'onprem',
+    name: 'On-premise'
+  },
+  virtual: {
+    id: 'virtual',
+    name: 'Virtual'
+  }
+}
+
 export const PROVIDERS_TYPES = {
   aws: {
     id: 'aws',
