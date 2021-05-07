@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@material-ui/core'
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
 import Marked from 'marked'
@@ -6,9 +6,9 @@ import Marked from 'marked'
 import { useProvision, useListForm } from 'client/hooks'
 import { ListCards } from 'client/components/List'
 import { ProvisionTemplateCard } from 'client/components/Cards'
-import { sanitize } from 'client/utils'
+import { sanitize, groupBy } from 'client/utils'
 import * as ProvisionTemplateModel from 'client/models/ProvisionTemplate'
-import { T } from 'client/constants'
+import { T, PROVISIONS_TYPES, PROVIDERS_TYPES } from 'client/constants'
 
 import { STEP_ID as PROVIDER_ID } from 'client/containers/Provisions/Form/Create/Steps/Provider'
 import { STEP_ID as CONFIGURATION_ID } from 'client/containers/Provisions/Form/Create/Steps/BasicConfiguration'
@@ -23,23 +23,40 @@ const Template = () => ({
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
     const { provisionsTemplates, providers } = useProvision()
-
     const templateSelected = data?.[0]
 
     const [provisionSelected, setProvision] = React.useState(
-      () => templateSelected?.provision_type ?? Object.keys(provisionsTemplates)?.[0]
+      () => templateSelected?.provision_type
     )
 
-    const [providerSelected, setProvider] = React.useState(() => templateSelected?.provider)
+    const [providerSelected, setProvider] = React.useState(
+      () => templateSelected?.provider
+    )
 
-    const providersTypes = provisionsTemplates?.[provisionSelected]?.provisions ?? []
-    const provisionSelectedDescription = provisionsTemplates?.[provisionSelected]?.description
-    const templatesAvailable = providersTypes?.[providerSelected] ?? []
+    const templatesByProvisionType = useMemo(() => (
+      Object.values(provisionsTemplates)
+        .reduce((res, { provisions }) => ({
+          ...res,
+          ...groupBy(Object.values(provisions)?.flat(), 'provision_type')
+        }), {})
+    ), [])
+
+    const templatesByProvider = useMemo(() => (
+      groupBy(templatesByProvisionType[provisionSelected] ?? [], 'provider')
+    ), [provisionSelected])
+
+    const templatesAvailable = templatesByProvider?.[providerSelected] ?? []
+    const provisionDescription = provisionsTemplates?.[provisionSelected]?.description
 
     useEffect(() => {
-      // Select the first provider type if not selected
+      const firstProvisionType = Object.keys(templatesByProvisionType)[0]
+      !provisionSelected && setProvision(firstProvisionType)
+    }, [])
+
+    useEffect(() => {
       if (provisionSelected && !providerSelected) {
-        setProvider(Object.keys(providersTypes)?.[0])
+        const firstProviderType = Object.keys(templatesByProvider)[0]
+        setProvider(firstProviderType)
       }
     }, [provisionSelected])
 
@@ -78,10 +95,6 @@ const Template = () => ({
         : handleSelect(template)
     }
 
-    const RenderOptions = ({ options = {} }) => Object.keys(options)?.map(option => (
-      <option key={option} value={option}>{option}</option>
-    ))
-
     const RenderDescription = ({ description = '' }) => {
       const renderer = new Marked.Renderer()
 
@@ -104,14 +117,19 @@ const Template = () => ({
             </InputLabel>
             <Select
               color='secondary'
-              inputProps = {{ 'data-cy': 'select-provision-type' }}
+              inputProps={{ 'data-cy': 'select-provision-type' }}
+              labelId='select-provision-type-label'
               native
               style={{ marginTop: '1em', minWidth: '8em' }}
               onChange={handleChangeProvision}
               value={provisionSelected}
               variant='outlined'
             >
-              <RenderOptions options={provisionsTemplates} />
+              {Object.keys(templatesByProvisionType).map(key => (
+                <option key={key} value={key}>
+                  {PROVISIONS_TYPES[key]?.name ?? key}
+                </option>
+              ))}
             </Select>
           </FormControl>
           <FormControl>
@@ -120,22 +138,27 @@ const Template = () => ({
             </InputLabel>
             <Select
               color='secondary'
-              inputProps = {{ 'data-cy': 'select-provider-type' }}
+              inputProps={{ 'data-cy': 'select-provider-type' }}
+              labelId='select-provider-type-label'
               native
               style={{ marginTop: '1em', minWidth: '8em' }}
               onChange={handleChangeProvider}
               value={providerSelected}
               variant='outlined'
             >
-              <RenderOptions options={providersTypes} />
+              {Object.keys(templatesByProvider).map(key => (
+                <option key={key} value={key}>
+                  {PROVIDERS_TYPES[key]?.name ?? key}
+                </option>
+              ))}
             </Select>
           </FormControl>
         </Breadcrumbs>
 
         {/* -- DESCRIPTION -- */}
-        {React.useMemo(() => provisionSelectedDescription && (
-          <RenderDescription description={provisionSelectedDescription} />
-        ), [provisionSelectedDescription])}
+        {React.useMemo(() => provisionDescription && (
+          <RenderDescription description={provisionDescription} />
+        ), [provisionDescription])}
 
         <Divider style={{ margin: '1rem 0' }} />
 
