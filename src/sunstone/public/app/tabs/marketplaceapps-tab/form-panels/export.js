@@ -24,8 +24,10 @@ define(function(require) {
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
   var DataStoresTable = require("tabs/datastores-tab/datatable");
+  var TemplatesTable = require("tabs/templates-tab/datatable");
   var DockerTagsTable = require("./docker-tags");
   var DataStore = require("opennebula/datastore");
+  var Template = require("opennebula/template");
 
   /*
     TEMPLATES
@@ -59,6 +61,18 @@ define(function(require) {
     return r;
   }
 
+  function getTemplates(formPanelId){
+    var r = null;
+    if(formPanelId){
+      r = new TemplatesTable(
+        formPanelId + "templatesTable", {
+          "select": true
+        }
+      );
+    }
+    return r;
+  }
+
   function _getDockerTagsTable(formPanelId, resourceId){
     return (formPanelId)
       ? new DockerTagsTable(
@@ -79,6 +93,7 @@ define(function(require) {
     };
 
     this.datastoresTable = getDataStore(FORM_PANEL_ID);
+    this.vCenterTemplatesTable = getTemplates(FORM_PANEL_ID);
 
     BaseFormPanel.call(this);
   }
@@ -102,7 +117,8 @@ define(function(require) {
   function _htmlWizard() {
     return TemplateWizardHTML({
       "formPanelId": this.formPanelId,
-      "datastoresTableHTML": this.datastoresTable.dataTableHTML
+      "datastoresTableHTML": this.datastoresTable.dataTableHTML,
+      "vCenterTemplatesTableHTML": this.vCenterTemplatesTable.dataTableHTML
     });
   }
 
@@ -121,8 +137,10 @@ define(function(require) {
       }
 
       this.datastoresTable.resetResourceTableSelect();
+      this.vCenterTemplatesTable.resetResourceTableSelect();
     }
     $("#NAME", context).focus();
+    $("#placeDatatablevCenterTemplate", context).hide();
     return false;
   }
 
@@ -131,12 +149,30 @@ define(function(require) {
     Tips.setup(context);
     this.datastoresTable.initialize();
     this.datastoresTable.idInput().attr("required", "");
+    this.vCenterTemplatesTable.initialize();
     $("input#NAME", context).on("input", function(){
       var vmname = $("#VMNAME", context).val();
       if (vmname == "" || vmname == $(this).data("prev")){
         $("#VMNAME", context).val($(this).val());
       }
       $(this).data("prev", $(this).val());
+    });
+
+    var that = this;
+    var section = $("#" + that.datastoresTable.dataTableId + "Container");
+    $("#" + that.datastoresTable.dataTableId + " tbody", section).delegate("tr", "click", function(e) {
+      var wasChecked = $("td.markrow", this).hasClass("markrow");
+      console.log({"dsTable": that.datastoresTable})
+      var aData = that.datastoresTable.dataTable.fnGetData(this);
+      var check = aData != undefined && !wasChecked;
+
+      if (aData[9] == "vcenter"){
+        $("#placeDatatablevCenterTemplate", context).show();
+      }
+      else{
+        $("#placeDatatablevCenterTemplate", context).hide();
+      }
+      return true;
     });
   }
 
@@ -150,7 +186,12 @@ define(function(require) {
         ? ds.TYPE == DataStore.TYPES.FILE_DS
         : ds.TYPE == DataStore.TYPES.IMAGE_DS;
     }
-    this.datastoresTable.updateFn()
+    this.datastoresTable.updateFn();
+
+    this.vCenterTemplatesTable.selectOptions.filter_fn = function(template) {   
+      return template.TEMPLATE.HYPERVISOR === "vcenter";
+    }
+    this.vCenterTemplatesTable.updateFn()
 
     $("input#NAME", context).val(appJson.MARKETPLACEAPP.NAME).trigger("input");
 
@@ -182,7 +223,8 @@ define(function(require) {
       "name" : $("#NAME", context).val(),
       "vmtemplate_name" : $("#VMNAME", context).val(),
       "dsid" : this.datastoresTable.idInput().val(),
-      "notemplate" : $("#NOTEMPLATE", context).is(':checked')
+      "notemplate" : $("#NOTEMPLATE", context).is(':checked'),
+      "vcenter_template" : this.vCenterTemplatesTable.idInput().val()
     };
 
     if (this.dockertagsTable) {
@@ -193,4 +235,3 @@ define(function(require) {
     return false;
   }
 });
-
