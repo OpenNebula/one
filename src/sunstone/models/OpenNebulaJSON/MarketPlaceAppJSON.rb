@@ -172,6 +172,7 @@ module OpenNebulaJSON
             name = params['name']
             vmtemplate_name = params['vmtemplate_name']
             notemplate =  [true, 'true'].include?(params['notemplate'])
+            template = params['vcenter_template'] != "" ? params['vcenter_template'].to_i : nil
 
             tag ="tag=#{params['tag']}" if params['tag'] && !params['tag'].empty?
             rc = export({
@@ -179,7 +180,8 @@ module OpenNebulaJSON
                 :name => name,
                 :vmtemplate_name => vmtemplate_name,
                 :notemplate => notemplate,
-                :url_args => tag
+                :url_args => tag,
+                :template => template
             })
 
             if OpenNebula.is_error?(rc)
