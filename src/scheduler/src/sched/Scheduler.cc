@@ -334,20 +334,26 @@ void Scheduler::start()
     // -----------------------------------------------------------
     // Close stds, we no longer need them
     // -----------------------------------------------------------
+    if (NebulaLog::log_type() != NebulaLog::STD )
+    {
+        int fd = open("/dev/null", O_RDWR);
 
-    int fd;
+        dup2(fd,0);
+        dup2(fd,1);
+        dup2(fd,2);
 
-    fd = open("/dev/null", O_RDWR);
+        close(fd);
 
-    dup2(fd,0);
-    dup2(fd,1);
-    dup2(fd,2);
-
-    close(fd);
-
-    fcntl(0,F_SETFD,0); // Keep them open across exec funcs
-    fcntl(1,F_SETFD,0);
-    fcntl(2,F_SETFD,0);
+        fcntl(0, F_SETFD, 0); // Keep them open across exec funcs
+        fcntl(1, F_SETFD, 0);
+        fcntl(2, F_SETFD, 0);
+    }
+    else
+    {
+        fcntl(0, F_SETFD, FD_CLOEXEC);
+        fcntl(1, F_SETFD, FD_CLOEXEC);
+        fcntl(2, F_SETFD, FD_CLOEXEC);
+    }
 
     // -----------------------------------------------------------
     // Block all signals before creating any  thread
