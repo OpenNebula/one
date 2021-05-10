@@ -14,6 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const upcast = require('upcast')
+// eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const rpc = require('xmlrpc')
 const xml2js = require('xml2js')

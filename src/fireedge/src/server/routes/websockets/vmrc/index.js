@@ -12,6 +12,8 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
+// eslint-disable-next-line node/no-deprecated-api
+const { parse } = require('url')
 const { createProxyMiddleware } = require('http-proxy-middleware')
 const { readFileSync } = require('fs-extra')
 const { getConfig } = require('server/utils/yml')
@@ -43,18 +45,19 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   // eslint-disable-next-line consistent-return
   router: req => {
     if (req && req.url) {
-      // Needs to be reviewed require('path')
-      const ticket = req.url.split('/')[3]
-      const filterTicket = ticket.split('?')[0]
-      try {
-        const esxi = readFileSync(
-          `${global.VMRC_TOKENS || ''}/${filterTicket}`
-        ).toString()
-        return esxi
-      } catch (error) {
-        config.type = error.message
-        config.message = 'Error read vmrc token: %s'
-        messageTerminal(config)
+      const parseURL = parse(req.url)
+      if (parseURL && parseURL.pathname) {
+        const ticket = parseURL.pathname.split('/')[3]
+        try {
+          const esxi = readFileSync(
+            `${global.VMRC_TOKENS || ''}/${ticket}`
+          ).toString()
+          return esxi
+        } catch (error) {
+          config.type = error.message
+          config.message = 'Error read vmrc token: %s'
+          messageTerminal(config)
+        }
       }
     }
   }
