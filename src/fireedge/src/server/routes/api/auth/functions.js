@@ -161,15 +161,16 @@ const validate2faAuthentication = informationUser => {
 }
 
 const genJWT = (token, informationUser) => {
-  if (token && informationUser && informationUser.ID && informationUser.PASSWORD) {
+  if (token && token.token && informationUser && informationUser.ID && informationUser.PASSWORD) {
     const { ID: id, TEMPLATE: userTemplate } = informationUser
-    const dataJWT = { id, user, token }
-    const jwt = createToken(dataJWT, nowUnix, nowWithMinutes.toSeconds())
+    const dataJWT = { id, user, token: token.token }
+    const addTime = token.expiration_time || nowWithMinutes.toSeconds()
+    const jwt = createToken(dataJWT, nowUnix, addTime)
     if (jwt) {
       if (!global.users) {
         global.users = {}
       }
-      global.users[user] = token
+      global.users[user] = token.token
       const rtn = { token: jwt, id }
       if (userTemplate && userTemplate.SUNSTONE && userTemplate.SUNSTONE.LANG) {
         rtn.language = userTemplate.SUNSTONE.LANG
@@ -221,7 +222,7 @@ const setZones = () => {
   }
 }
 
-const login = (userData) => {
+const login = userData => {
   let rtn = true
   if (userData) {
     const findTextError = `[${namespace + defaultMethodUserInfo}]`
@@ -272,7 +273,12 @@ const getValidOpennebulaToken = userDataTokens => {
         parseInt(token.EXPIRATION_TIME, 10) >= nowUnix + (parseInt(minimumExpirationTime, 10) * 60)
       )
     })
-    rtn = validToken && validToken.TOKEN
+    if (validToken && validToken.TOKEN && validToken.EXPIRATION_TIME) {
+      rtn = {
+        token: validToken.TOKEN,
+        expiration_time: validToken.EXPIRATION_TIME
+      }
+    }
   }
   return rtn
 }
@@ -303,7 +309,7 @@ const authenticate = (token, userData) => {
   const findTextError = `[${namespace + defaultMethodLogin}]`
   if (token && userData) {
     if (token.indexOf(findTextError) < 0) {
-      genJWT(token, userData)
+      genJWT({ token }, userData)
     }
   }
   next()
