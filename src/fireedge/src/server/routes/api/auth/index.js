@@ -12,13 +12,13 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { AUTH } = require('./string-routes');
-const { httpMethod } = require('server/utils/constants/defaults');
-const { auth } = require('./auth');
+const { AUTH } = require('./string-routes')
+const { httpMethod } = require('server/utils/constants/defaults')
+const { auth } = require('./auth')
 
-const { POST } = httpMethod;
+const { POST } = httpMethod
 
-const privateRoutes = [];
+const privateRoutes = []
 
 const publicRoutes = [
   {
@@ -26,11 +26,11 @@ const publicRoutes = [
     endpoint: AUTH,
     action: auth
   }
-];
+]
 
 const functionRoutes = {
   private: privateRoutes,
   public: publicRoutes
-};
+}
 
-module.exports = functionRoutes;
+module.exports = functionRoutes
