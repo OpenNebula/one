@@ -58,10 +58,7 @@ module OneProvision
 
             ssh_key.split("\n").each {|key| user_data << "- #{key}\n" }
 
-            # Escape \n to avoid multilines in Terraform deploy file
-            user_data.gsub!("\n", '\\n')
-
-            user_data
+            Base64.strict_encode64(user_data)
         end
 
     end
