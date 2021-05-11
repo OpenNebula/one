@@ -231,7 +231,7 @@ CommandParser::CmdParser.new(ARGV) do
 
         Example:
 
-        - Instantiate a template and add a new disk
+        - Instantiate a template and add a new NIC
             onetemplate instantiate 23 --nic private_net
 
         - Instanteiate a template and replace CONTEXT with a new one
