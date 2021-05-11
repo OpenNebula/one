@@ -225,8 +225,17 @@ CommandParser::CmdParser.new(ARGV) do
         Creates a new VM instance from the given Template. This VM can be
         managed with the 'onevm' command.
 
-        The source Template can be modified adding or replacing attributes with
-        the optional file argument, or with the options.
+        The source Template can be modified by replacing existing attributes; or
+        adding new DISK or NIC elements. The new attributes can be specified with the
+        command options or the file argument.
+
+        Example:
+
+        - Instantiate a template and add a new disk
+            onetemplate instantiate 23 --nic private_net
+
+        - Instanteiate a template and replace CONTEXT with a new one
+            onetemplate instantiate 23 --startscript /path/to/my/start_script
     EOT
 
     command :instantiate, instantiate_desc, :templateid, [:file, nil],
