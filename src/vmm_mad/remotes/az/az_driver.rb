@@ -33,14 +33,25 @@ AZ_DRIVER_CONF    = "#{ETC_LOCATION}/az_driver.conf"
 AZ_DRIVER_DEFAULT = "#{ETC_LOCATION}/az_driver.default"
 AZ_DATABASE_PATH  = "#{VAR_LOCATION}/remotes/im/az.d/az-cache.db"
 
+# %%RUBYGEMS_SETUP_BEGIN%%
 if File.directory?(GEMS_LOCATION)
     real_gems_path = File.realpath(GEMS_LOCATION)
     if !defined?(Gem) || Gem.path != [real_gems_path]
         $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
-        require 'rubygems'
-        Gem.use_paths(real_gems_path)
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
     end
 end
+# %%RUBYGEMS_SETUP_END%%
 
 $LOAD_PATH << RUBY_LIB_LOCATION
 

@@ -33,14 +33,27 @@ module NSXDriver
             unless defined?(GEMS_LOCATION)
     end
 
-    if File.directory?(GEMS_LOCATION)
-        real_gems_path = File.realpath(GEMS_LOCATION)
-        if !defined?(Gem) || Gem.path != [real_gems_path]
-            $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+# rubocop: disable all
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
             require 'rubygems'
             Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
         end
     end
+end
+# %%RUBYGEMS_SETUP_END%%
+# rubocop: enable all
 
     $LOAD_PATH << RUBY_LIB_LOCATION
 

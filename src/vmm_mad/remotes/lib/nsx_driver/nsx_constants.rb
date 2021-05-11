@@ -6,7 +6,7 @@
 # a copy of the License at                                                   #
 #                                                                            #
 # http://www.apache.org/licenses/LICENSE-2.0                                 #
-#                                                                             #
+#                                                                            #
 # Unless required by applicable law or agreed to in writing, software        #
 # distributed under the License is distributed on an "AS IS" BASIS,          #
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
@@ -29,14 +29,27 @@ module NSXDriver
             unless defined?(GEMS_LOCATION)
     end
 
-    if File.directory?(GEMS_LOCATION)
-        real_gems_path = File.realpath(GEMS_LOCATION)
-        if !defined?(Gem) || Gem.path != [real_gems_path]
-            $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+# rubocop: disable all
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
             require 'rubygems'
             Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
         end
     end
+end
+# %%RUBYGEMS_SETUP_END%%
+# rubocop: enable all
 
     $LOAD_PATH << RUBY_LIB_LOCATION
 

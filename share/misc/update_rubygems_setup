@@ -14,19 +14,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
-# -------------------------------------------------------------------------- #
+#--------------------------------------------------------------------------- #
 
-ONE_LOCATION ||= ENV['ONE_LOCATION'] unless defined? ONE_LOCATION
+# Reads all files in **CURRENT DIRECTORY and SUBDIRECTORIES** and looks
+# for the section labels which contain the setup code of the bundled
+# Ruby gems. Replaces the content with the one configured below.
 
-if !ONE_LOCATION
-    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
-    GEMS_LOCATION     ||= '/usr/share/one/gems'
-else
-    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
-    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-end
+# Section begin and end labels
+RG_SETUP_BEGIN = '%%RUBYGEMS_SETUP_BEGIN%%'
+RG_SETUP_END   = '%%RUBYGEMS_SETUP_END%%'
 
-# %%RUBYGEMS_SETUP_BEGIN%%
+# Bundled Ruby gems loader code.
+# IMPORTANT: Update here and commit into Git as well!
+# rubocop:disable Layout/HeredocIndentation
+RG_SETUP = <<-'EOT'
 if File.directory?(GEMS_LOCATION)
     real_gems_path = File.realpath(GEMS_LOCATION)
     if !defined?(Gem) || Gem.path != [real_gems_path]
@@ -44,18 +45,48 @@ if File.directory?(GEMS_LOCATION)
         end
     end
 end
-# %%RUBYGEMS_SETUP_END%%
+EOT
+# rubocop:enable Layout/HeredocIndentation
 
-$LOAD_PATH << RUBY_LIB_LOCATION
+#####
 
-require 'ec2_driver'
+SCRIPT_FILE = File.expand_path(__FILE__)
 
-host    = ARGV[-1]
-host_id = ARGV[-2]
-ec2_drv = EC2Driver.new(host, host_id)
+updated = []
 
-begin
-    puts ec2_drv.probe_vm_monitor
-rescue StandardError => e
-    OpenNebula.handle_driver_exception('im probe_vm_monitor', e, host)
+# iterate over all files
+Dir.glob('**/*') do |name|
+    next if File.directory?(name) || File.expand_path(name) == SCRIPT_FILE
+
+    old = File.read(name, :encoding => 'iso-8859-1')
+
+    # detect right files by checking for the begin section label
+    if old.include?(RG_SETUP_BEGIN)
+        unless old.include?(RG_SETUP_END)
+            STDERR.puts "ERROR: File #{name} doesn't contain RG end label"
+            exit 1
+        end
+
+        # replace all text inside labels by RG_SETUP code
+        new = old.gsub(
+            /(#{RG_SETUP_BEGIN}[^\n]*).*\n([^\n]*#{RG_SETUP_END})/m,
+            "\\1\n#{RG_SETUP.chomp}\n\\2"
+        )
+
+        if new != old
+            updated << name
+
+            File.open(name, 'w') do |f|
+                f.write(new)
+            end
+        end
+    end
+end
+
+# report
+if updated.empty?
+    STDERR.puts 'WARNING: No files updated'
+else
+    STDERR.puts "Updated #{updated.length} files:"
+    puts updated.join("\n")
 end
