@@ -19,48 +19,50 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Config = require('sunstone-config');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var WizardFields = require('utils/wizard-fields');
-  var TemplateUtils = require('utils/template-utils');
-  var CustomTagsTable = require('utils/custom-tags-table');
-  var FilesTable = require('tabs/files-tab/datatable')
-  var OpenNebulaHost = require('opennebula/host');
-  var UserInputs = require('utils/user-inputs');
-  var UniqueId = require('utils/unique-id');
-  var OpenNebula = require('opennebula');
+  var Config = require("sunstone-config");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var WizardFields = require("utils/wizard-fields");
+  var TemplateUtils = require("utils/template-utils");
+  var CustomTagsTable = require("utils/custom-tags-table");
+  var FilesTable = require("tabs/files-tab/datatable");
+  var OpenNebulaHost = require("opennebula/host");
+  var UserInputs = require("utils/user-inputs");
+  var UniqueId = require("utils/unique-id");
+  var OpenNebula = require("opennebula");
 
   /*
     TEMPLATES
    */
 
-  var TemplateHTML = require('hbs!./context/html');
+  var TemplateHTML = require("hbs!./context/html");
 
   /*
     CONSTANTS
    */
 
-  var WIZARD_TAB_ID = require('./context/wizardTabId');
+  var WIZARD_TAB_ID = require("./context/wizardTabId");
 
   /*
     CONSTRUCTOR
    */
 
   function WizardTab(opts) {
-    if (!Config.isTemplateCreationTabEnabled(opts.tabId, 'context')) {
+    if (!Config.isTemplateCreationTabEnabled(opts.tabId, "context")) {
       throw "Wizard Tab not enabled";
     }
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
-    this.icon = 'fa-folder';
+    this.icon = "fa-folder";
     this.title = Locale.tr("Context");
     this.classes = "hypervisor";
+    this.templateVcenterCustomizationSpec = "";
+    this.customizations = [];
 
-    this.contextFilesTable = new FilesTable('ContextTable' + UniqueId.id(), {
-      'select': true,
-      'selectOptions': {
-        'multiple_choice': true,
+    this.contextFilesTable = new FilesTable("ContextTable" + UniqueId.id(), {
+      "select": true,
+      "selectOptions": {
+        "multiple_choice": true,
         "filter_fn": function(file) { return file.TYPE == 5; } // CONTEXT
       }});
   }
@@ -82,10 +84,10 @@ define(function(require) {
   function _html() {
     CustomTagsTable.reset();
     return TemplateHTML({
-      'uniqueId': UniqueId.id(),
-      'userInputsHTML': UserInputs.html(),
-      'customTagsTableHTML': CustomTagsTable.html(),
-      'contextFilesTableHTML': this.contextFilesTable.dataTableHTML
+      "uniqueId": UniqueId.id(),
+      "userInputsHTML": UserInputs.html(),
+      "customTagsTableHTML": CustomTagsTable.html(),
+      "contextFilesTableHTML": this.contextFilesTable.dataTableHTML
     });
   }
 
@@ -114,41 +116,42 @@ define(function(require) {
       var option = $("option:selected", this);
 
       if (option.attr("custom") == "true"){
-        $('input.vcenter_customizations_value', context).show();
+        $("input.vcenter_customizations_value", context).show();
       } else {
-        $('input.vcenter_customizations_value', context).hide();
+        $("input.vcenter_customizations_value", context).hide();
       }
 
-      $('input.vcenter_customizations_value', context).val( $(this).val() );
+      $("input.vcenter_customizations_value", context).val( $(this).val() );
     });
 
-    $('input.vcenter_customizations_value', context).hide();
+    $("input.vcenter_customizations_value", context).hide();
 
     OpenNebulaHost.vcenterCustomizations({
       data : {},
       timeout: true,
       success: function (request, customizations){
-        _fillCustomizations(context, customizations);
+        that.customizations = customizations;
+        _fillCustomizations(context, that);
       },
       error: function(request, error_json){
         console.error("There was an error requesting the vCenter customizations: "+
                       error_json.error.message);
-
-        _fillCustomizations(context, []);
+        that.customizations = [];
+        _fillCustomizations(context, that);
       }
     });
 
     context.on("change", "input.vcenter_customizations_value", function(){
       var opt =
-        $('option'+
-          '[value="'+$('input.vcenter_customizations_value', context).val()+'"]', context);
+        $("option"+
+          "[value=\""+$("input.vcenter_customizations_value", context).val()+"\"]", context);
 
       if (opt.size() == 0){
-        opt = $('option[custom="true"]', context);
-        $('input.vcenter_customizations_value', context).show();
+        opt = $("option[custom=\"true\"]", context);
+        $("input.vcenter_customizations_value", context).show();
       }
 
-      opt.attr('selected', 'selected');
+      opt.attr("selected", "selected");
     });
 
     UserInputs.setup(context);
@@ -156,41 +159,49 @@ define(function(require) {
     CustomTagsTable.setup(context, true);
 
     var selectOptions = {
-      'selectOptions': {
-        'select_callback': function(aData, options) {
-          that.generateContextFiles(context)
+      "selectOptions": {
+        "select_callback": function(aData, options) {
+          that.generateContextFiles(context);
         },
-        'unselect_callback': function(aData, options) {
-          that.generateContextFiles(context)
+        "unselect_callback": function(aData, options) {
+          that.generateContextFiles(context);
         }
       }
-    }
+    };
 
     that.contextFilesTable.initialize(selectOptions);
     that.contextFilesTable.refreshResourceTableSelect();
   }
 
-  function _fillCustomizations(context, customizations) {
+  function _fillCustomizations(context, that) {
+    var customizations = that.customizations;
+    var selectedCustom = true;
     var html = "<select>";
-
-    html += '<option value="">'+Locale.tr("None")+'</option>';
-
-    $.each(customizations, function(i,customization){
-      html += '<option value="'+customization+'">'+customization+'</option>';
-    });
-
-    html += '<option value="" custom="true">'+Locale.tr("Set manually")+'</option>';
-
-    html += '</select>';
-
+    html += "<option value=\"\">"+Locale.tr("None")+"</option>";
+    if(Array.isArray(customizations)){
+      customizations.forEach(customization => {
+        var selected = "";
+        if(that.templateVcenterCustomizationSpec && customization.toLowerCase() === that.templateVcenterCustomizationSpec.toLowerCase()){
+          selectedCustom = false;
+          selected = "selected";
+        }
+        html += "<option value=\""+customization+"\" "+selected+">"+customization+"</option>";
+      });
+    }
+    var selected = selectedCustom && that.templateVcenterCustomizationSpec? "selected" : "";
+    html += "<option custom=\"true\" value=\""+(that.templateVcenterCustomizationSpec || "")+"\" "+selected+">"+Locale.tr("Set manually")+"</option>";
+    html += "</select>";
     $(".vcenter_customizations", context).html(html);
+    if(selected){
+      $(".vcenter_customizations_value").val(that.templateVcenterCustomizationSpec || "").show();
+    }
   }
 
   function _retrieve(context) {
     var templateJSON = {};
 
     if($("input[name='context_type']:checked", context).val() == "context_type_vcenter"){
-      var customization = WizardFields.retrieveInput($('input.vcenter_customizations_value', context));
+      var customization = WizardFields.retrieveInput($("input.vcenter_customizations_value", context));
 
       if (customization) {
         templateJSON = {
@@ -206,7 +217,7 @@ define(function(require) {
         if (public_key) {
           contextJSON["SSH_PUBLIC_KEY"] = public_key;
         } else {
-          contextJSON["SSH_PUBLIC_KEY"] = '$USER[SSH_PUBLIC_KEY]';
+          contextJSON["SSH_PUBLIC_KEY"] = "$USER[SSH_PUBLIC_KEY]";
         }
       }
 
@@ -240,9 +251,9 @@ define(function(require) {
         }
       }
 
-      if (!$.isEmptyObject(contextJSON)) { templateJSON['CONTEXT'] = contextJSON; };
-      if (!$.isEmptyObject(userInputsJSON)) { templateJSON['USER_INPUTS'] = userInputsJSON; };
-      templateJSON['INPUTS_ORDER'] = userInputsOrder;
+      if (!$.isEmptyObject(contextJSON)) { templateJSON["CONTEXT"] = contextJSON; };
+      if (!$.isEmptyObject(userInputsJSON)) { templateJSON["USER_INPUTS"] = userInputsJSON; };
+      templateJSON["INPUTS_ORDER"] = userInputsOrder;
     }
 
     return templateJSON;
@@ -251,8 +262,10 @@ define(function(require) {
   function _fill(context, templateJSON) {
     var that = this;
 
-    var contextJSON = templateJSON['CONTEXT'];
-    var userInputsJSON = templateJSON['USER_INPUTS'];
+    that.templateVcenterCustomizationSpec = templateJSON && templateJSON.VCENTER_CUSTOMIZATION_SPEC;
+    _fillCustomizations(context, that);
+    var contextJSON = templateJSON["CONTEXT"];
+    var userInputsJSON = templateJSON["USER_INPUTS"];
     var publicClouds = templateJSON["PUBLIC_CLOUD"];
 
     if (publicClouds != undefined) {
@@ -265,7 +278,7 @@ define(function(require) {
           $("input#context_type_vcenter", context).click();
 
           if(this["VCENTER_CUSTOMIZATION_SPEC"]){
-            WizardFields.fillInput($('input.vcenter_customizations_value', context), this["VCENTER_CUSTOMIZATION_SPEC"]);
+            WizardFields.fillInput($("input.vcenter_customizations_value", context), this["VCENTER_CUSTOMIZATION_SPEC"]);
           } else if(userInputsJSON || contextJSON) {
             $("input#context_type_opennebula", context).click();
           }
@@ -275,8 +288,8 @@ define(function(require) {
       });
     }
 
-    $(".ssh_context", context).removeAttr('checked');
-    $(".network_context", context).removeAttr('checked');
+    $(".ssh_context", context).removeAttr("checked");
+    $(".network_context", context).removeAttr("checked");
 
     if (userInputsJSON) {
       UserInputs.fill(context, templateJSON);
@@ -287,8 +300,8 @@ define(function(require) {
         });
       }
 
-      delete templateJSON['USER_INPUTS'];
-      delete templateJSON['INPUTS_ORDER'];
+      delete templateJSON["USER_INPUTS"];
+      delete templateJSON["INPUTS_ORDER"];
     }
 
     if (contextJSON) {
@@ -305,21 +318,21 @@ define(function(require) {
       var customTagsJSON = {};
       $.each(contextJSON, function(key, value) {
         if (ssh_regexp.test(key)) {
-          $(".ssh_context", context).prop('checked', 'checked');
+          $(".ssh_context", context).prop("checked", "checked");
 
           if (!publickey_regexp.test(value)) {
             WizardFields.fillInput($("#ssh_public_key", context), value);
           }
         } else if (token_regexp.test(key) && yes_value.test(value)) {
-          $(".token_context", context).prop('checked', 'checked');
+          $(".token_context", context).prop("checked", "checked");
         } else if (report_ready_regexp.test(key) && yes_value.test(value)) {
-          $(".report_ready_context", context).prop('checked', 'checked');
+          $(".report_ready_context", context).prop("checked", "checked");
         } else if (net_regexp.test(key) && yes_value.test(value)) {
-          $(".network_context", context).prop('checked', 'checked');
+          $(".network_context", context).prop("checked", "checked");
         } else if ("INIT_SCRIPTS" == key) {
           WizardFields.fillInput($("input.INIT_SCRIPTS", context), value);
         } else if ("FILES_DS" == key) {
-          WizardFields.fillInput($('.FILES_DS', context), contextJSON["FILES_DS"]);
+          WizardFields.fillInput($(".FILES_DS", context), contextJSON["FILES_DS"]);
           var files = [];
           OpenNebula.Image.list({
             timeout: true,
@@ -335,13 +348,13 @@ define(function(require) {
               }
               var selectedResources = {
                 ids : files
-              }
+              };
               that.contextFilesTable.selectResourceTableSelect(selectedResources);
             }
           });
 
         } else if ("START_SCRIPT_BASE64" == key) {
-          $(".ENCODE_START_SCRIPT", context).prop('checked', 'checked');
+          $(".ENCODE_START_SCRIPT", context).prop("checked", "checked");
           $(".START_SCRIPT", context).val(decodeURIComponent(escape(window.atob(value))));
         } else if ("START_SCRIPT" ==  key) {
           WizardFields.fillInput($(".START_SCRIPT", context), value);
@@ -352,7 +365,7 @@ define(function(require) {
 
       CustomTagsTable.fill(context, customTagsJSON);
 
-      delete templateJSON['CONTEXT'];
+      delete templateJSON["CONTEXT"];
     }
   }
 
@@ -367,13 +380,13 @@ define(function(require) {
             id: fileId
           },
           success: function(request, obj_file){
-            req_string.push("$FILE[IMAGE=" + '"' + obj_file.IMAGE.NAME + '"' + ", IMAGE_UNAME=" + '"' + obj_file.IMAGE.UNAME + '"]');
-            $('.FILES_DS', context).val(req_string.join(" "));
+            req_string.push("$FILE[IMAGE=" + "\"" + obj_file.IMAGE.NAME + "\"" + ", IMAGE_UNAME=" + "\"" + obj_file.IMAGE.UNAME + "\"]");
+            $(".FILES_DS", context).val(req_string.join(" "));
           }
         });
       });
     } else {
-      $('.FILES_DS', context).val("");
+      $(".FILES_DS", context).val("");
     }
   };
 });
