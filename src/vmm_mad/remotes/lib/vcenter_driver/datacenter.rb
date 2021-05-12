@@ -500,7 +500,7 @@ module VCenterDriver
         end
 
         # Determine if a network must be excluded from the list
-        def exclude_network?(vc_network, one_host, args, vc_network_hash)
+        def exclude_network?(one_host, args, vc_network_hash, network_type)
             vc_network_name = vc_network_hash[:vc_network_name]
             vc_network_host = vc_network_hash[:vc_network_host]
             vc_network_tag = vc_network_hash[:vc_network_tag]
@@ -514,12 +514,6 @@ module VCenterDriver
                     ]
 
                     # Only NSX-V and NSX-T can be excluded
-                    network_type = VCenterDriver::Network
-                                   .get_network_type(
-                                       vc_network,
-                                       vc_network_name
-                                   )
-
                     return true if network_types.include? network_type
                 end
                 # Exclude networks without hosts
@@ -533,7 +527,7 @@ module VCenterDriver
                     return true
                 end
                 # Exclude portgroup used for VXLAN communication in NSX
-                if vc_network['name'].match(/^vxw-vmknicPg-dvs-(.*)/)
+                if vc_network_name.match(/^vxw-vmknicPg-dvs-(.*)/)
                     return true
                 end
 
@@ -543,7 +537,7 @@ module VCenterDriver
         end
 
         # Proccess each network
-        def process_network(params)
+        def process_network(params, networks_type, hosts_list, host_list_object)
             vc_network = params[:vc_network]
             vcenter_instance_name = params[:vcenter_instance_name]
             vcenter_uuid = params[:vcenter_uuid]
@@ -577,23 +571,31 @@ module VCenterDriver
             opts = {}
 
             # Add network type to network hash
-            network_type = \
-                VCenterDriver::Network.get_network_type(
-                    vc_network,
-                    vc_network_name
-                )
+            if networks_type.key?(vc_network_hash[:vc_network_ref])
+                network_type = networks_type[vc_network_hash[:vc_network_ref]]
+            else
+                network_type =
+                    VCenterDriver::Network.get_network_type(
+                        vc_network,
+                        vc_network_name
+                    )
+                networks_type[vc_network_hash[:vc_network_ref]] = network_type
+            end
+
             network[vc_network_ref][:network_type] = network_type
             network[vc_network_ref][:type] = network_type
 
             # Determine if the network must be excluded
             network[vc_network_ref][:excluded] = exclude_network?(
-                vc_network,
                 one_host,
                 args,
-                vc_network_hash
+                vc_network_hash,
+                network_type
             )
 
-            return if network[vc_network_ref][:excluded] == true
+            if network[vc_network_ref][:excluded] == true
+                return [nil, networks_type, hosts_list, host_list_object]
+            end
 
             if full_process
                 case network[vc_network_ref][:network_type]
@@ -651,31 +653,50 @@ module VCenterDriver
             vc_hosts = vc_network.host
             vc_hosts.each do |vc_host|
                 # Get vCenter Cluster
-                vc_cluster = vc_host.parent
-                vc_cluster_ref = vc_cluster._ref
-                vc_cluster_name = vc_cluster.name
-                # Get one host from each vCenter cluster
-                one_host = VCenterDriver::VIHelper
-                           .find_by_ref(OpenNebula::HostPool,
-                                        'TEMPLATE/VCENTER_CCR_REF',
-                                        vc_cluster_ref,
-                                        vcenter_uuid)
+                vc_host_ref = vc_host._ref
+                if !host_list_object.key?(vc_host_ref)
+                    vc_cluster = vc_host.parent
+                    vc_cluster_ref = vc_cluster._ref
+                    vc_cluster_name = vc_cluster.name
+                    host_list_object[vc_host_ref] = {
+                        :vc_cluster_ref => vc_cluster_ref,
+                        :vc_cluster_name => vc_cluster_name
+                    }
+                end
+
+                vc_cluster = host_list_object[vc_host_ref]
+
+                if hosts_list.key? vc_cluster[:vc_cluster_ref]
+                    one_host = hosts_list[vc_cluster[:vc_cluster_ref]]
+                else
+                    one_host = VCenterDriver::VIHelper
+                               .find_by_ref(OpenNebula::HostPool,
+                                            'TEMPLATE/VCENTER_CCR_REF',
+                                            vc_cluster[:vc_cluster_ref],
+                                            vcenter_uuid)
+                    hosts_list[vc_cluster[:vc_cluster_ref]] = one_host
+                end
                 # Check if network is excluded from each host
                 next if exclude_network?(
-                    vc_network,
                     one_host,
                     args,
-                    vc_network_hash
+                    vc_network_hash,
+                    network_type
                 )
 
                 # Insert vCenter cluster ref
-                network[vc_network_ref][:clusters][:refs] << vc_cluster_ref
+                network[vc_network_ref][:clusters][:refs] <<
+                    vc_cluster[:vc_cluster_ref]
+
                 # Insert OpenNebula cluster id
                 cluster_id = one_cluster_id(one_host)
-                network[vc_network_ref][:clusters][:one_ids] << cluster_id
+                network[vc_network_ref][:clusters][:one_ids] <<
+                    cluster_id
+
                 # Insert vCenter cluster name
-                network[vc_network_ref][:clusters][:names] << vc_cluster_name
-                opts[:dc_name] = vc_cluster_name
+                network[vc_network_ref][:clusters][:names] <<
+                    vc_cluster[:vc_cluster_name]
+                opts[:dc_name] = vc_cluster[:vc_cluster_name]
             end
 
             # Remove duplicate entries
@@ -706,7 +727,7 @@ module VCenterDriver
                     network[vc_network_ref]['name']
             end
 
-            network
+            [network, networks_type, hosts_list, host_list_object]
         end
 
         # rubocop:disable Style/GlobalVars
@@ -723,13 +744,15 @@ module VCenterDriver
                     $conf[:one_xmlrpc]
                 )
             end
-
             one_host = OpenNebula::Host.new_with_id(args[:host], one_client)
             rc = one_host.info
             raise rc.message if OpenNebula.is_error? rc
 
             # Get all networks in vcenter cluster (one_host)
             vc_cluster_networks = cluster_networks(one_host)
+            networks_type = {}
+            hosts_list = {}
+            host_list_object = {}
 
             # Iterate over vcenter networks
             vc_cluster_networks.each do |vc_cluster_network|
@@ -751,7 +774,20 @@ module VCenterDriver
                 params[:one_host]= one_host
                 params[:args] = args
 
-                network = process_network(params)
+                network,
+                    networks_type_new,
+                    hosts_list_new,
+                    host_list_object_new =
+                    process_network(
+                        params,
+                        networks_type,
+                        hosts_list,
+                        host_list_object
+                    )
+
+                networks_type = networks_type_new
+                hosts_list = hosts_list_new
+                host_list_object = host_list_object_new
 
                 networks.merge!(network) unless network.nil?
             end

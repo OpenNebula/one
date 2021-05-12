@@ -534,7 +534,13 @@ module VCenterDriver
                     params[:one_host] = one_host
                     params[:args] = {}
 
-                    selected = dc_folder.process_network(params)
+                    selected, _networks_type, _hosts_list, _clusters_list =
+                        dc_folder.process_network(
+                            params,
+                            {},
+                            {},
+                            {}
+                        )
 
                     selected = selected[index]
 
