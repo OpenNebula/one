@@ -234,7 +234,7 @@ CommandParser::CmdParser.new(ARGV) do
         - Instantiate a template and add a new NIC
             onetemplate instantiate 23 --nic private_net
 
-        - Instanteiate a template and replace CONTEXT with a new one
+        - Instantiate a template and replace CONTEXT with a new one
             onetemplate instantiate 23 --startscript /path/to/my/start_script
     EOT
 
