@@ -1168,7 +1168,7 @@ VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/mappers/qcow2.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/mappers/raw.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/mappers/rbd.rb \
-                src/vmm_mad/remotes/lib/lxc/storage/mappers/dummy.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/device.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/storageutils.rb"
 
 #-------------------------------------------------------------------------------
