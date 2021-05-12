@@ -607,7 +607,14 @@ void VirtualMachineXML::log(const string &st)
 
     oss << one_util::log_time() << ": " << st;
 
-    user_template->replace("SCHED_MESSAGE", oss.str());
+    string sched_message = oss.str();
+
+    user_template->replace("SCHED_MESSAGE", sched_message);
+
+    oss.str("");
+    oss << "SCHED_MESSAGE = \"" << sched_message << "\"";
+
+    update(oss.str(), true);    // Send the update to oned
 }
 
 /* -------------------------------------------------------------------------- */
@@ -630,6 +637,8 @@ bool VirtualMachineXML::clear_log()
     }
 
     user_template->erase("SCHED_MESSAGE");
+
+    update("SCHED_MESSAGE = \"\"", true);   // Send update to oned
 
     return true;
 }
@@ -672,3 +681,26 @@ int VirtualMachineXML::parse_action_name(string& action_st)
     return 0;
 };
 
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+bool VirtualMachineXML::update(const string &vm_template, bool append)
+{
+    xmlrpc_c::value result;
+
+    try
+    {
+        Client::client()->call("one.vm.update", "isi", &result, oid,
+                               vm_template.c_str(),
+                               append ? 1 : 0);
+    }
+    catch (exception const& e)
+    {
+        return false;
+    }
+
+    vector<xmlrpc_c::value> values =
+            xmlrpc_c::value_array(result).vectorValueValue();
+
+    return xmlrpc_c::value_boolean(values[0]);
+}
