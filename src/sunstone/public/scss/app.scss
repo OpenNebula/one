@@ -280,12 +280,16 @@ select.mb_input_unit {
   line-height: 1.4rem;
 }
 
-ul.dropdown-menu-css{
+ul.dropdown-menu-css {
   position: relative;
   margin: 0;
   list-style: none;
 
-  & > .menu-hide{
+  & > li:first-child {
+    word-break: break-all;
+  }
+
+  & > .menu-hide {
     display: none;
     position: absolute;
     background-color: $white;
@@ -315,11 +319,11 @@ ul.dropdown-menu-css{
     }
   }
 
-  & > li.menu-hide.upper{
+  & > li.menu-hide.upper {
     top: 0;
   }
 
-  &:hover > li{
+  &:hover > li {
     display: block;
   }
 }
