@@ -318,6 +318,7 @@ LIB_DIRS="$LIB_LOCATION/ruby \
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
           $VAR_LOCATION/remotes/etc/tm/fs_lvm \
+          $VAR_LOCATION/remotes/etc/tm/fs_lvm_ssh \
           $VAR_LOCATION/remotes/etc/tm/ssh \
           $VAR_LOCATION/remotes/etc/datastore/fs \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
@@ -463,6 +464,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/tm/dummy \
           $VAR_LOCATION/remotes/tm/shared \
           $VAR_LOCATION/remotes/tm/fs_lvm \
+          $VAR_LOCATION/remotes/tm/fs_lvm_ssh \
           $VAR_LOCATION/remotes/tm/qcow2 \
           $VAR_LOCATION/remotes/tm/ssh \
           $VAR_LOCATION/remotes/tm/ceph \
@@ -680,6 +682,8 @@ INSTALL_FILES=(
     TM_SHARED_FILES:$VAR_LOCATION/remotes/tm/shared
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
     TM_FS_LVM_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm/fs_lvm.conf
+    TM_FS_LVM_SSH_FILES:$VAR_LOCATION/remotes/tm/fs_lvm_ssh
+    TM_FS_LVM_SSH_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm_ssh/fs_lvm_ssh.conf
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_SSH_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/ssh
@@ -1164,6 +1168,7 @@ VMM_EXEC_LXC_LIB="src/vmm_mad/remotes/lib/lxc/opennebula_vm.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/mappers/qcow2.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/mappers/raw.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/mappers/rbd.rb \
+                src/vmm_mad/remotes/lib/lxc/storage/mappers/dummy.rb \
                 src/vmm_mad/remotes/lib/lxc/storage/storageutils.rb"
 
 #-------------------------------------------------------------------------------
@@ -1841,6 +1846,28 @@ TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \
                  src/tm_mad/fs_lvm/resize"
 
 TM_FS_LVM_ETC_FILES="src/tm_mad/fs_lvm/fs_lvm.conf"
+
+TM_FS_LVM_SSH_FILES="src/tm_mad/fs_lvm_ssh/activate \
+                     src/tm_mad/fs_lvm_ssh/clone \
+                     src/tm_mad/fs_lvm_ssh/context \
+                     src/tm_mad/fs_lvm_ssh/ln \
+                     src/tm_mad/fs_lvm_ssh/monitor \
+                     src/tm_mad/fs_lvm_ssh/mkswap \
+                     src/tm_mad/fs_lvm_ssh/mkimage \
+                     src/tm_mad/fs_lvm_ssh/mv \
+                     src/tm_mad/fs_lvm_ssh/mvds \
+                     src/tm_mad/fs_lvm_ssh/cpds \
+                     src/tm_mad/fs_lvm_ssh/premigrate \
+                     src/tm_mad/fs_lvm_ssh/postmigrate \
+                     src/tm_mad/fs_lvm_ssh/snap_create \
+                     src/tm_mad/fs_lvm_ssh/snap_create_live \
+                     src/tm_mad/fs_lvm_ssh/snap_delete \
+                     src/tm_mad/fs_lvm_ssh/snap_revert \
+                     src/tm_mad/fs_lvm_ssh/failmigrate \
+                     src/tm_mad/fs_lvm_ssh/delete \
+                     src/tm_mad/fs_lvm_ssh/resize"
+
+TM_FS_LVM_SSH_ETC_FILES="src/tm_mad/fs_lvm_ssh/fs_lvm_ssh.conf"
 
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
