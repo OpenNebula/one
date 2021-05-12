@@ -457,6 +457,13 @@ protected:
 
     void init_storage_usage();
 
+    /**
+     * Update the VM object in oned
+     * @param vm_template Object template as xml or ...
+     * @param append Append mode
+     */
+    bool update(const std::string &vm_template, bool append);
+
     /* ---------------------- SCHEDULER INFORMATION ------------------------- */
     ResourceMatch match_hosts;
 

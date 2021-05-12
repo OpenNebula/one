@@ -238,15 +238,14 @@ int VirtualMachinePoolXML::load_info(xmlrpc_c::value &result)
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
-int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,const string& extra_template) const
+int VirtualMachinePoolXML::dispatch(int vid, int hid, int dsid, bool resched,
+                                    const string& extra_template) const
 {
     xmlrpc_c::value deploy_result;
 
-    VirtualMachineXML* vm = get(vid);
-
-    if (vm != 0 && vm->clear_log())
+    if (auto vm = get(vid))
     {
-        update(vm);
+        vm->clear_log();
     }
 
     try

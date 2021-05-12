@@ -895,7 +895,6 @@ void Scheduler::match_schedule()
                     log_match(vm->get_oid(), "Cannot schedule VM. "+ m_error);
 
                     vm->log("Cannot schedule VM. "+ m_error);
-                    vmpool->update(vm);
 
                     continue;
                 }
@@ -972,8 +971,6 @@ void Scheduler::match_schedule()
                     vm->log(oss.str());
                 }
             }
-
-            vmpool->update(vm);
 
             log_match(vm->get_oid(),
                     "Cannot schedule VM, there is no suitable host.");
@@ -1090,8 +1087,6 @@ void Scheduler::match_schedule()
 
                 vm->clear_match_hosts();
 
-                vmpool->update(vm);
-
                 log_match(vm->get_oid(), "Cannot schedule VM, there is no suitable "
                     "system ds.");
 
@@ -1193,8 +1188,6 @@ void Scheduler::match_schedule()
 
                 vm->clear_match_hosts();
                 vm->clear_match_datastores();
-
-                vmpool->update(vm);
 
                 log_match(vm->get_oid(), "Cannot schedule VM, there is no "
                     "suitable network.");
@@ -1338,8 +1331,6 @@ void Scheduler::dispatch()
                 else
                 {
                     vm->log("Cannot dispatch VM. " + error);
-
-                    vmpool->update(vm);
 
                     continue;
                 }
@@ -1664,7 +1655,6 @@ void Scheduler::dispatch()
             vm->log("Cannot dispatch VM to any Host. Possible reasons: Not "
                 "enough capacity in Host or System DS, dispatch limit "
                 "reached, or limit of free leases reached.");
-            vmpool->update(vm);
         }
     }
 
