@@ -2624,15 +2624,15 @@ end
             # - The disk is managed by OpenNebula
             detachable= !(one_vm['LCM_STATE'].to_i == 11 && !disk.managed?)
             detachable &&= disk.exists?
-            
+
             return unless detachable
 
             detach_disk(disk)
 
             # Check if we want to keep the non persistent disk
             keep_non_persistent_disks =
-                VCenterDriver::CONFIG[:keep_non_persistent_disks]  
-            
+                VCenterDriver::CONFIG[:keep_non_persistent_disks]
+
             return if keep_non_persistent_disks == true
 
             disk.destroy
@@ -2829,7 +2829,7 @@ end
             # Convert VM to template in vCenter
             mark_as_template
 
-            # Edit the Opennebula template
+            # Edit the OpenNebula template
             one_client = OpenNebula::Client.new
             template_id = one_item['TEMPLATE/TEMPLATE_ID']
             new_template = OpenNebula::Template.new_with_id(template_id,

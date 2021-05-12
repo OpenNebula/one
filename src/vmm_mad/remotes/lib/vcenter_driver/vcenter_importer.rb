@@ -496,9 +496,9 @@ module VCenterDriver
         end
 
         #
-        # Create and allocate a Opennebula Object.
+        # Create and allocate a OpenNebula Object.
         #
-        # @param info [String] Info passed to opennebula Core.
+        # @param info [String] Info passed to OpenNebula Core.
         #
         # @return [&block] the allocated object through a block.
         #
