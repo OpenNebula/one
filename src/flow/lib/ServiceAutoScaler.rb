@@ -43,7 +43,8 @@ class ServiceAutoScaler
             monitoring = vm_pool.monitoring_xml(-2, 0)
             monitoring = XMLElement.new(XMLElement.build_xml(monitoring,
                                                              'MONITORING_DATA'))
-            monitoring = monitoring.to_hash['MONITORING_DATA']['MONITORING']
+            monitoring = monitoring.to_hash['MONITORING_DATA']
+            monitoring = monitoring['MONITORING'] if monitoring
             monitoring = [monitoring].flatten
 
             vm_pool.info_all_extended

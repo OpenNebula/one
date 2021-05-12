@@ -31,6 +31,8 @@ class EventManager
         'WAIT_UNDEPLOY'  => :wait_undeploy,
         'WAIT_SCALEUP'   => :wait_scaleup,
         'WAIT_SCALEDOWN' => :wait_scaledown,
+        'WAIT_ADD'       => :wait_add,
+        'WAIT_REMOVE'    => :wait_remove,
         'WAIT_COOLDOWN'  => :wait_cooldown
     }
 
@@ -86,6 +88,10 @@ class EventManager
                             method('wait_cooldown'))
         @am.register_action(ACTIONS['WAIT_SCALEUP'],
                             method('wait_scaleup_action'))
+        @am.register_action(ACTIONS['WAIT_ADD'],
+                            method('wait_add_action'))
+        @am.register_action(ACTIONS['WAIT_REMOVE'],
+                            method('wait_remove_action'))
         @am.register_action(ACTIONS['WAIT_SCALEDOWN'],
                             method('wait_scaledown_action'))
 
@@ -196,6 +202,56 @@ class EventManager
                                 rc[1])
         else
             @lcm.trigger_action(:scaledown_failure_cb,
+                                service_id,
+                                client,
+                                service_id,
+                                role_name,
+                                rc[1])
+        end
+    end
+
+    def wait_add_action(client, service_id, role_name, nodes, report)
+        if report
+            Log.info LOG_COMP, "Waiting #{nodes} to report ready"
+            rc = wait_report_ready(nodes)
+        else
+            Log.info LOG_COMP, "Waiting #{nodes} to be (ACTIVE, RUNNING)"
+            rc = wait(nodes, 'ACTIVE', 'RUNNING')
+        end
+
+        if rc[0]
+            @lcm.trigger_action(:add_cb,
+                                service_id,
+                                client,
+                                service_id,
+                                role_name,
+                                rc[1])
+        else
+            @lcm.trigger_action(:add_failure_cb,
+                                service_id,
+                                client,
+                                service_id,
+                                role_name)
+        end
+    end
+
+    # Wait for nodes to be in DONE
+    # @param [service_id] the service id
+    # @param [role_name] the role name of the role which contains the VMs
+    # @param [nodes] the list of nodes (VMs) to wait for
+    def wait_remove_action(client, service_id, role_name, nodes)
+        Log.info LOG_COMP, "Waiting #{nodes} to be (DONE, LCM_INIT)"
+        rc = wait(nodes, 'DONE', 'LCM_INIT')
+
+        if rc[0]
+            @lcm.trigger_action(:remove_cb,
+                                service_id,
+                                client,
+                                service_id,
+                                role_name,
+                                rc[1])
+        else
+            @lcm.trigger_action(:remove_failure_cb,
                                 service_id,
                                 client,
                                 service_id,

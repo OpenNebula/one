@@ -451,6 +451,16 @@ module OpenNebula
             validate_values(template)
         end
 
+        def self.validate_role(template)
+            validator = Validator::Validator.new(
+                :default_values => true,
+                :delete_extra_properties => false,
+                :allow_extra_properties => true
+            )
+
+            validator.validate!(template, ROLE_SCHEMA)
+        end
+
         def instantiate(merge_template)
             rc = nil
 
