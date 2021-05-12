@@ -197,6 +197,7 @@ define(function(require) {
           function(formPanelInstance, context) {
             if (that.xmlRoot) {
               formPanelInstance.fill(context, response[that.xmlRoot]);
+
             } else {
               formPanelInstance.fill(context, response);
             }
