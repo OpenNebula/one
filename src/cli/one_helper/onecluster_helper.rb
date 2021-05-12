@@ -113,7 +113,7 @@ class OneClusterHelper < OpenNebulaHelper::OneHelper
             total_ram = 0
             used_ram  = 0
 
-            hosts.each do |h|
+            [hosts].flatten.each do |h|
                 h = OpenNebula::Host.new_with_id(h, @client)
 
                 h.info!
