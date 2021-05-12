@@ -25,6 +25,7 @@ require 'storageutils'
 require 'qcow2'
 require 'raw'
 require 'rbd'
+require 'device'
 
 require_relative '../lib/xmlparser'
 require_relative '../lib/opennebula_vm'
@@ -339,6 +340,8 @@ class Disk
             Qcow2Mapper.new
         elsif @xml['DISK_TYPE'].downcase == 'rbd'
             RBDMapper.new(self)
+        elsif @xml['DISK_TYPE'].downcase == 'block'
+            DeviceMapper.new
         else
             RawMapper.new
         end
