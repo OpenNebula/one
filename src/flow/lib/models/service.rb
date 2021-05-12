@@ -141,7 +141,7 @@ module OpenNebula
         # @return true if the service can be undeployed, false otherwise
         def can_undeploy?
             if (transient_state? && state != Service::STATE['UNDEPLOYING']) ||
-               state == Service::STATE['DONE'] || failed_state?
+                state == Service::STATE['DONE'] || failed_state?
                 false
             else
                 true
@@ -164,6 +164,12 @@ module OpenNebula
 
         def can_recover_scale?
             RECOVER_SCALE_STATES.include? STATE_STR[state]
+        end
+
+        # Return true if the service is running
+        # @return true if the service is runnning, false otherwise
+        def running?
+            state_str == 'RUNNING'
         end
 
         # Returns the running_status_vm option
@@ -321,6 +327,36 @@ module OpenNebula
             end
 
             nil
+        end
+
+        # Adds a role to the service
+        #
+        # @param template [Hash] Role information
+        #
+        # @return [OpenNebula::Role] New role
+        def add_role(template)
+            template['state'] ||= Role::STATE['PENDING']
+            role                = Role.new(template, self)
+
+            if @roles[role.name]
+                return OpenNebula::Error.new("Role #{role.name} already exists")
+            end
+
+            @roles[role.name] = role
+            @body['roles'] << template if @body && @body['roles']
+
+            role
+        end
+
+        # Removes a role from the service
+        #
+        # @param name [String] Role name to delete
+        def remove_role(name)
+            @roles.delete(name)
+
+            @body['roles'].delete_if do |role|
+                role['name'] == name
+            end
         end
 
         # Retrieves the information of the Service and all its Nodes.
@@ -514,8 +550,12 @@ module OpenNebula
             [true, nil]
         end
 
-        def deploy_networks
-            body = JSON.parse(self['TEMPLATE/BODY'])
+        def deploy_networks(deploy = true)
+            if deploy
+                body = JSON.parse(self['TEMPLATE/BODY'])
+            else
+                body = @body
+            end
 
             return if body['networks_values'].nil?
 
@@ -531,7 +571,7 @@ module OpenNebula
                 if OpenNebula.is_error?(rc)
                     return rc
                 end
-            end
+            end if deploy
 
             # Replace $attibute by the corresponding value
             resolve_attributes(body)

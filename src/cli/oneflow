@@ -428,4 +428,76 @@ CommandParser::CmdParser.new(ARGV) do
             0
         end
     end
+
+    ###
+
+    add_role_desc = <<-EOT.unindent
+        Add new role to running service
+    EOT
+
+    command :'add-role', add_role_desc, :service_id, [:file, nil] do
+        service_id = args[0]
+        client     = helper.client(options)
+
+        if args[1]
+            path = args[1]
+        else
+            tmp  = Tempfile.new(service_id.to_s)
+            path = tmp.path
+
+            if ENV['EDITOR']
+                editor_path = ENV['EDITOR']
+            else
+                editor_path = OpenNebulaHelper::EDITOR_PATH
+            end
+
+            system("#{editor_path} #{path}")
+
+            unless $CHILD_STATUS.exitstatus.zero?
+                STDERR.puts 'Editor not defined'
+                exit(-1)
+            end
+
+            tmp.close
+        end
+
+        params        = {}
+        params[:role] = File.read(path)
+        params[:add]  = true
+        json          = Service.build_json_action('add_role', params)
+
+        response = client.post("#{RESOURCE_PATH}/#{service_id}/role_action",
+                               json)
+
+        if CloudClient.is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            0
+        end
+    end
+
+    ###
+
+    remove_role_desc = <<-EOT.unindent
+        Remove role from running service
+    EOT
+
+    command :'remove-role', remove_role_desc, :service_id, :role_name do
+        service_id = args[0]
+        client     = helper.client(options)
+
+        params        = {}
+        params[:role] = args[1]
+        params[:add]  = false
+        json          = Service.build_json_action('remove_role', params)
+
+        response = client.post("#{RESOURCE_PATH}/#{service_id}/role_action",
+                               json)
+
+        if CloudClient.is_error?(response)
+            [response.code.to_i, response.to_s]
+        else
+            0
+        end
+    end
 end

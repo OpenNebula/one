@@ -403,6 +403,38 @@ post '/service/:id/scale' do
     status 204
 end
 
+post '/service/:id/role_action' do
+    action = JSON.parse(request.body.read)['action']
+    opts   = action['params']
+
+    case action['perform']
+    when 'add_role'
+        begin
+            # Check that the JSON is valid
+            json_template = JSON.parse(opts['role'])
+
+            # Check the schema of the new template
+            ServiceTemplate.validate_role(json_template)
+        rescue Validator::ParseException, JSON::ParserError => e
+            return internal_error(e.message, VALIDATION_EC)
+        end
+
+        rc = lcm.add_role_action(@client, params[:id], json_template)
+    when 'remove_role'
+        rc = lcm.remove_role_action(@client, params[:id], opts['role'])
+    else
+        rc = OpenNebula::Error.new(
+            "Action #{action['perform']} not supported"
+        )
+    end
+
+    if OpenNebula.is_error?(rc)
+        return internal_error(rc.message, one_error_to_http(rc.errno))
+    end
+
+    status 204
+end
+
 ##############################################################################
 # Service Pool
 ##############################################################################
