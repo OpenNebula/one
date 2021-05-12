@@ -165,9 +165,7 @@ define(function(require) {
     var templateJSON = {};
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(true, templateJSON, wizardTab.retrieve($("#" + wizardTab.wizardTabId, context)));
-      var a = templateJSON;
     });
-
 
     if(templateJSON["TOPOLOGY"] && templateJSON["TOPOLOGY"]["DELETE"]){
       delete templateJSON["TOPOLOGY"];
@@ -175,7 +173,7 @@ define(function(require) {
 
     if(
       templateJSON["TOPOLOGY"] &&
-      (templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === undefined || 
+      (templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === undefined ||
       templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"] === null ||
       templateJSON["TOPOLOGY"]["HUGEPAGE_SIZE"].length<=0)
     ){
@@ -184,7 +182,7 @@ define(function(require) {
 
     if(
       templateJSON["TOPOLOGY"] &&
-      (templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === undefined || 
+      (templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === undefined ||
       templateJSON["TOPOLOGY"]["MEMORY_ACCESS"] === null ||
       templateJSON["TOPOLOGY"]["MEMORY_ACCESS"].length<=0)
     ){
@@ -232,7 +230,7 @@ define(function(require) {
 
       delete templateJSON["NIC_PCI"];
     }
- 
+
     return templateJSON;
   }
 
@@ -241,9 +239,9 @@ define(function(require) {
     var current = {};
     cachedTemplate = OpenNebulaAction.cache("VMTEMPLATE");
     if(
-      this && 
-      this.resourceId && 
-      cachedTemplate && 
+      this &&
+      this.resourceId &&
+      cachedTemplate &&
       cachedTemplate.data &&
       Array.isArray(cachedTemplate.data)
     ){
@@ -251,10 +249,10 @@ define(function(require) {
       var currentTemplate = cachedTemplate.data.filter(function(vmtemplate){
         var rtn = false;
         if(
-          vmtemplate && 
-          vmtemplate.VMTEMPLATE && 
-          vmtemplate.VMTEMPLATE.TEMPLATE && 
-          vmtemplate.VMTEMPLATE.ID && 
+          vmtemplate &&
+          vmtemplate.VMTEMPLATE &&
+          vmtemplate.VMTEMPLATE.TEMPLATE &&
+          vmtemplate.VMTEMPLATE.ID &&
           vmtemplate.VMTEMPLATE.ID === id
         ){
           return vmtemplate.VMTEMPLATE.TEMPLATE;
@@ -264,7 +262,7 @@ define(function(require) {
       if(
         currentTemplate &&
         currentTemplate[0] &&
-        currentTemplate[0].VMTEMPLATE && 
+        currentTemplate[0].VMTEMPLATE &&
         currentTemplate[0].VMTEMPLATE.TEMPLATE
       ){
         current = currentTemplate[0].VMTEMPLATE.TEMPLATE;
@@ -272,7 +270,7 @@ define(function(require) {
       if(current) {
         for (key in current) {
           if (!templateJSON[key]) {
-            delete current[key]
+            delete current[key];
           }
         }
       }
@@ -284,7 +282,7 @@ define(function(require) {
           this.create_title,
           this.update_title)
         ) return false;
-    
+
     if (this.action == "create") {
       Sunstone.runAction(this.resource+".create", {"vmtemplate": templateJSON});
       return false;
@@ -327,7 +325,7 @@ define(function(require) {
                       delete disk.OPENNEBULA_MANAGED;
                     }
                   }
-                  
+
                   disks.push(disk);
                 });
                 templateJSON.DISK = disks;

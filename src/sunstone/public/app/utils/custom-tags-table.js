@@ -16,18 +16,19 @@
 
 define(function(require) {
 
-  var Locale = require('utils/locale');
-  var TemplateHTML = require('hbs!./custom-tags-table/html');
-  var RowTemplateHTML = require('hbs!./custom-tags-table/row');
-  var VectorRowTemplateHTML = require('hbs!./custom-tags-table/vector-row');
-  var VectorAttributeRowTemplateHTML = require('hbs!./custom-tags-table/vector-attribute-row');
-  var TemplateUtils = require('utils/template-utils');
-  var WizardFields = require('utils/wizard-fields');
-  var Sunstone = require('sunstone');
+  var Locale = require("utils/locale");
+  var TemplateHTML = require("hbs!./custom-tags-table/html");
+  var RowTemplateHTML = require("hbs!./custom-tags-table/row");
+  var VectorRowTemplateHTML = require("hbs!./custom-tags-table/vector-row");
+  var VectorAttributeRowTemplateHTML = require("hbs!./custom-tags-table/vector-attribute-row");
+  var TemplateUtils = require("utils/template-utils");
+  var WizardFields = require("utils/wizard-fields");
+  var Sunstone = require("sunstone");
   var removedStyles = false;
 
   var showMandatory = false;
   var showDefault = false;
+  var deleteTags = ["VCENTER_CUSTOMIZATION_SPEC"];
 
   function _reset(){
     showDefault = false;
@@ -35,8 +36,8 @@ define(function(require) {
   }
 
   function _html(classTable, classButton, removeStyles, mandatory, deflt){
-    var classTableName = classTable && classTable.length>0 ? classTable : '';
-    var classButtonName = classButton && classButton.length>0 ? classButton : '';
+    var classTableName = classTable && classTable.length>0 ? classTable : "";
+    var classButtonName = classButton && classButton.length>0 ? classButton : "";
     if(mandatory){
       showMandatory = true;
     }
@@ -48,12 +49,12 @@ define(function(require) {
     }
 
     return TemplateHTML({
-      'titleKey': Locale.tr("Name"),
-      'titleMandatory': showMandatory ? Locale.tr("Type") : '',
-      'titleValue': Locale.tr("Value"),
-      'titleDefault': showDefault? Locale.tr("Default Value"): '',
-      'classTable': classTableName,
-      'classButton': classButtonName
+      "titleKey": Locale.tr("Name"),
+      "titleMandatory": showMandatory ? Locale.tr("Type") : "",
+      "titleValue": Locale.tr("Value"),
+      "titleDefault": showDefault? Locale.tr("Default Value"): "",
+      "classTable": classTableName,
+      "classButton": classButtonName
     });
   }
 
@@ -66,8 +67,8 @@ define(function(require) {
       $("tbody.custom_tags", context).append(
         RowTemplateHTML({
           styles: !removedStyles,
-          mandatory: showMandatory? 'M' : '',
-          valueDefault: showDefault? ' ' : ''
+          mandatory: showMandatory? "M" : "",
+          valueDefault: showDefault? " " : ""
         })
       );
       if(hide_vector_button){
@@ -79,7 +80,7 @@ define(function(require) {
           }
           if(element && element.CAPACITY){
             element.CAPACITY[key] = this.value;
-            Sunstone.runAction(resourceType+".update_template",elementID, TemplateUtils.templateToString(element));  
+            Sunstone.runAction(resourceType+".update_template",elementID, TemplateUtils.templateToString(element));
           }
         });
       }
@@ -96,29 +97,29 @@ define(function(require) {
 
     context.off("click", ".add_vector_attribute");
     context.on("click", ".add_vector_attribute", function(){
-      var tbody = $("tbody.custom_vector_attributes", $(this).closest('table'));
+      var tbody = $("tbody.custom_vector_attributes", $(this).closest("table"));
       tbody.append(VectorAttributeRowTemplateHTML());
     });
 
     context.off("click", ".change_to_vector_attribute");
     context.on("click", ".change_to_vector_attribute", function(){
-      var td = $($(this).closest('table')).parent();
+      var td = $($(this).closest("table")).parent();
       var tr = $(td).parent();
-      $('.change_to_vector_attribute', td).addClass('add_vector_attribute').removeClass('change_to_vector_attribute');
-      $('tbody.custom_body', td).addClass('custom_vector_attributes').removeClass('custom_body');
-      $('.custom_tag_key', tr).addClass('custom_vector_key').removeClass('custom_tag_key').css('margin-top', '5px');
-      $('tbody.custom_vector_attributes', td).append(VectorAttributeRowTemplateHTML({
-        key: $('textarea.custom_tag_value', td).val()
+      $(".change_to_vector_attribute", td).addClass("add_vector_attribute").removeClass("change_to_vector_attribute");
+      $("tbody.custom_body", td).addClass("custom_vector_attributes").removeClass("custom_body");
+      $(".custom_tag_key", tr).addClass("custom_vector_key").removeClass("custom_tag_key").css("margin-top", "5px");
+      $("tbody.custom_vector_attributes", td).append(VectorAttributeRowTemplateHTML({
+        key: $("textarea.custom_tag_value", td).val()
       }));
-      $('textarea.custom_tag_value', td).remove();
+      $("textarea.custom_tag_value", td).remove();
     });
 
     $(".add_custom_tag", context).trigger("click");
     context.on("click", "tbody.custom_tags i.remove-tab", function(){
-      var tr = $(this).closest('tr');
+      var tr = $(this).closest("tr");
       tr.remove();
       if(hide_vector_button){
-        var key = $(".custom_tag_key",this.parentElement.parentElement.parentElement).val()
+        var key = $(".custom_tag_key",this.parentElement.parentElement.parentElement).val();
         if(element && element.CAPACITY && element.CAPACITY[key] && elementID){
           delete element.CAPACITY[key];
           Sunstone.runAction(resourceType+".update_template",elementID, TemplateUtils.templateToString(element));
@@ -130,24 +131,24 @@ define(function(require) {
   // context is the container div of customTagsHtml()
   function _retrieveCustomTags(context){
     var template_json = {};
-    $('tbody.custom_tags tr', context).each(function(){
-      if ($('.custom_tag_key', $(this)).val()) {
-        var key = WizardFields.retrieveInput($('.custom_tag_key', $(this)));
-        template_json[key] = WizardFields.retrieveInput($('.custom_tag_value', $(this)));
+    $("tbody.custom_tags tr", context).each(function(){
+      if ($(".custom_tag_key", $(this)).val()) {
+        var key = WizardFields.retrieveInput($(".custom_tag_key", $(this)));
+        template_json[key] = WizardFields.retrieveInput($(".custom_tag_value", $(this)));
       }
 
-      if ($('.custom_vector_key', $(this)).val()) {
+      if ($(".custom_vector_key", $(this)).val()) {
         var vectorAttributes = {};
 
-        $('tbody.custom_vector_attributes tr', $(this)).each(function(){
-          var key = WizardFields.retrieveInput($('.custom_vector_attribute_key', $(this)));
+        $("tbody.custom_vector_attributes tr", $(this)).each(function(){
+          var key = WizardFields.retrieveInput($(".custom_vector_attribute_key", $(this)));
           if (key) {
-            vectorAttributes[key] = WizardFields.retrieveInput($('.custom_vector_attribute_value', $(this)));
+            vectorAttributes[key] = WizardFields.retrieveInput($(".custom_vector_attribute_value", $(this)));
           }
         });
 
         if (!$.isEmptyObject(vectorAttributes)){
-          var key = WizardFields.retrieveInput($('.custom_vector_key', $(this)));
+          var key = WizardFields.retrieveInput($(".custom_vector_key", $(this)));
           template_json[key] = vectorAttributes;
         }
       }
@@ -158,10 +159,18 @@ define(function(require) {
 
   // context is the container div of customTagsHtml()
   // template_json are the key:values that will be put into the table
-  function _fillCustomTags(context, template_json){
+  function _fillCustomTags(context, templateJson){
     $("tbody.custom_tags i.remove-tab", context).trigger("click");
+
+    var template_json = $.extend({}, templateJson);
+
+    //remove tags
+    deleteTags.forEach(element => {
+      delete template_json[element];
+    });
+
     $.each(template_json, function(key, value){
-      if (typeof value == 'object') {
+      if (typeof value === "object") {
         $("tbody.custom_tags", context).append(
           VectorRowTemplateHTML({key: key, value: value})
         );
@@ -171,8 +180,8 @@ define(function(require) {
           RowTemplateHTML({
             key: key,
             value: val,
-            mandatory: showMandatory ? 'M': '',
-            valueDefault: showDefault? ' ': ''
+            mandatory: showMandatory ? "M": "",
+            valueDefault: showDefault? " ": ""
           })
         );
       }
@@ -180,10 +189,10 @@ define(function(require) {
   }
 
   return {
-    'html': _html,
-    'setup': _setup,
-    'retrieve': _retrieveCustomTags,
-    'fill': _fillCustomTags,
-    'reset': _reset
+    "html": _html,
+    "setup": _setup,
+    "retrieve": _retrieveCustomTags,
+    "fill": _fillCustomTags,
+    "reset": _reset
   };
 });
