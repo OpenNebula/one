@@ -142,7 +142,7 @@ define(function(require) {
     var error = opts.error;
     $.each(error, function(key, value){
       id = Object.keys(value)[0];
-      Notifier.notifyError(opts.resource + " with ref " + id + " could not be imported\n"+ value[id]);
+      Notifier.notifyError(opts.resource + " with ref " + id + " could not be imported.\n"+ value[id]);
     });
   }
 
