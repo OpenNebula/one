@@ -1087,10 +1087,11 @@ define(function(require) {
 
     nics.forEach(function(nic, index){
       var copy_nic = Object.assign({}, nic);
-      if (nic.EXTERNAL_IP)
+      if (nic.EXTERNAL_IP){
         external_nics.push(nic);
-
-      delete copy_nic.EXTERNAL_IP;
+        delete copy_nic.EXTERNAL_IP;
+      }
+      
       non_external_nics.push(copy_nic);
     });
 
@@ -1102,9 +1103,8 @@ define(function(require) {
 
     // Show the first IP two times for the dropdown.
     var copy_nics = Object.assign([], all_nics);
-
+    
     var first_nic = Object.assign({}, all_nics[0]);
-    delete first_nic["EXTERNAL_IP"];
     delete first_nic["ALIAS_IDS"];
     copy_nics.unshift(first_nic);
     var first = true;
@@ -1112,14 +1112,17 @@ define(function(require) {
 
     return copy_nics.reduce(function(column, nic) {
       if (first){
-        if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+        if (nic.EXTERNAL_IP || nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
           var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
-          column.append(nic.NIC_ID + ": " + ip + "<end_first_ip>");
+          nic_and_ip = nic.NIC_ID + ": " + ip;
+          if (nic.EXTERNAL_IP)
+            nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>"
+          column.append(nic_and_ip + "<end_first_ip>");
         }
         first=false;
       }
       else{
-        if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+        if (nic.EXTERNAL_IP || nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
           var ip;
 
           var nicSection = $("<a/>").css("color", "gray");
