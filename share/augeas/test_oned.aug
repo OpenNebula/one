@@ -39,6 +39,13 @@ LOG = [
 
     test Oned.lns get
 "A=1
+# comment
+  # comment with leading space
+	# comment with leading tab
+" =?
+
+    test Oned.lns get
+"A=1
 A=1
 B=2 # comment
 # abc
