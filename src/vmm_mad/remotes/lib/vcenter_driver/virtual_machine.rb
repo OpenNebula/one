@@ -1054,7 +1054,8 @@ end
             else
                 if snapshots?
                     error = 'Disk metadata not present and snapshots exist. ' \
-                            'OpenNebula cannot manage this VM.'
+                            'Please remove imported VM with "onevm recover ' \
+                            '--delete-db".'
                     raise error
                 end
 
