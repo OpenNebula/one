@@ -748,6 +748,12 @@ Style/SwapValues:
 # LINT
 ######
 
+Lint/IneffectiveAccessModifier:
+    Enabled: false
+
+Lint/OrAssignmentToConstant:
+    Enabled: false
+
 Lint/ConstantDefinitionInBlock:
     Enabled: false
 
@@ -907,6 +913,9 @@ Metrics/AbcSize:
 # Disable method length
 Metrics/MethodLength:
   Enabled: false
+
+Naming/VariableName:
+    Enabled: false
 
 # uppercase constant mandatory
 Naming/ConstantName:
