@@ -96,7 +96,7 @@ class ElasticDriver < VNMMAD::VNMDriver
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             cmds.add :ip, "route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true"
-            cmds.add :ip, "neigh del proxy #{nic[:gateway]} dev #{nic[:bridge]} | true"
+            cmds.add :ip, "neighbour del proxy #{nic[:gateway]} dev #{nic[:bridge]} | true"
 
             provider.deactivate(cmds, nic) if provider.respond_to? :deactivate
 
