@@ -19,16 +19,16 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseDialog = require('utils/dialogs/dialog');
-  var TemplateHTML = require('hbs!./generic-confirm/html');
-  var Sunstone = require('sunstone');
-  var Locale = require('utils/locale');
+  var BaseDialog = require("utils/dialogs/dialog");
+  var TemplateHTML = require("hbs!./generic-confirm/html");
+  var Sunstone = require("sunstone");
+  var Locale = require("utils/locale");
 
   /*
     CONSTANTS
    */
 
-  var DIALOG_ID = require('./generic-confirm/dialogId');
+  var DIALOG_ID = require("./generic-confirm/dialogId");
 
   /*
     CONSTRUCTOR
@@ -86,14 +86,14 @@ define(function(require) {
 
     $(context).keypress(function (e) {
       if (e.which == 13 || e.keyCode == 13) {
-        $('#' + DIALOG_ID + 'Form', context).submit();
+        $("#" + DIALOG_ID + "Form", context).submit();
         return false;
       } else {
         return true;
       }
     });
 
-    $('#' + DIALOG_ID + 'Form', context).submit(function(e) {
+    $("#" + DIALOG_ID + "Form", context).submit(function(e) {
       // With more than one button, skip
       if (that.params.buttons != undefined && that.params.buttons.length > 1){
         e.preventDefault();
@@ -109,10 +109,10 @@ define(function(require) {
       return false;
     });
 
-    $(context).on("click", ".custom_submit", function(){
+    $(context).on("click", ".custom_submit", function(e){
+      e.preventDefault();
       var index = $(this).attr("submit");
       that.params.submit[index]();
-
       Sunstone.getDialog(DIALOG_ID).hide();
       return false;
     });
@@ -137,7 +137,7 @@ define(function(require) {
       var html = "";
 
       $.each(this.params.buttons, function(i, text){
-        html += '<button class="custom_submit radius button right" submit="'+i+'">'+text+'</button>';
+        html += "<button class=\"custom_submit radius button right\" submit=\""+i+"\">"+text+"</button>";
       });
 
       $(".form_buttons", context).html(html);
