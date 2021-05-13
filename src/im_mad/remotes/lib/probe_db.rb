@@ -94,14 +94,12 @@ class VirtualMachineDB
         @host_id = host_id
         @conf = VirtualMachineDB.load_conf(hyperv, @host_id, opts)
 
-        @mtime = 0
-        @mtime = File.mtime(@conf[:db_path]) if File.exist?(@conf[:db_path])
-
         @db = SQLite3::Database.new(@conf[:db_path])
 
         bootstrap
 
         @dataset = 'states'
+        @settings = 'settings'
     end
 
     # Deletes obsolete VM entries
@@ -115,8 +113,7 @@ class VirtualMachineDB
     # as VMs that have been reported as missing more than missing_times
     def to_status
         time = Time.now.to_i
-        last = @db.execute("SELECT MAX(timestamp) from #{@dataset}").flatten![0]
-        last ||= @mtime.to_i
+        last = @db.execute("SELECT value from #{@settings} where key = 'LAST_SYNC'").flatten[0].to_i
 
         return sync_status(@host, @host_id) if last == 0 || time > (last + @conf[:sync].to_i)
 
@@ -216,6 +213,11 @@ class VirtualMachineDB
         sql << ' missing INTEGER, state VARCHAR(128), hyperv VARCHAR(128))'
 
         @db.execute(sql)
+
+        sql = 'CREATE TABLE IF NOT EXISTS settings(key VARCHAR(128) PRIMARY KEY,'
+        sql << ' value VARCHAR(128))'
+
+        @db.execute(sql)
     end
 
     private
@@ -242,6 +244,8 @@ class VirtualMachineDB
 
             status_str << vm_to_status(vm)
         end
+
+        @db.execute("REPLACE INTO #{@settings} VALUES ('LAST_SYNC', #{time.to_s})")
 
         status_str
     end
