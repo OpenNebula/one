@@ -272,7 +272,7 @@ CommandParser::CmdParser.new(ARGV) do
                                                            vi_client,
                                                            options[:object])
 
-            if options[:object] == "networks" && !args.first.nil?
+            if options[:object] == 'networks' && !args.first.nil?
                 indexes = args.first
             else
                 importer.retrieve_resources(helper.parse_opts(options))

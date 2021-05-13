@@ -64,7 +64,7 @@ require 'nsx_driver'
 def modified?(template)
     template_xml = Nokogiri::XML(template)
     action = template_xml.xpath('//TEMPLATE/NIC[ATTACH="YES"]')
-    action.empty? ? false : true
+    !action.empty?
 end
 
 template = Base64.decode64(STDIN.read)
