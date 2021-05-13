@@ -1,9 +1,10 @@
 module Oned =
   autoload xfm
 
-(* Version: 1.4 *)
+(* Version: 1.5 *)
 
 (* Change log: *)
+(*   1.5: Allow space before comment      *)
 (*   1.4: Allow space after section       *)
 (*   1.3: Allow escaped quotes in values  *)
 (*   1.2: Include /etc/one/monitord.conf  *)
@@ -30,8 +31,12 @@ let re_section_value_str = /[^ \t\n"#,]+/
 
 (* Store either after-value comment or full-line comment *)
 let comment = [ label "#comment" . store /#[^\n]*/ ]
-let comment_eol = comment . eol
 
+(* Comment with leading space *)
+let space_comment = [ label "#comment" . store /[ \t][ \t]*#[^\n]*/ ]
+
+let comment_eol = comment . eol
+let space_comment_eol = space_comment . eol
 
 (* Simple words *)
 let name = key /[A-Za-z_0-9]+/
@@ -66,7 +71,7 @@ let section = opt_space
 let empty_line = [ del /[ \t]*\n/ "\n" ]
 
 (* Main lens *)
-let lns = ( top_level_line | comment_eol | section | empty_line )*
+let lns = ( top_level_line | comment_eol | space_comment_eol | section | empty_line )*
 
 
 (* Variable: filter *)
