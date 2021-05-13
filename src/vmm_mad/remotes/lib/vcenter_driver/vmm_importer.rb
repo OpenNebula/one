@@ -54,6 +54,14 @@ module VCenterDriver
 
             vc_vm = VCenterDriver::VirtualMachine.new_without_id(@vi_client,
                                                                  vm_ref)
+
+            # Importing Wild VMs with snapshots is not supported
+            # https://github.com/OpenNebula/one/issues/1268
+            if vc_vm.snapshots? && vc_vm.disk_keys.empty?
+                raise 'Disk metadata not present and snapshots exist, '\
+                      'cannot import this VM'
+            end
+
             vname = vc_vm['name']
 
             type = { :object => 'VM', :id => vname }
