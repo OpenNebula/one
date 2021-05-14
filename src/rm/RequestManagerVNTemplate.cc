@@ -49,23 +49,10 @@ void VNTemplateInstantiate::request_execute(xmlrpc_c::paramList const& paramList
     string name = xmlrpc_c::value_string(paramList.getString(2));
     string str_uattrs = xmlrpc_c::value_string(paramList.getString(3));
 
-    if ( auto tmpl = pool->get_ro<VNTemplate>(id) )
-    {
-        string original_tmpl_name = tmpl->get_name();
-    }
-    else
-    {
-        att.resp_id = id;
-        failure_response(NO_EXISTS, att);
-        return;
-    }
-
-    int instantiate_id = id;
-
     int       vid;
     ErrorCode ec;
 
-    ec = request_execute(instantiate_id, name, str_uattrs, 0, vid, att);
+    ec = request_execute(id, name, str_uattrs, 0, vid, att);
 
     if ( ec == SUCCESS )
     {
