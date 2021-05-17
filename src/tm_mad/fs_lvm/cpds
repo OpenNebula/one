@@ -39,6 +39,7 @@ DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
 source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
