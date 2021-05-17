@@ -514,7 +514,15 @@ void LifeCycleManager::trigger_shutdown(int vid, bool hard,
                 vm->get_state() == VirtualMachine::UNDEPLOYED)
         {
             vm->set_state(VirtualMachine::ACTIVE);
-            vm->set_state(VirtualMachine::EPILOG);
+
+            if ( vm->get_state() == VirtualMachine::STOPPED )
+            {
+                vm->set_state(VirtualMachine::EPILOG_STOP);
+            }
+            else // if ( vm->get_state() == VirtualMachine::UNDEPLOYED )
+            {
+                vm->set_state(VirtualMachine::EPILOG_UNDEPLOY);
+            }
 
             Quotas::vm_check(uid, gid, &quota_tmpl, error);
 
