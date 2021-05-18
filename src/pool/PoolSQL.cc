@@ -158,7 +158,14 @@ void PoolSQL::exist(const string& id_str, std::set<int>& id_list)
     std::vector<int> existing_items;
 
     one_util::split_unique(id_str, ',', id_list);
-    search(existing_items, table.c_str(), "true order by 1 ASC");
+    if (Nebula::instance().get_db_backend() == "postgresql")
+    {
+        search(existing_items, table.c_str(), "true order by 1 ASC");
+    }
+    else
+    {
+        search(existing_items, table.c_str(), "1 order by 1 ASC");
+    }
 
     for (auto iterator = id_list.begin(); iterator != id_list.end();)
     {
