@@ -188,6 +188,10 @@ define(function(require) {
         ? nic["RDP"] = "YES"
         : delete nic["RDP"];
 
+      (Boolean($("input#" + that.id + "_ssh", context).prop("checked")))
+        ? nic["SSH"] = "YES"
+        : delete nic["SSH"];
+
       if ( !nic["NETWORK_MODE"] || ( nic["NETWORK_MODE"] && nic["NETWORK_MODE"] !== "auto" ) )
       {
         var ip4 = $("input.manual_ip4", $(this)).val();
