@@ -1,0 +1,204 @@
+#!/usr/bin/env ruby
+
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to register a new IP network in the IPAM. The network may
+# be selected by a pool of free networks or if an specific network is requested
+# its availability maybe checked by the IPAM driver.
+#
+# The IPAM driver must return an OpenNebula AddressRange definition, potentially
+# augmented with network specific variables to be used by VMs (e.g. GATEWAYS,
+# MASK...)
+#
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+# XML format
+#  <IPAM_DRIVER_ACTION_DATA>
+#    <AR>
+#      <TYPE>Type of the Ip (public/global)</TYPE>
+#      <SIZE>Number of IPs to allocate</SIZE>
+#      <PROVISION_ID>ID</PROVISION_ID>
+#    </AR>
+#  </IPAM_DRIVER_ACTION_DATA>
+#
+# The response MUST include IPAM_MAD, TYPE, IP and SIZE attributes, example:
+#   - A basic network definition
+#       AR = [
+#         IPAM_MAD = "vultr",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.1",
+#         SIZE = "255",
+#         DEPLOY_ID = "..",
+#       ]
+#
+#   - A complete network definition. Custom attributes (free form, key-value)
+#     can be added, named cannot be repeated.
+#       AR = [
+#         IPAM_MAD = "vultr",
+#         TYPE = "IP4",
+#         IP   = "10.0.0.2",
+#         SIZE = "200",
+#         DEPLOY_ID = "..",
+#         NETWORK_ADDRESS   = "10.0.0.0",
+#         NETWORK_MASK      = "255.255.255.0",
+#         GATEWAY           = "10.0.0.1",
+#         DNS               = "10.0.0.1",
+#         IPAM_ATTR         = "10.0.0.240",
+#         OTHER_IPAM_ATTR   = ".mydoamin.com"
+#       ]
+################################################################################
+
+ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
+
+if !ONE_LOCATION
+    LIB_LOCATION      ||= '/usr/lib/one'
+    VULTR_LOCATION    ||= '/usr/lib/one/ruby/vendors/vultr/lib'
+    RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
+    GEMS_LOCATION     ||= '/usr/share/one/gems'
+else
+    LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    VULTR_LOCATION    ||= ONE_LOCATION + '/lib/ruby/vendors/vultr/lib'
+    RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
+    GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+end
+
+# %%RUBYGEMS_SETUP_BEGIN%%
+if File.directory?(GEMS_LOCATION)
+    real_gems_path = File.realpath(GEMS_LOCATION)
+    if !defined?(Gem) || Gem.path != [real_gems_path]
+        $LOAD_PATH.reject! {|l| l =~ /vendor_ruby/ }
+
+        # Suppress warnings from Rubygems
+        # https://github.com/OpenNebula/one/issues/5379
+        begin
+            verb = $VERBOSE
+            $VERBOSE = nil
+            require 'rubygems'
+            Gem.use_paths(real_gems_path)
+        ensure
+            $VERBOSE = verb
+        end
+    end
+end
+# %%RUBYGEMS_SETUP_END%%
+
+$LOAD_PATH << VULTR_LOCATION
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
+
+require 'base64'
+require 'digest'
+require 'ipaddr'
+require 'nokogiri'
+
+require 'opennebula'
+require 'oneprovision'
+require 'vultr'
+
+IP_TYPE = %w[v4 v6]
+
+DEFAULT_PRIVATE_CIDR = '172.16.0.0/12'
+
+# IP Address Class
+class IPAddr
+
+    # Add ^ operator to the IPAddr class
+    def ^(other)
+        clone.set(@addr ^ other.to_i)
+    end
+
+end
+
+begin
+    data = Nokogiri::XML(Base64.decode64(STDIN.read))
+
+    # --------------------------------------------------------------------------
+    # Get connection details for the provider
+    # --------------------------------------------------------------------------
+    provision_id = data.xpath('//AR/PROVISION_ID').text
+
+    if provision_id.empty?
+        STDERR.puts 'Missing provision id in address range'
+        exit(-1)
+    end
+
+    one       = OpenNebula::Client.new
+    provision = OneProvision::Provision.new_with_id(provision_id, one)
+    rc        = provision.info
+
+    if OpenNebula.is_error?(rc)
+        STDERR.puts rc.message
+        exit(-1)
+    end
+
+    provider = provision.provider
+    connect  = provider.body['connection']
+
+    v_key    = connect['key']
+    v_region = connect['region']
+
+    # --------------------------------------------------------------------------
+    # Connect to Vultr and allocate a new IP
+    # --------------------------------------------------------------------------
+    vultr = Vultr.new(v_key)
+
+    ip_type = data.xpath('//AR/VULTR_IP_TYPE').text
+    ip_size = Integer(data.xpath('//AR/SIZE').text)
+
+    if Integer(ip_size) != 1
+        STDERR.puts 'Only address ranges of size 1 are supported'
+        exit(-1)
+    end
+
+    if ip_type.empty?
+        ip_type = IP_TYPE[0]
+    elsif !IP_TYPE.include?(ip_type)
+        STDERR.puts "Type #{ip_type} not supported. " \
+                    "Must be: #{IP_TYPE.join(', ')}"
+        exit(-1)
+    end
+
+    nic = vultr.create_nic(v_region, ip_type)
+
+    raise nic if VultrError.error?(nic)
+
+    eip  = IPAddr.new(nic['subnet'])
+    ipgw = eip ^ 1
+
+    puts <<-EOF
+        AR = [
+            TYPE     = "IP4",
+            IP       = "#{nic['subnet']}",
+            SIZE     = "#{ip_size}",
+            IPAM_MAD = "vultr",
+            GATEWAY  = "#{ipgw}",
+            EXTERNAL_IP  = "#{nic['subnet']}",
+            NETWORK_MASK = "255.255.255.254",
+            VULTR_IP_ID  = "#{nic['id']}",
+            PROVISION_ID = "#{provision_id}"
+        ]
+    EOF
+rescue StandardError => e
+    error_str = "ERROR MESSAGE --8<------\n"
+    error_str << e.to_s
+    error_str << "\nERROR MESSAGE ------>8--"
+
+    STDERR.puts error_str
+    exit(-1)
+end

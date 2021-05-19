@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -14,15 +16,6 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'terraform/providers/aws'
-require 'terraform/providers/digitalocean'
-require 'terraform/providers/dummy'
-require 'terraform/providers/google'
-require 'terraform/providers/packet'
-require 'terraform/providers/vultr'
-require 'terraform/providers/vultr_metal'
-require 'terraform/providers/vultr_virtual'
+STDIN = `cat -`
 
-# Module OneProvision
-module OneProvision
-end
+exit(0)

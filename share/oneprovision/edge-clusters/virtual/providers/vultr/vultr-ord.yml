@@ -1,0 +1,25 @@
+name: 'vultr-chicago'
+
+description: 'Edge cluster in Vultr Chicago'
+provider: 'vultr_virtual'
+
+plain:
+  image: 'VULTR'
+  location_key: 'region'
+  provision_type: 'virtual'
+
+connection:
+  key: 'Vultr key'
+  region: 'ord'
+
+inputs:
+   - name: 'vultr_os'
+     type: 'list'
+     options:
+       - '362'
+   - name: 'vultr_plan'
+     type: 'list'
+     options:
+       - 'vc2-1c-1gb'
+       - 'vc2-1c-2gb'
+       - 'vc2-1c-4gb'

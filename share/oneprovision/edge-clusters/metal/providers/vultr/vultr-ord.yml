@@ -1,0 +1,23 @@
+name: 'vultr-chicago'
+
+description: 'Edge cluster in Vultr Chicago'
+provider: 'vultr_metal'
+
+plain:
+  image: 'VULTR'
+  location_key: 'region'
+  provision_type: 'metal'
+
+connection:
+  key: 'Vultr key'
+  region: 'ord'
+
+inputs:
+   - name: 'vultr_os'
+     type: 'list'
+     options:
+       - '362'
+   - name: 'vultr_plan'
+     type: 'list'
+     options:
+       - 'vbm-8c-132gb'
