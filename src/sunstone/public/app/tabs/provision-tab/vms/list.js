@@ -328,29 +328,14 @@ define(function(require) {
           $(".provision_wfile_button", context).toggle(Boolean(OpenNebulaVM.isWFileSupported(data)));
           
           var state = get_provision_vm_state(data);
-          if (state.str === "RUNNING") {
-            $('.dropdown-menu-css', context).show();
-          }
-          else {
-            $('.dropdown-menu-css', context).hide();
-          }
-
           var is_vnc_allowed = OpenNebulaVM.isVNCSupported(data);
           var is_spice_allowed = OpenNebulaVM.isSPICESupported(data);
           var is_vmrc_allowed = OpenNebulaVM.isVMRCSupported(data);
           var is_virt_viewer_allowed = OpenNebulaVM.isWFileSupported(data);
-
-          if (is_spice_allowed) {
-            $(".provision_spice_button", context).parent().show();
-          }else{
-            $(".provision_spice_button", context).parent().hide();
-          }
-
-          if (is_virt_viewer_allowed) {
-            $(".provision_wfile_button", context).parent().show();
-          }else{
-            $(".provision_wfile_button", context).parent().hide();
-          }
+          
+          $('.dropdown-menu-css', context).toggle(state.str === "RUNNING");
+          $(".provision_spice_button", context).parent().toggle(is_spice_allowed);
+          $(".provision_wfile_button", context).parent().toggle(is_virt_viewer_allowed);
 
           if (is_fireedge_configured){
             $(".provision_vnc_button", context).parent().hide();
