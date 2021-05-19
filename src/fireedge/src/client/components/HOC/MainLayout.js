@@ -44,7 +44,6 @@ const MainLayout = ({ endpoints, children }) => {
   } = useAuth()
 
   useEffect(() => {
-    console.log({ isLoading })
     if (isLogged && !isLoginInProcess && !isLoading) {
       getAuthInfo()
     }
