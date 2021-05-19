@@ -1,4 +1,8 @@
 import PropTypes from 'prop-types'
+import { PROVIDERS_TYPES, PROVISIONS_TYPES } from 'client/constants'
+
+const providerTypes = Object.values(PROVIDERS_TYPES).map(({ id }) => id)
+const provisionTypes = Object.values(PROVISIONS_TYPES).map(({ id }) => id)
 
 export const UserInput = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -27,19 +31,9 @@ export const UserInput = PropTypes.shape({
   ])
 })
 
-export const ProviderType = PropTypes.oneOf([
-  'aws',
-  'packet',
-  'dummy',
-  'google',
-  'digitalocean'
-])
+export const ProviderType = PropTypes.oneOf(providerTypes)
 
-export const ProvisionType = PropTypes.oneOf([
-  'metal',
-  'virtual',
-  'onprem'
-])
+export const ProvisionType = PropTypes.oneOf(provisionTypes)
 
 export const ProvisionHost = PropTypes.shape({
   im_mad: PropTypes.string.isRequired,

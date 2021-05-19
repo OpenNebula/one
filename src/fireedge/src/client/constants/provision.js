@@ -65,15 +65,25 @@ export const PROVIDERS_TYPES = {
     name: 'Dummy',
     color: '#436637'
   },
-  google: {
-    id: 'google',
-    name: 'Google Cloud',
-    color: '#dc382b'
-  },
   digitalocean: {
     id: 'digitalocean',
     name: 'Digital Ocean',
     color: '#2381f5'
+  },
+  vultr_virtual: {
+    id: 'vultr_virtual',
+    name: 'Vultr Cloud Compute',
+    color: '#7ea3ca'
+  },
+  vultr_metal: {
+    id: 'vultr_metal',
+    name: 'Vultr Bare Metal',
+    color: '#7ea3ca'
+  },
+  google: {
+    id: 'google',
+    name: 'Google Cloud',
+    color: '#dc382b'
   }
 }
 
