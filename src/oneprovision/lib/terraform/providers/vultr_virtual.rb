@@ -14,15 +14,33 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-require 'terraform/providers/aws'
-require 'terraform/providers/digitalocean'
-require 'terraform/providers/dummy'
-require 'terraform/providers/google'
-require 'terraform/providers/packet'
 require 'terraform/providers/vultr'
-require 'terraform/providers/vultr_metal'
-require 'terraform/providers/vultr_virtual'
 
 # Module OneProvision
 module OneProvision
+
+    # Vultr Virtual Terraform Provider
+    class VultrVirtual < Vultr
+
+        # OpenNebula - Terraform equivalence
+        TYPES = {
+            :cluster   => 'vultr_private_network',
+            :datastore => '',
+            :host      => 'vultr_instance',
+            :network   => ''
+        }
+
+        # Class constructor
+        #
+        # @param provider [Provider]
+        # @param state    [String] Terraform state in base64
+        # @param conf     [String] Terraform config state in base64
+        def initialize(provider, state, conf)
+            @dir = "#{PROVIDERS_LOCATION}/templates/vultr_virtual"
+
+            super
+        end
+
+    end
+
 end

@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -13,19 +15,27 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
+
+###############################################################################
+# This script is used to unregister a new IP network in the IPAM.
 #
+# STDIN Input:
+#   - Base64 encoded XML with AR request
+#
+################################################################################
+
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     LIB_LOCATION      ||= '/usr/lib/one'
+    VULTR_LOCATION    ||= '/usr/lib/one/ruby/vendors/vultr/lib'
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
-    PACKET_LOCATION   ||= '/usr/lib/one/ruby/vendors/packethost/lib'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    VULTR_LOCATION    ||= '/usr/lib/one/ruby/vendors/vultr/lib'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-    PACKET_LOCATION   ||= ONE_LOCATION + '/lib/ruby/vendors/packethost/lib'
 end
 
 # %%RUBYGEMS_SETUP_BEGIN%%
@@ -48,68 +58,64 @@ if File.directory?(GEMS_LOCATION)
 end
 # %%RUBYGEMS_SETUP_END%%
 
+$LOAD_PATH << VULTR_LOCATION
 $LOAD_PATH << RUBY_LIB_LOCATION
-$LOAD_PATH << PACKET_LOCATION
+$LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
 
-require 'packet'
+require 'base64'
+require 'nokogiri'
 
-# Class covering Packet/Equinix functionality for Elastic driver
-class PacketProvider
+require 'opennebula'
+require 'oneprovision'
+require 'vultr'
 
-    def initialize(provider, host)
-        connect = provider.body['connection']
+begin
+    data = Nokogiri::XML(Base64.decode64(STDIN.read))
 
-        @client = Packet::Client.new(connect['token'])
-        @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
+    # --------------------------------------------------------------------------
+    # Get connection details for the provider
+    # --------------------------------------------------------------------------
+    provision_id = data.xpath('//AR/PROVISION_ID').text
+
+    if provision_id.empty?
+        STDERR.puts 'Missing provision id in address range'
+        exit(-1)
     end
 
-    def assign(_ip, external, _opts = {})
-        @client.assign_cidr_device("#{external}/32", @deploy_id)
-        0
-    rescue Packet::Error => e
-        # potential VM poweroff(itself) + resume
+    one       = OpenNebula::Client.new
+    provision = OneProvision::Provision.new_with_id(provision_id, one)
+    rc        = provision.info
 
-        if e.message == '{"errors"=>["Address has already been taken"]}'
-            return 0
-        end
-
-        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
-        1
-    rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
-        1
+    if OpenNebula.is_error?(rc)
+        STDERR.puts rc.message
+        exit(-1)
     end
 
-    def unassign(_ip, external, _opts = {})
-        dev = @client.get_device(@deploy_id)
+    provider = provision.provider
+    connect  = provider.body['connection']
+    v_key    = connect['key']
 
-        ip = dev.ip_addresses.select do |i|
-            i['address'] == external &&
-            i['cidr'] == 32 &&
-            i['address_family'] == 4
-        end
+    # --------------------------------------------------------------------------
+    # Connect to Vultr and delete the IP
+    # --------------------------------------------------------------------------
+    vultr = Vultr.new(v_key)
+    v_id  = data.xpath('//AR/VULTR_IP_ID').text.to_s
 
-        @client.delete_ip(ip[0]['id'])
-    rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{external}:#{e.message}")
+    if v_id.empty?
+        STDERR.puts 'Missing Vultr range ID'
+        exit(-1)
     end
 
-    def activate(cmds, nic)
-        cmds.add :iptables,
-                 "-t nat -A POSTROUTING -s #{nic[:ip]} -j SNAT " \
-                 "--to-source #{nic[:external_ip]}"
-        cmds.add :iptables,
-                 "-t nat -A PREROUTING -d #{nic[:external_ip]} -j DNAT " \
-                 "--to-destination #{nic[:ip]}"
-    end
+    rc = vultr.delete_nic(v_id)
 
-    def deactivate(cmds, nic)
-        cmds.add :iptables,
-                 "-t nat -D POSTROUTING -s #{nic[:ip]} -j SNAT " \
-                 "--to-source #{nic[:external_ip]}"
-        cmds.add :iptables,
-                 "-t nat -D PREROUTING -d #{nic[:external_ip]} -j DNAT " \
-                 "--to-destination #{nic[:ip]}"
-    end
+    raise rc if VultrError.error?(rc)
 
+    exit(0)
+rescue StandardError => e
+    error_str = "ERROR MESSAGE --8<------\n"
+    error_str << e.to_s
+    error_str << "\nERROR MESSAGE ------>8--"
+
+    STDERR.puts error_str
+    exit(-1)
 end

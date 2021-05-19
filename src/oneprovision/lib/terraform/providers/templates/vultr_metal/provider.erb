@@ -1,0 +1,14 @@
+terraform {
+
+    required_providers {
+        vultr = {
+            source  = "vultr/vultr"
+            version = "2.2.0"
+        }
+    }
+}
+
+provider "vultr" {
+    api_key = "<%= conn['KEY'] %>"
+}
+

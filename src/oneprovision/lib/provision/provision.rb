@@ -11,7 +11,6 @@
 # See the License for the specific language governing permissions and        #
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
-
 require 'opennebula/document_json'
 require 'opennebula/wait_ext'
 
@@ -742,6 +741,14 @@ module OneProvision
 
                 # Add deployment ID
                 host.one.add_element('//TEMPLATE/PROVISION', 'DEPLOY_ID' => id)
+
+                # Read private IP if any
+                terraform = Terraform.singleton(@provider, {})
+
+                if terraform.respond_to? :add_host_vars
+                    terraform.add_host_vars(host)
+                end
+
                 host.one.update(host.one.template_str)
 
                 h['name'] = name

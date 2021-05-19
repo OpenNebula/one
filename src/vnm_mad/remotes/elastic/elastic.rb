@@ -74,7 +74,8 @@ class ElasticDriver < VNMMAD::VNMDriver
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             cmds.add :ip, "route add #{nic[:ip]}/32 dev #{nic[:bridge]} ||:"
-            cmds.add :ip, "neighbour add proxy #{nic[:gateway]} dev #{nic[:bridge]}"
+            cmds.add :ip,
+                     "neighbour add proxy #{nic[:gateway]} dev #{nic[:bridge]}"
 
             provider.activate(cmds, nic) if provider.respond_to? :activate
         end
@@ -95,15 +96,18 @@ class ElasticDriver < VNMMAD::VNMDriver
         process_all do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-            cmds.add :ip, "route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true"
-            cmds.add :ip, "neighbour del proxy #{nic[:gateway]} dev #{nic[:bridge]} | true"
+            cmds.add :ip,
+                     "route del #{nic[:ip]}/32 dev #{nic[:bridge]} | true"
+            cmds.add :ip,
+                     "neighbour del proxy #{nic[:gateway]} " \
+                     "dev #{nic[:bridge]} | true"
 
             provider.deactivate(cmds, nic) if provider.respond_to? :deactivate
 
             # TODO: MUST check if bridge is empty. Move to remote_clean
-            #next if nic[:parent_nic] || nic[:conf][:keep_empty_bridge]
+            # next if nic[:parent_nic] || nic[:conf][:keep_empty_bridge]
             #
-            #cmds.add :ip, "link delete #{nic[:bridge]} | true"
+            # cmds.add :ip, "link delete #{nic[:bridge]} | true"
         end
 
         cmds.run_remote(@ssh)
@@ -126,7 +130,9 @@ class ElasticDriver < VNMMAD::VNMDriver
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
             # pass aws_allocation_id if present
-            opts = { :alloc_id => nic[:aws_allocation_id] }
+            # pass vultr_ip_id if present
+            opts = { :alloc_id => nic[:aws_allocation_id],
+                     :vultr_id => nic[:vultr_ip_id] }
 
             break false \
                 unless provider.assign(nic[:ip], nic[:external_ip], opts) == 0
@@ -154,7 +160,10 @@ class ElasticDriver < VNMMAD::VNMDriver
         @vm.each_nic_all do |nic|
             next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
-            provider.unassign(nic[:ip], nic[:external_ip])
+            # pass vultr_ip_id if present
+            opts = { :vultr_id => nic[:vultr_ip_id] }
+
+            provider.unassign(nic[:ip], nic[:external_ip], opts)
         end
     end
 
@@ -169,6 +178,9 @@ class ElasticDriver < VNMMAD::VNMDriver
         when 'packet'
             require 'packet_vnm'
             PacketProvider.new(provider, host)
+        when 'vultr_virtual', 'vultr_metal'
+            require 'vultr_vnm'
+            VultrProvider.new(provider, host)
         else
             nil
         end
@@ -178,8 +190,6 @@ class ElasticDriver < VNMMAD::VNMDriver
         )
         nil
     end
-
-    private
 
 end
 # rubocop:enable Naming/FileName

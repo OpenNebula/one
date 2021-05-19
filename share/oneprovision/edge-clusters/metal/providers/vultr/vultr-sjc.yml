@@ -1,0 +1,23 @@
+name: 'vultr-san-francisco'
+
+description: 'Edge cluster in Vultr San Francisco'
+provider: 'vultr_metal'
+
+plain:
+  image: 'VULTR'
+  location_key: 'region'
+  provision_type: 'metal'
+
+connection:
+  key: 'Vultr key'
+  region: 'sjc'
+
+inputs:
+   - name: 'vultr_os'
+     type: 'list'
+     options:
+       - '362'
+   - name: 'vultr_plan'
+     type: 'list'
+     options:
+       - 'vbm-8c-132gb'

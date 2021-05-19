@@ -20,10 +20,12 @@ if !ONE_LOCATION
     LIB_LOCATION      ||= '/usr/lib/one'
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
+    VULTR_LOCATION    ||= '/usr/lib/one/ruby/vendors/vultr/lib'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
+    VULTR_LOCATION    ||= ONE_LOCATION + '/lib/ruby/vendors/vultr/lib'
 end
 
 # %%RUBYGEMS_SETUP_BEGIN%%
@@ -46,78 +48,77 @@ if File.directory?(GEMS_LOCATION)
 end
 # %%RUBYGEMS_SETUP_END%%
 
-$LOAD_PATH << LIB_LOCATION + '/oneprovision/lib'
+$LOAD_PATH << RUBY_LIB_LOCATION
+$LOAD_PATH << VULTR_LOCATION
 
-require 'aws-sdk-ec2'
-require 'ipaddr'
+require 'vultr'
 
-# Class covering AWS functionality for Elastic driver
-class AWSProvider
+# Class covering Vultr functionality for Elastic driver
+class VultrProvider
 
+    # Class constructor
+    #
+    # @param provider [OpenNebula::Provider] Provider information
+    # @param host     [OpenNebula:Host]      Host information
     def initialize(provider, host)
         connect = provider.body['connection']
 
-        options = {
-            :access_key_id     => connect['access_key'],
-            :secret_access_key => connect['secret_key'],
-            :region            => connect['region']
-        }
-
-        Aws.config.merge!(options)
-
-        @ec2       = Aws::EC2::Resource.new.client
+        @client    = Vultr.new(connect['key'])
         @deploy_id = host['TEMPLATE/PROVISION/DEPLOY_ID']
     end
 
-    # Assign a private IP to the instance, associate given elastic ip with it
-    #   @param ip               [String]  private_ip for AWS
-    #   @param external         [String]  public_ip, not used for AWS
-    #   @param opts             [Hash]
-    #          opts[:alloc_id]  [String]  must contain public_ip alloc id
-    #   @return 0 on success, 1 on error
-    def assign(ip, _external, opts = {})
-        instcs = @ec2.describe_instances({ :instance_ids => [@deploy_id] })
-        inst   = instcs[0][0].instances[0]
+    # Assign a reserved IP to the instance
+    #
+    # @param opts [Hash] opts[:vultr_ip_id] must contain reserved IP ID
+    #
+    # @return [Integer] 0 on success, 1 on error
+    def assign(_, _, opts = {})
+        rc = @client.attach_nic(@deploy_id, opts[:vultr_id])
 
-        nic_id = inst.network_interfaces[0].network_interface_id
-
-        @ec2.assign_private_ip_addresses(
-            { :network_interface_id => nic_id,
-              :private_ip_addresses => [ip] }
-        )
-
-        @ec2.associate_address(
-            { :network_interface_id => nic_id,
-              :allocation_id        => opts[:alloc_id],
-              :private_ip_address   => ip }
-        )
-
-        0
-    rescue StandardError => e
-        OpenNebula.log_error("Error assiging #{ip}:#{e.message}")
-        1
-    end
-
-    #  Unassign a public_ip from an instance
-    #   @param ip       [String] not used for AWS
-    #   @param external [String] the public ip
-    def unassign(ip, external, _opts = {})
-        filter = [{ :name => 'public-ip', :values => [external] }]
-        aws_ip = @ec2.describe_addresses({ :filters => filter }).addresses[0]
-
-        if aws_ip.nil? \
-                || aws_ip.network_interface_id.nil? \
-                || aws_ip.private_ip_address.nil?
-            return
+        if VultrError.error?(rc)
+            if rc.message == 'IP is already attached to a server'
+                return 0
+            else
+                OpenNebula.log_error("Error assiging #{rc.message}")
+                return 1
+            end
         end
 
-        # free associated private ip, it frees associated public ip
-        @ec2.unassign_private_ip_addresses(
-            { :network_interface_id => aws_ip.network_interface_id,
-              :private_ip_addresses => [aws_ip.private_ip_address] }
-        )
-    rescue StandardError
-        OpenNebula.log_error("Error unassiging #{ip}:#{e.message}")
+        0
+    end
+
+    # Unassign a reserved IP from the instance
+    #
+    # @param opts [Hash] opts[:vultr_ip_id] must contain reserved IP ID
+    #
+    # @return [Integer] 0 on success, 1 on error
+    def unassign(_, _, opts = {})
+        rc = @client.detach_nic(@deploy_id, opts[:vultr_id])
+
+        if VultrError.error?(rc)
+            OpenNebula.log_error("Error unassiging #{rc.message}")
+            return 1
+        end
+
+        0
+    end
+
+    def activate(cmds, nic)
+        cmds.add :iptables,
+                 "-t nat -A POSTROUTING -s #{nic[:ip]} -j SNAT " \
+                 "--to-source #{nic[:external_ip]}"
+        cmds.add :iptables,
+                 "-t nat -A PREROUTING -d #{nic[:external_ip]} -j DNAT " \
+                 "--to-destination #{nic[:ip]}"
+    end
+
+    def deactivate(cmds, nic)
+        cmds.add :iptables,
+                 "-t nat -D POSTROUTING -s #{nic[:ip]} -j SNAT " \
+                 "--to-source #{nic[:external_ip]}"
+        cmds.add :iptables,
+                 "-t nat -D PREROUTING -d #{nic[:external_ip]} -j DNAT " \
+                 "--to-destination #{nic[:ip]}"
     end
 
 end

@@ -1,0 +1,9 @@
+################################################################################
+# Mandatory
+################################################################################
+
+# The network device to configure
+networking_iface: 'ens7'
+
+# Netmask of the interface
+networking_prefix: 20

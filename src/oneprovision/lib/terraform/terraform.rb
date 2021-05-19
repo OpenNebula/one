@@ -46,7 +46,13 @@ module OneProvision
     class Terraform
 
         # Providers that are currently available
-        PROVIDERS = %w[aws digitalocean google packet dummy]
+        PROVIDERS = %w[aws
+                       digitalocean
+                       dummy
+                       google
+                       packet
+                       vultr_metal
+                       vultr_virtual]
 
         # Class constructor
         #
@@ -77,6 +83,10 @@ module OneProvision
                 tf_class = DigitalOcean
             when 'dummy'
                 tf_class = Dummy
+            when 'vultr_metal'
+                tf_class = VultrMetal
+            when 'vultr_virtual'
+                tf_class = VultrVirtual
             else
                 raise OneProvisionLoopException,
                       "Unknown provider: #{provider.body['provider']}"
@@ -101,6 +111,8 @@ module OneProvision
                 keys = DigitalOcean::KEYS
             when 'dummy'
                 return true
+            when 'vultr_metal', 'vultr_virtual'
+                keys = Vultr::KEYS
             else
                 raise OneProvisionLoopException,
                       "Unknown provider: #{provider['provider']}"
