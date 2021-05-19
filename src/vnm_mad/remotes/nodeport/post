@@ -29,7 +29,8 @@ begin
     drv           = NodePortDriver.new(template64)
     filter_driver = VNMMAD::VNMDriver.filter_driver(template64,
                                                     xpath_filter,
-                                                    deploy_id)
+                                                    deploy_id,
+                                                    false)
     filter_driver.activate(true) if drv.activate == 0
 rescue Exception => e
     OpenNebula.log_error(e.message)
