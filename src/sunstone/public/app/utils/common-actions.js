@@ -35,6 +35,7 @@ define(function(require) {
   CommonActions.prototype.list = _list;
   CommonActions.prototype.show = _show;
   CommonActions.prototype.refresh = _refresh;
+  CommonActions.prototype.delWithoutRedirect = _delWithoutRedirect;
   CommonActions.prototype.del = _del;
   CommonActions.prototype.multipleAction = _multipleAction;
   CommonActions.prototype.singleAction = _singleAction;
@@ -114,6 +115,27 @@ define(function(require) {
         return Sunstone.getDataTable(that.tabId).elements(opts);
       },
       error: Notifier.onError,
+      notify: true
+    };
+  }
+
+  function _delWithoutRedirect() {
+    var that = this;
+    return {
+      type: "multiple",
+      call : that.openNebulaResource.del,
+      callback : function(request, response) {
+        var tab = $("#" + that.tabId);
+        if (Sunstone.getTab() == that.tabId) {
+          Sunstone.showTab(that.tabId);
+        }
+      },
+      elements: function(opts) {
+        return Sunstone.getDataTable(that.tabId).elements(opts);
+      },
+      error: function(req, res){
+        Notifier.notifyError(res && res.error && res.error.message);
+      },
       notify: true
     };
   }
@@ -217,7 +239,7 @@ define(function(require) {
       call: function() {
         var selectedNodes = Sunstone.getDataTable(that.tabId).elements();
         if (selectedNodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) resource to update.");
+          Notifier.notifyMessage(Locale.tr("Please select one (and just one) resource to update."));
           return false;
         }
 
@@ -235,7 +257,7 @@ define(function(require) {
       call: function() {
         var selectedNodes = Sunstone.getDataTable(that.tabId).elements();
         if (selectedNodes.length != 1) {
-          Notifier.notifyMessage("Please select one (and just one) resource to update.");
+          Notifier.notifyMessage(Locale.tr("Please select one (and just one) resource to update."));
           return false;
         }
 

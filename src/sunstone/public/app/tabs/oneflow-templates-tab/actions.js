@@ -38,7 +38,7 @@ define(function(require) {
     "ServiceTemplate.create" : _commonActions.create(CREATE_DIALOG_ID),
     "ServiceTemplate.show" : _commonActions.show(),
     "ServiceTemplate.refresh" : _commonActions.refresh(),
-    "ServiceTemplate.delete" : _commonActions.del(),
+    "ServiceTemplate.delete" : _commonActions.delWithoutRedirect(),
     "ServiceTemplate.chown": _commonActions.multipleAction("chown"),
     "ServiceTemplate.chgrp": _commonActions.multipleAction("chgrp"),
     "ServiceTemplate.chmod": _commonActions.singleAction("chmod"),

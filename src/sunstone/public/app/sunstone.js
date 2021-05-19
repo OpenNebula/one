@@ -951,7 +951,6 @@ define(function(require) {
 
     var actionCfg = actions[action];
     var notify = actionCfg.notify;
-
     var condition = actionCfg["condition"];
 
     //Is the condition to run the action met?
@@ -968,67 +967,78 @@ define(function(require) {
     var err = actionCfg["error"];
 
     switch (actionCfg.type){
-    case "create":
-    case "register":
-      call({data:dataArg, success: callback, error:err});
+      case "create":
+      case "register":
+        call({data:dataArg, success: callback, error:err});
       break;
-    case "single":
-      if (extraParam !== undefined) {
+      case "single":
+        if (extraParam !== undefined) {
+          call({
+            data:{
+              id:dataArg,
+              extra_param: extraParam
+            },
+            success: callback,
+            error: err
+          });
+        } else {
+          call({
+            data:{
+              id:dataArg
+            },
+            success: callback,
+            error:err
+          });
+        };
+      break;
+      case "list":
+        call({success: callback, error:err, options:dataArg});
+      break;
+      case "monitor_global":
         call({
-          data:{
-            id:dataArg,
-            extra_param: extraParam
-          },
-          success: callback, error:err
-        });
-      } else {
-        call({data:{id:dataArg}, success: callback, error:err});
-      };
-      break;
-    case "list":
-      call({success: callback, error:err, options:dataArg});
-      break;
-    case "monitor_global":
-      call({
           timeout: true,
           success: callback,
           error:err,
           data: {monitor: dataArg}});
       break;
-    case "monitor":
-    case "monitor_single":
-      call({
+      case "monitor":
+      case "monitor_single":
+        call({
           timeout: true,
           success: callback,
           error:err,
           data: {id:dataArg, monitor: extraParam}});
       break;
-    case "multiple":
-      $.each(dataArg, function() {
-        if (extraParam) {
-          call({
-                        data:{
-                          id:this,
-                          extra_param:extraParam
-                        },
-                        success: callback,
-                        error: err});
+      case "multiple":
+        $.each(dataArg, function() {
+          if (extraParam) {
+            call({
+              data:{
+                id:this,
+                extra_param:extraParam
+              },
+              success: callback,
+              error: err
+            });
         } else {
           call({
-              data:{id:this},
-              success: callback,
-              error:err});
+            data:{
+              id:this
+            },
+            success: callback,
+            error: err
+          });
         }
       });
       break;
-    default:
-      if (dataArg && extraParam) {
-        call(dataArg, extraParam);
-      } else if (dataArg) {
-        call(dataArg);
-      } else {
-        call();
-      }
+      default:
+        if (dataArg && extraParam) {
+          call(dataArg, extraParam);
+        } else if (dataArg) {
+          call(dataArg);
+        } else {
+          call();
+        }
     }
 
     if (notify) {
