@@ -17,9 +17,9 @@
 ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
-    VULTR_LOCATION ||= '/usr/lib/one/ruby/vendors/vultr/lib'
+    VULTR_LOCATION ||= '/usr/lib/one/oneprovision/provider_apis/vultr'
 else
-    VULTR_LOCATION ||= ONE_LOCATION + '/lib/ruby/vendors/vultr/lib'
+    VULTR_LOCATION ||= ONE_LOCATION + '/oneprovision/provider_apis/vultr'
 end
 
 $LOAD_PATH << VULTR_LOCATION
