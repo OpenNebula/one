@@ -811,49 +811,38 @@ define(function(require) {
 
     context.on("click", ".provision_vnc_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      var vm_data = $(".provision_info_vm", context).data("vm");
-      
-      Sunstone.runAction("VM.startvnc_action", vm_data);
+      Sunstone.runAction("VM.startvnc_action", vm_id);
       return false;
     });
 
     context.on("click", ".provision_spice_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      var vm_data = $(".provision_info_vm", context).data("vm");
-
-      Sunstone.runAction("VM.startspice_action", vm_data);
+      Sunstone.runAction("VM.startspice_action", vm_id);
       return false;
     });
 
     context.on("click", ".provision_vmrc_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      var vm_data = $(".provision_info_vm", context).data("vm");
-      var vm_name = OpenNebulaVM.getName(vm_data);
-      Sunstone.runAction("VM.startvmrc_action", vm_data, vm_name);
+      var vm_name = OpenNebulaVM.getName(vm_id);
+      Sunstone.runAction("VM.startvmrc_action", vm_id, vm_name);
       return false;
     });
 
     context.on("click", ".provision_guac_vnc_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      var vm_data = $(".provision_info_vm", context).data("vm");
-
-      Sunstone.runAction("VM.startguac_action", vm_data, 'vnc');
+      Sunstone.runAction("VM.startguac_action", vm_id, 'vnc');
       return false;
     });
 
     context.on("click", ".provision_guac_ssh_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      var vm_data = $(".provision_info_vm", context).data("vm");
-
-      Sunstone.runAction("VM.startguac_action", vm_data, 'ssh');
+      Sunstone.runAction("VM.startguac_action", vm_id, 'ssh');
       return false;
     });
 
     context.on("click", ".provision_guac_rdp_button", function(){
       var vm_id = $(".provision_info_vm", context).attr("vm_id");
-      var vm_data = $(".provision_info_vm", context).data("vm");
-
-      Sunstone.runAction("VM.startguac_action", vm_data, 'rdp');
+      Sunstone.runAction("VM.startguac_action", vm_id, 'rdp');
       return false;
     });
 
