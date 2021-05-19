@@ -543,8 +543,20 @@ helpers do
         session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
         session[:mode] = $conf[:mode]
 
-        auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>\w+)/)
-        session[:auth] = auth[:pass]
+        if RUBY_VERSION > '2.0.0'
+          auth = request.env['HTTP_AUTHORIZATION'].match(/(?<basic>\w+) (?<pass>\w+)/)
+          session[:auth] = auth[:pass]
+        else
+          auth = request.env['HTTP_AUTHORIZATION'].split(" ")
+          if auth[0] && auth[0].downcase === 'basic'
+            session[:auth] = auth[1]
+          else
+            logger.info { 'Unauthorized login attempt' }
+            return [401, '']
+          end
+        end
+
+
 
         #get firedge JWT
         session[:fireedge_token] = get_fireedge_token(two_factor_auth_token)
