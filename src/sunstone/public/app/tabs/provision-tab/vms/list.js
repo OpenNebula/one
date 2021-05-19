@@ -327,38 +327,43 @@ define(function(require) {
           $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp')));
           $(".provision_wfile_button", context).toggle(Boolean(OpenNebulaVM.isWFileSupported(data)));
 
-          if (OpenNebulaVM.isVNCSupported(data) && !is_fireedge_configured) {
-            $(".provision_vnc_button", context).parent().show();
-          }else{
-            $(".provision_vnc_button", context).parent().hide();
-          }
+          var is_vnc_allowed = OpenNebulaVM.isVNCSupported(data);
+          var is_spice_allowed = OpenNebulaVM.isSPICESupported(data);
+          var is_vmrc_allowed = OpenNebulaVM.isVMRCSupported(data);
+          var is_virt_viewer_allowed = OpenNebulaVM.isWFileSupported(data);
 
-          if (OpenNebulaVM.isSPICESupported(data)) {
+          if (is_spice_allowed) {
             $(".provision_spice_button", context).parent().show();
           }else{
             $(".provision_spice_button", context).parent().hide();
           }
 
-          if (OpenNebulaVM.isVMRCSupported(data)) {
-            $(".provision_vmrc_button", context).parent().show();
-          }else{
-            $(".provision_vmrc_button", context).parent().hide();
-          }
-
-          if (OpenNebulaVM.isWFileSupported(data)) {
+          if (is_virt_viewer_allowed) {
             $(".provision_wfile_button", context).parent().show();
           }else{
             $(".provision_wfile_button", context).parent().hide();
           }
 
-          if (OpenNebulaVM.isVNCSupported(data) && is_fireedge_configured) {
-            $(".provision_guac_vnc_button", context).parent().show();
-            $(".provision_guac_rdp_button", context).parent().show();
-            $(".provision_guac_ssh_button", context).parent().show();
-          }else{
+          if (is_fireedge_configured){
+            $(".provision_vnc_button", context).parent().hide();
+            if (is_vmrc_allowed) {
+              $(".provision_vmrc_button", context).parent().show();
+              $(".provision_guac_vnc_button", context).parent().hide();
+              $(".provision_guac_rdp_button", context).parent().hide();
+              $(".provision_guac_ssh_button", context).parent().hide(); 
+            }else { // Guacamole connections
+              $(".provision_vmrc_button", context).parent().hide();
+              $(".provision_guac_vnc_button", context).parent().show();
+              $(".provision_guac_rdp_button", context).parent().show();
+              $(".provision_guac_ssh_button", context).parent().show();
+            }
+          }
+          else{
+            $(".provision_vnc_button", context).parent().show();
+            $(".provision_vmrc_button", context).parent().hide();
             $(".provision_guac_vnc_button", context).parent().hide();
             $(".provision_guac_rdp_button", context).parent().hide();
-            $(".provision_guac_ssh_button", context).parent().hide();
+            $(".provision_guac_ssh_button", context).parent().hide(); 
           }
 
           $(".provision_info_vm", context).attr("vm_id", data.ID);
