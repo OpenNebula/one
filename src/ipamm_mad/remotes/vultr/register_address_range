@@ -68,12 +68,12 @@ ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     LIB_LOCATION      ||= '/usr/lib/one'
-    VULTR_LOCATION    ||= '/usr/lib/one/ruby/vendors/vultr/lib'
+    VULTR_LOCATION    ||= '/usr/lib/one/oneprovision/provider_apis/vultr'
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
-    VULTR_LOCATION    ||= ONE_LOCATION + '/lib/ruby/vendors/vultr/lib'
+    VULTR_LOCATION    ||= ONE_LOCATION + '/oneprovision/provider_apis/vultr'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
