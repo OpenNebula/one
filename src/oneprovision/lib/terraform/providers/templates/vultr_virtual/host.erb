@@ -1,0 +1,24 @@
+resource "vultr_startup_script" "device_<%= obj['ID'] %>" {
+    name   = "install_root_ssh_keys"
+    script = "<%= obj['user_data'] %>"
+}
+
+resource "vultr_instance" "device_<%= obj['ID'] %>" {
+    hostname            = "<%= provision['HOSTNAME'] %>"
+    plan                = "<%= provision['PLAN'] %>"
+    region              = "<%= provision['REGION'] %>"
+    os_id               = "<%= provision['OS'] %>"
+    script_id           = vultr_startup_script.device_<%= obj['ID'] %>.id
+    tag                 = "OpenNebula - ONE_ID=<%= obj['ID'] %>"
+    activation_email    = false
+    private_network_ids = [vultr_private_network.device_<%= c['ID'] %>.id]
+}
+
+output "ip_<%= obj['ID'] %>" {
+    value = vultr_instance.device_<%= obj['ID'] %>.main_ip
+}
+
+output "device_id_<%= obj['ID'] %>" {
+    value = vultr_instance.device_<%= obj['ID'] %>.id
+}
+

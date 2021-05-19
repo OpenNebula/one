@@ -299,6 +299,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal \
+          $LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual \
           $LIB_LOCATION/oneprovision/lib/provision \
           $LIB_LOCATION/oneprovision/lib/provision_template \
           $LIB_LOCATION/oneprovision/lib/provider \
@@ -499,6 +501,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/auth/dummy \
           $VAR_LOCATION/remotes/ipam/dummy \
           $VAR_LOCATION/remotes/ipam/packet \
+          $VAR_LOCATION/remotes/ipam/vultr \
           $VAR_LOCATION/remotes/ipam/aws"
 
 SUNSTONE_DIRS="$SUNSTONE_LOCATION/routes \
@@ -708,6 +711,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_DH_SCRIPTS:$VAR_LOCATION/remotes/market/dockerhub
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
+    IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
     IPAM_DRIVER_EC2_SCRIPTS:$VAR_LOCATION/remotes/ipam/aws
     NETWORK_FILES:$VAR_LOCATION/remotes/vnm
     NETWORK_HOOKS_PRE_FILES:$VAR_LOCATION/remotes/vnm/hooks/pre
@@ -782,6 +786,8 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_LIB_GOOGLE_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/google
     ONEPROVISION_LIB_DIGITALOCEAN_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/digitalocean
     ONEPROVISION_LIB_PACKET_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/packet
+    ONEPROVISION_LIB_VULTR_METAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_metal
+    ONEPROVISION_LIB_VULTR_VIRTUAL_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/vultr_virtual
     ONEPROVISION_LIB_PROVISION_FILES:$LIB_LOCATION/oneprovision/lib/provision
     ONEPROVISION_LIB_RESOURCES_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources
     ONEPROVISION_LIB_PHYSICAL_R_FILES:$LIB_LOCATION/oneprovision/lib/provision/resources/physical
@@ -988,7 +994,8 @@ RUBY_LIB_FILES="src/mad/ruby/ActionManager.rb \
                 src/vmm_mad/remotes/one/opennebula_driver.rb \
                 src/vmm_mad/remotes/packet/packet_driver.rb \
                 src/vnm_mad/remotes/elastic/aws_vnm.rb \
-                src/vnm_mad/remotes/elastic/packet_vnm.rb"
+                src/vnm_mad/remotes/elastic/packet_vnm.rb \
+                src/vnm_mad/remotes/elastic/vultr_vnm.rb"
 
 #-------------------------------------------------------------------------------
 # Ruby auth library files, to be installed under $LIB_LOCATION/ruby/opennebula
@@ -1762,28 +1769,37 @@ NETWORK_ETC_FILES="src/vnm_mad/remotes/OpenNebulaNetwork.conf"
 # IPAM dummy drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_DUMMY_SCRIPTS="src/ipamm_mad/remotes/dummy/register_address_range \
-               src/ipamm_mad/remotes/dummy/unregister_address_range \
-               src/ipamm_mad/remotes/dummy/allocate_address \
-               src/ipamm_mad/remotes/dummy/get_address \
-               src/ipamm_mad/remotes/dummy/free_address"
+                           src/ipamm_mad/remotes/dummy/unregister_address_range \
+                           src/ipamm_mad/remotes/dummy/allocate_address \
+                           src/ipamm_mad/remotes/dummy/get_address \
+                           src/ipamm_mad/remotes/dummy/free_address"
 
 #-------------------------------------------------------------------------------
 # IPAM Packet drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_PACKET_SCRIPTS="src/ipamm_mad/remotes/packet/register_address_range \
-               src/ipamm_mad/remotes/packet/unregister_address_range \
-               src/ipamm_mad/remotes/packet/allocate_address \
-               src/ipamm_mad/remotes/packet/get_address \
-               src/ipamm_mad/remotes/packet/free_address"
+                            src/ipamm_mad/remotes/packet/unregister_address_range \
+                            src/ipamm_mad/remotes/packet/allocate_address \
+                            src/ipamm_mad/remotes/packet/get_address \
+                            src/ipamm_mad/remotes/packet/free_address"
+
+#-------------------------------------------------------------------------------
+# IPAM Vultr drivers to be installed under $REMOTES_LOCATION/ipam
+#-------------------------------------------------------------------------------
+IPAM_DRIVER_VULTR_SCRIPTS="src/ipamm_mad/remotes/vultr/register_address_range \
+                           src/ipamm_mad/remotes/vultr/unregister_address_range \
+                           src/ipamm_mad/remotes/vultr/allocate_address \
+                           src/ipamm_mad/remotes/vultr/get_address \
+                           src/ipamm_mad/remotes/vultr/free_address"
 
 #-------------------------------------------------------------------------------
 # IPAM EC2 drivers to be installed under $REMOTES_LOCATION/ipam
 #-------------------------------------------------------------------------------
 IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/aws/register_address_range \
-               src/ipamm_mad/remotes/aws/unregister_address_range \
-               src/ipamm_mad/remotes/aws/allocate_address \
-               src/ipamm_mad/remotes/aws/get_address \
-               src/ipamm_mad/remotes/aws/free_address"
+                         src/ipamm_mad/remotes/aws/unregister_address_range \
+                         src/ipamm_mad/remotes/aws/allocate_address \
+                         src/ipamm_mad/remotes/aws/get_address \
+                         src/ipamm_mad/remotes/aws/free_address"
 
 #-------------------------------------------------------------------------------
 # Transfer Manager commands, to be installed under $LIB_LOCATION/tm_commands
@@ -2488,7 +2504,10 @@ ONEPROVISION_LIB_PROVIDERS_FILES="src/oneprovision/lib/terraform/providers/aws.r
                                   src/oneprovision/lib/terraform/providers/google.rb \
                                   src/oneprovision/lib/terraform/providers/digitalocean.rb \
                                   src/oneprovision/lib/terraform/providers/dummy.rb \
-                                  src/oneprovision/lib/terraform/providers/packet.rb"
+                                  src/oneprovision/lib/terraform/providers/packet.rb \
+                                  src/oneprovision/lib/terraform/providers/vultr.rb \
+                                  src/oneprovision/lib/terraform/providers/vultr_metal.rb \
+                                  src/oneprovision/lib/terraform/providers/vultr_virtual.rb"
 
 ONEPROVISION_LIB_AWS_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/aws/cluster.erb \
                                 src/oneprovision/lib/terraform/providers/templates/aws/datastore.erb \
@@ -2513,6 +2532,18 @@ ONEPROVISION_LIB_PACKET_ERB_FILES="src/oneprovision/lib/terraform/providers/temp
                                    src/oneprovision/lib/terraform/providers/templates/packet/host.erb \
                                    src/oneprovision/lib/terraform/providers/templates/packet/network.erb \
                                    src/oneprovision/lib/terraform/providers/templates/packet/provider.erb"
+
+ONEPROVISION_LIB_VULTR_METAL_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/vultr_metal/cluster.erb \
+                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/datastore.erb \
+                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/host.erb \
+                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/network.erb \
+                                        src/oneprovision/lib/terraform/providers/templates/vultr_metal/provider.erb"
+
+ONEPROVISION_LIB_VULTR_VIRTUAL_ERB_FILES="src/oneprovision/lib/terraform/providers/templates/vultr_virtual/cluster.erb \
+                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/datastore.erb \
+                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/host.erb \
+                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/network.erb \
+                                          src/oneprovision/lib/terraform/providers/templates/vultr_virtual/provider.erb"
 
 #-----------------------------------------------------------------------------
 # Sunstone files
@@ -2898,7 +2929,8 @@ DOCS_FILES="LICENSE LICENSE.onsla LICENSE.onsla-nc NOTICE README.md"
 # Ruby VENDOR files
 #-----------------------------------------------------------------------------
 
-VENDOR_DIRS="share/vendor/ruby/gems/packethost"
+VENDOR_DIRS="share/vendor/ruby/gems/packethost \
+             share/vendor/ruby/gems/vultr"
 
 #-------------------------------------------------------------------------------
 # Libvirt RelaxNG schemas

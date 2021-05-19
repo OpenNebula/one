@@ -264,7 +264,13 @@ module OneProvision
                     host = Resource.object('hosts')
                     host.info(h['id'])
 
-                    c << "#{host.one['NAME']}\n"
+                    h_vars = host.one['TEMPLATE/ANSIBLE_HOST_VARS']
+
+                    if h_vars
+                        c << "#{host.one['NAME']} #{h_vars}\n"
+                    else
+                        c << "#{host.one['NAME']}\n"
+                    end
                 end
 
                 c << "\n"
