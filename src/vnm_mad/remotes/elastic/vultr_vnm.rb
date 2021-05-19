@@ -18,14 +18,14 @@ ONE_LOCATION = ENV['ONE_LOCATION'] unless defined?(ONE_LOCATION)
 
 if !ONE_LOCATION
     LIB_LOCATION      ||= '/usr/lib/one'
+    VULTR_LOCATION    ||= '/usr/lib/one/oneprovision/provider_apis/vultr'
     RUBY_LIB_LOCATION ||= '/usr/lib/one/ruby'
     GEMS_LOCATION     ||= '/usr/share/one/gems'
-    VULTR_LOCATION    ||= '/usr/lib/one/ruby/vendors/vultr/lib'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
+    VULTR_LOCATION    ||= ONE_LOCATION + '/oneprovision/provider_apis/vultr'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
-    VULTR_LOCATION    ||= ONE_LOCATION + '/lib/ruby/vendors/vultr/lib'
 end
 
 # %%RUBYGEMS_SETUP_BEGIN%%

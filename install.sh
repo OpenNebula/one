@@ -292,6 +292,8 @@ LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/vcenter_driver \
           $LIB_LOCATION/ruby/nsx_driver \
           $LIB_LOCATION/oneprovision/lib \
+          $LIB_LOCATION/oneprovision/provider_apis \
+          $LIB_LOCATION/oneprovision/provider_apis/vultr \
           $LIB_LOCATION/oneprovision/lib/terraform \
           $LIB_LOCATION/oneprovision/lib/terraform/providers \
           $LIB_LOCATION/oneprovision/lib/terraform/providers/templates \
@@ -780,6 +782,8 @@ INSTALL_ONEPROVISION_FILES=(
     ONEPROVISION_ANSIBLE_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_TEMPLATES_FILES:$SHARE_LOCATION/oneprovision
     ONEPROVISION_LIB_FILES:$LIB_LOCATION/oneprovision/lib
+    ONEPROVISION_LIB_API_FILES:$LIB_LOCATION/oneprovision/provider_apis
+    ONEPROVISION_LIB_API_VULTR_FILES:$LIB_LOCATION/oneprovision/provider_apis/vultr
     ONEPROVISION_LIB_TF_FILES:$LIB_LOCATION/oneprovision/lib/terraform
     ONEPROVISION_LIB_PROVIDERS_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers
     ONEPROVISION_LIB_AWS_ERB_FILES:$LIB_LOCATION/oneprovision/lib/terraform/providers/templates/aws
@@ -2464,6 +2468,8 @@ ONEPROVISION_TEMPLATES_FILES="share/oneprovision/edge-clusters/"
 ONEPROVISION_LIB_FILES="src/oneprovision/lib/oneprovision.rb \
                         src/oneprovision/lib/provision_element.rb"
 
+ONEPROVISION_LIB_API_VULTR_FILES="src/oneprovision/provider_apis/vultr/lib/vultr.rb"
+
 ONEPROVISION_LIB_PROVISION_FILES="src/oneprovision/lib/provision/ansible.rb \
                                   src/oneprovision/lib/provision/oneprovision.rb \
                                   src/oneprovision/lib/provision/driver.rb \
@@ -2929,8 +2935,7 @@ DOCS_FILES="LICENSE LICENSE.onsla LICENSE.onsla-nc NOTICE README.md"
 # Ruby VENDOR files
 #-----------------------------------------------------------------------------
 
-VENDOR_DIRS="share/vendor/ruby/gems/packethost \
-             share/vendor/ruby/gems/vultr"
+VENDOR_DIRS="share/vendor/ruby/gems/packethost"
 
 #-------------------------------------------------------------------------------
 # Libvirt RelaxNG schemas
