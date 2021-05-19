@@ -326,6 +326,14 @@ define(function(require) {
 
           $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp')));
           $(".provision_wfile_button", context).toggle(Boolean(OpenNebulaVM.isWFileSupported(data)));
+          
+          var state = get_provision_vm_state(data);
+          if (state.str === "RUNNING") {
+            $('.dropdown-menu-css', context).show();
+          }
+          else {
+            $('.dropdown-menu-css', context).hide();
+          }
 
           var is_vnc_allowed = OpenNebulaVM.isVNCSupported(data);
           var is_spice_allowed = OpenNebulaVM.isSPICESupported(data);
