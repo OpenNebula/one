@@ -31,6 +31,9 @@ begin
                                                     xpath_filter,
                                                     deploy_id,
                                                     false)
+
+    drv.deactivate
+
     filter_driver.activate(true) if drv.activate == 0
 rescue Exception => e
     OpenNebula.log_error(e.message)

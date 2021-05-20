@@ -100,9 +100,9 @@ class NodePortDriver < VNMMAD::VNMDriver
                      "#{nic[:bridge]} | true"
             cmds.add :iptables, '-t nat -D PREROUTING -p tcp --dport ' \
                                 "#{nic[:external_port_range]} -j DNAT --to " \
-                                "#{nic[:ip]}:#{nic[:internal_port_range]}"
+                                "#{nic[:ip]}:#{nic[:internal_port_range]} | true"
             cmds.add :iptables, '-t nat -D POSTROUTING -j MASQUERADE ' \
-                                "-s #{nic[:ip]}"
+                                "-s #{nic[:ip]} | true"
         end
 
         if rc != false
