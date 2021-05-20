@@ -1598,6 +1598,8 @@ CommandParser::CmdParser.new(ARGV) do
 
             system("ssh #{login}@#{ip} -p #{port} #{cmd}")
         end
+
+        $?.exitstatus
     end
 
     port_desc = <<-EOT.unindent
