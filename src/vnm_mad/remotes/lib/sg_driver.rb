@@ -88,6 +88,8 @@ module VNMMAD
             # Process the rules
             process_all do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
+                #process only the external alias IPs
+                next if !nic[:alias_id].nil? && nic[:external].nil?
 
                 if nic[:security_groups].nil?
                     nic[:security_groups] = "0"
