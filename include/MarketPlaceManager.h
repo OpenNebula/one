@@ -21,6 +21,8 @@
 #include "DriverManager.h"
 #include "Listener.h"
 
+#include <atomic>
+
 class MarketPlacePool;
 class MarketPlaceAppPool;
 class ImagePool;
@@ -60,6 +62,8 @@ public:
      */
     void finalize()
     {
+        terminate = true;
+
         timer_thread.stop();
 
         DriverManager::stop(drivers_timeout);
@@ -166,6 +170,11 @@ private:
      *  Pointer to the Raft Manger
      */
     RaftManager *        raftm = nullptr;
+
+    /**
+     *  Manager is terminating, do not execute any action
+     */
+    std::atomic<bool>    terminate{false};
 
     /**
      *  Returns a pointer to the marketplace driver.
