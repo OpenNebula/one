@@ -332,6 +332,8 @@ define(function(require) {
           var is_spice_allowed = OpenNebulaVM.isSPICESupported(data);
           var is_vmrc_allowed = OpenNebulaVM.isVMRCSupported(data);
           var is_virt_viewer_allowed = OpenNebulaVM.isWFileSupported(data);
+          var is_rdp_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp'));
+          var is_ssh_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'ssh'));
           
           $('.dropdown-menu-css', context).toggle(state.str === "RUNNING");
           $(".provision_spice_button", context).parent().toggle(is_spice_allowed);
@@ -347,8 +349,8 @@ define(function(require) {
             }else { // Guacamole connections
               $(".provision_vmrc_button", context).parent().hide();
               $(".provision_guac_vnc_button", context).parent().show();
-              $(".provision_guac_rdp_button", context).parent().show();
-              $(".provision_guac_ssh_button", context).parent().show();
+              $(".provision_guac_rdp_button", context).parent().toggle(is_rdp_allowed);
+              $(".provision_guac_ssh_button", context).parent().toggle(is_ssh_allowed);
             }
           }
           else{
