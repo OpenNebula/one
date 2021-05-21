@@ -290,12 +290,6 @@ def add_vnet_to_cluster(one_vnet, cluster_id)
             raise CreateNetworkError, err_msg
         end
 
-        rc = default_cluster.delvnet(network_id)
-        if OpenNebula.is_error?(rc)
-            err_msg = "Error removing vnet #{network_id} from default "\
-                      "OpenNebula cluster: #{rc.message}."
-            raise CreateNetworkError, err_msg
-        end
     else
         err_msg = 'Missing cluster ID'
         raise CreateNetworkError, err_msg
