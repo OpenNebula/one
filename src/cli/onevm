@@ -232,6 +232,13 @@ CommandParser::CmdParser.new(ARGV) do
         :description => 'CMD to run when SSH'
     }
 
+    SSH_OPTS = {
+        :name   => 'ssh_opts',
+        :large  => '--ssh-options options',
+        :format => String,
+        :description => 'SSH options to use'
+    }
+
     ########################################################################
     # Global Options
     ########################################################################
@@ -1553,9 +1560,17 @@ CommandParser::CmdParser.new(ARGV) do
 
     ssh_desc = <<-EOT.unindent
         SSH into VM
+
+        Options example:
+
+        '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
     EOT
 
-    command :ssh, ssh_desc, :vmid, [:login, nil], :options => [NIC_ID, CMD] do
+    command :ssh,
+            ssh_desc,
+            :vmid,
+            [:login, nil],
+            :options => [NIC_ID, CMD, SSH_OPTS] do
         helper.perform_action(args[0], options, 'SSH') do |vm|
             rc = vm.info
 
@@ -1596,7 +1611,9 @@ CommandParser::CmdParser.new(ARGV) do
                 port = 22
             end
 
-            system("ssh #{login}@#{ip} -p #{port} #{cmd}")
+            options[:ssh_opts].nil? ? opts = '' : opts = options[:ssh_opts]
+
+            system("ssh #{opts} #{login}@#{ip} -p #{port} #{cmd}")
         end
 
         $?.exitstatus
