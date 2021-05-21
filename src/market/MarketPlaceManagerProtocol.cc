@@ -253,6 +253,11 @@ void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
 
     for (int i=0; i< num; i++)
     {
+        if (terminate)
+        {
+            return; // Prevent crash on exit, while processing long msg
+        }
+
         int app_id;
         int rc = apppool->import(apps[i]->value(), id, name, app_id, err);
 
