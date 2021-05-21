@@ -1810,6 +1810,15 @@ module VCenterDriver
 
         # Attach DISK to VM (hotplug)
         def attach_disk(disk)
+            # Adding a new disk in newer vSphere versions
+            # automatically cleans all system snapshots
+            # https://github.com/OpenNebula/one/issues/5409
+            if snapshots? or one_snapshots?
+              error_message =  'Existing sytem snapshots, cannot change disks. '
+              error_message << 'Please remove all snapshots and try again.'
+              raise error_message
+            end
+
             spec_hash     = {}
             device_change = []
 
@@ -1934,6 +1943,12 @@ module VCenterDriver
 
         def detach_disk(disk)
             return unless disk.exists?
+
+            if snapshots? or one_snapshots?
+              error_message =  'Existing sytem snapshots, cannot change disks. '
+              error_message << 'Please remove all snapshots and try again.'
+              raise error_message
+            end
 
             spec_hash = {}
             spec_hash[:extraConfig] = [disk.config(:delete)]
@@ -2189,6 +2204,15 @@ module VCenterDriver
         def has_snapshots?
             self.clear('rootSnapshot')
             self['rootSnapshot'] && !self['rootSnapshot'].empty?
+        end
+
+        def one_snapshots?
+            begin
+                !one_item['TEMPLATE/SNAPSHOT'].nil?
+            rescue StandardError
+                # one_item may not be retrieved if deploy_id hasn't been set
+                false
+            end
         end
 
         def instantiated_as_persistent?
