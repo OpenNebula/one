@@ -75,6 +75,11 @@ define(function(require) {
       }
     }
 
+    var sshAndRdpController = function(){
+      $('.rdp-guac-button').toggle(isRDPSupported);
+      $('.ssh-guac-button').toggle(isSSHSupported);
+    }
+
     vncAndSpiceController();
     
     $("#vmsremote_buttons").toggle(!allDisabled);
@@ -87,20 +92,6 @@ define(function(require) {
       else{
         $("#vmsremote_buttons").hide();
       }
-    }
-
-    if (isVNCSupported) {
-      $(".vnc-sunstone-info").show();
-      $(".spice-sunstone-info").hide();
-
-    }
-    else if (isSPICESupported) {
-      $(".spice-sunstone-info").show();
-      $(".vnc-sunstone-info").hide();
-    }
-    else {
-      $(".spice-sunstone-info").hide();
-      $(".vnc-sunstone-info").hide();
     }
     
     // Show / hide virt-viewer button
@@ -132,7 +123,8 @@ define(function(require) {
     var show_fireedge_buttons = function() {
       $(".vnc-button").hide();
       $(".vmrc-button").toggle(isVMRCSupported);
-      $(".guac-button").toggle(!isVMRCSupported);
+      $(".vnc-guac-button").toggle(isVNCSupported);
+      sshAndRdpController();
     }
 
     var show_buttons = function(fireedgeToken) {

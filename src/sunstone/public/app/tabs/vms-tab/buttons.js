@@ -228,19 +228,19 @@ define(function(require) {
       type: "action",
       text: '<div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div>' + Locale.tr("VNC"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info vnc-sunstone-info guac-button"
+      custom_classes: "only-sunstone-info vnc-sunstone-info guac-button guac-vnc-button"
     },
     "VM.guac_ssh" : {
       type: "action",
       text: '<div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div>' + Locale.tr("SSH"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info ssh-sunstone-info guac-button"
+      custom_classes: "only-sunstone-info ssh-sunstone-info guac-button guac-ssh-button"
     },
     "VM.guac_rdp" : {
       type: "action",
       text: '<div class="remote-logo-dropdown"><img src="images/remote_console/guacamole-alt.png"/></div>' + Locale.tr("RDP"),
       layout: "vmsremote_buttons",
-      custom_classes: "only-sunstone-info rdp-sunstone-info guac-button"
+      custom_classes: "only-sunstone-info rdp-sunstone-info guac-button guac-rdp-button"
     },
     "VM.save_rdp" : {
       type: "action",
