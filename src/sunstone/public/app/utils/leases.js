@@ -175,6 +175,14 @@ define(function(require) {
                   );
                 break;
 
+                case "add-service":
+                  var newAction = {
+                    TIME: "+"+(last === 0? startTime.toString() : startTime+last),
+                    ACTION: schedAction
+                  };
+                  newSchedActions.push(newAction);
+                break;
+
                 default:
                 break;
               }
@@ -182,6 +190,7 @@ define(function(require) {
               pass = true;
             }
           });
+
           if(type==="submit"){
             template.SCHED_ACTION = (
               template.SCHED_ACTION?
@@ -197,7 +206,7 @@ define(function(require) {
           }
 
           if(typeof callback === "function"){
-            callback();
+            callback(newSchedActions);
           }
 
           if(pass){
@@ -237,18 +246,24 @@ define(function(require) {
           default:
           break;
         }
-
-        if(resource && action && template){
+        if(resource && action){
           switch (resource.toLowerCase()) {
             case "template":
-              displayAlertCreateLeases("add", template);
-            break;
-            case "vm":
-              if(action.toLowerCase() === "update" && id){
-                displayAlertCreateLeases("submit", template);
-              }else{
+              if(template){
                 displayAlertCreateLeases("add", template);
               }
+            break;
+            case "vm":
+              if(template){
+                if(action.toLowerCase() === "update" && id){
+                  displayAlertCreateLeases("submit", template);
+                }else{
+                  displayAlertCreateLeases("add", template);
+                }
+              }
+            break;
+            case "flow":
+              displayAlertCreateLeases("add-service");
             break;
             default:
             break;

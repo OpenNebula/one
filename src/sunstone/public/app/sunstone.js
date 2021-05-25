@@ -996,7 +996,10 @@ define(function(require) {
           timeout: true,
           success: callback,
           error:err,
-          data: {monitor: dataArg}});
+          data: {
+            monitor: dataArg
+          }
+        });
       break;
       case "monitor":
       case "monitor_single":
@@ -1037,11 +1040,9 @@ define(function(require) {
           call();
         }
     }
-
     if (notify) {
       Notifier.notifySubmit(action, dataArg, extraParam);
     }
-
     return 0;
   };
 
