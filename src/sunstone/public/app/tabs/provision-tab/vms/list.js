@@ -326,13 +326,12 @@ define(function(require) {
           }
 
           $(".provision_rdp_button", context).toggle(Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp')));
-          $(".provision_wfile_button", context).toggle(Boolean(OpenNebulaVM.isWFileSupported(data)));
           
           var state = get_provision_vm_state(data);
-          var is_vnc_allowed = OpenNebulaVM.isVNCSupported(data);
-          var is_spice_allowed = OpenNebulaVM.isSPICESupported(data);
-          var is_vmrc_allowed = OpenNebulaVM.isVMRCSupported(data);
-          var is_virt_viewer_allowed = OpenNebulaVM.isWFileSupported(data);
+          var is_vnc_allowed = Boolean(OpenNebulaVM.isVNCSupported(data));
+          var is_spice_allowed = Boolean(OpenNebulaVM.isSPICESupported(data));
+          var is_vmrc_allowed = Boolean(OpenNebulaVM.isVMRCSupported(data));
+          var is_virt_viewer_allowed = Boolean(OpenNebulaVM.isWFileSupported(data));
           var is_rdp_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp'));
           var is_ssh_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'ssh'));
           
