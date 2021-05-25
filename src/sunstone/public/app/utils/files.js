@@ -94,6 +94,7 @@ define(function(require) {
     file += "toggle-fullscreen=shift+f11\n";
     file += "release-cursor=shift+f12\n";
     file += "secure-attention=ctrl+alt+end\n";
+    file += "delete-this-file=1\n";
     
     return file;
   }
