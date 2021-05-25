@@ -74,8 +74,8 @@ define(function(require) {
     }
 
     var sshAndRdpController = function(){
-      $('.rdp-guac-button').toggle(isRDPSupported);
-      $('.ssh-guac-button').toggle(isSSHSupported);
+      $('.guac-rdp-button').toggle(isRDPSupported);
+      $('.guac-ssh-button').toggle(isSSHSupported);
     }
 
     vncAndSpiceController();
@@ -121,7 +121,7 @@ define(function(require) {
     var show_fireedge_buttons = function() {
       $(".vnc-button").hide();
       $(".vmrc-button").toggle(isVMRCSupported);
-      $(".vnc-guac-button").toggle(isVNCSupported);
+      $(".guac-vnc-button").toggle(!isVMRCSupported);
       sshAndRdpController();
     }
 
