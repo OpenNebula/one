@@ -1670,14 +1670,16 @@ CommandParser::CmdParser.new(ARGV) do
             i_end_p   = Integer(i_range[1].split('/')[0])
 
             if args[1].nil?
-                [*e_start_p..e_end_p].zip([*i_start_p..i_end_p]) do |p1, p2|
+                start_r = Array(e_start_p..e_end_p)
+                end_r   = Array(i_start_p..i_end_p)
+
+                start_r.zip(end_r) do |p1, p2|
                     puts "#{ip}@#{p1} -> #{p2}"
                 end
             else
                 puts "#{ip}@#{e_start_p + Integer(args[1]) - 1} -> #{args[1]}"
             end
         end
-
     end
 
     # Deprecated commands

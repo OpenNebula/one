@@ -34,7 +34,7 @@ module Strategy
 
         # Ruby 1.8 compatibility
         if result.instance_of?(Array)
-            result = Hash[result]
+            result = result.to_h
         end
 
         result
@@ -52,7 +52,7 @@ module Strategy
 
         # Ruby 1.8 compatibility
         if result.instance_of?(Array)
-            result = Hash[result]
+            result = result.to_h
         end
 
         result

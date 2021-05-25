@@ -77,7 +77,7 @@ module Straight
 
         # Ruby 1.8 compatibility
         if running_roles.instance_of?(Array)
-            running_roles = Hash[running_roles]
+            running_roles = running_roles.to_h
         end
 
         result = roles.select do |_name, role|
@@ -99,7 +99,7 @@ module Straight
 
         # Ruby 1.8 compatibility
         if result.instance_of?(Array)
-            result = Hash[result]
+            result = result.to_h
         end
 
         result
@@ -134,7 +134,7 @@ module Straight
 
         # Ruby 1.8 compatibility
         if result.instance_of?(Array)
-            result = Hash[result]
+            result = result.to_h
         end
 
         result

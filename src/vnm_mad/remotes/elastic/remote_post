@@ -16,8 +16,8 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-$: << File.dirname(__FILE__)
-$: << File.join(File.dirname(__FILE__), "..")
+$LOAD_PATH << File.dirname(__FILE__)
+$LOAD_PATH << File.join(File.dirname(__FILE__), '..')
 
 require 'vnmmad'
 
@@ -31,7 +31,7 @@ begin
                                                     deploy_id,
                                                     false)
     filter_driver.activate
-rescue Exception => e
+rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
     exit 1

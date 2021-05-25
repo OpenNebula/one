@@ -68,7 +68,6 @@ class PacketProvider
         0
     rescue Packet::Error => e
         # potential VM poweroff(itself) + resume
-
         if e.message == '{"errors"=>["Address has already been taken"]}'
             return 0
         end
