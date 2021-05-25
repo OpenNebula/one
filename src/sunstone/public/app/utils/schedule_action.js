@@ -37,9 +37,10 @@ define(function (require) {
     'disk-snapshot-delete'
   ];
 
-  function _html(resource, leases = null) {
+  function _html(resource, leases = null, header = true) {
     this.res = resource;
     return TemplateTableHTML({
+      header: header,
       res: resource,
       leases: leases
     });
@@ -152,6 +153,9 @@ define(function (require) {
     if (this.res === "vms") {
       $("#title", context).prop("colspan", "10");
       $("#td_days", context).prop("colspan", "8");
+    }
+    if (this.res === "flow") {
+      $("tr.create>td", context).prop("colspan", "8");
     }
   }
 
@@ -782,7 +786,7 @@ define(function (require) {
       str += "<tr class='tr_action' data='" + JSON.stringify(scheduling_action) + "'>";
     }
 
-    var time = scheduling_action.TIME.toString();
+    var time = String(scheduling_action.TIME);
     time = isNaN(time) ? time_str : (time && time.match(/^\+(.*)/gi) ? _time(time) : time_str);
 
     str += "<td class='action_row'>" + TemplateUtils.htmlEncode(scheduling_action.ACTION) + "</td>\

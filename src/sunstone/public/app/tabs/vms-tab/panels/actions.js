@@ -86,7 +86,6 @@ define(function(require) {
          </table>\
         </div>\
       </div>";
-
     ScheduleActions.htmlTable(RESOURCE_SCHED_ACTIONS); //only charge the resource attribute
     return html;
   }
@@ -171,8 +170,6 @@ define(function(require) {
 
       that.element.USER_TEMPLATE.SCHED_ACTION = tmp_tmpl;
       var template_str = TemplateUtils.templateToString(that.element.USER_TEMPLATE);
-
-      // Let OpenNebula know
       Sunstone.runAction("VM.update_template", that.element.ID, template_str);
     });
     context.off("click", ".edit_action_x");

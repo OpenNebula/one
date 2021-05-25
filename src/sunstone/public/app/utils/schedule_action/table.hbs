@@ -22,18 +22,20 @@
 </style>
 
 <table id="scheduling_{{res}}_actions_table" class="info_table dataTable">
-	<thead>
-		<tr>
-			<th> {{tr "Action"}} </th>
-			<th> {{tr "Time"}} </th>
-			<th> {{tr "Rep"}} </th>
-			<th> {{tr "Ends"}} </th>
-			<th colspan=""> </th>
-			<th>
-				<button id="add_scheduling_{{res}}_action" class="button small success right radius"> {{tr "Add action"}} </button>
-			</th>
-			{{#if leases}} <th>{{{leases}}}</th> {{/if}}
-		</tr>
-	</thead>
+  <thead>
+    {{#if header}}
+      <tr>
+        <th> {{tr "Action"}} </th>
+        <th> {{tr "Time"}} </th>
+        <th> {{tr "Rep"}} </th>
+        <th> {{tr "Ends"}} </th>
+        <th colspan=""> </th>
+        <th>
+          <button id="add_scheduling_{{res}}_action" class="button small success right radius"> {{tr "Add action"}} </button>
+        </th>
+        {{#if leases}} <th>{{{leases}}}</th> {{/if}}
+      </tr>
+    {{/if}}
+  </thead>
 	<tbody id="sched_{{res}}_actions_body"></tbody>
 </table>
