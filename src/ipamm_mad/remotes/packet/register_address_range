@@ -112,8 +112,9 @@ require 'digest'
 
 IP_TYPE = %w[public_ipv4 global_ipv4]
 
-DEFAULT_PRIVATE_CIDR = "172.16.0.0/12"
+DEFAULT_PRIVATE_CIDR = '172.16.0.0/12'
 
+# IP Address class
 class IPAddr
 
     # Add ^ operator to the IPAddr class
@@ -131,7 +132,7 @@ class IPAddr
             n = IN6MASK ^ @mask_addr
             i = 128
         else
-            raise AddressFamilyError, "unsupported address family"
+            raise AddressFamilyError, 'unsupported address family'
         end
         while n>0
             n >>= 1
@@ -139,6 +140,7 @@ class IPAddr
         end
         i
     end
+
 end
 
 begin
@@ -206,7 +208,7 @@ begin
 
     packet.create_ip(ip)
 
-    ipmd5 = Digest::MD5.hexdigest("#{ip.address}").to_i(16) & mask
+    ipmd5 = Digest::MD5.hexdigest(ip.address.to_s).to_i(16) & mask
     eip   = IPAddr.new(ipmd5, Socket::AF_INET)
 
     ipvm = (eip & mask) | cidr

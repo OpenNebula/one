@@ -14,107 +14,118 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
-
 require 'opennebula/host'
 require 'opennebula/image'
 require 'opennebula/virtual_machine'
 
-module OpenNebula::WaitExtEvent
-    def wait_event(ctx, event, timeout)
-        subscriber = ctx.socket(ZMQ::SUB)
+module OpenNebula
 
-        # Create subscriber
-        key        = ''
-        content    = ''
+    # Module to wait OpenNebula objects events using ZMQ
+    module WaitExtEvent
 
-        subscriber.setsockopt(ZMQ::RCVTIMEO, timeout * 1000)
-        subscriber.setsockopt(ZMQ::SUBSCRIBE, event)
-        subscriber.connect(@client.one_zmq)
+        def wait_event(ctx, event, timeout)
+            subscriber = ctx.socket(ZMQ::SUB)
 
-        rc = subscriber.recv_string(key)
-        rc = subscriber.recv_string(content) if rc != -1
+            # Create subscriber
+            key        = ''
+            content    = ''
 
-        return if ZMQ::Util.errno == ZMQ::EAGAIN || rc == -1
+            subscriber.setsockopt(ZMQ::RCVTIMEO, timeout * 1000)
+            subscriber.setsockopt(ZMQ::SUBSCRIBE, event)
+            subscriber.connect(@client.one_zmq)
 
-        content
-    ensure
-        subscriber.setsockopt(ZMQ::UNSUBSCRIBE, event)
-        subscriber.close
-    end
+            rc = subscriber.recv_string(key)
+            rc = subscriber.recv_string(content) if rc != -1
 
-    def wait2(sstr1, sstr2, timeout = 60, cycles = -1)
-        wfun = OpenNebula::WaitExt::WAIT[self.class]
+            return if ZMQ::Util.errno == ZMQ::EAGAIN || rc == -1
 
-        # Start with a timeout of 2 seconds, to wait until the first
-        # info.
-        #
-        # The timeout is increased later, to avoid multiple info calls.
-        c_timeout = 2
-        recvs     = 0
-        in_state  = false
-
-        # Subscribe with timeout seconds
-        #
-        # Subscribe string:
-        #
-        #   EVENT STATE element_name/state_str//self.ID
-        #
-        #   - element_name: is the element name to find in the message
-        #   - self.ID: returns element ID to find in the message
-        ctx = ZMQ::Context.new(1)
-
-        until in_state || (cycles != -1 && recvs >= cycles)
-            content = wait_event(ctx,
-                                 wfun[:event].call(self, sstr1, sstr2),
-                                 c_timeout)
-
-            if content && !content.empty?
-                in_state = wfun[:in_state_e].call(sstr1, sstr2, content)
-
-                break if in_state
-            end
-
-            c_timeout *= 10
-            c_timeout  = timeout if c_timeout > timeout
-
-            rco = info
-
-            return false if OpenNebula.is_error?(rco)
-
-            in_state = wfun[:in_state].call(self, sstr1, sstr2)
-
-            recvs += 1
+            content
+        ensure
+            subscriber.setsockopt(ZMQ::UNSUBSCRIBE, event)
+            subscriber.close
         end
 
-        in_state
+        def wait2(sstr1, sstr2, timeout = 60, cycles = -1)
+            wfun = OpenNebula::WaitExt::WAIT[self.class]
+
+            # Start with a timeout of 2 seconds, to wait until the first
+            # info.
+            #
+            # The timeout is increased later, to avoid multiple info calls.
+            c_timeout = 2
+            recvs     = 0
+            in_state  = false
+
+            # Subscribe with timeout seconds
+            #
+            # Subscribe string:
+            #
+            #   EVENT STATE element_name/state_str//self.ID
+            #
+            #   - element_name: is the element name to find in the message
+            #   - self.ID: returns element ID to find in the message
+            ctx = ZMQ::Context.new(1)
+
+            until in_state || (cycles != -1 && recvs >= cycles)
+                content = wait_event(ctx,
+                                     wfun[:event].call(self, sstr1, sstr2),
+                                     c_timeout)
+
+                if content && !content.empty?
+                    in_state = wfun[:in_state_e].call(sstr1, sstr2, content)
+
+                    break if in_state
+                end
+
+                c_timeout *= 10
+                c_timeout  = timeout if c_timeout > timeout
+
+                rco = info
+
+                return false if OpenNebula.is_error?(rco)
+
+                in_state = wfun[:in_state].call(self, sstr1, sstr2)
+
+                recvs += 1
+            end
+
+            in_state
+        end
+
     end
 
 end
 
-module OpenNebula::WaitExtPolling
-    def wait2(sstr1, sstr2, timeout = 60, cycles = -1)
-        wfun = OpenNebula::WaitExt::WAIT[self.class]
+module OpenNebula
 
-        stime    = 5
-        recvs    = 0
-        cycles   = timeout / stime
-        in_state = false
+    # Module to wait OpenNebula objects events using polling
+    module WaitExtPolling
 
-        loop do
-            rco = info
+        def wait2(sstr1, sstr2, timeout = 60, cycles = -1)
+            wfun = OpenNebula::WaitExt::WAIT[self.class]
 
-            return false if OpenNebula.is_error?(rco)
+            stime    = 5
+            recvs    = 0
+            cycles   = timeout / stime if cycles == -1
+            in_state = false
 
-            in_state = wfun[:in_state].call(self, sstr1, sstr2)
+            loop do
+                rco = info
 
-            recvs += 1
+                return false if OpenNebula.is_error?(rco)
 
-            break if in_state || recvs >= cycles
+                in_state = wfun[:in_state].call(self, sstr1, sstr2)
 
-            sleep stime
+                recvs += 1
+
+                break if in_state || recvs >= cycles
+
+                sleep stime
+            end
+
+            in_state
         end
 
-        in_state
     end
 
 end
@@ -124,6 +135,7 @@ end
 #
 # rubocop:disable Style/ClassAndModuleChildren
 module OpenNebula::WaitExt
+
     # Wait classes and the name published in ZMQ/STATE
     WAIT = {
         OpenNebula::Host  => {
@@ -176,7 +188,7 @@ module OpenNebula::WaitExt
             },
 
             :in_state => lambda {|o, s1, s2|
-              obj_s1 = Integer(o['STATE'])
+                obj_s1 = Integer(o['STATE'])
                 inx_s1 = OpenNebula::VirtualMachine::VM_STATE.index(s1)
 
                 obj_s2 = Integer(o['LCM_STATE'])
@@ -203,13 +215,15 @@ module OpenNebula::WaitExt
         wait?(obj)
 
         class << obj
-          begin
-            require 'ffi-rzmq'
 
-            include OpenNebula::WaitExtEvent
-          rescue LoadError
-            include OpenNebula::WaitExtPolling
-          end
+            begin
+                require 'ffi-rzmq'
+
+                include OpenNebula::WaitExtEvent
+            rescue LoadError
+                include OpenNebula::WaitExtPolling
+            end
+
         end
 
         super

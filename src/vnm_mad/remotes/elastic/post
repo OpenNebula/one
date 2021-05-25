@@ -70,7 +70,7 @@ begin
     begin
         rc = SSHCommand.run(remote_post, hostname, nil, template64)
 
-        raise StandardError.new rc.stderr unless rc.code == 0
+        raise StandardError, rc.stderr unless rc.code == 0
 
         drv.run_hooks(ARGV, template64) if drv.activate == 0
     rescue StandardError => e

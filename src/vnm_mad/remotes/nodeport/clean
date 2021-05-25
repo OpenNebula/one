@@ -34,7 +34,7 @@ begin
                                                     deploy_id,
                                                     false)
     filter_driver.deactivate
-rescue Exception => e
+rescue StandardError => e
     OpenNebula.log_error(e.message)
     OpenNebula.log_error(e.backtrace)
     exit 1
