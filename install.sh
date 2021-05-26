@@ -322,7 +322,6 @@ LIB_DIRS="$LIB_LOCATION/ruby \
 VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/etc \
           $VAR_LOCATION/remotes/etc/tm/fs_lvm \
-          $VAR_LOCATION/remotes/etc/tm/fs_lvm_ssh \
           $VAR_LOCATION/remotes/etc/tm/ssh \
           $VAR_LOCATION/remotes/etc/datastore/fs \
           $VAR_LOCATION/remotes/etc/datastore/ceph \
@@ -688,7 +687,6 @@ INSTALL_FILES=(
     TM_FS_LVM_FILES:$VAR_LOCATION/remotes/tm/fs_lvm
     TM_FS_LVM_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm/fs_lvm.conf
     TM_FS_LVM_SSH_FILES:$VAR_LOCATION/remotes/tm/fs_lvm_ssh
-    TM_FS_LVM_SSH_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/fs_lvm_ssh/fs_lvm_ssh.conf
     TM_QCOW2_FILES:$VAR_LOCATION/remotes/tm/qcow2
     TM_SSH_FILES:$VAR_LOCATION/remotes/tm/ssh
     TM_SSH_ETC_FILES:$VAR_LOCATION/remotes/etc/tm/ssh
@@ -1886,9 +1884,6 @@ TM_FS_LVM_SSH_FILES="src/tm_mad/fs_lvm_ssh/activate \
                      src/tm_mad/fs_lvm_ssh/failmigrate \
                      src/tm_mad/fs_lvm_ssh/delete \
                      src/tm_mad/fs_lvm_ssh/resize"
-
-TM_FS_LVM_SSH_ETC_FILES="src/tm_mad/fs_lvm_ssh/fs_lvm_ssh.conf"
-
 
 TM_QCOW2_FILES="src/tm_mad/qcow2/clone \
                  src/tm_mad/qcow2/clone.ssh \

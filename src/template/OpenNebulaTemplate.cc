@@ -62,8 +62,9 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 #*******************************************************************************
 # dummy
 # lvm
-# shared
 # fs_lvm
+# fs_lvmm_ssh
+# shared
 # qcow2
 # ssh
 # vmfs
@@ -71,15 +72,21 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # dev
 #*******************************************************************************
 */
-    set_conf_tm("dummy",  "NONE",   "SYSTEM", "YES", "YES", "");
-    set_conf_tm("lvm",    "NONE",   "SELF",   "YES", "NO",  "");
-    set_conf_tm("shared", "NONE",   "SYSTEM", "YES", "YES", "");
+    set_conf_tm("dummy", "NONE", "SYSTEM", "YES", "YES", "");
+
+    set_conf_tm("lvm", "NONE",   "SELF",   "YES", "NO",  "");
     set_conf_tm("fs_lvm", "SYSTEM", "SYSTEM", "YES", "NO",  "raw");
-    set_conf_tm("qcow2",  "NONE",   "SYSTEM", "YES", "NO",  "qcow2");
-    set_conf_tm("ssh",    "SYSTEM", "SYSTEM", "NO",  "YES", "");
-    set_conf_tm("vmfs",   "NONE",   "SYSTEM", "YES", "NO",  "");
-    set_conf_tm("ceph",   "NONE",   "SELF",   "YES", "NO",  "raw");
-    set_conf_tm("dev",    "NONE",   "NONE",   "YES", "NO",  "");
+    set_conf_tm("fs_lvm_ssh", "SYSTEM", "SYSTEM", "YES", "NO",  "raw");
+
+    set_conf_tm("shared", "NONE", "SYSTEM", "YES", "YES", "");
+    set_conf_tm("qcow2", "NONE", "SYSTEM", "YES", "NO",  "qcow2");
+
+    set_conf_tm("ssh", "SYSTEM", "SYSTEM", "NO", "YES", "");
+    set_conf_tm("vmfs", "NONE", "SYSTEM", "YES", "NO",  "");
+
+    set_conf_tm("ceph", "NONE", "SELF", "YES", "NO", "raw");
+    set_conf_tm("dev", "NONE", "NONE", "YES", "NO",  "");
+
 
     register_multiple_conf_default("TM_MAD_CONF");
 /*
