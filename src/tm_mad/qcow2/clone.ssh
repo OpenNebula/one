@@ -26,9 +26,7 @@
 
 SRC=$1
 DST=$2
-
 VMID=$3
-DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -44,17 +42,11 @@ DRIVER_PATH=$(dirname $0)
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 
-SRC_PATH=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
+SRC_PATH=$(arg_path $SRC)
+DST_PATH=$(arg_path $DST)
 
-SRC_PATH_SNAP="${SRC_PATH}.snap"
-DST_PATH_SNAP="${DST_PATH}.snap"
-DST_FILE=$(basename "$DST_PATH")
-
-SRC_HOST=`arg_host $SRC`
-DST_HOST=`arg_host $DST`
-
-DST_DIR=`dirname $DST_PATH`
+DST_HOST=$(arg_host $DST)
+DST_DIR=$(dirname $DST_PATH)
 
 ssh_make_path $DST_HOST $DST_DIR "ssh"
 
@@ -71,36 +63,33 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE)
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SIZE \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/FORMAT \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/ORIGINAL_SIZE)
 
 SIZE="${XPATH_ELEMENTS[j++]}"
+FORMAT="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Copy files to the remote host
 #-------------------------------------------------------------------------------
 
-CP_CMD=$(cat << EOF
-    set -e -o pipefail
-    rm -rf $DST_PATH_SNAP
-    mkdir -p $DST_PATH_SNAP
-    qemu-img convert -q -O qcow2 $SRC_PATH $DST_PATH_SNAP/0
-    rm -f $DST_PATH
-    cd $DST_PATH_SNAP
-    ln -sf . $DST_FILE.snap
-    cd ..
-    ln -sf $DST_FILE.snap/0 $DST_PATH
+if [ -n "$ORIGINAL_SIZE" ] && [ "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
+    RESIZE_CMD="qemu-img resize ${DST_PATH} ${SIZE}M"
+fi
+
+if [ "$FORMAT" = "qcow2" ]; then
+    CLONE_CMD=$(qcow_dir_cmd "$SRC_PATH" "$DST_PATH" "convert")
+else
+    CLONE_CMD="cp $SRC_PATH $DST_PATH"
+fi
+
+CLONE_RESIZE_CMD=$(cat <<EOF
+    $CLONE_CMD
+    $RESIZE_CMD
 EOF
 )
 
-log "Copying $SRC in $DST_PATH_SNAP/0"
-ssh_exec_and_log "$DST_HOST" "$CP_CMD" "Error copying SRC TO $DST_PATH_SNAP/0"
-
-
-if [ -n "$ORIGINAL_SIZE" -a "$SIZE" -gt "$ORIGINAL_SIZE" ]; then
-   RESIZE_CMD="qemu-img resize ${DST_PATH_SNAP}/0 ${SIZE}M"
-   ssh_exec_and_log "$DST_HOST" "$RESIZE_CMD" \
-       "Error resizing image $DST"
-fi
-
+log "Copying $SRC in $DST_PATH"
+ssh_exec_and_log "$DST_HOST" "$CLONE_RESIZE_CMD" "Error copying $SRC TO $DST_PATH"

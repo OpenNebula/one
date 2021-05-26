@@ -29,7 +29,6 @@ SRC=$1
 DST=$2
 SNAP_ID=$3
 VMID=$4
-DSID=$5
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -57,25 +56,26 @@ while IFS= read -r -d '' element; do
 done < <(onevm show -x $VMID| $XPATH \
                     /VM/DEPLOY_ID \
                     /VM/LCM_STATE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/TARGET \
-                    /VM/HISTORY_RECORDS/HISTORY[last\(\)]/VM_MAD)
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/TARGET \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/FORMAT \
+                    /VM/HISTORY_RECORDS/HISTORY\[last\(\)\]/VM_MAD)
 
 DEPLOY_ID="${XPATH_ELEMENTS[j++]}"
 LCM_STATE="${XPATH_ELEMENTS[j++]}"
 DISK_TARGET="${XPATH_ELEMENTS[j++]}"
+FORMAT="${XPATH_ELEMENTS[j++]}"
 VM_MAD="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_HOST=`arg_host $SRC`
-SRC_DIR=`dirname $SRC_PATH`
+SRC_PATH=$(arg_path $SRC)
+SRC_HOST=$(arg_host $SRC)
 
-DST_ARG_PATH=`arg_path $DST`
+DST_ARG_PATH=$(arg_path $DST)
 
-SRC_DS_PATH="$(dirname $(dirname $(dirname $SRC_PATH)))"
-DST_DS_PATH="$(dirname $(dirname $DST_ARG_PATH))"
+SRC_DS_PATH="$(dirname "$(dirname "$(dirname "$SRC_PATH")")")"
+DST_DS_PATH="$(dirname "$(dirname "$DST_ARG_PATH")")"
 
 DST_PATH="${SRC_DS_PATH}${DST_ARG_PATH##$DST_DS_PATH}"
 
@@ -86,17 +86,22 @@ fi
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
+if [ "${LCM_STATE}" = '26' ] && [ "${VM_MAD}" != "kvm" ]; then
+    error_message "cpds: Live operation not supported on ${VM_MAD}"
+    exit 1
+fi
+
+if [ "$FORMAT" = "qcow2" ]; then
+    CP_CMD="$QEMU_IMG convert $SRC_PATH -O qcow2 $DST_PATH"
+else
+    CP_CMD="cp -f $SRC_PATH $DST_PATH"
+fi
 
 # For current image of the running VMs, don't touch the image directly,
 # but export the content via blockcopy. If that's not possible (old QEMU),
 # domfsfreeze or suspend the domain before.
-if [ "${LCM_STATE}" = '26' -a "${VM_MAD}" != "kvm" ]; then
-    error_message "$script_name: Live operation not supported on ${VM_MAD}"
-    exit 1
-fi
-
 if [ "${LCM_STATE}" = '26' ] && [ "${SNAP_ID}" = '-1' ]; then
-    CPDS_CMD_EXPORT=$(cat <<EOF
+    FREEZE_CP_CMD=$(cat <<EOF
 touch ${DST_PATH}
 if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} --wait --finish; then
     if virsh -c ${LIBVIRT_URI} domfsfreeze ${DEPLOY_ID}; then
@@ -108,12 +113,12 @@ if ! virsh -c ${LIBVIRT_URI} blockcopy ${DEPLOY_ID} ${DISK_TARGET} ${DST_PATH} -
         exit 1
     fi
 
-    ${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}
+    ${CP_CMD}
 fi
 EOF
 )
 else
-    CPDS_CMD_EXPORT="${QEMU_IMG} convert ${SRC_PATH} -O qcow2 ${DST_PATH}"
+    FREEZE_CP_CMD="$CP_CMD"
 fi
 
 CPDS_CMD=$(cat <<EOF
@@ -125,7 +130,7 @@ DST_READLN=\$($READLINK -f $DST_PATH)
 if [ \( -L $SRC_PATH \) -a \( "\$SRC_READLN" = "\$DST_READLN" \) ] ; then
     echo "Not moving files to image repo, they are the same"
 else
-    ${CPDS_CMD_EXPORT}
+    ${FREEZE_CP_CMD}
 fi
 EOF
 )

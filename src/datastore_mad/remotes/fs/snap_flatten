@@ -21,12 +21,8 @@ ID=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    DATASTORES=/var/lib/one/datastores
-    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    DATASTORES=$ONE_LOCATION/var/datastores
-    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 . $TMCOMMON
@@ -47,27 +43,24 @@ while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/BRIDGE_LIST \
                     /DS_DRIVER_ACTION_DATA/IMAGE/SOURCE \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT \
-                    /DS_DRIVER_ACTION_DATA/DATASTORE/TM_MAD )
+                    /DS_DRIVER_ACTION_DATA/IMAGE/FORMAT \
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TARGET_SNAPSHOT )
 
 BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
+FORMAT="${XPATH_ELEMENTS[j++]}"
 SNAP_ID="${XPATH_ELEMENTS[j++]}"
-TM_MAD="${XPATH_ELEMENTS[j++]}"
 
-SRC_PATH=`arg_path $SRC`
+SRC_PATH=$(arg_path $SRC)
 
-SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
-
-DISK_ID=$(basename ${SRC} | cut -d. -f2)
 DISK_PATH="${DISK_SRC}"
 
 SNAP_DIR="${DISK_PATH}.snap"
 SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
 
-if [ "$TM_MAD" = "qcow2" ]; then
+if [ "$FORMAT" = "qcow2" ]; then
     if [ -n "$BRIDGE_LIST" ]; then
-        DST_HOST=`get_destination_host $ID`
+        DST_HOST=$(get_destination_host $ID)
 
         ssh_exec_and_log "$DST_HOST" "qemu-img convert -O qcow2 ${SNAP_PATH} ${DISK_PATH}.tmp" \
             "Error flattening ${SNAP_PATH}"
@@ -90,7 +83,7 @@ if [ "$TM_MAD" = "qcow2" ]; then
 
 else
     if [ -n "$BRIDGE_LIST" ]; then
-        DST_HOST=`get_destination_host $ID`
+        DST_HOST=$(get_destination_host $ID)
 
         ssh_exec_and_log "$DST_HOST" "mv ${SNAP_PATH} ${DISK_PATH}" \
             "Error moving snapshot ${SNAP_PATH}"

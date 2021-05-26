@@ -56,17 +56,7 @@ public:
         return is_flag("PERSISTENT");
     }
 
-    Snapshots::AllowOrphansMode allow_orphans() const
-    {
-        std::string orphans;
-
-        if (vector_value("ALLOW_ORPHANS", orphans) == -1)
-        {
-            orphans = Snapshots::DENY;
-        }
-
-        return Snapshots::str_to_allow_orphans_mode(one_util::toupper(orphans));
-    }
+    Snapshots::AllowOrphansMode allow_orphans() const;
 
     void set_attach()
     {

@@ -57,21 +57,26 @@ public:
      *      |- snap_1 (<--- revert)
      *         |- snap_2
      *         |- snap_3
+     *    - FORMAT: Depends on the image format, (used in shared TM)
+     *              - for qcow2 -> DENY
+     *              - for raw   -> ALLOW
      */
     enum AllowOrphansMode
     {
-        ALLOW = 0,
-        DENY  = 1,
-        MIXED = 2
+        ALLOW  = 0,
+        DENY   = 1,
+        MIXED  = 2,
+        FORMAT = 3
     };
 
     static std::string allow_orphans_mode_to_str(AllowOrphansMode aom)
     {
         switch (aom)
         {
-            case ALLOW: return "YES";
-            case DENY:  return "NO";
-            case MIXED: return "MIXED";
+            case ALLOW:  return "YES";
+            case DENY:   return "NO";
+            case MIXED:  return "MIXED";
+            case FORMAT: return "FORMAT";
         }
 
         return "NO";
@@ -86,6 +91,10 @@ public:
         else if (aom == "MIXED")
         {
             return MIXED;
+        }
+        else if (aom == "FORMAT")
+        {
+            return FORMAT;
         }
         else
         {

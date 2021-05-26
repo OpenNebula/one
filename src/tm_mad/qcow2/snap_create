@@ -51,11 +51,13 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE )
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SOURCE \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/CLONE \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/FORMAT )
 
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
+FORMAT="${XPATH_ELEMENTS[j++]}"
 
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 
@@ -70,30 +72,40 @@ else
     DISK_PATH_SHORT=$DISK_PATH
 fi
 
-NEXT_SNAP_ID=$(($SNAP_ID+1))
-
 SNAP_DIR="${DISK_PATH}.snap"
 SNAP_DIR_SHORT="${DISK_PATH_SHORT}.snap"
 
-SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
-SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${NEXT_SNAP_ID}"
+if [ "$FORMAT" = "qcow2" ]; then
+    NEXT_SNAP_ID=$(($SNAP_ID+1))
+    SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
+    SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${NEXT_SNAP_ID}"
+
+    CREATE_CMD=$(cat <<EOT
+        PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
+
+        cd "${SNAP_DIR}"
+        if [ -e "${SNAP_PATH}" ]; then
+            echo "Snapshot file ${SNAP_PATH} already exists." >&2
+            exit 1
+        fi
+
+        qemu-img create -f qcow2 -o backing_fmt=qcow2 -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
+        ln -sf $SNAP_PATH_SHORT $SYSTEM_DS_DISK_PATH
+EOT
+)
+else
+    SNAP_PATH="${SNAP_DIR}/${SNAP_ID}"
+
+    CREATE_CMD="cp \"${DISK_PATH}\" \"${SNAP_PATH}\""
+fi
+
 
 SNAP_CMD=$(cat <<EOT
 set -ex -o pipefail
 
 mkdir -p "${SNAP_DIR}"
 
-PREVIOUS_SNAP=\$(readlink $SYSTEM_DS_DISK_PATH)
-
-cd "${SNAP_DIR}"
-
-if [ -e "${SNAP_PATH}" ]; then
-    echo "Snapshot file ${SNAP_PATH} already exists." >&2
-    exit 1
-fi
-
-qemu-img create -f qcow2 -o backing_fmt=qcow2 -b "\${PREVIOUS_SNAP}" "${SNAP_PATH}"
-ln -sf $SNAP_PATH_SHORT $SYSTEM_DS_DISK_PATH
+${CREATE_CMD}
 EOT
 )
 

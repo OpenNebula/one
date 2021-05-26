@@ -21,14 +21,11 @@
 SRC=$1
 SNAP_ID=$2
 VMID=$3
-DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    DATASTORES=/var/lib/one/datastores
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    DATASTORES=$ONE_LOCATION/var/datastores
 fi
 
 DRIVER_PATH=$(dirname $0)
@@ -51,15 +48,13 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CLONE)
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SOURCE \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/CLONE)
 
 DISK_SRC="${XPATH_ELEMENTS[j++]}"
 CLONE="${XPATH_ELEMENTS[j++]}"
 
-
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
-IMAGE_DS_PATH=$(dirname ${DISK_SRC})
 
 if [ "$CLONE" = "YES" ]; then
     DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
