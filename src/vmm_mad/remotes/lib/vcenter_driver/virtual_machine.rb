@@ -2418,7 +2418,7 @@ end
             # Adding a new disk in newer vSphere versions
             # automatically cleans all system snapshots
             # https://github.com/OpenNebula/one/issues/5409
-            if snapshots? or one_snapshots?
+            if snapshots? || one_snapshots?
               error_message =  'Existing sytem snapshots, cannot change disks. '
               error_message << 'Please remove all snapshots and try again.'
               raise error_message
@@ -2605,10 +2605,10 @@ end
         def detach_disk(disk)
             return unless disk.exists?
 
-            if snapshots? or one_snapshots?
-              error_message =  'Existing sytem snapshots, cannot change disks. '
-              error_message << 'Please remove all snapshots and try again.'
-              raise error_message
+            if snapshots? || one_snapshots?
+                error_message =  'Existing sytem snapshots, cannot change disks'
+                error_message << '. Please remove all snapshots and try again.'
+                raise error_message
             end
 
             spec_hash = {}
