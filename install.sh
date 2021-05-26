@@ -1823,12 +1823,15 @@ IPAM_DRIVER_EC2_SCRIPTS="src/ipamm_mad/remotes/aws/register_address_range \
 TM_FILES="src/tm_mad/tm_common.sh"
 
 TM_SHARED_FILES="src/tm_mad/shared/clone \
+                 src/tm_mad/shared/clone.ssh \
                  src/tm_mad/shared/delete \
                  src/tm_mad/shared/ln \
                  src/tm_mad/shared/ln.ssh \
+                 src/tm_mad/shared/monitor \
                  src/tm_mad/shared/mkswap \
                  src/tm_mad/shared/mkimage \
                  src/tm_mad/shared/mv \
+                 src/tm_mad/shared/mv.ssh \
                  src/tm_mad/shared/context \
                  src/tm_mad/shared/premigrate \
                  src/tm_mad/shared/postmigrate \
@@ -1836,11 +1839,15 @@ TM_SHARED_FILES="src/tm_mad/shared/clone \
                  src/tm_mad/shared/mvds \
                  src/tm_mad/shared/mvds.ssh \
                  src/tm_mad/shared/snap_create \
+                 src/tm_mad/shared/snap_create.ssh \
                  src/tm_mad/shared/snap_create_live \
+                 src/tm_mad/shared/snap_create_live.ssh \
                  src/tm_mad/shared/snap_delete \
+                 src/tm_mad/shared/snap_delete.ssh \
                  src/tm_mad/shared/snap_revert \
-                 src/tm_mad/shared/monitor \
+                 src/tm_mad/shared/snap_revert.ssh \
                  src/tm_mad/shared/cpds \
+                 src/tm_mad/shared/cpds.ssh \
                  src/tm_mad/shared/resize"
 
 TM_FS_LVM_FILES="src/tm_mad/fs_lvm/activate \

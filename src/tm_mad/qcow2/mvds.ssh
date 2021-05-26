@@ -27,7 +27,6 @@
 SRC=$1
 DST=$2
 VMID=$3
-DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
@@ -36,22 +35,37 @@ else
 fi
 
 DRIVER_PATH=$(dirname $0)
-LIBFS=${DRIVER_PATH}/../../datastore/libfs.sh
 
 . $TMCOMMON
+
+#-------------------------------------------------------------------------------
+# Get Image information
+#-------------------------------------------------------------------------------
+
+DISK_ID=$(basename ${SRC} | cut -d. -f2)
+
+XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+
+unset i j XPATH_ELEMENTS
+
+while IFS= read -r -d '' element; do
+    XPATH_ELEMENTS[i++]="$element"
+done < <(onevm show -x $VMID| $XPATH \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/FORMAT)
+
+FORMAT="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 
-SRC_HOST=`arg_host $SRC`
-SRC_PATH=`arg_path $SRC`
+SRC_HOST=$(arg_host $SRC)
+SRC_PATH=$(arg_path $SRC)
 SRC_SNAP_DIR=${SRC_PATH}.snap
 
 DST_PATH="$DST"
-DST_FILE=`basename $DST`
+DST_FILE=$(basename $DST)
 DST_SNAP_DIR=${DST_PATH}.snap
-DST_DIR=`dirname $DST_PATH`
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
@@ -59,25 +73,44 @@ DST_DIR=`dirname $DST_PATH`
 
 log "Moving $SRC to datastore as $DST"
 
-MV_CMD=$(cat <<EOT
-set -ex -o pipefail
-rm -rf ${DST_SNAP_DIR}
-mkdir -p ${DST_SNAP_DIR}
-
-mv ${SRC_SNAP_DIR}/[0-9]* ${DST_SNAP_DIR}
-cd "${DST_SNAP_DIR}"
-ln -sf "." "${DST_FILE}.snap"
-
-rebase_backing_files "$DST_FILE"
-
-SNAP="\$(ls | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"
-cd ..
-rm "${DST_FILE}"
-ln -sf "${DST_FILE}.snap/\$SNAP" "${DST_FILE}"
-rm -rf ${SRC_PATH}
+MV_SNAPSHOTS=$(cat <<EOT
+    if [ -d "${SRC_SNAP_DIR}" ]; then
+        mkdir -p "${DST_SNAP_DIR}"
+        for F in \$(ls ${SRC_SNAP_DIR}); do
+            if [ -f ${SRC_SNAP_DIR}/\$F ]; then
+                mv ${SRC_SNAP_DIR}/\$F ${DST_SNAP_DIR}
+            fi
+        done
+    fi
 EOT
 )
 
-ssh_exec_and_log_stdin "$SRC_HOST" "$MV_CMD" "$LIBFS" "Error moving disk ${SRC_PATH} to ${DST_PATH} on $SRC_HOST"
+if [ "$FORMAT" = "qcow2" ]; then
+    MV_SRC=$(cat <<EOT
+        mkdir -p ${DST_SNAP_DIR}
+        cd "${DST_SNAP_DIR}"
+        ln -sf "." "${DST_FILE}.snap" || :
+
+        rebase_backing_files "$DST_FILE"
+
+        SNAP="\$(ls | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"
+        cd ..
+        rm "${DST_FILE}"
+        ln -sf "${DST_FILE}.snap/\$SNAP" "${DST_FILE}"
+EOT
+)
+else
+    MV_SRC="mv ${SRC_PATH} ${DST_PATH}"
+fi
+
+CMD=$(cat <<EOT
+set -ex -o pipefail
+$(type rebase_backing_files  |grep -v 'is a function')
+${MV_SNAPSHOTS}
+${MV_SRC}
+EOT
+)
+
+ssh_exec_and_log "$SRC_HOST" "$CMD" "Error moving disk ${SRC_PATH} to ${DST_PATH} on $SRC_HOST"
 
 exit 0

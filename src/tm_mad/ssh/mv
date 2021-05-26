@@ -26,9 +26,6 @@
 SRC=$1
 DST=$2
 
-VMID=$3
-DSID=$4
-
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
@@ -41,26 +38,26 @@ fi
 # Return if moving a disk, we will move them when moving the whole system_ds
 # directory for the VM
 #-------------------------------------------------------------------------------
-SRC=`fix_dir_slashes $SRC`
-DST=`fix_dir_slashes $DST`
+SRC=$(fix_dir_slashes $SRC)
+DST=$(fix_dir_slashes $DST)
 
-SRC_PATH=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
+SRC_PATH=$(arg_path $SRC)
+DST_PATH=$(arg_path $DST)
 
-SRC_HOST=`arg_host $SRC`
-DST_HOST=`arg_host $DST`
+SRC_HOST=$(arg_host $SRC)
+DST_HOST=$(arg_host $DST)
 
-SRC_DIR=`dirname $SRC_PATH`
-DST_DIR=`dirname $DST_PATH`
+SRC_DIR=$(dirname $SRC_PATH)
+DST_DIR=$(dirname $DST_PATH)
 
-SRC_DS_DIR=`dirname  $SRC_PATH`
-SRC_VM_DIR=`basename $SRC_PATH`
+SRC_DS_DIR=$(dirname  $SRC_PATH)
+SRC_VM_DIR=$(basename $SRC_PATH)
 
-if [ `is_disk $DST_PATH` -eq 1 ]; then
+if [ "$(is_disk $DST_PATH)" -eq 1 ]; then
     exit 0
 fi
 
-if [ `lcm_state` -eq 60 ]; then
+if [ "$(lcm_state)" -eq 60 ]; then
     log "Not moving files from $SRC_HOST in FT mode"
     exit 0
 fi

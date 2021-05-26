@@ -29,7 +29,6 @@ FORMAT=$2
 DST=$3
 
 VMID=$4
-DSID=$5
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh

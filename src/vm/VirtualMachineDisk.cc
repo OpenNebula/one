@@ -35,6 +35,37 @@ bool VirtualMachineDisk::is_volatile() const
     return ( type == "SWAP" || type == "FS");
 }
 
+Snapshots::AllowOrphansMode VirtualMachineDisk::allow_orphans() const
+{
+    std::string orphans;
+
+    if (vector_value("ALLOW_ORPHANS", orphans) == -1)
+    {
+        orphans = Snapshots::DENY;
+    }
+
+    auto ao = Snapshots::str_to_allow_orphans_mode(one_util::toupper(orphans));
+
+    if ( ao == Snapshots::FORMAT )
+    {
+        ao = Snapshots::DENY; //FORMAT="qcow2" or not FORMAT found
+
+        std::string format;
+
+        if (vector_value("FORMAT", format) == 0)
+        {
+            one_util::tolower(format);
+
+            if ( format == "raw" )
+            {
+                ao = Snapshots::ALLOW;
+            }
+        }
+    }
+
+    return ao;
+}
+
 /* -------------------------------------------------------------------------- */
 
 string VirtualMachineDisk::get_tm_target() const

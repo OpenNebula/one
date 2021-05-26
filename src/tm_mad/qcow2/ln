@@ -27,34 +27,34 @@
 SRC=$1
 DST=$2
 
-VMID=$3
-DSID=$4
-
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-. $TMCOMMON
-
 DRIVER_PATH=$(dirname $0)
+LIBFS=${DRIVER_PATH}/../../datastore/libfs.sh
+
+. $TMCOMMON
+. $LIBFS
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
-DST_DIR=`dirname $DST_PATH`
+DST_PATH=$(arg_path $DST)
+DST_HOST=$(arg_host $DST)
+DST_DIR=$(dirname $DST_PATH)
 
-SRC_ARG_PATH=`arg_path $SRC`
+SRC_ARG_PATH=$(arg_path $SRC)
 
-DST_DS_PATH="$(dirname $(dirname $(dirname $DST_PATH)))"
-SRC_DS_PATH="$(dirname $(dirname $SRC_ARG_PATH))"
+DST_DS_PATH="$(dirname "$(dirname "$(dirname "$DST_PATH")")")"
+SRC_DS_PATH="$(dirname "$(dirname "$SRC_ARG_PATH")")"
 
 SRC_PATH="${DST_DS_PATH}${SRC_ARG_PATH##$SRC_DS_PATH}"
 SNAP_DIR="${SRC_PATH}.snap"
 SNAP_NAME="$(basename $SNAP_DIR)"
+SRC_FORMAT="$(image_format "$SRC_PATH")"
 
 #-------------------------------------------------------------------------------
 # Create DST path
@@ -67,9 +67,7 @@ ssh_make_path $DST_HOST $DST_DIR
 #-------------------------------------------------------------------------------
 log "Linking $SRC_PATH in $DST"
 
-type="$(file -b --mime-type $SRC_PATH)"
-
-if [ "$type" == "application/x-iso9660-image" ]; then
+if [ "$SRC_FORMAT" = "raw" ]; then
     CMD="ln -sf ${SRC_PATH} ${DST_PATH}"
 else
     CMD=$(cat <<EOT
@@ -78,23 +76,24 @@ set -ex -o pipefail
 mkdir -p "${SNAP_DIR}"
 
 if [ ! -L "${SNAP_DIR}/${SNAP_NAME}" ]; then
-    ln -s "${SNAP_DIR}" "${SNAP_DIR}/${SNAP_NAME}"
+    # backing file traversar link
+    ln -s . "${SNAP_DIR}/${SNAP_NAME}" # backing file traversar link
 fi
 
 SNAP="\$(ls ${SNAP_DIR} | grep '^[[:digit:]]*$' | sort -n | tail -n 1 || :)"
 
 if [ -z "\${SNAP}" ]; then
     SNAP=0
+    # image is file, symlink back disk.x.snap/0 -> disk.x to mimic snaps struct
     ln -sf "$SRC_PATH" "$SNAP_DIR/0"
 fi
 
 rm -f "${DST_PATH}"
 
+# VM disk symlink to the image
 ln -sf "$SNAP_DIR/\$SNAP" "$DST_PATH"
 
 rm -rf "${DST_PATH}.snap"
-
-ln -sf "$SNAP_DIR" "${DST_PATH}.snap"
 EOT
 )
 fi

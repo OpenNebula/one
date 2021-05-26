@@ -185,3 +185,68 @@ function migrate_other
         fi
     done
 }
+
+#--------------------------------------------------------------------------------
+# Rebase backing files of snapshots in current directory
+#  @param $1 name of the backing_file symlink used internally
+#--------------------------------------------------------------------------------
+rebase_backing_files() {
+    local DST_FILE=$1
+
+    for SNAP_ID in $(find * -maxdepth 0 -type f -print); do
+        INFO=$(qemu-img info --output=json $SNAP_ID)
+
+        if [[ $INFO =~ "backing-filename" ]]; then
+            BACKING_FILE=${INFO/*backing-filename\": \"/}
+            BACKING_FILE=${BACKING_FILE/\"*/}
+            BACKING_FILE=$(basename ${BACKING_FILE})
+            qemu-img rebase -f qcow2 -F qcow2 -u -b "${DST_FILE}.snap/$BACKING_FILE" $SNAP_ID
+        fi
+    done
+}
+
+# ------------------------------------------------------------------------------
+# Prints command that creates qcow2 dir structure as follows:
+#
+# parameters:
+#     $1 <- SRC_PATH
+#     $2 <- DST_PATH
+#     $3 <- convert | create
+#
+# disk.0                   symlink -> disk.0.snap/0
+# disk.0.snap              dir
+# disk.0.snap/disk.0.snap  symlink -> . for relative referencing
+#
+# if $3 == convert
+# disk.0.snap/0            qcow2 standalone image
+
+# if $3 == create
+# disk.0.snap/0            qcow2 with backing file -> $SRC_PATH
+# ------------------------------------------------------------------------------
+
+function qcow_dir_cmd
+{
+    local SRC_PATH="$1"
+    local DST_PATH="$2"
+    local ACTION="$3"
+    local DST_FILE
+
+    DST_FILE=$(basename "$DST_PATH")
+
+    echo "set -e -o pipefail"
+    echo "rm -rf ${DST_PATH}.snap"
+    echo "mkdir -p ${DST_PATH}.snap"
+
+    if [ "$ACTION" = "convert" ]; then
+        echo "qemu-img convert -q -O qcow2 $SRC_PATH $DST_PATH.snap/0"
+
+    elif [ "$ACTION" = "create" ]; then
+        echo "B_FORMAT=\$($QEMU_IMG info $SRC_PATH | grep '^file format:' | awk '{print \$3}' || :)"
+        echo "$QEMU_IMG create -o backing_fmt=\${B_FORMAT:-raw} -b $SRC_PATH -f qcow2 $QCOW2_OPTIONS ${DST_PATH}.snap/0"
+    fi
+
+    echo "rm -f $DST_PATH"
+    echo "cd ${DST_PATH}.snap"
+    echo "ln -sf . ${DST_FILE}.snap"
+    echo "ln -sf ${DST_PATH}.snap/0 $DST_PATH"
+}
