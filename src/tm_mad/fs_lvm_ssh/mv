@@ -47,39 +47,30 @@ source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
 
 #--------------------------------------------------------------------------------
 
-SRC=`fix_dir_slashes $SRC`
-DST=`fix_dir_slashes $DST`
+SRC=$(fix_dir_slashes "$SRC")
+DST=$(fix_dir_slashes "$DST")
 
-SRC_PATH=`arg_path $SRC`
-DST_PATH=`arg_path $DST`
+SRC_PATH=$(arg_path "$SRC")
+DST_PATH=$(arg_path "$DST")
 
-SRC_HOST=`arg_host $SRC`
-DST_HOST=`arg_host $DST`
+SRC_HOST=$(arg_host "$SRC")
+DST_HOST=$(arg_host "$DST")
 
-SRC_DIR=`dirname $SRC_PATH`
-DST_DIR=`dirname $DST_PATH`
+SRC_DIR=$(dirname "$SRC_PATH")
+DST_DIR=$(dirname "$DST_PATH")
 
 # Activate the disk in the target host
-if [ `is_disk $SRC_PATH` -eq 1 ]; then
+if [ "$(is_disk "$SRC_PATH")" -eq 1 ]; then
     #---------------------------------------------------------------------------
     # Get Image information
     #---------------------------------------------------------------------------
 
-    SRC_DS_SYS_ID=$(echo $SRC_DIR | $AWK -F '/' '{print $(NF-1)}')
-    DST_DS_SYS_ID=$(echo $DST_DIR | $AWK -F '/' '{print $(NF-1)}')
+    SRC_DS_SYS_ID=$(echo "$SRC_DIR" | $AWK -F '/' '{print $(NF-1)}')
+    DST_DS_SYS_ID=$(echo "$DST_DIR" | $AWK -F '/' '{print $(NF-1)}')
 
     DISK_ID=${SRC_PATH##*.}
 
-    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-    unset i j XPATH_ELEMENTS
-
-    while IFS= read -r -d '' element; do
-        XPATH_ELEMENTS[i++]="$element"
-    done < <(onevm show -x $VMID | $XPATH  \
-                        /VM/LCM_STATE )
-
-    LCM_STATE="${XPATH_ELEMENTS[j++]}"
+    LCM_STATE=$(lcm_state "$VMID")
 
     LV_NAME="lv-one-${VMID}-${DISK_ID}"
     SRC_VG_NAME="vg-one-${SRC_DS_SYS_ID}"
@@ -112,6 +103,8 @@ EOF
     # 10(41) = EPILOG_STOP(+FAILURE)
     # 30(42) = EPILOG_UNDEPLOY(+FAILURE)
     if [[ "$LCM_STATE" =~ ^(10|30|41|42)$ ]]; then
+        # After managing LV deactivation on hosts, transfer normal files
+        "$(dirname "$0")"/../ssh/mv "$@"
         exit 0
     fi
 
@@ -168,4 +161,4 @@ EOF
 fi
 
 # After managing LV de/activation on different hosts, transfer normal files
-$(dirname "$0")/../ssh/mv "$@"
+"$(dirname "$0")"/../ssh/mv "$@"
