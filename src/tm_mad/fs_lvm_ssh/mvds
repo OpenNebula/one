@@ -35,56 +35,61 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 source $TMCOMMON
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_HOST=`arg_host $SRC`
+SRC_PATH=$(arg_path "$SRC")
+SRC_HOST=$(arg_host "$SRC")
 
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
+DST_PATH=$(arg_path "$DST")
 
-DISK_ID=$(echo $SRC_PATH|$AWK -F. '{print $NF}')
-DS_SYS_ID=$(echo $SRC_PATH|$AWK -F/ '{print $(NF-2)}')
+DISK_ID=$(echo "$SRC_PATH"|$AWK -F. '{print $NF}')
+DS_SYS_ID=$(echo "$SRC_PATH"|$AWK -F/ '{print $(NF-2)}')
 
 LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
+if is_undeployed "$VM_ID" "$SRC_HOST"; then
+
+    # get BRIDGE_LIST from datastore
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x "$DS_SYS_ID" \
+        | $XPATH /DATASTORE/TEMPLATE/BRIDGE_LIST )
+
+    if [ -n "$BRIDGE_LIST" ]; then
+        SRC_HOST=$(get_destination_host)
+    fi
+    # else we assume that FE have access to LVM storage
+
+    ACTIVATE="$SUDO $LVCHANGE -ay $DEV > /dev/null 2>&1"
+    DEACTIVATE="$SUDO $LVCHANGE -an $DEV > /dev/null 2>&1"
+fi
+
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 log "Dumping $SRC to $DST"
 
-# Copy from possibly remote host to possible remote host
-if [ "$(fix_dir_slashes $DST_HOST)" != "$DST_PATH" ]; then
-
+if [ -n "$ACTIVATE" ]; then
     DUMP_CMD=$(cat <<EOF
-        set -e -o pipefail
-        $ACTIVATE
-        $DD if=\"$DEV\" bs=${DD_BLOCK_SIZE:-64k} conv=sparse | $SSH "$DST_HOST" "cat - > $DST_PATH"
-        $DEACTIVATE
-EOF
-)
-    ssh_forward ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" "Error dumping $SRC to $DST"
-else # Copy from possibly remote host to local
-    DUMP_CMD=$(cat <<EOF
-        set -e -o pipefail
-
-        if [ -n "$ACTIVATE" ]; then
-            $SSH "$SRC_HOST" "$ACTIVATE; $DD if=\"$DEV\" bs=${DD_BLOCK_SIZE:-64k} conv=sparse; $DEACTIVATE" | \
+        $SSH "$SRC_HOST" "$ACTIVATE; $DD if=\"$DEV\" bs=${DD_BLOCK_SIZE:-64k} conv=sparse; $DEACTIVATE" | \
             cat - > "$DST_PATH"
-        else
-            $SSH "$SRC_HOST" "$DD if=\"$DEV\" bs=${DD_BLOCK_SIZE:-64k} conv=sparse" | cat - > "$DST_PATH"
-        fi
 EOF
 )
-    multiline_exec_and_log "$DUMP_CMD" "Error dumping $SRC to $DST"
+else
+    DUMP_CMD=$(cat <<EOF
+        $SSH "$SRC_HOST" "$DD if=\"$DEV\" bs=${DD_BLOCK_SIZE:-64k} conv=sparse" | cat - > "$DST_PATH"
+EOF
+)
 fi
+
+multiline_exec_and_log "$DUMP_CMD" "Error dumping $SRC to $DST"
 
 DELETE_CMD=$(cat <<EOF
     set -e -o pipefail
@@ -94,6 +99,6 @@ EOF
 
 LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
 exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$DELETE_CMD" \
-    "Error removing $DEV"
+    "Error dumping $SRC to $DST"
 
 exit 0

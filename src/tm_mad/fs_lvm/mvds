@@ -35,46 +35,65 @@ fi
 
 DRIVER_PATH=$(dirname $0)
 
-source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
-
 source $TMCOMMON
+source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
+source ${DRIVER_PATH}/../../datastore/libfs.sh
 
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_HOST=`arg_host $SRC`
+SRC_PATH=$(arg_path "$SRC")
+SRC_HOST=$(arg_host "$SRC")
 
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
+DST_PATH=$(arg_path "$DST")
 
-DISK_ID=$(echo $SRC_PATH|$AWK -F. '{print $NF}')
-DS_SYS_ID=$(echo $SRC_PATH|$AWK -F/ '{print $(NF-2)}')
+DISK_ID=$(echo "$SRC_PATH"|$AWK -F. '{print $NF}')
+DS_SYS_ID=$(echo "$SRC_PATH"|$AWK -F/ '{print $(NF-2)}')
 
 LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
-DUMP_CMD=$(cat <<EOF
-    set -e -o pipefail
-    $DD if=$DEV of=$DST_PATH bs=${DD_BLOCK_SIZE:-64k}
-EOF
-)
+if is_undeployed "$VM_ID" "$SRC_HOST"; then
 
-DELETE_CMD=$(cat <<EOF
-    set -e -o pipefail
-    $SUDO $LVREMOVE -f $DEV
+    # get BRIDGE_LIST from datastore
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x "$DS_SYS_ID" \
+        | $XPATH /DATASTORE/TEMPLATE/BRIDGE_LIST )
+
+    if [ -n "$BRIDGE_LIST" ]; then
+        SRC_HOST=$(get_destination_host)
+    fi
+    # we assume that FE have access to LVM storage
+
+    DUMP_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $SUDO $LVCHANGE -ay $DEV > /dev/null 2>&1
+        $DD if=$DEV of=$DST_PATH bs=${DD_BLOCK_SIZE:-64k}
+        $SUDO $LVCHANGE -an $DEV > /dev/null 2>&1
 EOF
 )
+else
+    DUMP_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $DD if=$DEV of=$DST_PATH bs=${DD_BLOCK_SIZE:-64k}
+EOF
+)
+fi
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
 log "Dumping $SRC to $DST"
 
-ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" \
-    "Error dumping $SRC to $DST"
+ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" "Error dumping $SRC to $DST"
+
+DELETE_CMD=$(cat <<EOF
+    set -e -o pipefail
+    $SUDO $LVREMOVE -f $DEV
+EOF
+)
 
 LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
 exclusive "${LOCK}" 120 ssh_exec_and_log "$SRC_HOST" "$DELETE_CMD" \

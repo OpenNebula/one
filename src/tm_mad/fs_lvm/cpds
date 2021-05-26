@@ -44,68 +44,51 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 #-------------------------------------------------------------------------------
 # Set dst path and dir
 #-------------------------------------------------------------------------------
-SRC_PATH=`arg_path $SRC`
-SRC_HOST=`arg_host $SRC`
+SRC_PATH=$(arg_path "$SRC")
+SRC_HOST=$(arg_host "$SRC")
 
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
+DST_PATH=$(arg_path "$DST")
 
-DISK_ID=$(echo $SRC_PATH|$AWK -F. '{print $NF}')
-DS_SYS_ID=$(echo $SRC_PATH|$AWK -F/ '{print $(NF-2)}')
+DISK_ID=$(echo "$SRC_PATH"|$AWK -F. '{print $NF}')
+DS_SYS_ID=$(echo "$SRC_PATH"|$AWK -F/ '{print $(NF-2)}')
 
 LV_NAME="lv-one-$VM_ID-$DISK_ID"
 VG_NAME="vg-one-$DS_SYS_ID"
 
 DEV="/dev/${VG_NAME}/${LV_NAME}"
 
-#-------------------------------------------------------------------------------
-# Get VM information
-#-------------------------------------------------------------------------------
-XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
-
-unset i j XPATH_ELEMENTS
-
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onevm show -x $VM_ID| $XPATH \
-                    '/VM/LCM_STATE' \
-                    '/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME')
-
-LCM_STATE="${XPATH_ELEMENTS[j++]}"
-LAST_HOST="${XPATH_ELEMENTS[j++]}"
-
-# Undeployed VM state
-if [ "$LCM_STATE" = '67' ] || [ "$LCM_STATE" = '68' ]; then
+if is_undeployed "$VM_ID" "$SRC_HOST"; then
 
     # get BRIDGE_LIST from datastore
-    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x $DS_SYS_ID \
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x "$DS_SYS_ID" \
         | $XPATH /DATASTORE/TEMPLATE/BRIDGE_LIST )
 
     if [ -n "$BRIDGE_LIST" ]; then
         SRC_HOST=$(get_destination_host)
-    elif [ -n "$LAST_HOST" ]; then
-        SRC_HOST=$LAST_HOST
-    else
-        log_error "Unknown last VM host nor BRIDGE_LIST"
-        exit -1
     fi
-    ACTIVATE="$SUDO $LVCHANGE -ay "$DEV""
-    DEACTIVATE="$SUDO $LVCHANGE -an "$DEV""
+    #else we assume that FE have access to LVM storage
+
+    DUMP_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $SUDO $LVCHANGE -ay $DEV > /dev/null 2>&1
+        $DD if=$DEV of=$DST_PATH bs=${DD_BLOCK_SIZE:-64k}
+        $SUDO $LVCHANGE -an $DEV > /dev/null 2>&1
+EOF
+)
+else
+    DUMP_CMD=$(cat <<EOF
+        set -e -o pipefail
+        $DD if=$DEV of=$DST_PATH bs=${DD_BLOCK_SIZE:-64k}
+EOF
+)
 fi
 
 #-------------------------------------------------------------------------------
 # Move the image back to the datastore
 #-------------------------------------------------------------------------------
-DUMP_CMD=$(cat <<EOF
-    $ACTIVATE
-    $DD if=$DEV of=$DST_PATH bs=${DD_BLOCK_SIZE:-64k}
-    $DEACTIVATE
-EOF
-)
-
 log "Dumping $SRC to $DST"
 
-ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" \
-    "Error dumping $SRC to $DST"
+ssh_exec_and_log "$SRC_HOST" "$DUMP_CMD" "Error dumping $SRC to $DST"
 
 exit 0

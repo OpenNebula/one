@@ -41,94 +41,55 @@ source ${DRIVER_PATH}/../../datastore/libfs.sh
 # Return if deleting a disk, we will delete them when removing the
 # remote_system_ds directory for the VM (remotely)
 #-------------------------------------------------------------------------------
-DST_PATH=`arg_path $DST`
-DST_HOST=`arg_host $DST`
+DST_PATH=$(arg_path "$DST")
+DST_HOST=$(arg_host "$DST")
+DST_HOST_LVM="$DST_HOST"
 
-if [ `is_disk $DST_PATH` -eq 1 ]; then
-    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-2)}')
+if [ "$(is_disk "$DST_PATH")" -eq 1 ]; then
+    DS_SYS_ID=$(echo "$DST_PATH" | $AWK -F '/' '{print $(NF-2)}')
 else
-    DS_SYS_ID=$(echo $DST_PATH | $AWK -F '/' '{print $(NF-1)}')
+    DS_SYS_ID=$(echo "$DST_PATH" | $AWK -F '/' '{print $(NF-1)}')
 fi
 
-unset i j XPATH_ELEMENTS
-while IFS= read -r -d '' element; do
-    XPATH_ELEMENTS[i++]="$element"
-done < <(onevm show -x $VM_ID | $XPATH \
-    '/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME')
+if is_undeployed "$VM_ID" "$DST_HOST"; then
 
-LAST_HOST="${XPATH_ELEMENTS[j++]}"
+    # get BRIDGE_LIST from datastore
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x "$DS_SYS_ID" \
+        | $XPATH /DATASTORE/TEMPLATE/BRIDGE_LIST )
 
-
-# Change DST_HOST to one of the BRIDGE_LIST to prevent
-# running on frontend for undeployed VMs
-if [ "$LAST_HOST" != "$DST_HOST" ]; then
-    unset i j XPATH_ELEMENTS
-    while IFS= read -r -d '' element; do
-        XPATH_ELEMENTS[i++]="$element"
-    done < <(onedatastore show -x $DS_SYS_ID | $XPATH \
-        /DATASTORE/TEMPLATE/BRIDGE_LIST)
-
-    BRIDGE_LIST="${XPATH_ELEMENTS[j++]}"
-
-    if [ -n "$BRIDGE_LIST" ]; then
-        DST_HOST=$(get_destination_host)
+    if [ -n "$BRIDGE_LIST" ]; then # If BRIDGE_LIST is not defined FE must have access to LVM cluster
+        DST_HOST_LVM=$(get_destination_host)
     fi
 fi
 
-# Activate device
-ACTIVATE_CMD=$(cat <<EOF
-    set -ex -o pipefail
-    if [ -L "$DST_PATH" ]; then
-        DEV=\$(readlink $DST_PATH)
-        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
+# Get DEV
+DEV=$($SSH "$DST_HOST" "readlink $DST_PATH 2> /dev/null | grep \"^/dev/\"")
+
+if [ -n "$DEV" ]; then
+
+    if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
+        # Activate device
+        ACTIVATE_CMD=$(cat <<EOF
+            set -ex -o pipefail
             ${SYNC}
             ${SUDO} ${LVSCAN}
-            ${SUDO} ${LVCHANGE} -ay "\${DEV}"
-        fi
-    fi
+            ${SUDO} ${LVCHANGE} -ay "${DEV}"
 EOF
 )
+        LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
+        exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST_LVM" "$ACTIVATE_CMD" \
+            "Error activating disk $SRC_PATH"
 
-# Zero space
-ZERO_CMD=$(cat <<EOF
-    set -ex -o pipefail
-    if [ -L "$DST_PATH" ]; then
-        DEV=\$(readlink $DST_PATH)
-        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
-            ${DD} if=/dev/zero of="\${DEV}" bs=${DD_BLOCK_SIZE:-64k} || :
-        fi
-    fi
-EOF
-)
-
-# Delete the device if it's a clone (LVM snapshot)
-DELETE_CMD=$(cat <<EOF
-    set -ex -o pipefail
-
-    if [ -d "$DST_PATH" ]; then
-        rm -rf "$DST_PATH"
-        exit 0
+        # It's separeted from ACTIVATE_CMD to avoid blocking while writing in the device
+        ssh_exec_and_log_no_error "$DST_HOST_LVM" "${DD} if=/dev/zero of=\"${DEV}\" bs=${DD_BLOCK_SIZE:-64k}" \
+            "Error cleaning $DST_PATH"
     fi
 
-    if [ -L "$DST_PATH" ]; then
-        DEV=\$(readlink $DST_PATH)
-        if echo "\$DEV" | grep "^/dev/" &>/dev/null; then
-            $SUDO $LVREMOVE -f "\$DEV"
-        fi
-    fi
 
-    rm -f "$DST_PATH"
-EOF
-)
-
-if [ "${ZERO_LVM_ON_DELETE}" = "yes" ]; then
-    LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
-    exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$ACTIVATE_CMD" \
-        "Error activating disk $SRC_PATH"
-
-    ssh_exec_and_log "$DST_HOST" "$ZERO_CMD" "Error cleaning $DST_PATH"
+    exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST_LVM" "$SUDO $LVREMOVE -f \"$DEV\"" \
+    "Error deleting $DST_PATH"
 fi
 
-LOCK="tm-fs_lvm-${DS_SYS_ID}.lock"
-exclusive "${LOCK}" 120 ssh_exec_and_log "$DST_HOST" "$DELETE_CMD" \
-    "Error deleting $DST_PATH"
+ssh_exec_and_log "$DST_HOST" "rm -rf \"$DST_PATH\"" \
+    "Error removing \"$DST_PATH\" from $DST_HOST"

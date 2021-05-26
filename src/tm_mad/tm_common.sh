@@ -117,6 +117,29 @@ function lcm_state
     echo $LCM_STATE
 }
 
+# Check if the VM is undeployed/stopped
+
+function is_undeployed
+{
+    XPATH="${ONE_LOCAL_VAR}/remotes/datastore/xpath.rb --stdin"
+
+    unset i XPATH_ELEMENTS
+
+    while IFS= read -r -d '' element; do
+        XPATH_ELEMENTS[i++]="$element"
+    done < <(onevm show -x "${1:-$VMID}" | $XPATH \
+                        '/VM/HISTORY_RECORDS/HISTORY[last()]/HOSTNAME' )
+
+    LAST_HOST="${XPATH_ELEMENTS[0]}"
+    CURRENT_HOST="$2"
+
+    if [ "$LAST_HOST" != "$CURRENT_HOST" ]; then
+        return 0
+    fi
+
+    return 1
+}
+
 function migrate_other
 {
 
