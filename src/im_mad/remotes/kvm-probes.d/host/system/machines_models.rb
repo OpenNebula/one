@@ -26,7 +26,6 @@ GUEST_ARCHS = %w(i686 x86_64)
 begin
 
     capabilities = ""
-    archs    = []
     machines = []
     models   = []
 
@@ -109,5 +108,3 @@ begin
 
 rescue
 end
-
-
