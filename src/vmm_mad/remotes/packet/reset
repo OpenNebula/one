@@ -61,7 +61,7 @@ begin
     packet_drv.reset(deploy_id)
 
 rescue Exception => e
-    STDERR.puts error_message(<<EOT)
+    STDERR.puts <<EOT
 Reset of VM #{vm_id} on Packet host #{host} failed due to "#{e.message}"
 #{e.backtrace}"
 EOT

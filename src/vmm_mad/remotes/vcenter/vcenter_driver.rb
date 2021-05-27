@@ -133,19 +133,10 @@ end
 # Helper functions                                                             #
 # ---------------------------------------------------------------------------- #
 
-def error_message(message)
-    error_str = "ERROR MESSAGE --8<------\n"
-    error_str << message
-    error_str << "\nERROR MESSAGE ------>8--"
-
-    error_str
-end
-
 def check_valid(parameter, label)
     return unless parameter.nil? || parameter.empty?
 
-    STDERR.puts error_message("The parameter '#{label}'\
-                               is required for this action.")
+    STDERR.puts "The parameter '#{label}' is required for this action."
     exit(-1)
 end
 

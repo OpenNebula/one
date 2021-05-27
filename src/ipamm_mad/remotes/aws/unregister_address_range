@@ -127,10 +127,6 @@ begin
 
     ec2.release_address({ :allocation_id => allocation_id })
 rescue StandardError => e
-    error_str = "ERROR MESSAGE --8<------\n"
-    error_str << e.to_s
-    error_str << "\nERROR MESSAGE ------>8--"
-
-    STDERR.puts error_str
+    STDERR.puts e.to_s
     exit(-1)
 end

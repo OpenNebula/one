@@ -548,16 +548,6 @@ class PacketDriver
 
 end
 
-###
-
-def error_message(message)
-    error_str = "ERROR MESSAGE --8<------\n"
-    error_str << message
-    error_str << "\nERROR MESSAGE ------>8--"
-
-    error_str
-end
-
 ############################################################################
 #  Module Interface
 #  Interface for probe_db - VirtualMachineDB

@@ -65,7 +65,7 @@ begin
     packet_drv.shutdown(deploy_id, vm.lcm_state_str)
 
 rescue Exception => e
-    STDERR.puts error_message(<<EOT)
+    STDERR.puts <<EOT
 Shutdown of VM #{vm_id} on Packet host #{host} failed due to "#{e.message}"
 #{e.backtrace}"
 EOT

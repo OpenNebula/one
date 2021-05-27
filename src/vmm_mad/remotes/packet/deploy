@@ -67,7 +67,7 @@ begin
     puts packet_drv.deploy_vm(id, host, text, vm.lcm_state_str, vm.deploy_id)
 
 rescue Exception => e
-    STDERR.puts error_message(<<EOT)
+    STDERR.puts <<EOT
 Deploy of VM #{id} on Packet host #{host} with #{dfile} failed due to "#{e.message}"
 #{e.backtrace}"
 EOT
