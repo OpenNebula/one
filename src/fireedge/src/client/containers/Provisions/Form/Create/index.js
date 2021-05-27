@@ -11,8 +11,10 @@ import Steps from 'client/containers/Provisions/Form/Create/Steps'
 import formCreateStyles from 'client/containers/Provisions/Form/Create/styles'
 import DebugLog from 'client/components/DebugLog'
 
-import { useProvision, useSocket, useFetch } from 'client/hooks'
-import { PATH } from 'client/router/provision'
+import { useSocket, useFetch } from 'client/hooks'
+import { useProviderApi, useProvisionApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
+import { PATH } from 'client/apps/provision/routes'
 import { set, cloneObject, mapUserInputs } from 'client/utils'
 
 import { Translate } from 'client/components/HOC'
@@ -23,9 +25,11 @@ function ProvisionCreateForm () {
   const history = useHistory()
 
   const [uuid, setUuid] = useState(undefined)
-  const { getProvision } = useSocket()
 
-  const { getProviders, createProvision } = useProvision()
+  const { getProvision } = useSocket()
+  const { getProviders } = useProviderApi()
+  const { createProvision } = useProvisionApi()
+  const { enqueueInfo } = useGeneralApi()
 
   const { data, fetchRequest, loading, error } = useFetch(getProviders)
 
@@ -64,7 +68,9 @@ function ProvisionCreateForm () {
         ?.map(input => ({ ...input, value: `${parseInputs[input?.name]}` }))
     }
 
-    createProvision({ data: formatData }).then(res => res && setUuid(res))
+    createProvision(formatData)
+      .then(res => res && setUuid(res))
+      .then(() => enqueueInfo('Creating provision'))
   }
 
   useEffect(() => { fetchRequest() }, [])

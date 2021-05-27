@@ -12,7 +12,6 @@ export default makeStyles(theme => ({
     userSelect: 'none',
     flexGrow: 1,
     display: 'inline-flex',
-    color: theme.palette.primary.contrastText,
     '& span': { textTransform: 'capitalize' }
   },
   app: {

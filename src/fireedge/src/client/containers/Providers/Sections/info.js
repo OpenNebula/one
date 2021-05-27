@@ -5,20 +5,21 @@ import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/c
 import { CheckBox, CheckBoxOutlineBlank, Visibility } from '@material-ui/icons'
 import clsx from 'clsx'
 
-import { useProvision } from 'client/hooks'
+import { useProviderApi } from 'client/features/One'
 import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
+import * as Types from 'client/types/provision'
 import useStyles from 'client/containers/Providers/Sections/styles'
 
-const Info = memo(({ data }) => {
+const Info = memo(({ fetchProps }) => {
   const classes = useStyles()
-  const { getProviderConnection } = useProvision()
+  const { getProviderConnection } = useProviderApi()
 
   const [showConnection, setShowConnection] = useState(undefined)
 
-  const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
+  const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = fetchProps?.data
   const {
     connection,
     description,
@@ -35,8 +36,7 @@ const Info = memo(({ data }) => {
     <Action
       icon={<Visibility />}
       cy='provider-connection'
-      handleClick={() => getProviderConnection({ id: ID })
-        .then(setShowConnection)}
+      handleClick={() => getProviderConnection(ID).then(setShowConnection)}
     />
   )
 
@@ -148,11 +148,15 @@ const Info = memo(({ data }) => {
 })
 
 Info.propTypes = {
-  data: PropTypes.object.isRequired
+  fetchProps: PropTypes.shape({
+    data: Types.Provision.isRequired
+  }).isRequired
 }
 
 Info.defaultProps = {
-  data: {}
+  fetchProps: {
+    data: {}
+  }
 }
 
 Info.displayName = 'Info'

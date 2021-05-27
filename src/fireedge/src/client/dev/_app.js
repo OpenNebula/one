@@ -18,15 +18,13 @@ import * as React from 'react'
 import FlowApp from 'client/apps/flow'
 import ProvisionApp from 'client/apps/provision'
 
+import { isDevelopment, isBackend } from 'client/utils'
 import { _APPS, APPS } from 'client/constants'
 
 const DevelopmentApp = props => {
   let appName = ''
 
-  if (
-    process?.env?.NODE_ENV === 'development' &&
-    typeof window !== 'undefined'
-  ) {
+  if (isDevelopment() && !isBackend()) {
     const parseUrl = window.location.pathname
       .split(/\//gi)
       .filter(sub => sub?.length > 0)

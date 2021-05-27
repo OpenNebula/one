@@ -19,7 +19,6 @@ const debugLogStyles = makeStyles(theme => ({
     overflow: 'auto',
     borderRadius: 5,
     backgroundColor: '#1d1f21',
-    fontSize: '1.1em',
     wordBreak: 'break-word',
     '&::-webkit-scrollbar': {
       width: 14

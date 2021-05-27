@@ -54,7 +54,7 @@ export default makeStyles(theme => ({
   },
   headerRoot: {
     // align header icon to top
-    alignItems: 'end'
+    alignItems: 'start'
   },
   headerContent: { overflow: 'auto' },
   headerAvatar: {

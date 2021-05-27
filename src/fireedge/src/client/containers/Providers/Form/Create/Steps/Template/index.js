@@ -3,7 +3,8 @@ import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@material
 import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
 import Marked from 'marked'
 
-import { useProvision, useListForm } from 'client/hooks'
+import { useListForm } from 'client/hooks'
+import { useOne } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { ProvisionTemplateCard } from 'client/components/Cards'
 import { sanitize, groupBy } from 'client/utils'
@@ -23,7 +24,8 @@ const Template = () => ({
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(
     ({ data, setFormData }) => {
-      const { provisionsTemplates } = useProvision()
+      const { provisionsTemplates } = useOne()
+
       const templateSelected = data?.[0]
 
       const [provisionSelected, setProvision] = React.useState(

@@ -1,25 +1,32 @@
-import root from 'window-or-global'
-import { createStore, compose, applyMiddleware } from 'redux'
+import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
+
 import thunkMiddleware from 'redux-thunk'
-import rootReducer from 'client/reducers'
 
-const preloadedState = root.__PRELOADED_STATE__
+import * as General from 'client/features/General'
+import * as Auth from 'client/features/Auth'
+import * as One from 'client/features/One'
 
-delete root.__PRELOADED_STATE__
+import { isDevelopment } from 'client/utils'
 
-const composeEnhancer =
-  (root && root.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
+export const createStore = ({ initState = {}, services }) => {
+  const middleware = getDefaultMiddleware({
+    immutableCheck: true,
+    serializableCheck: false,
+    thunk: false
+  })
 
-// The store now has the ability to accept thunk functions in `dispatch`
-const store = createStore(
-  rootReducer(),
-  preloadedState,
-  composeEnhancer(applyMiddleware(thunkMiddleware))
-)
+  middleware.push(thunkMiddleware.withExtraArgument({ services }))
 
-const element = document.getElementById('preloadState')
-if (element) {
-  element.remove()
+  const store = configureStore({
+    reducer: {
+      general: General.reducer,
+      auth: Auth.reducer,
+      one: One.reducer
+    },
+    devTools: isDevelopment(),
+    middleware,
+    preloadedState: initState
+  })
+
+  return { store }
 }
-
-export default store

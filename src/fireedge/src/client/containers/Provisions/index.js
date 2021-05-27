@@ -5,8 +5,11 @@ import { Container, Box } from '@material-ui/core'
 import EditIcon from '@material-ui/icons/Settings'
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import { PATH } from 'client/router/provision'
-import { useProvision, useFetch, useSearch } from 'client/hooks'
+import { PATH } from 'client/apps/provision/routes'
+import { useFetch, useSearch } from 'client/hooks'
+import { useProvision, useProvisionApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
+
 import { ListHeader, ListCards } from 'client/components/List'
 import AlertError from 'client/components/Alerts/Error'
 import { ProvisionCard } from 'client/components/Cards'
@@ -17,17 +20,21 @@ import { T } from 'client/constants'
 
 function Provisions () {
   const history = useHistory()
-  const [showDialog, setShowDialog] = useState(false)
+  const [{ content, ...showDialog } = {}, setShowDialog] = useState()
+  const handleCloseDialog = () => setShowDialog()
+
+  const { enqueueInfo } = useGeneralApi()
+  const provisions = useProvision()
 
   const {
-    provisions,
     getProvisions,
     getProvision,
     configureProvision,
     deleteProvision
-  } = useProvision()
+  } = useProvisionApi()
 
   const { error, fetchRequest, loading, reloading } = useFetch(getProvisions)
+
   const { result, handleChange } = useSearch({
     list: provisions,
     listOptions: { shouldSort: true, keys: ['ID', 'NAME'] }
@@ -35,17 +42,19 @@ function Provisions () {
 
   useEffect(() => { fetchRequest() }, [])
 
-  const handleCancel = () => setShowDialog(false)
-
   return (
     <Container disableGutters>
       <ListHeader
         title={T.Provisions}
         reloadButtonProps={{
+          'data-cy': 'refresh-provision-list',
           onClick: () => fetchRequest(undefined, { reload: true }),
           isSubmitting: Boolean(loading || reloading)
         }}
-        addButtonProps={{ 'data-cy': 'create-provision', onClick: () => history.push(PATH.PROVISIONS.CREATE) }}
+        addButtonProps={{
+          'data-cy': 'create-provision',
+          onClick: () => history.push(PATH.PROVISIONS.CREATE)
+        }}
         searchProps={{ handleChange }}
       />
       <Box p={3}>
@@ -62,23 +71,36 @@ function Provisions () {
                 id: ID,
                 title: NAME,
                 subheader: `#${ID}`,
-                content: DialogInfo
+                content: props => createElement(DialogInfo, {
+                  ...props,
+                  displayName: 'DialogDetailProvision'
+                })
               }),
               actions: [
                 {
-                  handleClick: () => configureProvision({ id: ID }),
+                  handleClick: () => configureProvision(ID)
+                    .then(() => enqueueInfo(`Configuring provision - ID: ${ID}`))
+                    .then(() => fetchRequest(undefined, { reload: true })),
                   icon: <EditIcon />,
                   cy: 'provision-configure'
                 },
                 {
                   handleClick: () => setShowDialog({
                     id: ID,
-                    title: `DELETE provision - #${ID} - ${NAME}`,
+                    content: props => createElement(DialogInfo, {
+                      ...props,
+                      disableAllActions: true,
+                      displayName: 'DialogDeleteProvision'
+                    }),
+                    title: `DELETE - ${NAME}`,
+                    subheader: `#${ID}`,
                     handleAccept: () => {
-                      deleteProvision({ id: ID })
-                      setShowDialog(false)
-                    },
-                    content: DialogInfo
+                      handleCloseDialog()
+
+                      return deleteProvision(ID)
+                        .then(() => enqueueInfo(`Deleting provision - ID: ${ID}`))
+                        .then(() => fetchRequest(undefined, { reload: true }))
+                    }
                   }),
                   icon: <DeleteIcon color='error' />,
                   cy: 'provision-delete'
@@ -88,13 +110,13 @@ function Provisions () {
           />
         )}
       </Box>
-      {showDialog !== false && (
+      {content && (
         <DialogRequest
           withTabs
-          request={() => getProvision({ id: showDialog.id })}
-          dialogProps={{ handleCancel, ...showDialog }}
+          request={() => getProvision(showDialog.id)}
+          dialogProps={{ handleCancel: handleCloseDialog, ...showDialog }}
         >
-          {props => createElement(showDialog.content, props)}
+          {props => content(props)}
         </DialogRequest>
       )}
     </Container>

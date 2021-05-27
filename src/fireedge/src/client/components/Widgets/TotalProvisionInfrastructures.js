@@ -7,14 +7,14 @@ import {
   AccountTree as NetworkIcon
 } from '@material-ui/icons'
 
-import { useProvision } from 'client/hooks'
+import { useOne } from 'client/features/One'
 import Count from 'client/components/Count'
 import { WavesCard } from 'client/components/Cards'
 import { get } from 'client/utils'
 import { T } from 'client/constants'
 
 const TotalProvisionInfrastructures = () => {
-  const { provisions } = useProvision()
+  const { provisions } = useOne()
 
   const provisionsByProvider = React.useMemo(() =>
     provisions

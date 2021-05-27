@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { CssBaseline, ThemeProvider, StylesProvider, useMediaQuery } from '@material-ui/core'
 import { createTheme, generateClassName } from 'client/theme'
-import { useAuth } from 'client/hooks'
+import { useAuth } from 'client/features/Auth'
 import { SCHEMES } from 'client/constants'
 
 const { DARK, LIGHT, SYSTEM } = SCHEMES

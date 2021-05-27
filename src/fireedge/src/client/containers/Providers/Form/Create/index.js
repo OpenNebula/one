@@ -8,9 +8,11 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/Providers/Form/Create/Steps'
 
-import { useFetchAll, useGeneral, useProvision } from 'client/hooks'
+import { useFetchAll } from 'client/hooks'
+import { useProviderApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
 import * as ProviderTemplateModel from 'client/models/ProviderTemplate'
-import { PATH } from 'client/router/provision'
+import { PATH } from 'client/apps/provision/routes'
 
 function ProviderCreateForm () {
   const history = useHistory()
@@ -19,14 +21,15 @@ function ProviderCreateForm () {
 
   const {
     getProvider,
-    getProviderConnection,
     createProvider,
-    updateProvider
-  } = useProvision()
+    updateProvider,
+    getProviderConnection
+  } = useProviderApi()
+
+  const { enqueueError, enqueueSuccess, changeLoading } = useGeneralApi()
 
   const { data, fetchRequestAll, loading, error } = useFetchAll()
   const { steps, defaultValues, resolvers } = Steps({ isUpdate })
-  const { showError, changeLoading } = useGeneral()
 
   const methods = useForm({
     mode: 'onSubmit',
@@ -35,7 +38,7 @@ function ProviderCreateForm () {
   })
 
   const redirectWithError = (message = 'Error') => {
-    showError({ message })
+    enqueueError(message)
     history.push(PATH.PROVIDERS.LIST)
   }
 
@@ -47,8 +50,8 @@ function ProviderCreateForm () {
     const isValid = ProviderTemplateModel.isValidProviderTemplate(templateSelected)
 
     !isValid && redirectWithError(`
-    The template selected has a bad format.
-    Ask your cloud administrator`
+      The template selected has a bad format.
+      Ask your cloud administrator`
     )
 
     const { name, description } = configuration
@@ -61,7 +64,8 @@ function ProviderCreateForm () {
       name
     }
 
-    createProvider({ data: formatData })
+    createProvider(formatData)
+      .then(id => enqueueSuccess(`Provider created - ID: ${id}`))
       .then(() => history.push(PATH.PROVIDERS.LIST))
   }
 
@@ -78,7 +82,8 @@ function ProviderCreateForm () {
       connection: { ...connection, ...connectionEditable }
     }
 
-    updateProvider({ id, data: formatData })
+    updateProvider(id, formatData)
+      .then(() => enqueueSuccess(`Provider updated - ID: ${id}`))
       .then(() => history.push(PATH.PROVIDERS.LIST))
   }
 
@@ -89,8 +94,8 @@ function ProviderCreateForm () {
 
   useEffect(() => {
     isUpdate && fetchRequestAll([
-      getProvider({ id }),
-      getProviderConnection({ id })
+      getProvider(id),
+      getProviderConnection(id)
     ])
   }, [isUpdate])
 

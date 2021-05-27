@@ -3,7 +3,7 @@ import * as React from 'react'
 import { PieChart } from 'react-minimal-pie-chart'
 import { Typography, Paper } from '@material-ui/core'
 
-import { useProvision } from 'client/hooks'
+import { useOne } from 'client/features/One'
 import { TypographyWithPoint } from 'client/components/Typography'
 import Count from 'client/components/Count'
 import { groupBy } from 'client/utils'
@@ -12,9 +12,8 @@ import { T, PROVIDERS_TYPES } from 'client/constants'
 import useStyles from 'client/components/Widgets/TotalProviders/styles'
 
 const TotalProviders = () => {
-  const { providers } = useProvision()
-
   const classes = useStyles()
+  const { providers } = useOne()
 
   const totalProviders = React.useMemo(() => providers.length, [providers.length])
 

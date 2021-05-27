@@ -44,7 +44,7 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
         </FormProvider>
         <Box>
           {onBack && (
-            <Button onClick={onBack} color="primary" disabled={isLoading}>
+            <Button onClick={onBack} disabled={isLoading}>
               {Tr(T.Back)}
             </Button>
           )}

@@ -2,18 +2,10 @@ import React, { useMemo, useState } from 'react'
 
 import { Paper, Box, Container, LinearProgress, useMediaQuery } from '@material-ui/core'
 
-import { useAuth } from 'client/hooks'
 import Logo from 'client/icons/logo'
-import { ONEADMIN_ID } from 'client/constants'
 
-import {
-  FORM_USER_FIELDS,
-  FORM_USER_SCHEMA,
-  FORM_2FA_FIELDS,
-  FORM_2FA_SCHEMA,
-  FORM_GROUP_FIELDS,
-  FORM_GROUP_SCHEMA
-} from 'client/containers/Login/schema'
+import * as FORMS from 'client/containers/Login/schema'
+import { useAuth, useAuthApi } from 'client/features/Auth'
 import Form from 'client/containers/Login/Form'
 import loginStyles from 'client/containers/Login/styles'
 
@@ -26,35 +18,29 @@ const STEPS = {
 function Login () {
   const classes = loginStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
-  const [user, setUser] = useState(undefined)
+  const [dataUserForm, setDataUserForm] = useState(undefined)
   const [step, setStep] = useState(STEPS.USER_FORM)
-  const {
-    isLoading,
-    error,
-    login,
-    logout,
-    getAuthInfo,
-    setPrimaryGroup
-  } = useAuth()
+
+  const { isLoading, error } = useAuth()
+  const { login, getAuthUser, changeGroup, logout } = useAuthApi()
 
   const handleSubmitUser = dataForm => {
-    login({ ...user, ...dataForm }).then(data => {
-      if (data?.token) {
-        getAuthInfo().then(() => {
-          data?.id !== ONEADMIN_ID && setStep(STEPS.GROUP_FORM)
-        })
-      } else {
-        setStep(data ? STEPS.FA2_FORM : step)
-        setUser(data ? dataForm : user)
-      }
-    })
+    login({ ...dataUserForm, ...dataForm })
+      .then(({ jwt, user, isLoginInProgress }) => {
+        if (jwt && isLoginInProgress) {
+          getAuthUser().then(() => setStep(STEPS.GROUP_FORM))
+        } else if (!jwt && user?.ID) {
+          setStep(STEPS.FA2_FORM)
+          setDataUserForm(dataForm)
+        }
+      })
   }
 
-  const handleSubmitGroup = dataForm => setPrimaryGroup(dataForm)
+  const handleSubmitGroup = dataForm => changeGroup(dataForm)
 
   const handleBack = () => {
     logout()
-    setUser(undefined)
+    setDataUserForm(undefined)
     setStep(STEPS.USER_FORM)
   }
 
@@ -75,11 +61,11 @@ function Login () {
             transitionProps={{
               direction: 'right',
               in: step === STEPS.USER_FORM,
-              appear: false
+              enter: false
             }}
             onSubmit={handleSubmitUser}
-            resolver={FORM_USER_SCHEMA}
-            fields={FORM_USER_FIELDS}
+            resolver={FORMS.FORM_USER_SCHEMA}
+            fields={FORMS.FORM_USER_FIELDS}
             error={error}
             isLoading={isLoading}
           />}
@@ -90,8 +76,8 @@ function Login () {
             }}
             onBack={handleBack}
             onSubmit={handleSubmitUser}
-            resolver={FORM_2FA_SCHEMA}
-            fields={FORM_2FA_FIELDS}
+            resolver={FORMS.FORM_2FA_SCHEMA}
+            fields={FORMS.FORM_2FA_FIELDS}
             error={error}
             isLoading={isLoading}
           />}
@@ -102,8 +88,8 @@ function Login () {
             }}
             onBack={handleBack}
             onSubmit={handleSubmitGroup}
-            resolver={FORM_GROUP_SCHEMA}
-            fields={FORM_GROUP_FIELDS}
+            resolver={FORMS.FORM_GROUP_SCHEMA}
+            fields={FORMS.FORM_GROUP_FIELDS}
             error={error}
             isLoading={isLoading}
           />}

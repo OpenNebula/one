@@ -4,7 +4,7 @@ import { Button } from '@material-ui/core'
 import FilterIcon from '@material-ui/icons/FilterDrama'
 import SelectedIcon from '@material-ui/icons/FilterVintage'
 
-import { useAuth, useOpennebula } from 'client/hooks'
+import { useAuth, useAuthApi } from 'client/features/Auth'
 import Search from 'client/components/Search'
 
 import { FILTER_POOL } from 'client/constants'
@@ -15,17 +15,17 @@ const { ALL_RESOURCES, PRIMARY_GROUP_RESOURCES } = FILTER_POOL
 
 const Group = () => {
   const classes = headerStyles()
-  const { authUser, filterPool, setPrimaryGroup } = useAuth()
-  const { groups } = useOpennebula()
+  const { user, groups, filterPool } = useAuth()
+  const { changeGroup } = useAuthApi()
 
   const handleChangeGroup = group => {
-    group && setPrimaryGroup({ group })
+    group && changeGroup({ id: user.ID, group })
   }
 
   const renderResult = ({ ID, NAME }, handleClose) => {
     const isSelected =
       (filterPool === ALL_RESOURCES && ALL_RESOURCES === ID) ||
-      (filterPool === PRIMARY_GROUP_RESOURCES && authUser?.GID === ID)
+      (filterPool === PRIMARY_GROUP_RESOURCES && user?.GID === ID)
 
     return (
       <Button
@@ -44,9 +44,9 @@ const Group = () => {
   }
 
   const sortGroupAsMainFirst = (a, b) => {
-    if (a.ID === authUser?.GUID) {
+    if (a.ID === user?.GUID) {
       return -1
-    } else if (b.ID === authUser?.GUID) {
+    } else if (b.ID === user?.GUID) {
       return 1
     }
     return 0

@@ -3,64 +3,70 @@ import PropTypes from 'prop-types'
 
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import { useProvision, useOpennebula, useFetchAll } from 'client/hooks'
+import { useFetchAll } from 'client/hooks'
+import { useDatastoreApi, useProvisionApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
 import { ListCards } from 'client/components/List'
 import { DatastoreCard } from 'client/components/Cards'
 import * as Types from 'client/types/provision'
 
-const Datastores = memo(({ hidden, data, fetchRequest }) => {
-  const {
-    datastores
-  } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+const Datastores = memo(
+  ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
+    const {
+      datastores = []
+    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
-  const { deleteDatastore } = useProvision()
-  const { getDatastore } = useOpennebula()
-  const { data: list, fetchRequestAll, loading } = useFetchAll()
+    const { enqueueSuccess } = useGeneralApi()
+    const { deleteDatastore } = useProvisionApi()
+    const { getDatastore } = useDatastoreApi()
 
-  useEffect(() => {
-    if (!hidden) {
-      const requests = datastores?.map(getDatastore) ?? []
-      fetchRequestAll(requests)
-    }
-  }, [datastores])
+    const { data: list, fetchRequestAll, loading } = useFetchAll()
+    const fetchDatastores = () => fetchRequestAll(datastores?.map(({ id }) => getDatastore(id)))
 
-  useEffect(() => {
-    if (!list && !hidden) {
-      const requests = datastores?.map(getDatastore) ?? []
-      fetchRequestAll(requests)
-    }
-  }, [hidden])
+    useEffect(() => {
+      !hidden && !list && fetchDatastores()
+    }, [hidden])
 
-  return (
-    <ListCards
-      list={list}
-      isLoading={!list && loading}
-      CardComponent={DatastoreCard}
-      cardsProps={({ value: { ID } }) => ({
-        actions: [{
-          handleClick: () => deleteDatastore({ id: ID })
-            .then(() => fetchRequest(undefined, { reload: true })),
-          icon: <DeleteIcon color='error' />,
-          cy: `provision-datastore-delete-${ID}`
-        }]
-      })}
-      displayEmpty
-      breakpoints={{ xs: 12, md: 6 }}
-    />
-  )
-}, (prev, next) =>
-  prev.hidden === next.hidden && prev.data === next.data)
+    useEffect(() => {
+      !reloading && !loading && fetchDatastores()
+    }, [reloading])
+
+    return (
+      <ListCards
+        list={list}
+        isLoading={!list && loading}
+        CardComponent={DatastoreCard}
+        cardsProps={({ value: { ID } }) => !disableAllActions && ({
+          actions: [{
+            handleClick: () => deleteDatastore(ID)
+              .then(refetchProvision)
+              .then(() => enqueueSuccess(`Datastore deleted - ID: ${ID}`)),
+            icon: <DeleteIcon color='error' />,
+            cy: `provision-datastore-delete-${ID}`
+          }]
+        })}
+        displayEmpty
+        breakpoints={{ xs: 12, md: 6 }}
+      />
+    )
+  }, (prev, next) =>
+    prev.hidden === next.hidden && prev.reloading === next.reloading
+)
 
 Datastores.propTypes = {
   data: Types.Provision.isRequired,
   hidden: PropTypes.bool,
-  fetchRequest: PropTypes.func
+  refetchProvision: PropTypes.func,
+  reloading: PropTypes.bool,
+  disableAllActions: PropTypes.bool
 }
 
 Datastores.defaultProps = {
   data: {},
   hidden: false,
-  fetchRequest: () => undefined
+  refetchProvision: () => undefined,
+  reloading: false,
+  disableAllActions: false
 }
 
 Datastores.displayName = 'Datastores'

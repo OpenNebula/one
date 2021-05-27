@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { useOpennebula } from 'client/hooks'
+import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
 import Search from 'client/components/Search'
 import { SelectCard } from 'client/components/Cards'
 
 const sortByID = (a, b) => a.ID - b.ID
 
 const ListTemplates = ({ backButton, currentValue, handleSetData }) => {
-  const { templates, getTemplates } = useOpennebula()
+  const templates = useVmTemplate()
+  const { getTemplates } = useVmTemplateApi()
 
   useEffect(() => {
     getTemplates()

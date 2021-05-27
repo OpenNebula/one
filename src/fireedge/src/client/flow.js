@@ -16,10 +16,12 @@
 import * as React from 'react'
 import { hydrate, render } from 'react-dom'
 
-import store from 'client/store'
+import { createStore } from 'client/store'
 import App from 'client/apps/flow'
 
-const mainDiv = document.getElementById('root')
-const renderMethod = mainDiv && mainDiv.innerHTML !== '' ? hydrate : render
+const { store } = createStore({ initState: window.REDUX_DATA })
+
+const rootHTML = document.getElementById('root')?.innerHTML
+const renderMethod = rootHTML !== '' ? hydrate : render
 
 renderMethod(<App store={store} />, document.getElementById('root'))

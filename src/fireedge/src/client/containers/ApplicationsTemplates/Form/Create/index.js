@@ -8,19 +8,22 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
-import { PATH } from 'client/router/flow'
-import { useApplication, useFetch } from 'client/hooks'
+import { PATH } from 'client/apps/flow/routes'
+import { useFetch } from 'client/hooks'
+import { useApplicationTemplateApi } from 'client/features/One'
 import { parseApplicationToForm, parseFormToApplication } from 'client/utils'
 
 function ApplicationsTemplatesCreateForm () {
   const history = useHistory()
   const { id } = useParams()
   const { steps, defaultValues, resolvers } = Steps()
+
   const {
     getApplicationTemplate,
     createApplicationTemplate,
     updateApplicationTemplate
-  } = useApplication()
+  } = useApplicationTemplateApi()
+
   const { data, fetchRequest, loading, error } = useFetch(
     getApplicationTemplate
   )
@@ -35,13 +38,11 @@ function ApplicationsTemplatesCreateForm () {
     const application = parseFormToApplication(formData)
 
     if (id) {
-      updateApplicationTemplate({ id, data: application }).then(
-        res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST)
-      )
+      updateApplicationTemplate(id, application)
+        .then(res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST))
     } else {
-      createApplicationTemplate({ data: application }).then(
-        res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST)
-      )
+      createApplicationTemplate(application)
+        .then(res => res && history.push(PATH.APPLICATIONS_TEMPLATES.LIST))
     }
   }
 
@@ -51,6 +52,7 @@ function ApplicationsTemplatesCreateForm () {
 
   useEffect(() => {
     const formData = data ? parseApplicationToForm(data) : {}
+
     methods.reset(resolvers().cast(formData), { errors: false })
   }, [data])
 

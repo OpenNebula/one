@@ -18,7 +18,7 @@ import PropTypes from 'prop-types'
 import root from 'window-or-global'
 import { sprintf } from 'sprintf-js'
 
-import { useAuth } from 'client/hooks'
+import { useAuth } from 'client/features/Auth'
 import { DEFAULT_LANGUAGE, LANGUAGES_URL } from 'client/constants'
 
 const TranslateContext = createContext()

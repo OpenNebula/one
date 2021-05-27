@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core'
 
 import { SubmitButton } from 'client/components/FormControl'
-import { requestData, requestParams } from 'client/utils'
+import { RestClient, requestParams } from 'client/utils'
 
 const ResponseForm = ({
   handleChangeResponse,
@@ -20,13 +20,10 @@ const ResponseForm = ({
   const { control, handleSubmit, errors, formState } = useForm()
 
   const onSubmit = dataForm => {
-    const { url, options } = requestParams(dataForm, {
-      name,
-      httpMethod,
-      params
-    })
+    const command = { name, httpMethod, params }
+    const { url, options: { method, data } } = requestParams(dataForm, command)
 
-    requestData(url, options).then(({ id, ...res }) => {
+    RestClient[method](url, data).then(({ id, ...res }) => {
       id === 401 && console.log('ERROR')
       id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'))
     })

@@ -14,7 +14,7 @@ const Count = ({ start, number, duration }) => {
 
     const timer = setInterval(() => {
       start += 1
-      setCount(String(start) + number.substring(3))
+      setCount(String(start) + String(number).substring(3))
       if (start === end) clearInterval(timer)
     }, incrementTime)
 

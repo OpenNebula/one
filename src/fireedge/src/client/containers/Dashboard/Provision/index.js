@@ -3,19 +3,21 @@ import * as React from 'react'
 import clsx from 'clsx'
 import { Container, Box, Grid } from '@material-ui/core'
 
-import { useAuth, useFetchAll, useProvision } from 'client/hooks'
+import { useAuth } from 'client/features/Auth'
+import { useProvisionApi, useProviderApi } from 'client/features/One'
 import * as Widgets from 'client/components/Widgets'
 import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
 
 function Dashboard () {
   const { settings: { disableanimations } = {} } = useAuth()
-  const { getProviders, getProvisions } = useProvision()
-  const { fetchRequestAll } = useFetchAll()
+  const { getProvisions } = useProvisionApi()
+  const { getProviders } = useProviderApi()
 
   const classes = dashboardStyles({ disableanimations })
 
   React.useEffect(() => {
-    fetchRequestAll([getProviders(), getProvisions()])
+    getProviders()
+    getProvisions()
   }, [])
 
   const withoutAnimations = String(disableanimations).toUpperCase() === 'YES'

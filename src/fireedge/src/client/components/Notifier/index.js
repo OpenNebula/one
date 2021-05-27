@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { useDispatch, useSelector } from 'react-redux'
 import { useSnackbar } from 'notistack'
 import { IconButton } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
 
-import { removeSnackbar } from 'client/actions/general'
+import { useGeneral, useGeneralApi } from 'client/features/General'
 
 const CloseButton = ({ handleClick }) => (
   <IconButton onClick={handleClick} component="span">
@@ -17,8 +16,9 @@ const CloseButton = ({ handleClick }) => (
 let displayed = []
 
 const Notifier = () => {
-  const dispatch = useDispatch()
-  const notifications = useSelector(store => store.General.notifications || [])
+  const { notifications } = useGeneral()
+  const { deleteSnackbar } = useGeneralApi()
+
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
   const storeDisplayed = id => {
@@ -43,13 +43,8 @@ const Notifier = () => {
           key,
           ...options,
           action: CloseButton({ handleClick: () => closeSnackbar(key) }),
-          onClose: (event, reason, myKey) => {
-            if (options.onClose) {
-              options.onClose(event, reason, myKey)
-            }
-          },
           onExited: (_, myKey) => {
-            dispatch(removeSnackbar(myKey))
+            deleteSnackbar(myKey)
             removeDisplayed(myKey)
           }
         })
@@ -58,7 +53,7 @@ const Notifier = () => {
         storeDisplayed(key)
       }
     )
-  }, [notifications, closeSnackbar, enqueueSnackbar, dispatch])
+  }, [notifications, closeSnackbar, enqueueSnackbar, deleteSnackbar])
 
   return null
 }

@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react'
 import { useWatch } from 'react-hook-form'
 
-import { useProvision, useListForm } from 'client/hooks'
+import { useListForm } from 'client/hooks'
+import { useOne } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { EmptyCard, ProvisionCard } from 'client/components/Cards'
 import { T } from 'client/constants'
@@ -17,7 +18,7 @@ const Provider = () => ({
   label: T.Provider,
   resolver: () => STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
-    const { providers } = useProvision()
+    const { providers } = useOne()
     const provisionTemplate = useWatch({ name: TEMPLATE_ID })
     const provisionTemplateSelected = provisionTemplate?.[0] ?? {}
 

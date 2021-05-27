@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import { useOpennebula } from 'client/hooks'
+import { useMarketApp, useMarketAppApi } from 'client/features/One'
 import Search from 'client/components/Search'
 import { SelectCard } from 'client/components/Cards'
 
 const sortByID = (a, b) => a.ID - b.ID
 
 const ListMarketApp = ({ backButton, currentValue, handleSetData }) => {
-  const { apps, getMarketApps } = useOpennebula()
+  const apps = useMarketApp()
+  const { getMarketApps } = useMarketAppApi()
 
   useEffect(() => {
     getMarketApps()

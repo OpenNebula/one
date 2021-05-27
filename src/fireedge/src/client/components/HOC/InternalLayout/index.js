@@ -20,19 +20,19 @@ import clsx from 'clsx'
 import { Box, Container } from '@material-ui/core'
 import { CSSTransition } from 'react-transition-group'
 
-import { useGeneral } from 'client/hooks'
+import { useGeneral } from 'client/features/General'
 import Header from 'client/components/Header'
 import Footer from 'client/components/Footer'
 import internalStyles from 'client/components/HOC/InternalLayout/styles'
 
-const InternalLayout = ({ label, children }) => {
+const InternalLayout = ({ children }) => {
   const classes = internalStyles()
-  const scroll = React.useRef()
+  const container = React.useRef()
   const { isFixMenu } = useGeneral()
 
   return (
     <Box className={clsx(classes.root, { [classes.isDrawerFixed]: isFixMenu })}>
-      <Header title={label} scrollableContainer={scroll?.current} />
+      <Header scrollContainer={container.current} />
       <Box component="main" className={classes.main}>
         <CSSTransition
           in
@@ -49,7 +49,7 @@ const InternalLayout = ({ label, children }) => {
           timeout={300}
           unmountOnExit
         >
-          <Container ref={scroll} maxWidth={false} className={classes.scrollable}>
+          <Container ref={container} maxWidth={false} className={classes.scrollable}>
             {children}
           </Container>
         </CSSTransition>
@@ -60,18 +60,15 @@ const InternalLayout = ({ label, children }) => {
 }
 
 InternalLayout.propTypes = {
-  endpoints: PropTypes.arrayOf(PropTypes.object),
   children: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
     PropTypes.node,
     PropTypes.string
-  ]),
-  label: PropTypes.string
+  ])
 }
 
 InternalLayout.defaultProps = {
-  children: [],
-  label: null
+  children: []
 }
 
 export default InternalLayout

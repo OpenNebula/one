@@ -14,5 +14,4 @@
 /* -------------------------------------------------------------------------- */
 
 export { default as InternalLayout } from 'client/components/HOC/InternalLayout'
-export { default as MainLayout } from 'client/components/HOC/MainLayout'
 export * from 'client/components/HOC/Translate'

@@ -15,25 +15,52 @@
 
 import * as React from 'react'
 
-import { useAuth, useProvision } from 'client/hooks'
 import Router from 'client/router'
-import routes from 'client/router/provision'
+import routes from 'client/apps/provision/routes'
 
+import { useGeneralApi } from 'client/features/General'
+import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useProvisionTemplate, useProvisionApi } from 'client/features/One'
+
+import LoadingScreen from 'client/components/LoadingScreen'
 import { _APPS } from 'client/constants'
 
 const APP_NAME = _APPS.provision.name
 
 const ProvisionApp = () => {
-  const { isLogged, isLoginInProcess } = useAuth()
-  const { getProvisionsTemplates } = useProvision()
+  const { jwt } = useAuth()
+  const { getAuthUser, logout } = useAuthApi()
+
+  const provisionTemplate = useProvisionTemplate()
+  const { getProvisionsTemplates } = useProvisionApi()
+  const { changeTitle } = useGeneralApi()
+
+  const [firstRender, setFirstRender] = React.useState(() => !!jwt)
 
   React.useEffect(() => {
-    if (isLogged && !isLoginInProcess) {
-      getProvisionsTemplates()
-    }
-  }, [isLogged])
+    (async () => {
+      try {
+        if (jwt) {
+          getAuthUser()
+          !provisionTemplate?.length && await getProvisionsTemplates()
+        }
 
-  return <Router title={APP_NAME} routes={routes} />
+        firstRender && setFirstRender(false)
+      } catch {
+        logout()
+      }
+    })()
+  }, [firstRender, jwt])
+
+  React.useEffect(() => {
+    changeTitle(APP_NAME)
+  }, [])
+
+  if (firstRender) {
+    return <LoadingScreen />
+  }
+
+  return <Router routes={routes} />
 }
 
 ProvisionApp.displayName = '_ProvisionApp'

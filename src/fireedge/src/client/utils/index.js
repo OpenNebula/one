@@ -13,10 +13,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-export * from 'client/utils/utils'
-export * from 'client/utils/request'
+export * from 'client/utils/environments'
 export * from 'client/utils/helpers'
-export * from 'client/utils/polyfills'
-export * from 'client/utils/schema'
 export * from 'client/utils/merge'
 export * from 'client/utils/parser'
+export * from 'client/utils/request'
+export * from 'client/utils/rest'
+export * from 'client/utils/schema'
+export * from 'client/utils/storage'

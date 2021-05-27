@@ -3,9 +3,9 @@ import * as React from 'react'
 import SelectedIcon from '@material-ui/icons/FilterVintage'
 import * as yup from 'yup'
 
-import { useAuth, useOpennebula } from 'client/hooks'
-import { T, INPUT_TYPES, FILTER_POOL } from 'client/constants'
+import { useAuth } from 'client/features/Auth'
 import { getValidationFromFields } from 'client/utils'
+import { T, INPUT_TYPES, FILTER_POOL } from 'client/constants'
 
 export const USERNAME = {
   name: 'user',
@@ -75,17 +75,16 @@ export const GROUP = {
   label: T.SelectGroup,
   type: INPUT_TYPES.SELECT,
   values: () => {
-    const { authUser } = useAuth()
-    const { groups } = useOpennebula()
+    const { user, groups } = useAuth()
 
     return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }]
-      .concat(groups
+      .concat([...groups]
         .sort((a, b) => a.ID - b.ID)
         .map(({ ID, NAME }) => ({
           text: (
             <>
               {`${ID} - ${String(NAME)}`}
-              {authUser?.GID === ID && (
+              {user?.GID === ID && (
                 <SelectedIcon style={{ fontSize: '1rem', marginLeft: 16 }} />
               )}
             </>

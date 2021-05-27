@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Container, Box } from '@material-ui/core'
 
-import { PATH } from 'client/router/flow'
-import { useApplication, useFetch } from 'client/hooks'
+import { PATH } from 'client/apps/flow/routes'
+import { useFetch } from 'client/hooks'
+import { useApplicationTemplate, useApplicationTemplateApi } from 'client/features/One'
 
 import DeployForm from 'client/containers/ApplicationsTemplates/Form/Deploy'
 import { ListHeader, ListCards } from 'client/components/List'
@@ -15,14 +16,12 @@ import { T } from 'client/constants'
 function ApplicationsTemplates () {
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
-  const { applicationsTemplates, getApplicationsTemplates } = useApplication()
-  const {
-    error,
-    fetchRequest,
-    loading,
-    reloading
-  } = useFetch(getApplicationsTemplates)
 
+  const applicationsTemplates = useApplicationTemplate()
+  const { getApplicationsTemplates } = useApplicationTemplateApi()
+
+  const { error, fetchRequest, loading, reloading } = useFetch(getApplicationsTemplates)
+  console.log({ error })
   useEffect(() => { fetchRequest() }, [])
 
   return (
@@ -31,8 +30,13 @@ function ApplicationsTemplates () {
         title={T.ApplicationsTemplates}
         hasReloadButton
         reloadButtonProps={{
+          'data-cy': 'refresh-application-template-list',
           onClick: () => fetchRequest(undefined, { reload: true, delay: 500 }),
           isSubmitting: Boolean(loading || reloading)
+        }}
+        addButtonProps={{
+          'data-cy': 'create-application-template',
+          onClick: () => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)
         }}
       />
       <Box p={3}>
@@ -42,24 +46,24 @@ function ApplicationsTemplates () {
           <ListCards
             list={applicationsTemplates}
             isLoading={applicationsTemplates?.length === 0 && loading}
-            handleCreate={() => history.push(PATH.APPLICATIONS_TEMPLATES.CREATE)}
+            gridProps={{ 'data-cy': 'applications-templates' }}
             CardComponent={ApplicationTemplateCard}
             cardsProps={({ value }) => ({
               handleEdit: () => history.push(
                 PATH.APPLICATIONS_TEMPLATES.EDIT.replace(':id', value?.ID)
               ),
               handleDeploy: () => setShowDialog(value),
-              handleRemove: undefined
+              handleRemove: undefined // TODO
             })}
           />
         )}
-        {showDialog !== false && (
-          <DeployForm
-            applicationTemplate={showDialog}
-            handleCancel={() => setShowDialog(false)}
-          />
-        )}
       </Box>
+      {showDialog !== false && (
+        <DeployForm
+          applicationTemplate={showDialog}
+          handleCancel={() => setShowDialog(false)}
+        />
+      )}
     </Container>
   )
 }

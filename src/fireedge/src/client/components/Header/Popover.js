@@ -10,11 +10,10 @@ import {
   Button
 } from '@material-ui/core'
 import CloseIcon from '@material-ui/icons/Close'
+import clsx from 'clsx'
 
 import { Tr } from 'client/components/HOC'
-
 import headerStyles from 'client/components/Header/styles'
-import clsx from 'clsx'
 
 const HeaderPopover = ({
   id,
@@ -39,17 +38,17 @@ const HeaderPopover = ({
   return (
     <>
       <Button
-        color="inherit"
+        color='inherit'
         aria-controls={anchorId}
         aria-describedby={anchorId}
-        aria-haspopup="true"
+        aria-haspopup='true'
         onClick={handleOpen}
         {...buttonProps}
         style={{ margin: '0 2px' }}
       >
         {icon}
         {buttonLabel && (
-          <span className={classes.buttonLabel} data-cy="header-username">{buttonLabel}</span>
+          <span className={classes.buttonLabel}>{buttonLabel}</span>
         )}
       </Button>
       <Popover
@@ -75,7 +74,7 @@ const HeaderPopover = ({
         {(headerTitle || isMobile) && (
           <Box className={classes.header}>
             {headerTitle && (
-              <Typography className={classes.title} variant="body1">
+              <Typography className={classes.title} variant='body1'>
                 {Tr(headerTitle)}
               </Typography>
             )}
