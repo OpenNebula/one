@@ -44,7 +44,7 @@ class LXCConfiguration < Hash
             :command => 'sudo lxc-console'
         },
         :datastore_location => '/var/lib/one/datastores',
-        :default_lxc_config => '/usr/share/lxc/config/common.conf',
+        :default_lxc_config => '/usr/share/lxc/config/common.conf'
     }
 
     # Configuration attributes that are not customizable
@@ -378,7 +378,8 @@ class Disk
         end
 
         if device.empty?
-            OpenNebula.log_error("Cannot detect block device from #{@mountpoint}")
+            msg = "Cannot detect block device from #{@mountpoint}"
+            OpenNebula.log_error(msg)
         end
 
         device
