@@ -79,7 +79,7 @@ class FirecrackerVM < OpenNebulaVM
         @exec_file = @fcrc[:firecracker_location]
     end
 
-    # Returns a Hash representing the Firecracker configuration for this OpenNebulaVM
+    # Returns a Hash representing the Firecracker configuration for the VM
     def to_fc
         fc = {}
 
@@ -156,7 +156,7 @@ class FirecrackerVM < OpenNebulaVM
 
         initrd = @xml['//TEMPLATE/OS/INITRD']
 
-        return if (initrd.nil? || initrd.empty?)
+        return if initrd.nil? || initrd.empty?
 
         hash['initrd_path'] = File.basename(initrd, '/')
     end

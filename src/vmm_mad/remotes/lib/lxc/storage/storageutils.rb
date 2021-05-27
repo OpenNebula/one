@@ -60,7 +60,7 @@ module Storage
                 resize_ext(device)
             end
 
-            # Mount device in mapper folder <sys_ds_folder>/<vm_id>/mapper/disk.id
+            # Mount device in mapper folder <sys_ds>/<vm_id>/mapper/disk.id
             return false unless mount(device, mountpoint)
 
             # Resize device if xfs like filesystem is used
@@ -175,7 +175,7 @@ module Storage
             true
         end
 
-        #  Adds path to the partition Hash. This is needed for lsblk version < 2.33
+        #  Adds path to the partition Hash. Required for lsblk version < 2.33
         def lsblk_path(p)
             return unless !p['path'] && p['name']
 
