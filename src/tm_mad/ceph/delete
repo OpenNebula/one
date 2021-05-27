@@ -134,6 +134,17 @@ CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 CEPH_MOVE_TO_TRASH="${XPATH_ELEMENTS[j++]:-$CEPH_TRASH}"
 POOL_NAME="${XPATH_ELEMENTS[j++]:-$POOL_NAME}"
 
+if is_undeployed "$VM_ID" "$DST_HOST"; then
+    # get BRIDGE_LIST from datastore
+    XPATH="${DRIVER_PATH}/../../datastore/xpath.rb --stdin"
+    IFS= read -r -d '' BRIDGE_LIST < <(onedatastore show -x "$DS_ID" \
+        | $XPATH /DATASTORE/TEMPLATE/BRIDGE_LIST )
+
+    if [ -n "$BRIDGE_LIST" ]; then # If BRIDGE_LIST is not defined FE must have access to CEPH cluster
+        DST_HOST=$(get_destination_host)
+    fi
+fi
+
 # No need to delete no cloned images
 if [ "$CLONE" = "NO" ]; then
     exit 0
