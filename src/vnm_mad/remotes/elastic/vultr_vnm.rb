@@ -76,12 +76,10 @@ class VultrProvider
         rc = @client.attach_nic(@deploy_id, opts[:vultr_id])
 
         if VultrError.error?(rc)
-            if rc.message == 'IP is already attached to a server'
-                return 0
-            else
-                OpenNebula.log_error("Error assiging #{rc.message}")
-                return 1
-            end
+            return 0 if rc.message == 'IP is already attached to a server'
+
+            OpenNebula.log_error("Error assiging #{rc.message}")
+            return 1
         end
 
         0

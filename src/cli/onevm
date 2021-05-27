@@ -1616,7 +1616,9 @@ CommandParser::CmdParser.new(ARGV) do
             system("ssh #{opts} #{login}@#{ip} -p #{port} #{cmd}")
         end
 
+        # rubocop:disable Style/SpecialGlobalVars
         $?.exitstatus
+        # rubocop:enable Style/SpecialGlobalVars
     end
 
     port_desc = <<-EOT.unindent
