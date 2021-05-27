@@ -34,7 +34,8 @@ const AutoScrollBox = memo(({
   autoButtonText,
   preventInteraction,
   scrollBehavior,
-  showOption
+  showOption,
+  dataCy
 }) => {
   const classes = useStyles()
   const [autoScroll, setAutoScroll] = useState(true)
@@ -89,6 +90,7 @@ const AutoScrollBox = memo(({
         onWheel={onWheel}
         ref={containerElement}
         style={style}
+        data-cy={dataCy}
       >
         <Slide in={!autoScroll} direction="down" mountOnEnter unmountOnExit>
           <div className={classes.wrapperButton}>
@@ -124,7 +126,8 @@ AutoScrollBox.propTypes = {
   // Ability to disable the smooth scrolling behavior.
   scrollBehavior: PropTypes.oneOf(['smooth', 'auto']),
   // Show the auto scroll option.
-  showOption: PropTypes.bool
+  showOption: PropTypes.bool,
+  dataCy: PropTypes.string
 }
 
 AutoScrollBox.defaultProps = {
@@ -134,7 +137,8 @@ AutoScrollBox.defaultProps = {
   autoButtonText: 'Auto scroll',
   preventInteraction: false,
   scrollBehavior: 'smooth',
-  showOption: true
+  showOption: true,
+  dataCy: 'auto-scroll'
 }
 
 AutoScrollBox.displayName = 'AutoScrollBox'

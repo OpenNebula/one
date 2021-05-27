@@ -53,6 +53,7 @@ const Message = memo(({ timestamp, severity, message }) => {
     <div
       className={clsx(classes.root, classes[severity])}
       onClick={() => setCollapse(prev => !prev)}
+      data-cy='message'
     >
       <span>
         {isMoreThanMaxChars && (isCollapsed ? (
