@@ -124,6 +124,7 @@ function log_debug
 function error_message
 {
     echo "$1" 1>&2
+}
 
 
 # Ensures the code is executed exclusively
