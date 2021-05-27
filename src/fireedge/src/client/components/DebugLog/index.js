@@ -58,7 +58,7 @@ const DebugLog = memo(({ uuid, socket, logDefault, title }) => {
       <Filters log={log} filters={filters} setFilters={setFilters} />
 
       <div className={classes.containerScroll}>
-        <AutoScrollBox scrollBehavior="auto">
+        <AutoScrollBox scrollBehavior='auto'>
           <MessageList log={log} filters={filters} />
         </AutoScrollBox>
       </div>
