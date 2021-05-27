@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { Paper, Typography } from '@material-ui/core'
 
-import { useProvision } from 'client/hooks'
+import { useOne } from 'client/features/One'
 import { SingleBar } from 'client/components/Charts'
 import Count from 'client/components/Count'
 import { groupBy } from 'client/utils'
@@ -11,8 +11,8 @@ import { T, PROVISIONS_STATES } from 'client/constants'
 import useStyles from 'client/components/Widgets/TotalProvisionsByState/styles'
 
 const TotalProvisionsByState = () => {
-  const { provisions } = useProvision()
   const classes = useStyles()
+  const { provisions } = useOne()
 
   const chartData = React.useMemo(() => {
     const groups = groupBy(provisions, 'TEMPLATE.BODY.state')

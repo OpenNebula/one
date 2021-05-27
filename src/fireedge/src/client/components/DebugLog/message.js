@@ -13,25 +13,23 @@ const MAX_CHARS = 80
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: 'flex',
-    alignItems: 'center',
     marginBottom: '0.3em',
     padding: '0.5em 0',
-    cursor: ({ isMoreThanMaxChars }) => isMoreThanMaxChars ? 'pointer' : 'default',
+    fontSize: '14px',
     fontFamily: 'monospace',
     color: '#fafafa',
     '&:hover': {
       background: '#333537'
-    }
-  },
-  arrow: {
-    padding: '0 0.5em',
-    width: '32px'
-  },
-  time: {
-    minWidth: '220px'
+    },
+    display: 'grid',
+    gridTemplateColumns: '32px 220px 1fr',
+    gap: '1em',
+    alignItems: 'center',
+    cursor: ({ isMoreThanMaxChars }) =>
+      isMoreThanMaxChars ? 'pointer' : 'default'
   },
   message: {
+    transition: 'all 0.3s ease-out',
     whiteSpace: 'pre-line'
   },
   [DEBUG_LEVEL.ERROR]: { borderLeft: `0.3em solid ${theme.palette.error.light}` },
@@ -56,14 +54,14 @@ const Message = memo(({ timestamp, severity, message }) => {
       className={clsx(classes.root, classes[severity])}
       onClick={() => setCollapse(prev => !prev)}
     >
-      <div className={classes.arrow}>
+      <span>
         {isMoreThanMaxChars && (isCollapsed ? (
           <ChevronRightIcon fontSize='small' />
         ) : (
           <ExpandMoreIcon fontSize='small' />
         ))}
-      </div>
-      <div className={classes.time}>{timestamp}</div>
+      </span>
+      <div>{timestamp}</div>
       <div className={classes.message}
         dangerouslySetInnerHTML={{ __html: html }} />
     </div>

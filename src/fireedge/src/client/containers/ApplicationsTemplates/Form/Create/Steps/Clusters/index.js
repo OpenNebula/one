@@ -1,10 +1,11 @@
 import React, { useEffect, useCallback } from 'react'
 
-import { useOpennebula, useListForm, useFetch } from 'client/hooks'
+import { useListForm, useFetch } from 'client/hooks'
+import { useCluster, useClusterApi } from 'client/features/One'
 import { ListCards } from 'client/components/List'
 import { ClusterCard, EmptyCard } from 'client/components/Cards'
 
-import { STEP_FORM_SCHEMA } from './schema'
+import { STEP_FORM_SCHEMA } from 'client/containers/ApplicationsTemplates/Form/Create/Steps/Clusters/schema'
 import { T } from 'client/constants'
 
 export const STEP_ID = 'clusters'
@@ -14,8 +15,11 @@ const Clusters = () => ({
   label: T.WhereWillItRun,
   resolver: STEP_FORM_SCHEMA,
   content: useCallback(({ data, setFormData }) => {
-    const { clusters, getClusters } = useOpennebula()
+    const clusters = useCluster()
+    const { getClusters } = useClusterApi()
+
     const { fetchRequest, loading } = useFetch(getClusters)
+
     const { handleSelect, handleUnselect } = useListForm({
       key: STEP_ID,
       setList: setFormData

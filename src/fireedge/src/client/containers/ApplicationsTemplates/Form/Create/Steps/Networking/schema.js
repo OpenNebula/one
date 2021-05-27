@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 import { v4 as uuidv4 } from 'uuid'
-import { useOpennebula } from 'client/hooks'
+import { useVNetwork, useVNetworkTemplate } from 'client/features/One'
 import { INPUT_TYPES } from 'client/constants'
 import { getValidationFromFields } from 'client/utils'
 
@@ -87,7 +87,8 @@ const ID_VNET = {
   type: INPUT_TYPES.AUTOCOMPLETE,
   dependOf: TYPE.name,
   values: dependValue => {
-    const { vNetworks, vNetworksTemplates } = useOpennebula()
+    const vNetworks = useVNetwork()
+    const vNetworksTemplates = useVNetworkTemplate()
 
     const values = isNetworkSelector(dependValue) ? vNetworks : vNetworksTemplates
 

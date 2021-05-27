@@ -3,64 +3,70 @@ import PropTypes from 'prop-types'
 
 import DeleteIcon from '@material-ui/icons/Delete'
 
-import { useProvision, useOpennebula, useFetchAll } from 'client/hooks'
+import { useFetchAll } from 'client/hooks'
+import { useVNetworkApi, useProvisionApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
 import { ListCards } from 'client/components/List'
 import { NetworkCard } from 'client/components/Cards'
 import * as Types from 'client/types/provision'
 
-const Networks = memo(({ hidden, data, fetchRequest }) => {
-  const {
-    networks
-  } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+const Networks = memo(
+  ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
+    const {
+      networks = []
+    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
-  const { deleteVNetwork } = useProvision()
-  const { getVNetwork } = useOpennebula()
-  const { data: list, fetchRequestAll, loading } = useFetchAll()
+    const { enqueueSuccess } = useGeneralApi()
+    const { deleteVNetwork } = useProvisionApi()
+    const { getVNetwork } = useVNetworkApi()
 
-  useEffect(() => {
-    if (!hidden) {
-      const requests = networks?.map(getVNetwork) ?? []
-      fetchRequestAll(requests)
-    }
-  }, [networks])
+    const { data: list, fetchRequestAll, loading } = useFetchAll()
+    const fetchVNetworks = () => fetchRequestAll(networks?.map(({ id }) => getVNetwork(id)))
 
-  useEffect(() => {
-    if (!list && !hidden) {
-      const requests = networks?.map(getVNetwork) ?? []
-      fetchRequestAll(requests)
-    }
-  }, [hidden])
+    useEffect(() => {
+      !hidden && !list && fetchVNetworks()
+    }, [hidden])
 
-  return (
-    <ListCards
-      list={list}
-      isLoading={!list && loading}
-      CardComponent={NetworkCard}
-      cardsProps={({ value: { ID } }) => ({
-        actions: [{
-          handleClick: () => deleteVNetwork({ id: ID })
-            .then(() => fetchRequest(undefined, { reload: true })),
-          icon: <DeleteIcon color='error' />,
-          cy: `provision-vnet-delete-${ID}`
-        }]
-      })}
-      displayEmpty
-      breakpoints={{ xs: 12, md: 6 }}
-    />
-  )
-}, (prev, next) =>
-  prev.hidden === next.hidden && prev.data === next.data)
+    useEffect(() => {
+      !reloading && !loading && fetchVNetworks()
+    }, [reloading])
+
+    return (
+      <ListCards
+        list={list}
+        isLoading={!list && loading}
+        CardComponent={NetworkCard}
+        cardsProps={({ value: { ID } }) => !disableAllActions && ({
+          actions: [{
+            handleClick: () => deleteVNetwork(ID)
+              .then(refetchProvision)
+              .then(() => enqueueSuccess(`VNetwork deleted - ID: ${ID}`)),
+            icon: <DeleteIcon color='error' />,
+            cy: `provision-vnet-delete-${ID}`
+          }]
+        })}
+        displayEmpty
+        breakpoints={{ xs: 12, md: 6 }}
+      />
+    )
+  }, (prev, next) =>
+    prev.hidden === next.hidden && prev.reloading === next.reloading
+)
 
 Networks.propTypes = {
   data: Types.Provision.isRequired,
   hidden: PropTypes.bool,
-  fetchRequest: PropTypes.func
+  refetchProvision: PropTypes.func,
+  reloading: PropTypes.bool,
+  disableAllActions: PropTypes.bool
 }
 
 Networks.defaultProps = {
   data: {},
   hidden: false,
-  fetchRequest: () => undefined
+  refetchProvision: () => undefined,
+  reloading: false,
+  disableAllActions: false
 }
 
 Networks.displayName = 'Networks'

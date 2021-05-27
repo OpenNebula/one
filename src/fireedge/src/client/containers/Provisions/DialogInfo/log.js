@@ -3,26 +3,23 @@ import PropTypes from 'prop-types'
 
 import { LinearProgress } from '@material-ui/core'
 
-import { useProvision, useFetch, useSocket } from 'client/hooks'
+import { useFetch, useSocket } from 'client/hooks'
+import { useProvisionApi } from 'client/features/One'
 import DebugLog, { LogUtils } from 'client/components/DebugLog'
 import * as Types from 'client/types/provision'
 
-const Log = React.memo(({ hidden, data: { ID: id } }) => {
+const Log = React.memo(({ hidden, data: { ID } }) => {
   const { getProvision } = useSocket()
-  const { getProvisionLog } = useProvision()
+  const { getProvisionLog } = useProvisionApi()
 
   const {
-    data: { uuid = id, log } = {},
+    data: { uuid = ID, log } = {},
     fetchRequest,
     loading
   } = useFetch(getProvisionLog)
 
   React.useEffect(() => {
-    !hidden && fetchRequest({ id })
-  }, [id])
-
-  React.useEffect(() => {
-    (!log && !hidden) && fetchRequest({ id })
+    (!log && !hidden) && fetchRequest(ID)
   }, [hidden])
 
   const parsedLog = React.useMemo(() =>
@@ -39,7 +36,8 @@ const Log = React.memo(({ hidden, data: { ID: id } }) => {
     <DebugLog uuid={uuid} socket={getProvision} logDefault={parsedLog} />
   )
 }, (prev, next) =>
-  prev.hidden === next.hidden && prev.data === next.data)
+  prev.hidden === next.hidden && prev.reloading === next.reloading
+)
 
 Log.propTypes = {
   data: Types.Provision.isRequired,

@@ -4,71 +4,78 @@ import PropTypes from 'prop-types'
 import DeleteIcon from '@material-ui/icons/Delete'
 import ConfigureIcon from '@material-ui/icons/Settings'
 
-import { useProvision, useOpennebula, useFetchAll } from 'client/hooks'
+import { useFetchAll } from 'client/hooks'
+import { useHostApi, useProvisionApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
 import { ListCards } from 'client/components/List'
 import { HostCard } from 'client/components/Cards'
 import * as Types from 'client/types/provision'
 
-const Hosts = memo(({ hidden, data, fetchRequest }) => {
-  const {
-    hosts
-  } = data?.TEMPLATE?.BODY?.provision?.infrastructure
+const Hosts = memo(
+  ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
+    const {
+      hosts = []
+    } = data?.TEMPLATE?.BODY?.provision?.infrastructure
 
-  const { configureHost, deleteHost } = useProvision()
-  const { getHost } = useOpennebula()
-  const { data: list, fetchRequestAll, loading } = useFetchAll()
+    const { enqueueSuccess, enqueueInfo } = useGeneralApi()
+    const { configureHost, deleteHost } = useProvisionApi()
+    const { getHost } = useHostApi()
 
-  useEffect(() => {
-    if (!hidden) {
-      const requests = hosts?.map(getHost) ?? []
-      fetchRequestAll(requests)
-    }
-  }, [hosts])
+    const { data: list, fetchRequestAll, loading } = useFetchAll()
+    const fetchHosts = () => fetchRequestAll(hosts?.map(({ id }) => getHost(id)))
 
-  useEffect(() => {
-    if (!list && !hidden) {
-      const requests = hosts?.map(getHost) ?? []
-      fetchRequestAll(requests)
-    }
-  }, [hidden])
+    useEffect(() => {
+      !hidden && !list && fetchHosts()
+    }, [hidden])
 
-  return (
-    <ListCards
-      list={list}
-      isLoading={!list && loading}
-      CardComponent={HostCard}
-      cardsProps={({ value: { ID } }) => ({
-        actions: [
-          {
-            handleClick: () => configureHost({ id: ID }),
-            icon: <ConfigureIcon />,
-            cy: `provision-host-configure-${ID}`
-          },
-          {
-            handleClick: () => deleteHost({ id: ID })
-              .then(() => fetchRequest(undefined, { reload: true })),
-            icon: <DeleteIcon color='error' />,
-            cy: `provision-host-delete-${ID}`
-          }
-        ]
-      })}
-      displayEmpty
-      breakpoints={{ xs: 12, md: 6 }}
-    />
-  )
-}, (prev, next) =>
-  prev.hidden === next.hidden && prev.data === next.data)
+    useEffect(() => {
+      !reloading && !loading && fetchHosts()
+    }, [reloading])
+
+    return (
+      <ListCards
+        list={list}
+        isLoading={!list && loading}
+        CardComponent={HostCard}
+        cardsProps={({ value: { ID } }) => !disableAllActions && ({
+          actions: [
+            {
+              handleClick: () => configureHost(ID)
+                .then(() => enqueueInfo(`Configuring host - ID: ${ID}`))
+                .then(refetchProvision),
+              icon: <ConfigureIcon />,
+              cy: `provision-host-configure-${ID}`
+            },
+            {
+              handleClick: () => deleteHost(ID)
+                .then(refetchProvision)
+                .then(() => enqueueSuccess(`Host deleted - ID: ${ID}`)),
+              icon: <DeleteIcon color='error' />,
+              cy: `provision-host-delete-${ID}`
+            }
+          ]
+        })}
+        displayEmpty
+        breakpoints={{ xs: 12, md: 6 }}
+      />
+    )
+  }, (prev, next) =>
+    prev.hidden === next.hidden && prev.reloading === next.reloading)
 
 Hosts.propTypes = {
   data: Types.Provision.isRequired,
   hidden: PropTypes.bool,
-  fetchRequest: PropTypes.func
+  refetchProvision: PropTypes.func,
+  reloading: PropTypes.bool,
+  disableAllActions: PropTypes.bool
 }
 
 Hosts.defaultProps = {
   data: {},
-  hidde: false,
-  fetchRequest: () => undefined
+  hidden: false,
+  refetchProvision: () => undefined,
+  reloading: false,
+  disableAllActions: false
 }
 
 Hosts.displayName = 'Hosts'

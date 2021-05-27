@@ -16,13 +16,46 @@
 import * as React from 'react'
 
 import Router from 'client/router'
-import routes from 'client/router/flow'
+import routes from 'client/apps/flow/routes'
 
-import { _APPS } from 'client/constants'
+import { useGeneralApi } from 'client/features/General'
+import { useAuth, useAuthApi } from 'client/features/Auth'
+
+import LoadingScreen from 'client/components/LoadingScreen'
+import { fakeDelay } from 'client/utils'
+import { _APPS, TIME_HIDE_LOGO } from 'client/constants'
 
 const APP_NAME = _APPS.flow.name
 
-const FlowApp = () => <Router title={APP_NAME} routes={routes} />
+const FlowApp = () => {
+  const [firstRender, setFirstRender] = React.useState(() => true)
+
+  const { jwt } = useAuth()
+  const { getAuthUser } = useAuthApi()
+  const { changeTitle } = useGeneralApi()
+
+  React.useEffect(() => {
+    if (firstRender) {
+      jwt && (async () => {
+        await getAuthUser()
+      })()
+
+      fakeDelay(TIME_HIDE_LOGO).then(() => setFirstRender(false))
+    }
+  }, [firstRender, jwt])
+
+  React.useEffect(() => {
+    changeTitle(APP_NAME)
+  }, [])
+
+  if (firstRender) {
+    return <LoadingScreen />
+  }
+
+  return (
+    <Router routes={routes} />
+  )
+}
 
 FlowApp.displayName = '_FlowApp'
 

@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react'
 
 import { useWatch } from 'react-hook-form'
 
-import { useOpennebula, useListForm } from 'client/hooks'
+import { useListForm } from 'client/hooks'
+import { useVNetworkApi, useVNetworkTemplateApi } from 'client/features/One'
+
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { ListCards } from 'client/components/List'
 import { DialogForm } from 'client/components/Dialogs'
@@ -21,7 +23,10 @@ const Networks = () => ({
   content: useCallback(({ data, setFormData }) => {
     const form = useWatch({})
     const [showDialog, setShowDialog] = useState(false)
-    const { getVNetworks, getVNetworksTemplates } = useOpennebula()
+
+    const { getVNetworks } = useVNetworkApi()
+    const { getVNetworksTemplates } = useVNetworkTemplateApi()
+
     const {
       editingData,
       handleSave,

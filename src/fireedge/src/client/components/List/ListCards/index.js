@@ -27,57 +27,58 @@ const ListCards = ({
   const classes = listCardsStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-  if (isLoading) {
-    return <LinearProgress color='secondary' className={classes.loading} />
-  }
-
   return (
-    <Grid container spacing={3} {...gridProps}>
-      {/* CREATE CARD COMPONENT */}
-      {handleCreate && (ButtonCreateComponent ? (
-        <ButtonCreateComponent onClick={handleCreate} />
-      ) : (
-        isMobile ? (
-          <FloatingActionButton icon={<AddIcon />} onClick={handleCreate} />
-        ) : (
-          <Grid item {...breakpoints}>
-            <Card className={classes.cardPlus} raised>
-              <CardActionArea onClick={handleCreate}>
-                <AddIcon />
-              </CardActionArea>
-            </Card>
-          </Grid>
-        )
-      ))}
-
-      {/* LIST */}
-      {list.length > 0 ? (
-        <TransitionGroup component={null}>
-          {list?.map((value, index) => {
-            const key = value[keyProp] ?? value[keyProp.toUpperCase()]
-
-            return (
-              <CSSTransition
-                // use key to render transition (default: id or ID)
-                key={`card-${key.replace(/\s/g, '')}`}
-                classNames={classes.item}
-                timeout={400}
-              >
-                <Grid item {...breakpoints} {...value?.breakpoints}>
-                  <CardComponent value={value} {...cardsProps({ index, value })} />
-                </Grid>
-              </CSSTransition>
-            )
-          })}
-        </TransitionGroup>
-      ) : (
-        (displayEmpty || EmptyComponent) && (
-          <Grid item {...breakpoints}>
-            {EmptyComponent ?? <EmptyCard title={'Your list is empty'} />}
-          </Grid>
-        )
+    <>
+      {isLoading && (
+        <LinearProgress color='secondary' className={classes.loading} />
       )}
-    </Grid>
+      <Grid container spacing={3} {...gridProps}>
+        {/* CREATE CARD COMPONENT */}
+        {handleCreate && (ButtonCreateComponent ? (
+          <ButtonCreateComponent onClick={handleCreate} />
+        ) : (
+          isMobile ? (
+            <FloatingActionButton icon={<AddIcon />} onClick={handleCreate} />
+          ) : (
+            <Grid item {...breakpoints}>
+              <Card className={classes.cardPlus} raised>
+                <CardActionArea onClick={handleCreate}>
+                  <AddIcon />
+                </CardActionArea>
+              </Card>
+            </Grid>
+          )
+        ))}
+
+        {/* LIST */}
+        {list.length > 0 ? (
+          <TransitionGroup component={null}>
+            {list?.map((value, index) => {
+              const key = value[keyProp] ?? value[keyProp.toUpperCase()]
+
+              return (
+                <CSSTransition
+                // use key to render transition (default: id or ID)
+                  key={`card-${key.replace(/\s/g, '')}`}
+                  classNames={classes.item}
+                  timeout={400}
+                >
+                  <Grid item {...breakpoints} {...value?.breakpoints}>
+                    <CardComponent value={value} {...cardsProps({ index, value })} />
+                  </Grid>
+                </CSSTransition>
+              )
+            })}
+          </TransitionGroup>
+        ) : (
+          (displayEmpty || EmptyComponent) && (
+            <Grid item {...breakpoints}>
+              {EmptyComponent ?? <EmptyCard title={'Your list is empty'} />}
+            </Grid>
+          )
+        )}
+      </Grid>
+    </>
   )
 }
 

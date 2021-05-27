@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { useFormContext } from 'react-hook-form'
 import { useMediaQuery } from '@material-ui/core'
 
-import { useGeneral } from 'client/hooks'
+import { useGeneral } from 'client/features/General'
 import CustomMobileStepper from 'client/components/FormStepper/MobileStepper'
 import CustomStepper from 'client/components/FormStepper/Stepper'
 import { groupBy } from 'client/utils'
@@ -14,7 +14,7 @@ const FIRST_STEP = 0
 const FormStepper = ({ steps, schema, onSubmit }) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
   const { watch, reset, errors, setError } = useFormContext()
-  const { isLoading, changeLoading } = useGeneral()
+  const { isLoading } = useGeneral()
 
   const [formData, setFormData] = useState(() => watch())
   const [activeStep, setActiveStep] = useState(FIRST_STEP)
@@ -38,7 +38,6 @@ const FormStepper = ({ steps, schema, onSubmit }) => {
   }
 
   const setErrors = ({ inner = [], ...rest }) => {
-    changeLoading(false)
     const errorsByPath = groupBy(inner, 'path') ?? {}
     const totalErrors = Object.keys(errorsByPath).length
 

@@ -27,7 +27,7 @@ import {
 } from '@material-ui/core'
 import { Menu as MenuIcon, Close as CloseIcon } from '@material-ui/icons'
 
-import { useGeneral } from 'client/hooks'
+import { useGeneral, useGeneralApi } from 'client/features/General'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
@@ -35,15 +35,17 @@ import Logo from 'client/icons/logo'
 
 const Sidebar = memo(({ endpoints }) => {
   const classes = sidebarStyles()
-  const { isFixMenu, fixMenu } = useGeneral()
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
+
+  const { isFixMenu } = useGeneral()
+  const { fixMenu } = useGeneralApi()
 
   const handleSwapMenu = () => fixMenu(!isFixMenu)
 
   const SidebarEndpoints = useMemo(
     () =>
       endpoints
-        ?.filter(({ authenticated, sidebar = false }) => authenticated && sidebar)
+        ?.filter(({ sidebar = false }) => sidebar)
         ?.map((endpoint, index) =>
           endpoint.routes ? (
             <SidebarCollapseItem key={`item-${index}`} {...endpoint} />

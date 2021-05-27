@@ -24,15 +24,16 @@ const TABS = [
   { name: 'log', icon: LogIcon, content: LogTab }
 ]
 
-const DialogInfo = ({ data, ...methods }) => {
+const DialogInfo = ({ disableAllActions, fetchProps }) => {
   const [tabSelected, setTab] = useState(0)
+  const { data, fetchRequest, reloading } = fetchProps
 
   const renderTabs = useMemo(() => (
-    <AppBar position="static">
+    <AppBar position='static'>
       <Tabs
         value={tabSelected}
-        variant="scrollable"
-        scrollButtons="auto"
+        variant='scrollable'
+        scrollButtons='auto'
         onChange={(_, tab) => setTab(tab)}
       >
         {TABS.map(({ name, icon: Icon }, idx) =>
@@ -57,27 +58,37 @@ const DialogInfo = ({ data, ...methods }) => {
             height={1}
             hidden={tabSelected !== idx}
             key={`tab-${name}`}
-            overflow="auto"
+            overflow='auto'
           >
             <Content
               data={data}
               hidden={tabSelected !== idx}
-              {...methods}
+              disableAllActions={disableAllActions}
+              refetchProvision={() => fetchRequest(undefined, { reload: true })}
+              reloading={reloading}
             />
           </Box>
-        )), [tabSelected, data])}
+        )), [tabSelected, reloading])}
     </>
   )
 }
 
 DialogInfo.propTypes = {
-  data: Types.Provision.isRequired,
-  fetchRequest: PropTypes.func
+  disableAllActions: PropTypes.bool,
+  fetchProps: PropTypes.shape({
+    data: Types.Provision.isRequired,
+    fetchRequest: PropTypes.func,
+    reloading: PropTypes.bool
+  }).isRequired
 }
 
 DialogInfo.defaultProps = {
-  data: {},
-  fetchRequest: undefined
+  disableAllActions: false,
+  fetchProps: {
+    data: {},
+    fetchRequest: undefined,
+    reloading: false
+  }
 }
 
 export default DialogInfo

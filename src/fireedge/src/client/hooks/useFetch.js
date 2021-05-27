@@ -13,7 +13,7 @@ const useRequest = request => {
 
   const doFetch = useCallback(
     debounce(payload =>
-      request({ ...payload })
+      request(payload)
         .then(response => {
           if (isMounted.current) {
             if (response !== undefined) {

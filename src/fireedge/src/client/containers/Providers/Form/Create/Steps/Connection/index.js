@@ -47,7 +47,7 @@ const Connection = ({ isUpdate }) => ({
     }, [data])
 
     return (fields?.length === 0) ? (
-      <EmptyCard title={"✔️ There aren't connections to fill"} />
+      <EmptyCard title={"There aren't connections to fill"} />
     ) : (
       <FormWithSchema cy="form-provider" fields={fields} id={STEP_ID} />
     )

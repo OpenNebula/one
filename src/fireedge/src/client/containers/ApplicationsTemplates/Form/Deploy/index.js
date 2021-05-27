@@ -3,12 +3,14 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, CircularProgress, Backdrop } from '@material-ui/core'
 
-import { useFetchAll, useOpennebula, useApplication } from 'client/hooks'
+import { useFetchAll } from 'client/hooks'
+import { useApplicationTemplateApi } from 'client/features/One'
+import { useGeneralApi } from 'client/features/General'
+
 import { DialogForm } from 'client/components/Dialogs'
 import FormStepper from 'client/components/FormStepper'
-
-import { parseApplicationToForm, parseFormToDeployApplication } from 'client/utils'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Deploy/Steps'
+import { parseApplicationToForm, parseFormToDeployApplication } from 'client/utils'
 
 const useStyles = makeStyles(theme => ({
   backdrop: {
@@ -20,8 +22,9 @@ const useStyles = makeStyles(theme => ({
 const DeployForm = ({ applicationTemplate, handleCancel }) => {
   const classes = useStyles()
   const [vmTemplates, setVmTemplates] = useState([])
-  const { instantiateApplicationTemplate } = useApplication()
-  const { getTemplate } = useOpennebula()
+
+  const { enqueueInfo } = useGeneralApi()
+  const { getApplicationsTemplates, instantiateApplicationTemplate } = useApplicationTemplateApi()
   const { data, fetchRequestAll, loading } = useFetchAll()
 
   const applicationParsed = useMemo(() =>
@@ -42,7 +45,7 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
         list.includes(templateId) ? list : [...list, templateId]
       , [])
       ?.map(templateId =>
-        getTemplate({ id: templateId }).then(vmTemplate =>
+        getApplicationsTemplates(templateId).then(vmTemplate =>
           setVmTemplates(prev => [...prev, vmTemplate])
         )
       )
@@ -56,11 +59,12 @@ const DeployForm = ({ applicationTemplate, handleCancel }) => {
       ...application
     } = parseFormToDeployApplication(values, applicationParsed)
 
-    return instantiateApplicationTemplate({
-      id: applicationTemplate.ID,
-      data: application,
-      instances
-    }).then(() => handleCancel())
+    return Promise
+      .all([...new Array(instances)]
+        .map(() => instantiateApplicationTemplate(applicationTemplate.ID, application))
+      )
+      .then(() => handleCancel())
+      .then(() => enqueueInfo(`Template instantiate - x${instances}`))
   }
 
   if ((applicationTemplate && !data) || loading) {

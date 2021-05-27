@@ -20,68 +20,59 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 import { TransitionGroup } from 'react-transition-group'
 
 import devRoutes from 'client/router/dev'
-import { InternalLayout, MainLayout } from 'client/components/HOC'
+import commonRoutes from 'client/router/common'
 
-const Router = React.memo(({ title, routes }) => {
-  const { ENDPOINTS, PATH } = React.useMemo(() => ({
-    ...routes,
-    ...(process?.env?.NODE_ENV === 'development' &&
-      {
-        PATH: { ...routes.PATH, ...devRoutes.PATH },
-        ENDPOINTS: routes.ENDPOINTS.concat(devRoutes.ENDPOINTS)
-      }
-    )
-  }), [])
+import { ProtectedRoute, NoAuthRoute } from 'client/components/Route'
+import { InternalLayout } from 'client/components/HOC'
+import Sidebar from 'client/components/Sidebar'
+import Notifier from 'client/components/Notifier'
+import { isDevelopment } from 'client/utils'
+
+const Router = ({ routes }) => {
+  const ENDPOINTS = React.useMemo(() => [
+    ...routes.ENDPOINTS,
+    ...(isDevelopment() ? devRoutes.ENDPOINTS : [])
+  ], [])
 
   return (
-    <MainLayout endpoints={{ ENDPOINTS, PATH }}>
-      <TransitionGroup>
-        <Switch>
-          {ENDPOINTS?.map(
-            ({ path = '', authenticated = true, Component, ...route }, index) =>
-              <Route
-                key={index}
-                exact
-                path={path}
-                component={() => (
-                  authenticated ? (
-                    <InternalLayout label={title} authRoute={authenticated}>
-                      <Component />
-                    </InternalLayout>
-                  ) : <Component />
-                )}
-                {...route}
-              />
-          )}
-          <Route component={() => <Redirect to={PATH.LOGIN} />} />
-        </Switch>
-      </TransitionGroup>
-    </MainLayout>
+    <TransitionGroup>
+      <Switch>
+        {ENDPOINTS?.map(({ Component, ...rest }, index, endpoints) =>
+          <ProtectedRoute key={index} exact {...rest}>
+            <Sidebar endpoints={endpoints} />
+            <Notifier />
+            <InternalLayout>
+              <Component />
+            </InternalLayout>
+          </ProtectedRoute>
+        )}
+        {commonRoutes.ENDPOINTS?.map(({ Component, ...rest }, index) =>
+          <NoAuthRoute key={index} exact {...rest}>
+            <Component />
+          </NoAuthRoute>
+        )}
+        <Route component={() => <Redirect to={commonRoutes.PATH.LOGIN} />} />
+      </Switch>
+    </TransitionGroup>
   )
-})
+}
 
 Router.propTypes = {
-  title: PropTypes.string,
   routes: PropTypes.shape({
     PATH: PropTypes.object,
     ENDPOINTS: PropTypes.arrayOf(
       PropTypes.shape({
+        Component: PropTypes.object.isRequired,
+        icon: PropTypes.object,
         label: PropTypes.string.isRequired,
         path: PropTypes.string.isRequired,
-        authenticated: PropTypes.bool.isRequired,
-        sidebar: PropTypes.bool,
-        icon: PropTypes.object,
-        Component: PropTypes.oneOfType([
-          PropTypes.func,
-          PropTypes.object
-        ]).isRequired
+        sidebar: PropTypes.bool
       })
     )
   })
 }
 
 Router.defaultProps = {
-  title: undefined,
   routes: {
     PATH: {},
     ENDPOINTS: []

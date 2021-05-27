@@ -21,9 +21,10 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
-import { SubmitButton } from 'client/components/FormControl'
+import SubmitButton from 'client/components/FormControl/SubmitButton'
 
-import { useAuth } from 'client/hooks'
+import { useAuth, useAuthApi } from 'client/features/Auth'
+import { useUserApi } from 'client/features/One'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
@@ -55,8 +56,9 @@ const useStyles = makeStyles(theme => ({
 
 const Settings = () => {
   const classes = useStyles()
-
-  const { updateUser, settings = {} } = useAuth()
+  const { user, settings } = useAuth()
+  const { getAuthUser } = useAuthApi()
+  const { updateUser } = useUserApi()
 
   const { handleSubmit, setError, reset, formState, ...methods } = useForm({
     reValidateMode: 'onSubmit',
@@ -79,7 +81,8 @@ const Settings = () => {
       .map(([key, value]) => `\n ${String(key).toUpperCase()} = "${value}"`)
       .join(',')
 
-    return updateUser({ template: `FIREEDGE = [${values}]\n` })
+    return updateUser({ id: user.ID, template: `FIREEDGE = [${values}]\n` })
+      .then(getAuthUser)
   }
 
   return (

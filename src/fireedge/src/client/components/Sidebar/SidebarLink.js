@@ -10,7 +10,7 @@ import {
   useMediaQuery
 } from '@material-ui/core'
 
-import { useGeneral } from 'client/hooks'
+import { useGeneralApi } from 'client/features/General'
 import sidebarStyles from 'client/components/Sidebar/styles'
 import { DevTypography } from 'client/components/Typography'
 
@@ -18,10 +18,11 @@ const STATIC_LABEL_PROPS = { 'data-cy': 'main-menu-item-text' }
 
 const SidebarLink = ({ label, path, icon: Icon, devMode, isSubItem }) => {
   const classes = sidebarStyles()
+  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
+
   const history = useHistory()
   const { pathname } = useLocation()
-  const { fixMenu } = useGeneral()
-  const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
+  const { fixMenu } = useGeneralApi()
 
   const handleClick = () => {
     history.push(path)

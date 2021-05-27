@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useMemo } from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import {
@@ -22,73 +22,73 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  useMediaQuery,
-  useScrollTrigger
+  useMediaQuery
+  // useScrollTrigger
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 
-import { useAuth, useGeneral } from 'client/hooks'
+import { useAuth } from 'client/features/Auth'
+import { useGeneral, useGeneralApi } from 'client/features/General'
+
 import User from 'client/components/Header/User'
 import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import headerStyles from 'client/components/Header/styles'
 
-const Header = ({ title, scrollableContainer }) => {
+const Header = ({ scrollContainer }) => {
   const { isOneAdmin } = useAuth()
-  const { theme, isFixMenu, fixMenu } = useGeneral()
+  const { title } = useGeneral()
+  const { fixMenu } = useGeneralApi()
 
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'))
   const isMobile = useMediaQuery(theme => theme.breakpoints.only('xs'))
 
-  const isScroll = useScrollTrigger({
+  /* const isScroll = scrollContainer && useScrollTrigger({
     disableHysteresis: true,
     threshold: 100,
-    target: scrollableContainer ?? undefined
-  })
+    target: scrollContainer
+  }) */
 
-  const classes = headerStyles({ isScroll })
+  const classes = headerStyles({ isScroll: false })
 
-  const handleFixMenu = () => fixMenu(true)
+  const handleFixMenu = () => {
+    fixMenu(true)
+  }
 
-  return useMemo(
-    () => (
-      <AppBar className={classes.appbar} data-cy="header" elevation={1}>
-        <Toolbar>
-          {!isUpLg && (
-            <IconButton onClick={handleFixMenu} edge="start" color="inherit">
-              <MenuIcon />
-            </IconButton>
-          )}
-          {!isMobile && (
-            <Typography
-              variant="h6"
-              className={classes.title}
-              data-cy="header-title"
-            >
-              {'One'}
-              <span className={classes.app}>
-                {title}
-              </span>
-            </Typography>
-          )}
-          <Box flexGrow={isMobile ? 1 : 0} textAlign="end">
-            <User />
-            {!isOneAdmin && <Group />}
-            <Zone />
-          </Box>
-        </Toolbar>
-      </AppBar>
-    ),
-    [theme, isFixMenu, fixMenu, isUpLg, isMobile, isOneAdmin, classes]
+  return (
+    <AppBar className={classes.appbar} data-cy="header" elevation={1}>
+      <Toolbar>
+        {!isUpLg && (
+          <IconButton onClick={handleFixMenu} edge="start" color="inherit">
+            <MenuIcon />
+          </IconButton>
+        )}
+        {!isMobile && (
+          <Typography
+            variant="h6"
+            className={classes.title}
+            data-cy="header-title"
+          >
+            {'One'}
+            <span className={classes.app}>{title}</span>
+          </Typography>
+        )}
+        <Box flexGrow={isMobile ? 1 : 0} textAlign="end">
+          <User />
+          {!isOneAdmin && <Group />}
+          <Zone />
+        </Box>
+      </Toolbar>
+    </AppBar>
   )
 }
 
 Header.propTypes = {
-  title: PropTypes.string
+  scrollContainer: PropTypes.object
 }
 
 Header.defaultProps = {
-  title: ''
+  scrollContainer: null
 }
 
 export default Header

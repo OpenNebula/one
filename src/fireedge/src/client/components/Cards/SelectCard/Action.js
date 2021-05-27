@@ -5,7 +5,7 @@ import useFetch from 'client/hooks/useFetch'
 import { SubmitButton } from 'client/components/FormControl'
 
 const Action = memo(({ handleClick, icon, cy, ...props }) => {
-  const { fetchRequest, loading } = useFetch(
+  const { fetchRequest, data, loading } = useFetch(
     () => Promise.resolve(handleClick())
   )
 
@@ -15,7 +15,8 @@ const Action = memo(({ handleClick, icon, cy, ...props }) => {
       icon
       isSubmitting={loading}
       label={icon}
-      onClick={() => fetchRequest()}
+      onClick={fetchRequest}
+      disabled={!!data}
       {...props}
     />
   )

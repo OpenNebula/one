@@ -16,13 +16,12 @@
 import * as React from 'react'
 import { render } from 'react-dom'
 
-import store from 'client/store'
+import { createStore } from 'client/store'
 import App from 'client/dev/_app'
 
-render(
-  <App store={store} />,
-  document.getElementById('root')
-)
+const { store } = createStore({ initState: window.REDUX_DATA })
+
+render(<App store={store} />, document.getElementById('root'))
 
 if (process.env.NODE_ENV === 'development' && module.hot) {
   module.hot.accept('./_app', () => {

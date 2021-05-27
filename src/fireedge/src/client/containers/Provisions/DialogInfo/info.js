@@ -31,7 +31,7 @@ const Info = memo(({ data }) => {
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
-        <Paper variant="outlined">
+        <Paper variant='outlined'>
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Information)}</Typography>
@@ -43,19 +43,19 @@ const Info = memo(({ data }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
-              <Typography data-cy="provision-name">{name}</Typography>
+              <Typography data-cy='provision-name'>{name}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography data-cy="provision-description" noWrap>{description}</Typography>
+              <Typography data-cy='provision-description' noWrap>{description}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>
-              <Typography data-cy="provider-provider-name">{providerName}</Typography>
+              <Typography data-cy='provider-name'>{providerName}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Cluster)}</Typography>
-              <Typography data-cy="provider-cluster">{`${clusterId} - ${clusterName}`}</Typography>
+              <Typography data-cy='provider-cluster'>{`${clusterId} - ${clusterName}`}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.StartTime)}</Typography>
@@ -73,7 +73,7 @@ const Info = memo(({ data }) => {
         </Paper>
       </Grid>
       <Grid item xs={12} md={6}>
-        <Paper variant="outlined" className={classes.permissions}>
+        <Paper variant='outlined' className={classes.permissions}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Permissions)}</Typography>
@@ -102,7 +102,7 @@ const Info = memo(({ data }) => {
             </ListItem>
           </List>
         </Paper>
-        <Paper variant="outlined">
+        <Paper variant='outlined'>
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Ownership)}</Typography>

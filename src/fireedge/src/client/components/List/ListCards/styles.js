@@ -7,7 +7,10 @@ export default makeStyles(() => ({
     display: 'flex',
     textAlign: 'center'
   },
-  loading: { width: '100%' },
+  loading: {
+    width: '100%',
+    marginBottom: '1em'
+  },
   item: {
     '&-enter': { opacity: 0 },
     '&-enter-active': {

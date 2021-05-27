@@ -1,8 +1,11 @@
 import React, { createContext, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
 import PropTypes from 'prop-types'
+import { useSelector } from 'react-redux'
 
-import * as serviceSocket from 'client/services/socket'
+import io from 'socket.io-client'
+import { WEBSOCKET_URL } from 'client/constants'
+
+const websocket = query => io({ path: WEBSOCKET_URL, query })
 
 const CONNECT = 'connect'
 const DISCONNECT = 'disconnect'
@@ -13,14 +16,14 @@ const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState({})
   const [isConnected, setConnected] = useState(false)
   const { jwt, zone } = useSelector(state => ({
-    zone: state?.General?.zone,
-    jwt: state?.Authenticated?.jwt
+    zone: state?.general?.zone,
+    jwt: state?.auth?.jwt
   }))
 
   useEffect(() => {
     if (!jwt) return
 
-    const client = serviceSocket.websocket({ token: jwt, zone })
+    const client = websocket({ token: jwt, zone })
     client.on(CONNECT, () => setConnected(true))
     client.on(DISCONNECT, () => setConnected(false))
     setSocket(client)

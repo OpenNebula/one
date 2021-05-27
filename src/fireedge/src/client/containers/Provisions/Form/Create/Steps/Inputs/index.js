@@ -3,7 +3,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { LinearProgress } from '@material-ui/core'
 
-import { useProvision, useFetch, useGeneral } from 'client/hooks'
+import { useFetch } from 'client/hooks'
+import { useGeneralApi } from 'client/features/General'
+import { useProviderApi } from 'client/features/One'
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { EmptyCard } from 'client/components/Cards'
 import { T } from 'client/constants'
@@ -25,8 +27,8 @@ const Inputs = () => ({
   optionsValidate: { abortEarly: false },
   content: useCallback(() => {
     const [fields, setFields] = useState(undefined)
-    const { changeLoading } = useGeneral()
-    const { getProvider } = useProvision()
+    const { changeLoading } = useGeneralApi()
+    const { getProvider } = useProviderApi()
     const { data: fetchData, fetchRequest, loading } = useFetch(getProvider)
     const { watch, reset } = useFormContext()
 
@@ -35,7 +37,7 @@ const Inputs = () => ({
 
       if (!currentInputs) {
         changeLoading(true) // disable finish button until provider is fetched
-        fetchRequest({ id: providerSelected[0]?.ID })
+        fetchRequest(providerSelected[0]?.ID)
       } else {
         setFields(FORM_FIELDS(inputs))
       }
