@@ -188,37 +188,25 @@ class InformationManagerDriver < OpenNebulaDriver
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
     def log(id, message, not_used=true)
-        in_error = false
-        msg      = message.strip
-        severity = 'I'
+        msg = message.strip
 
         msg.each_line do |line|
-            l = line.strip
+            severity = 'I'
 
-            if l == 'ERROR MESSAGE --8<------'
-                in_error = true
-                next
-            elsif l == 'ERROR MESSAGE ------>8--'
-                in_error = false
-                next
-            else
-                m = line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
+            m = line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
 
-                if in_error
+            if m
+                line = m[2]
+
+                case m[1]
+                when 'ERROR'
                     severity = 'E'
-                elsif m
-                    line = m[2]
-
-                    case m[1]
-                    when 'ERROR'
-                        severity = 'E'
-                    when 'DEBUG'
-                        severity = 'D'
-                    when 'INFO'
-                        severity = 'I'
-                    else
-                        severity = 'I'
-                    end
+                when 'DEBUG'
+                    severity = 'D'
+                when 'INFO'
+                    severity = 'I'
+                else
+                    severity = 'I'
                 end
             end
 

@@ -65,7 +65,7 @@ begin
     packet_drv.cancel(deploy_id, vm.lcm_state_str)
 
 rescue Exception => e
-    STDERR.puts error_message(<<EOT)
+    STDERR.puts <<EOT
 Cancel of VM #{deploy_id} failed due to "#{e.message}"
 #{e.backtrace}
 EOT

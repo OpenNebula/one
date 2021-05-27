@@ -34,17 +34,9 @@ require 'base64'
 # * Log messages will be sent to STDOUT
 # * The script will return 0 if it succeded or any other value
 #   if there was a failure
-# * In case of failure the cause of the error will be written to STDERR
-#   wrapped by start and end marks as follows:
-#
-#     ERROR MESSAGE --8<------
-#     error message for the failure
-#     ERROR MESSAGE ------>8--
-
+# * In case of failure the cause of the error will be written to STDERR.
 
 class GenericCommand
-    ERROR_OPEN  = "ERROR MESSAGE --8<------"
-    ERROR_CLOSE = "ERROR MESSAGE ------>8--"
 
     attr_reader :code, :stdout, :stderr, :command
 
@@ -93,8 +85,9 @@ class GenericCommand
             end
 
             log(error_message)
-            @stderr = ERROR_OPEN + "\n" + error_message + "\n" + ERROR_CLOSE
-            @code = 255
+
+            @stderr = error_message
+            @code   = 255
         end
 
         return @code
@@ -102,9 +95,9 @@ class GenericCommand
 
     # Parses error message from +stderr+ output
     def get_error_message
-        tmp=@stderr.scan(/^#{ERROR_OPEN}\n(.*?)#{ERROR_CLOSE}$/m)
-        return "-" if !tmp[0]
-        tmp[0].join(' ').strip
+        return '-' if @stderr.empty?
+
+        @stderr.tr("\n",' ').strip
     end
 
     def to_xml

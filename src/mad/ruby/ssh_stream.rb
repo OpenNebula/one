@@ -147,7 +147,7 @@ class SshStream
                             message = "Error connecting to #{@host}"
                             code    = tmp[0][0].to_i
 
-                            @err << OpenNebula.format_error_message(message)
+                            @err << message
 
                             @alive = false
                             break
@@ -229,7 +229,7 @@ class SshStreamCommand < RemotesCommand
         @stderr = @stream.err
 
         if @code != 0
-            log("Command execution fail: #{command}")
+            log("Command execution fail (exit code: #{@code}): #{command}")
         end
 
         log(@stderr)

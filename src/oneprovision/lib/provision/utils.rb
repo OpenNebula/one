@@ -46,9 +46,6 @@ module OneProvision
 
         class << self
 
-            ERROR_OPEN  = 'ERROR MESSAGE --8<------'
-            ERROR_CLOSE = 'ERROR MESSAGE ------>8--'
-
             # Prints command and options in the debug output
             #
             # @param cmd     [String] Command executed
@@ -93,22 +90,6 @@ module OneProvision
                 error = OpenNebula.is_error?(return_code)
 
                 raise OneProvisionLoopException, return_code.message if error
-            end
-
-            # Gets error message
-            #
-            # @param text [String] Text with error message inside
-            #
-            # @return     [String] Error message
-            def get_error_message(text)
-                msg = '-'
-
-                if text
-                    tmp = text.scan(/^#{ERROR_OPEN}\n(.*?)#{ERROR_CLOSE}$/m)
-                    msg = tmp[0].join(' ').strip if tmp[0]
-                end
-
-                msg
             end
 
             # Converts XML template to string

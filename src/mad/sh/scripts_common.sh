@@ -123,12 +123,8 @@ function log_debug
 # This function is used to pass error message to the mad
 function error_message
 {
-    (
-        echo "ERROR MESSAGE --8<------"
-        echo "$1"
-        echo "ERROR MESSAGE ------>8--"
-    ) 1>&2
-}
+    echo "$1" 1>&2
+
 
 # Ensures the code is executed exclusively
 function exclusive

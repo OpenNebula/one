@@ -124,31 +124,21 @@ module DriverExecHelper
     # Sends a log message to ONE. The +message+ can be multiline, it will
     # be automatically splitted by lines.
     def log(number, message, all = true)
-        in_error_message=false
-        msg=message.strip
+        msg = message.strip
+
         msg.each_line do |line|
             all ? severity='I' : severity=nil
-            l=line.strip
 
-            if l=='ERROR MESSAGE --8<------'
-                in_error_message=true
-                next
-            elsif l=='ERROR MESSAGE ------>8--'
-                in_error_message=false
-                next
-            else
-                if in_error_message
+            if line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
+                line=Regexp.last_match(2)
+
+                case Regexp.last_match(1)
+                when 'ERROR'
                     severity='E'
-                elsif line.match(/^(ERROR|DEBUG|INFO):(.*)$/)
-                    line=Regexp.last_match(2)
-                    case Regexp.last_match(1)
-                    when 'ERROR'
-                        severity='E'
-                    when 'DEBUG'
-                        severity='D'
-                    when 'INFO'
-                        severity='I'
-                    end
+                when 'DEBUG'
+                    severity='D'
+                when 'INFO'
+                    severity='I'
                 end
             end
 
