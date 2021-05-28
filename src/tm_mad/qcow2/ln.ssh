@@ -28,10 +28,8 @@ SRC=$1
 DST=$2
 
 if [ -z "${ONE_LOCATION}" ]; then
-    LIB_LOCATION=/usr/lib/one
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
 else
-    LIB_LOCATION=$ONE_LOCATION/lib
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
