@@ -27,16 +27,13 @@
 SRC=$1
 DST=$2
 VMID=$3
-DSID=$4
 
 #--------------------------------------------------------------------------------
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    LIB_LOCATION=/usr/lib/one
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    LIB_LOCATION=$ONE_LOCATION/lib
 fi
 
 DRIVER_PATH=$(dirname $0)
@@ -50,9 +47,9 @@ CEPH_UTILS=${DRIVER_PATH}/../../datastore/ceph/ceph_utils.sh
 # Set dst path and dir
 #-------------------------------------------------------------------------------
 
-SRC_PATH=`arg_path $SRC`
-SRC_HOST=`arg_host $SRC`
-RBD_SRC=`arg_path $SRC`
+SRC_PATH=$(arg_path $SRC)
+SRC_HOST=$(arg_host $SRC)
+RBD_SRC=$(arg_path $SRC)
 
 #-------------------------------------------------------------------------------
 # Get Image information
@@ -67,12 +64,14 @@ unset i j XPATH_ELEMENTS
 while IFS= read -r -d '' element; do
     XPATH_ELEMENTS[i++]="$element"
 done < <(onevm show -x $VMID| $XPATH \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SOURCE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_USER \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_KEY \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/CEPH_CONF \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/SIZE \
-                    /VM/TEMPLATE/DISK[DISK_ID=$DISK_ID]/ORIGINAL_SIZE )
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SOURCE \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/CEPH_USER \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/CEPH_KEY \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/CEPH_CONF \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/SIZE \
+                    /VM/TEMPLATE/DISK\[DISK_ID=$DISK_ID\]/ORIGINAL_SIZE \
+                    /VM/HISTORY_RECORDS/HISTORY\[last\(\)\]/VM_MAD \
+                    /VM/LCM_STATE)
 
 RBD_SRC="${XPATH_ELEMENTS[j++]}"
 CEPH_USER="${XPATH_ELEMENTS[j++]}"
@@ -80,18 +79,20 @@ CEPH_KEY="${XPATH_ELEMENTS[j++]}"
 CEPH_CONF="${XPATH_ELEMENTS[j++]}"
 SIZE="${XPATH_ELEMENTS[j++]}"
 ORIGINAL_SIZE="${XPATH_ELEMENTS[j++]}"
+VM_MAD="${XPATH_ELEMENTS[j++]}"
+LCM_STATE="${XPATH_ELEMENTS[j++]}"
 
 #-------------------------------------------------------------------------------
 # Copy Image back to the datastore
 #-------------------------------------------------------------------------------
 
-if [ "${LCM_STATE}" = '26' -a "${VM_MAD}" != "kvm" ]; then
+if [ "${LCM_STATE}" = '26' ] && [ "${VM_MAD}" != "kvm" ]; then
     error_message "mvds.ssh: Live operation not supported on ${VM_MAD}"
     exit 1
 fi
 
-# Undeployed, or stopped VM state
-if [ "$LCM_STATE" = '67' ] || [ "$LCM_STATE" = '68' ]; then
+# Undeployed
+if is_undeployed "$VMID" "$SRC_HOST"; then
     error_message "mvds.ssh: Operation not supported on undeployed/stopped"
     exit 1
 fi
