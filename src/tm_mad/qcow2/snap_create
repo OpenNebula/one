@@ -21,14 +21,11 @@
 SRC=$1
 SNAP_ID=$2
 VMID=$3
-DSID=$4
 
 if [ -z "${ONE_LOCATION}" ]; then
     TMCOMMON=/var/lib/one/remotes/tm/tm_common.sh
-    DATASTORES=/var/lib/one/datastores
 else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
-    DATASTORES=$ONE_LOCATION/var/datastores
 fi
 
 DRIVER_PATH=$(dirname $0)
@@ -62,7 +59,6 @@ FORMAT="${XPATH_ELEMENTS[j++]}"
 SYSTEM_DS_PATH=$(dirname ${SRC_PATH})
 
 SYSTEM_DS_DISK_PATH="${SYSTEM_DS_PATH}/disk.${DISK_ID}"
-SYSTEM_DS_DISK_PATH_SHORT="disk.${DISK_ID}"
 
 if [ "$CLONE" = "YES" ]; then
     DISK_PATH="${SYSTEM_DS_DISK_PATH}"
@@ -76,7 +72,7 @@ SNAP_DIR="${DISK_PATH}.snap"
 SNAP_DIR_SHORT="${DISK_PATH_SHORT}.snap"
 
 if [ "$FORMAT" = "qcow2" ]; then
-    NEXT_SNAP_ID=$(($SNAP_ID+1))
+    NEXT_SNAP_ID=$((SNAP_ID+1))
     SNAP_PATH="${SNAP_DIR}/${NEXT_SNAP_ID}"
     SNAP_PATH_SHORT="${SNAP_DIR_SHORT}/${NEXT_SNAP_ID}"
 
