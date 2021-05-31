@@ -23,30 +23,29 @@ require 'time'
 require_relative '../common/docker'
 
 #-------------------------------------------------------------------------------
-# Class to interact and monitor DockerHub
+# Class to interact and monitor Docker Private Registry
 #-------------------------------------------------------------------------------
-class DockerHubMarket
+class DockerRegistryMarket
 
     #---------------------------------------------------------------------------
     # Default Configuration parameters for the Driver
     #---------------------------------------------------------------------------
     DEFAULTS = {
-        :url       => 'https://hub.docker.com/v2/repositories/library/',
-        :sizemb    => 2048,
-        :fs        => 'ext4',
-        :format    => 'raw',
-        :agent     => 'OpenNebula',
-        :page_size => 100
+        :sizemb => 2048,
+        :fs     => 'ext4',
+        :format => 'raw',
+        :agent  => 'OpenNebula',
+        :ssl    => false
     }
 
     #---------------------------------------------------------------------------
     # Configuration varibales
     #
-    #   :url    -> of DockerHub market place
     #   :sizemb -> default size for container images
     #   :fs     -> filesystem for the image file
     #   :format -> for the image file, qcow2, raw
     #   :agent  -> for HTTP client
+    #   :ssl    -> true if registry is behind SSL
     #---------------------------------------------------------------------------
     def initialize(options = {})
         @options     = DEFAULTS
@@ -62,49 +61,18 @@ class DockerHubMarket
     #---------------------------------------------------------------------------
     # Get appliance list
     #---------------------------------------------------------------------------
-    def appliances
-        try    = 0
-        appstr = ''
-        apps   = []
-        next_query = "#{@options[:url]}?page_size=#{@options[:page_size]}"
+    #
+    # @param url [String] Docker registry URL
+    def appliances(url)
+        appstr   = ''
+        url      = "#{url}/" unless url[-1] == '/'
+        rc, body = DockerMarket.get(@options,
+                                    "#{url}v2/_catalog",
+                                    @options[:ssl])
 
-        loop do
-            rc, body = DockerMarket.get(@options, next_query)
+        return [rc, body] if rc != 0
 
-            return [rc, body] if rc != 0
-
-            parsed = JSON.parse(body)
-
-            if parsed['results'].empty?
-                try += 1
-                return [0, ''] if try > 5
-            end
-
-            # reset try for new query
-            try = 0
-            apps.concat(parsed['results'])
-            next_query = parsed['next']
-
-            break if next_query.nil? || next_query.empty?
-        end
-
-        # App JSON example:
-        # {
-        #    "user": "library",
-        #    "name": "busybox",
-        #    "namespace": "library",
-        #    "repository_type": "image",
-        #    "status": 1,
-        #    "description": "Busybox base image.",
-        #    "is_private": false,
-        #    "is_automated": false,
-        #    "can_edit": false,
-        #    "star_count": 1878,
-        #    "pull_count": 2147483647,
-        #    "last_updated": "2020-04-16T08:59:03.768123Z",
-        #    "is_migrated": false
-        # }
-        apps[0..-1].each do |app|
+        JSON.parse(body)['repositories'].each do |app|
             regt = ''
 
             if !app['last_updated'].nil?
@@ -113,8 +81,8 @@ class DockerHubMarket
             end
 
             data = {
-                'NAME'        => app['name'],
-                'SOURCE'      => app_url(app),
+                'NAME'        => app,
+                'SOURCE'      => app_url(url, app),
                 'IMPORT_ID'   => -1,
                 'ORIGIN_ID'   => -1,
                 'TYPE'        => 'IMAGE',
@@ -125,8 +93,8 @@ class DockerHubMarket
                 'TAGS'        => '',
                 'REGTIME'     => regt,
                 'SIZE'        => @options[:sizemb],
-                'DESCRIPTION' => app['description'].delete('\\"'),
-                'LINK'        => "https://hub.docker.com/_/#{app['name']}"
+                'DESCRIPTION' => '',
+                'LINK'        => "#{url}/v2/#{app}/tags/list"
             }
 
             appstr << DockerMarket.gen_template(data)
@@ -135,8 +103,14 @@ class DockerHubMarket
         [0, appstr]
     end
 
-    def app_url(app)
-        "docker://#{app['name']}?size=#{@options[:sizemb]}" \
+    # Get app URL
+    #
+    # @param url [String] Docker registry URL
+    # @param app [String] App name
+    def app_url(url, app)
+        url = url.gsub('http://', '')
+
+        "docker://#{url}#{app}?size=#{@options[:sizemb]}" \
         "&filesystem=#{@options[:fs]}&format=#{@options[:format]}"
     end
 
@@ -155,12 +129,13 @@ begin
 
     doc = REXML::Document.new(drv_message).root
 
-    set_option(options, doc, :url, 'MARKETPLACE/TEMPLATE/ENDPOINT')
+    set_option(options, doc, :url, 'MARKETPLACE/TEMPLATE/BASE_URL')
+    set_option(options, doc, :url, 'MARKETPLACE/TEMPLATE/SSL')
     set_option(options, doc, :sizemb, 'MARKETPLACE/TEMPLATE/IMAGE_SIZE_MB')
     set_option(options, doc, :fs, 'MARKETPLACE/TEMPLATE/FILESYSTEM')
     set_option(options, doc, :format, 'MARKETPLACE/TEMPLATE/FORMAT')
 
-    rc, str = DockerHubMarket.new(options).appliances
+    rc, str = DockerRegistryMarket.new(options).appliances(options[:url])
 
     if rc != 0
         STDERR.puts str

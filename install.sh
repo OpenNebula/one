@@ -493,6 +493,7 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/market/linuxcontainers \
           $VAR_LOCATION/remotes/market/turnkeylinux \
           $VAR_LOCATION/remotes/market/dockerhub \
+          $VAR_LOCATION/remotes/market/docker_registry \
           $VAR_LOCATION/remotes/datastore/iscsi_libvirt \
           $VAR_LOCATION/remotes/auth \
           $VAR_LOCATION/remotes/auth/plain \
@@ -713,6 +714,7 @@ INSTALL_FILES=(
     MARKETPLACE_DRIVER_LXC_SCRIPTS:$VAR_LOCATION/remotes/market/linuxcontainers
     MARKETPLACE_DRIVER_TK_SCRIPTS:$VAR_LOCATION/remotes/market/turnkeylinux
     MARKETPLACE_DRIVER_DH_SCRIPTS:$VAR_LOCATION/remotes/market/dockerhub
+    MARKETPLACE_DRIVER_REGISTRY_SCRIPTS:$VAR_LOCATION/remotes/market/docker_registry
     IPAM_DRIVER_DUMMY_SCRIPTS:$VAR_LOCATION/remotes/ipam/dummy
     IPAM_DRIVER_PACKET_SCRIPTS:$VAR_LOCATION/remotes/ipam/packet
     IPAM_DRIVER_VULTR_SCRIPTS:$VAR_LOCATION/remotes/ipam/vultr
@@ -2148,7 +2150,8 @@ MARKETPLACE_DRIVER_S3_SCRIPTS="src/market_mad/remotes/s3/import \
             src/market_mad/remotes/s3/monitor \
             src/market_mad/remotes/s3/S3.rb"
 
-MARKETPLACE_DRIVER_COMMON_SCRIPTS="src/market_mad/remotes/common/lxd.rb"
+MARKETPLACE_DRIVER_COMMON_SCRIPTS="src/market_mad/remotes/common/lxd.rb \
+                                   src/market_mad/remotes/common/docker.rb"
 
 MARKETPLACE_DRIVER_LXC_SCRIPTS="src/market_mad/remotes/linuxcontainers/import \
             src/market_mad/remotes/linuxcontainers/delete \
@@ -2161,6 +2164,10 @@ MARKETPLACE_DRIVER_TK_SCRIPTS="src/market_mad/remotes/turnkeylinux/import \
 MARKETPLACE_DRIVER_DH_SCRIPTS="src/market_mad/remotes/dockerhub/import \
             src/market_mad/remotes/dockerhub/delete \
             src/market_mad/remotes/dockerhub/monitor"
+
+MARKETPLACE_DRIVER_REGISTRY_SCRIPTS="src/market_mad/remotes/docker_registry/import \
+                                     src/market_mad/remotes/docker_registry/delete \
+                                     src/market_mad/remotes/docker_registry/monitor"
 
 #-------------------------------------------------------------------------------
 # Migration scripts for onedb command, to be installed under $LIB_LOCATION
