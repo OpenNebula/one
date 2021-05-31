@@ -233,6 +233,8 @@ int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
 
     VirtualMachineDisks disks(true);
 
+    int tid = object->get_oid();
+
     if (recursive)
     {
         static_cast<VMTemplate *>(object.get())->clone_disks(vdisks);
@@ -262,7 +264,7 @@ int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
     {
         if ( img_delete.request_execute(iid, att) != SUCCESS )
         {
-            NebulaLog::log("ReM", Log::ERROR, att.resp_msg);
+            NebulaLog::warn("ReM", att.resp_msg);
 
             error_ids.insert(iid);
         }
@@ -270,10 +272,12 @@ int TemplateDelete::drop(std::unique_ptr<PoolObjectSQL> object, bool recursive,
 
     if ( !error_ids.empty() )
     {
-        att.resp_msg = "Cannot delete " + object_name(PoolObjectSQL::IMAGE) +
+        att.resp_msg = "Template " + to_string(tid) +
+            " deleted, unable to recursively delete " +
+            object_name(PoolObjectSQL::IMAGE) +
             ": " + one_util::join(error_ids.begin(), error_ids.end(), ',');
 
-        return -1;
+        NebulaLog::warn("ReM", att.resp_msg);
     }
 
     return 0;
