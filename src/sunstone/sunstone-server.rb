@@ -538,6 +538,11 @@ helpers do
 
         zone = OpenNebula::Zone.new_with_id(active_zone_configuration['FEDERATION/ZONE_ID'].to_i, client_active_endpoint)
         zone.info
+
+        url_one_zone = zone.retrieve_elements("TEMPLATE/ONEFLOW_ENDPOINT")
+        url_zone = zone.retrieve_elements("TEMPLATE/ENDPOINT")
+        session[:zone_flow_url] = (url_one_zone && url_one_zone[0]) || parse_flow_url(url_zone[0])
+
         session[:zone_name] = zone.name
         session[:zone_id]   = zone.id
         session[:federation_mode] = active_zone_configuration['FEDERATION/MODE'].upcase
@@ -567,6 +572,13 @@ helpers do
     def destroy_session
         session.destroy
         [204, ""]
+    end
+
+    def parse_flow_url(endpoint)
+      if endpoint
+        uri = URI(endpoint.to_s)
+        return "#{uri.scheme}://#{uri.host}:2474"
+      end
     end
 end
 
@@ -629,6 +641,7 @@ before do
                     halt [500, OpenNebula::Error.new(msg).to_json]
                 end
 
+                session[:zone_flow_url] = z['TEMPLATE/ONEFLOW_ENDPOINT'] || parse_flow_url(z['TEMPLATE/ENDPOINT'])
                 session[:active_zone_endpoint] = z['TEMPLATE/ENDPOINT']
                 session[:zone_name] = zone_name_header
                 session[:zone_id]   = z.id
