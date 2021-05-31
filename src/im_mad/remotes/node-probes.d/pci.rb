@@ -38,14 +38,14 @@ def get_pci(filter = nil)
     command = 'lspci -mmnn'
     command << " -d #{filter}" if filter
 
-    text = %x(#{command})
+    text = `#{command}`
 
     text.split("\n").map {|l| Shellwords.split(l) }
 end
 
 def get_name_and_id(text)
     m = text.match(/^(.*) \[(....)\]$/)
-    return m[1], m[2]
+    [m[1], m[2]]
 end
 
 def parse_pci(pci)
@@ -57,8 +57,9 @@ def parse_pci(pci)
     card[:address] = "0000:#{card[:short_address].gsub(/[:.]/, ':')}"
 
     begin
-        numa_node = File.read("/sys/bus/pci/devices/0000:#{pci[0]}/numa_node").chomp
-    rescue
+        numa_node =
+            File.read("/sys/bus/pci/devices/0000:#{pci[0]}/numa_node").chomp
+    rescue StandardError
         numa_node = '-'
     end
 
@@ -77,9 +78,9 @@ def parse_pci(pci)
     card
 end
 
-def get_devices(filter=nil)
+def get_devices(filter = nil)
     if filter
-        filter = [filter].flatten.map { |f| f.split(',') }.flatten
+        filter = [filter].flatten.map {|f| f.split(',') }.flatten
     else
         filter = [nil]
     end
@@ -94,21 +95,22 @@ filter = CONF[:filter]
 devices = get_devices(filter)
 
 def pval(name, value)
-    %Q(  #{name} = "#{value}")
+    %( #{name} = "#{value}" )
 end
 
 devices.each do |dev|
-    next if !CONF[:short_address].empty? && !CONF[:short_address].include?(dev[:short_address])
+    next if !CONF[:short_address].empty? &&
+        !CONF[:short_address].include?(dev[:short_address])
 
     if !CONF[:device_name].empty?
-        matched = CONF[:device_name].each { |pattern|
-            break true if !(dev[:device_name] =~ /#{pattern}/i).nil?
-        }
+        matched = CONF[:device_name].each do |pattern|
+            break true unless (dev[:device_name] =~ /#{pattern}/i).nil?
+        end
 
         next if matched != true
     end
 
-    puts "PCI = ["
+    puts 'PCI = ['
     values = [
         pval('TYPE', dev[:type]),
         pval('VENDOR', dev[:vendor]),
@@ -127,6 +129,5 @@ devices.each do |dev|
     ]
 
     puts values.join(",\n")
-    puts "]"
+    puts ']'
 end
-
