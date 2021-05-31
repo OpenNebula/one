@@ -207,33 +207,36 @@ define(function(require) {
    * guaranteed to resolve successfully.
    *
    * @param {String} token The identifier representing the connection or group to connect to.
-   * @param {String[]} [connectionParameters] Any additional HTTP parameters to pass while connecting.
-   * @param {Element} [display] Element where the connection will be displayed.
+   * @param {Element} options.display Element where the connection will be displayed.
+   * @param {String} options.width Forced width connection
+   * @param {String} options.height Forced height connection
    * 
    * @returns {String} A string of connection parameters to be passed to the Guacamole client.
    */
-  function getConnectString(token, connectionParameters, display = window) {
+  function getConnectString(token, options = {}) {
+    options = Object.assign({ display: window }, options)
+
     // Calculate optimal width/height for display
     var pixel_density = window.devicePixelRatio || 1;
-    var optimal_dpi = pixel_density * 96;
+    var optimal_dpi = options.dpi || pixel_density * 96;
     
-    var optimal_width = display instanceof Window
-      ? display.innerWidth * pixel_density
-      : display.offsetWidth * pixel_density;
+    var display = options.display
 
-    var optimal_height = display instanceof Window
-      ? display.innerHeight * pixel_density
-      : display.offsetHeight * pixel_density;
+    var width = options.width || (
+      display instanceof Window ? display.innerWidth : display.offsetWidth
+    )
+
+    var height = options.height || (
+      display instanceof Window ? display.innerHeight : display.offsetHeight
+    )
 
     // Build base connect string
     var connectString = [
       "token="    + encodeURIComponent(token),
-      "width="    + Math.floor(optimal_width),
-      "height="   + Math.floor(optimal_height),
+      "width="    + Math.floor(width * pixel_density),
+      "height="   + Math.floor(height * pixel_density),
       "dpi="      + Math.floor(optimal_dpi)  
     ];
-
-    connectionParameters && connectString.concat(connectionParameters);
 
     return connectString.join('&');
   }
@@ -272,14 +275,13 @@ define(function(require) {
    * or group.
    *
    * @param {String} token The token of the connection.
-   * @param {String[]} [connectionParameters] Any additional HTTP parameters to pass while connecting.
-   * @param {Element} [display] Element where the connection will be displayed.
+   * @param {Object} displayOptions The options to client display
    * 
    * @returns {ManagedClient}
    *     A new ManagedClient instance which is connected to the connection or
    *     connection group having the given ID.
    */
-  ManagedClient.getInstance = function getInstance(token, connectionParameters, display = window) {
+  ManagedClient.getInstance = function getInstance(token, displayOptions) {
     var endpoint = new URL(Config.publicFireedgeEndpoint);
     
     var websocketProtocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -454,7 +456,7 @@ define(function(require) {
     managedClient.managedDisplay = ManagedDisplay.getInstance(client.getDisplay());
 
     // Connect the Guacamole client
-    var connectString = getConnectString(token, connectionParameters, display);
+    var connectString = getConnectString(token, displayOptions);
     client.connect(connectString);
 
     return managedClient;

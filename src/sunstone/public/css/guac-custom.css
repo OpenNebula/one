@@ -73,6 +73,13 @@ header {
   justify-content: flex-end;
 }
 
+.toolbar__buttons > button,
+.toolbar__buttons > select {
+  max-height: 32px;
+  margin-bottom: 0;
+  width: auto;
+}
+
 @media (max-width: 768px) {
   .toolbar__state {
     justify-content: end;

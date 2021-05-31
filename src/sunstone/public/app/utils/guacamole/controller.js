@@ -35,6 +35,7 @@ define(function(require) {
     var $elements = {
       main: document.querySelector('.wrapper__display'),
       displayContainer: document.getElementById('display'),
+      selectResolution: document.getElementById('select__resolution'),
       osk: document.getElementById('osk'),
       closeOskButton: document.querySelector('.osk__header__buttons .close'),
 
@@ -55,7 +56,19 @@ define(function(require) {
         ? $elements.displayContainer.classList.add('ssh')
         : $elements.displayContainer.classList.remove('ssh');
 
-      var managedClient = ManagedClient.getInstance(token, undefined, $elements.displayContainer)
+      var isRDP = $scope.connectionType === ConnectionTypes.RDP
+      var resolution = $elements.selectResolution.value;
+
+      isRDP &&  $elements.selectResolution.classList.remove('hidden');
+
+      var displayOptions = isRDP && resolution && resolution !== ''
+        ? {
+          width: resolution.split('x')[0],
+          height: resolution.split('x')[1]
+        }
+        : { display: $elements.displayContainer }; // get width & height from container
+
+      var managedClient = ManagedClient.getInstance(token, displayOptions)
 
       new GuacKeyboard($guac, $scope, $elements);
       new GuacMouse($guac, $scope, $elements);
@@ -144,7 +157,7 @@ define(function(require) {
         var pixelDensity = window.devicePixelRatio || 1;
         var width  = $elements.main.offsetWidth  * pixelDensity;
         var height = $elements.main.offsetHeight * pixelDensity;
-  
+
         if ($guac.display.getWidth() !== width || $guac.display.getHeight() !== height) {
           $guac.client.sendSize(width, height);
         }
