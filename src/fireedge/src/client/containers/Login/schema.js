@@ -77,21 +77,21 @@ export const GROUP = {
   values: () => {
     const { user, groups } = useAuth()
 
+    const sortedGroupsById = groups?.sort((a, b) => a.ID - b.ID)
+
+    const formatGroups = sortedGroupsById.map(({ ID, NAME }) => {
+      const markAsPrimary = user?.GID === ID ? (
+        <SelectedIcon style={{ fontSize: '1rem', marginLeft: 16 }} />
+      ) : null
+
+      return {
+        text: <>{`${ID} - ${String(NAME)}`}{markAsPrimary}</>,
+        value: String(ID)
+      }
+    })
+
     return [{ text: T.ShowAll, value: FILTER_POOL.ALL_RESOURCES }]
-      .concat([...groups]
-        .sort((a, b) => a.ID - b.ID)
-        .map(({ ID, NAME }) => ({
-          text: (
-            <>
-              {`${ID} - ${String(NAME)}`}
-              {user?.GID === ID && (
-                <SelectedIcon style={{ fontSize: '1rem', marginLeft: 16 }} />
-              )}
-            </>
-          ),
-          value: String(ID)
-        }))
-      )
+      .concat(formatGroups)
   },
   validation: yup
     .string()

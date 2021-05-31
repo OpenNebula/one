@@ -4,7 +4,7 @@ import { login, getUser, logout, changeFilter, changeGroup } from 'client/featur
 import { JWT_NAME, FILTER_POOL, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
 import { isBackend } from 'client/utils'
 
-const initial = () => ({
+const initial = initialProps => ({
   jwt: !isBackend()
     ? window.localStorage.getItem(JWT_NAME) ??
       window.sessionStorage.getItem(JWT_NAME) ??
@@ -19,18 +19,16 @@ const initial = () => ({
     disableAnimations: 'NO'
   },
   isLoginInProgress: false,
-  isLoading: false
+  isLoading: false,
+  ...initialProps
 })
 
 const { actions, reducer } = createSlice({
   name: 'auth',
-  initialState: initial(),
+  initialState: initial({ firstRender: true }),
   extraReducers: builder => {
     builder
-      .addCase(
-        logout,
-        (_, { error }) => ({ ...initial(), error })
-      )
+      .addCase(logout, (_, { error }) => ({ ...initial(), error }))
       .addMatcher(
         ({ type }) => {
           return [
@@ -48,7 +46,7 @@ const { actions, reducer } = createSlice({
       )
       .addMatcher(
         ({ type }) => type.startsWith('auth/') && type.endsWith('/fulfilled'),
-        state => ({ ...state, isLoading: false })
+        state => ({ ...state, isLoading: false, firstRender: false })
       )
       .addMatcher(
         ({ type }) => type.startsWith('auth/') && type.endsWith('/rejected'),
@@ -57,6 +55,7 @@ const { actions, reducer } = createSlice({
           ...payload,
           isLoginInProgress: false,
           isLoading: false,
+          firstRender: false,
           jwt: null
         })
       )
