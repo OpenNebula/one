@@ -21,11 +21,9 @@ require 'open3'
 ENV['LANG'] = 'C'
 ENV['LC_ALL'] = 'C'
 
-GUEST_ARCHS = %w(i686 x86_64)
+GUEST_ARCHS = %w[i686 x86_64]
 
 begin
-
-    capabilities = ""
     machines = []
     models   = []
 
@@ -36,9 +34,9 @@ begin
     cap_xml = REXML::Document.new(capabilities)
     cap_xml = cap_xml.root
 
-    GUEST_ARCHS.each { |a|
+    GUEST_ARCHS.each do |a|
         a_elem = cap_xml.elements["guest/arch[@name='#{a}']"]
-        next if !a_elem
+        next unless a_elem
 
         # Evaluate the domain specific machines with higher priority
         # over the machines listed just inside the architecture.
@@ -57,7 +55,9 @@ begin
         #      <domain type='kvm'>
         #        <emulator>/usr/libexec/qemu-kvm</emulator>
         #        <machine maxCpus='240'>pc-i440fx-rhel7.4.0</machine>
-        #        <machine canonical='pc-i440fx-rhel7.4.0' maxCpus='240'>pc</machine>
+        #        <machine canonical='pc-i440fx-rhel7.4.0' maxCpus='240'>
+        #          pc
+        #        </machine>
         #        ...
         #        <machine maxCpus='240'>rhel6.2.0</machine>
         #        <machine maxCpus='240'>pc-i440fx-rhel7.3.0</machine>
@@ -68,36 +68,35 @@ begin
 
         a_machines = []
 
-        ['kvm', 'kqemu', 'qemu', ''].each { |type|
+        ['kvm', 'kqemu', 'qemu', ''].each do |type|
             if type.empty?
                 d_elem = a_elem
             else
                 d_elem = a_elem.elements["domain[@type='#{type}']"]
             end
 
-            if d_elem
-                d_elem.elements.each('machine') { |m|
-                    a_machines << m.text
-                }
+            next unless d_elem
 
-                # take only first found domain type
-                unless a_machines.empty?
-                    machines.concat(a_machines)
-                    break
-                end
+            d_elem.elements.each('machine') {|m| a_machines << m.text }
+
+            # take only first found domain type
+            unless a_machines.empty?
+                machines.concat(a_machines)
+                break
             end
-        }
+        end
 
         cmd = "virsh -r -c qemu:///system cpu-models #{a}"
         cpu_models, e, s = Open3.capture3(cmd)
         break unless s.success?
 
-        cpu_models.each_line { |l|
+        cpu_models.each_line do |l|
             l.chomp!
-            next if l.empty? or l =~ /all CPU models are accepted/i;
+            next if l.empty? || l =~ /all CPU models are accepted/i
+
             models << l
-        }
-    }
+        end
+    end
 
     machines.uniq!
     models.uniq!
@@ -105,6 +104,5 @@ begin
     puts "KVM_MACHINES=\"#{machines.join(' ')}\""
     puts "KVM_CPU_MODELS=\"#{models.join(' ')}\""
     puts "KVM_CPU_MODEL=\"#{cap_xml.elements['host/cpu/model'].text}\""
-
-rescue
+rescue StandardError
 end
