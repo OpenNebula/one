@@ -57,11 +57,7 @@ int HookLog::_dump_log(int hkid, int exec_id, std::string &xml_log)
 
     cmd << "SELECT body FROM "<< one_db::hook_log_table;
 
-    if ( hkid == -1 )
-    {
-        cmd << " ORDER BY hkid DESC";
-    }
-    else
+    if ( hkid != -1 )
     {
         cmd << " WHERE hkid = " << hkid;
     }
@@ -70,6 +66,8 @@ int HookLog::_dump_log(int hkid, int exec_id, std::string &xml_log)
     {
         cmd << " AND exeid = " << exec_id;
     }
+
+    cmd << " ORDER BY hkid DESC, exeid";
 
     xml_log.append("<HOOKLOG>");
 
