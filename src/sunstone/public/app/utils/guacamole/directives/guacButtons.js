@@ -17,7 +17,6 @@
 define(function(require) {
 
   var Files = require('utils/files');
-  var ConnectionTypes = require("utils/guacamole/types/connection-types");
 
   function GuacButtons($guac, $scope, $elements) {
     $elements.screenshotButton.onclick = function() {

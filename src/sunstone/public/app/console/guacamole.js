@@ -15,22 +15,23 @@
 /* -------------------------------------------------------------------------- */
 
 define(function(require) {
-    require("jquery-ui");
+    require('jquery-ui');
 
     var GuacController = require('utils/guacamole/controller');
     
     var controller = new GuacController();
     var reconnectButton = document.getElementById('buttons__reconnect');
+    var selectResolution = document.getElementById('select__resolution');
 
     var endpoint = new URL(window.location.href);
-    var encoded_socket = endpoint.searchParams.get("socket");
+    var encoded_socket = endpoint.searchParams.get('socket');
     var socket_string = atob(encoded_socket);
 
     var url = new URL(socket_string);
     var params = url.searchParams;
-    var token = params.get("token");
-    var connectionType = params.get("type");
-    var info = params.get("info");
+    var token = params.get('token');
+    var connectionType = params.get('type');
+    var info = params.get('info');
 
     controller.setInformation(info);
 
@@ -45,18 +46,22 @@ define(function(require) {
     reconnectButton.onclick = function reconnect() {
         disconnect();
 
-        document.querySelector('.toolbar__state h5').innerHTML = "";
-        document.querySelector('.toolbar__state .spinner').style.display = "block";
+        document.querySelector('.toolbar__state h5').innerHTML = '';
+        document.querySelector('.toolbar__state .spinner').style.display = 'block';
 
-        setTimeout(connect, 500)
+        setTimeout(connect, 500);
     }
+
+    selectResolution.onchange = function() {
+        reconnectButton.click();
+    };
     
     function connect() {
         try {
             controller && controller.setConnection(token, connectionType);
         } catch (error) {
             controller && controller.disconnect();
-            document.querySelector('.toolbar__state h5').innerHTML = "Failed";
+            document.querySelector('.toolbar__state h5').innerHTML = 'Failed';
         }
     }
     
@@ -64,7 +69,7 @@ define(function(require) {
         try {
             controller && controller.disconnect();
         } catch (error) {
-            document.querySelector('.toolbar__state h5').innerHTML = "Failed";
+            document.querySelector('.toolbar__state h5').innerHTML = 'Failed';
         }
     }
     

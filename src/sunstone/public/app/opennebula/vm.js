@@ -1054,9 +1054,9 @@ define(function(require) {
     });
 
     if (ips.length === 0)
-      return "<p style=\"margin-bottom:0;\">--</p>";
+      return "<p style=\"white-space:nowrap;margin-bottom:0;\">--</p>";
     else if (ips.length === 1)
-      return "<p style=\"margin-bottom:0;\">"+ips[0]+"</p>";
+      return "<p style=\"white-space:nowrap;margin-bottom:0;\">"+ips[0]+"</p>";
 
     var sshWithPortForwarding = getSshWithPortForwarding(element) || '';
     var firstIP = ipsHtml.split("<end_first_ip>")[0];
