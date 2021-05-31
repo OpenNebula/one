@@ -25,7 +25,7 @@ helpers do
         split_array = flow_client.one_auth.split(':')
 
         Service::Client.new(
-                :url        => $conf[:oneflow_server],
+                :url        => session[:zone_flow_url] || $conf[:oneflow_server],
                 :user_agent => "Sunstone",
                 :username   => split_array.shift,
                 :password   => split_array.join(':'))
