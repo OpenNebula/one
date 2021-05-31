@@ -41,7 +41,9 @@ const SelectController = memo(
       />
     )
   },
-  (prevProps, nextProps) => prevProps.error === nextProps.error
+  (prevProps, nextProps) =>
+    prevProps.error === nextProps.error &&
+    prevProps.values.length === nextProps.values.length
 )
 
 SelectController.propTypes = {
