@@ -203,6 +203,88 @@ fi
 # Add extra commands, this is the dockerfile in case there is any
 dockerfile_template=${dockerfile_template/\%EXTRA\%/$extra}
 
+#-------------------------------------------------------------------------------
+# Inspect image to get CMD, ENTRYPOINT and ENV
+#
+# Following Docker documentation formats:
+#   https://docs.docker.com/engine/reference/builder/#cmd
+#   https://docs.docker.com/engine/reference/builder/#entrypoint
+#   https://docs.docker.com/engine/reference/builder/#env
+#
+# When having CMD and ENTRYPOINT:
+#
+#   The main purpose of a CMD is to provide defaults for an executing container.
+#   These defaults can include an executable, or they can omit the executable,
+#   in which case you must specify an ENTRYPOINT instruction as well.
+#-------------------------------------------------------------------------------
+
+if [ $export_from == "dockerhub" ]; then
+    cmd=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Cmd[] |= "\"" + . + "\"" | .[0].Config.Cmd')
+    entrypoint=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Entrypoint')
+    env=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Env')
+else
+    # Build the image with user Dockerfile to be able to inspect it
+    docker build -t one"$sid" -f "$dockerfile" "$dockerdir" > /dev/null 2>&1
+
+    image_id=$(docker images -q one"$sid")
+
+    cmd=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Cmd[] |= "\"" + . + "\"" | .[0].Config.Cmd')
+    entrypoint=$(docker inspect "$image_id" | jq -r '.[0].Config.Entrypoint |')
+    env=$(docker inspect "$image_id" | jq -r '.[0].Config.Env')
+
+    # Delete this image as it will need to be build after
+    docker image rm -f one"$sid" > /dev/null 2>&1
+fi
+
+#-------------------------------------------------------------------------------
+# Build OpenNebula entrypoint
+#
+#   1. Export all the variables under $env
+#   2. Export user custom variables located under /var/run/one-context/one_env
+#   3. Run the entrypoint:
+#       if entrypoint && cmd
+#           command = entrypoint + cmd
+#       else if entrypoint && !cmd
+#           command = entrypoint
+#       else if !entrypoint && cmd
+#           command = cmd
+#       else
+#           no OpenNebula entrypoint
+#-------------------------------------------------------------------------------
+
+if [ -n "$entrypoint" ] && ! [ "$entrypoint" == "null" ]; then
+    entrypoint=$(echo "$entrypoint" | jq -r '. | join(" ")')
+fi
+
+if [ -n "$cmd" ] && ! [ "$cmd" == "null" ]; then
+    cmd=$(echo "$cmd" | jq -r '. | join(" ")')
+fi
+
+if [ -n "$entrypoint" ] && ! [ "$entrypoint" == "null" ] && ! echo "$entrypoint" | grep -Ewq '(bash|sh)'; then
+    if [ -n "$cmd" ] && ! [ "$cmd" == "null" ] && ! echo "$cmd" | grep -Ewq '(bash|sh)'; then
+        one_entrypoint="${entrypoint} ${cmd}"
+    else
+        one_entrypoint="${entrypoint}"
+    fi
+elif [ -n "$cmd" ] && ! [ "$cmd" == "null" ] && ! echo "$cmd" | grep -Ewq '(bash|sh)'; then
+    one_entrypoint="${cmd}"
+fi
+
+if [ -n "$one_entrypoint" ]; then
+    one_env="RUN echo '#!/bin/sh\n"
+
+    if [ -n "$env" ] && ! [ "$env" == "null" ]; then
+        env=$(echo "$env" | jq -jr '.[] | "export " + . + "\\n"')
+        one_env="${one_env}$env"
+    fi
+
+    one_env="${one_env}source /var/run/one-context/one_env\n"
+    one_entrypoint="${one_env}${one_entrypoint}' > /one_entrypoint.sh"
+    dockerfile_template=${dockerfile_template/\%ONE_ENTRYPOINT\%/$one_entrypoint}
+else
+    dockerfile_template=${dockerfile_template/\%ONE_ENTRYPOINT\%/''}
+fi
+
 echo "$dockerfile_template" > "$dockerfile"
 
 docker build -t one"$sid" -f "$dockerfile" "$dockerdir" > /dev/null 2>&1
