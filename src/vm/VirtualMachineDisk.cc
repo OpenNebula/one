@@ -158,6 +158,10 @@ int VirtualMachineDisk::get_image_id(int &id, int uid) const
         {
             id = image->get_oid();
         }
+        else
+        {
+            return -1;
+        }
 
         return 0;
     }
