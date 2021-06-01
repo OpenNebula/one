@@ -223,13 +223,18 @@ if [ $export_from == "dockerhub" ]; then
     entrypoint=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Entrypoint')
     env=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Env')
 else
+    tmp_dockerfile_template=$dockerfile_template
+    tmp_dockerfile_template=${tmp_dockerfile_template/\%ONE_ENTRYPOINT\%/''}
+
+    echo "$tmp_dockerfile_template" > "$dockerfile"
+
     # Build the image with user Dockerfile to be able to inspect it
     docker build -t one"$sid" -f "$dockerfile" "$dockerdir" > /dev/null 2>&1
 
     image_id=$(docker images -q one"$sid")
 
     cmd=$(docker inspect "$docker_hub" | jq -r '.[0].Config.Cmd[] |= "\"" + . + "\"" | .[0].Config.Cmd')
-    entrypoint=$(docker inspect "$image_id" | jq -r '.[0].Config.Entrypoint |')
+    entrypoint=$(docker inspect "$image_id" | jq -r '.[0].Config.Entrypoint')
     env=$(docker inspect "$image_id" | jq -r '.[0].Config.Env')
 
     # Delete this image as it will need to be build after
