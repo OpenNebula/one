@@ -134,7 +134,7 @@ module NUMA
         distance_h = {}
         distance_a.each_with_index {|d, i| distance_h[d.to_i] = i }
 
-        distance_h = distance_h.sort.to_h
+        distance_h = Hash[distance_h.sort]
 
         closer = ''
         distance_h.each {|_, v| closer << v.to_s << ' ' }
