@@ -38,6 +38,11 @@
   :size: 7
   :left: true
 
+:STAT:
+  :desc: Marketplace status
+  :size: 4
+  :left: true
+
 :default:
 - :ID
 - :NAME
@@ -46,3 +51,4 @@
 - :APPS
 - :MAD
 - :ZONE
+- :STAT

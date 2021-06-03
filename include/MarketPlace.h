@@ -30,6 +30,51 @@
 class MarketPlace : public PoolObjectSQL
 {
 public:
+    enum MarketPlaceState
+    {
+        ENABLED  = 0, /**< Enabled */
+        DISABLED = 1  /**< Disabled */
+    };
+
+    /**
+     *  Functions to convert to/from string the MarketPlace states
+     */
+    static int str_to_state(std::string& st, MarketPlaceState& state)
+    {
+        one_util::toupper(st);
+
+        state = ENABLED;
+
+        if ( st == "ENABLED" ) {
+            state = ENABLED;
+        } else if ( st == "DISABLED" ) {
+            state = DISABLED;
+        }
+        else
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+
+    static std::string state_to_str(MarketPlaceState state)
+    {
+        std::string st = "";
+
+        switch (state)
+        {
+            case ENABLED:
+                st = "ENABLED";
+                break;
+            case DISABLED:
+                st = "DISABLED";
+                break;
+        }
+
+        return st;
+    }
+
     virtual ~MarketPlace() = default;
 
     /**
@@ -66,6 +111,14 @@ public:
     {
         return marketapps.del(id);
     };
+
+    /**
+     *  Deletes all apps images from the set.
+     */
+    void clear_marketapps()
+    {
+        marketapps.clear();
+    }
 
     /**
      *  Returns a copy of the Image IDs set
@@ -133,6 +186,26 @@ public:
         supported_actions.set(MarketPlaceApp::MONITOR);
     }
 
+    MarketPlaceState get_state() const
+    {
+        return state;
+    }
+
+    /**
+     * Enable or disable the MarketPlace
+     */
+    void enable(bool enabled)
+    {
+        if (enabled)
+        {
+            state = ENABLED;
+        }
+        else
+        {
+            state = DISABLED;
+        }
+    }
+
 private:
 
     friend class MarketPlacePool;
@@ -140,6 +213,12 @@ private:
     // *************************************************************************
     // MarketPlace Attributes
     // *************************************************************************
+
+    /**
+     * State of the marketplace
+     */
+    MarketPlaceState state;
+
     /**
      * Name of the marketplace driver used to import apps
      */
@@ -148,22 +227,22 @@ private:
     /**
      * Total capacity in MB
      */
-     long long total_mb;
+    long long total_mb;
 
     /**
      * Available capacity in MB
      */
-     long long free_mb;
+    long long free_mb;
 
     /**
      * Used capacity in MB
      */
-     long long used_mb;
+    long long used_mb;
 
     /**
      * Zone where this market lives
      */
-     int zone_id;
+    int zone_id;
 
     /**
      *  Supported actions on MarketPlaceApps

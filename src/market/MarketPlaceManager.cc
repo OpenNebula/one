@@ -219,7 +219,6 @@ void MarketPlaceManager::monitor_market(int mp_id)
 
     if ( auto mp = mppool->get(mp_id) )
     {
-
         mp_name = mp->get_name();
 
         if ( !mp->is_action_supported(MarketPlaceApp::MONITOR) )
@@ -230,7 +229,8 @@ void MarketPlaceManager::monitor_market(int mp_id)
             return;
         }
 
-        if ( mp->get_zone_id() != Nebula::instance().get_zone_id() )
+        if ( mp->get_zone_id() != Nebula::instance().get_zone_id() ||
+             mp->get_state() == MarketPlace::DISABLED)
         {
             return;
         }

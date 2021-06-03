@@ -35,6 +35,7 @@ MarketPlace::MarketPlace(
     int                   umask,
     unique_ptr<MarketPlaceTemplate> mp_template):
         PoolObjectSQL(-1, MARKETPLACE, "", uid, gid, uname, gname, one_db::mp_table),
+        state(ENABLED),
         market_mad(""),
         total_mb(0),
         free_mb(0),
@@ -266,6 +267,7 @@ std::string& MarketPlace::to_xml(std::string& xml) const
 			"<UNAME>" << uname << "</UNAME>" <<
 			"<GNAME>" << gname << "</GNAME>" <<
 			"<NAME>"  << name  << "</NAME>"  <<
+			"<STATE>"  << state << "</STATE>"  <<
 			"<MARKET_MAD>"<<one_util::escape_xml(market_mad)<<"</MARKET_MAD>"<<
 			"<ZONE_ID>"   <<one_util::escape_xml(zone_id)<<"</ZONE_ID>"<<
 			"<TOTAL_MB>" << total_mb << "</TOTAL_MB>" <<
@@ -311,6 +313,7 @@ static void set_supported_actions(ActionSet<MarketPlaceApp::Action>& as,
 int MarketPlace::from_xml(const std::string &xml_str)
 {
     int rc = 0;
+    int int_state = 0;
     std::vector<xmlNodePtr> content;
 
     // Initialize the internal XML object
@@ -323,6 +326,9 @@ int MarketPlace::from_xml(const std::string &xml_str)
     rc += xpath(uname, "/MARKETPLACE/UNAME", "not_found");
     rc += xpath(gname, "/MARKETPLACE/GNAME", "not_found");
     rc += xpath(name,  "/MARKETPLACE/NAME",  "not_found");
+
+    xpath(int_state, "/MARKETPLACE/STATE", 0);
+    state = static_cast<MarketPlaceState>(int_state);
 
     rc += xpath(market_mad, "/MARKETPLACE/MARKET_MAD", "not_found");
     rc += xpath(zone_id,    "/MARKETPLACE/ZONE_ID", -1);

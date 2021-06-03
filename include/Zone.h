@@ -35,7 +35,7 @@ public:
     };
 
     /**
-     *  Functions to convert to/from string the Host states
+     *  Functions to convert to/from string the Zone states
      */
     static int str_to_state(std::string& st, ZoneState& state)
     {

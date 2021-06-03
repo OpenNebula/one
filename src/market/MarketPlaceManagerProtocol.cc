@@ -234,6 +234,11 @@ void MarketPlaceManager::_monitor(unique_ptr<market_msg_t> msg)
 
     if ( auto market = mppool->get(id) )
     {
+        if (market->get_state() == MarketPlace::DISABLED)
+        {
+            return;
+        }
+
         apps_mp = market->get_marketapp_ids();
         name = market->get_name();
 
