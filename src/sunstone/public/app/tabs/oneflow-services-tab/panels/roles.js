@@ -349,11 +349,6 @@ define(function(require) {
       });
 
       $("#" + that.serviceroleVMsDataTable.dataTableId)
-        .on("click", "ul.dropdown-menu-css > .menu-hide", function(event) {
-          event.stopPropagation();
-        });
-
-      $("#" + that.serviceroleVMsDataTable.dataTableId)
         .on("change", "tbody input.check_item", function() {
           StateRolesVmButtons.disableAllStateActions();
 
