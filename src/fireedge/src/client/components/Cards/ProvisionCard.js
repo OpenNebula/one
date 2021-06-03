@@ -1,8 +1,7 @@
 import React, { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import ProviderIcon from '@material-ui/icons/Public'
-import ProvisionIcon from '@material-ui/icons/Cloud'
+import { Db as ProviderIcon, Cloud as ProvisionIcon } from 'iconoir-react'
 
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { StatusBadge } from 'client/components/Status'

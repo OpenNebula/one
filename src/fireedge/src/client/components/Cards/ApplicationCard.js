@@ -9,7 +9,7 @@ import {
   CardActions,
   Chip
 } from '@material-ui/core'
-import FileIcon from '@material-ui/icons/Description'
+import { Page as FileIcon } from 'iconoir-react'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'

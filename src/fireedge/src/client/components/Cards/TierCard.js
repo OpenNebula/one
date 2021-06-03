@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Button, CardActions, Badge } from '@material-ui/core'
-import DesktopWindowsIcon from '@material-ui/icons/DesktopWindows'
+import { AppleImac2021 as TierIcon } from 'iconoir-react'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
@@ -24,7 +24,7 @@ const TierCard = memo(
               horizontal: 'left'
             }}
           >
-            <DesktopWindowsIcon />
+            <TierIcon />
           </Badge>
         }
         title={name}

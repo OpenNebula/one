@@ -1,9 +1,11 @@
 import React, { useCallback, useState, useMemo } from 'react'
 
 import { useFormContext } from 'react-hook-form'
-import { Box, Tab, Tabs, Fab, AppBar } from '@material-ui/core'
-import AddIcon from '@material-ui/icons/Add'
-import WarningIcon from '@material-ui/icons/Warning'
+import { useTheme, Box, Tab, Tabs, Fab, AppBar } from '@material-ui/core'
+import {
+  Plus as PlusIcon,
+  WarningCircledOutline as WarningIcon
+} from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { PolicyCard } from 'client/components/Cards'
@@ -49,6 +51,8 @@ const Policies = () => ({
   content: useCallback(
     ({ data, setFormData }) => {
       const [tabSelected, setTab] = useState(TABS.elasticity.name)
+
+      const theme = useTheme()
       const { watch, errors } = useFormContext()
       const { handleSetList } = useListForm({
         key: STEP_ID,
@@ -79,12 +83,12 @@ const Policies = () => ({
           <Box p={1}>
             <FormWithSchema
               id={STEP_ID}
-              cy="form-policy"
+              cy='form-policy'
               fields={POLICIES_FORM_FIELDS}
             />
           </Box>
           {useMemo(() => (
-            <AppBar position="static">
+            <AppBar position='static'>
               <Tabs value={tabSelected} onChange={(_, tab) => setTab(tab)}>
                 {Object.keys(TABS).map(key =>
                   <Tab
@@ -93,7 +97,7 @@ const Policies = () => ({
                     value={key}
                     label={String(key).toUpperCase()}
                     icon={ errors[STEP_ID]?.[key] && (
-                      <WarningIcon color="error" />
+                      <WarningIcon color={theme.palette.error.main} />
                     )}
                   />
                 )}
@@ -104,17 +108,17 @@ const Policies = () => ({
             errors[STEP_ID]?.[TABS.elasticity.name],
             errors[STEP_ID]?.[TABS.scheduled.name]
           ])}
-          <Box overflow="hidden" height={1} position="relative">
+          <Box overflow='hidden' height={1} position='relative'>
             <Fab
-              color="primary"
+              color='primary'
               onClick={handleCreate}
               style={{ position: 'absolute', zIndex: 1, bottom: 12, right: 28 }}
             >
-              <AddIcon />
+              <PlusIcon />
             </Fab>
             {useMemo(() => (
               Object.keys(TABS).map(key => (
-                <Box key={`tab-${key}`} hidden={tabSelected !== key} overflow="auto" height={1} p={2}>
+                <Box key={`tab-${key}`} hidden={tabSelected !== key} overflow='auto' height={1} p={2}>
                   <ListCards
                     list={data[key]}
                     breakpoints={{ xs: 12, sm: 6 }}

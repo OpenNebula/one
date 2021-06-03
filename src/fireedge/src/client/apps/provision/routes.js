@@ -1,9 +1,9 @@
 import {
-  Dashboard as DashboardIcon,
-  Public as ProvidersIcon,
-  SettingsSystemDaydream as ProvisionsIcon,
+  ReportColumns as DashboardIcon,
+  DatabaseSettings as ProvidersIcon,
+  SettingsCloud as ProvisionsIcon,
   Settings as SettingsIcon
-} from '@material-ui/icons'
+} from 'iconoir-react'
 
 import loadable from '@loadable/component'
 

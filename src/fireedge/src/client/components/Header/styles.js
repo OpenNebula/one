@@ -51,9 +51,10 @@ export default makeStyles(theme => ({
   },
   /* GROUP SWITCHER */
   headerSwitcherLabel: { flexGrow: 1 },
-  groupButton: { justifyContent: 'start' },
-  groupSelectedIcon: {
-    fontSize: '1rem',
-    margin: theme.spacing(0, 2)
+  groupButton: {
+    justifyContent: 'start',
+    '& svg:first-of-type': {
+      margin: theme.spacing(0, 2)
+    }
   }
 }))

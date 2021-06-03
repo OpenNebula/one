@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react'
 import { Divider, Select, Breadcrumbs, InputLabel, FormControl } from '@material-ui/core'
-import ArrowIcon from '@material-ui/icons/ArrowForwardIosRounded'
+import { NavArrowRight } from 'iconoir-react'
 import Marked from 'marked'
 
 import { useListForm } from 'client/hooks'
@@ -98,8 +98,8 @@ const Template = () => ({
         const renderer = new Marked.Renderer()
 
         renderer.link = (href, title, text) => (
-          `<a class="MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorSecondary"
-            target="_blank" rel="nofollow" title='${title}' href='${href}'>${text}</a>`
+          `<a class='MuiTypography-root MuiLink-root MuiLink-underlineHover MuiTypography-colorSecondary'
+            target='_blank' rel='nofollow' title='${title}' href='${href}'>${text}</a>`
         )
 
         const html = Marked(sanitize`${description}`, { renderer })
@@ -109,7 +109,7 @@ const Template = () => ({
       return (
         <>
           {/* -- SELECTORS -- */}
-          <Breadcrumbs separator={<ArrowIcon color="secondary" />}>
+          <Breadcrumbs separator={<NavArrowRight />}>
             <FormControl>
               <InputLabel color='secondary' shrink id='select-provision-type-label'>
                 {'Provision type'}

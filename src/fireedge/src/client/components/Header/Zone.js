@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 
 import { MenuItem, MenuList } from '@material-ui/core'
-import LanguageIcon from '@material-ui/icons/Language'
+import { Language as ZoneIcon } from 'iconoir-react'
 
 import HeaderPopover from 'client/components/Header/Popover'
 import { Tr } from 'client/components/HOC'
@@ -9,9 +9,12 @@ import { T } from 'client/constants'
 
 const Zone = memo(() => (
   <HeaderPopover
-    id="zone-menu"
-    icon={<LanguageIcon />}
-    buttonProps={{ 'data-cy': 'header-zone-button', variant: 'outlined' }}
+    id='zone-menu'
+    icon={<ZoneIcon />}
+    buttonProps={{
+      'data-cy': 'header-zone-button',
+      variant: 'outlined'
+    }}
     disablePadding
   >
     {({ handleClose }) => (

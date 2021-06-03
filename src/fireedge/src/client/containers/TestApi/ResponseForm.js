@@ -23,7 +23,7 @@ const ResponseForm = ({
     const command = { name, httpMethod, params }
     const { url, options: { method, data } } = requestParams(dataForm, command)
 
-    RestClient[method](url, data).then(({ id, ...res }) => {
+    RestClient[method.toLowerCase()](url, data).then(({ id, ...res }) => {
       id === 401 && console.log('ERROR')
       id === 200 && handleChangeResponse(JSON.stringify(res, null, '\t'))
     })

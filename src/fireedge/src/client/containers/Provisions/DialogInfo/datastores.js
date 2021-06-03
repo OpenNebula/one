@@ -1,7 +1,7 @@
 import React, { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import DeleteIcon from '@material-ui/icons/Delete'
+import { Trash as DeleteIcon } from 'iconoir-react'
 
 import { useFetchAll } from 'client/hooks'
 import { useDatastoreApi, useProvisionApi } from 'client/features/One'

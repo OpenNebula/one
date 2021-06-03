@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box } from '@material-ui/core'
-import EditIcon from '@material-ui/icons/Settings'
-import DeleteIcon from '@material-ui/icons/Delete'
+import { useTheme, Container, Box } from '@material-ui/core'
+import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
 import { PATH } from 'client/apps/provision/routes'
 import { useProvider, useProviderApi } from 'client/features/One'
@@ -18,6 +17,7 @@ import Information from 'client/containers/Providers/Sections/info'
 import { T } from 'client/constants'
 
 function Providers () {
+  const theme = useTheme()
   const history = useHistory()
   const [showDialog, setShowDialog] = useState(false)
 
@@ -87,7 +87,7 @@ function Providers () {
                         .then(() => fetchRequest(undefined, { reload: true }))
                     }
                   }),
-                  icon: <DeleteIcon color='error' />,
+                  icon: <DeleteIcon color={theme.palette.error.dark} />,
                   cy: 'provider-delete'
                 }
               ]

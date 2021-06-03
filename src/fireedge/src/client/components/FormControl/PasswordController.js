@@ -1,8 +1,8 @@
 import React, { memo, useState, useCallback } from 'react'
 import PropTypes from 'prop-types'
 
-import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { InputAdornment, IconButton } from '@material-ui/core'
+import { EyeEmpty as Visibility, EyeOff as VisibilityOff } from 'iconoir-react'
 
 import { TextController } from 'client/components/FormControl'
 

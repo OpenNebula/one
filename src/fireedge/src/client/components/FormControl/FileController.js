@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import { makeStyles, FormControl, FormHelperText } from '@material-ui/core'
-import { Check, InsertDriveFile } from '@material-ui/icons'
+import { Check as CheckIcon, Page as FileIcon } from 'iconoir-react'
 import { Controller } from 'react-hook-form'
 
 import { ErrorHelper, SubmitButton } from 'client/components/FormControl'
@@ -104,7 +104,7 @@ const FileController = memo(
             component='span'
             data-cy={`${cy}-button`}
             isSubmitting={isLoading}
-            label={success ? <Check /> : <InsertDriveFile />}
+            label={success ? <CheckIcon /> : <FileIcon />}
             className={clsx({
               [classes.buttonSuccess]: success
             })}

@@ -1,7 +1,13 @@
 import React, { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import { Info, Build, Description, Today } from '@material-ui/icons'
+import {
+  InfoEmpty as IconIcon,
+  Settings as SettingsIcon,
+  Page as LogIcon,
+  Calendar as ActionsIcons
+} from 'iconoir-react'
+
 import { AppBar, Tabs, Tab, Box } from '@material-ui/core'
 
 import CustomDialog from 'client/containers/ApplicationsInstances/DialogInfo/dialog'
@@ -9,10 +15,10 @@ import InfoTab from 'client/containers/ApplicationsInstances/DialogInfo/info'
 import TiersTab from 'client/containers/ApplicationsInstances/DialogInfo/tiers'
 
 const TABS = [
-  { name: 'info', icon: Info, content: InfoTab },
-  { name: 'tiers', icon: Build, content: TiersTab },
-  { name: 'log', icon: Description },
-  { name: 'actions', icon: Today }
+  { name: 'info', icon: IconIcon, content: InfoTab },
+  { name: 'tiers', icon: SettingsIcon, content: TiersTab },
+  { name: 'log', icon: LogIcon },
+  { name: 'actions', icon: ActionsIcons }
 ]
 
 const DialogInfo = ({ info, handleClose }) => {

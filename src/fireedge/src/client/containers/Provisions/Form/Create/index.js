@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Redirect, useHistory } from 'react-router'
 
 import { Container, IconButton, LinearProgress } from '@material-ui/core'
-import ArrowBackIcon from '@material-ui/icons/ChevronLeftRounded'
+import { NavArrowLeft as ArrowBackIcon } from 'iconoir-react'
+
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers'
 
@@ -85,7 +86,7 @@ function ProvisionCreateForm () {
             <IconButton aria-label='back-to-list' size='medium'
               onClick={() => history.push(PATH.PROVISIONS.LIST)}
             >
-              <ArrowBackIcon fontSize='large' />
+              <ArrowBackIcon />
             </IconButton>
             <span className={classes.titleText}>
               <Translate word={T.BackToList} values={T.Provisions} />

@@ -1,9 +1,9 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
-import { CheckBox, CheckBoxOutlineBlank } from '@material-ui/icons'
 import clsx from 'clsx'
+import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
+import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
 
 import useStyles from 'client/containers/ApplicationsInstances/DialogInfo/styles'
 import { StatusChip } from 'client/components/Status'
@@ -25,7 +25,7 @@ const InfoTab = memo(({ info }) => {
   const stateInfo = APPLICATION_STATES[state]
 
   const isChecked = checked =>
-    checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
+    checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
 
   return (
     <Grid container spacing={1}>

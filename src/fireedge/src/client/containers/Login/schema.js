@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import SelectedIcon from '@material-ui/icons/FilterVintage'
+import { VerifiedBadge as SelectIcon } from 'iconoir-react'
 import * as yup from 'yup'
 
 import { useAuth } from 'client/features/Auth'
@@ -28,8 +28,7 @@ export const USERNAME = {
 export const PASSWORD = {
   name: 'token',
   label: T.Password,
-  type: INPUT_TYPES.TEXT,
-  htmlType: 'password',
+  type: INPUT_TYPES.PASSWORD,
   validation: yup
     .string()
     .trim()
@@ -81,7 +80,9 @@ export const GROUP = {
 
     const formatGroups = sortedGroupsById.map(({ ID, NAME }) => {
       const markAsPrimary = user?.GID === ID ? (
-        <SelectedIcon style={{ fontSize: '1rem', marginLeft: 16 }} />
+        <span style={{ marginLeft: 16 }}>
+          <SelectIcon size='1rem' />
+        </span>
       ) : null
 
       return {

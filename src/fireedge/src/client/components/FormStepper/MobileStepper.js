@@ -2,8 +2,11 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { Button, MobileStepper, Typography, Box } from '@material-ui/core'
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@material-ui/icons'
 import { makeStyles, fade } from '@material-ui/core/styles'
+import {
+  NavArrowLeft as PreviousIcon,
+  NavArrowRight as NextIcon
+} from 'iconoir-react'
 
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
@@ -64,13 +67,13 @@ const CustomMobileStepper = ({
             onClick={handleBack}
             disabled={disabledBack}
           >
-            <KeyboardArrowLeft /> {Tr(T.Back)}
+            <PreviousIcon /> {Tr(T.Back)}
           </Button>
         }
         nextButton={
           <Button className={classes.button} size="small" onClick={handleNext}>
             {activeStep === lastStep ? Tr(T.Finish) : Tr(T.Next)}
-            <KeyboardArrowRight />
+            <NextIcon />
           </Button>
         }
       />

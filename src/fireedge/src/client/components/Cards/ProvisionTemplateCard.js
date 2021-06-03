@@ -1,10 +1,10 @@
 import React, { memo, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
-import * as Types from 'client/types/provision'
+import { Db as ProviderIcon, SettingsCloud as ProvisionIcon } from 'iconoir-react'
 
-import ProvidersIcon from '@material-ui/icons/Public'
-import SelectCard from 'client/components/Cards/SelectCard'
+import * as Types from 'client/types/provision'
+import { SelectCard } from 'client/components/Cards'
 
 import Image from 'client/components/Image'
 import { isExternalURL } from 'client/utils'
@@ -29,7 +29,7 @@ const ProvisionTemplateCard = memo(
         dataCy={isProvider ? 'provider' : 'provision'}
         disableFilterImage={isExternalImage}
         handleClick={handleClick}
-        icon={<ProvidersIcon />}
+        icon={isProvider ? <ProviderIcon /> : <ProvisionIcon />}
         cardActionAreaProps={{ disabled: !isValid }}
         isSelected={isSelected}
         mediaProps={{

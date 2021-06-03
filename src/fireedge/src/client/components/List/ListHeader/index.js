@@ -2,12 +2,15 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Box, Typography, InputBase } from '@material-ui/core'
-import SearchIcon from '@material-ui/icons/Search'
-import RefreshIcon from '@material-ui/icons/Autorenew'
-import AddIcon from '@material-ui/icons/AddCircle'
+import {
+  RefreshDouble as RefreshIcon,
+  AddCircledOutline as AddIcon,
+  Search as SearchIcon
+} from 'iconoir-react'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 import listHeaderStyles from 'client/components/List/ListHeader/styles'
 
@@ -29,14 +32,14 @@ const ListHeader = memo(({
           <SubmitButton icon label={<RefreshIcon />} {...reloadButtonProps} />
         )}
         {title && (
-          <Typography variant="h5" className={classes.titleText}>
+          <Typography variant='h5' className={classes.titleText}>
             {Tr(title)}
           </Typography>
         )}
       </Box>
       <Box className={classes.actions}>
         {!!(hasAddButton || addButtonProps) && (
-          <SubmitButton color="secondary" icon label={<AddIcon />} {...addButtonProps} />
+          <SubmitButton color='secondary' icon label={<AddIcon />} {...addButtonProps} />
         )}
         {!!(hasSearch || searchProps) && (
           <Box className={classes.search}>
@@ -44,10 +47,10 @@ const ListHeader = memo(({
               <SearchIcon />
             </Box>
             <InputBase
-              type="search"
+              type='search'
               onChange={searchProps.handleChange}
               fullWidth
-              placeholder="Search..."
+              placeholder={`${T.Search}...`}
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput

@@ -1,8 +1,7 @@
 import React, { memo, useEffect } from 'react'
 import PropTypes from 'prop-types'
 
-import DeleteIcon from '@material-ui/icons/Delete'
-import ConfigureIcon from '@material-ui/icons/Settings'
+import { Trash as DeleteIcon, Settings as ConfigureIcon } from 'iconoir-react'
 
 import { useFetchAll } from 'client/hooks'
 import { useHostApi, useProvisionApi } from 'client/features/One'

@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, Badge, Box, CardContent } from '@material-ui/core'
 import {
-  Storage as ClusterIcon,
-  Computer as HostIcon,
-  AccountTree as NetworkIcon,
-  FolderOpen as DatastoreIcon
-} from '@material-ui/icons'
+  Server as ClusterIcon,
+  HardDrive as HostIcon,
+  NetworkAlt as NetworkIcon,
+  Folder as DatastoreIcon
+} from 'iconoir-react'
 
-import SelectCard from 'client/components/Cards/SelectCard'
+import { SelectCard } from 'client/components/Cards'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 

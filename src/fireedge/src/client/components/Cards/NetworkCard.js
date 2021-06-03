@@ -1,7 +1,7 @@
 import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
-import NetworkIcon from '@material-ui/icons/AccountTree'
+import { NetworkAlt as NetworkIcon } from 'iconoir-react'
 
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { LinearProgressWithLabel } from 'client/components/Status'

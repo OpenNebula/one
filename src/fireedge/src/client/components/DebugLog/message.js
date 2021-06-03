@@ -3,8 +3,7 @@ import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
 import { makeStyles } from '@material-ui/core'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { NavArrowRight as CollapseIcon, NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
 import { DEBUG_LEVEL } from 'client/constants'
 import AnsiHtml from 'client/components/DebugLog/ansiHtml'
@@ -57,9 +56,9 @@ const Message = memo(({ timestamp, severity, message }) => {
     >
       <span>
         {isMoreThanMaxChars && (isCollapsed ? (
-          <ChevronRightIcon fontSize='small' />
+          <CollapseIcon size={18} />
         ) : (
-          <ExpandMoreIcon fontSize='small' />
+          <ExpandMoreIcon size={18} />
         ))}
       </span>
       <div>{timestamp}</div>

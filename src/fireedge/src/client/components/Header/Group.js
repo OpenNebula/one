@@ -1,8 +1,7 @@
 import * as React from 'react'
 
 import { Button } from '@material-ui/core'
-import FilterIcon from '@material-ui/icons/FilterDrama'
-import SelectedIcon from '@material-ui/icons/FilterVintage'
+import { Group as GroupIcon, VerifiedBadge as SelectIcon } from 'iconoir-react'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import Search from 'client/components/Search'
@@ -38,7 +37,7 @@ const Group = () => {
         }}
       >
         {NAME}
-        {isSelected && <SelectedIcon className={classes.groupSelectedIcon} />}
+        {isSelected && <SelectIcon size='1rem' />}
       </Button>
     )
   }
@@ -59,7 +58,7 @@ const Group = () => {
   return (
     <HeaderPopover
       id="group-list"
-      icon={<FilterIcon />}
+      icon={<GroupIcon />}
       buttonProps={{ 'data-cy': 'header-group-button', variant: 'outlined' }}
       headerTitle="Switch group"
     >

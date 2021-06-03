@@ -9,9 +9,11 @@ import {
   CardContent,
   CardActions
 } from '@material-ui/core'
-import FileIcon from '@material-ui/icons/Description'
-import HostIcon from '@material-ui/icons/Computer'
-import AccountTreeIcon from '@material-ui/icons/AccountTree'
+import {
+  Page as FileIcon,
+  HardDrive as HostIcon,
+  Network as NetworkIcon
+} from 'iconoir-react'
 
 import SelectCard from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
@@ -61,7 +63,7 @@ const ApplicationTemplateCard = memo(
               badgeContent={numberOfNetworks}
               anchorOrigin={badgePosition}
             >
-              <AccountTreeIcon />
+              <NetworkIcon />
             </Badge>
           </Box>
         </CardContent>

@@ -1,8 +1,8 @@
 import React, { useMemo, useCallback, useState } from 'react'
 
 import { useFormContext } from 'react-hook-form'
-import { AppBar, Tabs, Tab } from '@material-ui/core'
-import { Warning as WarningIcon } from '@material-ui/icons'
+import { useTheme, AppBar, Tabs, Tab } from '@material-ui/core'
+import { WarningCircledOutline as WarningIcon } from 'iconoir-react'
 
 import FormWithSchema from 'client/components/Forms/FormWithSchema'
 import { T } from 'client/constants'
@@ -24,12 +24,14 @@ const Tiers = ({ tiers, vmTemplates }) => {
     resolver: STEP_FORM_SCHEMA({ tiers, vmTemplates }),
     optionsValidate: { abortEarly: false },
     content: useCallback(() => {
-      const { errors } = useFormContext()
       const [tabSelected, setTab] = useState(tiers?.[0]?.id)
+
+      const theme = useTheme()
+      const { errors } = useFormContext()
 
       return (
         <>
-          <AppBar position="static">
+          <AppBar position='static'>
             <Tabs value={tabSelected} onChange={(_, tab) => setTab(tab)}>
               {tiers?.map(({ id, tier }, idx) => (
                 <Tab
@@ -38,7 +40,7 @@ const Tiers = ({ tiers, vmTemplates }) => {
                   label={tier?.name}
                   id={`tab-${id}`}
                   icon={ errors[STEP_ID]?.[idx] && (
-                    <WarningIcon color="error" />
+                    <WarningIcon color={theme.palette.error.main} />
                   )}
                 />
               ))}
@@ -47,12 +49,12 @@ const Tiers = ({ tiers, vmTemplates }) => {
           {useMemo(() => tiers?.map(({ id, template }, index) => (
             <div key={id} hidden={tabSelected !== id}>
               <FormWithSchema
-                cy="deploy-tiers-id"
+                cy='deploy-tiers-id'
                 fields={[ID]}
                 id={`${STEP_ID}[${index}]`}
               />
               <FormWithSchema
-                cy="deploy-tiers"
+                cy='deploy-tiers'
                 fields={userInputsFields[template?.id]}
                 id={`${STEP_ID}[${index}].user_inputs_values`}
               />

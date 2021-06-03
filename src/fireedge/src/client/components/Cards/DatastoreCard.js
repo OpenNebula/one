@@ -2,7 +2,7 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, Typography } from '@material-ui/core'
-import DatastoreIcon from '@material-ui/icons/FolderOpen'
+import { Folder as DatastoreIcon } from 'iconoir-react'
 
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
