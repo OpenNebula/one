@@ -1,9 +1,8 @@
 import React, { useState, useEffect, createElement } from 'react'
 
 import { useHistory } from 'react-router-dom'
-import { Container, Box } from '@material-ui/core'
-import EditIcon from '@material-ui/icons/Settings'
-import DeleteIcon from '@material-ui/icons/Delete'
+import { useTheme, Container, Box } from '@material-ui/core'
+import { Trash as DeleteIcon, Settings as EditIcon } from 'iconoir-react'
 
 import { PATH } from 'client/apps/provision/routes'
 import { useFetch, useSearch } from 'client/hooks'
@@ -19,6 +18,7 @@ import DialogInfo from 'client/containers/Provisions/DialogInfo'
 import { T } from 'client/constants'
 
 function Provisions () {
+  const theme = useTheme()
   const history = useHistory()
   const [{ content, ...showDialog } = {}, setShowDialog] = useState()
   const handleCloseDialog = () => setShowDialog()
@@ -102,7 +102,7 @@ function Provisions () {
                         .then(() => fetchRequest(undefined, { reload: true }))
                     }
                   }),
-                  icon: <DeleteIcon color='error' />,
+                  icon: <DeleteIcon color={theme.palette.error.dark} />,
                   cy: 'provision-delete'
                 }
               ]

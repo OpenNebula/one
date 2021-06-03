@@ -1,11 +1,11 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react'
 
-import {
-  ArrowBackIosOutlined as BackIcon,
-  ShoppingCartOutlined as MarketplaceIcon,
-  InsertDriveFileOutlined as TemplateIcon
-} from '@material-ui/icons'
 import { makeStyles, IconButton, Button, Fade } from '@material-ui/core'
+import {
+  NavArrowLeft as BackIcon,
+  SimpleCart as MarketplaceIcon,
+  EmptyPage as TemplateIcon
+} from 'iconoir-react'
 import DockerLogo from 'client/icons/docker'
 
 import { T } from 'client/constants'

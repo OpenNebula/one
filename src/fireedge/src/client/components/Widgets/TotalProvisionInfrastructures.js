@@ -1,11 +1,11 @@
 import * as React from 'react'
 
 import {
-  Storage as ClusterIcon,
-  Computer as HostIcon,
-  FolderOpen as DatastoreIcon,
-  AccountTree as NetworkIcon
-} from '@material-ui/icons'
+  Server as ClusterIcon,
+  HardDrive as HostIcon,
+  Folder as DatastoreIcon,
+  NetworkAlt as NetworkIcon
+} from 'iconoir-react'
 
 import { useOne } from 'client/features/One'
 import Count from 'client/components/Count'

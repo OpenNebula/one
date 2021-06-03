@@ -11,7 +11,7 @@ import {
   IconButton,
   makeStyles
 } from '@material-ui/core'
-import { Close as CloseIcon } from '@material-ui/icons'
+import { Cancel as CancelIcon } from 'iconoir-react'
 
 import { SubmitButton } from 'client/components/FormControl'
 import { Tr } from 'client/components/HOC'
@@ -73,7 +73,7 @@ const DialogConfirmation = memo(
               data-cy='dg-cancel-button'
               {...cancelButtonProps}
             >
-              <CloseIcon />
+              <CancelIcon />
             </IconButton>
           )}
         </DialogTitle>

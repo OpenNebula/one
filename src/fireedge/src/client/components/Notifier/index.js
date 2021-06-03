@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 
 import { useSnackbar } from 'notistack'
 import { IconButton } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
+import { Cancel as CloseIcon } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
 
 const CloseButton = ({ handleClick }) => (
   <IconButton onClick={handleClick} component="span">
-    <CloseIcon fontSize="small" />
+    <CloseIcon size='1em' />
   </IconButton>
 )
 

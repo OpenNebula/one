@@ -1,9 +1,13 @@
 import React, { memo, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
-import { CheckBox, CheckBoxOutlineBlank, Visibility } from '@material-ui/icons'
 import clsx from 'clsx'
+import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
+import {
+  Check as CheckIcon,
+  Square as BlankSquareIcon,
+  EyeEmpty as EyeIcon
+} from 'iconoir-react'
 
 import { useProviderApi } from 'client/features/One'
 import { Action } from 'client/components/Cards/SelectCard'
@@ -30,11 +34,11 @@ const Info = memo(({ fetchProps }) => {
   const hasConnection = connection && Object.keys(connection).length > 0
 
   const isChecked = checked =>
-    checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
+    checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
 
   const ConnectionButton = () => (
     <Action
-      icon={<Visibility />}
+      icon={<EyeIcon />}
       cy='provider-connection'
       handleClick={() => getProviderConnection(ID).then(setShowConnection)}
     />

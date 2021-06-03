@@ -1,5 +1,5 @@
-import { Ballot as BallotIcon, Computer as VmIcon } from '@material-ui/icons'
 import loadable from '@loadable/component'
+import { Code as DevIcon } from 'iconoir-react'
 
 const TestApi = loadable(() => import('client/containers/TestApi'), { ssr: false })
 const WebConsole = loadable(() => import('client/containers/WebConsole'), { ssr: false })
@@ -16,7 +16,7 @@ export const ENDPOINTS = [
     path: PATH.TEST_API,
     devMode: true,
     sidebar: true,
-    icon: BallotIcon,
+    icon: DevIcon,
     Component: TestApi
   },
   {
@@ -24,7 +24,7 @@ export const ENDPOINTS = [
     path: PATH.WEB_CONSOLE,
     devMode: true,
     sidebar: true,
-    icon: BallotIcon,
+    icon: DevIcon,
     Component: WebConsole
   }
 ]

@@ -10,8 +10,7 @@ import {
   ListItemIcon,
   useMediaQuery
 } from '@material-ui/core'
-import ExpandLessIcon from '@material-ui/icons/ExpandLess'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { NavArrowRight as CollapseIcon, NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
 import { useGeneral } from 'client/hooks'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
@@ -35,7 +34,7 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
         )}
         <ListItemText primary={label} />
         {expanded ? (
-          <ExpandLessIcon
+          <CollapseIcon
             className={clsx({ [classes.expandIcon]: isUpLg && !isFixMenu })}
           />
         ) : (

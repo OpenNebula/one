@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { MenuItem, MenuList, Link } from '@material-ui/core'
-import AccountCircleIcon from '@material-ui/icons/AccountCircle'
+import { ProfileCircled as UserIcon } from 'iconoir-react'
 
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import HeaderPopover from 'client/components/Header/Popover'
@@ -20,7 +20,7 @@ const User = React.memo(() => {
     <HeaderPopover
       id='user-menu'
       buttonLabel={user?.NAME}
-      icon={<AccountCircleIcon />}
+      icon={<UserIcon />}
       buttonProps={{ 'data-cy': 'header-user-button', variant: 'outlined' }}
       disablePadding
     >

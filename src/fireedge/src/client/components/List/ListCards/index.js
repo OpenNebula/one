@@ -5,7 +5,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group'
 import {
   CardActionArea, Card, Grid, LinearProgress, useMediaQuery
 } from '@material-ui/core'
-import AddIcon from '@material-ui/icons/Add'
+import { Plus as PlusIcon } from 'iconoir-react'
 
 import { EmptyCard } from 'client/components/Cards'
 import FloatingActionButton from 'client/components/Fab'
@@ -38,12 +38,12 @@ const ListCards = ({
           <ButtonCreateComponent onClick={handleCreate} />
         ) : (
           isMobile ? (
-            <FloatingActionButton icon={<AddIcon />} onClick={handleCreate} />
+            <FloatingActionButton icon={<PlusIcon />} onClick={handleCreate} />
           ) : (
             <Grid item {...breakpoints}>
               <Card className={classes.cardPlus} raised>
                 <CardActionArea onClick={handleCreate}>
-                  <AddIcon />
+                  <PlusIcon />
                 </CardActionArea>
               </Card>
             </Grid>

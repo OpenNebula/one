@@ -9,7 +9,7 @@ import {
   Typography,
   Button
 } from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
+import { Cancel as CloseIcon } from 'iconoir-react'
 import clsx from 'clsx'
 
 import { Tr } from 'client/components/HOC'

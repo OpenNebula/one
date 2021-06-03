@@ -2,7 +2,8 @@ import React, { memo, useEffect, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles } from '@material-ui/core'
-import { Add as AddIcon, SelectAll as SelectAllIcon } from '@material-ui/icons'
+import { AddCircledOutline as AddIcon, Selection as SelectAllIcon } from 'iconoir-react'
+
 import ReactFlow, { Background } from 'react-flow-renderer'
 import { useFormContext } from 'react-hook-form'
 

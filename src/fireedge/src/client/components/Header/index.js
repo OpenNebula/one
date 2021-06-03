@@ -25,7 +25,7 @@ import {
   useMediaQuery
   // useScrollTrigger
 } from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu'
+import { Menu as MenuIcon } from 'iconoir-react'
 
 import { useAuth } from 'client/features/Auth'
 import { useGeneral, useGeneralApi } from 'client/features/General'

@@ -21,8 +21,9 @@ const useStyles = makeStyles(theme => {
       position: 'absolute',
       top: 0,
       right: 0,
-      fontSize: '10em',
-      fill: addOpacityToColor(theme.palette.common.white, 0.2)
+      '& > svg': {
+        color: addOpacityToColor(theme.palette.common.white, 0.2)
+      }
     },
     wave: {
       display: 'block',
@@ -58,7 +59,11 @@ const WavesCard = React.memo(({ text, value, bgColor, icon: Icon }) => {
       <Typography variant='h4'>{value}</Typography>
       <span className={clsx(classes.wave, classes.wave1)} />
       <span className={clsx(classes.wave, classes.wave2)} />
-      {Icon && <Icon className={classes.icon} />}
+      {Icon && (
+        <span className={classes.icon}>
+          <Icon size='9em' />
+        </span>
+      )}
     </Paper>
   )
 }, (prev, next) => prev.value === next.value)

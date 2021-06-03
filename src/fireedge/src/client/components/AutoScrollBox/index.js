@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, Chip, Slide } from '@material-ui/core'
-import ArrowBottomIcon from '@material-ui/icons/VerticalAlignBottom'
+import { Download as GoToBottomIcon } from 'iconoir-react'
 
 const useStyles = makeStyles(theme => ({
   scrollable: {
@@ -95,7 +95,7 @@ const AutoScrollBox = memo(({
         <Slide in={!autoScroll} direction="down" mountOnEnter unmountOnExit>
           <div className={classes.wrapperButton}>
             <Chip
-              avatar={<ArrowBottomIcon style={{ backgroundColor: 'transparent' }} />}
+              avatar={<GoToBottomIcon />}
               color='secondary'
               className={classes.button}
               label={autoButtonText}

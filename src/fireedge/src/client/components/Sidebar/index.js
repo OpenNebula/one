@@ -25,7 +25,7 @@ import {
   IconButton,
   useMediaQuery
 } from '@material-ui/core'
-import { Menu as MenuIcon, Close as CloseIcon } from '@material-ui/icons'
+import { Menu as MenuIcon, Cancel as CloseIcon } from 'iconoir-react'
 
 import { useGeneral, useGeneralApi } from 'client/features/General'
 import sidebarStyles from 'client/components/Sidebar/styles'
