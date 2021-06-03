@@ -199,4 +199,24 @@ CommandParser::CmdParser.new(ARGV) do
             o.rename(args[1])
         end
     end
+
+    enable_desc = <<-EOT.unindent
+        Enables the marketplace
+    EOT
+
+    command :enable, enable_desc, [:range, :marketplaceid_list] do
+        helper.perform_actions(args[0], options, 'enabled') do |obj|
+            obj.enable
+        end
+    end
+
+    disable_desc = <<-EOT.unindent
+        Disables the marketplace. Remove all its apps.
+    EOT
+
+    command :disable, disable_desc, [:range, :marketplaceid_list] do
+        helper.perform_actions(args[0], options, 'disabled') do |obj|
+            obj.disable
+        end
+    end
 end

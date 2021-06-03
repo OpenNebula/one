@@ -52,6 +52,7 @@
 #include "RequestManagerSecurityGroup.h"
 #include "RequestManagerVNTemplate.h"
 #include "RequestManagerHook.h"
+#include "RequestManagerMarketPlace.h"
 
 #include "RequestManagerSystem.h"
 #include "RequestManagerProxy.h"
@@ -1058,6 +1059,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::method * market_chmod_pt;
     xmlrpc_c::method * market_chown_pt;
     xmlrpc_c::method * market_rename_pt;
+    xmlrpc_c::method * market_enable_pt;
 
     if (nebula.is_federation_slave())
     {
@@ -1066,6 +1068,7 @@ void RequestManager::register_xml_methods()
         market_chmod_pt    = new RequestManagerProxy("one.market.chmod");
         market_chown_pt    = new RequestManagerProxy("one.market.chown");
         market_rename_pt   = new RequestManagerProxy("one.market.rename");
+        market_enable_pt   = new RequestManagerProxy("one.market.enable");
     }
     else
     {
@@ -1074,6 +1077,7 @@ void RequestManager::register_xml_methods()
         market_chmod_pt    = new MarketPlaceChmod();
         market_chown_pt    = new MarketPlaceChown();
         market_rename_pt   = new MarketPlaceRename();
+        market_enable_pt   = new MarketPlaceEnable();
 
         xmlrpc_c::methodPtr market_updatedb(new MarketPlaceUpdateDB());
         xmlrpc_c::methodPtr market_allocatedb(new MarketPlaceAllocateDB());
@@ -1091,6 +1095,7 @@ void RequestManager::register_xml_methods()
     xmlrpc_c::methodPtr market_chmod(market_chmod_pt);
     xmlrpc_c::methodPtr market_chown(market_chown_pt);
     xmlrpc_c::methodPtr market_rename(market_rename_pt);
+    xmlrpc_c::methodPtr market_enable(market_enable_pt);
 
     xmlrpc_c::methodPtr market_info(new MarketPlaceInfo());
     xmlrpc_c::methodPtr marketpool_info(new MarketPlacePoolInfo());
@@ -1103,6 +1108,7 @@ void RequestManager::register_xml_methods()
 
     RequestManagerRegistry.addMethod("one.market.info", market_info);
     RequestManagerRegistry.addMethod("one.market.rename", market_rename);
+    RequestManagerRegistry.addMethod("one.market.enable", market_enable);
 
     RequestManagerRegistry.addMethod("one.marketpool.info", marketpool_info);
 

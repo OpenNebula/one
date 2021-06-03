@@ -48,6 +48,7 @@ source_files=[
     'RequestManagerZone.cc',
     'RequestManagerDatastore.cc',
     'RequestManagerLock.cc',
+    'RequestManagerMarketPlace.cc',
     'RequestManagerMarketPlaceApp.cc',
     'RequestManagerVirtualRouter.cc',
     'RequestManagerSecurityGroup.cc',

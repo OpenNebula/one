@@ -36,6 +36,12 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
         "onemarket.yaml"
     end
 
+    def self.state_to_str(id)
+        state_str = MarketPlace::MARKETPLACE_STATES[id.to_i]
+
+        MarketPlace::SHORT_MARKETPLACE_STATES[state_str]
+    end
+
     def format_pool(options)
         config_file = self.class.table_conf
 
@@ -86,7 +92,11 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
                 d["ZONE_ID"]
             end
 
-            default :ID, :NAME, :SIZE, :AVAIL, :APPS, :MAD, :ZONE
+            column :STAT, 'Markeplace status', :left, :size => 4 do |d|
+                OneMarketPlaceHelper.state_to_str(d['STATE'])
+            end
+
+            default :ID, :NAME, :SIZE, :AVAIL, :APPS, :MAD, :ZONE, :STAT
         end
 
         table
@@ -116,6 +126,7 @@ class OneMarketPlaceHelper < OpenNebulaHelper::OneHelper
         puts str % ["NAME",  market.name]
         puts str % ["USER",  market['UNAME']]
         puts str % ["GROUP", market['GNAME']]
+        puts str % ["STATE", market.state_str]
 
         puts str % ["MARKET_MAD", market['MARKET_MAD']]
         puts

@@ -29,7 +29,15 @@ module OpenNebula
             :update     => "market.update",
             :chown      => "market.chown",
             :chmod      => "market.chmod",
-            :rename     => "market.rename"
+            :rename     => "market.rename",
+            :enable     => "market.enable"
+        }
+
+        MARKETPLACE_STATES=%w{ENABLED DISABLED}
+
+        SHORT_MARKETPLACE_STATES={
+            "ENABLED"              => "on",
+            "DISABLED"             => "off"
         }
 
         # Creates a MarketPlace description with just its identifier
@@ -130,12 +138,32 @@ module OpenNebula
         # @return [nil, OpenNebula::Error] nil in case of success, Error
         #   otherwise
         def rename(name)
-            return call(MARKETPLACE_METHODS[:rename], @pe_id, name)
+            call(MARKETPLACE_METHODS[:rename], @pe_id, name)
+        end
+
+        # Enables this marketplace
+        def enable
+            call(MARKETPLACE_METHODS[:enable], @pe_id, true)
+        end
+
+        # Enables this marketplace
+        def disable
+            call(MARKETPLACE_METHODS[:enable], @pe_id, false)
         end
 
         # ---------------------------------------------------------------------
         # Helpers to get information
         # ---------------------------------------------------------------------
+
+        # Returns the state of the Zone (numeric value)
+        def state
+            self['STATE'].to_i
+        end
+
+        # Returns the state of the Zone (string value)
+        def state_str
+            MARKETPLACE_STATES[state]
+        end
 
         # Returns whether or not the marketplace app with id 'id' is part of
         # this marketplace
