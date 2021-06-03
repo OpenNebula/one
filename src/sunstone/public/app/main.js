@@ -102,7 +102,7 @@ require.config({
     "sprintf": "../bower_components/sprintf/dist/sprintf.min",
 
     /* socket.io-client */
-    "socket-io-client": "../bower_components/socket.io-client/dist/socket.io.slim",
+    "socket-io-client": "../bower_components/socket.io-client/dist/socket.io.min",
 
     /* ace editor */
     "ace-builds": "../bower_components/ace-builds/ace"

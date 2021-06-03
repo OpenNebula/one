@@ -31,7 +31,17 @@ const websockets = (appServer = {}) => {
     appServer.constructor.name &&
     appServer.constructor.name === 'Server'
   ) {
-    const io = socketIO({ path: defaultEndpointWebsocket }).listen(appServer)
+    const io = socketIO(
+      {
+        path: defaultEndpointWebsocket,
+        cors: {
+          origin: '*',
+          methods: ['GET', 'POST'],
+          credentials: true
+        }
+      }
+    ).listen(appServer)
+
     defaultFilesWebsockets.forEach(file => {
       try {
         // eslint-disable-next-line global-require
