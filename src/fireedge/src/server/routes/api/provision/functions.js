@@ -17,7 +17,7 @@ const { dirname, basename } = require('path')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const events = require('events')
-const { Document, scalarOptions } = require('yaml')
+const { Document, scalarOptions, stringify } = require('yaml')
 const {
   writeFileSync,
   removeSync,
@@ -156,7 +156,7 @@ const createYMLContent = (content = '') => {
     } else {
       doc.contents = undefined
     }
-    rtn = doc
+    rtn = stringify(doc.contents)
   } catch (error) {
     messageTerminal(defaultError((error && error.message) || ''))
   }
