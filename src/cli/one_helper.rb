@@ -2164,10 +2164,10 @@ EOT
             when 'number', 'number-float'
                 if type == 'number'
                     header += 'Integer: '
-                    exp = INT_EXP
+                    exp = OneTemplateHelper::INT_EXP
                 else
                     header += 'Float: '
-                    exp = FLOAT_EXP
+                    exp = OneTemplateHelper::FLOAT_EXP
                 end
 
                 begin
@@ -2193,13 +2193,13 @@ EOT
                 end
 
                 if type == 'range'
-                    exp = INT_EXP
+                    exp = OneTemplateHelper::INT_EXP
                     min = min.to_i
                     max = max.to_i
 
                     header += "Integer in the range [#{min}..#{max}]: "
                 else
-                    exp = FLOAT_EXP
+                    exp = OneTemplateHelper::FLOAT_EXP
                     min = min.to_f
                     max = max.to_f
 
