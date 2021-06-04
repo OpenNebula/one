@@ -64,32 +64,6 @@ module OneProvision
             Base64.strict_encode64(user_data)
         end
 
-        # Add configuration variables to host template
-        #
-        # @param host [OneProvision::Host] Host information
-        def add_host_vars(host)
-            host.one.add_element(
-                '//TEMPLATE',
-                'ANSIBLE_HOST_VARS' => "private_ip=#{private_ip(host)}"
-            )
-        end
-
-        private
-
-        # Get private IP of an instance
-        #
-        # @param host [OneProvision::Host] Host information
-        #
-        # @return [String] Instance private IP
-        def private_ip(host)
-            v = ::Vultr.new(@provider.connection['KEY'])
-            i = v.instance(host.one['TEMPLATE/PROVISION/DEPLOY_ID'])
-
-            raise OneProvisionLoopException i if ::VultrError.error?(i)
-
-            i['internal_ip']
-        end
-
     end
 
 end

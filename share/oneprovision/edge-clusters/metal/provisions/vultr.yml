@@ -36,7 +36,7 @@ extends:
 # ansible/vultr.yml for the specific roles applied.
 #-------------------------------------------------------------------------------
 playbook:
-  - vultr
+  - vultr_metal
 
 #-------------------------------------------------------------------------------
 # defaults: Common configuration attributes for provision objects

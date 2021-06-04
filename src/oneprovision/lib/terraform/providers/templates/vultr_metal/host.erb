@@ -14,10 +14,10 @@ resource "vultr_bare_metal_server" "device_<%= obj['ID'] %>" {
 }
 
 output "ip_<%= obj['ID'] %>" {
-    value = vultr_instance.device_<%= obj['ID'] %>.main_ip
+    value = vultr_bare_metal_server.device_<%= obj['ID'] %>.main_ip
 }
 
 output "device_id_<%= obj['ID'] %>" {
-    value = vultr_instance.device_<%= obj['ID'] %>.id
+    value = vultr_bare_metal_server.device_<%= obj['ID'] %>.id
 }
 

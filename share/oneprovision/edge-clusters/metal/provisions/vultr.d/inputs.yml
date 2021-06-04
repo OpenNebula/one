@@ -34,7 +34,7 @@ inputs:
   - name: 'vultr_plan'
     type: text
     description: "Vultr plan (device type)"
-    default: 'vc2-1c-1gb'
+    default: 'vbm-8c-132gb'
 
   - name: 'vultr_os'
     type: text
