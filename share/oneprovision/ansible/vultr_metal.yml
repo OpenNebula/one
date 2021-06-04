@@ -1,0 +1,23 @@
+---
+
+- hosts: all
+  gather_facts: false
+  roles:
+    - python
+
+- hosts: nodes
+  roles:
+    - ddc
+    - opennebula-repository
+    - { role: opennebula-node-kvm, when: oneprovision_hypervisor == 'kvm'  or oneprovision_hypervisor == 'qemu' }
+    - { role: opennebula-node-firecracker, when: oneprovision_hypervisor == 'firecracker' }
+    - { role: opennebula-node-lxc, when: oneprovision_hypervisor == 'lxc' }
+    - opennebula-ssh
+    - role: iptables
+      iptables_base_rules_services:
+        - { protocol: 'tcp', port: 22 }
+        # TCP/179 bgpd (TODO: only needed on Route Refector(s))
+        - { protocol: 'tcp', port: 179 }
+        # TCP/8742 default VXLAN port on Linux (UDP/4789 default IANA)
+        - { protocol: 'udp', port: 8472 }
+    - update-replica
