@@ -56,32 +56,59 @@ const configFile = {
   ext: 'yaml'
 }
 const regexp = /^ID: \d+/
+const regexpStartJSON = /^{/
+const regexpEndJSON = /}$/
+const regexpSplitLine = /\r|\n/
 const relName = 'provision-mapping'
 const ext = 'yml'
 const appendError = '.ERROR'
 
-const executeWithEmit = (command = [], actions = {}, id = '') => {
+const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
   let rtn = false
   if (
     command &&
     Array.isArray(command) &&
     command.length > 0 &&
-    actions
+    actions &&
+    dataForLog
   ) {
     const err = actions.err && typeof actions.err === 'function' ? actions.err : () => undefined
     const out = actions.out && typeof actions.out === 'function' ? actions.out : () => undefined
     const close = actions.close && typeof actions.close === 'function' ? actions.close : () => undefined
 
+    // data for log
+    const id = (dataForLog && dataForLog.id) || ''
+    const commandName = (dataForLog && dataForLog.command) || ''
+
     let lastLine = ''
     const uuid = v4()
 
+    let pendingMessages = ''
+
     // send data of command
     const emit = (message, callback = () => undefined) => {
-      message.toString().split(/\r|\n/).map(line => {
+      const publisher = (line = '') => {
+        const resposeData = callback(line, uuid) || { id, data: line, command: commandName, commandId: uuid }
+        publish(defaultCommandProvision, resposeData)
+      }
+      message.toString().split(regexpSplitLine).map(line => {
         if (line) {
-          lastLine = line
-          const resposeData = callback(lastLine, uuid) || { id, data: lastLine, command: command, commandId: uuid }
-          publish(defaultCommandProvision, resposeData)
+          if (
+            (regexpStartJSON.test(line) && regexpEndJSON.test(line)) ||
+            (!regexpStartJSON.test(line) && !regexpEndJSON.test(line) && pendingMessages.length === 0)
+          ) {
+            lastLine = line
+            publisher(lastLine)
+          } else if (
+            (regexpStartJSON.test(line) && !regexpEndJSON.test(line)) ||
+            (!regexpStartJSON.test(line) && !regexpEndJSON.test(line) && pendingMessages.length > 0)
+          ) {
+            pendingMessages += line
+          } else {
+            lastLine = pendingMessages + line
+            publisher(lastLine)
+            pendingMessages = ''
+          }
         }
       })
     }
@@ -122,7 +149,7 @@ const logData = (id, fullPath = false) => {
         existsFile(
           stringPath,
           filedata => {
-            rtn = { uuid, log: filedata.split(/\r|\n/) }
+            rtn = { uuid, log: filedata.split(regexpSplitLine) }
             if (fullPath) {
               rtn.fullPath = stringPath
             }
@@ -406,7 +433,11 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
     }
 
     // execute Async Command
-    const executedCommand = executeWithEmit(paramsCommand, { close, out: emit, err: emit }, params.id)
+    const executedCommand = executeWithEmit(
+      paramsCommand,
+      { close, out: emit, err: emit },
+      { id: params.id, command }
+    )
 
     // response Http
     res.locals.httpCode = httpResponse(executedCommand ? accepted : internalServerError, params.id)
@@ -541,8 +572,11 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
                 renameFolder(config.path, appendError, 'append')
               }
             }
-
-            executeWithEmit(paramsCommand, { close, out: emit, err: emit })
+            executeWithEmit(
+              paramsCommand,
+              { close, out: emit, err: emit },
+              { command }
+            )
           }
 
           existsFile(
@@ -595,7 +629,11 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
     }
 
     // execute Async Command
-    const executedCommand = executeWithEmit(paramsCommand, { close, out: emit, err: emit }, params.id)
+    const executedCommand = executeWithEmit(
+      paramsCommand,
+      { close, out: emit, err: emit },
+      { id: params.id, command }
+    )
 
     // response Http
     res.locals.httpCode = httpResponse(executedCommand ? accepted : internalServerError, params.id)
@@ -632,7 +670,11 @@ const configureHost = (res = {}, next = () => undefined, params = {}, userData =
     }
 
     // execute Async Command
-    const executedCommand = executeWithEmit(paramsCommand, { close, out: emit, err: emit }, params.id)
+    const executedCommand = executeWithEmit(
+      paramsCommand,
+      { close, out: emit, err: emit },
+      { id: params.id, command: `host ${command}` }
+    )
 
     // response Http
     res.locals.httpCode = httpResponse(executedCommand ? accepted : internalServerError, params.id)
