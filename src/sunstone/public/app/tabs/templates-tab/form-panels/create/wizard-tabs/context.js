@@ -54,6 +54,7 @@ define(function(require) {
 
     this.wizardTabId = WIZARD_TAB_ID + UniqueId.id();
     this.icon = "fa-folder";
+    this.type = "VM_TEMPLATE";
     this.title = Locale.tr("Context");
     this.classes = "hypervisor";
     this.templateVcenterCustomizationSpec = "";
@@ -94,9 +95,12 @@ define(function(require) {
   function _onShow(context, panelForm) {
   }
 
-  function _setup(context) {
-    var that = this;
+  function _setup(context, type) {
+    if(type){
+      this.type = type;
+    }
 
+    var that = this;
     $("input[name='context_type']", context).on("change", function() {
       $(".context_type", context).hide();
       $("."+$(this).val(), context).show();
@@ -337,15 +341,38 @@ define(function(require) {
           OpenNebula.Image.list({
             timeout: true,
             success: function(request, obj_files){
-
-              while (match = file_ds_regexp.exec(value.replace(/"/g, ""))) {
-                $.each(obj_files, function(key, value){
-                  if(value.IMAGE.NAME.replace(/"/g, "") == match[1] && value.IMAGE.UNAME == match[2]){
-                    files.push(value.IMAGE.ID);
-                    return false;
+              if(that.type === "VM"){
+                if(value){
+                  var pathFiles = value.split(" ");
+                  if(Array.isArray(pathFiles)){
+                    pathFiles.forEach(function(pathFile){
+                      if(pathFile){
+                        var nameFile = pathFile.split(/:'(\w+)'$/gi);
+                        if(nameFile && nameFile[1]){
+                          var find_id = obj_files.find(
+                            function(element){
+                              return element && element.IMAGE && element.IMAGE.NAME && element.IMAGE.NAME === nameFile[1];
+                            }
+                          );
+                          if(find_id && find_id.IMAGE && find_id.IMAGE.ID){
+                            files.push(find_id.IMAGE.ID);
+                          }
+                        }
+                      }
+                    });
                   }
-                });
+                }
+              }else{
+                while (match = file_ds_regexp.exec(value.replace(/"/g, ""))) {
+                  $.each(obj_files, function(key, value){
+                    if(value.IMAGE.NAME.replace(/"/g, "") == match[1] && value.IMAGE.UNAME == match[2]){
+                      files.push(value.IMAGE.ID);
+                      return false;
+                    }
+                  });
+                }
               }
+
               var selectedResources = {
                 ids : files
               };
@@ -370,6 +397,7 @@ define(function(require) {
   }
 
   function _generateContextFiles(context) {
+    var that = this;
     var req_string=[];
     var selected_files = this.contextFilesTable.retrieveResourceTableSelect();
     if(selected_files.length != 0){
