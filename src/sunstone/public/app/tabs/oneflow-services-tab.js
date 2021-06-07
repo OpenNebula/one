@@ -26,6 +26,7 @@ define(function(require) {
 
   var _dialogs = [
     require('./oneflow-services-tab/dialogs/scale'),
+    require('./oneflow-services-tab/dialogs/add'),
   ];
 
   var _panels = [

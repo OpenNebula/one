@@ -29,6 +29,8 @@ define(function(require) {
 
   var ROLES_PANEL_ID = require('./panels/roles/panelId');
   var SCALE_DIALOG_ID = require('./dialogs/scale/dialogId');
+  var ADD_DIALOG_ID = require('./dialogs/add/dialogId');
+  var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var CREATE_DIALOG_ID = require('./form-panels/create/formPanelId');
   var UPDATE_DIALOG_ID = require('./form-panels/update/formPanelId');
 
@@ -315,6 +317,84 @@ define(function(require) {
       elements: roleElements,
       error: Notifier.onError,
       notify: true
+    },
+
+    "Role.remove_dialog" : {
+      type: "custom",
+      call: function(){
+        params = roleElement();
+
+        if(!params.serviceId || !params.roleName) {
+          Notifier.onError("Select one role");
+          return;
+        }
+
+        var obj = {
+          "action": {
+            "perform":"remove_role",
+            "params" : {
+              "role" : params.roleName
+            }
+          }
+        }
+
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).setParams({
+          header : Locale.tr("Confirm"),
+          headerTabId: TAB_ID,
+          body : "",
+          question : Locale.tr("Are you sure you want to delete the role") + " <b>" + params.roleName + "</b>?",
+          buttons : [
+            Locale.tr("Confirm"),
+          ],
+          submit : [
+            function(){
+              Sunstone.getDialog(CONFIRM_DIALOG_ID).hide();
+              Sunstone.runAction('Role.remove', params.serviceId, obj);
+              return false;
+            }
+          ]
+        });
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).reset();
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).show();
+      }
+    },
+
+    "Role.remove" : {
+      type: "single",
+      call: OpenNebulaRole.remove,
+      callback : function() {
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).hide();
+        roleCallback();
+      },
+      error: function(request, response) {
+        Sunstone.getDialog(CONFIRM_DIALOG_ID).hide();
+        Notifier.onError(request, response);
+      },
+      notify: true
+    },
+
+    "Role.add" : {
+      type: "single",
+      call: OpenNebulaRole.add,
+      callback : function() {
+        Sunstone.getDialog(ADD_DIALOG_ID).hide();
+        roleCallback();
+      },
+      error: function(request, response) {
+        Sunstone.getDialog(ADD_DIALOG_ID).hide();
+        Notifier.onError(request, response);
+      },
+      notify: true
+    },
+
+    "Role.add_dialog" : {
+      type: "custom",
+      call: function(){
+        params = roleElement();
+        
+        Sunstone.getDialog(ADD_DIALOG_ID).reset();
+        Sunstone.getDialog(ADD_DIALOG_ID).show();
+      }
     },
 
     //--------------------------------------------------------------------------

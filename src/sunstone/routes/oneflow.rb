@@ -121,6 +121,14 @@ post '/service/purge' do
     af_format_response(resp)
 end
 
+post '/service/:id/role_action' do
+    client = af_build_client
+    
+    resp = client.post('/service/' +  params[:id] + '/role_action' , @request_body)
+    
+    af_format_response(resp)
+end
+
 ##############################################################################
 # Service Template
 ##############################################################################

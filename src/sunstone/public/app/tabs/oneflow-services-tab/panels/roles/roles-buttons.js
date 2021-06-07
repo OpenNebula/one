@@ -89,6 +89,12 @@ define(function(require) {
       text: Locale.tr("Terminate") + ' <span class="label secondary radius">hard</span>',
       layout: "vmsdelete_buttons",
       custom_classes : "role-state-dependent"
+    },
+    "Role.remove_dialog" : {
+      type: "action",
+      text: Locale.tr("Remove Role"),
+      layout: "vmsdelete_buttons",
+      custom_classes : "role-state-dependent"
     }
   };
 
