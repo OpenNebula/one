@@ -93,7 +93,7 @@
     "luxon": "1.25.0",
     "marked": "2.0.0",
     "morgan": "1.10.0",
-    "notistack": "1.0.1",
+    "notistack": "1.0.9",
     "opennebula-guacamole": "1.0.0",
     "path": "0.12.7",
     "prop-types": "15.7.2",

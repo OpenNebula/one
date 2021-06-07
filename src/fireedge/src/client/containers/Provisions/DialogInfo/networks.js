@@ -8,7 +8,6 @@ import { useVNetworkApi, useProvisionApi } from 'client/features/One'
 import { useGeneralApi } from 'client/features/General'
 import { ListCards } from 'client/components/List'
 import { NetworkCard } from 'client/components/Cards'
-import * as Types from 'client/types/provision'
 
 const Networks = memo(
   ({ hidden, data, reloading, refetchProvision, disableAllActions }) => {
@@ -54,7 +53,7 @@ const Networks = memo(
 )
 
 Networks.propTypes = {
-  data: Types.Provision.isRequired,
+  data: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   refetchProvision: PropTypes.func,
   reloading: PropTypes.bool,

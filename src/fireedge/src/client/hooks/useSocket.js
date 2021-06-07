@@ -1,24 +1,20 @@
-import { useContext, useMemo } from 'react'
+import { useContext, useCallback } from 'react'
 
+import { SOCKETS } from 'client/constants'
 import { SocketContext } from 'client/providers/socketProvider'
-
-const SOCKETS = {
-  hooks: 'hooks',
-  provision: 'provision'
-}
 
 export default function useSocket () {
   const { socket, isConnected } = useContext(SocketContext)
 
-  const getHooks = useMemo(() => ({
-    on: (func) => isConnected && socket.on(SOCKETS.hooks, func),
-    off: () => isConnected && socket.off()
+  const getHooksSocket = useCallback(func => ({
+    on: () => isConnected && socket.on(SOCKETS.hooks, func),
+    off: () => isConnected && socket.off(SOCKETS.hooks, func)
   }), [socket, isConnected])
 
-  const getProvision = useMemo(() => ({
-    on: (func) => isConnected && socket.on(SOCKETS.provision, func),
-    off: () => isConnected && socket.off()
+  const getProvisionSocket = useCallback(func => ({
+    on: () => isConnected && socket.on(SOCKETS.provision, func),
+    off: () => isConnected && socket.off(SOCKETS.provision, func)
   }), [socket, isConnected])
 
-  return { isConnected, getHooks, getProvision }
+  return { isConnected, getHooksSocket, getProvisionSocket }
 }

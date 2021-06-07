@@ -27,7 +27,7 @@ function ProvisionCreateForm () {
 
   const [uuid, setUuid] = useState(undefined)
 
-  const { getProvision } = useSocket()
+  const { getProvisionSocket } = useSocket()
   const { getProviders } = useProviderApi()
   const { createProvision } = useProvisionApi()
   const { enqueueInfo } = useGeneralApi()
@@ -80,7 +80,7 @@ function ProvisionCreateForm () {
     return (
       <DebugLog
         uuid={uuid}
-        socket={getProvision}
+        socket={getProvisionSocket}
         title={(
           <div className={classes.titleWrapper}>
             <IconButton aria-label='back-to-list' size='medium'

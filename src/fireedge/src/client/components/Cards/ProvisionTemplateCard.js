@@ -3,9 +3,7 @@ import PropTypes from 'prop-types'
 
 import { Db as ProviderIcon, SettingsCloud as ProvisionIcon } from 'iconoir-react'
 
-import * as Types from 'client/types/provision'
 import { SelectCard } from 'client/components/Cards'
-
 import Image from 'client/components/Image'
 import { isExternalURL } from 'client/utils'
 import { PROVIDER_IMAGES_URL, PROVISION_IMAGES_URL } from 'client/constants'
@@ -49,10 +47,7 @@ ProvisionTemplateCard.propTypes = {
   isProvider: PropTypes.bool,
   isSelected: PropTypes.bool,
   isValid: PropTypes.bool,
-  value: PropTypes.oneOfType([
-    Types.ProviderTemplate,
-    Types.ProvisionTemplate
-  ])
+  value: PropTypes.object
 }
 
 ProvisionTemplateCard.defaultProps = {

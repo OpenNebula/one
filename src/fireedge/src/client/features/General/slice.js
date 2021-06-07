@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/General/actions'
+import { generateKey } from 'client/utils'
 
 const initial = {
   zone: 0,
@@ -84,12 +85,12 @@ const { reducer } = createSlice({
           isLoading: false,
           notifications: [
             ...state.notifications,
-            {
-              key: new Date().getTime() + Math.random(),
+            (payload?.length > 0 && {
+              key: generateKey(),
               message: payload,
               options: { variant: 'error' }
-            }
-          ]
+            })
+          ].filter(Boolean)
         })
       )
   }

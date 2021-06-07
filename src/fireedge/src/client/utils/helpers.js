@@ -4,6 +4,8 @@ export const fakeDelay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 export const isExternalURL = url => RegExp(/^(http|https):/g).test(url)
 
+export const generateKey = () => new Date().getTime() + Math.random()
+
 export function sanitize (strings, ...values) {
   const dirty = strings.reduce((prev, next, i) =>
     `${prev}${next}${values[i] || ''}`, '')

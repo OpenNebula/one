@@ -50,16 +50,12 @@ const Webconsole = () => {
   const classes = useStyles()
   const [listening, setListening] = useState(false)
   const [response, setResponse] = useState([])
-  const { getHooks } = useSocket()
+  const { getHooksSocket } = useSocket()
 
   const toggleListening = () => setListening(list => !list)
 
   useEffect(() => {
-    listening
-      ? getHooks.on(data => setResponse(prev => [...prev, data]))
-      : getHooks.off()
-
-    return getHooks.off
+    listening && getHooksSocket(data => setResponse(prev => [...prev, data]))
   }, [listening])
 
   return (

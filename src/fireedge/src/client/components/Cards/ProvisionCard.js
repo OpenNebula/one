@@ -6,8 +6,8 @@ import { Db as ProviderIcon, Cloud as ProvisionIcon } from 'iconoir-react'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { StatusBadge } from 'client/components/Status'
 import Image from 'client/components/Image'
+
 import { isExternalURL } from 'client/utils'
-import * as Types from 'client/types/provision'
 import {
   PROVISIONS_STATES,
   PROVIDER_IMAGES_URL,
@@ -65,10 +65,7 @@ const ProvisionCard = memo(
 )
 
 ProvisionCard.propTypes = {
-  value: PropTypes.oneOfType([
-    Types.Provider,
-    Types.Provision
-  ]),
+  value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func,
   isProvider: PropTypes.bool,

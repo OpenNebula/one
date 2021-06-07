@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+import { socketEventState } from 'client/features/One/socket/actions'
+
 const initial = {
   requests: {},
 
@@ -35,6 +37,10 @@ const { actions, reducer } = createSlice({
   extraReducers: builder => {
     builder
       .addCase('logout', () => initial)
+      .addCase(
+        socketEventState.fulfilled,
+        (state, { payload }) => ({ ...state, ...payload })
+      )
       .addMatcher(
         ({ type }) => type.includes('/pool') && type.endsWith('/pending'),
         (state, { meta, type }) => {

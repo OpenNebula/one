@@ -6,10 +6,9 @@ import { LinearProgress } from '@material-ui/core'
 import { useFetch, useSocket } from 'client/hooks'
 import { useProvisionApi } from 'client/features/One'
 import DebugLog, { LogUtils } from 'client/components/DebugLog'
-import * as Types from 'client/types/provision'
 
 const Log = React.memo(({ hidden, data: { ID } }) => {
-  const { getProvision } = useSocket()
+  const { getProvisionSocket } = useSocket()
   const { getProvisionLog } = useProvisionApi()
 
   const {
@@ -33,14 +32,14 @@ const Log = React.memo(({ hidden, data: { ID } }) => {
   return loading ? (
     <LinearProgress color='secondary' style={{ width: '100%' }} />
   ) : (
-    <DebugLog uuid={uuid} socket={getProvision} logDefault={parsedLog} />
+    <DebugLog uuid={uuid} socket={getProvisionSocket} logDefault={parsedLog} />
   )
 }, (prev, next) =>
   prev.hidden === next.hidden && prev.reloading === next.reloading
 )
 
 Log.propTypes = {
-  data: Types.Provision.isRequired,
+  data: PropTypes.object.isRequired,
   hidden: PropTypes.bool,
   fetchRequest: PropTypes.func
 }
