@@ -19,28 +19,28 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var Locale = require('utils/locale');
-  var Sunstone = require('sunstone');
-  var Config = require('sunstone-config');
-  var TemplateUtils = require('utils/template-utils');
-  var StateActions = require('../utils/state-actions');
+  var Locale = require("utils/locale");
+  var Sunstone = require("sunstone");
+  var Config = require("sunstone-config");
+  var TemplateUtils = require("utils/template-utils");
+  var StateActions = require("../utils/state-actions");
 
   /*
     TEMPLATES
    */
 
-  var Template = require('hbs!./conf/html');
+  var Template = require("hbs!./conf/html");
 
   /*
     CONSTANTS
    */
 
-  var TAB_ID = require('../tabId');
-  var PANEL_ID = require('./conf/panelId');
+  var TAB_ID = require("../tabId");
+  var PANEL_ID = require("./conf/panelId");
   var RESOURCE = "VM";
   var XML_ROOT = "VM";
 
-  var UPDATECONF_FORM_ID = require('../form-panels/updateconf/formPanelId');
+  var UPDATECONF_FORM_ID = require("../form-panels/updateconf/formPanelId");
 
   /*
     CONSTRUCTOR
@@ -51,7 +51,12 @@ define(function(require) {
     this.title = Locale.tr("Conf");
     this.icon = "fa-cog";
 
-    this.element = info[XML_ROOT];
+    this.element = $.extend(
+      true,
+      {},
+      info[XML_ROOT]
+    );
+
 
     var conf = {};
     var template = this.element.TEMPLATE;
@@ -85,14 +90,13 @@ define(function(require) {
 
   function _setup(context) {
     var that = this;
-
     if (Config.isTabActionEnabled("vms-tab", "VM.updateconf")) {
       if (!StateActions.enabledStateAction("VM.updateconf", that.element.STATE, that.element.LCM_STATE)){
-        $('#vm_updateconf', context).attr("disabled", "disabled");
+        $("#vm_updateconf", context).attr("disabled", "disabled");
       }
 
-      context.off('click', '#vm_updateconf');
-      context.on('click', '#vm_updateconf', function() {
+      context.off("click", "#vm_updateconf");
+      context.on("click", "#vm_updateconf", function() {
         Sunstone.resetFormPanel(TAB_ID, UPDATECONF_FORM_ID);
 
         Sunstone.showFormPanel(TAB_ID, UPDATECONF_FORM_ID, "updateconf",

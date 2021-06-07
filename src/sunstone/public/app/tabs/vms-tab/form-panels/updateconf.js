@@ -19,26 +19,26 @@ define(function(require) {
     DEPENDENCIES
    */
 
-  var BaseFormPanel = require('utils/form-panels/form-panel');
-  var Sunstone = require('sunstone');
-  var Locale = require('utils/locale');
-  var Tips = require('utils/tips');
-  var TemplateUtils = require('utils/template-utils');
+  var BaseFormPanel = require("utils/form-panels/form-panel");
+  var Sunstone = require("sunstone");
+  var Locale = require("utils/locale");
+  var Tips = require("utils/tips");
+  var TemplateUtils = require("utils/template-utils");
 
   /*
     TEMPLATES
    */
 
-  var TemplateWizardHTML = require('hbs!./updateconf/wizard');
-  var TemplateAdvancedHTML = require('hbs!./updateconf/advanced');
+  var TemplateWizardHTML = require("hbs!./updateconf/wizard");
+  var TemplateAdvancedHTML = require("hbs!./updateconf/advanced");
 
   /*
     CONSTANTS
    */
 
-  var FORM_PANEL_ID = require('./updateconf/formPanelId');
-  var TAB_ID = require('../tabId');
-  var TEMPLATE_TAB_ID = require('tabs/templates-tab/tabId');
+  var FORM_PANEL_ID = require("./updateconf/formPanelId");
+  var TAB_ID = require("../tabId");
+  var TEMPLATE_TAB_ID = require("tabs/templates-tab/tabId");
   var WIZARD_TABS = [
     require('tabs/templates-tab/form-panels/create/wizard-tabs/os'),
     require('tabs/templates-tab/form-panels/create/wizard-tabs/context'),
@@ -53,10 +53,10 @@ define(function(require) {
     this.formPanelId = FORM_PANEL_ID;
     this.tabId = TAB_ID;
     this.actions = {
-      'updateconf': {
-        'title': Locale.tr("Update VM Configuration"),
-        'buttonText': Locale.tr("Update"),
-        'resetButton': false
+      "updateconf": {
+        "title": Locale.tr("Update VM Configuration"),
+        "buttonText": Locale.tr("Update"),
+        "resetButton": false
       }
     };
 
@@ -72,7 +72,7 @@ define(function(require) {
       } catch (err) {
         console.log(err);
       }
-    })
+    });
 
     BaseFormPanel.call(this);
   }
@@ -97,8 +97,8 @@ define(function(require) {
   function _htmlWizard() {
 
     return TemplateWizardHTML({
-      'formPanelId': this.formPanelId,
-      'wizardTabs': this.wizardTabs
+      "formPanelId": this.formPanelId,
+      "wizardTabs": this.wizardTabs
     });
   }
 
@@ -108,21 +108,20 @@ define(function(require) {
 
   function _setup(context) {
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.setup($('#' + wizardTab.wizardTabId, context));
+      wizardTab.setup($("#" + wizardTab.wizardTabId, context), "VM");
     });
 
-    $(".vm_updateconf_hide", context).remove();
-
-    Foundation.reflow(context, 'tabs');
-    Foundation.reflow(context, 'tooltip');
+    Foundation.reflow(context, "tabs");
+    Foundation.reflow(context, "tooltip");
+    Foundation.reflow(context, "tabs");
   }
 
   function _onShow(context) {
     var that = this;
-    $('a[href="#'+ that.wizardTabs[0].wizardTabId +'"]', context).trigger("click");
+    $("a[href=\"#"+ that.wizardTabs[0].wizardTabId +"\"]", context).trigger("click");
 
     $.each(that.wizardTabs, function(index, wizardTab) {
-      wizardTab.onShow($('#' + wizardTab.wizardTabId, context), that);
+      wizardTab.onShow($("#" + wizardTab.wizardTabId, context), that);
     });
   }
 
@@ -131,10 +130,10 @@ define(function(require) {
     var templateJSON = this.template;
     $.each(this.wizardTabs, function(index, wizardTab) {
       $.extend(
-        true, 
-        templateJSON, 
+        true,
+        templateJSON,
         wizardTab.retrieve(
-          $('#' + wizardTab.wizardTabId, context)
+          $("#" + wizardTab.wizardTabId, context)
         )
       );
     });
@@ -144,7 +143,7 @@ define(function(require) {
   }
 
   function _submitAdvanced(context) {
-    var template = $('textarea#template', context).val();
+    var template = $("textarea#template", context).val();
 
     Sunstone.runAction("VM.updateconf", this.resourceId, template);
     return false;
@@ -158,11 +157,11 @@ define(function(require) {
     var templateJSON = element.TEMPLATE;
 
     // Populates the Avanced mode Tab
-    $('#template', context).val(
+    $("#template", context).val(
       TemplateUtils.templateToString(templateJSON));
 
     $.each(this.wizardTabs, function(index, wizardTab) {
-      wizardTab.fill($('#' + wizardTab.wizardTabId, context), templateJSON);
+      wizardTab.fill($("#" + wizardTab.wizardTabId, context), templateJSON);
     });
 
     // After all tabs have been filled, perform a notify.
@@ -170,7 +169,7 @@ define(function(require) {
     // the disks and nics
     $.each(this.wizardTabs, function(index, wizardTab) {
       if (wizardTab.notify != undefined){
-        wizardTab.notify($('#' + wizardTab.wizardTabId, context), templateJSON);
+        wizardTab.notify($("#" + wizardTab.wizardTabId, context), templateJSON);
       }
     });
   }
