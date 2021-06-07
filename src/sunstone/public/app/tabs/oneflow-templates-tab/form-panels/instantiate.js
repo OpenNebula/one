@@ -24,7 +24,7 @@ define(function(require) {
   var Sunstone = require("sunstone");
   var Locale = require("utils/locale");
   var Tips = require("utils/tips");
-  var OpenNebulaAction = require('opennebula/action');
+  var OpenNebulaAction = require("opennebula/action");
   var OpenNebulaServiceTemplate = require("opennebula/servicetemplate");
   var OpenNebulaTemplate = require("opennebula/template");
   var Notifier = require("utils/notifier");
@@ -47,7 +47,7 @@ define(function(require) {
   var FORM_PANEL_ID = require("./instantiate/formPanelId");
   var TAB_ID = require("../tabId");
   var vm_group = "VM_GROUP";
-  var classButton = 'small button leases right radius';
+  var classButton = "small button leases right radius";
 
   /*
     CONSTRUCTOR
@@ -85,19 +85,19 @@ define(function(require) {
 
   function _html() {
     var values_hbs = {
-      'formPanelId': this.formPanelId,
-      'userInputsHTML': UserInputs.html(),
+      "formPanelId": this.formPanelId,
+      "userInputsHTML": UserInputs.html(),
     };
     if(config && config.system_config && config.system_config.leases){
       values_hbs.userInputsCharters = $("<div/>").append(
         $("<div/>",{style:"display:inline-block;clear:both;width:100%"}).append(
           $("<button />", {class: classButton, id:"addCharters"}).append(
-            $("<i/>", {class: 'fa fa-clock'})
+            $("<i/>", {class: "fa fa-clock"})
           )
         ).add(
           $("<table/>", {class: "service-charters"})
         )
-      ).prop('outerHTML');
+      ).prop("outerHTML");
     }
     return TemplateHTML(values_hbs);
   }
@@ -149,7 +149,7 @@ define(function(require) {
       });
     }
 
-    var vmgroups = OpenNebulaAction.cache(vm_group)
+    var vmgroups = OpenNebulaAction.cache(vm_group);
     if(!vmgroups){
       Sunstone.runAction("VMGroup.list");
     }
@@ -178,8 +178,8 @@ define(function(require) {
         var total_cost = 0;
         var vmgroup_title = Locale.tr("Associate VM Group to Service");
         var setDisplayTitle = function(value=""){
-          vmgroup_title = value
-        }
+          vmgroup_title = value;
+        };
         $.each(template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
           var div_id = "user_input_role_"+index;
           if(vmgroup_title && that.display_vmgroups){
@@ -287,84 +287,85 @@ define(function(require) {
     if (n_times.length){
       n_times_int=parseInt(n_times,10);
     }
-
     var extra_info = ServiceUtils.getExtraInfo(
-      context, 
+      context,
       Config.isFeatureEnabled("show_vnet_instantiate_flow")
     );
-
+    var customAttrsValues = $.extend({}, extra_info.merge_template.custom_attrs_values);
     if(
-      that && 
-      that.service_template_json && 
+      that &&
+      that.service_template_json &&
       that.service_template_json.DOCUMENT &&
       that.service_template_json.DOCUMENT.TEMPLATE &&
-      that.service_template_json.DOCUMENT.TEMPLATE.BODY &&
-      that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles
+      that.service_template_json.DOCUMENT.TEMPLATE.BODY
     ){
-      var charters = "";
-      if(config && config.system_config && config.system_config.leases ){
-        $(".service-charters", context).find("tr").each(function(index){
-          var time = $(this).attr("data-time");
-          var action = $(this).attr("data-action");
-          if(time.length>0 && action.length>0){
-            charters += TemplateUtils.templateToString({SCHED_ACTION:{ACTION:action, TIME: time, ID: index.toString()}});
+      if(that.service_template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs){
+        var customAttrs = that.service_template_json.DOCUMENT.TEMPLATE.BODY.custom_attrs;
+        var optionalCustomAttrs = {};
+        Object.keys(customAttrs).forEach(function(customAttrKey){
+          customAttr = customAttrs[customAttrKey];
+          customAttrSplit = customAttr.split("|");
+          if(customAttrSplit[0] && customAttrSplit[0].toLowerCase() === "o"){
+            optionalCustomAttrs[customAttrKey] = (customAttrSplit[4] && customAttrSplit[4]!==undefined)? customAttrSplit[4] : "";
           }
         });
+        extra_info.merge_template.custom_attrs_values = $.extend({}, optionalCustomAttrs, extra_info.merge_template.custom_attrs_values);
       }
-
-      $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
-        var temp_role = {};
-        $.extend( temp_role, role);
-
-        var div_id = "user_input_role_"+index;
-        var tmp_json = {};
-
-        $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
-        $.each(tmp_json, function(key, value){
-          if (Array.isArray(value)){
-            delete tmp_json[key];
-            tmp_json[key] = value.join(",");
-          }
-        });
-
-        temp_role.user_inputs_values = tmp_json;
-        
-        var stringCustomValues = TemplateUtils.templateToString(extra_info.merge_template.custom_attrs_values);
-        if (stringCustomValues) {
-          (temp_role.vm_template_contents)
-            ? temp_role.vm_template_contents += stringCustomValues
-            : temp_role.vm_template_contents = stringCustomValues;
-        }
-
-        $("#instantiate_service_role_user_inputs").find("select").each(function(_, vm_group){
-          var element = $(vm_group);
-          rolevm_group = element.attr("data-role");
-          vm_group_value = element.children("option:selected").val();
-
-          if(rolevm_group && role.name && rolevm_group === role.name && vm_group_value){
-            if(temp_role.vm_template_contents === undefined){
-              temp_role.vm_template_contents = "";
+      if(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles){
+        var charters = "";
+        if(config && config.system_config && config.system_config.leases ){
+          $(".service-charters", context).find("tr").each(function(index){
+            var time = $(this).attr("data-time");
+            var action = $(this).attr("data-action");
+            if(time.length>0 && action.length>0){
+              charters += TemplateUtils.templateToString({SCHED_ACTION:{ACTION:action, TIME: time, ID: index.toString()}});
             }
-
-            temp_role.vm_template_contents += TemplateUtils.templateToString({
-              VMGROUP:{
-                ROLE: role.name,
-                VMGROUP_ID: vm_group_value
-              }
-            });
-          }
-        });
-
-        if(charters.length){
-          (temp_role.vm_template_contents !== undefined)
-            ? temp_role.vm_template_contents += charters
-            : temp_role.vm_template_contents = charters;
+          });
         }
-
-        extra_info.merge_template.roles.push(temp_role);
-      });
-
-      charters = "";
+        $.each(that.service_template_json.DOCUMENT.TEMPLATE.BODY.roles, function(index, role){
+          var temp_role = {};
+          $.extend( temp_role, role);
+          var div_id = "user_input_role_"+index;
+          var tmp_json = {};
+          $.extend( tmp_json, WizardFields.retrieve($("#"+div_id, context)) );
+          $.each(tmp_json, function(key, value){
+            if (Array.isArray(value)){
+              delete tmp_json[key];
+              tmp_json[key] = value.join(",");
+            }
+          });
+          temp_role.user_inputs_values = tmp_json;
+          var stringCustomValues = TemplateUtils.templateToString(customAttrsValues);
+          if (stringCustomValues) {
+            (temp_role.vm_template_contents)
+              ? temp_role.vm_template_contents += stringCustomValues
+              : temp_role.vm_template_contents = stringCustomValues;
+          }
+          $("#instantiate_service_role_user_inputs").find("select").each(function(_, vm_group){
+            var element = $(vm_group);
+            rolevm_group = element.attr("data-role");
+            vm_group_value = element.children("option:selected").val();
+            if(rolevm_group && role.name && rolevm_group === role.name && vm_group_value){
+              if(temp_role.vm_template_contents === undefined){
+                temp_role.vm_template_contents = "";
+              }
+              temp_role.vm_template_contents += TemplateUtils.templateToString({
+                VMGROUP:{
+                  ROLE: role.name,
+                  VMGROUP_ID: vm_group_value
+                }
+              });
+            }
+          });
+          if(charters.length){
+            (temp_role.vm_template_contents !== undefined)
+              ? temp_role.vm_template_contents += charters
+              : temp_role.vm_template_contents = charters;
+          }
+          extra_info.merge_template.roles.push(temp_role);
+        });
+        charters = "";
+      }
     }
     if (!service_name.length){ //empty name
       for (var i=0; i< n_times_int; i++){
