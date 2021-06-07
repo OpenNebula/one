@@ -2932,7 +2932,11 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
         string files_ds_new = context_new->vector_value("FILES_DS");
 
         context_new = context_new->clone();
-        context_new->remove("FILES_DS");
+
+        if (files_ds == files_ds_new)
+        {
+            context_new->remove("FILES_DS");
+        }
 
         context_new->replace("TARGET",  context_bck->vector_value("TARGET"));
         context_new->replace("DISK_ID", context_bck->vector_value("DISK_ID"));
@@ -2950,7 +2954,7 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
 
         context_new = obj_template->get("CONTEXT");
 
-        if ( !files_ds.empty() && !files_ds_new.empty())
+        if ((files_ds == files_ds_new) && !files_ds.empty())
         {
             context_new->replace("FILES_DS", files_ds);
         }
