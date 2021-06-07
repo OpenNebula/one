@@ -1,8 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux'
 
 import * as actions from 'client/features/General/actions'
-
-const generateKey = () => new Date().getTime() + Math.random()
+import { generateKey } from 'client/utils'
 
 export const useGeneral = () => (
   useSelector(state => state.general)
@@ -17,15 +16,6 @@ export const useGeneralApi = () => {
     changeTitle: title => dispatch(actions.changeTitle(title)),
     changeZone: zone => dispatch(actions.changeZone(zone)),
 
-    enqueueSnackbar: notification => {
-      const key = notification.options && notification.options.key
-
-      return dispatch(actions.enqueueSnackbar({
-        key: key || generateKey(),
-        message: String(notification.message) || '',
-        options: notification.options || {}
-      }))
-    },
     // dismiss all if no key has been defined
     dismissSnackbar: key => dispatch(
       actions.dismissSnackbar({ key, dismissAll: !key })
@@ -34,6 +24,13 @@ export const useGeneralApi = () => {
       actions.deleteSnackbar({ key })
     ),
 
+    enqueueSnackbar: ({ message, options = {} } = {}) => dispatch(
+      actions.enqueueSnackbar({
+        key: generateKey(),
+        message,
+        options
+      })
+    ),
     enqueueSuccess: message => dispatch(
       actions.enqueueSnackbar({
         key: generateKey(),
@@ -45,14 +42,14 @@ export const useGeneralApi = () => {
       actions.enqueueSnackbar({
         key: generateKey(),
         message,
-        options: { variant: 'success' }
+        options: { variant: 'error' }
       })
     ),
     enqueueInfo: message => dispatch(
       actions.enqueueSnackbar({
         key: generateKey(),
         message,
-        options: { variant: 'success' }
+        options: { variant: 'info' }
       })
     )
   }

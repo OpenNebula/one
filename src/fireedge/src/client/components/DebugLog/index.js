@@ -44,11 +44,13 @@ const DebugLog = memo(({ uuid, socket, logDefault, title }) => {
   }))
 
   useEffect(() => {
-    uuid && socket?.on((socketData = {}) => {
+    const { on, off } = socket((socketData = {}) => {
       socketData.id === uuid &&
         setLog(prevLog => LogUtils.concatNewMessageToLog(prevLog, socketData))
     })
-    return () => uuid && socket?.off()
+
+    uuid && on()
+    return off
   }, [])
 
   return (
@@ -68,10 +70,7 @@ const DebugLog = memo(({ uuid, socket, logDefault, title }) => {
 
 DebugLog.propTypes = {
   uuid: PropTypes.string,
-  socket: PropTypes.shape({
-    on: PropTypes.func.isRequired,
-    off: PropTypes.func.isRequired
-  }).isRequired,
+  socket: PropTypes.func.isRequired,
   logDefault: PropTypes.object,
   title: PropTypes.oneOfType([
     PropTypes.element,

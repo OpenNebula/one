@@ -17,6 +17,7 @@ import * as React from 'react'
 import { render } from 'react-dom'
 
 import { createStore } from 'client/store'
+import rootReducer from 'client/store/reducers'
 import App from 'client/dev/_app'
 
 const { store } = createStore({ initState: window.REDUX_DATA })
@@ -29,7 +30,5 @@ if (process.env.NODE_ENV === 'development' && module.hot) {
     render(<SyncApp store={store} />, document.getElementById('root'))
   })
 
-  module.hot.accept('../reducers', () => {
-    store.replaceReducer(require('../reducers').default)
-  })
+  module.hot.accept('../store/reducers', () => store.replaceReducer(rootReducer))
 }

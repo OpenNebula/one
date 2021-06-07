@@ -10,19 +10,19 @@ const useStyles = makeStyles(({ palette }) => ({
     wordBreak: 'break-all'
   },
   variantSuccess: {
-    backgroundColor: `${palette.success.main} !important`,
+    backgroundColor: palette.success.main,
     color: palette.success.contrastText
   },
   variantError: {
-    backgroundColor: `${palette.error.main} !important`,
+    backgroundColor: palette.error.main,
     color: palette.error.contrastText
   },
   variantInfo: {
-    backgroundColor: `${palette.debug.main} !important`,
+    backgroundColor: palette.debug.main,
     color: palette.debug.contrastText
   },
   variantWarning: {
-    backgroundColor: `${palette.warning.main} !important`,
+    backgroundColor: palette.warning.main,
     color: palette.warning.contrastText
   }
 }))

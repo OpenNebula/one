@@ -72,7 +72,13 @@ export const DEBUG_LEVEL = {
   DEBUG: 'DEBUG'
 }
 
+export const SOCKETS = {
+  hooks: 'hooks',
+  provision: 'provision'
+}
+
 export * as T from 'client/constants/translates'
+export * as STATES from 'client/constants/states'
 export * from 'client/constants/flow'
-export * from 'client/constants/states'
 export * from 'client/constants/provision'
+export * from 'client/constants/vm'

@@ -8,3 +8,14 @@ export const getVms = createAction(
   vmService.getVms,
   response => ({ vms: response })
 )
+
+export const terminateVm = createAction(
+  'provider/delete',
+  payload => vmService.actionVm({
+    ...payload,
+    action: {
+      params: { hard: false },
+      perform: 'terminate'
+    }
+  })
+)

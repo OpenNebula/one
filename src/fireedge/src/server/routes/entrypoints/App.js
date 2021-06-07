@@ -8,7 +8,7 @@ const { createStore, compose, applyMiddleware } = require('redux')
 const thunk = require('redux-thunk').default
 const { ServerStyleSheets } = require('@material-ui/core/styles')
 const { ChunkExtractor } = require('@loadable/server')
-const rootReducer = require('client/reducers')
+const rootReducer = require('client/store/reducers')
 const { getConfig } = require('server/utils/yml')
 const {
   availableLanguages, defaultWebpackMode, defaultApps, defaultFileStats
@@ -59,7 +59,7 @@ router.get('*', (req, res) => {
     const extractor = new ChunkExtractor({ statsFile })
 
     // SSR redux store
-    store = createStore(rootReducer(), composeEnhancer(applyMiddleware(thunk)))
+    store = createStore(rootReducer, composeEnhancer(applyMiddleware(thunk)))
     storeRender = `<script id="preloadState">window.__PRELOADED_STATE__ = ${
       JSON.stringify(store.getState()).replace(/</g, '\\u003c')
     }</script>`

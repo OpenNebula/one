@@ -1,37 +1,48 @@
-import React, { memo } from 'react'
+import React, { memo, useState } from 'react'
 import PropTypes from 'prop-types'
 
-import clsx from 'clsx'
 import { List, ListItem, Typography, Grid, Paper, Divider } from '@material-ui/core'
-import { Check as CheckIcon, Square as BlankSquareIcon } from 'iconoir-react'
+import { CheckBox, CheckBoxOutlineBlank, Visibility } from '@material-ui/icons'
+import clsx from 'clsx'
 
-import useStyles from 'client/containers/Provisions/DialogInfo/styles'
-import { StatusChip } from 'client/components/Status'
+import { useProviderApi } from 'client/features/One'
+import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
-import { T, PROVISIONS_STATES } from 'client/constants'
+import { T } from 'client/constants'
 
-const Info = memo(({ data = {} }) => {
+import useStyles from 'client/containers/Providers/Sections/styles'
+
+const Info = memo(({ data }) => {
   const classes = useStyles()
-  const { ID, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
-  const {
-    state,
-    description,
-    name,
-    provider: providerName,
-    start_time: time,
-    provision: { infrastructure = {} }
-  } = TEMPLATE?.BODY
+  const { getProviderConnection } = useProviderApi()
 
-  const { id: clusterId = '', name: clusterName = '' } = infrastructure?.clusters?.[0] ?? {}
-  const stateInfo = PROVISIONS_STATES[state]
+  const [showConnection, setShowConnection] = useState(undefined)
+
+  const { ID, NAME, GNAME, UNAME, PERMISSIONS, TEMPLATE } = data
+  const {
+    connection,
+    description,
+    provider: providerName,
+    registration_time: time
+  } = TEMPLATE?.PROVISION_BODY
+
+  const hasConnection = connection && Object.keys(connection).length > 0
 
   const isChecked = checked =>
-    checked === '1' ? <CheckIcon /> : <BlankSquareIcon />
+    checked === '1' ? <CheckBox /> : <CheckBoxOutlineBlank />
+
+  const ConnectionButton = () => (
+    <Action
+      icon={<Visibility />}
+      cy='provider-connection'
+      handleClick={() => getProviderConnection(ID).then(setShowConnection)}
+    />
+  )
 
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined'>
+        <Paper variant="outlined" className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Information)}</Typography>
@@ -43,37 +54,49 @@ const Info = memo(({ data = {} }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Name)}</Typography>
-              <Typography data-cy='provision-name'>{name}</Typography>
+              <Typography data-cy="provider-name">{NAME}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Description)}</Typography>
-              <Typography data-cy='provision-description' noWrap>{description}</Typography>
+              <Typography data-cy="provider-description" noWrap>{description}</Typography>
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.Provider)}</Typography>
-              <Typography data-cy='provider-name'>{providerName}</Typography>
+              <Typography data-cy="provider-type">{providerName}</Typography>
             </ListItem>
             <ListItem>
-              <Typography>{Tr(T.Cluster)}</Typography>
-              <Typography data-cy='provider-cluster'>{`${clusterId} - ${clusterName}`}</Typography>
-            </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.StartTime)}</Typography>
+              <Typography>{Tr(T.RegistrationTime)}</Typography>
               <Typography>
                 {new Date(time * 1000).toLocaleString()}
               </Typography>
             </ListItem>
-            <ListItem>
-              <Typography>{Tr(T.State)}</Typography>
-              <StatusChip stateColor={stateInfo?.color}>
-                {stateInfo?.name}
-              </StatusChip>
-            </ListItem>
           </List>
         </Paper>
+        {hasConnection && (
+          <Paper variant="outlined">
+            <List className={clsx(classes.list, 'w-50')}>
+              <ListItem className={classes.title}>
+                <Typography>{Tr(T.Credentials)}</Typography>
+                <span className={classes.alignToRight}>
+                  {!showConnection && <ConnectionButton />}
+                </span>
+              </ListItem>
+              <Divider />
+              {Object.entries(connection)?.map(([key, value]) =>
+                typeof value === 'string' && (
+                  <ListItem key={key}>
+                    <Typography>{key}</Typography>
+                    <Typography data-cy={`provider-${key}`}>
+                      {showConnection?.[key] ?? value}
+                    </Typography>
+                  </ListItem>
+                ))}
+            </List>
+          </Paper>
+        )}
       </Grid>
       <Grid item xs={12} md={6}>
-        <Paper variant='outlined' className={classes.permissions}>
+        <Paper variant="outlined" className={classes.marginBottom}>
           <List className={clsx(classes.list, 'w-25')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Permissions)}</Typography>
@@ -102,7 +125,7 @@ const Info = memo(({ data = {} }) => {
             </ListItem>
           </List>
         </Paper>
-        <Paper variant='outlined'>
+        <Paper variant="outlined">
           <List className={clsx(classes.list, 'w-50')}>
             <ListItem className={classes.title}>
               <Typography>{Tr(T.Ownership)}</Typography>
@@ -128,7 +151,7 @@ Info.propTypes = {
 }
 
 Info.defaultProps = {
-  data: undefined
+  data: {}
 }
 
 Info.displayName = 'Info'

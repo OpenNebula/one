@@ -21,7 +21,7 @@ function ApplicationsTemplates () {
   const { getApplicationsTemplates } = useApplicationTemplateApi()
 
   const { error, fetchRequest, loading, reloading } = useFetch(getApplicationsTemplates)
-  console.log({ error })
+
   useEffect(() => { fetchRequest() }, [])
 
   return (

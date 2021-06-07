@@ -1,11 +1,13 @@
 import React, { createContext, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { useSelector } from 'react-redux'
 
-import io from 'socket.io-client'
-import { WEBSOCKET_URL } from 'client/constants'
+import socketIO from 'socket.io-client'
+import { useSelector, useDispatch } from 'react-redux'
 
-const websocket = query => io({ path: WEBSOCKET_URL, query })
+import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
+import * as sockets from 'client/features/One/socket/actions'
+
+const createWebsocket = query => socketIO({ path: WEBSOCKET_URL, query })
 
 const CONNECT = 'connect'
 const DISCONNECT = 'disconnect'
@@ -15,6 +17,8 @@ export const SocketContext = createContext(null)
 const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState({})
   const [isConnected, setConnected] = useState(false)
+
+  const dispatch = useDispatch()
   const { jwt, zone } = useSelector(state => ({
     zone: state?.general?.zone,
     jwt: state?.auth?.jwt
@@ -23,14 +27,23 @@ const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!jwt) return
 
-    const client = websocket({ token: jwt, zone })
+    const client = createWebsocket({ token: jwt, zone })
+    setSocket(client)
+
     client.on(CONNECT, () => setConnected(true))
     client.on(DISCONNECT, () => setConnected(false))
-    setSocket(client)
+
+    client.on(SOCKETS.hooks, data => {
+      dispatch(sockets.socketEventState(data))
+    })
+
+    client.on(SOCKETS.provision, data => {
+      dispatch(sockets.socketCreateProvision(data))
+    })
 
     return () => {
       setSocket(null)
-      return client.disconnect()
+      client?.disconnect()
     }
   }, [jwt, zone])
 

@@ -11,6 +11,7 @@ import ProvisionCard from 'client/components/Cards/ProvisionCard'
 import ProvisionTemplateCard from 'client/components/Cards/ProvisionTemplateCard'
 import SelectCard from 'client/components/Cards/SelectCard'
 import TierCard from 'client/components/Cards/TierCard'
+import VirtualMachineCard from 'client/components/Cards/VirtualMachineCard'
 import WavesCard from 'client/components/Cards/WavesCard'
 
 export {
@@ -27,5 +28,6 @@ export {
   ProvisionTemplateCard,
   SelectCard,
   TierCard,
+  VirtualMachineCard,
   WavesCard
 }

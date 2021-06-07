@@ -1,6 +1,10 @@
 import loadable from '@loadable/component'
-import { Code as DevIcon } from 'iconoir-react'
+import {
+  Code as DevIcon,
+  ViewGrid as VmIcon
+} from 'iconoir-react'
 
+const VirtualMachines = loadable(() => import('client/containers/VirtualMachines'), { ssr: false })
 const TestApi = loadable(() => import('client/containers/TestApi'), { ssr: false })
 const WebConsole = loadable(() => import('client/containers/WebConsole'), { ssr: false })
 
@@ -11,6 +15,14 @@ export const PATH = {
 }
 
 export const ENDPOINTS = [
+  {
+    label: 'VMs',
+    path: PATH.VIRTUAL_MACHINES,
+    devMode: true,
+    sidebar: true,
+    icon: VmIcon,
+    Component: VirtualMachines
+  },
   {
     label: 'Test API',
     path: PATH.TEST_API,

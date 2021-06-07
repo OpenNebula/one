@@ -12,7 +12,7 @@ import {
 } from '@material-ui/core'
 import { NavArrowRight as CollapseIcon, NavArrowDown as ExpandMoreIcon } from 'iconoir-react'
 
-import { useGeneral } from 'client/hooks'
+import { useGeneral } from 'client/features/General'
 import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import sidebarStyles from 'client/components/Sidebar/styles'
 

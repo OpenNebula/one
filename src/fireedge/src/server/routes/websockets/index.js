@@ -41,7 +41,6 @@ const websockets = (appServer = {}) => {
         }
       }
     ).listen(appServer)
-
     defaultFilesWebsockets.forEach(file => {
       try {
         // eslint-disable-next-line global-require
@@ -51,7 +50,7 @@ const websockets = (appServer = {}) => {
           fileInfo.main(io)
         }
       } catch (error) {
-        if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
+        if (error instanceof Error) {
           const config = defaultConfigErrorMessage
           config.type = error.message
           messageTerminal(config)

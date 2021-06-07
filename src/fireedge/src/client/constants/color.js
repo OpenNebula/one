@@ -21,7 +21,7 @@ export default {
     light: '#3adb76',
     main: '#4caf50',
     dark: '#388e3c',
-    contrastText: 'rgba(0, 0, 0, 0.87)'
+    contrastText: '#fff'
   },
   debug: {
     light: '#7f7f7f',

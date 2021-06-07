@@ -14,7 +14,6 @@ import { Action } from 'client/components/Cards/SelectCard'
 import { Tr } from 'client/components/HOC'
 import { T } from 'client/constants'
 
-import * as Types from 'client/types/provision'
 import useStyles from 'client/containers/Providers/Sections/styles'
 
 const Info = memo(({ fetchProps }) => {
@@ -153,7 +152,7 @@ const Info = memo(({ fetchProps }) => {
 
 Info.propTypes = {
   fetchProps: PropTypes.shape({
-    data: Types.Provision.isRequired
+    data: PropTypes.object.isRequired
   }).isRequired
 }
 
