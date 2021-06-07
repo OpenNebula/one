@@ -16,10 +16,13 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '../..')
 $LOAD_PATH.unshift File.dirname(__FILE__)
 
 require 'client'
 require 'opennebula_vm'
+
+require 'scripts_common'
 
 # This class interacts with Firecracker
 class MicroVM
@@ -101,6 +104,8 @@ class MicroVM
         return false unless prepare_domain
 
         return false unless map_context
+
+        OpenNebula.log_debug("Creating VM: '#{cmd}'")
 
         Command.execute_detach(cmd)
     end
