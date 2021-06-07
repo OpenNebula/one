@@ -390,9 +390,8 @@ define(function(require) {
     "VM.save_as_template" : {
       type: "single",
       call: function() {
-       Sunstone.getDialog(SAVE_AS_TEMPLATE_DIALOG_ID)
-        .reset()
-        .show();
+        var dialog = Sunstone.getDialog(SAVE_AS_TEMPLATE_DIALOG_ID);
+        dialog.show();
        },
       error: function(req, resp) {
         Notifier.onError(req, resp);
