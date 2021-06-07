@@ -26,9 +26,9 @@ require 'openssl'
 require 'sunstone_remotes'
 
 if !ONE_LOCATION
-    VAR_LOCATION = '/var/lib/one/'
+    VAR_LOCATION ||= '/var/lib/one/'
 else
-    VAR_LOCATION = ONE_LOCATION + '/var/'
+    VAR_LOCATION ||= ONE_LOCATION + '/var/'
 end
 
 FIREEDGE_KEY = VAR_LOCATION + '/.one/fireedge_key'

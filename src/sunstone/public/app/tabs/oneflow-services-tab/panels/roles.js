@@ -152,6 +152,13 @@ define(function(require) {
 
     Tips.setup(context);
 
+    console.log()
+
+    $('#addRoleBtn').on('click', function(event){
+      event.preventDefault();
+      Sunstone.runAction("Role.add_dialog");
+    });
+
     if (roles && roles.length) {
       that.servicerolesDataTable = new DomDataTable(
         "datatable_roles_"+this.panelId,

@@ -858,13 +858,24 @@ class ServiceLCM
         rc = @srv_pool.get(service_id, client) do |service|
             service.remove_role(role_name)
 
-            service.set_state(Service::STATE['RUNNING'])
+            if service.all_roles_done?
+                rc = service.delete_networks
 
-            rc = service.update
+                if rc && !rc.empty?
+                    Log.info LOG_COMP, 'Error trying to delete '\
+                                       "Virtual Networks #{rc}"
+                end
 
-            return rc if OpenNebula.is_error?(rc)
+                service.delete
+            else
+                service.set_state(Service::STATE['RUNNING'])
 
-            @wd.add_service(service) if service.all_roles_running?
+                rc = service.update
+
+                return rc if OpenNebula.is_error?(rc)
+
+                @wd.add_service(service) if service.all_roles_running?
+            end
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
