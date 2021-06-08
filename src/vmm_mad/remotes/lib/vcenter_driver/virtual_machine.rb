@@ -1814,7 +1814,7 @@ module VCenterDriver
             # automatically cleans all system snapshots
             # https://github.com/OpenNebula/one/issues/5409
             if snapshots? or one_snapshots?
-              error_message =  'Existing sytem snapshots, cannot change disks. '
+              error_message =  'Existing system snapshots, cannot change disks. '
               error_message << 'Please remove all snapshots and try again.'
               raise error_message
             end
@@ -1945,8 +1945,9 @@ module VCenterDriver
             return unless disk.exists?
 
             if snapshots? or one_snapshots?
-              error_message =  'Existing sytem snapshots, cannot change disks. '
-              error_message << 'Please remove all snapshots and try again.'
+              error_message =  'Existing system snapshots, cannot change '
+              error_message << 'disks. Please remove all snapshots '
+              error_message << 'and try again.'
               raise error_message
             end
 
