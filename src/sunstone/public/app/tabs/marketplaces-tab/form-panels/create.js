@@ -139,6 +139,19 @@ define(function(require) {
       name: 'SKIP_UNTESTED',
       label: Locale.tr("Show only auto-contextualized apps"),
       driver: 'linuxcontainers'
+    },
+    {
+      name: 'BASE_URL',
+      id: 'DOCKER_REGISTRY_BASE_URL',
+      label: Locale.tr("DockerHub marketplace url"),
+      driver: 'docker_registry'
+    },
+    {
+      name: 'SSL',
+      label: Locale.tr("SSL"),
+      driver: 'docker_registry',
+      checkbox: true,
+      checkboxLabel: Locale.tr("SSL connection")
     }
   ]
   /*
@@ -248,7 +261,18 @@ define(function(require) {
     var marketObj = {};
 
     $.extend(marketObj, WizardFields.retrieve(dialog));
-
+    
+    var checkboxAttr = MARKET_MAD_ATTRS.filter(function(e) {
+      return e.checkbox;
+    }).map(function(e){
+      return e.name;
+    });
+    
+    $.each(marketObj, function(key, value){
+      if (checkboxAttr.includes(key)) marketObj[key] = (value === "on") ? "true" : "false";
+    });
+    
+    
     if (this.action == "create") {
       marketObj = {
         "marketplace" : marketObj
@@ -292,7 +316,16 @@ define(function(require) {
           if (e["NAME"] == marketMADName) {
             if (!$.isEmptyObject(e["REQUIRED_ATTRS"])) {
               $.each(e["REQUIRED_ATTRS"].split(","), function(i, attrName){
-                $('#' + attrName, dialog).attr('required', true);
+                $.each(MARKET_MAD_ATTRS, function(i, mktAttr){
+                  if (mktAttr.name == attrName && mktAttr.driver == marketMADName){
+                    if (mktAttr.id){
+                      $('#' + mktAttr.id, dialog).attr('required', true);
+                    }
+                    else{
+                      $('#' + attrName, dialog).attr('required', true);
+                    }
+                  }
+                });
               });
             }
             return false;

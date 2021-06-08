@@ -46,18 +46,19 @@
       <div class="row">
         {{#each marketMadAttrs}}
         <div class="medium-6 columns market-mad-attr-container {{this.driver}}">
-          <label for="{{this.name}}">
+          <label for="{{#if this.id }}{{this.id}}{{else}}{{this.name}}{{/if}}">
             {{this.label}}
             {{#if this.tooltip}} 
-            <span class="tip">{{this.tooltip}}</span>
+              <span class="tip">{{this.tooltip}}</span>
             {{/if}} 
           </label>
-          {{#if this.id }}
-              <input id="{{this.id}}" type="text" wizard_field="{{this.name}}"/>
-          {{else}}
-              <input id="{{this.name}}" type="text" wizard_field="{{this.name}}"/>
-          {{/if}}
           
+          <input id="{{#if this.id }}{{this.id}}{{else}}{{this.name}}{{/if}}" type="{{#if this.checkbox}}checkbox{{else}}text{{/if}}" wizard_field="{{this.name}}"/>
+          {{#if checkboxLabel}}
+            <label for="{{#if this.id }}{{this.id}}{{else}}{{this.name}}{{/if}}">
+              {{this.checkboxLabel}}
+            </label>
+          {{/if}}
         </div>
         {{/each}}
       </div>
