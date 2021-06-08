@@ -2419,7 +2419,7 @@ end
             # automatically cleans all system snapshots
             # https://github.com/OpenNebula/one/issues/5409
             if snapshots? || one_snapshots?
-                error_msg =  'Existing sytem snapshots, cannot change disks. '
+                error_msg =  'Existing system snapshots, cannot change disks. '
                 error_msg << 'Please remove all snapshots and try again.'
                 raise error_message
             end
@@ -2606,8 +2606,9 @@ end
             return unless disk.exists?
 
             if snapshots? || one_snapshots?
-                error_message =  'Existing sytem snapshots, cannot change disks'
-                error_message << '. Please remove all snapshots and try again.'
+                error_message =  'Existing system snapshots, cannot change '
+                error_message << 'disks . Please remove all snapshots and '
+                error_message << 'try again.'
                 raise error_message
             end
 
