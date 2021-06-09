@@ -16,17 +16,17 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const DATASTORE_ALLOCATE = 'datastore.allocate';
-const DATASTORE_DELETE = 'datastore.delete';
-const DATASTORE_UPDATE = 'datastore.update';
-const DATASTORE_CHMOD = 'datastore.chmod';
-const DATASTORE_CHOWN = 'datastore.chown';
-const DATASTORE_RENAME = 'datastore.rename';
-const DATASTORE_ENABLE = 'datastore.enable';
-const DATASTORE_INFO = 'datastore.info';
-const DATASTORE_POOL_INFO = 'datastorepool.info';
+const DATASTORE_ALLOCATE = 'datastore.allocate'
+const DATASTORE_DELETE = 'datastore.delete'
+const DATASTORE_UPDATE = 'datastore.update'
+const DATASTORE_CHMOD = 'datastore.chmod'
+const DATASTORE_CHOWN = 'datastore.chown'
+const DATASTORE_RENAME = 'datastore.rename'
+const DATASTORE_ENABLE = 'datastore.enable'
+const DATASTORE_INFO = 'datastore.info'
+const DATASTORE_POOL_INFO = 'datastorepool.info'
 
 const Actions = {
   DATASTORE_ALLOCATE,
@@ -38,7 +38,7 @@ const Actions = {
   DATASTORE_ENABLE,
   DATASTORE_INFO,
   DATASTORE_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -197,4 +197,4 @@ module.exports = {
       params: {}
     }
   }
-};
+}

@@ -16,19 +16,19 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const DOCUMENT_ALLOCATE = 'document.allocate';
-const DOCUMENT_CLONE = 'document.clone';
-const DOCUMENT_DELETE = 'document.delete';
-const DOCUMENT_UPDATE = 'document.update';
-const DOCUMENT_CHMOD = 'document.chmod';
-const DOCUMENT_CHOWN = 'document.chown';
-const DOCUMENT_RENAME = 'document.rename';
-const DOCUMENT_INFO = 'document.info';
-const DOCUMENT_LOCK = 'document.lock';
-const DOCUMENT_UNLOCK = 'document.unlock';
-const DOCUMENT_POOL_INFO = 'documentpool.info';
+const DOCUMENT_ALLOCATE = 'document.allocate'
+const DOCUMENT_CLONE = 'document.clone'
+const DOCUMENT_DELETE = 'document.delete'
+const DOCUMENT_UPDATE = 'document.update'
+const DOCUMENT_CHMOD = 'document.chmod'
+const DOCUMENT_CHOWN = 'document.chown'
+const DOCUMENT_RENAME = 'document.rename'
+const DOCUMENT_INFO = 'document.info'
+const DOCUMENT_LOCK = 'document.lock'
+const DOCUMENT_UNLOCK = 'document.unlock'
+const DOCUMENT_POOL_INFO = 'documentpool.info'
 
 const Actions = {
   DOCUMENT_ALLOCATE,
@@ -42,7 +42,7 @@ const Actions = {
   DOCUMENT_LOCK,
   DOCUMENT_UNLOCK,
   DOCUMENT_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -223,10 +223,6 @@ module.exports = {
       // inspected
       httpMethod: GET,
       params: {
-        id: {
-          from: resource,
-          default: 0
-        },
         filter: {
           from: query,
           default: -1
@@ -241,9 +237,9 @@ module.exports = {
         },
         type: {
           from: query,
-          default: 0
+          default: 100
         }
       }
     }
   }
-};
+}

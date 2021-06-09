@@ -83,6 +83,7 @@ router.all(
         user = getUserOpennebula(),
         pass = getPassOpennebula()
       ) => opennebulaConnect(user, pass, rpc)
+
       const { resource } = req.params
       const routeFunction = checkIfIsARouteFunction(resource, httpMethod)
       res.locals.httpCode = httpResponse(methodNotAllowed)
@@ -92,6 +93,7 @@ router.all(
         [fromData.postBody]: req.body
       }
       if (routeFunction) {
+        // this execute functions
         const valRouteFunction = checkMethodRouteFunction(
           routeFunction,
           httpMethod
@@ -110,6 +112,7 @@ router.all(
           next()
         }
       } else {
+        // this execute a XMLRPC commands
         const { method } = getParamsState()
         const command = commandXML(
           resource,
@@ -140,11 +143,7 @@ router.all(
               res.locals.httpCode = code
             }
           }
-          const connect = connectOpennebula(
-            getUserOpennebula(),
-            getPassOpennebula(),
-            rpc
-          )
+          const connect = connectOpennebula()
           connect(command, getOpennebulaMethod(dataSources), (err, value) =>
             responseOpennebula(updaterResponse, err, value, response, next)
           )

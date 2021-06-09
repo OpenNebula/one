@@ -12,7 +12,7 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { from: fromData } = require('server/utils/constants/defaults')
+const { from: fromData, defaultEmptyFunction } = require('server/utils/constants/defaults')
 const { getParamsForObject } = require('server/utils/server')
 const {
   getListProviders,
@@ -67,7 +67,7 @@ const routes = {
   }
 }
 
-const main = (req = {}, res = {}, next = () => undefined, routes = {}, user = {}, index = 0) => {
+const main = (req = {}, res = {}, next = () => undefined, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
   const resources = Object.keys(req[fromData.resource])
   if (req && res && next && routes) {
     const route = routes[`${req[fromData.resource][resources[index]]}`.toLowerCase()]
