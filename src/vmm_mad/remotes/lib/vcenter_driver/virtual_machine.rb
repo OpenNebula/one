@@ -1813,7 +1813,7 @@ module VCenterDriver
             # Adding a new disk in newer vSphere versions
             # automatically cleans all system snapshots
             # https://github.com/OpenNebula/one/issues/5409
-            if snapshots? or one_snapshots?
+            if has_snapshots? or one_snapshots?
               error_message =  'Existing system snapshots, cannot change disks. '
               error_message << 'Please remove all snapshots and try again.'
               raise error_message
@@ -1944,7 +1944,7 @@ module VCenterDriver
         def detach_disk(disk)
             return unless disk.exists?
 
-            if snapshots? or one_snapshots?
+            if has_snapshots? or one_snapshots?
               error_message =  'Existing system snapshots, cannot change '
               error_message << 'disks. Please remove all snapshots '
               error_message << 'and try again.'
