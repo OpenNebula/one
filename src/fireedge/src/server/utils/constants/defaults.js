@@ -29,6 +29,8 @@ const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = 'localhost'
 const protocol = 'http'
 const defaults = {
+  defaultEmptyFunction: () => undefined,
+  defaultErrorTemplate: 'ERROR_FIREEDGE="%1$s"',
   defaultOpennebulaExpiration: 180,
   defaultOpennebulaMinimumExpiration: 30,
   defaultAppName: appName,

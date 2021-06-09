@@ -22,7 +22,7 @@ const {
   getIdUserOpennebula,
   getUserOpennebula,
   getPassOpennebula
-} = require('./api');
+} = require('./api')
 
 module.exports = {
   validateResourceAndSession,
@@ -34,4 +34,4 @@ module.exports = {
   getIdUserOpennebula,
   getUserOpennebula,
   getPassOpennebula
-};
+}

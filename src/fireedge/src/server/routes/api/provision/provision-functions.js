@@ -19,6 +19,9 @@ const { Validator } = require('jsonschema')
 const { createWriteStream } = require('fs-extra')
 const { lockSync, checkSync, unlockSync } = require('lockfile')
 const { basename, dirname } = require('path')
+const { sprintf } = require('sprintf-js')
+
+const { Actions } = require('server/utils/constants/commands/document')
 const {
   ok,
   notFound,
@@ -26,7 +29,7 @@ const {
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, parsePostData, existsFile, createFile } = require('server/utils/server')
-const { defaultFolderTmpProvision, defaultCommandProvision } = require('server/utils/constants/defaults')
+const { defaultFolderTmpProvision, defaultCommandProvision, defaultEmptyFunction, defaultErrorTemplate } = require('server/utils/constants/defaults')
 const {
   executeCommand,
   executeCommandAsync,
@@ -72,9 +75,9 @@ const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
     actions &&
     dataForLog
   ) {
-    const err = actions.err && typeof actions.err === 'function' ? actions.err : () => undefined
-    const out = actions.out && typeof actions.out === 'function' ? actions.out : () => undefined
-    const close = actions.close && typeof actions.close === 'function' ? actions.close : () => undefined
+    const err = actions.err && typeof actions.err === 'function' ? actions.err : defaultEmptyFunction
+    const out = actions.out && typeof actions.out === 'function' ? actions.out : defaultEmptyFunction
+    const close = actions.close && typeof actions.close === 'function' ? actions.close : defaultEmptyFunction
 
     // data for log
     const id = (dataForLog && dataForLog.id) || ''
@@ -86,7 +89,7 @@ const executeWithEmit = (command = [], actions = {}, dataForLog = {}) => {
     let pendingMessages = ''
 
     // send data of command
-    const emit = (message, callback = () => undefined) => {
+    const emit = (message, callback = defaultEmptyFunction) => {
       const publisher = (line = '') => {
         const resposeData = callback(line, uuid) || { id, data: line, command: commandName, commandId: uuid }
         publish(defaultCommandProvision, resposeData)
@@ -189,7 +192,7 @@ const logData = (id, fullPath = false) => {
   return rtn
 }
 
-const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const extFiles = 'yml'
   const { user, password } = userData
   let rtn = httpInternalError
@@ -295,7 +298,7 @@ const getProvisionDefaults = (res = {}, next = () => undefined, params = {}, use
   next()
 }
 
-const getList = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const getList = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
@@ -315,7 +318,7 @@ const getList = (res = {}, next = () => undefined, params = {}, userData = {}) =
   next()
 }
 
-const getListProvisions = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const getListProvisions = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (user && password) {
@@ -348,7 +351,7 @@ const getListProvisions = (res = {}, next = () => undefined, params = {}, userDa
   next()
 }
 
-const deleteResource = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const deleteResource = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && params.id && user && password) {
@@ -367,7 +370,7 @@ const deleteResource = (res = {}, next = () => undefined, params = {}, userData 
   next()
 }
 
-const deleteProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const deleteProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
   const basePath = `${global.CPI}/provision`
   const relFile = `${basePath}/${relName}`
   const relFileYML = `${relFile}.${ext}`
@@ -393,7 +396,7 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
     }
 
     // This function is only executed if the command is completed
-    const close = success => {
+    const close = (success, lastLine) => {
       if (success) {
         stream && stream.end && stream.end()
         existsFile(
@@ -429,6 +432,9 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
         )
         const findFolder = findRecursiveFolder(`${global.CPI}/provision`, params.id)
         findFolder && removeFile(findFolder)
+      } else {
+        const connect = oneConnection(user, password)
+        connect(Actions.DOCUMENT_UPDATE, [parseInt(params.id, 10), sprintf(defaultErrorTemplate, lastLine), 1], defaultEmptyFunction)
       }
     }
 
@@ -448,7 +454,7 @@ const deleteProvision = (res = {}, next = () => undefined, params = {}, userData
   next()
 }
 
-const hostCommand = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const hostCommand = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.action && params.id && user && password) {
@@ -469,7 +475,7 @@ const hostCommand = (res = {}, next = () => undefined, params = {}, userData = {
   next()
 }
 
-const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const hostCommandSSH = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.action && params.id && params.command && user && password) {
@@ -490,7 +496,7 @@ const hostCommandSSH = (res = {}, next = () => undefined, params = {}, userData 
   next()
 }
 
-const createProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const createProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}, oneConnection = defaultEmptyFunction) => {
   const basePath = `${global.CPI}/provision`
   const relFile = `${basePath}/${relName}`
   const relFileYML = `${relFile}.${ext}`
@@ -603,7 +609,7 @@ const createProvision = (res = {}, next = () => undefined, params = {}, userData
   next()
 }
 
-const configureProvision = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const configureProvision = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   const rtn = httpInternalError
   if (params && params.id && user && password) {
@@ -644,7 +650,7 @@ const configureProvision = (res = {}, next = () => undefined, params = {}, userD
   next()
 }
 
-const configureHost = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const configureHost = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   const rtn = httpInternalError
   if (params && params.id && user && password) {
@@ -685,7 +691,7 @@ const configureHost = (res = {}, next = () => undefined, params = {}, userData =
   next()
 }
 
-const validate = (res = {}, next = () => undefined, params = {}, userData = {}) => {
+const validate = (res = {}, next = defaultEmptyFunction, params = {}, userData = {}) => {
   const { user, password } = userData
   let rtn = httpInternalError
   if (params && params.resource && user && password) {
@@ -725,7 +731,7 @@ const validate = (res = {}, next = () => undefined, params = {}, userData = {}) 
   next()
 }
 
-const getLogProvisions = (res = {}, next = () => undefined, params = {}) => {
+const getLogProvisions = (res = {}, next = defaultEmptyFunction, params = {}) => {
   let rtn = httpInternalError
   if (params && params.id) {
     const foundLogs = logData(params.id)
