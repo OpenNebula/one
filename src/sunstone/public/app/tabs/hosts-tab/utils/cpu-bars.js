@@ -36,15 +36,15 @@ define(function(require) {
       var allocatedCPU = parseInt(hostShare.CPU_USAGE,10);
       if (maxCPU > 0) {
         var ratioAllocatedCPU = Math.round((allocatedCPU / maxCPU) * 100);
-          infoStr = allocatedCPU + ' / ' + maxCPU + ' (' + ratioAllocatedCPU + '%)';
-        } else {
-          infoStr = "";
-        }
-        allocatedCPUBar = ProgressBar.html(allocatedCPU, maxCPU, infoStr);
+        infoStr = allocatedCPU + ' / ' + maxCPU + ' (' + ratioAllocatedCPU + '%)';
+      } else {
+        infoStr = "";
       }
-      var realCPUBar
+      allocatedCPUBar = ProgressBar.html(allocatedCPU, maxCPU, infoStr);
+    }
+    var realCPUBar;
     if (hostMonitoring && hostMonitoring.USED_CPU) {
-      var totalCPU = parseInt(hostShare.TOTAL_CPU||0);
+      var totalCPU = hostShareFlag ? parseInt(hostShare.MAX_CPU||0) : parseInt(hostShare.TOTAL_CPU||0);
       var realCPU = parseInt(hostMonitoring.USED_CPU,10);
       if (totalCPU > 0) {
           var ratioRealCPU = Math.round((realCPU / totalCPU) * 100);
