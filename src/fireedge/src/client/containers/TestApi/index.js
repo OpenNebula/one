@@ -50,7 +50,7 @@ const TestApi = () => {
           >
             <MenuItem value="">{Tr(T.None)}</MenuItem>
             {useMemo(() =>
-              Object.keys(Commands)?.map(
+              Object.keys(Commands)?.sort().map(
                 commandName => (
                   <MenuItem
                     key={`selector-request-${commandName}`}

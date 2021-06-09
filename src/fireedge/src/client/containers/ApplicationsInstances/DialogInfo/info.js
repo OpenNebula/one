@@ -54,9 +54,7 @@ const InfoTab = memo(({ info }) => {
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.State)}</Typography>
-              <StatusChip stateColor={stateInfo?.color}>
-                {stateInfo?.name}
-              </StatusChip>
+              <StatusChip stateColor={stateInfo?.color} text={stateInfo?.name} />
             </ListItem>
             <ListItem>
               <Typography>{Tr(T.ReadyStatusGate)}</Typography>

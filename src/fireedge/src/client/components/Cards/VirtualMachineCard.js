@@ -16,6 +16,7 @@ const VirtualMachineCard = memo(
         action={actions?.map(action =>
           <Action key={action?.cy} {...action} />
         )}
+        skeletonHeight={75}
         dataCy={`vm-${ID}`}
         handleClick={handleClick}
         icon={(

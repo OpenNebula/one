@@ -21,29 +21,28 @@ const useStyles = makeStyles(theme => {
   }
 })
 
-const StatusChip = memo(({ stateColor, children }) => {
+const StatusChip = memo(({ stateColor, text }) => {
   const classes = useStyles({ stateColor })
 
   return (
     <Typography component="span" className={classes.root}>
-      {children}
+      {text}
     </Typography>
   )
 },
-(prev, next) => prev.stateColor === next.stateColor
+(prev, next) =>
+  prev.stateColor === next.stateColor &&
+  prev.text === next.text
 )
 
 StatusChip.propTypes = {
   stateColor: PropTypes.string,
-  children: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.node
-  ])
+  text: PropTypes.string
 }
 
 StatusChip.defaultProps = {
   stateColor: undefined,
-  children: ''
+  text: ''
 }
 
 StatusChip.displayName = 'StatusChip'

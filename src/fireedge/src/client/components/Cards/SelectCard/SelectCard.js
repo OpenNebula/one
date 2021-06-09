@@ -28,6 +28,7 @@ const SelectCard = memo(({
   isSelected,
   mediaProps,
   observerOff,
+  skeletonHeight,
   stylesProps,
   subheader,
   title
@@ -129,7 +130,7 @@ const SelectCard = memo(({
         <Skeleton
           variant="rect"
           width="100%"
-          height={140}
+          height={skeletonHeight}
         />
       )}
     </ConditionalWrap>
@@ -182,7 +183,8 @@ SelectCard.propTypes = {
     PropTypes.string
   ]),
   dataCy: PropTypes.string,
-  disableFilterImage: PropTypes.bool
+  disableFilterImage: PropTypes.bool,
+  skeletonHeight: PropTypes.number
 }
 
 SelectCard.defaultProps = {
@@ -202,7 +204,8 @@ SelectCard.defaultProps = {
   observerOff: false,
   stylesProps: undefined,
   subheader: undefined,
-  title: undefined
+  title: undefined,
+  skeletonHeight: 140
 }
 
 SelectCard.displayName = 'SelectCard'
