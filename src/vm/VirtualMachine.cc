@@ -2737,17 +2737,6 @@ void VirtualMachine::get_public_clouds(const string& pname, set<string> &clouds)
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
-
-static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS = {
-    {"OS", {"ARCH", "MACHINE", "KERNEL", "INITRD", "BOOTLOADER", "BOOT", "KERNEL_CMD", "ROOT", "SD_DISK_BUS"} },
-    {"FEATURES", {"PAE", "ACPI", "APIC", "LOCALTIME", "HYPERV", "GUEST_AGENT",
-         "VIRTIO_SCSI_QUEUES"} },
-    {"INPUT", {"TYPE", "BUS"} },
-    {"GRAPHICS", {"TYPE", "LISTEN", "PASSWD", "KEYMAP", "COMMAND"} },
-    {"RAW", {"TYPE", "DATA", "DATA_VMX"} },
-    {"CPU_MODEL", {"MODEL"} }
-	};
-
 /**
  * Replaces the values of a vector value, preserving the existing ones
  */
@@ -2769,8 +2758,8 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
     }
     else
     {
-		std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
-		std::vector<std::string>::iterator it;
+        std::vector<std::string> vnames = VirtualMachineTemplate::UPDATECONF_ATTRS[name];
+        std::vector<std::string>::iterator it;
 
         for (it = vnames.begin(); it != vnames.end(); ++it)
         {
@@ -2786,45 +2775,6 @@ static void replace_vector_values(Template *old_tmpl, Template *new_tmpl,
     }
 };
 
-/**
- * returns a copy the values of a vector value
- */
-static void copy_vector_values(Template *old_tmpl, Template *new_tmpl,
-        const char * name)
-{
-    string value;
-
-    VectorAttribute * old_attr = old_tmpl->get(name);
-
-    if ( old_attr == 0 )
-    {
-        return;
-    }
-
-    VectorAttribute * new_vattr = new VectorAttribute(name);
-
-    std::vector<std::string> vnames = UPDATECONF_ATTRS[name];
-    std::vector<std::string>::iterator it;
-
-    for (it = vnames.begin(); it != vnames.end(); ++it)
-    {
-        std::string vval = old_attr->vector_value(*it);
-
-        if (!vval.empty())
-        {
-            new_vattr->replace(*it, vval);
-        }
-    }
-
-    if ( new_vattr->empty() )
-    {
-        delete new_vattr;
-    }
-    else
-    {
-        new_tmpl->set(new_vattr);
-    }
-}
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
@@ -2972,33 +2922,6 @@ int VirtualMachine::updateconf(VirtualMachineTemplate& tmpl, string &err)
     }
 
     return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-/* -------------------------------------------------------------------------- */
-
-VirtualMachineTemplate * VirtualMachine::get_updateconf_template() const
-{
-    VirtualMachineTemplate * conf_tmpl = new VirtualMachineTemplate();
-
-    copy_vector_values(obj_template, conf_tmpl, "OS");
-
-    copy_vector_values(obj_template, conf_tmpl, "FEATURES");
-
-    copy_vector_values(obj_template, conf_tmpl, "INPUT");
-
-    copy_vector_values(obj_template, conf_tmpl, "GRAPHICS");
-
-    copy_vector_values(obj_template, conf_tmpl, "RAW");
-
-	VectorAttribute * context = obj_template->get("CONTEXT");
-
-	if ( context != 0 )
-	{
-		conf_tmpl->set(context->clone());
-	}
-
-    return conf_tmpl;
 }
 
 /* -------------------------------------------------------------------------- */

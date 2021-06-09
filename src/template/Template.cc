@@ -865,48 +865,6 @@ bool Template::check_restricted(string& ra, const Template* base,
     return false;
 }
 
-// -----------------------------------------------------------------------------
-
-bool Template::test_restricted_merge(string& ra, const Template* base,
-        const std::map<std::string, std::set<std::string> >& ras) const
-{
-    std::map<std::string, std::set<std::string> >::const_iterator rit;
-
-    for ( rit = ras.begin(); rit != ras.end(); ++rit )
-    {
-        if (!(rit->second).empty())
-        {
-            vector<string> rvalues, rvalues_base;
-            bool has_restricted;
-
-            has_restricted = restricted_values(rit->first, rit->second, this, rvalues);
-            restricted_values(rit->first, rit->second, base, rvalues_base);
-
-            if ( rvalues != rvalues_base && has_restricted)
-            {
-                ra = rit->first;
-                return true;
-            }
-        }
-        else
-        {
-            if ( get(rit->first, ra) )
-            {
-                string ra_b;
-
-                base->get(rit->first, ra_b);
-
-                if ( ra_b != ra )
-                {
-                    ra = rit->first;
-                    return true;
-                }
-            }
-        }
-    }
-
-    return false;
-}
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

@@ -66,11 +66,6 @@ public:
         return Template::check_restricted(rs_attr, base, restricted);
     }
 
-    virtual bool test_restricted_merge(string& rs_attr, const Template* base) const override
-    {
-        return Template::test_restricted_merge(rs_attr, base, restricted);
-    }
-
     virtual bool check_restricted(string& rs_attr)
     {
         return Template::check_restricted(rs_attr, restricted);

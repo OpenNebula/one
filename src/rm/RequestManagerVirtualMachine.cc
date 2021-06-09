@@ -3181,7 +3181,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         string aname;
 
-        bool has_restricted = vm->test_restricted_merge(aname, uc_tmpl.get());
+        bool has_restricted = vm->check_restricted(aname, uc_tmpl.get());
 
         if (has_restricted)
         {

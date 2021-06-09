@@ -1198,11 +1198,9 @@ public:
      *    @param err description if any
      *    @return template with the attributes
      */
-    VirtualMachineTemplate * get_updateconf_template() const;
-
-    bool test_restricted_merge(string& ra, const VirtualMachineTemplate * source) const
+    bool check_restricted(string& ra, VirtualMachineTemplate * source) const
     {
-        return source->test_restricted_merge(ra, obj_template);
+        return source->check_restricted(ra, obj_template);
     }
 
     // -------------------------------------------------------------------------
