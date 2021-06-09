@@ -457,6 +457,12 @@ public:
         return false;
     }
 
+    virtual bool test_restricted_merge(string& rs_attr,
+            const Template* base) const
+    {
+        return false;
+    }
+
     /**
      *  Encrypt all secret attributes
      */
@@ -541,6 +547,8 @@ protected:
     bool check_restricted(string& rs_attr,
            const std::map<std::string, std::set<std::string> >& ras);
 
+    bool test_restricted_merge(string& rs_attr, const Template* base,
+           const std::map<std::string, std::set<std::string> >& ras) const;
     /**
      *  Parses a list of encrypted attributes in the form ATTRIBUTE_NAME or
      *  ATTRIBUTE_NAME/SUBATTRIBUTE.

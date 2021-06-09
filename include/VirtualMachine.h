@@ -1200,6 +1200,11 @@ public:
      */
     VirtualMachineTemplate * get_updateconf_template() const;
 
+    bool test_restricted_merge(string& ra, const VirtualMachineTemplate * source) const
+    {
+        return source->test_restricted_merge(ra, obj_template);
+    }
+
     // -------------------------------------------------------------------------
     // "Save as" Disk related functions (save_as hot)
     // -------------------------------------------------------------------------

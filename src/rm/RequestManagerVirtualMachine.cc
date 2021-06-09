@@ -3155,6 +3155,8 @@ void VirtualMachineUpdateConf::request_execute(
         return;
     }
 
+    auto uc_tmpl = tmpl.get_updateconf_template();
+
     /* ---------------------------------------------------------------------- */
     /*  Authorize the operation & restricted attributes                       */
     /* ---------------------------------------------------------------------- */
@@ -3179,11 +3181,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         string aname;
 
-        VirtualMachineTemplate * conf_tmpl = vm->get_updateconf_template();
-
-        bool has_restricted = tmpl.check_restricted(aname, conf_tmpl);
-
-        delete conf_tmpl;
+        bool has_restricted = vm->test_restricted_merge(aname, uc_tmpl.get());
 
         if (has_restricted)
         {

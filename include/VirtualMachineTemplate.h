@@ -20,6 +20,7 @@
 #include "Template.h"
 
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -56,17 +57,6 @@ public:
         Template::set_xml_root(_xml_root);
     };
 
-    /**
-     * Replaces the given image from the DISK attribute with a new one
-     *   @param target_id IMAGE_ID the image to be replaced
-     *   @param target_name IMAGE the image to be replaced
-     *   @param target_uname IMAGE_UNAME the image to be replaced
-     *   @param new_name of the new image
-     *   @param new_uname of the owner of the new image
-     */
-    int replace_disk_image(int target_id, const string&
-        target_name, const string& target_uname, const string& new_name,
-        const string& new_uname);
 
     // -------------------------------------------------------------------------
     // Restricted attributes interface implementation
@@ -74,6 +64,11 @@ public:
     virtual bool check_restricted(string& rs_attr, const Template* base)
     {
         return Template::check_restricted(rs_attr, base, restricted);
+    }
+
+    virtual bool test_restricted_merge(string& rs_attr, const Template* base) const override
+    {
+        return Template::test_restricted_merge(rs_attr, base, restricted);
     }
 
     virtual bool check_restricted(string& rs_attr)
@@ -84,6 +79,22 @@ public:
     static void parse_restricted(vector<const SingleAttribute *>& ra)
     {
         Template::parse_restricted(ra, restricted);
+    }
+
+    /**
+     *  Get restricted attributes for NIC
+     */
+    static void restricted_nic(std::set<std::string>& rs)
+    {
+        get_restricted("NIC", rs);
+    }
+
+    /**
+     *  Get restricted attributes for DISK
+     */
+    static void restricted_disk(std::set<std::string>& rs)
+    {
+        get_restricted("DISK", rs);
     }
 
     // -------------------------------------------------------------------------
@@ -106,21 +117,31 @@ public:
 
     string& to_xml_short(string& xml) const;
 
-    /**
-     *  Get restricted attributes for NIC
-     */
-    static void restricted_nic(std::set<std::string>& rs)
-    {
-        get_restricted("NIC", rs);
-    }
 
     /**
-     *  Get restricted attributes for DISK
+     * Replaces the given image from the DISK attribute with a new one
+     *   @param target_id IMAGE_ID the image to be replaced
+     *   @param target_name IMAGE the image to be replaced
+     *   @param target_uname IMAGE_UNAME the image to be replaced
+     *   @param new_name of the new image
+     *   @param new_uname of the owner of the new image
      */
-    static void restricted_disk(std::set<std::string>& rs)
-    {
-        get_restricted("DISK", rs);
-    }
+    int replace_disk_image(int target_id, const string&
+        target_name, const string& target_uname, const string& new_name,
+        const string& new_uname);
+
+    // -----------------------------------------------------------------------
+    // UpdateConf attributes
+    // -----------------------------------------------------------------------
+    static std::map<std::string,std::vector<std::string>> UPDATECONF_ATTRS;
+
+    /**
+    *  Returns a new template that contains only the attribues vaild in an
+    *  update conf operation
+    *
+    *  @return pointer to new VM template
+    */
+    std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const;
 
 private:
     /**
