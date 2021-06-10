@@ -76,6 +76,14 @@ module VNMMAD
             end
         end
 
+        # Executes the given block on each NIC_ALIAS
+        def process_alias
+            @vm.each_nic_alias do |nic|
+                nic_confs(nic)
+                yield(nic)
+            end
+        end
+
         # Executes the given block on each NIC
         def process_all
             @vm.each_nic do |nic|

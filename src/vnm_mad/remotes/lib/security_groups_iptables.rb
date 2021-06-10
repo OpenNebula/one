@@ -332,13 +332,27 @@ module SGIPTables
         vars[:nic]       = nic
         vars[:vm_id]     = vm_id
         vars[:nic_id]    = nic_id
-        vars[:chain]     = "one-#{vm_id}-#{nic_id}"
+        if nic[:alias_id].nil?
+            vars[:chain] = "one-#{vm_id}-#{nic_id}"
+        else
+            vars[:chain] = "one-#{vm_id}-#{nic[:parent_id]}"
+        end
         vars[:chain_in]  = "#{vars[:chain]}-i"
         vars[:chain_out] = "#{vars[:chain]}-o"
 
         if sg_id
             vars[:set_sg_in]  = "#{vars[:chain]}-#{sg_id}-i"
             vars[:set_sg_out] = "#{vars[:chain]}-#{sg_id}-o"
+        end
+
+        vars[:nics_alias] = []
+
+        if !nic[:alias_ids].nil?
+            alias_ids = nic[:alias_ids].split(',')
+            vm.each_nic_alias do |nic_alias|
+                vars[:nics_alias] << nic_alias \
+                    if alias_ids.include?(nic_alias[:nic_id])
+            end
         end
 
         vars
@@ -447,12 +461,17 @@ module SGIPTables
                 "--mac-source #{nic[:mac]} -j DROP"
         end
 
-        # IP-spofing
-        if nic[:filter_ip_spoofing] == "YES"
+        # IP-spoofing
+        if nic[:filter_ip_spoofing] == "YES" && nic[:alias_id].nil?
             ipv4s = Array.new
 
             [:ip, :vrouter_ip].each do |key|
                 ipv4s << nic[key] if !nic[key].nil? && !nic[key].empty?
+
+                vars[:nics_alias].each do |nic_alias|
+                    ipv4s << nic_alias[key] \
+                        if !nic_alias[key].nil? && !nic_alias[key].empty?
+                end
             end
 
             if !ipv4s.empty?
@@ -480,6 +499,11 @@ module SGIPTables
 
             [:ip6, :ip6_global, :ip6_link, :ip6_ula].each do |key|
                 ipv6s << nic[key] if !nic[key].nil? && !nic[key].empty?
+
+                vars[:nics_alias].each do |nic_alias|
+                    ipv6s << nic_alias[key] \
+                        if !nic_alias[key].nil? && !nic_alias[key].empty?
+                end
             end
 
             if !ipv6s.empty?
@@ -592,6 +616,33 @@ module SGIPTables
 
         commands.run!
     end
+
+    def self.nic_alias_activate(vm, nic)
+        vars      = SGIPTables.vars(vm, nic)
+        chain     = vars[:chain]
+
+        commands = VNMNetwork::Commands.new
+
+        # Enable IP-spoofing
+        set = "#{chain}-ip-spoofing"
+        commands.add :ipset, "-q add -exist #{set} #{nic[:ip]} | true"
+
+        commands.run!
+    end
+
+    def self.nic_alias_deactivate(vm, nic)
+        vars      = SGIPTables.vars(vm, nic)
+        chain     = vars[:chain]
+
+        commands = VNMNetwork::Commands.new
+
+        # Disable IP-spoofing
+        set = "#{chain}-ip-spoofing"
+        commands.add :ipset, "-q -D #{set} #{nic[:ip]} | true"
+
+        commands.run!
+    end
+
 end
 
 end

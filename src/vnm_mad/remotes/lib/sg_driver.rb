@@ -85,10 +85,11 @@ module VNMMAD
                attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
             end
 
-            # Process the rules
-            process_all do |nic|
+            # Process the rules for each NIC
+            process do |nic|
                 next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
+                # SG not supported for NIC_ALIAS
                 if nic[:security_groups].nil?
                     nic[:security_groups] = "0"
                     @security_group_rules = EMPTY_RULES
@@ -117,6 +118,13 @@ module VNMMAD
                 SGIPTables.nic_post(@vm, nic)
             end
 
+            # Process the rules for each NIC_ALIAS
+            process_alias do |nic|
+                next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
+                SGIPTables.nic_alias_activate(@vm, nic)
+            end
+
             unlock
 
             0
@@ -132,11 +140,18 @@ module VNMMAD
                    attach_nic_id ||= @vm['TEMPLATE/NIC_ALIAS[ATTACH="YES"]/NIC_ID']
                 end
 
-                process_all do |nic|
+                process_alias do |nic|
+                    next if attach_nic_id && attach_nic_id != nic[:nic_id]
+
+                    SGIPTables.nic_alias_deactivate(@vm, nic)
+                end
+
+                process do |nic|
                     next if attach_nic_id && attach_nic_id != nic[:nic_id]
 
                     SGIPTables.nic_deactivate(@vm, nic)
                 end
+
             rescue Exception => e
                 raise e
             ensure

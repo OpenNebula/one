@@ -31,17 +31,20 @@ module VNMMAD
             #   @param xpath_filer [String] to get the VM NICs
             #   @param deploy_id [String] refers to the VM in the hypervisor
             def initialize(vm_root, xpath_filter, deploy_id)
-                @vm_root      = vm_root
-                @deploy_id    = deploy_id
+                @vm_root   = vm_root
+                @deploy_id = deploy_id
 
-                @vm_info      = {}
+                @vm_info = {}
 
                 @deploy_id = nil if deploy_id == '-'
 
-                nics = VNMNetwork::Nics.new(hypervisor)
+                @nics       = VNMNetwork::Nics.new(hypervisor)
+                @nics_alias = VNMNetwork::Nics.new(hypervisor)
+
+                return if xpath_filter.nil?
 
                 @vm_root.elements.each(xpath_filter) do |nic_element|
-                    nic = nics.new_nic
+                    nic = @nics.new_nic
 
                     nic_build_hash(nic_element, nic)
 
@@ -50,35 +53,16 @@ module VNMMAD
                         nic.get_tap(self)
                     end
 
-                    nics << nic
+                    @nics << nic
                 end
 
-                @nics = nics
-
-                nics_alias  = VNMNetwork::Nics.new(hypervisor)
-
-                if xpath_filter.nil?
-                    xpath_alias = nil
-                else
-                    xpath_alias = xpath_filter.gsub('TEMPLATE/NIC',
-                                                    'TEMPLATE/NIC_ALIAS')
-                end
-
-                @vm_root.elements.each(xpath_alias) do |nic_element|
-                    nic = nics_alias.new_nic
+                @vm_root.elements.each('TEMPLATE/NIC_ALIAS') do |nic_element|
+                    nic = @nics_alias.new_nic
 
                     nic_build_hash(nic_element, nic)
 
-                    parent = @nics.select do |n|
-                        n[:nic_id] == nic[:parent_id]
-                    end
-
-                    nic[:parent_nic] = parent.first
-
-                    nics_alias << nic
+                    @nics_alias << nic
                 end
-
-                @nics_alias = nics_alias
             end
 
             # Iterator on each NIC of the VM
