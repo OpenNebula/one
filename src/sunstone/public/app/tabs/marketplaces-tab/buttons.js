@@ -27,6 +27,16 @@ define(function(require) {
       type: "create_dialog",
       layout: "create"
     },
+    "MarketPlace.enable" : {
+      type: "action",
+      text: Locale.tr("Enable"),
+      layout: "main"
+    },
+    "MarketPlace.disable" : {
+      type: "action",
+      text: Locale.tr("Disable"),
+      layout: "main"
+    },
     "MarketPlace.update_dialog" : {
       type: "action",
       layout: "main",

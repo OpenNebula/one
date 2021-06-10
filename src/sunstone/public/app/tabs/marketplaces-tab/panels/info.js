@@ -40,6 +40,14 @@ define(function(require) {
   var RESOURCE = "MarketPlace"
 
   /*
+    STATES
+  */
+  var STATES = {
+    0: Locale.tr("Enabled"),
+    1: Locale.tr("Disabled"),
+  }
+
+  /*
     CONSTRUCTOR
    */
 
@@ -74,7 +82,8 @@ define(function(require) {
       'renameTrHTML': renameTrHTML,
       'templateTableHTML': templateTableHTML,
       'permissionsTableHTML': permissionsTableHTML,
-      'capacityBar': capacityBar
+      'capacityBar': capacityBar,
+      'state': STATES[this.element.STATE]
     });
   }
 
