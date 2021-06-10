@@ -8,20 +8,19 @@ const useStyles = makeStyles(theme => ({
   search: {
     position: 'relative',
     borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    backgroundColor: fade(theme.palette.primary.dark, 0.15),
     '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25)
+      backgroundColor: fade(theme.palette.primary.dark, 0.25)
     },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
+    margin: theme.spacing(1, 0),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
+      marginLeft: theme.spacing(1),
       width: 'auto'
     }
   },
   searchIcon: {
-    width: theme.spacing(7),
+    padding: theme.spacing(0, 2),
     height: '100%',
     position: 'absolute',
     pointerEvents: 'none',
@@ -33,12 +32,10 @@ const useStyles = makeStyles(theme => ({
     color: 'inherit'
   },
   inputInput: {
-    padding: theme.spacing(1, 1, 1, 7),
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: 200
-    }
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    width: '100%'
   }
 }))
 
@@ -58,6 +55,22 @@ const GlobalFilter = props => {
   // Global filter only works with pagination from the first page.
   // This may not be a problem for server side pagination when
   // only the current page is downloaded.
+
+  /* <Box className={classes.search}>
+      <Box className={classes.searchIcon}>
+        <SearchIcon />
+      </Box>
+      <InputBase
+        type='search'
+        onChange={searchProps.handleChange}
+        fullWidth
+        placeholder={`${T.Search}...`}
+        classes={{
+          root: classes.inputRoot,
+          input: classes.inputInput
+        }}
+      />
+    </Box> */
 
   return (
     <div className={classes.search}>

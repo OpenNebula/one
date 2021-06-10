@@ -33,7 +33,6 @@ export default [
       <StatusChip stateColor={Colors.debug.light} text={`#${value}`} />
   },
   { Header: 'Name', accessor: 'NAME' },
-  { Header: 'Owner/Group', accessor: row => `${row.UNAME}/${row.GNAME}` },
   {
     Header: 'State',
     id: 'STATE',
@@ -47,6 +46,7 @@ export default [
     filter: (rows, id, filterValue) =>
       rows.filter(row => row.values[id]?.name === filterValue)
   },
+  { Header: 'Owner/Group', accessor: row => `${row.UNAME}/${row.GNAME}` },
   {
     Header: 'Ips',
     accessor: row => VirtualMachineModel.getIps(row),

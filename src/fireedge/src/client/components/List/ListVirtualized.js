@@ -2,65 +2,79 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { useVirtual } from 'react-virtual'
-import { Box } from '@material-ui/core'
+import { debounce, Box, LinearProgress } from '@material-ui/core'
 
-const ListVirtualized = ({ list = [] }) => {
-  const parentRef = React.useRef()
+import { useNearScreen } from 'client/hooks'
 
-  const rowVirtualizer = useVirtual({
-    size: list.length,
-    parentRef,
-    overscan: 20,
-    estimateSize: React.useCallback(() => 35, []),
-    keyExtractor: index => list[index]?.ID
+const ListVirtualized = ({
+  canFetchMore,
+  containerProps,
+  data,
+  isLoading,
+  fetchMore,
+  children
+}) => {
+  // OBSERVER
+  const loaderRef = React.useRef()
+  const { isNearScreen } = useNearScreen({
+    distance: '100px',
+    externalRef: isLoading ? null : loaderRef,
+    once: false
   })
 
+  // VIRTUALIZER
+  const parentRef = React.useRef()
+  const rowVirtualizer = useVirtual({
+    size: data.length,
+    parentRef,
+    overscan: 20,
+    estimateSize: React.useCallback(() => 40, []),
+    keyExtractor: index => data[index]?.id
+  })
+
+  const debounceHandleNextPage = React.useCallback(debounce(fetchMore, 200), [])
+
+  React.useEffect(() => {
+    if (isNearScreen && !canFetchMore) debounceHandleNextPage()
+  }, [isNearScreen, canFetchMore, debounceHandleNextPage])
+
   return (
-    <Box>
-      <div
-        ref={parentRef}
-        style={{
-          height: '150px',
-          overflow: 'auto'
-        }}
+    <Box ref={parentRef} height={1} overflow='auto'>
+      <Box {...containerProps}
+        height={`${rowVirtualizer.totalSize}px`}
+        width={1}
+        position='relative'
       >
-        <div
-          style={{
-            height: `${rowVirtualizer.totalSize}px`,
-            width: '100%',
-            position: 'relative'
-          }}
-        >
-          {rowVirtualizer.virtualItems.map(virtualRow => {
-            console.log(virtualRow)
-            return (
-              <div
-                key={virtualRow.index}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`
-                }}
-              >
-              Row {virtualRow.index}
-              </div>
-            )
-          })}
-        </div>
-      </div>
+        {children(rowVirtualizer.virtualItems)}
+      </Box>
+
+      {!canFetchMore && (
+        <LinearProgress
+          ref={loaderRef}
+          color='secondary'
+          style={{ width: '100%', marginTop: 10 }}
+        />
+      )}
     </Box>
   )
 }
 
 ListVirtualized.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.any)
+  canFetchMore: PropTypes.bool,
+  containerProps: PropTypes.object,
+  data: PropTypes.arrayOf(PropTypes.any),
+  isLoading: PropTypes.bool,
+  fetchMore: PropTypes.func,
+  children: PropTypes.func
 }
 
 ListVirtualized.defaultProps = {
-  list: []
+  canFetchMore: false,
+  containerProps: undefined,
+  data: [],
+  isLoading: false,
+  fetchMore: () => undefined,
+  children: () => undefined
 }
 
 export default ListVirtualized
