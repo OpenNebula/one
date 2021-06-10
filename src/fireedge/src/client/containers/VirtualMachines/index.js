@@ -1,76 +1,51 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
-import { Container, Box } from '@material-ui/core'
-import { Trash as DeleteIcon } from 'iconoir-react'
+import { Container } from '@material-ui/core'
 
 import { useAuth } from 'client/features/Auth'
 import { useVm, useVmApi } from 'client/features/One'
-import { useGeneralApi } from 'client/features/General'
-import { useFetch, useSearch } from 'client/hooks'
+import { useFetch } from 'client/hooks'
 
-import { ListHeader, ListCards } from 'client/components/List'
-import { VirtualMachineCard } from 'client/components/Cards'
-// import { DialogRequest } from 'client/components/Dialogs'
-// import Information from 'client/containers/VirtualMachines/Sections/info'
-import { T } from 'client/constants'
-import { filterDoneVms } from 'client/models/VirtualMachine'
+import { VmTable } from 'client/components/Tables'
+
+const INITIAL_ELEMENT = -1
+const NUMBER_OF_INTERVAL = -100
 
 function VirtualMachines () {
-  // const [showDialog, setShowDialog] = useState(false)
+  const [{ start, end }, setPage] = useState(({ start: INITIAL_ELEMENT, end: -NUMBER_OF_INTERVAL }))
 
   const vms = useVm()
-  const { getVm, getVms, terminateVm } = useVmApi()
+  const { getVms } = useVmApi()
   const { filterPool } = useAuth()
 
-  const { enqueueSuccess } = useGeneralApi()
+  const { data, fetchRequest, loading, reloading } = useFetch(getVms)
 
-  const { fetchRequest, loading, reloading } = useFetch(getVms)
-  const { result, handleChange } = useSearch({
-    list: vms,
-    listOptions: { shouldSort: true, keys: ['ID', 'NAME'] }
-  })
+  useEffect(() => { fetchRequest({ start, end }) }, [filterPool])
 
-  useEffect(() => { fetchRequest() }, [filterPool])
+  const handleGetMoreData = () => {
+    console.log('FETCH MORE')
 
-  // const handleCancel = () => setShowDialog(false)
+    setPage(prevState => {
+      const newStart = prevState.start + NUMBER_OF_INTERVAL
+      const newEnd = prevState.end - NUMBER_OF_INTERVAL
+
+      fetchRequest({ start: newStart, end: newEnd })
+
+      return { start: newStart, end: newEnd }
+    })
+  }
+
+  const finish = data?.length < NUMBER_OF_INTERVAL
+  // console.log({ start, end, loading, finish, vms })
 
   return (
-    <Container disableGutters>
-      <ListHeader
-        title={T.VMs}
-        reloadButtonProps={{
-          onClick: () => fetchRequest(undefined, { reload: true }),
-          isSubmitting: Boolean(loading || reloading)
-        }}
-        searchProps={{ handleChange }}
+    <Container disableGutters style={{ height: '100%' }}>
+      <VmTable
+        data={vms}
+        isLoading={(vms.length === 0 && (loading || reloading))}
+        finish={finish}
+        getNextData={handleGetMoreData}
       />
-      <Box p={3}>
-        <ListCards
-          list={result ?? filterDoneVms(vms)}
-          isLoading={vms.length === 0 && loading}
-          gridProps={{ 'data-cy': 'vms' }}
-          CardComponent={VirtualMachineCard}
-          cardsProps={({ value: { ID, NAME } }) => ({
-            actions: [
-              {
-                handleClick: () => terminateVm(ID)
-                  .then(() => enqueueSuccess(`VM terminate - ID: ${ID}`))
-                  .then(() => fetchRequest(undefined, { reload: true })),
-                icon: <DeleteIcon color='error' />,
-                cy: 'vm-delete'
-              }
-            ]
-          })}
-        />
-      </Box>
-      {/* {showDialog !== false && (
-        <DialogRequest
-          request={() => getVm(showDialog.id)}
-          dialogProps={{ handleCancel, ...showDialog }}
-        >
-          {({ data }) => <Information data={data} />}
-        </DialogRequest>
-      )} */}
     </Container>
   )
 }

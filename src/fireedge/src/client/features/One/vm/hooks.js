@@ -18,7 +18,7 @@ export const useVmApi = () => {
 
   return {
     getVm: id => unwrapDispatch(actions.getVm({ id })),
-    getVms: () => unwrapDispatch(actions.getVms()),
+    getVms: options => unwrapDispatch(actions.getVms(options)),
     terminateVm: id => unwrapDispatch(actions.terminateVm({ id }))
   }
 }
