@@ -119,7 +119,7 @@ main_env.Append(LIBPATH=[
 main_env.Append(CPPFLAGS=[
     "-g",
     "-Wall",
-    "-std=c++11"
+    "-std=c++14"
 ])
 
 # Linking flags & common libraries
