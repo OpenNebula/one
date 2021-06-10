@@ -1494,7 +1494,7 @@ module VCenterDriver
             end
 
             card_spec = {
-                :key => 0,
+                :key => Time.now.utc.strftime('%Y%m%d%M%S%L').to_i,
                 :deviceInfo => {
                     :label => "net" + card_num.to_s,
                     :summary => pg_name
@@ -1587,7 +1587,7 @@ module VCenterDriver
             end
 
             card_spec = {
-                :key => 0,
+                :key => Time.now.utc.strftime('%Y%m%d%M%S%L').to_i,
                 :deviceInfo => {
                     :label => "net" + card_num.to_s,
                     :summary => pg_name
