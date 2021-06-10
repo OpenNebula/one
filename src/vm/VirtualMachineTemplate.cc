@@ -274,7 +274,7 @@ static void copy_vector_values(const Template *old_tmpl, Template *new_tmpl,
 
 unique_ptr<VirtualMachineTemplate> VirtualMachineTemplate::get_updateconf_template() const
 {
-  auto conf_tmpl = make_unique<VirtualMachineTemplate>();
+  auto conf_tmpl = unique_ptr<VirtualMachineTemplate>(new VirtualMachineTemplate());
 
   copy_vector_values(this, conf_tmpl.get(), "OS");
 
