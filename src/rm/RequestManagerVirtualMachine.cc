@@ -3076,11 +3076,7 @@ void VirtualMachineUpdateConf::request_execute(
     {
         string aname;
 
-        auto conf_tmpl = vm->get_updateconf_template();
-
-        bool has_restricted = uc_tmpl->check_restricted(aname, conf_tmpl.get());
-
-        if (has_restricted)
+        if ( vm->check_restricted(aname, uc_tmpl.get()) )
         {
             att.resp_msg = "Template includes a restricted attribute " + aname;
             failure_response(AUTHORIZATION, att);
