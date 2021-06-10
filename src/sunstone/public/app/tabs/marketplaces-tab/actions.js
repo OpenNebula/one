@@ -44,7 +44,9 @@ define(function(require) {
     "MarketPlace.append_template" : _commonActions.appendTemplate(),
     "MarketPlace.update_dialog" : _commonActions.checkAndShowUpdate(),
     "MarketPlace.show_to_update" : _commonActions.showUpdate(CREATE_DIALOG_ID),
-    "MarketPlace.rename": _commonActions.singleAction('rename')
+    "MarketPlace.rename": _commonActions.singleAction('rename'),
+    "MarketPlace.enable" : _commonActions.multipleAction('enable'),
+    "MarketPlace.disable": _commonActions.multipleAction('disable'),
   }
 
   return _actions;

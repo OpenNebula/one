@@ -61,7 +61,13 @@ define(function(require) {
     },
     "getName": function(id){
       return OpenNebulaAction.getName(id, RESOURCE);
-    }
+    },
+    "enable": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "enable");
+    },
+    "disable": function(params) {
+      OpenNebulaAction.simple_action(params, RESOURCE, "disable");
+    },
   }
 
   return MarketPlace;
