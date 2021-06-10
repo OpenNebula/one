@@ -1206,13 +1206,16 @@ public:
     int updateconf(VirtualMachineTemplate* tmpl, std::string &err);
 
     /**
-     *  Get the configuration attributes used in an updateconf API call.
-     *    @param err description if any
-     *    @return template with the attributes
+     *  Check if the template includes any restricted attribute, different from
+     *  this VM template.
+     *    @param template to look for for restricted. The resulting tgt template
+     *    will have the same restricted Attributes as this VM.
+     *    @param ra the restricted attribute found to be different
+     *    @return true if a different restricted is found
      */
-    std::unique_ptr<VirtualMachineTemplate> get_updateconf_template() const
+    bool check_restricted(std::string& ra, VirtualMachineTemplate * tgt) const
     {
-        return static_cast<VirtualMachineTemplate*>(obj_template.get())->get_updateconf_template();
+        return tgt->check_restricted(ra, obj_template.get());
     }
 
     // -------------------------------------------------------------------------
