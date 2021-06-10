@@ -54,8 +54,8 @@ void MarketPlaceEnable::request_execute(
 
     if (auto market = pool->get<MarketPlace>(id))
     {
-        if (enable_flag && market->get_state() == MarketPlace::ENABLED ||
-            !enable_flag && market->get_state() == MarketPlace::DISABLED)
+        if ((enable_flag && market->get_state() == MarketPlace::ENABLED) ||
+            (!enable_flag && market->get_state() == MarketPlace::DISABLED))
         {
             success_response(id, att);
             return;
