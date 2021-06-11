@@ -638,7 +638,7 @@ module SGIPTables
 
         # Disable IP-spoofing
         set = "#{chain}-ip-spoofing"
-        commands.add :ipset, "-q -D #{set} #{nic[:ip]} | true"
+        commands.add :ipset, "-q del -exist #{set} #{nic[:ip]} | true"
 
         commands.run!
     end
