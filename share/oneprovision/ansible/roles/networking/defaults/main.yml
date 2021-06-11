@@ -3,7 +3,7 @@
 ################################################################################
 
 # The network device to configure
-networking_iface: 'ens7'
+networking_iface: 'eth_one'
 
 # Netmask of the interface
 networking_prefix: 20

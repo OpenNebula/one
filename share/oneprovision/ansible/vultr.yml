@@ -23,6 +23,6 @@
         - { protocol: 'udp', port: 8472 }
     - update-replica
     - role: frr
-      frr_iface: 'ens7'
+      frr_iface: 'eth_one'
       # Use /20 for the internal management network address
       frr_prefix_length: 20
