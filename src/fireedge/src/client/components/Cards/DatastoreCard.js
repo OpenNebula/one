@@ -7,8 +7,7 @@ import { Folder as DatastoreIcon } from 'iconoir-react'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
 
-import { prettyBytes } from 'client/utils'
-import Datastore from 'client/constants/datastore'
+import * as DatastoreModel from 'client/models/Datastore'
 
 const useStyles = makeStyles(({
   title: {
@@ -27,14 +26,15 @@ const DatastoreCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
     const classes = useStyles()
 
-    const { ID, NAME, TYPE, STATE, TOTAL_MB, USED_MB } = value
-    const type = Datastore.TYPES[TYPE]
-    const state = Datastore.STATES[STATE]
+    const { ID, NAME } = value
 
-    const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0
-    const usedBytes = prettyBytes(+USED_MB, 'MB')
-    const totalBytes = prettyBytes(+TOTAL_MB, 'MB')
-    const percentLabel = `${usedBytes} / ${totalBytes} (${Math.round(percentOfUsed)}%)`
+    const type = DatastoreModel.getType(value)
+    const state = DatastoreModel.getState(value)
+
+    const {
+      percentOfUsed,
+      percentLabel
+    } = DatastoreModel.getCapacityInfo(value)
 
     return (
       <SelectCard

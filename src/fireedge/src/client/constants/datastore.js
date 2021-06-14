@@ -1,7 +1,7 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
-const DATASTORE_TYPES = [
+export const DATASTORE_TYPES = [
   {
     name: 'IMAGE',
     shortName: 'img'
@@ -16,7 +16,7 @@ const DATASTORE_TYPES = [
   }
 ]
 
-const DATASTORE_STATES = [
+export const DATASTORE_STATES = [
   {
     name: STATES.READY,
     shortName: 'on',
@@ -28,8 +28,3 @@ const DATASTORE_STATES = [
     color: COLOR.error.dark
   }
 ]
-
-export default {
-  TYPES: DATASTORE_TYPES,
-  STATES: DATASTORE_STATES
-}

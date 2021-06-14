@@ -1,27 +1,26 @@
 import loadable from '@loadable/component'
 import {
   Code as DevIcon,
-  ViewGrid as VmIcon
+  ViewGrid as NewstoneIcon
 } from 'iconoir-react'
 
-const VirtualMachines = loadable(() => import('client/containers/VirtualMachines'), { ssr: false })
+const Newstone = loadable(() => import('client/containers/Newstone'), { ssr: false })
 const TestApi = loadable(() => import('client/containers/TestApi'), { ssr: false })
 const WebConsole = loadable(() => import('client/containers/WebConsole'), { ssr: false })
 
 export const PATH = {
-  VIRTUAL_MACHINES: '/vms',
+  NEWSTONE: '/newstone/:resource',
   TEST_API: '/test-api',
   WEB_CONSOLE: '/webconsole'
 }
 
 export const ENDPOINTS = [
   {
-    label: 'VMs',
-    path: PATH.VIRTUAL_MACHINES,
-    devMode: true,
+    label: 'Newstone',
+    path: PATH.NEWSTONE,
     sidebar: true,
-    icon: VmIcon,
-    Component: VirtualMachines
+    icon: NewstoneIcon,
+    Component: Newstone
   },
   {
     label: 'Test API',

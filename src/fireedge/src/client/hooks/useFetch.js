@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { debounce } from '@material-ui/core'
 import { fakeDelay } from 'client/utils'
+import { console } from 'window-or-global'
 
 const useRequest = request => {
   const [data, setData] = useState(undefined)
@@ -22,7 +23,8 @@ const useRequest = request => {
             } else setError(true)
           }
         })
-        .catch(() => {
+        .catch(e => {
+          console.log('error', e)
           if (isMounted.current) {
             setData(undefined)
             setError(true)

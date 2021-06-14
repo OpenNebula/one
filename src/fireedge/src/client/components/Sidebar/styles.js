@@ -107,15 +107,8 @@ export default makeStyles(theme => ({
       backgroundClip: 'content-box',
       border: '4px solid transparent',
       borderRadius: 7,
-      boxShadow: 'inset 0 0 0 10px'
-    },
-    '&::-webkit-scrollbar-button': {
-      width: 0,
-      height: 0,
-      display: 'none'
-    },
-    '&::-webkit-scrollbar-corner': {
-      backgroundColor: 'transparent'
+      boxShadow: 'inset 0 0 0 10px',
+      color: theme.palette.secondary.light
     }
   },
   list: {

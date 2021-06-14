@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from 'react'
 
 import { useAuth } from 'client/features/Auth'
-import { useVm, useVmApi } from 'client/features/One'
 import { useFetch } from 'client/hooks'
+import { useVm, useVmApi } from 'client/features/One'
 
-import { VmTable } from 'client/components/Tables'
+import { VirtualizedTable } from 'client/components/Tables'
+import Columns from 'client/components/Tables/Vms/columns'
 
 const INITIAL_ELEMENT = 0
-const NUMBER_OF_INTERVAL = -100
+const NUMBER_OF_INTERVAL = 20
 
-function VirtualMachines () {
-  const [{ start, end }, setPage] = useState(({ start: INITIAL_ELEMENT, end: -NUMBER_OF_INTERVAL }))
+const VmsTable = () => {
+  const [{ start, end }, setPage] = useState({
+    start: INITIAL_ELEMENT,
+    end: -NUMBER_OF_INTERVAL
+  })
+
+  const columns = React.useMemo(() => Columns, [])
 
   const vms = useVm()
   const { getVms } = useVmApi()
   const { filterPool } = useAuth()
 
-  const { data, fetchRequest, loading, reloading } = useFetch(getVms)
+  const { data, fetchRequest, loading, reloading, error } = useFetch(getVms)
 
   useEffect(() => { fetchRequest({ start, end }) }, [filterPool])
 
@@ -31,16 +37,17 @@ function VirtualMachines () {
     })
   }
 
-  const finish = data?.length < NUMBER_OF_INTERVAL
+  const canFetchMore = error || data?.vms?.length < NUMBER_OF_INTERVAL
 
   return (
-    <VmTable
+    <VirtualizedTable
+      columns={columns}
       data={vms}
       isLoading={loading || reloading}
-      finish={finish}
+      canFetchMore={canFetchMore}
       fetchMore={fetchMore}
     />
   )
 }
 
-export default VirtualMachines
+export default VmsTable

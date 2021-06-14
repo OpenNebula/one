@@ -7,8 +7,7 @@ import { HardDrive as HostIcon } from 'iconoir-react'
 import SelectCard, { Action } from 'client/components/Cards/SelectCard'
 import { StatusBadge, StatusChip, LinearProgressWithLabel } from 'client/components/Status'
 
-import { prettyBytes } from 'client/utils'
-import Host from 'client/constants/host'
+import * as HostModel from 'client/models/Host'
 
 const useStyles = makeStyles({
   title: {
@@ -27,18 +26,17 @@ const HostCard = memo(
   ({ value, isSelected, handleClick, actions }) => {
     const classes = useStyles()
 
-    const { ID, NAME, STATE, IM_MAD, VM_MAD, HOST_SHARE } = value
-    const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = HOST_SHARE
+    const { ID, NAME, IM_MAD, VM_MAD } = value
 
-    const percentCpuUsed = +CPU_USAGE * 100 / +TOTAL_CPU || 0
-    const percentCpuLabel = `${CPU_USAGE} / ${TOTAL_CPU} (${Math.round(percentCpuUsed)}%)`
+    const {
+      percentCpuUsed,
+      percentCpuLabel,
+      percentMemUsed,
+      percentMemLabel
+    } = HostModel.getAllocatedInfo(value)
 
-    const percentMemUsed = +MEM_USAGE * 100 / +TOTAL_MEM || 0
-    const usedMemBytes = prettyBytes(+MEM_USAGE)
-    const totalMemBytes = prettyBytes(+TOTAL_MEM)
-    const percentMemLabel = `${usedMemBytes} / ${totalMemBytes} (${Math.round(percentMemUsed)}%)`
+    const state = HostModel.getState(value)
 
-    const state = Host.STATES[STATE]
     const mad = IM_MAD === VM_MAD ? IM_MAD : `${IM_MAD}/${VM_MAD}`
 
     return (

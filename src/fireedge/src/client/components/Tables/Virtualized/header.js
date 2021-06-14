@@ -15,9 +15,15 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'start',
     padding: '1em',
 
-    color: '#4A5568',
-    backgroundColor: '#e6e8f7',
-    borderBlock: '0.5px solid #EDF2F7'
+    color: theme.palette.text.primary,
+    backgroundColor: theme.palette.action.hover,
+    border: `1px solid ${theme.palette.action.disabledBackground}`,
+    borderBottom: 'transparent',
+
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6
   }
 }))
 

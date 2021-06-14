@@ -2,9 +2,34 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { useVirtual } from 'react-virtual'
-import { debounce, Box, LinearProgress } from '@material-ui/core'
+import { debounce, makeStyles, Box, LinearProgress } from '@material-ui/core'
 
 import { useNearScreen } from 'client/hooks'
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    height: '100%',
+    overflow: 'auto',
+    '&::-webkit-scrollbar': {
+      width: 14
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundClip: 'content-box',
+      border: '4px solid transparent',
+      borderRadius: 7,
+      boxShadow: 'inset 0 0 0 10px',
+      color: theme.palette.secondary.light
+    }
+  },
+  container: {
+    width: '100%',
+    position: 'relative'
+  },
+  loading: {
+    width: '100%',
+    marginTop: 10
+  }
+}))
 
 const ListVirtualized = ({
   canFetchMore,
@@ -14,6 +39,9 @@ const ListVirtualized = ({
   fetchMore,
   children
 }) => {
+  // STYLES
+  const classes = useStyles()
+
   // OBSERVER
   const loaderRef = React.useRef()
   const { isNearScreen } = useNearScreen({
@@ -39,11 +67,10 @@ const ListVirtualized = ({
   }, [isNearScreen, canFetchMore, debounceHandleNextPage])
 
   return (
-    <Box ref={parentRef} height={1} overflow='auto'>
+    <Box ref={parentRef} className={classes.root}>
       <Box {...containerProps}
-        height={`${rowVirtualizer.totalSize}px`}
-        width={1}
-        position='relative'
+        className={classes.container}
+        height={rowVirtualizer.totalSize}
       >
         {children(rowVirtualizer.virtualItems)}
       </Box>
@@ -52,7 +79,7 @@ const ListVirtualized = ({
         <LinearProgress
           ref={loaderRef}
           color='secondary'
-          style={{ width: '100%', marginTop: 10 }}
+          className={classes.loading}
         />
       )}
     </Box>

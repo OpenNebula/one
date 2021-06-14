@@ -18,6 +18,6 @@ export const useHostApi = () => {
 
   return {
     getHost: id => unwrapDispatch(actions.getHost({ id })),
-    getHosts: () => unwrapDispatch(actions.getHosts())
+    getHosts: options => unwrapDispatch(actions.getHosts(options))
   }
 }

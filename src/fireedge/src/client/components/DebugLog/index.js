@@ -28,7 +28,7 @@ const debugLogStyles = makeStyles(theme => ({
       border: '4px solid transparent',
       borderRadius: 7,
       boxShadow: 'inset 0 0 0 10px',
-      color: theme.palette.primary.light
+      color: theme.palette.secondary.light
     }
   }
 }))

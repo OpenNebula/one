@@ -1,9 +1,3 @@
-import * as React from 'react'
-
-import { SelectFilter } from 'client/components/Table'
-import { StatusChip } from 'client/components/Status'
-
-import Colors from 'client/constants/color'
 import * as VirtualMachineModel from 'client/models/VirtualMachine'
 
 export default [
@@ -27,31 +21,33 @@ export default [
     )
   }, */
   {
-    Header: '#',
-    accessor: 'ID',
-    Cell: ({ value }) =>
-      <StatusChip stateColor={Colors.debug.light} text={`#${value}`} />
+    Header: '#', accessor: 'ID'
+    // Cell: ({ value }) =>
+    //   <StatusChip stateColor={Colors.debug.light} text={`#${value}`} />
   },
   { Header: 'Name', accessor: 'NAME' },
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => VirtualMachineModel.getState(row),
-    Cell: ({ value: { name, color } = {} }) => name && (
-      <StatusChip stateColor={color} text={name} />
-    ),
-    Filter: ({ column }) => (
-      <SelectFilter column={column} accessorOption='name' />
-    ),
-    filter: (rows, id, filterValue) =>
-      rows.filter(row => row.values[id]?.name === filterValue)
+    accessor: row => VirtualMachineModel.getState(row)?.name
+    // Cell: ({ value: { name, color } = {} }) => name && (
+    //   <StatusChip stateColor={color} text={name} />
+    // ),
+    // Filter: ({ column }) => (
+    //   <SelectFilter column={column} accessorOption='name' />
+    // ),
+    // filter: (rows, id, filterValue) =>
+    //   rows.filter(row => row.values[id]?.name === filterValue)
   },
-  { Header: 'Owner/Group', accessor: row => `${row.UNAME}/${row.GNAME}` },
+  {
+    Header: 'Owner/Group',
+    accessor: row => `${row.UNAME}/${row.GNAME}`
+  },
   {
     Header: 'Ips',
-    accessor: row => VirtualMachineModel.getIps(row),
-    Cell: ({ value }) => value.map(nic => (
-      <StatusChip key={nic} stateColor={Colors.debug.light} text={nic} />
-    ))
+    accessor: row => VirtualMachineModel.getIps(row).join(',')
+    // Cell: ({ value }) => value.map(nic => (
+    //   <StatusChip key={nic} stateColor={Colors.debug.light} text={nic} />
+    // ))
   }
 ]

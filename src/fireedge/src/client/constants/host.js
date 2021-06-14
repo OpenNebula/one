@@ -1,7 +1,7 @@
 import * as STATES from 'client/constants/states'
 import COLOR from 'client/constants/color'
 
-const HOST_STATES = [
+export const HOST_STATES = [
   {
     name: STATES.INIT,
     shortName: 'init',
@@ -48,7 +48,3 @@ const HOST_STATES = [
     color: COLOR.error.dark
   }
 ]
-
-export default {
-  STATES: HOST_STATES
-}

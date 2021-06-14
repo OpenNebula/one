@@ -34,11 +34,17 @@ export default {
   },
   typography: {
     fontFamily: [
-      '"Ubuntu"',
+      'Ubuntu',
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
       'Roboto',
-      'Helvetica',
+      '"Helvetica Neue"',
       'Arial',
-      'sans-serif'
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"'
     ].join(',')
   },
   mixins: {

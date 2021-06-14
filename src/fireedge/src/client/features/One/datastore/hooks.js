@@ -18,6 +18,6 @@ export const useDatastoreApi = () => {
 
   return {
     getDatastore: id => unwrapDispatch(actions.getDatastore({ id })),
-    getDatastores: () => unwrapDispatch(actions.getDatastores())
+    getDatastores: options => unwrapDispatch(actions.getDatastores(options))
   }
 }

@@ -14,7 +14,7 @@ const BorderLinearProgress = withStyles(({ palette }) => ({
   },
   bar: {
     borderRadius: 5,
-    backgroundColor: palette.primary.main
+    backgroundColor: palette.secondary.main
   }
 }))(LinearProgress)
 
