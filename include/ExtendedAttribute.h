@@ -70,20 +70,6 @@ public:
         va->merge(vattr, replace);
     }
 
-protected:
-    /**
-     *  Creates the attribute with a reference to a VectorAttribute. The object
-     *  is shared and WILL BE modified through this interface.
-     *    @param va pointer to the VectorAttribute.
-     */
-    ExtendedAttribute(VectorAttribute *_va):
-        Attribute(_va->name()) ,va(_va), id(-1) {};
-
-    ExtendedAttribute(VectorAttribute *_va, int _id):
-        Attribute(_va->name()) ,va(_va), id(_id) {};
-
-    virtual ~ExtendedAttribute(){};
-
     /* ---------------------------------------------------------------------- */
     /* Attribute Interface                                                    */
     /* ---------------------------------------------------------------------- */
@@ -107,6 +93,23 @@ protected:
         return va->to_token(s);
     };
 
+protected:
+    /**
+     *  Creates the attribute with a reference to a VectorAttribute. The object
+     *  is shared and WILL BE modified through this interface.
+     *    @param va pointer to the VectorAttribute.
+     */
+    ExtendedAttribute(VectorAttribute *_va):
+        Attribute(_va->name()) ,va(_va), id(-1) {};
+
+    ExtendedAttribute(VectorAttribute *_va, int _id):
+        Attribute(_va->name()) ,va(_va), id(_id) {};
+
+    virtual ~ExtendedAttribute(){};
+
+    /* ---------------------------------------------------------------------- */
+    /* Attribute Interface                                                    */
+    /* ---------------------------------------------------------------------- */
     void unmarshall(const std::string& sattr, const char * _sep = 0)
     {
         va->unmarshall(sattr, _sep);

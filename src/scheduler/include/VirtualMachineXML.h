@@ -406,8 +406,15 @@ public:
      */
     SchedActions get_actions() const
     {
-        return SchedActions(user_template.get());
+        return SchedActions(vm_template.get());
     }
+
+    /**
+     * Update scheduled action of the VM
+     *
+     * @param action sched action to update
+     */
+    bool update_sched_action(SchedAction* action);
 
     /**
      * Sets an attribute in the VM Template, it must be allocated in the heap

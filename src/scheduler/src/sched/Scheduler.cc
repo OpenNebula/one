@@ -1741,12 +1741,15 @@ int Scheduler::do_scheduled_actions()
                 oss << "Failure. " << error_msg;
             }
 
-            NebulaLog::log("VM", Log::INFO, oss);
-        }
+            if (!vm->update_sched_action(action))
+            {
+                ostringstream oss;
+                action->to_xml(oss);
+                NebulaLog::warn("SCHED", string("Unable to update sched action: ")
+                    + oss.str());
+            }
 
-        if ( !sas.empty() ) //Do not update VMs without SCHED_ACTION
-        {
-            vmpool->update(vm);
+            NebulaLog::log("VM", Log::INFO, oss);
         }
     }
 

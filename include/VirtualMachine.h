@@ -989,18 +989,6 @@ public:
      */
     void clear_template_error_message() override;
 
-    /**
-     *  Sets an error message with timestamp in the template (ERROR_MONITOR)
-     *    @param message Message string
-     */
-    void set_template_monitor_error(const std::string& message);
-
-    /**
-     *  Deletes the error message from the template (ERROR_MONITOR)
-     *    @param message Message string
-     */
-    void clear_template_monitor_error();
-
     // ------------------------------------------------------------------------
     // Timers & Requirements
     // ------------------------------------------------------------------------
@@ -1694,6 +1682,35 @@ public:
      */
     int check_shareable_disks(const std::string& vmm_mad, std::string& error);
 
+    /**
+     *  Add scheduled actions
+     *  @param sched_template Teplate with scheduled actions
+     *  @param error Error string in case of failure
+     *  @return 0 on success, -1 on failure
+     */
+    int sched_action_add(const std::string& sched_template,
+                         std::string& error);
+
+    /**
+     *  Update one scheduled action
+     *  @param sched_id ID of the scheduled action to delete
+     *  @param error Error string in case of failure
+     *  @return 0 on success, -1 on failure
+     */
+    int sched_action_delete(int sched_id,
+                            std::string& error);
+
+    /**
+     *  Update one scheduled action
+     *  @param sched_id ID of the scheduled action to update
+     *  @param sched_template New value of scheduled action
+     *  @param error Error string in case of failure
+     *  @return 0 on success, -1 on failure
+     */
+    int sched_action_update(int sched_id,
+                            const std::string& sched_template,
+                            std::string& error);
+
 private:
 
     // -------------------------------------------------------------------------
@@ -2170,6 +2187,11 @@ private:
      *    @return -1 in case of error 0 otherwise
      */
     int parse_sched_action(std::string& error_str);
+
+    /**
+     *  Assign id to sched actions without id
+     */
+    void assign_sched_ids();
 
     /**
      *  Encrypt all secret attributes

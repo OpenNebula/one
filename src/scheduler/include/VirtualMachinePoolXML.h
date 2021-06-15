@@ -82,6 +82,7 @@ public:
      *
      *      @return 0 on success, -1 otherwise
      */
+    [[deprecated("This method may cause race condition issues")]]
     int update(VirtualMachineXML * vm) const
     {
         std::string xml;
@@ -175,7 +176,7 @@ protected:
     {
         std::ostringstream oss;
 
-        oss << "/VM_POOL/VM/USER_TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
+        oss << "/VM_POOL/VM/TEMPLATE/SCHED_ACTION[(TIME < " << time(0)
             << " and (not(DONE > 0) or boolean(REPEAT))) or ( TIME[starts-with(text(),\"+\")] and not(DONE>0) ) ]/../..";
 
         return get_nodes(oss.str().c_str(), content);

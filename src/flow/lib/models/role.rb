@@ -583,7 +583,7 @@ module OpenNebula
 
                     @service.log_error(msg)
                 else
-                    ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
+                    ids = vm.retrieve_elements('TEMPLATE/SCHED_ACTION/ID')
 
                     id = 0
                     if !ids.nil? && !ids.empty?
@@ -591,20 +591,18 @@ module OpenNebula
                         id = ids.max + 1
                     end
 
-                    tmp_str = vm.user_template_str
-
                     if do_offset
                         offset = (index / vms_per_period.to_i).floor
                         time_offset = offset * period.to_i
                     end
 
-                    tmp_str << "\nSCHED_ACTION = ["
+                    tmp_str = "SCHED_ACTION = ["
                     tmp_str << "ID = #{id},"
                     tmp_str << "ACTION = #{action},"
                     tmp_str << "ARGS = \"#{args}\"," if args
                     tmp_str << "TIME = #{now + time_offset}]"
 
-                    rc = vm.update(tmp_str)
+                    rc = vm.sched_action_add(tmp_str)
                     if OpenNebula.is_error?(rc)
                         msg = "Role #{name} : VM #{vm_id} error scheduling "\
                               "action; #{rc.message}"

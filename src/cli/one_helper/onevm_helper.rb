@@ -439,21 +439,6 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 str_periodic << ', END_TYPE = 0'
             end
 
-            rc = vm.info
-
-            if OpenNebula.is_error?(rc)
-                puts rc.message
-                exit(-1)
-            end
-
-            ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
-
-            id = 0
-            if !ids.nil? && !ids.empty?
-                ids.map! {|e| e.to_i }
-                id = ids.max + 1
-            end
-
             sched = options[:schedule]
 
             # If the action is set to be executed from VM start to an specific
@@ -463,16 +448,14 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 sched = sched.to_i
             end
 
-            tmp_str = vm.user_template_str
-
-            tmp_str << "\nSCHED_ACTION = "
-            tmp_str << "[ID = #{id}, ACTION = #{action}, "
+            tmp_str = "SCHED_ACTION = ["
+            tmp_str << "ACTION = #{action}, "
             tmp_str << "WARNING = #{warning}," if warning
             tmp_str << "ARGS = \"#{options[:args]}\"," if options[:args]
             tmp_str << "TIME = #{sched}"
             tmp_str << str_periodic << ']'
 
-            vm.update(tmp_str)
+            vm.sched_action_add(tmp_str)
         end
     end
 
@@ -490,7 +473,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                 exit(-1)
             end
 
-            xpath = "USER_TEMPLATE/SCHED_ACTION[ID=#{action_id}]"
+            xpath = "TEMPLATE/SCHED_ACTION[ID=#{action_id}]"
 
             unless vm.retrieve_elements(xpath)
                 STDERR.puts "Sched action #{action_id} not found"
@@ -508,12 +491,11 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             vm.delete_element(xpath)
 
             # Add the modified sched action
-            tmp_str = vm.user_template_str
-            tmp_str << "\nSCHED_ACTION = ["
+            tmp_str = "\nSCHED_ACTION = ["
             tmp_str << str.split("\n").join(',')
             tmp_str << ']'
 
-            rc = vm.update(tmp_str)
+            rc = vm.sched_action_update(action_id, tmp_str)
 
             if OpenNebula.is_error?(rc)
                 STDERR.puts "Error updating: #{rc.message}"
@@ -1227,7 +1209,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
             format_history(vm)
         end
 
-        if vm.has_elements?('/VM/USER_TEMPLATE/SCHED_ACTION')
+        if vm.has_elements?('/VM/TEMPLATE/SCHED_ACTION')
             puts
             CLIHelper.print_header(str_h1 % 'SCHEDULED ACTIONS', false)
 
@@ -1318,12 +1300,12 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
                         show
                     end
                 end
-            end.show([vm_hash['VM']['USER_TEMPLATE']['SCHED_ACTION']].flatten,
+            end.show([vm_hash['VM']['TEMPLATE']['SCHED_ACTION']].flatten,
                      {})
         end
 
         if !options[:all]
-            vm.delete_element('/VM/USER_TEMPLATE/SCHED_ACTION')
+            vm.delete_element('/VM/TEMPLATE/SCHED_ACTION')
         end
 
         if vm.has_elements?('/VM/USER_TEMPLATE')

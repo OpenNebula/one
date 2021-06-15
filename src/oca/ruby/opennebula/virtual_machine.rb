@@ -50,8 +50,11 @@ module OpenNebula
             :disksnapshotrename => "vm.disksnapshotrename",
             :diskresize     => "vm.diskresize",
             :updateconf     => "vm.updateconf",
-            :lock     => "vm.lock",
-            :unlock     => "vm.unlock"
+            :lock           => "vm.lock",
+            :unlock         => "vm.unlock",
+            :schedadd       => "vm.schedadd",
+            :scheddelete    => "vm.scheddelete",
+            :schedupdate    => "vm.schedupdate"
         }
 
         VM_STATE=%w{INIT PENDING HOLD ACTIVE STOPPED SUSPENDED DONE FAILED
@@ -722,6 +725,35 @@ module OpenNebula
         #   otherwise
         def updateconf(new_conf)
             return call(VM_METHODS[:updateconf], @pe_id, new_conf)
+        end
+
+        # Add sched actions
+        #
+        # @param sched_template [String] Template with SCHED_ACTIONs
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def sched_action_add(sched_template)
+            return call(VM_METHODS[:schedadd], @pe_id, sched_template)
+        end
+
+        # Delete sched action
+        #
+        # @param sched_id [Int] id of the SCHED_ACTION
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def sched_action_delete(sched_id)
+            return call(VM_METHODS[:scheddelete], @pe_id, sched_id.to_i)
+        end
+
+        # Update sched_action
+        #
+        # @param sched_id [Int] id of the SCHED_ACTION
+        # @param sched_template [String] Template containing a SCHED_ACTION
+        # @return [nil, OpenNebula::Error] nil in case of success, Error
+        #   otherwise
+        def sched_action_update(sched_id, sched_template)
+            return call(VM_METHODS[:schedupdate], @pe_id, sched_id.to_i,
+                sched_template)
         end
 
         ########################################################################

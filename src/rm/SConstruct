@@ -53,7 +53,8 @@ source_files=[
     'RequestManagerVirtualRouter.cc',
     'RequestManagerSecurityGroup.cc',
     'RequestManagerVNTemplate.cc',
-    'RequestManagerHook.cc'
+    'RequestManagerHook.cc',
+    'RequestManagerSchedAction.cc'
 ]
 
 # Build library

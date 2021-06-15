@@ -188,9 +188,18 @@ int VMTemplate::bootstrap(SqlDB * db)
 
 int VMTemplate::parse_sched_action(string& error_str)
 {
-    SchedActions sactions(obj_template.get());
+    vector<VectorAttribute*> vas;
 
-    return sactions.parse(error_str, true);
+    if (obj_template->remove("SCHED_ACTION", vas) == 0)
+    {
+        return 0;
+    }
+
+    int rc = SchedActions::parse(vas, error_str, true, false);
+
+    obj_template->set(vas);
+
+    return rc;
 }
 
 /* ------------------------------------------------------------------------ */

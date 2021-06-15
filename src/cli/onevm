@@ -1411,22 +1411,7 @@ CommandParser::CmdParser.new(ARGV) do
 
     command :'delete-chart', delete_chart_desc, :vmid, :sched_id do
         helper.perform_action(args[0], {}, 'Charter deleted') do |vm|
-            rc = vm.info
-
-            if OpenNebula.is_error?(rc)
-                STDERR.puts "Error #{rc.message}"
-                exit(-1)
-            end
-
-            xpath = "USER_TEMPLATE/SCHED_ACTION[ID=#{args[1]}]"
-
-            unless vm.retrieve_elements(xpath)
-                STDERR.puts "Sched action #{args[1]} not found"
-                exit(-1)
-            end
-
-            vm.delete_element(xpath)
-            rc = vm.update(vm.user_template_str)
+            rc = vm.sched_action_delete(args[1])
 
             if OpenNebula.is_error?(rc)
                 STDERR.puts "Error deleting: #{rc.message}"

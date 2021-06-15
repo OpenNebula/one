@@ -455,3 +455,99 @@ time_t SchedAction::next_action()
 
     return action_time;
 }
+
+/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+int SchedActions::parse(std::vector<VectorAttribute *>& vas,
+        std::string& error, bool clean, bool set_id)
+{
+    unsigned int sched_id = 0;
+
+    std::string err;
+
+    int rc = 0;
+
+    for (auto it = vas.begin(); it != vas.end(); )
+    {
+        if ( (*it)->type() != Attribute::VECTOR )
+        {
+            delete *it;
+            it = vas.erase(it);
+        }
+        else
+        {
+
+            if (set_id)
+            {
+                (*it)->replace("ID", sched_id++);
+            }
+
+            SchedAction sa(*it, sched_id);
+
+            if ( sa.parse(err, clean) == -1 )
+            {
+                std::ostringstream oss;
+
+                oss << " SCHED_ACTION: " << sched_id << ". Parse error: "<< err;
+                error += oss.str();
+
+                rc = -1;
+            }
+
+            ++it;
+        }
+    }
+
+    return rc;
+}
+
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * SchedActions::new_action(
+        const std::vector<const VectorAttribute *>& vas,
+        VectorAttribute * va, std::string &err)
+{
+    int max_id = -1;
+
+    for(auto const *_va : vas)
+    {
+        int id = -1;
+
+        if (_va->vector_value("ID", id) == 0)
+        {
+            max_id = std::max(max_id, id);
+        }
+    }
+
+    SchedAction sched_action(va, max_id + 1);
+
+    if (sched_action.parse(err, true) == -1)
+    {
+        return nullptr;
+    }
+
+    VectorAttribute * new_sa = new VectorAttribute(va);
+
+    new_sa->replace("ID", max_id + 1);
+
+    return new_sa;
+}
+
+/* -------------------------------------------------------------------------- */
+
+VectorAttribute * SchedActions::get_action(
+        const std::vector<VectorAttribute *>& sched_actions, int id)
+{
+    for (auto *va : sched_actions)
+    {
+        int _id;
+
+        if (va->vector_value("ID", _id) == 0 && _id == id)
+        {
+            return va;
+        }
+    }
+
+    return nullptr;
+}

@@ -131,12 +131,10 @@ public:
 
         tmpl->get("SCHED_ACTION", vas);
 
-        init_attribute_map("TIME", vas);
+        init_attribute_map("ID", vas);
     };
 
     virtual ~SchedActions(){};
-
-    /* ---------------------------------------------------------------------- */
 
     /**
      *  Parse the ScheduleActions of a template
@@ -161,6 +159,39 @@ public:
     {
         return a_set.empty();
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* ---------------------------------------------------------------------- */
+
+    /* ---------------------------------------------------------------------- */
+    /* Raw VectorAttribute helpers                                            */
+    /* ---------------------------------------------------------------------- */
+    /**
+     * Parse a set of scheduled actions and optionally assign them a valid id
+     *   @param vas the vector of SCHED_ACTION
+     *   @param err string in case of error
+     *   @param clean remove DONE and MESSAGE attributes
+     *   @param set_id to set ID for each action
+     *
+     *   @return 0 on success -1 if error
+     */
+    static int parse(std::vector<VectorAttribute *>& vas, std::string& err,
+            bool clean, bool set_id);
+
+    /**
+     *  Adds a new SchedAction based on the provided VectorAttribute. The new
+     *  attribute is check and parsed
+     *    @param va VectorAttribute with the action
+     *    @param err with description
+     *
+     *    @return pointer to new attribute nullptr on error
+     */
+    static VectorAttribute * new_action(
+            const std::vector<const VectorAttribute *>& vas,
+            VectorAttribute * va, std::string &err);
+
+    static VectorAttribute * get_action(
+            const std::vector<VectorAttribute *>& sched_actions, int id);
 
     /* ---------------------------------------------------------------------- */
     /* Iterators                                                              */
