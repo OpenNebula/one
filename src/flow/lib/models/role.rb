@@ -570,9 +570,6 @@ module OpenNebula
                 vm_id = node['deploy_id']
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id,
                                                             @service.client)
-
-                rc = vm.info
-
                 if OpenNebula.is_error?(rc)
                     msg = "Role #{name} : VM #{vm_id} monitorization failed;"\
                           " #{rc.message}"
@@ -583,14 +580,6 @@ module OpenNebula
 
                     @service.log_error(msg)
                 else
-                    ids = vm.retrieve_elements('TEMPLATE/SCHED_ACTION/ID')
-
-                    id = 0
-                    if !ids.nil? && !ids.empty?
-                        ids.map! {|e| e.to_i }
-                        id = ids.max + 1
-                    end
-
                     if do_offset
                         offset = (index / vms_per_period.to_i).floor
                         time_offset = offset * period.to_i

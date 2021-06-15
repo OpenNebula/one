@@ -2189,11 +2189,6 @@ private:
     int parse_sched_action(std::string& error_str);
 
     /**
-     *  Assign id to sched actions without id
-     */
-    void assign_sched_ids();
-
-    /**
      *  Encrypt all secret attributes
      */
     void encrypt() override;
