@@ -1,15 +1,35 @@
+data "aws_availability_zones" "available" {}
+
+# only filter availability zones where given instance could be deployed
+data "aws_ec2_instance_type_offerings" "available" {
+
+    for_each=toset(data.aws_availability_zones.available.names)
+
+    filter {
+        name   = "instance-type"
+        values = ["<%= provision['INSTANCETYPE'] %>"]
+    }
+
+    filter {
+        name   = "location"
+        values = ["${each.key}"]
+    }
+
+    location_type = "availability-zone"
+}
+
+locals {
+    my_zones = keys({ for az, details in data.aws_ec2_instance_type_offerings.available :
+                      az => details.instance_types if length(details.instance_types) != 0 })
+}
+
+
 resource "aws_instance" "device_<%= obj['ID'] %>" {
     ami                    = "<%= provision['AMI'] %>"
     instance_type          = "<%= provision['INSTANCETYPE'] %>"
+    availability_zone      = local.my_zones[0]
 
     vpc_security_group_ids = [ aws_security_group.device_<%= c['ID'] %>_all.id ]
-
-    #
-    # Find below how to apply on instances the SGs provisioned in host.rb
-    #
-    #vpc_security_group_ids = [aws_security_group.device_<%= c['ID'] %>_ssh.id,
-    #                          aws_security_group.device_<%= c['ID'] %>_bgp.id,
-    #                          aws_security_group.device_<%= c['ID'] %>_vxlan.id]
 
     subnet_id              = aws_subnet.device_<%= c['ID'] %>.id
 
