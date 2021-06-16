@@ -586,7 +586,6 @@ module OpenNebula
                     end
 
                     tmp_str = "SCHED_ACTION = ["
-                    tmp_str << "ID = #{id},"
                     tmp_str << "ACTION = #{action},"
                     tmp_str << "ARGS = \"#{args}\"," if args
                     tmp_str << "TIME = #{now + time_offset}]"
