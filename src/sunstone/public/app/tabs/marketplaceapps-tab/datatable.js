@@ -116,6 +116,7 @@ define(function(require) {
     this.totalApps = 0;
 
     this.conf.searchDropdownHTML = SearchDropdown({tableId: this.dataTableId});
+    this.conf.searchByType = true;
     this.searchColumn = SEARCH_COLUMN;
 
     TabDataTable.call(this);

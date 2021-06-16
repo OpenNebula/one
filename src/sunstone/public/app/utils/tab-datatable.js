@@ -139,7 +139,8 @@ define(function(require) {
 
     that.searchInputHTML = TemplateSearchInputHTML({
       "dataTableSearchId": this.dataTableId + "Search",
-      "searchDropdownHTML": this.conf.searchDropdownHTML
+      "searchDropdownHTML": this.conf.searchDropdownHTML,
+      "searchByType": this.conf.searchByType
     });
 
     return that;
