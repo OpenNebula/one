@@ -24,6 +24,7 @@ import (
 	"github.com/OpenNebula/one/src/oca/go/src/goca/parameters"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/shared"
 	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm"
+	"github.com/OpenNebula/one/src/oca/go/src/goca/schemas/vm/keys"
 )
 
 // VMsController is a controller for a pool of VMs
@@ -548,5 +549,28 @@ func (vc *VMController) Lock(level shared.LockLevel) error {
 // Unlock unlocks the vm.
 func (vc *VMController) Unlock() error {
 	_, err := vc.c.Client.Call("one.vm.unlock", vc.ID)
+	return err
+}
+
+// AddSchedAction adds a new scheduled action to the VM
+func (vc *VMController) AddSchedAction(action *vm.SchedAction) error {
+	_, err := vc.c.Client.Call("one.vm.schedadd", vc.ID, action.String())
+	return err
+}
+
+// UpdateSchedAction updates the scheduled action specified by the action ID attribute
+func (vc *VMController) UpdateSchedAction(action *vm.SchedAction) error {
+	actionId, err := action.GetInt(string(keys.ActionID))
+	if err != nil {
+		return err
+	}
+
+	_, err = vc.c.Client.Call("one.vm.schedupdate", vc.ID, actionId, action.String())
+	return err
+}
+
+// DeleteSchedAction deletes the actionId action
+func (vc *VMController) DeleteSchedAction(actionId int) error {
+	_, err := vc.c.Client.Call("one.vm.scheddelete", vc.ID, actionId)
 	return err
 }
