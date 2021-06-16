@@ -156,7 +156,8 @@ EnhancedTable.propTypes = {
 }
 
 EnhancedTable.defaultProps = {
-  skipPageReset: false
+  skipPageReset: false,
+  filterTypes: []
 }
 
 export default EnhancedTable

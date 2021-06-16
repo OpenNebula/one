@@ -7,7 +7,8 @@ const useStyles = makeStyles(theme => ({
   badge: {
     backgroundColor: ({ stateColor }) => stateColor,
     color: ({ stateColor }) => stateColor,
-    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    transform: ({ customTransform }) => customTransform,
+    boxShadow: '0 0 0 2px transparent',
     '&::after': {
       position: 'absolute',
       top: 0,
@@ -32,26 +33,25 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const StatusBadge = memo(({ stateColor, children, ...props }) => {
-  const classes = useStyles({ stateColor })
+const StatusBadge = memo(({ stateColor, children, customTransform, ...props }) => {
+  const classes = useStyles({ stateColor, customTransform })
 
   return (
     <Badge
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       classes={{ badge: classes.badge }}
-      overlap="circle"
-      variant="dot"
+      overlap='circle'
+      variant='dot'
       {...props}
     >
       {children}
     </Badge>
   )
-},
-(prev, next) => prev.stateColor === next.stateColor
-)
+}, (prev, next) => prev.stateColor === next.stateColor)
 
 StatusBadge.propTypes = {
   stateColor: PropTypes.string,
+  customTransform: PropTypes.string,
   children: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node
@@ -60,6 +60,7 @@ StatusBadge.propTypes = {
 
 StatusBadge.defaultProps = {
   stateColor: undefined,
+  customTransform: undefined,
   children: ''
 }
 

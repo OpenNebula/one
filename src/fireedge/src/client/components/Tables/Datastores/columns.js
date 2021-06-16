@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { LinearProgressWithLabel } from 'client/components/Status'
+import { LinearProgressWithLabel, StatusBadge } from 'client/components/Status'
 import * as DatastoreModel from 'client/models/Datastore'
 
 export default [
@@ -24,24 +24,39 @@ export default [
     )
   }, */
   {
-    Header: '#', accessor: 'ID'
-  },
-  { Header: 'Name', accessor: 'NAME' },
-  {
-    Header: 'State',
+    Header: '',
     id: 'STATE',
-    accessor: row => DatastoreModel.getState(row)?.name
+    width: 50,
+    accessor: row => {
+      const state = DatastoreModel.getState(row)
+
+      return (
+        <StatusBadge
+          title={state?.name}
+          stateColor={state?.color}
+          customTransform='translate(150%, 50%)'
+        />
+      )
+    }
   },
+  { Header: '#', accessor: 'ID', width: 45 },
+  { Header: 'Name', accessor: 'NAME' },
   {
     Header: 'Type',
     id: 'TYPE',
+    width: 100,
     accessor: row => DatastoreModel.getType(row)?.name
   },
   {
     Header: 'Owner/Group',
     accessor: row => `${row.UNAME}/${row.GNAME}`
   },
-  { Header: 'Cluster', accessor: 'CLUSTER' },
+  {
+    Header: 'Clusters',
+    id: 'CLUSTERS',
+    width: 100,
+    accessor: row => [row.CLUSTERS?.ID ?? []].flat().join(',')
+  },
   {
     Header: 'Allocated CPU',
     accessor: row => {

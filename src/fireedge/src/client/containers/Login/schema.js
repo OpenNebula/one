@@ -81,7 +81,7 @@ export const GROUP = {
     const formatGroups = sortedGroupsById.map(({ ID, NAME }) => {
       const markAsPrimary = user?.GID === ID ? (
         <span style={{ marginLeft: 16 }}>
-          <SelectIcon size='1rem' />
+          <SelectIcon size='1em' />
         </span>
       ) : null
 

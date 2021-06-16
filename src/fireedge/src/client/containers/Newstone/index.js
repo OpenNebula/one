@@ -47,6 +47,15 @@ const AntTab = withStyles(theme => ({
   selected: {}
 }))(props => <Tab disableRipple {...props} />)
 
+const AntContainer = withStyles({
+  root: {
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    paddingInline: 0
+  }
+})(Container)
+
 const Newstone = () => {
   const history = useHistory()
   const { resource } = useParams()
@@ -70,10 +79,10 @@ const Newstone = () => {
   ), [resource])
 
   return (
-    <Container disableGutters>
+    <AntContainer>
       {Object.values(TABS).includes(history.location.pathname) && renderTabs}
 
-      <Box py={2}>
+      <Box py={2} overflow='auto'>
         <Switch>
           <Route path={TABS.vms} component={VmsTable} />
           <Route path={TABS.datastores} component={DatastoresTable} />
@@ -82,7 +91,7 @@ const Newstone = () => {
           <Route component={() => <Redirect to={TABS.vms} />} />
         </Switch>
       </Box>
-    </Container>
+    </AntContainer>
   )
 }
 

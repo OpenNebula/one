@@ -37,7 +37,7 @@ const Group = () => {
         }}
       >
         {NAME}
-        {isSelected && <SelectIcon size='1rem' />}
+        {isSelected && <SelectIcon size='1em' />}
       </Button>
     )
   }

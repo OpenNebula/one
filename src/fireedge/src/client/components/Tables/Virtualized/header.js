@@ -1,55 +1,23 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Box } from '@material-ui/core'
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    textTransform: 'uppercase',
-    fontSize: '0.9em',
-    fontWeight: 700,
-    lineHeight: '1rem',
-    letterSpacing: '0.05em',
-
-    overflowWrap: 'break-word',
-    textAlign: 'start',
-    padding: '1em',
-
-    color: theme.palette.text.primary,
-    backgroundColor: theme.palette.action.hover,
-    border: `1px solid ${theme.palette.action.disabledBackground}`,
-    borderBottom: 'transparent',
-
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6
-  }
-}))
-
 const Header = ({ useTableProps }) => {
-  const classes = useStyles()
-
   /** @type {import('react-table').UseTableInstanceProps} */
   const { headerGroups } = useTableProps
 
   const renderHeaderColumn = React.useCallback(column => (
-    <Box {...column.getHeaderProps()}>
+    <div {...column.getHeaderProps()}>
       {column.render('Header')}
-    </Box>
+    </div>
   ), [])
 
   const renderHeaderGroup = React.useCallback(headerGroup => (
-    <Box {...headerGroup.getHeaderGroupProps()}>
+    <div {...headerGroup.getHeaderGroupProps()}>
       {headerGroup.headers.map(renderHeaderColumn)}
-    </Box>
+    </div>
   ), [])
 
-  return (
-    <Box className={classes.root}>
-      {headerGroups.map(renderHeaderGroup)}
-    </Box>
-  )
+  return headerGroups.map(renderHeaderGroup)
 }
 
 Header.propTypes = {

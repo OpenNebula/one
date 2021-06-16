@@ -33,7 +33,7 @@ const Toolbar = ({ useTableProps }) => {
     <div className={classes.filterWrapper}>
       <Button
         variant='outlined'
-        startIcon={<FilterIcon size='1rem' />}
+        startIcon={<FilterIcon size='1em' />}
         className={classes.filterButton}
       >
           Filters

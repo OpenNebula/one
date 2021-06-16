@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { LinearProgressWithLabel } from 'client/components/Status'
+import { LinearProgressWithLabel, StatusBadge } from 'client/components/Status'
 import * as HostModel from 'client/models/Host'
 
 export default [
@@ -24,21 +24,31 @@ export default [
     )
   }, */
   {
-    Header: '#', accessor: 'ID'
+    Header: '',
+    id: 'STATE',
+    width: 50,
+    accessor: row => {
+      const state = HostModel.getState(row)
+
+      return (
+        <StatusBadge
+          title={state?.name}
+          stateColor={state?.color}
+          customTransform='translate(150%, 50%)'
+        />
+      )
+    }
   },
+  { Header: '#', accessor: 'ID', width: 45 },
   { Header: 'Name', accessor: 'NAME' },
   {
-    Header: 'State',
-    id: 'STATE',
-    accessor: row => HostModel.getState(row)?.name
-  },
-  {
     Header: 'IM/VM',
+    width: 100,
     accessor: ({ IM_MAD, VM_MAD }) =>
       IM_MAD === VM_MAD ? IM_MAD : `${IM_MAD}/${VM_MAD}`
   },
   { Header: 'Cluster', accessor: 'CLUSTER' },
-  { Header: 'RVMs', accessor: 'HOST_SHARE.RUNNING_VMS' },
+  { Header: 'RVMs', accessor: 'HOST_SHARE.RUNNING_VMS', width: 100 },
   {
     Header: 'Allocated CPU',
     accessor: row => {

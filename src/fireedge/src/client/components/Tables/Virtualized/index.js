@@ -23,11 +23,11 @@ const useStyles = makeStyles(theme => ({
   },
   table: {
     height: '100%',
-    overflow: 'hidden',
-    borderTop: 0,
+    overflow: 'auto',
     border: `1px solid ${theme.palette.action.disabledBackground}`,
-    borderRadius: '0 0 6px 6px',
-
+    borderRadius: 6
+  },
+  body: {
     '& *[role=row]': {
       fontSize: '1em',
       fontWeight: theme.typography.fontWeightMedium,
@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
       }
     }
   },
-  header: {
+  toolbar: {
     ...theme.typography.body1,
     color: theme.palette.text.hint,
     marginBottom: 16,
@@ -89,7 +89,7 @@ const VirtualizedTable = ({ data, columns, isLoading, canFetchMore, fetchMore })
   return (
     <Box {...getTableProps()} className={classes.root}>
 
-      <div className={classes.header}>
+      <div className={classes.toolbar}>
         <Toolbar useTableProps={useTableProps} />
         <div className={classes.total}>
           {isLoading && <CircularProgress size='1em' color='secondary' />}
@@ -97,23 +97,26 @@ const VirtualizedTable = ({ data, columns, isLoading, canFetchMore, fetchMore })
         </div>
       </div>
 
-      <Header useTableProps={useTableProps} />
       <div className={classes.table}>
-        <ListVirtualized
-          containerProps={{ ...getTableBodyProps() }}
-          canFetchMore={canFetchMore}
-          data={rows}
-          isLoading={isLoading}
-          fetchMore={fetchMore}
-        >
-          {virtualItems => virtualItems?.map(virtualRow => (
-            <Row key={virtualRow.index}
-              virtualRow={virtualRow}
-              useTableProps={useTableProps}
-            />
-          ))
-          }
-        </ListVirtualized>
+        <Header useTableProps={useTableProps} />
+
+        <div className={classes.body}>
+          <ListVirtualized
+            containerProps={{ ...getTableBodyProps() }}
+            canFetchMore={canFetchMore}
+            data={rows}
+            isLoading={isLoading}
+            fetchMore={fetchMore}
+          >
+            {virtualItems => virtualItems?.map(virtualRow => (
+              <Row key={virtualRow.index}
+                virtualRow={virtualRow}
+                useTableProps={useTableProps}
+              />
+            ))
+            }
+          </ListVirtualized>
+        </div>
       </div>
     </Box>
   )

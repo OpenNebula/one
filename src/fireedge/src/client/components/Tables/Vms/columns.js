@@ -1,3 +1,6 @@
+import * as React from 'react'
+
+import { StatusBadge } from 'client/components/Status'
 import * as VirtualMachineModel from 'client/models/VirtualMachine'
 
 export default [
@@ -21,15 +24,20 @@ export default [
     )
   }, */
   {
-    Header: '#', accessor: 'ID'
-    // Cell: ({ value }) =>
-    //   <StatusChip stateColor={Colors.debug.light} text={`#${value}`} />
-  },
-  { Header: 'Name', accessor: 'NAME' },
-  {
-    Header: 'State',
+    Header: '',
     id: 'STATE',
-    accessor: row => VirtualMachineModel.getState(row)?.name
+    width: 50,
+    accessor: row => {
+      const state = VirtualMachineModel.getState(row)
+
+      return (
+        <StatusBadge
+          title={state?.name}
+          stateColor={state?.color}
+          customTransform='translate(150%, 50%)'
+        />
+      )
+    }
     // Cell: ({ value: { name, color } = {} }) => name && (
     //   <StatusChip stateColor={color} text={name} />
     // ),
@@ -39,6 +47,8 @@ export default [
     // filter: (rows, id, filterValue) =>
     //   rows.filter(row => row.values[id]?.name === filterValue)
   },
+  { Header: '#', accessor: 'ID', width: 45 },
+  { Header: 'Name', accessor: 'NAME' },
   {
     Header: 'Owner/Group',
     accessor: row => `${row.UNAME}/${row.GNAME}`

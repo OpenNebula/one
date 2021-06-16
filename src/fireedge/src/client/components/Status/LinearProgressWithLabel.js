@@ -10,17 +10,17 @@ const BorderLinearProgress = withStyles(({ palette }) => ({
     borderRadius: 5
   },
   colorPrimary: {
-    backgroundColor: palette.grey[palette.type === 'light' ? 200 : 700]
+    backgroundColor: palette.grey[palette.type === 'light' ? 400 : 700]
   },
   bar: {
     borderRadius: 5,
-    backgroundColor: palette.secondary.main
+    backgroundColor: palette.primary.main
   }
 }))(LinearProgress)
 
 const LinearProgressWithLabel = memo(({ value, label }) => (
   <div style={{ textAlign: 'end' }}>
-    <Typography component='span' variant='body2'>{label}</Typography>
+    <Typography component='span' variant='body2' noWrap>{label}</Typography>
     <BorderLinearProgress variant='determinate' value={value} />
   </div>
 ), (prev, next) => prev.value === next.value && prev.label === next.label)
