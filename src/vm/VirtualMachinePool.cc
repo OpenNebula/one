@@ -423,7 +423,7 @@ int VirtualMachinePool::dump_monitoring(
 
             if ( !where.empty() )
             {
-                cmd << " ANS " << where;
+                cmd << " AND " << where;
             }
 
             cmd << " ORDER BY vmid, " << one_db::vm_monitor_table << ".last_poll;";
