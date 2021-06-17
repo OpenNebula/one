@@ -161,9 +161,9 @@ define(function(require) {
             <th>" + Locale.tr("Time") + "</th>\
             <th>" + Locale.tr("Rep") + "</th>\
             <th>" + Locale.tr("End") + "</th>\
-            <th>" + Locale.tr("Done") + "</th>\
-            <th>" + Locale.tr("Message") + "</th>\
-            <th colspan=''> </th>\
+            <th></th>\
+            <th></th>\
+            <th></th>\
             <th><button id='add_scheduling_"+RESOURCE_SCHED_ACTIONS+"_action' class='button small success right radius' >" + Locale.tr("Add action") + "</button></th>\
             <th>" +
               Leases.html() +
