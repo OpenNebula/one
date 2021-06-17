@@ -265,13 +265,16 @@ if [ -n "$cmd" ] && ! [ "$cmd" == "null" ]; then
     cmd=$(echo "$cmd" | jq -r '. | join(" ")')
 fi
 
-if [ -n "$entrypoint" ] && ! [ "$entrypoint" == "null" ] && ! echo "$entrypoint" | grep -Ewq '(bash|sh)'; then
-    if [ -n "$cmd" ] && ! [ "$cmd" == "null" ] && ! echo "$cmd" | grep -Ewq '(bash|sh)'; then
+cmd_is_bash=$(echo "$cmd" | grep -E '"\/.*\w+\/(sh"|bash")$' || echo '')
+entrypoint_is_bash=$(echo "$entrypoint" | grep -E '\/.*\w+\/(sh|bash)$' || echo '')
+
+if [ -n "$entrypoint" ] && ! [ "$entrypoint" == "null" ] && [ -z "$entrypoint_is_bash" ]; then
+    if [ -n "$cmd" ] && ! [ "$cmd" == "null" ] && [ -z "$cmd_is_bash" ]; then
         one_entrypoint="${entrypoint} ${cmd}"
     else
         one_entrypoint="${entrypoint}"
     fi
-elif [ -n "$cmd" ] && ! [ "$cmd" == "null" ] && ! echo "$cmd" | grep -Ewq '(bash|sh)'; then
+elif [ -n "$cmd" ] && ! [ "$cmd" == "null" ] && [ -z "$cmd_is_bash" ]; then
     one_entrypoint="${cmd}"
 fi
 
