@@ -846,7 +846,7 @@ define(function(require) {
 
   function getSshWithPortForwarding(vm = {}, navigationLink = false) {
     var nics = vm.TEMPLATE && vm.TEMPLATE.NIC || [];
-    
+
     var nic = $.grep(nics, function (v) {
       return v.EXTERNAL_PORT_RANGE !== undefined;
     })[0];
@@ -855,7 +855,7 @@ define(function(require) {
       var ip = '<b>' + hostnameStr(vm, navigationLink) + '</b>';
       var externalPortRange = '<b>' + nic.EXTERNAL_PORT_RANGE + '</b>';
       var internalPortRange = '<b>' + nic.INTERNAL_PORT_RANGE.split('/')[0].replace('-', ':') + '</b>'
-      
+
       return ip + ' ports ' + externalPortRange + ' forwarded to VM ports ' + internalPortRange;
     }
   }
@@ -1091,7 +1091,7 @@ define(function(require) {
         external_nics.push(nic);
         delete copy_nic.EXTERNAL_IP;
       }
-      
+
       non_external_nics.push(copy_nic);
     });
 
@@ -1103,7 +1103,7 @@ define(function(require) {
 
     // Show the first IP two times for the dropdown.
     var copy_nics = Object.assign([], all_nics);
-    
+
     var first_nic = Object.assign({}, all_nics[0]);
     delete first_nic["ALIAS_IDS"];
     copy_nics.unshift(first_nic);
@@ -1112,8 +1112,8 @@ define(function(require) {
 
     return copy_nics.reduce(function(column, nic) {
       if (first){
-        if (nic.EXTERNAL_IP || nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
-          var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+          var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
           nic_and_ip = nic.NIC_ID + ": " + ip;
           if (nic.EXTERNAL_IP)
             nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>"
@@ -1122,17 +1122,16 @@ define(function(require) {
         first=false;
       }
       else{
-        if (nic.EXTERNAL_IP || nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
           var ip;
-          
           var nicSection = $("<a/>").css("color", "gray");
-          
+
           if (nic.EXTERNAL_IP) {
             ip = nic.EXTERNAL_IP;
             nicSection.css("font-weight", "bold");
           }
           else{
-            ip = nic.IP || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+            ip = nic.IP || nic.IP6 || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
           }
 
           nicSection.html(nic.NIC_ID + ": " + ip);
@@ -1150,12 +1149,22 @@ define(function(require) {
               });
 
               if (alias) {
-                var alias_ip = alias.IP || alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
+                var alias_ip;
 
-                column.append($("<li/>").append($("<a/>").css({
-                  "color": "gray",
-                  "font-style": "italic",
-                }).html(identation + "> " + alias_ip)));
+                if (alias.IP)
+                    alias_ip = identation + "> " + alias.IP
+                else if (alias.IP6)
+                    alias_ip = identation + "> " + alias.IP6
+                else if (alias.IP6_ULA && alias.IP6_GLOBAL)
+                    alias_ip = alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
+
+                if (alias_ip){
+                  column.append($("<li/>").append($("<a/>").css({
+                    "color": "gray",
+                    "font-style": "italic",
+                  }).html(identation + "> " + alias_ip)));
+                }
+
               }
             });
           }
@@ -1173,7 +1182,7 @@ define(function(require) {
     var identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
 
     return all_nics.reduce(function(column, nic) {
-      if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+      if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
         var ip;
 
         var nicSection = $("<p/>")
@@ -1185,7 +1194,7 @@ define(function(require) {
           nicSection.css("font-weight","bold");
         }
         else {
-          ip = nic.IP || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL;
+          ip = nic.IP || nic.IP6 || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL;
         }
 
         nicSection.html(nic.NIC_ID + ": " + ip);
@@ -1201,14 +1210,21 @@ define(function(require) {
             var alias = templateAlias.find(function(alias) { return alias.NIC_ID === aliasId; });
 
               if (alias) {
-                var alias_ip = alias.IP
-                  ? identation + "> " + alias.IP
-                  : alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
+                var alias_ip;
 
-              column.append($("<p/>").css({
-                "margin-bottom": 0,
-                "font-style": "italic"
-              }).html(alias_ip));
+                if (alias.IP)
+                    alias_ip = identation + "> " + alias.IP
+                else if (alias.IP6)
+                    alias_ip = identation + "> " + alias.IP6
+                else if (alias.IP6_ULA && alias.IP6_GLOBAL)
+                    alias_ip = alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
+
+                if (alias_ip){
+                  column.append($("<p/>").css({
+                    "margin-bottom": 0,
+                    "font-style": "italic"
+                  }).html(alias_ip));
+                }
             }
           });
         }
