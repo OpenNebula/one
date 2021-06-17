@@ -297,8 +297,7 @@ const executeCommand = (command = '', resource = '', options = {}) => {
   if (execute) {
     if (execute.stdout) {
       rtn = { success: true, data: execute.stdout.toString() }
-    }
-    if (execute.stderr && execute.stderr.length > 0) {
+    } else if (execute.stderr && execute.stderr.length > 0) {
       rtn = { success: false, data: execute.stderr.toString() }
       messageTerminal(defaultError(execute.stderr.toString(), 'Error command: %s'))
     }
