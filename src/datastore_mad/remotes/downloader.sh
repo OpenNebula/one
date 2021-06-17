@@ -148,18 +148,52 @@ function s3_env
         XPATH_ELEMENTS[i++]="$element"
     done < <($XPATH     /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/ACCESS_KEY_ID \
                         /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/SECRET_ACCESS_KEY \
+                        /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/REGION \
+                        /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/AWS \
                         /DS_DRIVER_ACTION_DATA/MARKETPLACE/TEMPLATE/ENDPOINT)
 
     S3_ACCESS_KEY_ID="${XPATH_ELEMENTS[j++]}"
     S3_SECRET_ACCESS_KEY="${XPATH_ELEMENTS[j++]}"
+    S3_REGION="${XPATH_ELEMENTS[j++]}"
+    S3_AWS="${XPATH_ELEMENTS[j++]}"
     S3_ENDPOINT="${XPATH_ELEMENTS[j++]}"
+
+    CURRENT_DATE_DAY="$(date -u '+%Y%m%d')"
+    CURRENT_DATE_ISO8601="${CURRENT_DATE_DAY}T$(date -u '+%H%M%S')Z"
+}
+
+# Create an SHA-256 hash in hexadecimal.
+# Usage:
+#   hash_sha256 <string>
+function hash_sha256 {
+  printf "${1}" | openssl dgst -sha256 | sed 's/^.* //'
+}
+
+# Create an SHA-256 hmac in hexadecimal.
+# Usage:
+#   hmac_sha256 <key> <data>
+function hmac_sha256 {
+  printf "${2}" | openssl dgst -sha256 -mac HMAC -macopt "${1}" | sed 's/^.* //'
+}
+
+# Create the signature.
+# Usage:
+#   create_signature
+function create_signature {
+    stringToSign="AWS4-HMAC-SHA256\n${CURRENT_DATE_ISO8601}\n${CURRENT_DATE_DAY}/${S3_REGION}/s3/aws4_request\n$(hash_sha256 "${HTTP_CANONICAL_REQUEST}")"
+    dateKey=$(hmac_sha256 key:"AWS4${S3_SECRET_ACCESS_KEY}" "${CURRENT_DATE_DAY}")
+    regionKey=$(hmac_sha256 hexkey:"${dateKey}" "${S3_REGION}")
+    serviceKey=$(hmac_sha256 hexkey:"${regionKey}" "s3")
+    signingKey=$(hmac_sha256 hexkey:"${serviceKey}" "aws4_request")
+
+    printf "${stringToSign}" | openssl dgst -sha256 -mac HMAC -macopt hexkey:"${signingKey}" | sed 's/(stdin)= //'
 }
 
 function s3_curl_args
 {
     FROM="$1"
 
-    ENDPOINT=${S3_ENDPOINT:-https://s3.amazonaws.com}
+    ENDPOINT="$S3_ENDPOINT"
     OBJECT=$(basename "$FROM")
     BUCKET=$(basename $(dirname "$FROM"))
 
@@ -173,6 +207,43 @@ function s3_curl_args
     echo " -H \"Date: ${DATE}\"" \
          " -H \"Authorization: AWS ${S3_ACCESS_KEY_ID}:${SIGNED_AUTH_STRING}\"" \
          " '$(esc_sq "${ENDPOINT}/${BUCKET}/${OBJECT}")'"
+}
+
+function s3_curl_args_aws
+{
+    FROM="$1"
+
+    OBJECT=$(basename "$FROM")
+    BUCKET=$(basename "$(dirname "$FROM")")
+
+    ENDPOINT="$BUCKET.s3.amazonaws.com"
+
+    AWS_S3_PATH="$(echo $OBJECT | sed 's;^\([^/]\);/\1;')"
+
+    HTTP_REQUEST_PAYLOAD_HASH="$(echo "" | openssl dgst -sha256 | sed 's/^.* //')"
+    HTTP_CANONICAL_REQUEST_URI="${AWS_S3_PATH}"
+    HTTP_REQUEST_CONTENT_TYPE='application/octet-stream'
+
+    HTTP_CANONICAL_REQUEST_HEADERS="content-type:${HTTP_REQUEST_CONTENT_TYPE}
+host:${ENDPOINT}
+x-amz-content-sha256:${HTTP_REQUEST_PAYLOAD_HASH}
+x-amz-date:${CURRENT_DATE_ISO8601}"
+
+    HTTP_REQUEST_SIGNED_HEADERS="content-type;host;x-amz-content-sha256;x-amz-date"
+HTTP_CANONICAL_REQUEST="GET
+${HTTP_CANONICAL_REQUEST_URI}\n
+${HTTP_CANONICAL_REQUEST_HEADERS}\n
+${HTTP_REQUEST_SIGNED_HEADERS}
+${HTTP_REQUEST_PAYLOAD_HASH}"
+
+    SIGNATURE="$(create_signature)"
+    HTTP_REQUEST_AUTHORIZATION_HEADER="AWS4-HMAC-SHA256 Credential=${S3_ACCESS_KEY_ID}/${CURRENT_DATE_DAY}/${S3_REGION}/s3/aws4_request, SignedHeaders=${HTTP_REQUEST_SIGNED_HEADERS}, Signature=${SIGNATURE}"
+
+    echo " -H \"Authorization: ${HTTP_REQUEST_AUTHORIZATION_HEADER}\"" \
+         " -H \"content-type: ${HTTP_REQUEST_CONTENT_TYPE}\"" \
+         " -H \"x-amz-content-sha256: ${HTTP_REQUEST_PAYLOAD_HASH}\"" \
+         " -H \"x-amz-date: ${CURRENT_DATE_ISO8601}\"" \
+         " \"https://${ENDPOINT}${HTTP_CANONICAL_REQUEST_URI}\""
 }
 
 function get_rbd_cmd
@@ -317,7 +388,13 @@ s3://*)
         exit -1
     fi
 
-    curl_args="$(s3_curl_args "$FROM")"
+    curl_args=""
+
+    if [[ "$S3_AWS" =~ (no|NO) ]]; then
+        curl_args="$(s3_curl_args "$FROM")"
+    else
+        curl_args="$(s3_curl_args_aws "$FROM")"
+    fi
 
     command="curl $GLOBAL_CURL_ARGS $curl_args"
     ;;

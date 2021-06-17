@@ -81,6 +81,10 @@ module VCenterDriver
             file.match(%r{^https?://}) || file.match(%r{^s3?://})
         end
 
+        def self.from_s3?(file)
+            file.match(%r{^s3?://})
+        end
+
         def self.vmdk?(file)
             type = `file #{file}`
 

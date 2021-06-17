@@ -104,7 +104,7 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     temp_folder = File.join(VAR_LOCATION, "vcenter/#{target_path}")
     temp_file = File.join(temp_folder, File.basename(img_path))
     # if the original file doesnt have the vmdk extension, add it
-    if !temp_file.match(/\.vmdk$/) && !temp_file.match(/\.iso$/)
+    if !temp_file.match(/\.vmdk$/) && !temp_file.match(/\.iso$/) && !VCenterDriver::FileHelper.from_s3?(img_path)
         temp_file += '.vmdk'
     end
 
@@ -117,7 +117,9 @@ if VCenterDriver::FileHelper.remote_or_needs_unpack?(img_path)
     downsh_args << "--sha1 #{sha1} " if sha1 && !sha1.empty?
     downsh_args << '--nodecomp ' if nodecomp && !nodecomp.empty?
     downsh_args << "--limit #{limit_bw} " if limit_bw && !limit_bw.empty?
-    downsh_args << '--convert vmdk'
+    unless VCenterDriver::FileHelper.from_s3?(img_path)
+        downsh_args << '--convert vmdk'
+    end
 
     downloader = "#{File.dirname(__FILE__)}/../downloader.sh #{downsh_args}"
     b64        = Base64.encode64(drv_action.to_xml).gsub!("\n", '')
