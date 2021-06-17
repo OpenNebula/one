@@ -228,19 +228,30 @@ PoolObjectSQL * PoolSQL::get_ro(int oid)
 void PoolSQL::exist(const string& id_str, std::set<int>& id_list)
 {
     std::vector<int> existing_items;
-    std::set<int>::iterator iterator;
 
     one_util::split_unique(id_str, ',', id_list);
-    search(existing_items, table.c_str(), "1 order by 1 ASC");
+    if (Nebula::instance().get_db_backend() == "postgresql")
+    {
+        search(existing_items, table.c_str(), "true order by 1 ASC");
+    }
+    else
+    {
+        search(existing_items, table.c_str(), "1 order by 1 ASC");
+    }
 
-    for (iterator = id_list.begin(); iterator != id_list.end(); ++iterator)
+    for (auto iterator = id_list.begin(); iterator != id_list.end();)
     {
         if (!std::binary_search(existing_items.begin(), existing_items.end(), *iterator))
         {
-            id_list.erase(iterator);
+            iterator = id_list.erase(iterator);
+        }
+        else
+        {
+            ++iterator;
         }
     }
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
