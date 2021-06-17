@@ -170,7 +170,7 @@ define(function(require) {
       $("#time_input").removeAttr("class");
     });
 
-    context.off("click" , "#edit_inst_action_json")
+    context.off("click" , "#edit_inst_action_json");
     context.on("click" , "#edit_inst_action_json", function(e){
       e.preventDefault();
       var id = $(this).attr("data_id");
@@ -210,12 +210,12 @@ define(function(require) {
     // Boot order
     //----------------------------------------------------------------------------
 
-    context.off("change", "input.boot-order-instantiate-cb")
+    context.off("change", "input.boot-order-instantiate-cb");
     context.on("change", "input.boot-order-instantiate-cb", function() {
       _refreshBootValue(context);
-    })
+    });
 
-    context.off("click", "button.boot-order-instantiate-up")
+    context.off("click", "button.boot-order-instantiate-up");
     context.on("click", "button.boot-order-instantiate-up", function(){
       var tr = $(this).closest("tr");
       tr.prev().before(tr);
@@ -225,7 +225,7 @@ define(function(require) {
       return false;
     });
 
-    context.off("click", "button.boot-order-instantiate-down")
+    context.off("click", "button.boot-order-instantiate-down");
     context.on("click", "button.boot-order-instantiate-down", function(){
       var tr = $(this).closest("tr");
       tr.next().after(tr);
@@ -318,7 +318,20 @@ define(function(require) {
 
       var disks = DisksResize.retrieve($(".disksContext"  + template_id, context));
       if (disks.length > 0) {
-        tmp_json.DISK = diffValues(disks, original_tmpl.TEMPLATE.DISK);
+        new_disks = diffValues(disks, original_tmpl.TEMPLATE.DISK);
+        if(new_disks && new_disks.length){
+          new_disks.forEach(element => {
+            if(element && element.DISK_ID){
+              original_tmpl.TEMPLATE.DISK.find(function(elemt, i){
+                if(elemt && elemt.DISK_ID && element.DISK_ID === elemt.DISK_ID){
+                  original_tmpl.TEMPLATE.DISK.splice(i, 1);
+                }
+              });
+            }
+          });
+          new_disks = original_tmpl.TEMPLATE.DISK.concat(new_disks);
+        }
+        tmp_json.DISK = new_disks;
       }
 
       var vmgroup = VMGroupSection.retrieve($(".vmgroupContext"+ template_id, context));
@@ -464,9 +477,9 @@ define(function(require) {
 
       var boot = _retrieveBootValue(context);
       var os = original_tmpl.TEMPLATE.OS ? original_tmpl.TEMPLATE.OS : {};
-      
+
       for ([key, value] of Object.entries(os)) {
-        os[key] = value.replace(/"/g, '\\"');
+        os[key] = value.replace(/"/g, "\\\"");
       }
 
       if (boot && boot.length > 0) {
