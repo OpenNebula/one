@@ -57,82 +57,31 @@ resource "aws_security_group" "device_<%= obj['ID'] %>_all" {
   }
 }
 
-#
-# Find below how to provision Security Groups on AWS
-# (see host.rb how to apply them to instances)
-#
-#resource "aws_security_group" "device_<%= obj['ID'] %>_ssh" {
-#  name        = "allow_ssh"
-#  description = "Allow SSH inbound traffic"
-#  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
-#
-#  ingress {
-#    description = "SSH from all"
-#    from_port   = 22
-#    to_port     = 22
-#    protocol    = "tcp"
-#    cidr_blocks = ["0.0.0.0/0"]
-#  }
-#
-#  egress {
-#    from_port   = 0
-#    to_port     = 0
-#    protocol    = "-1"
-#    cidr_blocks = ["0.0.0.0/0"]
-#  }
-#
-#  tags = {
-#    Name = "device_<%= obj['ID'] %>_ssh"
-#  }
-#}
-#
-#resource "aws_security_group" "device_<%= obj['ID'] %>_bgp" {
-#  name        = "allow_bgp"
-#  description = "Allow BGP inbound traffic"
-#  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
-#
-#  ingress {
-#    description = "BGP from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
-#    from_port   = 179
-#    to_port     = 179
-#    protocol    = "tcp"
-#    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
-#  }
-#
-#  egress {
-#    from_port   = 0
-#    to_port     = 0
-#    protocol    = "-1"
-#    cidr_blocks = ["0.0.0.0/0"]
-#  }
-#
-#  tags = {
-#    Name = "device_<%= obj['ID'] %>_bgp"
-#  }
-#}
-#
-#resource "aws_security_group" "device_<%= obj['ID'] %>_vxlan" {
-#  name        = "allow_vxlan"
-#  description = "Allow VXLAN inbound traffic"
-#  vpc_id     = aws_vpc.device_<%= c['ID'] %>.id
-#
-#  ingress {
-#    description = "VXLAN from <%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"
-#    from_port   = 8472
-#    to_port     = 8472
-#    protocol    = "udp"
-#    cidr_blocks = ["<%= provision['CIDR'] ? provision['CIDR'] : '10.0.0.0/16'%>"]
-#  }
-#
-#  egress {
-#    from_port   = 0
-#    to_port     = 0
-#    protocol    = "-1"
-#    cidr_blocks = ["0.0.0.0/0"]
-#  }
-#
-#  tags = {
-#    Name = "device_<%= obj['ID'] %>_vxlan"
-#  }
-#}
+# Following data is used in host and subnet to filter out AWS av.zones
+# where the required instance type is not avialble.
+# (Like c5.metal is not avialble in us-east-1e)
+
+data "aws_availability_zones" "available" {}
+
+data "aws_ec2_instance_type_offerings" "available" {
+
+    for_each=toset(data.aws_availability_zones.available.names)
+
+    filter {
+        name   = "instance-type"
+        values = ["<%= provision['INSTANCETYPE'] %>"]
+    }
+
+    filter {
+        name   = "location"
+        values = ["${each.key}"]
+    }
+
+    location_type = "availability-zone"
+}
+
+locals {
+    my_zones = keys({ for az, details in data.aws_ec2_instance_type_offerings.available :
+                      az => details.instance_types if length(details.instance_types) != 0 })
+}
 
