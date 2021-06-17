@@ -939,7 +939,7 @@ define(function(require) {
                   alias_ip = identation + "> " + alias.IP
               else if (alias.IP6)
                   alias_ip = identation + "> " + alias.IP6
-              else if (nic.IP6_ULA && nic.IP6_GLOBAL)
+              else if (alias.IP6_ULA && alias.IP6_GLOBAL)
                   alias_ip = alias.IP6_ULA + "&#10;&#13;" + identation + "> " + alias.IP6_GLOBAL;
               
               if (alias_ip){
@@ -980,7 +980,7 @@ define(function(require) {
                   alias_ip = identation + "> " + alias.IP
               else if (alias.IP6)
                   alias_ip = identation + "> " + alias.IP6
-              else if (nic.IP6_ULA && nic.IP6_GLOBAL)
+              else if (alias.IP6_ULA && alias.IP6_GLOBAL)
                   alias_ip = alias.IP6_ULA + "<br>" + identation + "> " + alias.IP6_GLOBAL;
               
               if (alias_ip){
