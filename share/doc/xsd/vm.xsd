@@ -85,7 +85,13 @@
         <xs:element name="TEMPLATE">
           <xs:complexType>
             <xs:sequence>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="AUTOMATIC_DS_REQUIREMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="AUTOMATIC_NIC_REQUIREMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="AUTOMATIC_REQUIREMENTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CLONING_TEMPLATE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CONTEXT" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="CPU_COST" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
@@ -96,12 +102,20 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="DISK_COST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="EMULATOR" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="FEATURES" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="HYPERV_OPTIONS" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="GRAPHICS" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="IMPORTED" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="INPUT" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MEMORY" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MEMORY_COST" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MEMORY_MAX" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="MEMORY_SLOTS" type="xs:string" minOccurs="0" maxOccurs="1"/>
               <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
-                    <xs:element name="BRIDGE_TYPE" type="xs:string"/>
                     <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
                     <xs:element name="VCENTER_INSTANCE_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="VCENTER_NET_REF" type="xs:string" minOccurs="0" maxOccurs="1"/>
@@ -109,7 +123,6 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
               <xs:element name="NIC_ALIAS" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                   <xs:sequence>
@@ -124,7 +137,39 @@
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+              <xs:element name="NIC_DEFAULT" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="NUMA_NODE" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="OS" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="PCI" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="RAW" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SCHED_ACTION" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ACTION" type="xs:string"/>
+                    <xs:element name="ARGS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="DAYS" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="END_TYPE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="END_VALUE" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="ID" type="xs:string"/>
+                    <xs:element name="REPEAT" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="TIME" type="xs:string"/>
+                    <xs:element name="WARNING" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="SECURITY_GROUP_RULE" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="SPICE_OPTIONS" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="SUBMIT_ON_HOLD" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="TEMPLATE_ID" type="xs:string"  minOccurs="0" maxOccurs="1"/>
+              <xs:element name="TM_MAD_SYSTEM" type="xs:string"/>
+              <xs:element name="TOPOLOGY" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VCPU_MAX" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VMGROUP" minOccurs="0" maxOccurs="unbounded"/>
+              <xs:element name="VMID" type="xs:string"/>
+              <xs:element name="VROUTER_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VROUTER_KEEPALIVED_ID" type="xs:string" minOccurs="0" maxOccurs="1"/>
+              <xs:element name="VROUTER_KEEPALIVED_PASSWORD" type="xs:string" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

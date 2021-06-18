@@ -23,7 +23,8 @@
               <xs:element name="TEMPLATE">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="CPU" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="MEMORY" type="xs:string" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="DISK" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>
@@ -34,7 +35,6 @@
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
                     <xs:element name="NIC" minOccurs="0" maxOccurs="unbounded">
                       <xs:complexType>
                         <xs:sequence>
@@ -45,7 +45,7 @@
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>
-                    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+                    <xs:element name="GRAPHICS" minOccurs="0" maxOccurs="1"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
@@ -76,29 +76,6 @@
                           <xs:element name="CID" type="xs:integer"/>
                           <xs:element name="DS_ID" type="xs:integer"/>
                           <xs:element name="ACTION" type="xs:integer"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
-              </xs:element>
-              <xs:element name="SNAPSHOTS" minOccurs="0" maxOccurs="unbounded">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element name="ALLOW_ORPHANS" type="xs:string"/>
-                    <xs:element name="CURRENT_BASE" type="xs:integer"/>
-                    <xs:element name="DISK_ID" type="xs:integer"/>
-                    <xs:element name="NEXT_SNAPSHOT" type="xs:integer"/>
-                    <xs:element name="SNAPSHOT" minOccurs="0" maxOccurs="unbounded">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="ACTIVE" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                          <xs:element name="CHILDREN" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                          <xs:element name="DATE" type="xs:integer"/>
-                          <xs:element name="ID" type="xs:integer"/>
-                          <xs:element name="NAME" type="xs:string" minOccurs="0" maxOccurs="1"/>
-                          <xs:element name="PARENT" type="xs:integer"/>
-                          <xs:element name="SIZE" type="xs:integer"/>
                         </xs:sequence>
                       </xs:complexType>
                     </xs:element>
