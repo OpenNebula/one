@@ -570,9 +570,21 @@ module OpenNebula
                 vm_id = node['deploy_id']
                 vm = OpenNebula::VirtualMachine.new_with_id(vm_id,
                                                             @service.client)
+
+                if do_offset
+                    offset = (index / vms_per_period.to_i).floor
+                    time_offset = offset * period.to_i
+                end
+
+                tmp_str = "SCHED_ACTION = ["
+                tmp_str << "ACTION = #{action},"
+                tmp_str << "ARGS = \"#{args}\"," if args
+                tmp_str << "TIME = #{now + time_offset}]"
+
+                rc = vm.sched_action_add(tmp_str)
                 if OpenNebula.is_error?(rc)
-                    msg = "Role #{name} : VM #{vm_id} monitorization failed;"\
-                          " #{rc.message}"
+                    msg = "Role #{name} : VM #{vm_id} error scheduling "\
+                            "action; #{rc.message}"
 
                     error_msgs << msg
 
@@ -580,29 +592,7 @@ module OpenNebula
 
                     @service.log_error(msg)
                 else
-                    if do_offset
-                        offset = (index / vms_per_period.to_i).floor
-                        time_offset = offset * period.to_i
-                    end
-
-                    tmp_str = "SCHED_ACTION = ["
-                    tmp_str << "ACTION = #{action},"
-                    tmp_str << "ARGS = \"#{args}\"," if args
-                    tmp_str << "TIME = #{now + time_offset}]"
-
-                    rc = vm.sched_action_add(tmp_str)
-                    if OpenNebula.is_error?(rc)
-                        msg = "Role #{name} : VM #{vm_id} error scheduling "\
-                              "action; #{rc.message}"
-
-                        error_msgs << msg
-
-                        Log.error LOG_COMP, msg, @service.id
-
-                        @service.log_error(msg)
-                    else
-                        vms_id << vm.id
-                    end
+                    vms_id << vm.id
                 end
             end
 
