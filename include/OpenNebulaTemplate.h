@@ -117,7 +117,8 @@ private:
      *  Sets a the defaults for a Market
      */
     void set_conf_market(const std::string& name,
-                         const std::string& required_attrs);
+                         const std::string& required_attrs,
+                         const std::string& app_actions);
     /**
      *  Sets a the defaults for a Auth drivers
      */

@@ -127,10 +127,11 @@ void OpenNebulaTemplate::set_multiple_conf_default()
 # s3
 #******
 */
-    set_conf_market("one",  "");
-    set_conf_market("http", "BASE_URL,PUBLIC_DIR");
-    set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET");
-    set_conf_market("docker_registry", "BASE_URL");
+    set_conf_market("one",  "", "monitor");
+    set_conf_market("http", "BASE_URL,PUBLIC_DIR", "create, delete, monitor");
+    set_conf_market("s3",   "ACCESS_KEY_ID,SECRET_ACCESS_KEY,REGION,BUCKET",
+                    "create, delete, monitor");
+    set_conf_market("docker_registry", "BASE_URL", "monitor");
 
     register_multiple_conf_default("MARKET_MAD_CONF");
 /*
@@ -298,13 +299,15 @@ void OpenNebulaTemplate::set_conf_tm(const std::string& name,
 /* -------------------------------------------------------------------------- */
 
 void OpenNebulaTemplate::set_conf_market(const std::string& name,
-                                         const std::string& required_attrs)
+                                         const std::string& required_attrs,
+                                         const std::string& app_actions)
 {
     VectorAttribute *   vattribute;
     std::map<std::string,std::string>  vvalue;
 
     vvalue.insert(make_pair("NAME", name));
     vvalue.insert(make_pair("REQUIRED_ATTRS", required_attrs));
+    vvalue.insert(make_pair("APP_ACTIONS", app_actions));
 
     vattribute = new VectorAttribute("MARKET_MAD_CONF", vvalue);
     conf_default.insert(make_pair(vattribute->name(), vattribute));
