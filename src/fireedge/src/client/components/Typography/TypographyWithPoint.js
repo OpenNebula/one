@@ -6,7 +6,6 @@ import { makeStyles, Typography } from '@material-ui/core'
 const useStateStyles = makeStyles(theme => ({
   root: {
     color: theme.palette.text.secondary,
-    width: 'max-content',
     '&::before': {
       content: "''",
       display: 'inline-flex',
@@ -22,7 +21,7 @@ const useStateStyles = makeStyles(theme => ({
 const TypographyWithPoint = ({ pointColor, children }) => {
   const classes = useStateStyles({ color: pointColor })
   return (
-    <Typography className={classes.root}>
+    <Typography noWrap className={classes.root}>
       {children}
     </Typography>
   )

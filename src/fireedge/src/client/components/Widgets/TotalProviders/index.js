@@ -1,3 +1,4 @@
+
 import * as React from 'react'
 
 import { PieChart } from 'react-minimal-pie-chart'
@@ -42,14 +43,12 @@ const TotalProviders = () => {
   const legend = React.useMemo(() => (
     <div>
       {chartData?.map(({ title: titleLegend, value, color }) =>
-        <div key={titleLegend}>
-          <TypographyWithPoint pointColor={color}>
-            <Count number={`${value}`} />
-            <Typography component='span' className={classes.legendSecondary}>
-              {titleLegend}
-            </Typography>
-          </TypographyWithPoint>
-        </div>
+        <TypographyWithPoint key={titleLegend} pointColor={color}>
+          <Count number={`${value}`} />
+          <span className={classes.legendSecondary} title={titleLegend}>
+            {titleLegend}
+          </span>
+        </TypographyWithPoint>
       )}
     </div>
   ), [classes, chartData])
