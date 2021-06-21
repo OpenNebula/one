@@ -334,7 +334,7 @@ define(function(require) {
           var is_rdp_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'rdp'));
           var is_ssh_allowed = Boolean(OpenNebulaVM.isConnectionSupported(data, 'ssh'));
           
-          $('.dropdown-menu-css', context).toggle(state.str === "RUNNING");
+          $('.dropdown-menu-css', context).toggle(state.str === Locale.tr("RUNNING"));
           $(".provision_spice_button", context).parent().toggle(is_spice_allowed);
           $(".provision_wfile_button", context).parent().toggle(is_virt_viewer_allowed);
 
