@@ -312,7 +312,7 @@ class SunstoneServer < CloudServer
     ########################################################################
     # Guacamole
     ########################################################################
-    def startguac(id, type_connection, guac)
+    def startguac(id, type_connection, guac, client=nil)
         resource = retrieve_resource("vm", id)
         if OpenNebula.is_error?(resource)
             return [404, resource.to_json]
@@ -334,7 +334,7 @@ class SunstoneServer < CloudServer
 			 exit -1
 		end
 
-        return guac.proxy(resource, type_connection)
+        return guac.proxy(resource, type_connection, client)
     end
 
     ########################################################################

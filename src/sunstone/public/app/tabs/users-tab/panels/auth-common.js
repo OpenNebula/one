@@ -35,7 +35,7 @@ define(function(require) {
   var CONFIRM_DIALOG_ID = require('utils/dialogs/generic-confirm/dialogId');
   var RESOURCE = "User";
   var XML_ROOT = "USER";
-  var REGEX_HIDDEN_ATTRS = /^(SUNSTONE|SSH_PUBLIC_KEY)$/
+  var REGEX_HIDDEN_ATTRS = /^(SUNSTONE|SSH_PUBLIC_KEY|SSH_PRIVATE_KEY|SSH_PASSPHRASE)$/
 
   /* CONSTRUCTOR */
 
@@ -165,7 +165,7 @@ define(function(require) {
       }
     });
 
-    // SSH input
+    // Public SSH input
 
     context.off("click", ".user_ssh_public_key_edit");
     context.on("click", ".user_ssh_public_key_edit", function() {
@@ -188,6 +188,55 @@ define(function(require) {
 
     $("#user_ssh_public_key_text", context).show();
     $("#user_ssh_public_key_textarea", context).hide();
+
+    // Private SSH input
+
+    context.off("click", ".user_ssh_private_key_edit");
+    context.on("click", ".user_ssh_private_key_edit", function() {
+      $("#user_ssh_private_key_text", context).hide();
+      $("#user_ssh_private_key_textarea", context).show().focus();
+    });
+
+    context.off("change", "#user_ssh_private_key_textarea");
+    context.on("change", "#user_ssh_private_key_textarea", function() {
+      var template_str = 'SSH_PRIVATE_KEY = "'+TemplateUtils.escapeDoubleQuotes($(this).val())+'"';
+
+      Sunstone.runAction("User.append_template", that.element.ID, template_str);
+    });
+
+    context.off("focusout", "#user_ssh_private_key_textarea");
+    context.on("focusout", "#user_ssh_private_key_textarea", function() {
+      $("#user_ssh_private_key_text", context).show();
+      $("#user_ssh_private_key_textarea", context).hide();
+    });
+
+    $("#user_ssh_private_key_text", context).show();
+    $("#user_ssh_private_key_textarea", context).hide();
+    
+    // Private SSH Passphrases input
+
+    context.off("click", ".user_ssh_passphrase_edit");
+    context.on("click", ".user_ssh_passphrase_edit", function() {
+      $("#user_ssh_passphrase_text", context).hide();
+      $("#user_ssh_passphrase_textarea", context).show().focus();
+    });
+
+    context.off("change", "#user_ssh_passphrase_textarea");
+    context.on("change", "#user_ssh_passphrase_textarea", function() {
+      var template_str = 'SSH_PASSPHRASE = "'+TemplateUtils.escapeDoubleQuotes($(this).val())+'"';
+
+      Sunstone.runAction("User.append_template", that.element.ID, template_str);
+    });
+
+    context.off("focusout", "#user_ssh_passphrase_textarea");
+    context.on("focusout", "#user_ssh_passphrase_textarea", function() {
+      $("#user_ssh_passphrase_text", context).show();
+      $("#user_ssh_passphrase_textarea", context).hide();
+    });
+
+    $("#user_ssh_passphrase_text", context).show();
+    $("#user_ssh_passphrase_textarea", context).hide();
+
     return false;
   }
 });

@@ -1194,8 +1194,18 @@ end
 post '/vm/:id/guac/:type' do
     vm_id = params[:id]
     type_connection = params[:type]
+    
+    user = OpenNebula::User.new_with_id(
+        OpenNebula::User::SELF,
+        $cloud_auth.client(session[:user], session[:active_zone_endpoint]))
 
-    @SunstoneServer.startguac(vm_id, type_connection, $guac)
+    rc = user.info
+    if OpenNebula.is_error?(rc)
+        logger.error { rc.message }
+        error 500, ""
+    end
+
+    @SunstoneServer.startguac(vm_id, type_connection, $guac, user)
 end
 
 ##############################################################################

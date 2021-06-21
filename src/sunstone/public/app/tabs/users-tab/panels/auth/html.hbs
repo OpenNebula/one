@@ -98,5 +98,57 @@
         </td>
       </div>
     </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <table class="dataTable" cellpadding="0" cellspacing="0" border="0">
+          <thead>
+            <tr>
+              <th>{{tr "Private SSH Key"}}</th>
+              <th>
+                <a class="user_ssh_private_key_edit right" href="#"><i class="fas fa-edit"></i></a>
+              </th>
+            </tr>
+          </thead>
+        </table>
+        <td>
+          <textarea rows="6" type="text" id="user_ssh_private_key_textarea" name="ssh_private_key" hidden>
+            {{~element.TEMPLATE.SSH_PRIVATE_KEY~}}
+          </textarea>
+          <p id="user_ssh_private_key_text" class="ellipsis" name="ssh_private_key">
+            {{#if element.TEMPLATE.SSH_PRIVATE_KEY}}
+              {{element.TEMPLATE.SSH_PRIVATE_KEY}}
+            {{else}}
+              {{tr "You can provide a Private SSH Key for this User clicking on the edit button"}}
+            {{/if}}
+          </p>
+        </td>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <table class="dataTable" cellpadding="0" cellspacing="0" border="0">
+          <thead>
+            <tr>
+              <th>{{tr "Private SSH Key Passphrase"}}</th>
+              <th>
+                <a class="user_ssh_passphrase_edit right" href="#"><i class="fas fa-edit"></i></a>
+              </th>
+            </tr>
+          </thead>
+        </table>
+        <td>
+          <textarea rows="6" type="text" id="user_ssh_passphrase_textarea" name="ssh_passphrase" hidden>
+            {{~element.TEMPLATE.SSH_PASSPHRASE~}}
+          </textarea>
+          <p id="user_ssh_passphrase_text" class="ellipsis" name="ssh_passphrase">
+            {{#if element.TEMPLATE.SSH_PASSPHRASE}}
+              {{element.TEMPLATE.SSH_PASSPHRASE}}
+            {{else}}
+              {{tr "You can provide a Private SSH Key Passphrase for this User clicking on the edit button"}}
+            {{/if}}
+          </p>
+        </td>
+      </div>
+    </div>
   </div>
 </div>
