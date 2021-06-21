@@ -4,62 +4,62 @@ import COLOR from 'client/constants/color'
 export const VM_STATES = [
   { // 0
     name: STATES.INIT,
-    color: COLOR.info.main,
+    color: COLOR.info.light,
     meaning: ''
   },
   { // 1
     name: STATES.PENDING,
-    color: COLOR.info.main,
+    color: COLOR.info.light,
     meaning: ''
   },
   { // 2
     name: STATES.HOLD,
-    color: COLOR.info.main,
+    color: COLOR.error.light,
     meaning: ''
   },
   { // 3
     name: STATES.ACTIVE,
-    color: COLOR.info.main,
+    color: COLOR.success.light,
     meaning: ''
   },
   { // 4
     name: STATES.STOPPED,
-    color: COLOR.info.main,
+    color: COLOR.error.light,
     meaning: ''
   },
   { // 5
     name: STATES.SUSPENDED,
-    color: COLOR.info.main,
+    color: COLOR.error.light,
     meaning: ''
   },
   { // 6
     name: STATES.DONE,
-    color: COLOR.debug.main,
+    color: COLOR.debug.light,
     meaning: ''
   },
   { // 7
     name: STATES.FAILED,
-    color: COLOR.info.main,
+    color: COLOR.error.dark,
     meaning: ''
   },
   { // 8
     name: STATES.POWEROFF,
-    color: COLOR.info.main,
+    color: COLOR.error.light,
     meaning: ''
   },
   { // 9
     name: STATES.UNDEPLOYED,
-    color: COLOR.info.main,
+    color: COLOR.error.light,
     meaning: ''
   },
   { // 10
     name: STATES.CLONING,
-    color: COLOR.info.main,
+    color: COLOR.info.light,
     meaning: ''
   },
   { // 11
     name: STATES.CLONING_FAILURE,
-    color: COLOR.info.main,
+    color: COLOR.error.dark,
     meaning: ''
   }
 ]
