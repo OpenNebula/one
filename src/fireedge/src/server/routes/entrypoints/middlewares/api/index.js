@@ -14,6 +14,8 @@
 /* -------------------------------------------------------------------------- */
 const { Map } = require('immutable')
 const { env } = require('process')
+const { global } = require('window-or-global')
+
 const {
   private: authenticated,
   public: nonAuthenticated
@@ -42,6 +44,18 @@ const getIdUserOpennebula = () => idUserOpennebula
 const getUserOpennebula = () => userOpennebula
 const getPassOpennebula = () => passOpennebula
 
+const passUserValidation = (user = '', token = '') => {
+  if (user &&
+    token &&
+    global &&
+    global.users &&
+    global.users[user] &&
+    global.users[user].token &&
+    global.users[user].token === token) {
+    return true
+  }
+}
+
 const validateResourceAndSession = (req, res, next) => {
   const { badRequest, unauthorized, serviceUnavailable } = httpCodes
   let status = badRequest
@@ -57,18 +71,29 @@ const validateResourceAndSession = (req, res, next) => {
         userOpennebula = session.aud
         passOpennebula = session.jti
         if (env && (!env.NODE_ENV || env.NODE_ENV !== defaultWebpackMode)) {
-          if (
-            global &&
-            global.users &&
-            global.users[userOpennebula] &&
-            global.users[userOpennebula] === passOpennebula
-          ) {
+          /*********************************************************
+            * Validate user in production mode
+          *********************************************************/
+
+          if (passUserValidation(userOpennebula, passOpennebula)) {
             next()
             return
           }
         } else {
-          next()
-          return
+          /*********************************************************
+            * Validate user in development mode
+          *********************************************************/
+
+          if (global && !global.users) {
+            global.users = {}
+          }
+          if (!global.users[userOpennebula]) {
+            global.users[userOpennebula] = { token: passOpennebula }
+          }
+          if (passUserValidation(userOpennebula, passOpennebula)) {
+            next()
+            return
+          }
         }
       }
       status = unauthorized

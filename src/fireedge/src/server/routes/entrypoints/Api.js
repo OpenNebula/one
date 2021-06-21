@@ -93,7 +93,10 @@ router.all(
         [fromData.postBody]: req.body
       }
       if (routeFunction) {
-        // this execute functions
+        /*********************************************************
+         * This execute functions (routes)
+         *********************************************************/
+
         const valRouteFunction = checkMethodRouteFunction(
           routeFunction,
           httpMethod
@@ -112,7 +115,10 @@ router.all(
           next()
         }
       } else {
-        // this execute a XMLRPC commands
+        /*********************************************************
+         * This execute a XMLRPC commands
+         *********************************************************/
+
         const { method } = getParamsState()
         const command = commandXML(
           resource,

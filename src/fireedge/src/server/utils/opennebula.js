@@ -21,6 +21,7 @@ const xml2js = require('xml2js')
 const { Map } = require('immutable')
 const { sprintf } = require('sprintf-js')
 const speakeasy = require('speakeasy')
+const { global } = require('window-or-global')
 const httpCodes = require('./constants/http-codes')
 const commandsParams = require('./constants/commands')
 const {
@@ -29,11 +30,25 @@ const {
   defaultMessageProblemOpennebula
 } = require('./constants/defaults')
 
+// regex for separate the commands .info
+const regexInfoAction = /^(\w+).info$/
+
 // user config
 const { getConfig } = require('./yml')
 
 const appConfig = getConfig()
 const namespace = appConfig.namespace || defaultNamespace
+
+const fillResourceforHookConection = (username = '', action = '', parameters = '') => {
+  let match
+  // parameters[0] is the resource ID
+  if (username && action && (match = action.match(regexInfoAction)) && match[1] && parameters[0] >= 0) {
+    if (global.users[username] && !global.users[username].resourcesHooks) {
+      global.users[username].resourcesHooks = {}
+    }
+    global.users[username].resourcesHooks[match[1]] = parameters[0]
+  }
+}
 
 const opennebulaConnect = (username = '', password = '', path = '') => {
   let rtn = () => null
@@ -94,6 +109,8 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
                         errorData[0] &&
                         errorData[0].STRING
                       ) {
+                        // success
+                        fillResourceforHookConection(username, action, parameters)
                         callback(undefined, errorData[0].STRING)
                       }
                     }
@@ -111,10 +128,12 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
                         callback(error, undefined) // error parse xml
                         return
                       }
+                      // success
+                      fillResourceforHookConection(username, action, parameters)
                       callback(
                         undefined,
                         error === null && result === null ? messageCall : result
-                      ) // success
+                      )
                     }
                   )
                   return

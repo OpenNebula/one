@@ -38,7 +38,11 @@ const addPrintf = (string = '', args = '') => {
   return rtn
 }
 
+const checkEmptyObject = (obj = {}) =>
+  Object.keys(obj).length === 0 && obj.constructor === Object
+
 module.exports = {
   messageTerminal,
-  addPrintf
+  addPrintf,
+  checkEmptyObject
 }

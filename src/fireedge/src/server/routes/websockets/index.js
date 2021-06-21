@@ -14,11 +14,10 @@
 /* -------------------------------------------------------------------------- */
 
 const socketIO = require('socket.io')
-const { messageTerminal } = require('server/utils/general')
+const { messageTerminal, checkEmptyObject } = require('server/utils/general')
 const {
   defaultFilesWebsockets,
-  defaultConfigErrorMessage,
-  defaultEndpointWebsocket
+  defaultConfigErrorMessage
 } = require('server/utils/constants/defaults')
 
 // user config
@@ -31,29 +30,35 @@ const websockets = (appServer = {}) => {
     appServer.constructor.name &&
     appServer.constructor.name === 'Server'
   ) {
-    const io = socketIO(
-      {
-        path: defaultEndpointWebsocket,
-        cors: {
-          origin: '*',
-          methods: ['GET', 'POST'],
-          credentials: true
-        }
-      }
-    ).listen(appServer)
-    defaultFilesWebsockets.forEach(file => {
-      try {
-        // eslint-disable-next-line global-require
-        const fileInfo = require(`./${file}`)
-        if (fileInfo.main && typeof fileInfo.main === 'function') {
-          sockets.push(io)
-          fileInfo.main(io)
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          const config = defaultConfigErrorMessage
-          config.type = error.message
-          messageTerminal(config)
+    Object.entries(defaultFilesWebsockets).forEach(([filename = '', info = {}]) => {
+      if (filename && info && !checkEmptyObject(info)) {
+        const path = info && info.path
+        const methods = info && info.methods
+        if (path && methods) {
+          const io = socketIO(
+            {
+              path,
+              cors: {
+                origin: '*',
+                methods,
+                credentials: true
+              }
+            }
+          ).listen(appServer)
+          try {
+            // eslint-disable-next-line global-require
+            const fileInfo = require(`./${filename}`)
+            if (fileInfo.main && typeof fileInfo.main === 'function') {
+              sockets.push(io)
+              fileInfo.main(io)
+            }
+          } catch (error) {
+            if (error instanceof Error) {
+              const config = defaultConfigErrorMessage
+              config.type = error.message
+              messageTerminal(config)
+            }
+          }
         }
       }
     })

@@ -29,6 +29,7 @@ const {
   internalServerError
 } = require('server/utils/constants/http-codes')
 const { httpResponse, parsePostData, existsFile, createFile } = require('server/utils/server')
+const { checkEmptyObject } = require('server/utils/general')
 const { defaultFolderTmpProvision, defaultCommandProvision, defaultEmptyFunction, defaultErrorTemplate } = require('server/utils/constants/defaults')
 const {
   executeCommand,
@@ -198,8 +199,6 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
   let rtn = httpInternalError
   const files = {}
   const path = `${global.SHARE_CPI}`
-  const checkEmpty = (obj = {}) =>
-    Object.keys(obj).length === 0 && obj.constructor === Object
 
   const endpoint = getEndpoint()
   if (user && password) {
@@ -279,7 +278,7 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
           )
         })
 
-        if (description && !checkEmpty(providers) && !checkEmpty(provisions)) {
+        if (description && !checkEmptyObject(providers) && !checkEmptyObject(provisions)) {
           files[directory.filename] = {
             description,
             providers,

@@ -170,7 +170,7 @@ const genJWT = (token, informationUser) => {
       if (!global.users) {
         global.users = {}
       }
-      global.users[user] = token.token
+      global.users[user] = { token: token.token }
       const rtn = { token: jwt, id }
       if (userTemplate && userTemplate.SUNSTONE && userTemplate.SUNSTONE.LANG) {
         rtn.language = userTemplate.SUNSTONE.LANG

@@ -14,6 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const appName = 'fireedge'
+const prepend = `${appName ? `/${appName}/` : '/'}`
 const apps = {
   flow: {
     name: 'flow',
@@ -38,10 +39,16 @@ const defaults = {
     color: 'red',
     message: 'file not found: %s'
   },
-  defaultFilesWebsockets: [
-    'hooks',
-    'provision'
-  ],
+  defaultFilesWebsockets: {
+    hooks: {
+      path: `${prepend}hooks`,
+      methods: ['GET', 'POST']
+    },
+    provision: {
+      path: `${prepend}provision`,
+      methods: ['GET', 'POST']
+    }
+  },
   defaultFilesRoutes: [
     '2fa',
     'auth',
@@ -79,7 +86,6 @@ const defaults = {
   defaultHideCredentials: true,
   defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
-  defaultEndpointWebsocket: `${appName ? '/' + appName : ''}/websocket`,
   defaultConfigFile: `${appName}-server.conf`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
@@ -93,8 +99,8 @@ const defaults = {
   defaultKeyFilename: `${appName}_key`,
   defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
-  endpointVmrc: `${appName ? '/' + appName : ''}/vmrc`,
-  endpointGuacamole: `${appName ? '/' + appName : ''}/guacamole`,
+  endpointVmrc: `${prepend}vmrc`,
+  endpointGuacamole: `${prepend}guacamole`,
   defaultNamespace: 'one.',
   defaultMessageInvalidZone: 'Invalid Zone',
   default2FAIssuer: `${appName}-UI`,

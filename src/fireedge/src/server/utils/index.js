@@ -19,7 +19,7 @@ const { defaultTypeLog } = require('./constants/defaults')
 const functionRoutes = require('../routes/api')
 const { validateAuth } = require('./jwt')
 const { httpResponse, getDataZone } = require('./server')
-const { messageTerminal, addPrintf } = require('./general')
+const { messageTerminal, addPrintf, checkEmptyObject } = require('./general')
 const { getConfig } = require('./yml')
 
 // user config
@@ -145,5 +145,6 @@ module.exports = {
   responseOpennebula,
   getConfig,
   httpResponse,
-  getDataZone
+  getDataZone,
+  checkEmptyObject
 }
