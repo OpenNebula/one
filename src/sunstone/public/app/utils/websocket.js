@@ -49,7 +49,7 @@ define(function (require) {
 
     if (sunstone_fireedge_active && fireedgeToken != "" ){
       const socket = io(Config.publicFireedgeEndpoint, {
-        path: "/fireedge/websocket",
+        path: "/fireedge/hooks",
         query: {
           token: fireedgeToken
         }

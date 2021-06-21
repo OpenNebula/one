@@ -50,7 +50,7 @@ const websockets = (appServer = {}) => {
             const fileInfo = require(`./${filename}`)
             if (fileInfo.main && typeof fileInfo.main === 'function') {
               sockets.push(io)
-              fileInfo.main(io)
+              fileInfo.main(io, filename)
             }
           } catch (error) {
             if (error instanceof Error) {

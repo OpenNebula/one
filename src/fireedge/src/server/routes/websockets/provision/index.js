@@ -13,11 +13,11 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { authWebsocket } = require('server/utils/server')
+const { middlewareValidateAuthWebsocket } = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
 const { subscriber } = require('server/routes/api/provision/functions')
-const type = 'provision'
-const main = (app = {}) => {
+
+const main = (app = {}, type = '') => {
   const configErrorProvision = (error = '') => {
     return {
       color: 'red',
@@ -28,7 +28,7 @@ const main = (app = {}) => {
 
   try {
     app
-      .use(authWebsocket)
+      .use(middlewareValidateAuthWebsocket)
       .on('connection', (server = {}) => {
         server.on('disconnect', () => {
           messageTerminal(configErrorProvision('disconnect'))

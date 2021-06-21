@@ -60,17 +60,41 @@ const httpResponse = (response, data, message) => {
   }
   return rtn
 }
-
-const authWebsocket = (server = {}, next = () => undefined) => {
+const returnQueryData = (server = {}) => {
+  let rtn = {}
   if (
     server &&
     server.handshake &&
-    server.handshake.query &&
-    server.handshake.query.token &&
-    validateAuth({
-      headers: { authorization: server.handshake.query.token }
-    })
+    server.handshake.query
   ) {
+    rtn = server.handshake.query
+  }
+  return rtn
+}
+
+const validateAuthWebsocket = (server = {}) => {
+  let rtn
+  const { token } = returnQueryData(server)
+  if (token) {
+    rtn = validateAuth({
+      headers: { authorization: token }
+    })
+  }
+  return rtn
+}
+
+const middlewareValidateResourceForHookConnection = (server = {}, next = () => undefined) => {
+  const { id, resource } = returnQueryData(server)
+  const { aud: username } = validateAuthWebsocket(server)
+  if (id && resource && username) {
+    next()
+  } else {
+    server.disconnect(true)
+  }
+}
+
+const middlewareValidateAuthWebsocket = (server = {}, next = () => undefined) => {
+  if (validateAuthWebsocket(server)) {
     next()
   } else {
     server.disconnect(true)
@@ -233,5 +257,8 @@ module.exports = {
   getKey,
   parsePostData,
   getParamsForObject,
-  authWebsocket
+  returnQueryData,
+  validateAuthWebsocket,
+  middlewareValidateAuthWebsocket,
+  middlewareValidateResourceForHookConnection
 }
