@@ -61,6 +61,15 @@
               <xs:element name="DISKWRBYTES" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- Number of IO write operations -->
               <xs:element name="DISKWRIOPS" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+              <!-- Disk size details -->
+              <xs:element name="DISK_SIZE" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="ID" type="xs:integer"/>
+                    <xs:element name="SIZE" type="xs:integer"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <!-- ID of the VM -->
               <xs:element name="ID" type="xs:integer" minOccurs="0" maxOccurs="1"/>
               <!-- Consumption in kilobytes -->
