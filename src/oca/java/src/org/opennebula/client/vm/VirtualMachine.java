@@ -54,6 +54,9 @@ public class VirtualMachine extends PoolElement{
     private static final String DISKSNAPSHOTRENAME  = METHOD_PREFIX + "disksnapshotrename";
     private static final String DISKRESIZE          = METHOD_PREFIX + "diskresize";
     private static final String UPDATECONF          = METHOD_PREFIX + "updateconf";
+    private static final String SCHEDADD            = METHOD_PREFIX + "schedadd";
+    private static final String SCHEDDELETE         = METHOD_PREFIX + "scheddelete";
+    private static final String SCHEDUPDATE         = METHOD_PREFIX + "schedupdate";
 
     private static final String[] VM_STATES =
     {
@@ -643,6 +646,43 @@ public class VirtualMachine extends PoolElement{
     }
 
     /**
+     * Create new scheduled action
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param new_add New scheduled action
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse schedadd(Client client, int id, String new_sched)
+    {
+        return client.call(SCHEDADD, id, new_sched);
+    }
+
+    /**
+     * Delete scheduled action
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param sched_id The sched action id to delete
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse scheddelete(Client client, int id, int sched_id)
+    {
+        return client.call(SCHEDDELETE, id, sched_id);
+    }
+
+    /**
+     * Update VM scheduled action
+     * @param client XML-RPC Client.
+     * @param id The VM id of the target VM.
+     * @param sched_id The sched action id
+     * @param updated_sched Updated template of the sched action
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse schedupdate(Client client, int id, int sched_id, String updated_sched)
+    {
+        return client.call(SCHEDUPDATE, id, sched_id, updated_sched);
+    }
+
+    /**
      * Recovers a stuck VM.
      *
      * @param client XML-RPC Client.
@@ -1105,6 +1145,47 @@ public class VirtualMachine extends PoolElement{
     public OneResponse diskResize(int diskId, long newSize)
     {
         return diskResize(client, id, diskId, newSize);
+    }
+
+    /**
+     * Update VM Configuration
+     * @param new_conf New Configuration of the target VM
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse updateconf(String new_conf)
+    {
+        return updateconf(client, id, new_conf);
+    }
+
+    /**
+     * Create new scheduled action
+     * @param new_add New scheduled action
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse schedadd(String new_sched)
+    {
+        return schedadd(client, id, new_sched);
+    }
+
+    /**
+     * Delete scheduled action
+     * @param sched_id The sched action id to delete
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse scheddelete(int sched_id)
+    {
+        return scheddelete(client, id, sched_id);
+    }
+
+    /**
+     * Update VM scheduled action
+     * @param sched_id The sched action id
+     * @param updated_sched Updated template of the sched action
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse schedupdate(int sched_id, String updated_sched)
+    {
+        return schedupdate(client, id, sched_id, updated_sched);
     }
 
     /**
