@@ -641,6 +641,9 @@ tabs:
             image_info_tab: true
             image_vms_tab: true
             image_snapshots_tab: true
+        template_creation_tabs:
+            image: true
+            docker: true
         table_columns:
             - 0         # Checkbox
             - 1         # ID
