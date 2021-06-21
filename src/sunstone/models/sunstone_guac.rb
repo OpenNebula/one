@@ -42,7 +42,7 @@ class SunstoneGuac < SunstoneRemoteConnections
         super
     end
 
-    def proxy(vm_resource, type_connection = 'vnc')
+    def proxy(vm_resource, type_connection = 'vnc', client = nil)
         # Check configurations and VM attributes
         if !allowed_console_states.include?(vm_resource['LCM_STATE'])
             error_message = "Wrong state (#{vm_resource['LCM_STATE']})
@@ -66,7 +66,7 @@ class SunstoneGuac < SunstoneRemoteConnections
         case type_connection.downcase
         when 'vnc' then settings = get_config_vnc(vm_resource)
         when 'rdp' then settings = get_config_rdp(vm_resource)
-        when 'ssh' then settings = get_config_ssh(vm_resource)
+        when 'ssh' then settings = get_config_ssh(vm_resource, client)
         else {
             :error => error(400, 'Type connection not supported by Guacamole')
         }
@@ -157,7 +157,7 @@ class SunstoneGuac < SunstoneRemoteConnections
         )
     end
 
-    def get_config_ssh(vm_resource)
+    def get_config_ssh(vm_resource, client)
         hostname =
             vm_resource["TEMPLATE/NIC[SSH='YES'][1]/EXTERNAL_IP"] ||
             vm_resource["TEMPLATE/NIC[SSH='YES'][1]/IP"] ||
@@ -184,19 +184,47 @@ class SunstoneGuac < SunstoneRemoteConnections
             return { :error => error(400, error_message) }
         end
 
+        hash = {
+            'hostname' =>  hostname,
+            'port' =>  port || vm_resource['TEMPLATE/CONTEXT/SSH_PORT']
+        }
+
+        if vm_resource['TEMPLATE/CONTEXT/USERNAME']
+            hash['username'] = vm_resource['TEMPLATE/CONTEXT/USERNAME']
+        end
+
+        if vm_resource['TEMPLATE/CONTEXT/PASSWORD']
+            hash['password'] = vm_resource['TEMPLATE/CONTEXT/PASSWORD']
+        end
+
+        if vm_resource['TEMPLATE/CONTEXT/SSH_PUBLIC_KEY']
+            user = User.new_with_id(OpenNebula::User::SELF, client)
+            rc   = user.info
+
+            if OpenNebula.is_error?(rc)
+                error_message = "VMID:#{vmid} user.info error: #{rc.message}"
+                return { :error => error(400, error_message) }
+            end
+
+            private_key = user['TEMPLATE/SSH_PRIVATE_KEY']
+
+            if private_key.nil?
+                error_message = "SSH_PRIVATE_KEY not present in the USER:#{OpenNebula::User::SELF} TEMPLATE"
+                return { :error => error(400, error_message) }
+            end
+
+            passphrase = user['TEMPLATE/SSH_PASSPHRASE']
+            if !passphrase.nil?
+                hash['passphrase'] = passphrase
+            end
+
+            hash['private-key'] = private_key
+        end
+
         {
             'hostname' => 'localhost',
-            'port' =>  '22',
-            'username' =>  nil,
-            'password' =>  nil
-        }.merge(
-            {
-                'hostname' =>  hostname,
-                'port' =>  port || vm_resource['TEMPLATE/CONTEXT/SSH_PORT'],
-                'username' =>  vm_resource['TEMPLATE/CONTEXT/USERNAME'],
-                'password' =>  vm_resource['TEMPLATE/CONTEXT/PASSWORD']
-            }
-        )
+            'port' =>  '22'
+        }.merge(hash)
     end
 
     def encrypt_data(data)
