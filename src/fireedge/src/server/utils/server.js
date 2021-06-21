@@ -14,6 +14,7 @@
 /* -------------------------------------------------------------------------- */
 const { env } = require('process')
 const { Map } = require('immutable')
+const { global } = require('window-or-global')
 const { existsSync, readFileSync, createWriteStream } = require('fs-extra')
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
@@ -83,10 +84,25 @@ const validateAuthWebsocket = (server = {}) => {
   return rtn
 }
 
-const middlewareValidateResourceForHookConnection = (server = {}, next = () => undefined) => {
+const getResourceForHookConnection = (server = {}) => {
   const { id, resource } = returnQueryData(server)
   const { aud: username } = validateAuthWebsocket(server)
-  if (id && resource && username) {
+  return { id, resource, username }
+}
+
+const middlewareValidateResourceForHookConnection = (server = {}, next = () => undefined) => {
+  const { id, resource, username } = getResourceForHookConnection(server)
+  if (
+    id &&
+    resource &&
+    username &&
+    global &&
+    global.users &&
+    global.users[username] &&
+    global.users[username].resourcesHooks &&
+    global.users[username].resourcesHooks[resource.toLowerCase()] >= 0 &&
+    global.users[username].resourcesHooks[resource.toLowerCase()] === parseInt(id, 10)
+  ) {
     next()
   } else {
     server.disconnect(true)
@@ -258,7 +274,7 @@ module.exports = {
   parsePostData,
   getParamsForObject,
   returnQueryData,
-  validateAuthWebsocket,
+  getResourceForHookConnection,
   middlewareValidateAuthWebsocket,
   middlewareValidateResourceForHookConnection
 }

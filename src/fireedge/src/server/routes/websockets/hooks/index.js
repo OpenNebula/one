@@ -20,7 +20,7 @@ const { messageTerminal } = require('server/utils/general')
 const {
   middlewareValidateAuthWebsocket,
   middlewareValidateResourceForHookConnection,
-  validateAuthWebsocket,
+  getResourceForHookConnection,
   getDataZone,
   returnQueryData
 } = require('server/utils/server')
@@ -31,16 +31,14 @@ const main = (app = {}, type = '') => {
       .use(middlewareValidateAuthWebsocket)
       .use(middlewareValidateResourceForHookConnection)
       .on('connection', (server = {}) => {
-        const { zone: queryZone, id, resource } = returnQueryData(server)
-        const { aud: username } = validateAuthWebsocket(server)
-        console.log('data: ', username, id, resource)
+        const { id, resource } = getResourceForHookConnection(server)
+        const { zone: queryZone } = returnQueryData(server)
         const zone = queryZone && queryZone !== 'undefined' ? queryZone : '0'
         const dataZone = getDataZone(zone)
-        // aca colocar la validacion del recurso con global.user (necesitas buscar el nombre del usuario, id y resource)
         if (dataZone && dataZone.zeromq) {
           const zeromqSock = socketZeroMQ('sub')
           zeromqSock.connect(dataZone.zeromq)
-          zeromqSock.subscribe('')
+          zeromqSock.subscribe(`EVENT ${resource.toUpperCase()} ${id}/`)
           server.on('disconnect', function () {
             zeromqSock.close()
           })
