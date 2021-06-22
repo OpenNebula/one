@@ -6,23 +6,25 @@ import { Redirect, Route, Switch, Link } from 'react-router-dom'
 import { Container, Tabs, Tab, Box } from '@material-ui/core'
 
 import {
+  ClustersTable,
   DatastoresTable,
   HostsTable,
-  VmsTable,
-  MarketplacesTable,
+  ImagesTable,
   MarketplaceAppsTable,
-  ImagesTable
+  MarketplacesTable,
+  VmsTable
 } from 'client/components/Tables'
 
 import { PATH } from 'client/router/dev'
 
 const TABS = {
-  vms: PATH.NEWSTONE.replace(':resource', 'vms'),
+  apps: PATH.NEWSTONE.replace(':resource', 'apps'),
+  clusters: PATH.NEWSTONE.replace(':resource', 'clusters'),
   datastores: PATH.NEWSTONE.replace(':resource', 'datastores'),
   hosts: PATH.NEWSTONE.replace(':resource', 'hosts'),
+  images: PATH.NEWSTONE.replace(':resource', 'images'),
   marketplaces: PATH.NEWSTONE.replace(':resource', 'marketplaces'),
-  apps: PATH.NEWSTONE.replace(':resource', 'apps'),
-  images: PATH.NEWSTONE.replace(':resource', 'images')
+  vms: PATH.NEWSTONE.replace(':resource', 'vms')
 }
 
 const Newstone = () => {
@@ -54,12 +56,13 @@ const Newstone = () => {
 
       <Box py={2} overflow='auto'>
         <Switch>
-          <Route exact path={TABS.vms} component={VmsTable} />
+          <Route exact path={TABS.apps} component={MarketplaceAppsTable} />
+          <Route exact path={TABS.clusters} component={ClustersTable} />
           <Route exact path={TABS.datastores} component={DatastoresTable} />
           <Route exact path={TABS.hosts} component={HostsTable} />
-          <Route exact path={TABS.marketplaces} component={MarketplacesTable} />
-          <Route exact path={TABS.apps} component={MarketplaceAppsTable} />
           <Route exact path={TABS.images} component={ImagesTable} />
+          <Route exact path={TABS.marketplaces} component={MarketplacesTable} />
+          <Route exact path={TABS.vms} component={VmsTable} />
 
           <Route component={() => <Redirect to={TABS.vms} />} />
         </Switch>

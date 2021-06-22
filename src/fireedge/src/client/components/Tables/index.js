@@ -1,3 +1,4 @@
+import ClustersTable from 'client/components/Tables/Clusters'
 import DatastoresTable from 'client/components/Tables/Datastores'
 import EnhancedTable from 'client/components/Tables/Enhanced'
 import HostsTable from 'client/components/Tables/Hosts'
@@ -11,6 +12,7 @@ export {
   EnhancedTable,
   VirtualizedTable,
 
+  ClustersTable,
   DatastoresTable,
   HostsTable,
   ImagesTable,
