@@ -31,8 +31,9 @@ class LXDClient
     API    = '/1.0'.freeze
     HEADER = { 'Host' => 'localhost' }.freeze
     API_RETRY = 5 # Attempts, in case a response is failed to read from LXD
+    SUPPORTED_VERSION = '3.0'
 
-    attr_reader :lxd_path, :snap
+    attr_reader :lxd_path, :snap, :version
 
     def initialize
         snap_path = '/var/snap/lxd/common/lxd'
@@ -46,7 +47,7 @@ class LXDClient
                 @socket = socket(path)
                 @lxd_path = path
                 break
-            rescue
+            rescue StandardError
                 next
             end
         end
@@ -54,6 +55,7 @@ class LXDClient
         raise 'Failed to open LXD socket' unless @socket
 
         @snap = @lxd_path == snap_path
+        version_check
     end
 
     # Performs HTTP::Get
@@ -106,6 +108,21 @@ class LXDClient
 
     private
 
+    # Returns the server version
+    def version_check
+        response = get_response(Net::HTTP::Get.new(API.to_s, HEADER),
+                                data = nil)
+        @version = response['metadata']['environment']['server_version']
+
+        STDERR.puts "Running LXD Version #{@version}\n"\
+        'WARNING: '\
+        'The LXD Driver has been deprecated in favor of the LXC Driver '\
+        'https://docs.opennebula.io/6.0/open_cluster_deployment/lxc_node/lxd_to_lxc.html'
+
+        raise "LXD Version #{SUPPORTED_VERSION} is the only supported version" \
+        if @version[0..2] != '3.0'
+    end
+
     # Enable communication with LXD via unix socket
     def socket(lxd_path)
         Net::BufferedIO.new(UNIXSocket.new("#{lxd_path}/unix.socket"))
@@ -139,7 +156,8 @@ class LXDClient
             break
         end
 
-        raise LXDError, 'error' => 'Failed to read response from LXD' if response.nil?
+        raise LXDError,
+              'error' => 'Failed to read response from LXD' if response.nil?
 
         raise LXDError, response if response['type'] == 'error'
 
