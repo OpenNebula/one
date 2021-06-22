@@ -62,7 +62,8 @@ module OneProvision
             user_data << "chmod 644 ~/.ssh/authorized_keys\n"
 
             # Rename last NIC to eth_one
-            user_data << "NIC=$(ip --brief link show | tail -1 | awk '{print $1}')\n"
+            user_data << 'NIC=$(ip --brief link show | '\
+                               "tail -1 | awk '{print $1}')\n"
             user_data << "ip link set down $NIC\n"
             user_data << "ip link set $NIC name eth_one\n"
             user_data << 'ip link set up $NIC'

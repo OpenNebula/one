@@ -1145,14 +1145,14 @@ module VCenterDriver
             vswitchspec =
                 RbVmomi::VIM::HostVirtualSwitchSpec(
                     :bridge => hostbridge,
-                     :mtu => mtu,
-                      :numPorts => num_ports
+                    :mtu => mtu,
+                    :numPorts => num_ports
                 )
             begin
                 nws
                     .UpdateVirtualSwitch(
                         :vswitchName => name,
-                         :spec => vswitchspec
+                        :spec => vswitchspec
                     )
             rescue StandardError => e
                 raise "The standard switch with name #{name} \
@@ -1463,7 +1463,7 @@ module VCenterDriver
                         nws
                             .UpdatePortGroup(
                                 :pgName => nr[:name],
-                                 :portgrp => nr[:spec]
+                                :portgrp => nr[:spec]
                             )
                     rescue StandardError => e
                         raise "A rollback operation for standard \

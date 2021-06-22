@@ -576,7 +576,7 @@ module OpenNebula
                     time_offset = offset * period.to_i
                 end
 
-                tmp_str = "SCHED_ACTION = ["
+                tmp_str = 'SCHED_ACTION = ['
                 tmp_str << "ACTION = #{action},"
                 tmp_str << "ARGS = \"#{args}\"," if args
                 tmp_str << "TIME = #{now + time_offset}]"

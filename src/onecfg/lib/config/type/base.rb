@@ -484,7 +484,7 @@ module OneCfg::Config::Type
             elsif value.is_a?(Array)
                 value.collect {|v| unsymbolize(v) }
             elsif value.is_a?(Hash)
-                Hash[value.collect {|k, v| [unsymbolize(k), unsymbolize(v)] }]
+                value.collect {|k, v| [unsymbolize(k), unsymbolize(v)] }.to_h
             else
                 value
             end
@@ -505,7 +505,7 @@ module OneCfg::Config::Type
             elsif value.is_a?(Array)
                 value.collect {|v| symbolize(v) }
             elsif value.is_a?(Hash)
-                Hash[value.collect {|k, v| [symbolize(k), symbolize(v)] }]
+                value.collect {|k, v| [symbolize(k), symbolize(v)] }.to_h
             else
                 value
             end

@@ -209,7 +209,8 @@ class SunstoneGuac < SunstoneRemoteConnections
             private_key = user['TEMPLATE/SSH_PRIVATE_KEY']
 
             if private_key.nil?
-                error_message = "SSH_PRIVATE_KEY not present in the USER:#{OpenNebula::User::SELF} TEMPLATE"
+                error_message = 'SSH_PRIVATE_KEY not present in the USER:'\
+                                "#{OpenNebula::User::SELF} TEMPLATE"
                 return { :error => error(400, error_message) }
             end
 

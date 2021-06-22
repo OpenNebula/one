@@ -560,6 +560,9 @@ Layout/MultilineOperationIndentation:
 # STYLE
 #######
 
+Style/QuotedSymbols:
+    Enabled: false
+
 Style/OptionalBooleanParameter:
     Enabled: false
 
