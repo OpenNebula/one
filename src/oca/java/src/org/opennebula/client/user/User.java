@@ -39,6 +39,7 @@ public class User extends PoolElement{
     private static final String ADDGROUP        = METHOD_PREFIX + "addgroup";
     private static final String DELGROUP        = METHOD_PREFIX + "delgroup";
     private static final String LOGIN           = METHOD_PREFIX + "login";
+    private static final String ENABLE          = METHOD_PREFIX + "enable";
 
     /**
      * Creates a new User representation.
@@ -280,6 +281,21 @@ public class User extends PoolElement{
         return client.call(LOGIN, username, token, expire, egid);
     }
 
+    /**
+     * Enables or disables a User
+     *
+     * @param client XML-RPC Client.
+     * @param id The user id of the target user we want to modify.
+     * @param enable True for enabling, false for disabling.
+     * @return If successful the message contains the User id.
+     */
+    public static OneResponse enable(Client client,
+                                     int id,
+                                     boolean enable)
+    {
+        return client.call(ENABLE, id, enable);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -422,7 +438,7 @@ public class User extends PoolElement{
      */
     public OneResponse login(String token, int expire)
     {
-        return client.call(LOGIN, getName(), token, expire);
+        return login(client, getName(), token, expire);
     }
 
     /**
@@ -438,7 +454,19 @@ public class User extends PoolElement{
      */
     public OneResponse login(String token, int expire, int egid)
     {
-        return client.call(LOGIN, getName(), token, expire, egid);
+        return login(client, getName(), token, expire, egid);
+    }
+
+    /**
+     * Enables or disables a User
+     *
+     * @param client XML-RPC Client.
+     * @param enable True for enabling, false for disabling.
+     * @return If successful the message contains the User id.
+     */
+    public OneResponse enable(boolean enable)
+    {
+        return enable(client, id, enable);
     }
 
     // =================================

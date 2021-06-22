@@ -36,6 +36,9 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     private static final String INFO_EXTENDED_METHOD  = "vmpool.infoextended";
     private static final String INFO_SET_METHOD       = "vmpool.infoset";
     private static final String MONITORING            = "vmpool.monitoring";
+    private static final String ACCOUNTING            = "vmpool.accounting";
+    private static final String SHOWBACK              = "vmpool.showback";
+    private static final String CALCULATE_SHOWBACK    = "vmpool.calculateshowback";
 
     /**
      * Flag for Virtual Machines in any state.
@@ -291,6 +294,97 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     }
 
     /**
+     * Returns the virtual machine history records.
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param start_time: Start time for the time interval. Can be -1,
+     * in which case the time interval won’t have a left boundary.
+     * @param end_time: End time for the time interval. Can be -1,
+     * in which case the time interval won’t have a right boundary.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse accounting(Client client, int filter,
+                                         int start_time, int end_time)
+    {
+        return client.call(ACCOUNTING, filter, start_time, end_time);
+    }
+
+    /**
+     * Returns the virtual machine showback records
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param first_month First month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a left boundary.
+     * @param first_year First year for the time interval. Can be -1,
+     * in which case the time interval won’t have a left boundary.
+     * @param last_month Last month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a right boundary.
+     * @param last_year Last year for the time interval. Can be -1,
+     * in which case the time interval won’t have a right boundary.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public static OneResponse showback(Client client, int filter,
+                                       int first_month, int first_year,
+                                       int last_month, int last_year)
+    {
+        return client.call(SHOWBACK, filter,
+                           first_month, first_year,
+                           last_month, last_year);
+    }
+
+    /**
+     * Processes all the history records, and stores the monthly cost for each VM
+     *
+     * @param client XML-RPC Client.
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param first_month First month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a left boundary.
+     * @param first_year First year for the time interval. Can be -1,
+     * in which case the time interval won’t have a left boundary.
+     * @param last_month Last month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a right boundary.
+     * @param last_year Last year for the time interval. Can be -1,
+     * in which case the time interval won’t have a right boundary.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse calculateshowback(Client client, int filter,
+                                                int first_month, int first_year,
+                                                int last_month, int last_year)
+    {
+        return client.call(CALCULATE_SHOWBACK, filter,
+                           first_month, first_year,
+                           last_month, last_year);
+    }
+
+    /**
      * Loads the xml representation of all or part of the
      * Virtual Machines in the pool. The filter used is the one set in
      * the constructor.
@@ -409,6 +503,94 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
     public OneResponse monitoring(int filter)
     {
         return monitoring(client, filter);
+    }
+
+    /**
+     * Returns the virtual machine history records.
+     *
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param start_time: Start time for the time interval. Can be -1,
+     * in which case the time interval won’t have a left boundary.
+     * @param end_time: End time for the time interval. Can be -1,
+     * in which case the time interval won’t have a right boundary.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse accounting(int filter,
+                                         int start_time, int end_time)
+    {
+        return accounting(client, filter, start_time, end_time);
+    }
+
+    /**
+     * Returns the virtual machine showback records
+     *
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param first_month First month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a left boundary.
+     * @param first_year First year for the time interval. Can be -1,
+     * in which case the time interval won’t have a left boundary.
+     * @param last_month Last month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a right boundary.
+     * @param last_year Last year for the time interval. Can be -1,
+     * in which case the time interval won’t have a right boundary.
+     * @return If successful the message contains the string
+     * with the information returned by OpenNebula.
+     */
+    public OneResponse showback(int filter,
+                                int first_month, int first_year,
+                                int last_month, int last_year)
+    {
+        return showback(client, filter,
+                        first_month, first_year,
+                        last_month, last_year);
+    }
+
+    /**
+     * Processes all the history records, and stores the monthly cost for each VM
+     *
+     * @param filter Filter flag to use. Possible values:
+     * <ul>
+     * <li>{@link Pool#ALL}: All Virtual Machines</li>
+     * <li>{@link Pool#MINE}: Connected user's Virtual Machines</li>
+     * <li>{@link Pool#MINE_GROUP}: Connected user's Virtual Machines, and
+     * the ones in his group</li>
+     * <li>{@link Pool#GROUP}: User's primary group Virtual Machines</li>
+     * <li>&gt;= 0 UID User's Virtual Machines</li>
+     * </ul>
+     * @param first_month First month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a left boundary.
+     * @param first_year First year for the time interval. Can be -1,
+     * in which case the time interval won’t have a left boundary.
+     * @param last_month Last month for the time interval. January is 1.
+     * Can be -1, in which case the time interval won’t have a right boundary.
+     * @param last_year Last year for the time interval. Can be -1,
+     * in which case the time interval won’t have a right boundary.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse calculateshowback(int filter,
+                                         int first_month, int first_year,
+                                         int last_month, int last_year)
+    {
+        return calculateshowback(client, filter,
+                                 first_month, first_year,
+                                 last_month, last_year);
     }
 
     public Iterator<VirtualMachine> iterator()
