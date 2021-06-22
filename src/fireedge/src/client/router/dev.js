@@ -6,12 +6,10 @@ import {
 
 const Newstone = loadable(() => import('client/containers/Newstone'), { ssr: false })
 const TestApi = loadable(() => import('client/containers/TestApi'), { ssr: false })
-const WebConsole = loadable(() => import('client/containers/WebConsole'), { ssr: false })
 
 export const PATH = {
   NEWSTONE: '/newstone/:resource',
-  TEST_API: '/test-api',
-  WEB_CONSOLE: '/webconsole'
+  TEST_API: '/test-api'
 }
 
 export const ENDPOINTS = [
@@ -29,14 +27,6 @@ export const ENDPOINTS = [
     sidebar: true,
     icon: DevIcon,
     Component: TestApi
-  },
-  {
-    label: 'Web Console',
-    path: PATH.WEB_CONSOLE,
-    devMode: true,
-    sidebar: true,
-    icon: DevIcon,
-    Component: WebConsole
   }
 ]
 
