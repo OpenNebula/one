@@ -27,6 +27,7 @@ export const sidebar = {
   fixed: 240
 }
 
+/** @type {import('@material-ui/core').ThemeOptions} */
 export default {
   breakpoints: {
     values: breakpoints,
