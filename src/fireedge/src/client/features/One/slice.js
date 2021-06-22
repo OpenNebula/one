@@ -1,4 +1,4 @@
-import { createSlice, isFulfilled } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 
 import { updateResourceList } from 'client/features/One/utils'
 import { eventUpdateResourceState } from 'client/features/One/socket/actions'

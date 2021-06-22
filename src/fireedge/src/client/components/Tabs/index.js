@@ -1,9 +1,9 @@
-import React, { useState, useMemo, memo } from 'react'
+import React, { useState, useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import { Tabs as MTabs, Tab as MTab } from '@material-ui/core'
 
-const Content = memo(({ name, renderContent, hidden }) => (
+const Content = ({ name, renderContent: Content, hidden }) => (
   <div key={`tab-${name}`}
     style={{
       padding: 2,
@@ -12,11 +12,11 @@ const Content = memo(({ name, renderContent, hidden }) => (
       display: hidden ? 'none' : 'block'
     }}
   >
-    {typeof renderContent === 'function' ? renderContent() : renderContent}
+    {typeof Content === 'function' ? <Content /> : Content}
   </div>
-), (prev, next) => prev.hidden === next.hidden)
+)
 
-const Tabs = ({ tabs = [] }) => {
+const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
   const [tabSelected, setTab] = useState(0)
 
   const renderTabs = useMemo(() => (
@@ -38,7 +38,7 @@ const Tabs = ({ tabs = [] }) => {
     </MTabs>
   ), [tabSelected])
 
-  const renderTabContent = useMemo(() =>
+  const renderAllHiddenTabContents = useMemo(() =>
     tabs.map((tabProps, idx) => {
       const { name, value = idx } = tabProps
       const hidden = tabSelected !== value
@@ -49,7 +49,11 @@ const Tabs = ({ tabs = [] }) => {
   return (
     <>
       {renderTabs}
-      {renderTabContent}
+      {renderHiddenTabs ? (
+        renderAllHiddenTabContents
+      ) : (
+        <Content {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)} />
+      )}
     </>
   )
 }
