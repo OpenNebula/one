@@ -33,6 +33,7 @@ public class Zone extends PoolElement{
     private static final String UPDATE          = METHOD_PREFIX + "update";
     private static final String RENAME          = METHOD_PREFIX + "rename";
     private static final String DELETE          = METHOD_PREFIX + "delete";
+    private static final String ENABLE          = METHOD_PREFIX + "enable";
 
     /**
      * Creates a new Zone representation.
@@ -111,6 +112,19 @@ public class Zone extends PoolElement{
     }
 
     /**
+     * Enable or disable the given Zone
+     *
+     * @param client XML-RPC Client.
+     * @param id The zone id.
+     * @param enable True for enabling, false for disabling
+     * @return A encapsulated response.
+     */
+    public static OneResponse enable(Client client, int id, boolean enable)
+    {
+        return client.call(ENABLE, id, enable);
+    }
+
+    /**
      * Replaces the template contents.
      *
      * @param client XML-RPC Client.
@@ -163,6 +177,17 @@ public class Zone extends PoolElement{
     public OneResponse delete()
     {
         return delete(client, id);
+    }
+
+    /**
+     * Enable or disable this Zone
+     *
+     * @param enable True for enabling, false for disabling
+     * @return A encapsulated response.
+     */
+    public OneResponse enable(boolean enable)
+    {
+        return enable(client, id, enable);
     }
 
     /**
