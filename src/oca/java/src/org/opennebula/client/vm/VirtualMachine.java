@@ -57,6 +57,8 @@ public class VirtualMachine extends PoolElement{
     private static final String SCHEDADD            = METHOD_PREFIX + "schedadd";
     private static final String SCHEDDELETE         = METHOD_PREFIX + "scheddelete";
     private static final String SCHEDUPDATE         = METHOD_PREFIX + "schedupdate";
+    private static final String LOCK                = METHOD_PREFIX + "lock";
+    private static final String UNLOCK              = METHOD_PREFIX + "unlock";
 
     private static final String[] VM_STATES =
     {
@@ -696,6 +698,31 @@ public class VirtualMachine extends PoolElement{
         return client.call(RECOVER, id, operation);
     }
 
+    /**
+     * Lock this VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id.
+     * @param level Lock level (use (1), manage (2), admin (3), all (4))
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse lock(Client client, int id, int level)
+    {
+        return client.call(LOCK, id, level);
+    }
+
+    /**
+     * Unlock this VM
+     *
+     * @param client XML-RPC Client.
+     * @param id The VM id.
+     * @return If an error occurs the error message contains the reason.
+     */
+    public static OneResponse unlock(Client client, int id)
+    {
+        return client.call(UNLOCK, id);
+    }
+
     // =================================
     // Instanced object XML-RPC methods
     // =================================
@@ -1205,6 +1232,27 @@ public class VirtualMachine extends PoolElement{
     public OneResponse recover(int operation)
     {
         return recover(client, id, operation);
+    }
+
+    /**
+     * Lock this VM
+     *
+     * @param level Lock level (use (1), manage (2), admin (3), all (4))
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse lock(int level)
+    {
+        return lock(client, id, level);
+    }
+
+    /**
+     * Unlock this VM
+     *
+     * @return If an error occurs the error message contains the reason.
+     */
+    public OneResponse unlock()
+    {
+        return unlock(client, id);
     }
 
     // =================================
