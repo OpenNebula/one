@@ -3,7 +3,7 @@ import { HOST_STATES } from 'client/constants'
 
 export const getState = ({ STATE } = {}) => HOST_STATES[STATE]
 
-export const getAllocatedInfo = ({ HOST_SHARE } = {}) => {
+export const getAllocatedInfo = ({ HOST_SHARE = {} } = {}) => {
   const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = HOST_SHARE
 
   const percentCpuUsed = +CPU_USAGE * 100 / +TOTAL_CPU || 0

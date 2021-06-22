@@ -5,11 +5,11 @@ import { useFetch } from 'client/hooks'
 import { useHost, useHostApi } from 'client/features/One'
 
 import { EnhancedTable } from 'client/components/Tables'
-import { HostCard } from 'client/components/Cards'
-import Columns from 'client/components/Tables/Hosts/columns'
+import HostColumns from 'client/components/Tables/Hosts/columns'
+import HostRow from 'client/components/Tables/Hosts/row'
 
 const HostsTable = () => {
-  const columns = React.useMemo(() => Columns, [])
+  const columns = React.useMemo(() => HostColumns, [])
 
   const hosts = useHost()
   const { getHosts } = useHostApi()
@@ -24,7 +24,8 @@ const HostsTable = () => {
       columns={columns}
       data={hosts}
       isLoading={loading || reloading}
-      MobileComponentRow={HostCard}
+      getRowId={row => String(row.ID)}
+      RowComponent={HostRow}
     />
   )
 }
