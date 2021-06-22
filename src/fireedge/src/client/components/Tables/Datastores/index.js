@@ -5,11 +5,11 @@ import { useFetch } from 'client/hooks'
 import { useDatastore, useDatastoreApi } from 'client/features/One'
 
 import { EnhancedTable } from 'client/components/Tables'
-import { DatastoreCard } from 'client/components/Cards'
-import Columns from 'client/components/Tables/Datastores/columns'
+import DatastoreColumns from 'client/components/Tables/Datastores/columns'
+import DatastoreRow from 'client/components/Tables/Datastores/row'
 
 const DatastoresTable = () => {
-  const columns = React.useMemo(() => Columns, [])
+  const columns = React.useMemo(() => DatastoreColumns, [])
 
   const datastores = useDatastore()
   const { getDatastores } = useDatastoreApi()
@@ -24,7 +24,8 @@ const DatastoresTable = () => {
       columns={columns}
       data={datastores}
       isLoading={loading || reloading}
-      MobileComponentRow={DatastoreCard}
+      getRowId={row => String(row.ID)}
+      RowComponent={DatastoreRow}
     />
   )
 }
