@@ -15,7 +15,7 @@ import Pagination from 'client/components/Tables/Enhanced/pagination'
 
 import { addOpacityToColor } from 'client/utils'
 
-const useStyles = makeStyles(({ palette, typography, breakpoints }) => ({
+const useStyles = makeStyles(({ palette, typography }) => ({
   root: {
     height: '100%',
     display: 'flex',
@@ -66,9 +66,6 @@ const useStyles = makeStyles(({ palette, typography, breakpoints }) => ({
   }
 }))
 
-const DefaultCell = React.memo(({ value }) => value ?? '--')
-DefaultCell.displayName = 'DefaultCell'
-
 const EnhancedTable = ({
   data,
   columns,
@@ -86,7 +83,6 @@ const EnhancedTable = ({
 
   const defaultColumn = React.useMemo(() => ({
     // Filter: DefaultFilter,
-    Cell: DefaultCell
   }), [])
 
   const useTableProps = useTable(
