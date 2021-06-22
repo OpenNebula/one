@@ -1,6 +1,7 @@
 module.exports = {
   /* pagination / stepper */
   Back: 'Back',
+  Previous: 'Previous',
   Next: 'Next',
 
   /* actions */
@@ -41,6 +42,8 @@ module.exports = {
   /* errors */
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneProvision: 'Cannot connect to OneProvision server',
+  ErrorOneProvisionGUI: 'FireEdge is not correctly configured to operate the OneProvision GUI',
+  ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
   None: 'None',
   Empty: 'Empty',

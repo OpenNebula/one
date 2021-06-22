@@ -5,16 +5,17 @@ import { useFetch } from 'client/hooks'
 import { useVm, useVmApi } from 'client/features/One'
 
 import { EnhancedTable } from 'client/components/Tables'
-import { VirtualMachineCard } from 'client/components/Cards'
-import Columns from 'client/components/Tables/Vms/columns'
+import VmColumns from 'client/components/Tables/Vms/columns'
+import VmRow from 'client/components/Tables/Vms/row'
+import VmDetail from 'client/components/Tables/Vms/detail'
 
 const INITIAL_ELEMENT = 0
-const NUMBER_OF_INTERVAL = 6
+const NUMBER_OF_INTERVAL = 10
 
 const VmsTable = () => {
   const [[start, end], setPage] = useState([INITIAL_ELEMENT, -NUMBER_OF_INTERVAL])
 
-  const columns = React.useMemo(() => Columns, [])
+  const columns = React.useMemo(() => VmColumns, [])
 
   const vms = useVm()
   const { getVms } = useVmApi()
@@ -44,9 +45,11 @@ const VmsTable = () => {
       pageSize={NUMBER_OF_INTERVAL / 2}
       isLoading={loading || reloading}
       showPageCount={false}
+      getRowId={row => String(row.ID)}
+      RowComponent={VmRow}
+      renderDetail={row => <VmDetail id={row.ID} />}
       canFetchMore={canFetchMore}
       fetchMore={fetchMore}
-      MobileComponentRow={VirtualMachineCard}
     />
   )
 }
