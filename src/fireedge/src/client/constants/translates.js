@@ -101,7 +101,7 @@ module.exports = {
   Network: 'Network',
   Networks: 'Networks',
   VirtualNetwork: 'Virtual network',
-  VirtualsNetworks: 'Virtuals networks',
+  VirtualNetworks: 'Virtual networks',
   NetworkTopology: 'Network topology',
   NetworksTopologies: 'Networks topologies',
 

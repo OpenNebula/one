@@ -52,7 +52,7 @@ const ClusterCard = memo(
             </Badge>
             <Badge
               showZero
-              title={Tr(T.VirtualsNetworks)}
+              title={Tr(T.VirtualNetworks)}
               classes={{ badge: 'badge' }}
               color="primary"
               badgeContent={vnets.length}
