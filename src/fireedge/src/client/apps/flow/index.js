@@ -19,7 +19,6 @@ import PropTypes from 'prop-types'
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
 
-import SocketProvider from 'client/providers/socketProvider'
 import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
@@ -32,25 +31,23 @@ const APP_NAME = _APPS.flow.name
 
 const Flow = ({ store, location, context }) => (
   <ReduxProvider store={store}>
-    <SocketProvider>
-      <TranslateProvider>
-        <MuiProvider theme={theme}>
-          <NotistackProvider>
-            {location && context ? (
-              // server build
-              <StaticRouter location={location} context={context}>
-                <App />
-              </StaticRouter>
-            ) : (
-              // browser build
-              <BrowserRouter basename={`${APP_URL}/${APP_NAME}`}>
-                <App />
-              </BrowserRouter>
-            )}
-          </NotistackProvider>
-        </MuiProvider>
-      </TranslateProvider>
-    </SocketProvider>
+    <TranslateProvider>
+      <MuiProvider theme={theme}>
+        <NotistackProvider>
+          {location && context ? (
+            // server build
+            <StaticRouter location={location} context={context}>
+              <App />
+            </StaticRouter>
+          ) : (
+            // browser build
+            <BrowserRouter basename={`${APP_URL}/${APP_NAME}`}>
+              <App />
+            </BrowserRouter>
+          )}
+        </NotistackProvider>
+      </MuiProvider>
+    </TranslateProvider>
   </ReduxProvider>
 )
 
