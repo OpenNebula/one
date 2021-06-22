@@ -1,11 +1,11 @@
-import { Actions, Commands } from 'server/utils/constants/commands/marketapp'
+import { Actions, Commands } from 'server/utils/constants/commands/image'
 import { httpCodes } from 'server/utils/constants'
 import { requestParams, RestClient } from 'client/utils'
 import { poolRequest } from 'client/features/One/utils'
 
-export const marketAppService = ({
-  getMarketApp: ({ filter, id }) => {
-    const name = Actions.MARKETAPP_INFO
+export const imageService = ({
+  getImage: ({ filter, id }) => {
+    const name = Actions.IMAGE_INFO
     const { url, options } = requestParams(
       { filter, id },
       { name, ...Commands[name] }
@@ -14,12 +14,12 @@ export const marketAppService = ({
     return RestClient.get(url, options).then(res => {
       if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
-      return res?.data?.MARKETAPP ?? {}
+      return res?.data?.IMAGE ?? {}
     })
   },
-  getMarketApps: data => {
-    const name = Actions.MARKETAPP_POOL_INFO
+  getImages: data => {
+    const name = Actions.IMAGE_POOL_INFO
     const command = { name, ...Commands[name] }
-    return poolRequest(data, command, 'MARKETPLACEAPP')
+    return poolRequest(data, command, 'IMAGE')
   }
 })
