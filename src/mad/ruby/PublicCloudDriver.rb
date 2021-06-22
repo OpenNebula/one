@@ -249,7 +249,7 @@ class InstanceCache
     def select_vms
         vms = []
         execute_retry('SELECT * from vms').each do |vm|
-            vm = Hash[[:uuid, :id, :name, :state, :type].zip(vm)]
+            vm = [:uuid, :id, :name, :state, :type].zip(vm).to_h
             vm[:deploy_id] = vm[:uuid]
             vms << vm
         end

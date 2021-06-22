@@ -3071,7 +3071,8 @@ end
         # Create a snapshot for the VM
         def create_snapshot(snap_id, snap_name)
             memory_dumps = true
-            memory_dumps = CONFIG[:memory_dumps] unless CONFIG[:memory_dumps].nil?
+            memory_dumps = CONFIG[:memory_dumps] \
+                                     unless CONFIG[:memory_dumps].nil?
 
             snapshot_hash = {
                 :name        => snap_id,
