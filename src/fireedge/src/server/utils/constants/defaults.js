@@ -14,7 +14,7 @@
 /* -------------------------------------------------------------------------- */
 
 const appName = 'fireedge'
-const prepend = `${appName ? `/${appName}/` : '/'}`
+const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const apps = {
   flow: {
     name: 'flow',
@@ -41,11 +41,11 @@ const defaults = {
   },
   defaultFilesWebsockets: {
     hooks: {
-      path: `${prepend}hooks`,
+      path: `${baseUrl}websockets/hooks`,
       methods: ['GET', 'POST']
     },
     provision: {
-      path: `${prepend}provision`,
+      path: `${baseUrl}websockets/provision`,
       methods: ['GET', 'POST']
     }
   },
@@ -99,8 +99,8 @@ const defaults = {
   defaultKeyFilename: `${appName}_key`,
   defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
-  endpointVmrc: `${prepend}vmrc`,
-  endpointGuacamole: `${prepend}guacamole`,
+  endpointVmrc: `${baseUrl}vmrc`,
+  endpointGuacamole: `${baseUrl}guacamole`,
   defaultNamespace: 'one.',
   defaultMessageInvalidZone: 'Invalid Zone',
   default2FAIssuer: `${appName}-UI`,
