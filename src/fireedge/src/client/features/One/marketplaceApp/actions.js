@@ -1,5 +1,6 @@
 import { createAction } from 'client/features/One/utils'
 import { marketplaceAppService } from 'client/features/One/marketplaceApp/services'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const getMarketplaceApp = createAction(
   'app',
@@ -9,5 +10,5 @@ export const getMarketplaceApp = createAction(
 export const getMarketplaceApps = createAction(
   'app/pool',
   marketplaceAppService.getMarketplaceApps,
-  response => ({ apps: response })
+  response => ({ [RESOURCES.app]: response })
 )

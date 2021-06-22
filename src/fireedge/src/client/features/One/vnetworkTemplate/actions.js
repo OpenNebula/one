@@ -1,5 +1,6 @@
 import { createAction } from 'client/features/One/utils'
 import { vNetworkTemplateService } from 'client/features/One/vnetworkTemplate/services'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const getVNetworkTemplate = createAction(
   'vnet-template',
@@ -9,5 +10,5 @@ export const getVNetworkTemplate = createAction(
 export const getVNetworksTemplates = createAction(
   'vnet-template/pool',
   vNetworkTemplateService.getVNetworksTemplates,
-  response => ({ vNetworksTemplates: response })
+  response => ({ [RESOURCES.vntemplate]: response })
 )

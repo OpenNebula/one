@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/datastore/actions'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const useDatastore = () => (
-  useSelector(state => state.one.datastores)
+  useSelector(state => state.one[RESOURCES.datastore])
 )
 
 export const useDatastoreApi = () => {

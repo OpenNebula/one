@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/provider/actions'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const useProvider = () => (
-  useSelector(state => state.one.providers)
+  useSelector(state => state.one[RESOURCES.document[102]])
 )
 
 export const useProviderApi = () => {

@@ -1,12 +1,13 @@
 import { createAction } from 'client/features/One/utils'
 import { providerService } from 'client/features/One/provider/services'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const getProvider = createAction('provider', providerService.getProvider)
 
 export const getProviders = createAction(
   'provider/pool',
   providerService.getProviders,
-  res => ({ providers: res })
+  res => ({ [RESOURCES.document[102]]: res })
 )
 
 export const getProviderConnection = createAction('provider', providerService.getProviderConnection)

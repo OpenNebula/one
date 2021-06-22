@@ -1,6 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/General/actions'
+import { RESOURCES } from 'client/features/One/slice'
 import { generateKey } from 'client/utils'
 
 const MESSAGE_PROVISION_SUCCESS_CREATED = 'Provision successfully created'
@@ -11,34 +12,13 @@ const COMMANDS = {
   delete: 'delete'
 }
 
-const RESOURCES = {
-  acl: 'acl',
-  app: 'apps',
-  cluster: 'clusters',
-  datastore: 'datastores',
-  file: 'files',
-  group: 'groups',
-  host: 'hosts',
-  image: 'images',
-  marketplace: 'marketplaces',
-  secgroups: 'securityGroups',
-  template: 'templates',
-  user: 'users',
-  vdc: 'vdc',
-  vm: 'vms',
-  vmgroup: 'vmGroups',
-  vn: 'vNetworks',
-  vntemplate: 'vNetworksTemplates',
-  zone: 'zones',
-  document: {
-    100: 'applications',
-    101: 'applicationsTemplates',
-    102: 'providers',
-    103: 'provisions'
-  }
+export const getResourceFromEventState = socketData => {
+  const { HOOK_OBJECT: name, [name]: value } = socketData?.data?.HOOK_MESSAGE ?? {}
+
+  return { name: String(name).toLowerCase(), value }
 }
 
-const getResourceFromEventApi = (eventApi = {}) => {
+export const getResourceFromEventApi = (eventApi = {}) => {
   const { CALL: command = '', CALL_INFO: info = {} } = eventApi?.HOOK_MESSAGE
   const { EXTRA: extra, RESULT: result, PARAMETERS } = info
 
@@ -79,40 +59,25 @@ export const socketEventApi = createAsyncThunk(
   }
 )
 
-export const socketEventState = createAsyncThunk(
+export const eventUpdateResourceState = createAsyncThunk(
   'socket/event-state',
-  ({ data }, { getState }) => {
-    // possible hook objects: VM, IMAGE, HOST
-    const { RESOURCE_ID, HOOK_OBJECT: name, [name]: value } = data?.HOOK_MESSAGE
+  socketData => {
+    const { name, value } = getResourceFromEventState(socketData)
 
-    // update the list if event returns resource value
-    if (!value || value === '') return
-
-    const { NAME, STATE, LCM_STATE } = value
-
-    // this won't be a document resource never
-    const resource = RESOURCES[String(name).toLowerCase()]
-
-    const currentList = getState()?.one?.[resource] ?? []
-
-    const exists = currentList.some(({ ID }) => ID === RESOURCE_ID)
-
-    // update if exists in current list, if not add it
-    const updatedList = exists
-      ? currentList?.map(item => ({
-        ...item,
-        ...(item?.ID === RESOURCE_ID && {
-          NAME,
-          STATE,
-          ...(item?.LCM_STATE && { LCM_STATE })
-        })
-      }))
-      : [value, ...currentList]
-
-    return { [resource]: updatedList }
+    return { type: name, data: value }
   },
   {
-    condition: payload => payload?.data?.HOOK_MESSAGE?.HOOK_TYPE === 'STATE'
+    condition: socketData => {
+      const { name, value } = getResourceFromEventState(socketData)
+
+      return (
+        socketData?.data?.HOOK_MESSAGE?.HOOK_TYPE === 'STATE' &&
+        // possible hook objects: VM, IMAGE, HOST
+        ['vm', 'host', 'image'].includes(name) &&
+        // update the list if event returns resource value
+        value !== ''
+      )
+    }
   }
 )
 

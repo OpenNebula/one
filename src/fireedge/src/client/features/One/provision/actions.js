@@ -1,10 +1,11 @@
 import { createAction } from 'client/features/One/utils'
 import { provisionService } from 'client/features/One/provision/services'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const getProvisionsTemplates = createAction(
   'provisions-template/pool',
   provisionService.getProvisionsTemplates,
-  res => ({ provisionsTemplates: res })
+  res => ({ [RESOURCES.document.defaults]: res })
 )
 
 export const createProvisionTemplate = createAction(
@@ -17,7 +18,7 @@ export const getProvision = createAction('provision', provisionService.getProvis
 export const getProvisions = createAction(
   'provision/pool',
   provisionService.getProvisions,
-  res => ({ provisions: res })
+  res => ({ [RESOURCES.document[103]]: res })
 )
 
 export const createProvision = createAction('provision/create', provisionService.createProvision)

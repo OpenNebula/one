@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/application/actions'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const useApplication = () => (
-  useSelector(state => state.one.applications)
+  useSelector(state => state.one[RESOURCES.document[100]])
 )
 
 export const useApplicationApi = () => {

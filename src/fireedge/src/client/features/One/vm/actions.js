@@ -2,7 +2,7 @@ import { createAction } from 'client/features/One/utils'
 import { vmService } from 'client/features/One/vm/services'
 import { filterBy } from 'client/utils'
 
-export const getVm = createAction('vm', vmService.getVm)
+export const getVm = createAction('vm/detail', vmService.getVm)
 
 export const getVms = createAction(
   'vm/pool',

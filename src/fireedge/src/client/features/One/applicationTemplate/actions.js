@@ -1,5 +1,6 @@
 import { createAction } from 'client/features/One/utils'
 import { applicationTemplateService } from 'client/features/One/applicationTemplate/services'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const getApplicationTemplate = createAction(
   'application-template',
@@ -9,7 +10,7 @@ export const getApplicationTemplate = createAction(
 export const getApplicationsTemplates = createAction(
   'application-template/pool',
   applicationTemplateService.getApplicationsTemplates,
-  response => ({ applicationsTemplates: response })
+  response => ({ [RESOURCES.document[101]]: response })
 )
 
 export const createApplicationTemplate = createAction(

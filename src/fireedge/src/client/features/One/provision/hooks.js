@@ -3,13 +3,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/provision/actions'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const useProvisionTemplate = () => (
-  useSelector(state => state.one.provisionsTemplates)
+  useSelector(state => state.one[RESOURCES.document.defaults])
 )
 
 export const useProvision = () => (
-  useSelector(state => state.one.provisions)
+  useSelector(state => state.one[RESOURCES.document[103]])
 )
 
 export const useProvisionApi = () => {

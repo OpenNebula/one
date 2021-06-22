@@ -27,7 +27,7 @@ export const TIME_HIDE_LOGO = 1500
 export const _APPS = defaultApps
 export const APPS = Object.keys(defaultApps)
 export const APP_URL = defaultAppName ? `/${defaultAppName}` : ''
-export const WEBSOCKET_URL = `${APP_URL}/websockets/provision`
+export const WEBSOCKET_URL = `${APP_URL}/websockets`
 export const STATIC_FILES_URL = `${APP_URL}/client/assets`
 
 export const IMAGES_URL = `${STATIC_FILES_URL}/images`

@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/cluster/actions'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const useCluster = () => (
-  useSelector(state => state.one.clusters)
+  useSelector(state => state.one[RESOURCES.cluster])
 )
 
 export const useClusterApi = () => {

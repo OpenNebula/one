@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/One/vnetwork/actions'
+import { RESOURCES } from 'client/features/One/slice'
 
 export const useVNetwork = () => (
-  useSelector(state => state.one.vNetworks)
+  useSelector(state => state.one.[RESOURCES.vn])
 )
 
 export const useVNetworkApi = () => {
