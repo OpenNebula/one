@@ -7,16 +7,15 @@ import { useSelector, useDispatch } from 'react-redux'
 import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 import * as sockets from 'client/features/One/socket/actions'
 
-const createWebsocket = query => socketIO({ path: WEBSOCKET_URL, query })
-
-const CONNECT = 'connect'
-const DISCONNECT = 'disconnect'
+const createProvisionWebsocket = query => socketIO({
+  path: `${WEBSOCKET_URL}/${SOCKETS.provision}`,
+  query
+})
 
 export const SocketContext = createContext(null)
 
 const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState({})
-  const [isConnected, setConnected] = useState(false)
 
   const dispatch = useDispatch()
   const { jwt, zone } = useSelector(state => ({
@@ -27,15 +26,8 @@ const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!jwt) return
 
-    const client = createWebsocket({ token: jwt, zone })
+    const client = createProvisionWebsocket({ token: jwt, zone })
     setSocket(client)
-
-    client.on(CONNECT, () => setConnected(true))
-    client.on(DISCONNECT, () => setConnected(false))
-
-    client.on(SOCKETS.hooks, data => {
-      dispatch(sockets.socketEventState(data))
-    })
 
     client.on(SOCKETS.provision, data => {
       dispatch(sockets.socketCreateProvision(data))
@@ -48,7 +40,7 @@ const SocketProvider = ({ children }) => {
   }, [jwt, zone])
 
   return (
-    <SocketContext.Provider value={{ socket, isConnected }}>
+    <SocketContext.Provider value={{ socket }}>
       {children}
     </SocketContext.Provider>
   )
