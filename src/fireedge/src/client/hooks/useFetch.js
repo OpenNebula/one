@@ -24,11 +24,13 @@ const INITIAL_STATE = {
 
 const fetchReducer = (state, action) => {
   const { type, payload, reload = false } = action
+  const { data: currentData } = state
 
   return {
     [ACTIONS.REQUEST]: {
       ...INITIAL_STATE,
       status: STATUS.PENDING,
+      data: currentData,
       [reload ? 'reloading' : 'loading']: true
     },
     [ACTIONS.SUCCESS]: {
@@ -39,12 +41,13 @@ const fetchReducer = (state, action) => {
     [ACTIONS.FAILURE]: {
       ...INITIAL_STATE,
       status: STATUS.ERROR,
+      data: currentData,
       error: payload
     }
   }[type] ?? state
 }
 
-const useFetch = request => {
+const useFetch = (request, socket) => {
   const cancelRequest = useRef(false)
   const [state, dispatch] = useReducer(fetchReducer, INITIAL_STATE)
 
@@ -53,6 +56,18 @@ const useFetch = request => {
       cancelRequest.current = true
     }
   }, [])
+
+  useEffect(() => {
+    const isFetched = state.data !== undefined && state.status === STATUS.FETCHED
+
+    isFetched && socket?.connect(
+      socketData => dispatch({ type: ACTIONS.SUCCESS, payload: socketData })
+    )
+
+    return () => {
+      socket?.disconnect()
+    }
+  }, [state.data, state.status])
 
   const doFetch = useCallback(async (payload, reload = false) => {
     dispatch({ type: ACTIONS.REQUEST, reload })
