@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, isPending, isFulfilled } from '@reduxjs/toolkit'
 
 import { logout } from 'client/features/Auth/actions'
 import { updateResourceList } from 'client/features/One/utils'
@@ -84,21 +84,25 @@ const { actions, reducer } = createSlice({
         }
       )
       .addMatcher(
-        ({ type }) => type.includes('/pool') && type.endsWith('/pending'),
-        (state, { meta, type }) => {
-          const pureType = type.replace('/pending', '')
+        ({ type }) => type.includes('/pool'),
+        (state, action) => {
+          const { requests } = state
+          const { payload, type } = action
 
-          if (!state?.requests?.[pureType]) {
-            state.requests[pureType] = meta
+          // filter type without: /pending, /fulfilled or /rejected
+          const pureType = type.match(/(.*\/pool)/)[0]
+
+          if (isPending(action)) {
+            return { ...state, requests: { ...requests, [pureType]: action } }
           }
-        }
-      )
-      .addMatcher(
-        ({ type }) => type.includes('/pool') && type.endsWith('/fulfilled'),
-        (state, { payload, type }) => {
-          const { [getNameListFromType(type)]: _, ...requests } = state.requests
 
-          return { ...state, requests, ...payload }
+          const { [pureType]: _, ...restOfRequests } = requests
+
+          return {
+            ...state,
+            ...(isFulfilled(action) && payload),
+            requests: restOfRequests
+          }
         }
       )
   }

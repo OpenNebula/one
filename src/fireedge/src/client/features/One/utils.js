@@ -1,4 +1,4 @@
-import { createAsyncThunk } from '@reduxjs/toolkit'
+import { createAsyncThunk, isPending } from '@reduxjs/toolkit'
 
 import { logout } from 'client/features/Auth/actions'
 import { ATTRIBUTES_EDITABLE } from 'client/features/One/slice'
@@ -26,11 +26,7 @@ export const createAction = (type, service, wrapResult) =>
       return rejectWithValue(data?.message ?? statusText)
     }
   }, {
-    condition: (_, { getState }) => {
-      const { requests } = getState().one
-
-      return !requests[type]
-    }
+    condition: (_, { getState }) => !getState().one.requests[type]
   })
 
 export const poolRequest = async (data = {}, command, element) => {
@@ -45,7 +41,7 @@ export const poolRequest = async (data = {}, command, element) => {
 }
 
 /**
- * @param {Object} currentList Current state from redux
+ * @param {Object} currentList Current list of resources from redux
  * @param {Object} value OpenNebula resource
  * @returns {Array} Returns a new list with the attributes editable modified
  */

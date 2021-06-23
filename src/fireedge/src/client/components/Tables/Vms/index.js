@@ -10,7 +10,7 @@ import VmRow from 'client/components/Tables/Vms/row'
 import VmDetail from 'client/components/Tables/Vms/detail'
 
 const INITIAL_ELEMENT = 0
-const NUMBER_OF_INTERVAL = 10
+const NUMBER_OF_INTERVAL = 12
 
 const VmsTable = () => {
   const [[start, end], setPage] = useState([INITIAL_ELEMENT, -NUMBER_OF_INTERVAL])
