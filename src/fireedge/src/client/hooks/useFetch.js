@@ -51,15 +51,9 @@ const useFetch = (request, socket) => {
   const cancelRequest = useRef(false)
   const [state, dispatch] = useReducer(fetchReducer, INITIAL_STATE)
 
-  useEffect(() => {
-    return () => {
-      cancelRequest.current = true
-    }
-  }, [])
+  const isFetched = state.data !== undefined && state.status === STATUS.FETCHED
 
   useEffect(() => {
-    const isFetched = state.data !== undefined && state.status === STATUS.FETCHED
-
     isFetched && socket?.connect(
       socketData => dispatch({ type: ACTIONS.SUCCESS, payload: socketData })
     )
@@ -67,7 +61,11 @@ const useFetch = (request, socket) => {
     return () => {
       socket?.disconnect()
     }
-  }, [state.data, state.status])
+  }, [isFetched])
+
+  useEffect(() => () => {
+    cancelRequest.current = true
+  }, [])
 
   const doFetch = useCallback(async (payload, reload = false) => {
     dispatch({ type: ACTIONS.REQUEST, reload })

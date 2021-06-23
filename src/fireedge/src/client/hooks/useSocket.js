@@ -35,9 +35,7 @@ export default function useSocket () {
 
         socket.connect()
       },
-      disconnect: () => {
-        socket.connected && socket.disconnect()
-      }
+      disconnect: () => socket.connected && socket.disconnect()
     }
   }, [jwt, zone])
 
