@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { LinearProgress, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
 
 import Tabs from 'client/components/Tabs'
@@ -14,33 +14,17 @@ import { prettyBytes } from 'client/utils'
 const NavArrowDown = <span style={{ writingMode: 'vertical-rl' }}>{'>'}</span>
 
 const VmDetail = ({ id }) => {
-  const [socket, setSocket] = useState({})
+  const { getHooksSocket } = useSocket()
+  const socket = getHooksSocket({ resource: 'vm', id })
 
   const { getVm } = useVmApi()
-  const { getHooksSocketTemporal } = useSocket()
-
-  const { data, fetchRequest, loading, error } = useFetch(getVm)
-  const isLoading = (!data && !error) || loading
+  const { data, fetchRequest, loading, error } = useFetch(getVm, socket)
 
   useEffect(() => {
     fetchRequest(id)
   }, [id])
 
-  useEffect(() => {
-    if (!isLoading && data) {
-      const client = getHooksSocketTemporal({ resource: 'vm', id })
-
-      setSocket(client)
-
-      client.connect(console.log)
-    }
-
-    return () => {
-      socket?.disconnect()
-    }
-  }, [isLoading, data])
-
-  if (isLoading) {
+  if ((!data && !error) || loading) {
     return <LinearProgress color='secondary' style={{ width: '100%' }} />
   }
 

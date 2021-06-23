@@ -91,7 +91,16 @@ const EnhancedTable = ({
       data,
       defaultColumn,
       getRowId,
+      // When table has update, disable all of the auto resetting
       autoResetPage: false,
+      autoResetRowState: false,
+      autoResetSelectedRow: false,
+      autoResetExpanded: false,
+      autoResetGroupBy: false,
+      autoResetSelectedRows: false,
+      autoResetSortBy: false,
+      autoResetFilters: false,
+      // -------------------------------------
       initialState: {
         pageSize
       }

@@ -1,50 +1,59 @@
-import { useContext, useCallback } from 'react'
+import { useCallback } from 'react'
 import socketIO from 'socket.io-client'
+import { useDispatch } from 'react-redux'
 
-import { APP_URL, SOCKETS } from 'client/constants'
-import { SocketContext } from 'client/providers/socketProvider'
+import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 
 import { useAuth } from 'client/features/Auth'
 import { useGeneral } from 'client/features/General'
+import { eventUpdateResourceState, getResourceFromEventState } from 'client/features/One/socket/actions'
 
-const createWebsocket = (path, query) => socketIO({ path: `${APP_URL}/${path}`, query })
+const createWebsocket = (path, query) => socketIO({
+  path: `${WEBSOCKET_URL}/${path}`,
+  query,
+  autoConnect: false,
+  timeout: 10_000,
+  reconnectionAttempts: 5
+})
 
 export default function useSocket () {
+  const dispatch = useDispatch()
   const { jwt } = useAuth()
   const { zone } = useGeneral()
 
-  const { socket, isConnected } = useContext(SocketContext)
-
-  const getHooksSocketTemporal = useCallback(({ resource, id }) => {
-    const socket = createWebsocket(
-      SOCKETS.hooks,
-      { token: jwt, zone, resource, id }
-    )
+  const getHooksSocket = useCallback(query => {
+    const socket = createWebsocket(SOCKETS.hooks, { token: jwt, zone, ...query })
 
     return {
       connect: callback => {
-        socket.on(SOCKETS.hooks, callback)
+        socket.on(SOCKETS.hooks, data => {
+          // update the list on redux state
+          dispatch(eventUpdateResourceState(data))
+          // return data from event
+          callback(getResourceFromEventState(data).value)
+        })
+
+        socket.connect()
       },
       disconnect: () => {
-        socket.disconnect()
+        socket.connected && socket.disconnect()
       }
     }
   }, [jwt, zone])
 
-  const getHooksSocket = useCallback(func => ({
-    on: () => isConnected && socket.on(SOCKETS.hooks, func),
-    off: () => isConnected && socket.off(SOCKETS.hooks, func)
-  }), [socket, isConnected])
+  const getProvisionSocket = useCallback(func => {
+    const socket = createWebsocket(SOCKETS.provision, { token: jwt, zone })
 
-  const getProvisionSocket = useCallback(func => ({
-    on: () => isConnected && socket.on(SOCKETS.provision, func),
-    off: () => isConnected && socket.off(SOCKETS.provision, func)
-  }), [socket, isConnected])
+    socket.on(SOCKETS.provision, func)
+
+    return {
+      on: () => socket.connect(),
+      off: () => socket.disconnect()
+    }
+  }, [])
 
   return {
-    isConnected,
     getHooksSocket,
-    getProvisionSocket,
-    getHooksSocketTemporal
+    getProvisionSocket
   }
 }
