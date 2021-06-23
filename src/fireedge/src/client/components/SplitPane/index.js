@@ -10,6 +10,7 @@ const useStyles = makeStyles(theme => ({
     height: '100%'
   },
   separator: {
+    position: 'relative',
     cursor: 'row-resize',
     height: 8,
     marginBlock: '1em',

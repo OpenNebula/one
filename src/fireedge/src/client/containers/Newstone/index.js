@@ -5,15 +5,7 @@ import { Redirect, Route, Switch, Link } from 'react-router-dom'
 
 import { Container, Tabs, Tab, Box } from '@material-ui/core'
 
-import {
-  ClustersTable,
-  DatastoresTable,
-  HostsTable,
-  ImagesTable,
-  MarketplaceAppsTable,
-  MarketplacesTable,
-  VmsTable
-} from 'client/components/Tables'
+import * as Tables from 'client/components/Tables'
 
 import { PATH } from 'client/router/dev'
 
@@ -56,13 +48,13 @@ const Newstone = () => {
 
       <Box py={2} overflow='auto'>
         <Switch>
-          <Route exact path={TABS.apps} component={MarketplaceAppsTable} />
-          <Route exact path={TABS.clusters} component={ClustersTable} />
-          <Route exact path={TABS.datastores} component={DatastoresTable} />
-          <Route exact path={TABS.hosts} component={HostsTable} />
-          <Route exact path={TABS.images} component={ImagesTable} />
-          <Route exact path={TABS.marketplaces} component={MarketplacesTable} />
-          <Route exact path={TABS.vms} component={VmsTable} />
+          <Route exact path={TABS.apps} component={Tables.MarketplaceAppsTable} />
+          <Route exact path={TABS.clusters} component={Tables.ClustersTable} />
+          <Route exact path={TABS.datastores} component={Tables.DatastoresTable} />
+          <Route exact path={TABS.hosts} component={Tables.HostsTable} />
+          <Route exact path={TABS.images} component={Tables.ImagesTable} />
+          <Route exact path={TABS.marketplaces} component={Tables.MarketplacesTable} />
+          <Route exact path={TABS.vms} component={Tables.VmsTable} />
 
           <Route component={() => <Redirect to={TABS.vms} />} />
         </Switch>

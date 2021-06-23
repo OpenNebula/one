@@ -169,8 +169,8 @@ const EnhancedTable = ({
             )
           })}
         </div>
-
       </Box>
+
       <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         {justOneSelected && renderDetail
           ? renderDetail(selectedFlatRows[0]?.original)
