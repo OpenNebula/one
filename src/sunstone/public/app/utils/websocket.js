@@ -45,8 +45,7 @@ define(function (require) {
   };
 
   var _start = function (fireedgeToken="") {
-    /*
-    
+    /* 
     // This code is disabled to forbid the autorefresh feature
 
     
@@ -130,8 +129,7 @@ define(function (require) {
             Sunstone.getDataTable(tab_id).waitingNodes();
             Sunstone.runAction(object + ".list", {force: true});
           }
-           
-        } */
+        }  
       });
 
       // Close Socket when close browser or tab.
@@ -144,7 +142,7 @@ define(function (require) {
     }
     else{
       connection = STATUS.DISCONNECTED;
-    }
+    } */
   };
 
   var websocket = {
