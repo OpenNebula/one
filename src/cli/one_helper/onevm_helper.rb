@@ -124,7 +124,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :name => 'weekly',
         :large => '--weekly days',
         :description => 'Repeats the schedule action the days of the week ' \
-        'specified, it can be a number between 0,6 separated with commas.' \
+        'specified, it can be a number between 0 (Sunday) to 6 (Saturday) ' \
+        'separated with commas. ' \
         'For example: onevm resume 0 --schedule "09/23 14:15" --weekly 0,2,4',
         :format => String
     }
@@ -133,8 +134,8 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :name => 'monthly',
         :large => '--monthly days',
         :description => 'Repeats the schedule action the days of the month ' \
-        'specified, it can be a number between 0,31 separated with commas.' \
-        'For example: onevm resume 0 --schedule "09/23 14:15" --monthly 0,14',
+        'specified, it can be a number between 1,31 separated with commas. ' \
+        'For example: onevm resume 0 --schedule "09/23 14:15" --monthly 1,14',
         :format => String
     }
 
@@ -142,7 +143,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :name => 'yearly',
         :large => '--yearly days',
         :description => 'Repeats the schedule action the days of the year ' \
-        'specified, it can be a number between 0,365 separated with commas.' \
+        'specified, it can be a number between 0,365 separated with commas. ' \
         'For example: onevm resume 0 --schedule "09/23 14:15" --yearly 30,60',
         :format => String
     }
@@ -151,7 +152,7 @@ class OneVMHelper < OpenNebulaHelper::OneHelper
         :name => 'hourly',
         :large => '--hourly hour',
         :description => 'Repeats the schedule action each hours specified,' \
-        'it can be a number between 0,168 separated with commas.' \
+        'it can be a number between 0,168 separated with commas. ' \
         'For example: onevm resume 0 --schedule "09/23 14:15" --hourly 1,5',
         :format => Numeric
     }
