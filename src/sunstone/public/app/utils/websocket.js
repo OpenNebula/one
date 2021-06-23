@@ -45,6 +45,11 @@ define(function (require) {
   };
 
   var _start = function (fireedgeToken="") {
+    /*
+    
+    // This code is disabled to forbid the autorefresh feature
+
+    
     connection = STATUS.PROCESSING;
 
     if (sunstone_fireedge_active && fireedgeToken != "" ){
@@ -97,36 +102,36 @@ define(function (require) {
             default:
               break;
           }
-          /*
-            // this code recreate the datatable for VM and HOST this call foundation()
 
-            var response = {};
-            response[object] = event_data.HOOK_MESSAGE[object];
-            var request = {
-              "request": {
-                "data": [response[object].ID],
-                "method": "show",
-                "resource": object
-              }
-            };
-            // update VM and HOST
-            var tab = $("#" + tab_id);
-            if(
-              Sunstone.getDataTable(tab_id) &&
-              Sunstone.getDataTable(tab_id).updateElement &&
-              typeof Sunstone.getDataTable(tab_id).updateElement === "function"
-            ){
-              Sunstone.getDataTable(tab_id).updateElement(request, response);
+          // this code recreate the datatable for VM and HOST this call foundation()
+
+          var response = {};
+          response[object] = event_data.HOOK_MESSAGE[object];
+          var request = {
+            "request": {
+              "data": [response[object].ID],
+              "method": "show",
+              "resource": object
             }
-            if (Sunstone.rightInfoVisible(tab) && event_data.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
-              callFunction(response);
-            }
-            if (event_data.HOOK_MESSAGE.STATE == "DONE"){
-              Sunstone.getDataTable(tab_id).waitingNodes();
-              Sunstone.runAction(object + ".list", {force: true});
-            }
-          */
-        }
+          };
+          // update VM and HOST
+          var tab = $("#" + tab_id);
+          if(
+            Sunstone.getDataTable(tab_id) &&
+            Sunstone.getDataTable(tab_id).updateElement &&
+            typeof Sunstone.getDataTable(tab_id).updateElement === "function"
+          ){
+            Sunstone.getDataTable(tab_id).updateElement(request, response);
+          }
+          if (Sunstone.rightInfoVisible(tab) && event_data.HOOK_MESSAGE.RESOURCE_ID == Sunstone.rightInfoResourceId(tab)) {
+            callFunction(response);
+          }
+          if (event_data.HOOK_MESSAGE.STATE == "DONE"){
+            Sunstone.getDataTable(tab_id).waitingNodes();
+            Sunstone.runAction(object + ".list", {force: true});
+          }
+           
+        } */
       });
 
       // Close Socket when close browser or tab.
