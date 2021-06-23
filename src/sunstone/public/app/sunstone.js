@@ -931,7 +931,9 @@ define(function(require) {
   };
 
   var _autorefresh = function(tabName, info, contextTabId, context) {
-    _insertPanels(tabName, info, contextTabId, context, true);
+    // This code is disabled to forbid the autorefresh feature
+    //_insertPanels(tabName, info, contextTabId, context, true);
+    _insertPanels(tabName, info, contextTabId, context, false);
   };
 
 
