@@ -68,8 +68,8 @@ const VmDetail = ({ id }) => {
             <p>IP: {ips.join(', ') || '--'}</p>
             <p>Start time: {Helper.timeToString(STIME)}</p>
             <p>End time: {Helper.timeToString(ETIME)}</p>
-            <p>Host: {`#${hostId} ${hostname}`}</p>
-            <p>Cluster: {`#${clusterId} ${clusterName}`}</p>
+            <p>Host: {hostId ? `#${hostId} ${hostname}` : ''}</p>
+            <p>Cluster: {clusterId ? `#${clusterId} ${clusterName}` : ''}</p>
             <p>Deploy ID: {DEPLOY_ID}</p>
           </div>
         </div>

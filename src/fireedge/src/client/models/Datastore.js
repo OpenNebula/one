@@ -3,7 +3,7 @@ import { DATASTORE_STATES, DATASTORE_TYPES } from 'client/constants'
 
 export const getType = ({ TYPE } = {}) => DATASTORE_TYPES[TYPE]
 
-export const getState = ({ STATE } = {}) => DATASTORE_STATES[STATE]
+export const getState = ({ STATE = 0 } = {}) => DATASTORE_STATES[STATE]
 
 export const getCapacityInfo = ({ TOTAL_MB, USED_MB } = {}) => {
   const percentOfUsed = +USED_MB * 100 / +TOTAL_MB || 0
