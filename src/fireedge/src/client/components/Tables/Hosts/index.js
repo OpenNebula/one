@@ -7,6 +7,7 @@ import { useHost, useHostApi } from 'client/features/One'
 import { EnhancedTable } from 'client/components/Tables'
 import HostColumns from 'client/components/Tables/Hosts/columns'
 import HostRow from 'client/components/Tables/Hosts/row'
+import HostDetail from 'client/components/Tables/Hosts/detail'
 
 const HostsTable = () => {
   const columns = React.useMemo(() => HostColumns, [])
@@ -25,6 +26,7 @@ const HostsTable = () => {
       data={hosts}
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
+      renderDetail={row => <HostDetail id={row.ID} />}
       RowComponent={HostRow}
     />
   )
