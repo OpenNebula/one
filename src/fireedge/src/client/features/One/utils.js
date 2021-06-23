@@ -1,4 +1,4 @@
-import { createAsyncThunk, isPending } from '@reduxjs/toolkit'
+import { createAsyncThunk } from '@reduxjs/toolkit'
 
 import { logout } from 'client/features/Auth/actions'
 import { ATTRIBUTES_EDITABLE } from 'client/features/One/slice'

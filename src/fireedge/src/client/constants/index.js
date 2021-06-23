@@ -73,8 +73,10 @@ export const DEBUG_LEVEL = {
 }
 
 export const SOCKETS = {
-  hooks: 'hooks',
-  provision: 'provision'
+  CONNECT: 'connect',
+  DISCONNECT: 'disconnect',
+  HOOKS: 'hooks',
+  PROVISION: 'provision'
 }
 
 export * as T from 'client/constants/translates'

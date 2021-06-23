@@ -7,6 +7,7 @@ import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 import { useAuth } from 'client/features/Auth'
 import { useGeneral } from 'client/features/General'
 import { eventUpdateResourceState, getResourceFromEventState } from 'client/features/One/socket/actions'
+import { updateResourceFromFetch } from 'client/features/One/actions'
 
 const createWebsocket = (path, query) => socketIO({
   path: `${WEBSOCKET_URL}/${path}`,
@@ -21,12 +22,20 @@ export default function useSocket () {
   const { jwt } = useAuth()
   const { zone } = useGeneral()
 
-  const getHooksSocket = useCallback(query => {
-    const socket = createWebsocket(SOCKETS.hooks, { token: jwt, zone, ...query })
+  const getHooksSocket = useCallback(({ resource, id }) => {
+    const socket = createWebsocket(
+      SOCKETS.HOOKS,
+      { token: jwt, zone, resource, id }
+    )
 
     return {
-      connect: callback => {
-        socket.on(SOCKETS.hooks, data => {
+      connect: ({ dataFromFetch, callback }) => {
+        dataFromFetch && socket.on(SOCKETS.CONNECT, () => {
+          // update from data fetched
+          dispatch(updateResourceFromFetch({ data: dataFromFetch, resource }))
+        })
+
+        socket.on(SOCKETS.HOOKS, data => {
           // update the list on redux state
           dispatch(eventUpdateResourceState(data))
           // return data from event
@@ -40,9 +49,9 @@ export default function useSocket () {
   }, [jwt, zone])
 
   const getProvisionSocket = useCallback(func => {
-    const socket = createWebsocket(SOCKETS.provision, { token: jwt, zone })
+    const socket = createWebsocket(SOCKETS.PROVISION, { token: jwt, zone })
 
-    socket.on(SOCKETS.provision, func)
+    socket.on(SOCKETS.PROVISION, func)
 
     return {
       on: () => socket.connect(),

@@ -48,7 +48,7 @@ export const getResourceFromEventApi = (eventApi = {}) => {
 export const socketEventApi = createAsyncThunk(
   'socket/event-api',
   ({ data }) => {
-    const { action, name, value, success, output } = getResourceFromEventApi(data)
+    const { action, name, value, success } = getResourceFromEventApi(data)
 
     // console.log({ action, name, value, success, output })
 

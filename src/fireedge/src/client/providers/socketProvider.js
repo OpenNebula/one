@@ -8,7 +8,7 @@ import { WEBSOCKET_URL, SOCKETS } from 'client/constants'
 import * as sockets from 'client/features/One/socket/actions'
 
 const createProvisionWebsocket = query => socketIO({
-  path: `${WEBSOCKET_URL}/${SOCKETS.provision}`,
+  path: `${WEBSOCKET_URL}/${SOCKETS.PROVISION}`,
   query
 })
 
@@ -29,7 +29,7 @@ const SocketProvider = ({ children }) => {
     const client = createProvisionWebsocket({ token: jwt, zone })
     setSocket(client)
 
-    client.on(SOCKETS.provision, data => {
+    client.on(SOCKETS.PROVISION, data => {
       dispatch(sockets.socketCreateProvision(data))
     })
 

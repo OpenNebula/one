@@ -54,9 +54,10 @@ const useFetch = (request, socket) => {
   const isFetched = state.data !== undefined && state.status === STATUS.FETCHED
 
   useEffect(() => {
-    isFetched && socket?.connect(
-      socketData => dispatch({ type: ACTIONS.SUCCESS, payload: socketData })
-    )
+    isFetched && socket?.connect({
+      dataFromFetch: state.data,
+      callback: socketData => dispatch({ type: ACTIONS.SUCCESS, payload: socketData })
+    })
 
     return () => {
       socket?.disconnect()

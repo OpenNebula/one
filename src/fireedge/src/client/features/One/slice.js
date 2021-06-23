@@ -3,6 +3,7 @@ import { createSlice, isPending, isFulfilled } from '@reduxjs/toolkit'
 import { logout } from 'client/features/Auth/actions'
 import { updateResourceList } from 'client/features/One/utils'
 import { eventUpdateResourceState } from 'client/features/One/socket/actions'
+import { updateResourceFromFetch } from 'client/features/One/actions'
 
 const getNameListFromType = type => RESOURCES[type.split('/')[0]]
 
@@ -73,8 +74,11 @@ const { actions, reducer } = createSlice({
       .addMatcher(({ type }) => type === logout.type, () => initial)
       .addMatcher(
         ({ type }) =>
-          type.endsWith('/fulfilled') &&
-          (type.includes(eventUpdateResourceState.typePrefix) || type.includes('/detail')),
+          type === updateResourceFromFetch.type ||
+          (
+            type.endsWith('/fulfilled') &&
+            (type.includes(eventUpdateResourceState.typePrefix) || type.includes('/detail'))
+          ),
         (state, { payload, type }) => {
           // TYPE and DATA can be force by payload
           const name = getNameListFromType(payload?.type ?? type)
