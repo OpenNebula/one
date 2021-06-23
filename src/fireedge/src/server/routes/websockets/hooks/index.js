@@ -66,7 +66,7 @@ const main = (app = {}, type = '') => {
                     }
                     messageTerminal(configErrorParser)
                   } else {
-                    app.emit(type, {
+                    server.emit(type, {
                       command: mssgs[0],
                       data: result
                     })
