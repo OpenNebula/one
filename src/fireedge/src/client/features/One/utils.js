@@ -1,10 +1,14 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 
-import { httpCodes } from 'server/utils/constants'
+import { logout } from 'client/features/Auth/actions'
+import { ATTRIBUTES_EDITABLE } from 'client/features/One/slice'
 import { requestParams, RestClient } from 'client/utils'
 
+import { T } from 'client/constants'
+import { httpCodes } from 'server/utils/constants'
+
 export const createAction = (type, service, wrapResult) =>
-  createAsyncThunk(type, async (payload, { getState, rejectWithValue }) => {
+  createAsyncThunk(type, async (payload, { dispatch, getState, rejectWithValue }) => {
     try {
       const { auth: { filterPool }, one } = getState()
 
@@ -14,8 +18,12 @@ export const createAction = (type, service, wrapResult) =>
       })
 
       return wrapResult ? wrapResult(response, one) : response
-    } catch (err) {
-      return rejectWithValue(typeof err === 'string' ? err : err?.response?.data)
+    } catch (error) {
+      const { data, status, statusText } = error
+
+      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
+
+      return rejectWithValue(data?.message ?? statusText)
     }
   }, {
     condition: (_, { getState }) => {
@@ -34,4 +42,27 @@ export const poolRequest = async (data = {}, command, element) => {
   if (!response?.id || response?.id !== httpCodes.ok.id) throw response
 
   return [response?.data?.[`${element}_POOL`]?.[element] ?? []].flat()
+}
+
+/**
+ * @param {Object} currentList Current state from redux
+ * @param {Object} value OpenNebula resource
+ * @returns {Array} Returns a new list with the attributes editable modified
+ */
+export const updateResourceList = (currentList, value) => {
+  const id = value.ID
+
+  const newItem = currentList?.find(({ ID }) => ID === id)
+
+  const editedItem = ATTRIBUTES_EDITABLE.reduce(
+    (item, attr) => value[attr] ? ({ ...item, [attr]: value[attr] }) : item,
+    newItem || {}
+  )
+
+  // update if exists in current list, if not add it to list
+  const updatedList = newItem
+    ? currentList?.map(item => item?.ID === id ? editedItem : item)
+    : [value, currentList]
+
+  return updatedList
 }

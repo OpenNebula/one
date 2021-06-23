@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+import { logout } from 'client/features/Auth/actions'
 import { updateResourceList } from 'client/features/One/utils'
 import { eventUpdateResourceState } from 'client/features/One/socket/actions'
 
@@ -69,13 +70,13 @@ const { actions, reducer } = createSlice({
   initialState: initial,
   extraReducers: builder => {
     builder
-      .addCase('logout', () => initial)
+      .addMatcher(({ type }) => type === logout.type, () => initial)
       .addMatcher(
         ({ type }) =>
           type.endsWith('/fulfilled') &&
           (type.includes(eventUpdateResourceState.typePrefix) || type.includes('/detail')),
         (state, { payload, type }) => {
-          // TYPE and DATA can be force with the payload
+          // TYPE and DATA can be force by payload
           const name = getNameListFromType(payload?.type ?? type)
           const newList = updateResourceList(state[name], payload?.data ?? payload)
 

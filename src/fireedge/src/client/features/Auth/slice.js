@@ -28,7 +28,10 @@ const { actions, reducer } = createSlice({
   initialState: initial({ firstRender: true }),
   extraReducers: builder => {
     builder
-      .addCase(logout, (_, { error }) => ({ ...initial(), error }))
+      .addMatcher(
+        ({ type }) => type === logout.type,
+        (_, { error }) => ({ ...initial(), error })
+      )
       .addMatcher(
         ({ type }) => {
           return [

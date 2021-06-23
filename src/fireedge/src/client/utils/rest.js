@@ -28,19 +28,17 @@ http.interceptors.response.use(
         : response.data
     }
 
-    const error = response?.data?.message ?? response?.statusText
-
-    if (response.status === 401) {
+    if (response.status === httpCodes.unauthorized.id) {
       const configErrorParser = {
         color: 'red',
-        type: error,
+        type: response?.data?.message ?? response?.statusText,
         message: 'Error request: %s'
       }
 
       isDevelopment() && messageTerminal(configErrorParser)
     }
 
-    return Promise.reject(error)
+    return Promise.reject(response)
   },
   error => {
     console.log('error interceptor', error)

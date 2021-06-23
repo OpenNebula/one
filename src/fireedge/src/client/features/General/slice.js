@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
+import { logout } from 'client/features/Auth/actions'
 import * as actions from 'client/features/General/actions'
 import { generateKey } from 'client/utils'
 
@@ -17,8 +18,6 @@ const { reducer } = createSlice({
   initialState: initial,
   extraReducers: builder => {
     builder
-      .addCase('logout', ({ title }) => ({ ...initial, title }))
-
       /* UI ACTIONS */
       .addCase(actions.fixMenu, (state, { payload }) => {
         return { ...state, isFixMenu: !!payload }
@@ -69,6 +68,7 @@ const { reducer } = createSlice({
       })
 
       /*  REQUESTS API MATCHES */
+      .addMatcher(({ type }) => type === logout.type, () => initial)
       .addMatcher(
         ({ type }) => type.endsWith('/pending') && !type.includes('auth'),
         state => ({ ...state, isLoading: true })
