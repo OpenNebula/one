@@ -34,7 +34,7 @@ public:
 
     VirtualNetworkPool(SqlDB * db,
             const std::string& str_mac_prefix,
-            int default_size,
+            unsigned long int default_size,
             std::vector<const SingleAttribute *>& restricted_attrs,
             std::vector<const SingleAttribute *>& encrypted_attrs,
             const std::vector<const SingleAttribute *>& _inherit_attrs,
@@ -178,7 +178,7 @@ public:
      *  Get the default network size
      *  @return the size
      */
-    static const unsigned int& default_size()
+    static const unsigned long int& default_size()
     {
         return _default_size;
     };
@@ -286,7 +286,7 @@ private:
     /**
      *  Default size for Virtual Networks
      */
-    static unsigned int _default_size;
+    static unsigned long int _default_size;
 
     /**
      * VNet attributes to be injected into the VM nic

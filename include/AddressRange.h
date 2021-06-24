@@ -305,7 +305,7 @@ public:
     /**
      *  Return the number of used addresses
      */
-    unsigned int get_used_addr() const
+    unsigned long int get_used_addr() const
     {
         return allocated.size();
     }
@@ -313,7 +313,7 @@ public:
     /**
      *  Return the number of free addresses
      */
-    unsigned int get_free_addr() const
+    unsigned long int get_free_addr() const
     {
         return size - allocated.size();
     }
@@ -321,7 +321,7 @@ public:
     /**
      *  Return the total number of addresses
      */
-    unsigned int get_size() const
+    unsigned long int get_size() const
     {
         return size;
     }
@@ -763,7 +763,7 @@ private:
     /**
      *  Number of addresses in the range
      */
-    unsigned int size;
+    unsigned long int size;
 
     /**
      *  First IP4 in the range

@@ -33,7 +33,7 @@ using namespace std;
 
 unsigned int VirtualNetworkPool::_mac_prefix;
 
-unsigned int VirtualNetworkPool::_default_size;
+unsigned long int VirtualNetworkPool::_default_size;
 
 const char * VirtualNetworkPool::vlan_table = "network_vlan_bitmap";
 
@@ -44,7 +44,7 @@ const int VirtualNetworkPool::VLAN_BITMAP_ID = 0;
 VirtualNetworkPool::VirtualNetworkPool(
     SqlDB *                             db,
     const string&                       prefix,
-    int                                 __default_size,
+    unsigned long int                   __default_size,
     vector<const SingleAttribute *>&    restricted_attrs,
     vector<const SingleAttribute *>&    encrypted_attrs,
     const vector<const SingleAttribute *>& _inherit_attrs,
@@ -78,18 +78,18 @@ VirtualNetworkPool::VirtualNetworkPool(
 
     if (count != 1)
     {
-        NebulaLog::log("VNM",Log::ERROR,
+        NebulaLog::log("VNM", Log::WARNING,
                        "Wrong MAC prefix format, using default");
         _mac_prefix = 1; //"00:01"
-
-        return;
     }
+    else
+    {
+        iss.str(mac);
 
-    iss.str(mac);
-
-    iss >> hex >> _mac_prefix >> ws >> hex >> tmp >> ws;
-    _mac_prefix <<= 8;
-    _mac_prefix += tmp;
+        iss >> hex >> _mac_prefix >> ws >> hex >> tmp >> ws;
+        _mac_prefix <<= 8;
+        _mac_prefix += tmp;
+    }
 
     // Parse restricted attributes
     VirtualNetworkTemplate::parse_restricted(restricted_attrs);

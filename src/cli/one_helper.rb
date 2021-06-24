@@ -1893,8 +1893,10 @@ EOT
         if options[:size]
             ar << ', SIZE = ' << options[:size]
         else
-            STDERR.puts 'Address range needs to specify size (-s size)'
-            exit(-1)
+            unless options[:ip6]
+                STDERR.puts 'Address range needs to specify size (-s size)'
+                exit(-1)
+            end
         end
 
         if options[:ip6]
