@@ -22,6 +22,7 @@ const HeaderPopover = ({
   buttonProps,
   headerTitle,
   disablePadding,
+  popoverProps,
   children
 }) => {
   const classes = headerStyles()
@@ -70,6 +71,7 @@ const HeaderPopover = ({
           vertical: 'top',
           horizontal: 'right'
         }}
+        {...popoverProps}
       >
         {(headerTitle || isMobile) && (
           <Box className={classes.header}>
@@ -98,6 +100,7 @@ HeaderPopover.propTypes = {
   buttonProps: PropTypes.objectOf(PropTypes.any),
   headerTitle: PropTypes.string,
   disablePadding: PropTypes.bool,
+  popoverProps: PropTypes.objectOf(PropTypes.any),
   children: PropTypes.func
 }
 
@@ -108,6 +111,7 @@ HeaderPopover.defaultProps = {
   buttonProps: {},
   headerTitle: null,
   disablePadding: false,
+  popoverProps: {},
   children: () => undefined
 }
 

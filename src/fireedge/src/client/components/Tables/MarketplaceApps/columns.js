@@ -1,12 +1,12 @@
 export default [
-  { Header: '', accessor: 'ID' },
-  { Header: '', accessor: 'NAME' },
-  { Header: '', accessor: 'UNAME' },
-  { Header: '', accessor: 'GNAME' },
-  { Header: '', accessor: 'REGTIME' },
-  { Header: '', accessor: 'MARKETPLACE' },
-  { Header: '', accessor: 'STATE' },
-  { Header: '', accessor: 'TYPE' },
-  { Header: '', accessor: 'ZONE_ID' },
-  { Header: '', accessor: 'SIZE' }
+  { Header: 'ID', accessor: 'ID' },
+  { Header: 'Name', accessor: 'NAME' },
+  { Header: 'Owner', accessor: 'UNAME' },
+  { Header: 'Group', accessor: 'GNAME' },
+  { Header: 'State', accessor: 'STATE' },
+  { Header: 'Type', accessor: 'TYPE' },
+  { Header: 'Registration Time', accessor: 'REGTIME' },
+  { Header: 'Marketplace', accessor: 'MARKETPLACE' },
+  { Header: 'Zone ID', accessor: 'ZONE_ID' },
+  { Header: 'Size', accessor: 'SIZE' }
 ]

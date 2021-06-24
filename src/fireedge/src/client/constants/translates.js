@@ -3,6 +3,8 @@ module.exports = {
   Back: 'Back',
   Previous: 'Previous',
   Next: 'Next',
+  SortBy: 'Sort by',
+  Filter: 'Filter',
 
   /* actions */
   Accept: 'Accept',

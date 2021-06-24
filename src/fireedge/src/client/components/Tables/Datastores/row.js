@@ -17,8 +17,9 @@ const Row = ({ value, ...props }) => {
   const state = DatastoreModel.getState(value)
   const type = DatastoreModel.getType(value)
 
-  const clusters = [CLUSTERS?.ID ?? []].flat()
+  const clusters = [CLUSTERS?.ID ?? []].flat().join(',')
   const { percentOfUsed, percentLabel } = DatastoreModel.getCapacityInfo(value)
+  const provisionId = PROVISION?.ID
 
   return (
     <div {...props}>
@@ -35,21 +36,21 @@ const Row = ({ value, ...props }) => {
         </Typography>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
-          <span>
+          <span title={`Owner: ${UNAME}`}>
             <User size={16} />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span>
+          <span title={`Group: ${GNAME}`}>
             <Group size={16} />
             <span>{` ${GNAME}`}</span>
           </span>
-          {PROVISION?.ID && <span>
+          {provisionId && <span title={`Provision ID: #${provisionId}`}>
             <Cloud size={16} />
-            <span>{` ${PROVISION.ID}`}</span>
+            <span>{` ${provisionId}`}</span>
           </span>}
-          <span>
+          <span title={`Cluster IDs: ${clusters}`}>
             <Server size={16} />
-            <span>{` ${clusters.join(',')}`}</span>
+            <span>{` ${clusters}`}</span>
           </span>
         </div>
       </div>

@@ -45,19 +45,19 @@ const Row = ({ value, ...props }) => {
           <span title={time.toFormat('ff')}>
             {`#${ID} ${timeAgo}`}
           </span>
-          <span>
+          <span title={`Owner: ${UNAME}`}>
             <User size={16} />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span>
+          <span title={`Group: ${GNAME}`}>
             <Group size={16} />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span>
+          <span title={`Datastore: ${DATASTORE}`}>
             <Folder size={16} />
             <span>{` ${DATASTORE}`}</span>
           </span>
-          <span>
+          <span title={`Running / Used VMs: ${RUNNING_VMS} / ${usedByVms}`}>
             <ModernTv size={16} />
             <span>{` ${RUNNING_VMS} / ${usedByVms}`}</span>
           </span>

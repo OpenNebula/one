@@ -14,6 +14,8 @@ const Row = ({ value, ...props }) => {
   const datastores = [DATASTORES?.ID ?? []].flat().length || 0
   const virtualNetworks = [VNETS?.ID ?? []].flat().length || 0
 
+  const providerName = TEMPLATE?.PROVISION?.PROVIDER_NAME
+
   return (
     <div {...props}>
       <div className={classes.main}>
@@ -22,21 +24,21 @@ const Row = ({ value, ...props }) => {
         </Typography>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
-          <span>
+          <span title={`Number of Hosts: ${hosts}`}>
             <HardDrive size={16} />
             <span>{` ${hosts}`}</span>
           </span>
-          <span>
+          <span title={`Number of Datastores: ${datastores}`}>
             <Folder size={16} />
             <span>{` ${datastores}`}</span>
           </span>
-          <span>
+          <span title={`Number of VNets: ${virtualNetworks}`}>
             <NetworkAlt size={16} />
             <span>{` ${virtualNetworks}`}</span>
           </span>
-          {TEMPLATE?.PROVISION && <span>
+          {TEMPLATE?.PROVISION && <span title={`Provider: ${providerName}`}>
             <Cloud size={16} />
-            <span>{` ${TEMPLATE?.PROVISION?.PROVIDER_NAME}`}</span>
+            <span>{` ${providerName}`}</span>
           </span>}
         </div>
       </div>

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import { makeStyles, Button } from '@material-ui/core'
 import { Filter as FilterIcon } from 'iconoir-react'
 
-// import GlobalFilter from 'client/components/Table/Filters/GlobalFilter'
+import GlobalFilter from 'client/components/Table/Filters/GlobalFilter'
 
 const useToolbarStyles = makeStyles(theme => ({
   filterWrapper: {
@@ -24,9 +24,9 @@ const Toolbar = ({ useTableProps }) => {
   const classes = useToolbarStyles()
 
   /** @type {import('react-table').UseGlobalFiltersInstanceProps} */
-  // const { preGlobalFilteredRows, setGlobalFilter, state } = useTableProps
+  const { preGlobalFilteredRows, setGlobalFilter, state } = useTableProps
 
-  // const { selectedRowIds, globalFilter } = state
+  const { globalFilter } = state
   // const numSelected = Object.keys(selectedRowIds).length
 
   return (
@@ -38,7 +38,12 @@ const Toolbar = ({ useTableProps }) => {
       >
           Filters
       </Button>
-      <span>No filters selected</span>
+      <GlobalFilter
+        preGlobalFilteredRows={preGlobalFilteredRows}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
+      />
+      {/* <span>No filters selected</span> */}
     </div>
   )
 

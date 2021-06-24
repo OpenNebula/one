@@ -1,21 +1,22 @@
-/* eslint-disable react/prop-types */
 import * as React from 'react'
+import PropTypes from 'prop-types'
 
 import { makeStyles, Box, LinearProgress } from '@material-ui/core'
 import {
   useGlobalFilter,
   usePagination,
   useRowSelect,
+  useSortBy,
   useTable
 } from 'react-table'
 
 import SplitPane from 'client/components/SplitPane'
-import Toolbar from 'client/components/Tables/Virtualized/toolbar'
+import Toolbar from 'client/components/Tables/Enhanced/toolbar'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
 
 import { addOpacityToColor } from 'client/utils'
 
-const useStyles = makeStyles(({ palette, typography }) => ({
+const useStyles = makeStyles(({ palette, typography, breakpoints }) => ({
   root: {
     height: '100%',
     display: 'flex',
@@ -47,37 +48,38 @@ const useStyles = makeStyles(({ palette, typography }) => ({
   },
   toolbar: {
     ...typography.body1,
-    color: palette.text.hint,
     marginBottom: 16,
     display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     gap: '1em',
+    alignItems: 'start',
+    justifyContent: 'space-between',
     '& > div:first-child': {
       flexGrow: 1
+    },
+    [breakpoints.down('sm')]: {
+      flexWrap: 'wrap'
     }
   },
   pagination: {
+    flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
-    gap: '1em',
-    transition: '200ms'
+    gap: '1em'
   }
 }))
 
 const EnhancedTable = ({
-  data,
+  canFetchMore,
   columns,
-  pageSize = 10,
-  isLoading,
-  showPageCount,
-  getRowId,
-  RowComponent,
-  renderDetail,
-  renderAllSelected = true,
+  data,
   fetchMore,
-  canFetchMore
+  getRowId,
+  isLoading,
+  pageSize = 10,
+  renderAllSelected = true,
+  renderDetail,
+  RowComponent,
+  showPageCount
 }) => {
   const classes = useStyles()
 
@@ -92,20 +94,21 @@ const EnhancedTable = ({
       defaultColumn,
       getRowId,
       // When table has update, disable all of the auto resetting
+      autoResetExpanded: false,
+      autoResetFilters: false,
+      autoResetGroupBy: false,
       autoResetPage: false,
       autoResetRowState: false,
       autoResetSelectedRow: false,
-      autoResetExpanded: false,
-      autoResetGroupBy: false,
       autoResetSelectedRows: false,
       autoResetSortBy: false,
-      autoResetFilters: false,
       // -------------------------------------
       initialState: {
         pageSize
       }
     },
     useGlobalFilter,
+    useSortBy,
     usePagination,
     useRowSelect
   )
@@ -185,6 +188,23 @@ const EnhancedTable = ({
       </div>
     </SplitPane>
   )
+}
+
+EnhancedTable.propTypes = {
+  canFetchMore: PropTypes.bool,
+  columns: PropTypes.array,
+  data: PropTypes.array,
+  fetchMore: PropTypes.func,
+  getRowId: PropTypes.func,
+  isLoading: PropTypes.bool,
+  pageSize: PropTypes.number,
+  renderAllSelected: PropTypes.bool,
+  renderDetail: PropTypes.func,
+  RowComponent: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node
+  ]),
+  showPageCount: PropTypes.bool
 }
 
 export default EnhancedTable

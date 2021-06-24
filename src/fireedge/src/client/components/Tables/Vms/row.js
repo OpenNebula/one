@@ -36,22 +36,22 @@ const Row = ({ value, ...props }) => {
           <span title={time.toFormat('ff')}>
             {`#${ID} ${timeAgo}`}
           </span>
-          <span>
+          <span title={`Owner: ${UNAME}`}>
             <User size={16} />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span>
+          <span title={`Group: ${GNAME}`}>
             <Group size={16} />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span>
+          <span title={`Hostname: ${HOSTNAME}`}>
             <HardDrive size={16} />
             <span>{` ${HOSTNAME}`}</span>
           </span>
         </div>
       </div>
       <div className={classes.secondary}>
-        <Multiple tags={ips} limitTags={1} />
+        <Multiple tags={ips} />
       </div>
     </div>
   )

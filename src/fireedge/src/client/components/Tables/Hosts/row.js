@@ -11,7 +11,7 @@ import * as HostModel from 'client/models/Host'
 
 const Row = ({ value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, IM_MAD, VM_MAD, VMS, CLUSTER } = value
+  const { ID, NAME, IM_MAD, VM_MAD, VMS, CLUSTER, TEMPLATE } = value
 
   const {
     percentCpuUsed,
@@ -32,7 +32,7 @@ const Row = ({ value, ...props }) => {
       </div>
       <div className={classes.main}>
         <Typography className={classes.title} component='span'>
-          {NAME}
+          {TEMPLATE?.NAME ?? NAME}
           <span className={classes.labels}>
             {labels.map(label => (
               <StatusChip key={label} stateColor={'#c6c6c6'} text={label} />
@@ -41,11 +41,11 @@ const Row = ({ value, ...props }) => {
         </Typography>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
-          <span>
+          <span title={`Cluster: ${CLUSTER}`}>
             <Server size={16} />
             <span>{` ${CLUSTER}`}</span>
           </span>
-          <span>
+          <span title={`Running VMs: ${runningVms}`}>
             <ModernTv size={16} />
             <span>{` ${runningVms}`}</span>
           </span>

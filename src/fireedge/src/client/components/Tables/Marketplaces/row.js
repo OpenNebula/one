@@ -1,7 +1,7 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group } from 'iconoir-react'
+import { User, Group, CloudDownload } from 'iconoir-react'
 import { Typography } from '@material-ui/core'
 
 import { StatusCircle, LinearProgressWithLabel, StatusChip } from 'client/components/Status'
@@ -32,16 +32,16 @@ const Row = ({ value, ...props }) => {
         </Typography>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
-          <span>
+          <span title={`Owner: ${UNAME}`}>
             <User size={16} />
             <span>{` ${UNAME}`}</span>
           </span>
-          <span>
+          <span title={`Group: ${GNAME}`}>
             <Group size={16} />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span>
-            <Group size={16} />
+          <span title={`Number of Apps: ${apps}`}>
+            <CloudDownload size={16} />
             <span>{` ${apps}`}</span>
           </span>
         </div>
