@@ -310,6 +310,15 @@ public:
             return -1;
         }
 
+        if (std::is_unsigned<T>::value)
+        {
+            // Do not accept negative values for unsigned
+            if (one_util::trim(it->second)[0] == '-')
+            {
+                return -1;
+            }
+        }
+
         std::istringstream iss(it->second);
         iss >> value;
 

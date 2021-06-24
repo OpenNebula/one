@@ -703,7 +703,7 @@ void Nebula::start(bool bootstrap_only)
         vrouterpool = new VirtualRouterPool(logdb);
 
         /* -------------------- VirtualNetwork Pool ------------------------- */
-        int     size;
+        unsigned long int size;
         string  mac_prefix;
 
         vector<const SingleAttribute *> inherit_vnet_attrs;
