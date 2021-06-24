@@ -245,6 +245,7 @@ public class User extends PoolElement{
     /**
      * Sets the LOGIN_TOKEN for the user
      *
+     * @param client XML-RPC Client.
      * @param username of the user
      * @param token the login token, if empty OpenNebula will
      *   generate one
@@ -263,6 +264,7 @@ public class User extends PoolElement{
     /**
      * Sets the LOGIN_TOKEN for the user
      *
+     * @param client XML-RPC Client.
      * @param username of the user
      * @param token the login token, if empty OpenNebula will
      *   generate one
@@ -460,7 +462,6 @@ public class User extends PoolElement{
     /**
      * Enables or disables a User
      *
-     * @param client XML-RPC Client.
      * @param enable True for enabling, false for disabling.
      * @return If successful the message contains the User id.
      */
