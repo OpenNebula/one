@@ -307,9 +307,9 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param start_time: Start time for the time interval. Can be -1,
-     * in which case the time interval won’t have a left boundary.
+     * in which case the time interval won't have a left boundary.
      * @param end_time: End time for the time interval. Can be -1,
-     * in which case the time interval won’t have a right boundary.
+     * in which case the time interval won't have a right boundary.
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -333,13 +333,13 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param first_month First month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a left boundary.
+     * Can be -1, in which case the time interval won't have a left boundary.
      * @param first_year First year for the time interval. Can be -1,
-     * in which case the time interval won’t have a left boundary.
+     * in which case the time interval won't have a left boundary.
      * @param last_month Last month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a right boundary.
+     * Can be -1, in which case the time interval won't have a right boundary.
      * @param last_year Last year for the time interval. Can be -1,
-     * in which case the time interval won’t have a right boundary.
+     * in which case the time interval won't have a right boundary.
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -366,13 +366,13 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param first_month First month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a left boundary.
+     * Can be -1, in which case the time interval won't have a left boundary.
      * @param first_year First year for the time interval. Can be -1,
-     * in which case the time interval won’t have a left boundary.
+     * in which case the time interval won't have a left boundary.
      * @param last_month Last month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a right boundary.
+     * Can be -1, in which case the time interval won't have a right boundary.
      * @param last_year Last year for the time interval. Can be -1,
-     * in which case the time interval won’t have a right boundary.
+     * in which case the time interval won't have a right boundary.
      * @return If an error occurs the error message contains the reason.
      */
     public static OneResponse calculateshowback(Client client, int filter,
@@ -518,9 +518,9 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param start_time: Start time for the time interval. Can be -1,
-     * in which case the time interval won’t have a left boundary.
+     * in which case the time interval won't have a left boundary.
      * @param end_time: End time for the time interval. Can be -1,
-     * in which case the time interval won’t have a right boundary.
+     * in which case the time interval won't have a right boundary.
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -543,13 +543,13 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param first_month First month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a left boundary.
+     * Can be -1, in which case the time interval won't have a left boundary.
      * @param first_year First year for the time interval. Can be -1,
-     * in which case the time interval won’t have a left boundary.
+     * in which case the time interval won't have a left boundary.
      * @param last_month Last month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a right boundary.
+     * Can be -1, in which case the time interval won't have a right boundary.
      * @param last_year Last year for the time interval. Can be -1,
-     * in which case the time interval won’t have a right boundary.
+     * in which case the time interval won't have a right boundary.
      * @return If successful the message contains the string
      * with the information returned by OpenNebula.
      */
@@ -575,13 +575,13 @@ public class VirtualMachinePool extends Pool implements Iterable<VirtualMachine>
      * <li>&gt;= 0 UID User's Virtual Machines</li>
      * </ul>
      * @param first_month First month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a left boundary.
+     * Can be -1, in which case the time interval won't have a left boundary.
      * @param first_year First year for the time interval. Can be -1,
-     * in which case the time interval won’t have a left boundary.
+     * in which case the time interval won't have a left boundary.
      * @param last_month Last month for the time interval. January is 1.
-     * Can be -1, in which case the time interval won’t have a right boundary.
+     * Can be -1, in which case the time interval won't have a right boundary.
      * @param last_year Last year for the time interval. Can be -1,
-     * in which case the time interval won’t have a right boundary.
+     * in which case the time interval won't have a right boundary.
      * @return If an error occurs the error message contains the reason.
      */
     public OneResponse calculateshowback(int filter,
