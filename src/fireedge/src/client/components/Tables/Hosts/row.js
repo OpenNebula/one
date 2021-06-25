@@ -11,7 +11,10 @@ import * as HostModel from 'client/models/Host'
 
 const Row = ({ value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, IM_MAD, VM_MAD, VMS, CLUSTER, TEMPLATE } = value
+  const {
+    ID, NAME, IM_MAD, VM_MAD, STATE,
+    RUNNING_VMS, TOTAL_VMS, CLUSTER, TEMPLATE
+  } = value
 
   const {
     percentCpuUsed,
@@ -20,15 +23,12 @@ const Row = ({ value, ...props }) => {
     percentMemLabel
   } = HostModel.getAllocatedInfo(value)
 
-  const state = HostModel.getState(value)
-  const runningVms = [VMS?.ID ?? []].flat().length || 0
-
   const labels = [...new Set([IM_MAD, VM_MAD])]
 
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={state?.color} tooltip={state?.name} />
+        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
       </div>
       <div className={classes.main}>
         <Typography className={classes.title} component='span'>
@@ -45,9 +45,9 @@ const Row = ({ value, ...props }) => {
             <Server size={16} />
             <span>{` ${CLUSTER}`}</span>
           </span>
-          <span title={`Running VMs: ${runningVms}`}>
+          <span title={`Running VMs: ${RUNNING_VMS} / ${TOTAL_VMS}`}>
             <ModernTv size={16} />
-            <span>{` ${runningVms}`}</span>
+            <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
           </span>
         </div>
       </div>

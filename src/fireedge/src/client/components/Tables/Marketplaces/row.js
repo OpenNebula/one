@@ -11,17 +11,14 @@ import * as MarketplaceModel from 'client/models/Datastore'
 
 const Row = ({ value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, MARKET_MAD, MARKETPLACEAPPS } = value
+  const { ID, NAME, UNAME, GNAME, STATE, MARKET_MAD, TOTAL_APPS } = value
 
   const { percentOfUsed, percentLabel } = MarketplaceModel.getCapacityInfo(value)
-
-  const state = MarketplaceModel.getState(value)
-  const apps = [MARKETPLACEAPPS?.ID ?? []].flat().length || 0
 
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={state?.color} tooltip={state?.name} />
+        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
       </div>
       <div className={classes.main}>
         <Typography className={classes.title} component='span'>
@@ -40,9 +37,9 @@ const Row = ({ value, ...props }) => {
             <Group size={16} />
             <span>{` ${GNAME}`}</span>
           </span>
-          <span title={`Number of Apps: ${apps}`}>
+          <span title={`Total Apps: ${TOTAL_APPS}`}>
             <CloudDownload size={16} />
-            <span>{` ${apps}`}</span>
+            <span>{` ${TOTAL_APPS}`}</span>
           </span>
         </div>
       </div>

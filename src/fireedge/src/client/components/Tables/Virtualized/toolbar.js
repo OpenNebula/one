@@ -26,38 +26,23 @@ const Toolbar = ({ useTableProps }) => {
   /** @type {import('react-table').UseGlobalFiltersInstanceProps} */
   const { preGlobalFilteredRows, setGlobalFilter, state } = useTableProps
 
+  /** @type {import('react-table').UseFiltersState} */
   const { globalFilter } = state
-  // const numSelected = Object.keys(selectedRowIds).length
 
   return (
     <div className={classes.filterWrapper}>
-      <Button
-        variant='outlined'
-        startIcon={<FilterIcon size='1em' />}
+      <Button startIcon={<FilterIcon />}
         className={classes.filterButton}
       >
-          Filters
+        Filters
       </Button>
       <GlobalFilter
         preGlobalFilteredRows={preGlobalFilteredRows}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
       />
-      {/* <span>No filters selected</span> */}
     </div>
   )
-
-  /* numSelected > 0 && (
-        <Typography className={classes.title} color='inherit' variant='subtitle1'>
-          {numSelected} selected
-        </Typography>
-      ) */
-
-  /* <GlobalFilter
-        preGlobalFilteredRows={preGlobalFilteredRows}
-        globalFilter={globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      /> */
 }
 
 Toolbar.propTypes = {

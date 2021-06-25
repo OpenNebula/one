@@ -7,21 +7,20 @@ import { Typography } from '@material-ui/core'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
 
 const Row = ({ value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, REGTIME, PERSISTENT, LOCK, DATASTORE, VMS, RUNNING_VMS } = value
-
-  const state = ImageModel.getState(value)
-  const type = ImageModel.getType(value)
-  const diskType = ImageModel.getDiskType(value)
-  const isPersistent = PERSISTENT && 'PERSISTENT'
+  const {
+    ID, NAME, UNAME, GNAME, REGTIME,
+    STATE, TYPE, DISK_TYPE, PERSISTENT,
+    LOCK, DATASTORE, VMS, RUNNING_VMS
+  } = value
 
   const usedByVms = [VMS?.ID ?? []].flat().length || 0
 
-  const labels = [...new Set([isPersistent, type, diskType])].filter(Boolean)
+  const labels = [...new Set([
+    PERSISTENT && 'PERSISTENT', TYPE, DISK_TYPE])].filter(Boolean)
 
   const time = Helper.timeFromMilliseconds(+REGTIME)
   const timeAgo = `registered ${time.toRelative()}`
@@ -29,7 +28,7 @@ const Row = ({ value, ...props }) => {
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={state?.color} tooltip={state?.name} />
+        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
       </div>
       <div className={classes.main}>
         <Typography className={classes.title} component='span'>

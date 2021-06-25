@@ -87,11 +87,18 @@ const EnhancedTable = ({
     // Filter: DefaultFilter,
   }), [])
 
+  const sortTypes = React.useMemo(() => ({
+    length: (rowA, rowB, columnId, desc) => desc
+      ? rowB.values[columnId].length - rowA.values[columnId].length
+      : rowA.values[columnId].length - rowB.values[columnId].length
+  }), [])
+
   const useTableProps = useTable(
     {
       columns,
       data,
       defaultColumn,
+      sortTypes,
       getRowId,
       // When table has update, disable all of the auto resetting
       autoResetExpanded: false,
@@ -120,11 +127,14 @@ const EnhancedTable = ({
     page,
     gotoPage,
     pageCount,
-    selectedFlatRows,
-    state: { pageIndex }
+    state: { pageIndex, selectedRowIds },
+    ...rest
   } = useTableProps
 
-  const justOneSelected = selectedFlatRows.length === 1
+  const selectedRows = React.useMemo(
+    () => rows.filter(row => !!selectedRowIds[row.id]),
+    [rows, selectedRowIds]
+  )
 
   const handleChangePage = newPage => {
     gotoPage(newPage)
@@ -158,14 +168,14 @@ const EnhancedTable = ({
             prepareRow(row)
 
             /** @type {import('react-table').UseRowSelectRowProps} */
-            const { getRowProps, original, toggleRowSelected, isSelected } = row
+            const { getRowProps, values, toggleRowSelected, isSelected } = row
             const { key, ...rowProps } = getRowProps()
 
             return (
               <RowComponent
                 {...rowProps}
                 key={key}
-                value={original}
+                value={values}
                 className={isSelected ? 'selected' : ''}
                 onClick={() => toggleRowSelected(!isSelected)}
               />
@@ -175,12 +185,12 @@ const EnhancedTable = ({
       </Box>
 
       <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-        {justOneSelected && renderDetail
-          ? renderDetail(selectedFlatRows[0]?.original)
+        {selectedRows?.length === 1 && renderDetail
+          ? renderDetail(selectedRows[0]?.values)
           : renderAllSelected && (
             <pre>
               <code>
-                {JSON.stringify(selectedFlatRows?.map(({ id }) => id)?.join(', '), null, 2)}
+                {JSON.stringify(Object.keys(selectedRowIds)?.join(', '), null, 2)}
               </code>
             </pre>
           )

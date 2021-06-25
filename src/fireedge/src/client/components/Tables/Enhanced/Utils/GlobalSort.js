@@ -26,11 +26,10 @@ const GlobalSort = props => {
    */
   const { headers, sortBy, setSortBy } = props
 
-  const sortAvailable = React.useMemo(() => {
-    const flatSorters = sortBy.map(({ id }) => id)
-
-    return headers.filter(({ id }) => !flatSorters.includes(id))
-  }, [sortBy.length])
+  const headersNotSorted = React.useMemo(() => 
+    headers.filter(({ isSorted, canSort, isVisible }) =>
+      !isSorted && canSort && isVisible
+    ), [sortBy.length])
 
   const handleClick = (id, name) => {
     setSortBy([{ id, desc: false, name }, ...sortBy])
@@ -53,7 +52,7 @@ const GlobalSort = props => {
           buttonLabel={T.SortBy}
           buttonProps={{
             'data-cy': 'sort-by-button',
-            disabled: sortAvailable.length === 0,
+            disabled: headersNotSorted.length === 0,
             variant: 'outlined'
           }}
           popoverProps= {{
@@ -69,8 +68,8 @@ const GlobalSort = props => {
         >
           {() => (
             <MenuList disablePadding>
-              {sortAvailable.length
-                ? sortAvailable?.map(({ id, Header: name }) => (
+              {headersNotSorted.length
+                ? headersNotSorted?.map(({ id, Header: name }) => (
                   <MenuItem key={id} onClick={() => { handleClick(id, name) }}>
                     {name}
                   </MenuItem>
@@ -80,7 +79,7 @@ const GlobalSort = props => {
             </MenuList>
           )}
         </HeaderPopover>
-      ), [sortAvailable.length])}
+      ), [headersNotSorted.length])}
 
       {React.useMemo(() => sortBy?.map(({ name, id, desc }) => (
         <Chip

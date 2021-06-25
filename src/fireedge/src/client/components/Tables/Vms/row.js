@@ -8,16 +8,14 @@ import { StatusCircle } from 'client/components/Status'
 import Multiple from 'client/components/Tables/Vms/multiple'
 import { rowStyles } from 'client/components/Tables/styles'
 
-import * as VirtualMachineModel from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 
 const Row = ({ value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, STIME, ETIME, LOCK } = value
-
-  const state = VirtualMachineModel.getState(value)
-  const ips = VirtualMachineModel.getIps(value)
-  const { HOSTNAME = '--' } = VirtualMachineModel.getLastHistory(value)
+  const {
+    ID, NAME, UNAME, GNAME, STATE,
+    IPS, STIME, ETIME, HOSTNAME, LOCK
+  } = value
 
   const time = Helper.timeFromMilliseconds(+ETIME || +STIME)
   const timeAgo = `${+ETIME ? 'done' : 'started'} ${time.toRelative()}`
@@ -25,7 +23,7 @@ const Row = ({ value, ...props }) => {
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={state?.color} tooltip={state?.name} />
+        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
       </div>
       <div className={classes.main}>
         <Typography className={classes.title} component='span'>
@@ -51,7 +49,7 @@ const Row = ({ value, ...props }) => {
         </div>
       </div>
       <div className={classes.secondary}>
-        <Multiple tags={ips} />
+        {<Multiple tags={IPS.split(',')} />}
       </div>
     </div>
   )

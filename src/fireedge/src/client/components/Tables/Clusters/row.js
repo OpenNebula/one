@@ -8,13 +8,7 @@ import { rowStyles } from 'client/components/Tables/styles'
 
 const Row = ({ value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, HOSTS, DATASTORES, VNETS, TEMPLATE } = value
-
-  const hosts = [HOSTS?.ID ?? []].flat().length || 0
-  const datastores = [DATASTORES?.ID ?? []].flat().length || 0
-  const virtualNetworks = [VNETS?.ID ?? []].flat().length || 0
-
-  const providerName = TEMPLATE?.PROVISION?.PROVIDER_NAME
+  const { ID, NAME, HOSTS, DATASTORES, VNETS, PROVIDER_NAME } = value
 
   return (
     <div {...props}>
@@ -24,21 +18,21 @@ const Row = ({ value, ...props }) => {
         </Typography>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
-          <span title={`Number of Hosts: ${hosts}`}>
+          <span title={`Total Hosts: ${HOSTS}`}>
             <HardDrive size={16} />
-            <span>{` ${hosts}`}</span>
+            <span>{` ${HOSTS}`}</span>
           </span>
-          <span title={`Number of Datastores: ${datastores}`}>
+          <span title={`Total Datastores: ${DATASTORES}`}>
             <Folder size={16} />
-            <span>{` ${datastores}`}</span>
+            <span>{` ${DATASTORES}`}</span>
           </span>
-          <span title={`Number of VNets: ${virtualNetworks}`}>
+          <span title={`Total VNets: ${VNETS}`}>
             <NetworkAlt size={16} />
-            <span>{` ${virtualNetworks}`}</span>
+            <span>{` ${VNETS}`}</span>
           </span>
-          {TEMPLATE?.PROVISION && <span title={`Provider: ${providerName}`}>
+          {PROVIDER_NAME && <span title={`Provider: ${PROVIDER_NAME}`}>
             <Cloud size={16} />
-            <span>{` ${providerName}`}</span>
+            <span>{` ${PROVIDER_NAME}`}</span>
           </span>}
         </div>
       </div>
