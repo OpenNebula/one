@@ -41,8 +41,10 @@ class OpenNebula::ServerCipherAuth
         if !srv_passwd.empty?
             # truncate token to 32-bytes for Ruby >= 2.4
             @key = Digest::SHA256.hexdigest(@srv_passwd)[0..31]
-        else
+            @iv = @key[0..15]
+          else
             @key = ""
+            @iv = ""
         end
 
         @cipher = OpenSSL::Cipher.new(CIPHER)
@@ -112,6 +114,7 @@ class OpenNebula::ServerCipherAuth
         begin
             # truncate token to 32-bytes for Ruby >= 2.4
             @key = srv_pass[0..31]
+            @iv = srv_pass[0..15]
 
             token_array = decrypt(signed_text).split(':')
 
@@ -133,7 +136,7 @@ class OpenNebula::ServerCipherAuth
     def encrypt(data)
         @cipher.encrypt
         @cipher.key = @key
-
+        @cipher.iv = @iv
         rc = @cipher.update(data)
         rc << @cipher.final
 
@@ -143,7 +146,7 @@ class OpenNebula::ServerCipherAuth
     def decrypt(data)
         @cipher.decrypt
         @cipher.key = @key
-
+        @cipher.iv = @iv
         rc = @cipher.update(Base64::decode64(data))
         rc << @cipher.final
 

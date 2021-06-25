@@ -23,7 +23,8 @@ const {
   defaultMethodZones,
   defaultMethodUserInfo,
   default2FAOpennebulaVar,
-  defaultNamespace
+  defaultNamespace,
+  defaultServerAdminID
 } = require('server/utils/constants/defaults')
 const { getConfig } = require('server/utils/yml')
 const {
@@ -32,7 +33,7 @@ const {
   accepted
 } = require('server/utils/constants/http-codes')
 const { createToken } = require('server/utils/jwt')
-const { httpResponse } = require('server/utils/server')
+const { httpResponse, encrypt } = require('server/utils/server')
 const {
   responseOpennebula,
   checkOpennebulaCommand,
@@ -46,12 +47,15 @@ const appConfig = getConfig()
 
 const namespace = appConfig.namespace || defaultNamespace
 const minimumExpirationTime = appConfig.minimun_opennebula_expiration || defaultOpennebulaMinimumExpiration
+const serverAdmin = appConfig.server_admin || defaultServerAdminID
 
 const { POST } = httpMethod
 
 const getOpennebulaMethod = checkOpennebulaCommand(defaultMethodLogin, POST)
 
 let user = ''
+let key = ''
+let iv = ''
 let pass = ''
 let type = ''
 let tfatoken = ''
@@ -67,9 +71,21 @@ let relativeTime = ''
 
 const dataSourceWithExpirateDate = () => Map(req).toObject()
 
+const getKey = () => key
+const getIV = () => iv
 const getUser = () => user
 const getPass = () => pass
 const getRelativeTime = () => relativeTime
+
+const setKey = newKey => {
+  key = newKey
+  return key
+}
+
+const setIV = newIV => {
+  iv = newIV
+  return iv
+}
 
 const setUser = newUser => {
   user = newUser
@@ -143,6 +159,10 @@ const validate2faAuthentication = informationUser => {
     informationUser.TEMPLATE.SUNSTONE &&
     informationUser.TEMPLATE.SUNSTONE[default2FAOpennebulaVar]
   ) {
+    /*********************************************************
+      * Validate 2FA
+    *********************************************************/
+
     if (tfatoken.length <= 0) {
       updaterResponse(httpResponse(accepted))
     } else {
@@ -154,7 +174,10 @@ const validate2faAuthentication = informationUser => {
       }
     }
   } else {
-    // without 2FA login
+    /*********************************************************
+      * Without 2FA
+    *********************************************************/
+
     rtn = true
   }
   return rtn
@@ -223,23 +246,83 @@ const setZones = () => {
 }
 
 const login = userData => {
-  let rtn = true
+  let rtn = false
   if (userData) {
     const findTextError = `[${namespace + defaultMethodUserInfo}]`
     if (userData.indexOf && userData.indexOf(findTextError) >= 0) {
       updaterResponse(httpResponse(unauthorized))
+    } else {
+      rtn = true
     }
     if (userData.USER) {
       setZones()
       if (validate2faAuthentication(userData.USER)) {
         rtn = false
-        checkOpennebulaToken(userData.USER)
+        setDates()
+        getServerAdmin()
+        // checkOpennebulaToken(userData.USER) // aca seria el call de la funcion serveradmin
       }
     }
   }
   if (rtn) {
     next()
   }
+}
+
+const createTokenServerAdmin = (serverAdmin = '', username = '') => {
+  let rtn
+  const key = getKey()
+  const iv = getIV()
+  if (serverAdmin && username && key && iv) {
+    rtn = encrypt(
+      `${serverAdmin}:${username}:${parseInt(nowWithMinutes.toSeconds())}`,
+      key,
+      iv
+    )
+  }
+  return rtn
+}
+
+const wrapUserWithServerAdmin = (serverAdminData = {}) => {
+  const relativeTime = getRelativeTime()
+  const user = getUser()
+  let userPassword = ''
+  if (
+    relativeTime &&
+    serverAdminData &&
+    serverAdminData.USER &&
+    serverAdminData.USER.NAME &&
+    (userPassword = serverAdminData.USER.PASSWORD) &&
+    user
+  ) {
+    /*********************************************************
+      * equals what is placed in:
+      * src/authm_mad/remotes/server_cipher/server_cipher_auth.rb:44
+    *********************************************************/
+
+    setKey(userPassword.substring(0, 32))
+    setIV(userPassword.substring(0, 16))
+    const tokenWithServerAdmin = createTokenServerAdmin(serverAdminData.USER.NAME, user)
+    if (tokenWithServerAdmin) {
+      console.log('FINAL --> ', `${serverAdminData.USER.NAME}:${user}:${tokenWithServerAdmin}`)
+    }
+  }
+}
+
+const getServerAdmin = () => {
+  const oneConnect = connectOpennebula()
+  oneConnect(
+    defaultMethodUserInfo,
+    [parseInt(serverAdmin, 10), false],
+    (err, value) => {
+      responseOpennebula(
+        updaterResponse,
+        err,
+        value,
+        wrapUserWithServerAdmin,
+        next)
+    }
+  )
 }
 
 const checkOpennebulaToken = userData => {

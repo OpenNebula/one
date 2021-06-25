@@ -15,6 +15,7 @@
 
 const appName = 'fireedge'
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
+const baseUrlWebsockets = 'websockets'
 const apps = {
   flow: {
     name: 'flow',
@@ -30,6 +31,8 @@ const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = 'localhost'
 const protocol = 'http'
 const defaults = {
+  defaultServerAdminID: 1,
+  defaultTypeCrypto: 'aes-256-cbc',
   defaultEmptyFunction: () => undefined,
   defaultErrorTemplate: 'ERROR_FIREEDGE="%1$s"',
   defaultOpennebulaExpiration: 180,
@@ -41,11 +44,11 @@ const defaults = {
   },
   defaultFilesWebsockets: {
     hooks: {
-      path: `${baseUrl}websockets/hooks`,
+      path: `${baseUrl}${baseUrlWebsockets}hooks`,
       methods: ['GET', 'POST']
     },
     provision: {
-      path: `${baseUrl}websockets/provision`,
+      path: `${baseUrl}${baseUrlWebsockets}provision`,
       methods: ['GET', 'POST']
     }
   },

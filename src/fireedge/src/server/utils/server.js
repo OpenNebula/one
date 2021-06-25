@@ -15,6 +15,8 @@
 const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
+// eslint-disable-next-line node/no-deprecated-api
+const { createCipheriv, createCipher, createDecipheriv, createDecipher } = require('crypto')
 const { existsSync, readFileSync, createWriteStream } = require('fs-extra')
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
@@ -30,7 +32,8 @@ const {
   defaultKeyFilename,
   defaultWebpackMode,
   defaultOpennebulaZones,
-  defaultEtcPath
+  defaultEtcPath,
+  defaultTypeCrypto
 } = require('./constants/defaults')
 
 let cert = ''
@@ -115,6 +118,46 @@ const middlewareValidateAuthWebsocket = (server = {}, next = () => undefined) =>
   } else {
     server.disconnect(true)
   }
+}
+
+const encrypt = (data = '', key = '', iv = '') => {
+  let rtn
+  if (data && key) {
+    try {
+      const cipher = iv ? createCipheriv(defaultTypeCrypto, key, iv) : createCipher(defaultTypeCrypto, key)
+      let encryptData = cipher.update(data, 'ascii', 'base64')
+      encryptData += cipher.final('base64')
+      rtn = encryptData
+    } catch (err) {
+      const errorData = (err && err.message) || ''
+      messageTerminal({
+        color: 'red',
+        message: 'Error: %s',
+        type: errorData
+      })
+    }
+  }
+  return rtn
+}
+
+const decrypt = (data = '', key = '', iv = '') => {
+  let rtn
+  if (data && key) {
+    try {
+      const cipher = iv ? createDecipheriv(defaultTypeCrypto, key, iv) : createDecipher(defaultTypeCrypto, key)
+      let decryptData = cipher.update(data, 'base64', 'ascii')
+      decryptData += cipher.final('ascii')
+      rtn = decryptData
+    } catch (err) {
+      const errorData = (err && err.message) || ''
+      messageTerminal({
+        color: 'red',
+        message: 'Error: %s',
+        type: errorData
+      })
+    }
+  }
+  return rtn
 }
 
 const existsFile = (path = '', success = () => undefined, error = () => undefined) => {
@@ -262,6 +305,8 @@ const parsePostData = (postData = {}) => {
   return rtn
 }
 module.exports = {
+  encrypt,
+  decrypt,
   getDataZone,
   existsFile,
   createFile,

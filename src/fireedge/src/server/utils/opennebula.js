@@ -43,7 +43,13 @@ const fillResourceforHookConection = (username = '', action = '', parameters = '
   let match
   // parameters[0] is the resource ID
   if (username && action && (match = action.match(regexInfoAction)) && match[1] && parameters[0] >= 0) {
-    if (global.users[username] && !global.users[username].resourcesHooks) {
+    if (global && !global.users) {
+      global.users = {}
+    }
+    if (!global.users[username]) {
+      global.users[username] = {}
+    }
+    if (!global.users[username].resourcesHooks) {
       global.users[username].resourcesHooks = {}
     }
     global.users[username].resourcesHooks[match[1]] = parameters[0]
