@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
     flexWrap: 'wrap',
     gap: 6,
     alignItems: 'center'
-  },
+  }
 }))
 
 const GlobalSort = props => {
@@ -26,7 +26,7 @@ const GlobalSort = props => {
    */
   const { headers, sortBy, setSortBy } = props
 
-  const headersNotSorted = React.useMemo(() => 
+  const headersNotSorted = React.useMemo(() =>
     headers.filter(({ isSorted, canSort, isVisible }) =>
       !isSorted && canSort && isVisible
     ), [sortBy.length])
@@ -36,9 +36,9 @@ const GlobalSort = props => {
   }
 
   const handleDelete = removeId => {
-    setSortBy(sortBy.filter(({id}) => id !== removeId))
+    setSortBy(sortBy.filter(({ id }) => id !== removeId))
   }
-  
+
   const handleToggle = (id, desc) => {
     setSortBy(sortBy.map(sort => sort.id === id ? ({ ...sort, desc }) : sort))
   }

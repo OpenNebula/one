@@ -6,7 +6,7 @@ import * as actions from 'client/features/One/vnetwork/actions'
 import { RESOURCES } from 'client/features/One/slice'
 
 export const useVNetwork = () => (
-  useSelector(state => state.one.[RESOURCES.vn])
+  useSelector(state => state.one[RESOURCES.vn])
 )
 
 export const useVNetworkApi = () => {

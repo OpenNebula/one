@@ -43,10 +43,9 @@ const GlobalFilter = props => {
    * @type {import('react-table').UseGlobalFiltersInstanceProps &
    * import('react-table').UseGlobalFiltersState}
    */
-  const { preGlobalFilteredRows, globalFilter, setGlobalFilter } = props
+  const { globalFilter, setGlobalFilter } = props
 
   const classes = useStyles()
-  const count = preGlobalFilteredRows.length
 
   const [value, setValue] = React.useState(globalFilter)
 
@@ -54,26 +53,6 @@ const GlobalFilter = props => {
     // Set undefined to remove the filter entirely
     debounce(value => { setGlobalFilter(value || undefined) }, 200)
   )
-
-  // Global filter only works with pagination from the first page.
-  // This may not be a problem for server side pagination when
-  // only the current page is downloaded.
-
-  /* <Box className={classes.search}>
-      <Box className={classes.searchIcon}>
-        <SearchIcon />
-      </Box>
-      <InputBase
-        type='search'
-        onChange={searchProps.handleChange}
-        fullWidth
-        placeholder={`${T.Search}...`}
-        classes={{
-          root: classes.inputRoot,
-          input: classes.inputInput
-        }}
-      />
-    </Box> */
 
   return (
     <div className={classes.search}>

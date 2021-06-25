@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { LinearProgress } from '@material-ui/core'
 
 import Tabs from 'client/components/Tabs'
@@ -30,7 +31,7 @@ const HostDetail = ({ id }) => {
     return <div>{error}</div>
   }
 
-  const { ID, NAME, IM_MAD, VM_MAD, VMS, CLUSTER } = data
+  const { ID, NAME, IM_MAD, VM_MAD /* VMS, CLUSTER */ } = data
 
   const { name: stateName, color: stateColor } = HostModel.getState(data)
 
@@ -61,6 +62,10 @@ const HostDetail = ({ id }) => {
   return (
     <Tabs tabs={tabs} />
   )
+}
+
+HostDetail.propTypes = {
+  id: PropTypes.string.isRequired
 }
 
 export default HostDetail

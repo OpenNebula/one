@@ -1,6 +1,6 @@
 import { STATES, VM_STATES, VM_LCM_STATES } from 'client/constants'
 
-const EXTERNAL_IP_ATTRS = [
+/* const EXTERNAL_IP_ATTRS = [
   'GUEST_IP',
   'GUEST_IP_ADDRESSES',
   'AWS_IP_ADDRESS',
@@ -8,7 +8,7 @@ const EXTERNAL_IP_ATTRS = [
   'AWS_PRIVATE_IP_ADDRESS',
   'AZ_IPADDRESS',
   'SL_PRIMARYIPADDRESS'
-]
+] */
 
 const NIC_ALIAS_IP_ATTRS = [
   'IP',

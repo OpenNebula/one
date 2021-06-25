@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { LinearProgress, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
 
 import Tabs from 'client/components/Tabs'
@@ -190,6 +191,10 @@ const VmDetail = ({ id }) => {
   return (
     <Tabs tabs={tabs} />
   )
+}
+
+VmDetail.propTypes = {
+  id: PropTypes.string.isRequired
 }
 
 export default VmDetail

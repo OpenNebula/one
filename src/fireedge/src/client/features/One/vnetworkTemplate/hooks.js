@@ -6,7 +6,7 @@ import * as actions from 'client/features/One/vnetworkTemplate/actions'
 import { RESOURCES } from 'client/features/One/slice'
 
 export const useVNetworkTemplate = () => (
-  useSelector(state => state.one.[RESOURCES.vntemplate])
+  useSelector(state => state.one[RESOURCES.vntemplate])
 )
 
 export const useVNetworkTemplateApi = () => {

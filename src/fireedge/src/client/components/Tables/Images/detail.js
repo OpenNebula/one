@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
 import { LinearProgress } from '@material-ui/core'
 
 import Tabs from 'client/components/Tabs'
@@ -74,6 +75,10 @@ const ImageDetail = ({ id }) => {
   return (
     <Tabs tabs={tabs} />
   )
+}
+
+ImageDetail.propTypes = {
+  id: PropTypes.string.isRequired
 }
 
 export default ImageDetail

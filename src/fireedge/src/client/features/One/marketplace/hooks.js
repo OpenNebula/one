@@ -6,7 +6,7 @@ import * as actions from 'client/features/One/marketplace/actions'
 import { RESOURCES } from 'client/features/One/slice'
 
 export const useMarketplace = () => (
-  useSelector(state => state.one.[RESOURCES.marketplace])
+  useSelector(state => state.one[RESOURCES.marketplace])
 )
 
 export const useMarketplaceApi = () => {
