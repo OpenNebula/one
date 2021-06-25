@@ -22,6 +22,6 @@ export default [
   {
     Header: 'Hostname',
     id: 'HOSTNAME',
-    accessor: row => VirtualMachineModel.getLastHistory(row)?.HOSTNAME
+    accessor: row => VirtualMachineModel.getLastHistory(row)?.HOSTNAME ?? '--'
   }
 ]

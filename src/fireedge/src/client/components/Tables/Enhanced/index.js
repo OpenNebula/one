@@ -65,6 +65,9 @@ const useStyles = makeStyles(({ palette, typography, breakpoints }) => ({
     display: 'flex',
     alignItems: 'center',
     gap: '1em'
+  },
+  loading: {
+    transition: '200ms'
   }
 }))
 
@@ -127,8 +130,7 @@ const EnhancedTable = ({
     page,
     gotoPage,
     pageCount,
-    state: { pageIndex, selectedRowIds },
-    ...rest
+    state: { pageIndex, selectedRowIds }
   } = useTableProps
 
   const selectedRows = React.useMemo(
@@ -161,7 +163,9 @@ const EnhancedTable = ({
           </div>
         </div>
 
-        {isLoading && <LinearProgress size='1em' color='secondary' />}
+        {isLoading && (
+          <LinearProgress size='1em' color='secondary' className={classes.loading} />
+        )}
 
         <div className={classes.body}>
           {page.map(row => {
