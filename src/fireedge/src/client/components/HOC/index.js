@@ -13,5 +13,6 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
+export { default as ConditionalWrap } from 'client/components/HOC/ConditionalWrap'
 export { default as InternalLayout } from 'client/components/HOC/InternalLayout'
 export * from 'client/components/HOC/Translate'

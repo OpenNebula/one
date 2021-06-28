@@ -8,7 +8,7 @@ import {
 import { Skeleton } from '@material-ui/lab'
 
 import useNearScreen from 'client/hooks/useNearScreen'
-import ConditionalWrap from 'client/components/HOC/ConditionalWrap'
+import { ConditionalWrap } from 'client/components/HOC'
 
 import { Action } from 'client/components/Cards/SelectCard'
 import selectCardStyles from 'client/components/Cards/SelectCard/styles'

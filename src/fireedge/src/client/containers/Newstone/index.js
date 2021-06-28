@@ -43,7 +43,11 @@ const Newstone = () => {
   ), [resource])
 
   return (
-    <Container maxWidth='xl'>
+    <Container maxWidth='xl' style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%'
+    }}>
       {Object.values(TABS).includes(history.location.pathname) && renderTabs}
 
       <Box py={2} overflow='auto'>

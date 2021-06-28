@@ -19,7 +19,7 @@ import Filters from 'client/components/Tables/Enhanced/filters'
 import DefaultFilter from 'client/components/Table/Filters/DefaultFilter'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
-import { Tr } from 'client/components/HOC'
+import { Tr, ConditionalWrap } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const EnhancedTable = ({
@@ -103,7 +103,10 @@ const EnhancedTable = ({
   }
 
   return (
-    <SplitPane>
+    <ConditionalWrap
+      condition={selectedRows?.length > 0}
+      wrap={children => <SplitPane>{children}</SplitPane>}
+    >
       <Box {...getTableProps()} className={classes.root}>
         <div className={classes.toolbar}>
           {!isFetching && <Toolbar useTableProps={useTableProps} />}
@@ -158,19 +161,21 @@ const EnhancedTable = ({
         </div>
       </Box>
 
-      <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-        {selectedRows?.length === 1 && renderDetail
-          ? renderDetail?.(selectedRows[0]?.values)
-          : renderAllSelected && (
-            <pre>
-              <code>
-                {JSON.stringify(Object.keys(selectedRowIds)?.join(', '), null, 2)}
-              </code>
-            </pre>
-          )
-        }
-      </div>
-    </SplitPane>
+      {selectedRows?.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+          {selectedRows?.length === 1 && renderDetail
+            ? renderDetail?.(selectedRows[0]?.values)
+            : renderAllSelected && (
+              <pre>
+                <code>
+                  {JSON.stringify(Object.keys(selectedRowIds)?.join(', '), null, 2)}
+                </code>
+              </pre>
+            )
+          }
+        </div>
+      )}
+    </ConditionalWrap>
   )
 }
 
