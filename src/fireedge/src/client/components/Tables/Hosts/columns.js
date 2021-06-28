@@ -23,8 +23,28 @@ export default [
     filter: 'includesValue'
   },
   { Header: 'Cluster', accessor: 'CLUSTER' },
-  { Header: 'IM MAD', accessor: 'IM_MAD' },
-  { Header: 'VM MAD', accessor: 'VM_MAD' },
+  {
+    Header: 'IM MAD',
+    accessor: 'IM_MAD',
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'IM Mad'
+    }),
+    filter: 'includesValue'
+  },
+  {
+    Header: 'VM MAD',
+    accessor: 'VM_MAD',
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'VM Mad'
+    }),
+    filter: 'includesValue'
+  },
   {
     Header: 'Running VMs',
     id: 'RUNNING_VMS',

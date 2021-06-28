@@ -21,7 +21,14 @@ export default [
   {
     Header: 'Type',
     id: 'TYPE',
-    accessor: row => MarketplaceAppModel.getType(row)
+    accessor: row => MarketplaceAppModel.getType(row),
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'Type'
+    }),
+    filter: 'includesValue'
   },
   { Header: 'Size', accessor: 'SIZE' },
   { Header: 'Registration Time', accessor: 'REGTIME' },
