@@ -10,7 +10,7 @@ import VmRow from 'client/components/Tables/Vms/row'
 import VmDetail from 'client/components/Tables/Vms/detail'
 
 const INITIAL_ELEMENT = 0
-const INTERVAL_ON_FIRST_RENDER = 2_500
+const INTERVAL_ON_FIRST_RENDER = 2_000
 
 const VmsTable = () => {
   const columns = React.useMemo(() => VmColumns, [])
