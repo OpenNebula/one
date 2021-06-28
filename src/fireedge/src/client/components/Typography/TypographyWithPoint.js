@@ -8,20 +8,20 @@ const useStateStyles = makeStyles(theme => ({
     color: theme.palette.text.secondary,
     '&::before': {
       content: "''",
-      display: 'inline-flex',
       marginRight: '0.5rem',
-      background: ({ color }) => color,
+      display: 'inline-flex',
       height: '0.7rem',
       width: '0.7rem',
+      background: ({ color }) => color,
       borderRadius: '50%'
     }
   }
 }))
 
-const TypographyWithPoint = ({ pointColor, children }) => {
+const TypographyWithPoint = ({ pointColor, children, ...props }) => {
   const classes = useStateStyles({ color: pointColor })
   return (
-    <Typography noWrap className={classes.root}>
+    <Typography noWrap className={classes.root} {...props}>
       {children}
     </Typography>
   )

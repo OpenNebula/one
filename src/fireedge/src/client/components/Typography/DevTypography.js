@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { makeStyles, Typography, Chip } from '@material-ui/core'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles({
   root: {
     display: 'inline-flex',
     gap: '1em',
@@ -12,7 +12,7 @@ const useStyles = makeStyles(() => ({
   label: {
     flexGrow: 1
   }
-}))
+})
 
 const DevTypography = memo(({ label, labelProps, color, chipProps }) => {
   const classes = useStyles()

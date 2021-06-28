@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core'
 
-export default makeStyles(() => ({
+export default makeStyles({
   cardPlus: {
     height: '100%',
     minHeight: 140,
@@ -23,4 +23,4 @@ export default makeStyles(() => ({
       transition: 'opacity 400ms ease-in'
     }
   }
-}))
+})
