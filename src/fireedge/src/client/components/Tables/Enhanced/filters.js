@@ -40,7 +40,11 @@ const Filters = ({ useTableProps }) => {
   const filters = React.useMemo(() => (
     columns
       .filter(({ canFilter }) => canFilter)
-      .map(column => column.canFilter ? column.render('Filter') : null)
+      .map((column, idx) => column.canFilter ? (
+        <React.Fragment key={idx}>
+          {column.render('Filter')}
+        </React.Fragment>
+      ) : null)
   ), [rows])
 
   if (isMobile) {

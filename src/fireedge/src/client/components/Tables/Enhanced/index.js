@@ -2,7 +2,7 @@ import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { InfoEmpty } from 'iconoir-react'
-import { Box, LinearProgress, Typography } from '@material-ui/core'
+import { Box, LinearProgress } from '@material-ui/core'
 import {
   useGlobalFilter,
   useFilters,
