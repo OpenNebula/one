@@ -34,7 +34,8 @@ const {
   defaultWebpackMode,
   defaultOpennebulaZones,
   defaultEtcPath,
-  defaultTypeCrypto
+  defaultTypeCrypto,
+  defaultHash
 } = require('./constants/defaults')
 
 let cert = ''
@@ -229,6 +230,14 @@ const genFireedgeKey = () => {
   }
 }
 
+const replaceEscapeSequence = (text = '') => {
+  let rtn = text
+  if (text) {
+    rtn = text.replace(/\r|\n/g, '')
+  }
+  return rtn
+}
+
 const getSunstoneAuth = () => {
   let rtn
   if (global && global.SUNSTONE_AUTH_PATH) {
@@ -236,10 +245,10 @@ const getSunstoneAuth = () => {
       filedata => {
         if (filedata) {
           const serverAdminData = filedata.split(':')
-          const regexReplaceSpaces = /\r|\n/g
           if (serverAdminData[0] && serverAdminData[1]) {
-            const username = serverAdminData[0].replace(regexReplaceSpaces, '')
-            const password = createHash('sha256').update(serverAdminData[1].replace(regexReplaceSpaces, '')).digest('hex')
+            const { hash, digest } = defaultHash
+            const username = replaceEscapeSequence(serverAdminData[0])
+            const password = createHash(hash).update(replaceEscapeSequence(serverAdminData[1])).digest(digest)
             const key = password.substring(0, 32)
             const iv = key.substring(0, 16)
             rtn = { username, key, iv }
@@ -342,6 +351,7 @@ module.exports = {
   getDataZone,
   existsFile,
   getSunstoneAuth,
+  replaceEscapeSequence,
   createFile,
   httpResponse,
   validateServerIsSecure,

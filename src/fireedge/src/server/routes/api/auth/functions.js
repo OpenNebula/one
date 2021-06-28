@@ -17,7 +17,6 @@ const { Map } = require('immutable')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { global, Array } = require('window-or-global')
-const { createHash } = require('crypto')
 
 const {
   httpMethod,

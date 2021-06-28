@@ -66,6 +66,10 @@ const defaults = {
     PUT: 'PUT',
     DELETE: 'DELETE'
   },
+  defaultHash: {
+    hash: 'sha256',
+    digest: 'hex'
+  },
   defaultFileStats: '-stats.json',
   from: {
     resource: 'RESOURCE',
