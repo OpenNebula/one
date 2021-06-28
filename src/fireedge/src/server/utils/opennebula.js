@@ -68,7 +68,7 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
       xmlClient = rpc.createClient(path)
     }
     if (xmlClient && xmlClient.methodCall) {
-      rtn = (action = '', parameters = [], callback = () => undefined) => {
+      rtn = (action = '', parameters = [], callback = () => undefined, fillHookResource = true) => {
         if (action && parameters && Array.isArray(parameters) && callback) {
           const xmlParameters = [`${username}:${password}`, ...parameters]
           xmlClient.methodCall(
@@ -116,7 +116,7 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
                         errorData[0].STRING
                       ) {
                         // success
-                        fillResourceforHookConection(username, action, parameters)
+                        fillHookResource && fillResourceforHookConection(username, action, parameters)
                         callback(undefined, errorData[0].STRING)
                       }
                     }
@@ -124,7 +124,12 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
                 )
                 return
               } else if (value && value[0] && value[1]) {
-                const messageCall = value[1]
+                let messageCall
+                if (Array.isArray(value) && value[0] && value[1]) {
+                  messageCall = value[1]
+                } else if (value.length > 0) {
+                  messageCall = value
+                }
                 if (typeof messageCall === 'string' && messageCall.length > 0) {
                   xml2js.parseString(
                     messageCall,
@@ -135,7 +140,7 @@ const opennebulaConnect = (username = '', password = '', path = '') => {
                         return
                       }
                       // success
-                      fillResourceforHookConection(username, action, parameters)
+                      fillHookResource && fillResourceforHookConection(username, action, parameters)
                       callback(
                         undefined,
                         error === null && result === null ? messageCall : result

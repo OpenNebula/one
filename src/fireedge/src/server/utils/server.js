@@ -16,7 +16,7 @@ const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
 // eslint-disable-next-line node/no-deprecated-api
-const { createCipheriv, createCipher, createDecipheriv, createDecipher } = require('crypto')
+const { createCipheriv, createCipher, createDecipheriv, createDecipher, createHash } = require('crypto')
 const { existsSync, readFileSync, createWriteStream } = require('fs-extra')
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
@@ -30,6 +30,7 @@ const {
   defaultVmrcTokens,
   defaultVarPath,
   defaultKeyFilename,
+  defaultSunstoneAuth,
   defaultWebpackMode,
   defaultOpennebulaZones,
   defaultEtcPath,
@@ -228,6 +229,34 @@ const genFireedgeKey = () => {
   }
 }
 
+const getSunstoneAuth = () => {
+  let rtn
+  if (global && global.SUNSTONE_AUTH_PATH) {
+    existsFile(global.SUNSTONE_AUTH_PATH,
+      filedata => {
+        if (filedata) {
+          const serverAdminData = filedata.split(':')
+          const regexReplaceSpaces = /\r|\n/g
+          if (serverAdminData[0] && serverAdminData[1]) {
+            const username = serverAdminData[0].replace(regexReplaceSpaces, '')
+            const password = createHash('sha256').update(serverAdminData[1].replace(regexReplaceSpaces, '')).digest('hex')
+            const key = password.substring(0, 32)
+            const iv = key.substring(0, 16)
+            rtn = { username, key, iv }
+          }
+        }
+      }, err => {
+        const config = {
+          color: 'red',
+          message: 'Error: %s',
+          type: err.message || ''
+        }
+        messageTerminal(config)
+      })
+  }
+  return rtn
+}
+
 const getDataZone = (zone = '0', configuredZones) => {
   let rtn
   const zones = (global && global.zones) || configuredZones || defaultOpennebulaZones
@@ -259,6 +288,9 @@ const genPathResources = () => {
     }
     if (!global.FIREEDGE_LOG) {
       global.FIREEDGE_LOG = `${LOG_LOCATION}/${defaultLogFilename}`
+    }
+    if (!global.SUNSTONE_AUTH_PATH) {
+      global.SUNSTONE_AUTH_PATH = `${VAR_LOCATION}/.one/${defaultSunstoneAuth}`
     }
     if (!global.FIREEDGE_KEY_PATH) {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
@@ -309,6 +341,7 @@ module.exports = {
   decrypt,
   getDataZone,
   existsFile,
+  getSunstoneAuth,
   createFile,
   httpResponse,
   validateServerIsSecure,

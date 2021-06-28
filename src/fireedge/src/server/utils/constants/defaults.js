@@ -15,7 +15,7 @@
 
 const appName = 'fireedge'
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
-const baseUrlWebsockets = 'websockets'
+const baseUrlWebsockets = 'websockets/'
 const apps = {
   flow: {
     name: 'flow',
@@ -31,12 +31,10 @@ const default2FAOpennebulaVar = 'TWO_FACTOR_AUTH_SECRET'
 const defaultIp = 'localhost'
 const protocol = 'http'
 const defaults = {
-  defaultServerAdminID: 1,
   defaultTypeCrypto: 'aes-256-cbc',
   defaultEmptyFunction: () => undefined,
   defaultErrorTemplate: 'ERROR_FIREEDGE="%1$s"',
   defaultOpennebulaExpiration: 180,
-  defaultOpennebulaMinimumExpiration: 30,
   defaultAppName: appName,
   defaultConfigErrorMessage: {
     color: 'red',
@@ -100,6 +98,7 @@ const defaults = {
   defaultEtcPath: '/etc/one',
   defaultLogFilename: `${appName}.log`,
   defaultKeyFilename: `${appName}_key`,
+  defaultSunstoneAuth: 'sunstone_auth',
   defaultVmrcTokens: 'sunstone_vmrc_tokens/',
   defaultBaseURL: '',
   endpointVmrc: `${baseUrl}vmrc`,

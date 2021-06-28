@@ -91,7 +91,8 @@ const auth = (req, res, next, connect) => {
           paramsDefaultByCommandOpennebula(defaultMethodUserInfo, GET),
           (err, value) => {
             responseOpennebula(updaterResponse, err, value, login, next)
-          }
+          },
+          false
         )
       }
     } else {
