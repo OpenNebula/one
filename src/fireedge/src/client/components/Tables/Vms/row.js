@@ -8,28 +8,32 @@ import { StatusCircle } from 'client/components/Status'
 import Multiple from 'client/components/Tables/Vms/multiple'
 import { rowStyles } from 'client/components/Tables/styles'
 
+import * as VirtualMachineModel from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 
-const Row = ({ value, ...props }) => {
+const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
-  const {
-    ID, NAME, UNAME, GNAME, STATE,
-    IPS, STIME, ETIME, HOSTNAME, LOCK
-  } = value
+  const { ID, NAME, UNAME, GNAME, IPS, STIME, ETIME, HOSTNAME = '--', LOCK } = value
 
   const time = Helper.timeFromMilliseconds(+ETIME || +STIME)
   const timeAgo = `${+ETIME ? 'done' : 'started'} ${time.toRelative()}`
 
+  const { color: stateColor, name: stateName } = VirtualMachineModel.getState(original)
+
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
+        <StatusCircle color={stateColor} tooltip={stateName} />
       </div>
       <div className={classes.main}>
-        <Typography className={classes.title} component='span'>
-          {NAME}
-          {LOCK && <Lock size={20} />}
-        </Typography>
+        <div className={classes.title}>
+          <Typography className={classes.titleText} component='span'>
+            {NAME}
+          </Typography>
+          <span className={classes.labels}>
+            {LOCK && <Lock size={20} />}
+          </span>
+        </div>
         <div className={classes.caption}>
           <span title={time.toFormat('ff')}>
             {`#${ID} ${timeAgo}`}
@@ -56,6 +60,7 @@ const Row = ({ value, ...props }) => {
 }
 
 Row.propTypes = {
+  original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func

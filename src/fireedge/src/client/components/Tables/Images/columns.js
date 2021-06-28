@@ -1,3 +1,4 @@
+import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import * as ImageModel from 'client/models/Image'
 
 const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
@@ -10,7 +11,14 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => ImageModel.getState(row)
+    accessor: row => ImageModel.getState(row)?.name,
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'State'
+    }),
+    filter: 'includesValue'
   },
   {
     Header: 'Type',

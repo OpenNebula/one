@@ -49,6 +49,7 @@ module.exports = {
   NotFound: 'Not found',
   None: 'None',
   Empty: 'Empty',
+  NoDataAvailable: 'There is no data available',
 
   /* steps form */
   /* steps form - flow */

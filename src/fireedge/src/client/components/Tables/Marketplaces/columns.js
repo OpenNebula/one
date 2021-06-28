@@ -1,3 +1,4 @@
+import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import * as MarketplaceModel from 'client/models/Datastore'
 
 const getTotalOfResources = resources => [resources?.ID ?? []].flat().length || 0
@@ -10,7 +11,14 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => MarketplaceModel.getState(row)
+    accessor: row => MarketplaceModel.getState(row)?.name,
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'State'
+    }),
+    filter: 'includesValue'
   },
   { Header: 'Market', accessor: 'MARKET_MAD' },
   { Header: 'Total Capacity', accessor: 'TOTAL_MB' },

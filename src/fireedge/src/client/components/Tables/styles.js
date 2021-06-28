@@ -3,17 +3,20 @@ import { makeStyles } from '@material-ui/core'
 export const rowStyles = makeStyles(
   ({ palette, typography, breakpoints }) => ({
     main: {
-      flex: 'auto'
+      flex: 'auto',
+      overflow: 'hidden'
     },
     title: {
       color: palette.text.primary,
       display: 'flex',
-      alignItems: 'center'
+      gap: 6,
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      marginBottom: 8
     },
     labels: {
       display: 'inline-flex',
-      gap: 6,
-      marginLeft: 6
+      gap: 6
     },
     caption: {
       ...typography.caption,

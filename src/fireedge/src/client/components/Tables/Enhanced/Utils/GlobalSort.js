@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, MenuItem, MenuList, Chip } from '@material-ui/core'
@@ -7,24 +7,26 @@ import { SortDown, ArrowDown, ArrowUp } from 'iconoir-react'
 import HeaderPopover from 'client/components/Header/Popover'
 import { T } from 'client/constants'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   root: {
     display: 'flex',
     flexWrap: 'wrap',
     gap: 6,
     alignItems: 'center'
   }
-}))
+})
 
-const GlobalSort = props => {
+const GlobalSort = ({ useTableProps }) => {
   const classes = useStyles()
 
+  React.useEffect(() => () => setSortBy([]), [])
+
   /**
-   * @type {import('react-table').TableInstance &
-   *        import('react-table').UseSortByInstanceProps &
-   *        import('react-table').UseSortByState}
+   * @type {import('react-table').UseSortByInstanceProps &
+   *        import('react-table').TableInstance &
+   * { state: import('react-table').UseSortByState }}
    */
-  const { headers, sortBy, setSortBy } = props
+  const { headers, setSortBy, state: { sortBy } } = useTableProps
 
   const headersNotSorted = React.useMemo(() =>
     headers.filter(({ isSorted, canSort, isVisible }) =>
@@ -95,10 +97,7 @@ const GlobalSort = props => {
 }
 
 GlobalSort.propTypes = {
-  headers: PropTypes.array.isRequired,
-  preSortedRows: PropTypes.array.isRequired,
-  sortBy: PropTypes.array.isRequired,
-  setSortBy: PropTypes.func.isRequired
+  useTableProps: PropTypes.object.isRequired
 }
 
 export default GlobalSort

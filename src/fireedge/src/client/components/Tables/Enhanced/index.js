@@ -1,9 +1,11 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { makeStyles, Box, LinearProgress } from '@material-ui/core'
+import { InfoEmpty } from 'iconoir-react'
+import { Box, LinearProgress, Typography } from '@material-ui/core'
 import {
   useGlobalFilter,
+  useFilters,
   usePagination,
   useRowSelect,
   useSortBy,
@@ -13,63 +15,12 @@ import {
 import SplitPane from 'client/components/SplitPane'
 import Toolbar from 'client/components/Tables/Enhanced/toolbar'
 import Pagination from 'client/components/Tables/Enhanced/pagination'
+import Filters from 'client/components/Tables/Enhanced/filters'
+import DefaultFilter from 'client/components/Table/Filters/DefaultFilter'
+import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
-import { addOpacityToColor } from 'client/utils'
-
-const useStyles = makeStyles(({ palette, typography, breakpoints }) => ({
-  root: {
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column'
-  },
-  body: {
-    overflow: 'auto',
-    display: 'grid',
-    gap: '1em',
-    gridTemplateColumns: '1fr',
-    '& > [role=row]': {
-      padding: '0.8em',
-      cursor: 'pointer',
-      color: palette.text.primary,
-      backgroundColor: palette.background.paper,
-      fontWeight: typography.fontWeightMedium,
-      fontSize: '1em',
-      borderRadius: 6,
-      display: 'flex',
-      gap: 8,
-      '&:hover': {
-        backgroundColor: palette.action.hover
-      },
-      '&.selected': {
-        backgroundColor: addOpacityToColor(palette.secondary.main, 0.2),
-        border: `1px solid ${palette.secondary.main}`
-      }
-    }
-  },
-  toolbar: {
-    ...typography.body1,
-    marginBottom: 16,
-    display: 'flex',
-    gap: '1em',
-    alignItems: 'start',
-    justifyContent: 'space-between',
-    '& > div:first-child': {
-      flexGrow: 1
-    },
-    [breakpoints.down('sm')]: {
-      flexWrap: 'wrap'
-    }
-  },
-  pagination: {
-    flexShrink: 0,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '1em'
-  },
-  loading: {
-    transition: '200ms'
-  }
-}))
+import { Tr } from 'client/components/HOC'
+import { T } from 'client/constants'
 
 const EnhancedTable = ({
   canFetchMore,
@@ -84,10 +35,11 @@ const EnhancedTable = ({
   RowComponent,
   showPageCount
 }) => {
-  const classes = useStyles()
+  const classes = EnhancedTableStyles()
 
   const defaultColumn = React.useMemo(() => ({
-    // Filter: DefaultFilter,
+    Filter: DefaultFilter,
+    disableFilters: true
   }), [])
 
   const sortTypes = React.useMemo(() => ({
@@ -118,6 +70,7 @@ const EnhancedTable = ({
       }
     },
     useGlobalFilter,
+    useFilters,
     useSortBy,
     usePagination,
     useRowSelect
@@ -143,7 +96,7 @@ const EnhancedTable = ({
 
     const canNextPage = pageCount === -1 ? page.length >= pageSize : newPage < pageCount - 1
 
-    newPage > pageIndex && canFetchMore && !canNextPage && fetchMore()
+    newPage > pageIndex && canFetchMore && !canNextPage && fetchMore?.()
   }
 
   return (
@@ -167,30 +120,44 @@ const EnhancedTable = ({
           <LinearProgress size='1em' color='secondary' className={classes.loading} />
         )}
 
-        <div className={classes.body}>
-          {page.map(row => {
-            prepareRow(row)
+        <div className={classes.table}>
+          <Filters useTableProps={useTableProps} />
 
-            /** @type {import('react-table').UseRowSelectRowProps} */
-            const { getRowProps, values, toggleRowSelected, isSelected } = row
-            const { key, ...rowProps } = getRowProps()
+          <div className={classes.body}>
+            {/* NO DATA MESSAGE */}
+            {((!isLoading && data.length === 0) || page?.length === 0) && (
+              <span className={classes.noDataMessage}>
+                <InfoEmpty />
+                {Tr(T.NoDataAvailable)}
+              </span>
+            )}
 
-            return (
-              <RowComponent
-                {...rowProps}
-                key={key}
-                value={values}
-                className={isSelected ? 'selected' : ''}
-                onClick={() => toggleRowSelected(!isSelected)}
-              />
-            )
-          })}
+            {/* DATALIST PER PAGE */}
+            {page.map(row => {
+              prepareRow(row)
+
+              /** @type {import('react-table').UseRowSelectRowProps} */
+              const { getRowProps, original, values, toggleRowSelected, isSelected } = row
+              const { key, ...rowProps } = getRowProps()
+
+              return (
+                <RowComponent
+                  {...rowProps}
+                  key={key}
+                  original={original}
+                  value={values}
+                  className={isSelected ? 'selected' : ''}
+                  onClick={() => toggleRowSelected(!isSelected)}
+                />
+              )
+            })}
+          </div>
         </div>
       </Box>
 
       <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
         {selectedRows?.length === 1 && renderDetail
-          ? renderDetail(selectedRows[0]?.values)
+          ? renderDetail?.(selectedRows[0]?.values)
           : renderAllSelected && (
             <pre>
               <code>

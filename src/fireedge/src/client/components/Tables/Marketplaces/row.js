@@ -9,24 +9,28 @@ import { rowStyles } from 'client/components/Tables/styles'
 
 import * as MarketplaceModel from 'client/models/Datastore'
 
-const Row = ({ value, ...props }) => {
+const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, STATE, MARKET_MAD, TOTAL_APPS } = value
+  const { ID, NAME, UNAME, GNAME, MARKET_MAD, TOTAL_APPS } = value
+
+  const { name: stateName, color: stateColor } = MarketplaceModel.getState(original)
 
   const { percentOfUsed, percentLabel } = MarketplaceModel.getCapacityInfo(value)
 
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
+        <StatusCircle color={stateColor} tooltip={stateName} />
       </div>
       <div className={classes.main}>
-        <Typography className={classes.title} component='span'>
-          {NAME}
+        <div className={classes.title}>
+          <Typography className={classes.titleText} component='span'>
+            {NAME}
+          </Typography>
           <span className={classes.labels}>
             <StatusChip stateColor={'#c6c6c6'} text={MARKET_MAD} />
           </span>
-        </Typography>
+        </div>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
           <span title={`Owner: ${UNAME}`}>
@@ -52,6 +56,7 @@ const Row = ({ value, ...props }) => {
 
 Row.propTypes = {
   value: PropTypes.object,
+  original: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func
 }

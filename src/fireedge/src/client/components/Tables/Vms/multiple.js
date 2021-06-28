@@ -16,20 +16,22 @@ const Multiple = ({ tags, limitTags = 1 }) => {
     <StatusChip key={tag} text={tag} stateColor='#ececec' />
   ))
 
-  return [
-    ...Tags,
-    (more > 0 && (
-      <Tooltip arrow
-        title={tags.map(tag => (
-          <Typography key={tag} variant='subtitle2'>{tag}</Typography>
-        ))}
-      >
-        <span style={{ marginLeft: 6 }}>
-          {`+${more} more`}
-        </span>
-      </Tooltip>
-    ))
-  ]
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+      {Tags}
+      {more > 0 && (
+        <Tooltip arrow
+          title={tags.map(tag => (
+            <Typography key={tag} variant='subtitle2'>{tag}</Typography>
+          ))}
+        >
+          <span style={{ marginLeft: 6 }}>
+            {`+${more} more`}
+          </span>
+        </Tooltip>
+      )}
+    </div>
+  )
 }
 
 Multiple.propTypes = {

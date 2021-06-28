@@ -7,14 +7,15 @@ import { Typography } from '@material-ui/core'
 import { StatusCircle, StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
 
+import * as ImageModel from 'client/models/Image'
 import * as Helper from 'client/models/Helper'
 
-const Row = ({ value, ...props }) => {
+const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const {
-    ID, NAME, UNAME, GNAME, REGTIME,
-    STATE, TYPE, DISK_TYPE, PERSISTENT,
-    LOCK, DATASTORE, VMS, RUNNING_VMS
+    ID, NAME, UNAME, GNAME, REGTIME, TYPE,
+    DISK_TYPE, PERSISTENT, LOCK, DATASTORE,
+    VMS, RUNNING_VMS
   } = value
 
   const usedByVms = [VMS?.ID ?? []].flat().length || 0
@@ -22,24 +23,28 @@ const Row = ({ value, ...props }) => {
   const labels = [...new Set([
     PERSISTENT && 'PERSISTENT', TYPE, DISK_TYPE])].filter(Boolean)
 
+  const { color: stateColor, name: stateName } = ImageModel.getState(original)
+
   const time = Helper.timeFromMilliseconds(+REGTIME)
   const timeAgo = `registered ${time.toRelative()}`
 
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
+        <StatusCircle color={stateColor} tooltip={stateName} />
       </div>
       <div className={classes.main}>
-        <Typography className={classes.title} component='span'>
-          {NAME}
+        <div className={classes.title}>
+          <Typography className={classes.titleText} component='span'>
+            {NAME}
+          </Typography>
           {LOCK && <Lock size={20} />}
           <span className={classes.labels}>
             {labels.map(label => (
               <StatusChip key={label} stateColor={'#c6c6c6'} text={label} />
             ))}
           </span>
-        </Typography>
+        </div>
         <div className={classes.caption}>
           <span title={time.toFormat('ff')}>
             {`#${ID} ${timeAgo}`}
@@ -68,6 +73,7 @@ const Row = ({ value, ...props }) => {
 }
 
 Row.propTypes = {
+  original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func

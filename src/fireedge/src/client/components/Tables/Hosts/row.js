@@ -9,11 +9,11 @@ import { rowStyles } from 'client/components/Tables/styles'
 
 import * as HostModel from 'client/models/Host'
 
-const Row = ({ value, ...props }) => {
+const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const {
-    ID, NAME, IM_MAD, VM_MAD, STATE,
-    RUNNING_VMS, TOTAL_VMS, CLUSTER, TEMPLATE
+    ID, NAME, IM_MAD, VM_MAD, RUNNING_VMS,
+    TOTAL_VMS, CLUSTER, TEMPLATE
   } = value
 
   const {
@@ -23,22 +23,26 @@ const Row = ({ value, ...props }) => {
     percentMemLabel
   } = HostModel.getAllocatedInfo(value)
 
+  const { color: stateColor, name: stateName } = HostModel.getState(original)
+
   const labels = [...new Set([IM_MAD, VM_MAD])]
 
   return (
     <div {...props}>
       <div>
-        <StatusCircle color={STATE?.color} tooltip={STATE?.name} />
+        <StatusCircle color={stateColor} tooltip={stateName} />
       </div>
       <div className={classes.main}>
-        <Typography className={classes.title} component='span'>
-          {TEMPLATE?.NAME ?? NAME}
+        <div className={classes.title}>
+          <Typography className={classes.titleText} noWrap component='span'>
+            {TEMPLATE?.NAME ?? NAME}
+          </Typography>
           <span className={classes.labels}>
             {labels.map(label => (
               <StatusChip key={label} stateColor={'#c6c6c6'} text={label} />
             ))}
           </span>
-        </Typography>
+        </div>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
           <span title={`Cluster: ${CLUSTER}`}>
@@ -60,6 +64,7 @@ const Row = ({ value, ...props }) => {
 }
 
 Row.propTypes = {
+  original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func

@@ -1,3 +1,4 @@
+import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import * as DatastoreModel from 'client/models/Datastore'
 
 export default [
@@ -8,7 +9,14 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => DatastoreModel.getState(row)
+    accessor: row => DatastoreModel.getState(row)?.name,
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'State'
+    }),
+    filter: 'includesValue'
   },
   {
     Header: 'Type',

@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import PropTypes from 'prop-types'
 
 import { makeStyles, fade, debounce, InputBase } from '@material-ui/core'
@@ -14,7 +14,6 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
     },
     width: '100%',
     [breakpoints.up('sm')]: {
-      marginLeft: spacing(1),
       width: 'auto'
     }
   },
@@ -38,14 +37,14 @@ const useStyles = makeStyles(({ spacing, palette, shape, breakpoints }) => ({
   }
 }))
 
-const GlobalFilter = props => {
+const GlobalFilter = ({ useTableProps }) => {
+  const classes = useStyles()
+
   /**
    * @type {import('react-table').UseGlobalFiltersInstanceProps &
-   * import('react-table').UseGlobalFiltersState}
+   * { state: import('react-table').UseGlobalFiltersState }}
    */
-  const { globalFilter, setGlobalFilter } = props
-
-  const classes = useStyles()
+  const { setGlobalFilter, state: { globalFilter } } = useTableProps
 
   const [value, setValue] = React.useState(globalFilter)
 
@@ -77,9 +76,7 @@ const GlobalFilter = props => {
 }
 
 GlobalFilter.propTypes = {
-  preGlobalFilteredRows: PropTypes.array.isRequired,
-  globalFilter: PropTypes.string,
-  setGlobalFilter: PropTypes.func.isRequired
+  useTableProps: PropTypes.object.isRequired
 }
 
 export default GlobalFilter

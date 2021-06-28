@@ -1,3 +1,4 @@
+import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import * as VirtualMachineModel from 'client/models/VirtualMachine'
 
 export default [
@@ -6,7 +7,14 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => VirtualMachineModel.getState(row)
+    accessor: row => VirtualMachineModel.getState(row)?.name,
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'State'
+    }),
+    filter: 'includesValue'
   },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },
@@ -22,6 +30,6 @@ export default [
   {
     Header: 'Hostname',
     id: 'HOSTNAME',
-    accessor: row => VirtualMachineModel.getLastHistory(row)?.HOSTNAME ?? '--'
+    accessor: row => VirtualMachineModel.getLastHistory(row)?.HOSTNAME
   }
 ]

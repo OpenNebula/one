@@ -6,16 +6,18 @@ import { Typography } from '@material-ui/core'
 
 import { rowStyles } from 'client/components/Tables/styles'
 
-const Row = ({ value, ...props }) => {
+const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const { ID, NAME, HOSTS, DATASTORES, VNETS, PROVIDER_NAME } = value
 
   return (
     <div {...props}>
       <div className={classes.main}>
-        <Typography className={classes.title} component='span'>
-          {NAME}
-        </Typography>
+        <div className={classes.title}>
+          <Typography className={classes.titleText} component='span'>
+            {NAME}
+          </Typography>
+        </div>
         <div className={classes.caption}>
           <span>{`#${ID}`}</span>
           <span title={`Total Hosts: ${HOSTS}`}>
@@ -41,6 +43,7 @@ const Row = ({ value, ...props }) => {
 }
 
 Row.propTypes = {
+  original: PropTypes.object,
   value: PropTypes.object,
   isSelected: PropTypes.bool,
   handleClick: PropTypes.func

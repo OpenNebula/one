@@ -1,3 +1,4 @@
+import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import * as MarketplaceAppModel from 'client/models/MarketplaceApp'
 
 export default [
@@ -8,7 +9,14 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => MarketplaceAppModel.getState(row)
+    accessor: row => MarketplaceAppModel.getState(row)?.name,
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'State'
+    }),
+    filter: 'includesValue'
   },
   {
     Header: 'Type',
@@ -17,6 +25,16 @@ export default [
   },
   { Header: 'Size', accessor: 'SIZE' },
   { Header: 'Registration Time', accessor: 'REGTIME' },
-  { Header: 'Marketplace', accessor: 'MARKETPLACE' },
+  {
+    Header: 'Marketplace',
+    accessor: 'MARKETPLACE',
+    disableFilters: false,
+    Filter: ({ column }) => CategoryFilter({
+      column,
+      multiple: true,
+      title: 'Marketplace'
+    }),
+    filter: 'includesValue'
+  },
   { Header: 'Zone ID', accessor: 'ZONE_ID' }
 ]
