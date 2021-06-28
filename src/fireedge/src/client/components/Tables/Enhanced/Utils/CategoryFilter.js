@@ -6,20 +6,6 @@ import { Cancel } from 'iconoir-react'
 
 import { Tr } from 'client/components/HOC'
 
-// FILTER FUNCTION
-export const categoryFilterFn = (accessorOption, rows, columnsId, filterValue) =>
-  rows.filter(row =>
-    columnsId.some(id => {
-      const val = row.values[id][accessorOption] ?? row.values[id]
-
-      return filterValue.includes(val)
-    })
-  )
-
-categoryFilterFn.autoRemove = val => !val || !val.length
-
-// ***************************************************************
-
 const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
   /** @type {import('react-table').UseFiltersInstanceProps} */
   const {
@@ -40,7 +26,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
     })
 
     return [...options.values()]
-  }, [id])
+  }, [id, preFilteredRows])
 
   const handleSelect = value => setFilter(
     multiple ? [...filterValue, value] : value

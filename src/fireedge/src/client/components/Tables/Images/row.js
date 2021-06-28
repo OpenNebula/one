@@ -15,10 +15,8 @@ const Row = ({ original, value, ...props }) => {
   const {
     ID, NAME, UNAME, GNAME, REGTIME, TYPE,
     DISK_TYPE, PERSISTENT, LOCK, DATASTORE,
-    VMS, RUNNING_VMS
+    TOTAL_VMS, RUNNING_VMS
   } = value
-
-  const usedByVms = [VMS?.ID ?? []].flat().length || 0
 
   const labels = [...new Set([
     PERSISTENT && 'PERSISTENT', TYPE, DISK_TYPE])].filter(Boolean)
@@ -61,9 +59,9 @@ const Row = ({ original, value, ...props }) => {
             <Folder size={16} />
             <span>{` ${DATASTORE}`}</span>
           </span>
-          <span title={`Running / Used VMs: ${RUNNING_VMS} / ${usedByVms}`}>
+          <span title={`Running / Used VMs: ${RUNNING_VMS} / ${TOTAL_VMS}`}>
             <ModernTv size={16} />
-            <span>{` ${RUNNING_VMS} / ${usedByVms}`}</span>
+            <span>{` ${RUNNING_VMS} / ${TOTAL_VMS}`}</span>
           </span>
         </div>
       </div>

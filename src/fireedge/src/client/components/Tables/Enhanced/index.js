@@ -37,6 +37,8 @@ const EnhancedTable = ({
 }) => {
   const classes = EnhancedTableStyles()
 
+  const isFetching = isLoading && data === undefined
+
   const defaultColumn = React.useMemo(() => ({
     Filter: DefaultFilter,
     disableFilters: true
@@ -79,6 +81,7 @@ const EnhancedTable = ({
   const {
     getTableProps,
     prepareRow,
+    preFilteredRows,
     rows,
     page,
     gotoPage,
@@ -87,8 +90,8 @@ const EnhancedTable = ({
   } = useTableProps
 
   const selectedRows = React.useMemo(
-    () => rows.filter(row => !!selectedRowIds[row.id]),
-    [rows, selectedRowIds]
+    () => preFilteredRows.filter(row => !!selectedRowIds[row.id]),
+    [preFilteredRows, selectedRowIds]
   )
 
   const handleChangePage = newPage => {
@@ -103,7 +106,7 @@ const EnhancedTable = ({
     <SplitPane>
       <Box {...getTableProps()} className={classes.root}>
         <div className={classes.toolbar}>
-          <Toolbar useTableProps={useTableProps} />
+          {!isFetching && <Toolbar useTableProps={useTableProps} />}
           <div className={classes.pagination}>
             {page?.length > 0 && (
               <Pagination
@@ -121,11 +124,11 @@ const EnhancedTable = ({
         )}
 
         <div className={classes.table}>
-          <Filters useTableProps={useTableProps} />
+          {!isFetching && <Filters useTableProps={useTableProps} />}
 
           <div className={classes.body}>
             {/* NO DATA MESSAGE */}
-            {((!isLoading && data.length === 0) || page?.length === 0) && (
+            {!isFetching && page?.length === 0 && (
               <span className={classes.noDataMessage}>
                 <InfoEmpty />
                 {Tr(T.NoDataAvailable)}
