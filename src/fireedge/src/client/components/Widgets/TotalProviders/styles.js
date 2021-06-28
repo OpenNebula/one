@@ -22,7 +22,8 @@ export default makeStyles(theme => ({
   content: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(125px, 1fr))',
-    gridGap: '2em'
+    gridGap: '2em',
+    padding: '0 2em'
   },
   legendSecondary: {
     fontSize: '0.9rem',
@@ -30,6 +31,9 @@ export default makeStyles(theme => ({
     color: theme.palette.text.secondary
   },
   chart: {
-    height: 200
+    height: 200,
+    [theme.breakpoints.only('xs')]: {
+      display: 'none'
+    }
   }
 }))

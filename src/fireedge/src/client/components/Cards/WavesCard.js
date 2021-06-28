@@ -15,14 +15,24 @@ const useStyles = makeStyles(theme => {
       padding: '2em',
       position: 'relative',
       overflow: 'hidden',
-      backgroundColor: ({ bgColor }) => getBackgroundColor(bgColor, 0.3)
+      backgroundColor: ({ bgColor }) => getBackgroundColor(bgColor, 0.3),
+      [theme.breakpoints.only('xs')]: {
+        display: 'inline-flex',
+        alignItem: 'baseline',
+        gap: '1em'
+      }
     },
     icon: {
       position: 'absolute',
       top: 0,
       right: 0,
+      width: '100%',
+      height: '100%',
+      textAlign: 'end',
       '& > svg': {
-        color: addOpacityToColor(theme.palette.common.white, 0.2)
+        color: addOpacityToColor(theme.palette.common.white, 0.2),
+        height: '100%',
+        width: '30%'
       }
     },
     wave: {
@@ -61,7 +71,7 @@ const WavesCard = React.memo(({ text, value, bgColor, icon: Icon }) => {
       <span className={clsx(classes.wave, classes.wave2)} />
       {Icon && (
         <span className={classes.icon}>
-          <Icon size='9em' />
+          <Icon />
         </span>
       )}
     </Paper>

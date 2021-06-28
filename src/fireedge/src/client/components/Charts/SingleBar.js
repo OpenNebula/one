@@ -5,7 +5,7 @@ import { makeStyles, Tooltip } from '@material-ui/core'
 import { TypographyWithPoint } from 'client/components/Typography'
 import { addOpacityToColor } from 'client/utils'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   legend: {
     display: 'grid',
     gridGap: '1rem',
@@ -19,7 +19,10 @@ const useStyles = makeStyles(() => ({
     backgroundColor: '#616161e0',
     transition: '1s',
     gridTemplateColumns: ({ fragments }) =>
-      fragments?.map(fragment => `${fragment}fr`)?.join(' ')
+      fragments?.map(fragment => `${fragment}fr`)?.join(' '),
+    [theme.breakpoints.only('xs')]: {
+      display: 'none'
+    }
   }
 }))
 
@@ -32,8 +35,8 @@ const SingleBar = ({ legend, data, total }) => {
     <>
       {/* LEGEND */}
       <div className={classes.legend}>
-        {legend?.map(({ name, color }) => (
-          <TypographyWithPoint key={name} pointColor={color}>
+        {legend?.map(({ name, color }, idx) => (
+          <TypographyWithPoint key={name} pointColor={color} data-attr={data[idx]}>
             {name}
           </TypographyWithPoint>
         ))}
@@ -50,7 +53,7 @@ const SingleBar = ({ legend, data, total }) => {
           }
 
           return (
-            <Tooltip arrow key={label} placement="top" title={`${label}: ${value}`}>
+            <Tooltip arrow key={label} placement='top' title={`${label}: ${value}`}>
               <div style={style}></div>
             </Tooltip>
           )

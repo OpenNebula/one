@@ -6,15 +6,25 @@ import {
   Folder as DatastoreIcon,
   NetworkAlt as NetworkIcon
 } from 'iconoir-react'
+import { makeStyles } from '@material-ui/core'
 
-import { useOne } from 'client/features/One'
+import { useProvision } from 'client/features/One'
 import Count from 'client/components/Count'
 import { WavesCard } from 'client/components/Cards'
 import { get } from 'client/utils'
 import { T } from 'client/constants'
 
+const useStyles = makeStyles(({ breakpoints }) => ({
+  root: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gridGap: '2em'
+  }
+}))
+
 const TotalProvisionInfrastructures = () => {
-  const { provisions } = useOne()
+  const classes = useStyles()
+  const provisions = useProvision()
 
   const provisionsByProvider = React.useMemo(() =>
     provisions
@@ -39,11 +49,7 @@ const TotalProvisionInfrastructures = () => {
   return React.useMemo(() => (
     <div
       data-cy='dashboard-widget-total-infrastructures'
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gridGap: '2em'
-      }}
+      className={classes.root}
     >
       <WavesCard
         text={T.Clusters}
