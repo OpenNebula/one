@@ -492,7 +492,7 @@ class EventManager
                 rc_nodes[:successful][id] = true
             elsif h_state == state && h_lcm_state == lcm_state
                 rc_nodes[:successful][id] = false
-            elsif SUBSCRIBE_STATES.include?(vm_state)
+            elsif SUBSCRIBE_STATES.include?(h_state)
                 rc_nodes[:successful][id] = false
             end
 
