@@ -19,13 +19,18 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
 
   // Calculate the options for filtering using the preFilteredRows
   const options = React.useMemo(() => {
-    const options = new Set()
+    const options = {}
 
     preFilteredRows?.forEach(row => {
-      options.add(row.values[id])
+      const value = row.values[id]
+
+      if (!value) return
+
+      const count = options[value[accessorOption] ?? value] || 0
+      options[value[accessorOption] ?? value] = count + 1
     })
 
-    return [...options.values()]
+    return options
   }, [id, preFilteredRows])
 
   const handleSelect = value => setFilter(
@@ -42,7 +47,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
     multiple ? filterValue?.length > 0 : filterValue !== undefined
   ), [filterValue])
 
-  if (options.length === 0) {
+  if (Object.keys(options).length === 0) {
     return null
   }
 
@@ -62,7 +67,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
         </ListSubheader>
       )}
 
-      {options.map((option, i) => {
+      {Object.entries(options).map(([option, count], i) => {
         const value = option[accessorOption] ?? option
 
         const isSelected = multiple
@@ -77,7 +82,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
             }
           >
             <Typography noWrap variant='subtitle2' title={value}>
-              {value}
+              {`${value} (${count})`}
             </Typography>
           </ListItem>
         )
