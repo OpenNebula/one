@@ -92,9 +92,11 @@ define(function(require) {
       if(slaac){
         $('.slaac_true', ar_section).show();
         $('.slaac_false', ar_section).hide();
+        $('input#'+str_ar_tab_id+'_size',ar_section).attr("required", "required");
       }else{
         $('.slaac_true', ar_section).hide();
         $('.slaac_false', ar_section).show();
+        $('input#'+str_ar_tab_id+'_size',ar_section).removeAttr("required");
       }
     });
 
@@ -166,8 +168,11 @@ define(function(require) {
       var field=$(this);
 
       if (field.val() != null && field.val().length){ //if has a length
-        if (field.attr('name') === "SLAAC" && field[0].checked) {
-          data[field.attr('name')] = "on";
+        if (field.attr('name') === "SLAAC") {
+          if (field[0].checked)
+            data[field.attr('name')] = "on";
+          else
+            data[field.attr('name')] = "off";
         } else {
           data[field.attr('name')] = field.val();
         }
