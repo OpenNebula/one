@@ -57,7 +57,8 @@ const defaults = {
     'support',
     'vcenter',
     'zendesk',
-    'provision'
+    'provision',
+    'sunstone'
   ],
   defaultApps: apps,
   httpMethod: {
