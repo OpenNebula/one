@@ -551,8 +551,8 @@ define(function(require) {
           ? monitoringPool.reduce(function(result, monitoringVM) {
             return $.extend(result, { [monitoringVM.ID]: monitoringVM })
           }, {})
-          : {}
-      }
+          : monitoringPool;
+      };
 
       OpenNebulaAction.list(params, VM_MONITORING_CACHE_NAME, 'vm/monitor', process, undefined, false);
     },
@@ -712,7 +712,7 @@ define(function(require) {
       monitoring = cache.data
     }
 
-    if (!monitoring || $.isEmptyObject(monitoring)) {
+    if ($.isEmptyObject(monitoring)) {
       VM.pool_monitor({
         success: function(response) {
           monitoring = response
@@ -820,8 +820,8 @@ define(function(require) {
   }
 
   function getNicsFromMonitoring(element = {}) {
-    let monitoringPool = _getMonitoringPool()
-    let monitoringVM = monitoringPool[element.ID]
+    let monitoringPool = _getMonitoringPool();
+    let monitoringVM = monitoringPool[element.ID] || monitoringPool;
 
     if (!monitoringPool || $.isEmptyObject(monitoringPool) || !monitoringVM) return [];
 
@@ -869,7 +869,7 @@ define(function(require) {
     }).join(options.divider) || options.defaultValue
   };
 
-  // Return a dropdown with all the
+  // Return dropdown with all the IPs
   function ipsDropdown(element, divider) {
     var ipsHtml = this.ipsStr(element, { divider, groupStrFunction: groupByIpsDropdown });
     var ips = ipsHtml.split("<br>");
@@ -918,7 +918,7 @@ define(function(require) {
     return copy_nics.reduce(function(column, nic) {
       if (nic.IP || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
         var identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
-        var ip = nic.IP || nic.IP6 || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+        var ip = nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
         var nicSection = nic.NIC_ID
             ? $("<li/>").append($("<a/>").css("color", "gray").html(nic.NIC_ID + ": " + ip))
             : $("<li/>").append("<li>").html("-") ;
@@ -961,8 +961,8 @@ define(function(require) {
     var identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
 
     return nics.reduce(function(column, nic) {
-      if (nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
-        var ip = nic.IP || nic.IP6 || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL
+      if (nic.IP || nic.IP6 || nic.MAC || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+        var ip = nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL
 
         column.append($("<p/>").css("margin-bottom", 0).html(nic.NIC_ID + ": " + ip))
 
