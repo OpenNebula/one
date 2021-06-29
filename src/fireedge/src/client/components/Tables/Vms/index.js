@@ -23,14 +23,19 @@ const VmsTable = () => {
 
   useEffect(() => {
     const requests = {
-      INIT: () => fetchRequest({ start: INITIAL_ELEMENT, end: -INTERVAL_ON_FIRST_RENDER }),
+      INIT: () => fetchRequest({
+        start: INITIAL_ELEMENT,
+        end: -INTERVAL_ON_FIRST_RENDER,
+        state: -1 // Any state, except DONE
+      }),
       FETCHED: () => {
         const canFetchMore = !error && data?.vms?.length === INTERVAL_ON_FIRST_RENDER
 
         // fetch the rest of VMs, from 0 to last VM ID fetched
         canFetchMore && fetchRequest({
           start: INITIAL_ELEMENT,
-          end: data?.vms[INTERVAL_ON_FIRST_RENDER - 1]?.ID
+          end: data?.vms[INTERVAL_ON_FIRST_RENDER - 1]?.ID,
+          state: -1 // Any state, except DONE
         })
       }
     }
