@@ -676,7 +676,7 @@ define(function(require) {
           ? monitoringPool.reduce(function(result, monitoringVM) {
             return $.extend(result, { [monitoringVM.ID]: monitoringVM });
           }, {})
-          : {};
+          : monitoringPool;
       };
 
       OpenNebulaAction.list(params, VM_MONITORING_CACHE_NAME, "vm/monitor", process, undefined, false);
@@ -887,7 +887,7 @@ define(function(require) {
       monitoring = cache.data;
     }
 
-    if (!monitoring || $.isEmptyObject(monitoring)) {
+    if ($.isEmptyObject(monitoring)) {
       VM.pool_monitor({
         success: function(response) {
           monitoring = response;
@@ -996,7 +996,7 @@ define(function(require) {
 
   function getNicsFromMonitoring(element = {}) {
     let monitoringPool = _getMonitoringPool();
-    let monitoringVM = monitoringPool[element.ID];
+    let monitoringVM = monitoringPool[element.ID] || monitoringPool;
 
     if (!monitoringPool || $.isEmptyObject(monitoringPool) || !monitoringVM) return [];
 
@@ -1043,7 +1043,7 @@ define(function(require) {
     }).join(options.divider) || options.defaultValue;
   };
 
-  // Return a dropdown with all the IPs
+  // Return dropdown with all the IPs
   function ipsDropdown(element, divider) {
     var ipsHtml = this.ipsStr(element, { divider, groupStrFunction: groupByIpsDropdown, forceGroup: true });
     var ips = [];
@@ -1086,13 +1086,15 @@ define(function(require) {
     var non_external_nics = [];
 
     nics.forEach(function(nic, index){
-      var copy_nic = Object.assign({}, nic);
-      if (nic.EXTERNAL_IP){
-        external_nics.push(nic);
-        delete copy_nic.EXTERNAL_IP;
-      }
+      if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL) || nic.MAC){
+        var copy_nic = Object.assign({}, nic);
+        if (nic.EXTERNAL_IP){
+          external_nics.push(nic);
+          delete copy_nic.EXTERNAL_IP;
+        }
       
-      non_external_nics.push(copy_nic);
+        non_external_nics.push(copy_nic);
+      }
     });
 
     return external_nics.concat(non_external_nics);
@@ -1112,17 +1114,17 @@ define(function(require) {
 
     return copy_nics.reduce(function(column, nic) {
       if (first){
-        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
-          var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL) || nic.MAC) {
+          var ip = nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
           nic_and_ip = nic.NIC_ID + ": " + ip;
           if (nic.EXTERNAL_IP)
             nic_and_ip = "<span style='color: gray; font-weight: bold;'>" + nic_and_ip + "</span>"
           column.append(nic_and_ip + "<end_first_ip>");
+          first=false;
         }
-        first=false;
       }
       else{
-        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+        if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL) || nic.MAC) {
           var ip;
           var nicSection = $("<a/>").css("color", "gray");
 
@@ -1131,7 +1133,7 @@ define(function(require) {
             nicSection.css("font-weight", "bold");
           }
           else{
-            ip = nic.IP || nic.IP6 || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
+            ip = nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "&#10;&#13;" + identation + nic.IP6_GLOBAL;
           }
 
           nicSection.html(nic.NIC_ID + ": " + ip);
@@ -1182,7 +1184,7 @@ define(function(require) {
     var identation = "&nbsp;&nbsp;&nbsp;&nbsp;";
 
     return all_nics.reduce(function(column, nic) {
-      if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
+      if (nic.EXTERNAL_IP || nic.IP || nic.IP6 || nic.MAC || (nic.IP6_ULA && nic.IP6_GLOBAL)) {
         var ip;
 
         var nicSection = $("<p/>")
@@ -1194,7 +1196,7 @@ define(function(require) {
           nicSection.css("font-weight","bold");
         }
         else {
-          ip = nic.IP || nic.IP6 || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL;
+          ip = nic.IP || nic.IP6 || nic.MAC || nic.IP6_ULA + "<br>" + identation + nic.IP6_GLOBAL;
         }
 
         nicSection.html(nic.NIC_ID + ": " + ip);
