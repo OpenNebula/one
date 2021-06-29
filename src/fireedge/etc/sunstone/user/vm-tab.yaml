@@ -1,0 +1,151 @@
+# -------------------------------------------------------------------------- #
+# Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
+#                                                                            #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
+# not use this file except in compliance with the License. You may obtain    #
+# a copy of the License at                                                   #
+#                                                                            #
+# http://www.apache.org/licenses/LICENSE-2.0                                 #
+#                                                                            #
+# Unless required by applicable law or agreed to in writing, software        #
+# distributed under the License is distributed on an "AS IS" BASIS,          #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
+# See the License for the specific language governing permissions and        #
+# limitations under the License.                                             #
+#--------------------------------------------------------------------------- #
+
+---
+# This file describes the information and actions available in the VM tab
+
+# Resource
+
+resource_name: "VM"
+
+# Actions - Which buttons are visible to operate over the resources
+
+actions:
+  create_dialog: true
+  rename: true
+  chown: true
+  chgrp: true
+  chmod: true
+  deploy: true
+  migrate: true
+  migrate_live: true
+  migrate_poff: false
+  migrate_poff_hard: false
+  hold: true
+  release: true
+  suspend: true
+  resume: true
+  stop: true
+  recover: true
+  reboot: true
+  reboot_hard: true
+  poweroff: true
+  poweroff_hard: true
+  undeploy: true
+  undeploy_hard: true
+  terminate: true
+  terminate_hard: true
+  resize: true
+  disk_resize: true
+  attachdisk: true # agrupar
+  detachdisk: true
+  disk_saveas: true
+  attachnic: true
+  detachnic: true
+  snapshot_create: true # agrupar
+  snapshot_revert: true
+  snapshot_delete: true
+  disk_snapshot_create: true  # agrupar
+  disk_snapshot_revert: true
+  disk_snapshot_rename: true
+  disk_snapshot_delete: true
+  resched: true
+  unresched: true
+  save_as_template: true
+  updateconf: true
+  lockU: true
+  unlock: true
+  startvnc: true
+  startvmrc: true
+  startspice: true
+  vnc: true
+  ssh: true
+  rdp: true
+  save_rdp: true
+  save_virt_viewer: true
+
+# Filters - List of criteria to filter the resources
+
+filters:
+  labels: true
+  states: true
+
+
+# Info Tabs - Which info tabs are used to show extended information
+
+info-tabs:
+  info:
+    enabled: true
+    information_panel:
+      enabled: true
+
+    permissions_panel:
+      enabled: true
+
+    ownership_panel:
+      enabled: true
+
+    vcenter_information_panel:
+      enabled: true
+      parent: USER_TEMPLATE
+      prefix: VCENTER_
+
+    lxc_information_panel:
+      enabled: true
+
+    general_attributes_panel:
+      enabled: true
+      parent: USER_TEMPLATE
+
+    monitor_panel:
+      enabled: true
+      parent: MONITORING
+
+  capacity:
+    enabled: true
+  storage:
+    enabled: true
+  network:
+    enabled: true
+  snapshot:
+    enabled: true
+    parent: SNAPSHO....
+  placement:
+    enabled: true
+  sched_actions:
+    enabled: true
+    parent: SCHED_ACTIONS
+  configuration:
+    enabled: true
+  log:
+    enabled: true
+
+# Dialogs
+
+dialogs:
+  create_dialog:
+    general: true
+    vcenter:
+      enabled: true
+      hypervisor:
+        - vcenter
+    storage:
+      enabled: true
+    numa:
+      enabled: true
+      hypervisors:
+        - vcenter
+        - kvm

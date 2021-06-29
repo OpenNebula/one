@@ -272,7 +272,11 @@ ETC_DIRS="$ETC_LOCATION/vmm_exec \
           $ETC_LOCATION/cli \
           $ETC_LOCATION/sunstone-views/kvm \
           $ETC_LOCATION/sunstone-views/vcenter \
-          $ETC_LOCATION/sunstone-views/mixed"
+          $ETC_LOCATION/sunstone-views/mixed \
+          $ETC_LOCATION/fireedge \
+          $ETC_LOCATION/fireedge/sunstone \
+          $ETC_LOCATION/fireedge/sunstone/admin \
+          $ETC_LOCATION/fireedge/sunstone/user"
 
 LIB_DIRS="$LIB_LOCATION/ruby \
           $LIB_LOCATION/ruby/opennebula \
@@ -875,11 +879,17 @@ INSTALL_SUNSTONE_ETC_FILES=(
 
 INSTALL_FIREEDGE_FILES=(
   FIREEDGE_MINIFIED_FILES:$FIREEDGE_LOCATION
+  SUNSTONE_ETC_VIEWS:$ETC_LOCATION/fireedge/sunstone
+  SUNSTONE_ETC_VIEWS_ADMIN:$ETC_LOCTION/fireedge/sunstone/admin
+  SUNSTONE_ETC_VIEWS_USER:$ETC_LOCTION/fireedge/sunstone/user
   FIREEDGE_BIN_FILES:$BIN_LOCATION
 )
 
 INSTALL_FIREEDGE_ETC_FILES=(
   FIREEDGE_ETC_FILES:$ETC_LOCATION
+  FIREEDGE_SUNSTONE_ETC:$ETC_LOCATION/fireedge/sunstone
+  FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN:$ETC_LOCATION/fireedge/sunstone/admin
+  FIREEDGE_SUNSTONE_ETC_VIEW_USER:$ETC_LOCATION/fireedge/sunstone/user
  )
 
 INSTALL_FIREEDGE_DEV_DIRS=(
@@ -2816,7 +2826,17 @@ FIREEDGE_MINIFIED_FILES="src/fireedge/dist \
 FIREEDGE_DEV_FILES="src/fireedge/src \
                 src/fireedge/package.json"
 
-FIREEDGE_ETC_FILES="src/fireedge/fireedge-server.conf"
+FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
+
+#----------------------------------------------------------------------------
+# FireEdge Sunstone files
+#----------------------------------------------------------------------------
+
+FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf"
+
+FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml"
+
+FIREEDGE_SUNSTONE_ETC_VIEW_USER="src/fireedge/etc/sunstone/user/vm-tab.yaml"
 
 #-----------------------------------------------------------------------------
 # OneGate files
