@@ -21,7 +21,7 @@ const main = (app = {}, type = '') => {
   const configErrorProvision = (error = '') => {
     return {
       color: 'red',
-      type: error,
+      error,
       message: '%s'
     }
   }

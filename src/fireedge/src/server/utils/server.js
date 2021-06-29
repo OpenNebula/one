@@ -135,7 +135,7 @@ const encrypt = (data = '', key = '', iv = '') => {
       messageTerminal({
         color: 'red',
         message: 'Error: %s',
-        type: errorData
+        error: errorData
       })
     }
   }
@@ -155,7 +155,7 @@ const decrypt = (data = '', key = '', iv = '') => {
       messageTerminal({
         color: 'red',
         message: 'Error: %s',
-        type: errorData
+        error: errorData
       })
     }
   }
@@ -177,7 +177,7 @@ const existsFile = (path = '', success = () => undefined, error = () => undefine
     messageTerminal({
       color: 'red',
       message: 'Error: %s',
-      type: errorData
+      error: errorData
     })
   }
   if (rtn) {
@@ -220,7 +220,7 @@ const genFireedgeKey = () => {
               messageTerminal({
                 color: 'red',
                 message: 'Error: %s',
-                type: (err && err.message) || ''
+                error: (err && err.message) || ''
               })
             })
         }
@@ -258,7 +258,7 @@ const getSunstoneAuth = () => {
         const config = {
           color: 'red',
           message: 'Error: %s',
-          type: err.message || ''
+          error: err.message || ''
         }
         messageTerminal(config)
       })

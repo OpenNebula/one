@@ -38,7 +38,7 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
   logLevel: 'debug',
   pathRewrite: path => path.replace(endpointVmrc, '/ticket'),
   onError: err => {
-    config.type = err.message
+    config.error = err.message
     config.message = 'Error connection : %s'
     messageTerminal(config)
   },
@@ -54,7 +54,7 @@ const vmrcProxy = createProxyMiddleware(endpointVmrc, {
           ).toString()
           return esxi
         } catch (error) {
-          config.type = error.message
+          config.error = error.message
           config.message = 'Error read vmrc token: %s'
           messageTerminal(config)
         }

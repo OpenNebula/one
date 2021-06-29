@@ -25,9 +25,9 @@ import LoadingScreen from 'client/components/LoadingScreen'
 import { fakeDelay } from 'client/utils'
 import { _APPS, TIME_HIDE_LOGO } from 'client/constants'
 
-const APP_NAME = _APPS.flow.name
+const APP_NAME = _APPS.sunstone.name
 
-const FlowApp = () => {
+const SunstoneApp = () => {
   const [firstRender, setFirstRender] = React.useState(() => true)
 
   const { jwt } = useAuth()
@@ -57,6 +57,6 @@ const FlowApp = () => {
   )
 }
 
-FlowApp.displayName = '_FlowApp'
+SunstoneApp.displayName = '_SunstoneApp'
 
-export default FlowApp
+export default SunstoneApp

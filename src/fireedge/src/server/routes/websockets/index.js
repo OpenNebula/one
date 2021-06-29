@@ -55,7 +55,7 @@ const websockets = (appServer = {}) => {
           } catch (error) {
             if (error instanceof Error) {
               const config = defaultConfigErrorMessage
-              config.type = error.message
+              config.error = error.message
               messageTerminal(config)
             }
           }

@@ -36,7 +36,7 @@ const eventsEmitter = new events.EventEmitter()
 const defaultError = (err = '', message = 'Error: %s') => ({
   color: 'red',
   message,
-  type: err
+  error: err || ''
 })
 
 const publish = (eventName = '', message = {}) => {
@@ -124,7 +124,7 @@ const createFolderWithFiles = (path = '', files = [], filename = '') => {
       })
     }
   } catch (error) {
-    messageTerminal(defaultError((error && error.message) || ''))
+    messageTerminal(defaultError(error && error.message))
   }
   return rtn
 }
@@ -140,7 +140,7 @@ const createTemporalFile = (path = '', ext = '', content = '', filename = '') =>
     writeFileSync(file, content)
     rtn = { name, path: file }
   } catch (error) {
-    messageTerminal(defaultError((error && error.message) || ''))
+    messageTerminal(defaultError(error && error.message))
   }
   return rtn
 }
@@ -158,7 +158,7 @@ const createYMLContent = (content = '') => {
     }
     rtn = stringify(doc.contents)
   } catch (error) {
-    messageTerminal(defaultError((error && error.message) || ''))
+    messageTerminal(defaultError(error && error.message))
   }
   return rtn
 }
@@ -168,7 +168,7 @@ const removeFile = (path = '') => {
     try {
       removeSync(path, { force: true })
     } catch (error) {
-      messageTerminal(defaultError((error && error.message) || ''))
+      messageTerminal(defaultError(error && error.message))
     }
   }
 }
@@ -201,7 +201,7 @@ const renameFolder = (path = '', name = '', type = 'replace', callback) => {
         rtn = newPath
       }
     } catch (error) {
-      messageTerminal(defaultError((error && error.message) || ''))
+      messageTerminal(defaultError(error && error.message))
     }
   }
   return rtn
@@ -214,7 +214,7 @@ const moveToFolder = (path = '', relative = '/../') => {
       moveSync(path, `${dirname(path + relative)}/${basename(path)}`)
       rtn = true
     } catch (error) {
-      messageTerminal(defaultError((error && error.message) || ''))
+      messageTerminal(defaultError(error && error.message))
     }
   }
   return rtn
@@ -278,7 +278,7 @@ const executeCommandAsync = (
     })
 
     execute.on('error', error => {
-      messageTerminal(defaultError((error && error.message) || '', 'Error command: %s'))
+      messageTerminal(defaultError(error && error.message, 'Error command: %s'))
     })
 
     execute.on('close', (code) => {
@@ -320,7 +320,7 @@ const findRecursiveFolder = (path = '', finder = '', rtn = false) => {
         }
       })
     } catch (error) {
-      messageTerminal(defaultError((error && error.message) || '', 'Error: %s'))
+      messageTerminal(defaultError(error && error.message))
     }
   }
   return rtn

@@ -27,9 +27,9 @@ import App from 'client/apps/flow/_app'
 import theme from 'client/apps/flow/theme'
 import { _APPS, APP_URL } from 'client/constants'
 
-const APP_NAME = _APPS.flow.name
+const APP_NAME = _APPS.sunstone.name
 
-const Flow = ({ store, location, context }) => (
+const Sunstone = ({ store, location, context }) => (
   <ReduxProvider store={store}>
     <TranslateProvider>
       <MuiProvider theme={theme}>
@@ -51,18 +51,18 @@ const Flow = ({ store, location, context }) => (
   </ReduxProvider>
 )
 
-Flow.propTypes = {
+Sunstone.propTypes = {
   location: PropTypes.string,
   context: PropTypes.shape({}),
   store: PropTypes.shape({})
 }
 
-Flow.defaultProps = {
+Sunstone.defaultProps = {
   location: '',
   context: {},
   store: {}
 }
 
-Flow.displayName = 'FlowApp'
+Sunstone.displayName = 'SunstoneApp'
 
-export default Flow
+export default Sunstone

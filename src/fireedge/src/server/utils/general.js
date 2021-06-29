@@ -13,18 +13,29 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const colors = require('colors')
+// const colors = require('colors')
+const { sprintf } = require('sprintf-js')
 
-const messageTerminal = ({ color, type, error, message }) => {
-  const colorConsole = color || 'red'
-  const typeConsole = type || ''
-  const errorConsole = error || ''
-  const messageConsole = message || 'Message Console '
-  const consoleColor =
-    colorConsole === 'green'
-      ? colors.green(messageConsole)
-      : colors.red(messageConsole)
-  console.log(consoleColor, typeConsole, errorConsole)
+const messageTerminal = (
+  {
+    color = 'red',
+    error = '',
+    message = '%s'
+  }
+) => {
+  let consoleColor = ''
+  switch (color) {
+    case 'green':
+      consoleColor = '\x1b[32m'
+      break
+    case 'yellow':
+      consoleColor = '\x1b[33m'
+      break
+    default:
+      consoleColor = '\x1b[31m'
+      break
+  }
+  console.log(consoleColor, sprintf(message, error))
 }
 
 const addPrintf = (string = '', args = '') => {

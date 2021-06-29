@@ -29,7 +29,7 @@ const getConfig = () => {
       const config = {
         color: 'red',
         message: 'Error: %s',
-        type: err.message || ''
+        error: err.message || ''
       }
       messageTerminal(config)
     })

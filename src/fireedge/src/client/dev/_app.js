@@ -39,7 +39,7 @@ const DevelopmentApp = props => {
   return (
     <>
       {appName === _APPS.provision.name && <ProvisionApp {...props} />}
-      {appName === _APPS.flow.name && <FlowApp {...props} />}
+      {appName === _APPS.sunstone.name && <FlowApp {...props} />}
     </>
   )
 }

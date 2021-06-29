@@ -31,7 +31,7 @@ http.interceptors.response.use(
     if (response.status === httpCodes.unauthorized.id) {
       const configErrorParser = {
         color: 'red',
-        type: response?.data?.message ?? response?.statusText,
+        error: response?.data?.message ?? response?.statusText,
         message: 'Error request: %s'
       }
 

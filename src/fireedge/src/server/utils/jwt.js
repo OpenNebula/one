@@ -70,7 +70,7 @@ const validateAuth = req => {
         messageTerminal({
           color: 'red',
           message: 'invalid: %s',
-          type: messageError
+          error: messageError
         })
       }
     }

@@ -69,7 +69,6 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
     const webpackConfig = require('../../webpack.config.dev.client')
     const compiler = webpack(webpackConfig)
     app.use(webpackDevMiddleware(compiler, {
-      noInfo: true,
       serverSideRender: true,
       publicPath: webpackConfig.output.publicPath,
       stats: {
@@ -86,8 +85,7 @@ if (env && env.NODE_ENV && env.NODE_ENV === defaultWebpackMode) {
     if (error) {
       messageTerminal({
         color: 'red',
-        type: error,
-        message: '%s'
+        error
       })
     }
   }
@@ -106,7 +104,7 @@ if (userLog === defaultTypeLog && global && global.FIREEDGE_LOG) {
     const config = {
       color: 'red',
       message: 'Error: %s',
-      type: err.message || ''
+      error: err.message || ''
     }
     messageTerminal(config)
   }
@@ -157,7 +155,7 @@ appServer.listen(port, host, err => {
   if (!err) {
     config = {
       color: 'green',
-      type: `${host}:${port}`,
+      error: `${host}:${port}`,
       message: 'Server listen in %s'
     }
   }

@@ -25,7 +25,7 @@ genFireedgeKey()
 const configError = (error) => ({
   color: 'red',
   message: 'Error: %s',
-  type: error && error.message
+  error: error && error.message
 })
 
 const clientOptions = {

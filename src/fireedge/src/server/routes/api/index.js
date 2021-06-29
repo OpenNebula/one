@@ -33,7 +33,7 @@ defaultFilesRoutes.map(file => {
   } catch (error) {
     if (error instanceof Error && error.code === 'MODULE_NOT_FOUND') {
       const config = defaultConfigErrorMessage
-      config.type = error.message
+      config.error = error.message
       messageTerminal(config)
     }
   }

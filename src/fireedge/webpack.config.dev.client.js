@@ -1,10 +1,10 @@
 const path = require('path')
 const webpack = require('webpack')
+const TimeFixPlugin = require('time-fix-plugin')
 const { defaultWebpackMode, defaultAppName } = require('./src/server/utils/constants/defaults')
 
 const appName = defaultAppName ? `/${defaultAppName}` : ''
 
-/** @type {import('webpack').Configuration} */
 module.exports = {
   mode: defaultWebpackMode,
   entry: [
@@ -34,14 +34,21 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.js']
+    extensions: ['.js'],
+    alias: {
+      process: 'process/browser'
+    }
   },
   plugins: [
+    new TimeFixPlugin(),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(defaultWebpackMode)
       }
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser'
     })
   ],
   devtool: 'inline-source-map'

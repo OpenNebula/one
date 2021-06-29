@@ -17,9 +17,9 @@ const appName = 'fireedge'
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
 const apps = {
-  flow: {
-    name: 'flow',
-    theme: 'flow',
+  sunstone: {
+    name: 'sunstone',
+    theme: 'sunstone',
     assets: true
   },
   provision: {

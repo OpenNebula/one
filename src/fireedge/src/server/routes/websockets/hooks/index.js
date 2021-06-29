@@ -61,7 +61,7 @@ const main = (app = {}, type = '') => {
                   if (error) {
                     const configErrorParser = {
                       color: 'red',
-                      type: error,
+                      error,
                       message: 'Error parser: %s'
                     }
                     messageTerminal(configErrorParser)
@@ -80,7 +80,7 @@ const main = (app = {}, type = '') => {
   } catch (error) {
     const configErrorHooks = {
       color: 'red',
-      type: error,
+      error,
       message: '%s'
     }
     messageTerminal(configErrorHooks)
