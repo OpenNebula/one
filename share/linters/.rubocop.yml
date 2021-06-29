@@ -556,15 +556,12 @@ Layout/EmptyLinesAroundAttributeAccessor:
 Layout/MultilineOperationIndentation:
     Enabled: false
 
+Layout/LineEndStringConcatenationIndentation:
+    Enabled: false
+
 #######
 # STYLE
 #######
-
-Style/HashConversion:
-    Enabled: false
-
-Style/QuotedSymbols:
-    Enabled: false
 
 Style/OptionalBooleanParameter:
     Enabled: false
@@ -750,6 +747,12 @@ Style/RedundantArgument:
 Style/SwapValues:
   Enabled: true
 
+Style/QuotedSymbols:
+  Enabled: false
+
+Style/HashConversion:
+  Enabled: false
+
 ######
 # LINT
 ######
@@ -931,6 +934,9 @@ Naming/HeredocDelimiterNaming:
     Enabled: false
 
 Naming/MethodParameterName:
+    Enabled: false
+
+Naming/InclusiveLanguage:
     Enabled: false
 
 ###
