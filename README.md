@@ -1,6 +1,6 @@
 # [![OpenNebula Logo](https://opennebula.io/wp-content/uploads/2019/04/img-logo-blue.svg)](https://opennebula.io/)
 
-[![Build Status](https://travis-ci.org/OpenNebula/one.svg?branch=master)](https://travis-ci.org/OpenNebula/one)
+![Smoke Tests](https://github.com/github/docs/actions/workflows/smoke_tests.yml/badge.svg)
 
 ## Description
 
