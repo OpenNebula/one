@@ -4,27 +4,34 @@ import clsx from 'clsx'
 import { Container, Box, Grid } from '@material-ui/core'
 
 import { useAuth } from 'client/features/Auth'
-import { useUserApi, useGroupApi, useImageApi, useVNetworkApi } from 'client/features/One'
+import { useFetchAll } from 'client/hooks'
+import { useVmApi, useUserApi, useImageApi, useVNetworkApi } from 'client/features/One'
+
 import * as Widgets from 'client/components/Widgets'
 import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
 
 function Dashboard () {
+  const { status, fetchRequestAll, STATUS } = useFetchAll()
+  const { INIT, PENDING } = STATUS
+
+  const { getVms } = useVmApi()
   const { getUsers } = useUserApi()
-  const { getGroups } = useGroupApi()
   const { getImages } = useImageApi()
   const { getVNetworks } = useVNetworkApi()
 
   const { settings: { disableanimations } = {} } = useAuth()
   const classes = dashboardStyles({ disableanimations })
 
-  React.useEffect(() => {
-    getUsers()
-    getGroups()
-    getImages()
-    getVNetworks()
-  }, [])
-
   const withoutAnimations = String(disableanimations).toUpperCase() === 'YES'
+
+  React.useEffect(() => {
+    fetchRequestAll([
+      getVms(),
+      getUsers(),
+      getImages(),
+      getVNetworks()
+    ])
+  }, [])
 
   return (
     <Container
@@ -34,7 +41,9 @@ function Dashboard () {
       <Box py={3}>
         <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Widgets.TotalSunstoneResources />
+            <Widgets.TotalSunstoneResources
+              isLoading={[INIT, PENDING].includes(status)}
+            />
           </Grid>
         </Grid>
       </Box>
