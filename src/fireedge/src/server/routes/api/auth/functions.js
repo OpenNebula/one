@@ -17,13 +17,11 @@ const { Map } = require('immutable')
 // eslint-disable-next-line node/no-deprecated-api
 const { parse } = require('url')
 const { global, Array } = require('window-or-global')
-
+const { Actions: ActionUsers } = require('server/utils/constants/commands/user')
+const { Actions: ActionZones } = require('server/utils/constants/commands/zone')
 const {
   httpMethod,
   defaultOpennebulaExpiration,
-  defaultMethodLogin,
-  defaultMethodZones,
-  defaultMethodUserInfo,
   default2FAOpennebulaVar,
   defaultNamespace
 } = require('server/utils/constants/defaults')
@@ -48,7 +46,7 @@ const namespace = appConfig.namespace || defaultNamespace
 
 const { POST } = httpMethod
 
-const getOpennebulaMethod = checkOpennebulaCommand(defaultMethodLogin, POST)
+const getOpennebulaMethod = checkOpennebulaCommand(ActionUsers.USER_LOGIN, POST)
 
 let user = ''
 let key = ''
@@ -209,7 +207,7 @@ const setZones = () => {
     const oneConnect = connectOpennebula()
     const dataSource = dataSourceWithExpirateDate()
     oneConnect(
-      defaultMethodZones,
+      ActionZones.ZONEPOOL_INFO,
       getOpennebulaMethod(dataSource),
       (err, value) => {
         // res, err, value, response, next
@@ -317,7 +315,7 @@ const getServerAdminAndWrapUser = (userData = {}) => {
     const tokenWithServerAdmin = createTokenServerAdmin(serverAdminData.username, serverAdminData.username)
     const oneConnect = connectOpennebula(`${serverAdminData.username}:${serverAdminData.username}`, tokenWithServerAdmin)
     oneConnect(
-      defaultMethodUserInfo,
+      ActionUsers.USER_INFO,
       [-1, false],
       (err, value) => {
         responseOpennebula(
@@ -335,7 +333,7 @@ const getServerAdminAndWrapUser = (userData = {}) => {
 const login = userData => {
   let rtn = false
   if (userData) {
-    const findTextError = `[${namespace + defaultMethodUserInfo}]`
+    const findTextError = `[${namespace}${ActionUsers.USER_INFO}]`
     if (userData.indexOf && userData.indexOf(findTextError) >= 0) {
       updaterResponse(httpResponse(unauthorized))
     } else {

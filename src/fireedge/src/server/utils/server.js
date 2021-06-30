@@ -15,6 +15,7 @@
 const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
+const path = require('path')
 // eslint-disable-next-line node/no-deprecated-api
 const { createCipheriv, createCipher, createDecipheriv, createDecipher, createHash } = require('crypto')
 const { existsSync, readFileSync, createWriteStream } = require('fs-extra')
@@ -35,7 +36,9 @@ const {
   defaultOpennebulaZones,
   defaultEtcPath,
   defaultTypeCrypto,
-  defaultHash
+  defaultHash,
+  defaultSunstoneViews,
+  defaultSunstoneConfig
 } = require('./constants/defaults')
 
 let cert = ''
@@ -300,6 +303,12 @@ const genPathResources = () => {
     }
     if (!global.SUNSTONE_AUTH_PATH) {
       global.SUNSTONE_AUTH_PATH = `${VAR_LOCATION}/.one/${defaultSunstoneAuth}`
+    }
+    if (!global.SUNSTONE_CONFIG) {
+      global.SUNSTONE_CONFIG = `${ETC_LOCATION}/${defaultSunstoneConfig}`
+    }
+    if (!global.SUNSTONE_VIEWS) {
+      global.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstoneViews}`
     }
     if (!global.FIREEDGE_KEY_PATH) {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`

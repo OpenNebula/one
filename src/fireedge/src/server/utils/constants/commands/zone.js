@@ -24,7 +24,7 @@ const ZONE_UPDATE = 'zone.update'
 const ZONE_RENAME = 'zone.rename'
 const ZONE_INFO = 'zone.info'
 const ZONE_RAFTSTATUS = 'zone.raftstatus'
-const ZONE_POOL_INFO = 'zonepool.info'
+const ZONEPOOL_INFO = 'zonepool.info'
 
 const Actions = {
   ZONE_ALLOCATE,
@@ -33,8 +33,8 @@ const Actions = {
   ZONE_RENAME,
   ZONE_INFO,
   ZONE_RAFTSTATUS,
-  ZONE_POOL_INFO
-}
+  ZONEPOOL_INFO
+};
 
 module.exports = {
   Actions,

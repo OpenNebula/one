@@ -14,12 +14,13 @@
 /* -------------------------------------------------------------------------- */
 
 const appName = 'fireedge'
+const appNameSunstone = 'sunstone'
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
 const apps = {
   sunstone: {
-    name: 'sunstone',
-    theme: 'sunstone',
+    name: appNameSunstone,
+    theme: appNameSunstone,
     assets: true
   },
   provision: {
@@ -93,6 +94,8 @@ const defaults = {
   defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultConfigFile: `${appName}-server.conf`,
+  defaultSunstoneViews: `${appNameSunstone}-views.conf`,
+  defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',
   defaultProductionWebpackMode: 'production',
@@ -115,11 +118,6 @@ const defaults = {
   default2FAOpennebulaTmpVar: `TMP_${default2FAOpennebulaVar}`,
   defaultGetMethod: 'info',
   defaultMessageProblemOpennebula: 'Problem with connection or xml parser',
-  defaultMethodLogin: 'user.login',
-  defaultMethodZones: 'zonepool.info',
-  defaultMethodConfig: 'system.config',
-  defaultMethodUserUpdate: 'user.update',
-  defaultMethodUserInfo: 'user.info',
   defaultIP: defaultIp,
   defaultProtocolHotReload: 'http',
   defaultHost: '0.0.0.0',

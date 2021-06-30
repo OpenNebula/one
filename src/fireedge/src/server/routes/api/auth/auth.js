@@ -30,10 +30,9 @@ const {
   updaterResponse
 } = require('./functions')
 const { internalServerError } = require('server/utils/constants/http-codes')
+const { Actions } = require('server/utils/constants/commands/user')
 const {
-  httpMethod,
-  defaultMethodLogin,
-  defaultMethodUserInfo
+  httpMethod
 } = require('server/utils/constants/defaults')
 const {
   paramsDefaultByCommandOpennebula,
@@ -51,7 +50,7 @@ const auth = (req, res, next, connect) => {
     setNext(next)
     updaterResponse(new Map(internalServerError).toObject())
     const getOpennebulaMethod = checkOpennebulaCommand(
-      defaultMethodLogin,
+      Actions.USER_LOGIN,
       POST
     )
     if (getOpennebulaMethod) {
@@ -87,8 +86,8 @@ const auth = (req, res, next, connect) => {
       if (getUser() && getPass()) {
         const oneConnect = connectOpennebula()
         oneConnect(
-          defaultMethodUserInfo,
-          paramsDefaultByCommandOpennebula(defaultMethodUserInfo, GET),
+          Actions.USER_INFO,
+          paramsDefaultByCommandOpennebula(Actions.USER_INFO, GET),
           (err, value) => {
             responseOpennebula(updaterResponse, err, value, login, next)
           },

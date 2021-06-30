@@ -18,10 +18,9 @@ const qrcode = require('qrcode')
 const { Map } = require('immutable')
 const { httpResponse } = require('server/utils/server') // '../../../utils/server'
 const { getConfig } = require('server/utils/yml') // '../../../utils/yml'
+const { Actions } = require('server/utils/constants/commands/user')
 const {
   httpMethod,
-  defaultMethodUserInfo,
-  defaultMethodUserUpdate,
   default2FAIssuer,
   default2FAOpennebulaVar,
   default2FAOpennebulaTmpVar
@@ -56,7 +55,7 @@ const getUserInfoAuthenticated = (connect, userId, callback, next) => {
     typeof connect === 'function' &&
     typeof callback === 'function' &&
     typeof next === 'function' &&
-    defaultMethodUserInfo
+    Actions.USER_INFO
   ) {
     const connectOpennebula = connect()
     const dataUser = {}
@@ -66,11 +65,11 @@ const getUserInfoAuthenticated = (connect, userId, callback, next) => {
     dataUser[fromData.postBody] = {}
     dataUser[fromData.resource].id = userId
     const getOpennebulaMethod = checkOpennebulaCommand(
-      defaultMethodUserInfo,
+      Actions.USER_INFO,
       GET
     )
     connectOpennebula(
-      defaultMethodUserInfo,
+      Actions.USER_INFO,
       getOpennebulaMethod(dataUser),
       (err, value) => {
         responseOpennebula(
@@ -120,11 +119,11 @@ const generateQR = (req, res, next, connect, userId) => {
                 [default2FAOpennebulaVar]
               )
               const getOpennebulaMethod = checkOpennebulaCommand(
-                defaultMethodUserUpdate,
+                Actions.USER_UPDATE,
                 POST
               )
               connectOpennebula(
-                defaultMethodUserUpdate,
+                Actions.USER_UPDATE,
                 getOpennebulaMethod(dataUser),
                 (error, value) => {
                   responseOpennebula(
@@ -191,11 +190,11 @@ const twoFactorSetup = (req, res, next, connect, userId) => {
             [default2FAOpennebulaTmpVar]
           )
           const getOpennebulaMethodUpdate = checkOpennebulaCommand(
-            defaultMethodUserUpdate,
+            Actions.USER_UPDATE,
             POST
           )
           connectOpennebula(
-            defaultMethodUserUpdate,
+            Actions.USER_UPDATE,
             getOpennebulaMethodUpdate(dataUser),
             (err, value) => {
               responseOpennebula(
@@ -244,11 +243,11 @@ const twoFactorDelete = (req, res, next, connect, userId) => {
           [default2FAOpennebulaTmpVar, default2FAOpennebulaVar]
         )
         const getOpennebulaMethodUpdate = checkOpennebulaCommand(
-          defaultMethodUserUpdate,
+          Actions.USER_UPDATE,
           POST
         )
         connectOpennebula(
-          defaultMethodUserUpdate,
+          Actions.USER_UPDATE,
           getOpennebulaMethodUpdate(dataUser),
           (err, value) => {
             responseOpennebula(
