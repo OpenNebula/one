@@ -39,7 +39,6 @@ fi
 DRIVER_PATH=$(dirname $0)
 
 source $TMCOMMON
-source $LIB_LOCATION/sh/scripts_common.sh
 source ${DRIVER_PATH}/../../datastore/libfs.sh
 source ${DRIVER_PATH}/../../etc/tm/fs_lvm/fs_lvm.conf
 source ${DRIVER_PATH}/../../etc/datastore/datastore.conf
