@@ -3017,6 +3017,8 @@ XSD_FILES="share/doc/xsd/acct.xsd \
            share/doc/xsd/marketplace_pool.xsd
            share/doc/xsd/marketplaceapp.xsd
            share/doc/xsd/marketplaceapp_pool.xsd
+           share/doc/xsd/monitoring_data.xsd
+           share/doc/xsd/opennebula_configuration.xsd
            share/doc/xsd/raftstatus.xsd
            share/doc/xsd/security_group.xsd
            share/doc/xsd/security_group_pool.xsd
