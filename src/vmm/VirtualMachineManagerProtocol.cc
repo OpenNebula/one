@@ -858,7 +858,14 @@ void VirtualMachineManager::_resize(unique_ptr<vm_msg_t> msg)
 
 void VirtualMachineManager::_log(unique_ptr<vm_msg_t> msg)
 {
-    NebulaLog::log("VMM", log_type(msg->status()[0]), msg->payload());
+    if (msg->oid() < 0)
+    {
+        NebulaLog::log("VMM", log_type(msg->status()[0]), msg->payload());
+    }
+    else if (auto vm = vmpool->get_ro(msg->oid()))
+    {
+        vm->log("VMM", log_type(msg->status()[0]), msg->payload());
+    }
 }
 
 /* -------------------------------------------------------------------------- */
