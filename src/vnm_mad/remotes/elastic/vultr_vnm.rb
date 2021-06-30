@@ -23,7 +23,7 @@ if !ONE_LOCATION
     GEMS_LOCATION     ||= '/usr/share/one/gems'
 else
     LIB_LOCATION      ||= ONE_LOCATION + '/lib'
-    VULTR_LOCATION    ||= ONE_LOCATION + '/oneprovision/provider_apis/vultr'
+    VULTR_LOCATION    ||= ONE_LOCATION + '/lib/oneprovision/provider_apis/vultr'
     RUBY_LIB_LOCATION ||= ONE_LOCATION + '/lib/ruby'
     GEMS_LOCATION     ||= ONE_LOCATION + '/share/gems'
 end
