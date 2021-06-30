@@ -69,9 +69,9 @@ const useFetch = (request, socket) => {
   }, [])
 
   const doFetch = useCallback(async (payload, reload = false) => {
-    !cancelRequest.current && dispatch({ type: ACTIONS.REQUEST, reload })
-
     try {
+      dispatch({ type: ACTIONS.REQUEST, reload })
+
       const response = await request(payload)
 
       if (response === undefined) throw response
@@ -85,7 +85,7 @@ const useFetch = (request, socket) => {
 
       dispatch({ type: ACTIONS.FAILURE, payload: errorMessage })
     }
-  }, [request])
+  }, [request, cancelRequest.current, dispatch])
 
   const fetchRequest = useCallback((payload, options = {}) => {
     const { reload = false, delay = 0 } = options
@@ -99,6 +99,7 @@ const useFetch = (request, socket) => {
     fakeDelay(delay).then(() => doFetch(payload, reload))
   }, [request])
 
-  return { ...state, fetchRequest }
+  return { ...state, fetchRequest, STATUS, ACTIONS, INITIAL_STATE }
 }
+
 export default useFetch

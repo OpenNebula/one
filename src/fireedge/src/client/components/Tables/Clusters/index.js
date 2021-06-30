@@ -15,11 +15,12 @@ const ClustersTable = () => {
   const { getClusters } = useClusterApi()
   const { filterPool } = useAuth()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getClusters)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getClusters)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [filterPool])
 
-  if (clusters?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (clusters?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

@@ -16,11 +16,12 @@ const ImagesTable = () => {
   const { getImages } = useImageApi()
   const { filterPool } = useAuth()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getImages)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getImages)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [filterPool])
 
-  if (images?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (images?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

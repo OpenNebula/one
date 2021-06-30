@@ -13,11 +13,12 @@ const UsersTable = () => {
   const users = useUser()
   const { getUsers } = useUserApi()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getUsers)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getUsers)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [])
 
-  if (users?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (users?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

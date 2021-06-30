@@ -16,11 +16,12 @@ const HostsTable = () => {
   const { getHosts } = useHostApi()
   const { filterPool } = useAuth()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getHosts)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getHosts)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [filterPool])
 
-  if (hosts?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (hosts?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

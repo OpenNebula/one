@@ -7,6 +7,7 @@ export default makeStyles(theme => ({
   // -------------------------------
   drawerPaper: {
     backgroundColor: theme.palette.background.paper,
+    boxShadow: theme.shadows[1],
     border: 'none',
     width: 0,
     visibility: 'hidden',

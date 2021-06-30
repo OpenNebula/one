@@ -191,7 +191,8 @@ EnhancedTable.propTypes = {
   renderDetail: PropTypes.func,
   RowComponent: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.node),
-    PropTypes.node
+    PropTypes.node,
+    PropTypes.func
   ]),
   showPageCount: PropTypes.bool
 }

@@ -19,7 +19,8 @@ const VmsTable = () => {
   const { getVms } = useVmApi()
   const { filterPool } = useAuth()
 
-  const { status, data, fetchRequest, loading, reloading, error } = useFetch(getVms)
+  const { status, data, fetchRequest, loading, reloading, error, STATUS } = useFetch(getVms)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => {
     const requests = {
@@ -43,7 +44,7 @@ const VmsTable = () => {
     requests[status]?.()
   }, [filterPool, status, data])
 
-  if (vms?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (vms?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

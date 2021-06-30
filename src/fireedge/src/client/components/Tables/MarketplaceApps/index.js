@@ -15,11 +15,12 @@ const MarketplaceAppsTable = () => {
   const { getMarketplaceApps } = useMarketplaceAppApi()
   const { filterPool } = useAuth()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getMarketplaceApps)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getMarketplaceApps)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [filterPool])
 
-  if (marketplaceApps?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (marketplaceApps?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

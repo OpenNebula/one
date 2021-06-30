@@ -13,11 +13,12 @@ const GroupsTable = () => {
   const groups = useGroup()
   const { getGroups } = useGroupApi()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getGroups)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getGroups)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [])
 
-  if (groups?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (groups?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

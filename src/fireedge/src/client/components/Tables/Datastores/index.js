@@ -15,11 +15,12 @@ const DatastoresTable = () => {
   const { getDatastores } = useDatastoreApi()
   const { filterPool } = useAuth()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getDatastores)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getDatastores)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [filterPool])
 
-  if (datastores?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (datastores?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

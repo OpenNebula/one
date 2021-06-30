@@ -14,11 +14,12 @@ const VmTemplatesTable = () => {
   const vmTemplates = useVmTemplate()
   const { getVmTemplates } = useVmTemplateApi()
 
-  const { status, fetchRequest, loading, reloading } = useFetch(getVmTemplates)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getVmTemplates)
+  const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [])
 
-  if (vmTemplates?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+  if (vmTemplates?.length === 0 && [INIT, PENDING].includes(status)) {
     return <SkeletonTable />
   }
 

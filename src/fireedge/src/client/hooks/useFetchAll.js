@@ -24,11 +24,13 @@ const INITIAL_STATE = {
 
 const fetchReducer = (state, action) => {
   const { type, payload, reload = false } = action
+  const { data: currentData } = state
 
   return {
     [ACTIONS.REQUEST]: {
       ...INITIAL_STATE,
       status: STATUS.PENDING,
+      data: currentData,
       [reload ? 'reloading' : 'loading']: true
     },
     [ACTIONS.SUCCESS]: {
@@ -39,6 +41,7 @@ const fetchReducer = (state, action) => {
     [ACTIONS.FAILURE]: {
       ...INITIAL_STATE,
       status: STATUS.ERROR,
+      data: currentData,
       error: payload
     }
   }[type] ?? state
@@ -48,17 +51,15 @@ const useFetchAll = () => {
   const cancelRequest = useRef(false)
   const [state, dispatch] = useReducer(fetchReducer, INITIAL_STATE)
 
-  useEffect(() => {
-    return () => {
-      cancelRequest.current = true
-    }
+  useEffect(() => () => {
+    cancelRequest.current = true
   }, [])
 
-  const doFetches = useCallback(async (requests, reload = false) => {
-    dispatch({ type: ACTIONS.REQUEST, reload })
-
+  const doFetches = async (requests, reload = false) => {
     try {
-      const response = Promise.all(requests)
+      dispatch({ type: ACTIONS.REQUEST, reload })
+
+      const response = await Promise.all(requests)
 
       if (response === undefined) throw response
       if (cancelRequest.current) return
@@ -71,9 +72,9 @@ const useFetchAll = () => {
 
       dispatch({ type: ACTIONS.FAILURE, payload: errorMessage })
     }
-  }, [])
+  }
 
-  const fetchRequest = useCallback((requests, options = {}) => {
+  const fetchRequestAll = useCallback((requests, options = {}) => {
     const { reload = false, delay = 0 } = options
 
     if (!(Number.isInteger(delay) && delay >= 0)) {
@@ -85,6 +86,7 @@ const useFetchAll = () => {
     fakeDelay(delay).then(() => doFetches(requests, reload))
   }, [])
 
-  return { ...state, fetchRequest }
+  return { ...state, fetchRequestAll, STATUS, ACTIONS, INITIAL_STATE }
 }
+
 export default useFetchAll
