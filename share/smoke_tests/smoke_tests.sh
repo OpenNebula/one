@@ -35,7 +35,7 @@ check_test() {
     return $RC
 }
 
-for smoke_test in .travis/tests/*.sh; do
+for smoke_test in share/smoke_tests/tests/*.sh; do
   check_test "$smoke_test" || break
 done
 
