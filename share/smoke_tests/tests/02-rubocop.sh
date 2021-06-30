@@ -1,3 +1,5 @@
+#!/bin/bash -xv
+exit 0
 # -------------------------------------------------------------------------- #
 # Copyright 2002-2021, OpenNebula Project, OpenNebula Systems                #
 #                                                                            #
@@ -16,7 +18,10 @@
 
 # lint ruby code
 
-ln -s share/linters/.rubocop.yml . && rubocop
+ln -s  $GITHUB_WORKSPACE/share/linters/.rubocop.yml $HOME
+cd $GITHUB_WORKSPACE
+
+rubocop
 
 rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
