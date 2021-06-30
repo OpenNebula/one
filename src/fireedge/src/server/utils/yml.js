@@ -20,8 +20,12 @@ const { existsFile } = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
 
 const getConfig = () => {
+  const path = env && env.NODE_ENV === defaultWebpackMode
+    ? `${__dirname}/../../../etc/${defaultConfigFile}`
+    : global.FIREEDGE_CONFIG
+
   let rtn = {}
-  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../../${defaultConfigFile}` : global.FIREEDGE_CONFIG
+
   if (path) {
     existsFile(path, filedata => {
       rtn = parse(filedata)
