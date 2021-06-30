@@ -46,7 +46,7 @@ const GlobalFilter = ({ useTableProps }) => {
    */
   const { setGlobalFilter, state: { globalFilter } } = useTableProps
 
-  const [value, setValue] = React.useState(globalFilter)
+  const [value, setValue] = React.useState(() => globalFilter)
 
   const handleChange = React.useCallback(
     // Set undefined to remove the filter entirely

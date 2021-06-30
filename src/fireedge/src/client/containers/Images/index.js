@@ -1,22 +1,21 @@
 import * as React from 'react'
 
-import { styled, Container as MContainer, Box } from '@material-ui/core'
+import { Container, Box } from '@material-ui/core'
 
 import * as Tables from 'client/components/Tables'
 
-const Container = styled(MContainer)`
-  display: flex;
-  flexDirection: column;
-  height: 100%
-`
-
 function Images () {
   return (
-    <Container disableGutters>
-      <Box py={2} overflow='auto'>
-        <Tables.ImagesTable />
-      </Box>
-    </Container>
+    <Box
+      height={1}
+      py={2}
+      overflow='auto'
+      display='flex'
+      flexDirection='column'
+      component={Container}
+    >
+      <Tables.ImagesTable />
+    </Box>
   )
 }
 

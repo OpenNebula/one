@@ -15,7 +15,7 @@ const MarketplacesTable = () => {
   const { getMarketplaces } = useMarketplaceApi()
   const { filterPool } = useAuth()
 
-  const { fetchRequest, loading, reloading, STATUS } = useFetch(getMarketplaces)
+  const { status, fetchRequest, loading, reloading, STATUS } = useFetch(getMarketplaces)
   const { INIT, PENDING } = STATUS
 
   useEffect(() => { fetchRequest() }, [filterPool])
