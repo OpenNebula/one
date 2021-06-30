@@ -4,7 +4,7 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useVm, useVmApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
 import VmDetail from 'client/components/Tables/Vms/detail'
@@ -42,6 +42,10 @@ const VmsTable = () => {
 
     requests[status]?.()
   }, [filterPool, status, data])
+
+  if (vms?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

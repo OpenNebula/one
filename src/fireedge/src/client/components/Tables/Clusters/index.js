@@ -4,7 +4,7 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useCluster, useClusterApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import ClusterColumns from 'client/components/Tables/Clusters/columns'
 import ClusterRow from 'client/components/Tables/Clusters/row'
 
@@ -15,9 +15,13 @@ const ClustersTable = () => {
   const { getClusters } = useClusterApi()
   const { filterPool } = useAuth()
 
-  const { fetchRequest, loading, reloading } = useFetch(getClusters)
+  const { status, fetchRequest, loading, reloading } = useFetch(getClusters)
 
   useEffect(() => { fetchRequest() }, [filterPool])
+
+  if (clusters?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

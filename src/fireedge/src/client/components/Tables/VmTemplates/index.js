@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useFetch } from 'client/hooks'
 import { useVmTemplate, useVmTemplateApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import VmTemplateColumns from 'client/components/Tables/VmTemplates/columns'
 import VmTemplateRow from 'client/components/Tables/VmTemplates/row'
 import VmTemplateDetail from 'client/components/Tables/VmTemplates/detail'
@@ -14,9 +14,13 @@ const VmTemplatesTable = () => {
   const vmTemplates = useVmTemplate()
   const { getVmTemplates } = useVmTemplateApi()
 
-  const { fetchRequest, loading, reloading } = useFetch(getVmTemplates)
+  const { status, fetchRequest, loading, reloading } = useFetch(getVmTemplates)
 
   useEffect(() => { fetchRequest() }, [])
+
+  if (vmTemplates?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

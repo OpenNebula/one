@@ -4,7 +4,7 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useImage, useImageApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import ImageColumns from 'client/components/Tables/Images/columns'
 import ImageRow from 'client/components/Tables/Images/row'
 import ImageDetail from 'client/components/Tables/Images/detail'
@@ -16,9 +16,13 @@ const ImagesTable = () => {
   const { getImages } = useImageApi()
   const { filterPool } = useAuth()
 
-  const { fetchRequest, loading, reloading } = useFetch(getImages)
+  const { status, fetchRequest, loading, reloading } = useFetch(getImages)
 
   useEffect(() => { fetchRequest() }, [filterPool])
+
+  if (images?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

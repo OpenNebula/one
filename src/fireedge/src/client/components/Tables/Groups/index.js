@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useFetch } from 'client/hooks'
 import { useGroup, useGroupApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import GroupColumns from 'client/components/Tables/Groups/columns'
 import GroupRow from 'client/components/Tables/Groups/row'
 
@@ -13,9 +13,13 @@ const GroupsTable = () => {
   const groups = useGroup()
   const { getGroups } = useGroupApi()
 
-  const { fetchRequest, loading, reloading } = useFetch(getGroups)
+  const { status, fetchRequest, loading, reloading } = useFetch(getGroups)
 
   useEffect(() => { fetchRequest() }, [])
+
+  if (groups?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

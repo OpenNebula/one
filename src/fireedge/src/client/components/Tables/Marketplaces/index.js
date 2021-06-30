@@ -4,7 +4,7 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useMarketplace, useMarketplaceApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import MarketplaceColumns from 'client/components/Tables/Marketplaces/columns'
 import MarketplaceRow from 'client/components/Tables/Marketplaces/row'
 
@@ -18,6 +18,10 @@ const MarketplacesTable = () => {
   const { fetchRequest, loading, reloading } = useFetch(getMarketplaces)
 
   useEffect(() => { fetchRequest() }, [filterPool])
+
+  if (marketplaces?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

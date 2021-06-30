@@ -33,4 +33,4 @@ const MARKETPLACE_APP_STATES = [
 
 export const getType = ({ TYPE = 0 } = {}) => MARKETPLACE_APP_TYPES[+TYPE]
 
-export const getState = ({ STATE } = {}) => MARKETPLACE_APP_STATES[+STATE]
+export const getState = ({ STATE = 0 } = {}) => MARKETPLACE_APP_STATES[+STATE]

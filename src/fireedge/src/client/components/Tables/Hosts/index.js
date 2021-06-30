@@ -4,7 +4,7 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useHost, useHostApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import HostColumns from 'client/components/Tables/Hosts/columns'
 import HostRow from 'client/components/Tables/Hosts/row'
 import HostDetail from 'client/components/Tables/Hosts/detail'
@@ -16,9 +16,13 @@ const HostsTable = () => {
   const { getHosts } = useHostApi()
   const { filterPool } = useAuth()
 
-  const { fetchRequest, loading, reloading } = useFetch(getHosts)
+  const { status, fetchRequest, loading, reloading } = useFetch(getHosts)
 
   useEffect(() => { fetchRequest() }, [filterPool])
+
+  if (hosts?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

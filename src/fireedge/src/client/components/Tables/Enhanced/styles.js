@@ -23,6 +23,7 @@ export default makeStyles(({ palette, typography, breakpoints }) => ({
     flexShrink: 0,
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'end',
     gap: '1em'
   },
   loading: {

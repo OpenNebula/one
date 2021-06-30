@@ -4,7 +4,7 @@ import { useAuth } from 'client/features/Auth'
 import { useFetch } from 'client/hooks'
 import { useDatastore, useDatastoreApi } from 'client/features/One'
 
-import { EnhancedTable } from 'client/components/Tables'
+import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
 import DatastoreColumns from 'client/components/Tables/Datastores/columns'
 import DatastoreRow from 'client/components/Tables/Datastores/row'
 
@@ -15,9 +15,13 @@ const DatastoresTable = () => {
   const { getDatastores } = useDatastoreApi()
   const { filterPool } = useAuth()
 
-  const { fetchRequest, loading, reloading } = useFetch(getDatastores)
+  const { status, fetchRequest, loading, reloading } = useFetch(getDatastores)
 
   useEffect(() => { fetchRequest() }, [filterPool])
+
+  if (datastores?.length === 0 && ['INIT', 'PENDING'].includes(status)) {
+    return <SkeletonTable />
+  }
 
   return (
     <EnhancedTable

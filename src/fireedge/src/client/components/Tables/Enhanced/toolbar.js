@@ -18,9 +18,13 @@ const Toolbar = ({ useTableProps }) => {
   const classes = useToolbarStyles()
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
 
+  if (isMobile) {
+    return null
+  }
+
   return (
     <div className={classes.root}>
-      {!isMobile && <GlobalSort useTableProps={useTableProps} />}
+      <GlobalSort useTableProps={useTableProps} />
     </div>
   )
 }
