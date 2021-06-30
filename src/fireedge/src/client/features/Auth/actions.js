@@ -1,11 +1,12 @@
 import { createAsyncThunk, createAction } from '@reduxjs/toolkit'
 
-import { T, JWT_NAME, ONEADMIN_ID, FILTER_POOL } from 'client/constants'
 import { authService } from 'client/features/Auth/services'
 import { userService } from 'client/features/One/user/services'
 import { getGroups } from 'client/features/One/group/actions'
 import { dismissSnackbar } from 'client/features/General/actions'
 
+import { httpCodes } from 'server/utils/constants'
+import { T, JWT_NAME, ONEADMIN_ID, FILTER_POOL } from 'client/constants'
 import { storage, removeStoreData } from 'client/utils'
 
 const login = createAsyncThunk(
@@ -28,7 +29,11 @@ const login = createAsyncThunk(
         isLoginInProgress: !!token && !isOneAdmin
       }
     } catch (error) {
-      return rejectWithValue({ error })
+      const { data, status, statusText } = error
+
+      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
+
+      return rejectWithValue({ error: data?.message ?? statusText })
     }
   }
 )
@@ -95,7 +100,11 @@ const changeGroup = createAsyncThunk(
         }
       }
     } catch (error) {
-      return rejectWithValue({ error })
+      const { data, status, statusText } = error
+
+      status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
+
+      return rejectWithValue({ error: data?.message ?? statusText })
     }
   }
 )
