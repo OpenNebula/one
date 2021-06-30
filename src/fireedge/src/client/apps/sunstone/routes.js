@@ -1,17 +1,29 @@
 import {
   ReportColumns as DashboardIcon,
   Settings as SettingsIcon,
+
   Cell4x4 as InstancesIcons,
-  User as UserIcon,
+  ModernTv as VmsIcons,
+
+  Archive as TemplatesIcon,
+  GoogleDocs as TemplateIcon,
+
+  Box as StorageIcon,
+  Db as DatastoreIcon,
+  BoxIso as ImageIcon,
   SimpleCart as MarketplaceIcon,
   CloudDownload as MarketplaceAppIcon,
-  EmptyPage as TemplateIcon,
+
+  NetworkAlt as NetworkIcon,
+
+  CloudSync as InfrastructureIcon,
   Server as ClusterIcon,
   HardDrive as HostIcon,
-  Folder as DatastoreIcon,
-  Group as GroupIcon,
-  Archive as ImageIcon,
-  NetworkAlt as NetworkIcon
+
+  Home as SystemIcon,
+  User as UserIcon,
+  Group as GroupIcon
+
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
@@ -116,12 +128,13 @@ export const ENDPOINTS = [
   {
     label: 'Instances',
     sidebar: true,
+    icon: InstancesIcons,
     routes: [
       {
         label: 'VMs',
         path: PATH.INSTANCE.VMS.LIST,
         sidebar: true,
-        icon: InstancesIcons,
+        icon: VmsIcons,
         Component: VirtualMachines
       }
     ]
@@ -129,6 +142,7 @@ export const ENDPOINTS = [
   {
     label: 'Templates',
     sidebar: true,
+    icon: TemplatesIcon,
     routes: [
       {
         label: 'VMs',
@@ -142,6 +156,7 @@ export const ENDPOINTS = [
   {
     label: 'Storage',
     sidebar: true,
+    icon: StorageIcon,
     routes: [
       {
         label: 'Datastores',
@@ -176,6 +191,7 @@ export const ENDPOINTS = [
   {
     label: 'Infrastructure',
     sidebar: true,
+    icon: InfrastructureIcon,
     routes: [
       {
         label: 'Clusters',
@@ -196,6 +212,7 @@ export const ENDPOINTS = [
   {
     label: 'System',
     sidebar: true,
+    icon: SystemIcon,
     routes: [
       {
         label: 'Users',
