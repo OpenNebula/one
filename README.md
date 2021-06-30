@@ -1,7 +1,7 @@
 
 # OpenNebula
 
-![Smoke Tests](https://github.com/github/docs/actions/workflows/smoke_tests.yml/badge.svg)
+![Smoke Tests](https://github.com/OpenNebula/one-ee/actions/workflows/smoke_tests.yml/badge.svg)
 
 ## Description
 
