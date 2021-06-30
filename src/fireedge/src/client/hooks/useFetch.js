@@ -69,7 +69,7 @@ const useFetch = (request, socket) => {
   }, [])
 
   const doFetch = useCallback(async (payload, reload = false) => {
-    dispatch({ type: ACTIONS.REQUEST, reload })
+    !cancelRequest.current && dispatch({ type: ACTIONS.REQUEST, reload })
 
     try {
       const response = await request(payload)

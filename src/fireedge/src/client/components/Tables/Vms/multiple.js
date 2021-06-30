@@ -17,7 +17,11 @@ const Multiple = ({ tags, limitTags = 1 }) => {
   ))
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+    <div style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'end'
+    }}>
       {Tags}
       {more > 0 && (
         <Tooltip arrow

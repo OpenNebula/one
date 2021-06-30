@@ -29,8 +29,7 @@ export const PATH = {
     CREATE: '/provisions/create',
     EDIT: '/provisions/edit/:id'
   },
-  SETTINGS: '/settings',
-  TEST_API: '/test-api'
+  SETTINGS: '/settings'
 }
 
 export const ENDPOINTS = [

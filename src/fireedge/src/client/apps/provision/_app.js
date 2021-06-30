@@ -28,7 +28,7 @@ import { _APPS } from 'client/constants'
 const APP_NAME = _APPS.provision.name
 
 const ProvisionApp = () => {
-  const { jwt, firstRender } = useAuth()
+  const { isLogged, jwt, firstRender } = useAuth()
   const { getAuthUser, logout } = useAuthApi()
 
   const provisionTemplate = useProvisionTemplate()
@@ -39,6 +39,7 @@ const ProvisionApp = () => {
     (async () => {
       try {
         if (jwt) {
+          changeTitle(APP_NAME)
           getAuthUser()
           !provisionTemplate?.length && await getProvisionsTemplates()
         }
@@ -48,15 +49,11 @@ const ProvisionApp = () => {
     })()
   }, [jwt])
 
-  React.useEffect(() => {
-    changeTitle(APP_NAME)
-  }, [])
-
   if (jwt && firstRender) {
     return <LoadingScreen />
   }
 
-  return <Router routes={routes} />
+  return <Router isLogged={isLogged} routes={routes} />
 }
 
 ProvisionApp.displayName = '_ProvisionApp'

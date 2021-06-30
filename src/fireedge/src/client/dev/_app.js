@@ -15,7 +15,7 @@
 
 import * as React from 'react'
 
-import FlowApp from 'client/apps/flow'
+import SunstoneApp from 'client/apps/sunstone'
 import ProvisionApp from 'client/apps/provision'
 
 import { isDevelopment, isBackend } from 'client/utils'
@@ -39,7 +39,7 @@ const DevelopmentApp = props => {
   return (
     <>
       {appName === _APPS.provision.name && <ProvisionApp {...props} />}
-      {appName === _APPS.sunstone.name && <FlowApp {...props} />}
+      {appName === _APPS.sunstone.name && <SunstoneApp {...props} />}
     </>
   )
 }

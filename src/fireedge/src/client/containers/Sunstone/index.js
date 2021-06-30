@@ -58,9 +58,9 @@ const Newstone = () => {
           <Route exact path={TABS.hosts} component={Tables.HostsTable} />
           <Route exact path={TABS.images} component={Tables.ImagesTable} />
           <Route exact path={TABS.marketplaces} component={Tables.MarketplacesTable} />
-          <Route exact path={TABS.vms} component={Tables.VmsTable} />
+          <Route exact path={PATH.INSTANCES_VMS} component={Tables.VmsTable} />
 
-          <Route component={() => <Redirect to={TABS.vms} />} />
+          <Route component={() => <Redirect to={PATH.INSTANCES_VMS} />} />
         </Switch>
       </Box>
     </Container>

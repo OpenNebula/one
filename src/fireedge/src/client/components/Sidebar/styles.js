@@ -36,11 +36,11 @@ export default makeStyles(theme => ({
         '& #logo__text': {
           visibility: 'hidden'
         },
-        '& $menu': {
-          overflowY: 'hidden'
-        },
         '& $expandIcon, & $subItemWrapper': {
           display: 'none'
+        },
+        '& $itemText::before': {
+          content: 'attr(data-min-label)'
         }
       }
     }
@@ -62,6 +62,9 @@ export default makeStyles(theme => ({
       },
       '& $expandIcon, & $subItemWrapper': {
         display: 'block !important'
+      },
+      '& $itemText::before': {
+        content: 'attr(data-max-label) !important'
       }
     }
   },
@@ -113,6 +116,14 @@ export default makeStyles(theme => ({
   },
   list: {
     color: theme.palette.text.primary
+  },
+  itemText: {
+    '&::before': {
+      ...theme.typography.body1,
+      display: 'block',
+      minWidth: 100,
+      content: 'attr(data-max-label)'
+    }
   },
   expandIcon: {},
   subItemWrapper: {},

@@ -16,45 +16,37 @@
 import * as React from 'react'
 
 import Router from 'client/router'
-import routes from 'client/apps/flow/routes'
+import routes from 'client/apps/sunstone/routes'
 
 import { useGeneralApi } from 'client/features/General'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 
 import LoadingScreen from 'client/components/LoadingScreen'
-import { fakeDelay } from 'client/utils'
-import { _APPS, TIME_HIDE_LOGO } from 'client/constants'
+import { _APPS } from 'client/constants'
 
 const APP_NAME = _APPS.sunstone.name
 
 const SunstoneApp = () => {
-  const [firstRender, setFirstRender] = React.useState(() => true)
-
-  const { jwt } = useAuth()
-  const { getAuthUser } = useAuthApi()
+  const { isLogged, jwt, firstRender } = useAuth()
+  const { getAuthUser, logout } = useAuthApi()
   const { changeTitle } = useGeneralApi()
 
   React.useEffect(() => {
-    if (firstRender) {
-      jwt && (async () => {
-        await getAuthUser()
-      })()
+    (async () => {
+      try {
+        jwt && changeTitle(APP_NAME)
+        jwt && getAuthUser()
+      } catch {
+        logout()
+      }
+    })()
+  }, [jwt])
 
-      fakeDelay(TIME_HIDE_LOGO).then(() => setFirstRender(false))
-    }
-  }, [firstRender, jwt])
-
-  React.useEffect(() => {
-    changeTitle(APP_NAME)
-  }, [])
-
-  if (firstRender) {
+  if (jwt && firstRender) {
     return <LoadingScreen />
   }
 
-  return (
-    <Router routes={routes} />
-  )
+  return <Router isLogged={isLogged} routes={routes} />
 }
 
 SunstoneApp.displayName = '_SunstoneApp'

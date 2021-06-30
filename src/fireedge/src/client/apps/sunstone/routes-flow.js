@@ -1,20 +1,9 @@
 import {
-  ReportColumns as DashboardIcon,
   List as TemplatesIcons,
   Cell4x4 as InstancesIcons
 } from 'iconoir-react'
 
 import loadable from '@loadable/component'
-
-const Dashboard = loadable(
-  () => import('client/containers/Dashboard'),
-  { ssr: false }
-)
-
-const Settings = loadable(
-  () => import('client/containers/Settings'),
-  { ssr: false }
-)
 
 const ApplicationsTemplates = loadable(
   () => import('client/containers/ApplicationsTemplates'),
@@ -32,7 +21,6 @@ const ApplicationsTemplatesFormCreate = loadable(
 )
 
 export const PATH = {
-  DASHBOARD: '/dashboard',
   APPLICATIONS_TEMPLATES: {
     LIST: '/applications-templates',
     CREATE: '/applications-templates/create',
@@ -40,26 +28,12 @@ export const PATH = {
   },
   APPLICATIONS: {
     LIST: '/applications'
-  },
-  SETTINGS: '/settings'
+  }
 }
 
 export const ENDPOINTS = [
   {
-    label: 'Dashboard',
-    path: PATH.DASHBOARD,
-    sidebar: true,
-    icon: DashboardIcon,
-    Component: Dashboard
-  },
-  {
-    label: 'Settings',
-    path: PATH.SETTINGS,
-    header: true,
-    Component: Settings
-  },
-  {
-    label: 'Templates',
+    label: 'Service Templates',
     path: PATH.APPLICATIONS_TEMPLATES.LIST,
     sidebar: true,
     icon: TemplatesIcons,
@@ -76,7 +50,7 @@ export const ENDPOINTS = [
     Component: ApplicationsTemplatesFormCreate
   },
   {
-    label: 'Instances',
+    label: 'Service Instances',
     path: PATH.APPLICATIONS.LIST,
     sidebar: true,
     icon: InstancesIcons,

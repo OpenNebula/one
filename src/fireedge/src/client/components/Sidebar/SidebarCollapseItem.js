@@ -4,6 +4,7 @@ import clsx from 'clsx'
 
 import {
   List,
+  Icon as MIcon,
   Collapse,
   ListItem,
   ListItemText,
@@ -32,26 +33,24 @@ const SidebarCollapseItem = ({ label, routes, icon: Icon }) => {
             <Icon />
           </ListItemIcon>
         )}
-        <ListItemText primary={label} />
-        {expanded ? (
-          <CollapseIcon
-            className={clsx({ [classes.expandIcon]: isUpLg && !isFixMenu })}
-          />
-        ) : (
-          <ExpandMoreIcon
-            className={clsx({ [classes.expandIcon]: isUpLg && !isFixMenu })}
-          />
-        )}
+        <ListItemText
+          className={classes.itemText}
+          data-max-label={label}
+          data-min-label={label.slice(0, 3)}
+        />
+        <MIcon className={clsx({ [classes.expandIcon]: isUpLg && !isFixMenu })}>
+          {expanded ? <CollapseIcon /> : <ExpandMoreIcon />}
+        </MIcon>
       </ListItem>
       {routes?.map((subItem, index) => (
         <Collapse
           key={`subitem-${index}`}
           in={expanded}
-          timeout="auto"
+          timeout='auto'
           unmountOnExit
           className={clsx({ [classes.subItemWrapper]: isUpLg && !isFixMenu })}
         >
-          <List component="div" disablePadding>
+          <List component='div' disablePadding>
             <SidebarLink {...subItem} isSubItem />
           </List>
         </Collapse>

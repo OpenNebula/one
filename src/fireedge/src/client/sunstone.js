@@ -17,7 +17,7 @@ import * as React from 'react'
 import { hydrate, render } from 'react-dom'
 
 import { createStore } from 'client/store'
-import App from 'client/apps/flow'
+import App from 'client/apps/sunstone'
 
 const { store } = createStore({ initState: window.REDUX_DATA })
 

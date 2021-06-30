@@ -23,24 +23,24 @@ import MuiProvider from 'client/providers/muiProvider'
 import NotistackProvider from 'client/providers/notistackProvider'
 import { TranslateProvider } from 'client/components/HOC'
 
-import App from 'client/apps/flow/_app'
-import theme from 'client/apps/flow/theme'
+import App from 'client/apps/sunstone/_app'
+import theme from 'client/apps/sunstone/theme'
 import { _APPS, APP_URL } from 'client/constants'
 
 const APP_NAME = _APPS.sunstone.name
 
-const Sunstone = ({ store, location, context }) => (
+const Provision = ({ store, location, context }) => (
   <ReduxProvider store={store}>
     <TranslateProvider>
       <MuiProvider theme={theme}>
         <NotistackProvider>
           {location && context ? (
-            // server build
+          // server build
             <StaticRouter location={location} context={context}>
               <App />
             </StaticRouter>
           ) : (
-            // browser build
+          // browser build
             <BrowserRouter basename={`${APP_URL}/${APP_NAME}`}>
               <App />
             </BrowserRouter>
@@ -51,18 +51,18 @@ const Sunstone = ({ store, location, context }) => (
   </ReduxProvider>
 )
 
-Sunstone.propTypes = {
+Provision.propTypes = {
   location: PropTypes.string,
   context: PropTypes.shape({}),
   store: PropTypes.shape({})
 }
 
-Sunstone.defaultProps = {
+Provision.defaultProps = {
   location: '',
   context: {},
   store: {}
 }
 
-Sunstone.displayName = 'SunstoneApp'
+Provision.displayName = 'SunstoneApp'
 
-export default Sunstone
+export default Provision
