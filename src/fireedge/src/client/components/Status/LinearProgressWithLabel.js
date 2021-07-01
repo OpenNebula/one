@@ -18,8 +18,8 @@ const BorderLinearProgress = withStyles(({ palette }) => ({
   }
 }))(LinearProgress)
 
-const LinearProgressWithLabel = memo(({ value, label }) => (
-  <div style={{ textAlign: 'end' }}>
+const LinearProgressWithLabel = memo(({ value, label, title }) => (
+  <div style={{ textAlign: 'end' }} title={title}>
     <Typography component='span' variant='body2' noWrap>{label}</Typography>
     <BorderLinearProgress variant='determinate' value={value} />
   </div>
@@ -27,7 +27,8 @@ const LinearProgressWithLabel = memo(({ value, label }) => (
 
 LinearProgressWithLabel.propTypes = {
   value: PropTypes.number.isRequired,
-  label: PropTypes.string.isRequired
+  label: PropTypes.string.isRequired,
+  title: PropTypes.string
 }
 
 LinearProgressWithLabel.displayName = 'LinearProgressWithLabel'
