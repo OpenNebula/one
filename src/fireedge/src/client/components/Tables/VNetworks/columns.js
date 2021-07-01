@@ -14,12 +14,22 @@ export default [
     accessor: row => getTotalOfResources(row?.CLUSTERS),
     sortType: 'number'
   },
-  { Header: 'Used Leases', accessor: 'USED_LEASES', sortType: 'number' },
+  {
+    Header: 'Used Leases',
+    accessor: 'USED_LEASES',
+    sortType: 'number'
+  },
   {
     Header: 'Total Leases',
     id: 'TOTAL_LEASES',
     accessor: row => VirtualNetworkModel.getTotalLeases(row),
     sortType: 'number'
+  },
+  {
+    Header: 'Provision ID',
+    id: 'PROVISION_ID',
+    accessor: row => row?.TEMPLATE?.PROVISION?.ID,
+    disableSortBy: true
   }
 
 ]

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group, Lock, Server, NetworkAlt } from 'iconoir-react'
+import { User, Group, Lock, Server, Cloud } from 'iconoir-react'
 import { Typography } from '@material-ui/core'
 
 import { LinearProgressWithLabel } from 'client/components/Status'
@@ -12,8 +12,8 @@ import * as VirtualNetworkModel from 'client/models/VirtualNetwork'
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
   const {
-    ID, NAME, UNAME, GNAME, LOCK,
-    CLUSTERS, USED_LEASES, TOTAL_LEASES
+    ID, NAME, UNAME, GNAME, LOCK, CLUSTERS,
+    USED_LEASES, TOTAL_LEASES, PROVISION_ID
   } = value
 
   const { percentOfUsed, percentLabel } = VirtualNetworkModel.getLeasesInfo(original)
@@ -45,6 +45,10 @@ const Row = ({ original, value, ...props }) => {
             <Server size={16} />
             <span>{` ${CLUSTERS}`}</span>
           </span>
+          {PROVISION_ID && <span title={`Provision ID: #${PROVISION_ID}`}>
+            <Cloud size={16} />
+            <span>{` ${PROVISION_ID}`}</span>
+          </span>}
         </div>
       </div>
       <div className={classes.secondary}>
