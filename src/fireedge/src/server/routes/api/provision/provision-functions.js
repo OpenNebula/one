@@ -28,9 +28,20 @@ const {
   accepted,
   internalServerError
 } = require('server/utils/constants/http-codes')
-const { httpResponse, parsePostData, existsFile, createFile } = require('server/utils/server')
+const {
+  httpResponse,
+  parsePostData,
+  existsFile,
+  createFile,
+  getDirectories
+} = require('server/utils/server')
 const { checkEmptyObject } = require('server/utils/general')
-const { defaultFolderTmpProvision, defaultCommandProvision, defaultEmptyFunction, defaultErrorTemplate } = require('server/utils/constants/defaults')
+const {
+  defaultFolderTmpProvision,
+  defaultCommandProvision,
+  defaultEmptyFunction,
+  defaultErrorTemplate
+} = require('server/utils/constants/defaults')
 const {
   executeCommand,
   executeCommandAsync,
@@ -43,7 +54,6 @@ const {
   findRecursiveFolder,
   publish,
   getFiles,
-  getDirectories,
   getEndpoint,
   addOptionalCreateCommand
 } = require('./functions')

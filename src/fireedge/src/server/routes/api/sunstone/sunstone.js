@@ -12,25 +12,28 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-
+const { defaultEmptyFunction } = require('server/utils/constants/defaults')
 const { httpMethod, from: fromData } = require('server/utils/constants/defaults')
 const { getParamsForObject } = require('server/utils/server')
 const {
-  sunstone
+  getConfig,
+  getViews
 } = require('./sunstone-functions')
 const { GET } = httpMethod
 
 const routes = {
   [GET]: {
-    list: {
-      action: sunstone,
-      params: {
-        id: { from: fromData.resource, name: 'id', front: true }
-      }
+    views: {
+      action: getViews,
+      params: {}
+    },
+    config: {
+      action: getConfig,
+      params: {}
     }
   }
 }
-const main = (req = {}, res = {}, next = () => undefined, routes = {}, user = {}, index = 0) => {
+const main = (req = {}, res = {}, next = defaultEmptyFunction, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
   const resources = Object.keys(req[fromData.resource])
   if (req && res && next && routes) {
     const route = routes[`${req[fromData.resource][resources[index]]}`.toLowerCase()]
@@ -38,9 +41,9 @@ const main = (req = {}, res = {}, next = () => undefined, routes = {}, user = {}
       if (Object.keys(route).length > 0 && route.constructor === Object) {
         if (route.action && route.params && typeof route.action === 'function') {
           const params = getParamsForObject(route.params, req)
-          route.action(res, next, params, user)
+          route.action(res, next, params, user, oneConnection)
         } else {
-          main(req, res, next, route, user, index + 1)
+          main(req, res, next, route, user, oneConnection, index + 1)
         }
       } else {
         next()

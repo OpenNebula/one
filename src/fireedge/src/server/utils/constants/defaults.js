@@ -15,6 +15,7 @@
 
 const appName = 'fireedge'
 const appNameSunstone = 'sunstone'
+const internalSunstonePath = `${appName}/${appNameSunstone}`
 const baseUrl = `${appName ? `/${appName}/` : '/'}`
 const baseUrlWebsockets = 'websockets/'
 const apps = {
@@ -94,7 +95,8 @@ const defaults = {
   defaultHideCredentialReplacer: '****',
   defaultOneFlowServer: `${protocol}://${defaultIp}:2474`,
   defaultConfigFile: `${appName}-server.conf`,
-  defaultSunstoneViews: `${appNameSunstone}-views.conf`,
+  defaultSunstonePath: internalSunstonePath,
+  defaultSunstoneViews: `${appNameSunstone}-views.yaml`,
   defaultSunstoneConfig: `${appNameSunstone}-server.conf`,
   defaultTypeLog: 'prod',
   defaultWebpackMode: 'development',

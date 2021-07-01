@@ -32,7 +32,7 @@ const fillPrivateRoutes = (methods = {}, path = '', action = () => undefined) =>
     Object.keys(methods).forEach((method) => {
       privateRoutes.push(
         fillRoute(method, path,
-          (req, res, next, conection, userId, user) => {
+          (req, res, next, connection, userId, user) => {
             action(req, res, next, methods[method], user)
           })
       )

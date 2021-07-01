@@ -31,13 +31,9 @@ const {
 const { getConfig } = require('server/utils/yml')
 const { spawnSync, spawn } = require('child_process')
 const { messageTerminal } = require('server/utils/general')
+const { defaultError, getDirectories } = require('server/utils/server')
 
 const eventsEmitter = new events.EventEmitter()
-const defaultError = (err = '', message = 'Error: %s') => ({
-  color: 'red',
-  message,
-  error: err || ''
-})
 
 const publish = (eventName = '', message = {}) => {
   if (eventName && message) {
@@ -58,26 +54,6 @@ const subscriber = (eventName = '', callback = () => undefined) => {
       }
     )
   }
-}
-
-const getDirectories = (dir = '', errorCallback = () => undefined) => {
-  const directories = []
-  if (dir) {
-    try {
-      const files = readdirSync(dir)
-      files.forEach(file => {
-        const name = `${dir}/${file}`
-        if (statSync(name).isDirectory()) {
-          directories.push({ filename: file, path: name })
-        }
-      })
-    } catch (error) {
-      const errorMsg = (error && error.message) || ''
-      messageTerminal(defaultError(errorMsg))
-      errorCallback(errorMsg)
-    }
-  }
-  return directories
 }
 
 const getFiles = (dir = '', ext = '', errorCallback = () => undefined) => {

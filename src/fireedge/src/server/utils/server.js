@@ -15,10 +15,10 @@
 const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
-const path = require('path')
+const { dirname } = require('path')
 // eslint-disable-next-line node/no-deprecated-api
 const { createCipheriv, createCipher, createDecipheriv, createDecipher, createHash } = require('crypto')
-const { existsSync, readFileSync, createWriteStream } = require('fs-extra')
+const { existsSync, readFileSync, createWriteStream, readdirSync, statSync } = require('fs-extra')
 const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
@@ -37,6 +37,7 @@ const {
   defaultEtcPath,
   defaultTypeCrypto,
   defaultHash,
+  defaultSunstonePath,
   defaultSunstoneViews,
   defaultSunstoneConfig
 } = require('./constants/defaults')
@@ -46,9 +47,9 @@ let key = ''
 
 const validateServerIsSecure = () => {
   const folder = '../cert/'
-  const path = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../${folder}` : `${__dirname}/${folder}`
-  cert = `${path}cert.pem`
-  key = `${path}key.pem`
+  const pathfile = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../${folder}` : `${__dirname}/${folder}`
+  cert = `${pathfile}cert.pem`
+  key = `${pathfile}key.pem`
   return existsSync && key && cert && existsSync(key) && existsSync(cert)
 }
 
@@ -304,11 +305,14 @@ const genPathResources = () => {
     if (!global.SUNSTONE_AUTH_PATH) {
       global.SUNSTONE_AUTH_PATH = `${VAR_LOCATION}/.one/${defaultSunstoneAuth}`
     }
+    if (!global.SUNSTONE_PATH) {
+      global.SUNSTONE_PATH = `${ETC_LOCATION}/${defaultSunstonePath}/`
+    }
     if (!global.SUNSTONE_CONFIG) {
-      global.SUNSTONE_CONFIG = `${ETC_LOCATION}/${defaultSunstoneConfig}`
+      global.SUNSTONE_CONFIG = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneConfig}`
     }
     if (!global.SUNSTONE_VIEWS) {
-      global.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstoneViews}`
+      global.SUNSTONE_VIEWS = `${ETC_LOCATION}/${defaultSunstonePath}/${defaultSunstoneViews}`
     }
     if (!global.FIREEDGE_KEY_PATH) {
       global.FIREEDGE_KEY_PATH = `${VAR_LOCATION}/.one/${defaultKeyFilename}`
@@ -335,6 +339,56 @@ const getParamsForObject = (params = {}, req = {}) => {
     })
   }
   return rtn
+}
+
+const defaultError = (err = '', message = 'Error: %s') => ({
+  color: 'red',
+  message,
+  error: err || ''
+})
+
+const getFiles = (path = '', recursive = false, files = []) => {
+  if (path) {
+    try {
+      const dirs = readdirSync(path)
+      dirs.forEach(dir => {
+        const name = `${path}/${dir}`
+        if (recursive && statSync(name).isDirectory()) {
+          const internal = getFiles(name, recursive)
+          if (internal) {
+            files.push(...internal)
+          }
+        }
+
+        if (statSync(name).isFile()) {
+          files.push(name)
+        }
+      })
+    } catch (error) {
+      messageTerminal(defaultError(error && error.message))
+    }
+  }
+  return files
+}
+
+const getDirectories = (dir = '', errorCallback = () => undefined) => {
+  const directories = []
+  if (dir) {
+    try {
+      const files = readdirSync(dir)
+      files.forEach(file => {
+        const name = `${dir}/${file}`
+        if (statSync(name).isDirectory()) {
+          directories.push({ filename: file, path: name })
+        }
+      })
+    } catch (error) {
+      const errorMsg = (error && error.message) || ''
+      messageTerminal(defaultError(errorMsg))
+      errorCallback(errorMsg)
+    }
+  }
+  return directories
 }
 
 const parsePostData = (postData = {}) => {
@@ -373,5 +427,8 @@ module.exports = {
   returnQueryData,
   getResourceForHookConnection,
   middlewareValidateAuthWebsocket,
-  middlewareValidateResourceForHookConnection
+  middlewareValidateResourceForHookConnection,
+  defaultError,
+  getDirectories,
+  getFiles
 }
