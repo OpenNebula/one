@@ -16,11 +16,12 @@ import {
 
   ServerConnection as NetworksIcon,
   NetworkAlt as NetworkIcon,
-  Combine as NetworkTemplateIcon,
+  KeyframesCouple as NetworkTemplateIcon,
 
   CloudSync as InfrastructureIcon,
   Server as ClusterIcon,
   HardDrive as HostIcon,
+  MinusPinAlt as ZoneIcon,
 
   Home as SystemIcon,
   User as UserIcon,
@@ -53,7 +54,7 @@ const VNetworkTemplates = loadable(() => import('client/containers/VNetworkTempl
 
 const Clusters = loadable(() => import('client/containers/Clusters'), { ssr: false })
 const Hosts = loadable(() => import('client/containers/Hosts'), { ssr: false })
-// const Zones = loadable(() => import('client/containers/Zones'), { ssr: false })
+const Zones = loadable(() => import('client/containers/Zones'), { ssr: false })
 
 const Users = loadable(() => import('client/containers/Users'), { ssr: false })
 const Groups = loadable(() => import('client/containers/Groups'), { ssr: false })
@@ -106,6 +107,9 @@ export const PATH = {
     },
     HOSTS: {
       LIST: '/hosts'
+    },
+    ZONES: {
+      LIST: '/zones'
     }
   },
   SYSTEM: {
@@ -229,6 +233,13 @@ export const ENDPOINTS = [
         sidebar: true,
         icon: HostIcon,
         Component: Hosts
+      },
+      {
+        label: 'Zones',
+        path: PATH.INFRASTRUCTURE.ZONES.LIST,
+        sidebar: true,
+        icon: ZoneIcon,
+        Component: Zones
       }
     ]
   },

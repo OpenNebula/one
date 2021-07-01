@@ -16,15 +16,15 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const ZONE_ALLOCATE = 'zone.allocate';
-const ZONE_DELETE = 'zone.delete';
-const ZONE_UPDATE = 'zone.update';
-const ZONE_RENAME = 'zone.rename';
-const ZONE_INFO = 'zone.info';
-const ZONE_RAFTSTATUS = 'zone.raftstatus';
-const ZONEPOOL_INFO = 'zonepool.info';
+const ZONE_ALLOCATE = 'zone.allocate'
+const ZONE_DELETE = 'zone.delete'
+const ZONE_UPDATE = 'zone.update'
+const ZONE_RENAME = 'zone.rename'
+const ZONE_INFO = 'zone.info'
+const ZONE_RAFTSTATUS = 'zone.raftstatus'
+const ZONE_POOL_INFO = 'zonepool.info'
 
 const Actions = {
   ZONE_ALLOCATE,
@@ -33,8 +33,8 @@ const Actions = {
   ZONE_RENAME,
   ZONE_INFO,
   ZONE_RAFTSTATUS,
-  ZONEPOOL_INFO
-};
+  ZONE_POOL_INFO
+}
 
 module.exports = {
   Actions,
@@ -110,10 +110,10 @@ module.exports = {
       httpMethod: GET,
       params: {}
     },
-    [ZONEPOOL_INFO]: {
+    [ZONE_POOL_INFO]: {
       // inspected
       httpMethod: GET,
       params: {}
     }
   }
-};
+}
