@@ -28,7 +28,7 @@ const Row = ({ original, value, ...props }) => {
             <Folder size={16} />
             <span>{` ${DATASTORES}`}</span>
           </span>
-          <span title={`Total VNets: ${VNETS}`}>
+          <span title={`Total Virtual Networks: ${VNETS}`}>
             <NetworkAlt size={16} />
             <span>{` ${VNETS}`}</span>
           </span>

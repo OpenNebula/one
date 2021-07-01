@@ -44,7 +44,7 @@ const Images = loadable(() => import('client/containers/Images'), { ssr: false }
 const Marketplaces = loadable(() => import('client/containers/Marketplaces'), { ssr: false })
 const MarketplaceApps = loadable(() => import('client/containers/MarketplaceApps'), { ssr: false })
 
-// const VirtualNetworks = loadable(() => import('client/containers/VirtualNetworks'), { ssr: false })
+const VirtualNetworks = loadable(() => import('client/containers/VirtualNetworks'), { ssr: false })
 // const NetworkTemplates = loadable(() => import('client/containers/NetworkTemplates'), { ssr: false })
 // const NetworkTopologies = loadable(() => import('client/containers/NetworkTopologies'), { ssr: false })
 // const SecurityGroups = loadable(() => import('client/containers/SecurityGroups'), { ssr: false })
@@ -185,6 +185,20 @@ export const ENDPOINTS = [
         sidebar: true,
         icon: MarketplaceAppIcon,
         Component: MarketplaceApps
+      }
+    ]
+  },
+  {
+    label: 'Networks',
+    sidebar: true,
+    icon: NetworkIcon,
+    routes: [
+      {
+        label: 'Virtual Networks',
+        path: PATH.NETWORK.VNETS.LIST,
+        sidebar: true,
+        icon: NetworkIcon,
+        Component: VirtualNetworks
       }
     ]
   },

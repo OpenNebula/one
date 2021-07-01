@@ -11,6 +11,7 @@ import UsersTable from 'client/components/Tables/Users'
 import VirtualizedTable from 'client/components/Tables/Virtualized'
 import VmsTable from 'client/components/Tables/Vms'
 import VmTemplatesTable from 'client/components/Tables/VmTemplates'
+import VNetworksTable from 'client/components/Tables/VNetworks'
 
 export {
   SkeletonTable,
@@ -26,5 +27,6 @@ export {
   MarketplacesTable,
   UsersTable,
   VmsTable,
-  VmTemplatesTable
+  VmTemplatesTable,
+  VNetworksTable
 }
