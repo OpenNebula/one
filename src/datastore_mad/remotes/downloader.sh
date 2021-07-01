@@ -495,8 +495,6 @@ if [ "$TO" != "-" ]; then
         convert_image
     fi
 
-    fallocate -d "$TO" &> /dev/null || true # Avoid errors if fallocate not supported by FS
-
 elif [ -n "$CONVERT" ]; then
     convert_image
 fi
