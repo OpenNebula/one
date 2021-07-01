@@ -4,7 +4,7 @@ import { Container, Box } from '@material-ui/core'
 
 import * as Tables from 'client/components/Tables'
 
-function Zones () {
+function VirtualRouters () {
   return (
     <Box
       height={1}
@@ -14,9 +14,9 @@ function Zones () {
       flexDirection='column'
       component={Container}
     >
-      <Tables.ZonesTable />
+      <Tables.VRoutersTable />
     </Box>
   )
 }
 
-export default Zones
+export default VirtualRouters

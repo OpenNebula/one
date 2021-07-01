@@ -13,7 +13,8 @@ import VmsTable from 'client/components/Tables/Vms'
 import VmTemplatesTable from 'client/components/Tables/VmTemplates'
 import VNetworksTable from 'client/components/Tables/VNetworks'
 import VNetworkTemplatesTable from 'client/components/Tables/VNetworkTemplates'
-import ZoneTable from 'client/components/Tables/Zones'
+import VRoutersTable from 'client/components/Tables/VRouters'
+import ZonesTable from 'client/components/Tables/Zones'
 
 export {
   SkeletonTable,
@@ -32,5 +33,6 @@ export {
   VmTemplatesTable,
   VNetworksTable,
   VNetworkTemplatesTable,
-  ZoneTable
+  VRoutersTable,
+  ZonesTable
 }

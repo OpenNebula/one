@@ -60,7 +60,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
         >
           {Tr(title)}
           {isFiltered && (
-            <IconButton disableRipple disablePadding size='small' onClick={handleClear}>
+            <IconButton disableRipple size='small' onClick={handleClear}>
               <Cancel/>
             </IconButton>
           )}

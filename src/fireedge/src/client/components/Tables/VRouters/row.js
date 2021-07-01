@@ -1,20 +1,14 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
 
-import { User, Group, Lock } from 'iconoir-react'
+import { User, Group, EmptyPage, ModernTv } from 'iconoir-react'
 import { Typography } from '@material-ui/core'
 
-import { StatusChip } from 'client/components/Status'
 import { rowStyles } from 'client/components/Tables/styles'
-
-import * as Helper from 'client/models/Helper'
 
 const Row = ({ original, value, ...props }) => {
   const classes = rowStyles()
-  const { ID, NAME, UNAME, GNAME, REGTIME, LOCK, VROUTER } = value
-
-  const time = Helper.timeFromMilliseconds(+REGTIME)
-  const timeAgo = `registered ${time.toRelative()}`
+  const { ID, NAME, UNAME, GNAME, VMS, TEMPLATE_ID } = value
 
   return (
     <div {...props}>
@@ -23,14 +17,10 @@ const Row = ({ original, value, ...props }) => {
           <Typography className={classes.titleText} component='span'>
             {NAME}
           </Typography>
-          <span className={classes.labels}>
-            {LOCK && <Lock size={20} />}
-            {VROUTER && <StatusChip stateColor={'#c6c6c6'} text={VROUTER} />}
-          </span>
         </div>
         <div className={classes.caption}>
-          <span title={time.toFormat('ff')}>
-            {`#${ID} ${timeAgo}`}
+          <span>
+            {`#${ID}`}
           </span>
           <span title={`Owner: ${UNAME}`}>
             <User size={16} />
@@ -39,6 +29,14 @@ const Row = ({ original, value, ...props }) => {
           <span title={`Group: ${GNAME}`}>
             <Group size={16} />
             <span>{` ${GNAME}`}</span>
+          </span>
+          <span title={`Template ID: ${TEMPLATE_ID}`}>
+            <EmptyPage size={16} />
+            <span>{` ${TEMPLATE_ID}`}</span>
+          </span>
+          <span title={`Total VMs: ${VMS}`}>
+            <ModernTv size={16} />
+            <span>{` ${VMS}`}</span>
           </span>
         </div>
       </div>

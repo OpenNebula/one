@@ -2,6 +2,9 @@ import { DateTime } from 'luxon'
 
 export const booleanToString = bool => bool ? 'Yes' : 'No'
 
+export const stringToBoolean = str =>
+  String(str).toLowerCase() === 'yes' || +str === 1
+
 export const timeToString = time =>
   +time ? new Date(+time * 1000).toLocaleString() : '-'
 

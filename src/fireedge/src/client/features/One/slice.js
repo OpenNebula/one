@@ -27,6 +27,7 @@ const RESOURCES = {
   vmgroup: 'vmGroups',
   vn: 'vNetworks',
   vntemplate: 'vNetworksTemplates',
+  vrouter: 'vRouters',
   zone: 'zones',
   document: {
     100: 'applications',
@@ -58,6 +59,7 @@ const initial = {
   [RESOURCES.vmgroup]: [],
   [RESOURCES.vn]: [],
   [RESOURCES.vntemplate]: [],
+  [RESOURCES.vrouter]: [],
   [RESOURCES.zone]: [],
   [RESOURCES.document[100]]: [],
   [RESOURCES.document[101]]: [],

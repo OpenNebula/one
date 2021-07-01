@@ -4,6 +4,7 @@ import {
 
   Cell4x4 as InstancesIcons,
   ModernTv as VmsIcons,
+  Shuffle as VRoutersIcons,
 
   Archive as TemplatesIcon,
   GoogleDocs as TemplateIcon,
@@ -35,7 +36,7 @@ const Dashboard = loadable(() => import('client/containers/Dashboard/Sunstone'),
 const Settings = loadable(() => import('client/containers/Settings'), { ssr: false })
 
 const VirtualMachines = loadable(() => import('client/containers/VirtualMachines'), { ssr: false })
-// const VirtualRouters = loadable(() => import('client/containers/VirtualRouters'), { ssr: false })
+const VirtualRouters = loadable(() => import('client/containers/VirtualRouters'), { ssr: false })
 
 const VmTemplates = loadable(() => import('client/containers/VmTemplates'), { ssr: false })
 // const VrTemplates = loadable(() => import('client/containers/VrTemplates'), { ssr: false })
@@ -66,6 +67,9 @@ export const PATH = {
   INSTANCE: {
     VMS: {
       LIST: '/vms'
+    },
+    VROUTERS: {
+      LIST: '/virtual-routers'
     }
   },
   TEMPLATE: {
@@ -142,6 +146,13 @@ export const ENDPOINTS = [
         sidebar: true,
         icon: VmsIcons,
         Component: VirtualMachines
+      },
+      {
+        label: 'Virtual Routers',
+        path: PATH.INSTANCE.VROUTERS.LIST,
+        sidebar: true,
+        icon: VRoutersIcons,
+        Component: VirtualRouters
       }
     ]
   },

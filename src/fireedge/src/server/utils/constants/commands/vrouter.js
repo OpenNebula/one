@@ -16,21 +16,21 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const VROUTER_ALLOCATE = 'vrouter.allocate';
-const VROUTER_DELETE = 'vrouter.delete';
-const VROUTER_INSTANTIATE = 'vrouter.instantiate';
-const VROUTER_NIC_ATTACH = 'vrouter.attachnic';
-const VROUTER_NIC_DETACH = 'vrouter.detachnic';
-const VROUTER_UPDATE = 'vrouter.update';
-const VROUTER_CHMOD = 'vrouter.chmod';
-const VROUTER_CHOWN = 'vrouter.chown';
-const VROUTER_RENAME = 'vrouter.rename';
-const VROUTER_INFO = 'vrouter.info';
-const VROUTER_LOCK = 'vrouter.lock';
-const VROUTER_UNLOCK = 'vrouter.unlock';
-const VROUTER_POOL_INFO = 'vrouterpool.info';
+const VROUTER_ALLOCATE = 'vrouter.allocate'
+const VROUTER_DELETE = 'vrouter.delete'
+const VROUTER_INSTANTIATE = 'vrouter.instantiate'
+const VROUTER_NIC_ATTACH = 'vrouter.attachnic'
+const VROUTER_NIC_DETACH = 'vrouter.detachnic'
+const VROUTER_UPDATE = 'vrouter.update'
+const VROUTER_CHMOD = 'vrouter.chmod'
+const VROUTER_CHOWN = 'vrouter.chown'
+const VROUTER_RENAME = 'vrouter.rename'
+const VROUTER_INFO = 'vrouter.info'
+const VROUTER_LOCK = 'vrouter.lock'
+const VROUTER_UNLOCK = 'vrouter.unlock'
+const VROUTER_POOL_INFO = 'vrouterpool.info'
 
 const Actions = {
   VROUTER_ALLOCATE,
@@ -46,7 +46,7 @@ const Actions = {
   VROUTER_LOCK,
   VROUTER_UNLOCK,
   VROUTER_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -286,4 +286,4 @@ module.exports = {
       }
     }
   }
-};
+}
