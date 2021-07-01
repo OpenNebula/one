@@ -396,15 +396,6 @@ int AddressRange::update_attributes(
         {
             vup->replace("PREFIX_LENGTH", attr->vector_value("PREFIX_LENGTH"));
         }
-
-        if ( vup->vector_value("SIZE").empty() )
-        {
-            unsigned long int new_size = new_pl <= 64 ?
-                std::numeric_limits<unsigned long int>::max() :
-                1UL << (128 - new_pl);
-
-            vup->replace("SIZE", new_size);
-        }
     }
 
     if ( is_ipv6() )
@@ -432,7 +423,11 @@ int AddressRange::update_attributes(
 
     unsigned long int new_size;
 
-    if (vup->vector_value("SIZE", new_size) == 0)
+    if (vup->vector_value("SIZE").empty())
+    {
+        new_size = size;
+    }
+    else if (vup->vector_value("SIZE", new_size) == 0)
     {
         if (is_reservation && new_size != size)
         {
@@ -450,7 +445,8 @@ int AddressRange::update_attributes(
     }
     else
     {
-        new_size = size;
+        error_msg = "Unable to read the SIZE attribute, it must be number >= 0";
+        return -1;
     }
 
     size = new_size;
