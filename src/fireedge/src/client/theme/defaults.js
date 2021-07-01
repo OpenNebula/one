@@ -24,7 +24,7 @@ export const footer = {
 
 export const sidebar = {
   minified: 60,
-  fixed: 240
+  fixed: 250
 }
 
 /** @type {import('@material-ui/core').ThemeOptions} */
