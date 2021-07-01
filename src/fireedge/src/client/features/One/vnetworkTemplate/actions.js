@@ -7,8 +7,8 @@ export const getVNetworkTemplate = createAction(
   vNetworkTemplateService.getVNetworkTemplate
 )
 
-export const getVNetworksTemplates = createAction(
+export const getVNetworkTemplates = createAction(
   'vnet-template/pool',
-  vNetworkTemplateService.getVNetworksTemplates,
+  vNetworkTemplateService.getVNetworkTemplates,
   response => ({ [RESOURCES.vntemplate]: response })
 )

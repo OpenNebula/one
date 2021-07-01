@@ -19,6 +19,6 @@ export const useVNetworkTemplateApi = () => {
 
   return {
     getVNetworkTemplate: id => unwrapDispatch(actions.getVNetworkTemplate({ id })),
-    getVNetworksTemplates: () => unwrapDispatch(actions.getVNetworksTemplates())
+    getVNetworkTemplates: () => unwrapDispatch(actions.getVNetworkTemplates())
   }
 }

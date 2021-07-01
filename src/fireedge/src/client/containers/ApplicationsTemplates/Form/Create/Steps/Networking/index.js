@@ -25,7 +25,7 @@ const Networks = () => ({
     const [showDialog, setShowDialog] = useState(false)
 
     const { getVNetworks } = useVNetworkApi()
-    const { getVNetworksTemplates } = useVNetworkTemplateApi()
+    const { getVNetworkTemplates } = useVNetworkTemplateApi()
 
     const {
       editingData,
@@ -42,7 +42,7 @@ const Networks = () => ({
 
     useEffect(() => {
       getVNetworks()
-      getVNetworksTemplates()
+      getVNetworkTemplates()
     }, [])
 
     return (

@@ -17,11 +17,11 @@ const Networks = () => ({
   optionsValidate: { abortEarly: false },
   content: useCallback(({ data }) => {
     const { getVNetworks } = useVNetworkApi()
-    const { getVNetworksTemplates } = useVNetworkTemplateApi()
+    const { getVNetworkTemplates } = useVNetworkTemplateApi()
 
     useEffect(() => {
       getVNetworks()
-      getVNetworksTemplates()
+      getVNetworkTemplates()
     }, [])
 
     return data?.map(({ id, name, description }, index) => (

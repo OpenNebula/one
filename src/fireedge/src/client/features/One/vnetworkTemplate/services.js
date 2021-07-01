@@ -17,7 +17,7 @@ export const vNetworkTemplateService = ({
       return res?.data?.VNTEMPLATE ?? {}
     })
   },
-  getVNetworksTemplates: data => {
+  getVNetworkTemplates: data => {
     const name = Actions.VNTEMPLATE_POOL_INFO
     const command = { name, ...Commands[name] }
     return poolRequest(data, command, 'VNTEMPLATE')

@@ -14,7 +14,9 @@ import {
   SimpleCart as MarketplaceIcon,
   CloudDownload as MarketplaceAppIcon,
 
+  ServerConnection as NetworksIcon,
   NetworkAlt as NetworkIcon,
+  Combine as NetworkTemplateIcon,
 
   CloudSync as InfrastructureIcon,
   Server as ClusterIcon,
@@ -45,7 +47,7 @@ const Marketplaces = loadable(() => import('client/containers/Marketplaces'), { 
 const MarketplaceApps = loadable(() => import('client/containers/MarketplaceApps'), { ssr: false })
 
 const VirtualNetworks = loadable(() => import('client/containers/VirtualNetworks'), { ssr: false })
-// const NetworkTemplates = loadable(() => import('client/containers/NetworkTemplates'), { ssr: false })
+const VNetworkTemplates = loadable(() => import('client/containers/VNetworkTemplates'), { ssr: false })
 // const NetworkTopologies = loadable(() => import('client/containers/NetworkTopologies'), { ssr: false })
 // const SecurityGroups = loadable(() => import('client/containers/SecurityGroups'), { ssr: false })
 
@@ -191,7 +193,7 @@ export const ENDPOINTS = [
   {
     label: 'Networks',
     sidebar: true,
-    icon: NetworkIcon,
+    icon: NetworksIcon,
     routes: [
       {
         label: 'Virtual Networks',
@@ -199,6 +201,13 @@ export const ENDPOINTS = [
         sidebar: true,
         icon: NetworkIcon,
         Component: VirtualNetworks
+      },
+      {
+        label: 'Network Templates',
+        path: PATH.NETWORK.VN_TEMPLATES.LIST,
+        sidebar: true,
+        icon: NetworkTemplateIcon,
+        Component: VNetworkTemplates
       }
     ]
   },
