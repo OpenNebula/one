@@ -64,7 +64,8 @@ done < <($XPATH     /DS_DRIVER_ACTION_DATA/DATASTORE/BASE_PATH \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/CONVERT \
                     /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/DRIVER \
                     /DS_DRIVER_ACTION_DATA/IMAGE/TYPE \
-                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/URL_ARGS)
+                    /DS_DRIVER_ACTION_DATA/IMAGE/TEMPLATE/URL_ARGS \
+                    /DS_DRIVER_ACTION_DATA/DATASTORE/TEMPLATE/SPARSE)
 
 unset i
 
@@ -83,6 +84,7 @@ CONVERT="${XPATH_ELEMENTS[i++]:-yes}"
 DRIVER="${XPATH_ELEMENTS[i++]}"
 IMAGE_TYPE="${XPATH_ELEMENTS[i++]}"
 URL_ARGS="${XPATH_ELEMENTS[i++]}"
+SPARSE="${XPATH_ELEMENTS[i++]}"
 
 DST=`generate_image_path`
 IMAGE_HASH=`basename $DST`
@@ -168,7 +170,9 @@ else
         multiline_exec_and_log "$CONVERT_CMD" "Error converting $DST"
     fi
 
-    fallocate -d "$DST" &> /dev/null || true # Avoid errors if fallocate not supported by FS
+    if [ "$(echo "$SPARSE" | tr A-Z a-z)" != "no" ]; then
+        fallocate -d "$DST" &> /dev/null || true # Avoid errors if fallocate not supported by FS
+    fi
 
     FORMAT=$($QEMU_IMG info $DST | grep "^file format:" | awk '{print $3}' || :)
 fi
