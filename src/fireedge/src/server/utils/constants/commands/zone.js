@@ -34,7 +34,7 @@ const Actions = {
   ZONE_INFO,
   ZONE_RAFTSTATUS,
   ZONEPOOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -110,7 +110,7 @@ module.exports = {
       httpMethod: GET,
       params: {}
     },
-    [ZONE_POOL_INFO]: {
+    [ZONEPOOL_INFO]: {
       // inspected
       httpMethod: GET,
       params: {}
