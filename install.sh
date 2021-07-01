@@ -2832,7 +2832,8 @@ FIREEDGE_ETC_FILES="src/fireedge/etc/fireedge-server.conf"
 # FireEdge Sunstone files
 #----------------------------------------------------------------------------
 
-FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf"
+FIREEDGE_SUNSTONE_ETC="src/fireedge/etc/sunstone/sunstone-server.conf \
+                       src/fireedge/etc/sunstone/sunstone-views.yaml"
 
 FIREEDGE_SUNSTONE_ETC_VIEW_ADMIN="src/fireedge/etc/sunstone/admin/vm-tab.yaml"
 
