@@ -5,6 +5,7 @@ import { useFetch } from 'client/hooks'
 import { useVm, useVmApi } from 'client/features/One'
 
 import { SkeletonTable, EnhancedTable } from 'client/components/Tables'
+import { createColumns } from 'client/components/Tables/Enhanced/Utils'
 import VmColumns from 'client/components/Tables/Vms/columns'
 import VmRow from 'client/components/Tables/Vms/row'
 import VmDetail from 'client/components/Tables/Vms/detail'
@@ -13,11 +14,15 @@ const INITIAL_ELEMENT = 0
 const INTERVAL_ON_FIRST_RENDER = 2_000
 
 const VmsTable = () => {
-  const columns = React.useMemo(() => VmColumns, [])
-
   const vms = useVm()
   const { getVms } = useVmApi()
-  const { filterPool } = useAuth()
+  const { view, views, filterPool } = useAuth()
+
+  const columns = React.useMemo(() => createColumns({
+    view: views[view],
+    resource: 'VM',
+    columns: VmColumns
+  }), [view])
 
   const { status, data, fetchRequest, loading, reloading, error, STATUS } = useFetch(getVms)
   const { INIT, PENDING } = STATUS

@@ -80,8 +80,8 @@ actions:
 # Filters - List of criteria to filter the resources
 
 filters:
-  labels: true
-  states: true
+  label: true
+  state: true
 
 
 # Info Tabs - Which info tabs are used to show extended information

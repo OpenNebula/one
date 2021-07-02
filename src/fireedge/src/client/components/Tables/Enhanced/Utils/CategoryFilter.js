@@ -15,7 +15,7 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
     filterValue = multiple ? [] : undefined
   } = column
 
-  React.useEffect(() => () => setFilter(multiple ? [] : undefined), [])
+  React.useEffect(() => () => setFilter(undefined), [])
 
   // Calculate the options for filtering using the preFilteredRows
   const options = React.useMemo(() => {
@@ -33,13 +33,13 @@ const CategoryFilter = ({ title, column, accessorOption, multiple }) => {
     return options
   }, [id, preFilteredRows])
 
-  const handleSelect = value => setFilter(
-    multiple ? [...filterValue, value] : value
-  )
+  const handleSelect = value => {
+    setFilter(multiple ? [...filterValue, value] : value)
+  }
 
-  const handleUnselect = value => setFilter(
-    multiple ? filterValue.filter(v => v !== value) : undefined
-  )
+  const handleUnselect = value => {
+    setFilter(multiple ? filterValue.filter(v => v !== value) : undefined)
+  }
 
   const handleClear = () => setFilter(multiple ? [] : undefined)
 

@@ -9,7 +9,7 @@ import { httpCodes } from 'server/utils/constants'
 import { T, JWT_NAME, ONEADMIN_ID, FILTER_POOL } from 'client/constants'
 import { storage, removeStoreData } from 'client/utils'
 
-const login = createAsyncThunk(
+export const login = createAsyncThunk(
   'auth/login',
   async ({ remember, ...user }, { rejectWithValue, dispatch }) => {
     try {
@@ -38,7 +38,7 @@ const login = createAsyncThunk(
   }
 )
 
-const getUser = createAsyncThunk(
+export const getUser = createAsyncThunk(
   'auth/user',
   async (_, { dispatch, getState }) => {
     try {
@@ -68,18 +68,18 @@ const getUser = createAsyncThunk(
   }
 )
 
-const logout = createAction('logout', errorMessage => {
+export const logout = createAction('logout', errorMessage => {
   removeStoreData([JWT_NAME])
 
   return { error: errorMessage }
 })
 
-const changeFilter = createAction(
+export const changeFilter = createAction(
   'auth/change-filter',
   filterPool => ({ payload: { filterPool, isLoginInProgress: false } })
 )
 
-const changeGroup = createAsyncThunk(
+export const changeGroup = createAsyncThunk(
   'auth/change-group',
   async ({ group }, { getState, dispatch, rejectWithValue }) => {
     try {
@@ -108,5 +108,3 @@ const changeGroup = createAsyncThunk(
     }
   }
 )
-
-export { login, getUser, logout, changeFilter, changeGroup }

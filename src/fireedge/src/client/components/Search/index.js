@@ -36,7 +36,12 @@ const Search = ({
 }
 
 Search.propTypes = {
-  list: PropTypes.arrayOf(PropTypes.object).isRequired,
+  list: PropTypes.arrayOf(
+    PropTypes.oneOfType([
+      PropTypes.object,
+      PropTypes.string
+    ])
+  ).isRequired,
   listOptions: PropTypes.shape({
     isCaseSensitive: PropTypes.bool,
     shouldSort: PropTypes.bool,

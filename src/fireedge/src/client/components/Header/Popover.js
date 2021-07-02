@@ -15,7 +15,7 @@ import clsx from 'clsx'
 import { Tr } from 'client/components/HOC'
 import headerStyles from 'client/components/Header/styles'
 
-const HeaderPopover = ({
+const HeaderPopover = React.memo(({
   id,
   icon,
   buttonLabel,
@@ -91,7 +91,7 @@ const HeaderPopover = ({
       </Popover>
     </>
   )
-}
+})
 
 HeaderPopover.propTypes = {
   id: PropTypes.string,
@@ -114,5 +114,7 @@ HeaderPopover.defaultProps = {
   popoverProps: {},
   children: () => undefined
 }
+
+HeaderPopover.displayName = 'HeaderPopover'
 
 export default HeaderPopover

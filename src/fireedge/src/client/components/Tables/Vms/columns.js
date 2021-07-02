@@ -1,4 +1,3 @@
-import CategoryFilter from 'client/components/Tables/Enhanced/Utils/CategoryFilter'
 import * as VirtualMachineModel from 'client/models/VirtualMachine'
 
 export default [
@@ -7,14 +6,7 @@ export default [
   {
     Header: 'State',
     id: 'STATE',
-    accessor: row => VirtualMachineModel.getState(row)?.name,
-    disableFilters: false,
-    Filter: ({ column }) => CategoryFilter({
-      column,
-      multiple: true,
-      title: 'State'
-    }),
-    filter: 'includesValue'
+    accessor: row => VirtualMachineModel.getState(row)?.name
   },
   { Header: 'Owner', accessor: 'UNAME' },
   { Header: 'Group', accessor: 'GNAME' },

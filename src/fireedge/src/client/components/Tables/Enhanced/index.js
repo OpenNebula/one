@@ -19,7 +19,7 @@ import Filters from 'client/components/Tables/Enhanced/filters'
 import DefaultFilter from 'client/components/Table/Filters/DefaultFilter'
 import EnhancedTableStyles from 'client/components/Tables/Enhanced/styles'
 
-import { Tr, ConditionalWrap } from 'client/components/HOC'
+import { Translate, ConditionalWrap } from 'client/components/HOC'
 import { T } from 'client/constants'
 
 const EnhancedTable = ({
@@ -58,6 +58,7 @@ const EnhancedTable = ({
       sortTypes,
       getRowId,
       // When table has update, disable all of the auto resetting
+      autoResetHiddenColumns: false,
       autoResetExpanded: false,
       autoResetFilters: false,
       autoResetGroupBy: false,
@@ -134,7 +135,7 @@ const EnhancedTable = ({
             {!isFetching && page?.length === 0 && (
               <span className={classes.noDataMessage}>
                 <InfoEmpty />
-                {Tr(T.NoDataAvailable)}
+                <Translate word={T.NoDataAvailable} />
               </span>
             )}
 

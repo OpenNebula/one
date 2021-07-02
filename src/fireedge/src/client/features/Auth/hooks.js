@@ -36,6 +36,6 @@ export const useAuthApi = () => {
     logout: () => dispatch(actions.logout()),
 
     getSunstoneViews: () => unwrapDispatch(actionsView.getSunstoneViews()),
-    changeView: data => unwrapDispatch(actionsView.changeView(data))
+    changeView: data => dispatch(actionsView.changeView(data))
   }
 }
