@@ -12,26 +12,21 @@
 /* See the License for the specific language governing permissions and        */
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
-const { main: provision, routes: provisionRoutes } = require('./provision')
-const { main: provisionTemplate, routes: provisionTemplateRoutes } = require('./provision_template')
-const { main: provider, routes: providerRoutes } = require('./provider')
+const { addFunctionToRoute, fillFunctionRoute } = require('server/utils/server')
+const { routes: provisionRoutes } = require('./provision')
+const { routes: provisionTemplateRoutes } = require('./provision_template')
+const { routes: providerRoutes } = require('./provider')
 
 const { PROVIDER, PROVISION, PROVISION_TEMPLATE } = require('./string-routes')
 
 const privateRoutes = []
 const publicRoutes = []
 
-const fillRoute = (method, endpoint, action) => ({
-  httpMethod: method,
-  endpoint,
-  action
-})
-
 const fillPrivateRoutes = (methods = {}, path = '', action = () => undefined) => {
   if (Object.keys(methods).length > 0 && methods.constructor === Object) {
     Object.keys(methods).forEach((method) => {
       privateRoutes.push(
-        fillRoute(method, path,
+        fillFunctionRoute(method, path,
           (req, res, next, connection, userId, user) => {
             action(req, res, next, methods[method], user, connection)
           })
@@ -41,9 +36,9 @@ const fillPrivateRoutes = (methods = {}, path = '', action = () => undefined) =>
 }
 
 const generatePrivateRoutes = () => {
-  fillPrivateRoutes(provisionRoutes, PROVISION, provision)
-  fillPrivateRoutes(provisionTemplateRoutes, PROVISION_TEMPLATE, provisionTemplate)
-  fillPrivateRoutes(providerRoutes, PROVIDER, provider)
+  fillPrivateRoutes(provisionRoutes, PROVISION, addFunctionToRoute)
+  fillPrivateRoutes(provisionTemplateRoutes, PROVISION_TEMPLATE, addFunctionToRoute)
+  fillPrivateRoutes(providerRoutes, PROVIDER, addFunctionToRoute)
   return privateRoutes
 }
 

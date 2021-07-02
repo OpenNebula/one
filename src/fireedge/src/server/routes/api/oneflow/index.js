@@ -13,27 +13,22 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { main: service, routes: serviceRoutes } = require('./service')
-const { main: serviceTemplate, routes: serviceTemplateRoutes } = require('./service_template')
+const { addFunctionToRoute, fillFunctionRoute } = require('server/utils/server')
+const { routes: serviceRoutes } = require('./service')
+const { routes: serviceTemplateRoutes } = require('./service_template')
 
 const { SERVICE, SERVICE_TEMPLATE } = require('./string-routes')
 
 const privateRoutes = []
 const publicRoutes = []
 
-const fillRoute = (method, endpoint, action) => ({
-  httpMethod: method,
-  endpoint,
-  action
-})
-
 const fillPrivateRoutes = (methods = {}, path = '', action = () => undefined) => {
   if (Object.keys(methods).length > 0 && methods.constructor === Object) {
     Object.keys(methods).forEach((method) => {
       privateRoutes.push(
-        fillRoute(method, path,
+        fillFunctionRoute(method, path,
           (req, res, next, connection, userId, user) => {
-            action(req, res, next, methods[method], user)
+            action(req, res, next, methods[method], user, connection)
           })
       )
     })
@@ -41,8 +36,8 @@ const fillPrivateRoutes = (methods = {}, path = '', action = () => undefined) =>
 }
 
 const generatePrivateRoutes = () => {
-  fillPrivateRoutes(serviceRoutes, SERVICE, service)
-  fillPrivateRoutes(serviceTemplateRoutes, SERVICE_TEMPLATE, serviceTemplate)
+  fillPrivateRoutes(serviceRoutes, SERVICE, addFunctionToRoute)
+  fillPrivateRoutes(serviceTemplateRoutes, SERVICE_TEMPLATE, addFunctionToRoute)
   return privateRoutes
 }
 

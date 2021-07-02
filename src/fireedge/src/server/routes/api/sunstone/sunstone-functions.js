@@ -47,39 +47,39 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
   const { user, password } = userData
   if (user && password && global && global.SUNSTONE_VIEWS && global.SUNSTONE_PATH) {
     const connect = oneConnection(user, password)
-    // get user data
     connect(
       ActionsUser.USER_INFO,
       [-1, false],
       (err = {}, userData = {}) => {
         if (userData && userData.USER && userData.USER.GID) {
-          // get group data for user
           getInfoZone(
             connect,
             userData.USER.GID,
             (err = {}, vmgroupData = {}) => {
               if (vmgroupData && vmgroupData.GROUP && vmgroupData.GROUP.NAME) {
-                // get info for file sunstone-views.yamls
                 existsFile(
                   global.SUNSTONE_VIEWS,
                   filedata => {
                     const jsonFileData = parse(filedata) || {}
                     if (jsonFileData && jsonFileData.groups && jsonFileData.default) {
-                      // get info for views
                       const views = jsonFileData.groups[vmgroupData.GROUP.NAME] || jsonFileData.default
                       const rtn = {}
                       views.forEach(view => {
-                        // aca se tiene que ir armando la respuesta del http
+                        console.log('-->', getFiles(
+                          `${global.SUNSTONE_PATH}${view}`
+                        ))
                         getFiles(
                           `${global.SUNSTONE_PATH}${view}`
                         ).forEach(viewPath => {
                           existsFile(
                             viewPath,
                             (viewData = '') => {
-                              // get file content of view
+                              if (!rtn[view]) {
+                                rtn[view] = []
+                              }
                               const jsonViewData = parse(viewData) || {}
                               if (jsonViewData && jsonViewData.resource_name) {
-                                rtn[view] = jsonViewData
+                                rtn[view].push(jsonViewData)
                               }
                             }
                           )
@@ -114,6 +114,7 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
 
 const getConfig = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   if (global && global.SUNSTONE_CONFIG) {
+    console.log('asdasd: ', global.SUNSTONE_CONFIG)
     existsFile(
       global.SUNSTONE_CONFIG,
       filedata => {

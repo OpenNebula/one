@@ -23,6 +23,7 @@ const { internalServerError } = require('./constants/http-codes')
 const { messageTerminal } = require('server/utils/general')
 const { validateAuth } = require('server/utils/jwt')
 const {
+  from: fromData,
   defaultAppName,
   defaultConfigFile,
   defaultLogFilename,
@@ -39,11 +40,41 @@ const {
   defaultHash,
   defaultSunstonePath,
   defaultSunstoneViews,
-  defaultSunstoneConfig
+  defaultSunstoneConfig,
+  defaultEmptyFunction
 } = require('./constants/defaults')
 
 let cert = ''
 let key = ''
+
+const fillFunctionRoute = (method, endpoint, action) => ({
+  httpMethod: method,
+  endpoint,
+  action
+})
+
+const addFunctionToRoute = (req = {}, res = {}, next = defaultEmptyFunction, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
+  const resources = Object.keys(req[fromData.resource])
+  if (req && res && next && routes) {
+    const route = routes[`${req[fromData.resource][resources[index]]}`.toLowerCase()]
+    if (req && fromData && fromData.resource && req[fromData.resource] && route) {
+      if (Object.keys(route).length > 0 && route.constructor === Object) {
+        if (route.action && route.params && typeof route.action === 'function') {
+          const params = getParamsForObject(route.params, req)
+          route.action(res, next, params, user, oneConnection)
+        } else {
+          addFunctionToRoute(req, res, next, route, user, oneConnection, index + 1)
+        }
+      } else {
+        next()
+      }
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
+}
 
 const validateServerIsSecure = () => {
   const folder = '../cert/'
@@ -172,8 +203,8 @@ const existsFile = (path = '', success = () => undefined, error = () => undefine
   let errorData
   try {
     const fileData = readFileSync(path, 'utf8')
-    if (path && fileData) {
-      file = fileData
+    if (path) {
+      file = fileData || ''
       rtn = true
     }
   } catch (err) {
@@ -409,6 +440,8 @@ const parsePostData = (postData = {}) => {
   return rtn
 }
 module.exports = {
+  fillFunctionRoute,
+  addFunctionToRoute,
   encrypt,
   decrypt,
   getDataZone,

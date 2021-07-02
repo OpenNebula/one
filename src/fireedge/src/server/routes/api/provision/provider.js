@@ -67,31 +67,7 @@ const routes = {
   }
 }
 
-const main = (req = {}, res = {}, next = () => undefined, routes = {}, user = {}, oneConnection = defaultEmptyFunction, index = 0) => {
-  const resources = Object.keys(req[fromData.resource])
-  if (req && res && next && routes) {
-    const route = routes[`${req[fromData.resource][resources[index]]}`.toLowerCase()]
-    if (req && fromData && fromData.resource && req[fromData.resource] && route) {
-      if (Object.keys(route).length > 0 && route.constructor === Object) {
-        if (route.action && route.params && typeof route.action === 'function') {
-          const params = getParamsForObject(route.params, req)
-          route.action(res, next, params, user)
-        } else {
-          main(req, res, next, route, user, index + 1)
-        }
-      } else {
-        next()
-      }
-    } else {
-      next()
-    }
-  } else {
-    next()
-  }
-}
-
 const providerApi = {
-  main,
   routes
 }
 module.exports = providerApi
