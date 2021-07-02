@@ -65,9 +65,6 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
                       const views = jsonFileData.groups[vmgroupData.GROUP.NAME] || jsonFileData.default
                       const rtn = {}
                       views.forEach(view => {
-                        console.log('-->', getFiles(
-                          `${global.SUNSTONE_PATH}${view}`
-                        ))
                         getFiles(
                           `${global.SUNSTONE_PATH}${view}`
                         ).forEach(viewPath => {
@@ -114,7 +111,6 @@ const getViews = (res = {}, next = () => undefined, params = {}, userData = {}, 
 
 const getConfig = (res = {}, next = () => undefined, params = {}, userData = {}) => {
   if (global && global.SUNSTONE_CONFIG) {
-    console.log('asdasd: ', global.SUNSTONE_CONFIG)
     existsFile(
       global.SUNSTONE_CONFIG,
       filedata => {

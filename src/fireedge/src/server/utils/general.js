@@ -23,6 +23,7 @@ const messageTerminal = (
     message = '%s'
   }
 ) => {
+  const reset = '\x1b[0m'
   let consoleColor = ''
   switch (color) {
     case 'green':
@@ -35,7 +36,7 @@ const messageTerminal = (
       consoleColor = '\x1b[31m'
       break
   }
-  console.log(consoleColor, sprintf(message, error))
+  console.log(consoleColor, sprintf(message, error), reset)
 }
 
 const addPrintf = (string = '', args = '') => {

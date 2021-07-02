@@ -15,7 +15,7 @@
 const { env } = require('process')
 const { Map } = require('immutable')
 const { global } = require('window-or-global')
-const { dirname } = require('path')
+const { dirname, resolve } = require('path')
 // eslint-disable-next-line node/no-deprecated-api
 const { createCipheriv, createCipher, createDecipheriv, createDecipher, createHash } = require('crypto')
 const { existsSync, readFileSync, createWriteStream, readdirSync, statSync } = require('fs-extra')
@@ -77,8 +77,9 @@ const addFunctionToRoute = (req = {}, res = {}, next = defaultEmptyFunction, rou
 }
 
 const validateServerIsSecure = () => {
-  const folder = '../cert/'
-  const pathfile = env && env.NODE_ENV === defaultWebpackMode ? `${__dirname}/../../${folder}` : `${__dirname}/${folder}`
+  const folder = 'cert/'
+  const dirCerts = env && env.NODE_ENV === defaultWebpackMode ? ['../', '../', '../', folder] : ['../', folder]
+  const pathfile = resolve(__dirname, ...dirCerts)
   cert = `${pathfile}cert.pem`
   key = `${pathfile}key.pem`
   return existsSync && key && cert && existsSync(key) && existsSync(cert)
@@ -402,6 +403,31 @@ const getFiles = (path = '', recursive = false, files = []) => {
   return files
 }
 
+const getFilesbyEXT = (dir = '', ext = '', errorCallback = () => undefined) => {
+  const pathFiles = []
+  if (dir && ext) {
+    const exp = new RegExp('\\w*\\.' + ext + '+$\\b', 'gi')
+    try {
+      const files = readdirSync(dir)
+      files.forEach(file => {
+        const name = `${dir}/${file}`
+        if (statSync(name).isDirectory()) {
+          getFiles(name)
+        } else {
+          if (name.match(exp)) {
+            pathFiles.push(name)
+          }
+        }
+      })
+    } catch (error) {
+      const errorMsg = (error && error.message) || ''
+      messageTerminal(defaultError(errorMsg))
+      errorCallback(errorMsg)
+    }
+  }
+  return pathFiles
+}
+
 const getDirectories = (dir = '', errorCallback = () => undefined) => {
   const directories = []
   if (dir) {
@@ -463,5 +489,6 @@ module.exports = {
   middlewareValidateResourceForHookConnection,
   defaultError,
   getDirectories,
-  getFiles
+  getFiles,
+  getFilesbyEXT
 }

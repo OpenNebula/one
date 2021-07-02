@@ -33,7 +33,8 @@ const {
   parsePostData,
   existsFile,
   createFile,
-  getDirectories
+  getDirectories,
+  getFilesbyEXT
 } = require('server/utils/server')
 const { checkEmptyObject } = require('server/utils/general')
 const {
@@ -53,7 +54,6 @@ const {
   moveToFolder,
   findRecursiveFolder,
   publish,
-  getFiles,
   getEndpoint,
   addOptionalCreateCommand
 } = require('./functions')
@@ -262,7 +262,7 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
           `${directory.path}/providers`
         ).map((provider = {}) => {
           if (provider.filename && provider.path) {
-            getFiles(
+            getFilesbyEXT(
               provider.path,
               extFiles
             ).map(file => {
@@ -278,7 +278,7 @@ const getProvisionDefaults = (res = {}, next = defaultEmptyFunction, params = {}
         })
 
         // provisions
-        getFiles(
+        getFilesbyEXT(
           `${directory.path}/provisions`,
           extFiles
         ).map(file => {

@@ -13,21 +13,18 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-const { env } = require('process')
+const { resolve } = require('path')
 const { parse } = require('yaml')
-const { defaultConfigFile, defaultWebpackMode } = require('./constants/defaults')
+const { defaultConfigFile } = require('./constants/defaults')
 const { existsFile } = require('server/utils/server')
 const { messageTerminal } = require('server/utils/general')
+const { global } = require('window-or-global')
 
 const getConfig = () => {
-  const path = env && env.NODE_ENV === defaultWebpackMode
-    ? `${__dirname}/../../../etc/${defaultConfigFile}`
-    : global.FIREEDGE_CONFIG
-
   let rtn = {}
-
-  if (path) {
-    existsFile(path, filedata => {
+  const pathfile = global.FIREEDGE_CONFIG || resolve(__dirname, '../', '../', '../', 'etc', defaultConfigFile)
+  if (pathfile) {
+    existsFile(pathfile, filedata => {
       rtn = parse(filedata)
     }, err => {
       const config = {

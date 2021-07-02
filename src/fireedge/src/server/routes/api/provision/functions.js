@@ -56,31 +56,6 @@ const subscriber = (eventName = '', callback = () => undefined) => {
   }
 }
 
-const getFiles = (dir = '', ext = '', errorCallback = () => undefined) => {
-  const pathFiles = []
-  if (dir && ext) {
-    const exp = new RegExp('\\w*\\.' + ext + '+$\\b', 'gi')
-    try {
-      const files = readdirSync(dir)
-      files.forEach(file => {
-        const name = `${dir}/${file}`
-        if (statSync(name).isDirectory()) {
-          getFiles(name)
-        } else {
-          if (name.match(exp)) {
-            pathFiles.push(name)
-          }
-        }
-      })
-    } catch (error) {
-      const errorMsg = (error && error.message) || ''
-      messageTerminal(defaultError(errorMsg))
-      errorCallback(errorMsg)
-    }
-  }
-  return pathFiles
-}
-
 const createFolderWithFiles = (path = '', files = [], filename = '') => {
   const rtn = { name: '', files: [] }
   const name = filename || v4().replace(/-/g, '').toUpperCase()
@@ -323,8 +298,6 @@ const functionRoutes = {
   removeFile,
   renameFolder,
   moveToFolder,
-  getFiles,
-  getDirectories,
   executeCommandAsync,
   findRecursiveFolder,
   publish,
