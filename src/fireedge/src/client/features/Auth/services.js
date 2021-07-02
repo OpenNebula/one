@@ -14,5 +14,15 @@ export const authService = ({
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data?.USER ?? {}
+  }),
+  getSunstoneViews: () => RestClient.get('/api/sunstone/views').then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
+  }),
+  getSunstoneConfig: () => RestClient.get('/api/user/config').then(res => {
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res
+
+    return res?.data ?? {}
   })
 })

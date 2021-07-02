@@ -28,14 +28,17 @@ const APP_NAME = _APPS.sunstone.name
 
 const SunstoneApp = () => {
   const { isLogged, jwt, firstRender } = useAuth()
-  const { getAuthUser, logout } = useAuthApi()
+  const { getAuthUser, logout, getSunstoneViews } = useAuthApi()
   const { changeTitle } = useGeneralApi()
 
   React.useEffect(() => {
     (async () => {
       try {
-        jwt && changeTitle(APP_NAME)
-        jwt && getAuthUser()
+        if (jwt) {
+          changeTitle(APP_NAME)
+          getAuthUser()
+          getSunstoneViews()
+        }
       } catch {
         logout()
       }

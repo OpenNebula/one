@@ -3,6 +3,7 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { unwrapResult } from '@reduxjs/toolkit'
 
 import * as actions from 'client/features/Auth/actions'
+import * as actionsView from 'client/features/Auth/actionsView'
 
 export const useAuth = () => {
   const auth = useSelector(state => state.auth, shallowEqual)
@@ -32,6 +33,9 @@ export const useAuthApi = () => {
     login: user => unwrapDispatch(actions.login(user)),
     getAuthUser: () => dispatch(actions.getUser()),
     changeGroup: data => unwrapDispatch(actions.changeGroup(data)),
-    logout: () => dispatch(actions.logout())
+    logout: () => dispatch(actions.logout()),
+
+    getSunstoneViews: () => unwrapDispatch(actionsView.getSunstoneViews()),
+    changeView: data => unwrapDispatch(actionsView.changeView(data))
   }
 }

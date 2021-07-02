@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 import { login, getUser, logout, changeFilter, changeGroup } from 'client/features/Auth/actions'
+import { getSunstoneViews, changeView } from 'client/features/Auth/actionsView'
 import { JWT_NAME, FILTER_POOL, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
 import { isBackend } from 'client/utils'
 
@@ -38,7 +39,10 @@ const { actions, reducer } = createSlice({
             changeFilter.type,
             login.fulfilled.type,
             getUser.fulfilled.type,
-            changeGroup.fulfilled.type
+            changeGroup.fulfilled.type,
+            // sunstone views
+            getSunstoneViews.fulfilled.type,
+            changeView.type
           ].includes(type)
         },
         (state, { payload }) => ({ ...state, ...payload })

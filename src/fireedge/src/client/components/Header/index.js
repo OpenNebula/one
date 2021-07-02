@@ -31,6 +31,7 @@ import { useAuth } from 'client/features/Auth'
 import { useGeneral, useGeneralApi } from 'client/features/General'
 
 import User from 'client/components/Header/User'
+import View from 'client/components/Header/View'
 import Group from 'client/components/Header/Group'
 import Zone from 'client/components/Header/Zone'
 import headerStyles from 'client/components/Header/styles'
@@ -75,6 +76,7 @@ const Header = ({ scrollContainer }) => {
         )}
         <Box flexGrow={isMobile ? 1 : 0} textAlign="end">
           <User />
+          <View />
           {!isOneAdmin && <Group />}
           <Zone />
         </Box>
