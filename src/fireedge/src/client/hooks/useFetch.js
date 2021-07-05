@@ -78,6 +78,8 @@ const useFetch = (request, socket) => {
       if (cancelRequest.current) return
 
       dispatch({ type: ACTIONS.SUCCESS, payload: response })
+
+      return response
     } catch (error) {
       if (cancelRequest.current) return
 
@@ -96,7 +98,7 @@ const useFetch = (request, socket) => {
           If you're using it as a function, it must also return a number >= 0.`)
     }
 
-    fakeDelay(delay).then(() => doFetch(payload, reload))
+    return fakeDelay(delay).then(() => doFetch(payload, reload))
   }, [request])
 
   return { ...state, fetchRequest, STATUS, ACTIONS, INITIAL_STATE }

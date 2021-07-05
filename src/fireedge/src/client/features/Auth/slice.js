@@ -5,7 +5,7 @@ import { getSunstoneViews, changeView } from 'client/features/Auth/actionsView'
 import { JWT_NAME, FILTER_POOL, DEFAULT_SCHEME, DEFAULT_LANGUAGE } from 'client/constants'
 import { isBackend } from 'client/utils'
 
-const initial = initialProps => ({
+const initial = () => ({
   jwt: !isBackend()
     ? window.localStorage.getItem(JWT_NAME) ??
       window.sessionStorage.getItem(JWT_NAME) ??
@@ -20,13 +20,12 @@ const initial = initialProps => ({
     disableAnimations: 'NO'
   },
   isLoginInProgress: false,
-  isLoading: false,
-  ...initialProps
+  isLoading: false
 })
 
 const { actions, reducer } = createSlice({
   name: 'auth',
-  initialState: initial({ firstRender: true }),
+  initialState: ({ ...initial(), firstRender: true }),
   extraReducers: builder => {
     builder
       .addMatcher(

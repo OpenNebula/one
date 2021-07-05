@@ -39,14 +39,15 @@ module.exports = {
   Token2FA: '2FA Token',
   KeepLoggedIn: 'Keep me logged in',
   Credentials: 'Credentials',
-  SessionExpired: 'Sorry, your session has expired',
 
   /* errors */
+  SessionExpired: 'Sorry, your session has expired',
   CannotConnectOneFlow: 'Cannot connect to OneFlow server',
   CannotConnectOneProvision: 'Cannot connect to OneProvision server',
   ErrorOneProvisionGUI: 'FireEdge is not correctly configured to operate the OneProvision GUI',
   ContactYourAdmin: 'Please contact your system administrator',
   NotFound: 'Not found',
+  Timeout: 'Timeout',
   None: 'None',
   Empty: 'Empty',
   NoDataAvailable: 'There is no data available',

@@ -29,11 +29,11 @@ export const login = createAsyncThunk(
         isLoginInProgress: !!token && !isOneAdmin
       }
     } catch (error) {
-      const { data, status, statusText } = error
+      const { message, data, status, statusText } = error
 
       status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
 
-      return rejectWithValue({ error: data?.message ?? statusText })
+      return rejectWithValue({ error: message ?? data?.message ?? statusText })
     }
   }
 )
@@ -100,11 +100,11 @@ export const changeGroup = createAsyncThunk(
         }
       }
     } catch (error) {
-      const { data, status, statusText } = error
+      const { message, data, status, statusText } = error
 
       status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
 
-      return rejectWithValue({ error: data?.message ?? statusText })
+      return rejectWithValue({ error: message ?? data?.message ?? statusText })
     }
   }
 )

@@ -19,11 +19,11 @@ export const createAction = (type, service, wrapResult) =>
 
       return wrapResult ? wrapResult(response, one) : response
     } catch (error) {
-      const { data, status, statusText } = error
+      const { message, data, status, statusText } = error
 
       status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
 
-      return rejectWithValue(data?.message ?? statusText)
+      return rejectWithValue(message, data?.message ?? statusText)
     }
   }, {
     condition: (_, { getState }) => !getState().one.requests[type]
