@@ -16,25 +16,25 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const VN_ALLOCATE = 'vn.allocate';
-const VN_DELETE = 'vn.delete';
-const VN_AR_ADD = 'vn.add_ar';
-const VN_AR_RM = 'vn.rm_ar';
-const VN_AR_UPDATE = 'vn.update_ar';
-const VN_RESERVE = 'vn.reserve';
-const VN_AR_FREE = 'vn.free_ar';
-const VN_HOLD = 'vn.hold';
-const VN_RELEASE = 'vn.release';
-const VN_UPDATE = 'vn.update';
-const VN_CHMOD = 'vn.chmod';
-const VN_CHOWN = 'vn.chown';
-const VN_RENAME = 'vn.rename';
-const VN_INFO = 'vn.info';
-const VN_LOCK = 'vn.lock';
-const VN_UNLOCK = 'vn.unlock';
-const VN_POOL_INFO = 'vnpool.info';
+const VN_ALLOCATE = 'vn.allocate'
+const VN_DELETE = 'vn.delete'
+const VN_AR_ADD = 'vn.add_ar'
+const VN_AR_RM = 'vn.rm_ar'
+const VN_AR_UPDATE = 'vn.update_ar'
+const VN_RESERVE = 'vn.reserve'
+const VN_AR_FREE = 'vn.free_ar'
+const VN_HOLD = 'vn.hold'
+const VN_RELEASE = 'vn.release'
+const VN_UPDATE = 'vn.update'
+const VN_CHMOD = 'vn.chmod'
+const VN_CHOWN = 'vn.chown'
+const VN_RENAME = 'vn.rename'
+const VN_INFO = 'vn.info'
+const VN_LOCK = 'vn.lock'
+const VN_UNLOCK = 'vn.unlock'
+const VN_POOL_INFO = 'vnpool.info'
 
 const Actions = {
   VN_ALLOCATE,
@@ -54,7 +54,7 @@ const Actions = {
   VN_LOCK,
   VN_UNLOCK,
   VN_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -334,4 +334,4 @@ module.exports = {
       }
     }
   }
-};
+}

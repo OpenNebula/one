@@ -16,18 +16,18 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const VMGROUP_ALLOCATE = 'vmgroup.allocate';
-const VMGROUP_DELETE = 'vmgroup.delete';
-const VMGROUP_UPDATE = 'vmgroup.update';
-const VMGROUP_CHMOD = 'vmgroup.chmod';
-const VMGROUP_CHOWN = 'vmgroup.chown';
-const VMGROUP_RENAME = 'vmgroup.rename';
-const VMGROUP_INFO = 'vmgroup.info';
-const VMGROUP_LOCK = 'vmgroup.lock';
-const VMGROUP_UNLOCK = 'vmgroup.unlock';
-const VMGROUP_POOL_INFO = 'vmgrouppool.info';
+const VMGROUP_ALLOCATE = 'vmgroup.allocate'
+const VMGROUP_DELETE = 'vmgroup.delete'
+const VMGROUP_UPDATE = 'vmgroup.update'
+const VMGROUP_CHMOD = 'vmgroup.chmod'
+const VMGROUP_CHOWN = 'vmgroup.chown'
+const VMGROUP_RENAME = 'vmgroup.rename'
+const VMGROUP_INFO = 'vmgroup.info'
+const VMGROUP_LOCK = 'vmgroup.lock'
+const VMGROUP_UNLOCK = 'vmgroup.unlock'
+const VMGROUP_POOL_INFO = 'vmgrouppool.info'
 
 const Actions = {
   VMGROUP_ALLOCATE,
@@ -40,7 +40,7 @@ const Actions = {
   VMGROUP_LOCK,
   VMGROUP_UNLOCK,
   VMGROUP_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -218,4 +218,4 @@ module.exports = {
       }
     }
   }
-};
+}

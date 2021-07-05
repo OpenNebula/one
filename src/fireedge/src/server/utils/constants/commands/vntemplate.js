@@ -16,20 +16,20 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const VNTEMPLATE_ALLOCATE = 'vntemplate.allocate';
-const VNTEMPLATE_CLONE = 'vntemplate.clone';
-const VNTEMPLATE_DELETE = 'vntemplate.delete';
-const VNTEMPLATE_INSTANTIATE = 'vntemplate.instantiate';
-const VNTEMPLATE_UPDATE = 'vntemplate.update';
-const VNTEMPLATE_CHMOD = 'vntemplate.chmod';
-const VNTEMPLATE_CHOWN = 'vntemplate.chown';
-const VNTEMPLATE_RENAME = 'vntemplate.rename';
-const VNTEMPLATE_INFO = 'vntemplate.info';
-const VNTEMPLATE_LOCK = 'vntemplate.lock';
-const VNTEMPLATE_UNLOCK = 'vntemplate.unlock';
-const VNTEMPLATE_POOL_INFO = 'vntemplatepool.info';
+const VNTEMPLATE_ALLOCATE = 'vntemplate.allocate'
+const VNTEMPLATE_CLONE = 'vntemplate.clone'
+const VNTEMPLATE_DELETE = 'vntemplate.delete'
+const VNTEMPLATE_INSTANTIATE = 'vntemplate.instantiate'
+const VNTEMPLATE_UPDATE = 'vntemplate.update'
+const VNTEMPLATE_CHMOD = 'vntemplate.chmod'
+const VNTEMPLATE_CHOWN = 'vntemplate.chown'
+const VNTEMPLATE_RENAME = 'vntemplate.rename'
+const VNTEMPLATE_INFO = 'vntemplate.info'
+const VNTEMPLATE_LOCK = 'vntemplate.lock'
+const VNTEMPLATE_UNLOCK = 'vntemplate.unlock'
+const VNTEMPLATE_POOL_INFO = 'vntemplatepool.info'
 
 const Actions = {
   VNTEMPLATE_ALLOCATE,
@@ -44,7 +44,7 @@ const Actions = {
   VNTEMPLATE_LOCK,
   VNTEMPLATE_UNLOCK,
   VNTEMPLATE_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -254,4 +254,4 @@ module.exports = {
       }
     }
   }
-};
+}
