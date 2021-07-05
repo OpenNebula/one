@@ -164,7 +164,7 @@ const sockets = websockets(appServer) || []
 
 let config = {
   color: 'red',
-  message: 'Server no start'
+  message: 'Server could not be started'
 }
 
 appServer.listen(port, host, err => {
