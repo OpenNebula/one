@@ -14,15 +14,20 @@
 /* -------------------------------------------------------------------------- */
 
 import * as React from 'react'
+import PropTypes from 'prop-types'
 
 import { Redirect, Route } from 'react-router-dom'
 import { useAuth } from 'client/features/Auth'
 
-const NoAuthRoute = props => {
+const NoAuthRoute = ({ redirectWhenAuth, ...props }) => {
   const { isLogged, isLoginInProgress, isLoading } = useAuth()
   const isAuthenticated = isLogged && !isLoginInProgress && !isLoading
 
-  return isAuthenticated ? <Redirect to='/dashboard' /> : <Route exact {...props}/>
+  return isAuthenticated ? <Redirect to={redirectWhenAuth} /> : <Route exact {...props}/>
+}
+
+NoAuthRoute.propTypes = {
+  redirectWhenAuth: PropTypes.string
 }
 
 export default NoAuthRoute

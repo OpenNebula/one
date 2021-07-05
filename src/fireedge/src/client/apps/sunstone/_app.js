@@ -16,18 +16,23 @@
 import * as React from 'react'
 
 import Router from 'client/router'
-import routes from 'client/apps/sunstone/routes'
+import { ENDPOINTS, PATH, getEndpointsByView } from 'client/apps/sunstone/routes'
+import { ENDPOINTS as ONE_ENDPOINTS } from 'client/apps/sunstone/routesOne'
+import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
 import { useGeneralApi } from 'client/features/General'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 
+import Sidebar from 'client/components/Sidebar'
+import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'
 import { _APPS } from 'client/constants'
+import { isDevelopment } from 'client/utils'
 
 const APP_NAME = _APPS.sunstone.name
 
 const SunstoneApp = () => {
-  const { isLogged, jwt, firstRender } = useAuth()
+  const { isLogged, jwt, firstRender, view, views } = useAuth()
   const { getAuthUser, logout, getSunstoneViews } = useAuthApi()
   const { changeTitle } = useGeneralApi()
 
@@ -37,7 +42,7 @@ const SunstoneApp = () => {
         if (jwt) {
           changeTitle(APP_NAME)
           getAuthUser()
-          getSunstoneViews()
+          await getSunstoneViews()
         }
       } catch {
         logout()
@@ -45,11 +50,27 @@ const SunstoneApp = () => {
     })()
   }, [jwt])
 
+  const endpoints = React.useMemo(() => [
+    ...ENDPOINTS,
+    ...(view ? getEndpointsByView(views?.[view], ONE_ENDPOINTS) : []),
+    ...(isDevelopment() ? DEV_ENDPOINTS : [])
+  ], [view])
+
   if (jwt && firstRender) {
     return <LoadingScreen />
   }
 
-  return <Router isLogged={isLogged} routes={routes} />
+  return (
+    <>
+      {isLogged && (
+        <>
+          <Sidebar endpoints={endpoints} />
+          <Notifier />
+        </>
+      )}
+      <Router redirectWhenAuth={PATH.DASHBOARD} endpoints={endpoints} />
+    </>
+  )
 }
 
 SunstoneApp.displayName = '_SunstoneApp'

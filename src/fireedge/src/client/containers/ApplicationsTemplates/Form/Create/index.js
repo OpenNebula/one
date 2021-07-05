@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers'
 import FormStepper from 'client/components/FormStepper'
 import Steps from 'client/containers/ApplicationsTemplates/Form/Create/Steps'
 
-import { PATH } from 'client/apps/sunstone/routes-flow'
+import { PATH } from 'client/apps/sunstone/routesFlow'
 import { useFetch } from 'client/hooks'
 import { useApplicationTemplateApi } from 'client/features/One'
 import { parseApplicationToForm, parseFormToApplication } from 'client/utils'

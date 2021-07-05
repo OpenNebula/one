@@ -20,80 +20,57 @@ import { Redirect, Route, Switch } from 'react-router-dom'
 import { TransitionGroup } from 'react-transition-group'
 import { LinearProgress } from '@material-ui/core'
 
-import devRoutes from 'client/router/dev'
-import commonRoutes from 'client/router/common'
+import {
+  PATH as COMMON_PATH,
+  ENDPOINTS as COMMON_ENDPOINTS
+} from 'client/router/common'
 
 import { ProtectedRoute, NoAuthRoute } from 'client/components/Route'
 import { InternalLayout } from 'client/components/HOC'
-import Sidebar from 'client/components/Sidebar'
-import Notifier from 'client/components/Notifier'
-import { isDevelopment } from 'client/utils'
 
-const Router = ({ isLogged, routes }) => {
-  const ENDPOINTS = React.useMemo(() => [
-    ...routes.ENDPOINTS,
-    ...(isDevelopment() ? devRoutes.ENDPOINTS : [])
-  ], [])
+const renderRoute = ({ Component, ...rest }, index) => (
+  <ProtectedRoute key={index} exact {...rest}>
+    <InternalLayout>
+      <Component fallback={<LinearProgress color='secondary' />} />
+    </InternalLayout>
+  </ProtectedRoute>
+)
 
-  const renderRoute = React.useCallback(
-    ({ Component, ...rest }, index) => (
-      <ProtectedRoute key={index} exact {...rest}>
-        <InternalLayout>
-          <Component fallback={<LinearProgress color='secondary' />} />
-        </InternalLayout>
-      </ProtectedRoute>
-    ), [])
-
-  return (
-    <>
-      {isLogged && (
-        <>
-          <Sidebar endpoints={ENDPOINTS} />
-          <Notifier />
-        </>
+const Router = ({ redirectWhenAuth, endpoints }) => (
+  <TransitionGroup>
+    <Switch>
+      {endpoints?.map(({ routes: subRoutes, ...rest }, index) =>
+        Array.isArray(subRoutes)
+          ? subRoutes?.map(renderRoute)
+          : renderRoute(rest, index)
       )}
-      <TransitionGroup>
-        <Switch>
-          {ENDPOINTS?.map(({ routes: subRoutes, ...rest }, index) =>
-            Array.isArray(subRoutes)
-              ? subRoutes?.map(renderRoute)
-              : renderRoute(rest, index)
-          )}
-          {commonRoutes.ENDPOINTS?.map(({ Component, ...rest }, index) =>
-            <NoAuthRoute key={index} exact {...rest}>
-              <Component />
-            </NoAuthRoute>
-          )}
-          <Route component={() => <Redirect to={commonRoutes.PATH.LOGIN} />} />
-        </Switch>
-      </TransitionGroup>
-    </>
+      {COMMON_ENDPOINTS?.map(({ Component, ...rest }, index) =>
+        <NoAuthRoute key={index} exact redirectWhenAuth={redirectWhenAuth} {...rest}>
+          <Component />
+        </NoAuthRoute>
+      )}
+      <Route component={() => <Redirect to={COMMON_PATH.LOGIN} />} />
+    </Switch>
+  </TransitionGroup>
+)
+
+Router.propTypes = {
+  redirectWhenAuth: PropTypes.string,
+  endpoints: PropTypes.arrayOf(
+    PropTypes.shape({
+      Component: PropTypes.object,
+      icon: PropTypes.object,
+      label: PropTypes.string.isRequired,
+      path: PropTypes.string,
+      sidebar: PropTypes.bool,
+      routes: PropTypes.array
+    })
   )
 }
 
-Router.propTypes = {
-  isLogged: PropTypes.bool,
-  routes: PropTypes.shape({
-    PATH: PropTypes.object,
-    ENDPOINTS: PropTypes.arrayOf(
-      PropTypes.shape({
-        Component: PropTypes.object,
-        icon: PropTypes.object,
-        label: PropTypes.string.isRequired,
-        path: PropTypes.string,
-        sidebar: PropTypes.bool,
-        routes: PropTypes.array
-      })
-    )
-  })
-}
-
 Router.defaultProps = {
-  isLogged: false,
-  routes: {
-    PATH: {},
-    ENDPOINTS: []
-  }
+  redirectWhenAuth: '/dashboard',
+  endpoints: []
 }
 
 Router.displayName = 'Router'

@@ -11,7 +11,7 @@ import headerStyles from 'client/components/Header/styles'
 
 const View = () => {
   const classes = headerStyles()
-  const { view, views } = useAuth()
+  const { view, views = {} } = useAuth()
   const { changeView } = useAuthApi()
 
   const handleChangeView = newView => {

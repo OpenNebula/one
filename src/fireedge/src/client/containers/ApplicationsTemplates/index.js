@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Container, Box } from '@material-ui/core'
 
-import { PATH } from 'client/apps/sunstone/routes-flow'
+import { PATH } from 'client/apps/sunstone/routesFlow'
 import { useFetch } from 'client/hooks'
 import { useApplicationTemplate, useApplicationTemplateApi } from 'client/features/One'
 

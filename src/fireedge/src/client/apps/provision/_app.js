@@ -16,14 +16,18 @@
 import * as React from 'react'
 
 import Router from 'client/router'
-import routes from 'client/apps/provision/routes'
+import { ENDPOINTS, PATH } from 'client/apps/provision/routes'
+import { ENDPOINTS as DEV_ENDPOINTS } from 'client/router/dev'
 
 import { useGeneralApi } from 'client/features/General'
 import { useAuth, useAuthApi } from 'client/features/Auth'
 import { useProvisionTemplate, useProvisionApi } from 'client/features/One'
 
+import Sidebar from 'client/components/Sidebar'
+import Notifier from 'client/components/Notifier'
 import LoadingScreen from 'client/components/LoadingScreen'
 import { _APPS } from 'client/constants'
+import { isDevelopment } from 'client/utils'
 
 const APP_NAME = _APPS.provision.name
 
@@ -49,11 +53,26 @@ const ProvisionApp = () => {
     })()
   }, [jwt])
 
+  const endpoints = React.useMemo(() => [
+    ...ENDPOINTS,
+    ...(isDevelopment() ? DEV_ENDPOINTS : [])
+  ], [])
+
   if (jwt && firstRender) {
     return <LoadingScreen />
   }
 
-  return <Router isLogged={isLogged} routes={routes} />
+  return (
+    <>
+      {isLogged && (
+        <>
+          <Sidebar endpoints={endpoints} />
+          <Notifier />
+        </>
+      )}
+      <Router redirectWhenAuth={PATH.DASHBOARD} endpoints={endpoints} />
+    </>
+  )
 }
 
 ProvisionApp.displayName = '_ProvisionApp'

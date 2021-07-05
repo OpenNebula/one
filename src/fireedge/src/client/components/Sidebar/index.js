@@ -13,7 +13,7 @@
 /* limitations under the License.                                             */
 /* -------------------------------------------------------------------------- */
 
-import React, { useMemo, memo } from 'react'
+import React, { useMemo } from 'react'
 import PropTypes from 'prop-types'
 
 import clsx from 'clsx'
@@ -33,7 +33,7 @@ import SidebarLink from 'client/components/Sidebar/SidebarLink'
 import SidebarCollapseItem from 'client/components/Sidebar/SidebarCollapseItem'
 import Logo from 'client/icons/logo'
 
-const Sidebar = memo(({ endpoints }) => {
+const Sidebar = ({ endpoints }) => {
   const classes = sidebarStyles()
   const isUpLg = useMediaQuery(theme => theme.breakpoints.up('lg'), { noSsr: true })
 
@@ -43,17 +43,16 @@ const Sidebar = memo(({ endpoints }) => {
   const handleSwapMenu = () => fixMenu(!isFixMenu)
 
   const SidebarEndpoints = useMemo(
-    () =>
-      endpoints
-        ?.filter(({ sidebar = false }) => sidebar)
-        ?.map((endpoint, index) =>
-          endpoint.routes ? (
-            <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
-          ) : (
-            <SidebarLink key={`item-${index}`} {...endpoint} />
-          )
-        ),
-    []
+    () => endpoints
+      ?.filter(({ sidebar = false }) => sidebar)
+      ?.map((endpoint, index) =>
+        endpoint.routes ? (
+          <SidebarCollapseItem key={`item-${index}`} {...endpoint} />
+        ) : (
+          <SidebarLink key={`item-${index}`} {...endpoint} />
+        )
+      ),
+    [endpoints]
   )
 
   return (
@@ -87,7 +86,7 @@ const Sidebar = memo(({ endpoints }) => {
       </Box>
     </Drawer>
   )
-}, (prev, next) => prev.endpoints.length === next.endpoints.length)
+}
 
 Sidebar.propTypes = {
   endpoints: PropTypes.array
