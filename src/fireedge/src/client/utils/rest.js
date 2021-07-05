@@ -4,16 +4,18 @@ import { httpCodes } from 'server/utils/constants'
 import { messageTerminal } from 'server/utils/general'
 
 import { findStorageData, isDevelopment } from 'client/utils'
-import { JWT_NAME, APP_URL } from 'client/constants'
+import { T, JWT_NAME, APP_URL } from 'client/constants'
 
 const http = axios.create({ baseURL: APP_URL })
 
-http.interceptors.request.use((config) => {
+http.interceptors.request.use(config => {
   const token = findStorageData(JWT_NAME)
   token && (config.headers.Authorization = `Bearer ${token}`)
 
   return {
     ...config,
+    timeout: 45_000,
+    timeoutErrorMessage: T.Timeout,
     withCredentials: true,
     validateStatus: status =>
       Object.values(httpCodes).some(({ id }) => id === status)
@@ -40,10 +42,7 @@ http.interceptors.response.use(
 
     return Promise.reject(response)
   },
-  error => {
-    console.log('error interceptor', error)
-    return error
-  }
+  error => error
 )
 
 export const RestClient = {
