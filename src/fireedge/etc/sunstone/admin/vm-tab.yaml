@@ -91,47 +91,69 @@ info-tabs:
     enabled: true
     information_panel:
       enabled: true
-
     permissions_panel:
       enabled: true
-
     ownership_panel:
       enabled: true
-
     vcenter_information_panel:
       enabled: true
       parent: USER_TEMPLATE
       prefix: VCENTER_
-
     lxc_information_panel:
       enabled: true
-
     general_attributes_panel:
       enabled: true
       parent: USER_TEMPLATE
-
     monitor_panel:
       enabled: true
       parent: MONITORING
 
   capacity:
     enabled: true
+    actions:
+      resize_capacity: true
+
   storage:
     enabled: true
+    parent: DISK
+    actions:
+      attach_disk: true
+      detach_disk: true
+      snapshot_disk_create: true
+      snapshot_disk_revert: true
+      snapshot_disk_delete: true
+      resize_disk: true
+
   network:
     enabled: true
+    parent: NIC
+    actions:
+      attach_nic: true
+      detach_nic: true
+
   snapshot:
     enabled: true
-    parent: SNAPSHO....
+    parent: SNAPSHOT
+    actions:
+      snapshot_create: true
+      snapshot_revert: true
+      snapshot_delete: true
+
   placement:
     enabled: true
+
   sched_actions:
     enabled: true
     parent: SCHED_ACTIONS
+    actions:
+      sched_action_create: true
+      sched_action_delete: true
+      charter_create: true
+
   configuration:
     enabled: true
-  log:
-    enabled: true
+    actions:
+      update_configuration: true
 
 # Dialogs
 
