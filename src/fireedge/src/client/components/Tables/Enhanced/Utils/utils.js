@@ -1,10 +1,6 @@
 import { CategoryFilter } from 'client/components/Tables/Enhanced/Utils'
 
-export const createColumns = ({ view, resource, columns }) => {
-  const filters = view
-    ?.find(({ resource_name: name }) => name === resource)
-    ?.filters ?? {}
-
+export const createColumns = ({ filters = {}, columns = [] }) => {
   if (Object.keys(filters).length === 0) return columns
 
   return columns.map(column => {

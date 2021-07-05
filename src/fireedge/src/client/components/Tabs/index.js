@@ -36,7 +36,7 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
         />
       )}
     </MTabs>
-  ), [tabSelected])
+  ), [tabs.length, tabSelected])
 
   const renderAllHiddenTabContents = useMemo(() =>
     tabs.map((tabProps, idx) => {

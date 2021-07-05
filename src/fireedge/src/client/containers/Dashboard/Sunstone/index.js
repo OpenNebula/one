@@ -5,7 +5,7 @@ import { Container, Box, Grid } from '@material-ui/core'
 
 import { useAuth } from 'client/features/Auth'
 import { useFetchAll } from 'client/hooks'
-import { useVmApi, useUserApi, useImageApi, useVNetworkApi } from 'client/features/One'
+import { useUserApi, useImageApi, useVNetworkApi } from 'client/features/One'
 
 import * as Widgets from 'client/components/Widgets'
 import dashboardStyles from 'client/containers/Dashboard/Provision/styles'
@@ -14,7 +14,6 @@ function Dashboard () {
   const { status, fetchRequestAll, STATUS } = useFetchAll()
   const { INIT, PENDING } = STATUS
 
-  const { getVms } = useVmApi()
   const { getUsers } = useUserApi()
   const { getImages } = useImageApi()
   const { getVNetworks } = useVNetworkApi()
@@ -26,7 +25,6 @@ function Dashboard () {
 
   React.useEffect(() => {
     fetchRequestAll([
-      getVms(),
       getUsers(),
       getImages(),
       getVNetworks()
