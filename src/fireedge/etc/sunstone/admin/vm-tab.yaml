@@ -25,10 +25,6 @@ resource_name: "VM"
 
 actions:
   create_dialog: true
-  rename: true
-  chown: true
-  chgrp: true
-  chmod: true
   deploy: true
   migrate: true
   migrate_live: true
@@ -48,20 +44,6 @@ actions:
   undeploy_hard: true
   terminate: true
   terminate_hard: true
-  resize: true
-  disk_resize: true
-  attachdisk: true # agrupar
-  detachdisk: true
-  disk_saveas: true
-  attachnic: true
-  detachnic: true
-  snapshot_create: true # agrupar
-  snapshot_revert: true
-  snapshot_delete: true
-  disk_snapshot_create: true  # agrupar
-  disk_snapshot_revert: true
-  disk_snapshot_rename: true
-  disk_snapshot_delete: true
   resched: true
   unresched: true
   save_as_template: true
@@ -87,14 +69,22 @@ filters:
 # Info Tabs - Which info tabs are used to show extended information
 
 info-tabs:
+
   info:
     enabled: true
     information_panel:
       enabled: true
+      actions:
+        rename: true
     permissions_panel:
       enabled: true
+      actions:
+        chmod: true
     ownership_panel:
       enabled: true
+      actions:
+        chown: true
+        chgrp: true
     vcenter_information_panel:
       enabled: true
       parent: USER_TEMPLATE
@@ -123,6 +113,7 @@ info-tabs:
       snapshot_disk_revert: true
       snapshot_disk_delete: true
       resize_disk: true
+      disk_saveas: true
 
   network:
     enabled: true
