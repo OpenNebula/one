@@ -16,18 +16,18 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const SECGROUP_ALLOCATE = 'secgroup.allocate';
-const SECGROUP_CLONE = 'secgroup.clone';
-const SECGROUP_DELETE = 'secgroup.delete';
-const SECGROUP_UPDATE = 'secgroup.update';
-const SECGROUP_COMMIT = 'secgroup.commit';
-const SECGROUP_CHMOD = 'secgroup.chmod';
-const SECGROUP_CHOWN = 'secgroup.chown';
-const SECGROUP_RENAME = 'secgroup.rename';
-const SECGROUP_INFO = 'secgroup.info';
-const SECGROUP_POOL_INFO = 'secgrouppool.info';
+const SECGROUP_ALLOCATE = 'secgroup.allocate'
+const SECGROUP_CLONE = 'secgroup.clone'
+const SECGROUP_DELETE = 'secgroup.delete'
+const SECGROUP_UPDATE = 'secgroup.update'
+const SECGROUP_COMMIT = 'secgroup.commit'
+const SECGROUP_CHMOD = 'secgroup.chmod'
+const SECGROUP_CHOWN = 'secgroup.chown'
+const SECGROUP_RENAME = 'secgroup.rename'
+const SECGROUP_INFO = 'secgroup.info'
+const SECGROUP_POOL_INFO = 'secgrouppool.info'
 
 const Actions = {
   SECGROUP_ALLOCATE,
@@ -40,7 +40,7 @@ const Actions = {
   SECGROUP_RENAME,
   SECGROUP_INFO,
   SECGROUP_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -119,39 +119,39 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_use: {
+        ownerUse: {
           from: postBody,
           default: -1
         },
-        user_manage: {
+        ownerManage: {
           from: postBody,
           default: -1
         },
-        user_admin: {
+        ownerAdmin: {
           from: postBody,
           default: -1
         },
-        group_use: {
+        groupUse: {
           from: postBody,
           default: -1
         },
-        group_manage: {
+        groupManage: {
           from: postBody,
           default: -1
         },
-        group_admin: {
+        groupAdmin: {
           from: postBody,
           default: -1
         },
-        other_use: {
+        otherUse: {
           from: postBody,
           default: -1
         },
-        other_manage: {
+        otherManage: {
           from: postBody,
           default: -1
         },
-        other_admin: {
+        otherAdmin: {
           from: postBody,
           default: -1
         }
@@ -222,4 +222,4 @@ module.exports = {
       }
     }
   }
-};
+}

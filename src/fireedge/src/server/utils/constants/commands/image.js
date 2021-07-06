@@ -16,25 +16,25 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const IMAGE_ALLOCATE = 'image.allocate';
-const IMAGE_CLONE = 'image.clone';
-const IMAGE_DELETE = 'image.delete';
-const IMAGE_ENABLE = 'image.enable';
-const IMAGE_PERSISTENT = 'image.persistent';
-const IMAGE_CHTYPE = 'image.chtype';
-const IMAGE_UPDATE = 'image.update';
-const IMAGE_CHMOD = 'image.chmod';
-const IMAGE_CHOWN = 'image.chown';
-const IMAGE_RENAME = 'image.rename';
-const IMAGE_SNAPDEL = 'image.snapshotdelete';
-const IMAGE_SNAPREV = 'image.snapshotrevert';
-const IMAGE_SNAPFLAT = 'image.snapshotflatten';
-const IMAGE_INFO = 'image.info';
-const IMAGE_LOCK = 'image.lock';
-const IMAGE_UNLOCK = 'image.unlock';
-const IMAGE_POOL_INFO = 'imagepool.info';
+const IMAGE_ALLOCATE = 'image.allocate'
+const IMAGE_CLONE = 'image.clone'
+const IMAGE_DELETE = 'image.delete'
+const IMAGE_ENABLE = 'image.enable'
+const IMAGE_PERSISTENT = 'image.persistent'
+const IMAGE_CHTYPE = 'image.chtype'
+const IMAGE_UPDATE = 'image.update'
+const IMAGE_CHMOD = 'image.chmod'
+const IMAGE_CHOWN = 'image.chown'
+const IMAGE_RENAME = 'image.rename'
+const IMAGE_SNAPDEL = 'image.snapshotdelete'
+const IMAGE_SNAPREV = 'image.snapshotrevert'
+const IMAGE_SNAPFLAT = 'image.snapshotflatten'
+const IMAGE_INFO = 'image.info'
+const IMAGE_LOCK = 'image.lock'
+const IMAGE_UNLOCK = 'image.unlock'
+const IMAGE_POOL_INFO = 'imagepool.info'
 
 const Actions = {
   IMAGE_ALLOCATE,
@@ -54,7 +54,7 @@ const Actions = {
   IMAGE_LOCK,
   IMAGE_UNLOCK,
   IMAGE_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -173,39 +173,39 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_use: {
+        ownerUse: {
           from: postBody,
           default: -1
         },
-        user_manage: {
+        ownerManage: {
           from: postBody,
           default: -1
         },
-        user_admin: {
+        ownerAdmin: {
           from: postBody,
           default: -1
         },
-        group_use: {
+        groupUse: {
           from: postBody,
           default: -1
         },
-        group_manage: {
+        groupManage: {
           from: postBody,
           default: -1
         },
-        group_admin: {
+        groupAdmin: {
           from: postBody,
           default: -1
         },
-        other_use: {
+        otherUse: {
           from: postBody,
           default: -1
         },
-        other_manage: {
+        otherManage: {
           from: postBody,
           default: -1
         },
-        other_admin: {
+        otherAdmin: {
           from: postBody,
           default: -1
         }
@@ -342,4 +342,4 @@ module.exports = {
       }
     }
   }
-};
+}

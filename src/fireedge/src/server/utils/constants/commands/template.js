@@ -16,20 +16,20 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const TEMPLATE_ALLOCATE = 'template.allocate';
-const TEMPLATE_CLONE = 'template.clone';
-const TEMPLATE_DELETE = 'template.delete';
-const TEMPLATE_INSTANTIATE = 'template.instantiate';
-const TEMPLATE_UPDATE = 'template.update';
-const TEMPLATE_CHMOD = 'template.chmod';
-const TEMPLATE_CHOWN = 'template.chown';
-const TEMPLATE_RENAME = 'template.rename';
-const TEMPLATE_LOCK = 'template.lock';
-const TEMPLATE_UNLOCK = 'template.unlock';
-const TEMPLATE_INFO = 'template.info';
-const TEMPLATE_POOL_INFO = 'templatepool.info';
+const TEMPLATE_ALLOCATE = 'template.allocate'
+const TEMPLATE_CLONE = 'template.clone'
+const TEMPLATE_DELETE = 'template.delete'
+const TEMPLATE_INSTANTIATE = 'template.instantiate'
+const TEMPLATE_UPDATE = 'template.update'
+const TEMPLATE_CHMOD = 'template.chmod'
+const TEMPLATE_CHOWN = 'template.chown'
+const TEMPLATE_RENAME = 'template.rename'
+const TEMPLATE_LOCK = 'template.lock'
+const TEMPLATE_UNLOCK = 'template.unlock'
+const TEMPLATE_INFO = 'template.info'
+const TEMPLATE_POOL_INFO = 'templatepool.info'
 
 const Actions = {
   TEMPLATE_ALLOCATE,
@@ -44,7 +44,7 @@ const Actions = {
   TEMPLATE_UNLOCK,
   TEMPLATE_INFO,
   TEMPLATE_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -143,39 +143,39 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_use: {
+        ownerUse: {
           from: postBody,
           default: -1
         },
-        user_manage: {
+        ownerManage: {
           from: postBody,
           default: -1
         },
-        user_admin: {
+        ownerAdmin: {
           from: postBody,
           default: -1
         },
-        group_use: {
+        groupUse: {
           from: postBody,
           default: -1
         },
-        group_manage: {
+        groupManage: {
           from: postBody,
           default: -1
         },
-        group_admin: {
+        groupAdmin: {
           from: postBody,
           default: -1
         },
-        other_use: {
+        otherUse: {
           from: postBody,
           default: -1
         },
-        other_manage: {
+        otherManage: {
           from: postBody,
           default: -1
         },
-        other_admin: {
+        otherAdmin: {
           from: postBody,
           default: -1
         },
@@ -193,11 +193,11 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_id: {
+        userId: {
           from: postBody,
           default: -1
         },
-        group_id: {
+        groupId: {
           from: postBody,
           default: -1
         }
@@ -278,4 +278,4 @@ module.exports = {
       }
     }
   }
-};
+}

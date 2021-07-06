@@ -35,12 +35,12 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
       {...transitionProps}
     >
       <Box
-        component="form"
+        component='form'
         onSubmit={handleSubmit(onSubmit)}
         className={clsx(classes.form, { [classes.loading]: isLoading })}
       >
         <FormProvider {...methods}>
-          <FormWithSchema cy="login" fields={fields} />
+          <FormWithSchema cy='login' fields={fields} />
         </FormProvider>
         <Box>
           {onBack && (
@@ -50,7 +50,7 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
           )}
           <SubmitButton
             color='secondary'
-            data-cy="login-button"
+            data-cy='login-button'
             isSubmitting={isLoading}
             label={onBack ? Tr(T.Next) : Tr(T.SignIn)}
             className={classes.submit}

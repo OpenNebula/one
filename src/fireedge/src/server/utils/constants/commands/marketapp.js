@@ -16,19 +16,19 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const MARKETAPP_ALLOCATE = 'marketapp.allocate';
-const MARKETAPP_DELETE = 'marketapp.delete';
-const MARKETAPP_UPDATE = 'marketapp.update';
-const MARKETAPP_ENABLE = 'marketapp.enable';
-const MARKETAPP_CHMOD = 'marketapp.chmod';
-const MARKETAPP_CHOWN = 'marketapp.chown';
-const MARKETAPP_RENAME = 'marketapp.rename';
-const MARKETAPP_INFO = 'marketapp.info';
-const MARKETAPP_LOCK = 'marketapp.lock';
-const MARKETAPP_UNLOCK = 'marketapp.unlock';
-const MARKETAPP_POOL_INFO = 'marketapppool.info';
+const MARKETAPP_ALLOCATE = 'marketapp.allocate'
+const MARKETAPP_DELETE = 'marketapp.delete'
+const MARKETAPP_UPDATE = 'marketapp.update'
+const MARKETAPP_ENABLE = 'marketapp.enable'
+const MARKETAPP_CHMOD = 'marketapp.chmod'
+const MARKETAPP_CHOWN = 'marketapp.chown'
+const MARKETAPP_RENAME = 'marketapp.rename'
+const MARKETAPP_INFO = 'marketapp.info'
+const MARKETAPP_LOCK = 'marketapp.lock'
+const MARKETAPP_UNLOCK = 'marketapp.unlock'
+const MARKETAPP_POOL_INFO = 'marketapppool.info'
 
 const Actions = {
   MARKETAPP_ALLOCATE,
@@ -42,7 +42,7 @@ const Actions = {
   MARKETAPP_LOCK,
   MARKETAPP_UNLOCK,
   MARKETAPP_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -111,39 +111,39 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_use: {
+        ownerUse: {
           from: postBody,
           default: -1
         },
-        user_manage: {
+        ownerManage: {
           from: postBody,
           default: -1
         },
-        user_admin: {
+        ownerAdmin: {
           from: postBody,
           default: -1
         },
-        group_use: {
+        groupUse: {
           from: postBody,
           default: -1
         },
-        group_manage: {
+        groupManage: {
           from: postBody,
           default: -1
         },
-        group_admin: {
+        groupAdmin: {
           from: postBody,
           default: -1
         },
-        other_use: {
+        otherUse: {
           from: postBody,
           default: -1
         },
-        other_manage: {
+        otherManage: {
           from: postBody,
           default: -1
         },
-        other_admin: {
+        otherAdmin: {
           from: postBody,
           default: -1
         }
@@ -157,11 +157,11 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_id: {
+        userId: {
           from: postBody,
           default: -1
         },
-        group_id: {
+        groupId: {
           from: postBody,
           default: -1
         }
@@ -234,4 +234,4 @@ module.exports = {
       }
     }
   }
-};
+}

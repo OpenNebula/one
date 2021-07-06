@@ -16,16 +16,16 @@
 const {
   from: { resource, postBody, query },
   httpMethod: { GET, POST, PUT, DELETE }
-} = require('../defaults');
+} = require('../defaults')
 
-const MARKET_ALLOCATE = 'market.allocate';
-const MARKET_DELETE = 'market.delete';
-const MARKET_UPDATE = 'market.update';
-const MARKET_CHMOD = 'market.chmod';
-const MARKET_CHOWN = 'market.chown';
-const MARKET_RENAME = 'market.rename';
-const MARKET_INFO = 'market.info';
-const MARKET_POOL_INFO = 'marketpool.info';
+const MARKET_ALLOCATE = 'market.allocate'
+const MARKET_DELETE = 'market.delete'
+const MARKET_UPDATE = 'market.update'
+const MARKET_CHMOD = 'market.chmod'
+const MARKET_CHOWN = 'market.chown'
+const MARKET_RENAME = 'market.rename'
+const MARKET_INFO = 'market.info'
+const MARKET_POOL_INFO = 'marketpool.info'
 
 const Actions = {
   MARKET_ALLOCATE,
@@ -36,7 +36,7 @@ const Actions = {
   MARKET_RENAME,
   MARKET_INFO,
   MARKET_POOL_INFO
-};
+}
 
 module.exports = {
   Actions,
@@ -87,39 +87,39 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_use: {
+        ownerUse: {
           from: postBody,
           default: -1
         },
-        user_manage: {
+        ownerManage: {
           from: postBody,
           default: -1
         },
-        user_admin: {
+        ownerAdmin: {
           from: postBody,
           default: -1
         },
-        group_use: {
+        groupUse: {
           from: postBody,
           default: -1
         },
-        group_manage: {
+        groupManage: {
           from: postBody,
           default: -1
         },
-        group_admin: {
+        groupAdmin: {
           from: postBody,
           default: -1
         },
-        other_use: {
+        otherUse: {
           from: postBody,
           default: -1
         },
-        other_manage: {
+        otherManage: {
           from: postBody,
           default: -1
         },
-        other_admin: {
+        otherAdmin: {
           from: postBody,
           default: -1
         }
@@ -133,11 +133,11 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_id: {
+        userId: {
           from: postBody,
           default: -1
         },
-        group_id: {
+        groupId: {
           from: postBody,
           default: -1
         }
@@ -177,4 +177,4 @@ module.exports = {
       params: {}
     }
   }
-};
+}

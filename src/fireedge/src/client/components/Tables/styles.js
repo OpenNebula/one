@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core'
 
 export const rowStyles = makeStyles(
-  ({ palette, typography, breakpoints, shadows }) => ({
+  ({ palette, typography, breakpoints }) => ({
     main: {
       flex: 'auto',
       overflow: 'hidden'
