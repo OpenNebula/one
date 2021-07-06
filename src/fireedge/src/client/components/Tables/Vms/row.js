@@ -53,7 +53,11 @@ const Row = ({ original, value, ...props }) => {
         </div>
       </div>
       <div className={classes.secondary}>
-        {!!IPS?.length && <Multiple tags={IPS.split(',')} />}
+        {!!IPS?.length && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'end' }}>
+            <Multiple tags={IPS.split(',')} />
+          </div>
+        )}
       </div>
     </div>
   )

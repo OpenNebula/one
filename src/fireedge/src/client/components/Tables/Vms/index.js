@@ -16,14 +16,10 @@ const INTERVAL_ON_FIRST_RENDER = 2_000
 const VmsTable = () => {
   const vms = useVm()
   const { getVms } = useVmApi()
-  const { view, views, filterPool } = useAuth()
-
-  const viewSelected = React.useMemo(() => views[view], [view])
-
-  const resourceView = viewSelected?.find(({ resource_name: name }) => name === 'VM')
+  const { view, getResourceView, filterPool } = useAuth()
 
   const columns = React.useMemo(() => createColumns({
-    filters: resourceView?.filters,
+    filters: getResourceView('VM')?.filters,
     columns: VmColumns
   }), [view])
 
@@ -63,7 +59,7 @@ const VmsTable = () => {
       isLoading={loading || reloading}
       getRowId={row => String(row.ID)}
       RowComponent={VmRow}
-      renderDetail={row => <VmDetail id={row.ID} view={resourceView} />}
+      renderDetail={row => <VmDetail id={row.ID} />}
     />
   )
 }

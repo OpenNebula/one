@@ -43,6 +43,13 @@ export const addOpacityToColor = (color, opacity) => {
 export const capitalize = ([firstLetter, ...restOfWord]) =>
   firstLetter.toUpperCase() + restOfWord.join('')
 
+export const stringToCamelCase = s => s.replace(
+  /([-_\s][a-z])/ig,
+  $1 => $1.toUpperCase().replace(/[-_\s]/g, '')
+)
+
+export const stringToCamelSpace = s => s.replace(/([a-z])([A-Z])/g, '$1 $2')
+
 export const getValidationFromFields = fields =>
   fields.reduce(
     (schema, field) => ({

@@ -15,7 +15,7 @@ export const getVms = createAction(
 )
 
 export const terminateVm = createAction(
-  'provider/delete',
+  'vm/delete',
   payload => vmService.actionVm({
     ...payload,
     action: {
@@ -24,3 +24,5 @@ export const terminateVm = createAction(
     }
   })
 )
+
+export const changePermissions = createAction('vm/chmod', vmService.changePermissions)

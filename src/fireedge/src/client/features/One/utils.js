@@ -23,7 +23,7 @@ export const createAction = (type, service, wrapResult) =>
 
       status === httpCodes.unauthorized.id && dispatch(logout(T.SessionExpired))
 
-      return rejectWithValue(message, data?.message ?? statusText)
+      return rejectWithValue(message ?? data?.data ?? data?.message ?? statusText)
     }
   }, {
     condition: (_, { getState }) => !getState().one.requests[type]

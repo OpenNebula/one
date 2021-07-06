@@ -9,7 +9,7 @@ export const useAuth = () => {
   const auth = useSelector(state => state.auth, shallowEqual)
   const groups = useSelector(state => state.one.groups, shallowEqual)
 
-  const { user, jwt } = auth
+  const { user, jwt, view, views } = auth
 
   const userGroups = [user?.GROUPS?.ID]
     .flat()
@@ -18,7 +18,10 @@ export const useAuth = () => {
 
   const isLogged = !!jwt && !!userGroups?.length
 
-  return { ...auth, groups: userGroups, isLogged }
+  const getResourceView = resourceName => views?.[view]
+    ?.find(({ resource_name: name }) => name === resourceName)
+
+  return { ...auth, groups: userGroups, isLogged, getResourceView }
 }
 
 export const useAuthApi = () => {

@@ -18,3 +18,23 @@ export const levelLockToString = level => ({
   3: 'Admin',
   4: 'All'
 }[level] || '-')
+
+export const permissionsToOctal = permissions => {
+  const {
+    OWNER_U, OWNER_M, OWNER_A,
+    GROUP_U, GROUP_M, GROUP_A,
+    OTHER_U, OTHER_M, OTHER_A
+  } = permissions
+
+  const getCategoryValue = ([u, m, a]) => (
+    (stringToBoolean(u) ? 4 : 0) +
+    (stringToBoolean(m) ? 2 : 0) +
+    (stringToBoolean(a) ? 1 : 0)
+  )
+
+  return [
+    [OWNER_U, OWNER_M, OWNER_A],
+    [GROUP_U, GROUP_M, GROUP_A],
+    [OTHER_U, OTHER_M, OTHER_A]
+  ].map(getCategoryValue).join('')
+}

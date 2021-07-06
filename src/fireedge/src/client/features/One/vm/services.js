@@ -22,17 +22,30 @@ export const vmService = ({
     const command = { name, ...Commands[name] }
     return poolRequest(data, command, 'VM')
   },
-  actionVm: async ({ action, id }) => {
+  actionVm: async ({ id, action }) => {
     const name = Actions.VM_ACTION
     const { url, options } = requestParams(
-      { action, id },
+      { id, action },
       { name, ...Commands[name] }
     )
 
-    const res = await RestClient.put(url, options)
+    const res = await RestClient.put(url, options?.data)
 
     if (!res?.id || res?.id !== httpCodes.ok.id) throw res
 
     return res?.data?.VM ?? {}
+  },
+  changePermissions: async ({ id, data }) => {
+    const name = Actions.VM_CHMOD
+    const { url, options } = requestParams(
+      { id, ...data },
+      { name, ...Commands[name] }
+    )
+
+    const res = await RestClient.put(url, options?.data)
+
+    if (!res?.id || res?.id !== httpCodes.ok.id) throw res?.data
+
+    return res
   }
 })

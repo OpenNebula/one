@@ -7,7 +7,7 @@ import { useVmApi } from 'client/features/One'
 
 import VmTabs from 'client/components/Tabs/Vm'
 
-const VmDetail = React.memo(({ id, view = {} }) => {
+const VmDetail = React.memo(({ id }) => {
   const { getHooksSocket } = useSocket()
   const { getVm } = useVmApi()
 
@@ -27,21 +27,14 @@ const VmDetail = React.memo(({ id, view = {} }) => {
   }
 
   if (error) {
-    return <div>{error}</div>
+    return <div>{error || 'Error'}</div>
   }
 
-  const tabs = Object.entries(view['info-tabs'] ?? {})
-    ?.map(([tabName, { enabled } = {}]) => !!enabled && tabName)
-    ?.filter(Boolean)
-
-  return (
-    <VmTabs data={data} tabs={tabs} view={view} />
-  )
+  return <VmTabs data={data} />
 })
 
 VmDetail.propTypes = {
-  id: PropTypes.string.isRequired,
-  view: PropTypes.object.isRequired
+  id: PropTypes.string.isRequired
 }
 
 VmDetail.displayName = 'VmDetail'

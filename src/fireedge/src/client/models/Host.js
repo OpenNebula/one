@@ -7,12 +7,14 @@ export const getAllocatedInfo = ({ HOST_SHARE = {} } = {}) => {
   const { CPU_USAGE, TOTAL_CPU, MEM_USAGE, TOTAL_MEM } = HOST_SHARE
 
   const percentCpuUsed = +CPU_USAGE * 100 / +TOTAL_CPU || 0
-  const percentCpuLabel = `${CPU_USAGE} / ${TOTAL_CPU} (${Math.round(percentCpuUsed)}%)`
+  const percentCpuLabel = `${CPU_USAGE} / ${TOTAL_CPU} 
+    (${Math.round(isFinite(percentCpuUsed) ? percentCpuUsed : '--')}%)`
 
   const percentMemUsed = +MEM_USAGE * 100 / +TOTAL_MEM || 0
   const usedMemBytes = prettyBytes(+MEM_USAGE)
   const totalMemBytes = prettyBytes(+TOTAL_MEM)
-  const percentMemLabel = `${usedMemBytes} / ${totalMemBytes} (${Math.round(percentMemUsed)}%)`
+  const percentMemLabel = `${usedMemBytes} / ${totalMemBytes} 
+      (${Math.round(isFinite(percentMemUsed) ? percentMemUsed : '--')}%)`
 
   return {
     percentCpuUsed,

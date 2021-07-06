@@ -155,7 +155,7 @@ module.exports = {
           from: postBody,
           default: 0
         },
-        livemigration: {
+        liveMigration: {
           from: postBody,
           default: false
         },
@@ -357,39 +357,39 @@ module.exports = {
           from: resource,
           default: 0
         },
-        user_use: {
+        ownerUse: {
           from: postBody,
           default: -1
         },
-        user_manage: {
+        ownerManage: {
           from: postBody,
           default: -1
         },
-        user_admin: {
+        ownerAdmin: {
           from: postBody,
           default: -1
         },
-        group_use: {
+        groupUse: {
           from: postBody,
           default: -1
         },
-        group_manage: {
+        groupManage: {
           from: postBody,
           default: -1
         },
-        group_admin: {
+        groupAdmin: {
           from: postBody,
           default: -1
         },
-        other_use: {
+        otherUse: {
           from: postBody,
           default: -1
         },
-        other_manage: {
+        otherManage: {
           from: postBody,
           default: -1
         },
-        other_admin: {
+        otherAdmin: {
           from: postBody,
           default: -1
         }
@@ -601,7 +601,7 @@ module.exports = {
           from: query,
           default: -2
         },
-        filterbykey: {
+        filterByKey: {
           from: query,
           default: ''
         }
@@ -669,19 +669,19 @@ module.exports = {
           from: query,
           default: -2
         },
-        start_month: {
+        startMonth: {
           filter: query,
           default: -1
         },
-        start_year: {
+        startYear: {
           filter: query,
           default: -1
         },
-        end_month: {
+        endMonth: {
           filter: query,
           default: -1
         },
-        end_year: {
+        endYear: {
           filter: query,
           default: -1
         }
@@ -691,19 +691,19 @@ module.exports = {
       // inspected
       httpMethod: GET,
       params: {
-        start_month: {
+        startMonth: {
           filter: query,
           default: -1
         },
-        start_year: {
+        startYear: {
           filter: query,
           default: -1
         },
-        end_month: {
+        endMonth: {
           filter: query,
           default: -1
         },
-        end_year: {
+        endYear: {
           filter: query,
           default: -1
         }

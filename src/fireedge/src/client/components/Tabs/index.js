@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import { Tabs as MTabs, Tab as MTab } from '@material-ui/core'
 
-const Content = ({ name, renderContent: Content, hidden }) => (
+const Content = ({ name, renderContent: Content, hidden, data }) => (
   <div key={`tab-${name}`}
     style={{
       padding: 2,
@@ -12,17 +12,17 @@ const Content = ({ name, renderContent: Content, hidden }) => (
       display: hidden ? 'none' : 'block'
     }}
   >
-    {typeof Content === 'function' ? <Content /> : Content}
+    {typeof Content === 'function' ? <Content {...data} /> : Content}
   </div>
 )
 
-const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
+const Tabs = ({ tabs = [], renderHiddenTabs = false, data }) => {
   const [tabSelected, setTab] = useState(0)
 
   const renderTabs = useMemo(() => (
     <MTabs
       value={tabSelected}
-      variant="scrollable"
+      variant='scrollable'
       scrollButtons='auto'
       onChange={(_, tab) => setTab(tab)}
     >
@@ -52,7 +52,7 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
       {renderHiddenTabs ? (
         renderAllHiddenTabContents
       ) : (
-        <Content {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)} />
+        <Content data={data} {...tabs.find(({ value }, idx) => (value ?? idx) === tabSelected)} />
       )}
     </>
   )
@@ -61,13 +61,20 @@ const Tabs = ({ tabs = [], renderHiddenTabs = false }) => {
 Tabs.displayName = 'Tabs'
 Content.displayName = 'Content'
 
+Tabs.propTypes = {
+  tabs: PropTypes.array,
+  renderHiddenTabs: PropTypes.bool,
+  data: PropTypes.object
+}
+
 Content.propTypes = {
   name: PropTypes.string,
   renderContent: PropTypes.oneOfType([
     PropTypes.object,
     PropTypes.func
   ]),
-  hidden: PropTypes.bool
+  hidden: PropTypes.bool,
+  data: PropTypes.object
 }
 
 export default Tabs

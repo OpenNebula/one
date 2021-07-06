@@ -145,11 +145,19 @@ module.exports = {
   Information: 'Information',
 
   /* general schema */
+  ID: 'ID',
   Name: 'Name',
   State: 'State',
   Description: 'Description',
   RegistrationTime: 'Registration time',
   StartTime: 'Start time',
+  EndTime: 'End time',
+  Locked: 'Locked',
+
+  /* instances schema */
+  IP: 'IP',
+  Reschedule: 'Reschedule',
+  DeployID: 'Deploy ID',
 
   /* flow schema */
   Strategy: 'Strategy',
