@@ -24,6 +24,7 @@ module Packet
 
       def update_attributes(attributes = {})
         attributes.each_pair do |attribute, value|
+          next if value.nil?
           setter = "#{attribute}="
           send(setter, _cast_value(attribute, value)) if respond_to?(setter)
         end
