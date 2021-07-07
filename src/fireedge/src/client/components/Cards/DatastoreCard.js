@@ -51,7 +51,7 @@ const DatastoreCard = memo(
             <Typography title={NAME} noWrap component='span'>
               {NAME}
             </Typography>
-            <StatusChip stateColor={'#c6c6c6'} text={type.name} />
+            <StatusChip text={type.name} />
           </span>
         }
         subheader={`#${ID}`}

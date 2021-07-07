@@ -35,7 +35,7 @@ const Row = ({ original, value, ...props }) => {
           </Typography>
           {LOCK && <Lock size={20} />}
           <span className={classes.labels}>
-            <StatusChip stateColor={'#c6c6c6'} text={TYPE} />
+            <StatusChip text={TYPE} />
           </span>
         </div>
         <div className={classes.caption}>
@@ -58,8 +58,8 @@ const Row = ({ original, value, ...props }) => {
       </div>
       <div className={classes.secondary}>
         <span className={classes.labels}>
-          <StatusChip stateColor={'#c6c6c6'} text={`Zone ${ZONE_ID}`} />
-          <StatusChip stateColor={'#c6c6c6'} text={prettyBytes(+SIZE, 'MB')} />
+          <StatusChip text={`Zone ${ZONE_ID}`} />
+          <StatusChip text={prettyBytes(+SIZE, 'MB')} />
         </span>
       </div>
     </div>

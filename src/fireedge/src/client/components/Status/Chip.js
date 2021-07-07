@@ -6,9 +6,10 @@ import { addOpacityToColor } from 'client/utils'
 
 const useStyles = makeStyles(theme => {
   const getBackgroundColor = theme.palette.type === 'dark' ? lighten : darken
+  const defaultStateColor = theme.palette.grey[theme.palette.type === 'dark' ? 300 : 700]
 
   return {
-    root: ({ stateColor = theme.palette.primary.main }) => ({
+    root: ({ stateColor = defaultStateColor }) => ({
       color: getBackgroundColor(stateColor, 0.75),
       backgroundColor: addOpacityToColor(stateColor, 0.2),
       cursor: 'default',
@@ -21,11 +22,11 @@ const useStyles = makeStyles(theme => {
   }
 })
 
-const StatusChip = memo(({ stateColor, text }) => {
+const StatusChip = memo(({ stateColor, text = '', ...props }) => {
   const classes = useStyles({ stateColor })
 
   return (
-    <Typography component="span" className={classes.root}>
+    <Typography component='span' className={classes.root} {...props}>
       {text}
     </Typography>
   )
@@ -38,11 +39,6 @@ const StatusChip = memo(({ stateColor, text }) => {
 StatusChip.propTypes = {
   stateColor: PropTypes.string,
   text: PropTypes.string
-}
-
-StatusChip.defaultProps = {
-  stateColor: undefined,
-  text: ''
 }
 
 StatusChip.displayName = 'StatusChip'

@@ -54,7 +54,7 @@ const HostCard = memo(
             <Typography title={NAME} noWrap component='span'>
               {NAME}
             </Typography>
-            <StatusChip stateColor={'#c6c6c6'} text={mad} />
+            <StatusChip text={mad} />
           </span>
         }
         subheader={`#${ID}`}

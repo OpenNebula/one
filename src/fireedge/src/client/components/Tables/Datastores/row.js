@@ -29,7 +29,7 @@ const Row = ({ original, value, ...props }) => {
           </Typography>
           <span className={classes.labels}>
             {LOCK && <Lock size={20} />}
-            <StatusChip stateColor={'#c6c6c6'} text={TYPE?.name} />
+            <StatusChip text={TYPE?.name} />
           </span>
         </div>
         <div className={classes.caption}>

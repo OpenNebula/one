@@ -13,7 +13,7 @@ const Multiple = ({ tags, limitTags = 1 }) => {
   const more = tags.length - limitTags
 
   const Tags = tags.splice(0, limitTags).map(tag => (
-    <StatusChip key={tag} text={tag} stateColor='#ececec' />
+    <StatusChip key={tag} text={tag} />
   ))
 
   return (

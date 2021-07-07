@@ -28,7 +28,7 @@ const Row = ({ original, value, ...props }) => {
             {NAME}
           </Typography>
           <span className={classes.labels}>
-            <StatusChip stateColor={'#c6c6c6'} text={MARKET_MAD} />
+            <StatusChip text={MARKET_MAD} />
           </span>
         </div>
         <div className={classes.caption}>

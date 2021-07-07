@@ -25,7 +25,7 @@ const Row = ({ original, value, ...props }) => {
           </Typography>
           <span className={classes.labels}>
             {LOCK && <Lock size={20} />}
-            {VROUTER && <StatusChip stateColor={'#c6c6c6'} text={VROUTER} />}
+            {VROUTER && <StatusChip text={VROUTER} />}
           </span>
         </div>
         <div className={classes.caption}>

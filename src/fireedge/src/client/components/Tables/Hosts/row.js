@@ -39,7 +39,7 @@ const Row = ({ original, value, ...props }) => {
           </Typography>
           <span className={classes.labels}>
             {labels.map(label => (
-              <StatusChip key={label} stateColor={'#c6c6c6'} text={label} />
+              <StatusChip key={label} text={label} />
             ))}
           </span>
         </div>
