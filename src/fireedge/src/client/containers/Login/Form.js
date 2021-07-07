@@ -42,7 +42,7 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
         <FormProvider {...methods}>
           <FormWithSchema cy='login' fields={fields} />
         </FormProvider>
-        <Box>
+        <Box display='flex' my={2}>
           {onBack && (
             <Button onClick={onBack} disabled={isLoading}>
               {Tr(T.Back)}
@@ -53,7 +53,6 @@ const Form = ({ onBack, onSubmit, resolver, fields, error, isLoading, transition
             data-cy='login-button'
             isSubmitting={isLoading}
             label={onBack ? Tr(T.Next) : Tr(T.SignIn)}
-            className={classes.submit}
           />
         </Box>
       </Box>

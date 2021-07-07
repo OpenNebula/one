@@ -48,8 +48,5 @@ export default makeStyles(theme => ({
   },
   helper: {
     animation: '1s ease-out 0s 1'
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2)
   }
 }))
