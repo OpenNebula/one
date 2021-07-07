@@ -12,7 +12,7 @@ const Action = memo(({ handleClick, icon, cy, ...props }) => {
   return (
     <SubmitButton
       data-cy={cy}
-      icon
+      icon={!!icon}
       isSubmitting={loading}
       label={icon}
       onClick={fetchRequest}

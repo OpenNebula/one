@@ -411,3 +411,78 @@ export const VM_LCM_STATES = [
     meaning: ''
   }
 ]
+
+export const VM_ACTIONS = {
+  CREATE_DIALOG: 'create_dialog',
+  DEPLOY: 'deploy',
+  MIGRATE: 'migrate',
+  MIGRATE_LIVE: 'migrate_live',
+  MIGRATE_POFF: 'migrate_poff',
+  MIGRATE_POFF_HARD: 'migrate_poff_hard',
+  HOLD: 'hold',
+  RELEASE: 'release',
+  SUSPEND: 'suspend',
+  RESUME: 'resume',
+  STOP: 'stop',
+  RECOVER: 'recover',
+  REBOOT: 'reboot',
+  REBOOT_HARD: 'reboot_hard',
+  POWEROFF: 'poweroff',
+  POWEROFF_HARD: 'poweroff_hard',
+  UNDEPLOY: 'undeploy',
+  UNDEPLOY_HARD: 'undeploy_hard',
+  TERMINATE: 'terminate',
+  TERMINATE_HARD: 'terminate_hard',
+  RESCHED: 'resched',
+  UNRESCHED: 'unresched',
+  SAVE_AS_TEMPLATE: 'save_as_template',
+  LOCK: 'lockU',
+  UNLOCK: 'unlock',
+  STAR_TVNC: 'startvnc',
+  STAR_TVMRC: 'startvmrc',
+  STAR_TSPICE: 'startspice',
+  VNC: 'vnc',
+  SSH: 'ssh',
+  RDP: 'rdp',
+  SAVE_RDP: 'save_rdp',
+  SAVE_VIRT_VIEWER: 'save_virt_viewer',
+
+  // INFORMATION
+  RENAME: 'rename',
+
+  // PERMISSION
+  CHMOD: 'chmod',
+
+  // OWNERSHIP
+  CHOWN: 'chown',
+  CHANGE_GROUP: 'chgrp',
+
+  // CAPACITY
+  RESIZE_CAPACITY: 'resize_capacity',
+
+  // STORAGE
+  ATTACH_DISK: 'attach_disk',
+  DETACH_DISK: 'detach_disk',
+  SNAPSHOT_DISK_CREATE: 'snapshot_disk_create',
+  SNAPSHOT_DISK_REVERT: 'snapshot_disk_revert',
+  SNAPSHOT_DISK_DELETE: 'snapshot_disk_delete',
+  RESIZE_DISK: 'resize_disk',
+  DISK_SAVEAS: 'disk_saveas',
+
+  // NETWORK
+  ATTACH_NIC: 'attach_nic',
+  DETACH_NIC: 'detach_nic',
+
+  // SNAPSHOT
+  SNAPSHOT_CREATE: 'snapshot_create',
+  SNAPSHOT_REVERT: 'snapshot_revert',
+  SNAPSHOT_DELETE: 'snapshot_delete',
+
+  // SCHEDULING ACTION
+  SCHED_ACTION_CREATE: 'sched_action_create',
+  SCHED_ACTION_DELETE: 'sched_action_delete',
+  CHARTER_CREATE: 'charter_create',
+
+  // CONFIGURATION
+  UPDATE_CONF: 'update_configuration'
+}

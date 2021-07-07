@@ -1,15 +1,15 @@
 import * as React from 'react'
 
 import { StatusChip } from 'client/components/Status'
-import { List, Permissions, Ownership } from 'client/components/Tabs/Common'
+import { List } from 'client/components/Tabs/Common'
 import Multiple from 'client/components/Tables/Vms/multiple'
 
 import * as VirtualMachine from 'client/models/VirtualMachine'
 import * as Helper from 'client/models/Helper'
 import { T } from 'client/constants'
 
-const VmInfoTab = data => {
-  const { ID, NAME, UNAME, GNAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID, PERMISSIONS } = data
+const InformationPanel = data => {
+  const { ID, NAME, RESCHED, STIME, ETIME, LOCK, DEPLOY_ID } = data
 
   const { name: stateName, color: stateColor } = VirtualMachine.getState(data)
 
@@ -19,60 +19,51 @@ const VmInfoTab = data => {
   const ips = VirtualMachine.getIps(data)
 
   const info = [
-    { key: [T.ID], value: ID },
-    { key: [T.Name], value: NAME },
+    { key: T.ID, value: ID },
+    { key: T.Name, value: NAME },
     {
-      key: [T.State],
+      key: T.State,
       value: <StatusChip text={stateName} stateColor={stateColor} />
     },
     {
-      key: [T.Reschedule],
+      key: T.Reschedule,
       value: Helper.booleanToString(+RESCHED)
     },
     {
-      key: [T.Locked],
+      key: T.Locked,
       value: Helper.levelLockToString(LOCK?.LOCKED)
     },
     {
-      key: [T.IP],
+      key: T.IP,
       value: ips?.length ? <Multiple tags={ips} /> : '--'
     },
     {
-      key: [T.StartTime],
+      key: T.StartTime,
       value: Helper.timeToString(STIME)
     },
     {
-      key: [T.EndTime],
+      key: T.EndTime,
       value: Helper.timeToString(ETIME)
     },
     {
-      key: [T.Host],
+      key: T.Host,
       value: hostId ? `#${hostId} ${hostname}` : ''
     },
     {
-      key: [T.Cluster],
+      key: T.Cluster,
       value: clusterId ? `#${clusterId} ${clusterName}` : ''
     },
     {
-      key: [T.DeployID],
+      key: T.DeployID,
       value: DEPLOY_ID
     }
   ]
 
   return (
-    <div style={{
-      display: 'grid',
-      gap: '1em',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-      padding: '1em'
-    }}>
-      <List title={T.Information} list={info} style={{ gridRow: 'span 3' }} />
-      <Permissions id={ID} {...PERMISSIONS} />
-      <Ownership userName={UNAME} groupName={GNAME} />
-    </div>
+    <List title={T.Information} list={info} style={{ gridRow: 'span 3' }} />
   )
 }
 
-VmInfoTab.displayName = 'VmInfoTab'
+InformationPanel.displayName = 'InformationPanel'
 
-export default VmInfoTab
+export default InformationPanel

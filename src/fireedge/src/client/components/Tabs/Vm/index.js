@@ -1,21 +1,20 @@
 import * as React from 'react'
 import PropTypes from 'prop-types'
-import loadable from '@loadable/component'
 
 import { useAuth } from 'client/features/Auth'
 
 import Tabs from 'client/components/Tabs'
 import { stringToCamelCase, stringToCamelSpace } from 'client/utils'
 
-const Capacity = loadable(() => import('client/components/Tabs/Vm/capacity'))
-const Configuration = loadable(() => import('client/components/Tabs/Vm/configuration'))
-const Info = loadable(() => import('client/components/Tabs/Vm/info'))
-const Log = loadable(() => import('client/components/Tabs/Vm/log'))
-const Network = loadable(() => import('client/components/Tabs/Vm/network'))
-const Placement = loadable(() => import('client/components/Tabs/Vm/placement'))
-const SchedActions = loadable(() => import('client/components/Tabs/Vm/schedActions'))
-const Snapshot = loadable(() => import('client/components/Tabs/Vm/snapshot'))
-const Storage = loadable(() => import('client/components/Tabs/Vm/storage'))
+import Capacity from 'client/components/Tabs/Vm/Capacity'
+import Configuration from 'client/components/Tabs/Vm/Configuration'
+import Info from 'client/components/Tabs/Vm/Info'
+import Log from 'client/components/Tabs/Vm/Log'
+import Network from 'client/components/Tabs/Vm/Network'
+import Placement from 'client/components/Tabs/Vm/Placement'
+import SchedActions from 'client/components/Tabs/Vm/SchedActions'
+import Snapshot from 'client/components/Tabs/Vm/Snapshot'
+import Storage from 'client/components/Tabs/Vm/Storage'
 
 const loadTab = tabName => ({
   capacity: Capacity,
@@ -36,19 +35,18 @@ const VmTabs = ({ data }) => {
   React.useEffect(() => {
     const infoTabs = getResourceView('VM')?.['info-tabs'] ?? {}
 
-    const tabs = Object.entries(infoTabs)
-      ?.map(([tabName, { enabled } = {}]) => !!enabled && tabName)
-      ?.filter(Boolean)
+    setTabs(() => Object.entries(infoTabs)
+      ?.filter(([_, { enabled } = {}]) => !!enabled)
+      ?.map(([tabName, tabProps]) => {
+        const nameSanitize = stringToCamelCase(tabName)
+        const TabContent = loadTab(nameSanitize)
 
-    setTabs(() => tabs.map(tabName => {
-      const nameSanitize = stringToCamelCase(tabName)
-      const TabContent = loadTab(nameSanitize)
-
-      return TabContent && {
-        name: stringToCamelSpace(nameSanitize),
-        renderContent: props => TabContent.render({ ...props })
-      }
-    }).filter(Boolean))
+        return TabContent && {
+          name: stringToCamelSpace(nameSanitize),
+          renderContent: props => TabContent({ ...props, tabProps })
+        }
+      })
+      ?.filter(Boolean))
   }, [view])
 
   return <Tabs tabs={tabsAvailable} data={data} />

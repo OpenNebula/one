@@ -1,7 +1,21 @@
 import { makeStyles } from '@material-ui/core'
 
 export const rowStyles = makeStyles(
-  ({ palette, typography, breakpoints }) => ({
+  ({ palette, typography, breakpoints, shadows }) => ({
+    root: {
+      padding: '0.8em',
+      color: palette.text.primary,
+      backgroundColor: palette.background.paper,
+      fontWeight: typography.fontWeightMedium,
+      fontSize: '1em',
+      borderRadius: 6,
+      display: 'flex',
+      gap: 8,
+      boxShadow: shadows[1],
+      [breakpoints.down('md')]: {
+        flexWrap: 'wrap'
+      }
+    },
     main: {
       flex: 'auto',
       overflow: 'hidden'
@@ -38,6 +52,10 @@ export const rowStyles = makeStyles(
         flexShrink: 0,
         whiteSpace: 'nowrap'
       }
+    },
+    actions: {
+      flexShrink: 0
     }
   })
+
 )

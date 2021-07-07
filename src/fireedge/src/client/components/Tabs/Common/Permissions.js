@@ -19,7 +19,6 @@ const CATEGORIES = [
 
 const useStyles = makeStyles(theme => ({
   list: {
-    ...theme.typography.body2,
     '& > * > *': {
       width: '25%'
     }
@@ -69,9 +68,11 @@ const Permissions = React.memo(({
           <Typography noWrap>{Tr(T.Admin)}</Typography>
         </ListItem>
         {CATEGORIES.map(({ title, category }) => (
-          <ListItem key={category}>
+          <ListItem key={category} className={classes.item} dense>
             {/* TITLE */}
-            <Typography noWrap>{Tr(title)}</Typography>
+            <Typography variant='body2' noWrap title={title}>
+              {Tr(title)}
+            </Typography>
 
             {/* PERMISSIONS */}
             {Object.entries(permissions)
@@ -81,7 +82,9 @@ const Permissions = React.memo(({
                   <Action
                     cy={`permission-${key}`}
                     disabled={permission === undefined}
-                    icon={+permission ? <CheckIcon /> : <BlankSquareIcon />}
+                    icon={
+                      +permission ? <CheckIcon size={18} /> : <BlankSquareIcon size={18} />
+                    }
                     handleClick={() => handleChange(key, permission)}
                   />
                 </span>

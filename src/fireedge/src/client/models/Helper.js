@@ -38,3 +38,19 @@ export const permissionsToOctal = permissions => {
     [OTHER_U, OTHER_M, OTHER_A]
   ].map(getCategoryValue).join('')
 }
+
+/**
+ * @param {Object} actions Actions from view yaml
+ * @param {String} [hypervisor] Resource hypervisor
+ * @returns {String[]} List of actions available for the resource
+ */
+export const getActionsAvailable = (actions = {}, hypervisor = '') =>
+  Object.entries(actions)
+    .filter(([_, action]) => {
+      if (typeof action === 'boolean') return !!action
+
+      const { enabled = false, not_on: notOn = [] } = action || {}
+
+      return !!enabled && !notOn?.includes?.(hypervisor)
+    })
+    .map(([actionName, _]) => actionName)

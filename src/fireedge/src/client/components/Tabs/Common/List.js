@@ -6,15 +6,17 @@ import { makeStyles, List as MList, ListItem, Typography, Paper } from '@materia
 import { Tr } from 'client/components/HOC'
 
 const useStyles = makeStyles(theme => ({
-  list: {
-    ...theme.typography.body2,
-    '& > * > *': {
-      width: '50%'
-    }
-  },
   title: {
     fontWeight: theme.typography.fontWeightBold,
     borderBottom: `1px solid ${theme.palette.divider}`
+  },
+  item: {
+    '& > $typo': {
+      width: '50%'
+    }
+  },
+  typo: {
+    ...theme.typography.body2
   }
 }))
 
@@ -32,9 +34,17 @@ const List = ({ title, list = [], ...props }) => {
         )}
         {/* LIST */}
         {list.map(({ key, value }, idx) => (
-          <ListItem key={`${key}-${idx}`}>
-            <Typography noWrap title={key}>{Tr(key)}</Typography>
-            <Typography noWrap title={value}>{value}</Typography>
+          <ListItem key={`${key}-${idx}`} className={classes.item}>
+            <Typography className={classes.typo} noWrap title={key}>
+              {Tr(key)}
+            </Typography>
+            <Typography
+              noWrap
+              className={classes.typo}
+              title={typeof value === 'string' ? value : undefined}
+            >
+              {value}
+            </Typography>
           </ListItem>
         ))}
       </MList>
@@ -46,10 +56,7 @@ List.propTypes = {
   title: PropTypes.string,
   list: PropTypes.arrayOf(PropTypes.shape({
     key: PropTypes.string,
-    value: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.node
-    ])
+    value: PropTypes.any
   }))
 }
 

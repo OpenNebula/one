@@ -72,12 +72,17 @@ export const getState = ({ STATE, LCM_STATE } = {}) => {
  * @param {Object} vm Virtual machine
  * @returns {Array} List of disks from resource
  */
-export const getDisks = ({ TEMPLATE = {}, MONITORING = {}, ...vm } = {}) => {
-  const contextDisk = TEMPLATE.CONTEXT && !isVCenter(vm) && {
-    ...TEMPLATE.CONTEXT,
+export const getDisks = vm => {
+  const { TEMPLATE = {}, MONITORING = {} } = vm ?? {}
+
+  const { DISK, CONTEXT } = TEMPLATE
+  const { DISK_SIZE = [] } = MONITORING
+
+  const contextDisk = CONTEXT && !isVCenter(vm) && {
+    ...CONTEXT,
     IMAGE: 'CONTEXT',
+    IS_CONTEXT: true,
     DATASTORE: '-',
-    TYPE: '-',
     READONLY: '-',
     SAVE: '-',
     CLONE: '-',
@@ -87,11 +92,12 @@ export const getDisks = ({ TEMPLATE = {}, MONITORING = {}, ...vm } = {}) => {
   const addMonitoringData = disk => ({
     ...disk,
     // get monitoring data
-    MONITOR_SIZE: MONITORING.DISK_SIZE
+    MONITOR_SIZE: [DISK_SIZE ?? []]
+      ?.flat()
       ?.find(({ ID }) => ID === disk.DISK_ID)?.SIZE || '-'
   })
 
-  return [TEMPLATE.DISK, contextDisk]
+  return [DISK, contextDisk]
     .flat()
     .filter(Boolean)
     .map(addMonitoringData)
@@ -99,9 +105,13 @@ export const getDisks = ({ TEMPLATE = {}, MONITORING = {}, ...vm } = {}) => {
 
 /**
  * @param {Object} vm Virtual machine
+ * @param {Boolean} [options.groupAlias] Map ALIAS_IDS attribute with NIC_ALIAS
  * @returns {Array} List of nics from resource
  */
-export const getNics = ({ TEMPLATE = {}, MONITORING = {} } = {}) => {
+export const getNics = (vm, options = {}) => {
+  const { groupAlias = false } = options
+  const { TEMPLATE = {}, MONITORING = {} } = vm ?? {}
+
   const { NIC = [], NIC_ALIAS = [], PCI = [] } = TEMPLATE
   const { GUEST_IP, GUEST_IP_ADDRESSES = '' } = MONITORING
 
@@ -109,7 +119,14 @@ export const getNics = ({ TEMPLATE = {}, MONITORING = {} } = {}) => {
     .filter(Boolean)
     .map(ip => ({ NIC_ID: '-', IP: ip, NETWORK: 'Additional IP', BRIDGE: '-' }))
 
-  return [NIC, NIC_ALIAS, PCI, extraIps].flat().filter(Boolean)
+  const nics = [NIC, PCI, extraIps].flat().filter(Boolean)
+
+  return groupAlias
+    ? nics.map(({ ALIAS_IDS, ...nic }) => ({
+      ...nic,
+      ALIAS: NIC_ALIAS?.filter(({ NIC_ID }) => ALIAS_IDS?.includes(NIC_ID))
+    }))
+    : nics.concat(NIC_ALIAS)
 }
 
 /**
@@ -123,13 +140,12 @@ export const getIps = vm => {
 }
 
 /**
- * @type {{nics: Array, alias: Array}} Nics&Alias
- *
  * @param {Object} vm Virtual machine
- * @returns {Nics&Alias} Lists of nics and alias from resource
+ * @returns {{ nics: Array, alias: Array }} Lists of nics and alias from resource
  */
-export const splitNicAlias = vm => getNics(vm).reduce((result, nic) => {
-  result[nic?.PARENT !== undefined ? 'alias' : 'nics'].push(nic)
+export const splitNicAlias = vm =>
+  getNics(vm).reduce((result, nic) => {
+    result[nic?.PARENT !== undefined ? 'alias' : 'nics'].push(nic)
 
-  return result
-}, { nics: [], alias: [] })
+    return result
+  }, { nics: [], alias: [] })
