@@ -47,7 +47,6 @@ actions:
   resched: true
   unresched: true
   save_as_template: true
-  updateconf: true
   lockU: true
   unlock: true
   startvnc: true
@@ -105,26 +104,29 @@ info-tabs:
 
   storage:
     enabled: true
-    parent: DISK
     actions:
-      attach_disk: true
+      attach_disk:
+        enabled: true
+        not_on:
+          - firecracker
       detach_disk: true
       snapshot_disk_create: true
       snapshot_disk_revert: true
       snapshot_disk_delete: true
       resize_disk: true
-      disk_saveas: true
+      disk_saveas:
+        enabled: true
+        not_on:
+          - vcenter
 
   network:
     enabled: true
-    parent: NIC
     actions:
       attach_nic: true
       detach_nic: true
 
   snapshot:
     enabled: true
-    parent: SNAPSHOT
     actions:
       snapshot_create: true
       snapshot_revert: true
@@ -135,7 +137,6 @@ info-tabs:
 
   sched_actions:
     enabled: true
-    parent: SCHED_ACTIONS
     actions:
       sched_action_create: true
       sched_action_delete: true
